@@ -19,6 +19,8 @@ module.exports = async () => {
 				'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 				'error-reporting': './src/features/error-reporting/index.js',
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
+				'html-block-restricted-tags':
+					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',
 				'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
 				'jetpack-global-styles-customizer-fonts':
 					'./src/features/jetpack-global-styles/customizer-fonts/index.js',
@@ -89,7 +91,7 @@ module.exports = async () => {
 				...jetpackWebpackConfig.resolve,
 				alias: {
 					...jetpackWebpackConfig.resolve.alias,
-					/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
+					/** Replace the `classnames` used by `@automattic/newspack-blocks` with `clsx` because we changed to use `clsx` */
 					classnames: await findPackage( 'clsx' ),
 				},
 				fallback: {
@@ -112,6 +114,13 @@ module.exports = async () => {
 			module: {
 				strictExportPresence: true,
 				rules: [
+					// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
+					// https://github.com/WordPress/gutenberg/issues/73362
+					{
+						test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
+						resolve: { fullySpecified: false },
+					},
+
 					// Transpile JavaScript.
 					jetpackWebpackConfig.TranspileRule( {
 						exclude: /node_modules\//,

@@ -5,19 +5,18 @@ import { Card } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import IntegrationCardBody from './integration-card-body';
-import IntegrationCardHeader from './integration-card-header';
+import IntegrationCardBody from './integration-card-body.tsx';
+import IntegrationCardHeader from './integration-card-header.tsx';
 import './style.scss';
 /**
  * Types
  */
-import type { IntegrationCardData } from '../../../../../types';
+import type { IntegrationCardData } from '../../../../../types/index.ts';
 import type { ReactNode } from 'react';
 
 export type IntegrationCardProps = {
 	title: string;
 	description: string;
-	icon?: string | ReactNode;
 	isExpanded: boolean;
 	onToggle: () => void;
 	children?: ReactNode;
@@ -29,7 +28,6 @@ export type IntegrationCardProps = {
 const IntegrationCard = ( {
 	title,
 	description,
-	icon = 'admin-plugins', // Default to admin-plugins icon if none provided
 	isExpanded,
 	onToggle,
 	children,
@@ -47,7 +45,6 @@ const IntegrationCard = ( {
 			<IntegrationCardHeader
 				title={ title }
 				description={ description }
-				icon={ icon }
 				isExpanded={ isExpanded }
 				onToggle={ onToggle }
 				cardData={ cardData }

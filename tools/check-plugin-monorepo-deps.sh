@@ -99,7 +99,7 @@ for PLUGIN in "${PLUGINS[@]}"; do
 	[[ -n "$TMP" ]] || continue
 	while IFS=$'\t' read -r PKG LOCKVER EXPECTVER; do
 		if [[ "$WHAT" == "dev" ]]; then
-			if [[ "$LOCKVER" != "dev-trunk" ]]; then
+			if [[ "$LOCKVER" != "dev-trunk "* ]]; then
 				err "projects/plugins/$PLUGIN/composer.lock" "$PLUGIN: $PKG should be at dev-trunk, not $LOCKVER"
 			fi
 		else

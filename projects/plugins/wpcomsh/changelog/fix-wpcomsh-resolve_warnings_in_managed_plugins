@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Managed Plugins: Handle malformed data gracefully.

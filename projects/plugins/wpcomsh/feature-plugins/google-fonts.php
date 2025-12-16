@@ -54,6 +54,10 @@ add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_google_fonts_module_
  * @return string|array
  */
 function wpcomsh_google_fonts_proxy( $src ) {
+	// If an array, run the function on each item.
+	if ( is_array( $src ) ) {
+		return array_map( 'wpcomsh_google_fonts_proxy', $src );
+	}
 	$src = str_replace( 'fonts.googleapis.com', 'fonts-api.wp.com', $src );
 	$src = str_replace( 'fonts.gstatic.com', 'fonts.wp.com', $src );
 	return $src;

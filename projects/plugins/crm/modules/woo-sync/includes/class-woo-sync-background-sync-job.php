@@ -1276,34 +1276,31 @@ class Woo_Sync_Background_Sync_Job {
 
         // /=== Tax
 
-	    // ==== Contact
+		// ==== Contact
 
-	    // Always use contact email, not billing email:
-	    // We've hit issues based on adding a Jetpack CRM contact based on billing email if they have a WP user attached
-	    // with a different email. The $order_data['customer_id'] will = 0 for guest or +tive for users. This way we will always
-	    // store the contact against the contact email (and not the billing email)
-	    $contact_email = '';
-	    $billing_email = '';
+		// Always use contact email, not billing email:
+		// We've hit issues based on adding a Jetpack CRM contact based on billing email if they have a WP user attached
+		// with a different email. The $order_data['customer_id'] will = 0 for guest or +tive for users. This way we will always
+		// store the contact against the contact email (and not the billing email)
+		$contact_email = '';
+		$billing_email = '';
 
-	    if ( isset( $order_data['customer_id']) && $order_data['customer_id'] > 0 ) {
-				// then we have an existing user. Get the WP email
-				$user          = get_user_by( 'id', $order_data['customer_id'] );
+		if ( isset( $order_data['customer_id'] ) && $order_data['customer_id'] > 0 ) {
+			// then we have an existing user. Get the WP email
+				$user = get_user_by( 'id', $order_data['customer_id'] );
+			if ( $user ) {
 				$contact_email = $user->user_email;
-				if ( isset($order_data['billing']['email'] ) ) {
-					$billing_email = $order_data['billing']['email'];
-				}
+			}
+			if ( isset( $order_data['billing']['email'] ) ) {
+				$billing_email = $order_data['billing']['email'];
+			}
 
-				// pass WP ID to contact
-				$data['contact']['wpid'] = $order_data['customer_id'];
-
-	    } else {
-
-	        if ( isset( $order_data['billing']['email'] ) ) {
-	            $billing_email = $order_data['billing']['email'];
-	            $contact_email = $billing_email;
-	        }
-
-	    }
+			// pass WP ID to contact
+			$data['contact']['wpid'] = $order_data['customer_id'];
+		} elseif ( isset( $order_data['billing']['email'] ) ) {
+			$billing_email = $order_data['billing']['email'];
+			$contact_email = $billing_email;
+		}
 
 		// we only add a contact whom has an email
 		if ( !empty( $contact_email ) ) {

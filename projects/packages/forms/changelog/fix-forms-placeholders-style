@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed textarea placeholders to match input placeholder styling

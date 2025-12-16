@@ -241,7 +241,9 @@ function wpcomsh_bypass_jetpack_sso_login() {
 
 	if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
 		$connection_manager = new \Automattic\Jetpack\Connection\Manager( 'jetpack' );
-		$users              = get_users( array( 'fields' => array( 'ID' ) ) );
+
+		// Fetching an extra field to overcome the caching bug: https://core.trac.wordpress.org/ticket/62003
+		$users = get_users( array( 'fields' => array( 'ID', 'user_login' ) ) );
 		foreach ( $users as $user ) {
 			if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
 				return false;
@@ -531,7 +533,7 @@ function wpcom_hide_scan_threats_from_api( $response ) {
 	}
 
 	$json_body['threats']  = array();
-	$response_data['data'] = wp_json_encode( $json_body );
+	$response_data['data'] = wp_json_encode( $json_body, JSON_UNESCAPED_SLASHES );
 	$response->set_data( $response_data );
 
 	return $response;
@@ -611,7 +613,7 @@ function wpcomsh_footer_rum_js() {
 	$rum_kv['wptheme_is_block'] = wp_is_block_theme() ? '1' : '0';
 
 	if ( count( $rum_kv ) > 0 ) {
-		$rum_kv = wp_json_encode( $rum_kv, JSON_FORCE_OBJECT );
+		$rum_kv = wp_json_encode( $rum_kv, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
 		if ( is_string( $rum_kv ) ) {
 			$rum_kv = 'data-customproperties="' . esc_attr( $rum_kv ) . '"';
 		} else {

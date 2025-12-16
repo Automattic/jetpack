@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import JetpackField from '../shared/components/jetpack-field';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import JetpackField from '../shared/components/jetpack-field.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 
 export default function NumberFieldEdit( props ) {
 	useFormWrapper( props );

@@ -26,7 +26,8 @@ function register_login_button_block() {
 	Blocks::jetpack_register_block(
 		LOGIN_BUTTON_NAME,
 		array(
-			'render_callback' => __NAMESPACE__ . '\render_login_button_block',
+			'render_callback'       => __NAMESPACE__ . '\render_login_button_block',
+			'render_email_callback' => __NAMESPACE__ . '\render_login_button_block_email',
 		)
 	);
 }
@@ -106,4 +107,15 @@ function render_login_button_block( $attributes, $content ) {
 	$url          = get_subscriber_login_url( $redirect_url );
 
 	return preg_replace( '/(<a\b[^><]*)>/i', '$1 href="' . esc_url( $url ) . '">', $content );
+}
+
+/**
+ * Render email callback.
+ *
+ * @return string
+ */
+function render_login_button_block_email() {
+	// We don't want to render the login button in emails.
+	// The subscriber is already considered logged in in emails.
+	return '';
 }

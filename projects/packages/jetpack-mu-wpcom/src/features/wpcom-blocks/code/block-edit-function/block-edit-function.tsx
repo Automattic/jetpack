@@ -13,7 +13,7 @@ import { toBase64 } from '../common/base-64.ts';
 import { LanguageData } from './codemirror-language-data.ts';
 import * as languageUtils from './language-utils';
 import { WorkerAdmin } from './worker-admin.ts';
-import type { EditBlockProps } from '../common/block.ts';
+import type { Attributes, EditBlockProps } from '../common/block.ts';
 import type { LanguageSupport } from '@codemirror/language';
 import type { Extension } from '@codemirror/state';
 
@@ -23,6 +23,7 @@ const { createBlock, getDefaultBlockName } = window.wp.blocks;
 const { useDispatch, useSelect } = window.wp.data;
 const { __ } = window.wp.i18n;
 const { isKeyboardEvent, BACKSPACE: KEY_CODE_BACKSPACE } = window.wp.keycodes;
+const { RichTextData } = window.wp.richText;
 
 /**
  * The Edit function with CodeMirror available.
@@ -83,10 +84,10 @@ function EditCodeMirror( props: EditBlockProps ) {
 			changes: {
 				from: 0,
 				to: viewRef.current.state.doc.length,
-				insert: attributes.code,
+				insert: attributes.content.text,
 			},
 		} );
-	}, [ attributes.code, attributes.triggerCodeUpdate, setAttributes ] );
+	}, [ attributes.content, attributes.triggerCodeUpdate, setAttributes ] );
 
 	/**
 	 * Attempts to infer the language inside the code block.
@@ -145,7 +146,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 		( code: string ) => {
 			const tree = currentLanguageRef.current?.language.parser.parse( code ) ?? null;
 
-			let currentLine: Array< [ string, string ] | [ string ] > = [];
+			let currentLine: Array< Attributes[ 'tokenizedLines' ][ number ][ number ] > = [];
 			const lines: Array< typeof currentLine > = [];
 
 			if ( tree !== null ) {
@@ -177,7 +178,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 
 			guessLanguage( code );
 			setAttributes( {
-				code,
+				content: RichTextData.fromPlainText( code ),
 				tokenizedLines: lines,
 			} );
 		},
@@ -339,7 +340,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 			}
 
 			viewRef.current = new View.EditorView( {
-				doc: attributes.code,
+				doc: attributes.content?.text ?? '',
 				extensions: makeExtensions(),
 				parent: ref.current,
 			} );

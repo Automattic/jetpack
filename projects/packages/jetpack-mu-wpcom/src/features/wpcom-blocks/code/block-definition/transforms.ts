@@ -4,29 +4,23 @@ import { extensionToLang } from '@@codemirrorLanguageData@@';
 import * as wpBlocks from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { RichTextData } from '@wordpress/rich-text';
 import { type Attributes, BLOCK_NAME } from '../common/block.ts';
 
 const { createBlock }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 
 const CODE_FENCE_REGEXP = /^```([a-z0-9+-]*)$/i;
 
-export const transforms = {
-	to: [
-		{
-			type: 'block',
-			blocks: [ 'core/code' ],
-			transform: ( attrs: Attributes ) => {
-				const code = attrs.code;
-				const div = document.createElement( 'div' );
-				div.innerText = code;
-				const content = div.innerHTML;
-				return createBlock( 'core/code', { content } );
-			},
-		},
-	],
+interface SyntaxHighlighterCodeAttributes {
+	content?: string;
+	language?: string;
+	lineNumbers?: boolean;
+	firstLineNumber?: string;
+}
 
+export const transforms = {
 	from: [
-		// Handle GH-like code fence openers, e.g. ```js
+		// Handle code fence openers, e.g. ```js
 		{
 			type: 'enter',
 			priority: 5,
@@ -59,10 +53,13 @@ export const transforms = {
 
 		{
 			type: 'block',
-			blocks: [ 'core/code' ],
-			transform: ( { content }: { content: { text: string } } ) => {
-				return createBlock< Attributes >( BLOCK_NAME, {
-					code: content.text,
+			blocks: [ 'core/html' ],
+			priority: 5,
+			transform: ( { content: text }: { content: string } ) => {
+				return createBlock( 'core/code', {
+					content: RichTextData.fromPlainText( text ),
+					language: 'HTML',
+					languageConfidence: 'certain',
 				} );
 			},
 		},
@@ -81,7 +78,7 @@ export const transforms = {
 				language?: string;
 			} ) => {
 				const blockAttributes: Partial< Attributes > = {
-					code: code,
+					content: RichTextData.fromPlainText( code ),
 				};
 				if ( attributes.lineNumbers === true ) {
 					blockAttributes.showLineNumbers = true;
@@ -107,16 +104,9 @@ export const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'syntaxhighlighter/code' ],
-			transform: ( {
-				content = '',
-				...attributes
-			}: {
-				content?: string;
-				language?: string;
-				firstLineNumber?: string;
-			} ) => {
+			transform: ( { content = '', ...attributes }: SyntaxHighlighterCodeAttributes ) => {
 				const blockAttributes: Partial< Attributes > = {
-					code: content,
+					content: RichTextData.fromPlainText( content ),
 				};
 
 				/*
@@ -135,8 +125,12 @@ export const transforms = {
 					blockAttributes.languageConfidence = 'certain';
 				}
 
-				if ( attributes.firstLineNumber ) {
-					blockAttributes.lineNumbersStartAt = Number( attributes.firstLineNumber );
+				if ( attributes.lineNumbers !== false ) {
+					blockAttributes.showLineNumbers = true;
+
+					if ( attributes.firstLineNumber ) {
+						blockAttributes.lineNumbersStartAt = Number( attributes.firstLineNumber );
+					}
 				}
 
 				return createBlock< Attributes >( BLOCK_NAME, blockAttributes );
@@ -162,23 +156,83 @@ export const transforms = {
 				const [ file ] = files;
 				const language = getLanguageFromFile( file )!;
 
-				const block = createBlock< Attributes >( BLOCK_NAME, {
+				const reader = new FileReader();
+				reader.readAsText( file );
+
+				const blockAttributes: Partial< Attributes > = {
 					language,
 					languageConfidence: 'certain',
 					filename: file.name,
-				} );
+				};
 
-				const reader = new FileReader();
-				reader.addEventListener( 'load', event => {
-					const code = event.target?.result as string;
+				if ( reader.readyState === FileReader.DONE ) {
+					if ( ! reader.error ) {
+						blockAttributes.content = RichTextData.fromPlainText( reader.result as string );
+					}
+					return createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+				}
+
+				const block = createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+				reader.addEventListener( 'load', () => {
 					dispatch( editorStore ).updateBlockAttributes( [ block.clientId ], {
-						code,
+						content: RichTextData.fromPlainText( reader.result as string ),
 						triggerCodeUpdate: true,
 					} );
 				} );
-				reader.readAsText( file );
-
 				return block;
+			},
+		},
+
+		{
+			type: 'raw',
+			priority: 5,
+			isMatch: ( node: Node ) =>
+				node.nodeName === 'PRE' &&
+				( node as HTMLPreElement ).children.length === 1 &&
+				( node as HTMLPreElement ).firstChild!.nodeName === 'CODE',
+			transform: ( node: HTMLPreElement ) => {
+				// This structure was validated by the match already.
+				const codeElement = node.firstChild as HTMLElement;
+
+				const blockAttributes: Partial< Attributes > = {
+					content: RichTextData.fromPlainText( codeElement.textContent || '' ),
+				};
+
+				const detectedLanguage = externalLanguageToBlockLanguage(
+					codeElement.classList[ 0 ]?.substring( 'language-'.length )
+				);
+
+				if ( typeof detectedLanguage === 'string' ) {
+					blockAttributes.language = detectedLanguage;
+					blockAttributes.languageConfidence = 'certain';
+				}
+
+				return createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+			},
+			schema: {
+				pre: {
+					children: {
+						code: {
+							classes: [ /^language-/i ],
+							children: { '#text': {} },
+						},
+					},
+				},
+			},
+		},
+	],
+
+	to: [
+		{
+			type: 'block',
+			blocks: [ 'syntaxhighlighter/code' ],
+			transform: ( attributes: Attributes ) => {
+				const blockAttributes: SyntaxHighlighterCodeAttributes = {
+					content: attributes.content.toPlainText(),
+					lineNumbers: Boolean( attributes.showLineNumbers ),
+					firstLineNumber: String( attributes.lineNumbersStartAt || 1 ),
+				};
+				return createBlock( 'syntaxhighlighter/code', blockAttributes );
 			},
 		},
 	],

@@ -16,6 +16,8 @@ function maybe_do_not_concat( $do_concat, $handle ) {
 		'DEPAY_WC_WIDGETS',
 		// Plugin: `woocommerce-bookings`
 		'wc-bookings-booking-form',
+		// WooCommerce Analytics
+		'woocommerce-analytics-client',
 	);
 
 	if ( in_array( $handle, $excluded_handles, true ) ) {

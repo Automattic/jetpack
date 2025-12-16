@@ -20,7 +20,8 @@
 		"@playwright/test": "1.55.1",
 		"_jetpack-e2e-commons": "workspace:*",
 		"allure-playwright": "2.15.1",
-		"config": "3.3.12"
+		"config": "4.1.1",
+		"playwright-ctrf-json-reporter": "^0.0.26"
 	},
 	"ci": {
 		"targets": [

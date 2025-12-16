@@ -1,52 +1,47 @@
-.wp-block-a8c-code {
+/*
+ * Add base monospace styling.
+ *
+ * In the frontend this is be handled by the user agent styles
+ * because a PRE element is used.
+ * The editor does not use PRE, so a base style is provided.
+ */
+:root :where(.block-editor-block-list__block.wp-block-code) {
+	font-family: monospace;
+}
 
-	/* A notice is used to warn of experimental status. */
-	.components-notice {
-		margin-top: -10px;
+/*
+ * This includes a block-list class to target the block editor in cases
+ * where the editor styles may be loaded on the site frontend.
+ */
+.block-editor-block-list__block {
 
-		a {
+	&.wp-block-code {
 
-			&:not(:hover, :active, :focus) {
-				color: var(--wp-admin-theme-color, #3858e9);
-			}
+		/* Override CodeMirror's font family to respect theme and editor settings. */
+		.cm-scroller {
+			font-family: inherit;
+		}
+
+		.cm-gutters {
+			color: oklch(from currentColor l c h / 0.6);
+			background-color: transparent;
+			border: none;
+		}
+
+		.cm-gutterElement {
+			backdrop-filter: blur(1em);
+		}
+
+		/* Disable active line highlight on inactive blocks. */
+		&:not(.is-selected) .cm-activeLine {
+			background-color: transparent !important;
 		}
 	}
 
-	.components-base-control__field {
-		margin: 0;
-	}
-
-	.components-base-control,
-	.components-base-control__field,
-	.components-input-control__container > button,
-	.components-text-control__input {
+	.a8c\/code__btn-copy {
+		text-transform: inherit;
+		font-style: inherit;
+		font-weight: inherit;
 		font-size: inherit;
 	}
-
-	.components-text-control__input {
-		margin-left: -12px;
-		background-color: transparent;
-		color: inherit;
-		font-family: inherit;
-
-		&::placeholder {
-			color: hsl(from currentColor h s l / 0.6);
-		}
-	}
 }
-
-.a8c\/code__filename.components-base-control {
-	margin: -1px;
-}
-
-.a8c\/code__language-select {
-
-	button,
-	.components-input-control__container {
-		background-color: transparent;
-		color: inherit;
-	}
-}
-
-/* vi: ts=2 sw=2 noet
- */

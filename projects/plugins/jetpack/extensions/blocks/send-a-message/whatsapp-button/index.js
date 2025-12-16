@@ -1,4 +1,3 @@
-import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { __, _x } from '@wordpress/i18n';
 import attributes from './attributes';
 import deprecatedV1 from './deprecated/v1';
@@ -25,7 +24,6 @@ export const settings = {
 	),
 	icon: {
 		src: icon,
-		foreground: getIconColor(),
 	},
 	category: 'grow',
 	parent: [ 'jetpack/send-a-message' ],

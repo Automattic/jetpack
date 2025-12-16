@@ -1,10 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import { UNKNOWN_ERROR_MESSAGE } from '../constants';
-import { INVALIDATE_INTEGRATIONS } from './action-types';
-import { receiveIntegrations, setIntegrationsError, setIntegrationsLoading } from './actions';
-import type { IntegrationsAction } from './types';
-import type { Integration, IntegrationMetadata } from '../../types';
+import { UNKNOWN_ERROR_MESSAGE } from '../constants.ts';
+import { INVALIDATE_INTEGRATIONS } from './action-types.ts';
+import { receiveIntegrations, setIntegrationsError, setIntegrationsLoading } from './actions.ts';
+import type { IntegrationsAction } from './types.ts';
+import type { Integration, IntegrationMetadata } from '../../types/index.ts';
 
 let hasLoadedMeta = false;
 

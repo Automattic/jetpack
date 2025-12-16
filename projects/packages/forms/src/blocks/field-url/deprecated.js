@@ -1,4 +1,4 @@
-import INNER_BLOCKS_DEPRECATION from '../shared/deprecations/inner-blocks-deprecation';
+import INNER_BLOCKS_DEPRECATION from '../shared/deprecations/inner-blocks-deprecation.js';
 
 export default [
 	{

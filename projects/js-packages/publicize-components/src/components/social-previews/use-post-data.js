@@ -4,7 +4,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { usePostMeta } from '../../hooks/use-post-meta';
-import { getSigImageUrl } from '../generated-image-preview/utils';
+import { getSigImageUrl } from '../../hooks/use-sig-preview/utils';
 import { getMediaSourceUrl, getPostImageUrl } from './utils';
 
 /**

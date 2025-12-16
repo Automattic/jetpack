@@ -1,5 +1,4 @@
 import {
-	Button,
 	ContextualUpgradeTrigger,
 	Text,
 	getRedirectUrl,
@@ -34,10 +33,6 @@ const SocialModuleToggle: FC = () => {
 	const { wpcom, host, suffix: siteSuffix } = getScriptData().site;
 	const is_wpcom = host === 'wpcom';
 
-	const { urls, feature_flags } = getSocialScriptData();
-
-	const useAdminUiV1 = feature_flags.useAdminUiV1;
-
 	const { updateSocialModuleSettings } = useDispatch( socialStore );
 
 	const toggleModule = useCallback( async () => {
@@ -55,27 +50,11 @@ const SocialModuleToggle: FC = () => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const renderConnectionManagement = () => {
-		if ( useAdminUiV1 ) {
-			return isModuleEnabled ? (
-				<ConnectionManagement
-					className={ styles[ 'connection-management' ] }
-					disabled={ isUpdating }
-				/>
-			) : null;
-		}
-
-		return urls.connectionsManagementPage ? (
-			<Button
-				fullWidth={ isSmall }
-				className={ styles.button }
-				variant="secondary"
-				isExternalLink={ true }
-				href={ urls.connectionsManagementPage }
-				disabled={ isUpdating || ! isModuleEnabled }
-				target="_blank"
-			>
-				{ __( 'Manage social media connections', 'jetpack-publicize-components' ) }
-			</Button>
+		return isModuleEnabled ? (
+			<ConnectionManagement
+				className={ styles[ 'connection-management' ] }
+				disabled={ isUpdating }
+			/>
 		) : null;
 	};
 

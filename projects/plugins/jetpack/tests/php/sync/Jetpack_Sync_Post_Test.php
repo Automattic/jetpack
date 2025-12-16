@@ -580,7 +580,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		 * @phan-suppress PhanRedefineFunction
 		 * @todo Defining this function mid-test here seems risky. Is there a better way we can test this?
 		 */
-		function amp_get_permalink( $post_id ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+		function amp_get_permalink( $post_id ) { // phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed
 			return "http://example.com/?p=$post_id&amp";
 		}
 
@@ -1048,7 +1048,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_customizer_changeset_to_widget_edited() {
-		$post_content = <<<POST_CONTENT
+		$post_content = <<<'POST_CONTENT'
 {
     "widget_archives[2]": {
         "value": {
@@ -1441,7 +1441,10 @@ That was a cool video.';
 		$test_instance = new Modules\Posts();
 		$test_ref      = new ReflectionObject( $test_instance );
 		$property_ref  = $test_ref->getProperty( 'action_handler' );
-		$property_ref->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property_ref->setAccessible( true );
+		}
 		$property_ref->setValue( $test_instance, function () {} );
 
 		$test_instance->daily_akismet_meta_cleanup_before( $ids );
@@ -1466,7 +1469,10 @@ That was a cool video.';
 		$test_instance = new Modules\Posts();
 		$test_ref      = new ReflectionObject( $test_instance );
 		$property_ref  = $test_ref->getProperty( 'action_handler' );
-		$property_ref->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property_ref->setAccessible( true );
+		}
 		$property_ref->setValue( $test_instance, function () {} );
 
 		$test_instance->daily_akismet_meta_cleanup_before( $ids );
@@ -1491,7 +1497,10 @@ That was a cool video.';
 		$test_instance = new Modules\Posts();
 		$test_ref      = new ReflectionObject( $test_instance );
 		$property_ref  = $test_ref->getProperty( 'action_handler' );
-		$property_ref->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property_ref->setAccessible( true );
+		}
 		$property_ref->setValue( $test_instance, function () {} );
 
 		$test_instance->daily_akismet_meta_cleanup_before( $ids );

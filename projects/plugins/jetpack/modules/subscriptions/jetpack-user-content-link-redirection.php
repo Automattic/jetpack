@@ -42,7 +42,7 @@ function jetpack_user_content_link_redirection() {
 	$iframe_url   = "https://subscribe.wordpress.com/?$query_params";
 
 	// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo <<<EOF
+	echo <<<'EOF'
 <!DOCTYPE html>
 <html>
 <head>
@@ -62,7 +62,7 @@ function jetpack_user_content_link_redirection() {
 <body>
 EOF;
 	echo '<iframe id="user-content-link-redirection" hidden aria-hidden="true" tabindex="-1" width="0" height="0" style="display: none" src="' . esc_url( $iframe_url ) . '"></iframe>';
-	echo <<<EOF
+	echo <<<'EOF'
 </body>
 </html>
 EOF;

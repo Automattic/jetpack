@@ -358,7 +358,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_nutrition() {
-		$content = <<<EOT
+		$content = <<<'EOT'
 [recipe-nutrition]
 - food 100%
 - taste 500mg
@@ -377,7 +377,7 @@ EOT;
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_kses_content() {
-		$tags = <<<EOT
+		$tags = <<<'EOT'
 <ol itemprop="" datetime=""></ol>
 <ul itemprop="" datetime="">
 	<li itemprop="" datetime=""></li>

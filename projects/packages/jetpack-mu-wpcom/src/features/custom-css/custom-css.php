@@ -1228,7 +1228,7 @@ if ( ! function_exists( 'safecss_class' ) ) :
 			/**
 			 * Optimises $css after parsing.
 			 */
-			public function postparse() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+			public function postparse() {
 
 				/** This action is documented in modules/custom-css/custom-css.php */
 				do_action( 'csstidy_optimize_postparse', $this );
@@ -1239,7 +1239,7 @@ if ( ! function_exists( 'safecss_class' ) ) :
 			/**
 			 * Optimises a sub-value.
 			 */
-			public function subvalue() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+			public function subvalue() {
 
 				/** This action is documented in modules/custom-css/custom-css.php */
 				do_action( 'csstidy_optimize_subvalue', $this );

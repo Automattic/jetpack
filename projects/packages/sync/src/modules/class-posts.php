@@ -158,6 +158,8 @@ class Posts extends Module {
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
+		add_filter( 'jetpack_sync_before_enqueue_updated_post_meta', array( $this, 'on_before_enqueue_updated_attachment_metadata' ), 1 );
+
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_sync_save_post' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_published_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_published_post' ) );
 
@@ -226,8 +228,8 @@ class Posts extends Module {
 	 */
 	public function init_before_send() {
 		// meta.
-		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'trim_post_meta' ) );
-		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'filter_added_post_meta_before_send' ), 5 ); // Incase this filter is used elsewhere, we run early.
+		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'filter_updated_post_meta_before_send' ), 5 ); // Incase this filter is used elsewhere, we run early.
 		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
 		// Full sync.
 		$sync_module = Modules::get_module( 'full-sync' );
@@ -323,6 +325,76 @@ class Posts extends Module {
 	}
 
 	/**
+	 * Updated post meta send-time filter: refreshes _wp_attachment_metadata to the latest DB value, then trims.
+	 *
+	 * @param array $args [ $meta_id, $object_id, $meta_key, $meta_value ].
+	 * @return array Filtered args.
+	 */
+	public function filter_updated_post_meta_before_send( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 4 ) {
+			return $args;
+		}
+		list( $meta_id, $object_id, $meta_key, $meta_value ) = $args;
+		if ( '_wp_attachment_metadata' !== $meta_key || 'attachment' !== get_post_type( (int) $object_id ) ) {
+			return $this->trim_post_meta( $args );
+		}
+		$current_value = wp_get_attachment_metadata( (int) $object_id );
+		if ( is_array( $current_value ) && ! empty( $current_value ) ) {
+			$meta_value = $current_value;
+		}
+		return $this->trim_post_meta( array( $meta_id, $object_id, $meta_key, $meta_value ) );
+	}
+
+	/**
+	 * Added post meta send-time filter: refreshes _wp_attachment_metadata to the latest DB value, then trims.
+	 *
+	 * @param array $args [ $meta_id, $object_id, $meta_key, $meta_value ].
+	 * @return array|false Filtered args, or false to skip sending when the snapshot is clearly incomplete.
+	 */
+	public function filter_added_post_meta_before_send( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 4 ) {
+			return $args;
+		}
+		list( $meta_id, $object_id, $meta_key, $meta_value ) = $args;
+		if ( '_wp_attachment_metadata' !== $meta_key || 'attachment' !== get_post_type( (int) $object_id ) ) {
+			return $this->trim_post_meta( $args );
+		}
+		$current_value = wp_get_attachment_metadata( (int) $object_id );
+		// For added_post_meta, skip clearly incomplete snapshots (e.g., missing or empty sizes).
+		if ( ! is_array( $current_value ) || empty( $current_value ) ) {
+			return false;
+		}
+		if ( isset( $current_value['sizes'] ) && is_array( $current_value['sizes'] ) && count( $current_value['sizes'] ) === 0 ) {
+			return false;
+		}
+		$meta_value = $current_value;
+		return $this->trim_post_meta( array( $meta_id, $object_id, $meta_key, $meta_value ) );
+	}
+
+	/**
+	 * Enqueue-time per-request dedupe for updated attachment metadata.
+	 *
+	 * @param array $args [ $meta_id, $object_id, $meta_key, $meta_value ].
+	 * @return array|false
+	 */
+	public function on_before_enqueue_updated_attachment_metadata( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 3 ) {
+			return $args;
+		}
+		$post_id  = (int) $args[1];
+		$meta_key = $args[2];
+		if ( '_wp_attachment_metadata' !== $meta_key || 'attachment' !== get_post_type( $post_id ) ) {
+			return $args;
+		}
+		static $seen_updated_meta_for_post = array();
+		if ( isset( $seen_updated_meta_for_post[ $post_id ] ) ) {
+			return false;
+		}
+		$seen_updated_meta_for_post[ $post_id ] = true;
+		return $args;
+	}
+
+	/**
 	 * Process content before send.
 	 *
 	 * @param array $args Arguments of the `wp_insert_post` hook.
@@ -382,10 +454,13 @@ class Posts extends Module {
 	/**
 	 * Filter all meta that is not blacklisted, or is stored for a disallowed post type.
 	 *
-	 * @param array $args Hook arguments.
+	 * @param array|false $args Hook arguments.
 	 * @return array|false Hook arguments, or false if meta was filtered.
 	 */
 	public function filter_meta( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 3 ) {
+			return false;
+		}
 		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
 			return $args;
 		}

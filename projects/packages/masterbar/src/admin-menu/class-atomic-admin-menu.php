@@ -224,7 +224,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function get_upsell_nudge() {
 		$jitm         = JITM::get_instance();
 		$message_path = 'calypso:sites:sidebar_notice';
-		$message      = $jitm->get_messages( $message_path, wp_json_encode( array( 'message_path' => $message_path ) ), false );
+		$message      = $jitm->get_messages( $message_path, wp_json_encode( array( 'message_path' => $message_path ), JSON_UNESCAPED_SLASHES ), false );
 
 		if ( isset( $message[0] ) ) {
 			$message = $message[0];

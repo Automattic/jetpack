@@ -10,8 +10,8 @@ import { usePrevious } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import JetpackFieldWidth from '../shared/components/jetpack-field-width';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import JetpackFieldWidth from '../shared/components/jetpack-field-width.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 
 // Returns a translated placeholder based on the consent type.
 function getConsentPlaceholder( consentType ) {

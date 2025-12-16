@@ -268,6 +268,7 @@ class Red_Bubble_Notifications {
 							if ( $bundle_product::is_bundle_product() &&
 								$bundle_product::has_paid_plan_for_product() &&
 								! $bundle_product::is_paid_plan_expired() &&
+								! $bundle_product::is_paid_plan_expiring() &&
 								method_exists( $bundle_product, 'get_supported_products' ) &&
 								in_array( $key, $bundle_product::get_supported_products(), true ) ) {
 								$is_covered_by_active_bundle = true;

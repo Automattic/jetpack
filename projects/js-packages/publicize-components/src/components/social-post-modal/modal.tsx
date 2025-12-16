@@ -9,6 +9,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import { PreviewSection } from './preview-section';
@@ -60,6 +61,7 @@ export function SocialPostModal() {
 	const { recordEvent } = useAnalytics();
 	const { hasConnections } = useSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const { needsUserConnection } = usePublicizeConfig();
 
 	const handleOpenModal = useCallback( () => {
 		if ( ! isModalOpen ) {
@@ -76,7 +78,11 @@ export function SocialPostModal() {
 		}
 	}, [ closeSharePostModal ] );
 
-	if ( ! hasConnections ) {
+	if (
+		! hasConnections ||
+		// Resharing for published posts cannot work without user connection.
+		( isPostPublished && needsUserConnection )
+	) {
 		return null;
 	}
 

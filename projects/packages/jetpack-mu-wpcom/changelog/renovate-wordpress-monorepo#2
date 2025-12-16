@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Remove deep import of `@wordpress/components/build-types/form-token-field/types` that's no longer possible. Since `pnpm typecheck` still passes, I'll leave figuring out the correct replacement for someone who knows more about TypeScript stuff. 🤷
+
+

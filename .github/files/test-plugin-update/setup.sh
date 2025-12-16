@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-echo "::group::Setup database"
+echo "::group::Set up database"
 cat <<EOF > ~/.my.cnf
 [client]
 host=${MYSQL_HOST%:*}
@@ -16,7 +16,7 @@ mysql -e "drop database if exists wordpress;"
 mysql -e "create database wordpress;"
 echo "::endgroup::"
 
-echo "::group::Setup WordPress"
+echo "::group::Set up WordPress"
 mkdir -p /var/log/php/ /var/scripts/
 cd /var/www/html
 sed -i 's/apachectl -D FOREGROUND/apachectl start/' /usr/local/bin/run

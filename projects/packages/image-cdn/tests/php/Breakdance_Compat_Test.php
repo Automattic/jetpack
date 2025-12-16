@@ -13,11 +13,11 @@ use WorDBless\BaseTestCase;
 require __DIR__ . '/../../src/compatibility/breakdance.php';
 
 /**
- * @covers ::\Automattic\Jetpack\Image_CDN\Compatibility\load_breakdance_compat
- * @covers ::\Automattic\Jetpack\Image_CDN\Compatibility\use_image_cdn
+ * @covers ::Automattic\Jetpack\Image_CDN\Compatibility\load_breakdance_compat
+ * @covers ::Automattic\Jetpack\Image_CDN\Compatibility\use_image_cdn
  */
-#[CoversFunction( '\\Automattic\\Jetpack\\Image_CDN\\Compatibility\\load_breakdance_compat' )]
-#[CoversFunction( '\\Automattic\\Jetpack\\Image_CDN\\Compatibility\\use_image_cdn' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Image_CDN\\Compatibility\\load_breakdance_compat' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Image_CDN\\Compatibility\\use_image_cdn' )]
 class Breakdance_Compat_Test extends BaseTestCase {
 	/**
 	 * Test that CDN is enabled for Breakdance content by default.
@@ -62,11 +62,17 @@ class Breakdance_Compat_Test extends BaseTestCase {
 		// Reset the Image CDN instance to ensure it's disabled
 		$reflection        = new \ReflectionClass( Image_CDN::class );
 		$instance_property = $reflection->getProperty( 'instance' );
-		$instance_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance_property->setAccessible( true );
+		}
 		$instance_property->setValue( null, null );
 
 		$enabled_property = $reflection->getProperty( 'is_enabled' );
-		$enabled_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$enabled_property->setAccessible( true );
+		}
 		$enabled_property->setValue( null, false );
 
 		$sample_content = '<p>Test content with <img src="http://example.com/image.jpg" alt="test"> image</p>';

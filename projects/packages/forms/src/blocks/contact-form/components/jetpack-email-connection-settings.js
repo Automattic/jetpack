@@ -2,7 +2,7 @@ import { TextControl, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { validate as emailValidatorValidate } from 'email-validator';
-import HelpMessage from '../components/help-message';
+import HelpMessage from './help-message/index.js';
 
 const JetpackEmailConnectionSettings = ( {
 	emailAddress = '',

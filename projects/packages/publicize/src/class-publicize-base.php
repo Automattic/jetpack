@@ -910,7 +910,7 @@ abstract class Publicize_Base {
 							get_post_meta( $post->ID, $this->POST_SKIP_PUBLICIZE . $connection_id, true )
 							||
 							// Old flags.
-							get_post_meta( $post->ID, $this->POST_SKIP . $service_name )
+							get_post_meta( $post->ID, $this->POST_SKIP . $service_name, false )
 						)
 					)
 					||
@@ -1201,6 +1201,10 @@ abstract class Publicize_Base {
 									'type' => 'number',
 								),
 							),
+						),
+						'media_source'             => array(
+							'type' => 'string',
+							'enum' => array( 'featured-image', 'sig', 'media-library', 'upload-video', 'none' ),
 						),
 					),
 				),

@@ -7,7 +7,6 @@
 	schedule: [ '* 0-2 1 * *' ],
 	updateNotScheduled: false,
 	semanticCommits: 'disabled',
-	osvVulnerabilityAlerts: true,
 	// Note: constraints.php is set in renovate-config.js where we can read it in code.
 
 	// Paths and files for renovate to ignore.
@@ -62,6 +61,7 @@
 		{
 			extends: [ 'packages:jsUnitTest' ],
 			groupName: 'JS unit testing packages',
+			matchPackageNames: [ 'babel-jest' ],
 		},
 		{
 			groupName: 'Size-limit',

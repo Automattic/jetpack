@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.19 - 2025-12-11
+### Changed
+- Update dependencies. [#46039]
+
+## 1.2.18 - 2025-12-08
+### Changed
+- Internal updates.
+
+## 1.2.17 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## 1.2.16 - 2025-11-20
+### Changed
+- Update dependencies. [#46031]
+
+## 1.2.15 - 2025-11-18
+### Changed
+- Update dependencies. [#45493]
+
+## 1.2.14 - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## 1.2.13 - 2025-11-10
+### Changed
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+- Update package dependencies. [#45737]
+
+## 1.2.12 - 2025-11-03
+### Changed
+- Update dependencies. [#45493]
+
+## 1.2.11 - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
 ## 1.2.10 - 2025-10-14
 ### Changed
 - Update dependencies. [#45488]

@@ -20,7 +20,7 @@ require_once __DIR__ . '/functions.php';
  */
 
 // Type aliases for this file.
-<<<PHAN
+<<<'PHAN'
 @phan-type Target = array{ only?: string[], except?: string[], count?: boolean }
 @phan-type TargetBag = array<string, Target>
 PHAN;

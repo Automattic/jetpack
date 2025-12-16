@@ -73,6 +73,34 @@ class Transient {
 	}
 
 	/**
+	 * Delete all expired transients.
+	 *
+	 * @return int The number of deleted transients.
+	 */
+	public static function delete_expired() {
+		global $wpdb;
+
+		//phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$option_names = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s",
+				self::OPTION_PREFIX . '%'
+			)
+		);
+
+		$count = 0;
+		foreach ( $option_names as $option_name ) {
+			$value = get_option( $option_name );
+			if ( isset( $value['expire'] ) && $value['expire'] < time() ) {
+				delete_option( $option_name );
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
 	 * Delete all `Transient` values with certain prefix from database.
 	 *
 	 * @param string $prefix Cache key prefix.

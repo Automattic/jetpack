@@ -66,7 +66,7 @@ export const submitForm = async ( formHash: string ) => {
 		const result = await response.json();
 
 		if ( ! response.ok ) {
-			debug( 'Form submission failed', response );
+			debug( `Form submission failed: ${ result?.data?.code }`, response );
 			// If we have a specific error from the server, use it; otherwise fall back to network error
 			return result && result.data && result.data.error
 				? { success: false, error: result.data.error }

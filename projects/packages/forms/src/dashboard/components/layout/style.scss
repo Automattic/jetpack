@@ -1,103 +1,97 @@
-@mixin mobile {
-
-	@media (max-width: 599px) {
-		@content;
-	}
-}
+@use "../../mixins";
+@use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/mixins" as wp-mixins;
+@import "../../design-tokens.css";
 
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
-	background-color: #fff;
 
 	#wpcontent {
 		padding-left: 0;
 	}
 }
 
-.jp-forms__layout {
-	box-sizing: border-box;
+.jp-forms-layout {
+	height: 100%;
 	display: flex;
 	flex-direction: column;
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	min-height: calc(100vh - var(--wp-admin--admin-bar--height));
+	color: var(--wpds-color-fg-content-neutral);
 
-	.jp-forms__layout-header-actions {
-		display: flex;
-		gap: 8px;
-	}
+	// Create an separate stacking context for Base UI portal rendering.
+	// See: https://base-ui.com/react/overview/quick-start#set-up-portals
+	isolation: isolate;
 
-	.jp-forms__logo {
-		margin: 20px 48px;
-		width: 200px;
-
-		@media (max-width: 660px) {
-			margin: 20px 24px;
-		}
+	.editor-visual-editor:not(.has-padding) {
+		background: none;
 	}
 }
 
-#jp-forms-dashboard .jp-forms__layout {
-	background: var(--wpds-color-bg-surface-neutral-strong, #f9f9f6);
+.jp-forms-layout__content {
+	height: 100%;
+	flex-grow: 1;
+	display: flex;
+}
 
-	.admin-ui-page__header {
-		box-sizing: border-box;
-		margin: 0;
-		padding: 16px 48px 0;
-		width: 100%;
+// Jetpack Forms custom header title
+.jp-forms-page-header-title {
 
-		@media (max-width: 782px) {
-			padding: 8px 24px 0;
+	@include mixins.flex-center;
+	gap: 8px;
+}
+
+.jp-forms-layout__surface {
+	margin: 0;
+	overflow: auto;
+	box-shadow: variables.$elevation-x-small;
+
+	// Mobile-first: surfaces take full screen
+	width: 100vw;
+	height: calc(100vh - 46px);
+	border-radius: 0;
+	position: fixed;
+	top: 46px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	color: var(--wpds-color-fg-content-neutral);
+	background: var(--wpds-color-bg-surface-neutral);
+
+	&.is-inspector {
+		z-index: 3; // Medium surface priority
+
+		// AI Agent inspector should always be on the far right
+		&.ai-agent-inspector {
+			order: 10;
+
+			&.is-collapsed {
+				display: none;
+			}
 		}
 	}
 
-	.jp-forms__dashboard-tabs {
-		display: flex;
-		flex-direction: column;
-		flex: 1;
-
-		> .components-tab-panel__tabs {
-			margin: 0;
-			padding-inline: 32px;
-			border-bottom: 1px solid var(--jp-gray-5);
-
-			.components-tab-panel__tabs-item {
-				border-bottom: 2px solid transparent;
-				font-size: var(--jp-forms-font-size-regular);
-				font-weight: 400;
-				height: 40px;
-				padding: 8px 16px;
-
-				&.is-active {
-					border-color: var(--jp-green-50);
-					font-weight: 500;
-
-					&::after {
-						display: none;
-					}
-				}
-			}
-
-			@media (max-width: 600px) {
-				top: 0;
-			}
-
-			@media (max-width: 660px) {
-				padding: 0 8px;
-			}
-		}
-
-		.jp-forms__inbox__dataviews__container {
-			justify-content: unset;
-			align-items: unset;
-		}
-
-		.components-tab-panel__tab-content {
-			display: flex;
-			flex: 1;
-			background: var(--jp-white);
-		}
+	&.is-stage {
+		z-index: 2; // Highest surface priority
 	}
 
+	// Desktop: restore original styles
+	@include wp-mixins.break-medium {
+		position: static;
+		width: auto;
+		height: auto;
+		border-radius: 8px;
+		margin:
+			variables.$grid-unit-10 variables.$grid-unit-10
+			variables.$grid-unit-10 0;
+
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+
+		&.is-stage {
+			flex-grow: 1;
+			margin-left: variables.$grid-unit-10; // Help left stage look good with WP Admin sidebar
+		}
+
+		&.is-inspector {
+			width: 420px;
+		}
+	}
 }

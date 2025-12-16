@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.54.7] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.54.6] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [0.54.5] - 2025-11-21
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
+## [0.54.4] - 2025-11-18
+### Changed
+- Update dependencies. [#45745]
+
+## [0.54.3] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [0.54.2] - 2025-11-12
+### Changed
+- Internal updates.
+
+## [0.54.1] - 2025-11-10
+### Changed
+- Use native WordPress API to load CSS. [#45694]
+- Use number formatting in pricing/plan features. [#45794]
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+- Update package dependencies. [#45756]
+
+## [0.54.0] - 2025-11-03
+### Changed
+- Don't translate product names. [#43961]
+- Update dependencies. [#45664]
+
+### Fixed
+- Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
+
 ## [0.53.0] - 2025-10-27
 ### Added
 - Instant Search: Add global WooCommerce Product Attributes as filter options. [#45416]
@@ -1363,6 +1402,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.54.7]: https://github.com/Automattic/jetpack-search/compare/v0.54.6...v0.54.7
+[0.54.6]: https://github.com/Automattic/jetpack-search/compare/v0.54.5...v0.54.6
+[0.54.5]: https://github.com/Automattic/jetpack-search/compare/v0.54.4...v0.54.5
+[0.54.4]: https://github.com/Automattic/jetpack-search/compare/v0.54.3...v0.54.4
+[0.54.3]: https://github.com/Automattic/jetpack-search/compare/v0.54.2...v0.54.3
+[0.54.2]: https://github.com/Automattic/jetpack-search/compare/v0.54.1...v0.54.2
+[0.54.1]: https://github.com/Automattic/jetpack-search/compare/v0.54.0...v0.54.1
+[0.54.0]: https://github.com/Automattic/jetpack-search/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/Automattic/jetpack-search/compare/v0.52.24...v0.53.0
 [0.52.24]: https://github.com/Automattic/jetpack-search/compare/v0.52.23...v0.52.24
 [0.52.23]: https://github.com/Automattic/jetpack-search/compare/v0.52.22...v0.52.23

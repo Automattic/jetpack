@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove peer dependency on `@wordpress/i18n`, as it already has a non-peer dependency on the package.

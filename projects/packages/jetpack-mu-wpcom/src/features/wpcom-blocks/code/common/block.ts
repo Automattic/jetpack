@@ -1,16 +1,32 @@
-import blockJson from './block.json';
-export const BLOCK_NAME = blockJson.name;
+import type { RichTextData } from '@wordpress/rich-text';
+export const BLOCK_NAME = 'core/code';
 
 export interface Attributes {
-	code: string;
-	tokenizedLines: ReadonlyArray< ReadonlyArray< [ string, string ] | [ string ] > >;
+	/** The code string */
+	content: RichTextData;
+
+	/**
+	 * An array of lines and spans of text.
+	 * @todo name the tuple parts.
+	 */
+	tokenizedLines: ReadonlyArray<
+		ReadonlyArray< [ base64html: string, className: string ] | [ base64html: string ] >
+	>;
+
 	/** Always a string. Empty string "" indicates no language. */
 	language: string;
 	languageConfidence: 'certain' | 'tentative' | 'unknown';
 
+	/**
+	 * This is used from the file transform to inject the text from the file.
+	 * It is necessary mainly because file read operations are async, while block transforms
+	 * are not.
+	 */
 	triggerCodeUpdate: boolean;
 
+	showFileName: boolean;
 	showCopyButton: boolean;
+
 	showLanguageName: boolean;
 
 	showLineNumbers: boolean;

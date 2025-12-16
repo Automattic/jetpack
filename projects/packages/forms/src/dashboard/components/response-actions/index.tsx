@@ -15,20 +15,23 @@ import {
 	deleteAction,
 	markAsReadAction,
 	markAsUnreadAction,
-} from '../../inbox/dataviews/actions';
+} from '../../inbox/stage/actions.tsx';
 /**
  * Types
  */
-import type { FormResponse } from '../../../types';
+import type { FormResponse } from '../../../types/index.ts';
+import type { Registry } from '../../inbox/stage/types.tsx';
 
 type ResponseNavigationProps = {
-	onActionComplete?: ( FormResponse ) => void;
+	onActionComplete?: ( response: FormResponse ) => void;
 	response: FormResponse;
+	variant?: 'icon' | 'text';
 };
 
 const ResponseActions = ( {
 	onActionComplete,
 	response,
+	variant = 'icon',
 }: ResponseNavigationProps ): JSX.Element => {
 	const [ isMarkingAsSpam, setIsMarkingAsSpam ] = useState( false );
 	const [ isMarkingAsNotSpam, setIsMarkingAsNotSpam ] = useState( false );
@@ -37,7 +40,7 @@ const ResponseActions = ( {
 	const [ isDeleting, setIsDeleting ] = useState( false );
 	const [ isTogglingReadStatus, setIsTogglingReadStatus ] = useState( false );
 
-	const registry = useRegistry();
+	const registry = useRegistry() as unknown as Registry;
 
 	const handleMarkAsSpam = useCallback( async () => {
 		onActionComplete?.( response );
@@ -88,114 +91,126 @@ const ResponseActions = ( {
 		onActionComplete?.( { ...response, is_unread: true } );
 	}, [ response, registry, onActionComplete ] );
 
+	const isTextVariant = variant === 'text';
+	const sharedProps = isTextVariant
+		? {
+				size: 'compact' as const,
+		  }
+		: {
+				iconSize: 24,
+				showTooltip: true,
+				size: 'compact' as const,
+		  };
+
 	const readUnreadButtons = (
 		<>
 			{ response.is_unread && (
 				<Button
-					variant="tertiary"
+					{ ...sharedProps }
 					onClick={ handleMarkAsRead }
 					isBusy={ isTogglingReadStatus }
-					showTooltip={ true }
-					label={ markAsReadAction.label }
-					iconSize={ 24 }
-					icon={ markAsReadAction.icon }
-					size="compact"
-				></Button>
+					label={ isTextVariant ? undefined : markAsReadAction.label }
+					icon={ isTextVariant ? undefined : markAsReadAction.icon }
+				>
+					{ isTextVariant && markAsReadAction.label }
+				</Button>
 			) }
 			{ ! response.is_unread && (
 				<Button
-					variant="tertiary"
+					{ ...sharedProps }
 					onClick={ handleMarkAsUnread }
 					isBusy={ isTogglingReadStatus }
-					showTooltip={ true }
-					label={ markAsUnreadAction.label }
-					iconSize={ 24 }
-					icon={ markAsUnreadAction.icon }
-					size="compact"
-				></Button>
+					label={ isTextVariant ? undefined : markAsUnreadAction.label }
+					icon={ isTextVariant ? undefined : markAsUnreadAction.icon }
+				>
+					{ isTextVariant && markAsUnreadAction.label }
+				</Button>
 			) }
 		</>
 	);
 
+	const containerStyle = isTextVariant
+		? {
+				display: 'flex',
+				gap: '4px',
+				alignItems: 'center',
+				marginLeft: '-12px', // Compensate for button internal padding
+		  }
+		: {};
+
 	switch ( response.status ) {
 		case 'spam':
 			return (
-				<div>
+				<div style={ containerStyle }>
 					{ readUnreadButtons }
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleMarkAsNotSpam }
 						isBusy={ isMarkingAsNotSpam }
-						showTooltip={ true }
-						label={ markAsNotSpamAction.label }
-						iconSize={ 24 }
-						icon={ markAsNotSpamAction.icon }
-						size="compact"
-					></Button>
+						label={ isTextVariant ? undefined : markAsNotSpamAction.label }
+						icon={ isTextVariant ? undefined : markAsNotSpamAction.icon }
+					>
+						{ isTextVariant && markAsNotSpamAction.label }
+					</Button>
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleMoveToTrash }
 						isBusy={ isMovingToTrash }
-						showTooltip={ true }
-						label={ moveToTrashAction.label }
-						iconSize={ 24 }
-						icon={ moveToTrashAction.icon }
-						size="compact"
-					></Button>
+						label={ isTextVariant ? undefined : moveToTrashAction.label }
+						icon={ isTextVariant ? undefined : moveToTrashAction.icon }
+					>
+						{ isTextVariant && moveToTrashAction.label }
+					</Button>
 				</div>
 			);
 
 		case 'trash':
 			return (
-				<div>
+				<div style={ containerStyle }>
 					{ readUnreadButtons }
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleRestore }
 						isBusy={ isRestoring }
-						showTooltip={ true }
-						label={ restoreAction.label }
-						iconSize={ 24 }
-						icon={ restoreAction.icon }
-						size="compact"
-					></Button>
+						label={ isTextVariant ? undefined : restoreAction.label }
+						icon={ isTextVariant ? undefined : restoreAction.icon }
+					>
+						{ isTextVariant && restoreAction.label }
+					</Button>
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleDelete }
-						showTooltip={ true }
 						isBusy={ isDeleting }
-						label={ deleteAction.label }
-						iconSize={ 24 }
-						icon={ deleteAction.icon }
-						size="compact"
-					></Button>
+						label={ isTextVariant ? undefined : deleteAction.label }
+						icon={ isTextVariant ? undefined : deleteAction.icon }
+					>
+						{ isTextVariant && deleteAction.label }
+					</Button>
 				</div>
 			);
 
 		default: // 'publish' (inbox) or any other status
 			return (
-				<div>
+				<div style={ containerStyle }>
 					{ readUnreadButtons }
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleMarkAsSpam }
 						isBusy={ isMarkingAsSpam }
-						showTooltip={ true }
-						label={ markAsSpamAction.label }
-						iconSize={ 24 }
-						icon={ markAsSpamAction.icon }
-						size="compact"
-					></Button>
+						label={ isTextVariant ? undefined : markAsSpamAction.label }
+						icon={ isTextVariant ? undefined : markAsSpamAction.icon }
+					>
+						{ isTextVariant && markAsSpamAction.label }
+					</Button>
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleMoveToTrash }
 						isBusy={ isMovingToTrash }
-						showTooltip={ true }
-						label={ moveToTrashAction.label }
-						iconSize={ 24 }
-						icon={ moveToTrashAction.icon }
-						size="compact"
-					></Button>
+						label={ isTextVariant ? undefined : moveToTrashAction.label }
+						icon={ isTextVariant ? undefined : moveToTrashAction.icon }
+					>
+						{ isTextVariant && moveToTrashAction.label }
+					</Button>
 				</div>
 			);
 	}

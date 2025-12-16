@@ -35,7 +35,14 @@ function enhanced_og_image( $tags ) {
 		return $tags;
 	}
 
-	$summary = Jetpack_Media_Summary::get( $post->ID );
+	$summary = Jetpack_Media_Summary::get(
+		$post->ID,
+		0,
+		array(
+			'include_excerpt' => false,
+			'include_count'   => false,
+		)
+	);
 
 	if ( 'image' !== $summary['type'] ) {
 		return $tags;
@@ -70,7 +77,14 @@ function enhanced_og_gallery( $tags ) {
 		return $tags;
 	}
 
-	$summary = Jetpack_Media_Summary::get( $post->ID );
+	$summary = Jetpack_Media_Summary::get(
+		$post->ID,
+		0,
+		array(
+			'include_excerpt' => false,
+			'include_count'   => false,
+		)
+	);
 
 	if ( 'gallery' !== $summary['type'] ) {
 		return $tags;
@@ -117,7 +131,14 @@ function enhanced_og_video( $tags ) {
 		return $tags;
 	}
 
-	$summary = Jetpack_Media_Summary::get( $post->ID );
+	$summary = Jetpack_Media_Summary::get(
+		$post->ID,
+		0,
+		array(
+			'include_excerpt' => false,
+			'include_count'   => false,
+		)
+	);
 
 	if ( 'video' !== $summary['type'] ) {
 		if ( $summary['count']['video'] > 0 && $summary['count']['image'] < 1 ) {

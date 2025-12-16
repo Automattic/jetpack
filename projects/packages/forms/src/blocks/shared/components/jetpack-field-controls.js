@@ -6,8 +6,8 @@ import {
 import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { isValidElement, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import JetpackFieldWidth from './jetpack-field-width';
-import ToolbarRequiredGroup from './toolbar-required-group';
+import JetpackFieldWidth from './jetpack-field-width.js';
+import ToolbarRequiredGroup from './toolbar-required-group.js';
 
 // List of reserved HTML form element attribute names
 const reservedAttributes = [

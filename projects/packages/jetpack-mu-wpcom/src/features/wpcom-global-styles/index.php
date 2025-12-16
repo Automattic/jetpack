@@ -158,7 +158,8 @@ function wpcom_global_styles_enqueue_assets() {
 		'const launchBarUserData = ' . wp_json_encode(
 			array(
 				'blogId' => get_wpcom_blog_id(),
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		),
 		'before'
 	);
@@ -349,21 +350,34 @@ function wpcom_global_styles_in_use() {
  * @return bool Whether the site is exempt from Premium Global Styles.
  */
 function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
-	$is_summer_special = wpcom_has_blog_sticker( 'summer-special-2025', $blog_id );
-	$is_simple         = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$blog      = get_blog_details( $blog_id, false );
+		$is_simple = is_blog_wpcom( $blog );
+		$is_atomic = is_blog_atomic( $blog );
+	} elseif ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		$is_simple = false;
+		$is_atomic = true;
+	} else {
+		$is_simple = false;
+		$is_atomic = false;
+	}
+
+	if ( ! $is_simple && ! $is_atomic ) {
+		return false;
+	}
 
 	// If the exemption check has already been performed, just return if the site is exempt.
 	if ( wpcom_has_blog_sticker( 'wpcom-premium-global-styles-exemption-checked', $blog_id ) ) {
 		return wpcom_has_blog_sticker( 'wpcom-premium-global-styles-exempt', $blog_id );
 	}
 
-	// Sites created after we made GS a paid feature (2022-12-15) are never exempt.
-	if ( $blog_id >= 213403000 && ! $is_summer_special ) {
+	// Simple sites created after we made GS a paid feature (2022-12-15) are never exempt.
+	if ( $is_simple && $blog_id >= 213403000 ) {
 		return false;
 	}
 
-	// Summer special sites created before 2025-10-11 are exempt. Quick workaround until we refine the exempt logic for AT sites.
-	if ( $blog_id <= 249177000 && $is_summer_special && ! $is_simple ) {
+	// Atomic sites created before we started limiting GS on Summer Special sites (2025-10-11) are always exempt.
+	if ( $is_atomic && $blog_id <= 249177000 ) {
 		return true;
 	}
 
@@ -658,13 +672,19 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 		return true;
 	}
 
-	/**
-	 * For now, we return false for Atomic sites since the A/B experiment logic for Personal plans needs to be modified.
-	 *
-	 * @todo: Rework the logic for personal plans experiments on Atomic sites if we want to perform an A/B test on Atomic.
-	 */
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-		return false;
+	$is_atomic = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
+	// Users on atomic sites should retain access to Global Styles if they bought a Personal plan during the GS on Atomic experiment.
+	if ( $is_atomic ) {
+		$has_global_styles_personal_plan = get_option( 'wpcom-global-styles-personal-plan', false );
+
+		if ( $has_global_styles_personal_plan ) {
+			if ( wpcom_site_has_personal_plan( $blog_id ) ) {
+				return true;
+			} else {
+				delete_option( 'wpcom-global-styles-personal-plan' );
+				return false;
+			}
+		}
 	}
 
 	// Users who bought a Personal plan during the GS on Personal experiment should
@@ -672,25 +692,71 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 	if ( wpcom_has_blog_sticker( 'wpcom-global-styles-personal-plan', $blog_id ) ) {
 		if ( wpcom_site_has_personal_plan( $blog_id ) ) {
 			return true;
-		} else {
+		}
+
+		if ( function_exists( 'remove_blog_sticker' ) ) {
 			$note = 'Automated sticker. See https://wp.me/paYJgx-3yE';
 			$user = 'a8c'; // A non-empty string avoids storing the current user as author of the sticker change.
 			remove_blog_sticker( 'wpcom-global-styles-personal-plan', $note, $user, $blog_id );
-			return false;
 		}
+
+		return false;
 	}
 
 	// If the GLOBAL_STYLES_ON_PERSONAL_PLAN feature is enabled, we need to check if the site has a Personal plan and add the sticker.
 	if ( is_global_styles_on_personal_plan() ) {
 		if ( wpcom_site_has_personal_plan( $blog_id ) ) {
-			$note = 'Automated sticker. See paYJgx-5w2-p2';
-			$user = 'a8c'; // A non-empty string avoids storing the current user as author of the sticker change.
-			add_blog_sticker( 'wpcom-global-styles-personal-plan', $note, $user, $blog_id );
+			if ( $is_atomic ) {
+				update_option( 'wpcom-global-styles-personal-plan', true );
+			}
+
+			if ( function_exists( 'add_blog_sticker' ) ) {
+				$note = 'Automated sticker. See paYJgx-5w2-p2';
+				$user = 'a8c'; // A non-empty string avoids storing the current user as author of the sticker change.
+				add_blog_sticker( 'wpcom-global-styles-personal-plan', $note, $user, $blog_id );
+			}
+
 			return true;
 		}
 	}
 
 	return false;
+}
+
+/**
+ * Query WP.com endpoint to retrieve the Global Styles experiment assignment for a site.
+ *
+ * On success, returns true only if the API reports a non-null variation ("treatment").
+ * Returns false on errors or when not assigned.
+ *
+ * @param int $blog_id The WPCOM blog ID.
+ * @return bool|string The experiment variation if the site has access to Global Styles with a Personal plan, false otherwise.
+ */
+function wpcom_global_styles_assignment_api_request( $blog_id ) {
+	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		"/global-styles-assignment?blog_id=$blog_id",
+		'v1.2',
+		array( 'method' => 'GET' ),
+		null,
+		'rest'
+	);
+
+	if ( is_wp_error( $response ) ) {
+		return false;
+	}
+
+	// Require a 200 from the API.
+	$code = (int) wp_remote_retrieve_response_code( $response );
+	if ( 200 !== $code ) {
+		return false;
+	}
+
+	$data = json_decode( wp_remote_retrieve_body( $response ), true );
+	if ( ! is_array( $data ) || empty( $data ) ) {
+		return false;
+	}
+
+	return $data['variation'];
 }
 
 /**
@@ -719,48 +785,72 @@ function wpcom_global_styles_is_previewing_premium_theme_without_premium_plan( $
 }
 
 /**
+ * Returns the experiment variation.
+ *
+ * @return bool|string The experiment variation if the site has access to Global Styles with a Personal plan, false otherwise.
+ */
+function get_global_styles_on_personal_variation() {
+	// Environment guard: only WP.com or Atomic.
+	$is_wpcom  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$is_atomic = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
+	if ( ! $is_wpcom && ! $is_atomic ) {
+		return false;
+	}
+
+	$wpcom_blog_owner_id = null;
+	$wpcom_blog_id       = get_wpcom_blog_id();
+	if ( function_exists( 'wpcom_get_blog_owner' ) ) {
+		$wpcom_blog_owner_id = wpcom_get_blog_owner( $wpcom_blog_id );
+	}
+
+	if ( ! $wpcom_blog_id ) {
+		return false;
+	}
+
+	$experiment_key = 'calypso_plans_global_styles_personal_20251124_v5';
+	$cache_group    = 'a8c_experiments';
+	$cache_key      = sprintf(
+		'global-styles-personal-variation-%d',
+		$wpcom_blog_id
+	);
+
+	// Cache lookup.
+	$found     = false;
+	$variation = wp_cache_get( $cache_key, $cache_group, false, $found );
+	$found     = apply_filters( 'wpcom_global_styles_experiment_cache', $found );
+	if ( true === $found ) {
+		return $variation;
+	}
+
+	if ( $is_atomic ) {
+		// Atomic: ask WP.com assignment API for this user.
+		$variation = wpcom_global_styles_assignment_api_request( $wpcom_blog_id );
+	} elseif ( function_exists( '\ExPlat\assign_given_user' ) && function_exists( 'wpcom_get_blog_owner' ) ) {
+		if ( ! $wpcom_blog_owner_id ) {
+			return false;
+		}
+		$wpcom_blog_owner = get_userdata( $wpcom_blog_owner_id );
+		if ( ! $wpcom_blog_owner ) {
+			return false;
+		}
+		// WP.com: Direct ExPlat assignment.
+		$variation = \ExPlat\assign_given_user( $experiment_key, $wpcom_blog_owner );
+	}
+
+	// Cache for a month to avoid duplicate calls.
+	wp_cache_set( $cache_key, $variation, $cache_group, MONTH_IN_SECONDS );
+
+	return $variation;
+}
+
+/**
  * Checks whether the site has access to Global Styles with a Personal plan as part of an A/B test.
  *
- * @todo: Update the code to support Atomic sites for A/B tests.
- *
- * @param  int $blog_id Blog ID.
  * @return bool Whether the site has access to Global Styles with a Personal plan.
  */
-function is_global_styles_on_personal_plan( $blog_id = 0 ) {
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-		return false;
-	}
-
-	if ( ! function_exists( '\ExPlat\assign_given_user' ) ) {
-		return false;
-	}
-
-	if ( ! $blog_id ) {
-		$blog_id = get_current_blog_id();
-	}
-
-	$cache_key                          = "global-styles-on-personal-03-2025-$blog_id";
-	$found_in_cache                     = false;
-	$has_global_styles_in_personal_plan = wp_cache_get( $cache_key, 'a8c_experiments', false, $found_in_cache );
-	if ( $found_in_cache ) {
-		return $has_global_styles_in_personal_plan;
-	}
-
-	$owner_id = wpcom_get_blog_owner( $blog_id );
-	if ( ! $owner_id ) {
-		return false;
-	}
-
-	$owner = get_userdata( $owner_id );
-	if ( ! $owner ) {
-		return false;
-	}
-
-	$experiment_assignment              = \ExPlat\assign_given_user( 'calypso_plans_global_styles_personal_v2_20240225', $owner );
-	$has_global_styles_in_personal_plan = null !== $experiment_assignment;
-	// Cache the experiment assignment to prevent duplicate DB queries in the frontend.
-	wp_cache_set( $cache_key, $has_global_styles_in_personal_plan, 'a8c_experiments', MONTH_IN_SECONDS );
-	return $has_global_styles_in_personal_plan;
+function is_global_styles_on_personal_plan() {
+	$variation = get_global_styles_on_personal_variation();
+	return $variation === 'treatment1' || $variation === 'treatment2';
 }
 
 /**

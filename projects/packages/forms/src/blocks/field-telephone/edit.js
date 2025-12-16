@@ -4,18 +4,24 @@ import {
 	BlockContextProvider,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { TextControl, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import {
+	BaseControl,
+	TextControl,
+	ToggleControl,
+	ToolbarButton,
+	ToolbarGroup,
+} from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
 import clsx from 'clsx';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useFieldSelected from '../shared/hooks/use-field-selected';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import useSyncRequiredIndicator from '../shared/hooks/use-sync-required-indicator';
-import { countries } from './country-list';
-import { getTranslatedCountryName } from './country-names-translated';
+import { getTranslatedCountryName } from '../../util/country-names-translated.js';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import useFieldSelected from '../shared/hooks/use-field-selected.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
+import useSyncRequiredIndicator from '../shared/hooks/use-sync-required-indicator.js';
+import { countries } from './country-list.js';
 
 const EMPTY_ARRAY = [];
 
@@ -143,9 +149,9 @@ export default function PhoneFieldEdit( props ) {
 				width={ width }
 				extraFieldSettings={ [
 					{
-						index: 1,
+						index: 2,
 						element: (
-							<>
+							<BaseControl __nextHasNoMarginBottom={ true } key="phoneFieldControls">
 								<ToggleControl
 									label={ __( 'Show country selector', 'jetpack-forms' ) }
 									checked={ showCountrySelector || false }
@@ -160,9 +166,13 @@ export default function PhoneFieldEdit( props ) {
 										onChange={ newValue => setAttributes( { searchPlaceholder: newValue } ) }
 										__nextHasNoMarginBottom={ true }
 										__next40pxDefaultSize={ true }
+										help={ __(
+											'Set placeholder text shown in the country selector search.',
+											'jetpack-forms'
+										) }
 									/>
 								) }
-							</>
+							</BaseControl>
 						),
 					},
 				] }

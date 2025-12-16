@@ -7,8 +7,8 @@ import {
 	withScope,
 } from '@wordpress/interactivity';
 import parsePhoneNumber, { AsYouType } from 'libphonenumber-js';
-import { countries } from '../../blocks/field-telephone/country-list';
-import { isEmptyValue } from '../../contact-form/js/validate-helper';
+import { countries } from '../../blocks/field-telephone/country-list.js';
+import { isEmptyValue } from '../../contact-form/js/validate-helper.js';
 const NAMESPACE = 'jetpack/form';
 
 const withSyncEvent =

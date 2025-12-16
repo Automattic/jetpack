@@ -6,7 +6,7 @@
  */
 
 // Type aliases used in a bunch of places in this file. Unfortunately Phan doesn't have a way to set these more globally than copy-pasting them into each file needing them.
-<<<PHAN
+<<<'PHAN'
 @phan-type Task = array{id:string, title?:string, get_title?:callable, id_map?:string, add_listener_callback?:callable, badge_text_callback?:callable, extra_data_callback?:callable, get_calypso_path?:callable, is_complete_callback?:callable, is_disabled_callback?:callable, isLaunchTask?:bool, is_visible_callback?:callable, target_repetitions?:int, repetition_count_callback?:callable, subtitle?:callable, completed?:bool}
 PHAN;
 
@@ -1107,7 +1107,7 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
 						array(
 							'feature' => 'launchpad',
 							'message' => 'Launchpad failed to add listener callback.',
-							'extra'   => wp_json_encode( $data ),
+							'extra'   => wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
 						)
 					);
 				}

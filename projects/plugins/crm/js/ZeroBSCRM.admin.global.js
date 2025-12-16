@@ -1820,15 +1820,22 @@ function zeroBSCRMJS_retrieveURLS( str ) {
 	return match;
 }
 
-// raw url checker. Probably imperfect
 /**
- * @param str
+ * Check if a string looks like a valid HTTP/HTTPS URL.
+ *
+ * @param {string} str - Possible URL (with or without protocol).
+ * @return {boolean} True if the string is a valid HTTP/HTTPS URL, false otherwise.
  */
 function jpcrm_looks_like_URL( str ) {
-	const res = str.match(
-		/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g
-	);
-	return res !== null;
+	try {
+		// Add https:// if no protocol is present
+		const urlString = str.includes( '://' ) ? str : 'https://' + str;
+		const url = new URL( urlString );
+		// Only accept http and https protocols
+		return url.protocol === 'http:' || url.protocol === 'https:';
+	} catch {
+		return false;
+	}
 }
 
 // https://stackoverflow.com/questions/14440444/extract-all-email-addresses-from-bulk-text-using-jquery

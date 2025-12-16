@@ -11,16 +11,13 @@ return [
     // # Issue statistics:
     // PhanUndeclaredProperty : 25+ occurrences
     // PhanTypeMismatchArgument : 8 occurrences
-    // PhanPossiblyUndeclaredVariable : 7 occurrences
     // PhanParamSignatureMismatch : 6 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 6 occurrences
     // PhanTypeMismatchReturnProbablyReal : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
     // PhanUndeclaredMethod : 6 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
-    // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanUndeclaredTypeParameter : 4 occurrences
-    // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginDuplicateCatchStatementBody : 2 occurrences
     // PhanTypeMismatchDeclaredParam : 2 occurrences
     // PhanUndeclaredClassStaticProperty : 2 occurrences
@@ -49,7 +46,6 @@ return [
         'src/api/class-model.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/api/class-plugin-downloader.php' => ['PhanPluginDuplicateExpressionAssignmentOperation'],
         'src/class-declarations.php' => ['PhanPluginDuplicateCatchStatementBody'],
-        'src/class-differences.php' => ['PhanNonClassMethodCall', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable'],
         'src/class-invocations.php' => ['PhanPluginDuplicateCatchStatementBody'],
         'src/class-utils.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty', 'PhanUndeclaredTypeParameter'],
         'src/class-warnings.php' => ['PhanUndeclaredMethod'],

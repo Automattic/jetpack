@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.24] - 2025-11-24
+### Fixed
+- Phan: Address `PhanPossiblyUndeclaredVariable` violations. [#45911]
+
+## [0.7.23] - 2025-11-10
+### Changed
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+
 ## [0.7.22] - 2025-10-20
 ### Changed
 - Internal updates.
@@ -242,6 +250,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.7.24]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.23...v0.7.24
+[0.7.23]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.22...v0.7.23
 [0.7.22]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.21...v0.7.22
 [0.7.21]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.20...v0.7.21
 [0.7.20]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.19...v0.7.20

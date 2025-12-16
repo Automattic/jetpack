@@ -9,10 +9,9 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginMixedKeyNoKey : 25+ occurrences
+    // PhanPluginMixedKeyNoKey : 30+ occurrences
     // PhanUndeclaredStaticMethod : 15+ occurrences
     // PhanTypeMismatchArgument : 6 occurrences
-    // PhanRedundantCondition : 5 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanTypeVoidArgument : 5 occurrences
     // PhanTypeVoidAssignment : 5 occurrences
@@ -22,9 +21,7 @@ return [
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
     // PhanDeprecatedProperty : 1 occurrence
-    // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
-    // PhanPossiblyUndeclaredVariable : 1 occurrence
     // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
     // PhanUndeclaredClassConstant : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
@@ -36,22 +33,20 @@ return [
         'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable'],
         'custom-colors/core-bg-admin-notice.php' => ['PhanContextNotObject'],
         'endpoints/class-marketplace-webhook-response.php' => ['PhanPluginMixedKeyNoKey'],
-        'feature-plugins/autosave-revision.php' => ['PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentNullable'],
+        'feature-plugins/autosave-revision.php' => ['PhanTypeMismatchArgumentNullable'],
         'feature-plugins/coblocks-mods.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
         'feature-plugins/managed-plugins.php' => ['PhanUndeclaredClassMethod'],
         'feature-plugins/sensei-pro-mods.php' => ['PhanUndeclaredClassMethod'],
         'footer-credit/theme-optimizations.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredStaticMethod'],
         'functions.php' => ['PhanUndeclaredClassStaticProperty'],
         'imports/playground/class-sql-importer.php' => ['PhanUndeclaredConstant'],
-        'safeguard/utils.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
+        'safeguard/utils.php' => ['PhanTypeMismatchArgument'],
         'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
         'tests/feature-manager/FeatureHookTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/imports/SQLGeneratorTest.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
-        'widgets/class-jetpack-posts-i-like-widget.php' => ['PhanRedundantCondition'],
-        'widgets/class-pd-top-rated.php' => ['PhanRedundantCondition'],
         'widgets/class-widget-top-clicks.php' => ['PhanDeprecatedFunction'],
         'wpcom-features/class-wpcom-features.php' => ['PhanPluginMixedKeyNoKey'],
         'wpcom-features/functions-wpcom-features.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],

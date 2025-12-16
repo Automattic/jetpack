@@ -653,8 +653,8 @@ class Publicize extends Publicize_Base {
 
 		$error_data = array(
 			'user_can_refresh' => $user_can_refresh,
-			'refresh_text'     => $refresh_text,
-			'refresh_url'      => $refresh_url,
+			'refresh_text'     => $refresh_text ?? null,
+			'refresh_url'      => $refresh_url ?? null,
 		);
 
 		$this->test_connection_results[ $id ] = new WP_Error( $connection_error_code, $connection_test_message, $error_data );
@@ -699,7 +699,7 @@ class Publicize extends Publicize_Base {
 		}
 		// Only do this when a post transitions to being published.
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
+		if ( get_post_meta( $post->ID, $this->PENDING, false ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
 			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}

@@ -325,7 +325,7 @@ class Search_Widget extends \WP_Widget {
 	 * @since 8.3.0
 	 */
 	public function widget_non_instant( $args, $instance ) {
-		$display_filters = false;
+		$filters = array();
 
 		// Search instance must have been initialized before widget render.
 		if ( is_search() ) {
@@ -339,13 +339,9 @@ class Search_Widget extends \WP_Widget {
 			if ( ! Helper::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 				$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 			}
-
-			if ( ! empty( $filters ) ) {
-				$display_filters = true;
-			}
 		}
 
-		if ( ! $display_filters && empty( $instance['search_box_enabled'] ) && empty( $instance['user_sort_enabled'] ) ) {
+		if ( ! $filters && empty( $instance['search_box_enabled'] ) && empty( $instance['user_sort_enabled'] ) ) {
 			return;
 		}
 
@@ -400,7 +396,7 @@ class Search_Widget extends \WP_Widget {
 			<?php
 		endif;
 
-		if ( $display_filters ) {
+		if ( $filters ) {
 			/**
 			 * Responsible for rendering filters to narrow down search results.
 			 *
@@ -445,8 +441,6 @@ class Search_Widget extends \WP_Widget {
 			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 		}
 
-		$display_filters = ! empty( $filters );
-
 		$title = ! empty( $instance['title'] ) ? $instance['title'] : '';
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
@@ -473,7 +467,7 @@ class Search_Widget extends \WP_Widget {
 
 		Template_Tags::render_widget_search_form( array(), '', '' );
 
-		if ( $display_filters ) {
+		if ( $filters ) {
 			/**
 			 * Responsible for rendering filters to narrow down search results.
 			 *

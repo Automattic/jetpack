@@ -1,5 +1,4 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -43,7 +42,6 @@ const settings = {
 
 	icon: {
 		src: icon,
-		foreground: getIconColor(),
 	},
 
 	category: 'monetize',

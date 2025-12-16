@@ -99,7 +99,7 @@ class Deprecate {
 		wp_enqueue_script( 'jetpack-deprecate' );
 		wp_add_inline_script(
 			'jetpack-deprecate',
-			'window.noticeInfo = ' . wp_json_encode( $this->notices ) . ';',
+			'window.noticeInfo = ' . wp_json_encode( $this->notices, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 			'before'
 		);
 	}

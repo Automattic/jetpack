@@ -778,9 +778,9 @@ function wpsc_dump_get_request() {
 	}
 
 	if ( function_exists( 'wp_json_encode' ) ) {
-		$string = wp_json_encode( $_GET );
+		$string = wp_json_encode( $_GET, JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	} else {
-		$string = json_encode( $_GET );
+		$string = json_encode( $_GET, JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	}
 
 	return $string;
@@ -2153,9 +2153,6 @@ function wp_cache_ob_callback( $buffer ) {
 	} elseif ( wpsc_is_caching_user_disabled() ) {
 		wp_cache_debug( 'wp_cache_ob_callback: Caching disabled for known user. User logged in or cookie found.' );
 		$cache_this_page = false;
-	} elseif ( wp_cache_user_agent_is_rejected() ) {
-		wp_cache_debug( 'wp_cache_ob_callback: Caching disabled because user agent was rejected.' );
-		$cache_this_page = false;
 	}
 
 	if ( isset( $wpsc_save_headers ) && $wpsc_save_headers ) {
@@ -2508,7 +2505,6 @@ function wp_cache_get_ob( &$buffer ) {
 		}
 	}
 
-	$new_cache = true;
 	if ( $fr ) {
 		$supercacheonly = false;
 		fclose( $fr );
@@ -2911,7 +2907,6 @@ function wp_cache_shutdown_callback() {
 						$value = 'application/rss+xml';
 				}
 			}
-			$is_feed = true;
 
 			if ( isset( $wpsc_feed_ttl ) && $wpsc_feed_ttl == 1 ) {
 				$wp_cache_meta['ttl'] = 60;
@@ -2952,7 +2947,7 @@ function wp_cache_shutdown_callback() {
 			}
 		}
 
-		$serial = '<?php die(); ?>' . json_encode( $wp_cache_meta );
+		$serial = '<?php die(); ?>' . wp_json_encode( $wp_cache_meta, JSON_UNESCAPED_SLASHES );
 		$dir    = get_current_url_supercache_dir();
 		if ( @is_dir( $dir ) == false ) {
 			@wp_mkdir_p( $dir );

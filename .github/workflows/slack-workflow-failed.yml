@@ -6,15 +6,20 @@ on:
     workflows:
       - Build
       - Build Docker
-      - Tests
       - Gardening
+      - k6 Tests for Jetpack Staging Test Sites
+      - Linting
       - Monorepo Auto-tagger
       - Post-Build
       - PR is up-to-date
+      - Tests
       - Update Jetpack Staging Test Sites
       - Update Phan stubs
-      - k6 Tests for Jetpack Staging Test Sites
     branches: [ 'trunk', 'prerelease', '*/branch-*' ]
+
+permissions:
+  # actions/checkout
+  contents: read
 
 jobs:
   notify:
@@ -23,7 +28,7 @@ jobs:
     if: ${{ github.repository == 'Automattic/jetpack' && github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event != 'issues' && github.event.workflow_run.event != 'issue_comment' }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Generate message
         id: message
         env:

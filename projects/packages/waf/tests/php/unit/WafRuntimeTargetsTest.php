@@ -9,11 +9,13 @@ use Automattic\Jetpack\Waf\Waf_Operators;
 use Automattic\Jetpack\Waf\Waf_Request;
 use Automattic\Jetpack\Waf\Waf_Runtime;
 use Automattic\Jetpack\Waf\Waf_Transforms;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Runtime test suite.
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 
 	/**
@@ -44,7 +46,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$values = $runtime->normalize_targets( array( $target_name => array() ) );
 		$this->assertCount( $expected_count, $values, "$target_name 'all' test returned incorrect count" );
 		foreach ( $expected as $exp ) {
-			$this->assertContains( $exp, $values, "$target_name 'all' test did not contain " . json_encode( $exp ) . ' in ' . json_encode( $values ) );
+			$this->assertContains( $exp, $values, "$target_name 'all' test did not contain " . json_encode( $exp, JSON_UNESCAPED_SLASHES ) . ' in ' . json_encode( $values, JSON_UNESCAPED_SLASHES ) );
 		}
 		// test "only" filter
 		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $expected[1]['name'] ) ) ) );
@@ -250,6 +252,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		yield 'TX' => array( $runtimeFactory, 'tx', $expected, '/_b$/' );
 
 		// IP
+		// @phan-suppress-next-line PhanPluginRedundantAssignment -- same value as before but restated for clarity
 		$expected       = array(
 			array( 'test_a', 'val_a' ),
 			array( 'test_b', 'val_b' ),
@@ -339,7 +342,8 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			);
 			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
 		};
-		$expected       = array(
+		// @phan-suppress-next-line PhanPluginRedundantAssignment -- same value as before but restated for clarity
+		$expected = array(
 			array( 'scalar', 'scalar_val' ),
 			array( 'array[0]', 'array_val_0' ),
 			array( 'array[1]', 'array_val_1' ),

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/number-formatters",
-	"version": "1.0.13",
+	"version": "1.0.15",
 	"description": "Number formatting utilities",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/number-formatters/#readme",
 	"bugs": {
@@ -41,11 +41,11 @@
 	"devDependencies": {
 		"@babel/core": "7.28.4",
 		"@babel/preset-react": "7.27.1",
-		"@jest/globals": "30.0.4",
+		"@jest/globals": "30.2.0",
 		"@knighted/duel": "2.1.5",
 		"@types/jest": "30.0.0",
-		"jest": "30.0.4",
-		"jest-environment-jsdom": "30.0.4",
-		"typescript": "5.9.2"
+		"jest": "30.2.0",
+		"jest-environment-jsdom": "30.2.0",
+		"typescript": "5.9.3"
 	}
 }

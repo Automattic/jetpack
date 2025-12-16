@@ -66,7 +66,7 @@ class WordPress extends Framework implements DependsOnModule {
 	 * @var string
 	 */
 	protected $dependencyMessage
-		= <<< EOF
+		= <<<'EOF'
 Example configuring WPDb
 --
 modules

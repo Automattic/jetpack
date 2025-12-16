@@ -45,7 +45,8 @@ class FeaturedImageInEmailTest extends WP_UnitTestCase {
 					'options' => array(
 						'created_at' => '2025-03-15T10:30:00Z', // March 15, 2025
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 		);
 
@@ -69,7 +70,8 @@ class FeaturedImageInEmailTest extends WP_UnitTestCase {
 					'options' => array(
 						'created_at' => '2025-07-15T10:30:00Z', // July 15, 2025
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 		);
 
@@ -140,7 +142,8 @@ class FeaturedImageInEmailTest extends WP_UnitTestCase {
 					'options' => array(
 					// No created_at field
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 		);
 

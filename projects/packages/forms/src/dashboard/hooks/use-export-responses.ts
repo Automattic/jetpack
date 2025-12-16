@@ -11,8 +11,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../../hooks/use-config-value';
-import { store as dashboardStore } from '../store';
+import useConfigValue from '../../hooks/use-config-value.ts';
+import { store as dashboardStore } from '../store/index.js';
 
 type ExportHookReturn = {
 	showExportModal: boolean;

@@ -39,9 +39,11 @@ const PluginDeactivation = props => {
 	const [ modalOpen, setModalOpen ] = useState( false );
 
 	useEffect( () => {
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
 		fetchSiteBenefits();
 		fetchUserConnectionData();
-	}, [ fetchSiteBenefits, fetchUserConnectionData ] );
+	}, [ apiRoot, apiNonce, fetchSiteBenefits, fetchUserConnectionData ] );
 
 	// Modify the deactivation link.
 	const deactivationLink = document.querySelector( '#deactivate-jetpack, #deactivate-jetpack-dev' ); // ID set by WP on the deactivation link.
@@ -49,11 +51,6 @@ const PluginDeactivation = props => {
 	if ( deactivationLink !== null ) {
 		deactivationLink.setAttribute( 'title', __( 'Deactivate Jetpack', 'jetpack' ) );
 	}
-
-	useEffect( () => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
-	}, [ apiRoot, apiNonce ] );
 
 	const toggleVisibility = useCallback( () => {
 		setModalOpen( ! modalOpen );

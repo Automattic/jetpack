@@ -15,7 +15,7 @@
  */
 
 // Type aliases used in a bunch of places in this file. Unfortunately Phan doesn't have a way to set these more globally than copy-pasting them into each file needing them.
-<<<PHAN
+<<<'PHAN'
 @phan-type Task_List = array{id:string, task_ids:string[], required_task_ids?:string[], visible_tasks_callback?:callable, require_last_task_completion?:bool, get_title?:callable, is_dismissible?:bool, is_enabled_callback?:callable}
 @phan-type Task = array{id:string, title?:string, get_title?:callable, id_map?:string, add_listener_callback?:callable, badge_text_callback?:callable, extra_data_callback?:callable, get_calypso_path?:callable, is_complete_callback?:callable, is_disabled_callback?:callable, isLaunchTask?:bool, is_visible_callback?:callable, target_repetitions?:int, repetition_count_callback?:callable, subtitle?:callable, completed?:bool}
 PHAN;
@@ -759,7 +759,7 @@ function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
 		array(
 			'feature' => 'launchpad',
 			'message' => 'Launchpad enabled for e2e test site.',
-			'extra'   => wp_json_encode( $extra ),
+			'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
 		)
 	);
 }

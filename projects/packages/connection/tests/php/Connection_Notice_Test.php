@@ -37,7 +37,10 @@ class Connection_Notice_Test extends TestCase {
 		$manager    = new Manager();
 		$reflection = new \ReflectionClass( $manager );
 		$method     = $reflection->getMethod( 'add_connection_status_invalidation_hooks' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$method->invoke( $manager );
 	}
 
@@ -66,7 +69,7 @@ class Connection_Notice_Test extends TestCase {
 		$notice = new Connection_Notice();
 
 		$this->expectOutputRegex( '#Set new connection owner#i' );
-		$this->expectOutputRegex( '#' . preg_quote( 'http:\/\/example.org\/index.php?rest_route=\/jetpack\/v4\/connection\/owner', '#' ) . '#i' );
+		$this->expectOutputRegex( '#' . preg_quote( 'http://example.org/index.php?rest_route=/jetpack/v4/connection/owner', '#' ) . '#i' );
 
 		$notice->delete_user_update_connection_owner_notice();
 	}

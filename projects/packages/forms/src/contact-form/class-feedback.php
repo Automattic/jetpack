@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use WP_Post;
 /**
  * Handles the response for a contact form submission.
@@ -78,6 +80,15 @@ class Feedback {
 	 * @var string|null
 	 */
 	protected $user_agent = null;
+
+	/**
+	 * The country code derived from the IP address.
+	 *
+	 * This is derived from the IP address and stored for easier display.
+	 *
+	 * @var string|null
+	 */
+	protected $country_code = null;
 
 	/**
 	 * The subject of the feedback entry.
@@ -223,16 +234,19 @@ class Feedback {
 			$parsed_content['request_url'] ?? ''
 		);
 
-		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
-		$this->user_agent = $parsed_content['user_agent'] ?? null;
-		$this->subject    = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
+		$this->ip_address   = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
+		$this->country_code = $parsed_content['country_code'] ?? null;
+		$this->user_agent   = $parsed_content['user_agent'] ?? null;
+		$this->subject      = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
 		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
 			$this->get_first_field_of_type( 'email', 'pre_comment_author_email' ),
-			$this->get_first_field_of_type( 'url', 'pre_comment_author_url' )
+			$this->get_first_field_of_type( 'url', 'pre_comment_author_url' ),
+			$this->get_field_value_by_form_field_id( 'first-name' ),
+			$this->get_field_value_by_form_field_id( 'last-name' )
 		);
 
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
@@ -280,6 +294,7 @@ class Feedback {
 		// If post_data is provided, use it to populate fields.
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
 		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
+		$this->country_code    = $this->get_country_code_from_ip( $this->ip_address );
 		$this->user_agent      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : null;
 		$this->subject         = $this->get_computed_subject( $post_data, $form );
 		$this->author_data     = Feedback_Author::from_submission( $post_data, $form );
@@ -610,7 +625,10 @@ class Feedback {
 					$compiled_fields[ $field->get_key() ] = $field->get_render_value( $context );
 					break;
 				case 'label-value':
-						$compiled_fields[ $field->get_label( $context, $count_field_labels[ $label ] ) ] = $field->get_render_value( $context );
+					$compiled_fields[ $field->get_label( $context, $count_field_labels[ $label ] ) ] = $field->get_render_value( $context );
+					break;
+				case 'id-value':
+					$compiled_fields[ $field->get_form_field_id() ] = $field->get_render_value( $context );
 					break;
 			}
 		}
@@ -708,6 +726,33 @@ class Feedback {
 	}
 
 	/**
+	 * Get the author name of a feedback entry.
+	 *
+	 * @return string
+	 */
+	public function get_author_name() {
+		return $this->author_data->get_name();
+	}
+
+	/**
+	 * Get the author's first name of a feedback entry.
+	 *
+	 * @return string
+	 */
+	public function get_author_first_name() {
+		return $this->author_data->get_first_name();
+	}
+
+	/**
+	 * Get the author's last name of a feedback entry.
+	 *
+	 * @return string
+	 */
+	public function get_author_last_name() {
+		return $this->author_data->get_last_name();
+	}
+
+	/**
 	 * Get the author email of a feedback entry.
 	 *
 	 * @return string
@@ -761,6 +806,189 @@ class Feedback {
 	 */
 	public function get_user_agent() {
 		return $this->user_agent;
+	}
+
+	/**
+	 * Get the country code derived from the IP address.
+	 *
+	 * @return string|null
+	 */
+	public function get_country_code() {
+		return $this->country_code;
+	}
+
+	/**
+	 * Get the emoji flag for the country.
+	 *
+	 * @return string The emoji flag for the country code, or empty string if unavailable.
+	 */
+	public function get_country_flag() {
+		return self::country_code_to_emoji_flag( $this->country_code );
+	}
+
+	/**
+	 * Convert a country code to an emoji flag.
+	 *
+	 * Country codes should already be uppercase as they're stored that way by get_country_code_from_ip().
+	 *
+	 * @param string $country_code - the two-letter country code (e.g., 'US', 'GB', 'DE').
+	 *
+	 * @return string The emoji flag for the country code, or empty string if invalid.
+	 */
+	private static function country_code_to_emoji_flag( $country_code ) {
+		if ( empty( $country_code ) || strlen( $country_code ) !== 2 ) {
+			return '';
+		}
+
+		// Convert each letter to a regional indicator symbol
+		// Regional indicator symbols start at Unicode code point 127462 (🇦)
+		// and correspond to A-Z (ASCII 65-90)
+		$flag = '';
+		for ( $i = 0; $i < 2; $i++ ) {
+			$char = $country_code[ $i ];
+
+			// Check if the character is a valid uppercase letter (A-Z)
+			if ( ord( $char ) < 65 || ord( $char ) > 90 ) {
+				return '';
+			}
+
+			$code_point = 127462 + ( ord( $char ) - 65 );
+
+			// Convert code point to UTF-8 encoded character
+			$flag .= mb_chr( $code_point, 'UTF-8' );
+		}
+
+		return $flag;
+	}
+
+	/**
+	 * Get country code from IP address.
+	 *
+	 * This method uses a filter to allow custom implementations of GeoIP lookup.
+	 * The filter should return a country code (e.g., 'US', 'GB', 'DE') or null.
+	 *
+	 * @param string|null $ip_address The IP address.
+	 * @return string|null The country code or null if unavailable.
+	 */
+	private function get_country_code_from_ip( $ip_address ) {
+		if ( ! $ip_address ) {
+			return null;
+		}
+		// This filter allows site owners to disable IP address storage entirely as well as GeoIP lookups.
+		// This filter is documented in src/contact-form/class-contact-form-plugin.php
+		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false ) ) {
+			return null;
+		}
+
+		/**
+		 * Filter to get country code from IP address.
+		 *
+		 * @since $$NEXT_VERSION$$
+		 *
+		 * @param string|null $country The country code (e.g., 'US', 'GB', 'DE') or null.
+		 * @param string      $ip_address The IP address to look up.
+		 * @param string      $context The context for the geolocation request.
+		 */
+		$country = apply_filters( 'jetpack_get_country_from_ip', null, $ip_address, 'form-response' );
+		if ( is_string( $country ) ) {
+			return strtoupper( $country );
+		}
+
+		$headers = array(
+			'MM_COUNTRY_CODE',
+			'GEOIP_COUNTRY_CODE',
+			'HTTP_CF_IPCOUNTRY',
+			'HTTP_X_COUNTRY_CODE',
+			'HTTP_X_APPENGINE_COUNTRY',
+			'HTTP_X_FORWARDED_FOR_COUNTRY',
+			'HTTP_CLOUDFRONT_VIEWER_COUNTRY',
+		);
+
+		// Check for headers from the server.
+		foreach ( $headers as $header ) {
+			if ( isset( $_SERVER[ $header ] ) ) {
+				$country = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
+				if ( ! empty( $country ) ) {
+					return strtoupper( $country );
+				}
+			}
+		}
+
+		if ( function_exists( 'geoip_country_code_by_name' ) ) {
+			$country = geoip_country_code_by_name( $ip_address );
+			if ( ! empty( $country ) ) {
+				return strtoupper( $country );
+			}
+		}
+
+		$country = self::geolocate_via_api( $ip_address );
+		if ( ! empty( $country ) ) {
+			return strtoupper( $country );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Use APIs to Geolocate the IP address.
+	 *
+	 * @param  string $ip_address IP address.
+	 * @return string
+	 */
+	private static function geolocate_via_api( $ip_address ) {
+		$country_code = \get_transient( 'geoip_' . $ip_address );
+		if ( false === $country_code ) {
+			$response = Client::wpcom_json_api_request_as_blog(
+				'/ip-to-geo/' . $ip_address,
+				'2',
+				array( 'method' => 'GET' ),
+				null,
+				'wpcom'
+			);
+
+			if ( ! is_wp_error( $response ) && ! empty( $response['body'] ) ) {
+				$data         = json_decode( $response['body'] );
+				$country_code = $data->country_short ?? '';
+				$country_code = \sanitize_text_field( $country_code );
+				// Share the transient with woocommerce to avoid multiple lookups.
+				\set_transient( 'geoip_' . $ip_address, $country_code, DAY_IN_SECONDS );
+			}
+		}
+		return $country_code;
+	}
+
+	/**
+	 * Get the browser information from the user agent.
+	 *
+	 * Returns a formatted string like "Chrome (Desktop)" or "Safari (Mobile)".
+	 *
+	 * @return string|null Browser information or null if user agent is not available.
+	 */
+	public function get_browser() {
+		if ( empty( $this->user_agent ) ) {
+			return null;
+		}
+
+		// Use Jetpack Device Detection to parse the user agent.
+		$ua_info = new User_Agent_Info( $this->user_agent );
+
+		// Get browser name.
+		$browser_name = $ua_info->get_browser_display_name();
+
+		if ( $browser_name === User_Agent_Info::OTHER ) {
+			return __( 'Unknown browser', 'jetpack-forms' );
+		}
+
+		// Determine platform type (Mobile, Tablet, or Desktop).
+		$platform_type = 'Desktop';
+		if ( $ua_info->is_tablet() ) {
+			$platform_type = 'Tablet';
+		} elseif ( $ua_info->get_platform() ) {
+			// If there's a mobile platform detected (not false), it's mobile.
+			$platform_type = 'Mobile';
+		}
+
+		return sprintf( '%s (%s)', $browser_name, $platform_type );
 	}
 
 	/**
@@ -1015,6 +1243,7 @@ class Feedback {
 			array(
 				'subject'                 => $this->subject,
 				'ip'                      => $this->ip_address,
+				'country_code'            => $this->country_code,
 				'user_agent'              => $this->user_agent,
 				'notification_recipients' => $this->notification_recipients,
 			),
@@ -1026,12 +1255,13 @@ class Feedback {
 			$fields_to_serialize['fields'][] = $field->serialize();
 		}
 
-		// Check if the IP should be included.
+		// Check if the IP and country_code should be included.
 		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false, $this->ip_address ) ) {
-			$fields_to_serialize['ip'] = null;
+			$fields_to_serialize['ip']           = null;
+			$fields_to_serialize['country_code'] = null;
 		}
 
-		return addslashes( wp_json_encode( $fields_to_serialize ) );
+		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**

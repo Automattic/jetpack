@@ -36,6 +36,7 @@
  * The `lessc_formatter` takes a CSS tree, and dumps it to a formatted string,
  * handling things like indentation.
  */
+#[\AllowDynamicProperties]
 class lessc {
 	static public $VERSION = "v0.5.0";
 
@@ -662,7 +663,7 @@ class lessc {
 
 		// check for a rest
 		$last = end($args);
-		if ($last[0] == "rest") {
+		if (isset($last[0]) && $last[0] == "rest") {
 			$argsCount = is_countable( $args ) ? count( $args ) : 0;
 			$rest = array_slice($orderedValues, $argsCount - 1);
 			$this->set($last[1], $this->reduce(array("list", " ", $rest)));
@@ -1269,7 +1270,7 @@ class lessc {
 
 	protected function lib_luma($color) {
 	    $color = $this->coerceColor($color);
-	    return (0.2126 * $color[0] / 255) + (0.7152 * $color[1] / 255) + (0.0722 * $color[2] / 255);
+	    return (0.2126 * $color[1] / 255) + (0.7152 * $color[2] / 255) + (0.0722 * $color[3] / 255);
 	}
 
 
@@ -1569,7 +1570,7 @@ class lessc {
 				$width = strlen($colorStr) == 3 ? 16 : 256;
 
 				for ($i = 3; $i > 0; $i--) { // 3 2 1
-					$t = $num % $width;
+					$t = (int) $num % $width;
 					$num /= $width;
 
 					$c[$i] = $t * (256/$width) + $t * floor(16/$width);
@@ -2273,6 +2274,7 @@ class lessc {
 
 // responsible for taking a string of LESS code and converting it into a
 // syntax tree
+#[\AllowDynamicProperties]
 class lessc_parser {
 	static protected $nextBlockId = 0; // used to uniquely identify blocks
 
@@ -3500,7 +3502,7 @@ class lessc_parser {
 		if ($eatWhitespace === null) $eatWhitespace = $this->eatWhiteDefault;
 
 		$r = '/'.$regex.($eatWhitespace && !$this->writeComments ? '\s*' : '').'/Ais';
-		if (preg_match($r, $this->buffer, $out, null, $this->count)) {
+		if (preg_match($r, $this->buffer, $out, 0, $this->count)) {
 			$this->count += strlen($out[0]);
 			if ($eatWhitespace && $this->writeComments) $this->whitespace();
 			return true;
@@ -3531,7 +3533,7 @@ class lessc_parser {
 	protected function peek($regex, &$out = null, $from=null) {
 		if (is_null($from)) $from = $this->count;
 		$r = '/'.$regex.'/Ais';
-		$result = preg_match($r, $this->buffer, $out, null, $from);
+		$result = preg_match($r, $this->buffer, $out, 0, $from);
 
 		return $result;
 	}
@@ -3754,6 +3756,7 @@ class lessc_formatter_classic {
 	}
 }
 
+#[\AllowDynamicProperties]
 class lessc_formatter_compressed extends lessc_formatter_classic {
 	public $disableSingle = true;
 	public $open = "{";

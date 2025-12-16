@@ -7,3 +7,4 @@ export { useElementHeight } from './use-element-height';
 export { useTextTruncation } from './use-text-truncation';
 export { useZeroValueDisplay } from './use-zero-value-display';
 export { useInteractiveLegendData } from './use-interactive-legend-data';
+export { usePrefersReducedMotion } from './use-prefers-reduced-motion';

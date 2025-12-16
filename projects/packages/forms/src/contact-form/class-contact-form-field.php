@@ -109,69 +109,71 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function __construct( $attributes, $content = null, $form = null ) {
 		$attributes = shortcode_atts(
 			array(
-				'label'                    => null,
-				'togglelabel'              => null,
-				'type'                     => 'text',
-				'required'                 => false,
-				'requiredtext'             => null,
-				'requiredindicator'        => true,
-				'options'                  => array(),
-				'optionsdata'              => array(),
-				'id'                       => null,
-				'style'                    => null,
-				'fieldbackgroundcolor'     => null,
-				'buttonbackgroundcolor'    => null,
-				'buttonborderradius'       => null,
-				'buttonborderwidth'        => null,
-				'textcolor'                => null,
-				'default'                  => null,
-				'values'                   => null,
-				'placeholder'              => null,
-				'class'                    => null,
-				'width'                    => null,
-				'consenttype'              => null,
-				'dateformat'               => null,
-				'implicitconsentmessage'   => null,
-				'explicitconsentmessage'   => null,
-				'borderradius'             => null,
-				'borderwidth'              => null,
-				'lineheight'               => null,
-				'labellineheight'          => null,
-				'bordercolor'              => null,
-				'inputcolor'               => null,
-				'labelcolor'               => null,
-				'labelfontsize'            => null,
-				'fieldfontsize'            => null,
-				'labelclasses'             => null,
-				'labelstyles'              => null,
-				'inputclasses'             => null,
-				'inputstyles'              => null,
-				'optionclasses'            => null,
-				'optionstyles'             => null,
-				'min'                      => null,
-				'max'                      => null,
-				'minlabel'                 => null,
-				'maxlabel'                 => null,
-				'step'                     => null,
-				'maxfiles'                 => null,
-				'fieldwrapperclasses'      => null,
-				'stylevariationattributes' => array(),
-				'stylevariationclasses'    => null,
-				'stylevariationstyles'     => null,
-				'optionsclasses'           => null,
-				'optionsstyles'            => null,
-				'align'                    => null,
-				'variation'                => null,
-				'iconstyle'                => null, // For rating field icon style (lowercase for shortcode compatibility)
+				'label'                        => null,
+				'togglelabel'                  => null,
+				'type'                         => 'text',
+				'required'                     => false,
+				'requiredtext'                 => null,
+				'requiredindicator'            => true,
+				'options'                      => array(),
+				'optionsdata'                  => array(),
+				'id'                           => null,
+				'style'                        => null,
+				'fieldbackgroundcolor'         => null,
+				'buttonbackgroundcolor'        => null,
+				'buttonborderradius'           => null,
+				'buttonborderwidth'            => null,
+				'textcolor'                    => null,
+				'default'                      => null,
+				'values'                       => null,
+				'placeholder'                  => null,
+				'class'                        => null,
+				'width'                        => null,
+				'consenttype'                  => null,
+				'dateformat'                   => null,
+				'implicitconsentmessage'       => null,
+				'explicitconsentmessage'       => null,
+				'borderradius'                 => null,
+				'borderwidth'                  => null,
+				'lineheight'                   => null,
+				'labellineheight'              => null,
+				'bordercolor'                  => null,
+				'inputcolor'                   => null,
+				'labelcolor'                   => null,
+				'labelfontsize'                => null,
+				'fieldfontsize'                => null,
+				'labelclasses'                 => null,
+				'labelstyles'                  => null,
+				'inputclasses'                 => null,
+				'inputstyles'                  => null,
+				'optionclasses'                => null,
+				'optionstyles'                 => null,
+				'min'                          => null,
+				'max'                          => null,
+				'minlabel'                     => null,
+				'maxlabel'                     => null,
+				'step'                         => null,
+				'maxfiles'                     => null,
+				'fieldwrapperclasses'          => null,
+				'stylevariationattributes'     => array(),
+				'stylevariationclasses'        => null,
+				'stylevariationstyles'         => null,
+				'optionsclasses'               => null,
+				'optionsstyles'                => null,
+				'align'                        => null,
+				'variation'                    => null,
+				'iconstyle'                    => null, // For rating field icon style (lowercase for shortcode compatibility)
 				// full phone field attributes, might become a standalone country list input block
-				'showcountryselector'      => false,
-				'searchplaceholder'        => false,
+				'showcountryselector'          => false,
+				'searchplaceholder'            => false,
 				// Image select field attributes
-				'ismultiple'               => null,
-				'showlabels'               => null,
-				'issupersized'             => null,
-				'randomizeoptions'         => null,
-				'showotheroption'          => null,
+				'ismultiple'                   => null,
+				'showlabels'                   => null,
+				'issupersized'                 => null,
+				'randomizeoptions'             => null,
+				'showotheroption'              => null,
+				// derived from block metadata for blockVisibility support
+				'labelhiddenbyblockvisibility' => null,
 			),
 			$attributes,
 			'contact-field'
@@ -774,6 +776,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array(), $always_render = false, $required_indicator = true ) {
+		if ( $this->attributes['labelhiddenbyblockvisibility'] ) {
+			return '';
+		}
 		$form_style = $this->get_form_style();
 
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
@@ -896,6 +901,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$extra_attrs_string .= " data-wp-on--keypress='actions.handleNumberKeyPress' ";
 		}
 
+		if ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ) {
+			$aria_label          = ! empty( $placeholder ) ? $placeholder : Contact_Form_Plugin::strip_tags( $this->get_attribute( 'label' ) );
+			$extra_attrs_string .= " aria-label='" . esc_attr( $aria_label ) . "' ";
+		}
+
 		return "<input
 					type='" . esc_attr( $type ) . "'
 					name='" . esc_attr( $id ) . "'
@@ -939,7 +949,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					</svg>
 					<span class="visually-hidden">' . __( 'Warning', 'jetpack-forms' ) . '</span>
 				</span>
-				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
+				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message" role="alert" aria-live="assertive"></span>
 			</div>';
 	}
 
@@ -1139,6 +1149,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-class--has-value='context.phoneNumber'
 					data-wp-init="callbacks.registerPhoneInput"
 					data-wp-init--phone-field-custom-combobox="callbacks.initializePhoneFieldCustomComboBox"
+					<?php if ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ) { ?>
+						aria-label="<?php echo esc_attr( $this->get_attribute( 'label' ) ); ?>"
+					<?php } ?>
 					/>
 				<input type="hidden"
 					id="<?php echo esc_attr( $id ); ?>"
@@ -1193,8 +1206,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$value = '';
 		}
 
-		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text, array(), false, $required_indicator );
-		$field .= "<textarea
+		$field      = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text, array(), false, $required_indicator );
+		$aria_label = ! empty( $placeholder ) ? $placeholder : Contact_Form_Plugin::strip_tags( $this->get_attribute( 'label' ) );
+		$field     .= "<textarea
 		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
 		                id='contact-form-comment-" . esc_attr( $id ) . "'
@@ -1206,6 +1220,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-bind--aria-invalid='state.fieldHasErrors'
 						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
 						"
+						. ( $this->get_attribute( 'labelhiddenbyblockvisibility' )
+							? "aria-label='" . esc_attr( $aria_label ) . "'"
+							: '' )
 						. $class
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
@@ -1295,7 +1312,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
-					$field .= "<p {$option_styles} class='{$option_classes}'>";
+					$field .= "<label {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
@@ -1306,10 +1323,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									. checked( $option_label, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
 									. '/> ';
-					$field .= "<label for='" . esc_attr( $radio_id ) . "' class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<span class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
+					$field .= '</span>';
 					$field .= '</label>';
-					$field .= '</p>';
 				}
 			}
 		} else {
@@ -1456,6 +1473,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'odt'             => 'application/vnd.oasis.opendocument.text',
 				'ppsx'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
 				'ppsm'            => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+				'csv'             => 'text/csv',
 				'xla|xls|xlt|xlw' => 'application/vnd.ms-excel',
 				'xlsx'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 				'xlsm'            => 'application/vnd.ms-excel.sheet.macroEnabled.12',
@@ -1736,7 +1754,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
-					$field .= "<p {$option_styles} class='{$option_classes}'>";
+					$field .= "<label {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								type='checkbox'
@@ -1746,10 +1764,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								. $class
 								. checked( in_array( $option_label, (array) $value, true ), true, false )
 								. ' /> ';
-					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<span class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
+					$field .= '</span>';
 					$field .= '</label>';
-					$field .= '</p>';
 				}
 			}
 		} else {
@@ -1768,7 +1786,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 					$used_html_ids[ $checkbox_id ] = true;
 
-					$field .= "<p class='contact-form-field'>";
+					$field .= "<label class='contact-form-field'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								data-wp-on--change='actions.onMultipleFieldChange'
@@ -1778,10 +1796,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								. $class
 								. checked( in_array( $option, (array) $value, true ), true, false )
 								. ' /> ';
-					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<span {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option ) . '</span>';
+					$field .= '</span>';
 					$field .= '</label>';
-					$field .= '</p>';
 				}
 			}
 		}
@@ -1806,10 +1824,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
-		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
-		$class  = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
-		$field .= "<div {$class} style='" . esc_attr( $this->field_styles ) . "'>";
-		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldHasErrors'>\n";
+		$field      = $this->render_label( 'select', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
+		$class      = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
+		$field     .= "<div {$class} style='" . esc_attr( $this->field_styles ) . "'>";
+		$aria_label = ! empty( $this->get_attribute( 'togglelabel' ) )
+			? Contact_Form_Plugin::strip_tags( $this->get_attribute( 'togglelabel' ) )
+			: __( 'Select an option', 'jetpack-forms' ); // selects don't have a default label
+		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldHasErrors' " . ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ? "aria-label='" . esc_attr( $aria_label ) . "'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -2077,7 +2098,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						'id'  => $image_block['attrs']['id'] ?? null,
 						'src' => $image_src ?? null,
 					),
-				)
+				),
+				JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
 			);
 			$option_id                   = $id . '-' . $option_letter;
 			$used_html_ids[ $option_id ] = true;
@@ -2900,12 +2922,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<div class="jetpack-field-slider__input-row <?php echo esc_attr( $this->field_classes ); ?>"
 			data-wp-context='
 			<?php
-			echo wp_json_encode(
-				array(
-					'min'     => $min,
-					'max'     => $max,
-					'default' => $starting_value,
-					'step'    => $step,
+			echo esc_attr(
+				wp_json_encode(
+					array(
+						'min'     => $min,
+						'max'     => $max,
+						'default' => $starting_value,
+						'step'    => $step,
+					),
+					JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
 				)
 			);
 			?>

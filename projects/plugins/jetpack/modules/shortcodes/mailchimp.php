@@ -227,6 +227,6 @@ class MailChimp_Subscriber_Popup {
 
 		$displayed_once = true;
 
-		return "\n\n" . '<script type="text/javascript" data-dojo-config="' . esc_attr( implode( ', ', $config_vars ) ) . '">jQuery.getScript( "//downloads.mailchimp.com/js/signup-forms/popup/unique-methods/embed.js", function( data, textStatus, jqxhr ) { window.dojoRequire(["mojo/signup-forms/Loader"], function(L) { L.start(' . wp_json_encode( $js_vars ) . ') });} );</script>' . "\n\n";
+		return "\n\n" . '<script type="text/javascript" data-dojo-config="' . esc_attr( implode( ', ', $config_vars ) ) . '">jQuery.getScript( "//downloads.mailchimp.com/js/signup-forms/popup/unique-methods/embed.js", function( data, textStatus, jqxhr ) { window.dojoRequire(["mojo/signup-forms/Loader"], function(L) { L.start(' . wp_json_encode( $js_vars, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ') });} );</script>' . "\n\n";
 	}
 }

@@ -1,9 +1,9 @@
 import apiFetch from '@wordpress/api-fetch';
-import { UNKNOWN_ERROR_MESSAGE } from '../constants';
-import { INVALIDATE_CONFIG } from './action-types';
-import { receiveConfig, setConfigError, setConfigLoading } from './actions';
-import type { ConfigAction, ConfigState } from './types';
-import type { FormsConfigData } from '../../types';
+import { UNKNOWN_ERROR_MESSAGE } from '../constants.ts';
+import { INVALIDATE_CONFIG } from './action-types.ts';
+import { receiveConfig, setConfigError, setConfigLoading } from './actions.ts';
+import type { ConfigAction, ConfigState } from './types.ts';
+import type { FormsConfigData } from '../../types/index.ts';
 
 const fetchConfigData = async ( dispatch: ( action: ConfigAction ) => void ) => {
 	dispatch( setConfigLoading( true ) );

@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 3.0.2
+ * Version: 3.0.3
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -378,18 +378,18 @@ function wpsc_ajax_activate_boost() {
 	check_ajax_referer( 'activate-boost' );
 
 	if ( ! isset( $_POST['source'] ) ) {
-		wp_send_json_error( 'no source specified' );
+		wp_send_json_error( 'no source specified', null, JSON_UNESCAPED_SLASHES );
 	}
 
 	$source = sanitize_text_field( wp_unslash( $_POST['source'] ) );
 	$result = activate_plugin( 'jetpack-boost/jetpack-boost.php' );
 	if ( is_wp_error( $result ) ) {
-		wp_send_json_error( $result->get_error_message() );
+		wp_send_json_error( $result->get_error_message(), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	wpsc_notify_migration_to_boost( $source );
 
-	wp_send_json_success();
+	wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_ajax_activate_boost' );
 
@@ -471,10 +471,12 @@ function wp_cache_manager_error_checks() {
 		return false;
 	}
 
+	// phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.safe_modeDeprecatedRemoved -- Version is checked before access.
 	if ( PHP_VERSION_ID < 50300 && ( ini_get( 'safe_mode' ) === '1' || strtolower( ini_get( 'safe_mode' ) ) === 'on' ) ) { // @codingStandardsIgnoreLine
 		echo '<div class="notice notice-error"><h4>' . esc_html__( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ) . '</h4>';
 		echo '<p>' . esc_html__( 'You may experience problems running this plugin because SAFE MODE is enabled.', 'wp-super-cache' ) . '<br />';
 
+		// phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.safe_mode_gidDeprecatedRemoved -- Version is checked before access.
 		if ( ! ini_get( 'safe_mode_gid' ) ) { // @codingStandardsIgnoreLine
 			esc_html_e( 'Your server is set up to check the owner of PHP scripts before allowing them to read and write files.', 'wp-super-cache' );
 			echo '<br />';
@@ -744,7 +746,7 @@ function wp_cache_manager_updates() {
 		return false;
 
 	if ( false == isset( $cache_page_secret ) ) {
-		$cache_page_secret = md5( (string) ( gmdate( 'H:i:s' ) . wp_rand() ) );
+		$cache_page_secret = md5( gmdate( 'H:i:s' ) . wp_rand() );
 		wp_cache_replace_line('^ *\$cache_page_secret', "\$cache_page_secret = '" . $cache_page_secret . "';", $wp_cache_config_file);
 	}
 
@@ -2990,7 +2992,7 @@ add_action( 'admin_notices', 'wp_cache_admin_notice' );
 function wp_cache_check_site() {
 	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wpdb;
 
-	if ( !isset( $wp_super_cache_front_page_check ) || ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 0 ) ) {
+	if ( empty( $wp_super_cache_front_page_check ) ) {
 		return false;
 	}
 
@@ -3308,7 +3310,7 @@ function clear_post_supercache( $post_id ) {
  */
 function wpsc_ajax_get_preload_status() {
 	$preload_status = wpsc_get_preload_status( true );
-	wp_send_json_success( $preload_status );
+	wp_send_json_success( $preload_status, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_wpsc_get_preload_status', 'wpsc_ajax_get_preload_status' );
 
@@ -3381,7 +3383,7 @@ function wpsc_update_active_preload( $group = null, $progress = null, $url = nul
 
 	$filename = wpsc_get_preload_status_file_path();
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status ) ) ) {
+	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status, JSON_UNESCAPED_SLASHES ) ) ) {
 		wp_cache_debug( "wpsc_update_active_preload: failed to write to $filename" );
 	}
 }
@@ -3401,7 +3403,7 @@ function wpsc_update_idle_preload( $finish_time = null ) {
 
 	$filename = wpsc_get_preload_status_file_path();
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status ) ) ) {
+	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status, JSON_UNESCAPED_SLASHES ) ) ) {
 		wp_cache_debug( "wpsc_update_idle_preload: failed to write to $filename" );
 	}
 }

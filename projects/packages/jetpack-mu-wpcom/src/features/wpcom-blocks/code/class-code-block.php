@@ -19,9 +19,7 @@ use WP_Theme_JSON;
  * Contains necessary functionality for the Code Block.
  */
 abstract class Code_Block {
-	const VERSION       = '2.1';
 	const MODULE_PREFIX = '@a8cCodeBlock/';
-	const BLOCK_NAME    = 'a8c/code';
 
 	/**
 	 * Filterable check for whether the block should be available.
@@ -30,7 +28,7 @@ abstract class Code_Block {
 	 */
 	private static function should_load_block(): bool {
 		$filtered_value = apply_filters( 'jetpack_mu_wpcom_should_load_code_block', false );
-		return is_bool( $filtered_value ) ? $filtered_value : false;
+		return \is_bool( $filtered_value ) ? $filtered_value : false;
 	}
 
 	/**
@@ -42,9 +40,9 @@ abstract class Code_Block {
 		}
 
 		self::init();
-		add_action( 'wp_loaded', array( __CLASS__, 'register_block' ) );
+		add_action( 'init', array( __CLASS__, 'override_block_style' ) );
+		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
-
 		add_action(
 			'wp_enqueue_scripts',
 			function () {
@@ -69,7 +67,9 @@ abstract class Code_Block {
 		add_action( 'after_setup_theme', array( __CLASS__, 'after_setup_theme' ), 100 );
 	}
 
-	/** Set up the plugin. */
+	/**
+	 * Registration of scripts and styles.
+	 */
 	private static function init() {
 		$block_definition_asset_file      = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php';
 		$jetpack_wpcom_modules_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
@@ -105,14 +105,6 @@ abstract class Code_Block {
 			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['version']
 		);
 
-		$style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php';
-		wp_register_style(
-			self::MODULE_PREFIX . 'style',
-			plugins_url( 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css', Jetpack_Mu_Wpcom::BASE_FILE ),
-			array(),
-			$style_asset_file['version']
-		);
-
 		$editor_style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php';
 		wp_register_style(
 			self::MODULE_PREFIX . 'editor',
@@ -140,17 +132,196 @@ abstract class Code_Block {
 		);
 	}
 
-	/** Register the block. */
-	public static function register_block() {
-		register_block_type_from_metadata(
-			__DIR__ . '/common/block.json',
-			array(
-				'editor_script'   => self::MODULE_PREFIX . 'block-definition',
-				'editor_style'    => self::MODULE_PREFIX . 'editor',
-				'style'           => self::MODULE_PREFIX . 'style',
-				'render_callback' => array( __CLASS__, 'render_block' ),
-			)
+	/**
+	 * Set up the block view styles.
+	 *
+	 * Core's `wp-block-code` handle must be used in order to work with the global styles system.
+	 * It relies on checking whether this style is enqueued to add the associated global styles to the page.
+	 *
+	 * Instead of using a different style handle, replace the registered style for `wp-block-code`.
+	 *
+	 * @see https://core.trac.wordpress.org/browser/tags/6.8.3/src/wp-includes/global-styles-and-settings.php#L322
+	 */
+	public static function override_block_style() {
+		$was_enqueued = wp_style_is( 'wp-block-code', 'enqueued' );
+		wp_deregister_style( 'wp-block-code' );
+
+		$style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php';
+		$src              = plugins_url( 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css', Jetpack_Mu_Wpcom::BASE_FILE );
+		$version          = $style_asset_file['version'];
+
+		wp_register_style(
+			'wp-block-code',
+			$src,
+			array(),
+			$version
 		);
+		if ( $was_enqueued ) {
+			wp_enqueue_style( 'wp-block-code' );
+		}
+	}
+
+	/**
+	 * Filter for block registration to modify the core/code block.
+	 *
+	 * @param array  $args The block type arguments.
+	 * @param string $block_type The block type name.
+	 *
+	 * @return array The modified block type arguments.
+	 */
+	public static function register_block_type_args( array $args, string $block_type ): array {
+		if ( 'core/code' !== $block_type ) {
+			return $args;
+		}
+
+		$args['render_callback']       = array( __CLASS__, 'render_block' );
+		$args['editor_script_handles'] = array_merge( array( self::MODULE_PREFIX . 'block-definition' ), $args['editor_script_handles'] ?? array() );
+
+		$args['editor_style_handles'] = array( self::MODULE_PREFIX . 'editor' );
+		$args['style_handles']        = array( 'wp-block-code' );
+		unset( $args['view_style_handles'] );
+
+		/*
+		 * Add selectors for typography targetting problematic elements.
+		 *
+		 * - The descendent PRE element needs font-family styling like this to ensure it receives
+		 *   user agent default styling like monospace, as well as PRE element styling from themes,
+		 *   and can also be styled by global styles and theme.json.
+		 */
+		$args['selectors'] = array(
+			'root'       => '.wp-block-code',
+			'typography' => array(
+
+				/*
+				 * These are experimental at the moment. The camelCase form appears to be used, but
+				 * it's possible the kebab-case currently used in documentation may be used when
+				 * they're stabilized.
+				 */
+				'fontFamily'  => '.wp-block-code, .wp-block-code pre',
+				'font-family' => '.wp-block-code, .wp-block-code pre',
+			),
+		);
+
+		/**
+		 * Typography support:
+		 *
+		 * Line height and letter spacing may be problematic for rendering in the editor,
+		 * line numbers, etc. Disable them.
+		 *
+		 * Text decoration is problematic with additional UI elements like buttons and
+		 * line numbers. Disable.
+		 */
+		if ( isset( $args['supports']['typography'] ) && \is_array( $args['supports']['typography'] ) ) {
+			$args['supports']['typography']['lineHeight']                   = false;
+			$args['supports']['typography']['__experimentalLetterSpacing']  = false;
+			$args['supports']['typography']['letterSpacing']                = false;
+			$args['supports']['typography']['__experimentalTextDecoration'] = false;
+			$args['supports']['typography']['textDecoration']               = false;
+		} else {
+			$args['supports']['typography'] = array(
+				'fontSize'                      => true,
+				'lineHeight'                    => false,
+
+				// Currently experimental, but include likely stable forms as well.
+				'__experimentalFontFamily'      => true,
+				'__experimentalFontWeight'      => true,
+				'__experimentalFontStyle'       => true,
+				'__experimentalTextTransform'   => true,
+				'fontFamily'                    => true,
+				'fontWeight'                    => true,
+				'fontStyle'                     => true,
+				'textTransform'                 => true,
+
+				'__experimentalDefaultControls' => array(
+					'fontSize' => true,
+				),
+				'defaultControls'               => array(
+					'fontSize' => true,
+				),
+			);
+		}
+
+		$args['attributes'] = array(
+			// Content attribute is preserved for compatibility with the core/code block and transforms.
+			'content'                 => $args['attributes']['content'],
+			'tokenizedLines'          => array(
+				'type'    => 'array',
+				'default' =>
+				array(),
+			),
+			'language'                => array(
+				'type'    => 'string',
+				'default' => '',
+			),
+			'languageConfidence'      => array(
+				'type'    => 'string',
+				'default' => 'unknown',
+			),
+			'triggerCodeUpdate'       => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'showFileName'            => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'showCopyButton'          => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'showLanguageName'        => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'showLineNumbers'         => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'lineNumbersStartAt'      => array(
+				'type'    => 'number',
+				'default' => 1,
+			),
+			'filename'                => array(
+				'type'    => 'string',
+				'default' => '',
+			),
+			'colorComment'            => array(
+				'type' => 'string',
+			),
+			'colorKeyword'            => array(
+				'type' => 'string',
+			),
+			'colorBoolean'            => array(
+				'type' => 'string',
+			),
+			'colorLiteral'            => array(
+				'type' => 'string',
+			),
+			'colorString'             => array(
+				'type' => 'string',
+			),
+			'colorSpecialString'      => array(
+				'type' => 'string',
+			),
+			'colorMacroName'          => array(
+				'type' => 'string',
+			),
+			'colorVariableDefinition' => array(
+				'type' => 'string',
+			),
+			'colorTypeName'           => array(
+				'type' => 'string',
+			),
+			'colorClassName'          => array(
+				'type' => 'string',
+			),
+			'colorInvalid'            => array(
+				'type' => 'string',
+			),
+		);
+		$args['textdomain'] = 'jetpack-mu-wpcom';
+
+		return $args;
 	}
 
 	/**
@@ -181,15 +352,15 @@ abstract class Code_Block {
 	 * @param string $content The block content.
 	 */
 	public static function render_block( array $attributes, string $content ): string {
-		if ( ! is_array( $attributes['tokenizedLines'] ?? null ) ) {
+		if ( empty( $attributes['tokenizedLines'] ) || ! \is_array( $attributes['tokenizedLines'] ) ) {
 			return $content;
 		}
 
-		list($code_string, $replaced_content) = Code_Block_HTML_Replacer::get_updated_html_with_replaced_content( $content, $attributes['tokenizedLines'] );
-
-		if ( null === $replaced_content ) {
+		$processed_content = Code_Block_HTML_Replacer::get_updated_html_with_replaced_content( $content, $attributes['tokenizedLines'], $attributes['language'] );
+		if ( null === $processed_content ) {
 			return $content;
 		}
+		list( $code_string, $replaced_content ) = $processed_content;
 
 		$extra_attrs      = array();
 		$style_properties = array();
@@ -199,14 +370,14 @@ abstract class Code_Block {
 		}
 
 		$show_line_numbers = $attributes['showLineNumbers'] ?? false;
-		if ( $show_line_numbers && ! empty( $attributes['tokenizedLines'] ) ) {
+		if ( $show_line_numbers ) {
 			$extra_attrs['class']  = 'show-line-numbers';
 			$line_numbers_start_at = isset( $attributes['lineNumbersStartAt'] )
 				? max( 0, min( 10000, (int) $attributes['lineNumbersStartAt'] ) )
 				: 1;
 
 			$max_line_number_width = floor(
-				log10( $line_numbers_start_at + ( count( $attributes['tokenizedLines'] ) - 1 ) )
+				log10( $line_numbers_start_at + \count( $attributes['tokenizedLines'] ) - 1 )
 			) + 1;
 
 			if ( $line_numbers_start_at !== 1 ) {
@@ -252,12 +423,12 @@ abstract class Code_Block {
 
 		$attrs = get_block_wrapper_attributes( $extra_attrs );
 
-		$filename_html = ! empty( $attributes['filename'] )
-			? sprintf( '<span class="a8c/code__filename">%s</span>', esc_html( $attributes['filename'] ) )
+		$filename_html = ( ( $attributes['showFileName'] ?? false ) && ! empty( $attributes['filename'] ) )
+			? \sprintf( '<span class="a8c/code__filename">%s</span>', esc_html( $attributes['filename'] ) )
 			: '';
 
 		$copy_html = ( $attributes['showCopyButton'] ?? false )
-			? sprintf(
+			? \sprintf(
 				'<button class="%s element-button a8c/code__btn-copy" type="button" data-copy-text="%s" hidden>%s</button>',
 				WP_Theme_JSON::get_element_class_name( 'button' ),
 				esc_attr( $code_string ),
@@ -266,7 +437,7 @@ abstract class Code_Block {
 			: '';
 
 		$language_html = ( ( $attributes['showLanguageName'] ?? false ) && ! empty( $attributes['language'] ) )
-			? sprintf( '<span>%s</span>', esc_html( $attributes['language'] ) )
+			? \sprintf( '<span>%s</span>', esc_html( $attributes['language'] ) )
 			: '';
 
 		$header_right_html = ( $copy_html || $language_html )
@@ -277,14 +448,14 @@ abstract class Code_Block {
 			: '';
 
 		$output = <<<HTML
-	<div {$attrs}>{$header_html}
-		<div class="cm-editor">
-			<div class="cm-scroller">
-				{$replaced_content}
-			</div>
+<div {$attrs}>{$header_html}
+	<div class="cm-editor">
+		<div class="cm-scroller">
+			{$replaced_content}
 		</div>
 	</div>
-	HTML;
+</div>
+HTML;
 
 		return $output;
 	}
@@ -298,13 +469,26 @@ abstract class Code_Block {
 	 * This is not essential, but does save some HTML on the page and a network request.
 	 * The dummy module is only used to signal that some additional modules
 	 * should be included in the importmap.
-	 *
-	 * @TODO: Be safer. Check the return (bool: was removed) and behave accordingly.
 	 */
 	public static function after_setup_theme() {
 		foreach ( array( 'wp_head', 'wp_footer', 'admin_print_footer_scripts' ) as $hook ) {
-			remove_action( $hook, array( wp_script_modules(), 'print_enqueued_script_modules' ) );
-			remove_action( $hook, array( wp_script_modules(), 'print_script_module_preloads' ) );
+			/*
+			 * Script module actions are expected in this order:
+			 *
+			 * - WP_Script_Modules::print_import_map
+			 * - WP_Script_Modules::print_script_module_preloads
+			 * - WP_Script_Modules::print_enqueued_script_modules
+			 *
+			 * Attempt to remove actions starting from the end to that if a removal fails,
+			 * the action can be restored to the expected position by adding it again.
+			 */
+			if ( ! remove_action( $hook, array( wp_script_modules(), 'print_script_module_preloads' ) ) ) {
+				continue;
+			}
+			if ( ! remove_action( $hook, array( wp_script_modules(), 'print_enqueued_script_modules' ) ) ) {
+				add_action( $hook, array( wp_script_modules(), 'print_script_module_preloads' ) );
+				continue;
+			}
 
 			add_action(
 				$hook,

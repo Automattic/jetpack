@@ -100,14 +100,20 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 		// static variable.
 		// l337 h4X0Ring required:
 		$instance = new ReflectionProperty( Image_CDN::class, 'instance' );
-		$instance->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
 		$instance->setValue( null, null );
 
 		/**
 		 * Reset the `image_sizes` property, as it persists between class instantiations, since it's static.
 		 */
 		$instance = new ReflectionProperty( Image_CDN::class, 'image_sizes' );
-		$instance->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
 		$instance->setValue( null, null );
 
 		self::delete_author();
@@ -137,10 +143,10 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @return int Post ID (attachment) of the image.
 	 */
 	protected function helper_get_image( $size = 'large', $meta = true ) {
-		if ( 'large' === $size ) { // 1600x1200
-			$filename = __DIR__ . '/sample-content/test-image-large.png';
-		} elseif ( 'medium' === $size ) { // 1024x768
+		if ( 'medium' === $size ) { // 1024x768
 			$filename = __DIR__ . '/sample-content/test-image-medium.png';
+		} else { // 1600x1200 - default to 'large'
+			$filename = __DIR__ . '/sample-content/test-image-large.png';
 		}
 		// Add sizes that exist before uploading the file.
 		add_image_size( 'jetpack_soft_defined', 700, 500, false ); // Intentionally not a 1.33333 ratio.
@@ -1592,7 +1598,10 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	public function test_image_cdn_validate_image_url_file_types( $url, $expected ) {
 		$testable                    = new ReflectionClass( Image_CDN::class );
 		$testable_validate_image_url = $testable->getMethod( 'validate_image_url' );
-		$testable_validate_image_url->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$testable_validate_image_url->setAccessible( true );
+		}
 		$this->assertEquals( $expected, $testable_validate_image_url->invoke( null, $url ) );
 	}
 

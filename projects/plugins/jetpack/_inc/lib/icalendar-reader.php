@@ -72,7 +72,6 @@ class iCalendarReader {
 		$transient_id = 'icalendar_vcal_' . md5( $url ) . '_' . $count;
 
 		$vcal = get_transient( $transient_id );
-		$vcal = false;
 		if ( ! empty( $vcal ) ) {
 			if ( isset( $vcal['TIMEZONE'] ) ) {
 				$this->timezone = $this->timezone_from_string( $vcal['TIMEZONE'] );

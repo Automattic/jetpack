@@ -1,9 +1,9 @@
 import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
-import { ALLOWED_FORMATS } from '../shared/util/constants';
-import useEnter from './use-enter';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
+import { ALLOWED_FORMATS } from '../shared/util/constants.js';
+import useEnter from './use-enter.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 
@@ -68,7 +68,6 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 					<input
 						className="jetpack-field-option__checkbox"
 						checked={ !! defaultValue }
-						disabled
 						type={ type }
 					/>
 				) }
@@ -102,7 +101,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 
 	return (
 		<li { ...blockProps }>
-			<input type={ type } disabled className="jetpack-option__type" tabIndex="-1" />
+			<input type={ type } className="jetpack-option__type" tabIndex="-1" />
 			<RichText
 				ref={ useEnterRef }
 				identifier="label"

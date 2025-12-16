@@ -576,7 +576,7 @@ class Jetpack_Widgets {
 				'wpcom_widgets_activate_widget',
 				array(
 					'widget'   => $id_base,
-					'settings' => wp_json_encode( $settings ),
+					'settings' => wp_json_encode( $settings, JSON_UNESCAPED_SLASHES ),
 				)
 			);
 		}

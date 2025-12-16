@@ -33,7 +33,12 @@ class Post_Settings_Test extends BaseTestCase {
 	 * Initialize tests
 	 */
 	public function set_up() {
-		$publicize = $this->getMockBuilder( Publicize::class )->disableOriginalConstructor()->onlyMethods( array() )->getMock();
+		// Anonymous class to disable constructor.
+		// PHPUnit 12.5 whines about mocks without expectations, while getStubBuilder() (for partial mocks) doesn't exist until 12.5.
+		$publicize = new class() extends Publicize {
+			public function __construct() {
+			}
+		};
 		$publicize->register_post_meta();
 
 		$this->post_id       = wp_insert_post(

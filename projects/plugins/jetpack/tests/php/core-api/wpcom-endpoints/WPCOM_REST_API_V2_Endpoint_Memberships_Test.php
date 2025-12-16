@@ -151,7 +151,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'type'     => 'donation',
 			'currency' => 'USD',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
@@ -169,7 +169,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'type'     => 'donation',
 			'currency' => 'USD',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
@@ -199,7 +199,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'type'     => 'donation',
 			'currency' => 'USD',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'dummy_error', $response, 500 );
@@ -304,7 +304,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'currency' => 'USD',
 			'interval' => 'week',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
@@ -324,7 +324,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'currency' => 'USD',
 			'interval' => 'week',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_unauthorized', $response, 403 );
@@ -356,7 +356,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'currency' => 'USD',
 			'interval' => 'week',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'dummy_error', $response, 500 );
@@ -376,7 +376,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'type'     => 'tier',
 			'tier'     => 123, // Monthly plans should not have tier
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'invalid_tier_usage', $response, 400 );
@@ -396,7 +396,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'type'     => 'tier',
 			'tier'     => -1, // Invalid tier value
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'invalid_tier_id', $response, 400 );
@@ -416,7 +416,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'type'     => 'donation',
 			'tier'     => 123, // Donation products can have tier
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		// This should not fail because donation products are not subject to tier validation
@@ -439,7 +439,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'type'     => 'tier',
 			'tier'     => 99999, // Non-existent tier ID
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'tier_not_found', $response, 400 );
@@ -461,7 +461,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'type'     => 'tier',
 			'tier'     => 456, // Tier ID pointing to a non-monthly plan
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'invalid_tier_interval', $response, 400 );
@@ -483,7 +483,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'type'     => 'tier',
 			'tier'     => 789, // Tier ID already referenced by another yearly plan
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'duplicate_tier_reference', $response, 400 );
@@ -503,7 +503,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'currency' => 'USD',
 			'interval' => 'week',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
@@ -523,7 +523,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'currency' => 'USD',
 			'interval' => 'week',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
@@ -555,7 +555,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'currency' => 'USD',
 			'interval' => 'week',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'dummy_error', $response, 500 );
@@ -578,7 +578,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'interval' => '1 month',
 			'type'     => 'tier',
 		);
-		$create_request->set_body( wp_json_encode( $create_body ) );
+		$create_request->set_body( wp_json_encode( $create_body, JSON_UNESCAPED_SLASHES ) );
 		$create_response = $this->server->dispatch( $create_request );
 		$product_data    = $create_response->get_data();
 		$product_id      = $product_data['id'];
@@ -598,7 +598,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 			'type'     => 'tier',
 			'tier'     => 123, // Monthly plans should not have tier
 		);
-		$update_request->set_body( wp_json_encode( $update_body ) );
+		$update_request->set_body( wp_json_encode( $update_body, JSON_UNESCAPED_SLASHES ) );
 		$update_response = $this->server->dispatch( $update_request );
 
 		$this->assertErrorResponse( 'invalid_tier_usage', $update_response, 400 );
@@ -637,7 +637,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 		$body = array(
 			'cancel_subscriptions' => 'Not a bool',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
@@ -655,7 +655,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 		$body = array(
 			'cancel_subscriptions' => 'true',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'dummy_error', $response, 500 );
@@ -987,7 +987,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$reflection = new ReflectionClass( $endpoint );
 		$method     = $reflection->getMethod( 'validate_tier_field' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $endpoint, $request, null, 'tier', '1 month' );
 		$this->assertNull( $result );
@@ -1002,7 +1005,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$reflection = new ReflectionClass( $endpoint );
 		$method     = $reflection->getMethod( 'validate_tier_field' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $endpoint, $request, 123, 'donation', '1 month' );
 		$this->assertNull( $result );
@@ -1017,7 +1023,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$reflection = new ReflectionClass( $endpoint );
 		$method     = $reflection->getMethod( 'validate_tier_field' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $endpoint, $request, 123, 'tier', '1 month' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -1033,7 +1042,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$reflection = new ReflectionClass( $endpoint );
 		$method     = $reflection->getMethod( 'validate_yearly_tier' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $endpoint, $request, -1 );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -1049,7 +1061,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$reflection = new ReflectionClass( $endpoint );
 		$method     = $reflection->getMethod( 'validate_yearly_tier' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $endpoint, $request, 'invalid' );
 		$this->assertInstanceOf( WP_Error::class, $result );

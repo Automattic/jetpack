@@ -42,7 +42,15 @@
 	<!-- Custom JPCRM escape function -->
 	<rule ref="WordPress.Security.EscapeOutput">
 		<properties>
-			<property name="customAutoEscapedFunctions" type="array" value="jpcrm_esc_link,jpcrm_get_avatar"/>
+			<property name="customAutoEscapedFunctions" type="array">
+				<element value="jpcrm_esc_link"/>
+				<element value="jpcrm_get_avatar"/>
+			</property>
 		</properties>
+	</rule>
+
+	<!-- Pending https://github.com/Automattic/jetpack/pull/46111 -->
+	<rule ref="Jetpack.Functions.JsonEncodeFlags">
+		<exclude name="Jetpack.Functions.JsonEncodeFlags.Missing"/>
 	</rule>
 </ruleset>

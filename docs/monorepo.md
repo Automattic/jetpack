@@ -41,7 +41,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 ## Compatibility
 
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.4.
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.5.
 
 ## First Time
 
@@ -213,7 +213,7 @@ On most Linux distributions, you can install the PHP ast extension using your pa
 
 - For Ubuntu/Debian-based systems:
   ```
-  sudo apt-get install php8.2-ast
+  sudo apt-get install php8.4-ast
   ```
 - For Arch Linux:
   Install the AUR package "php-ast" from https://aur.archlinux.org/packages/php-ast
@@ -226,15 +226,15 @@ Mac users have reported having trouble installing the PHP ast extension. See the
 
 <details><summary>Installing the PHP ast extension on Mac</summary>
 
-This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.4`.
 
 1. First, check whether ast is already installed by running `php --ri ast`. If it prints something like this, you should already be good (unless you need a newer version; see [Phan's README](https://github.com/phan/phan#getting-started) for version requirements):
    ```
    ast
 
    ast support => enabled
-   extension version => 1.1.1
-   AST version => Current version is 90. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100}
+   extension version => 1.1.3
+   AST version => Current version is 120. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100, 110, 120}
    ```
 2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
 3. Update the list of available extensions: `pecl channel-update pecl.php.net`
@@ -259,7 +259,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 7.2 to 8.4. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
+Tests are run with a variety of supported PHP versions from 7.2 to 8.5. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -267,7 +267,7 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 9.6, to support PHP 7.2 to 8.4.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 12.4, to support PHP 7.2 to 8.5.
 * [automattic/phpunit-select-config](https://packagist.org/packages/automattic/phpunit-select-config) allows for selecting a configuration file based on the version of PHPUnit in use, since configs are often not compatible across major versions since PHPUnit 9.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
@@ -326,7 +326,7 @@ On most Linux distributions, you can install the PHP pcov extension using your p
 
 - For Ubuntu/Debian-based systems:
   ```
-  sudo apt-get install php8.2-pcov
+  sudo apt-get install php8.4-pcov
   ```
 - For Arch Linux:
   Install the AUR package "php-pcov" from https://aur.archlinux.org/packages/php-pcov
@@ -339,7 +339,7 @@ Mac users have reported having trouble installing the PHP pcov extension. See th
 
 <details><summary>Installing the PHP pcov extension on Mac</summary>
 
-This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.4`.
 
 1. First, check whether pcov is already installed by running `php --ri pcov`. If it prints something like this, you should already be good:
    ```
@@ -369,7 +369,7 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
-1. Create the mirror repo on GitHub. It will most likely be named like "https://github.com/Automattic/jetpack-_something_".
+1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
    1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
    2. The default branch should be `trunk`, matching the monorepo.
       * Note that you can't set the default branch until at least one branch is created in the repo.

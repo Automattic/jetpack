@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 4.5.0
+Stable tag: 4.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,15 +183,13 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.0 - 2025-10-15
-#### Added
-- Defer JS: Exclude Slider Revolution scripts to avoid broken sliders.
-
+### 4.5.4 - 2025-12-12
 #### Changed
+- Image CDN: cache image quality settings per format to reduce repeated processing.
 - Update package dependencies.
 
 #### Fixed
-- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin.
+- Ensure proper flags are used with `json_encode()`.
 
 --------
 

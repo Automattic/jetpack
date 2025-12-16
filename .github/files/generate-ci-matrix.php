@@ -65,7 +65,7 @@ foreach ( array( '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ) as $ph
 		'script'  => 'test-php',
 		'php'     => $php,
 		'wp'      => 'latest',
-		'timeout' => 20, // 2024-11-12: Successful runs seem to take up to ~7 minutes.
+		'timeout' => 20, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	);
 }
 
@@ -76,9 +76,19 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 		'script'  => 'test-php',
 		'php'     => $phpver,
 		'wp'      => $wp,
-		'timeout' => 15, // 2024-11-12: Successful runs seem to take ~7 minutes with PHP 8.2.
+		'timeout' => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	);
 }
+
+// todo: move to the main matrix once WP latest is compatible with PHP 8.5.
+$matrix[] = array(
+	'name'                => 'PHP tests: PHP 8.5 WP trunk',
+	'script'              => 'test-php',
+	'php'                 => '8.5',
+	'wp'                  => 'trunk',
+	'timeout'             => 15, // 2025-11-06: Successful runs seem to take ~8 minutes.
+	'force-package-tests' => true,
+);
 
 // Add WooCommerce tests.
 $matrix[] = array(
@@ -86,7 +96,7 @@ $matrix[] = array(
 	'script'           => 'test-php',
 	'php'              => '7.4',
 	'wp'               => 'latest',
-	'timeout'          => 20,
+	'timeout'          => 15, // 2025-11-06: Successful runs seem to take ~3 minutes.
 	'with-woocommerce' => true,
 );
 
@@ -96,7 +106,7 @@ $matrix[] = array(
 	'script'       => 'test-php',
 	'php'          => '8.1',
 	'wp'           => 'latest',
-	'timeout'      => 20,
+	'timeout'      => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	'with-wpcomsh' => true,
 );
 
@@ -104,7 +114,7 @@ $matrix[] = array(
 $matrix[] = array(
 	'name'    => 'JS tests',
 	'script'  => 'test-js',
-	'timeout' => 15, // 2024-11-12: Successful runs seem to take ~5 minutes.
+	'timeout' => 15, // 2025-11-06: Successful runs seem to take ~5 minutes.
 );
 
 // Add Coverage tests.
@@ -112,7 +122,7 @@ $matrix[] = array(
 	'name'    => 'Code coverage',
 	'script'  => 'test-coverage',
 	'wp'      => 'latest',
-	'timeout' => 40, // 2024-11-12: Successful runs seem to take ~14 minutes.
+	'timeout' => 40, // 2025-11-06: Successful runs seem to take ~15 minutes.
 );
 
 // END matrix definitions.

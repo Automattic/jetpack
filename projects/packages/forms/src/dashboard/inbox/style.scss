@@ -1,542 +1,174 @@
 @use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/colors";
+@use "../mixins";
 @use "../../blocks/shared/styles/empty_image_option" as *;
 @import "@wordpress/dataviews/build-style/style.css";
 
-.jp-forms__inbox {
-	// visual aid for focus, currently only export button
-	.button-primary.export-button:focus {
-		box-shadow: var(--jp-forms-focus-shadow);
-	}
-
-	.components-dropdown-menu {
-
-		.components-menu-item__button {
-			font-size: var(--jp-forms-font-size-regular);
-		}
-	}
-}
-
-@keyframes jp-forms__slide-in {
-
-	from {
-		transform: translateY(150px);
-	}
-}
-
-@keyframes jp-forms__fade-in {
-
-	from {
-		opacity: 0;
-	}
-
-	35% {
-		opacity: 1;
-	}
-}
-
-.jp-forms__inbox-response {
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: column;
-	min-height: 300px;
-	overflow: hidden;
-	background-color: #fff;
-	position: relative;
-
-	&.exit-active {
-		display: none;
-	}
-
-	@media (min-width: 1025px) {
-
-		&.enter,
-		&.enter-active {
-			animation: jp-forms__slide-in 0.2s ease-out forwards, jp-forms__fade-in 0.2s ease-in forwards;
-
-			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: none;
-			}
-		}
-
-		&.exit,
-		&.exit-active,
-		&.exit-done {
-			display: flex;
-			position: absolute;
-			top: 0 !important;
-			left: 0;
-			z-index: -1;
-
-			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: jp-forms__slide-in 0.2s ease-out forwards reverse, jp-forms__fade-in 0.2s ease-in forwards reverse;
-				z-index: 1;
-			}
-		}
-	}
-
-}
-
-.jp-forms__inbox-response-header {
-	margin: 24px 0 0;
-	padding: 0 32px 0 0;
-
-	@media (min-width: 782px) {
-		padding: 0 32px;
-	}
-}
-
-.jp-forms__inbox-response-header-title {
-	min-height: 48px; // Same as avatar to middle-align single lines
-}
-
-.jp-forms__inbox-response-actions {
-	border-bottom: 1px solid var(--jp-forms-border-color);
-	padding: 8px 0;
+.jp-forms-view-actions {
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	padding-inline: variables.$grid-unit * 2.5;
+	overflow-x: auto;
 	width: 100%;
-
-	@media (min-width: 782px) {
-		padding: 8px 20px;
-	}
-}
-
-.jp-forms__inbox-response-name {
-	font-size: 24px;
-	font-weight: 700;
-	line-height: 24px;
-	margin: 0;
-	padding: 0;
-}
-
-.jp-forms__inbox-response-email {
-	align-items: center;
-	color: #646970;
-	display: flex;
-	flex-shrink: 0;
-	gap: 4px;
-	font-size: 14px;
-	font-weight: 500;
-	height: 24px;
-	line-height: 24px;
-	margin: 0;
-	padding: 0;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.jp-forms__inbox-response-meta {
-	color: var(--jp-gray-80);
-	display: table;
-	flex-direction: column;
-	font-size: 12px;
-	font-weight: 400;
-	line-height: 20px;
-	row-gap: 4px;
-	padding: 12px 32px 24px;
-}
-
-.jp-forms__inbox-response-meta-label {
-	display: table-row;
-}
-
-.jp-forms__inbox-response-meta-key,
-.jp-forms__inbox-response-meta-value {
-	display: table-cell;
-	white-space: nowrap;
-}
-
-.jp-forms__inbox-response-meta-key {
-	padding-right: 8px;
-}
-
-.jp-forms__inbox-response-meta-value {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	width: 80%;
-	max-width: 0;
-
-	.is-link {
-		text-decoration: none;
-		color: inherit;
-
-		&:hover {
-			text-decoration: underline;
-		}
-	}
-}
-
-.jp-forms__inbox-response-data {
-	border-top: 1px solid var(--jp-forms-border-color);
-	display: flex;
-	font-size: var(--jp-forms-font-size-regular);
-	flex-direction: column;
-	line-height: 24px;
-	padding: 24px 32px;
-	row-gap: 24px;
-}
-
-.jp-forms__inbox-response-data-label {
-	font-weight: 600;
-}
-
-.jp-forms__inbox-response-data-value {
-	white-space: pre-wrap;
-}
-
-.jp-forms__inbox-response-data-value .email-field {
-	display: flex;
-	gap: 4px;
-	align-items: center;
-}
-
-.jp-forms__inbox-response-data-value .file-field {
-	margin-top: 4px;
-
-	.file-field__item {
-		display: flex;
-		justify-content: space-between;
-		gap: 12px;
-		--wp-admin-theme-color: #2271b1;
-		--wp-components-color-accent: var(--wp-admin-theme-color, #2271b1);
-	}
-
-	.file-field__icon {
-		width: 32px;
-		min-width: 32px;
-		height: 32px;
-		margin-top: 8px;
-		background-size: 18px;
-		border-radius: 50%;
-		background-color: #f6f6f7;
-		background-image: url(../../contact-form/images/file-icons/txt.svg);
-		background-repeat: no-repeat;
-		background-position: center;
-
-		@media (min-width: 782px) {
-			width: 40px;
-			min-width: 40px;
-			height: 40px;
-			background-size: 24px;
-			margin-top: 0;
-		}
-	}
-
-	.file-field__icon.icon-cal {
-		background-image: url(../../contact-form/images/file-icons/cal.svg);
-	}
-
-	.file-field__icon.icon-html {
-		background-image: url(../../contact-form/images/file-icons/html.svg);
-	}
-
-	.file-field__icon.icon-mp3 {
-		background-image: url(../../contact-form/images/file-icons/mp3.svg);
-	}
-
-	.file-field__icon.icon-mp4 {
-		background-image: url(../../contact-form/images/file-icons/mp4.svg);
-	}
-
-	.file-field__icon.icon-pdf {
-		background-image: url(../../contact-form/images/file-icons/pdf.svg);
-	}
-
-	.file-field__icon.icon-png {
-		background-image: url(../../contact-form/images/file-icons/png.svg);
-	}
-
-	.file-field__icon.icon-ppt {
-		background-image: url(../../contact-form/images/file-icons/ppt.svg);
-	}
-
-	.file-field__icon.icon-sql {
-		background-image: url(../../contact-form/images/file-icons/sql.svg);
-	}
-
-	.file-field__icon.icon-txt {
-		background-image: url(../../contact-form/images/file-icons/txt.svg);
-	}
-
-	.file-field__icon.icon-xls {
-		background-image: url(../../contact-form/images/file-icons/xls.svg);
-	}
-
-	.file-field__icon.icon-zip {
-		background-image: url(../../contact-form/images/file-icons/zip.svg);
-	}
-
-	.file-field__info {
-		display: flex;
-		flex-direction: row;
-		gap: 12px;
-	}
-}
-
-.jp-forms__inbox-response-data-value .image-select-field {
-
-	.image-select-field-button {
-		gap: variables.$grid-unit-10;
-		height: auto;
-	}
-}
-
-.jp-forms__header-subtext {
-	margin-bottom: 0;
-}
-
-.jp-forms__inbox__dataviews__container {
 	box-sizing: border-box;
-	justify-content: unset;
-	align-items: unset;
-}
-
-.jp-forms__inbox__dataviews {
 	display: flex;
+	container-type: inline-size;
+	flex-shrink: 0;
+
+	// Jetpack Forms specific additions
+	position: sticky;
+	left: 0;
+	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+	justify-content: space-between;
+	gap: 8px;
 	flex-direction: column;
-	flex: 1 1 60%;
+	align-items: flex-start;
 
-	// Optionally, fix the footer to bottom of the page and add margin
-	// so the last row is not hidden by the footer.
-	margin-bottom: 97px;
-
-	@media (min-width: 782px) {
-		margin-bottom: 57px;
+	> div:not(:empty) {
+		min-height: 48px;
+		width: 100%;
 	}
 
-	.dataviews-wrapper {
-		background: var(--jp-white);
-		flex-grow: 1;
+	@media (min-width: #{ (breakpoints.$break-small + 1) }) {
 
-		@media (min-width: 782px) {
-			border-right: 1px solid var(--jp-gray-5);
-		}
-
-		.dataviews__view-actions {
+		& {
+			flex-direction: row;
 			align-items: center;
-
-			@media (max-width: 782px) {
-				flex-direction: column-reverse;
-			}
-
-			> div {
-
-				@media (max-width: 782px) {
-					width: 100%;
-					justify-content: space-between;
-				}
-
-				&:nth-of-type(2) {
-
-					@media (max-width: 782px) {
-						justify-content: flex-end;
-					}
-				}
-			}
 		}
+
+		> div:not(:empty) {
+			min-height: 0;
+		}
+	}
+
+	// Jetpack Forms specific: Tab styling
+	button[role="tab"] {
+		margin: 0;
+		padding: 12px 0;
+		color: var(--wpds-color-fg-interactive-neutral);
+
+		&[data-active="true"] {
+			color: var(--wpds-color-fg-interactive-neutral-active);
+		}
+
+		&:hover:not([data-active="true"]) {
+			color: var(--wpds-color-fg-interactive-neutral-active);
+		}
+	}
+}
+
+.jp-forms-dataviews-layout-container {
+	overflow-x: auto;
+	width: 100%;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--wpds-color-bg-surface-neutral-strong, #fff);
+}
+
+.jp-forms-filters-container:not(:empty) {
+	padding-inline: variables.$grid-unit * 2.5;
+	padding-block: variables.$grid-unit * 1.5;
+}
+
+/*
+ * DataViews custom spacing adjustments
+*/
+.dataviews-wrapper {
+	// Jetpack Forms specific
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	min-height: 0;
+
+	.dataviews-footer,
+	.dataviews-view-grid,
+	.dataviews-view-list div[role="row"] .dataviews-view-list__item-wrapper {
+		padding-inline: variables.$grid-unit * 2.5;
 	}
 
 	.dataviews-footer {
-		position: fixed;
-		bottom: 0;
+		padding-block: variables.$grid-unit-10;
+	}
 
-		// Compensation for the width of the sidebar
-		// Set left position when auto-fold is not on the body element.
-		// Adapted from https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
-		left: 0;
-		width: 100%;
+	.dataviews-view-grid {
+		gap: variables.$grid-unit * 2.5;
+		padding-block: variables.$grid-unit * 2.5;
+	}
 
-		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-			left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
-			width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
+	.dataviews-view-table {
+
+		tr {
+
+			td,
+			th {
+
+				&:first-child {
+					padding-inline-start: variables.$grid-unit * 2.5;
+				}
+
+				&:last-child {
+					padding-inline-end: variables.$grid-unit * 2.5;
+				}
+			}
 		}
 	}
 
-	.jp-forms__inbox__author-field {
-		position: relative;
-		display: flex;
-		align-items: center;
-		gap: 12px;
-	}
-
-	.jp-forms__inbox__unread-indicator {
-		color: #d63638;
-		font-size: 8px;
-		position: absolute;
-		left: -12px;
-		cursor: pointer;
+	.dataviews-view-grid__group-header {
+		padding-inline: variables.$grid-unit * 2.5;
 	}
 }
 
-/*
- * Compensation for the width of the sidebar
- * Auto fold is when on smaller breakpoints, nav menu auto collapses.
- * Adapted from: https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
- */
-.auto-fold .jp-forms__inbox__dataviews .dataviews-footer {
+.jp-forms__inbox__author-field {
+	position: relative;
 
-	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
-		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
-	}
+	@include mixins.flex-center;
+	gap: 12px;
+	max-width: 100%;
 
-	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
-		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
-		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
+	&--mobile {
+		text-decoration: underline;
 	}
 }
 
-/*
- * Compensation for the width of the sidebar when the Sidebar
- * is manually collapsed.
- * Adapted from: https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
- */
-.folded .jp-forms__inbox__dataviews .dataviews-footer {
-	left: 0;
+.jp-forms__inbox__author-info-container {
+	overflow: hidden;
 
-	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
-		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
-	}
+	@include mixins.flex-column;
 }
 
-.jp-forms__inbox__dataviews-response {
-	background: var(--jp-white);
-	min-width: 300px !important;
-	overflow: auto;
-	flex: 1 1 40%;
-	position: sticky;
-	top: var(--wp-admin--admin-bar--height, 32px);
-	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 97px);
-	// Same as the margin-bottom on the .jp-forms__inbox__dataviews
-	margin-bottom: 97px;
-
-	@media (min-width: 782px) {
-		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 57px);
-		margin-bottom: 57px;
-	}
-
-	.components-tip {
-		align-items: anchor-center;
-		border-top: 1px solid var(--jp-forms-border-color);
-		margin: 8px 0 56px 0;
-		padding: 16px;
-		text-wrap: pretty;
-	}
+.jp-forms__inbox__author-info,
+.jp-forms__inbox__author-field__email {
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
-.jp-forms__inbox__response-mobile {
-
-	.jp-forms__inbox__response-mobile__header-heading {
-		font-size: 1.2rem;
-		font-weight: 600;
-	}
-
-	.jp-forms__inbox__response-mobile__header-actions {
-		width: auto;
-	}
+.jp-forms__inbox__author-field__email {
+	font-size: 11px;
+	filter: opacity(0.6);
 }
 
-
-/*
- * We need to make the available canvas 100% tall. Without this,
- * no flex values will work, they will only use the available space.
- */
-body[class*="_page_jetpack-forms"],
-body.jetpack_page_jetpack-forms-admin {
-
-	#wpwrap,
-	#wpcontent,
-	#wpbody,
-	#wpbody-content {
-		min-height: 100%;
-	}
+.jp-forms__inbox__unread-indicator {
+	color: #d63638;
+	font-size: 8px;
+	position: absolute;
+	left: -12px;
+	cursor: pointer;
 }
 
 #jp-forms-dashboard {
 	display: flex;
 	flex-direction: column;
-	width: 100%;
-}
+	flex: 1 1 auto;
+	height: calc(100vh - var(--wp-admin-bar-height, 32px));
 
-.jp-forms__inbox-file-preview-shell {
-	max-height: 70vh;
-	overflow: hidden;
-}
-
-.jp-forms__inbox-file-preview-container {
-	margin-bottom: 16px;
-	max-height: 70vh;
-	aspect-ratio: 16 / 9;
-}
-
-.jp-forms__inbox-file-preview-container-iframe.is-loading,
-.jp-forms__inbox-file-preview-container.is-loading {
-	display: none;
-}
-
-.jp-forms__inbox-file-preview-container-iframe {
-	margin-bottom: 16px;
-	max-height: 70vh;
-}
-
-.jp-forms__inbox-file-preview-image {
-	height: 100%;
-	width: 100%;
-	max-height: 66vh;
-	object-fit: contain;
-}
-
-.jp-forms__inbox-file-preview-iframe {
-	display: block;
-	width: 100%;
-	min-width: 80vw;
-	min-height: 50vh;
-	border: none;
-	object-fit: contain;
-}
-
-// Styling override when loaded in modal on mobile
-.components-modal__content {
-
-	.jp-forms__inbox-response-title,
-	.jp-forms__inbox-response-subtitle,
-	.jp-forms__inbox-response-meta,
-	.jp-forms__inbox-response-data {
-		padding-left: 0;
-		padding-right: 0;
+	// First child is the router wrapper
+	> div:first-child {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-height: 0;
 	}
-
-	.jp-forms__inbox-file-preview-modal {
-		max-width: 90vw;
-		width: auto;
-		z-index: 100010; // Higher than parent modal
-	}
-}
-
-// Ensure backdrop is below the file preview modal but above the response modal
-.components-modal__screen-overlay:nth-of-type(2) {
-	z-index: 100005;
-}
-
-.jp-forms__inbox-file-loading {
-	display: flex;
-	align-content: center;
-	justify-content: center;
-	height: 150px;
-	flex-wrap: wrap;
-}
-
-.jp-forms__inbox-spinner.jp-forms__inbox-spinner {
-	margin-top: 0;
-}
-
-.jp-forms__inbox-file-preview-fallback {
-	padding: 20px;
-	text-align: center;
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	align-items: center;
 }
 
 .jp-forms__inbox__unread {

@@ -1,9 +1,9 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { useCallback, useRef, useState, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import SearchableCombobox from '../shared/components/searchable-combobox';
-import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
-import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
+import SearchableCombobox from '../shared/components/searchable-combobox.js';
+import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 import './editor.scss';
 import '../../contact-form/css/combobox.scss';

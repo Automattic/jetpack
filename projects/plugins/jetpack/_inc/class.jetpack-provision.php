@@ -170,7 +170,7 @@ class Jetpack_Provision {
 			),
 			'timeout' => 60,
 			'method'  => 'POST',
-			'body'    => wp_json_encode( $request_body ),
+			'body'    => wp_json_encode( $request_body, JSON_UNESCAPED_SLASHES ),
 		);
 
 		$blog_id = Jetpack_Options::get_option( 'id' );

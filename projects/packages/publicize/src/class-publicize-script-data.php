@@ -115,7 +115,6 @@ class Publicize_Script_Data {
 			'api_paths'            => self::get_api_paths(),
 			'assets_url'           => plugins_url( '/build/', __DIR__ ),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
-			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
 			'shares_data'          => array(),
 			'urls'                 => array(),
@@ -220,27 +219,6 @@ class Publicize_Script_Data {
 			),
 			'shareStatus'    => $share_status,
 		);
-	}
-
-	/**
-	 * Get the feature flags.
-	 *
-	 * @return array
-	 */
-	public static function get_feature_flags() {
-		$variable_to_feature_map = array(
-			'useAdminUiV1'     => 'connections-management',
-			'useEditorPreview' => 'editor-preview',
-			'useShareStatus'   => 'share-status',
-		);
-
-		$feature_flags = array();
-
-		foreach ( $variable_to_feature_map as $variable => $feature ) {
-			$feature_flags[ $variable ] = self::has_feature_flag( $feature );
-		}
-
-		return $feature_flags;
 	}
 
 	/**

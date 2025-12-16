@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.51.0] - 2025-12-11
+### Changed
+- Update package dependencies. [#46245]
+
+### Removed
+- Remove Woo and Jetpack themes [#46119]
+
+## [0.50.2] - 2025-12-08
+### Changed
+- Internal updates.
+
+## [0.50.1] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+### Fixed
+- Fix zero value tooltip in conversion funnel chart. [#46106]
+- Improve guessOptimalNumTicks to use custom formatter and handle empty data. [#46096]
+
+## [0.50.0] - 2025-11-26
+### Added
+- Add Charts utils to package exports [#46095]
+- Global theme: enable color generation from CSS custom properties [#45889]
+
+## [0.49.1] - 2025-11-20
+### Changed
+- Update package dependencies. [#46022]
+
+### Fixed
+- Localize numbers in legend labels and tooltips [#45991]
+
+## [0.49.0] - 2025-11-19
+### Added
+- Add animation in circular shaped charts. [#45870]
+- Add usePrefersReducedMotion hook for accecibility. [#45955]
+
+## [0.48.0] - 2025-11-18
+### Changed
+- Remove inline styles from containers to allow consumer overrides. [#45953]
+
+## [0.47.0] - 2025-11-17
+### Added
+- Chart: Add animation support. [#45837]
+
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [0.46.3] - 2025-11-12
+### Changed
+- Internal updates.
+
+## [0.46.2] - 2025-11-10
+### Changed
+- Update package dependencies. [#45737]
+
+## [0.46.1] - 2025-11-03
+### Fixed
+- Fix lints. [#45658]
+
+## [0.46.0] - 2025-10-28
+### Added
+- Add interactive legend support to LeaderboardChart. [#45581]
+
+### Changed
+- Update package dependencies. [#45652]
+
 ## [0.45.0] - 2025-10-27
 ### Added
 - Add interactive legend support to BarChart. [#45561]
@@ -20,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show ticks in year format when the interval is more than a year. [#45529]
 
 ### Changed
-- Charts: Group Storybook controls. [#45503]
+- Add Group Storybook controls. [#45503]
 
 ## [0.42.0] - 2025-10-14
 ### Changed
@@ -528,6 +594,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.51.0]: https://github.com/Automattic/charts/compare/v0.50.2...v0.51.0
+[0.50.2]: https://github.com/Automattic/charts/compare/v0.50.1...v0.50.2
+[0.50.1]: https://github.com/Automattic/charts/compare/v0.50.0...v0.50.1
+[0.50.0]: https://github.com/Automattic/charts/compare/v0.49.1...v0.50.0
+[0.49.1]: https://github.com/Automattic/charts/compare/v0.49.0...v0.49.1
+[0.49.0]: https://github.com/Automattic/charts/compare/v0.48.0...v0.49.0
+[0.48.0]: https://github.com/Automattic/charts/compare/v0.47.0...v0.48.0
+[0.47.0]: https://github.com/Automattic/charts/compare/v0.46.3...v0.47.0
+[0.46.3]: https://github.com/Automattic/charts/compare/v0.46.2...v0.46.3
+[0.46.2]: https://github.com/Automattic/charts/compare/v0.46.1...v0.46.2
+[0.46.1]: https://github.com/Automattic/charts/compare/v0.46.0...v0.46.1
+[0.46.0]: https://github.com/Automattic/charts/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/Automattic/charts/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/Automattic/charts/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Automattic/charts/compare/v0.42.0...v0.43.0

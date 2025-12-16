@@ -4,7 +4,7 @@
  * Plugin Name: PayPal Payment Buttons
  * Plugin URI: https://wordpress.org/plugins/paypal-payment-buttons
  * Description: Add PayPal payment buttons to your WordPress site with ease.
- * Version: 0.3.1
+ * Version: 0.3.2
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later

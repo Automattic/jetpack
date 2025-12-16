@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Global styles Gating: Fixes a case where GS use was not detected in the editor

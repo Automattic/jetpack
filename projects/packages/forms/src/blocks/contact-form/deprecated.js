@@ -1,7 +1,7 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import defaultAttributes from './attributes';
+import defaultAttributes from './attributes.ts';
 
 const deprecatedAttributes = [
 	'submit_button_text',

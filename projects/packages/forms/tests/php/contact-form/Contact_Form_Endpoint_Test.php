@@ -39,6 +39,13 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	 */
 	private $plugin;
 
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
+
+		// Avoid actually trying to send any mail.
+		add_filter( 'pre_wp_mail', '__return_true', PHP_INT_MAX );
+	}
+
 	/**
 	 * Setting up the test.
 	 */
@@ -155,6 +162,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$schema_properties = $data['schema']['properties'];
 		$this->assertArrayHasKey( 'uid', $schema_properties );
 		$this->assertArrayHasKey( 'author_name', $schema_properties );
+		$this->assertArrayHasKey( 'author_display_name', $schema_properties );
 		$this->assertArrayHasKey( 'author_email', $schema_properties );
 		$this->assertArrayHasKey( 'author_url', $schema_properties );
 		$this->assertArrayHasKey( 'author_avatar', $schema_properties );
@@ -359,7 +367,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			// Return a mock response to prevent actual calls
 			return array(
 				'headers'  => array(),
-				'body'     => wp_json_encode( array() ),
+				'body'     => wp_json_encode( array(), JSON_UNESCAPED_SLASHES ),
 				'response' => array(
 					'code'    => 200,
 					'message' => 'OK',

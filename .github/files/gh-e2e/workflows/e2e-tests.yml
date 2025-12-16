@@ -3,6 +3,9 @@ name: End to end tests
 on:
   push:
 
+# We use secrets.REPO_DISPATCH_TOKEN for everything here, so no need for permissions.
+permissions: {}
+
 jobs:
   run-tests:
     name: "Trigger e2e tests in Jetpack monorepo"

@@ -10,11 +10,11 @@ import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
-import { store as dashboardStore } from '../store';
+import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
-import type { FormResponse } from '../../types';
+import type { FormResponse } from '../../types/index.ts';
 
 /**
  * Helper function to get the status filter to apply from the URL.
@@ -78,17 +78,24 @@ export default function useInboxData(): UseInboxDataReturn {
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
-	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions, invalidRecords } =
-		useSelect(
-			select => ( {
-				selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
-				currentStatus: select( dashboardStore ).getCurrentStatus(),
-				currentQuery: select( dashboardStore ).getCurrentQuery(),
-				filterOptions: select( dashboardStore ).getFilters(),
-				invalidRecords: select( dashboardStore ).getInvalidRecords(),
-			} ),
-			[]
-		);
+	const {
+		selectedResponsesCount,
+		currentStatus,
+		currentQuery,
+		filterOptions,
+		invalidRecords,
+		hasPendingActions,
+	} = useSelect(
+		select => ( {
+			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
+			currentStatus: select( dashboardStore ).getCurrentStatus(),
+			currentQuery: select( dashboardStore ).getCurrentQuery(),
+			filterOptions: select( dashboardStore ).getFilters(),
+			invalidRecords: select( dashboardStore ).getInvalidRecords(),
+			hasPendingActions: select( dashboardStore ).hasPendingActions(),
+		} ),
+		[]
+	);
 
 	// Track the frozen invalid_ids for the current page
 	// This prevents re-fetching when new items are marked as invalid
@@ -146,8 +153,29 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ rawRecords ]
 	);
 
+	/**
+	 * Helper function to check if a status matches the current status filter.
+	 *
+	 * @param {string} status - The status to check.
+	 * @param {string} filter - The status filter (e.g., 'draft,publish', 'trash', 'spam').
+	 * @return {boolean} Whether the status matches the filter.
+	 */
+	const statusMatchesFilter = ( status: string, filter: string ): boolean => {
+		// Handle comma-separated status filters (e.g., 'draft,publish' for inbox)
+		if ( filter.includes( ',' ) ) {
+			return filter.split( ',' ).includes( status );
+		}
+
+		return status === filter;
+	};
+
 	const records = useMemo( () => {
-		return editedRecords.map( record => {
+		// Filter records based on their effective status (considering optimistic edits)
+		const filteredRecords = ( editedRecords || [] ).filter( ( record: FormResponse ) => {
+			return statusMatchesFilter( record.status, statusFilter );
+		} );
+
+		return filteredRecords.map( record => {
 			const formResponse = record as FormResponse;
 			return {
 				...formResponse,
@@ -166,7 +194,7 @@ export default function useInboxData(): UseInboxDataReturn {
 				),
 			};
 		} ) as FormResponse[];
-	}, [ editedRecords ] );
+	}, [ editedRecords, statusFilter ] );
 
 	// Prepare query params for counts resolver
 	const countsQueryParams = useMemo( () => {
@@ -207,7 +235,13 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ countsQueryParams ]
 	);
 
-	const isLoadingData = ! rawRecords?.length && ! hasResolved;
+	// Show loading if:
+	// 1. No records and query hasn't resolved yet (initial load)
+	// 2. No filtered records but there are pending actions (optimistic update removed all items from current view)
+	// Note: We check records.length (filtered) not rawRecords.length because optimistic updates
+	// change status, so items are filtered out of records but still exist in rawRecords
+	const isLoadingData =
+		( ! rawRecords?.length && ! hasResolved ) || ( ! records?.length && hasPendingActions );
 
 	return {
 		totalItemsInbox,

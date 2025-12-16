@@ -128,7 +128,7 @@ class Social_Image_Generator_Controller_Test extends TestCase {
 	 */
 	public function mock_success_response() {
 		return array(
-			'body'     => wp_json_encode( 'dummy-token' ),
+			'body'     => wp_json_encode( 'dummy-token', JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',

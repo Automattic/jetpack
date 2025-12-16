@@ -62,9 +62,7 @@ class Contact_Form_Block {
 	public static function register_feature( $features ) {
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
-
-		// Form notifications feature flag - can be controlled via filter
-		$features['form-notifications'] = apply_filters( 'jetpack_forms_enable_notifications', false );
+		$features['form-webhooks']  = Current_Plan::supports( 'form-webhooks' );
 
 		return $features;
 	}
@@ -152,12 +150,12 @@ class Contact_Form_Block {
 			'jetpack/label',
 			array(
 				'supports'     => array(
-					'color'      => array(
+					'color'           => array(
 						'text'       => true,
 						'background' => false,
 						'gradients'  => false,
 					),
-					'typography' => array(
+					'typography'      => array(
 						'fontSize'                     => true,
 						'lineHeight'                   => true,
 						'__experimentalFontFamily'     => true,
@@ -167,6 +165,7 @@ class Contact_Form_Block {
 						'__experimentalTextDecoration' => true,
 						'__experimentalLetterSpacing'  => true,
 					),
+					'blockVisibility' => true,
 				),
 				'uses_context' => array(
 					'jetpack/field-required',
@@ -476,15 +475,13 @@ class Contact_Form_Block {
 			)
 		);
 
-		if ( Blocks::get_variation() === 'beta' ) {
-			Blocks::jetpack_register_block(
-				'jetpack/field-time',
-				array(
-					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_time' ),
-					'provides_context' => array( 'jetpack/field-required' => 'required' ),
-				)
-			);
-		}
+		Blocks::jetpack_register_block(
+			'jetpack/field-time',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_time' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+			)
+		);
 
 		// Paid file field block
 		add_action(
@@ -541,97 +538,95 @@ class Contact_Form_Block {
 			'jetpack/form-step-container'
 		);
 
-		if ( Blocks::get_variation() === 'beta' ) {
-			Blocks::jetpack_register_block(
-				'jetpack/field-image-select',
-				array(
-					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_select' ),
-					'provides_context' => array(
-						'jetpack/field-required' => 'required',
-						'jetpack/field-image-select-show-labels' => 'showLabels',
-						'jetpack/field-image-select-is-supersized' => 'isSupersized',
-						'jetpack/field-image-select-is-multiple' => 'isMultiple',
-						'jetpack/field-image-select-randomize-options' => 'randomizeOptions',
-						'jetpack/field-image-select-show-other-option' => 'showOtherOption',
-					),
-				)
-			);
+		Blocks::jetpack_register_block(
+			'jetpack/field-image-select',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_select' ),
+				'provides_context' => array(
+					'jetpack/field-required' => 'required',
+					'jetpack/field-image-select-show-labels' => 'showLabels',
+					'jetpack/field-image-select-is-supersized' => 'isSupersized',
+					'jetpack/field-image-select-is-multiple' => 'isMultiple',
+					'jetpack/field-image-select-randomize-options' => 'randomizeOptions',
+					'jetpack/field-image-select-show-other-option' => 'showOtherOption',
+				),
+			)
+		);
 
-			Blocks::jetpack_register_block(
-				'jetpack/fieldset-image-options',
-				array(
-					'uses_context'     => array(
-						'jetpack/field-image-select-is-supersized',
-						'jetpack/field-image-select-is-multiple',
-						'jetpack/field-share-attributes',
-					),
-					'provides_context' => array(
-						'jetpack/field-image-options-type' => 'type',
-					),
-				)
-			);
+		Blocks::jetpack_register_block(
+			'jetpack/fieldset-image-options',
+			array(
+				'uses_context'     => array(
+					'jetpack/field-image-select-is-supersized',
+					'jetpack/field-image-select-is-multiple',
+					'jetpack/field-share-attributes',
+				),
+				'provides_context' => array(
+					'jetpack/field-image-options-type' => 'type',
+				),
+			)
+		);
 
-			Blocks::jetpack_register_block(
-				'jetpack/input-image-option',
-				array(
-					'supports'         => array(
-						'color'                => array(
+		Blocks::jetpack_register_block(
+			'jetpack/input-image-option',
+			array(
+				'supports'         => array(
+					'color'                => array(
+						'background'                    => true,
+						'text'                          => true,
+						'gradients'                     => false,
+						'__experimentalDefaultControls' => array(
 							'background' => true,
 							'text'       => true,
-							'gradients'  => false,
-							'__experimentalDefaultControls' => array(
-								'background' => true,
-								'text'       => true,
-							),
 						),
-						'typography'           => array(
-							'fontSize'                     => true,
-							'lineHeight'                   => true,
-							'__experimentalFontFamily'     => true,
-							'__experimentalFontWeight'     => true,
-							'__experimentalFontStyle'      => true,
-							'__experimentalTextTransform'  => true,
-							'__experimentalTextDecoration' => true,
-							'__experimentalLetterSpacing'  => true,
-							'__experimentalDefaultControls' => array(
-								'fontSize' => true,
-							),
+					),
+					'typography'           => array(
+						'fontSize'                      => true,
+						'lineHeight'                    => true,
+						'__experimentalFontFamily'      => true,
+						'__experimentalFontWeight'      => true,
+						'__experimentalFontStyle'       => true,
+						'__experimentalTextTransform'   => true,
+						'__experimentalTextDecoration'  => true,
+						'__experimentalLetterSpacing'   => true,
+						'__experimentalDefaultControls' => array(
+							'fontSize' => true,
 						),
-						'__experimentalBorder' => array(
+					),
+					'__experimentalBorder' => array(
+						'color'                         => true,
+						'radius'                        => true,
+						'style'                         => true,
+						'width'                         => true,
+						'__experimentalDefaultControls' => array(
 							'color'  => true,
 							'radius' => true,
 							'style'  => true,
 							'width'  => true,
-							'__experimentalDefaultControls' => array(
-								'color'  => true,
-								'radius' => true,
-								'style'  => true,
-								'width'  => true,
-							),
 						),
-						'spacing'              => array(
+					),
+					'spacing'              => array(
+						'margin'                        => true,
+						'padding'                       => true,
+						'__experimentalDefaultControls' => array(
 							'margin'  => true,
 							'padding' => true,
-							'__experimentalDefaultControls' => array(
-								'margin'  => true,
-								'padding' => true,
-							),
 						),
 					),
-					'uses_context'     => array(
-						'jetpack/field-image-select-is-supersized',
-						'jetpack/field-image-select-show-labels',
-						'jetpack/field-image-options-type',
-						'jetpack/field-share-attributes',
-					),
-					'provides_context' => array(
-						'allowResize' => 'allowResize',
-						'imageCrop'   => 'imageCrop',
-						'fixedHeight' => 'fixedHeight',
-					),
-				)
-			);
-		}
+				),
+				'uses_context'     => array(
+					'jetpack/field-image-select-is-supersized',
+					'jetpack/field-image-select-show-labels',
+					'jetpack/field-image-options-type',
+					'jetpack/field-share-attributes',
+				),
+				'provides_context' => array(
+					'allowResize' => 'allowResize',
+					'imageCrop'   => 'imageCrop',
+					'fixedHeight' => 'fixedHeight',
+				),
+			)
+		);
 	}
 
 	/**
@@ -789,7 +784,7 @@ class Contact_Form_Block {
 
 		$data = array(
 			'defaults' => array(
-				'to'                   => Contact_Form::get_default_to( $post ? Contact_Form::get_post_property( $post, 'post_author' ) : null ),
+				'to'                   => Contact_Form::get_default_to_for_editor( $post ),
 				'subject'              => Contact_Form::get_default_subject( array() ),
 				'formsResponsesUrl'    => $form_responses_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,
@@ -799,7 +794,7 @@ class Contact_Form_Block {
 			),
 		);
 
-		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data ) . ';', 'before' );
+		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
 	}
 
 	/**

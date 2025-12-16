@@ -2,13 +2,12 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import { getIconColor } from '../shared/util/block-icons';
-import defaultAttributes from './attributes';
-import deprecated from './deprecated';
-import edit from './edit';
-import transforms from './transforms';
-import variations from './variations';
+import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import defaultAttributes from './attributes.ts';
+import deprecated from './deprecated.js';
+import edit from './edit.tsx';
+import transforms from './transforms.js';
+import variations from './variations.js';
 
 export const name = 'contact-form';
 
@@ -41,7 +40,7 @@ export const settings = {
 		'Create forms to collect data from site visitors and manage their responses.',
 		'jetpack-forms'
 	),
-	icon: { src: icon, foreground: getIconColor() },
+	icon: { src: icon },
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack-forms' ),
 		_x( 'feedback', 'block search term', 'jetpack-forms' ),

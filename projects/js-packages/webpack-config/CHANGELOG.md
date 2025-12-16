@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.7.16 - 2025-12-11
+### Changed
+- Update package dependencies. [#46246] [#46248]
+
+### Fixed
+- Pass correct targets to `@babel/helper-compilation-targets`. [#46248]
+
+## 3.7.15 - 2025-12-08
+### Changed
+- Internal updates.
+
+## 3.7.14 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## 3.7.13 - 2025-11-17
+### Changed
+- Update package dependencies. [#45915]
+
+## 3.7.12 - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
 ## 3.7.11 - 2025-10-02
 ### Changed
 - Update package dependencies. [#45334]

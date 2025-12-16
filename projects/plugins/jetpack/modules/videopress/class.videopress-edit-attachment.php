@@ -265,7 +265,7 @@ class VideoPress_Edit_Attachment {
 			$poster = "<br><img src=\"{$info->poster}\" width=\"175px\">";
 		}
 
-		$html = <<< HTML
+		$html = <<<HTML
 
 <div class="misc-pub-section misc-pub-shortcode">
 	<strong>Shortcode</strong><br>

@@ -25,8 +25,9 @@ function wpcom_add_set_default_category_quick_action( $actions, $category ) {
 
 	$action = 'set-default';
 
-	$link = add_query_arg( array( $action => $category->term_id ) );
-	$link = wp_nonce_url( $link, $action . '_' . $category->term_id );
+	$base_url = admin_url( 'edit-tags.php?taxonomy=category' );
+	$link     = add_query_arg( array( $action => $category->term_id ), $base_url );
+	$link     = wp_nonce_url( $link, $action . '_' . $category->term_id );
 
 	$actions[ $action ] = sprintf(
 		'<a href="%1$s" aria-label="%2$s">%3$s</a>',

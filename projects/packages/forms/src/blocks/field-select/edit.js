@@ -10,12 +10,12 @@ import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import clsx from 'clsx';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import { getCaretPosition } from '../shared/util/caret';
-import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
-import setFocus from '../shared/util/set-focus';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
+import { getCaretPosition } from '../shared/util/caret.js';
+import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants.js';
+import setFocus from '../shared/util/set-focus.js';
 
 const noop = () => undefined;
 

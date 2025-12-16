@@ -56,7 +56,7 @@ class WPCOM_Block_Editor_NUX {
 				'siteUrlOption'         => get_option( 'siteurl' ),
 				'siteIntentOption'      => get_option( 'site_intent' ),
 			),
-			JSON_HEX_TAG | JSON_HEX_AMP
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wp_add_inline_script(
@@ -76,7 +76,7 @@ class WPCOM_Block_Editor_NUX {
 				'isDismissed' => WP_REST_WPCOM_Block_Editor_Recommended_Tags_Modal_Controller::get_wpcom_recommended_tags_modal_dismissed(),
 				'isP2'        => $is_p2_site,
 			),
-			JSON_HEX_TAG | JSON_HEX_AMP
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wp_add_inline_script(

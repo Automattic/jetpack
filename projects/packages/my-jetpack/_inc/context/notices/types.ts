@@ -1,5 +1,7 @@
-import type { NoticeAction } from '@wordpress/components/src/notice/types';
-import type { ReactNode } from 'react';
+import type { Notice } from '@wordpress/components';
+import type { ComponentProps, ReactNode } from 'react';
+
+type NoticeAction = NonNullable< ComponentProps< typeof Notice >[ 'actions' ] >[ number ];
 
 export type NoticeButtonAction = NoticeAction & {
 	isLoading?: boolean;

@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 export default ( { siteDomain, sitePlan } ) => {
@@ -51,23 +51,34 @@ export default ( { siteDomain, sitePlan } ) => {
 					}
 				) }
 			</p>
-			<p style={ { position: 'relative' } }>
-				{ /* To do: convert to SVG.  */ }
-				<span
-					style={ {
-						position: 'absolute',
-						transform: 'translate(130px, 14px)',
-						fontSize: '16px',
-					} }
+			<div
+				style={ {
+					position: 'relative',
+					margin: '1em 0',
+					transform: isRTL() ? 'scale(-1, 1)' : 'none',
+				} }
+			>
+				<svg
+					viewBox="0 0 40 17"
+					id="map"
+					style={ { height: '43%', left: '24%', position: 'absolute', top: '17%', width: '70%' } }
 				>
-					{ domain }
-				</span>
+					<text
+						x={ isRTL() ? '95' : '-95' }
+						y="15"
+						textAnchor={ isRTL() ? 'end' : 'start' }
+						direction="ltr"
+						style={ { transform: isRTL() ? 'scale(-1, 1)' : 'none' } }
+					>
+						{ domain }
+					</text>
+				</svg>
 				<img
 					src="https://wordpress.com/calypso/images/illustration--feature-domain-upsell-3eff1284ca73c71a3c77.svg"
 					alt={ domain }
 					style={ { width: '100%' } }
 				/>
-			</p>
+			</div>
 			<div>
 				<a href={ getLink } className="button button-primary">
 					{ __( 'Get this domain', 'jetpack-mu-wpcom' ) }

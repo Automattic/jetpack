@@ -14,14 +14,14 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import useAddImageOption from '../shared/hooks/use-add-image-option';
-import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
-import { getImageOptionLetter } from './label';
+import useAddImageOption from '../shared/hooks/use-add-image-option.ts';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
+import { getImageOptionLetter } from './label.tsx';
 /**
  * Types
  */
-import type { BlockEditorStoreSelect } from '../../types';
+import type { BlockEditorStoreSelect } from '../../types/index.ts';
 
 // Attributes synced with other image option blocks.
 const SYNCED_ATTRIBUTE_KEYS = [

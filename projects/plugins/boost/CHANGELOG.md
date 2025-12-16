@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.4] - 2025-12-12
+### Changed
+- Image CDN: cache image quality settings per format to reduce repeated processing. [#46205]
+- Update package dependencies. [#46143]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46117]
+
+## [4.5.3] - 2025-11-27
+### Added
+- Compatibility: Add compatibility with divi builder and Deferred JS. [#45896]
+- General: Add a daily cleanup of expired transients. [#45920]
+
+### Changed
+- Update package dependencies. [#45915] [#45958] [#46022] [#46072]
+
+### Fixed
+- My Jetpack: Fix expiring renewal prompt to show all products [#45995]
+
+## [4.5.2] - 2025-11-12
+### Changed
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+- Update package dependencies. [#45676] [#45737] [#45756]
+
+### Fixed
+- LCP Optimization: Prevent requesting analysis for the same pages multiple times. [#45702]
+
+## [4.5.1] - 2025-10-29
+### Added
+- Tested up to WordPress 6.9 [#45571]
+
+### Changed
+- Update package dependencies. [#45652]
+
+### Fixed
+- Concatenate JS: Fix incompatibility with WooCommerce Analytics. [#45655]
+
 ## [4.5.0] - 2025-10-15
 ### Added
 - Defer JS: Exclude Slider Revolution scripts to avoid broken sliders. [#45408]
@@ -833,6 +870,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.5.4]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.3...4.5.4
+[4.5.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.2...4.5.3
+[4.5.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.1...4.5.2
+[4.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.0...4.5.1
 [4.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.4.0...4.5.0
 [4.4.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.1...4.4.0
 [4.3.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.0...4.3.1

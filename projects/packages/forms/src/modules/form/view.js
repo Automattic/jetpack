@@ -11,8 +11,8 @@ import {
 /*
  * Internal dependencies
  */
-import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper';
-import { focusNextInput, submitForm } from './shared';
+import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
+import { focusNextInput, submitForm } from './shared.ts';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -170,6 +170,11 @@ const toggleImageOptionInput = ( input, optionElement ) => {
 	}
 };
 
+const stripHtml = html => {
+	const doc = new DOMParser().parseFromString( html, 'text/html' );
+	return doc.body.textContent || '';
+};
+
 const { state, actions } = store( NAMESPACE, {
 	state: {
 		validators: {},
@@ -181,6 +186,11 @@ const { state, actions } = store( NAMESPACE, {
 			// Don't show is_required untill the user first tries to submit the form.
 			if ( ! context.showErrors && field.error && field.error === 'is_required' ) {
 				return false;
+			}
+
+			// For single input forms, show submission errors in the field error div
+			if ( context.isSingleInputForm && context.submissionError ) {
+				return true;
 			}
 
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
@@ -232,6 +242,11 @@ const { state, actions } = store( NAMESPACE, {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
+
+			// For single input forms, show submission errors in the field error div
+			if ( context.isSingleInputForm && context.submissionError ) {
+				return context.submissionError;
+			}
 
 			if ( ! ( context.showErrors || field.showFieldError ) || ! field.error ) {
 				return '';
@@ -291,7 +306,7 @@ const { state, actions } = store( NAMESPACE, {
 					if ( field.error && field.error !== 'yes' ) {
 						errors.push( {
 							anchor: '#' + field.id,
-							label: field.label + ' : ' + getError( field ),
+							label: stripHtml( field.label ) + ': ' + getError( field ),
 							id: field.id,
 						} );
 					}

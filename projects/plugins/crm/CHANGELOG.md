@@ -5,6 +5,32 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.0] - 2025-11-20
+### Added
+- Add `typecheck` placeholder script (to be implemented). [#44795]
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Client Portal: Allow admins and CRM quote managers to accept a quote from the frontend. [#45325]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Send JSON with built-in WordPress functions. [#45002]
+- Tests: Disable tests on PHP 8.5 due to dependency constraints. [#45767]
+- Update dependencies. [#44300]
+- Update package dependencies. [#44356] [#44677] [#44701] [#44725] [#45027] [#45096] [#45097] [#45173] [#45229] [#45334] [#45335] [#45478] [#45652] [#45737] [#45915] [#45932] [#45958] [#45961]
+- Use wp_rand() instead of rand() and mt_rand(). [#44964]
+
+### Fixed
+- API: Prevent PHP error when updating companies through undocumented endpoint. [#44807]
+- Code: Clean up legacy PHPCS config files. [#44828]
+- Code: Resolve PhanImpossibleCondition violations. [#44869]
+- Create the notifications table on activation. [#45311]
+- Invoices: Ensure object owner is properly set. [#45733]
+- Settings: Ensure notice appears when settings are saved. [#44595]
+- Tax rates: Disallow duplicate tax rates. [#45214] [#45246]
+- Team: Account for longer WP user IDs. [#44830]
+- Team: Fix search button. [#44830]
+- WooSync: Improve invalid URL detection. [#45962]
+
 ## [6.6.1] - 2025-07-10
 ### Fixed
 - Address regression that caused excess queries. [#44267]
@@ -3680,6 +3706,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tested across 4 common web hosts
 - Tested with extensions: WooCommerce CRM Sync, PayPal CRM Sync, CSV Importer, ZBS CRM Mail Campaigns, and CRM Sales Dashboard
 
+[6.7.0]: https://github.com/Automattic/jetpack-crm/compare/6.6.1...6.7.0
 [6.6.1]: https://github.com/Automattic/jetpack-crm/compare/6.6.0...6.6.1
 [6.6.0]: https://github.com/Automattic/jetpack-crm/compare/6.5.1...6.6.0
 [6.5.1]: https://github.com/Automattic/jetpack-crm/compare/6.5.0...6.5.1

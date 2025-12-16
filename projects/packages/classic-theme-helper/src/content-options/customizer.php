@@ -74,7 +74,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 				/**
 				 * Render the control's content.
 				 */
-				public function render_content() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+				public function render_content() {
 					?>
 					<span class="customize-control-title"><?php echo wp_kses_post( $this->label ); ?></span>
 					<?php

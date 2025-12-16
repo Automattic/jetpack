@@ -160,7 +160,7 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 		}
 
 		$return = array(
-			'counts' => (array) array(
+			'counts' => array(
 				'all'  => (object) $this->retrieveCounts( $post_type ),
 				'mine' => (object) $this->retrieveCounts( $post_type, $mine_ID ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			),

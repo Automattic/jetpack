@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.0] - 2025-08-06
 ### Added
-- Enable new rules from `eslint-plugin-es-x'. [#44288]
+- Enable new rules from `eslint-plugin-es-x`. [#44288]
 
 ### Changed
 - Update package dependencies. [#43522] [#43578] [#44020] [#44148] [#44217] [#44276] [#44288] [#44289] [#44355] [#44508]

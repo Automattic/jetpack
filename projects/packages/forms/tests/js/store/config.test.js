@@ -1,15 +1,19 @@
-import apiFetch from '@wordpress/api-fetch';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { createRegistry } from '@wordpress/data';
-/**
- * Internal dependencies
- */
-import { store, CONFIG_STORE } from '../../../src/store/config';
-import * as actions from '../../../src/store/config/actions';
-import reducer from '../../../src/store/config/reducer';
-import * as selectors from '../../../src/store/config/selectors';
 
-// Mock apiFetch
-jest.mock( '@wordpress/api-fetch' );
+// Mock apiFetch before any imports that use it
+const mockApiFetch = jest.fn();
+await jest.unstable_mockModule( '@wordpress/api-fetch', () => ( {
+	default: mockApiFetch,
+} ) );
+
+// Dynamically import all dependencies after mocks are set up
+const apiFetchModule = await import( '@wordpress/api-fetch' );
+const apiFetch = apiFetchModule.default;
+const { store, CONFIG_STORE } = await import( '../../../src/store/config' );
+const actions = await import( '../../../src/store/config/actions' );
+const reducer = ( await import( '../../../src/store/config/reducer' ) ).default;
+const selectors = await import( '../../../src/store/config/selectors' );
 
 const createRegistryWithStores = () => {
 	const registry = createRegistry();

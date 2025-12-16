@@ -3,7 +3,7 @@
  */
 import { usePreferredColorSchemeStyle } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Icon, warning } from '@wordpress/icons';
+import { Icon, cautionFilled as warning } from '@wordpress/icons';
 /**
  * External dependencies
  */

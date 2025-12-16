@@ -14,8 +14,8 @@ import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
-import useInboxData from '../../hooks/use-inbox-data';
-import { store as dashboardStore } from '../../store';
+import useInboxData from '../../hooks/use-inbox-data.ts';
+import { store as dashboardStore } from '../../store/index.js';
 
 type CoreStore = typeof coreStore & {
 	invalidateResolution: ( selector: string, args: unknown[] ) => void;
@@ -122,7 +122,7 @@ const EmptySpamButton = ( {
 	return (
 		<>
 			<Button
-				__next40pxDefaultSize
+				size="compact"
 				accessibleWhenDisabled
 				disabled={ isEmpty || isEmptying }
 				icon={ trash }

@@ -1,8 +1,10 @@
 <?php
 use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\TestCase as BaseTestCase;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 class Admin_Post_List_Test extends BaseTestCase {
 	/**
 	 * Get a mock for the WP_Query class.
@@ -12,7 +14,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 	 * @return WP_Query The mocked WP_Query object.
 	 */
 	private function get_wp_query_mock( int $post_id ) {
-		$wp_query = $this->createMock( WP_Query::class );
+		$wp_query = $this->createStub( WP_Query::class );
 
 		$wp_query->query_vars = array();
 		$wp_query->posts      = array( (object) array( 'ID' => $post_id ) );
@@ -246,7 +248,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 		);
 
 		// Mock get_stats() method to return fake views
-		$mock_stats = $this->createMock( Automattic\Jetpack\Stats\WPCOM_Stats::class );
+		$mock_stats = $this->createStub( Automattic\Jetpack\Stats\WPCOM_Stats::class );
 		$mock_stats->method( 'get_total_post_views' )->willReturn(
 			array(
 				'posts' => array(

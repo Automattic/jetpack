@@ -12,9 +12,9 @@
 		"testing"
 	],
 	"require": {
-		"php": ">=8.0",
+		"php": ">=8.1",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-		"mediawiki/mediawiki-codesniffer": "^47.0",
+		"mediawiki/mediawiki-codesniffer": "^48.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
 		"wp-coding-standards/wpcs": "^3.0",

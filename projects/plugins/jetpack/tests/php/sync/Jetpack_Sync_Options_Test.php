@@ -232,7 +232,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'wordads_ccpa_enabled'                         => false,
 			'wordads_ccpa_privacy_policy_url'              => 'pineapple',
 			'woocommerce_custom_orders_table_enabled'      => false,
-			'site_user_type'                               => wp_json_encode( array( 1 => 'pineapple' ) ),
+			'site_user_type'                               => wp_json_encode( array( 1 => 'pineapple' ), JSON_UNESCAPED_SLASHES ),
 			'site_segment'                                 => 'pineapple',
 			'site_vertical'                                => 'pineapple',
 			'jetpack_excluded_extensions'                  => 'pineapple',
@@ -344,7 +344,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function assertOptionIsSynced( $option_name, $value ) {
-		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' didn\'t have the expected value of ' . wp_json_encode( $value ) );
+		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' didn\'t have the expected value of ' . wp_json_encode( $value, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	public function add_jetpack_options_whitelist_filter( $options ) {

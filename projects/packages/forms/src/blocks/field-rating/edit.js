@@ -5,8 +5,8 @@ import {
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 
 /**
  * Rating Field Edit Component
@@ -87,7 +87,7 @@ export default function RatingFieldEdit( props ) {
 					{
 						index: 1,
 						element: (
-							<>
+							<div key="ratingFieldControls">
 								<NumberControl
 									__next40pxDefaultSize
 									__unstableInputWidth="50%"
@@ -107,7 +107,7 @@ export default function RatingFieldEdit( props ) {
 									value={ defaultValue }
 									onChange={ onChangeDefault }
 								/>
-							</>
+							</div>
 						),
 					},
 				] }

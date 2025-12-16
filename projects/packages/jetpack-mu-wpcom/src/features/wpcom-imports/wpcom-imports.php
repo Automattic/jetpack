@@ -140,6 +140,8 @@ function wpcom_imports_enqueue_script() {
 		true
 	);
 
+	wp_set_script_translations( 'wpcom-importer-entry', 'jetpack-mu-wpcom' );
+
 	$domain  = wp_parse_url( home_url(), PHP_URL_HOST );
 	$site_id = get_wpcom_blog_id();
 
@@ -150,7 +152,8 @@ function wpcom_imports_enqueue_script() {
 		'const wpcomImporterData = ' . wp_json_encode(
 			array(
 				'wpcomImporterUrl' => $url,
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		) . ';',
 		'before'
 	);

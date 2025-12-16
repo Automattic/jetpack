@@ -42,5 +42,5 @@ outputs:
   teams-needed-for-review:
     description: 'JSON-stringified array of team names that are needed to review the PR.'
 runs:
-  using: node20
+  using: node24
   main: dist/index.js

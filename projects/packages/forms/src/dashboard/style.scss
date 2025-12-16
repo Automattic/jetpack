@@ -1,4 +1,5 @@
 :root {
+	// Forms-specific variables
 	--jp-forms-font-size-regular: 14px;
 	--jp-forms-border-color: #dcdcde;
 	--jp-forms-border-radius: var(--jp-border-radius, 4px);
@@ -6,6 +7,7 @@
 	--jp-forms-white-off: var(--jp-white-off, #f9f9f6);
 	--jp-forms-input-wrapper-height: var(--jp-input-wrapper-height, 40px);
 	--jp-forms-spacing-base: var(--spacing-base, 8px);
+	--jp-forms-page-padding-inline: 20px;
 	--jp-forms-black: var(--jp-black, #000);
 
 	--jp-forms-color-darker-10: var(--jp-black-80, #2c3338);
@@ -13,13 +15,9 @@
 
 	--jp-forms-focus-shadow: 0 0 0 1px var(--jp-forms-white), 0 0 0 3px var(--jp-forms-color-darker-10);// jetpack color would be nicer: #0b9e08;
 
-	// finally, re-write
-	--wp-admin-theme-color: var(--jp-forms-black);
-	--wp-admin-theme-color--rgb: 0, 0, 0;
-	--wp-admin-theme-color-darker-10: var(--jp-forms-color-darker-10);
-	--wp-admin-theme-color-darker-10--rgb: 44, 51, 56;
-	--wp-admin-theme-color-darker-20: var(--jp-forms-color-darker-10);
-	--wp-admin-theme-color-darker-20--rgb: 44, 51, 56;
+	// Z-index values for modal stacking
+	--jp-forms-z-modal-backdrop: 10005;
+	--jp-forms-z-modal: 10010;
 }
 
 body[class*="_page_jetpack-forms"],
@@ -36,9 +34,9 @@ body.jetpack_page_jetpack-forms-admin {
 
 // Adjust the position of the notices.
 .forms-dashboard-notices {
-	position: sticky;
+	position: fixed;
 	right: 0;
-	bottom: 24px;
+	bottom: 44px;
 	padding-left: 24px;
 	padding-right: 24px;
 }

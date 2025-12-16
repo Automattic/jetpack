@@ -48,6 +48,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'subtitle'                => __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
+				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/akismet.svg',
 			),
 			'zero-bs-crm'  => array(
 				'type'                    => 'plugin',
@@ -57,7 +58,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'title'                   => __( 'Jetpack CRM', 'jetpack-forms' ),
 				'subtitle'                => __( 'Store contact form submissions in your CRM', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => true,
+				'enabled_by_default'      => false,
+				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/zero-bs-crm.svg',
 			),
 			'salesforce'   => array(
 				'type'                    => 'service',
@@ -68,6 +70,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'subtitle'                => __( 'Send form contacts to Salesforce', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
+				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/salesforce.svg',
 			),
 			'google-drive' => array(
 				'type'                    => 'service',
@@ -78,6 +81,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'subtitle'                => __( 'Export form responses to Google Sheets.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
+				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/google-drive.svg',
 			),
 			'mailpoet'     => array(
 				'type'                    => 'plugin',
@@ -88,6 +92,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'subtitle'                => __( 'Send newsletters and marketing emails directly from your site.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
+				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/mailpoet.svg',
 			),
 		);
 
@@ -102,6 +107,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'subtitle'                => __( 'Send newsletters and marketing emails via Hostinger Reach.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
+				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/hostinger-reach.svg',
 			);
 		}
 
@@ -122,6 +128,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		 *                            - marketing_redirect_slug (string|null) : Redirect slug for marketing links, or null.
 		 *                            - title (string)                 : Default UI title for the integration.
 		 *                            - subtitle (string)              : Default UI subtitle/description for the integration.
+		 *                            - enabled_by_default (bool)      : Whether the integration is enabled by default on new forms.
+		 *                            - icon_url (string|null)         : Absolute URL to an icon to display in the UI.
 		 */
 		return apply_filters( 'jetpack_forms_supported_integrations', $supported_integrations );
 	}
@@ -489,6 +497,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['author_display_name'] = array(
+			'description' => __( 'The display name of the person who submitted the form. Either the name or the email if the name is not set.', 'jetpack-forms' ),
+			'type'        => 'string',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['author_email'] = array(
 			'description' => __( 'The email address of the person who submitted the form.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -531,6 +549,26 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$schema['properties']['ip'] = array(
 			'description' => __( 'The IP address from which the form was submitted.', 'jetpack-forms' ),
+			'type'        => 'string',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'readonly'    => true,
+		);
+
+		$schema['properties']['country_code'] = array(
+			'description' => __( 'The country code derived from the IP address.', 'jetpack-forms' ),
+			'type'        => 'string',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'readonly'    => true,
+		);
+
+		$schema['properties']['browser'] = array(
+			'description' => __( 'The browser and platform used to submit the form.', 'jetpack-forms' ),
 			'type'        => 'string',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
@@ -768,36 +806,59 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( rest_is_field_included( 'uid', $fields ) ) {
 			$data['uid'] = $feedback_response->get_feedback_id();
 		}
+
 		if ( rest_is_field_included( 'author_name', $fields ) ) {
-			$data['author_name'] = $feedback_response->get_author();
+			$data['author_name'] = $feedback_response->get_author_name();
 		}
+
+		if ( rest_is_field_included( 'author_display_name', $fields ) ) {
+			$data['author_display_name'] = $feedback_response->get_author();
+		}
+
 		if ( rest_is_field_included( 'author_email', $fields ) ) {
 			$data['author_email'] = $feedback_response->get_author_email();
 		}
+
 		if ( rest_is_field_included( 'author_url', $fields ) ) {
 			$data['author_url'] = $feedback_response->get_author_url();
 		}
+
 		if ( rest_is_field_included( 'author_avatar', $fields ) ) {
 			$data['author_avatar'] = $feedback_response->get_author_avatar();
 		}
+
 		if ( rest_is_field_included( 'email_marketing_consent', $fields ) ) {
 			$data['email_marketing_consent'] = $feedback_response->has_consent() ? '1' : '';
 		}
+
 		if ( rest_is_field_included( 'ip', $fields ) ) {
 			$data['ip'] = $feedback_response->get_ip_address();
 		}
+
+		if ( rest_is_field_included( 'country_code', $fields ) ) {
+			$data['country_code'] = $feedback_response->get_country_code();
+		}
+
+		if ( rest_is_field_included( 'browser', $fields ) ) {
+			$data['browser'] = $feedback_response->get_browser();
+		}
+
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
 			$data['entry_title'] = $feedback_response->get_entry_title();
 		}
+
 		if ( rest_is_field_included( 'entry_permalink', $fields ) ) {
 			$data['entry_permalink'] = $feedback_response->get_entry_permalink();
 		}
+
 		if ( rest_is_field_included( 'edit_form_url', $fields ) ) {
 			$data['edit_form_url'] = $feedback_response->get_edit_form_url();
 		}
+
 		if ( rest_is_field_included( 'subject', $fields ) ) {
 			$data['subject'] = $feedback_response->get_subject();
 		}
+
 		if ( rest_is_field_included( 'fields', $fields ) ) {
 			$data['fields'] = $feedback_response->get_compiled_fields( 'api', 'label-value' );
 		}
@@ -976,38 +1037,57 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 *
 	 * @return WP_REST_Response A response object..
 	 */
-	public function delete_posts_by_status( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function delete_posts_by_status( $request ) {
 		$from_status = $request->get_param( 'status' );
 
 		if ( ! in_array( $from_status, array( 'spam', 'trash' ), true ) ) {
 			return new WP_REST_Response( array( 'error' => __( 'Bad request', 'jetpack-forms' ) ), 400 );
 		}
 
-		$query_args = array(
-			'post_type'      => 'feedback',
-			'post_status'    => $from_status ?? 'trash',
-			'posts_per_page' => 1000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-		);
+		$status        = $from_status ?? 'trash';
+		$batch_size    = 1000; // Process in batches to avoid memory issues
+		$total_deleted = 0;
+		$has_more      = true;
 
-		$query           = new \WP_Query( $query_args );
-		$trash_feedbacks = $query->get_posts();
+		while ( $has_more ) {
+			$query_args = array(
+				'post_type'      => 'feedback',
+				'post_status'    => $status,
+				'posts_per_page' => $batch_size, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				'fields'         => 'ids', // Only get IDs to reduce memory usage
+			);
 
-		$deleted = 0;
-		foreach ( (array) $trash_feedbacks as $feedback ) {
-			$feedback_deleted = wp_delete_post( $feedback->ID, true );
-			if ( ! $feedback_deleted ) {
-				if ( $from_status === 'trash' ) {
-					return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
-				}
+			$query    = new \WP_Query( $query_args );
+			$post_ids = $query->get_posts();
 
-				if ( $from_status === 'spam' ) {
-					return new WP_REST_Response( array( 'error' => __( 'Failed to empty spam.', 'jetpack-forms' ) ), 400 );
-				}
+			if ( empty( $post_ids ) ) {
+				$has_more = false;
+
+				break;
 			}
-			++$deleted;
+
+			foreach ( $post_ids as $post_id ) {
+				$feedback_deleted = wp_delete_post( $post_id, true );
+
+				if ( ! $feedback_deleted ) {
+					if ( $status === 'trash' ) {
+						return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
+					}
+
+					if ( $status === 'spam' ) {
+						return new WP_REST_Response( array( 'error' => __( 'Failed to empty spam.', 'jetpack-forms' ) ), 400 );
+					}
+				}
+
+				++$total_deleted;
+			}
+
+			if ( count( $post_ids ) < $batch_size ) {
+				$has_more = false;
+			}
 		}
 
-		return new WP_REST_Response( array( 'deleted' => $deleted ), 200 );
+		return new WP_REST_Response( array( 'deleted' => $total_deleted ), 200 );
 	}
 
 	/**
@@ -1129,6 +1209,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	private function get_integration_metadata_fields( $slug, $config ) {
 		$type                    = $config['type'] ?? null;
 		$marketing_redirect_slug = $config['marketing_redirect_slug'] ?? null;
+		$icon_url                = $config['icon_url'] ?? null;
 
 		return array(
 			'id'               => $slug,
@@ -1138,6 +1219,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'subtitle'         => isset( $config['subtitle'] ) ? sanitize_text_field( $config['subtitle'] ) : '',
 			'marketingUrl'     => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
 			'enabledByDefault' => isset( $config['enabled_by_default'] ) ? (bool) $config['enabled_by_default'] : false,
+			'iconUrl'          => $icon_url ? esc_url_raw( $icon_url ) : null,
 		);
 	}
 
@@ -1412,23 +1494,27 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	public function get_forms_config( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$config = array(
 			// From jpFormsBlocks in class-contact-form-block.php.
-			'formsResponsesUrl'       => Forms_Dashboard::get_forms_admin_url(),
-			'isMailPoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
-			'isHostingerReachEnabled' => Jetpack_Forms::is_hostinger_reach_enabled(),
+			'formsResponsesUrl'         => Forms_Dashboard::get_forms_admin_url(),
+			'isMailPoetEnabled'         => Jetpack_Forms::is_mailpoet_enabled(),
+			'isHostingerReachEnabled'   => Jetpack_Forms::is_hostinger_reach_enabled(),
 			// From config in class-dashboard.php.
-			'blogId'                  => get_current_blog_id(),
-			'gdriveConnectSupportURL' => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
-			'pluginAssetsURL'         => Jetpack_Forms::assets_url(),
-			'siteURL'                 => ( new Status() )->get_site_suffix(),
-			'hasFeedback'             => ( new Forms_Dashboard() )->has_feedback(),
-			'isIntegrationsEnabled'   => Jetpack_Forms::is_integrations_enabled(),
-			'dashboardURL'            => Forms_Dashboard::get_forms_admin_url(),
+			'blogId'                    => get_current_blog_id(),
+			'gdriveConnectSupportURL'   => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
+			'pluginAssetsURL'           => Jetpack_Forms::assets_url(),
+			'siteURL'                   => ( new Status() )->get_site_suffix(),
+			'hasFeedback'               => ( new Forms_Dashboard() )->has_feedback(),
+			'isIntegrationsEnabled'     => Jetpack_Forms::is_integrations_enabled(),
+			'isWebhooksEnabled'         => Jetpack_Forms::is_webhooks_enabled(),
+			'showDashboardIntegrations' => Jetpack_Forms::show_dashboard_integrations(),
+			'showBlockIntegrations'     => Jetpack_Forms::show_block_integrations(),
+			'showIntegrationIcons'      => Jetpack_Forms::show_integration_icons(),
+			'dashboardURL'              => Forms_Dashboard::get_forms_admin_url(),
 			// New data.
-			'canInstallPlugins'       => current_user_can( 'install_plugins' ),
-			'canActivatePlugins'      => current_user_can( 'activate_plugins' ),
-			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
-			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
-			'emptyTrashDays'          => defined( 'EMPTY_TRASH_DAYS' ) ? EMPTY_TRASH_DAYS : 0,
+			'canInstallPlugins'         => current_user_can( 'install_plugins' ),
+			'canActivatePlugins'        => current_user_can( 'activate_plugins' ),
+			'exportNonce'               => wp_create_nonce( 'feedback_export' ),
+			'newFormNonce'              => wp_create_nonce( 'create_new_form' ),
+			'emptyTrashDays'            => defined( 'EMPTY_TRASH_DAYS' ) ? EMPTY_TRASH_DAYS : 0,
 		);
 
 		return rest_ensure_response( $config );

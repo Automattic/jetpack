@@ -14,9 +14,9 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  checks: read
-  pull-requests: write
-  statuses: write
+  # actions/checkout
+  contents: read
+  # Everything else uses an app token, so no need for permissions.
 
 jobs:
   code-coverage-label:
@@ -25,10 +25,10 @@ jobs:
     if: >
       ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name ) &&
       ( github.event_name == 'workflow_dispatch' || github.event.label.name == 'I don''t care about code coverage for this PR' || github.event.label.name == 'Covered by non-unit tests' || github.event.label.name == 'Coverage tests to be added later' )
-    timeout-minutes: 5  # 2025-02-06: Should be pretty quick.
+    timeout-minutes: 5  # 2025-11-20: Less than 30 seconds.
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Get token
         id: get_token

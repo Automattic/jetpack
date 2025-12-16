@@ -139,7 +139,7 @@ function jetpack_get_future_removed_version( $version ) {
 		// We'll remove the function from the code 6 months later, thus 6 major versions later.
 		$removed_version = $deprecated_version + 0.6;
 
-		return (float) $removed_version;
+		return $removed_version;
 	}
 
 	return false;

@@ -283,6 +283,7 @@ class Settings {
 			/**
 			 * Regular option update and handling
 			 */
+			$updated = false;
 			if ( self::is_network_setting( $setting ) ) {
 				if ( is_multisite() && is_main_site() ) {
 					$updated = update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
@@ -302,26 +303,6 @@ class Settings {
 			if ( 'dedicated_sync_enabled' === $setting && $updated && (bool) $value ) {
 				if ( ! Dedicated_Sender::can_spawn_dedicated_sync_request() ) {
 					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
-				}
-			}
-
-			// Do not enable wpcom rest api if we cannot send a test request.
-
-			if ( 'wpcom_rest_api_enabled' === $setting && $updated && (bool) $value ) {
-				$sender = Sender::get_instance();
-				$data   = array(
-					'timestamp' => microtime( true ),
-				);
-				$items  = $sender->send_action( 'jetpack_sync_wpcom_rest_api_enable_test', $data );
-				// If we can't send a test request, disable the setting and send action tolog the error.
-				if ( is_wp_error( $items ) ) {
-					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
-					$data = array(
-						'timestamp'     => microtime( true ),
-						'response_code' => $items->get_error_code(),
-						'response_body' => $items->get_error_message() ?? '',
-					);
-					$sender->send_action( 'jetpack_sync_wpcom_rest_api_enable_error', $data );
 				}
 			}
 		}

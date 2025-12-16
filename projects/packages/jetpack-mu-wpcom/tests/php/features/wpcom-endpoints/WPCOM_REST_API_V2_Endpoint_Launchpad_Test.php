@@ -103,7 +103,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 
 		$this->assertFalse( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ) );
 
@@ -128,7 +128,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$data    = array( 'is_checklist_dismissed' => $values );
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 		$result = rest_do_request( $request );
 		$this->assertSame( 200, $result->get_status(), 'assert status code' );
 		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ), 'assert the dismiss state' );
@@ -148,7 +148,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$data    = array( 'is_checklist_dismissed' => $values );
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 		$result = rest_do_request( $request );
 		$this->assertSame( 400, $result->get_status(), 'assert status code' );
 	}
@@ -167,7 +167,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 
 		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
 
@@ -197,7 +197,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 
 		$result = rest_do_request( $request );
 
@@ -209,7 +209,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$this->assertFalse( $option_value );
 
 		// Invalid parameter.
-		$request->set_body( wp_json_encode( array( 'checklist_statuses' => array( 'wrong_key' => true ) ) ) );
+		$request->set_body( wp_json_encode( array( 'checklist_statuses' => array( 'wrong_key' => true ) ), JSON_UNESCAPED_SLASHES ) );
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 400, $result->get_status() );
@@ -231,7 +231,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 
 		$this->assertFalse( get_option( 'launchpad_screen' ) );
 
@@ -255,7 +255,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 
 		$result = rest_do_request( $request );
 
@@ -504,7 +504,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$request->set_header( 'content_type', 'application/json' );
 
 		if ( null !== $body ) {
-			$request->set_body( wp_json_encode( $body ) );
+			$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		}
 
 		return rest_do_request( $request );

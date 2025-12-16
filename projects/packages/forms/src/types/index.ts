@@ -1,4 +1,4 @@
-import type { ILanguage } from '../contact-form/libs/date-picker/interfaces';
+import type { ILanguage } from '../contact-form/libs/date-picker/interfaces.ts';
 import type { ReactNode } from 'react';
 
 /**
@@ -20,6 +20,8 @@ export interface IntegrationMetadata {
 	marketingUrl?: string | null;
 	/** Whether this integration should be enabled by default for new forms. */
 	enabledByDefault?: boolean;
+	/** URL to an SVG/icon for this integration provided by the backend. */
+	iconUrl?: string | null;
 }
 
 /**
@@ -100,6 +102,10 @@ export interface FormResponse {
 	author_avatar: string;
 	/** The IP address of the response author. */
 	ip: string;
+	/** The country code of the response author. */
+	country_code: string;
+	/** The browser and platform used to submit the form. */
+	browser?: string;
 	/** The title of the form that the response was submitted to. */
 	entry_title: string;
 	/** The permalink of the form that the response was submitted to. */
@@ -110,6 +116,8 @@ export interface FormResponse {
 	is_unread: boolean;
 	/** The fields of the response. */
 	fields: Record< string, unknown >;
+	/** The URL to edit the form that the response was submitted to. */
+	edit_form_url: string;
 }
 
 /**
@@ -159,6 +167,8 @@ declare global {
  * This type extends Integration and includes additional UI and state fields used by cards.
  */
 export type IntegrationCardData = Partial< Integration > & {
+	/** URL to an SVG/icon for this integration used in card UIs. */
+	iconUrl?: string | null;
 	/** Whether to show the header toggle. */
 	showHeaderToggle?: boolean;
 	/** The value of the header toggle (on/off). */
@@ -228,6 +238,14 @@ export interface FormsConfigData {
 	isHostingerReachEnabled?: boolean;
 	/** Whether integrations UI is enabled (feature-flagged). */
 	isIntegrationsEnabled?: boolean;
+	/** Whether webhooks are enabled (feature-flagged). */
+	isWebhooksEnabled?: boolean;
+	/** Whether to show integrations in the Forms dashboard UI. */
+	showDashboardIntegrations?: boolean;
+	/** Whether to show integrations in the Form block editor UI. */
+	showBlockIntegrations?: boolean;
+	/** Whether to show integration icons across UI (editor sidebar and modal). */
+	showIntegrationIcons?: boolean;
 	/** Whether the current user can install plugins (install_plugins). */
 	canInstallPlugins?: boolean;
 	/** Whether the current user can activate plugins (activate_plugins). */

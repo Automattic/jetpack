@@ -39,12 +39,14 @@ function wp_ajax_wpcom_generate_site_preview_link() {
 	);
 
 	if ( is_wp_error( $body ) ) {
-		wp_send_json_error( $body );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_error( $body, null, JSON_UNESCAPED_SLASHES );
 		return;
 	}
 
 	$response = json_decode( wp_remote_retrieve_body( $body ) );
-	wp_send_json( $response[0] ?? $response );
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+	wp_send_json( $response[0] ?? $response, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_wpcom_generate_site_preview_link', 'wp_ajax_wpcom_generate_site_preview_link' );
 
@@ -58,7 +60,9 @@ function wp_ajax_wpcom_delete_site_preview_link() {
 		wp_send_json_error(
 			array(
 				'error' => 'Missing code',
-			)
+			),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 		return;
 	}
@@ -130,7 +134,7 @@ function replace_site_visibility_load_assets() {
 		$data['blogPublic'] = \Private_Site\site_is_private() ? '-1' : '1';
 	}
 
-	$encoded_data = wp_json_encode( $data );
+	$encoded_data = wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 	wp_add_inline_script(
 		$handle,
 		"var JETPACK_MU_WPCOM_SITE_VISIBILITY = $encoded_data;",
@@ -156,7 +160,7 @@ function replace_site_visibility() {
 	} elseif ( ! is_jetpack_connected() ) {
 		return;
 	} else {
-		$escaped_content = <<<HTML
+		$escaped_content = <<<'HTML'
 <fieldset id="wpcom-site-visibility">
 	<img src="images/loading.gif" alt="Loading..." width="16" height="16">
 </fieldset>
@@ -167,7 +171,7 @@ HTML;
 
 	?>
 <noscript>
-<p><?php echo wp_json_encode( $escaped_content, JSON_HEX_TAG | JSON_HEX_AMP ); ?></p>
+<p><?php echo wp_json_encode( $escaped_content, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?></p>
 </noscript>
 <script>
 ( function() {
@@ -175,7 +179,7 @@ HTML;
 	if ( ! widgetArea ) {
 		return;
 	}
-	widgetArea.innerHTML = <?php echo wp_json_encode( $escaped_content, JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+	widgetArea.innerHTML = <?php echo wp_json_encode( $escaped_content, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 } )()
 </script>
 		<?php
@@ -243,7 +247,7 @@ function load_options_update_site_visibility() {
 				'content-type' => 'application/json',
 			),
 		),
-		wp_json_encode( $data ),
+		wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
 		'wpcom'
 	);
 

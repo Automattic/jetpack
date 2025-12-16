@@ -41,9 +41,11 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$reflection = new \ReflectionClass( $idc );
 		$instance   = $reflection->getProperty( 'instance' );
 
-		$instance->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
 		$instance->setValue( null, null );
-		$instance->setAccessible( false );
 		$this->reset_connection_status();
 	}
 
@@ -654,7 +656,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 			array(
 				'test1' => 'test 1',
 				'test2' => 'test 2',
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 		);
 
 		return array(
@@ -703,7 +706,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 					'wpcom_home'      => 'example.com/',
 				),
 				'test'         => 'test value',
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 		);
 
 		$matching_error_code_body = wp_json_encode(
@@ -716,7 +720,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 					'wpcom_home'      => 'example.com/',
 				),
 				'test'         => 'test value',
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 		);
 
 		return array(
@@ -743,7 +748,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 			'body' => wp_json_encode(
 				array(
 					'migrated_for_idc' => true,
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			),
 		);
 

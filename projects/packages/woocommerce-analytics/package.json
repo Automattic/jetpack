@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/woocommerce-analytics",
-	"version": "0.10.1",
+	"version": "0.13.1",
 	"private": true,
 	"description": "WooCommerce Analytics package to track frontend events",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/woocommerce-analytics/#readme",
@@ -25,20 +25,19 @@
 		"watch": "pnpm build --watch"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "7.31.0",
 		"debug": "4.4.3"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.28.4",
 		"@babel/preset-react": "7.27.1",
-		"@jest/globals": "30.0.4",
+		"@jest/globals": "30.2.0",
 		"@types/jest": "30.0.0",
 		"@types/jquery": "3.5.33",
-		"@wordpress/browserslist-config": "6.31.0",
-		"jest": "30.0.4",
-		"jest-environment-jsdom": "30.0.4",
-		"typescript": "5.9.2",
+		"@wordpress/browserslist-config": "6.36.0",
+		"jest": "30.2.0",
+		"jest-environment-jsdom": "30.2.0",
+		"typescript": "5.9.3",
 		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"
 	}

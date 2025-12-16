@@ -49,7 +49,7 @@ class SquashCommand extends WriteCommand {
 			->addOption( '--no-deduplicate', null, InputOption::VALUE_NONE, 'Do not deduplicate the changes' )
 			->addOption( 'yes', null, InputOption::VALUE_NONE, 'Default all questions to "yes" instead of "no". Particularly useful for non-interactive mode' )
 			->setHelp(
-				<<<EOF
+				<<<'EOF'
 The <info>squash</info> command combines multiple existing changelog entries into one.
 
 The default behavior is to combine all entries that differ from the first only by prerelease

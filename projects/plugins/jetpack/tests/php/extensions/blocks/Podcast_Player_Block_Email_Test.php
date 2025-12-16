@@ -8,8 +8,8 @@
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/podcast-player/podcast-player.php';
 
 // Include mock classes for WooCommerce Email Editor helpers
-require_once __DIR__ . '/class-mock-styles-helper.php';
-require_once __DIR__ . '/class-mock-table-wrapper-helper.php';
+require_once __DIR__ . '/mocks/class-mock-styles-helper.php';
+require_once __DIR__ . '/mocks/class-mock-table-wrapper-helper.php';
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 

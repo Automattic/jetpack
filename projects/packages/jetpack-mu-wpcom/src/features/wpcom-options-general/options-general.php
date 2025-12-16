@@ -87,7 +87,8 @@ function wpcom_enqueue_options_general_assets() {
 				'homeUrl'           => home_url(),
 				'siteSlug'          => $site_slug,
 				'optionsGeneralUrl' => $options_general_url,
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		) . ';',
 		'before'
 	);

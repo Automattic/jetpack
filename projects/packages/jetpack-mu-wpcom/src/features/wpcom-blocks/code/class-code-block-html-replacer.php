@@ -23,43 +23,84 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 	 * with the tokenized HTML inserted. The HTML structure and replacement
 	 * contents are checked to ensure safety.
 	 *
-	 * @param string $html The tokenized code data.
-	 * @param array  $tokenized_code_data The tokenized code data.
+	 * @param string      $html The HTML string containing the code block.
+	 * @param array       $tokenized_code_data The tokenized code data.
+	 * @param string|null $language_name The language name, if any.
 	 * @return null|array{0: string, 1: string} Null on failure, or array with original code string
 	 *                                          and the tokenized HTML markup.
 	 */
-	public static function get_updated_html_with_replaced_content( string $html, array $tokenized_code_data ): ?array {
+	public static function get_updated_html_with_replaced_content( string $html, array $tokenized_code_data, ?string $language_name ): ?array {
 		$processor = self::create_fragment( $html );
 
-		// Find the location for insertion.
-		if ( ! $processor->next_tag( 'CODE' ) ) {
-			return null;
-		}
-		$processor->set_bookmark( 'code_block_html_replace_start' );
-
-		// The code should be 1 HTML CODE element containing the text.
-		// <code>### text ###</code>.
-		if (
-			! $processor->next_token() ||
-			$processor->get_token_type() !== '#text'
+		// Skip leading whitespace
+		while (
+			$processor->next_token()
+			&& $processor->get_token_type() === '#text'
+			&& $processor->text_node_classification === self::TEXT_IS_WHITESPACE
 		) {
-			return null;
+			continue;
 		}
-		$code_string = $processor->get_modifiable_text();
-		if (
-			! $processor->next_token() ||
-			$processor->get_tag() !== 'CODE' ||
-			! $processor->is_tag_closer()
-		) {
-			return null;
-		}
-		$processor->set_bookmark( 'code_block_html_replace_end' );
 
-		// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.isset
-		if ( ! isset(
-			$processor->bookmarks['_code_block_html_replace_start'],
-			$processor->bookmarks['_code_block_html_replace_end']
-		) ) {
+		// The serialized PRE tag has block wrapper attributes.
+		// Remove them, they'll be applied in a wrapper.
+		if ( $processor->get_tag() !== 'PRE' ) {
+			return null;
+		} else {
+			$processor->set_bookmark( 'pre_open' );
+		}
+
+		// The next token should be the CODE tag opener.
+		if ( ! $processor->next_token() || $processor->get_tag() !== 'CODE' ) {
+			return null;
+		}
+
+		if ( $language_name ) {
+			$processor->add_class(
+				'language-' .
+				\strtr(
+					\strtolower( $language_name ),
+					array(
+						' '  => '_',
+						"\t" => '_',
+						"\n" => '_',
+						"\r" => '_',
+						"\f" => '_',
+					)
+				)
+			);
+			$processor->get_updated_html();
+		}
+		$processor->set_bookmark( 'code_content_start' );
+
+		/*
+		 * The code should be 1 HTML CODE element containing the text.
+		 * <code>### text ###</code>.
+		 * OR it can be an empty CODE element:
+		 * <code></code>
+		 */
+		if ( ! $processor->next_token() ) {
+			return null;
+		}
+		if ( $processor->get_token_type() === '#text' ) {
+			$code_string = $processor->get_modifiable_text();
+			if ( ! $processor->next_token() ) {
+				return null;
+			}
+		} else {
+			$code_string = '';
+		}
+
+		// This must be the closing CODE tag of <code>…text…</code> or empty <code></code>.
+		if ( $processor->get_tag() !== 'CODE' || ! $processor->is_tag_closer() ) {
+			return null;
+		}
+		$processor->set_bookmark( 'code_content_end' );
+
+		if (
+			! isset( $processor->bookmarks['_pre_open'] ) ||
+			! isset( $processor->bookmarks['_code_content_start'] ) ||
+			! isset( $processor->bookmarks['_code_content_end'] )
+		) {
 			return null;
 		}
 
@@ -68,10 +109,10 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 			$replacement_code_html[] = '<div class="cm-line">';
 			foreach ( $line as $chunk ) {
 				if (
-					! is_array( $chunk ) ||
+					! \is_array( $chunk ) ||
 					! isset( $chunk[0] ) ||
-					! is_string( $chunk[0] ) ||
-					( isset( $chunk[1] ) && ! is_string( $chunk[1] ) )
+					! \is_string( $chunk[0] ) ||
+					( isset( $chunk[1] ) && ! \is_string( $chunk[1] ) )
 				) {
 					return null;
 				}
@@ -107,7 +148,7 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 				if ( ! $class_name ) {
 					$replacement_code_html[] = $html_encoded_code;
 				} else {
-					$replacement_code_html[] = sprintf(
+					$replacement_code_html[] = \sprintf(
 						'<span class="%s">%s</span>',
 						esc_attr( $class_name ),
 						$html_encoded_code
@@ -117,18 +158,38 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 			$replacement_code_html[] = '</div>';
 		}
 
-		// We'll start at the end of the CODE opener.
-		$bm_start = $processor->bookmarks['_code_block_html_replace_start'];
-		$bm_end   = $processor->bookmarks['_code_block_html_replace_end'];
-		$start    = $bm_start->start + $bm_start->length;
-		$length   = $bm_end->start - $start;
+		// Clear attributes from the PRE tag, replace everything inside the CODE block, trim the end.
+		$bm_pre_open = $processor->bookmarks['_pre_open'];
+		$bm_start    = $processor->bookmarks['_code_content_start'];
+		$bm_end      = $processor->bookmarks['_code_content_end'];
+		$start       = $bm_start->start + $bm_start->length;
+		$length      = $bm_end->start - $start;
 
+		// Remove all attributes from the PRE tag, rewrite it as a plain <pre>.
+		$processor->lexical_updates[] = new WP_HTML_Text_Replacement(
+			$bm_pre_open->start,
+			$bm_pre_open->length,
+			'<pre>'
+		);
 		$processor->lexical_updates[] = new WP_HTML_Text_Replacement(
 			$start,
 			$length,
 			implode( '', $replacement_code_html )
 		);
+		$processor->lexical_updates[] = new WP_HTML_Text_Replacement(
+			$bm_end->start + $bm_end->length,
+			// No need to calculate this precisely, just trim everything after this point.
+			\strlen( $processor->html ),
+			''
+		);
 
-		return array( $code_string, $processor->get_updated_html() );
+		// Normalize to ensure HTML that is safer to embed with other HTML.
+		// This ensures tags are correctly closed and extraneous close tags are not present.
+		$html = self::normalize( $processor->get_updated_html() );
+		if ( null === $html ) {
+			return null;
+		}
+
+		return array( $code_string, $html );
 	}
 }

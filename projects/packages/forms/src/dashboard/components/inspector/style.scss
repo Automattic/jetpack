@@ -1,0 +1,232 @@
+/**
+ * Response View Component Styles
+ */
+
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/variables";
+@use "../../mixins";
+
+// Main response container
+.jp-forms__inbox-response {
+
+	@include mixins.flex-column;
+	min-height: 300px;
+	overflow: auto;
+	background-color: #fff;
+	position: relative;
+}
+
+.jp-forms__inbox-response-header {
+	margin: 24px 0 0;
+	padding: 0 16px 0 0;
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		padding: 0 16px;
+	}
+}
+
+.jp-forms__inbox-response-header-title {
+	min-height: 48px; // Same as avatar to middle-align single lines
+}
+
+.jp-forms-response-actions {
+	padding: 8px 16px;
+	border-bottom: 1px solid var(--jp-forms-border-color);
+}
+
+.jp-forms-response-navigation {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	.jp-forms-response-navigation__arrows {
+		display: flex;
+		align-items: center;
+
+		// Add separator after the arrows group (before close button)
+		&::after {
+			content: "";
+			display: inline-block;
+			width: 1px;
+			height: 20px;
+			background-color: var(--wp-admin-theme-color-darker-10, #135e96);
+			opacity: 0.2;
+			margin-left: 4px;
+		}
+	}
+}
+
+// Reset margins and padding for response header elements
+.jp-forms__inbox-response-name,
+.jp-forms__inbox-response-email {
+	margin: 0;
+	padding: 0;
+}
+
+.jp-forms__inbox-response-name {
+	font-size: 24px;
+	font-weight: 700;
+	line-height: 24px;
+}
+
+.jp-forms__inbox-response-email {
+
+	@include mixins.flex-center;
+	flex-shrink: 0;
+	font-size: 14px;
+	font-weight: 500;
+	gap: 4px;
+	line-height: 24px;
+	max-width: 100%;
+	min-height: 24px;
+	word-break: break-word;
+}
+
+.jp-forms__inbox-response-meta {
+	color: var(--jp-gray-80);
+	font-size: 12px;
+	padding: 12px 16px 24px;
+
+	table {
+		text-align: left;
+		width: fit-content;
+
+		td,
+		th {
+			padding: 0;
+		}
+
+		th {
+			font-weight: 400;
+			padding-right: variables.$grid-unit-10;
+			vertical-align: top;
+			white-space: nowrap;
+		}
+	}
+}
+
+.jp-forms__inbox-response-data {
+	border-top: 1px solid var(--jp-forms-border-color);
+
+	@include mixins.flex-column;
+	font-size: var(--jp-forms-font-size-regular);
+	line-height: 24px;
+	padding: 24px 16px;
+	row-gap: 24px;
+}
+
+.jp-forms__inbox-response-data-label {
+	font-weight: 600;
+}
+
+.jp-forms__inbox-response-data-value {
+	white-space: pre-wrap;
+}
+
+.jp-forms__inbox-response-country-flag {
+	font-size: 16px;
+	display: inline;
+	padding-right: 4px;
+	vertical-align: middle;
+
+	svg {
+		fill: currentColor;
+		vertical-align: text-top;
+	}
+}
+
+.jp-forms-response-content {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.jp-forms__inbox__tip-container {
+	border-top: 1px solid var(--jp-forms-border-color);
+	margin: 8px 0 0 0;
+	padding: 16px 0;
+	text-wrap: balance;
+
+	// https://wordpress.github.io/gutenberg/?path=/docs/components-tip--docs
+	.components-tip {
+		align-items: anchor-center;
+	}
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		padding: 16px 16px;
+		margin-bottom: 57px; // Compensate for fixed footer from DataViews
+	}
+}
+
+.jp-forms__inbox__response-mobile {
+
+	.jp-forms__inbox__response-mobile__header-heading {
+		font-size: 1.2rem;
+		font-weight: 600;
+	}
+
+	.jp-forms__inbox__response-mobile__header-actions {
+		width: auto;
+	}
+}
+
+
+// Styling override when loaded in modal on mobile
+.components-modal__content {
+
+	.jp-forms__inbox-response-title,
+	.jp-forms__inbox-response-subtitle,
+	.jp-forms__inbox-response-meta,
+	.jp-forms__inbox-response-data {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.jp-forms__inbox-file-preview-modal {
+		max-width: 90vw;
+		width: auto;
+		z-index: var(--jp-forms-z-modal); // Higher than parent modal
+	}
+}
+
+/*
+ * File preview
+ */
+.jp-forms__inbox-file-preview-shell {
+	max-height: 70vh;
+	overflow: hidden;
+}
+
+.jp-forms__inbox-file-preview-container {
+	margin-bottom: 16px;
+	max-height: 70vh;
+	aspect-ratio: 16 / 9;
+}
+
+.jp-forms__inbox-file-preview-container.is-loading {
+	display: none;
+}
+
+.jp-forms__inbox-file-preview-image {
+	height: 100%;
+	width: 100%;
+	max-height: 66vh;
+	object-fit: contain;
+}
+
+// Ensure backdrop is below the file preview modal but above the response modal
+.components-modal__screen-overlay:nth-of-type(2) {
+	z-index: var(--jp-forms-z-modal-backdrop);
+}
+
+.jp-forms__inbox-file-loading {
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	height: 150px;
+	flex-wrap: wrap;
+}
+
+.jp-forms__inbox-file-spinner.jp-forms__inbox-file-spinner {
+	margin-top: 0;
+}

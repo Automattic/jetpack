@@ -4,7 +4,7 @@ Tags: social media automation, social media scheduling, auto share, social shari
 Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 4.5.1
+Stable tag: 7.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,18 +104,21 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 7.2.0 - 2025-10-10
+### 7.3.0 - 2025-11-21
 #### Added
-- Add typecheck support for E2E tests.
+- Tested up to WordPress 6.9.
 
 #### Changed
-- Remove CRM installation nudge for Complete plan users.
-- My Jetpack: Fix multisite availability check for restricted products and modules.
-- Update dependencies.
+- Don't translate product names.
+- Improve auto-share UI in the editor by streamlining the notices and descriptions.
 - Update package dependencies.
+- Update the connections list in the editor to a vertical toggle list with labels and icons.
 
 #### Fixed
-- Fixes an issue with Social where default image id could not be cleared.
+- Fix connection icon not reflecting the change when profile picture is updated.
+- Jetpack: Remove getIconColor functions for block icons.
+- My Jetpack: Fix expiring renewal prompt to show all products
+- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin.
 
 == Upgrade Notice ==
 

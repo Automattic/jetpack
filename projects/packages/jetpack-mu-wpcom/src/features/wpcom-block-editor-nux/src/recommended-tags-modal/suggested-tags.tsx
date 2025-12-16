@@ -1,6 +1,5 @@
 import { useLocale } from '@automattic/i18n-utils';
 import { Button, FormTokenField } from '@wordpress/components';
-import { TokenItem } from '@wordpress/components/build-types/form-token-field/types';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';

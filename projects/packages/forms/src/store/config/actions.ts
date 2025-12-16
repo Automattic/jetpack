@@ -4,9 +4,9 @@ import {
 	INVALIDATE_CONFIG,
 	SET_CONFIG_LOADING,
 	SET_CONFIG_ERROR,
-} from './action-types';
-import { getConfig } from './resolvers';
-import type { FormsConfigData } from '../../types';
+} from './action-types.ts';
+import { getConfig } from './resolvers.ts';
+import type { FormsConfigData } from '../../types/index.ts';
 
 export const receiveConfig = ( config: Partial< FormsConfigData > ) => ( {
 	type: RECEIVE_CONFIG,

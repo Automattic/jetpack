@@ -47,7 +47,7 @@ function wpcom_enqueue_sidebar_notice_assets() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-sidebar-notice/wpcom-sidebar-notice.css' )
 	);
 
-	$inline_script = 'const wpcomSidebarNoticeData = ' . wp_json_encode( $data ) . ';';
+	$inline_script = 'const wpcomSidebarNoticeData = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 	wp_add_inline_script( 'wpcom-sidebar-notice', $inline_script, 'before' );
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_sidebar_notice_assets' );
@@ -79,7 +79,7 @@ function wpcom_get_sidebar_notice() {
 		$message = $jitm_engine->get_top_messages( $message_path, $user_id, $user_roles, $query_string );
 	} else {
 		$jitm    = \Automattic\Jetpack\JITMS\JITM::get_instance();
-		$message = $jitm->get_messages( $message_path, wp_json_encode( array( 'message_path' => $message_path ) ), false );
+		$message = $jitm->get_messages( $message_path, wp_json_encode( array( 'message_path' => $message_path ), JSON_UNESCAPED_SLASHES ), false );
 	}
 
 	$cache_loaded = true;
@@ -90,7 +90,7 @@ function wpcom_get_sidebar_notice() {
 	}
 
 	// Serialize message as object (on Simple sites we have an array, on Atomic sites we have an object).
-	$message = json_decode( wp_json_encode( $message[0] ) );
+	$message = json_decode( wp_json_encode( $message[0], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 	$cached_notice = array(
 		'content'       => $message->content->message,

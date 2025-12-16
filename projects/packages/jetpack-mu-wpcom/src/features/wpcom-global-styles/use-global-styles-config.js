@@ -40,13 +40,10 @@ export function useGlobalStylesConfig() {
 		const themeBaseCss = ( _themeBaseGlobalStyles?.styles?.css ?? '' ).replace( /\s+/g, '' );
 		const customCss = ( globalStylesConfig?.styles.css ?? '' ).replace( /\s+/g, '' );
 
-		// If the global styles are empty, set the styles to an empty object.
-		// Gutenberg saves the css property even if it's empty, so we need to check for that.
-		if (
-			( themeBaseCss === customCss || '' === globalStylesConfig.styles.css ) &&
-			Object.keys( globalStylesConfig.styles ).length === 1
-		) {
-			globalStylesConfig.styles = {};
+		// Gutenberg saves the css property even if it's empty or unchanged from the theme.
+		// Disregard the styles.css property in either of those cases.
+		if ( themeBaseCss === customCss || '' === globalStylesConfig.styles.css ) {
+			delete globalStylesConfig.styles.css;
 		}
 
 		// Determine if the global Styles are in use on the current site.

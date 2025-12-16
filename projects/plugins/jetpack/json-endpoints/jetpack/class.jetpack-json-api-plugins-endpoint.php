@@ -293,7 +293,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 * @return bool
 	 */
 	protected function plugin_has_translations_autoupdates_enabled( $plugin_file ) {
-		return (bool) in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ), true );
+		return in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ), true );
 	}
 
 	/**
@@ -330,8 +330,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 
 		$file_mod_capabilities = array(
-			'modify_files'     => (bool) empty( $reasons_can_not_modify_files ), // install, remove, update
-			'autoupdate_files' => (bool) empty( $reasons_can_not_modify_files ) && empty( $reasons_can_not_autoupdate ), // enable autoupdates
+			'modify_files'     => empty( $reasons_can_not_modify_files ), // install, remove, update
+			'autoupdate_files' => empty( $reasons_can_not_modify_files ) && empty( $reasons_can_not_autoupdate ), // enable autoupdates
 		);
 
 		if ( ! empty( $reasons_can_not_modify_files ) ) {

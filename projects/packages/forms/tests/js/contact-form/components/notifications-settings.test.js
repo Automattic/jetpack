@@ -1,12 +1,9 @@
 /**
  * External dependencies
  */
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-/**
- * Internal dependencies
- */
-import NotificationsSettings from '../../../../src/blocks/contact-form/components/notifications-settings';
 
 // Create stable handlers outside of mock to avoid react/jsx-no-bind issues
 const createToggleHandler = onChange => {
@@ -24,8 +21,12 @@ const createTokenFieldHandler = ( onChange, value ) => {
 	};
 };
 
+const createClearHandler = onChange => {
+	return () => onChange( [] );
+};
+
 // Mock WordPress components
-jest.mock( '@wordpress/components', () => {
+await jest.unstable_mockModule( '@wordpress/components', () => {
 	/**
 	 * Mock ToggleControl component.
 	 *
@@ -70,6 +71,9 @@ jest.mock( '@wordpress/components', () => {
 					data-suggestions={ JSON.stringify( suggestions ) }
 					onChange={ createTokenFieldHandler( onChange, value ) }
 				/>
+				<button data-testid="clear-all-button" onClick={ createClearHandler( onChange ) }>
+					Clear All
+				</button>
 			</div>
 		);
 	}
@@ -98,13 +102,15 @@ jest.mock( '@wordpress/components', () => {
 } );
 
 // Mock WordPress i18n
-jest.mock( '@wordpress/i18n', () => ( {
+await jest.unstable_mockModule( '@wordpress/i18n', () => ( {
 	__: jest.fn( text => text ),
 } ) );
 
-// Mock WordPress element
-jest.mock( '@wordpress/element', () => ( {
-	...jest.requireActual( '@wordpress/element' ),
+// Mock WordPress element - We need to import before mocking to get the actual module
+const actualElementModule = await import( '@wordpress/element' );
+
+await jest.unstable_mockModule( '@wordpress/element', () => ( {
+	...actualElementModule,
 	createInterpolateElement: jest.fn( text => {
 		// Simple mock that returns the text with link component
 		return <span>{ text }</span>;
@@ -112,7 +118,7 @@ jest.mock( '@wordpress/element', () => ( {
 } ) );
 
 // Mock WordPress data
-jest.mock( '@wordpress/data', () => ( {
+await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useSelect: jest.fn( callback => {
 		const mockSelect = store => {
 			if ( store === 'core' ) {
@@ -141,37 +147,47 @@ jest.mock( '@wordpress/data', () => ( {
 } ) );
 
 // Mock core-data store
-jest.mock( '@wordpress/core-data', () => ( {
+await jest.unstable_mockModule( '@wordpress/core-data', () => ( {
 	store: 'core',
 } ) );
 
 // Mock editor store
-jest.mock( '@wordpress/editor', () => ( {
+await jest.unstable_mockModule( '@wordpress/editor', () => ( {
 	store: 'core/editor',
 } ) );
 
 // Mock InspectorHint component
-jest.mock( '../../../../src/blocks/shared/components/inspector-hint', () => ( { children } ) => (
-	<div data-testid="inspector-hint">{ children }</div>
-) );
+await jest.unstable_mockModule(
+	'../../../../src/blocks/shared/components/inspector-hint',
+	() =>
+		( { children } ) => <div data-testid="inspector-hint">{ children }</div>
+);
 
 // Mock JetpackEmailConnectionSettings component
-jest.mock(
+await jest.unstable_mockModule(
 	'../../../../src/blocks/contact-form/components/jetpack-email-connection-settings',
-	() =>
-		( { emailNotifications } ) =>
-			emailNotifications ? <div data-testid="email-settings">Email Settings</div> : null
+	() => ( {
+		default: ( { emailNotifications } ) =>
+			emailNotifications ? <div data-testid="email-settings">Email Settings</div> : null,
+	} )
 );
 
 // Mock Jetpack shared extension utils
-jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils', () => ( {
 	hasFeatureFlag: jest.fn( () => true ),
 } ) );
 
 // Mock Jetpack script data
-jest.mock( '@automattic/jetpack-script-data', () => ( {
+await jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( {
 	isWpcomPlatformSite: jest.fn( () => false ),
 } ) );
+
+// Dynamically import the component after mocks are set up
+const NotificationsSettingsModule = await import(
+	'../../../../src/blocks/contact-form/components/notifications-settings'
+);
+
+const NotificationsSettings = NotificationsSettingsModule.default;
 
 describe( 'NotificationsSettings', () => {
 	let setAttributesMock;
@@ -317,5 +333,29 @@ describe( 'NotificationsSettings', () => {
 		// Should display user names, not IDs
 		expect( input.value ).toContain( 'Admin User' );
 		expect( input.value ).toContain( 'Editor User' );
+	} );
+
+	it( 'defaults to post author when all recipients are removed', async () => {
+		// Start with Editor User as recipient
+		render(
+			<NotificationsSettings
+				setAttributes={ setAttributesMock }
+				notificationRecipients={ [ '2' ] }
+				{ ...defaultProps }
+			/>
+		);
+
+		// User selector should be visible with Editor User selected
+		const input = screen.getByRole( 'textbox' );
+		expect( input.value ).toContain( 'Editor User' );
+
+		// Clear all recipients by clicking the clear button
+		const clearButton = screen.getByTestId( 'clear-all-button' );
+		await userEvent.click( clearButton );
+
+		// Should auto-select the post author (user ID 1) when field is cleared
+		expect( setAttributesMock ).toHaveBeenCalledWith( {
+			notificationRecipients: [ '1' ],
+		} );
 	} );
 } );

@@ -144,7 +144,7 @@ class Jetpack_Notifications {
 		wp_enqueue_script( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.js' ), array( 'wpcom-notes-common' ), JETPACK_NOTES__CACHE_BUSTER, true );
 		$script_handles[] = 'wpcom-notes-admin-bar';
 
-		$wp_notes_args = 'var wpNotesArgs = ' . wp_json_encode( array( 'cacheBuster' => JETPACK_NOTES__CACHE_BUSTER ) ) . ';';
+		$wp_notes_args = 'var wpNotesArgs = ' . wp_json_encode( array( 'cacheBuster' => JETPACK_NOTES__CACHE_BUSTER ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 		wp_add_inline_script( 'wpcom-notes-admin-bar', $wp_notes_args, 'before' );
 
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
@@ -232,17 +232,19 @@ class Jetpack_Notifications {
 	 */
 	public function print_js() {
 		$link_accounts_url = is_user_logged_in() && ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ? Jetpack::admin_url() : false;
-		?>
-<script data-ampdevmode type="text/javascript">
-/* <![CDATA[ */
-	var wpNotesIsJetpackClient = true;
-	var wpNotesIsJetpackClientV2 = true;
-		<?php if ( $link_accounts_url ) : ?>
-	var wpNotesLinkAccountsURL = '<?php echo esc_url( $link_accounts_url ); ?>';
-<?php endif; ?>
-/* ]]> */
-</script>
-		<?php
+		$script_contents   = <<<'JS'
+var wpNotesIsJetpackClient = true;
+var wpNotesIsJetpackClientV2 = true;
+JS;
+		if ( $link_accounts_url ) {
+			$script_contents .= "\nvar wpNotesLinkAccountsURL = " . wp_json_encode( $link_accounts_url, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
+		}
+		wp_print_inline_script_tag(
+			$script_contents,
+			array(
+				'data-ampdevmode' => true,
+			)
+		);
 	}
 
 	/**

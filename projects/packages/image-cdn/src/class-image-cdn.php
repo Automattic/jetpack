@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.7.22';
+	const PACKAGE_VERSION = '0.7.24';
 
 	/**
 	 * Singleton.
@@ -363,8 +363,10 @@ final class Image_CDN {
 			}
 
 			// Identify image source.
-			$src_orig = $processor->get_attribute( 'src' );
-			$src      = $src_orig;
+			$src_orig             = $processor->get_attribute( 'src' );
+			$src                  = $src_orig;
+			$placeholder_src      = null;
+			$placeholder_src_orig = null;
 
 			/*
 			 * Only examine tags that are considered an image,
@@ -648,14 +650,12 @@ final class Image_CDN {
 					$processor->set_attribute( 'src', $photon_url );
 
 					// If Lazy Load is in use, pass placeholder image through Photon.
-					if ( isset( $placeholder_src ) && self::validate_image_url( $placeholder_src ) ) {
+					if ( $placeholder_src !== null && self::validate_image_url( $placeholder_src ) ) {
 						$placeholder_src = Image_CDN_Core::cdn_url( $placeholder_src );
 
 						if ( $placeholder_src !== $placeholder_src_orig ) {
 							$processor->set_attribute( $source_type, $placeholder_src );
 						}
-
-						unset( $placeholder_src );
 					}
 
 					// If we are not transforming the image with resize, fit, or letterbox (lb), then we should remove

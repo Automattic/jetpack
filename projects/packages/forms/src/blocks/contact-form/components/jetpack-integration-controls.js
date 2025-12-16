@@ -5,9 +5,10 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
-import { INTEGRATIONS_STORE } from '../../../store/integrations';
-import IntegrationsModal from './jetpack-integrations-modal';
-import ActiveIntegrations from './jetpack-integrations-modal/active-integrations';
+import useConfigValue from '../../../hooks/use-config-value.ts';
+import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
+import ActiveIntegrations from './jetpack-integrations-modal/active-integrations/index.js';
+import IntegrationsModal from './jetpack-integrations-modal/index.tsx';
 
 /**
  * Integration controls component containing Panel for settings sidebar and block toolbar.
@@ -26,6 +27,7 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 	const isLoading = useSelect( select => select( INTEGRATIONS_STORE ).isIntegrationsLoading(), [] );
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const { tracks } = useAnalytics();
+	const showIntegrationIcons = useConfigValue( 'showIntegrationIcons' );
 
 	const handleOpenModal = entry_point => {
 		tracks.recordEvent( 'jetpack_forms_block_modal_view', { entry_point } );
@@ -39,11 +41,13 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 				className="jetpack-contact-form__panel jetpack-contact-form__integrations-panel"
 				initialOpen={ false }
 			>
-				<ActiveIntegrations
-					integrations={ integrations }
-					attributes={ attributes }
-					isLoading={ isLoading }
-				/>
+				{ showIntegrationIcons !== false && (
+					<ActiveIntegrations
+						integrations={ integrations }
+						attributes={ attributes }
+						isLoading={ isLoading }
+					/>
+				) }
 				<Button
 					variant="secondary"
 					onClick={ () => handleOpenModal( 'block-sidebar' ) }

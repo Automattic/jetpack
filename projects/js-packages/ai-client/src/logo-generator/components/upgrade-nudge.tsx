@@ -5,7 +5,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, warning } from '@wordpress/icons';
+import { Icon, cautionFilled as warning } from '@wordpress/icons';
 /**
  * Internal dependencies
  */

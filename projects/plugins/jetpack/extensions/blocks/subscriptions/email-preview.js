@@ -19,7 +19,15 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { desktop, mobile, tablet, check, people, currencyDollar, warning } from '@wordpress/icons';
+import {
+	desktop,
+	mobile,
+	tablet,
+	check,
+	people,
+	currencyDollar,
+	cautionFilled as warning,
+} from '@wordpress/icons';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';

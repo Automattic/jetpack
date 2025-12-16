@@ -215,6 +215,18 @@ export type ChartTheme = {
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
+	/** Sparkline specific settings */
+	sparkline?: {
+		/** Margin around the sparkline chart */
+		margin?: {
+			top?: number;
+			right?: number;
+			bottom?: number;
+			left?: number;
+		};
+		/** Stroke width for the sparkline line */
+		strokeWidth?: number;
+	};
 };
 
 /**
@@ -222,10 +234,21 @@ export type ChartTheme = {
  * Useful for merged themes where defaults are provided for all optional properties.
  */
 export type CompleteChartTheme = Required< ChartTheme > & {
-	leaderboardChart: Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >;
-	conversionFunnelChart: Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >;
+	leaderboardChart: Omit<
+		Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >,
+		'primaryColor' | 'secondaryColor'
+	> &
+		Pick< NonNullable< ChartTheme[ 'leaderboardChart' ] >, 'primaryColor' | 'secondaryColor' >;
+	conversionFunnelChart: Omit<
+		Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >,
+		'primaryColor'
+	> &
+		Pick< NonNullable< ChartTheme[ 'conversionFunnelChart' ] >, 'primaryColor' >;
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
+	};
+	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
+		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
 };
 
@@ -237,6 +260,10 @@ declare type AxisOptions = {
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * Whether to display this axis. Defaults to true.
+	 */
+	display?: boolean;
 	/**
 	 * For more control over rendering or to add event handlers to datum, pass a function as children.
 	 */
@@ -374,6 +401,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+	/**
+	 * Whether to show chart animation on initial render or not
+	 */
+	animation?: boolean;
 
 	/**
 	 * More options for the chart.

@@ -9,8 +9,8 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import useAddImageOption from '../shared/hooks/use-add-image-option';
-import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import useAddImageOption from '../shared/hooks/use-add-image-option.ts';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
 
 export default function ImageOptionsFieldsetEdit( props ) {
 	const { attributes, clientId } = props;

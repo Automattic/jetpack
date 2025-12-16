@@ -1,12 +1,8 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 
-const isWpcom = isWpcomPlatformSite();
-
-// We do not want the Jetpack collection on WordPress.com (Simple or Atomic).
-if ( ! isWpcom ) {
+if ( window?.Jetpack_Editor_Initial_State?.registerBlockCollection ) {
 	registerBlockCollection( 'jetpack', {
 		title: 'Jetpack',
 		icon: <JetpackLogo />,

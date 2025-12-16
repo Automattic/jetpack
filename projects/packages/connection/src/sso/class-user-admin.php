@@ -795,7 +795,7 @@ class User_Admin extends Base_Admin {
 									type="checkbox"
 									id="user_external_contractor"
 									>
-								<?php esc_html_e( 'This user is a contractor, freelancer, consultant, or agency.', 'jetpack-connection' ); ?>
+								<?php esc_html_e( 'Mark as external collaborator', 'jetpack-connection' ); ?>
 							</label>
 						</fieldset>
 					</td>

@@ -8,6 +8,7 @@
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-external-connections": "@dev",
 		"automattic/jetpack-jwt": "@dev",
 		"automattic/jetpack-logo": "@dev",
@@ -21,7 +22,8 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "@dev",
+		"automattic/wp-feature-api": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -71,7 +73,7 @@
 			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "6.13.x-dev"
+			"dev-trunk": "6.22.x-dev"
 		},
 		"textdomain": "jetpack-forms",
 		"version-constants": {

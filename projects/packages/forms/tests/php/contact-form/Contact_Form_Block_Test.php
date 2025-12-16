@@ -92,12 +92,12 @@ class Contact_Form_Block_Test extends BaseTestCase {
 			'jetpack/label'   => array(
 				'jetpack/label',
 				array(
-					'color'      => array(
+					'color'           => array(
 						'text'       => true,
 						'background' => false,
 						'gradients'  => false,
 					),
-					'typography' => array(
+					'typography'      => array(
 						'fontSize'                     => true,
 						'lineHeight'                   => true,
 						'__experimentalFontFamily'     => true,
@@ -107,6 +107,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 						'__experimentalTextDecoration' => true,
 						'__experimentalLetterSpacing'  => true,
 					),
+					'blockVisibility' => true,
 				),
 			),
 			'jetpack/options' => array(

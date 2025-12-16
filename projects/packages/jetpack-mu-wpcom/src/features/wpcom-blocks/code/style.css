@@ -1,12 +1,14 @@
 /* Basic editor and frontend layout styles */
 
-.wp-block-a8c-code {
-	--font-family: Consolas, Monaco, monospace;
+.wp-block-code {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 
 	&.show-line-numbers {
 		counter-set: code-line-number calc(var(--line-numbers-start-at, 1) - 1);
 
-		pre.cm-content > code {
+		code {
 
 			.cm-line {
 				margin-left: calc(var(--line-number-gutter-width, 2ch) + 32px);
@@ -28,10 +30,6 @@
 		}
 	}
 
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-
 	&.loading {
 		cursor: wait;
 		filter: saturate(0.6) opacity(0.6);
@@ -47,7 +45,6 @@
 	.cm-scroller {
 		display: flex !important;
 		align-items: flex-start !important;
-		font-family: var(--font-family);
 		line-height: 1.4;
 		height: 100%;
 		overflow-x: auto;
@@ -56,100 +53,45 @@
 		gap: 32px;
 	}
 
-	.cm-content {
-		flex-grow: 2;
-		flex-shrink: 0;
-		display: block;
-		background: none;
-		border: none;
-		word-wrap: normal;
-		color: inherit;
-		font-family: inherit !important;
-
-		/* These are essential for layout */
-		white-space: pre !important;
-		font-size: inherit !important;
+	/* Essential layout and styling for PRE, CODE */
+	pre,
+	code {
+		max-width: none !important;
 		margin: 0 !important;
-		padding: 4px 0 !important;
+		padding: 0 !important;
 		line-height: inherit !important;
-
-		> code {
-			font-size: inherit !important;
-			margin: 0 !important;
-			padding: 0 !important;
-			line-height: inherit !important;
-			font-family: inherit !important;
-		}
+		background: transparent !important;
+		border: none !important;
+		border-radius: 0 !important;
+		color: inherit !important;
+		font-size: inherit !important;
 	}
 
-	.cm-line::before {
+	pre {
+		flex-grow: 2 !important;
+		flex-shrink: 0 !important;
+		display: block !important;
+		word-wrap: normal !important;
+		white-space: pre !important;
+	}
 
-		/* These are essential for layout */
+	code {
+		font-family: inherit !important;
+	}
+
+	/* Line number layout */
+	.cm-line::before {
 		box-sizing: content-box !important;
 	}
 
-	/* in the frontend */
-	pre.cm-content {
-
-		/* prevent empty lines from collapsing vertically */
-		.cm-line:empty::after {
-			content: "\00a0";
-		}
+	/* prevent empty lines from collapsing vertically in rendered views */
+	.cm-line:empty::after {
+		content: "\A0";
 	}
 
+	/* Match the editor */
 	.cm-line {
-		display: block;
 		padding: 0 2px 0 6px;
-	}
-
-	.cm-gutters {
-		position: sticky;
-		flex-shrink: 0;
-		display: flex;
-		height: 100%;
-		box-sizing: border-box;
-		inset-inline-start: 0;
-		z-index: 200;
-
-		backdrop-filter: blur(1em);
-
-		background-color: initial;
-		border-right: none;
-
-		color: oklch(from currentColor l c h / 0.6);
-	}
-
-	.cm-gutter {
-		display: flex !important;
-		flex-direction: column;
-		flex-shrink: 0;
-		box-sizing: border-box;
-		min-height: 100%;
-		overflow: hidden;
-
-		font-family: var(--font-family);
-	}
-
-	.cm-gutterElement {
-		box-sizing: border-box;
-		min-width: 20px;
-		text-align: right;
-		white-space: nowrap;
-
-		&:first-child {
-			margin-top: 4px;
-		}
-
-		&:last-child {
-			margin-bottom: 4px;
-		}
-	}
-
-	.cm-lineNumbers .cm-gutterElement {
-		padding: 0 3px 0 5px;
-		min-width: 20px;
-		text-align: right;
-		white-space: nowrap;
 	}
 
 	.tok-link {
@@ -244,15 +186,12 @@
 	}
 
 	/*
-	 * Using our block name "a8c/code" is transformed to the lovely "a-8-c-code" to
-	 * scope our properties for theme.json to use.
-	 *
-	 * For example, a theme.json file can provide defaults like this:
+	 * A theme.json file can provide defaults like this:
 	 *
 	 * {
 	 *   "settings": {
 	 *     "custom": {
-	 *       "a8c/code": {
+	 *       "core/code": {
 	 *         "comment": "red",
 	 *         "keyword": "#c0ffee",
 	 *         "boolean": "orange",
@@ -270,17 +209,17 @@
 	 * }
 	 */
 
-	--colorComment: var(--styledColorComment, var(--wp--custom--a-8-c-code--comment, #940));
-	--colorKeyword: var(--styledColorKeyword, var(--wp--custom--a-8-c-code--keyword, #708));
-	--colorBoolean: var(--styledColorBoolean, var(--wp--custom--a-8-c-code--boolean, #219));
-	--colorLiteral: var(--styledColorLiteral, var(--wp--custom--a-8-c-code--literal, #164));
-	--colorString: var(--styledColorString, var(--wp--custom--a-8-c-code--string, #a11));
-	--colorSpecialString: var(--styledColorSpecialString, var(--wp--custom--a-8-c-code--special-string, #e40));
-	--colorMacroName: var(--styledColorMacroName, var(--wp--custom--a-8-c-code--macro-name, #256));
-	--colorVariableDefinition: var(--styledColorVariableDefinition, var(--wp--custom--a-8-c-code--variable-definition, #00f));
-	--colorTypeName: var(--styledColorTypeName, var(--wp--custom--a-8-c-code--type-name, #085));
-	--colorClassName: var(--styledColorClassName, var(--wp--custom--a-8-c-code--class-name, #167));
-	--colorInvalid: var(--styledColorInvalid, var(--wp--custom--a-8-c-code--invalid, #f00));
+	--colorComment: var(--styledColorComment, var(--wp--custom--core-code--comment, #940));
+	--colorKeyword: var(--styledColorKeyword, var(--wp--custom--core-code--keyword, #708));
+	--colorBoolean: var(--styledColorBoolean, var(--wp--custom--core-code--boolean, #219));
+	--colorLiteral: var(--styledColorLiteral, var(--wp--custom--core-code--literal, #164));
+	--colorString: var(--styledColorString, var(--wp--custom--core-code--string, #a11));
+	--colorSpecialString: var(--styledColorSpecialString, var(--wp--custom--core-code--special-string, #e40));
+	--colorMacroName: var(--styledColorMacroName, var(--wp--custom--core-code--macro-name, #256));
+	--colorVariableDefinition: var(--styledColorVariableDefinition, var(--wp--custom--core-code--variable-definition, #00f));
+	--colorTypeName: var(--styledColorTypeName, var(--wp--custom--core-code--type-name, #085));
+	--colorClassName: var(--styledColorClassName, var(--wp--custom--core-code--class-name, #167));
+	--colorInvalid: var(--styledColorInvalid, var(--wp--custom--core-code--invalid, #f00));
 
 	&.is-style-solarized-light .a8c\/code__btn-copy,
 	&.is-style-solarized-dark .a8c\/code__btn-copy {
@@ -377,11 +316,6 @@
 	justify-content: flex-end;
 	font-size: 0.8em;
 	min-height: 40px;
-	padding: 0 12px;
-
-	.a8c\/code__language-select {
-		margin-right: -12px;
-	}
 }
 
 .a8c\/code__header-right {
@@ -392,12 +326,7 @@
 
 .a8c\/code__filename {
 	flex: 1 0 0;
-	font-size: inherit;
 	font-weight: 700;
 	line-height: 1.3;
-	font-family: inherit !important;
-	border: 1px solid transparent;
+	word-break: break-word;
 }
-
-/* vi: ts=2 sw=2 noet
- */

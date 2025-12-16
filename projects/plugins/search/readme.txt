@@ -4,7 +4,7 @@ Tags: search, filter, woocommerce search, ajax search, product search, free clou
 Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 1.4.0
+Stable tag: 5.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,31 +122,10 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 5.1.0 - 2025-09-09
-#### Added
-- Add archives endpoint support.
-- Add typecheck support for E2E tests.
-- My Jetpack: Add analytics for empty product search results.
-
-#### Changed
-- Remove CRM installation nudge for Complete plan users.
-- E2E tests: Remove redundant logic in test fixture and convert the fixture to TypeScript.
-- Improve performance of WordPress.com comment likes by caching and minimizing API requests.
-- My Jetpack: Enable access to My Jetpack on WP Multisite.
-- My Jetpack: Fix multisite availability check for restricted products and modules.
-- My Jetpack: Unify the user connection flow with a unified screen.
-- My Jetpack: Update Stats card to include a chart for better analytics.
-- Sync: Ignore the ActivityPub Outbox CPT.
-- Update package dependencies.
-
+### 5.2.2 - 2025-11-21
 #### Fixed
-- Autoloader: Prevent double slash in autoloader path.
-- JITM: Fix ineffective caching due to expired plugin sync transient.
-- My Jetpack: Fix footer alignment for disconnected accounts.
-- My Jetpack: Prevent expiration alerts for products covered by active bundles.
-- My Jetpack: Restore plan purchase link.
-- Search: Ensure images are loaded efficiently when on https sites.
-- JITM: Remove jQuery dependency.
+- Jetpack: Remove getIconColor functions for block icons.
+- My Jetpack: Fix expiring renewal prompt to show all products.
 
 == Testimonials ==
 

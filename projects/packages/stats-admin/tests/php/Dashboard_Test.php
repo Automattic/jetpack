@@ -17,7 +17,10 @@ class Dashboard_Test extends Stats_TestCase {
 		Dashboard::init();
 
 		$rp = new ReflectionProperty( Dashboard::class, 'initialized' );
-		$rp->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$rp->setAccessible( true );
+		}
 		$this->assertTrue( $rp->getValue() );
 	}
 

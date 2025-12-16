@@ -5,7 +5,7 @@ import { CardBody, Spinner } from '@wordpress/components';
 /**
  * Types
  */
-import type { IntegrationCardProps } from './index';
+import type { IntegrationCardProps } from './index.tsx';
 
 type IntegrationCardBodyProps = Pick<
 	IntegrationCardProps,

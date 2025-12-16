@@ -152,7 +152,7 @@ class Jetpack_Redux_State_Helper {
 			'getModules'                           => $modules,
 			'rawUrl'                               => ( new Status() )->get_site_suffix(),
 			'adminUrl'                             => esc_url( admin_url() ),
-			'siteTitle'                            => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
+			'siteTitle'                            => htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
 			'stats'                                => array(
 				// data is populated asynchronously on page load.
 				'data'  => array(
@@ -192,7 +192,7 @@ class Jetpack_Redux_State_Helper {
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'latestBoostSpeedScores'     => $speed_score_history->latest(),
-				'isSharingBlockAvailable'    => (bool) isset( $block_availability['sharing-buttons'] )
+				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
 					&& $block_availability['sharing-buttons']['available'],
 			),
 			'themeData'                            => array(

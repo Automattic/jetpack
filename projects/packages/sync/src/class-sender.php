@@ -418,11 +418,11 @@ class Sender {
 			session_write_close();
 		}
 
-		// Output not used right now. Try to release dedicated sync lock
-		Dedicated_Sender::try_release_lock_spawn_request();
-
 		// Actually try to send Sync events.
 		$result = $this->do_sync_and_set_delays( $this->sync_queue );
+
+		// Output not used right now. Try to release dedicated sync lock
+		Dedicated_Sender::try_release_lock_spawn_request();
 
 		// If no errors occurred, re-spawn a dedicated Sync request.
 		if ( true === $result ) {
@@ -497,7 +497,7 @@ class Sender {
 			if ( 'wpcom_error' === $sync_result->get_error_code() ) {
 				$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY, $queue->id );
 			}
-		} elseif ( $exceeded_sync_wait_threshold ) {
+		} elseif ( $exceeded_sync_wait_threshold && ! Settings::is_doing_cron() ) {
 			// If we actually sent data and it took a while, wait before sending again.
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time(), $queue->id );
 		}

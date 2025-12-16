@@ -80,11 +80,13 @@ For more in depth Docker instructions, follow the [Docker environment for Jetpac
 
 ## Setting up Jurassic Tube
 
+**Note:** This is for Automattician use only. For other methods, check out [ngrok](../tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
+
 In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels. If you're an Automattician, we recommend using Jurassic Tube.
 
-Note: This is for Automattician use only. For other methods, check out [ngrok](../tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
-
 To set up Jurassic Tube and establish a tunnel to your local machine, use the following instructions: PCYsg-GJ2-p2
+
+For detailed information about using Jurassic Tube with Docker, including recommended proxy configurations, see the [Jurassic Tube Tunneling Service](../tools/docker/README.md#jurassic-tube-tunneling-service) section in the Docker documentation.
 
 ## Development Workflow
 

@@ -35,19 +35,15 @@ class Jetpack_Sync_Plugins_Updates_Test extends Jetpack_Sync_TestBase {
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
-		if ( ! file_exists( WP_PLUGIN_DIR . '/the/the.php' ) ) {
-			Jetpack_Sync_Plugins_Test::install_the_plugin();
-		}
+		Jetpack_Sync_Plugins_Test::install_the_plugin();
 	}
 
 	/**
 	 * Tear down after class.
 	 */
 	public static function tear_down_after_class() {
+		Jetpack_Sync_Plugins_Test::remove_plugin();
 		parent::tear_down_after_class();
-		if ( file_exists( WP_PLUGIN_DIR . '/the/the.php' ) ) {
-			Jetpack_Sync_Plugins_Test::remove_plugin();
-		}
 	}
 
 	public function test_updating_a_plugin_is_synced() {

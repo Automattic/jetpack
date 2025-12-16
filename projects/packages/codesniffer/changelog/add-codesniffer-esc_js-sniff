@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Add `Jetpack.Functions.EscJs` sniff.

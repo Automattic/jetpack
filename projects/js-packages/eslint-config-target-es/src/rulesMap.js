@@ -6,6 +6,16 @@ module.exports = {
 	'no-asyncdisposablestack': 'javascript.builtins.AsyncDisposableStack.AsyncDisposableStack',
 	'no-disposablestack': 'javascript.builtins.DisposableStack.DisposableStack',
 	'no-error-iserror': 'javascript.builtins.Error.isError',
+	'no-intl-locale-prototype-firstdayofweek': false, // No compat data yet.
+	'no-intl-locale-prototype-getcalendars': 'javascript.builtins.Intl.Locale.getCalendars',
+	'no-intl-locale-prototype-getcollations': 'javascript.builtins.Intl.Locale.getCollations',
+	'no-intl-locale-prototype-gethourcycles': 'javascript.builtins.Intl.Locale.getHourCycles',
+	'no-intl-locale-prototype-getnumberingsystems':
+		'javascript.builtins.Intl.Locale.getNumberingSystems',
+	'no-intl-locale-prototype-gettextinfo': 'javascript.builtins.Intl.Locale.getTextInfo',
+	'no-intl-locale-prototype-gettimezones': 'javascript.builtins.Intl.Locale.getTimeZones',
+	'no-intl-locale-prototype-getweekinfo': 'javascript.builtins.Intl.Locale.getWeekInfo',
+	'no-iterator-concat': false, // No compat data yet.
 	'no-suppressederror': 'javascript.builtins.SuppressedError.SuppressedError',
 	'no-symbol-asyncdispose': 'javascript.builtins.Symbol.asyncDispose',
 	'no-symbol-dispose': 'javascript.builtins.Symbol.dispose',

@@ -27,7 +27,7 @@ export const Placeholder = () => {
 	return (
 		<PanelBody
 			className="jetpack-publicize__placeholder"
-			title={ __( 'Share this post', 'jetpack-publicize-components' ) }
+			title={ __( 'Share to social media', 'jetpack-publicize-components' ) }
 			initialOpen={ false }
 			onToggle={ trackPlaceholderView }
 		>

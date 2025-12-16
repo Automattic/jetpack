@@ -358,7 +358,7 @@ class Classic_Search {
 			'user-agent' => 'jetpack_search',
 		);
 
-		$request_body = wp_json_encode( $es_args );
+		$request_body = wp_json_encode( $es_args, JSON_UNESCAPED_SLASHES );
 
 		$start_time = microtime( true );
 
@@ -652,8 +652,6 @@ class Classic_Search {
 		if ( ! $the_tax_query instanceof WP_Tax_Query || empty( $the_tax_query->queried_terms ) || ! is_array( $the_tax_query->queried_terms ) ) {
 			return $args;
 		}
-
-		$args = array();
 
 		foreach ( $the_tax_query->queries as $tax_query ) {
 			// Right now we only support slugs...see note above.

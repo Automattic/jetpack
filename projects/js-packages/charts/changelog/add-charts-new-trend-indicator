@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add TrendIndicator component for displaying directional trends with values

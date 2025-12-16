@@ -1,11 +1,11 @@
-import { UNKNOWN_ERROR_MESSAGE } from '../constants';
+import { UNKNOWN_ERROR_MESSAGE } from '../constants.ts';
 import {
 	RECEIVE_INTEGRATIONS,
 	INVALIDATE_INTEGRATIONS,
 	SET_INTEGRATIONS_LOADING,
 	SET_INTEGRATIONS_ERROR,
-} from './action-types';
-import type { IntegrationsState, IntegrationsAction } from './types';
+} from './action-types.ts';
+import type { IntegrationsState, IntegrationsAction } from './types.ts';
 
 const DEFAULT_STATE: IntegrationsState = {
 	items: null,

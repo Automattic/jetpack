@@ -9,11 +9,11 @@ import { PanelBody, ToggleControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import JetpackFieldWidth from '../shared/components/jetpack-field-width';
-import ToolbarRequiredGroup from '../shared/components/toolbar-required-group';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
+import JetpackFieldWidth from '../shared/components/jetpack-field-width.js';
+import ToolbarRequiredGroup from '../shared/components/toolbar-required-group.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
+import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants.js';
 
 export default function CheckboxFieldEdit( props ) {
 	const { setAttributes, attributes } = props;

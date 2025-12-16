@@ -430,6 +430,7 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 	WP_CLI::success( 'WooCommerce connection details stored' );
 
 	if ( class_exists( 'WC_Helper' ) && method_exists( 'WC_Helper', 'refresh_helper_subscriptions' ) ) {
+		// @phan-suppress-current-line UnusedPluginSuppression @phan-suppress-next-line PhanUndeclaredStaticMethod -- We check if the class and method exist before using them; see https://github.com/phan/phan/issues/1204
 		WC_Helper::refresh_helper_subscriptions();
 
 		WP_CLI::success( 'Cleared WooCommerce Helper cache' );

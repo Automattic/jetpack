@@ -56,7 +56,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_stats();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/' ) );
 	}
 
 	/**
@@ -85,7 +85,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_stats_summary();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/summary' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/summary' ) );
 	}
 
 	/**
@@ -114,7 +114,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_top_posts();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/top-posts' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/top-posts' ) );
 	}
 
 	/**
@@ -145,7 +145,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_video_details( $video_id );
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/video/' . $video_id ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/video/' . $video_id ) );
 	}
 
 	/**
@@ -175,7 +175,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_referrers();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/referrers' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/referrers' ) );
 	}
 
 	/**
@@ -205,7 +205,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_clicks();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/clicks' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/clicks' ) );
 	}
 
 	/**
@@ -228,7 +228,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_tags();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/tags' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/tags' ) );
 	}
 
 	/**
@@ -256,7 +256,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_top_authors();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/top-authors' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/top-authors' ) );
 	}
 
 	/**
@@ -280,7 +280,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_top_comments();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/comments' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/comments' ) );
 	}
 
 	/**
@@ -310,7 +310,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_video_plays();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/video-plays' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/video-plays' ) );
 	}
 
 	/**
@@ -340,7 +340,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_file_downloads();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/file-downloads' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/file-downloads' ) );
 	}
 
 	/**
@@ -365,7 +365,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_post_views( $post_id );
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/post/' . $post_id ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/post/' . $post_id ) );
 	}
 
 	/**
@@ -395,7 +395,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_views_by_country();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/country-views' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/country-views' ) );
 	}
 
 	/**
@@ -422,7 +422,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_followers();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/followers' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/followers' ) );
 	}
 
 	/**
@@ -447,7 +447,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_comment_followers();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/comment-followers' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/comment-followers' ) );
 	}
 
 	/**
@@ -469,7 +469,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_publicize_followers();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/publicize' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/publicize' ) );
 	}
 
 	/**
@@ -500,7 +500,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_search_terms();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/search-terms' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/search-terms' ) );
 	}
 
 	/**
@@ -530,7 +530,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_total_post_views();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/views/posts' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/views/posts' ) );
 	}
 
 	/**
@@ -541,7 +541,10 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	public function test_get_total_post_views_with_valid_post_ids_on_simple_sites() {
 		$reflection = new \ReflectionClass( $this->wpcom_stats );
 		$property   = $reflection->getProperty( 'is_wpcom_simple' );
-		$property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue( $this->wpcom_stats, true );
 
 		// Prepare mock data for the stats
@@ -614,7 +617,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_visits();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/visits' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/visits' ) );
 	}
 
 	/**
@@ -655,7 +658,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_highlights();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/highlights' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/highlights' ) );
 	}
 
 	/**
@@ -711,7 +714,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_insights();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/insights' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/insights' ) );
 	}
 
 	/**
@@ -749,7 +752,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_streak();
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/streak' ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/streak' ) );
 	}
 
 	/**
@@ -835,7 +838,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_stats( $args );
 		$this->assertSame( $expected_stats, $stats );
-		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/', $args ) );
+		$this->assertSame( wp_json_encode( $expected_stats, JSON_UNESCAPED_SLASHES ), self::get_stats_transient( '/sites/1234/stats/', $args ) );
 	}
 
 	/**
@@ -846,7 +849,7 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	 * @return string|false The transient value if set, otherwise false
 	 */
 	private static function get_stats_transient( $endpoint, $args = array() ) {
-		$cache_key      = md5( implode( '|', array( $endpoint, WPCOM_Stats::STATS_REST_API_VERSION, wp_json_encode( $args ) ) ) );
+		$cache_key      = md5( implode( '|', array( $endpoint, WPCOM_Stats::STATS_REST_API_VERSION, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
 		$transient_name = WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
 		$stats_cache    = get_transient( $transient_name );
 

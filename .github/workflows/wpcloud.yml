@@ -9,6 +9,10 @@ concurrency:
   cancel-in-progress: false
   # Concurrency is set up to make sure we can only run one WP Cloud testing job at the same time.
 
+permissions:
+  # actions/checkout, actions/cache?
+  contents: read
+
 jobs:
   build:
     name: Install the Monorepo and build wpcomsh
@@ -17,7 +21,7 @@ jobs:
     outputs:
       wpcomsh: ${{ steps.changed.outputs.wpcomsh }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -81,7 +85,7 @@ jobs:
     needs: build
     if: needs.build.outputs.wpcomsh == 'true'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Restore wpcomsh build cache
         id: wpcomsh-build-cache

@@ -309,6 +309,110 @@ class Feedback_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that country code is included in serialized response and persists after save/load.
+	 */
+	public function test_country_code_included_in_serialized_response() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'Jane Doe',
+				'email'   => 'jane@example.com',
+				'message' => 'Test message from Canada',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Set up filter to return a test country code
+		$test_country_code = 'CA';
+		$filter_callback   = function () use ( $test_country_code ) {
+			return $test_country_code;
+		};
+		add_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+
+		// Create a contact form response
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// The country code should be present and match the test value.
+		$this->assertNotEmpty( $response->get_country_code(), 'Country code should not be empty' );
+		$this->assertNotEmpty( $saved_response->get_country_code(), 'Country code should not be empty after save/load' );
+		$this->assertEquals( $response->get_country_code(), $saved_response->get_country_code(), 'Country code should match after save/load' );
+		$this->assertEquals( $test_country_code, $saved_response->get_country_code(), 'Country code should match the filter value' );
+
+		add_filter( 'jetpack_contact_form_forget_ip_address', '__return_true' );
+		$new_post_id = $response->save();
+		remove_filter( 'jetpack_contact_form_forget_ip_address', '__return_true' );
+
+		$saved_response = Feedback::get( $new_post_id );
+		$this->assertEmpty( $saved_response->get_country_code(), 'Country code should be empty when IP is forgotten' );
+		// Clean up
+		remove_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+	}
+
+	/**
+	 * Test the browser information is parsed correctly from user agent.
+	 */
+	public function test_browser_parsing_from_user_agent() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Test Chrome Desktop
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36';
+		$response                   = Feedback::from_submission( $_post_data, $form );
+		$browser                    = $response->get_browser();
+		$this->assertStringContainsString( 'Chrome', $browser, 'Browser should be Chrome' );
+		$this->assertStringContainsString( 'Desktop', $browser, 'Platform should be Desktop' );
+
+		// Test Safari Mobile (iPhone)
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1';
+		$response                   = Feedback::from_submission( $_post_data, $form );
+		$browser                    = $response->get_browser();
+		$this->assertStringContainsString( 'Safari', $browser, 'Browser should be Safari' );
+		$this->assertStringContainsString( 'Mobile', $browser, 'Platform should be Mobile' );
+
+		// Test Firefox Desktop
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0';
+		$response                   = Feedback::from_submission( $_post_data, $form );
+		$browser                    = $response->get_browser();
+		$this->assertStringContainsString( 'Firefox', $browser, 'Browser should be Firefox' );
+		$this->assertStringContainsString( 'Desktop', $browser, 'Platform should be Desktop' );
+
+		// Test no user agent
+		unset( $_SERVER['HTTP_USER_AGENT'] );
+		$response = Feedback::from_submission( $_post_data, $form );
+		$browser  = $response->get_browser();
+		$this->assertNull( $browser, 'Browser should be null when no user agent' );
+	}
+
+	/**
 	 * Test the subject line is computed for legacy correctly.
 	 */
 	public function test_computed_subject_legacy() {
@@ -486,6 +590,64 @@ class Feedback_Test extends BaseTestCase {
 
 		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $author, $saved_response->get_author(), 'Author should match the legacy feedback post author' );
+	}
+
+	public function test_author_name() {
+		$author  = 'Mikey Mouse';
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => $author,
+				'email'   => 'email@email.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Create a contact form
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEquals( $author, $response->get_author_name(), 'Author name should match the form submission' );
+		$this->assertEquals( $author, $saved_response->get_author_name(), 'Author name should match the saved form submission' );
+	}
+
+	public function test_author_name_with_email() {
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@email.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Create a contact form
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertSame( '', $response->get_author_name(), 'Author name should match the form submission' );
+		$this->assertSame( '', $saved_response->get_author_name(), 'Author name should match the saved form submission' );
 	}
 
 	public function test_computed_name() {
@@ -1272,7 +1434,8 @@ class Feedback_Test extends BaseTestCase {
 						'label'  => 'Choice C',
 						'image'  => $create_image_block( 'https://www.example.com/choice-c.png', 'Choice C' ),
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			)
 		);
 
@@ -1704,6 +1867,11 @@ class Feedback_Test extends BaseTestCase {
 				),
 				'message'  => 'Compiled fields should return only labels as indexed array.',
 			),
+			'id-value_format'    => array(
+				'format'   => 'id-value',
+				'expected' => array(), // Rebuilt dynamically in the test with actual form_id
+				'message'  => 'Compiled fields should return field IDs mapped to values.',
+			),
 		);
 	}
 
@@ -1742,6 +1910,17 @@ class Feedback_Test extends BaseTestCase {
 
 		// Test the specified format
 		$compiled_fields = $response->get_compiled_fields( 'default', $format );
+
+		// For id-value format, rebuild expected with actual form_id, there
+		// was no way of passing the form_id to the data provider.
+		if ( 'id-value' === $format ) {
+			$expected = array(
+				'g' . $form_id . '-name'    => $test_name,
+				'g' . $form_id . '-email'   => $test_email,
+				'g' . $form_id . '-website' => $test_website,
+				'g' . $form_id . '-message' => $test_message,
+			);
+		}
 
 		$this->assertEquals( $expected, $compiled_fields, $message );
 	}
@@ -2408,7 +2587,7 @@ class Feedback_Test extends BaseTestCase {
 			),
 		);
 		foreach ( $test_cases_data as $case ) {
-			$this->assertEquals( wp_json_encode( $case ), Feedback::fix_malformed_json( stripslashes( wp_json_encode( $case ) ) ) );
+			$this->assertEquals( wp_json_encode( $case, JSON_UNESCAPED_SLASHES ), Feedback::fix_malformed_json( stripslashes( wp_json_encode( $case, JSON_UNESCAPED_SLASHES ) ) ) );
 		}
 	}
 
@@ -2919,5 +3098,92 @@ class Feedback_Test extends BaseTestCase {
 		wp_delete_user( $editor_id );
 		wp_delete_user( $author_id );
 		wp_delete_user( $subscriber_id );
+	}
+
+	/**
+	 * Test that country flags are returned correctly.
+	 */
+	public function test_get_country_flag() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Test valid country codes
+		$test_cases = array(
+			'US' => '🇺🇸',
+			'GB' => '🇬🇧',
+			'DE' => '🇩🇪',
+			'CA' => '🇨🇦',
+			'JP' => '🇯🇵',
+			'us' => '🇺🇸', // Test lowercase (should be converted to uppercase internally)
+		);
+
+		foreach ( $test_cases as $country_code => $expected_flag ) {
+			$filter_callback = function () use ( $country_code ) {
+				return $country_code;
+			};
+			add_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+
+			$response = Feedback::from_submission( $_post_data, $form );
+
+			$this->assertEquals( $expected_flag, $response->get_country_flag(), "Country code {$country_code} should convert to flag emoji {$expected_flag}" );
+
+			remove_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+		}
+
+		// Test when no country code is available
+		$filter_callback = function () {
+			return null;
+		};
+		add_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertSame( '', $response->get_country_flag(), 'Should return empty string when no country code is available' );
+
+		remove_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+	}
+
+	/**
+	 * Minimal: submission with first-name/last-name sets author name and first/last getters.
+	 */
+	public function test_author_first_last_on_submission() {
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"
+			[contact-field label='First name' type='name' id='first-name'/]
+			[contact-field label='Last name' type='name' id='last-name'/]
+			[contact-field label='Email' type='email' id='email'/]
+			"
+		);
+
+		$post_data = array(
+			'first-name' => 'Jane',
+			'last-name'  => 'Doe',
+			'email'      => 'jane@example.com',
+		);
+
+		$response = Feedback::from_submission( $post_data, $form );
+
+		$this->assertEquals( 'Jane Doe', $response->get_author_name(), 'Author name should combine first and last' );
+		$this->assertSame( 'Jane', $response->get_author_first_name(), 'First name getter should return raw first name' );
+		$this->assertSame( 'Doe', $response->get_author_last_name(), 'Last name getter should return raw last name' );
 	}
 }

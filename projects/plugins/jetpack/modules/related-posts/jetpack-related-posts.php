@@ -692,7 +692,7 @@ EOT;
 	public function print_setting_html() {
 		$options = $this->get_options();
 
-		$ui_settings_template = <<<EOT
+		$ui_settings_template = <<<'EOT'
 <p class="description">%s</p>
 <ul id="settings-reading-relatedposts-customize">
 	<li>
@@ -728,7 +728,7 @@ EOT;
 		);
 
 		if ( ! $this->allow_feature_toggle() ) {
-			$template = <<<EOT
+			$template = <<<'EOT'
 <input type="hidden" name="jetpack_relatedposts[enabled]" value="1" />
 %s
 EOT;
@@ -737,7 +737,7 @@ EOT;
 				$ui_settings // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data is escaped when variable is set.
 			);
 		} else {
-			$template = <<<EOT
+			$template = <<<'EOT'
 <ul id="settings-reading-relatedposts">
 	<li>
 		<label><input type="radio" name="jetpack_relatedposts[enabled]" value="0" class="tog" %s /> %s</label>
@@ -1317,7 +1317,8 @@ EOT;
 			$response['items'] = $related_posts;
 		}
 
-		wp_send_json( $response );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -2033,6 +2034,16 @@ EOT;
 	public function rest_register_related_posts() {
 		/** This filter is already documented in class.json-api-endpoints.php */
 		$post_types = apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'revision' ) );
+
+		/**
+		 * Filter the post types that are allowed to have related posts.
+		 *
+		 * @since 15.3
+		 *
+		 * @param array $post_types The post types that are allowed to have related posts.
+		 */
+		$post_types = apply_filters( 'jetpack_related_posts_rest_api_allowed_post_types', $post_types );
+
 		foreach ( $post_types as $post_type ) {
 			register_rest_field(
 				$post_type,

@@ -5,6 +5,209 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.22.0] - 2025-12-08
+### Added
+- Add filter to hide integration icons. [#46188]
+- Add integrations display filters. [#46156]
+
+### Changed
+- Update package dependencies. [#45914]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+- Decode HTML entities in exported form names to prevent codes like `&#8211;` appearing in CSV exports. [#46178]
+- Fix PHP warning when global gets overwritten. [#46141]
+- Set `from` field as primary on dashboard. [#46170]
+
+## [6.21.2] - 2025-12-04
+### Fixed
+- Forms: Use the correct case on cipher names [#46189]
+
+## [6.21.1] - 2025-12-03
+### Fixed
+- Fix the flickering between the sidebar loading on different browser widths.
+
+## [6.21.0] - 2025-12-01
+### Added
+- Add form response webhook support. [#46059]
+- Add WordPress Abilities API integration for form submissions management and integrations access. [#45998]
+- Use parse_blocks instead of preg_replace for attribute appending on templates and widgets. [#45999]
+- Form Webhooks: add logging and filter flag for initialization. [#46059]
+
+### Changed
+- Enable form webhooks feature based on current plan support. [#46059]
+- Add notice after optimistic response status update. [#46056]
+- Improve name variation handling. [#46054]
+- Remove related-posts from API calls. [#45928]
+- Form Webhooks: clean up and consolidate webhooks to take over the unused-yet-present postToUrl. [#46059]
+- Update package dependencies. [#46072] [#46143]
+
+### Fixed
+- Add fallback values to CSS custom properties to improve form styling compatibility across themes. [#46038]
+- Fix checkbox styling and block interaction in editor by removing disabled attribute and using CSS pointer-events instead. [#46125]
+- Do not link to to empty source_link. [#46133]
+- Fix inbox reponse email copy button alignment. [#46088]
+- Fix notices positioning on dashboard. [#46097]
+- Fix spam status change tracking when post is not available. [#46107]
+- Make the filter count not be cut off. [#46132]
+- Outlined style leading notch was missing base border settings. [#46048]
+- Reject form submissions when the parent post/page with the form has been deleted or is no longer published. [#46103]
+- Remove clashing between meta and field names. [#46130]
+- Trash old spam instead of fully deleting. [#46033]
+- Use fallback page value on feedback source if variable is polluted. [#46075]
+- Wrap long emails in response. [#46121]
+
+## [6.20.0] - 2025-11-24
+### Added
+- Add docs on classes and usage. [#46047]
+
+### Changed
+- Add examples for first/last name field variations. [#45985]
+- Componentize more response styles and JS. [#45918]
+- Protect against invalid attributes when merging new values. [#45997]
+- Update dashboard header buttons. [#45983]
+- Use first/last name for author. [#45944]
+
+### Fixed
+- Fix left margin on inbox. [#46044]
+- Fix modal/sidebar stacking issue in DataViews inbox where modals would open on top of sidebars at certain screen sizes. [#46017]
+- Fix name variation isActive setting. [#46028]
+- Jetpack: Remove `getIconColor` functions from block icons. [#45992]
+- Remove height hacks in dashboard layout and use viewport-based height calculation. [#46052]
+
+## [6.19.0] - 2025-11-19
+### Changed
+- Move empty state as component for inbox. [#45971]
+- Update to Manage Integrations". [#45979]
+
+### Fixed
+- Allow long responses to scroll. [#45975]
+- Fix spacing within advanced editor panel. [#45973]
+- JWT payload v2. [#45954]
+
+## [6.18.0] - 2025-11-18
+### Changed
+- Update to ESM module. [#45963]
+- Refactor dashboard layout and add Page components for improved structure and maintainability. [#45952]
+- Update package dependencies. [#45961]
+
+## [6.17.0] - 2025-11-17
+### Added
+- Add formTitle on default attributes so it persists throughout parsing and processing. [#45908]
+
+### Changed
+- Add a new filter for the JWT token error. [#45949]
+- Componentize response file field. [#45892]
+- Fix regression making our dashboard not scrollable. [#45867]
+- Improve MailPoet subscriber handling. [#45905]
+- Optimistically move items from/to inbox/spam/trash. [#45912]
+- Render badges in unread/read column when visible. [#45931]
+- Show country name as tooltip in IP flags. [#45886]
+- Split styles into smaller files alongside their respective components. [#45888]
+- Use core WP colors for basic primitive components such as buttons at Forms dashboard. [#45845]
+- Update package dependencies. [#45915] [#45916] [#45958]
+
+### Removed
+- Clean up code and styles. [#45882]
+
+### Fixed
+- Address spacing issues on single input forms. [#45909]
+- Fix Delete spam and Empty trash actions. [#45933]
+- Pass requiredText from option block to checkbox field. [#45897]
+
+## [6.16.0] - 2025-11-10
+### Added
+- Add dev docs. [#44841]
+- Add email as secondary information on dashboard. [#45802]
+- Add keyboard navigation to view responses quickly. [#45811] [#45812]
+- Add integrations to dashboard mobile menu. [#45744]
+- Add subtitle to dashboard page. [#45773]
+
+### Changed
+- Add browser info to the form response email notification. [#45710]
+- Add IP lookup link to IP address in form notification email footer. [#45762]
+- Adjust dataviews paddings for consistent spacing with the header. [#45824]
+- Change integrations modal width. [#45855]
+- Default multistep forms to single step view in the editor and prevent viewport jumping during step navigation. [#45693]
+- Disable export button if no form entries. [#45777]
+- Let there be only 1 primary header CTA and push it to the right. [#45849]
+- Modernize responses header with tabs, compact number formatting, and improved mobile layout. [#45748]
+- Move integrations from tab to button and display in modal. [#45717]
+- Reduce logo size to 20px for better visual balance in the dashboard header. [#45790]
+- Remove unused CSS from forms dashboard. [#45853]
+- Update dashboard styling for visual consistency (header, buttons, tabs, and color variables). [#45783]
+- Update dataview actions. [#45670]
+- Update package dependencies. [#45735] [#45737] [#45756]
+
+### Fixed
+- Add gravatar everywhere to improve consistency. [#45823]
+- Apply tip styles on mobile responses. [#45846]
+- Fix a bug where we were not showing duplicate form field values. [#45809]
+- Fix animated and outlined styles. [#45743]
+- Fix author name on feedback endpoint. [#45832]
+- Fix duplicated email on dashboard. [#45821]
+- Fix export modal styling. [#45852]
+- Fix hidden unread dot. [#45856]
+- Fix horizontal scroll on mobile. [#45788] [#45808]
+- Fix integrations modal flash. [#45775]
+- Fix last page invalidation error when items are removed. [#45740]
+- Fix mobile response view modal spacing. [#45778]
+- Fix phone field extra controls option to append to shared field controls. [#45764]
+- Fix visible sidebar in dashboard when multiple items are selected. [#45806]
+- Improve the `invalid_jwt` error message that we show to the user. [#45781]
+- Move general form error into field error when necessary. [#45796]
+
+## [6.15.0] - 2025-11-04
+### Changed
+- Change field attribute width to enum to support both integers and string. [#45741]
+- Use `flex-basis: 0` for auto width as it will deal better adjusting to content and not extra space. [#45747]
+
+### Fixed
+- Fix error overlapping on single input forms after using position: absolute and turning the main container to `display: flex`. [#45749]
+
+## [6.14.0] - 2025-11-03
+### Added
+- Device detection: Add a method that returns the browser display name. [#45674]
+- Add "auto" width for fields and detect when a form has a single input in it to show prettier validation errors. [#45689]
+- Add a new JWT filter. [#45731]
+- Add emoji flag to the response email next to the IP Address. [#45645]
+- Add error codes to submission errors. [#45628]
+- Add first and last name variations. [#45517]
+- Add flag next to the IP address. [#45643]
+- Add time field. [#45665]
+- Add visibility support for field labels. [#45722]
+- Enable forms push notifications functionality. [#45682]
+- Link IP to lookup service. [#45653]
+- Release Image Select Field to production. [#45577]
+- Store the country code with the form responses based on the IP address. [#45599]
+
+### Changed
+- Add browser info to form responses exports. [#45709]
+- Add details for JWT decoding errors. [#45646]
+- Add the IP address as a default field in the forms dashboard. [#45704]
+- Create new integrations list component. [#45648]
+- Default to notify the post author when the notification recipients list is empty. [#45633]
+- Move storage setting lower in sidebar. [#45727]
+- Show gravatars also for rows without emails. [#45726]
+- Use a dropdown selector to list eligible users to receive form notifications. [#45634]
+- Use Jetpack logo on dashboard header. [#45609]
+- Use table to render response meta. [#45656]
+- Improve empty state centering and fix scrolling by consolidating layout min-height rules and improving flexbox handling. [#45649]
+- Update package dependencies. [#45652]
+
+### Fixed
+- Ensure notices don't overlap the bottom action bar. [#45616]
+- Fix a bug with the default email in the editor. [#45711]
+- Fix a console error triggered by iterable without key prop. [#45690]
+- Fix an error on phone field controls due to lack of key prop. [#45659]
+- Fix React error due to missing tbody when nesting tr as direct descendant of table. [#45691]
+- Fix response selection filtering bug caused by type mismatch. [#45611]
+- Fix tooltip in response IP link. [#45705]
+- Make sure fields is array before attempting a count. [#45739]
+- Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
+- Simplify the selection so that it changes every time to only the valid set of items. [#45618]
+- Update counts after landing on a mark as spam link. [#45644]
+
 ## [6.13.0] - 2025-10-27
 ### Changed
 - Add 'create new form' CTA to inbox empty state. [#45589]
@@ -1753,6 +1956,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.22.0]: https://github.com/automattic/jetpack-forms/compare/v6.21.2...v6.22.0
+[6.21.2]: https://github.com/automattic/jetpack-forms/compare/v6.21.1...v6.21.2
+[6.21.1]: https://github.com/automattic/jetpack-forms/compare/v6.21.0...v6.21.1
+[6.21.0]: https://github.com/automattic/jetpack-forms/compare/v6.20.0...v6.21.0
+[6.20.0]: https://github.com/automattic/jetpack-forms/compare/v6.19.0...v6.20.0
+[6.19.0]: https://github.com/automattic/jetpack-forms/compare/v6.18.0...v6.19.0
+[6.18.0]: https://github.com/automattic/jetpack-forms/compare/v6.17.0...v6.18.0
+[6.17.0]: https://github.com/automattic/jetpack-forms/compare/v6.16.0...v6.17.0
+[6.16.0]: https://github.com/automattic/jetpack-forms/compare/v6.15.0...v6.16.0
+[6.15.0]: https://github.com/automattic/jetpack-forms/compare/v6.14.0...v6.15.0
+[6.14.0]: https://github.com/automattic/jetpack-forms/compare/v6.13.0...v6.14.0
 [6.13.0]: https://github.com/automattic/jetpack-forms/compare/v6.12.0...v6.13.0
 [6.12.0]: https://github.com/automattic/jetpack-forms/compare/v6.11.0...v6.12.0
 [6.11.0]: https://github.com/automattic/jetpack-forms/compare/v6.10.0...v6.11.0

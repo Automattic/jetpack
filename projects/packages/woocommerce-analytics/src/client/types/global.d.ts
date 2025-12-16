@@ -5,11 +5,13 @@
 declare global {
 	interface Window {
 		wcAnalytics?: {
+			trackEndpoint: string;
 			eventQueue: Array< { eventName: string; props?: Record< string, unknown > } >;
 			commonProps: Record< string, unknown >;
 			features: Record< string, boolean >;
 			pages: Record< string, boolean >;
 			breadcrumbs?: string[];
+			assets_url: string;
 		};
 		_wca?: {
 			push: ( props: Record< string, unknown > ) => void;

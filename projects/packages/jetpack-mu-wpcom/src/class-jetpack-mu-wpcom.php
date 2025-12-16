@@ -140,7 +140,8 @@ class Jetpack_Mu_Wpcom {
 					array(
 						'locales' => $locales,
 						'plugins' => $plugins_request_data,
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 				'headers' => array( 'Content-Type' => 'application/json' ),
 				'timeout' => 10,
@@ -259,6 +260,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
+		\Automattic\Jetpack\ExPlat::init();
 
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
@@ -321,6 +323,10 @@ class Jetpack_Mu_Wpcom {
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
+		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
+			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
+		}
+		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
@@ -532,7 +538,8 @@ class Jetpack_Mu_Wpcom {
 		$data = wp_json_encode(
 			array(
 				'assetsUrl' => plugins_url( 'build/', self::BASE_FILE ),
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wp_add_inline_script(
