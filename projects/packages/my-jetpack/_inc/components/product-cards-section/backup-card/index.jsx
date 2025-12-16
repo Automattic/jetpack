@@ -89,6 +89,18 @@ const BackupCard = props => {
 
 	const isError = status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && lastBackupFailed;
 
+	const deactivatedText = __(
+		'Please contact support to reactivate backups for your site.',
+		'jetpack-my-jetpack'
+	);
+
+	const defaultTooltipText = __(
+		'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
+		'jetpack-my-jetpack'
+	);
+
+	const defaultDescriptionText = __( 'Check out our troubleshooting guide.', 'jetpack-my-jetpack' );
+
 	return (
 		<ProductCard slug={ productSlug } Description={ isError && noDescription } { ...props }>
 			{ isBackupFailedReasonLoading && <LoadingBlock height="75px" width="100%" /> }
@@ -115,25 +127,16 @@ const BackupCard = props => {
 									<p>{ errorDescription }</p>
 									<p>
 										{ lastBackupStatus === 'backups-deactivated'
-											? __(
-													'Please contact support to reactivate backups for your site.',
-													'jetpack-my-jetpack'
-											  )
-											: __(
-													'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
-													'jetpack-my-jetpack'
-											  ) }
+											? deactivatedText
+											: defaultTooltipText }
 									</p>
 								</>
 							</InfoTooltip>
 						</Text>
 						<Text variant="body-small" className={ styles.error_description }>
 							{ lastBackupStatus === 'backups-deactivated'
-								? __(
-										'Please contact support to reactivate backups for your site.',
-										'jetpack-my-jetpack'
-								  )
-								: __( 'Check out our troubleshooting guide.', 'jetpack-my-jetpack' ) }
+								? deactivatedText
+								: defaultDescriptionText }
 						</Text>
 					</div>
 				</div>
