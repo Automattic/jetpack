@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: fixed
 
-Trigger sync when `auto_update_plugins` option is updated
+Sync plugin auto-update status by updating `jetpack_autoupdate_plugins` when new plugins are added
