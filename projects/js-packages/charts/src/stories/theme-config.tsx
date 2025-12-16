@@ -17,6 +17,9 @@ export const customTheme: ChartTheme = {
 			strokeDasharray: '5 8',
 		},
 	],
+	geoChart: {
+		featureFillColor: '#ffffff',
+	},
 	gridStyles: {
 		stroke: '#ffe3e3',
 		strokeWidth: 2,
