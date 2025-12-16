@@ -265,7 +265,7 @@ export const normalizeColorToHex = (
 	resolveCss?: ( value: string, el?: HTMLElement | null ) => string | null
 ): string => {
 	if ( ! color || typeof color !== 'string' ) {
-		return color;
+		return '';
 	}
 
 	// Already a valid hex color (6-digit format)

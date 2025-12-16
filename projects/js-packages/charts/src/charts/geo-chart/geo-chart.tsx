@@ -9,7 +9,7 @@ import { Chart, type GoogleChartOptions } from 'react-google-charts';
  * Internal dependencies
  */
 import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
-import { lightenHexColor } from '../../utils/color-utils';
+import { lightenHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
@@ -58,8 +58,11 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	// Google charts doesn't accept CSS variables, so we need to convert them to hex colors
 	const fullColorHex = getElementStyles( { index: 0 } ).color;
 	const lightColorHex = lightenHexColor( fullColorHex, 0.8 );
-	const backgroundColorHex = resolveCssVariable( backgroundColor ) ?? DEFAULT_BACKGROUND_COLOR;
-	const defaultFillColorHex = resolveCssVariable( featureFillColor ) ?? DEFAULT_FEATURE_FILL_COLOR;
+	// Use normalizeColorToHex to ensure HSL/RGB values from CSS variables are converted to hex
+	const backgroundColorHex =
+		normalizeColorToHex( backgroundColor, null, resolveCssVariable ) || DEFAULT_BACKGROUND_COLOR;
+	const defaultFillColorHex =
+		normalizeColorToHex( featureFillColor, null, resolveCssVariable ) || DEFAULT_FEATURE_FILL_COLOR;
 
 	// Transform data from Record<string, number> to Google Charts format
 	// Google Charts expects [['Country', 'Value'], ['US', 100], ['CA', 50], ...]
