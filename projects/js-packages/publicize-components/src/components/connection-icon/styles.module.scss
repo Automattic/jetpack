@@ -1,10 +1,10 @@
 .wrapper {
-	display: grid;
+	position: relative;
 	width: 28px;
 	height: 28px;
-	justify-content: start;
+	display: flex;
+	justify-content: flex-start;
 	align-items: center;
-	overflow: hidden;
 
 	&.disabled {
 		opacity: 0.4;
@@ -16,15 +16,14 @@
 			border-radius: 2px;
 			width: 24px;
 			height: 24px;
-			grid-area: 1 / 1 / 2 / 2;
 		}
 
 		.social-icon {
+			position: absolute;
+			inset-block-end: 0;
+			inset-inline-end: 0;
 			width: 14px;
 			height: 14px;
-			grid-area: 1 / 1 / 2 / 2;
-			margin-top: 14px;
-			margin-inline-start: 14px;
 			border-radius: 2px;
 			background-color: #fff;
 		}
