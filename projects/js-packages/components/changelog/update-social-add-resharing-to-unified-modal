@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+NavigatorModal: Add support for dynamic footer actions.
