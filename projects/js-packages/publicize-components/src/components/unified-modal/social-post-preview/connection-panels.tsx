@@ -44,7 +44,7 @@ export function ConnectionPanels() {
 	);
 
 	return (
-		<Panel>
+		<Panel className={ styles[ 'connection-panels' ] }>
 			{ connections.map( connection => {
 				const isEnabled = canBeTurnedOn( connection ) && connection.enabled;
 				const isDisabled = shouldBeDisabled( connection );
@@ -81,7 +81,7 @@ export function ConnectionPanels() {
 							} }
 							initialOpen={ false }
 						>
-							<PanelRow>
+							<PanelRow className={ styles[ 'preview-panel-row' ] }>
 								<fieldset>
 									<Flex className={ styles.preview } align="start" direction="column">
 										<legend>{ __( 'Preview', 'jetpack-publicize-components' ) }</legend>

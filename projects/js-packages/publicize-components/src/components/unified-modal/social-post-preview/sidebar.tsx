@@ -5,13 +5,13 @@ import { MediaValidationNotices } from '../../form/media-validation-notices';
 import { SharePostForm } from '../../form/share-post-form';
 import { ConnectionList } from './connection-list';
 import { ConnectionToggles } from './connection-toggles';
+import { ScheduledPosts } from './scheduled-posts';
 import styles from './styles.module.scss';
 
 type SidebarProps = {
 	baseId: string;
 	onSelectConnection: ( connection: Connection ) => void;
 	selectedConnection: Connection | null;
-	forSmallScreen?: boolean;
 };
 
 /**
@@ -20,12 +20,7 @@ type SidebarProps = {
  * @param {SidebarProps} props - The component props.
  * @return - Sidebar component.
  */
-export function Sidebar( {
-	baseId,
-	forSmallScreen,
-	onSelectConnection,
-	selectedConnection,
-}: SidebarProps ) {
+export function Sidebar( { baseId, onSelectConnection, selectedConnection }: SidebarProps ) {
 	return (
 		<div className={ styles.sidebar }>
 			<Grid columns={ 2 } templateColumns="auto 1fr" gap={ 0 } className={ styles.grid }>
@@ -36,16 +31,13 @@ export function Sidebar( {
 					selectedConnection={ selectedConnection }
 				/>
 			</Grid>
-			{ ! forSmallScreen && (
-				<>
-					<div className={ styles[ 'notice-wrapper' ] }>
-						<MediaValidationNotices />
-					</div>
-					<div className={ styles[ 'customization-form' ] }>
-						<SharePostForm analyticsData={ { location: 'preview-modal' } } isInsideNavigatorModal />
-					</div>
-				</>
-			) }
+			<div className={ styles[ 'notice-wrapper' ] }>
+				<MediaValidationNotices />
+			</div>
+			<div className={ styles[ 'customization-form' ] }>
+				<SharePostForm analyticsData={ { location: 'preview-modal' } } isInsideNavigatorModal />
+			</div>
+			<ScheduledPosts />
 		</div>
 	);
 }
