@@ -31,46 +31,6 @@ export const validateHexColor = ( hex: unknown ): void => {
 };
 
 /**
- * Convert hex color to HSL
- * @param  hex - hex color string
- * @return HSL values as [h, s, l]
- * @throws {Error} if hex string is malformed
- */
-export const hexToHsl = ( hex: string ): [ number, number, number ] => {
-	validateHexColor( hex );
-
-	const r = parseInt( hex.slice( 1, 3 ), 16 ) / 255;
-	const g = parseInt( hex.slice( 3, 5 ), 16 ) / 255;
-	const b = parseInt( hex.slice( 5, 7 ), 16 ) / 255;
-
-	const max = Math.max( r, g, b );
-	const min = Math.min( r, g, b );
-	let h = 0;
-	let s = 0;
-	const l = ( max + min ) / 2;
-
-	if ( max !== min ) {
-		const d = max - min;
-		s = l > 0.5 ? d / ( 2 - max - min ) : d / ( max + min );
-
-		switch ( max ) {
-			case r:
-				h = ( g - b ) / d + ( g < b ? 6 : 0 );
-				break;
-			case g:
-				h = ( b - r ) / d + 2;
-				break;
-			case b:
-				h = ( r - g ) / d + 4;
-				break;
-		}
-		h /= 6;
-	}
-
-	return [ h * 360, s * 100, l * 100 ];
-};
-
-/**
  * Convert HSL color to hex
  *
  * @param hsl - HSL values as [h, s, l] where h is 0-360, s and l are 0-100

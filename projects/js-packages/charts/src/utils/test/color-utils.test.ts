@@ -1,5 +1,5 @@
+import { hsl as d3Hsl } from '@visx/vendor/d3-color';
 import {
-	hexToHsl,
 	hslToHex,
 	getColorDistance,
 	lightenHexColor,
@@ -9,6 +9,12 @@ import {
 	parseRgbString,
 	normalizeColorToHex,
 } from '../color-utils';
+
+// Helper to convert hex to HSL tuple using d3-color
+const hexToHsl = ( hex: string ): [ number, number, number ] => {
+	const hsl = d3Hsl( hex );
+	return [ hsl.h, hsl.s * 100, hsl.l * 100 ];
+};
 
 describe( 'isValidHexColor', () => {
 	describe( 'Valid hex colors', () => {
@@ -114,209 +120,6 @@ describe( 'validateHexColor', () => {
 			expect( () => validateHexColor( '#gggggg' ) ).toThrow(
 				'Hex color contains invalid characters'
 			);
-		} );
-	} );
-} );
-
-describe( 'hexToHsl', () => {
-	describe( 'Basic color conversions', () => {
-		it( 'converts pure red to HSL', () => {
-			const result = hexToHsl( '#ff0000' );
-			expect( result ).toEqual( [ 0, 100, 50 ] );
-		} );
-
-		it( 'converts pure green to HSL', () => {
-			const result = hexToHsl( '#00ff00' );
-			expect( result ).toEqual( [ 120, 100, 50 ] );
-		} );
-
-		it( 'converts pure blue to HSL', () => {
-			const result = hexToHsl( '#0000ff' );
-			expect( result ).toEqual( [ 240, 100, 50 ] );
-		} );
-
-		it( 'converts white to HSL', () => {
-			const result = hexToHsl( '#ffffff' );
-			expect( result ).toEqual( [ 0, 0, 100 ] );
-		} );
-
-		it( 'converts black to HSL', () => {
-			const result = hexToHsl( '#000000' );
-			expect( result ).toEqual( [ 0, 0, 0 ] );
-		} );
-
-		it( 'converts gray to HSL', () => {
-			const result = hexToHsl( '#808080' );
-			// Gray should have no hue or saturation, lightness around 50%
-			expect( result[ 0 ] ).toBe( 0 ); // Hue
-			expect( result[ 1 ] ).toBe( 0 ); // Saturation
-			expect( result[ 2 ] ).toBeCloseTo( 50.2, 1 ); // Lightness
-		} );
-	} );
-
-	describe( 'Complex color conversions', () => {
-		it( 'converts cyan to HSL', () => {
-			const result = hexToHsl( '#00ffff' );
-			expect( result ).toEqual( [ 180, 100, 50 ] );
-		} );
-
-		it( 'converts magenta to HSL', () => {
-			const result = hexToHsl( '#ff00ff' );
-			expect( result ).toEqual( [ 300, 100, 50 ] );
-		} );
-
-		it( 'converts yellow to HSL', () => {
-			const result = hexToHsl( '#ffff00' );
-			expect( result ).toEqual( [ 60, 100, 50 ] );
-		} );
-
-		it( 'converts orange to HSL', () => {
-			const result = hexToHsl( '#ffa500' );
-			expect( result[ 0 ] ).toBeCloseTo( 38.8, 1 ); // Hue
-			expect( result[ 1 ] ).toBe( 100 ); // Saturation
-			expect( result[ 2 ] ).toBeCloseTo( 50, 1 ); // Lightness
-		} );
-
-		it( 'converts purple to HSL', () => {
-			const result = hexToHsl( '#800080' );
-			expect( result[ 0 ] ).toBe( 300 ); // Hue
-			expect( result[ 1 ] ).toBe( 100 ); // Saturation
-			expect( result[ 2 ] ).toBeCloseTo( 25.1, 1 ); // Lightness
-		} );
-	} );
-
-	describe( 'Real-world color examples', () => {
-		it( 'converts primary blue color', () => {
-			const result = hexToHsl( '#4f46e5' );
-			expect( result[ 0 ] ).toBeCloseTo( 243.4, 1 ); // Hue
-			expect( result[ 1 ] ).toBeCloseTo( 75.4, 1 ); // Saturation
-			expect( result[ 2 ] ).toBeCloseTo( 58.6, 1 ); // Lightness
-		} );
-
-		it( 'converts success green color', () => {
-			const result = hexToHsl( '#10b981' );
-			expect( result[ 0 ] ).toBeCloseTo( 160.1, 1 ); // Hue
-			expect( result[ 1 ] ).toBeCloseTo( 84.1, 1 ); // Saturation
-			expect( result[ 2 ] ).toBeCloseTo( 39.4, 1 ); // Lightness
-		} );
-
-		it( 'converts error red color', () => {
-			const result = hexToHsl( '#ef4444' );
-			expect( result[ 0 ] ).toBe( 0 ); // Hue
-			expect( result[ 1 ] ).toBeCloseTo( 84.2, 1 ); // Saturation
-			expect( result[ 2 ] ).toBeCloseTo( 60.2, 1 ); // Lightness
-		} );
-	} );
-
-	describe( 'Input validation', () => {
-		describe( 'Invalid hex format', () => {
-			it( 'throws error for non-string input', () => {
-				expect( () => hexToHsl( 123 as unknown as string ) ).toThrow(
-					'Hex color must be a string'
-				);
-				expect( () => hexToHsl( null as unknown as string ) ).toThrow(
-					'Hex color must be a string'
-				);
-				expect( () => hexToHsl( undefined as unknown as string ) ).toThrow(
-					'Hex color must be a string'
-				);
-			} );
-
-			it( 'throws error for hex without # prefix', () => {
-				expect( () => hexToHsl( 'ff0000' ) ).toThrow( 'Hex color must start with #' );
-				expect( () => hexToHsl( '000000' ) ).toThrow( 'Hex color must start with #' );
-			} );
-
-			it( 'throws error for wrong length hex strings', () => {
-				expect( () => hexToHsl( '#ff' ) ).toThrow(
-					'Hex color must be 7 characters long (e.g., #ff0000)'
-				);
-				expect( () => hexToHsl( '#fff' ) ).toThrow(
-					'Hex color must be 7 characters long (e.g., #ff0000)'
-				);
-				expect( () => hexToHsl( '#ffff' ) ).toThrow(
-					'Hex color must be 7 characters long (e.g., #ff0000)'
-				);
-				expect( () => hexToHsl( '#fffff' ) ).toThrow(
-					'Hex color must be 7 characters long (e.g., #ff0000)'
-				);
-				expect( () => hexToHsl( '#ff00000' ) ).toThrow(
-					'Hex color must be 7 characters long (e.g., #ff0000)'
-				);
-				expect( () => hexToHsl( '#' ) ).toThrow(
-					'Hex color must be 7 characters long (e.g., #ff0000)'
-				);
-			} );
-
-			it( 'throws error for invalid hex characters', () => {
-				expect( () => hexToHsl( '#gggggg' ) ).toThrow(
-					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
-				);
-				expect( () => hexToHsl( '#ff00gg' ) ).toThrow(
-					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
-				);
-				expect( () => hexToHsl( '#zz0000' ) ).toThrow(
-					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
-				);
-				expect( () => hexToHsl( '#ff@000' ) ).toThrow(
-					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
-				);
-				expect( () => hexToHsl( '#ff 000' ) ).toThrow(
-					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
-				);
-			} );
-
-			it( 'throws error for empty string', () => {
-				expect( () => hexToHsl( '' ) ).toThrow( 'Hex color must start with #' );
-			} );
-		} );
-	} );
-
-	describe( 'Edge cases and precision', () => {
-		it( 'handles colors with very low saturation', () => {
-			const result = hexToHsl( '#fefefe' );
-			expect( result[ 0 ] ).toBe( 0 ); // Hue should be 0 for near-white
-			expect( result[ 1 ] ).toBe( 0 ); // Saturation should be 0 for near-white
-			expect( result[ 2 ] ).toBeCloseTo( 99.6, 1 ); // Very high lightness
-		} );
-
-		it( 'handles colors with very high saturation', () => {
-			const result = hexToHsl( '#ff0001' );
-			expect( result[ 0 ] ).toBeCloseTo( 359.8, 1 ); // Hue close to red
-			expect( result[ 1 ] ).toBe( 100 ); // Full saturation
-			expect( result[ 2 ] ).toBeCloseTo( 50.0, 1 ); // Medium lightness
-		} );
-
-		it( 'returns array with exactly 3 elements', () => {
-			const result = hexToHsl( '#abcdef' );
-			expect( result ).toHaveLength( 3 );
-		} );
-
-		it( 'returns hue in 0-360 range', () => {
-			const colors = [ '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff' ];
-			colors.forEach( color => {
-				const [ h ] = hexToHsl( color );
-				expect( h ).toBeGreaterThanOrEqual( 0 );
-				expect( h ).toBeLessThan( 360 );
-			} );
-		} );
-
-		it( 'returns saturation in 0-100 range', () => {
-			const colors = [ '#ff0000', '#808080', '#ffffff', '#000000', '#abcdef' ];
-			colors.forEach( color => {
-				const [ , s ] = hexToHsl( color );
-				expect( s ).toBeGreaterThanOrEqual( 0 );
-				expect( s ).toBeLessThanOrEqual( 100 );
-			} );
-		} );
-
-		it( 'returns lightness in 0-100 range', () => {
-			const colors = [ '#ff0000', '#808080', '#ffffff', '#000000', '#abcdef' ];
-			colors.forEach( color => {
-				const [ , , l ] = hexToHsl( color );
-				expect( l ).toBeGreaterThanOrEqual( 0 );
-				expect( l ).toBeLessThanOrEqual( 100 );
-			} );
 		} );
 	} );
 } );
@@ -598,27 +401,6 @@ describe( 'hslToHex', () => {
 		it( 'handles low saturation', () => {
 			const result = hslToHex( [ 0, 10, 50 ] );
 			expect( result ).toMatch( /^#[0-9a-f]{6}$/ );
-		} );
-	} );
-
-	describe( 'Round-trip with hexToHsl', () => {
-		it( 'round-trips red correctly', () => {
-			const hsl = hexToHsl( '#ff0000' );
-			const hex = hslToHex( hsl );
-			expect( hex ).toBe( '#ff0000' );
-		} );
-
-		it( 'round-trips blue correctly', () => {
-			const hsl = hexToHsl( '#0000ff' );
-			const hex = hslToHex( hsl );
-			expect( hex ).toBe( '#0000ff' );
-		} );
-
-		it( 'round-trips a complex color correctly', () => {
-			const hsl = hexToHsl( '#98c8df' );
-			const hex = hslToHex( hsl );
-			// Allow for minor rounding differences
-			expect( hex.toLowerCase() ).toMatch( /^#[0-9a-f]{6}$/ );
 		} );
 	} );
 } );

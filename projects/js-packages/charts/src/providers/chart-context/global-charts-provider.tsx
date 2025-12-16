@@ -1,3 +1,4 @@
+import { hsl as d3Hsl } from '@visx/vendor/d3-color';
 import {
 	createContext,
 	useCallback,
@@ -11,7 +12,6 @@ import {
 	getItemShapeStyles,
 	getSeriesLineStyles,
 	mergeThemes,
-	hexToHsl,
 	resolveCssVariable,
 	normalizeColorToHex,
 } from '../../utils';
@@ -87,15 +87,18 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 					// Process hex colors
 					if ( colorValue.startsWith( '#' ) ) {
 						resolvedColors.push( colorValue );
-						try {
-							const hslColor = hexToHsl( colorValue );
-							hues.push( hslColor[ 0 ] );
-							existingHslColors.push( hslColor );
-							minHue = Math.min( minHue, hslColor[ 0 ] );
-							maxHue = Math.max( maxHue, hslColor[ 0 ] );
-						} catch {
-							// Ignore invalid hex colors that don't parse to HSL
-							continue;
+						const hslColor = d3Hsl( colorValue );
+						// d3Hsl returns NaN values for invalid colors
+						if ( ! isNaN( hslColor.h ) ) {
+							const hslTuple: [ number, number, number ] = [
+								hslColor.h,
+								hslColor.s * 100,
+								hslColor.l * 100,
+							];
+							hues.push( hslTuple[ 0 ] );
+							existingHslColors.push( hslTuple );
+							minHue = Math.min( minHue, hslTuple[ 0 ] );
+							maxHue = Math.max( maxHue, hslTuple[ 0 ] );
 						}
 					}
 				}
