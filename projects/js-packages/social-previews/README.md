@@ -1,16 +1,6 @@
-# Social Previews
+# social-previews
 
 This package contains low level components that can be used to display an _approximation_ of how a given post might like look when viewed on various social media / search platforms.
-
-At the current time there are components to display previews for:
-
-- Facebook post.
-- Twitter post.
-- Google Search result.
-- Tumblr post.
-- LinkedIn post.
-- Nextdoor post.
-- Threads post.
 
 ## Prerequisites
 
@@ -134,3 +124,11 @@ In addition each individual component accepts optional additional properties tha
 ## Auto Truncation
 
 Note that due to limits enforced by each given platform some strings may need to be truncated. Each component has its individual rules governing the number of characters in a given field allowed before truncation occurs. Limits are typically higher for `description` fields and shorter for `title` fields. Truncation by `SPACE` character is preferred, but where that is not possible a hard truncation is imposed. In both cases an ellipsis character (`…`)`is appended to the end of the string to indicate that a truncation has occurred.
+
+## Security
+
+Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
+
+## License
+
+social-previews is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
