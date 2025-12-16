@@ -1,10 +1,5 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.tsc.json",
-	"compilerOptions": {
-		"target": "esnext",
-		// We use tsup for emitting files.
-		"noEmit": true
-	},
+	"extends": "jetpack-js-tools/tsconfig.base.json",
 	// List all sources and source-containing subdirs.
 	"include": [ "./src", "./tsup.config.ts", "./tests" ]
 }
