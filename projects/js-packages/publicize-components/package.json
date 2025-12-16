@@ -32,7 +32,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/popup-monitor": "1.0.2",
-		"@automattic/social-previews": "2.1.0-beta.13",
+		"@automattic/social-previews": "workspace:*",
 		"@automattic/ui": "1.0.2",
 		"@automattic/viewport-react": "1.0.1",
 		"@wordpress/annotations": "3.36.0",
