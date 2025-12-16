@@ -12,7 +12,7 @@ const BlueskyPostHeader: React.FC< Props > = ( { user } ) => {
 		<div className="bluesky-preview__post-header">
 			<div className="bluesky-preview__post-header-user">
 				<span className="bluesky-preview__post-header--displayname">
-					{ displayName || __( 'Account name' ) }
+					{ displayName || __( 'Account name', 'social-previews' ) }
 				</span>
 				&nbsp;
 				<span className="bluesky-preview__post-header--username">

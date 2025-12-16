@@ -38,7 +38,6 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 					{ mediaItem ? (
 						<div className="tumblr-preview__media-item">
 							{ mediaItem.type.startsWith( 'video/' ) ? (
-								// eslint-disable-next-line jsx-a11y/media-has-caption
 								<video controls className="tumblr-preview__media--video">
 									<source src={ mediaItem.url } type={ mediaItem.type } />
 								</video>
