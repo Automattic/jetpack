@@ -2,7 +2,7 @@
 	"name": "automattic/jetpack-phpcs-filter",
 	"description": "A filter for PHP CodeSniffer to add support for .phpcsignore files and per-directory configuration files.",
 	"type": "library",
-	"license": "GPL-2.0-or-later",
+	"license": "MIT",
 	"keywords": [
 		"phpcs",
 		"filter",
