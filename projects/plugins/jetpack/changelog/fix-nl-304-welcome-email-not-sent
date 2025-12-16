@@ -1,0 +1,3 @@
+Significance: patch
+Type: bugfix
+Comment: Newsletter: fix welcome emails not being sent to new subscribers after confirmation by passing subscription options to WordPress.com servers.
