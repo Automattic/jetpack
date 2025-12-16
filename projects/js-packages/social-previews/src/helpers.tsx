@@ -8,9 +8,9 @@ type AugmentFormatterReturnType< T extends Formatter, TNewReturn > = (
 type ConditionalFormatter = AugmentFormatterReturnType< Formatter, boolean >;
 type NullableFormatter = AugmentFormatterReturnType< Formatter, undefined >;
 
-export const baseDomain = ( url: string ): string =>
+export const baseDomain: Formatter = url =>
 	url
-		.replace( /^[^/]+[/]*/, '' ) // strip leading protocol
+		.replace( /^[^/]+:\/\//, '' ) // strip leading protocol
 		.replace( /\/.*$/, '' ); // strip everything after the domain
 
 export const shortEnough: ( n: number ) => ConditionalFormatter = limit => title =>
