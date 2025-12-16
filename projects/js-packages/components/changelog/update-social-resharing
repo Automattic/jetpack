@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fix navigator modal height and z-index.
