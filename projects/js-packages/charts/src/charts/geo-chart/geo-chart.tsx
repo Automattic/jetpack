@@ -70,12 +70,28 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	const defaultFillColorHex =
 		normalizeColorToHex( featureFillColor, null, resolveCssVariable ) || DEFAULT_FEATURE_FILL_COLOR;
 
+	// Check if data has HTML tooltips (column with role: 'tooltip' and p.html: true)
+	const hasHtmlTooltips =
+		data.length > 0 &&
+		data[ 0 ].some(
+			col =>
+				typeof col === 'object' &&
+				col !== null &&
+				'role' in col &&
+				col.role === 'tooltip' &&
+				'p' in col &&
+				typeof col.p === 'object' &&
+				col.p !== null &&
+				'html' in col.p &&
+				col.p.html === true
+		);
+
 	const options: GoogleChartOptions = {
 		colorAxis: { colors: [ lightColorHex, fullColorHex ] },
 		backgroundColor: backgroundColorHex,
 		datalessRegionColor: defaultFillColorHex,
 		defaultColor: defaultFillColorHex,
-		tooltip: { trigger: 'focus' },
+		tooltip: { trigger: 'focus', isHtml: hasHtmlTooltips },
 		legend: 'none',
 		keepAspectRatio: true,
 	};
