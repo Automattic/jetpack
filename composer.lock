@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "03a695db5cb87764b99dce21ec82e38484586d13"
+                "reference": "7569977b3c73bfd267ad652dbc8d84f06dfaec57"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -119,7 +119,7 @@
                 ]
             },
             "license": [
-                "GPL-2.0-or-later"
+                "MIT"
             ],
             "description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
             "keywords": [
@@ -198,7 +198,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "2ba3e32d86c44977977e422380bf0501c30c5427"
+                "reference": "114a9a96cc9f656497ce0eec683ad7a3f597d3c7"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -233,7 +233,7 @@
                 ]
             },
             "license": [
-                "GPL-2.0-or-later"
+                "MIT"
             ],
             "description": "A filter for PHP CodeSniffer to add support for .phpcsignore files and per-directory configuration files.",
             "keywords": [
