@@ -10,3 +10,14 @@ import type { SocialStoreState } from '../types';
 export function isSharePostModalOpen( state: SocialStoreState ) {
 	return state.sharePost?.isModalOpen ?? false;
 }
+
+/**
+ * Whether a reshare is currently in progress.
+ *
+ * @param state - State object.
+ *
+ * @return Whether a reshare is in progress.
+ */
+export function isResharingPost( state: SocialStoreState ) {
+	return state.sharePost?.isResharing ?? false;
+}

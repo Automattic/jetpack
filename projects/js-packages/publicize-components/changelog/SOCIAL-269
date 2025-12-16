@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Disable resharing and schedule buttons while operations are in progress.

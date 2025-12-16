@@ -62,6 +62,7 @@ export type ShareStatus = {
 
 export type SharePost = {
 	isModalOpen?: boolean;
+	isResharing?: boolean;
 };
 
 export type UnifiedModalState = {

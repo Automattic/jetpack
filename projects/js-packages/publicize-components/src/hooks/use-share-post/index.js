@@ -1,10 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { store as socialStore } from '../../social-store';
 import { getSocialScriptData } from '../../utils/script-data';
 
 /**
@@ -73,6 +74,7 @@ export default function useSharePost( postId ) {
 	// Sharing data.
 	const { message } = useSocialMediaMessage();
 	const { skippedConnections } = useSocialMediaConnections();
+	const { setIsResharing } = useDispatch( socialStore );
 
 	// Get post ID to share.
 	const currentPostId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
@@ -104,6 +106,7 @@ export default function useSharePost( postId ) {
 				...initialState,
 				isFetching: true,
 			} );
+			setIsResharing( true );
 
 			await apiFetch( {
 				path,
@@ -146,13 +149,16 @@ export default function useSharePost( postId ) {
 						data: [],
 						error: getHumanReadableError( error ),
 					} ) );
+				} )
+				.finally( () => {
+					setIsResharing( false );
 				} );
 
 			return function () {
 				setData( initialState ); // clean the state.
 			};
 		},
-		[ postId, message, skippedConnections, data.isFetching, path ]
+		[ postId, message, skippedConnections, data.isFetching, path, setIsResharing ]
 	);
 
 	return { ...data, doPublicize };

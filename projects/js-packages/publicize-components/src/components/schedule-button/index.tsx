@@ -76,11 +76,14 @@ const ScheduleButton = () => {
 	const { schedulePost } = useSchedulePost();
 	const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
 
-	const isSavingScheduledShare = useSelect(
-		select => select( socialStore ).isSavingScheduledShare(),
-		[]
-	);
-	const isBusy = isSavingScheduledShare || isSavingPost;
+	const { isSavingScheduledShare, isResharing } = useSelect( select => {
+		const socialSelector = select( socialStore );
+		return {
+			isSavingScheduledShare: socialSelector.isSavingScheduledShare(),
+			isResharing: socialSelector.isResharingPost(),
+		};
+	}, [] );
+	const isBusy = isSavingScheduledShare || isSavingPost || isResharing;
 
 	const onConfirm = useCallback(
 		async ( scheduleTimestamp: number ) => {
@@ -101,7 +104,7 @@ const ScheduleButton = () => {
 				icon={ calendar }
 				isSecondary
 				isBusy={ isBusy }
-				disabled={ ! isReSharingPossible }
+				disabled={ ! isReSharingPossible || isBusy }
 			>
 				{ __( 'Schedule', 'jetpack-publicize-components' ) }
 			</Button>
