@@ -11,6 +11,13 @@ import { InstagramPreviewProps } from './types';
 
 import './style.scss';
 
+/**
+ * Instagram Post Preview Component
+ *
+ * @param {InstagramPreviewProps} props - The props for the Instagram post preview.
+ *
+ * @return  The Instagram post preview component.
+ */
 export function InstagramPostPreview( {
 	image,
 	media,
@@ -41,7 +48,6 @@ export function InstagramPostPreview( {
 					{ mediaItem ? (
 						<div className="instagram-preview__media-item">
 							{ mediaItem.type.startsWith( 'video/' ) ? (
-								// eslint-disable-next-line jsx-a11y/media-has-caption
 								<video controls={ false } className="instagram-preview__media--video">
 									<source src={ mediaItem.url } type={ mediaItem.type } />
 								</video>

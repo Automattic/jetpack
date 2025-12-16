@@ -1,3 +1,8 @@
+/**
+ * Globe Icon Component
+ *
+ * @return The Globe SVG icon component.
+ */
 export function ShareIcon() {
 	return (
 		<svg width="20" height="20" fill="none" viewBox="0 0 24 24" aria-hidden="true">

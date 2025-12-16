@@ -1,3 +1,8 @@
+/**
+ * Comment Icon Component
+ *
+ * @return The Comment SVG icon component.
+ */
 export function CommentIcon() {
 	return (
 		<svg width="20" height="20" fill="none" viewBox="0 0 24 24" aria-hidden="true">

@@ -1,3 +1,8 @@
+/**
+ * Chevron Icon Component
+ *
+ * @return The Chevron SVG icon component.
+ */
 export function ChevronIcon() {
 	return (
 		<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">

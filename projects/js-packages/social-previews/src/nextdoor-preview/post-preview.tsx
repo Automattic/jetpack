@@ -16,6 +16,12 @@ import { NextdoorPreviewProps } from './types';
 
 import './style.scss';
 
+/**
+ * Nextdoor Post Preview Component.
+ *
+ * @param {NextdoorPreviewProps} props - The preview properties.
+ * @return The Nextdoor post preview component.
+ */
 export function NextdoorPostPreview( {
 	image,
 	name,

@@ -6,6 +6,13 @@ import { LinkedInPreviewProps } from './types';
 
 import './style.scss';
 
+/**
+ * LinkedIn Post Preview Component
+ *
+ * @param {LinkedInPreviewProps} props - The props for the LinkedIn post preview.
+ *
+ * @return The LinkedIn post preview component.
+ */
 export function LinkedInPostPreview( {
 	articleReadTime = 5,
 	image,
@@ -84,7 +91,6 @@ export function LinkedInPostPreview( {
 									className="linkedin-preview__media-item"
 								>
 									{ mediaItem.type.startsWith( 'video/' ) ? (
-										// eslint-disable-next-line jsx-a11y/media-has-caption
 										<video controls>
 											<source src={ mediaItem.url } type={ mediaItem.type } />
 										</video>
