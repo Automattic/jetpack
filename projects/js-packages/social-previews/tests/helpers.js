@@ -1,8 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
-/* eslint-disable jest/no-conditional-expect */
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
 import { preparePreviewText } from '../src/helpers';
@@ -24,7 +19,7 @@ describe( 'preparePreviewText', () => {
 				'Some text here which has no URL, no hashtag and no line break'
 			);
 
-			expect( render( preparePreviewText( '', { platform } ) ).container.innerHTML ).toBe( '' );
+			expect( render( preparePreviewText( '', { platform } ) ).container ).toBeEmptyDOMElement();
 		}
 	} );
 

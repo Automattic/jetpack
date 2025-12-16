@@ -6,5 +6,5 @@
 		"noEmit": true
 	},
 	// List all sources and source-containing subdirs.
-	"include": [ "./src", "./tsup.config.ts", "./test" ]
+	"include": [ "./src", "./tsup.config.ts", "./tests" ]
 }
