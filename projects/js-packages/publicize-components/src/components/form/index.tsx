@@ -16,7 +16,6 @@ import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { features } from '../../utils';
-import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SocialPostModal } from '../social-post-modal/modal';
 import { ConnectionsList } from './connections-list';
 import { EmptyState } from './empty-state';
@@ -53,7 +52,6 @@ export default function PublicizeForm() {
 
 	return (
 		<Wrapper>
-			<ManageConnectionsModal />
 			{ hasConnections ? (
 				<PanelRow>
 					<ConnectionsList />
