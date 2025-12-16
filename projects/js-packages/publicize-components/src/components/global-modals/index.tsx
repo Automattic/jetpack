@@ -7,7 +7,7 @@ import { UnifiedModal } from '../unified-modal';
 export const GlobalModals = () => {
 	return (
 		<>
-			{ siteHasFeature( features.SHARE_STATUS ) ? <ShareStatusModal /> : null }
+			<ShareStatusModal />
 			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? <UnifiedModal /> : null }
 			<ManageConnectionsModal />
 		</>

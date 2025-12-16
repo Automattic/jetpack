@@ -134,9 +134,7 @@ export function SharePostButton( { onShareCompleted } ) {
 
 		await doPublicize();
 
-		if ( siteHasFeature( features.SHARE_STATUS ) ) {
-			pollForPostShareStatus();
-		}
+		pollForPostShareStatus();
 	}, [
 		isPostPublished,
 		recordEvent,
