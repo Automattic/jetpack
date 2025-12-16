@@ -81,8 +81,8 @@ trait IsTestClassTrait {
 
 		// Get the class name
 		$className = $phpcsFile->getDeclarationName( $classToken );
-		if ( ! $className ) {
-			return false;
+		if ( ! $className ) { // How?
+			return false; // @codeCoverageIgnore
 		}
 
 		// Check if class name matches test class suffixes
