@@ -530,6 +530,19 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
+	 * Get the subscription options including the welcome message.
+	 *
+	 * @return array Subscription options with welcome, invitation, and comment_follow messages.
+	 */
+	private function get_subscription_options() {
+		$subscription_options = get_option( 'subscription_options', array() );
+		if ( ! is_array( $subscription_options ) ) {
+			$subscription_options = array();
+		}
+		return $subscription_options;
+	}
+
+	/**
 	 * Jetpack_Subscriptions::subscribe()
 	 *
 	 * Send a synchronous XML-RPC subscribe to blog posts or subscribe to post comments request.
@@ -653,15 +666,17 @@ class Jetpack_Subscriptions {
 			$redirect_fragment = 'subscribe-blog';
 		}
 
-		$subscribe = self::subscribe(
+		$subscription_options = $this->get_subscription_options();
+		$subscribe            = self::subscribe(
 			isset( $_REQUEST['email'] ) ? wp_unslash( $_REQUEST['email'] ) : null, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated inside self::subscribe().
 			0,
 			false,
 			array(
-				'source'         => 'widget',
-				'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
-				'comment_status' => '',
-				'server_data'    => jetpack_subscriptions_cherry_pick_server_data(),
+				'source'               => 'widget',
+				'widget-in-use'        => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
+				'comment_status'       => '',
+				'server_data'          => jetpack_subscriptions_cherry_pick_server_data(),
+				'subscription_options' => $subscription_options,
 			)
 		);
 
@@ -839,15 +854,17 @@ class Jetpack_Subscriptions {
 			$post_ids[] = 0;
 		}
 
-		$result = self::subscribe(
+		$subscription_options = $this->get_subscription_options();
+		$result               = self::subscribe(
 			$comment->comment_author_email,
 			$post_ids,
 			true,
 			array(
-				'source'         => 'comment-form',
-				'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
-				'comment_status' => $approved,
-				'server_data'    => jetpack_subscriptions_cherry_pick_server_data(),
+				'source'               => 'comment-form',
+				'widget-in-use'        => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
+				'comment_status'       => $approved,
+				'server_data'          => jetpack_subscriptions_cherry_pick_server_data(),
+				'subscription_options' => $subscription_options,
 			)
 		);
 
