@@ -8,10 +8,13 @@ type AugmentFormatterReturnType< T extends Formatter, TNewReturn > = (
 type ConditionalFormatter = AugmentFormatterReturnType< Formatter, boolean >;
 type NullableFormatter = AugmentFormatterReturnType< Formatter, undefined >;
 
-export const baseDomain: Formatter = url =>
-	url
-		.replace( /^[^/]+:\/\//, '' ) // strip leading protocol
-		.replace( /\/.*$/, '' ); // strip everything after the domain
+export const baseDomain: Formatter = url => {
+	// Strip leading protocol
+	const withoutProtocol = url.replace( /^[^/]+:\/\//, '' );
+	// Strip everything after the domain using indexOf to avoid ReDoS
+	const slashIndex = withoutProtocol.indexOf( '/' );
+	return slashIndex === -1 ? withoutProtocol : withoutProtocol.substring( 0, slashIndex );
+};
 
 export const shortEnough: ( n: number ) => ConditionalFormatter = limit => title =>
 	title.length <= limit ? title : false;
