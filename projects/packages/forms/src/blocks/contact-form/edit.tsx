@@ -486,7 +486,7 @@ function JetpackContactFormEdit( {
 		// Helper functions
 		const findButtonBlock = () => {
 			const buttonIndex = currentInnerBlocks.findIndex(
-				block => block.name === 'core/buttons' || block.name === 'jetpack/button'
+				block => block.name === 'core/button' || block.name === 'jetpack/button'
 			);
 			return buttonIndex !== -1
 				? {
