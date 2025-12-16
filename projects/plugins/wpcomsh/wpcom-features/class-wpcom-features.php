@@ -1816,7 +1816,7 @@ class WPCOM_Features {
 					// Fallback for Atomic sites
 					$purchase_eligible_by_sticker = wpcomsh_is_site_sticker_active( $required_sticker );
 				} elseif ( function_exists( 'has_blog_sticker' ) ) {
-					$blog_id                      = $blog_id ?? get_current_blog_id();
+					$blog_id                    ??= get_current_blog_id();
 					$purchase_eligible_by_sticker = has_blog_sticker( $required_sticker, $blog_id );
 				}
 				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
@@ -1833,7 +1833,7 @@ class WPCOM_Features {
 					// Fallback for Atomic sites
 					$has_sticker = wpcomsh_is_site_sticker_active( $sticker_not_present );
 				} elseif ( function_exists( 'has_blog_sticker' ) ) {
-					$blog_id     = $blog_id ?? get_current_blog_id();
+					$blog_id   ??= get_current_blog_id();
 					$has_sticker = has_blog_sticker( $sticker_not_present, $blog_id );
 				}
 				// Only eligible if the sticker is NOT present.
