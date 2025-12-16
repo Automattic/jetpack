@@ -3,6 +3,7 @@
 /* eslint-disable testing-library/no-container */
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
+import * as React from 'react';
 import {
 	FacebookLinkPreview as Facebook,
 	TwitterPostPreview as Twitter,
@@ -12,22 +13,25 @@ import {
 import { formatTweetDate } from '../src/helpers';
 
 // Mock @wordpress/components SandBox to avoid iframe initialization issues in tests
+// The mock prefix is required for jest to allow variable access in the factory
+const mockReact = React;
 jest.mock( '@wordpress/components', () => {
-	const React = require( 'react' );
 	return {
-		SandBox: ( { html, title } ) => {
-			const iframeRef = React.useRef( null );
+		SandBox: ( { html, title }: { html: string; title: string } ) => {
+			const iframeRef = mockReact.useRef< HTMLIFrameElement >( null );
 
-			React.useEffect( () => {
+			mockReact.useEffect( () => {
 				if ( iframeRef.current ) {
-					const doc = iframeRef.current.contentWindow.document;
-					doc.open();
-					doc.write( html );
-					doc.close();
+					const doc = iframeRef.current.contentWindow?.document;
+					if ( doc ) {
+						doc.open();
+						doc.write( html );
+						doc.close();
+					}
 				}
 			}, [ html ] );
 
-			return React.createElement( 'iframe', { ref: iframeRef, title } );
+			return mockReact.createElement( 'iframe', { ref: iframeRef, title } );
 		},
 	};
 } );
@@ -133,7 +137,7 @@ describe( 'Twitter previews', () => {
 		date: Date.now(),
 		text: '',
 		media: [],
-		tweet: '',
+		tweetUrl: '',
 		urls: [],
 	};
 
@@ -313,10 +317,10 @@ describe( 'Twitter previews', () => {
 	} );
 
 	it( 'should render a quoted tweet', () => {
-		const quoteTweet = 'https://twitter.com/GaryPendergast/status/934003415507546112';
+		const tweetUrl = 'https://twitter.com/GaryPendergast/status/934003415507546112';
 		const tweet = {
 			...emptyTweet,
-			tweet: quoteTweet,
+			tweetUrl,
 		};
 
 		const { container } = render( <Twitter { ...tweet } /> );
@@ -328,8 +332,10 @@ describe( 'Twitter previews', () => {
 		const quoteEl = tweetWrapper.querySelector( '.twitter-preview__quote-tweet' );
 
 		expect( quoteEl ).toBeVisible();
-		expect( quoteEl.children.item( 0 ).contentWindow.document.body ).toContainHTML(
-			`<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true"><a href="${ quoteTweet }"></a></blockquote>`
+		expect(
+			( quoteEl.children.item( 0 ) as HTMLIFrameElement ).contentWindow.document.body
+		).toContainHTML(
+			`<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true"><a href="${ tweetUrl }"></a></blockquote>`
 		);
 	} );
 

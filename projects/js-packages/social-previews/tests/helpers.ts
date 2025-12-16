@@ -2,9 +2,9 @@ import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
 import { preparePreviewText } from '../src/helpers';
 
-const platformsWithHyperlinkUrls = [ 'facebook', 'linkedin', 'twitter' ];
+const platformsWithHyperlinkUrls = [ 'facebook', 'linkedin', 'twitter' ] as const;
 
-const platformsWithoutHyperlinkUrls = [ 'instagram' ];
+const platformsWithoutHyperlinkUrls = [ 'instagram' ] as const;
 
 const allPlatforms = [ ...platformsWithHyperlinkUrls, ...platformsWithoutHyperlinkUrls ];
 

@@ -40,7 +40,7 @@ export type GoogleSearchPreviewProps = Omit< SocialPreviewBaseProps, 'image' > &
 	siteTitle?: string;
 };
 
-export const GoogleSearchPreview: React.FC< GoogleSearchPreviewProps > = ( {
+export const GoogleSearchPreview: React.FC< Partial< GoogleSearchPreviewProps > > = ( {
 	description = '',
 	siteTitle,
 	title = '',
