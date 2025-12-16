@@ -75,12 +75,14 @@ const ScheduleButton = () => {
 	const { enabledConnections } = useSocialMediaConnections();
 	const { schedulePost } = useSchedulePost();
 	const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
+	const isSharingCurrentPost = useSelect( select => select( socialStore ).isSharingCurrentPost() );
 
 	const isSavingScheduledShare = useSelect(
 		select => select( socialStore ).isSavingScheduledShare(),
 		[]
 	);
-	const isBusy = isSavingScheduledShare || isSavingPost;
+	const isBusy = isSavingScheduledShare;
+	const isDisabled = ! isReSharingPossible || isSavingPost || isSharingCurrentPost;
 
 	const onConfirm = useCallback(
 		async ( scheduleTimestamp: number ) => {
@@ -95,18 +97,18 @@ const ScheduleButton = () => {
 	const toggle = useCallback(
 		( { onToggle, isOpen } ) => (
 			<Button
-				onClick={ ! isBusy ? onToggle : null }
+				onClick={ ! isBusy && ! isDisabled ? onToggle : null }
 				aria-expanded={ isOpen }
 				aria-live="polite"
 				icon={ calendar }
 				isSecondary
 				isBusy={ isBusy }
-				disabled={ ! isReSharingPossible }
+				disabled={ isDisabled }
 			>
 				{ __( 'Schedule', 'jetpack-publicize-components' ) }
 			</Button>
 		),
-		[ isBusy, isReSharingPossible ]
+		[ isBusy, isDisabled ]
 	);
 
 	const content = useCallback(
