@@ -185,6 +185,7 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_grant_product_download_access', $callable, 10, 1 );
 
 		// Tax rates.
+		// These are ignored on WP.com: tax items are derived from order data via wc_order_tax_lookup, which isn’t present there.
 		add_action( 'woocommerce_tax_rate_added', $callable, 10, 2 );
 		add_action( 'woocommerce_tax_rate_updated', $callable, 10, 2 );
 		add_action( 'woocommerce_tax_rate_deleted', $callable, 10, 1 );
