@@ -327,15 +327,13 @@ class WooCommerce extends Module {
 	 *
 	 * @access public
 	 *
-	 * @todo Refactor table name to use a $wpdb->prepare placeholder.
-	 *
 	 * @param int $order_item_id Order item ID.
 	 * @return object Order item.
 	 */
 	public function build_order_item( $order_item_id ) {
 		global $wpdb;
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $this->order_item_table_name WHERE order_item_id = %d", $order_item_id ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct database access is intentional; caching is not required for this query.
+		return $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE order_item_id = %d', $this->order_item_table_name, $order_item_id ) );
 	}
 
 	/**
