@@ -23,23 +23,17 @@
 		"seo",
 		"search"
 	],
-	"author": "Automattic Inc.",
-	"homepage": "https://github.com/Automattic/wp-calypso",
+	"author": "Automattic",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-previews/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Social Previews"
+	},
 	"license": "GPL-2.0-or-later",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Automattic/wp-calypso.git",
-		"directory": "packages/social-previews"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/social-previews"
 	},
-	"publishConfig": {
-		"access": "public"
-	},
-	"bugs": "https://github.com/Automattic/wp-calypso/issues",
-	"files": [
-		"dist",
-		"src",
-		"CHANGELOG.md"
-	],
 	"types": "dist/types",
 	"scripts": {
 		"clean": "tsc --build ./tsconfig.json ./tsconfig-cjs.json --clean && rm -rf dist",
