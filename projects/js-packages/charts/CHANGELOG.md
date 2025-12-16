@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.0] - 2025-12-15
 ### Added
-- Charts: Add new sparkline chart type. [#46165]
+- Add new sparkline chart type. [#46165]
 
 ### Changed
 - Restructure directories to allow expansion of library. [#46232]
