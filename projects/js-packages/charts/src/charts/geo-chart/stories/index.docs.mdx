@@ -32,25 +32,26 @@ For detailed information about component props and types, see the [Geo Chart API
 
 ### Simple Geo Chart
 
-The simplest geo chart requires data, width, and height. The `data` prop accepts a record mapping country ISO 3166-1 alpha-2 codes to numeric values:
+The simplest geo chart requires data, width, and height. The `data` prop uses Google Charts format - an array where the first row contains column headers and subsequent rows contain data. Countries can be identified by full name or ISO 3166-1 alpha-2 codes (full names are recommended):
 
 <Canvas of={ GeoChartStories.Default } />
 
 <Source
 	language="tsx"
 	code={ `<GeoChart
-		data={ {
-			US: 1000,
-			CA: 500,
-			GB: 450,
-			DE: 400,
-			AU: 350,
-			FR: 300,
-			MX: 250,
-			JP: 200,
-			BR: 150,
-			IN: 120,
-		} }
+		data={ [
+			['Country', 'Orders'],
+			['United States', 1000],
+			['Canada', 500],
+			['United Kingdom', 450],
+			['Germany', 400],
+			['Australia', 350],
+			['France', 300],
+			['Mexico', 250],
+			['Japan', 200],
+			['Brazil', 150],
+			['India', 120],
+		] }
 		width={ 800 }
 		height={ 500 }
 	/>` }
@@ -58,7 +59,7 @@ The simplest geo chart requires data, width, and height. The `data` prop accepts
 
 ### Required Props
 
-- **`data`**: Record mapping country ISO 3166-1 alpha-2 codes (e.g., 'US', 'CA', 'GB') to numeric values
+- **`data`**: Array in Google Charts format - first row is headers, subsequent rows are data. Countries can be identified by full name (e.g., 'United States', 'Canada') or ISO 3166-1 alpha-2 codes (e.g., 'US', 'CA')
 - **`width`**: Width of the chart in pixels
 - **`height`**: Height of the chart in pixels
 
@@ -69,14 +70,107 @@ The simplest geo chart requires data, width, and height. The `data` prop accepts
 
 For detailed prop information and type definitions, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-library-charts-geo-chart-api-reference--docs).
 
+## Advanced Features
+
+The Geo Chart supports the full Google Charts data format, enabling powerful customization options:
+
+### Custom Tooltips
+
+You can customize tooltip content using column roles. Add a tooltip column to your data with `{ type: 'string', role: 'tooltip' }`:
+
+<Canvas of={ GeoChartStories.WithTextTooltips } />
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		data={ [
+			['Country', 'Value', { type: 'string', role: 'tooltip' }],
+			['United States', 1000, 'United States: 1,000 orders (40% of total)'],
+			['Canada', 500, 'Canada: 500 orders (20% of total)'],
+			['United Kingdom', 450, 'United Kingdom: 450 orders (18% of total)'],
+		] }
+		width={ 800 }
+		height={ 500 }
+	/>` }
+/>
+
+### HTML Tooltips
+
+For rich tooltip content with HTML formatting, add `p: { html: true }` to the tooltip column:
+
+<Canvas of={ GeoChartStories.WithCustomTooltip } />
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		data={ [
+			['Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } }],
+			['United States', 1000, '<b>United States</b><br/>1,000 orders'],
+			['Canada', 500, '<b>Canada</b><br/>500 orders'],
+		] }
+		width={ 800 }
+		height={ 500 }
+	/>` }
+/>
+
+### Formatted Values
+
+Separate the display format from the actual value using cell objects with `v` (value) and `f` (formatted) properties:
+
+<Canvas of={ GeoChartStories.WithFormattedValues } />
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		data={ [
+			['Country', 'Revenue'],
+			['United States', { v: 1234567, f: '$1.23M' }],
+			['Canada', { v: 543210, f: '$543K' }],
+			['United Kingdom', { v: 789012, f: '$789K' }],
+		] }
+		width={ 800 }
+		height={ 500 }
+	/>` }
+/>
+
+This ensures proper data scaling while displaying user-friendly labels.
+
+### Complex HTML Tooltips
+
+Combine HTML tooltips with custom styling for rich, interactive experiences:
+
+<Canvas of={ GeoChartStories.WithComplexTooltips } />
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		data={ [
+			['Country', 'Orders', { type: 'string', role: 'tooltip', p: { html: true } }],
+			[
+				'United States',
+				1000,
+				\`<div style="padding: 12px; font-family: sans-serif;">
+					<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">🇺🇸 United States</div>
+					<div style="color: #666;">Orders: <strong>1,000</strong></div>
+					<div style="color: #666;">Share: <strong>40%</strong></div>
+				</div>\`,
+			],
+		] }
+		width={ 800 }
+		height={ 500 }
+	/>` }
+/>
+
 ## Interactive Features
 
 ### Hover Tooltips
 
-The Geo Chart includes built-in interactive tooltips powered by Google Charts that display on hover, showing:
+The Geo Chart includes built-in interactive tooltips powered by Google Charts that display on hover. By default, tooltips show:
 
 - Country name
 - Value for that country
+
+You can customize tooltips using the tooltip column role (see Advanced Features above).
 
 Tooltips are automatically enabled and positioned for optimal readability.
 
@@ -129,24 +223,27 @@ You can provide a custom loading placeholder using the `renderPlaceholder` prop:
 
 This is useful when you want to show a skeleton loader, spinner, or branded loading state that matches your application's design.
 
-## Country Code Format
+## Country Identification
 
-The Geo Chart requires two-letter ISO 3166-1 alpha-2 country codes. Common examples:
+The Geo Chart accepts countries in two formats:
 
-- **US**: United States
-- **CA**: Canada
-- **GB**: United Kingdom
-- **DE**: Germany
-- **FR**: France
-- **JP**: Japan
-- **AU**: Australia
-- **BR**: Brazil
-- **IN**: India
-- **CN**: China
-- **MX**: Mexico
-- **ES**: Spain
-- **IT**: Italy
-- **NL**: Netherlands
+### Full Country Names (Recommended)
+
+Use full country names for better readability:
+
+- **United States**, **Canada**, **United Kingdom**
+- **Germany**, **France**, **Japan**
+- **Australia**, **Brazil**, **India**
+- **China**, **Mexico**, **Spain**
+- **Italy**, **Netherlands**, **Sweden**
+
+### ISO 3166-1 Alpha-2 Codes
+
+Alternatively, you can use two-letter ISO country codes:
+
+- **US**, **CA**, **GB**, **DE**, **FR**
+- **JP**, **AU**, **BR**, **IN**, **CN**
+- **MX**, **ES**, **IT**, **NL**, **SE**
 
 For a complete list of country codes, refer to the [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
 
@@ -208,7 +305,8 @@ The Geo Chart uses Google Charts' default Mercator projection for world map visu
 
 ### Data Preparation
 
-- **Use correct ISO codes**: Ensure country codes follow ISO 3166-1 alpha-2 format (two-letter codes)
+- **Use full country names**: Recommended for better readability (e.g., 'United States' instead of 'US')
+- **ISO codes supported**: Two-letter ISO 3166-1 alpha-2 codes also work if needed
 - **Validate data**: Check that values are positive numbers
 - **Consider scale**: Large value ranges will show more dramatic color differences
 
