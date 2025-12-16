@@ -270,6 +270,29 @@ Bar List Charts integrate seamlessly with the chart theming system. The default 
 	</GlobalChartsProvider>` }
 />
 
+## Animation
+
+The Bar List Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ BarListChartStories.Animation } />
+
+<Source
+	language="tsx"
+	code={ `<BarListChart
+		data={ data }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a stretching effect where bars grow from left to right, revealing the data progressively
+- **Duration**: 1000ms (1 second) with ease-out timing
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.
+
 ## Advanced Features
 
 ### Scale Configuration
