@@ -1,7 +1,7 @@
 import { TwitterPostPreview } from './post-preview';
 import { TwitterPreviewProps } from './types';
 
-export const TwitterLinkPreview: React.FC< TwitterPreviewProps > = ( props ) => {
+export const TwitterLinkPreview: React.FC< TwitterPreviewProps > = props => {
 	return (
 		<TwitterPostPreview
 			{ ...props }

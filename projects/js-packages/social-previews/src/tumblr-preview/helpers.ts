@@ -3,13 +3,13 @@ import { firstValid, hardTruncation, shortEnough, stripHtmlTags, Formatter } fro
 const TITLE_LENGTH = 1000;
 const DESCRIPTION_LENGTH = 400;
 
-export const tumblrTitle: Formatter = ( text ) =>
+export const tumblrTitle: Formatter = text =>
 	firstValid(
 		shortEnough( TITLE_LENGTH ),
 		hardTruncation( TITLE_LENGTH )
 	)( stripHtmlTags( text ) ) || '';
 
-export const tumblrDescription: Formatter = ( text ) => {
+export const tumblrDescription: Formatter = text => {
 	// First remove Gutenberg block comments
 	let processedText = text.replace( /<!--[\s\S]*?-->/g, '' );
 

@@ -13,11 +13,11 @@ export const baseDomain = ( url: string ): string =>
 		.replace( /^[^/]+[/]*/, '' ) // strip leading protocol
 		.replace( /\/.*$/, '' ); // strip everything after the domain
 
-export const shortEnough: ( n: number ) => ConditionalFormatter = ( limit ) => ( title ) =>
+export const shortEnough: ( n: number ) => ConditionalFormatter = limit => title =>
 	title.length <= limit ? title : false;
 
 export const truncatedAtSpace: ( a: number, b: number ) => ConditionalFormatter =
-	( lower, upper ) => ( fullTitle ) => {
+	( lower, upper ) => fullTitle => {
 		const title = fullTitle.slice( 0, upper );
 		const lastSpace = title.lastIndexOf( ' ' );
 
@@ -26,13 +26,13 @@ export const truncatedAtSpace: ( a: number, b: number ) => ConditionalFormatter 
 			: false;
 	};
 
-export const hardTruncation: ( n: number ) => Formatter = ( limit ) => ( title ) =>
+export const hardTruncation: ( n: number ) => Formatter = limit => title =>
 	title.slice( 0, limit ).concat( '…' );
 
 export const firstValid: ( ...args: ConditionalFormatter[] ) => NullableFormatter =
 	( ...predicates ) =>
-	( a ) =>
-		( predicates.find( ( p ) => false !== p( a ) ) as Formatter )?.( a );
+	a =>
+		( predicates.find( p => false !== p( a ) ) as Formatter )?.( a );
 
 export const stripHtmlTags: Formatter< Array< string > > = ( description, allowedTags = [] ) => {
 	const pattern = new RegExp( `(<([^${ allowedTags.join( '' ) }>]+)>)`, 'gi' );
@@ -42,8 +42,8 @@ export const stripHtmlTags: Formatter< Array< string > > = ( description, allowe
 
 /**
  * For social note posts we use the first 50 characters of the description.
- * @param description The post description.
- * @returns The first 50 characters of the description.
+ * @param description - The post description.
+ * @return The first 50 characters of the description.
  */
 export const getTitleFromDescription = ( description: string ): string => {
 	return stripHtmlTags( description ).substring( 0, 50 );
@@ -115,6 +115,8 @@ export const hashtagUrlMap: Record< Platform, string > = {
 
 /**
  * Prepares the text for the preview.
+ * @param text
+ * @param options
  */
 export function preparePreviewText( text: string, options: PreviewTextOptions ): React.ReactNode {
 	const {

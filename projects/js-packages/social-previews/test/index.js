@@ -101,7 +101,7 @@ describe( 'Facebook previews', () => {
 
 			expect( urlEl ).toBeVisible();
 			expect( urlEl ).toHaveTextContent( 'wordpress.com' );
-			expect( urlEl.textContent ).not.toContain( '|' );
+			expect( urlEl ).not.toHaveTextContent( /\|/ );
 		} );
 	} );
 } );
@@ -111,7 +111,7 @@ describe( 'Twitter previews', () => {
 
 	beforeAll( () => {
 		originalConsoleError = global.console.error;
-		global.console.error = jest.fn();
+		jest.spyOn( global.console, 'error' ).mockImplementation();
 	} );
 
 	afterAll( () => {
@@ -361,7 +361,7 @@ describe( 'Twitter previews', () => {
 			// Passing 5 images renders 4 images.
 			{
 				...emptyTweet,
-				media: Array.from( Array( 5 ).keys() ).map( ( val ) => ( {
+				media: Array.from( Array( 5 ).keys() ).map( val => ( {
 					alt: `alt-${ val }`,
 					url: `src-${ val }.png`,
 					type: 'image/png',
@@ -439,7 +439,7 @@ describe( 'Twitter previews', () => {
 			// Passing no media renders no media.
 			[],
 			// Passing 5 images renders 4 images.
-			Array.from( Array( 4 ).keys() ).map( ( val ) => ( {
+			Array.from( Array( 4 ).keys() ).map( val => ( {
 				alt: `alt-${ val }`,
 				src: `src-${ val }.png`,
 				tag: 'img',

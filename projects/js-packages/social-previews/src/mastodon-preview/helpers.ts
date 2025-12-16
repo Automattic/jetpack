@@ -15,7 +15,7 @@ const URL_LENGTH = 30;
 
 const ADDRESS_PATTERN = /^@([^@]*)@([^@]*)$/i;
 
-export const mastodonTitle: Formatter = ( text ) =>
+export const mastodonTitle: Formatter = text =>
 	firstValid(
 		shortEnough( TITLE_LENGTH ),
 		hardTruncation( TITLE_LENGTH )
@@ -31,7 +31,7 @@ export const mastodonBody = ( text: string, options: { offset: number; instance:
 	} );
 };
 
-export const mastodonUrl: Formatter = ( text ) =>
+export const mastodonUrl: Formatter = text =>
 	firstValid( shortEnough( URL_LENGTH ), hardTruncation( URL_LENGTH ) )( stripHtmlTags( text ) ) ||
 	'';
 

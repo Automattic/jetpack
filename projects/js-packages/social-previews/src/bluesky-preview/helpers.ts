@@ -11,7 +11,7 @@ const TITLE_LENGTH = 200;
 const BODY_LENGTH = 300;
 const URL_LENGTH = 40;
 
-export const blueskyTitle: Formatter = ( text ) =>
+export const blueskyTitle: Formatter = text =>
 	firstValid(
 		shortEnough( TITLE_LENGTH ),
 		hardTruncation( TITLE_LENGTH )
@@ -26,6 +26,6 @@ export const blueskyBody = ( text: string, options: { offset?: number } = {} ) =
 	} );
 };
 
-export const blueskyUrl: Formatter = ( text ) =>
+export const blueskyUrl: Formatter = text =>
 	firstValid( shortEnough( URL_LENGTH ), hardTruncation( URL_LENGTH ) )( stripHtmlTags( text ) ) ||
 	'';

@@ -6,7 +6,7 @@ import './styles.scss';
 
 type Props = MastodonPreviewProps & { children?: React.ReactNode };
 
-const MastonPostBody: React.FC< Props > = ( props ) => {
+const MastonPostBody: React.FC< Props > = props => {
 	const { title, description, customText, url, user, children } = props;
 	const instance = user?.address ? getMastodonAddressDetails( user.address ).instance : '';
 	const options = {
