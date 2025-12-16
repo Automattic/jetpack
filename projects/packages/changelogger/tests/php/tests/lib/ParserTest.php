@@ -25,19 +25,25 @@ class ParserTest extends TestCase {
 	/**
 	 * Get a mock Parser.
 	 *
-	 * @return Parser&\PHPUnit\Framework\MockObject\MockObject
+	 * @return Parser&\PHPUnit\Framework\MockObject\Stub
 	 */
-	private function getMockParser() {
-		return $this->getMockBuilder( Parser::class )
-			->onlyMethods( array( 'parse', 'format' ) )
-			->getMock();
+	private function getStubParser() {
+		if ( is_callable( array( $this, 'getStubBuilder' ) ) ) {
+			return $this->getStubBuilder( Parser::class )
+				->onlyMethods( array( 'parse', 'format' ) )
+				->getStub();
+		} else {
+			return $this->getMockBuilder( Parser::class )
+				->onlyMethods( array( 'parse', 'format' ) )
+				->getMock();
+		}
 	}
 
 	/**
 	 * Test parseFromFile.
 	 */
 	public function testParseFromFile() {
-		$mock = $this->getMockParser();
+		$mock = $this->getStubParser();
 		$mock->method( 'parse' )->willReturnArgument( 0 );
 
 		$temp = tempnam( sys_get_temp_dir(), 'phpunit-testParseFromFile-' );
@@ -58,7 +64,7 @@ class ParserTest extends TestCase {
 	 * Test formatToFile.
 	 */
 	public function testFormatToFile() {
-		$mock      = $this->getMockParser();
+		$mock      = $this->getStubParser();
 		$changelog = new Changelog();
 		$mock->method( 'format' )
 			->with( $this->identicalTo( $changelog ) )
@@ -88,7 +94,7 @@ class ParserTest extends TestCase {
 	 * Test newChangelogEntry.
 	 */
 	public function testNewChangelogEntry() {
-		$mock = $this->getMockParser();
+		$mock = $this->getStubParser();
 		$this->assertInstanceOf( ChangelogEntry::class, $mock->newChangelogEntry( '1.0' ) );
 	}
 
@@ -96,7 +102,7 @@ class ParserTest extends TestCase {
 	 * Test newChangeEntry.
 	 */
 	public function testNewChangeEntry() {
-		$mock = $this->getMockParser();
+		$mock = $this->getStubParser();
 		$this->assertInstanceOf( ChangeEntry::class, $mock->newChangeEntry() );
 	}
 }

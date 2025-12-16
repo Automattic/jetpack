@@ -20,7 +20,7 @@ export function PreviewPostsTrigger() {
 	const { recordEvent } = useAnalytics();
 	const { hasConnections } = useSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const { needsUserConnection } = usePublicizeConfig();
+	const { isPublicizeEnabled, needsUserConnection } = usePublicizeConfig();
 
 	const handleOpenModal = useCallback( () => {
 		if ( ! isModalOpen ) {
@@ -42,6 +42,7 @@ export function PreviewPostsTrigger() {
 			variant="secondary"
 			onClick={ handleOpenModal }
 			className={ styles[ 'preview-posts-trigger' ] }
+			disabled={ ! isPublicizeEnabled }
 		>
 			{ isPostPublished
 				? _x(
@@ -49,7 +50,7 @@ export function PreviewPostsTrigger() {
 						'The button label for the modal trigger',
 						'jetpack-publicize-components'
 				  )
-				: __( 'Preview posts', 'jetpack-publicize-components' ) }
+				: __( 'Preview and customize', 'jetpack-publicize-components' ) }
 		</Button>
 	);
 }

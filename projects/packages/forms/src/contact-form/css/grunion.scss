@@ -214,6 +214,7 @@ that needs to mimic the input element styles */
 }
 
 .contact-form-submission {
+	box-sizing: border-box;
 	margin-bottom: 4em;
 	padding: 1.5em 1em;
 	width: 100%;
@@ -459,6 +460,14 @@ that needs to mimic the input element styles */
 	.wp-block-jetpack-contact-form .grunion-field-wrap {
 		flex-basis: 100%;
 		max-width: none;
+	}
+
+	.wp-block-jetpack-contact-form .wp-block-jetpack-button {
+		flex-basis: 100%;
+
+		.wp-block-button__link {
+			width: 100%;
+		}
 	}
 }
 
@@ -1157,6 +1166,10 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple:focus {
 	outline-width: 0; /* focus style defined on parent */
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap input.checkbox-multiple::before {
+	border-color: var(--jetpack--contact-form--button-outline--background-color, fieldText);
 }
 
 /* TODO - is this style used anywhere? if not, remove it */

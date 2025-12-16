@@ -1625,7 +1625,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "3e8c7ce95c903fe6b9fbd003338806827ba8d6df"
+                "reference": "bc86475df0704106b3ac500e1a70207c57b46908"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1659,7 +1659,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.22.x-dev"
+                    "dev-trunk": "4.24.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -4446,5 +4446,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

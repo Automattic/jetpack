@@ -425,7 +425,9 @@ function send_access_denied_error_response() {
 					'This site is private.',
 					'wpcomsh'
 				),
-			)
+			),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 

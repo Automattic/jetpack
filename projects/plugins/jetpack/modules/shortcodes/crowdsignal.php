@@ -110,13 +110,13 @@ if (
 				$placeholder = sprintf(
 					'<a class="cs-embed pd-embed" href="%1$s" data-settings="%2$s">%3$s</a>',
 					esc_url( $survey_url ),
-					esc_attr( wp_json_encode( $settings ) ),
+					esc_attr( wp_json_encode( $settings, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ),
 					esc_html( $settings['title'] )
 				);
 			} else {
 				$placeholder = sprintf(
 					'<div class="cs-embed pd-embed" data-settings="%1$s"></div><noscript>%2$s</noscript>',
-					esc_attr( wp_json_encode( $settings ) ),
+					esc_attr( wp_json_encode( $settings, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ),
 					$survey_link
 				);
 			}
@@ -281,10 +281,9 @@ if (
 						'title'     => rawurlencode( trim( $attributes['title'] ) ),
 						'permalink' => esc_url( $attributes['permalink'] ),
 						'item_id'   => $item_id,
-					)
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				);
-
-				$item_id = esc_js( $item_id );
 
 				if (
 					class_exists( 'Jetpack_AMP_Support' )
@@ -332,7 +331,7 @@ if (
 							'<div class="cs-rating pd-rating" id="pd_rating_holder_%1$d%2$s" data-settings="%3$s"></div>',
 							absint( $rating ),
 							esc_attr( $item_id ),
-							esc_attr( wp_json_encode( $data ) )
+							esc_attr( wp_json_encode( $data, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) )
 						);
 					} else {
 						return sprintf(
@@ -456,7 +455,7 @@ if (
 						return sprintf(
 							'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="%2$s" style="%3$s%4$s"></div><div id="PD_superContainer"></div><noscript>%5$s</noscript>',
 							absint( $poll ),
-							esc_attr( wp_json_encode( $data ) ),
+							esc_attr( wp_json_encode( $data, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ),
 							$float,
 							$margins,
 							$poll_link

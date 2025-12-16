@@ -33,7 +33,7 @@ class Log {
 			'post_title'   => $url,
 			'post_name'    => uniqid( 'jetpack_inspect_log_', true ),
 			'post_status'  => 'publish',
-			'post_content' => base64_encode( wp_json_encode( $data ) ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			'post_content' => base64_encode( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		);
 
 		wp_insert_post( $data_post_data );

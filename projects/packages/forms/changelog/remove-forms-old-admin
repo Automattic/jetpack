@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Forms: Removes classic Admin initialization code

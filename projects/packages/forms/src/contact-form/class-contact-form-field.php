@@ -949,7 +949,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					</svg>
 					<span class="visually-hidden">' . __( 'Warning', 'jetpack-forms' ) . '</span>
 				</span>
-				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
+				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message" role="alert" aria-live="assertive"></span>
 			</div>';
 	}
 
@@ -1312,7 +1312,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
-					$field .= "<p {$option_styles} class='{$option_classes}'>";
+					$field .= "<label {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
@@ -1323,10 +1323,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									. checked( $option_label, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
 									. '/> ';
-					$field .= "<label for='" . esc_attr( $radio_id ) . "' class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<span class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
+					$field .= '</span>';
 					$field .= '</label>';
-					$field .= '</p>';
 				}
 			}
 		} else {
@@ -1473,6 +1473,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'odt'             => 'application/vnd.oasis.opendocument.text',
 				'ppsx'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
 				'ppsm'            => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+				'csv'             => 'text/csv',
 				'xla|xls|xlt|xlw' => 'application/vnd.ms-excel',
 				'xlsx'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 				'xlsm'            => 'application/vnd.ms-excel.sheet.macroEnabled.12',
@@ -1753,7 +1754,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
-					$field .= "<p {$option_styles} class='{$option_classes}'>";
+					$field .= "<label {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								type='checkbox'
@@ -1763,10 +1764,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								. $class
 								. checked( in_array( $option_label, (array) $value, true ), true, false )
 								. ' /> ';
-					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<span class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
+					$field .= '</span>';
 					$field .= '</label>';
-					$field .= '</p>';
 				}
 			}
 		} else {
@@ -1785,7 +1786,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 					$used_html_ids[ $checkbox_id ] = true;
 
-					$field .= "<p class='contact-form-field'>";
+					$field .= "<label class='contact-form-field'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								data-wp-on--change='actions.onMultipleFieldChange'
@@ -1795,10 +1796,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								. $class
 								. checked( in_array( $option, (array) $value, true ), true, false )
 								. ' /> ';
-					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<span {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option ) . '</span>';
+					$field .= '</span>';
 					$field .= '</label>';
-					$field .= '</p>';
 				}
 			}
 		}

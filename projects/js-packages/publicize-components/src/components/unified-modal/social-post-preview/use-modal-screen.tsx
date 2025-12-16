@@ -1,9 +1,16 @@
-import { __, sprintf, _n } from '@wordpress/i18n';
-import { useMemo, useState } from 'react';
+import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
+import { useBreakpoint } from '@automattic/viewport-react';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { __, _x } from '@wordpress/i18n';
+import { useId, useMemo, useState } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
+import { Connection } from '../../../social-store/types';
 import { ScreenDetails } from '../types';
 import { Content } from './content';
+import { FooterContent } from './footer-content';
 import { Sidebar } from './sidebar';
+import { useFooterActions } from './use-footer-actions';
 
 /**
  * Hook to get modal screen details for social post preview.
@@ -11,44 +18,57 @@ import { Sidebar } from './sidebar';
  * @return screen details
  */
 export function useModalScreen(): ScreenDetails {
-	const { connections, enabledConnections } = useSocialMediaConnections();
+	const { connections } = useSocialMediaConnections();
 
-	const [ selectedConnection, setSelectedConnection ] = useState( connections[ 0 ] );
+	const [ selectedConnection, setSelectedConnection ] = useState< Connection >( connections[ 0 ] );
+
+	const baseId = useId();
+	const isSmallScreen = useBreakpoint( '<660px' );
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+
+	const footerActions = useFooterActions();
+
+	const isPrePublishScreen = useSelect( select => {
+		const store = select( editorStore );
+		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
+	}, [] );
 
 	return useMemo(
 		() => ( {
 			path: '/',
-			title: __( 'Customize and preview social posts', 'jetpack-publicize-components' ),
+			title: ! isPostPublished
+				? __( 'Preview and customize', 'jetpack-publicize-components' )
+				: _x(
+						'Customize and share to social media',
+						'Share here is imperative verb',
+						'jetpack-publicize-components'
+				  ),
 			isScreenLocked: true,
-			sidebar: (
+			headerIcon: isPrePublishScreen ? <JetpackLogo /> : null,
+			sidebar: isSmallScreen ? null : (
 				<Sidebar
-					onClickConnection={ setSelectedConnection }
+					baseId={ baseId }
+					onSelectConnection={ setSelectedConnection }
 					selectedConnection={ selectedConnection }
 				/>
 			),
-			content: <Content selectedConnection={ selectedConnection } />,
-			footerContent: enabledConnections.length ? (
-				<span>
-					{ sprintf(
-						/* translators: %d: Number of enabled connections. */
-						_n(
-							'Ready to share to %d account.',
-							'Ready to share to %d accounts.',
-							enabledConnections.length,
-							'jetpack-publicize-components'
-						),
-						enabledConnections.length
-					) }
-				</span>
-			) : null,
-			footerActions: [
-				// TODO: Add resharing buttons here conditionally
-				{
-					text: __( 'Save Changes', 'jetpack-publicize-components' ),
-					variant: 'primary',
-				},
-			],
+			content: (
+				<Content
+					baseId={ baseId }
+					selectedConnection={ selectedConnection }
+					forSmallScreen={ isSmallScreen }
+				/>
+			),
+			footerContent: <FooterContent />,
+			footerActions,
 		} ),
-		[ selectedConnection, setSelectedConnection, enabledConnections ]
+		[
+			isPostPublished,
+			isPrePublishScreen,
+			isSmallScreen,
+			baseId,
+			selectedConnection,
+			footerActions,
+		]
 	);
 }

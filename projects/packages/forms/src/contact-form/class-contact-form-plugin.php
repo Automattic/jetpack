@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Form_Webhooks;
+use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Forms\Service\Hostinger_Reach_Integration;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
@@ -96,6 +97,13 @@ class Contact_Form_Plugin {
 		'entry_page'              => '',
 		'feedback_id'             => '',
 	);
+
+	/**
+	 * GDrive export nonce field name
+	 *
+	 * @var string The nonce field name for GDrive export.
+	 */
+	private $export_nonce_field_gdrive = 'feedback_export_nonce_gdrive';
 
 	/**
 	 * Initializing function.
@@ -221,6 +229,7 @@ class Contact_Form_Plugin {
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_feedback_export', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'wp_ajax_create_new_form', array( $this, 'create_new_form' ) );
+			add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
@@ -357,6 +366,22 @@ class Contact_Form_Plugin {
 				4
 			);
 		}
+
+		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
+			Contact_Form::register_post_type();
+		}
+	}
+
+	/**
+	 * Check if a feature flag is enabled.
+	 *
+	 * @param string $flag The feature flag to check.
+	 * @return bool
+	 */
+	public static function has_editor_feature_flag( $flag ) {
+		/** This filter is documented in jetpack/class.jetpack-gutenberg.php. */
+		$feature_flags = apply_filters( 'jetpack_block_editor_feature_flags', array() );
+		return ! empty( $feature_flags[ $flag ] );
 	}
 
 	/**
@@ -1593,6 +1618,52 @@ class Contact_Form_Plugin {
 				);
 			}
 
+			/**
+			 * Filters the list of extra webhooks to be called when a form is submitted.
+			 *
+			 * This filter allows developers to programmatically add webhook configurations that will
+			 * receive form submission data. The webhooks added through this filter are merged
+			 * with any webhooks already configured in the form's attributes.
+			 *
+			 * Each webhook configuration array supports the following keys:
+			 * - `webhook_id` (string, required): Unique identifier for the webhook.
+			 * - `url` (string, required): The webhook URL to POST data to.
+			 * - `method` (string, optional): HTTP method. Default 'POST'.
+			 * - `verified` (bool, optional): Whether the webhook is verified. Default false.
+			 * - `format` (string, optional): Data format ('json'). Default 'json'.
+			 * - `enabled` (bool, optional): Whether the webhook is enabled. Default false.
+			 *
+			 * Example usage:
+			 * ```
+			 * add_filter( 'jetpack_forms_extra_webhooks', function( $webhooks, $form ) {
+			 *     if ( $form->get_attribute( 'id' ) === '123' ) {
+			 *         $webhooks[] = array(
+			 *            'webhook_id' => 'test-webhook-1',
+			 *            'url'        => '[your webhook URL]',
+			 *            'method'     => 'POST',
+			 *            'verified'   => false,
+			 *            'format'     => 'json',
+			 *            'enabled'    => true,
+			 *         );
+			 *     }
+			 *     return $webhooks;
+			 * }, 10, 2 );
+			 * ```
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param array        $extra_webhooks Array of webhook configuration arrays. Default empty array.
+			 * @param Contact_Form $form           The form instance being processed.
+			 * @return array                       The modified array of webhook configurations.
+			 */
+			$extra_webhooks = apply_filters( 'jetpack_forms_extra_webhooks', array(), $form );
+			if ( ! empty( $extra_webhooks ) ) {
+				$form->attributes['webhooks'] = array_merge(
+					$form->attributes['webhooks'] ?? array(),
+					$extra_webhooks
+				);
+			}
+
 			if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 				Form_Webhooks::init();
 			}
@@ -1823,7 +1894,8 @@ class Contact_Form_Plugin {
 					'error' => $error_message,
 					'code'  => $error_code,
 				),
-				500
+				500,
+				JSON_UNESCAPED_SLASHES
 			);
 
 			// Non-JSON request, output the error message directly.
@@ -1840,7 +1912,8 @@ class Contact_Form_Plugin {
 				array(
 					'error' => $submission_result->get_error_message(),
 				),
-				400
+				400,
+				JSON_UNESCAPED_SLASHES
 			);
 
 			// Non-JSON request, output the error message directly.
@@ -2806,10 +2879,12 @@ class Contact_Form_Plugin {
 				$results[ $trimmed_field_name ][] = isset( $compiled_fields[ $trimmed_field_name ] ) ? $compiled_fields[ $trimmed_field_name ] : '';
 			}
 
-			$results[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
-			$results[ $prefix_meta_fields . __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address();
-			$results[ $prefix_meta_fields . __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code();
-			$results[ $prefix_meta_fields . __( 'Browser', 'jetpack-forms' ) ][]      = $feedback->get_browser();
+			$results[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ][] = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+
+			// Convert null values to empty strings for proper CSV/export formatting.
+			$results[ $prefix_meta_fields . __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address() ?? '';
+			$results[ $prefix_meta_fields . __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code() ?? '';
+			$results[ $prefix_meta_fields . __( 'Browser', 'jetpack-forms' ) ][]      = $feedback->get_browser() ?? '';
 
 		}
 		return $results;
@@ -3012,14 +3087,16 @@ class Contact_Form_Plugin {
 		if ( ! isset( $_POST['newFormNonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['newFormNonce'] ) ), 'create_new_form' ) ) {
 			wp_send_json_error(
 				__( 'Invalid nonce', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 
 		if ( ! current_user_can( 'edit_pages' ) ) {
 			wp_send_json_error(
 				__( 'You do not have permission to create pages', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 
@@ -3048,13 +3125,16 @@ class Contact_Form_Plugin {
 		if ( is_wp_error( $post_id ) ) {
 			wp_send_json_error(
 				$post_id->get_error_message(),
-				500
+				500,
+				JSON_UNESCAPED_SLASHES
 			);
 		} else {
 			wp_send_json(
 				array(
 					'post_url' => admin_url( 'post.php?post=' . intval( $post_id ) . '&action=edit' ),
-				)
+				),
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 	}
@@ -3643,5 +3723,99 @@ class Contact_Form_Plugin {
 		// Use wp_safe_redirect to ensure we're redirecting to a safe location
 		wp_safe_redirect( $redirect_url );
 		exit;
+	}
+
+	/**
+	 * Validates the export to Google Drive request.
+	 *
+	 * @param array $post_data The POST data to validate.
+	 * @return bool True if the request is valid, false otherwise.
+	 */
+	public function validate_export_to_gdrive_request( $post_data ) {
+		if ( ! current_user_can( 'export' ) ) {
+			return false;
+		}
+
+		if ( empty( $post_data[ $this->export_nonce_field_gdrive ] ) ) {
+			return false;
+		}
+
+		$nonce = sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] );
+		if ( ! wp_verify_nonce( $nonce, 'feedback_export' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Ajax handler for wp_ajax_grunion_export_to_gdrive.
+	 * Exports data to Google Drive, based on POST data.
+	 *
+	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
+	 */
+	public function export_to_gdrive() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on validate_export_to_gdrive_request function
+		$post_data = wp_unslash( $_POST );
+
+		if ( ! $this->validate_export_to_gdrive_request( $post_data ) ) {
+			wp_send_json_error(
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
+				403,
+				JSON_UNESCAPED_SLASHES
+			);
+			return;
+		}
+
+		$grunion     = self::init();
+		$export_data = $grunion->get_feedback_entries_from_post();
+
+		$fields    = is_array( $export_data ) ? array_keys( $export_data ) : array();
+		$row_count = ! is_array( $export_data ) || empty( $export_data ) ? 0 : count( reset( $export_data ) );
+
+		$sheet_data = array( $fields );
+
+		for ( $i = 0; $i < $row_count; $i++ ) {
+
+			$current_row = array();
+
+			/**
+			 * Put all the fields in `$current_row` array.
+			 */
+			foreach ( $fields as $single_field_name ) {
+				if ( isset( $export_data[ $single_field_name ][ $i ] ) ) {
+					$current_row[] = $this->esc_csv( $export_data[ $single_field_name ][ $i ] );
+				} else {
+					$current_row[] = '';
+				}
+			}
+
+			$sheet_data[] = $current_row;
+		}
+
+		$user_id = (int) get_current_user_id();
+
+		if ( ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ) {
+			$spreadsheet_title = sprintf(
+				'%1$s - %2$s',
+				Util::get_export_filename( get_the_title( (int) $post_data['post'] ) ),
+				gmdate( 'Y-m-d H:i' )
+			);
+		} else {
+			$spreadsheet_title = sprintf( '%s - %s', Util::get_export_filename(), gmdate( 'Y-m-d H:i' ) );
+		}
+
+		$sheet = Google_Drive::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
+
+		$grunion->record_tracks_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
+
+		wp_send_json(
+			array(
+				'success' => ! is_wp_error( $sheet ),
+				'data'    => $sheet,
+			),
+			is_wp_error( $sheet ) ? 500 : 200,
+			JSON_UNESCAPED_SLASHES
+		);
 	}
 }

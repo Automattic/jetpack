@@ -48,7 +48,7 @@ class Videopress_Attachment_Metadata {
 		$endpoint       = 'videos';
 		$values['guid'] = $guid;
 
-		$result = Client::wpcom_json_api_request_as_blog( $endpoint, '2', $args, wp_json_encode( $values ), 'wpcom' );
+		$result = Client::wpcom_json_api_request_as_blog( $endpoint, '2', $args, wp_json_encode( $values, JSON_UNESCAPED_SLASHES ), 'wpcom' );
 
 		$validated_result = self::validate_result( $result );
 		if ( true !== $validated_result ) {

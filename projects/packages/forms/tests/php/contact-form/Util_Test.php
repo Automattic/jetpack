@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit Tests for Util.
+ * Unit Tests for Util class.
  *
  * @package automattic/jetpack-forms
  */
@@ -622,5 +622,106 @@ EOT
 				,
 			),
 		);
+	}
+
+	/**
+	 * Test that Util::init() sets up the expected hooks and filters.
+	 *
+	 * This test verifies that the Util::init() method properly registers
+	 * the expected WordPress hooks and filters.
+	 */
+	public function test_util_init_registers_expected_hooks() {
+		// Remove any existing hooks first to get a clean state
+		remove_all_filters( 'template_include' );
+		remove_all_actions( 'render_block_core_template_part_post' );
+		remove_all_actions( 'init' );
+		remove_all_actions( 'grunion_scheduled_delete' );
+		remove_all_actions( 'grunion_pre_message_sent' );
+
+		// Initialize Util
+		Util::init();
+
+		// Verify that the expected hooks are registered (has_filter/has_action return priority or false)
+		$this->assertNotFalse(
+			has_filter( 'template_include', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_attribute' ),
+			'template_include filter should be registered'
+		);
+
+		$this->assertNotFalse(
+			has_action( 'render_block_core_template_part_post', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_part_id_global' ),
+			'render_block_core_template_part_post action should be registered'
+		);
+
+		$this->assertNotFalse(
+			has_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init' ),
+			'Contact_Form_Plugin::init should be registered on init action'
+		);
+
+		$this->assertNotFalse(
+			has_action( 'grunion_scheduled_delete', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam' ),
+			'grunion_scheduled_delete action should be registered'
+		);
+
+		$this->assertNotFalse(
+			has_action( 'grunion_pre_message_sent', '\Automattic\Jetpack\Forms\ContactForm\Util::jetpack_tracks_record_grunion_pre_message_sent' ),
+			'grunion_pre_message_sent action should be registered'
+		);
+	}
+
+	/**
+	 * Test export_to_gdrive validation method with various security scenarios.
+	 *
+	 * This test verifies that the validate_export_to_gdrive_request method properly
+	 * validates permissions and nonces.
+	 */
+	public function test_export_to_gdrive_security_validation() {
+		$plugin        = Contact_Form_Plugin::init();
+		$original_user = wp_get_current_user();
+
+		// Test 1: User without 'export' capability should fail
+		wp_set_current_user( 0 );
+		$post_data = array(
+			'feedback_export_nonce_gdrive' => wp_create_nonce( 'feedback_export' ),
+		);
+		$this->assertFalse(
+			$plugin->validate_export_to_gdrive_request( $post_data ),
+			'Validation should fail for user without export capability'
+		);
+
+		// Test 2: Missing nonce field should fail
+		$admin_user = wp_insert_user(
+			array(
+				'user_login' => 'testadmin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_user );
+		$post_data = array(); // No nonce field
+		$this->assertFalse(
+			$plugin->validate_export_to_gdrive_request( $post_data ),
+			'Validation should fail when nonce field is missing'
+		);
+
+		// Test 3: Invalid nonce should fail
+		$post_data = array(
+			'feedback_export_nonce_gdrive' => 'invalid_nonce',
+		);
+		$this->assertFalse(
+			$plugin->validate_export_to_gdrive_request( $post_data ),
+			'Validation should fail with invalid nonce'
+		);
+
+		// Test 4: Valid user with valid nonce should pass
+		$post_data = array(
+			'feedback_export_nonce_gdrive' => wp_create_nonce( 'feedback_export' ),
+		);
+		$this->assertTrue(
+			$plugin->validate_export_to_gdrive_request( $post_data ),
+			'Validation should pass with valid user and nonce'
+		);
+
+		// Cleanup
+		wp_set_current_user( $original_user->ID );
 	}
 }

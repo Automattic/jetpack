@@ -3,11 +3,12 @@
  * Unified media selection interface for social posts
  */
 
+import { GeneralPurposeImage } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
 import { BaseControl, Button, Notice } from '@wordpress/components';
-import { useCallback, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useMemo, useReducer, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
@@ -17,61 +18,22 @@ import { usePostMeta } from '../../hooks/use-post-meta';
 import useSigPreview from '../../hooks/use-sig-preview';
 import CustomMediaToggle from './custom-media-toggle';
 import MediaPreview from './media-preview';
-import MediaSourceMenu, { getMediaSourceDescription } from './media-source-menu';
+import MediaSourceMenu from './media-source-menu';
 import styles from './styles.module.scss';
-import { MediaSourceType, MediaSectionV2Props, MediaPreviewData, WPMediaObject } from './types';
-
-/**
- * Detect the current media source based on existing data (for backward compatibility)
- *
- * @param {Array}   attachedMedia   - Attached media array
- * @param {number}  featuredImageId - Featured image ID
- * @param {boolean} sigEnabled      - Whether SIG is enabled
- * @return {string|null} Current media source type
- */
-function detectMediaSource(
-	attachedMedia: Array< { id: number; url: string; type: string } >,
-	featuredImageId: number | null,
-	sigEnabled: boolean
-): MediaSourceType {
-	// Priority 1: Attached media (uploaded content)
-	if ( attachedMedia && attachedMedia.length > 0 ) {
-		// Check if attached media is the featured image (shared as attachment)
-		if ( featuredImageId && attachedMedia[ 0 ].id === featuredImageId ) {
-			return 'featured-image';
-		}
-		// Check if it's SIG in attachment mode (id=0 with SIG enabled)
-		if ( sigEnabled && attachedMedia[ 0 ].id === 0 ) {
-			return 'sig';
-		}
-		return attachedMedia[ 0 ].type?.startsWith( 'video/' ) ? 'upload-video' : 'media-library';
-	}
-
-	// Priority 2: Social Image Generator
-	if ( sigEnabled ) {
-		return 'sig';
-	}
-
-	// Priority 3: Featured Image
-	if ( featuredImageId ) {
-		return 'featured-image';
-	}
-
-	// No media selected
-	return null;
-}
+import { MediaPreviewData, MediaSectionV2Props, MediaSourceType, WPMediaObject } from './types';
+import { detectMediaSource } from './utils/detect-media-source';
+import { getMediaSourceDescription } from './utils/media-source-options';
 
 /**
  * MediaSectionV2 component
  *
- * @param {object}  props               - Component props
- * @param {object}  props.analyticsData - Analytics data
- * @param {boolean} props.disabled      - Whether the section is disabled
- * @return {object} MediaSectionV2 component
+ * @param {MediaSectionV2Props} props - Component props
+ * @return {JSX.Element} MediaSectionV2 component
  */
 export default function MediaSectionV2( {
 	analyticsData = {},
 	disabled = false,
+	onEditTemplate,
 }: MediaSectionV2Props ) {
 	const { recordEvent } = useAnalytics();
 	const featuredImageId = useFeaturedImage();
@@ -84,6 +46,9 @@ export default function MediaSectionV2( {
 
 	// Ref to store the MediaUpload open function
 	const openMediaLibraryRef = useRef< () => void >( () => {} );
+
+	// State for AI image generation modal
+	const [ showAiImageModal, toggleShowAiImageModal ] = useReducer( state => ! state, false );
 
 	// Determine current media source
 	// Priority 1: Explicit user choice (if media_source is set)
@@ -160,12 +125,12 @@ export default function MediaSectionV2( {
 	// Handle media selection from Media Library
 	const handleMediaLibrarySelect = useCallback(
 		( media: WPMediaObject ) => {
-			const { id, url, mime: type } = media;
+			const { id, url, mime } = media;
 
 			// Single batch update with explicit media_source
 			updateJetpackSocialOptions( {
 				media_source: 'media-library',
-				attached_media: [ { id, url, type } ],
+				attached_media: [ { id, url, type: mime } ],
 				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
 			} );
 
@@ -182,6 +147,27 @@ export default function MediaSectionV2( {
 			openMediaLibraryRef.current();
 		}, 0 );
 	}, [] );
+
+	// Handle AI image selection
+	const handleAiImageSelect = useCallback(
+		( { id, url, mime }: WPMediaObject ) => {
+			// Use 'media-library' as the source since the AI image is uploaded to the media library
+			updateJetpackSocialOptions( {
+				media_source: 'media-library',
+				attached_media: [ { id, url, type: mime || 'image/png' } ],
+				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
+			} );
+
+			// Track as 'ai-image' in analytics to distinguish from regular media library selections
+			recordEvent( 'jetpack_social_media_source_changed', {
+				...analyticsData,
+				source: 'ai-image',
+			} );
+
+			toggleShowAiImageModal();
+		},
+		[ updateJetpackSocialOptions, imageGeneratorSettings, recordEvent, analyticsData ]
+	);
 
 	const renderMediaUpload = useCallback( ( { open }: { open: () => void } ) => {
 		openMediaLibraryRef.current = open;
@@ -275,6 +261,7 @@ export default function MediaSectionV2( {
 								currentSource={ currentSource }
 								onSelect={ handleSourceSelect }
 								onMediaLibraryClick={ handleMediaLibraryClick }
+								onAiImageClick={ toggleShowAiImageModal }
 								disabled={ disabled }
 							>
 								{ ( { open } ) => (
@@ -291,7 +278,7 @@ export default function MediaSectionV2( {
 								<Button
 									className={ styles.selectButton }
 									variant="secondary"
-									// onClick={ /* TODO: Add Sig modal here */ }
+									onClick={ onEditTemplate }
 									disabled={ disabled }
 								>
 									{ __( 'Edit template', 'jetpack-publicize-components' ) }
@@ -313,6 +300,7 @@ export default function MediaSectionV2( {
 								currentSource={ currentSource }
 								onSelect={ handleSourceSelect }
 								onMediaLibraryClick={ handleMediaLibraryClick }
+								onAiImageClick={ toggleShowAiImageModal }
 								disabled={ disabled }
 							/>
 							{ currentSource === 'featured-image' && ! featuredImageId && (
@@ -327,6 +315,13 @@ export default function MediaSectionV2( {
 					) }
 				</BaseControl>
 			</div>
+			{ showAiImageModal && (
+				<GeneralPurposeImage
+					placement="social-media-dropdown"
+					onClose={ toggleShowAiImageModal }
+					onSetImage={ handleAiImageSelect }
+				/>
+			) }
 		</ThemeProvider>
 	);
 }

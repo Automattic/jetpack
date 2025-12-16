@@ -3,9 +3,11 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { Badge } from '@automattic/ui';
 import { ExternalLink, Modal } from '@wordpress/components';
 import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -19,6 +21,7 @@ import { useSearchParams } from 'react-router';
  * Internal dependencies
  */
 import useConfigValue from '../../../hooks/use-config-value.ts';
+import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
 import CreateFormButton from '../../components/create-form-button/index.tsx';
 import EmptyResponses from '../../components/empty-responses/index.tsx';
 import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
@@ -137,6 +140,23 @@ export default function InboxView() {
 		totalItems,
 		totalPages,
 	} = useInboxData();
+	const isAkismetStatusPending = useSelect(
+		select => {
+			const store = select( INTEGRATIONS_STORE );
+			const integrations = store.getIntegrations() || [];
+			const isIntegrationsLoading = store.isIntegrationsLoading();
+			const akismetIntegration = integrations.find( integration => integration.id === 'akismet' );
+
+			return (
+				statusFilter === 'spam' &&
+				! isSimpleSite() &&
+				( isIntegrationsLoading || ! akismetIntegration || akismetIntegration.__isPartial )
+			);
+		},
+		[ statusFilter ]
+	);
+
+	const isInboxLoading = isLoadingData || isAkismetStatusPending;
 
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
@@ -497,7 +517,7 @@ export default function InboxView() {
 				fields={ fields }
 				actions={ actions }
 				data={ records || EMPTY_ARRAY }
-				isLoading={ isLoadingData }
+				isLoading={ isInboxLoading }
 				view={ view }
 				onChangeView={ setView }
 				selection={ selection }

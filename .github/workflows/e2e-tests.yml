@@ -358,7 +358,7 @@ jobs:
           client-payload: ${{ steps.report-context.outputs.client_payload }}
 
       - name: Display link to test report in Action Summary
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             await core.summary

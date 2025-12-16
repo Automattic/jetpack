@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.4.5
+ * Stubs automatically generated from PHPUnit 12.5.4
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -495,7 +495,7 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
      * @throws Code\NoTestCaseObjectOnCallStackException
      * @throws UnknownEventTypeException
      */
-    public function testTriggeredPhpunitNotice(?\PHPUnit\Event\Code\Test $test, string $message): void
+    public function testTriggeredPhpunitNotice(\PHPUnit\Event\Code\Test $test, string $message): void
     {
     }
     /**
@@ -910,7 +910,7 @@ interface Emitter
     /**
      * @param non-empty-string $message
      */
-    public function testTriggeredPhpunitNotice(?\PHPUnit\Event\Code\Test $test, string $message): void;
+    public function testTriggeredPhpunitNotice(\PHPUnit\Event\Code\Test $test, string $message): void;
     /**
      * @param non-empty-string $message
      * @param non-empty-string $file
@@ -10705,9 +10705,13 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     {
     }
     /**
+     * @template RealInstanceType of object
+     *
+     * @param class-string<RealInstanceType> $type
+     *
      * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
-    final public function registerMockObject(\PHPUnit\Framework\MockObject\MockObject $mockObject): void
+    final public function registerMockObject(string $type, \PHPUnit\Framework\MockObject\MockObject $mockObject): void
     {
     }
     /**
@@ -10879,7 +10883,7 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      * Information for expected exception class, expected exception message, and
      * expected exception code are retrieved from a given Exception object.
      */
-    final protected function expectExceptionObject(\Exception $exception): void
+    final protected function expectExceptionObject(\Throwable $exception): void
     {
     }
     final protected function expectNotToPerformAssertions(): void
@@ -10990,6 +10994,18 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      * @throws \Throwable
      */
     protected function onNotSuccessfulTest(\Throwable $t): never
+    {
+    }
+    /**
+     * Returns a builder object to create test stubs using a fluent interface.
+     *
+     * @template RealInstanceType of object
+     *
+     * @param class-string<RealInstanceType> $className
+     *
+     * @return MockObject\TestStubBuilder<RealInstanceType>
+     */
+    final protected static function getStubBuilder(string $className): \PHPUnit\Framework\MockObject\TestStubBuilder
     {
     }
     /**
@@ -11342,6 +11358,15 @@ final readonly class AfterClass
     public function priority(): int
     {
     }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
+final readonly class AllowMockObjectsWithoutExpectations
+{
 }
 /**
  * @immutable
@@ -14027,7 +14052,7 @@ final class RuntimeException extends \RuntimeException implements \PHPUnit\Frame
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class MockBuilder
+final class MockBuilder extends \PHPUnit\Framework\MockObject\TestDoubleBuilder
 {
     /**
      * @param class-string|trait-string $type
@@ -14054,89 +14079,13 @@ final class MockBuilder
     {
     }
     /**
-     * Specifies the subset of methods to mock, requiring each to exist in the class.
-     *
-     * @param list<non-empty-string> $methods
-     *
-     * @throws CannotUseOnlyMethodsException
-     * @throws Generator\ReflectionException
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     */
-    public function onlyMethods(array $methods): self
-    {
-    }
-    /**
-     * Specifies the arguments for the constructor.
-     *
-     * @param array<mixed> $arguments
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     */
-    public function setConstructorArgs(array $arguments): self
-    {
-    }
-    /**
      * Specifies the name for the mock class.
      *
      * @param class-string $name
      *
      * @return $this
-     * @phan-return $this<MockedType>
      */
     public function setMockClassName(string $name): self
-    {
-    }
-    /**
-     * Disables the invocation of the original constructor.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     */
-    public function disableOriginalConstructor(): self
-    {
-    }
-    /**
-     * Enables the invocation of the original constructor.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     */
-    public function enableOriginalConstructor(): self
-    {
-    }
-    /**
-     * Disables the invocation of the original clone constructor.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     */
-    public function disableOriginalClone(): self
-    {
-    }
-    /**
-     * Enables the invocation of the original clone constructor.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     */
-    public function enableOriginalClone(): self
-    {
-    }
-    /**
-     * @return $this
-     * @phan-return $this<MockedType>
-     */
-    public function enableAutoReturnValueGeneration(): self
-    {
-    }
-    /**
-     * @return $this
-     * @phan-return $this<MockedType>
-     */
-    public function disableAutoReturnValueGeneration(): self
     {
     }
 }
@@ -14661,6 +14610,148 @@ final class ReturnValueGenerator
      * @throws Exception
      */
     public function generate(string $className, string $methodName, \PHPUnit\Framework\MockObject\StubInternal $testStub, string $returnType): mixed
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ * @template MockedType
+ */
+abstract class TestDoubleBuilder
+{
+    /**
+     * @var class-string|trait-string
+     */
+    protected readonly string $type;
+    /**
+     * @var list<non-empty-string>
+     */
+    protected array $methods = [];
+    protected bool $emptyMethodsArray = false;
+    /**
+     * @var array<mixed>
+     */
+    protected array $constructorArgs = [];
+    protected bool $originalConstructor = true;
+    protected bool $originalClone = true;
+    protected bool $returnValueGeneration = true;
+    /**
+     * @param class-string|trait-string $type
+     */
+    public function __construct(string $type)
+    {
+    }
+    /**
+     * Specifies the subset of methods to mock, requiring each to exist in the class.
+     *
+     * @param list<non-empty-string> $methods
+     *
+     * @throws CannotUseOnlyMethodsException
+     * @throws Generator\ReflectionException
+     *
+     * @return $this
+     * @phan-return $this<MockedType>
+     */
+    public function onlyMethods(array $methods): self
+    {
+    }
+    /**
+     * Specifies the arguments for the constructor.
+     *
+     * @param array<mixed> $arguments
+     *
+     * @return $this
+     * @phan-return $this<MockedType>
+     */
+    public function setConstructorArgs(array $arguments): self
+    {
+    }
+    /**
+     * Disables the invocation of the original constructor.
+     *
+     * @return $this
+     * @phan-return $this<MockedType>
+     */
+    public function disableOriginalConstructor(): self
+    {
+    }
+    /**
+     * Enables the invocation of the original constructor.
+     *
+     * @return $this
+     * @phan-return $this<MockedType>
+     */
+    public function enableOriginalConstructor(): self
+    {
+    }
+    /**
+     * Disables the invocation of the original clone constructor.
+     *
+     * @return $this
+     * @phan-return $this<MockedType>
+     */
+    public function disableOriginalClone(): self
+    {
+    }
+    /**
+     * Enables the invocation of the original clone constructor.
+     *
+     * @return $this
+     * @phan-return $this<MockedType>
+     */
+    public function enableOriginalClone(): self
+    {
+    }
+    /**
+     * @return $this
+     * @phan-return $this<MockedType>
+     */
+    public function enableAutoReturnValueGeneration(): self
+    {
+    }
+    /**
+     * @return $this
+     * @phan-return $this<MockedType>
+     */
+    public function disableAutoReturnValueGeneration(): self
+    {
+    }
+    protected function getTestDouble(?string $testDoubleClassName, bool $mockObject): \PHPUnit\Framework\MockObject\MockObject|\PHPUnit\Framework\MockObject\Stub
+    {
+    }
+}
+/**
+ * @template MockedType
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final class TestStubBuilder extends \PHPUnit\Framework\MockObject\TestDoubleBuilder
+{
+    /**
+     * Creates a test stub using a fluent interface.
+     *
+     * @throws Generator\ClassIsEnumerationException
+     * @throws Generator\ClassIsFinalException
+     * @throws Generator\DuplicateMethodException
+     * @throws Generator\InvalidMethodNameException
+     * @throws Generator\NameAlreadyInUseException
+     * @throws Generator\ReflectionException
+     * @throws Generator\RuntimeException
+     * @throws Generator\UnknownTypeException
+     *
+     * @return Stub&MockedType
+     */
+    public function getStub(): \PHPUnit\Framework\MockObject\Stub
+    {
+    }
+    /**
+     * Specifies the name for the mock class.
+     *
+     * @param class-string $name
+     *
+     * @return $this
+     */
+    public function setStubClassName(string $name): self
     {
     }
 }
@@ -17201,6 +17292,17 @@ final readonly class AfterClass extends \PHPUnit\Metadata\Metadata
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class AllowMockObjectsWithoutExpectations extends \PHPUnit\Metadata\Metadata
+{
+    public function isAllowMockObjectsWithoutExpectations(): true
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class BackupGlobals extends \PHPUnit\Metadata\Metadata
 {
     public function isBackupGlobals(): true
@@ -17641,6 +17743,12 @@ abstract readonly class Metadata
     public static function afterClass(int $priority): \PHPUnit\Metadata\AfterClass
     {
     }
+    public static function allowMockObjectsWithoutExpectationsOnClass(): \PHPUnit\Metadata\AllowMockObjectsWithoutExpectations
+    {
+    }
+    public static function allowMockObjectsWithoutExpectationsOnMethod(): \PHPUnit\Metadata\AllowMockObjectsWithoutExpectations
+    {
+    }
     public static function backupGlobalsOnClass(bool $enabled): \PHPUnit\Metadata\BackupGlobals
     {
     }
@@ -18037,6 +18145,12 @@ abstract readonly class Metadata
     {
     }
     /**
+     * @phpstan-assert-if-true AllowMockObjectsWithoutExpectations $this
+     */
+    public function isAllowMockObjectsWithoutExpectations(): bool
+    {
+    }
+    /**
      * @phpstan-assert-if-true BackupGlobals $this
      */
     public function isBackupGlobals(): bool
@@ -18405,6 +18519,9 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
     {
     }
     public function isAfterClass(): self
+    {
+    }
+    public function isAllowMockObjectsWithoutExpectations(): self
     {
     }
     public function isBackupGlobals(): self
@@ -19716,12 +19833,12 @@ final class TestSuiteLoader
  */
 final class TestSuiteSorter
 {
-    public const ORDER_DEFAULT = 0;
-    public const ORDER_RANDOMIZED = 1;
-    public const ORDER_REVERSED = 2;
-    public const ORDER_DEFECTS_FIRST = 3;
-    public const ORDER_DURATION = 4;
-    public const ORDER_SIZE = 5;
+    public const int ORDER_DEFAULT = 0;
+    public const int ORDER_RANDOMIZED = 1;
+    public const int ORDER_REVERSED = 2;
+    public const int ORDER_DEFECTS_FIRST = 3;
+    public const int ORDER_DURATION = 4;
+    public const int ORDER_SIZE = 5;
     public function __construct(?\PHPUnit\Runner\ResultCache\ResultCache $cache = null)
     {
     }
@@ -19771,7 +19888,7 @@ namespace PHPUnit\Runner\Baseline;
  */
 final class Baseline
 {
-    public const VERSION = 1;
+    public const int VERSION = 1;
     public function add(\PHPUnit\Runner\Baseline\Issue $issue): void
     {
     }
@@ -22035,13 +22152,25 @@ final readonly class Configuration
      * @param ?non-empty-list<non-empty-string>                    $coverageFilter
      * @param ?non-empty-list<non-empty-string>                    $extensions
      */
-    public function __construct(array $arguments, ?string $atLeastVersion, ?bool $backupGlobals, ?bool $backupStaticProperties, ?bool $beStrictAboutChangesToGlobalState, ?string $bootstrap, ?string $cacheDirectory, ?bool $cacheResult, bool $checkPhpConfiguration, bool $checkVersion, ?string $colors, null|int|string $columns, ?string $configurationFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4J, ?string $coverageHtml, ?string $coverageOpenClover, ?string $coveragePhp, ?string $coverageText, ?bool $coverageTextShowUncoveredFiles, ?bool $coverageTextShowOnlySummary, ?string $coverageXml, ?bool $pathCoverage, bool $warmCoverageCache, ?int $defaultTimeLimit, ?bool $disableCodeCoverageIgnore, ?bool $disallowTestOutput, ?bool $enforceTimeLimit, ?array $excludeGroups, ?int $executionOrder, ?int $executionOrderDefects, ?bool $failOnAllIssues, ?bool $failOnDeprecation, ?bool $failOnPhpunitDeprecation, ?bool $failOnPhpunitNotice, ?bool $failOnPhpunitWarning, ?bool $failOnEmptyTestSuite, ?bool $failOnIncomplete, ?bool $failOnNotice, ?bool $failOnRisky, ?bool $failOnSkipped, ?bool $failOnWarning, ?bool $doNotFailOnDeprecation, ?bool $doNotFailOnPhpunitDeprecation, ?bool $doNotFailOnPhpunitNotice, ?bool $doNotFailOnPhpunitWarning, ?bool $doNotFailOnEmptyTestSuite, ?bool $doNotFailOnIncomplete, ?bool $doNotFailOnNotice, ?bool $doNotFailOnRisky, ?bool $doNotFailOnSkipped, ?bool $doNotFailOnWarning, ?bool $stopOnDefect, ?bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, ?bool $stopOnError, ?bool $stopOnFailure, ?bool $stopOnIncomplete, ?bool $stopOnNotice, ?bool $stopOnRisky, ?bool $stopOnSkipped, ?bool $stopOnWarning, ?string $filter, ?string $excludeFilter, ?string $generateBaseline, ?string $useBaseline, bool $ignoreBaseline, bool $generateConfiguration, bool $migrateConfiguration, ?array $groups, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, bool $help, ?string $includePath, ?array $iniSettings, ?string $junitLogfile, ?string $otrLogfile, ?bool $includeGitInformation, bool $listGroups, bool $listSuites, bool $listTestFiles, bool $listTests, ?string $listTestsXml, ?bool $noCoverage, ?bool $noExtensions, ?bool $noOutput, ?bool $noProgress, ?bool $noResults, ?bool $noLogging, ?bool $processIsolation, ?int $randomOrderSeed, ?bool $reportUselessTests, ?bool $resolveDependencies, ?bool $reverseList, ?bool $stderr, ?bool $strictCoverage, ?string $teamcityLogfile, ?string $testdoxHtmlFile, ?string $testdoxTextFile, ?array $testSuffixes, ?string $testSuite, ?string $excludeTestSuite, bool $useDefaultConfiguration, ?bool $displayDetailsOnAllIssues, ?bool $displayDetailsOnIncompleteTests, ?bool $displayDetailsOnSkippedTests, ?bool $displayDetailsOnTestsThatTriggerDeprecations, ?bool $displayDetailsOnPhpunitDeprecations, ?bool $displayDetailsOnPhpunitNotices, ?bool $displayDetailsOnTestsThatTriggerErrors, ?bool $displayDetailsOnTestsThatTriggerNotices, ?bool $displayDetailsOnTestsThatTriggerWarnings, bool $version, ?array $coverageFilter, ?string $logEventsText, ?string $logEventsVerboseText, ?bool $printerTeamCity, ?bool $testdoxPrinter, ?bool $testdoxPrinterSummary, bool $debug, bool $withTelemetry, ?array $extensions)
+    public function __construct(array $arguments, ?bool $all, ?string $atLeastVersion, ?bool $backupGlobals, ?bool $backupStaticProperties, ?bool $beStrictAboutChangesToGlobalState, ?string $bootstrap, ?string $cacheDirectory, ?bool $cacheResult, bool $checkPhpConfiguration, bool $checkVersion, ?string $colors, null|int|string $columns, ?string $configurationFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4J, ?string $coverageHtml, ?string $coverageOpenClover, ?string $coveragePhp, ?string $coverageText, ?bool $coverageTextShowUncoveredFiles, ?bool $coverageTextShowOnlySummary, ?string $coverageXml, ?bool $coverageXmlIncludeSource, ?bool $pathCoverage, bool $warmCoverageCache, ?int $defaultTimeLimit, ?bool $disableCodeCoverageIgnore, ?bool $disallowTestOutput, ?bool $enforceTimeLimit, ?array $excludeGroups, ?int $executionOrder, ?int $executionOrderDefects, ?bool $failOnAllIssues, ?bool $failOnDeprecation, ?bool $failOnPhpunitDeprecation, ?bool $failOnPhpunitNotice, ?bool $failOnPhpunitWarning, ?bool $failOnEmptyTestSuite, ?bool $failOnIncomplete, ?bool $failOnNotice, ?bool $failOnRisky, ?bool $failOnSkipped, ?bool $failOnWarning, ?bool $doNotFailOnDeprecation, ?bool $doNotFailOnPhpunitDeprecation, ?bool $doNotFailOnPhpunitNotice, ?bool $doNotFailOnPhpunitWarning, ?bool $doNotFailOnEmptyTestSuite, ?bool $doNotFailOnIncomplete, ?bool $doNotFailOnNotice, ?bool $doNotFailOnRisky, ?bool $doNotFailOnSkipped, ?bool $doNotFailOnWarning, ?bool $stopOnDefect, ?bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, ?bool $stopOnError, ?bool $stopOnFailure, ?bool $stopOnIncomplete, ?bool $stopOnNotice, ?bool $stopOnRisky, ?bool $stopOnSkipped, ?bool $stopOnWarning, ?string $filter, ?string $excludeFilter, ?string $generateBaseline, ?string $useBaseline, bool $ignoreBaseline, bool $generateConfiguration, bool $migrateConfiguration, ?array $groups, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, bool $help, ?string $includePath, ?array $iniSettings, ?string $junitLogfile, ?string $otrLogfile, ?bool $includeGitInformation, bool $listGroups, bool $listSuites, bool $listTestFiles, bool $listTests, ?string $listTestsXml, ?bool $noCoverage, ?bool $noExtensions, ?bool $noOutput, ?bool $noProgress, ?bool $noResults, ?bool $noLogging, ?bool $processIsolation, ?int $randomOrderSeed, ?bool $reportUselessTests, ?bool $resolveDependencies, ?bool $reverseList, ?bool $stderr, ?bool $strictCoverage, ?string $teamcityLogfile, ?string $testdoxHtmlFile, ?string $testdoxTextFile, ?array $testSuffixes, ?string $testSuite, ?string $excludeTestSuite, bool $useDefaultConfiguration, ?bool $displayDetailsOnAllIssues, ?bool $displayDetailsOnIncompleteTests, ?bool $displayDetailsOnSkippedTests, ?bool $displayDetailsOnTestsThatTriggerDeprecations, ?bool $displayDetailsOnPhpunitDeprecations, ?bool $displayDetailsOnPhpunitNotices, ?bool $displayDetailsOnTestsThatTriggerErrors, ?bool $displayDetailsOnTestsThatTriggerNotices, ?bool $displayDetailsOnTestsThatTriggerWarnings, bool $version, ?array $coverageFilter, ?string $logEventsText, ?string $logEventsVerboseText, ?bool $printerTeamCity, ?bool $testdoxPrinter, ?bool $testdoxPrinterSummary, bool $debug, bool $withTelemetry, ?array $extensions)
     {
     }
     /**
      * @return list<non-empty-string>
      */
     public function arguments(): array
+    {
+    }
+    /**
+     * @phpstan-assert-if-true !null $this->all
+     */
+    public function hasAll(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function all(): bool
     {
     }
     /**
@@ -22302,6 +22431,18 @@ final readonly class Configuration
      * @throws Exception
      */
     public function coverageXml(): string
+    {
+    }
+    /**
+     * @phpstan-assert-if-true !null $this->excludeSourceFromXmlCoverage
+     */
+    public function hasExcludeSourceFromXmlCoverage(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function excludeSourceFromXmlCoverage(): bool
     {
     }
     /**
@@ -23640,10 +23781,10 @@ final readonly class WarmCodeCoverageCacheCommand implements \PHPUnit\TextUI\Com
  */
 final readonly class Result
 {
-    public const SUCCESS = 0;
-    public const FAILURE = 1;
-    public const EXCEPTION = 2;
-    public const CRASH = 255;
+    public const int SUCCESS = 0;
+    public const int FAILURE = 1;
+    public const int EXCEPTION = 2;
+    public const int CRASH = 255;
     public static function from(string $output = '', int $shellExitCode = self::SUCCESS): self
     {
     }
@@ -23726,10 +23867,10 @@ final class CodeCoverageFilterRegistry
  */
 final readonly class Configuration
 {
-    public const COLOR_NEVER = 'never';
-    public const COLOR_AUTO = 'auto';
-    public const COLOR_ALWAYS = 'always';
-    public const COLOR_DEFAULT = self::COLOR_NEVER;
+    public const string COLOR_NEVER = 'never';
+    public const string COLOR_AUTO = 'auto';
+    public const string COLOR_ALWAYS = 'always';
+    public const string COLOR_DEFAULT = self::COLOR_NEVER;
     /**
      * @param list<non-empty-string>                                                      $cliArguments
      * @param array<non-empty-string, non-empty-string>                                   $bootstrapForTestSuite
@@ -23744,7 +23885,7 @@ final readonly class Configuration
      * @param null|non-empty-string                                                       $generateBaseline
      * @param non-negative-int                                                            $shortenArraysForExportThreshold
      */
-    public function __construct(array $cliArguments, ?string $configurationFile, ?string $bootstrap, array $bootstrapForTestSuite, bool $cacheResult, ?string $cacheDirectory, ?string $coverageCacheDirectory, \PHPUnit\TextUI\Configuration\Source $source, string $testResultCacheFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4j, int $coverageCrap4jThreshold, ?string $coverageHtml, int $coverageHtmlLowUpperBound, int $coverageHtmlHighLowerBound, string $coverageHtmlColorSuccessLow, string $coverageHtmlColorSuccessMedium, string $coverageHtmlColorSuccessHigh, string $coverageHtmlColorWarning, string $coverageHtmlColorDanger, ?string $coverageHtmlCustomCssFile, ?string $coverageOpenClover, ?string $coveragePhp, ?string $coverageText, bool $coverageTextShowUncoveredFiles, bool $coverageTextShowOnlySummary, ?string $coverageXml, bool $pathCoverage, bool $ignoreDeprecatedCodeUnitsFromCodeCoverage, bool $disableCodeCoverageIgnore, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnPhpunitWarning, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $doNotFailOnDeprecation, bool $doNotFailOnPhpunitDeprecation, bool $doNotFailOnPhpunitNotice, bool $doNotFailOnPhpunitWarning, bool $doNotFailOnEmptyTestSuite, bool $doNotFailOnIncomplete, bool $doNotFailOnNotice, bool $doNotFailOnRisky, bool $doNotFailOnSkipped, bool $doNotFailOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, bool $outputToStandardErrorStream, int $columns, bool $noExtensions, ?string $pharExtensionDirectory, array $extensionBootstrappers, bool $backupGlobals, bool $backupStaticProperties, bool $beStrictAboutChangesToGlobalState, bool $colors, bool $processIsolation, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, bool $reportUselessTests, bool $strictCoverage, bool $disallowTestOutput, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, bool $noProgress, bool $noResults, bool $noOutput, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies, ?string $logfileTeamcity, ?string $logfileJunit, ?string $logfileOtr, bool $includeGitInformationInOtrLogfile, ?string $logfileTestdoxHtml, ?string $logfileTestdoxText, ?string $logEventsText, ?string $logEventsVerboseText, bool $teamCityOutput, bool $testDoxOutput, bool $testDoxOutputSummary, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, ?string $filter, ?string $excludeFilter, array $groups, array $excludeGroups, int $randomOrderSeed, bool $includeUncoveredFiles, \PHPUnit\TextUI\Configuration\TestSuiteCollection $testSuite, string $includeTestSuite, string $excludeTestSuite, ?string $defaultTestSuite, array $testSuffixes, \PHPUnit\TextUI\Configuration\Php $php, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, ?string $generateBaseline, bool $debug, bool $withTelemetry, int $shortenArraysForExportThreshold)
+    public function __construct(array $cliArguments, ?string $configurationFile, ?string $bootstrap, array $bootstrapForTestSuite, bool $cacheResult, ?string $cacheDirectory, ?string $coverageCacheDirectory, \PHPUnit\TextUI\Configuration\Source $source, string $testResultCacheFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4j, int $coverageCrap4jThreshold, ?string $coverageHtml, int $coverageHtmlLowUpperBound, int $coverageHtmlHighLowerBound, string $coverageHtmlColorSuccessLow, string $coverageHtmlColorSuccessMedium, string $coverageHtmlColorSuccessHigh, string $coverageHtmlColorWarning, string $coverageHtmlColorDanger, ?string $coverageHtmlCustomCssFile, ?string $coverageOpenClover, ?string $coveragePhp, ?string $coverageText, bool $coverageTextShowUncoveredFiles, bool $coverageTextShowOnlySummary, ?string $coverageXml, bool $coverageXmlIncludeSource, bool $pathCoverage, bool $ignoreDeprecatedCodeUnitsFromCodeCoverage, bool $disableCodeCoverageIgnore, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnPhpunitWarning, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $doNotFailOnDeprecation, bool $doNotFailOnPhpunitDeprecation, bool $doNotFailOnPhpunitNotice, bool $doNotFailOnPhpunitWarning, bool $doNotFailOnEmptyTestSuite, bool $doNotFailOnIncomplete, bool $doNotFailOnNotice, bool $doNotFailOnRisky, bool $doNotFailOnSkipped, bool $doNotFailOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, bool $outputToStandardErrorStream, int $columns, bool $noExtensions, ?string $pharExtensionDirectory, array $extensionBootstrappers, bool $backupGlobals, bool $backupStaticProperties, bool $beStrictAboutChangesToGlobalState, bool $colors, bool $processIsolation, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, bool $reportUselessTests, bool $strictCoverage, bool $disallowTestOutput, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, bool $noProgress, bool $noResults, bool $noOutput, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies, ?string $logfileTeamcity, ?string $logfileJunit, ?string $logfileOtr, bool $includeGitInformationInOtrLogfile, ?string $logfileTestdoxHtml, ?string $logfileTestdoxText, ?string $logEventsText, ?string $logEventsVerboseText, bool $teamCityOutput, bool $testDoxOutput, bool $testDoxOutputSummary, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, ?string $filter, ?string $excludeFilter, array $groups, array $excludeGroups, int $randomOrderSeed, bool $includeUncoveredFiles, \PHPUnit\TextUI\Configuration\TestSuiteCollection $testSuite, string $includeTestSuite, string $excludeTestSuite, ?string $defaultTestSuite, bool $ignoreTestSelectionInXmlConfiguration, array $testSuffixes, \PHPUnit\TextUI\Configuration\Php $php, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, ?string $generateBaseline, bool $debug, bool $withTelemetry, int $shortenArraysForExportThreshold)
     {
     }
     /**
@@ -23970,6 +24111,9 @@ final readonly class Configuration
      * @throws CodeCoverageReportNotConfiguredException
      */
     public function coverageXml(): string
+    {
+    }
+    public function coverageXmlIncludeSource(): bool
     {
     }
     public function failOnAllIssues(): bool
@@ -24426,6 +24570,9 @@ final readonly class Configuration
      * @throws NoDefaultTestSuiteException
      */
     public function defaultTestSuite(): string
+    {
+    }
+    public function ignoreTestSelectionInXmlConfiguration(): bool
     {
     }
     /**
@@ -25894,6 +26041,9 @@ final class ProgressPrinter
     public function testTriggeredPhpunitDeprecation(): void
     {
     }
+    public function testTriggeredPhpunitNotice(): void
+    {
+    }
     public function testConsideredRisky(): void
     {
     }
@@ -26120,6 +26270,17 @@ final readonly class TestTriggeredPhpWarningSubscriber extends \PHPUnit\TextUI\O
 final readonly class TestTriggeredPhpunitDeprecationSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\PhpunitDeprecationTriggeredSubscriber
 {
     public function notify(\PHPUnit\Event\Test\PhpunitDeprecationTriggered $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestTriggeredPhpunitNoticeSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\PhpunitNoticeTriggeredSubscriber
+{
+    public function notify(\PHPUnit\Event\Test\PhpunitNoticeTriggered $event): void
     {
     }
 }
@@ -27497,10 +27658,13 @@ final readonly class Text
  */
 final readonly class Xml
 {
-    public function __construct(\PHPUnit\TextUI\Configuration\Directory $target)
+    public function __construct(\PHPUnit\TextUI\Configuration\Directory $target, bool $includeSource)
     {
     }
     public function target(): \PHPUnit\TextUI\Configuration\Directory
+    {
+    }
+    public function includeSource(): bool
     {
     }
 }
@@ -28887,23 +29051,23 @@ abstract class Driver
     /**
      * @see http://xdebug.org/docs/code_coverage
      */
-    public const LINE_NOT_EXECUTABLE = -2;
+    public const int LINE_NOT_EXECUTABLE = -2;
     /**
      * @see http://xdebug.org/docs/code_coverage
      */
-    public const LINE_NOT_EXECUTED = -1;
+    public const int LINE_NOT_EXECUTED = -1;
     /**
      * @see http://xdebug.org/docs/code_coverage
      */
-    public const LINE_EXECUTED = 1;
+    public const int LINE_EXECUTED = 1;
     /**
      * @see http://xdebug.org/docs/code_coverage
      */
-    public const BRANCH_NOT_HIT = 0;
+    public const int BRANCH_NOT_HIT = 0;
     /**
      * @see http://xdebug.org/docs/code_coverage
      */
-    public const BRANCH_HIT = 1;
+    public const int BRANCH_HIT = 1;
     public function canCollectBranchAndPathCoverage(): bool
     {
     }
@@ -29648,7 +29812,7 @@ namespace SebastianBergmann\CodeCoverage\Report\Xml;
  */
 final readonly class BuildInformation
 {
-    public function __construct(\DOMElement $contextNode, \SebastianBergmann\Environment\Runtime $runtime, \DateTimeImmutable $buildDate, string $phpUnitVersion, string $coverageVersion)
+    public function __construct(\XMLWriter $xmlWriter, \SebastianBergmann\Environment\Runtime $runtime, \DateTimeImmutable $buildDate, string $phpUnitVersion, string $coverageVersion)
     {
     }
 }
@@ -29657,7 +29821,7 @@ final readonly class BuildInformation
  */
 final class Coverage
 {
-    public function __construct(\DOMElement $context, string $line)
+    public function __construct(\XMLWriter $xmlWriter, string $line)
     {
     }
     public function finalize(array $tests): void
@@ -29675,7 +29839,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
  */
 final class Facade
 {
-    public const XML_NAMESPACE = 'https://schema.phpunit.de/coverage/1.0';
+    public const string XML_NAMESPACE = 'https://schema.phpunit.de/coverage/1.0';
     public function __construct(string $version, bool $includeSource = true)
     {
     }
@@ -29691,8 +29855,11 @@ final class Facade
  */
 class File
 {
-    protected readonly \DOMDocument $dom;
-    public function __construct(\DOMElement $context)
+    protected \XMLWriter $xmlWriter;
+    public function __construct(\XMLWriter $xmlWriter)
+    {
+    }
+    public function getWriter(): \XMLWriter
     {
     }
     public function totals(): \SebastianBergmann\CodeCoverage\Report\Xml\Totals
@@ -29701,16 +29868,13 @@ class File
     public function lineCoverage(string $line): \SebastianBergmann\CodeCoverage\Report\Xml\Coverage
     {
     }
-    protected function contextNode(): \DOMElement
-    {
-    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final readonly class Method
 {
-    public function __construct(\DOMElement $context, string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap)
+    public function __construct(\XMLWriter $xmlWriter, string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap)
     {
     }
 }
@@ -29719,20 +29883,20 @@ final readonly class Method
  */
 abstract class Node
 {
-    protected readonly \DOMDocument $dom;
-    public function __construct(\DOMElement $context)
+    protected readonly \XMLWriter $xmlWriter;
+    public function __construct(\XMLWriter $xmlWriter)
     {
     }
     public function totals(): \SebastianBergmann\CodeCoverage\Report\Xml\Totals
     {
     }
-    public function addDirectory(string $name): \SebastianBergmann\CodeCoverage\Report\Xml\Directory
+    public function addDirectory(): \SebastianBergmann\CodeCoverage\Report\Xml\Directory
     {
     }
-    public function addFile(string $name, string $href, string $hash): \SebastianBergmann\CodeCoverage\Report\Xml\File
+    public function addFile(): \SebastianBergmann\CodeCoverage\Report\Xml\File
     {
     }
-    protected function contextNode(): \DOMElement
+    public function getWriter(): \XMLWriter
     {
     }
 }
@@ -29741,7 +29905,7 @@ abstract class Node
  */
 final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
 {
-    public function __construct(string $directory)
+    public function __construct(\XMLWriter $xmlWriter, string $directory)
     {
     }
     public function projectSourceDirectory(): string
@@ -29753,7 +29917,13 @@ final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
     public function tests(): \SebastianBergmann\CodeCoverage\Report\Xml\Tests
     {
     }
-    public function asDom(): \DOMDocument
+    public function getWriter(): \XMLWriter
+    {
+    }
+    public function startProject(): void
+    {
+    }
+    public function finalize(): void
     {
     }
 }
@@ -29762,10 +29932,10 @@ final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
  */
 final class Report extends \SebastianBergmann\CodeCoverage\Report\Xml\File
 {
-    public function __construct(string $name, string $sha1)
+    public function __construct(\XMLWriter $xmlWriter, string $name, string $sha1)
     {
     }
-    public function asDom(): \DOMDocument
+    public function finalize(): void
     {
     }
     public function functionObject(string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap): void
@@ -29786,7 +29956,7 @@ final class Report extends \SebastianBergmann\CodeCoverage\Report\Xml\File
  */
 final readonly class Source
 {
-    public function __construct(\DOMElement $context)
+    public function __construct(\XMLWriter $xmlWriter)
     {
     }
     public function setSourceCode(string $source): void
@@ -29800,7 +29970,7 @@ final readonly class Source
  */
 final readonly class Tests
 {
-    public function __construct(\DOMElement $context)
+    public function __construct(\XMLWriter $xmlWriter)
     {
     }
     /**
@@ -29815,7 +29985,7 @@ final readonly class Tests
  */
 final readonly class Totals
 {
-    public function __construct(\DOMElement $container)
+    public function __construct(\XMLWriter $xmlWriter)
     {
     }
     public function setNumLines(int $loc, int $cloc, int $ncloc, int $executable, int $executed): void
@@ -29833,13 +30003,16 @@ final readonly class Totals
     public function setNumFunctions(int $count, int $tested): void
     {
     }
+    public function getWriter(): \XMLWriter
+    {
+    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final readonly class Unit
 {
-    public function __construct(\DOMElement $context, string $name, string $namespace, int $start, int $executable, int $executed, float $crap)
+    public function __construct(\XMLWriter $xmlWriter, string $name, string $namespace, int $start, int $executable, int $executed, float $crap)
     {
     }
     public function addMethod(string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap): void
@@ -31805,11 +31978,11 @@ final class Diff implements \IteratorAggregate
 }
 final class Differ
 {
-    public const OLD = 0;
-    public const ADDED = 1;
-    public const REMOVED = 2;
-    public const DIFF_LINE_END_WARNING = 3;
-    public const NO_LINE_END_EOF_WARNING = 4;
+    public const int OLD = 0;
+    public const int ADDED = 1;
+    public const int REMOVED = 2;
+    public const int DIFF_LINE_END_WARNING = 3;
+    public const int NO_LINE_END_EOF_WARNING = 4;
     public function __construct(\SebastianBergmann\Diff\Output\DiffOutputBuilderInterface $outputBuilder)
     {
     }
@@ -31842,9 +32015,9 @@ class InvalidArgumentException extends \InvalidArgumentException implements \Seb
 }
 final class Line
 {
-    public const ADDED = 1;
-    public const REMOVED = 2;
-    public const UNCHANGED = 3;
+    public const int ADDED = 1;
+    public const int REMOVED = 2;
+    public const int UNCHANGED = 3;
     public function __construct(int $type = self::UNCHANGED, string $content = '')
     {
     }
@@ -31969,15 +32142,15 @@ final class Console
     /**
      * @var int
      */
-    public const STDIN = 0;
+    public const int STDIN = 0;
     /**
      * @var int
      */
-    public const STDOUT = 1;
+    public const int STDOUT = 1;
     /**
      * @var int
      */
-    public const STDERR = 2;
+    public const int STDERR = 2;
     /**
      * Returns true if STDOUT supports colorization.
      *
@@ -32241,8 +32414,8 @@ final class Factory
  */
 final class Iterator extends \FilterIterator
 {
-    public const PREFIX = 0;
-    public const SUFFIX = 1;
+    public const int PREFIX = 0;
+    public const int SUFFIX = 1;
     /**
      * @param list<string> $suffixes
      * @param list<string> $prefixes

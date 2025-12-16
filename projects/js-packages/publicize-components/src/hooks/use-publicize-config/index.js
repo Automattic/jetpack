@@ -7,7 +7,6 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { getSocialScriptData } from '../../utils';
 import { usePostMeta } from '../use-post-meta';
 
 const republicizeFeatureName = 'republicize';
@@ -25,7 +24,6 @@ export default function usePublicizeConfig() {
 		isJetpackSite || getJetpackExtensionAvailability( republicizeFeatureName )?.available;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const { isUserConnected } = useConnection();
-	const { urls } = getSocialScriptData();
 
 	/*
 	 * isPublicizeEnabledMeta:
@@ -90,7 +88,6 @@ export default function usePublicizeConfig() {
 		hidePublicizeFeature,
 		isPostAlreadyShared,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
-		connectionsPageUrl: urls.connectionsManagementPage,
 		needsUserConnection,
 	};
 }

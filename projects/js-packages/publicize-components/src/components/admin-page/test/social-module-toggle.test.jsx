@@ -7,7 +7,6 @@ describe( 'SocialModuleToggle', () => {
 		mockScriptData( {
 			social: {
 				urls: { connectionsManagementPage: 'https://example.com/connections' },
-				feature_flags: { useAdminUiV1: true },
 				is_publicize_enabled: true,
 			},
 		} );
@@ -21,20 +20,6 @@ describe( 'SocialModuleToggle', () => {
 		render( <SocialModuleToggle /> );
 
 		expect( screen.queryByText( /Manage social media connections/i ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'should render legacy UI when useAdminUiV1 is false', () => {
-		mockScriptData( {
-			social: {
-				urls: { connectionsManagementPage: 'https://example.com/connections' },
-				feature_flags: { useAdminUiV1: false },
-			},
-		} );
-
-		render( <SocialModuleToggle /> );
-
-		expect( screen.getByText( /Manage social media connections/i ) ).toBeInTheDocument();
-		expect( screen.getByText( /Manage social media connections/i ) ).toBeEnabled();
 	} );
 
 	it( 'should show upgrade trigger when no paid features', () => {

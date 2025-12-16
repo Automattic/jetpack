@@ -39,6 +39,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public $shortcode_name = 'contact-form';
 
 	/**
+	 * The custom post type for forms.
+	 *
+	 * @var string
+	 */
+	const POST_TYPE = 'jetpack_form';
+
+	/**
 	 *
 	 * Stores form submission errors.
 	 *
@@ -175,7 +182,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$this->hash = sha1(
 			wp_json_encode(
 				$attributes,
-				0 // No `json_encode()` flags because we don't want to disrupt the current hash index.
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because we don't want to disrupt the current hash index.
 			)
 		);
 
@@ -324,7 +331,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			// Determine which cipher was used (stored in JWT or default to GCM)
-			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'AES-256-GCM';
+			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'aes-256-gcm';
 
 			// Check if the cipher is available on this server
 			$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
@@ -333,7 +340,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			// Determine IV and tag sizes based on cipher
-			$is_gcm = strpos( $cipher, 'GCM' ) !== false;
+			$is_gcm = stripos( $cipher, 'gcm' ) !== false;
 			if ( $is_gcm ) {
 				// GCM: 12-byte IV + 16-byte tag + ciphertext
 				if ( strlen( $encrypted_blob ) < 29 ) { // 12 + 16 + at least 1 byte
@@ -388,7 +395,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				// create a fallback source
 				$source = array(
 					'source_id'   => $post->ID,
-					'entry_title' => $post->post_title,
+					'entry_title' => html_entity_decode( $post->post_title, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 					'entry_page'  => 1,
 					'source_type' => 'single',
 					'request_url' => get_permalink( $post ),
@@ -453,6 +460,73 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return;
 		}
 		self::$forms_context[ $context ] = self::get_forms_context_count( $context ) + 1;
+	}
+
+	/**
+	 * Register the jetpack_form custom post type.
+	 */
+	public static function register_post_type() {
+
+		$labels = array(
+			'name'                     => __( 'Forms', 'jetpack-forms' ),
+			'singular_name'            => __( 'Form', 'jetpack-forms' ),
+			'add_new'                  => __( 'Add Form', 'jetpack-forms' ),
+			'add_new_item'             => __( 'Add Form', 'jetpack-forms' ),
+			'new_item'                 => __( 'New Form', 'jetpack-forms' ),
+			'edit_item'                => __( 'Edit Block Form', 'jetpack-forms' ),
+			'view_item'                => __( 'View Form', 'jetpack-forms' ),
+			'view_items'               => __( 'View Forms', 'jetpack-forms' ),
+			'all_items'                => __( 'All Forms', 'jetpack-forms' ),
+			'search_items'             => __( 'Search Forms', 'jetpack-forms' ),
+			'not_found'                => __( 'No forms found.', 'jetpack-forms' ),
+			'not_found_in_trash'       => __( 'No forms found in Trash.', 'jetpack-forms' ),
+			'filter_items_list'        => __( 'Filter forms list', 'jetpack-forms' ),
+			'items_list_navigation'    => __( 'Forms list navigation', 'jetpack-forms' ),
+			'items_list'               => __( 'Forms list', 'jetpack-forms' ),
+			'item_published'           => __( 'Form published.', 'jetpack-forms' ),
+			'item_published_privately' => __( 'Form published privately.', 'jetpack-forms' ),
+			'item_reverted_to_draft'   => __( 'Form reverted to draft.', 'jetpack-forms' ),
+			'item_scheduled'           => __( 'Form scheduled.', 'jetpack-forms' ),
+			'item_updated'             => __( 'Form updated.', 'jetpack-forms' ),
+		);
+
+		$capabilities = array(
+			// You need to be able to edit posts, in order to read blocks in their raw form.
+			'read'                   => 'edit_posts',
+			// You need to be able to publish posts, in order to create blocks.
+			'create_posts'           => 'publish_posts',
+			'edit_posts'             => 'edit_posts',
+			'edit_published_posts'   => 'edit_published_posts',
+			'delete_published_posts' => 'delete_published_posts',
+			// Enables trashing draft posts as well.
+			'delete_posts'           => 'delete_posts',
+			'edit_others_posts'      => 'edit_others_posts',
+			'delete_others_posts'    => 'delete_others_posts',
+		);
+
+		$args = array(
+			'public'                => false,
+			'show_ui'               => true, // not sure we need this.
+			'show_in_menu'          => false,
+			'rewrite'               => false,
+			'query_var'             => false,
+			'show_in_rest'          => true,
+			'rest_base'             => 'jetpack-forms',
+			'rest_controller_class' => 'Automattic\Jetpack\Forms\ContactForm\Jetpack_Form_Endpoint',
+			'capability_type'       => 'post',
+			'capabilities'          => $capabilities,
+			'map_meta_cap'          => true,
+			'labels'                => $labels,
+			'hierarchical'          => false,
+			'supports'              => array(
+				'title',
+				'editor',
+				'revisions',
+				'author',
+			),
+		);
+
+		register_post_type( self::POST_TYPE, $args );
 	}
 
 	/**
@@ -554,22 +628,41 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Content, hash, and source are not sensitive and can remain unencrypted
 
 		// Check cipher availability with fallback support
-		$cipher                   = 'AES-256-GCM';
-		$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
+		$available_cipher_methods = openssl_get_cipher_methods();
+		$cipher                   = null;
+		$cipher_fallback          = null;
 		$use_encryption           = false;
 		$iv_length                = 12; // Default for GCM
 
-		if ( in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
-			$use_encryption = true;
-			// IV length already set to 12 (NIST recommended for AES-GCM)
-		} else {
-			// Try fallback to AES-256-CBC
-			$cipher = 'AES-256-CBC';
-			if ( in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
+		// Try to find AES-256-GCM first (case-insensitive search)
+		foreach ( $available_cipher_methods as $method ) {
+			if ( strtolower( $method ) === 'aes-256-gcm' ) {
+				$cipher         = $method; // Use the actual name with original casing
 				$use_encryption = true;
-				$iv_length      = 16; // 16-byte (128-bit) IV for AES-CBC
+				// IV length already set to 12 (NIST recommended for AES-GCM)
+				break;
+			}
+			// If AES-256-GCM not found, try fallback to AES-256-CBC
+			if ( strtolower( $method ) === 'aes-256-cbc' ) {
+				$cipher_fallback = $method; // Use the actual name with original casing
+				$use_encryption  = true;
 			}
 		}
+
+		// Use the fallback cipher if the primary cipher is not available.
+		if ( $cipher === null && $cipher_fallback !== null ) {
+			$cipher    = $cipher_fallback;
+			$iv_length = 16; // 16-byte (128-bit) IV for AES-CBC
+		}
+
+		// Lazy fallback payload in case encryption fails or is unavailable.
+		$unencrypted_payload = array(
+			'attributes' => $attributes,
+			'content'    => $this->content,
+			'hash'       => $this->hash,
+			'source'     => $this->source->serialize(),
+			// No version field = version 1 (unencrypted)
+		);
 
 		if ( $use_encryption ) {
 			$iv        = random_bytes( $iv_length );
@@ -587,11 +680,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 
 			if ( $encrypted === false ) {
-				throw new \Exception( 'Failed to encrypt JWT payload' );
+				do_action( 'jetpack_forms_log', 'jwt_encryption_failed', openssl_error_string() );
+				return JWT::encode( $unencrypted_payload, $jwt_signing_key );
 			}
-
 			// For GCM, include the authentication tag; for CBC, tag will be empty
-			$encrypted_blob = strpos( $cipher, 'GCM' ) !== false ? $iv . $tag . $encrypted : $iv . $encrypted;
+			$encrypted_blob = stripos( $cipher, 'GCM' ) !== false ? $iv . $tag . $encrypted : $iv . $encrypted;
 
 			return JWT::encode(
 				array(
@@ -604,19 +697,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				),
 				$jwt_signing_key
 			);
-		} else {
-			// No encryption available - fall back to version 1 format (unencrypted)
-			return JWT::encode(
-				array(
-					'attributes' => $attributes,
-					'content'    => $this->content,
-					'hash'       => $this->hash,
-					'source'     => $this->source->serialize(),
-					// No version field = version 1 (unencrypted)
-				),
-				$jwt_signing_key
-			);
 		}
+
+		// No encryption available - fall back to version 1 format (unencrypted)
+		return JWT::encode( $unencrypted_payload, $jwt_signing_key );
 	}
 
 	/**
@@ -2539,7 +2623,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'success'     => true,
 					'data'        => $data,
 					'refreshArgs' => $refresh_args,
-				)
+				),
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 

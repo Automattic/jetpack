@@ -885,7 +885,16 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertTrue( isset( $result[ $prefix_meta . 'Consent' ] ) );
 		$this->assertTrue( isset( $result[ $prefix_meta . 'IP Address' ] ) );
 		$this->assertTrue( isset( $result[ $prefix_meta . 'Browser' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Country code' ] ) );
 
+		// check that none of the fields are null
+		$fields = array_keys( $result );
+
+		foreach ( $fields as $field ) {
+			foreach ( $result[ $field ] as $index => $value ) {
+				$this->assertNotNull( $value, "Field {$field}[{$index}] should not be null." );
+			}
+		}
 		$equals = array(
 			'Name'    => array( 'Test "Quotes" User' ),
 			'Text'    => array( 'test@example.com' ),
@@ -988,6 +997,63 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
 		Contact_Form_Plugin::recalculate_unread_count();
 		$this->assertSame( 0, Contact_Form_Plugin::get_unread_count() );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns true when flag is enabled
+	 */
+	public function test_has_editor_feature_flag_enabled() {
+		add_filter(
+			'jetpack_block_editor_feature_flags',
+			function ( $flags ) {
+				$flags['central-form-management'] = true;
+				return $flags;
+			}
+		);
+
+		$this->assertTrue( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) );
+
+		remove_all_filters( 'jetpack_block_editor_feature_flags' );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns false when flag is disabled
+	 */
+	public function test_has_editor_feature_flag_disabled() {
+		add_filter(
+			'jetpack_block_editor_feature_flags',
+			function ( $flags ) {
+				$flags['central-form-management'] = false;
+				return $flags;
+			}
+		);
+
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) );
+
+		remove_all_filters( 'jetpack_block_editor_feature_flags' );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns false when flag does not exist
+	 */
+	public function test_has_editor_feature_flag_not_set() {
+		add_filter(
+			'jetpack_block_editor_feature_flags',
+			function ( $flags ) {
+				return $flags;
+			}
+		);
+
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'non-existent-flag' ) );
+
+		remove_all_filters( 'jetpack_block_editor_feature_flags' );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns false when no filter is applied
+	 */
+	public function test_has_editor_feature_flag_no_filter() {
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'any-flag' ) );
 	}
 
 	/**

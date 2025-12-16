@@ -24,6 +24,7 @@ class WooCommerce_Products extends Module {
 	 * Constructor.
 	 */
 	public function __construct() {
+		_deprecated_class( 'WooCommerce_Products', '4.24.0', 'Automattic\Jetpack\Sync\Modules\Posts' );
 		// Preprocess action to be sent by Jetpack sync for wp_delete_post.
 		add_action( 'delete_post', array( $this, 'action_wp_delete_post' ), 10, 1 );
 		add_action( 'trashed_post', array( $this, 'action_wp_trash_post' ), 10, 1 );

@@ -241,7 +241,7 @@ export const GooglePhotosLogo = () => {
 	);
 };
 
-export const JetpackLogo = ( { size = 24, border = 0, className, color = COLOR_JETPACK } ) => {
+export const JetpackLogo = ( { size = 24, border = 0, className = '', color = COLOR_JETPACK } ) => {
 	const borderOffset = border ? ( -border / size ) * 32 : 0;
 
 	return (

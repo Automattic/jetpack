@@ -107,7 +107,7 @@ class Jetpack_Shortcodes_Mixcloud_Test extends WP_UnitTestCase {
 				'response' => array(
 					'code' => 200,
 				),
-				'body'     => wp_json_encode( $body_object ),
+				'body'     => wp_json_encode( $body_object, JSON_UNESCAPED_SLASHES ),
 			);
 		};
 
@@ -140,7 +140,7 @@ class Jetpack_Shortcodes_Mixcloud_Test extends WP_UnitTestCase {
 				'response' => array(
 					'code' => 200,
 				),
-				'body'     => wp_json_encode( $body_object ),
+				'body'     => wp_json_encode( $body_object, JSON_UNESCAPED_SLASHES ),
 			);
 		};
 

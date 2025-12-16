@@ -73,7 +73,7 @@ class Jetpack_Google_Analytics_Test extends TestCase {
 			md5(
 				'googleanalytics' . wp_json_encode(
 					$config_data,
-					0 // No `json_encode()` flags because we don't want to disrupt the current hash index.
+					0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because we don't want to disrupt the current hash index.
 				)
 			),
 			0,
@@ -151,11 +151,12 @@ class Jetpack_Google_Analytics_Test extends TestCase {
 		// GA code is only inserted in non-admin screens.
 		set_current_screen( 'front' );
 
-		// Mock `Jetpack_Google_Analytics_Legacy` instance to disable the constructor class.
-		$instance = $this->getMockBuilder( Legacy::class )
-			->onlyMethods( array() )
-			->disableOriginalConstructor()
-			->getMock();
+		// Subclass `Jetpack_Google_Analytics_Legacy` instance to disable the constructor class.
+		// PHPUnit 12.5 whines about mocks without expectations, while getStubBuilder() (for partial stubs) doesn't exist until 12.5.
+		$instance = new class() extends Legacy {
+			public function __construct() {
+			}
+		};
 
 		ob_start();
 		$instance->insert_code();

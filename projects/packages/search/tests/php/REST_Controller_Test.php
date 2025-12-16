@@ -41,7 +41,7 @@ class REST_Controller_Test extends Search_TestCase {
 
 		wp_set_current_user( 0 );
 
-		$plan = $this->createMock( Plan::class );
+		$plan = $this->createStub( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( true );
 		$plan->method( 'supports_instant_search' )->willReturn( true );
 

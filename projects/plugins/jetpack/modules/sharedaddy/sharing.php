@@ -375,7 +375,7 @@ class Sharing_Admin {
 	</div>
 
 	<script type="text/javascript">
-		var sharing_loading_icon = '<?php echo esc_js( admin_url( '/images/loading.gif' ) ); ?>';
+		var sharing_loading_icon = <?php echo wp_json_encode( admin_url( '/images/loading.gif' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		<?php
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- we handle the nonce on the PHP side.
 		if (
@@ -385,9 +385,9 @@ class Sharing_Admin {
 			?>
 		jQuery(document).ready(function() {
 			// Prefill new service box and then open it
-			jQuery( '#new_sharing_name' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['name'] ) ) ); ?>' );
-			jQuery( '#new_sharing_url' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['url'] ) ) ); ?>' );
-			jQuery( '#new_sharing_icon' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['icon'] ) ) ); ?>' );
+			jQuery( '#new_sharing_name' ).val( <?php echo wp_json_encode( sanitize_text_field( wp_unslash( $_GET['name'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
+			jQuery( '#new_sharing_url' ).val( <?php echo wp_json_encode( sanitize_text_field( wp_unslash( $_GET['url'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
+			jQuery( '#new_sharing_icon' ).val( <?php echo wp_json_encode( sanitize_text_field( wp_unslash( $_GET['icon'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			jQuery( '#add-a-new-service' ).click();
 		});
 		<?php endif; ?>

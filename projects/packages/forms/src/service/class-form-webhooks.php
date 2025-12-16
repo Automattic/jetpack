@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\Service;
 
+use Automattic\Jetpack\Forms\ContactForm\Feedback;
 use WP_Error;
 
 /**
@@ -75,13 +76,25 @@ class Form_Webhooks {
 	 *
 	 * @param int   $post_id - the post_id for the CPT that is created.
 	 * @param array $fields - a collection of Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field instances.
-	 * @param bool  $is_spam - marked as spam by Akismet(?).
+	 * @param bool  $is_spam - marked as spam by Akismet.
 	 * @param array $entry_values - extra fields added to from the contact form.
 	 *
 	 * @return null|void
 	 */
 	public function send_webhooks( $post_id, $fields, $is_spam, $entry_values ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Try and get the form from any of the fields
+		// Get the Feedback object from the post_id
+		$feedback = Feedback::get( $post_id );
+
+		if ( ! $feedback ) {
+			return;
+		}
+
+		// if spam (hinted by akismet), don't process
+		if ( $is_spam ) {
+			return;
+		}
+
+		// Get the form from any of the fields to access form attributes (webhooks configuration)
 		$form = null;
 		foreach ( $fields as $field ) {
 			if ( ! empty( $field->form ) ) {
@@ -93,22 +106,17 @@ class Form_Webhooks {
 			return;
 		}
 
-		// if spam (hinted by akismet?), don't process
-		if ( $is_spam ) {
-			return;
-		}
-
 		$webhooks = $this->get_enabled_webhooks( $form->attributes );
 
 		if ( empty( $webhooks ) ) {
 			return;
 		}
 
-		$form_data = $this->get_form_data( $form );
+		$form_data = $feedback->get_compiled_fields( 'webhook', 'id-value' );
 
 		// Iterate through each webhook and send the request
 		foreach ( $webhooks as $webhook ) {
-			$response = $this->send_webhook( $form_data, $webhook );
+			$response = $this->send_webhook( $form_data, $webhook, $post_id );
 			$this->log_response_to_post_meta( $post_id, $response );
 		}
 	}
@@ -122,20 +130,43 @@ class Form_Webhooks {
 	private function log_response_to_post_meta( $post_id, $response ) {
 		if ( is_wp_error( $response ) ) {
 			update_post_meta( $post_id, '_jetpack_forms_webhook_error', sanitize_text_field( $response->get_error_message() ) );
+			$this->track_webhook_request( 'error' );
 			return $response;
 		}
 
+		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 		$response_data = json_decode( $response_body, true );
 
 		$response_data = array(
 			'timestamp' => gmdate( 'Y-m-d H:i:s', time() ),
-			'http_code' => wp_remote_retrieve_response_code( $response ),
+			'http_code' => $response_code,
 			'headers'   => wp_remote_retrieve_headers( $response )->getAll(),
 			'body'      => $response_data ?? $response_body, // If the response is not JSON, return the body as is.
 		);
 
-		update_post_meta( $post_id, '_jetpack_forms_webhook_response', sanitize_text_field( wp_json_encode( $response_data ) ) );
+		update_post_meta( $post_id, '_jetpack_forms_webhook_response', sanitize_text_field( wp_json_encode( $response_data, JSON_UNESCAPED_SLASHES ) ) );
+
+		// Track success (2xx) or failure based on HTTP response code
+		$status = ( $response_code >= 200 && $response_code < 300 ) ? 'success' : 'failed';
+		$this->track_webhook_request( $status );
+	}
+
+	/**
+	 * Track webhook request stats.
+	 *
+	 * @param string $status The status of the webhook request ('success', 'failed', or 'error').
+	 */
+	private function track_webhook_request( $status ) {
+		/**
+		 * Fires when a webhook request is made, allowing stats tracking.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $stat_group The stat group name.
+		 * @param string $status The status of the request: 'success', 'failed', or 'error'.
+		 */
+		do_action( 'jetpack_bump_stats_extras', 'jetpack_forms_webhook_request', $status );
 	}
 
 	/**
@@ -203,10 +234,11 @@ class Form_Webhooks {
 	 *
 	 * @param array $data The data key/value pairs to send.
 	 * @param array $webhook Webhook configuration.
+	 * @param int   $feedback_id The unique identifier for the feedback post.
 	 *
 	 * @return array|WP_Error The result value from wp_remote_request
 	 */
-	private function send_webhook( $data, $webhook ) {
+	private function send_webhook( $data, $webhook, $feedback_id ) {
 		global $wp_version;
 
 		/**
@@ -219,17 +251,18 @@ class Form_Webhooks {
 		 *
 		 * @param array  $form_data  The form data to be sent (field IDs as keys, values as values).
 		 * @param string $webhook_id The unique identifier for this webhook.
+		 * @param int    $feedback_id The unique identifier for the feedback post.
 		 *
 		 * @return array The form data to be sent (field IDs as keys, values as values).
 		 */
-		$data = apply_filters( 'jetpack_forms_before_webhook_request', $data, $webhook['webhook_id'] );
+		$data = apply_filters( 'jetpack_forms_before_webhook_request', $data, $webhook['webhook_id'], $feedback_id );
 
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ) . '; ' . get_bloginfo( 'url' );
 		$url        = $webhook['url'];
 		$format     = self::VALID_FORMATS_MAP[ $webhook['format'] ];
 		$method     = $webhook['method'];
 		// Encode body based on format
-		$body = $webhook['format'] === self::FORMAT_JSON ? wp_json_encode( $data ) : $data;
+		$body = $webhook['format'] === self::FORMAT_JSON ? wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) : $data;
 		$args = array(
 			'method'    => $method,
 			'body'      => $body,
@@ -241,26 +274,5 @@ class Form_Webhooks {
 		);
 
 		return wp_remote_request( $url, $args );
-	}
-
-	/**
-	 * Gather fields key/value pairs from the form
-	 * Sanitizes the hidden fields values
-	 *
-	 * @param \Automattic\Jetpack\Forms\ContactForm\Contact_Form $form The form instance being processed/submitted.
-	 */
-	private function get_form_data( $form ) {
-		$fields = array();
-		foreach ( $form->fields as $field ) {
-			$fields[ $field->get_attribute( 'id' ) ] = $field->value;
-		}
-
-		if ( ! empty( $form->attributes['hiddenFields'] ) ) {
-			foreach ( $form->attributes['hiddenFields'] as $hidden_field ) {
-				$fields[ $hidden_field['name'] ] = sanitize_text_field( $hidden_field['value'] );
-			}
-		}
-
-		return $fields;
 	}
 }

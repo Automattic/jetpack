@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: New eslint sniff wants all peer deps to also be dev deps. Do that, even though we get eslint from the monorepo root.
-
-

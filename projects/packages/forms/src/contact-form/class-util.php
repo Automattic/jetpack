@@ -17,10 +17,6 @@ class Util {
 	 * Registers all relevant actions and filters for this class.
 	 */
 	public static function init() {
-		if ( is_admin() ) {
-			Admin::init();
-		}
-
 		add_filter( 'template_include', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_attribute' );
 
 		add_action( 'render_block_core_template_part_post', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_part_id_global' );
@@ -456,7 +452,7 @@ class Util {
 				/* translators: 1: Site title; 2: post title. Used to craft the export filename, eg "MySite - Jetpack Form Responses - Contact" */
 				__( '%1$s - Jetpack Form Responses - %2$s', 'jetpack-forms' ),
 				sanitize_file_name( get_bloginfo( 'name' ) ),
-				sanitize_file_name( $source )
+				sanitize_file_name( html_entity_decode( $source, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) )
 			);
 	}
 }

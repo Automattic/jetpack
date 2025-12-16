@@ -1,7 +1,7 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as ChartContextStories from './index.stories';
 
-<Meta title="JS Packages/Charts/Chart Context" of={ ChartContextStories } />
+<Meta title="JS Packages/Charts Library/Chart Context" of={ ChartContextStories } />
 
 # Global Charts Context
 
@@ -44,23 +44,6 @@ Wrap your application or chart components with `GlobalChartsProvider` to enable 
 
 - **`theme`** *(optional)*: Partial theme object to customize chart appearance
 - **`children`**: Chart components and other React elements
-
-### Using with Predefined Themes
-
-<Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, jetpackTheme, wooTheme } from '@automattic/charts';
-
-	// Using Jetpack theme
-	<GlobalChartsProvider theme={ jetpackTheme }>
-		{ /* Charts will use Jetpack colors and styling */ }
-	</GlobalChartsProvider>
-
-	// Using WooCommerce theme
-	<GlobalChartsProvider theme={ wooTheme }>
-		{ /* Charts will use WooCommerce colors and styling */ }
-	</GlobalChartsProvider>` }
-/>
 
 ## Color Coordination
 
@@ -339,7 +322,7 @@ When charts register with a `chartId`, their legend data becomes available to st
 	language="tsx"
 	code={ `function DashboardWithCentralizedLegends() {
 		return (
-			<GlobalChartsProvider theme={ wooTheme }>
+			<GlobalChartsProvider>
 				<div className="dashboard-layout">
 					{ /* Charts with hidden legends but registered data */ }
 					<div className="charts-grid">

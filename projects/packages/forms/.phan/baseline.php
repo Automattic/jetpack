@@ -9,25 +9,23 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 50+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
+    // PhanTypeMismatchArgument : 45+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 25+ occurrences
     // PhanDeprecatedFunction : 8 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
+    // PhanUndeclaredFunction : 4 occurrences
     // PhanPluginDuplicateAdjacentStatement : 3 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
-    // PhanTypeMismatchReturn : 2 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanDeprecatedClass : 1 occurrence
     // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanPossiblyNullTypeMismatchProperty : 1 occurrence
-    // PhanTypeArraySuspiciousNullable : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanUnreferencedUseNormal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/abilities/class-forms-abilities.php' => ['PhanUndeclaredFunction'],
-        'src/contact-form/class-admin.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
         'src/contact-form/class-contact-form-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyNullTypeMismatchProperty', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form-plugin.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form-shortcode.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],

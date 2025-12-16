@@ -625,7 +625,10 @@ class Feedback {
 					$compiled_fields[ $field->get_key() ] = $field->get_render_value( $context );
 					break;
 				case 'label-value':
-						$compiled_fields[ $field->get_label( $context, $count_field_labels[ $label ] ) ] = $field->get_render_value( $context );
+					$compiled_fields[ $field->get_label( $context, $count_field_labels[ $label ] ) ] = $field->get_render_value( $context );
+					break;
+				case 'id-value':
+					$compiled_fields[ $field->get_form_field_id() ] = $field->get_render_value( $context );
 					break;
 			}
 		}
