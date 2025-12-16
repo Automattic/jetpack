@@ -1,4 +1,4 @@
-@import "../../variables";
+@use "../../variables" as vars;
 
 .bluesky-preview__card {
 	display: flex;
@@ -8,7 +8,7 @@
 	border: solid 1px #d9e1e8;
 	border-radius: 8px;
 	overflow: hidden;
-	color: $bluesky-body-text-color;
+	color: vars.$bluesky-body-text-color;
 }
 
 .bluesky-preview__card-image img {

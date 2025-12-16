@@ -1,9 +1,9 @@
-@import "../../variables";
+@use "../../variables" as vars;
 
 .bluesky-preview__body {
 	margin-bottom: 1rem;
 
-	color: $bluesky-body-text-color;
+	color: vars.$bluesky-body-text-color;
 
 	> p {
 		margin-bottom: 1.25rem;

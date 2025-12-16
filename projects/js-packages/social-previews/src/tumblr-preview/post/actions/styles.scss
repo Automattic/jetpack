@@ -1,10 +1,9 @@
-@import "../../variables";
+@use "../../variables" as vars;
 
 .tumblr-preview__post-actions {
 	margin-top: 0.25rem;
-	padding: 0 $tumblr-preview-card-inline-padding;
-
-	color: $tumblr-preview-action-text-color;
+	padding: 0 vars.$tumblr-preview-card-inline-padding;
+	color: vars.$tumblr-preview-action-text-color;
 
 	font-size: 1rem; // 16px
 	font-weight: 700;
@@ -38,7 +37,7 @@
 }
 
 .tumblr-preview__post-social-actions {
-	border-top: $tumblr-preview-border;
+	border-top: vars.$tumblr-preview-border;
 }
 
 .tumblr-preview__post-actions-blaze {

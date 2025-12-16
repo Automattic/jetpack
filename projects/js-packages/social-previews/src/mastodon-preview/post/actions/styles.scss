@@ -1,4 +1,4 @@
-@import "../../variables";
+@use "../../variables" as vars;
 
 .mastodon-preview__post-actions {
 	margin-top: 1rem;
@@ -18,7 +18,7 @@
 }
 
 .mastodon-preview__post-icon-text {
-	color: $mastodon-ui-text-color;
+	color: vars.$mastodon-ui-text-color;
 
 	font-size: 0.75rem;
 	font-weight: 500;

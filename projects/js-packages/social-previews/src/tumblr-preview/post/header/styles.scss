@@ -1,4 +1,4 @@
-@import "../../variables";
+@use "../../variables" as vars;
 
 .tumblr-preview__post-header {
 	display: flex;
@@ -6,7 +6,7 @@
 	align-items: center;
 
 	margin: 1rem 0;
-	padding: 0 $tumblr-preview-card-inline-padding;
+	padding: 0 vars.$tumblr-preview-card-inline-padding;
 }
 
 .tumblr-preview__post-header-username {
