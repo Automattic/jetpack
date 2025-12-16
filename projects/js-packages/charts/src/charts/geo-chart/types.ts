@@ -1,5 +1,4 @@
 import { BaseChartProps, GeoData } from '../../types';
-import type { GoogleDataTableColumnRoleType } from 'react-google-charts';
 
 export interface GeoChartProps
 	extends Pick< BaseChartProps, 'className' | 'chartId' | 'width' | 'height' > {
@@ -47,5 +46,3 @@ export interface GeoChartProps
 	 */
 	renderPlaceholder?: () => React.ReactNode;
 }
-
-export type { GoogleDataTableColumnRoleType };
