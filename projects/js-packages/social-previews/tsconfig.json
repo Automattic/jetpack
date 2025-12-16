@@ -1,9 +1,10 @@
 {
-	"extends": "@automattic/calypso-typescript-config/ts-package.json",
-	"include": [ "src" ],
+	"extends": "jetpack-js-tools/tsconfig.tsc.json",
 	"compilerOptions": {
-		"outDir": "dist/esm",
-		"declarationDir": "dist/types",
-		"rootDir": "src"
-	}
+		"target": "esnext",
+		// We use tsup for emitting files.
+		"noEmit": true
+	},
+	// List all sources and source-containing subdirs.
+	"include": [ "./src", "./tsup.config.ts", "./test" ]
 }
