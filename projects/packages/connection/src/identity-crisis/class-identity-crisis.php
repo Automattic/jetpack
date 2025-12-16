@@ -472,13 +472,13 @@ class Identity_Crisis {
 	 */
 	public static function should_validate_idc( $sync_error ) {
 		// If delay has reached or exceeded the maximum, stop validating.
-		if ( $sync_error['next_check_delay'] >= self::IDC_VALIDATION_MAX_DELAY ) {
+		if ( ( $sync_error['next_check_delay'] ?? 0 ) >= self::IDC_VALIDATION_MAX_DELAY ) {
 			return false;
 		}
 
 		// Check if enough time has passed since the last check.
-		$time_since_last_check = time() - $sync_error['last_checked'];
-		return $time_since_last_check >= $sync_error['next_check_delay'];
+		$time_since_last_check = time() - ( $sync_error['last_checked'] ?? 0 );
+		return $time_since_last_check >= ( $sync_error['next_check_delay'] ?? 0 );
 	}
 
 	/**
@@ -516,20 +516,19 @@ class Identity_Crisis {
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( ! is_array( $body ) ) {
-			// Malformed response - do nothing.
+		if ( ! is_array( $body ) || JSON_ERROR_NONE !== json_last_error() ) {
 			return false;
 		}
 
 		// Check if WordPress.com still detects an IDC.
-		if ( isset( $body['idc_detected'] ) && is_array( $body['idc_detected'] ) ) {
+		if ( isset( $body['idc_detected'] ) && is_array( $body['idc_detected'] ) && ! empty( $body['idc_detected'] ) ) {
 			// IDC still exists - refresh with latest data from WordPress.com and update timing.
 			$fresh_idc_data = self::get_sync_error_idc_option( $body['idc_detected'] );
 
 			// Preserve and update timing fields with exponential backoff.
 			$fresh_idc_data['last_checked']     = time();
 			$fresh_idc_data['next_check_delay'] = min(
-				$sync_error['next_check_delay'] * 2,
+				( $sync_error['next_check_delay'] ?? self::IDC_VALIDATION_INITIAL_DELAY ) * 2,
 				self::IDC_VALIDATION_MAX_DELAY
 			);
 
