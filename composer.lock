@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "7569977b3c73bfd267ad652dbc8d84f06dfaec57"
+                "reference": "d008962c16be9aa62bae76e9e9a9627bcf6dfba2"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -89,7 +89,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.0.x-dev"
+                    "dev-trunk": "7.0.x-dev"
                 }
             },
             "autoload": {
@@ -198,7 +198,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "114a9a96cc9f656497ce0eec683ad7a3f597d3c7"
+                "reference": "b7208ae78cf0a31da783170a8a9cb47c7a94f4d2"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -213,7 +213,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "3.1.x-dev"
+                    "dev-trunk": "4.0.x-dev"
                 }
             },
             "autoload": {
