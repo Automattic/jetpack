@@ -1,7 +1,7 @@
 /**
- * Globe Icon Component
+ * Share Icon Component
  *
- * @return The Globe SVG icon component.
+ * @return The Share SVG icon component.
  */
 export function ShareIcon() {
 	return (

@@ -1,7 +1,7 @@
 /**
- * Globe Icon Component
+ * Like Icon component.
  *
- * @return The Globe SVG icon component.
+ * @return Like Icon component.
  */
 export function LikeIcon() {
 	return (
