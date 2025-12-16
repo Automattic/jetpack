@@ -1,0 +1,251 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as GeoChartStories from './index.stories';
+
+<Meta title="JS Packages/Charts/Types/Geo Chart" of={ GeoChartStories } />
+
+# Geo Chart
+
+Geo Charts visualize geographical data on an interactive world map, making it easy to understand the distribution of values across countries.
+
+<Canvas of={ GeoChartStories.Default } />
+
+## Overview
+
+The Geo Chart component provides a clean, accessible solution for displaying country-level data on a world map. Built on Google Charts GeoChart, it supports interactive tooltips, automatic color scaling, and integration with the chart theme system:
+
+<Source
+	language="tsx"
+	code={ `import { GeoChart } from '@automattic/charts';
+
+	<GeoChart
+		data={ ordersByCountry }
+		width={ 800 }
+		height={ 500 }
+	/>` }
+/>
+
+## API Reference
+
+For detailed information about component props and types, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-library-charts-geo-chart-api-reference--docs).
+
+## Basic Usage
+
+### Simple Geo Chart
+
+The simplest geo chart requires data, width, and height. The `data` prop accepts a record mapping country ISO 3166-1 alpha-2 codes to numeric values:
+
+<Canvas of={ GeoChartStories.Default } />
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		data={ {
+			US: 1000,
+			CA: 500,
+			GB: 450,
+			DE: 400,
+			AU: 350,
+			FR: 300,
+			MX: 250,
+			JP: 200,
+			BR: 150,
+			IN: 120,
+		} }
+		width={ 800 }
+		height={ 500 }
+	/>` }
+/>
+
+### Required Props
+
+- **`data`**: Record mapping country ISO 3166-1 alpha-2 codes (e.g., 'US', 'CA', 'GB') to numeric values
+- **`width`**: Width of the chart in pixels
+- **`height`**: Height of the chart in pixels
+
+### Optional Props
+
+- **`className`**: Additional CSS class name for custom styling
+- **`renderPlaceholder`**: Custom render function for the loading placeholder
+
+For detailed prop information and type definitions, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-library-charts-geo-chart-api-reference--docs).
+
+## Interactive Features
+
+### Hover Tooltips
+
+The Geo Chart includes built-in interactive tooltips powered by Google Charts that display on hover, showing:
+
+- Country name
+- Value for that country
+
+Tooltips are automatically enabled and positioned for optimal readability.
+
+### Color Scaling
+
+The chart automatically scales colors based on data values:
+
+- **No data**: Countries without values use the default theme color (`datalessRegionColor`)
+- **Low values**: Displayed with lighter colors
+- **High values**: Displayed with the full primary theme color
+
+The color scale is configured via Google Charts' `colorAxis` option, using the theme's primary color range.
+
+## Loading State
+
+The Geo Chart displays a loading placeholder while Google Charts loads its resources from the CDN.
+
+### Default Loading Placeholder
+
+By default, a simple "Loading map" text is shown while Google Charts loads:
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		data={ ordersByCountry }
+		width={ 800 }
+		height={ 500 }
+	/>
+	// Shows "Loading map" until Google Charts is ready` }
+/>
+
+### Custom Loading Placeholder
+
+You can provide a custom loading placeholder using the `renderPlaceholder` prop:
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		data={ ordersByCountry }
+		width={ 800 }
+		height={ 500 }
+		renderPlaceholder={ () => (
+			<div className="custom-loading">
+				<Spinner />
+				<span>Loading world map...</span>
+			</div>
+		) }
+	/>` }
+/>
+
+This is useful when you want to show a skeleton loader, spinner, or branded loading state that matches your application's design.
+
+## Country Code Format
+
+The Geo Chart requires two-letter ISO 3166-1 alpha-2 country codes. Common examples:
+
+- **US**: United States
+- **CA**: Canada
+- **GB**: United Kingdom
+- **DE**: Germany
+- **FR**: France
+- **JP**: Japan
+- **AU**: Australia
+- **BR**: Brazil
+- **IN**: India
+- **CN**: China
+- **MX**: Mexico
+- **ES**: Spain
+- **IT**: Italy
+- **NL**: Netherlands
+
+For a complete list of country codes, refer to the [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+
+## Theming Integration
+
+Geo Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, GeoChart, type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1'],
+		backgroundColor: '#f5f5f5',
+		geoChart: {
+			featureFillColor: '#e0e0e0',
+		},
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<GeoChart
+			data={ordersByCountry}
+			width={800}
+			height={500}
+		/>
+	</GlobalChartsProvider>` }
+/>
+
+The chart uses the following theme properties:
+
+- **`colors[0]`**: Primary color for data visualization (used for color axis range)
+- **`backgroundColor`**: Background color for the map
+- **`geoChart.featureFillColor`**: Fill color for countries without data
+
+## Custom Styling
+
+Add custom styles using the `className` prop:
+
+<Source
+	language="tsx"
+	code={ `.custom-geo-chart {
+		border-radius: 8px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	<GeoChart
+		data={ ordersByCountry }
+		width={ 800 }
+		height={ 500 }
+		className="custom-geo-chart"
+	/>` }
+/>
+
+## Map Projection
+
+The Geo Chart uses Google Charts' default Mercator projection for world map visualization. The map automatically scales to fit within the specified dimensions.
+
+## Best Practices
+
+### Data Preparation
+
+- **Use correct ISO codes**: Ensure country codes follow ISO 3166-1 alpha-2 format (two-letter codes)
+- **Validate data**: Check that values are positive numbers
+- **Consider scale**: Large value ranges will show more dramatic color differences
+
+### Performance Considerations
+
+The Geo Chart renders efficiently for typical use cases, but consider these factors:
+
+- **Network dependency**: Google Charts loads resources from Google's CDN, requiring network access
+- **Initial load**: The first render requires loading Google Charts library (~100KB)
+- **Caching**: Subsequent renders benefit from browser caching of Google Charts resources
+- **Fixed dimensions**: The chart uses fixed width and height, not responsive sizing
+
+### Accessibility
+
+- **Alternative views**: Consider providing a data table or list view for users who prefer non-visual data
+- **Color contrast**: The automatic color scaling maintains theme consistency, but test with your specific color choices
+- **Keyboard navigation**: Currently, the chart is primarily mouse-driven; consider complementing with keyboard-accessible data views
+
+## Accessibility
+
+### Mouse Interaction
+
+- **Hover**: Move the mouse over any country to see its data in a tooltip
+- **Visual feedback**: Countries with data show graduated colors based on value magnitude
+
+### Screen Reader Support
+
+Google Charts provides some built-in accessibility features. For better accessibility:
+
+- Provide a data table or list alongside the chart
+- Use descriptive headings to introduce the geographical data
+- Consider adding `aria-label` or `aria-describedby` to the container element
+
+### Focus Management
+
+Google Charts GeoChart does not support keyboard navigation, so this limitation is inherited by this component. For full accessibility:
+
+- Complement the chart with a keyboard-accessible data table
+- Provide text summaries of key insights
+- Consider using the chart as a visual supplement to accessible data presentations
