@@ -37,7 +37,7 @@ export const SingleCountry: Story = {
 	args: {
 		...Default.args,
 		data: [
-			[ 'Country', 'Value' ],
+			[ 'Country', 'Views' ],
 			[ 'United States', 1500 ],
 		],
 	},
@@ -46,7 +46,7 @@ export const SingleCountry: Story = {
 export const EmptyData: Story = {
 	args: {
 		...Default.args,
-		data: [ [ 'Country', 'Value' ] ],
+		data: [ [ 'Country', 'Views' ] ],
 	},
 };
 
@@ -54,7 +54,7 @@ export const WithCustomTooltip: Story = {
 	args: {
 		...Default.args,
 		data: [
-			[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
+			[ 'Country', 'Orders', { type: 'string', role: 'tooltip', p: { html: true } } ],
 			[ 'United States', 1000, '<b>United States</b><br/>1,000 orders' ],
 			[ 'Canada', 500, '<b>Canada</b><br/>500 orders' ],
 			[ 'United Kingdom', 450, '<b>United Kingdom</b><br/>450 orders' ],
@@ -81,7 +81,7 @@ export const WithTextTooltips: Story = {
 	args: {
 		...Default.args,
 		data: [
-			[ 'Country', 'Value', { type: 'string', role: 'tooltip' } ],
+			[ 'Country', 'Orders', { type: 'string', role: 'tooltip' } ],
 			[ 'United States', 1000, 'United States: 1,000 orders (40% of total)' ],
 			[ 'Canada', 500, 'Canada: 500 orders (20% of total)' ],
 			[ 'United Kingdom', 450, 'United Kingdom: 450 orders (18% of total)' ],
