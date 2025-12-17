@@ -25,7 +25,7 @@ const DEFAULT_BACKGROUND_COLOR = '#ffffff';
  * and multiple data columns for maximum flexibility.
  *
  * Countries can be identified by full name (e.g., 'United States') or ISO 3166-1 alpha-2
- * codes (e.g., 'US'). Full country names are recommended for better readability.
+ * codes (e.g., 'US'). Full names are recommended for better readability in tooltips.
  *
  * @param props                   - The props for the GeoChart component
  * @param props.data              - Data in Google Charts format (array of arrays with headers)

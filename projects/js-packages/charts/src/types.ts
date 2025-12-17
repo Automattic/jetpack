@@ -36,7 +36,7 @@ export type DataPoint = {
  * First element is the header row, subsequent elements are data rows.
  *
  * Country identifiers can be either full country names or ISO 3166-1 alpha-2 codes (e.g., 'United States' or 'US').
- * Full country names are recommended for better readability.
+ * Full names are recommended for better readability in tooltips.
  *
  * @example Basic usage with country names:
  * [['Country', 'Value'], ['United States', 100], ['Canada', 50], ['United Kingdom', 75]]
