@@ -296,3 +296,27 @@ Pie Charts integrate seamlessly with the chart theming system. The default theme
 		<PieChart data={data} />
 	</GlobalChartsProvider>` }
 />
+
+## Animation
+
+The Pie Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ PieChartStories.Animation } />
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		data={ data }
+		size={ 400 }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a radial wipe reveal effect that sweeps clockwise from the top, progressively revealing the chart segments
+- **Duration**: 1000ms (1 second)
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.

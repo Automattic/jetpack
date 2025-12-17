@@ -929,3 +929,27 @@ export const customerRevenueLegendData = [
 		comparison: '133%',
 	},
 ];
+
+/**
+ * Orders by country data
+ *
+ * Orders by country data for geo chart visualization
+ * - Category: categorical
+ * - Data points: 13
+ * - Suitable for: GeoChart
+ */
+export const ordersByCountry: Record< string, number > = {
+	US: 1000,
+	CA: 500,
+	GB: 450,
+	DE: 400,
+	AU: 350,
+	FR: 300,
+	MX: 250,
+	JP: 200,
+	BR: 150,
+	IN: 120,
+	IT: 100,
+	ES: 80,
+	NL: 60,
+};

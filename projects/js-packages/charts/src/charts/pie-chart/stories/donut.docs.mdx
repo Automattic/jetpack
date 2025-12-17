@@ -294,6 +294,37 @@ Donut charts inherit the same robust data validation from PieChart:
 	</PieChart>` }
 />
 
+## Animation
+
+Donut charts support an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ DonutStories.Animation } />
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		size={ 400 }
+		thickness={ 0.4 }
+		data={ data }
+		animation={ true }
+	>
+		<Group>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 }>
+				Animated Donut
+			</Text>
+		</Group>
+	</PieChart>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a radial wipe reveal effect that sweeps clockwise from the top, progressively revealing the donut segments
+- **Duration**: 1000ms (1 second)
+
+**Note**: The animation plays once when the chart initially renders and does not repeat. Since donuts are created using PieChart, they use the same animation system.
+
 ## Accessibility Considerations
 
 ### Screen Reader Support
