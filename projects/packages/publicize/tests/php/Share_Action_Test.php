@@ -43,7 +43,6 @@ class Share_Action_Test extends BaseTestCase {
 		// Clear the Current_Plan cache to avoid affecting other tests.
 		$reflection = new \ReflectionClass( Current_Plan::class );
 		$property   = $reflection->getProperty( 'active_plan_cache' );
-		$property->setAccessible( true );
 		$property->setValue( null, null );
 
 		parent::tear_down();
