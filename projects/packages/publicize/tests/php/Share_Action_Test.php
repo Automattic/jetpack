@@ -43,6 +43,10 @@ class Share_Action_Test extends BaseTestCase {
 		// Clear the Current_Plan cache to avoid affecting other tests.
 		$reflection = new \ReflectionClass( Current_Plan::class );
 		$property   = $reflection->getProperty( 'active_plan_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue( null, null );
 
 		parent::tear_down();
