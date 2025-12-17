@@ -1,4 +1,4 @@
-import { isSimpleSite, isWoASite, siteHasFeature } from '@automattic/jetpack-script-data';
+import { isSimpleSite, isWoASite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -8,7 +8,6 @@ import { send } from '@wordpress/icons';
 import { useIsReSharingPossible } from '../../hooks/use-is-resharing-possible';
 import { useSharePost } from '../../hooks/use-share-post';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils/constants';
 
 /**
  * Get the site type from environment
@@ -41,7 +40,6 @@ type SharePostButtonProps = {
  * @return A button component that will share the current post when clicked.
  */
 export function SharePostButton( { onShareCompleted }: SharePostButtonProps ) {
-
 	const isSharingCurrentPost = useSelect( select => select( socialStore ).isSharingCurrentPost() );
 	const { recordEvent } = useAnalytics();
 	const isSchedulingShares = useSelect( select => select( socialStore ).isSchedulingShares(), [] );
