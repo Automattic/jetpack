@@ -48,7 +48,7 @@ function pushQueryString( queryString ) {
 			}
 		}
 
-		const finalUrl = baseUrl + ( queryString ? '?' + queryString : '' );
+		const finalUrl = baseUrl + ( queryString ? '?' + queryString : '' ) + window.location.hash;
 		window.history.pushState( null, null, finalUrl );
 	}
 }
