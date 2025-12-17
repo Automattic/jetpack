@@ -177,6 +177,7 @@ class Admin_Bar_Notice {
 		if ( $has_threats ) {
 			$node['href']           = esc_url( Redirect::get_url( 'calypso-scanner' ) );
 			$node['meta']['target'] = '_blank';
+			$node['meta']['rel']    = 'noopener noreferrer';
 			$node['meta']['class']  = 'error';
 			$node['title']          = sprintf(
 				esc_html(
