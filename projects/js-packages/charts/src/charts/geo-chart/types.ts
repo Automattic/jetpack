@@ -2,10 +2,10 @@ import { BaseChartProps, GeoData } from '../../types';
 
 /**
  * Region to display on the map.
- * Use 'world' for global view, 'US' for United States,
- * or any ISO 3166-1 alpha-2 country code (e.g., 'CA' for Canada).
+ * Use 'world' for global view or any ISO 3166-1 alpha-2 country code
+ * (e.g., 'US' for United States, 'CA' for Canada).
  */
-export type GeoRegion = 'world' | 'US' | ( string & {} );
+export type GeoRegion = 'world' | ( string & {} );
 
 /**
  * Resolution level for the map.
