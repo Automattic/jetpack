@@ -10,8 +10,6 @@ type SharePostOptions = {
 	connectionsToSkip?: Array< string >;
 };
 
-type UseSharePostReturn = ( options?: SharePostOptions ) => Promise< boolean >;
-
 /**
  * Hook to share a post to social media connections.
  *
@@ -24,7 +22,7 @@ export function useSharePost() {
 
 	const { shareCurrentPost } = useDispatch( socialStore );
 
-	return useCallback< UseSharePostReturn >(
+	return useCallback(
 		async ( { connectionsToSkip }: SharePostOptions = {} ) => {
 			const skipped_connections = connectionsToSkip || skippedConnections;
 
