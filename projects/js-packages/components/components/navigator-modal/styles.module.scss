@@ -5,7 +5,7 @@
 	container-name: navigator-modal;
 
 	:global(.components-modal__screen-overlay):has(&) {
-		z-index: 99999; // 1 less than that of snackbar to appear above it
+		z-index: 99999; // Slightly lower than snackbar z-index (100001) so snackbars remain visible above the modal
 	}
 
 	width: 80rem;

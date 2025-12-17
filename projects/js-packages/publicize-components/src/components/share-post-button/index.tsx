@@ -41,7 +41,7 @@ type SharePostButtonProps = {
  * @return A button component that will share the current post when clicked.
  */
 export function SharePostButton( { onShareCompleted }: SharePostButtonProps ) {
-	siteHasFeature( features.IMAGE_GENERATOR ) || siteHasFeature( features.ENHANCED_PUBLISHING );
+
 	const isSharingCurrentPost = useSelect( select => select( socialStore ).isSharingCurrentPost() );
 	const { recordEvent } = useAnalytics();
 	const isSchedulingShares = useSelect( select => select( socialStore ).isSchedulingShares(), [] );
