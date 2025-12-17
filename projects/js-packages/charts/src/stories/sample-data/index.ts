@@ -935,7 +935,7 @@ export const customerRevenueLegendData = [
  *
  * Orders by country data for geo chart visualization
  * - Category: categorical
- * - Data points: 13
+ * - Data points: 25
  * - Suitable for: GeoChart
  */
 export const ordersByCountry: [ string[], ...[ string, number ][] ] = [
@@ -951,7 +951,6 @@ export const ordersByCountry: [ string[], ...[ string, number ][] ] = [
 	[ 'Italy', 120 ],
 	[ 'Netherlands', 100 ],
 	[ 'Spain', 80 ],
-	[ 'Netherlands', 60 ],
 	[ 'Sweden', 40 ],
 	[ 'Norway', 30 ],
 	[ 'Denmark', 20 ],
@@ -965,5 +964,4 @@ export const ordersByCountry: [ string[], ...[ string, number ][] ] = [
 	[ 'Nigeria', 0.125 ],
 	[ 'Kenya', 0.0625 ],
 	[ 'South Korea', 0.03125 ],
-	[ 'Japan', 0.015625 ],
 ];
