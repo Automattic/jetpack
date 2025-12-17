@@ -20,7 +20,7 @@ function jetpack_site_switcher_register_rest_routes() {
 		'jetpack/v4',
 		'/sites/compact',
 		array(
-			'methods'             => 'GET',
+			'methods'             => WP_REST_Server::READABLE,
 			'callback'            => 'jetpack_site_switcher_get_sites',
 			'permission_callback' => 'is_user_logged_in',
 		)
@@ -44,8 +44,12 @@ function jetpack_site_switcher_get_sites() {
 
 	if ( is_wp_error( $response ) ) {
 		return new WP_Error(
-			'jetpack_site_switcher_error',
-			__( 'Failed to fetch sites from WordPress.com', 'jetpack' ),
+			'jetpack_site_switcher_request_failed',
+			sprintf(
+				/* translators: %s: Error message from the API request */
+				__( 'Failed to connect to WordPress.com: %s', 'jetpack' ),
+				$response->get_error_message()
+			),
 			array( 'status' => 500 )
 		);
 	}
@@ -53,8 +57,12 @@ function jetpack_site_switcher_get_sites() {
 	$response_code = wp_remote_retrieve_response_code( $response );
 	if ( 200 !== $response_code ) {
 		return new WP_Error(
-			'jetpack_site_switcher_error',
-			__( 'Failed to fetch sites from WordPress.com', 'jetpack' ),
+			'jetpack_site_switcher_api_error',
+			sprintf(
+				/* translators: %d: HTTP status code */
+				__( 'WordPress.com API returned error (HTTP %d)', 'jetpack' ),
+				$response_code
+			),
 			array( 'status' => $response_code )
 		);
 	}
@@ -64,7 +72,7 @@ function jetpack_site_switcher_get_sites() {
 	if ( ! isset( $body['sites'] ) ) {
 		return new WP_Error(
 			'jetpack_site_switcher_invalid_response',
-			__( 'Invalid response from WordPress.com API', 'jetpack' ),
+			__( 'WordPress.com API response missing sites data', 'jetpack' ),
 			array( 'status' => 500 )
 		);
 	}

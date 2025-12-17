@@ -90,7 +90,28 @@ async function fetchSitesFromWordPressCom() {
 }
 
 /**
+ * Safely extract hostname from a URL string
+ *
+ * @param {string} urlString - The URL to parse
+ * @return {string} The hostname, or empty string if invalid
+ */
+function getHostnameFromURL( urlString ) {
+	if ( ! urlString ) {
+		return '';
+	}
+	try {
+		return new URL( urlString ).hostname;
+	} catch {
+		return '';
+	}
+}
+
+/**
  * Custom hook to load site-switching commands based on search term
+ *
+ * @param {Object} props        - Hook properties
+ * @param {string} props.search - Search term to filter sites
+ * @return {Object} Object containing commands array and loading state
  */
 function useSiteSwitcherCommandLoader( { search } ) {
 	const [ sites, setSites ] = useState( [] );
@@ -125,7 +146,7 @@ function useSiteSwitcherCommandLoader( { search } ) {
 		const filteredSites = isGenericSearch
 			? sites
 			: sites.filter( site => {
-					const domain = site.URL ? new URL( site.URL ).hostname : '';
+					const domain = getHostnameFromURL( site.URL );
 					return (
 						( site.name && site.name.toLowerCase().includes( searchLower ) ) ||
 						domain.toLowerCase().includes( searchLower )
@@ -134,7 +155,7 @@ function useSiteSwitcherCommandLoader( { search } ) {
 
 		return filteredSites.map( site => {
 			// Extract domain from URL for display - don't want to display the protocol.
-			const domain = site.URL ? new URL( site.URL ).hostname : '';
+			const domain = getHostnameFromURL( site.URL );
 
 			const iconElement = site.icon?.img ? (
 				<img src={ site.icon.img } alt={ site.name } />
@@ -161,7 +182,11 @@ function useSiteSwitcherCommandLoader( { search } ) {
 				label,
 				icon: iconElement,
 				callback: ( { close } ) => {
-					window.location.href = `${ site.URL }/wp-admin`;
+					try {
+						window.location.href = new URL( '/wp-admin', site.URL ).href;
+					} catch {
+						// If URL is malformed, don't navigate
+					}
 					close();
 				},
 				keywords: [
@@ -195,7 +220,7 @@ function JetpackSiteSwitcher() {
 // Render the site switcher into wp-admin
 // This works with WordPress 6.9+ admin-wide command palette
 if ( typeof window !== 'undefined' && window.wp && window.wp.element ) {
-	const { render, createElement } = window.wp.element;
+	const { createRoot, createElement } = window.wp.element;
 
 	// Create a container for our site switcher
 	const container = document.createElement( 'div' );
@@ -206,10 +231,10 @@ if ( typeof window !== 'undefined' && window.wp && window.wp.element ) {
 	if ( document.readyState === 'loading' ) {
 		document.addEventListener( 'DOMContentLoaded', () => {
 			document.body.appendChild( container );
-			render( createElement( JetpackSiteSwitcher ), container );
+			createRoot( container ).render( createElement( JetpackSiteSwitcher ) );
 		} );
 	} else {
 		document.body.appendChild( container );
-		render( createElement( JetpackSiteSwitcher ), container );
+		createRoot( container ).render( createElement( JetpackSiteSwitcher ) );
 	}
 }

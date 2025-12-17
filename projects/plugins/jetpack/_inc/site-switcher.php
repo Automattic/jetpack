@@ -19,6 +19,11 @@ if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
  * Enqueue site switcher scripts in all wp-admin pages.
  */
 function jetpack_site_switcher_enqueue_scripts() {
+	// Require WordPress 6.9+ for Command Palette support
+	if ( version_compare( get_bloginfo( 'version' ), '6.9', '<' ) ) {
+		return;
+	}
+
 	// Load asset file for dependencies and version
 	$asset_file = JETPACK__PLUGIN_DIR . '_inc/build/site-switcher.min.asset.php';
 	$asset      = file_exists( $asset_file ) ? require $asset_file : array(
@@ -49,7 +54,7 @@ function jetpack_site_switcher_enqueue_scripts() {
 					'userId'  => get_current_user_id(),
 					'apiPath' => $api_path,
 				),
-				JSON_HEX_TAG | JSON_UNESCAPED_SLASHES
+				JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
 			)
 		),
 		'before'
