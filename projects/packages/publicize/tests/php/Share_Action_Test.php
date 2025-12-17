@@ -50,9 +50,14 @@ class Share_Action_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test Share action filter is added for post types supporting publicize when filter is enabled.
+	 * Test Share action is added when plan supports republicize.
 	 */
-	public function test_add_share_action_for_publicize_post_type() {
+	public function test_add_share_action_when_plan_supports_republicize() {
+		// Set up a plan that supports republicize.
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array( 'republicize' );
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
 		// Register CPT with publicize support.
 		register_post_type(
 			'test_pub_cpt',
@@ -67,9 +72,6 @@ class Share_Action_Test extends BaseTestCase {
 			'post_type' => 'test_pub_cpt',
 		);
 
-		// Enable via filter.
-		add_filter( 'jetpack_post_list_display_share_action', '__return_true' );
-
 		Publicize_Setup::add_filters_and_actions_for_screen( $current_screen );
 
 		$this->assertNotFalse( has_action( 'post_row_actions', array( Publicize_Setup::class, 'add_share_action' ) ) );
@@ -77,15 +79,37 @@ class Share_Action_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test Share action filter is NOT added when filter returns false and no plan support.
+	 * Test Share action can be disabled via filter even when plan supports it.
 	 */
-	public function test_no_share_action_when_disabled() {
+	public function test_share_action_can_be_disabled_via_filter() {
+		// Set up a plan that supports republicize.
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array( 'republicize' );
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
 		$current_screen = (object) array(
 			'base'      => 'edit',
 			'post_type' => 'post',
 		);
 
-		// Filter defaults to false, no plan support.
+		// Disable via filter.
+		add_filter( 'jetpack_post_list_display_share_action', '__return_false' );
+
+		Publicize_Setup::add_filters_and_actions_for_screen( $current_screen );
+
+		$this->assertFalse( has_action( 'post_row_actions', array( Publicize_Setup::class, 'add_share_action' ) ) );
+	}
+
+	/**
+	 * Test Share action filter is NOT added when plan does not support republicize.
+	 */
+	public function test_no_share_action_without_plan_support() {
+		$current_screen = (object) array(
+			'base'      => 'edit',
+			'post_type' => 'post',
+		);
+
+		// No plan support, filter won't help.
 		Publicize_Setup::add_filters_and_actions_for_screen( $current_screen );
 
 		$this->assertFalse( has_action( 'post_row_actions', array( Publicize_Setup::class, 'add_share_action' ) ) );
@@ -114,13 +138,15 @@ class Share_Action_Test extends BaseTestCase {
 	 * Test Share action filter is NOT added on non-edit screens.
 	 */
 	public function test_no_share_action_on_non_edit_screen() {
+		// Set up a plan that supports republicize.
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array( 'republicize' );
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
 		$current_screen = (object) array(
 			'base'      => 'edit-tags',
 			'post_type' => 'post',
 		);
-
-		// Enable via filter.
-		add_filter( 'jetpack_post_list_display_share_action', '__return_true' );
 
 		Publicize_Setup::add_filters_and_actions_for_screen( $current_screen );
 
@@ -131,6 +157,11 @@ class Share_Action_Test extends BaseTestCase {
 	 * Test Share action filter is NOT added for post types that don't support publicize.
 	 */
 	public function test_no_share_action_for_non_publicize_post_type() {
+		// Set up a plan that supports republicize.
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array( 'republicize' );
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
 		// Register CPT without publicize support (max 20 chars for post type name).
 		register_post_type(
 			'test_no_pub_cpt',
@@ -144,9 +175,6 @@ class Share_Action_Test extends BaseTestCase {
 			'base'      => 'edit',
 			'post_type' => 'test_no_pub_cpt',
 		);
-
-		// Enable via filter.
-		add_filter( 'jetpack_post_list_display_share_action', '__return_true' );
 
 		Publicize_Setup::add_filters_and_actions_for_screen( $current_screen );
 
