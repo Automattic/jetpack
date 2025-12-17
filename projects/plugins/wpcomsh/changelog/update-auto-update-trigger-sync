@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Sync plugin auto-update status by updating `jetpack_autoupdate_plugins` when new plugins are added
+Fix plugin auto-update sync by preventing the `pre_option_auto_update_plugins` filter from interfering with Jetpack API requests
