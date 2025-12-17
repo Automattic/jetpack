@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.12] - 2025-12-16
+### Changed
+- Internal updates.
+
 ## [6.0.11] - 2025-12-04
 ### Fixed
 - Ensure proper flags are used with `json_encode()`. [#46092]
@@ -311,6 +315,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[6.0.12]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.11...6.0.12
 [6.0.11]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.10...6.0.11
 [6.0.10]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.9...6.0.10
 [6.0.9]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.8...6.0.9

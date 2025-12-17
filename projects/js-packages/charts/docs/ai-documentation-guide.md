@@ -183,6 +183,23 @@ For the Theming Integration section, use the standardized format from the `featu
 - A code example showing how to wrap the chart in `GlobalChartsProvider` with a custom theme
 
 See the template for the complete section structure.
+
+## Animation
+
+Only include this section if the chart component supports animation (check the implementation for an `animation` prop). If animation is not supported, remove this section entirely.
+
+When documenting animation:
+
+- Show the Animation story with a Canvas example
+- Include a basic code example with `animation={true}`
+- Document animation behavior in a bulleted list covering:
+  - Opt-in nature (disabled by default)
+  - Accessibility (respects `prefers-reduced-motion`)
+  - Effect description (e.g., "radial wipe reveal effect")
+  - Duration in milliseconds
+- Note that animation plays once on initial render and does not repeat
+
+See the `feature-documentation.mdx.template` for the complete section structure.
 ```
 
 ### 8. Advanced Usage
@@ -319,6 +336,7 @@ Before considering documentation complete, verify both main docs and API referen
 - [ ] Visual examples for all major variations in main docs
 - [ ] Code examples are complete and runnable in main docs
 - [ ] Accessibility considerations covered in main docs
+- [ ] Animation section included if chart supports animation (check for `animation` prop)
 - [ ] Browser compatibility notes included where relevant
 - [ ] Both documents created using appropriate templates
 

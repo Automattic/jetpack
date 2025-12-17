@@ -1,0 +1,95 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Geo Chart/API Reference" />
+
+# Geo Chart API Reference
+
+## GeoChart
+
+Main component for rendering geographical data on an interactive world map using Google Charts.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `Record<string, number>` | - | **Required.** Record mapping country ISO 3166-1 alpha-2 codes (e.g., 'US', 'CA', 'GB') to numeric values |
+| `width` | `number` | - | **Required.** Width of the chart in pixels |
+| `height` | `number` | - | **Required.** Height of the chart in pixels |
+| `className` | `string` | - | Additional CSS class name for the chart container |
+| `chartId` | `string` | - | Custom chart identifier for accessibility |
+| `renderPlaceholder` | `() => React.ReactNode` | - | Optional render function for custom loading placeholder. Called while Google Charts is loading |
+
+## GeoChartProps Type
+
+```typescript
+interface GeoChartProps
+  extends Pick<BaseChartProps, 'className' | 'chartId' | 'width' | 'height'> {
+  data: Record<string, number>;
+  renderPlaceholder?: () => React.ReactNode;
+}
+```
+
+## Theme Properties
+
+The following properties can be customized via the theme system:
+
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `colors[0]` | `string` | `'#98C8DF'` | Primary color used for data visualization (color axis range) |
+| `backgroundColor` | `string` | `'#FFFFFF'` | Background color of the map |
+| `geoChart.featureFillColor` | `string` | `'var(--jp-white, #ffffff)'` | Fill color for countries without data values |
+
+## Country ISO Codes
+
+The `data` prop requires two-letter ISO 3166-1 alpha-2 country codes. Common examples:
+
+| Code | Country |
+| ---- | ------- |
+| US | United States |
+| CA | Canada |
+| GB | United Kingdom |
+| DE | Germany |
+| FR | France |
+| JP | Japan |
+| AU | Australia |
+| BR | Brazil |
+| IN | India |
+| CN | China |
+| MX | Mexico |
+| ES | Spain |
+| IT | Italy |
+| NL | Netherlands |
+| RU | Russia |
+| KR | South Korea |
+| ZA | South Africa |
+| NG | Nigeria |
+| AR | Argentina |
+| SA | Saudi Arabia |
+
+For a complete list, refer to the [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+
+## Map Projection
+
+The chart uses Google Charts' default **Mercator projection** for world map visualization. The map automatically scales to fit within the specified dimensions.
+
+## Color Scaling
+
+Colors are automatically scaled using Google Charts' `colorAxis` option:
+
+- **Colors**: Configured as a gradient from a light version of the theme's primary color to the full primary color
+- **Data mapping**: Countries with higher values appear with more saturated colors
+- **Dataless regions**: Countries without data use the `geoChart.featureFillColor` theme property
+
+## Google Charts Options
+
+The component configures the following Google Charts options internally:
+
+| Option | Value | Description |
+| ------ | ----- | ----------- |
+| `colorAxis.colors` | `[lightColor, fullColor]` | Gradient from lightened (80% blend with white) to full theme color |
+| `backgroundColor` | Theme value | Map background color |
+| `datalessRegionColor` | Theme value | Color for countries without data |
+| `defaultColor` | Theme value | Default region color |
+| `tooltip.trigger` | `'focus'` | Show tooltip on focus/hover |
+| `legend` | `'none'` | Hide the color legend |
+| `keepAspectRatio` | `true` | Maintain the map's aspect ratio within dimensions |

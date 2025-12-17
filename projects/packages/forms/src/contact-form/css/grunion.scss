@@ -18,14 +18,18 @@
 	clear: both;
 }
 
+.contact-form textarea::placeholder,
 .contact-form input::placeholder {
+	color: inherit;
 	transition: opacity 0.3s ease-out;
 }
 
+.contact-form textarea:hover::placeholder,
 .contact-form input:hover::placeholder {
 	opacity: 0.5;
 }
 
+.contact-form textarea:focus::placeholder,
 .contact-form input:focus::placeholder {
 	opacity: 0.3;
 }
