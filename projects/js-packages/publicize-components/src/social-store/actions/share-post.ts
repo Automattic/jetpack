@@ -100,6 +100,10 @@ export function shareCurrentPost(
 		}
 
 		let success: boolean;
+		let error: string = __(
+			'There was an error sharing the post.',
+			'jetpack-publicize-components'
+		);
 
 		try {
 			const currentPostId = registry.select( editorStore ).getCurrentPostId();
@@ -116,18 +120,19 @@ export function shareCurrentPost(
 			} );
 
 			success = ! isErrorResponse( response );
-		} catch {
+		} catch ( e ) {
+			if ( e && typeof e === 'object' && 'message' in e ) {
+				error += ' ' + e.message;
+			}
+
 			success = false;
 		}
 
 		if ( ! success ) {
-			createErrorNotice(
-				__( 'There was an error sharing the post.', 'jetpack-publicize-components' ),
-				{
-					type: 'snackbar',
-					id: SHARE_POST_NOTICE_ID,
-				}
-			);
+			createErrorNotice( error, {
+				type: 'snackbar',
+				id: SHARE_POST_NOTICE_ID,
+			} );
 		} else {
 			dispatch( pollForPostShareStatus() );
 
