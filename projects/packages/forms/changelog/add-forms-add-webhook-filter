@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Add jetpack_forms_extra_webhooks filter and include feedback ID in jetpack_forms_before_webhook_request filter
