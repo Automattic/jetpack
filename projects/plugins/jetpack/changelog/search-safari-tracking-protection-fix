@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix search blocked by Safari tracking and fingerprint protection
