@@ -61,7 +61,7 @@ function setCachedSites( sites ) {
 }
 
 /**
- * Fetch compact sites list from WordPress.com API via Jetpack proxy endpoint
+ * Fetch compact sites list from WordPress.com API
  */
 async function fetchSitesFromWordPressCom() {
 	// Check localStorage cache first
@@ -71,9 +71,15 @@ async function fetchSitesFromWordPressCom() {
 	}
 
 	try {
+		// On WordPress.com simple sites, call the v1.1 API directly
+		// On Jetpack sites, use the Jetpack v4 proxy endpoint
+		const isWPCOM = typeof window._currentSiteType !== 'undefined';
+		const path = isWPCOM ? '/rest/v1.1/me/sites/compact' : '/jetpack/v4/sites/compact';
+
 		const data = await apiFetch( {
-			path: '/wpcom/v2/sites/compact',
+			path,
 			method: 'GET',
+			global: true,
 		} );
 
 		const sites = data.sites || [];

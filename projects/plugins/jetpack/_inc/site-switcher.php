@@ -10,8 +10,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-// Load the V2 pass-through endpoint for fetching compact sites list
-require_once __DIR__ . '/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-sites-compact.php';
+// Load the Jetpack endpoint (not needed on WordPress.com simple sites)
+if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+	require_once __DIR__ . '/site-switcher-endpoint.php';
+}
 
 /**
  * Enqueue site switcher scripts in all wp-admin pages.
