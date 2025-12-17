@@ -1,4 +1,4 @@
-@import "../../variables";
+@use "../../variables" as vars;
 
 .facebook-preview__post-actions {
 	display: flex;
@@ -10,7 +10,7 @@
 	margin: 0;
 	padding: 0;
 
-	color: $facebook-preview-light-text-color;
+	color: vars.$facebook-preview-light-text-color;
 	list-style-type: none;
 
 	/* stylelint-disable-next-line scales/font-sizes */

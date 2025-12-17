@@ -14,7 +14,7 @@ export interface SocialPreviewBaseProps {
 	/**
 	 * The description of the post/page to preview.
 	 */
-	description: string;
+	description?: string;
 
 	/**
 	 * The URL of the image to use in the post/page preview.

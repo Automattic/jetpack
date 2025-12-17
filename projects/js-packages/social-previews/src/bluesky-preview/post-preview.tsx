@@ -8,7 +8,7 @@ import type { BlueskyPreviewProps } from './types';
 
 import './styles.scss';
 
-export const BlueskyPostPreview: React.FC< BlueskyPreviewProps > = ( props ) => {
+export const BlueskyPostPreview: React.FC< BlueskyPreviewProps > = props => {
 	const { user, media, appendUrl } = props;
 
 	return (
@@ -25,7 +25,6 @@ export const BlueskyPostPreview: React.FC< BlueskyPreviewProps > = ( props ) => 
 									className="bluesky-preview__media-item"
 								>
 									{ mediaItem.type.startsWith( 'video/' ) ? (
-										// eslint-disable-next-line jsx-a11y/media-has-caption
 										<video controls>
 											<source src={ mediaItem.url } type={ mediaItem.type } />
 										</video>

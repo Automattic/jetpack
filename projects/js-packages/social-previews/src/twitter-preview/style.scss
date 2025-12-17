@@ -7,7 +7,7 @@
  * @blame: pento
  */
 
-@import "../variables";
+@use "../variables" as vars;
 
 .twitter-preview {
 	padding: 20px;
@@ -36,7 +36,7 @@
 	display: grid;
 	grid-template-columns: 65px auto;
 	margin-bottom: 5px;
-	font-size: $tweet-font-size;
+	font-size: vars.$tweet-font-size;
 	line-height: 20px;
 
 	.twitter-preview__sidebar {
@@ -113,12 +113,15 @@
 				&:nth-child(1) {
 					grid-area: a;
 				}
+
 				&:nth-child(2) {
 					grid-area: b;
 				}
+
 				&:nth-child(3) {
 					grid-area: c;
 				}
+
 				&:nth-child(4) {
 					grid-area: d;
 				}
@@ -177,6 +180,7 @@
 
 					.twitter-preview__card-description {
 						-webkit-line-clamp: 3;
+						line-clamp: 3;
 					}
 				}
 			}

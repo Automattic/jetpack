@@ -1,10 +1,9 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable jest/no-conditional-expect */
+/* eslint-disable testing-library/no-node-access */
+/* eslint-disable testing-library/no-container */
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
+import * as React from 'react';
 import {
 	FacebookLinkPreview as Facebook,
 	TwitterPostPreview as Twitter,
@@ -12,6 +11,30 @@ import {
 	GoogleSearchPreview as Search,
 } from '../src';
 import { formatTweetDate } from '../src/helpers';
+
+// Mock @wordpress/components SandBox to avoid iframe initialization issues in tests
+// The mock prefix is required for jest to allow variable access in the factory
+const mockReact = React;
+jest.mock( '@wordpress/components', () => {
+	return {
+		SandBox: ( { html, title }: { html: string; title: string } ) => {
+			const iframeRef = mockReact.useRef< HTMLIFrameElement >( null );
+
+			mockReact.useEffect( () => {
+				if ( iframeRef.current ) {
+					const doc = iframeRef.current.contentWindow?.document;
+					if ( doc ) {
+						doc.open();
+						doc.write( html );
+						doc.close();
+					}
+				}
+			}, [ html ] );
+
+			return mockReact.createElement( 'iframe', { ref: iframeRef, title } );
+		},
+	};
+} );
 
 const DEFAULT_POST_TITLE = 'Hello World';
 const DEFAULT_POST_URL = 'https://example.com/new-entry';
@@ -101,23 +124,12 @@ describe( 'Facebook previews', () => {
 
 			expect( urlEl ).toBeVisible();
 			expect( urlEl ).toHaveTextContent( 'wordpress.com' );
-			expect( urlEl.textContent ).not.toContain( '|' );
+			expect( urlEl ).not.toHaveTextContent( /\|/ );
 		} );
 	} );
 } );
 
 describe( 'Twitter previews', () => {
-	let originalConsoleError;
-
-	beforeAll( () => {
-		originalConsoleError = global.console.error;
-		global.console.error = jest.fn();
-	} );
-
-	afterAll( () => {
-		global.console.error = originalConsoleError;
-	} );
-
 	const emptyTweet = {
 		profileImage: '',
 		name: '',
@@ -125,7 +137,7 @@ describe( 'Twitter previews', () => {
 		date: Date.now(),
 		text: '',
 		media: [],
-		tweet: '',
+		tweetUrl: '',
 		urls: [],
 	};
 
@@ -305,10 +317,10 @@ describe( 'Twitter previews', () => {
 	} );
 
 	it( 'should render a quoted tweet', () => {
-		const quoteTweet = 'https://twitter.com/GaryPendergast/status/934003415507546112';
+		const tweetUrl = 'https://twitter.com/GaryPendergast/status/934003415507546112';
 		const tweet = {
 			...emptyTweet,
-			tweet: quoteTweet,
+			tweetUrl,
 		};
 
 		const { container } = render( <Twitter { ...tweet } /> );
@@ -320,8 +332,10 @@ describe( 'Twitter previews', () => {
 		const quoteEl = tweetWrapper.querySelector( '.twitter-preview__quote-tweet' );
 
 		expect( quoteEl ).toBeVisible();
-		expect( quoteEl.children.item( 0 ).contentWindow.document.body ).toContainHTML(
-			`<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true"><a href="${ quoteTweet }"></a></blockquote>`
+		expect(
+			( quoteEl.children.item( 0 ) as HTMLIFrameElement ).contentWindow.document.body
+		).toContainHTML(
+			`<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true"><a href="${ tweetUrl }"></a></blockquote>`
 		);
 	} );
 
@@ -361,7 +375,7 @@ describe( 'Twitter previews', () => {
 			// Passing 5 images renders 4 images.
 			{
 				...emptyTweet,
-				media: Array.from( Array( 5 ).keys() ).map( ( val ) => ( {
+				media: Array.from( Array( 5 ).keys() ).map( val => ( {
 					alt: `alt-${ val }`,
 					url: `src-${ val }.png`,
 					type: 'image/png',
@@ -439,7 +453,7 @@ describe( 'Twitter previews', () => {
 			// Passing no media renders no media.
 			[],
 			// Passing 5 images renders 4 images.
-			Array.from( Array( 4 ).keys() ).map( ( val ) => ( {
+			Array.from( Array( 4 ).keys() ).map( val => ( {
 				alt: `alt-${ val }`,
 				src: `src-${ val }.png`,
 				tag: 'img',

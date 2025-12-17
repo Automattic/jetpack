@@ -1,5 +1,5 @@
 /* stylelint-disable scales/radii */
-@import "./variables";
+@use "./variables" as vars;
 
 .threads-preview {
 	padding: 20px;
@@ -28,9 +28,9 @@
 	display: grid;
 	grid-template-columns: 50px auto;
 	margin-bottom: 5px;
-	font-size: $threads-font-size;
-	line-height: $threads-line-height;
-	color: $threads-text-primary-color;
+	font-size: vars.$threads-font-size;
+	line-height: vars.$threads-line-height;
+	color: vars.$threads-text-primary-color;
 
 	.threads-preview__sidebar {
 		display: grid;
@@ -76,7 +76,7 @@
 	}
 
 	.threads-preview__date {
-		color: $threads-text-secondary-color;
+		color: vars.$threads-text-secondary-color;
 	}
 
 	.threads-preview__content {
@@ -168,7 +168,7 @@
 			.threads-preview__card-url {
 				font-size: 12px;
 				text-transform: lowercase;
-				color: $threads-text-secondary-color;
+				color: vars.$threads-text-secondary-color;
 				white-space: nowrap;
 				overflow-inline: hidden;
 				text-overflow: ellipsis;
@@ -184,7 +184,7 @@
 		svg {
 			height: 19px;
 			width: 19px;
-			fill: $threads-actions-icon-color;
+			fill: vars.$threads-actions-icon-color;
 		}
 	}
 
@@ -193,9 +193,10 @@
 		&--like,
 		&--reply,
 		&--share {
+
 			svg {
 				fill: transparent;
-				stroke: $threads-actions-icon-color;
+				stroke: vars.$threads-actions-icon-color;
 			}
 		}
 	}

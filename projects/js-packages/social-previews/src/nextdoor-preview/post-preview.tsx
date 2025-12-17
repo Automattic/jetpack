@@ -16,6 +16,12 @@ import { NextdoorPreviewProps } from './types';
 
 import './style.scss';
 
+/**
+ * Nextdoor Post Preview Component.
+ *
+ * @param {NextdoorPreviewProps} props - The preview properties.
+ * @return The Nextdoor post preview component.
+ */
 export function NextdoorPostPreview( {
 	image,
 	name,
@@ -79,7 +85,6 @@ export function NextdoorPostPreview( {
 											className="nextdoor-preview__media-item"
 										>
 											{ mediaItem?.type?.startsWith( 'video/' ) ? (
-												// eslint-disable-next-line jsx-a11y/media-has-caption
 												<video controls>
 													<source src={ mediaItem.url } type={ mediaItem.type } />
 												</video>

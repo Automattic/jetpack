@@ -6,7 +6,7 @@ import type { MastodonPreviewProps } from './types';
 
 import './styles.scss';
 
-export const MastodonLinkPreview: React.FC< MastodonPreviewProps > = ( props ) => {
+export const MastodonLinkPreview: React.FC< MastodonPreviewProps > = props => {
 	const { user } = props;
 
 	return (

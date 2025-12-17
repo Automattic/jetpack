@@ -7,8 +7,7 @@ export const Media: React.FC< MediaProps > = ( { media } ) => {
 	const filteredMedia = media
 		// Only image/ and video/ mime types are supported.
 		.filter(
-			( mediaItem ) =>
-				mediaItem.type.startsWith( 'image/' ) || mediaItem.type.startsWith( 'video/' )
+			mediaItem => mediaItem.type.startsWith( 'image/' ) || mediaItem.type.startsWith( 'video/' )
 		)
 		.filter( ( mediaItem, idx, array ) => {
 			// We'll always keep the first item.
@@ -47,7 +46,6 @@ export const Media: React.FC< MediaProps > = ( { media } ) => {
 			{ filteredMedia.map( ( mediaItem, index ) => (
 				<Fragment key={ `threads-preview__media-item-${ index }` }>
 					{ isVideo ? (
-						// eslint-disable-next-line jsx-a11y/media-has-caption
 						<video controls>
 							<source src={ mediaItem.url } type={ mediaItem.type } />
 						</video>

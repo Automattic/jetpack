@@ -7,6 +7,11 @@ type OptionalProps = Partial< Pick< LinkedInPreviewProps, 'name' | 'profileImage
 export type LinkedInLinkPreviewProps = Omit< LinkedInPreviewProps, keyof OptionalProps > &
 	OptionalProps;
 
+/**
+ * LinkedIn Link Preview Component
+ * @param {LinkedInLinkPreviewProps} props - The props for the LinkedIn link preview.
+ * @return The LinkedIn link preview component.
+ */
 export function LinkedInLinkPreview( props: LinkedInLinkPreviewProps ) {
 	return (
 		<LinkedInPostPreview

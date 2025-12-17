@@ -1,7 +1,7 @@
 import { ThreadsPostPreview } from './post-preview';
 import { ThreadsPreviewProps } from './types';
 
-export const ThreadsLinkPreview: React.FC< ThreadsPreviewProps > = ( props ) => {
+export const ThreadsLinkPreview: React.FC< ThreadsPreviewProps > = props => {
 	return (
 		<ThreadsPostPreview
 			{ ...props }

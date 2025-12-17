@@ -1,11 +1,11 @@
-@import "../../variables";
+@use "../../variables" as vars;
 
 .tumblr-preview__post-icon {
 	display: flex;
 	align-items: center;
 
 	svg {
-		fill: $tumblr-preview-action-text-color;
+		fill: vars.$tumblr-preview-action-text-color;
 	}
 }
 

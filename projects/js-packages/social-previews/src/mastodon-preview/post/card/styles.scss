@@ -1,4 +1,4 @@
-@import '../../variables';
+@use "../../variables" as vars;
 
 .mastodon-preview__card {
 	display: flex;
@@ -9,7 +9,7 @@
 	border: solid 1px #d9e1e8;
 	border-radius: 8px;
 	overflow: hidden;
-	color: $mastodon-body-text-color;
+	color: vars.$mastodon-body-text-color;
 
 	&.has-image {
 		flex-direction: column;

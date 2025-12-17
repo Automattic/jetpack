@@ -31,7 +31,6 @@ export const FacebookPostPreview: React.FC< FacebookPreviewProps > = ( {
 									className={ `facebook-preview__media-item ${ modeClass }` }
 								>
 									{ mediaItem.type.startsWith( 'video/' ) ? (
-										// eslint-disable-next-line jsx-a11y/media-has-caption
 										<video controls>
 											<source src={ mediaItem.url } type={ mediaItem.type } />
 										</video>

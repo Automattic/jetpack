@@ -3,15 +3,28 @@ import { firstValid, hardTruncation, shortEnough, stripHtmlTags, Formatter } fro
 const TITLE_LENGTH = 1000;
 const DESCRIPTION_LENGTH = 400;
 
-export const tumblrTitle: Formatter = ( text ) =>
+export const tumblrTitle: Formatter = text =>
 	firstValid(
 		shortEnough( TITLE_LENGTH ),
 		hardTruncation( TITLE_LENGTH )
 	)( stripHtmlTags( text ) ) || '';
 
-export const tumblrDescription: Formatter = ( text ) => {
-	// First remove Gutenberg block comments
-	let processedText = text.replace( /<!--[\s\S]*?-->/g, '' );
+export const tumblrDescription: Formatter = text => {
+	// Remove Gutenberg block comments using a safer approach to avoid ReDoS
+	let processedText = text;
+	let startIndex = processedText.indexOf( '<!--' );
+	while ( startIndex !== -1 ) {
+		const endIndex = processedText.indexOf( '-->', startIndex );
+		if ( endIndex === -1 ) {
+			// Incomplete comment, remove from startIndex to end
+			processedText = processedText.substring( 0, startIndex );
+			break;
+		}
+		// Remove the comment
+		processedText =
+			processedText.substring( 0, startIndex ) + processedText.substring( endIndex + 3 );
+		startIndex = processedText.indexOf( '<!--' );
+	}
 
 	// Convert closing paragraph tags to line breaks to preserve paragraph structure
 	processedText = processedText.replace( /<\/p>/g, '</p>\n\n' );

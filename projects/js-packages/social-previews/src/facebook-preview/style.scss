@@ -1,22 +1,21 @@
-@import './variables';
-@import '../shared';
+@use "./variables" as vars;
 
 .facebook-preview__post {
 	overflow-y: hidden;
-	max-width: clamp( #{$facebook-preview-min-width}, 100%, #{$facebook-preview-max-width} );
+	max-width: clamp(#{vars.$facebook-preview-min-width}, 100%, #{vars.$facebook-preview-max-width});
 	margin-inline: auto;
 
 	display: flex;
 	flex-direction: column;
 
-	background-color: $facebook-preview-card-background-color;
-	border-radius: $facebook-preview-card-border-radius;
-	box-shadow: $facebook-preview-card-box-shadow;
+	background-color: vars.$facebook-preview-card-background-color;
+	border-radius: vars.$facebook-preview-card-border-radius;
+	box-shadow: vars.$facebook-preview-card-box-shadow;
 
-	font-family: $facebook-preview-font-family;
+	font-family: vars.$facebook-preview-font-family;
 
 	:any-link {
-		color: $facebook-blue;
+		color: vars.$facebook-blue;
 
 		text-decoration: none;
 	}
@@ -26,7 +25,7 @@
 	margin: 0;
 	padding: 0 1rem 1rem;
 
-	color: $facebook-preview-text-color;
+	color: vars.$facebook-preview-text-color;
 
 	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.9375rem; // 15px
@@ -43,8 +42,8 @@
 	display: flex;
 	flex-direction: column;
 
-	border-top: $facebook-preview-body-border;
-	border-bottom: $facebook-preview-body-border;
+	border-top: vars.$facebook-preview-body-border;
+	border-bottom: vars.$facebook-preview-body-border;
 
 	&.is-loading {
 		visibility: hidden;
@@ -64,8 +63,8 @@
 
 	padding: 0.5rem 1rem;
 
-	background-color: $facebook-preview-text-background-color;
-	color: $facebook-preview-text-color;
+	background-color: vars.$facebook-preview-text-background-color;
+	color: vars.$facebook-preview-text-color;
 
 	word-break: break-word;
 }
@@ -77,7 +76,7 @@
 .facebook-preview__url {
 	margin-bottom: 0.25rem;
 
-	color: $facebook-preview-light-text-color;
+	color: vars.$facebook-preview-light-text-color;
 
 	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.8125rem; // 13px
@@ -95,7 +94,7 @@
 }
 
 .facebook-preview__description {
-	color: $facebook-preview-light-text-color;
+	color: vars.$facebook-preview-light-text-color;
 
 	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.9375rem; // 15px
@@ -111,6 +110,7 @@
 .facebook-preview__image,
 .facebook-preview__custom-image,
 .facebook-preview__media-item {
+
 	img,
 	video {
 		display: block;
@@ -120,14 +120,16 @@
 }
 
 .facebook-preview__image {
+
 	&.is-empty {
 		width: 140px;
 		height: 140px;
 
-		border-inline-end: $facebook-preview-body-border;
+		border-inline-end: vars.$facebook-preview-body-border;
 	}
 
 	&.is-portrait {
+
 		img {
 			width: 278px;
 			height: 430px;
@@ -135,9 +137,11 @@
 	}
 
 	&.is-landscape {
+
 		img {
-			// At the moment of writing, the post card on Facebook.com goes from 508 to 680px wide
-			// on desktop. In landscape mode, the image takes the full width of the card, and
+			// At the moment of writing, the post card on Facebook.com
+			// goes from 508 to 680px wide on desktop.
+			// In landscape mode, the image takes the full width of the card, and
 			// respect the 1.91 aspect ratio at any width.
 			width: 100%;
 			aspect-ratio: 1.91;
@@ -152,9 +156,10 @@
 
 	width: 100%;
 
-	background-color: $facebook-preview-image-background;
+	background-color: vars.$facebook-preview-image-background;
 
 	&.is-portrait {
+
 		img {
 			width: 500px;
 			height: 685px;
@@ -162,6 +167,7 @@
 	}
 
 	&.is-landscape {
+
 		img {
 			width: 100%;
 			aspect-ratio: 1.78;
@@ -181,12 +187,12 @@
 	width: 30px;
 	height: 30px;
 
-	background-color: $facebook-preview-card-background-color;
-	border: $facebook-preview-body-border;
+	background-color: vars.$facebook-preview-card-background-color;
+	border: vars.$facebook-preview-body-border;
 	border-radius: 50%;
 
 	i {
-		filter: invert( 8% );
+		filter: invert(8%);
 	}
 }
 
@@ -194,7 +200,7 @@
 	margin: 0 0.75rem;
 
 	border-radius: 16px;
-	border: $facebook-preview-body-border;
+	border: vars.$facebook-preview-body-border;
 
 	.facebook-preview__image,
 	.facebook-preview__custom-image {

@@ -1,9 +1,8 @@
-@import './variables';
-@import '../shared';
+@use "./variables" as vars;
 
 .bluesky-preview__section {
 	max-width: 100%;
-	width: $bluesky-preview-width;
+	width: vars.$bluesky-preview-width;
 	margin-inline: auto;
 }
 
@@ -17,17 +16,17 @@
 	box-sizing: border-box;
 	padding: 1rem;
 
-	background-color: $bluesky-preview-background-color;
+	background-color: vars.$bluesky-preview-background-color;
 	border: 1px solid #c0cdd9;
-	color: $bluesky-preview-text-color;
+	color: vars.$bluesky-preview-text-color;
 
-	font-family: $bluesky-preview-font-family;
+	font-family: vars.$bluesky-preview-font-family;
 	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.9375rem;
 	line-height: 1.47;
 
 	:any-link {
-		color: $bluesky-preview-accent-color;
+		color: vars.$bluesky-preview-accent-color;
 
 		text-decoration: none;
 	}

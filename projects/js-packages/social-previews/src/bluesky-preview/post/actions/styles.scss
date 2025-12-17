@@ -1,12 +1,10 @@
-@import "../../variables";
-
 .bluesky-preview__post-actions {
 	margin-top: 0.5rem;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 
-	& > div {
+	> div {
 		flex: 1;
 		display: flex;
 		align-items: center;

@@ -1,7 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { TYPE_ARTICLE, PORTRAIT_MODE } from '../constants';
+import { baseDomain } from '../helpers';
 import CustomText from './custom-text';
-import { baseDomain, facebookTitle, facebookDescription } from './helpers';
+import { facebookTitle, facebookDescription } from './helpers';
 import useImage from './hooks/use-image-hook';
 import FacebookPostActions from './post/actions';
 import FacebookPostHeader from './post/header';

@@ -7,6 +7,13 @@ type OptionalProps = Partial< Pick< NextdoorPreviewProps, 'name' | 'profileImage
 export type NextdoorLinkPreviewProps = Omit< NextdoorPreviewProps, keyof OptionalProps > &
 	OptionalProps;
 
+/**
+ * Nextdoor Link Preview Component
+ *
+ * @param {NextdoorLinkPreviewProps} props - The props for the Nextdoor link preview.
+ *
+ * @return The Nextdoor link preview component.
+ */
 export function NextdoorLinkPreview( props: NextdoorLinkPreviewProps ) {
 	return (
 		<NextdoorPostPreview

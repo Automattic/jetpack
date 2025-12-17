@@ -3,6 +3,11 @@ import { CommentIcon } from './icons/comment-icon';
 import { LikeIcon } from './icons/like-icon';
 import { ShareIcon } from './icons/share-icon';
 
+/**
+ * Footer Actions Component
+ *
+ * @return The Nextdoor footer actions component.
+ */
 export function FooterActions() {
 	return (
 		<div className="nextdoor-preview__footer--actions">

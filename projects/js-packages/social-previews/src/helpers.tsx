@@ -8,16 +8,19 @@ type AugmentFormatterReturnType< T extends Formatter, TNewReturn > = (
 type ConditionalFormatter = AugmentFormatterReturnType< Formatter, boolean >;
 type NullableFormatter = AugmentFormatterReturnType< Formatter, undefined >;
 
-export const baseDomain = ( url: string ): string =>
-	url
-		.replace( /^[^/]+[/]*/, '' ) // strip leading protocol
-		.replace( /\/.*$/, '' ); // strip everything after the domain
+export const baseDomain: Formatter = url => {
+	// Strip leading protocol
+	const withoutProtocol = url.replace( /^[^/]+:\/\//, '' );
+	// Strip everything after the domain using indexOf to avoid ReDoS
+	const slashIndex = withoutProtocol.indexOf( '/' );
+	return slashIndex === -1 ? withoutProtocol : withoutProtocol.substring( 0, slashIndex );
+};
 
-export const shortEnough: ( n: number ) => ConditionalFormatter = ( limit ) => ( title ) =>
+export const shortEnough: ( n: number ) => ConditionalFormatter = limit => title =>
 	title.length <= limit ? title : false;
 
 export const truncatedAtSpace: ( a: number, b: number ) => ConditionalFormatter =
-	( lower, upper ) => ( fullTitle ) => {
+	( lower, upper ) => fullTitle => {
 		const title = fullTitle.slice( 0, upper );
 		const lastSpace = title.lastIndexOf( ' ' );
 
@@ -26,13 +29,13 @@ export const truncatedAtSpace: ( a: number, b: number ) => ConditionalFormatter 
 			: false;
 	};
 
-export const hardTruncation: ( n: number ) => Formatter = ( limit ) => ( title ) =>
+export const hardTruncation: ( n: number ) => Formatter = limit => title =>
 	title.slice( 0, limit ).concat( '…' );
 
 export const firstValid: ( ...args: ConditionalFormatter[] ) => NullableFormatter =
 	( ...predicates ) =>
-	( a ) =>
-		( predicates.find( ( p ) => false !== p( a ) ) as Formatter )?.( a );
+	a =>
+		( predicates.find( p => false !== p( a ) ) as Formatter )?.( a );
 
 export const stripHtmlTags: Formatter< Array< string > > = ( description, allowedTags = [] ) => {
 	const pattern = new RegExp( `(<([^${ allowedTags.join( '' ) }>]+)>)`, 'gi' );
@@ -42,8 +45,8 @@ export const stripHtmlTags: Formatter< Array< string > > = ( description, allowe
 
 /**
  * For social note posts we use the first 50 characters of the description.
- * @param description The post description.
- * @returns The first 50 characters of the description.
+ * @param description - The post description.
+ * @return The first 50 characters of the description.
  */
 export const getTitleFromDescription = ( description: string ): string => {
 	return stripHtmlTags( description ).substring( 0, 50 );
@@ -101,7 +104,7 @@ type PreviewTextOptions = {
 	hashtagDomain?: string;
 };
 
-export const hashtagUrlMap: Record< Platform, string > = {
+export const hashtagUrlMap = {
 	twitter: 'https://twitter.com/hashtag/%1$s',
 	facebook: 'https://www.facebook.com/hashtag/%1$s',
 	linkedin: 'https://www.linkedin.com/feed/hashtag/?keywords=%1$s',
@@ -111,10 +114,13 @@ export const hashtagUrlMap: Record< Platform, string > = {
 	threads: 'https://www.threads.net/search?q=%1$s&serp_type=tags',
 	tumblr: 'https://www.tumblr.com/tagged/%1$s',
 	bluesky: 'https://bsky.app/hashtag/%1$s',
-};
+} as const;
 
 /**
  * Prepares the text for the preview.
+ * @param {string}             text    - The text to prepare.
+ * @param {PreviewTextOptions} options - The options for preparing the text.
+ * @return The prepared text as React nodes.
  */
 export function preparePreviewText( text: string, options: PreviewTextOptions ): React.ReactNode {
 	const {
@@ -170,8 +176,8 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		 * AFTER:
 		 * result = 'Check out this cool site: <Link0 /> and this one: <Link1 />'
 		 * componentMap = {
-		 *     Link0: <a href="https://wordpress.org" ...>https://wordpress.org</a>,
-		 *     Link1: <a href="https://wordpress.com" ...>https://wordpress.com</a>
+		 * Link0: <a href="https://wordpress.org" ...>https://wordpress.org</a>,
+		 * Link1: <a href="https://wordpress.com" ...>https://wordpress.com</a>
 		 * }
 		 */
 	}
@@ -211,9 +217,9 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		 * with a url https://github.com/Automattic/wp-calypso#security that has a hash in it`
 		 *
 		 * componentMap = {
-		 *    Hashtag0: <a href="https://twitter.com/hashtag/breaking" ...>#breaking</a>,
-		 *    Hashtag1: <a href="https://twitter.com/hashtag/hashtag" ...>#hashtag</a>,
-		 *    Hashtag2: <a href="https://twitter.com/hashtag/web" ...>#web</a>
+		 * Hashtag0: <a href="https://twitter.com/hashtag/breaking" ...>#breaking</a>,
+		 * Hashtag1: <a href="https://twitter.com/hashtag/hashtag" ...>#hashtag</a>,
+		 * Hashtag2: <a href="https://twitter.com/hashtag/web" ...>#web</a>
 		 * }
 		 */
 	}

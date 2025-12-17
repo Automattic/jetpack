@@ -1,9 +1,8 @@
-@import './variables';
-@import '../shared';
+@use "./variables" as vars;
 
 .mastodon-preview__section {
 	max-width: 100%;
-	width: $mastodon-preview-width;
+	width: vars.$mastodon-preview-width;
 	margin-inline: auto;
 }
 
@@ -13,17 +12,17 @@
 	box-sizing: border-box;
 	padding: 1rem;
 
-	background-color: $mastodon-preview-background-color;
+	background-color: vars.$mastodon-preview-background-color;
 	border: 1px solid #c0cdd9;
-	color: $mastodon-preview-text-color;
+	color: vars.$mastodon-preview-text-color;
 
-	font-family: $mastodon-preview-font-family;
+	font-family: vars.$mastodon-preview-font-family;
 	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.9375rem;
 	line-height: 1.47;
 
 	:any-link {
-		color: $mastodon-preview-accent-color;
+		color: vars.$mastodon-preview-accent-color;
 
 		text-decoration: none;
 	}

@@ -1,3 +1,8 @@
+/**
+ * Default Image Icon Component
+ *
+ * @return The Default Image SVG icon component.
+ */
 export function DefaultImage() {
 	return (
 		<div className="nextdoor-preview__default-image">

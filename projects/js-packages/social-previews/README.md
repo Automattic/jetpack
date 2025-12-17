@@ -1,29 +1,6 @@
-# Social Previews
+# social-previews
 
 This package contains low level components that can be used to display an _approximation_ of how a given post might like look when viewed on various social media / search platforms.
-
-At the current time there are components to display previews for:
-
-- Facebook post.
-- Twitter post.
-- Google Search result.
-- Tumblr post.
-- LinkedIn post.
-- Nextdoor post.
-- Threads post.
-
-## Prerequisites
-
-Your application must be able to load Sass/SCSS files. You may implement this
-however you like.
-
-- In a wp-calypso or jetpack environment, Sass loading is already provided.
-- If you're using create-react-app, you may install `node-sass` or [read the
-  CRA documentation on
-  sass](https://create-react-app.dev/docs/adding-a-sass-stylesheet/) for more
-  info.
-- If you're using your own webpack config, [read the webpack documentation on
-  adding a sass-loader](https://webpack.js.org/loaders/sass-loader/).
 
 ## Usage
 
@@ -38,6 +15,12 @@ import { FacebookPreviews } from '@automattic/social-previews';
 	url="https://wordpress.org/five-for-the-future/"
 	user={ { displayName: 'Matt Mullenweg' } }
 />;
+```
+
+You must import CSS separately to style the components. You can import the CSS file directly from the package like so:
+
+```ts
+import '@automattic/social-previews/style.css';
 ```
 
 Here is another example using the Search result component:
@@ -134,3 +117,11 @@ In addition each individual component accepts optional additional properties tha
 ## Auto Truncation
 
 Note that due to limits enforced by each given platform some strings may need to be truncated. Each component has its individual rules governing the number of characters in a given field allowed before truncation occurs. Limits are typically higher for `description` fields and shorter for `title` fields. Truncation by `SPACE` character is preferred, but where that is not possible a hard truncation is imposed. In both cases an ellipsis character (`…`)`is appended to the end of the string to indicate that a truncation has occurred.
+
+## Security
+
+Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
+
+## License
+
+social-previews is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
