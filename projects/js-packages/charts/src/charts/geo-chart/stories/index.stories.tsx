@@ -58,3 +58,23 @@ export const USStates: Story = {
 		],
 	},
 };
+
+export const EuropeanCountries: Story = {
+	args: {
+		...geoChartStoryArgs,
+		region: '150',
+		resolution: 'countries',
+		data: [
+			[ 'Country', 'Views' ],
+			[ 'United Kingdom', 1500 ],
+			[ 'France', 1000 ],
+			[ 'Germany', 800 ],
+			[ 'Italy', 600 ],
+			[ 'Spain', 500 ],
+			[ 'Portugal', 400 ],
+			[ 'Greece', 300 ],
+			[ 'Turkey', 200 ],
+			[ 'Russia', 100 ],
+		],
+	},
+};
