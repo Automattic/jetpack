@@ -113,6 +113,9 @@ For rich tooltip content with HTML formatting, add `p: { html: true }` to the to
 	/>` }
 />
 
+#### Security Considerations
+
+When using HTML tooltips via `p: { html: true }`, any HTML in the tooltip content will be rendered by the browser. If tooltip strings come from user-generated input or external data sources, you **must** sanitize them first to prevent cross-site scripting (XSS) attacks.
 ### Formatted Values
 
 Separate the display format from the actual value using cell objects with `v` (value) and `f` (formatted) properties:
