@@ -221,8 +221,14 @@
 	 * @return {string} Search result with span wrapping matching word (search input) for styling.
 	 */
 	function highlight_word( word, phrase ) {
-		const replace = '<span class="highlight">' + word + '</span>';
-		return phrase.replace( word, replace );
+		// Escape special regex characters in the search word
+		const escapedWord = word.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
+		// Create a case-insensitive regex to find the word in the phrase
+		const regex = new RegExp( escapedWord, 'i' );
+		// Replace with the matched text (preserving original case) wrapped in a span
+		return phrase.replace( regex, function ( match ) {
+			return '<span class="highlight">' + match + '</span>';
+		} );
 	}
 
 	/**
