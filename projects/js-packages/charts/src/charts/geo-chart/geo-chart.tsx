@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { FC, useContext } from 'react';
+import { FC, useContext, useMemo } from 'react';
 import { Chart, type GoogleChartOptions } from 'react-google-charts';
 /**
  * Internal dependencies
@@ -71,30 +71,36 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		normalizeColorToHex( featureFillColor, null, resolveCssVariable ) || DEFAULT_FEATURE_FILL_COLOR;
 
 	// Check if data has HTML tooltips (column with role: 'tooltip' and p.html: true)
-	const hasHtmlTooltips =
-		data.length > 0 &&
-		data[ 0 ].some(
-			col =>
-				typeof col === 'object' &&
-				col !== null &&
-				'role' in col &&
-				col.role === 'tooltip' &&
-				'p' in col &&
-				typeof col.p === 'object' &&
-				col.p !== null &&
-				'html' in col.p &&
-				col.p.html === true
-		);
+	const hasHtmlTooltips = useMemo(
+		() =>
+			data.length > 0 &&
+			data[ 0 ].some(
+				col =>
+					typeof col === 'object' &&
+					col !== null &&
+					'role' in col &&
+					col.role === 'tooltip' &&
+					'p' in col &&
+					typeof col.p === 'object' &&
+					col.p !== null &&
+					'html' in col.p &&
+					col.p.html === true
+			),
+		[ data ]
+	);
 
-	const options: GoogleChartOptions = {
-		colorAxis: { colors: [ lightColorHex, fullColorHex ] },
-		backgroundColor: backgroundColorHex,
-		datalessRegionColor: defaultFillColorHex,
-		defaultColor: defaultFillColorHex,
-		tooltip: { trigger: 'focus', isHtml: hasHtmlTooltips },
-		legend: 'none',
-		keepAspectRatio: true,
-	};
+	const options: GoogleChartOptions = useMemo(
+		() => ( {
+			colorAxis: { colors: [ lightColorHex, fullColorHex ] },
+			backgroundColor: backgroundColorHex,
+			datalessRegionColor: defaultFillColorHex,
+			defaultColor: defaultFillColorHex,
+			tooltip: { trigger: 'focus', isHtml: hasHtmlTooltips },
+			legend: 'none',
+			keepAspectRatio: true,
+		} ),
+		[ lightColorHex, fullColorHex, backgroundColorHex, defaultFillColorHex, hasHtmlTooltips ]
+	);
 
 	return (
 		<div
