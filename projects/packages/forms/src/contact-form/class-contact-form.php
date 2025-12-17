@@ -1270,6 +1270,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * Prepare the submit button for the contact form.
+	 * Add interactivity attributes to the LAST submit button found in the content.
 	 *
 	 * @param string $content - the content of the submit button.
 	 *
