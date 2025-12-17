@@ -78,7 +78,7 @@ runs:
         echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
     - name: Use composer cache
       if: steps.versions.outputs.php-version != 'false'
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}

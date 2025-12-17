@@ -83,7 +83,7 @@ jobs:
     steps:
       - name: Ensure ${{ matrix.buildGroup }} build cache
         id: jetpack-build-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           lookup-only: true
           path: |
@@ -134,7 +134,7 @@ jobs:
       - name: Save ${{ matrix.buildGroup }} build cache
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         id: jetpack-build-cache-save
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: |
             .
@@ -163,7 +163,7 @@ jobs:
       - name: Restore ${{ matrix.buildGroup }} build cache
         id: jetpack-build-cache
         if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: |
             .
