@@ -70,14 +70,11 @@ async function fetchSitesFromWordPressCom() {
 		return cachedSites;
 	}
 
-	try {
-		// On WordPress.com simple sites, call the v1.1 API directly
-		// On Jetpack sites, use the Jetpack v4 proxy endpoint
-		const isWPCOM = typeof window._currentSiteType !== 'undefined';
-		const path = isWPCOM ? '/rest/v1.1/me/sites/compact' : '/jetpack/v4/sites/compact';
+	const apiPath = window.jetpackSiteSwitcherConfig?.apiPath;
 
+	try {
 		const data = await apiFetch( {
-			path,
+			path: apiPath,
 			method: 'GET',
 			global: true,
 		} );

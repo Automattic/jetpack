@@ -35,12 +35,22 @@ function jetpack_site_switcher_enqueue_scripts() {
 		true
 	);
 
-	// Pass user ID for cache namespacing
+	// Pass configuration to JavaScript
+	$api_path = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		? '/rest/v1.1/me/sites/compact'
+		: '/jetpack/v4/sites/compact';
+
 	wp_add_inline_script(
 		'jetpack-site-switcher',
 		sprintf(
 			'window.jetpackSiteSwitcherConfig = %s;',
-			wp_json_encode( array( 'userId' => get_current_user_id() ), JSON_HEX_TAG | JSON_UNESCAPED_SLASHES )
+			wp_json_encode(
+				array(
+					'userId'  => get_current_user_id(),
+					'apiPath' => $api_path,
+				),
+				JSON_HEX_TAG | JSON_UNESCAPED_SLASHES
+			)
 		),
 		'before'
 	);
