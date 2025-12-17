@@ -95,7 +95,7 @@
 		const header_text = /^ *[0-9]+ *$/.test( search_for ) ? `${ found.key }` : found.header;
 		const class_selector = '.branch-card-header';
 
-		const found_position = header_text.indexOf( search_for );
+		const found_position = header_text.toLowerCase().indexOf( search_for.toLowerCase() );
 		if ( -1 === found_position ) {
 			hide( element );
 			return;
