@@ -1,6 +1,5 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { getRequiredPlan, useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
-import { ExternalLink, Notice } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -12,7 +11,7 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
  * @return The upsell notice.
  */
 export function UpsellNotice() {
-	const { isRePublicizeUpgradableViaUpsell, isRePublicizeFeatureAvailable } = usePublicizeConfig();
+	const { isRePublicizeFeatureAvailable } = usePublicizeConfig();
 	const requiredPlan = getRequiredPlan( 'republicize' );
 	const [ , goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( `${ requiredPlan }` );
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
@@ -29,43 +28,6 @@ export function UpsellNotice() {
 
 	// Define plan name, with a fallback value.
 	const planName = planData?.product_name || __( 'paid', 'jetpack-publicize-components' );
-
-	const isPureJetpackSite = ! isWpcomPlatformSite();
-	const upgradeFeatureTitle = isPureJetpackSite
-		? __( 'Re-sharing your content', 'jetpack-publicize-components' )
-		: _x( 'Share Your Content Again', '', 'jetpack-publicize-components' );
-
-	// Doc page URL.
-	const docPageUrl = isPureJetpackSite
-		? 'https://jetpack.com/support/jetpack-social/#re-sharing-your-content'
-		: 'https://wordpress.com/support/jetpack-social/#share-your-content-again';
-
-	/*
-	 * Render an info message when the feature is not available
-	 * and when it shouldn't show upgrade notices.
-	 * (pure Jetpack sites, for instance).
-	 */
-	if ( ! isRePublicizeFeatureAvailable && ! isRePublicizeUpgradableViaUpsell ) {
-		return (
-			<div className="jetpack-publicize__upsell">
-				<strong>{ upgradeFeatureTitle }</strong>
-
-				<br />
-
-				{ sprintf(
-					/* translators: %s: the product name of the plan. */
-					__( 'This feature is for sites with a %s plan.', 'jetpack-publicize-components' ),
-					planName
-				) }
-
-				<br />
-
-				<ExternalLink href={ docPageUrl }>
-					{ __( 'More information.', 'jetpack-publicize-components' ) }
-				</ExternalLink>
-			</div>
-		);
-	}
 
 	return (
 		<Notice
