@@ -36,7 +36,6 @@ const settings = {
 			gradients: false,
 		},
 		spacing: {
-			margin: true,
 			padding: true,
 		},
 		__experimentalBorder: {
