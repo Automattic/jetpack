@@ -72,7 +72,7 @@ async function fetchSitesFromWordPressCom() {
 
 	try {
 		const data = await apiFetch( {
-			path: '/jetpack/v4/sites/compact',
+			path: '/wpcom/v2/sites/compact',
 			method: 'GET',
 		} );
 
