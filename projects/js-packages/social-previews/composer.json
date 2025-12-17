@@ -38,7 +38,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autorelease": true,
 		"autotagger": true,
+		"npmjs-autopublish": true,
 		"textdomain": "social-previews",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/social-previews/compare/v${old}...v${new}"
