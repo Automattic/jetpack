@@ -309,7 +309,7 @@ jobs:
       - name: Upload artifacts
         id: upload-artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.artifact }}
           path: artifacts
@@ -337,7 +337,7 @@ jobs:
         uses: ./.github/actions/tool-setup
 
       - name: Download coverage artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: 'Code coverage'
           path: coverage
