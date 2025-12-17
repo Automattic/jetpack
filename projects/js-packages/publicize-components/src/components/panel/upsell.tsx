@@ -27,7 +27,9 @@ export function UpsellNotice() {
 	}
 
 	// Define plan name, with a fallback value.
-	const planName = planData?.product_name || __( 'paid', 'jetpack-publicize-components' );
+	const planName =
+		planData?.product_name ||
+		_x( 'paid', 'The plan type - paid vs free', 'jetpack-publicize-components' );
 
 	return (
 		<Notice
