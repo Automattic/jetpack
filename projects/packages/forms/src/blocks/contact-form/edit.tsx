@@ -732,7 +732,6 @@ function JetpackContactFormEdit( {
 				text: __( 'Submit', 'jetpack-forms' ),
 				type: 'submit',
 				tagName: 'button',
-				className: 'wp-block-jetpack-button jetpack-form-submit-button',
 			} );
 		}
 

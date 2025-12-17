@@ -70,7 +70,6 @@ const variations = [
 				{
 					text: __( 'Contact us', 'jetpack-forms' ),
 					tagName: 'button',
-					className: 'jetpack-form-submit-button',
 					type: 'submit',
 					element: 'button',
 				},
@@ -151,7 +150,6 @@ const variations = [
 				{
 					text: __( 'Send RSVP', 'jetpack-forms' ),
 					tagName: 'button',
-					className: 'jetpack-form-submit-button',
 					type: 'submit',
 					element: 'button',
 				},
@@ -306,7 +304,6 @@ const variations = [
 				{
 					text: __( 'Send', 'jetpack-forms' ),
 					tagName: 'button',
-					className: 'jetpack-form-submit-button',
 					type: 'submit',
 					element: 'button',
 				},
@@ -497,7 +494,6 @@ const variations = [
 				{
 					text: __( 'Book appointment', 'jetpack-forms' ),
 					tagName: 'button',
-					className: 'jetpack-form-submit-button',
 					type: 'submit',
 					element: 'button',
 				},
@@ -645,7 +641,6 @@ const variations = [
 				{
 					text: __( 'Send feedback', 'jetpack-forms' ),
 					tagName: 'button',
-					className: 'jetpack-form-submit-button',
 					type: 'submit',
 					element: 'button',
 				},
@@ -970,7 +965,6 @@ const variations = [
 				{
 					text: __( 'Subscribe', 'jetpack-forms' ),
 					tagName: 'button',
-					className: 'jetpack-form-submit-button',
 					type: 'submit',
 					element: 'button',
 				},
