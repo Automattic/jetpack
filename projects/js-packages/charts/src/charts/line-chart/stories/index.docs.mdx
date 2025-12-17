@@ -716,3 +716,28 @@ Line Charts integrate seamlessly with the chart theming system. The default them
 		<LineChart data={data} />
 	</GlobalChartsProvider>` }
 />
+
+## Animation
+
+The Line Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ LineChartStories.Animation } />
+
+<Source
+	language="tsx"
+	code={ `<LineChart
+		data={ data }
+		width={ 800 }
+		height={ 400 }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a rising effect where lines scale up from the bottom, revealing the data progressively
+- **Duration**: 1000ms (1 second) with ease-out timing
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.
