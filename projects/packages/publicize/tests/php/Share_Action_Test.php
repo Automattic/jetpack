@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Current_Plan;
 use WorDBless\BaseTestCase;
 
 /**
@@ -24,6 +25,28 @@ class Share_Action_Test extends BaseTestCase {
 		remove_all_filters( 'post_row_actions' );
 		remove_all_filters( 'page_row_actions' );
 		remove_all_filters( 'jetpack_post_list_display_share_action' );
+	}
+
+	/**
+	 * Tear down after each test.
+	 */
+	public function tear_down() {
+		// Unregister test post types.
+		unregister_post_type( 'test_pub_cpt' );
+		unregister_post_type( 'test_no_pub_cpt' );
+
+		// Clean up filters.
+		remove_all_filters( 'post_row_actions' );
+		remove_all_filters( 'page_row_actions' );
+		remove_all_filters( 'jetpack_post_list_display_share_action' );
+
+		// Clear the Current_Plan cache to avoid affecting other tests.
+		$reflection = new \ReflectionClass( Current_Plan::class );
+		$property   = $reflection->getProperty( 'active_plan_cache' );
+		$property->setAccessible( true );
+		$property->setValue( null, null );
+
+		parent::tear_down();
 	}
 
 	/**
