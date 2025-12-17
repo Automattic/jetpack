@@ -1331,7 +1331,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: none;
 }
 
-.jetpack-form-submit-button button.is-submitting::after {
+.jetpack-form-submit-button:not(.wp-block-button) button.is-submitting::after {
 	content: "";
 	display: inline-block;
 	width: 1em;
