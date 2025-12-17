@@ -1,7 +1,7 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
 import { EMPTY_ARRAY } from '../constants';
-import { ScheduledShare } from '../types';
+import { ScheduledShare, SocialStoreState } from '../types';
 
 /**
  * Get the list of scheduled shares for a post.
@@ -30,6 +30,17 @@ export const isSavingScheduledShare = createRegistrySelector( select => {
 			undefined
 		);
 } );
+
+/**
+ * Whether the current post is being scheduled for sharing.
+ *
+ * @param state - State object.
+ *
+ * @return Whether the current post is being scheduled for sharing.
+ */
+export function isSchedulingShares( state: SocialStoreState ) {
+	return state.scheduledShares?.isScheduling ?? false;
+}
 
 /**
  * Returns whether the scheduled shares for a post are being fetched.

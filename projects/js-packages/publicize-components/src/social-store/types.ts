@@ -65,6 +65,10 @@ export type SharePost = {
 	isSharingCurrentPost?: boolean;
 };
 
+export type ScheduledShares = {
+	isScheduling?: boolean;
+};
+
 export type UnifiedModalState = {
 	isOpen?: boolean;
 	initialPath?: string;
@@ -77,6 +81,7 @@ export type SocialStoreState = {
 	connectionData: ConnectionData;
 	shareStatus?: ShareStatus;
 	sharePost?: SharePost;
+	scheduledShares?: ScheduledShares;
 	unifiedModal?: UnifiedModalState;
 	renderCount?: RenderCount;
 };
