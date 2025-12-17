@@ -44,10 +44,7 @@ export function SharePostButton( { onShareCompleted }: SharePostButtonProps ) {
 	siteHasFeature( features.IMAGE_GENERATOR ) || siteHasFeature( features.ENHANCED_PUBLISHING );
 	const isSharingCurrentPost = useSelect( select => select( socialStore ).isSharingCurrentPost() );
 	const { recordEvent } = useAnalytics();
-	const isSavingScheduledShare = useSelect(
-		select => select( socialStore ).isSavingScheduledShare(),
-		[]
-	);
+	const isSchedulingShares = useSelect( select => select( socialStore ).isSchedulingShares(), [] );
 	const shareThePost = useSharePost();
 
 	const isReSharingPossible = useIsReSharingPossible();
@@ -69,7 +66,7 @@ export function SharePostButton( { onShareCompleted }: SharePostButtonProps ) {
 		<Button
 			variant="primary"
 			onClick={ sharePost }
-			disabled={ ! isReSharingPossible || isSavingScheduledShare }
+			disabled={ ! isReSharingPossible || isSchedulingShares }
 			isBusy={ isSharingCurrentPost }
 			icon={ send }
 		>
