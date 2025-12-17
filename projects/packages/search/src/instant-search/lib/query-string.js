@@ -32,12 +32,24 @@ export function setQuery( queryObject ) {
  */
 function pushQueryString( queryString ) {
 	if ( history.pushState ) {
-		const url = new window.URL( window.location.href );
+		// Build the target URL directly to avoid Safari tracking protection blocking
+		// the pattern of creating a URL object and modifying its href property
+		let baseUrl = window.location.origin + window.location.pathname;
+
 		if ( window[ SERVER_OBJECT_NAME ] && 'homeUrl' in window[ SERVER_OBJECT_NAME ] ) {
-			url.href = window[ SERVER_OBJECT_NAME ].homeUrl;
+			try {
+				const homeUrl = window[ SERVER_OBJECT_NAME ].homeUrl;
+				const parsedHomeUrl = new window.URL( homeUrl, window.location.origin );
+				baseUrl = parsedHomeUrl.origin + parsedHomeUrl.pathname;
+			} catch ( error ) {
+				// Fallback to current location if homeUrl is invalid
+				// eslint-disable-next-line no-console
+				console.warn( 'Invalid homeUrl, using current location', error );
+			}
 		}
-		url.search = queryString;
-		window.history.pushState( null, null, url.toString() );
+
+		const finalUrl = baseUrl + ( queryString ? '?' + queryString : '' );
+		window.history.pushState( null, null, finalUrl );
 	}
 }
 
@@ -65,8 +77,9 @@ export function getResultFormatQuery() {
  */
 export function restorePreviousHref( initialHref, callback, replaceState = false ) {
 	if ( history.pushState && history.replaceState ) {
-		const url = new URL( initialHref );
-		const queryObject = getQuery( url.search );
+		// Parse the initial URL to extract components
+		const parsedUrl = new URL( initialHref );
+		const queryObject = getQuery( parsedUrl.search );
 		const keys = [ ...getFilterKeys(), ...getStaticFilterKeys(), 's', 'sort' ];
 
 		// If initialHref has search or filter query values, clear them.
@@ -74,11 +87,18 @@ export function restorePreviousHref( initialHref, callback, replaceState = false
 		if ( initialHasSearchQueries ) {
 			keys.forEach( key => delete queryObject[ key ] );
 		}
-		url.search = encode( queryObject );
+
+		// Build the final URL directly to avoid Safari tracking protection issues
+		const queryString = encode( queryObject );
+		const finalUrl =
+			parsedUrl.origin +
+			parsedUrl.pathname +
+			( queryString ? '?' + queryString : '' ) +
+			parsedUrl.hash;
 
 		replaceState
-			? window.history.replaceState( null, null, url.toString() )
-			: window.history.pushState( null, null, url.toString() );
+			? window.history.replaceState( null, null, finalUrl )
+			: window.history.pushState( null, null, finalUrl );
 
 		// If initialHref had search queries, then the page rendered beneath the search modal is WordPress's default search page.
 		// We want to strip these search queries from the URL and direct the user to the root if possible.
