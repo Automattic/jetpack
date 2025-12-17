@@ -47,7 +47,6 @@ class Contact_Form_Block {
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
-		add_filter( 'render_block_core/button', array( __CLASS__, 'render_submit_button' ), 10, 2 );
 		add_filter( 'jetpack_block_editor_feature_flags', array( __CLASS__, 'register_feature' ) );
 		add_filter( 'pre_render_block', array( __CLASS__, 'pre_render_contact_form' ), 10, 3 );
 
@@ -101,35 +100,6 @@ class Contact_Form_Block {
 		}
 
 		return $content;
-	}
-
-	/**
-	 * Add Jetpack Forms interactivity attributes to core/button blocks that live inside a contact form.
-	 *
-	 * @param string $content Rendered HTML of the core/button block.
-	 * @param array  $parsed_block Parsed block array.
-	 * @return string Possibly modified HTML.
-	 */
-	public static function render_submit_button( $content, $parsed_block ) {
-		$class = $parsed_block['attrs']['className'] ?? '';
-		if ( ! str_contains( $class, 'jetpack-form-submit-button' ) ) {
-			return $content;
-		}
-
-		if ( ! class_exists( \WP_HTML_Tag_Processor::class ) ) {
-			return $content;
-		}
-
-		$p = new \WP_HTML_Tag_Processor( $content );
-		if ( ! $p->next_tag( array( 'tag_name' => 'button' ) ) ) {
-			return $content;
-		}
-
-		$p->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
-		$p->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
-		$p->set_attribute( 'data-wp-bind--disabled', 'state.isAriaDisabled' );
-
-		return $p->get_updated_html();
 	}
 
 	/**

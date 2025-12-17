@@ -1186,6 +1186,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 			}
 
+			if ( $has_submit_button_block ) {
+				$r = self::prepare_submit_button( $r );
+			}
+
 			// In new versions of the contact form block the button is an inner block
 			// so the button does not need to be constructed server-side.
 			if ( ! $has_submit_button_block ) {
@@ -1262,6 +1266,48 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string $r The contact form HTML.
 		 */
 		return apply_filters( 'jetpack_contact_form_html', $r );
+	}
+
+	/**
+	 * Prepare the submit button for the contact form.
+	 *
+	 * @param string $content - the content of the submit button.
+	 *
+	 * @return string - the prepared content of the submit button.
+	 */
+	private static function prepare_submit_button( $content ) {
+		if ( ! class_exists( \WP_HTML_Tag_Processor::class ) ) {
+			return $content;
+		}
+		$button_count = 0;
+		$p            = new \WP_HTML_Tag_Processor( $content );
+		while ( $p->next_tag(
+			array(
+				'tag_name' => 'button',
+				'type'     => 'submit',
+			)
+		) ) {
+			++$button_count;
+		}
+		if ( $button_count === 0 ) {
+			return $content;
+		}
+		$occurrence = 0;
+		$p          = new \WP_HTML_Tag_Processor( $content );
+		while ( $p->next_tag(
+			array(
+				'tag_name' => 'button',
+				'type'     => 'submit',
+			)
+		) ) {
+			if ( $occurrence === $button_count ) {
+				$p->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
+				$p->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
+				$p->set_attribute( 'data-wp-bind--disabled', 'state.isAriaDisabled' );
+			}
+			++$occurrence;
+		}
+		return $p->get_updated_html();
 	}
 
 	/**
