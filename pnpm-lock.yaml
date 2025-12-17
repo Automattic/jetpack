@@ -1866,12 +1866,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -1912,6 +1906,12 @@ importers:
       jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
       sass:
         specifier: npm:sass-embedded@1.87.0
         version: sass-embedded@1.87.0
