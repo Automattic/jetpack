@@ -938,7 +938,7 @@ export const customerRevenueLegendData = [
  * - Data points: 25
  * - Suitable for: GeoChart
  */
-export const ordersByCountry: [ string[], ...[ string, number ][] ] = [
+export const viewsByCountry: [ string[], ...[ string, number ][] ] = [
 	[ 'Country', 'Views' ],
 	[ 'United States', 1000 ],
 	[ 'United Kingdom', 500 ],

@@ -2,7 +2,7 @@ import {
 	chartDecorator,
 	sharedChartArgTypes,
 	ChartStoryArgs,
-	ordersByCountry,
+	viewsByCountry,
 	themeArgTypes,
 } from '../../../stories';
 import GeoChart from '../geo-chart';
@@ -28,7 +28,7 @@ type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
-		data: ordersByCountry,
+		data: viewsByCountry,
 		withPadding: false,
 	},
 };
