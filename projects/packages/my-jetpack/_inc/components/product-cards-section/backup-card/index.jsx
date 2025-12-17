@@ -111,6 +111,7 @@ const BackupCard = props => {
 			{ ...props }
 			slug={ productSlug }
 			Description={ ( isError || isDeactivated ) && noDescription }
+			admin={ isDeactivated ? false : props.admin }
 		>
 			{ isBackupFailedReasonLoading && <LoadingBlock height="75px" width="100%" /> }
 			{ isDeactivated && ! isBackupFailedReasonLoading && (
