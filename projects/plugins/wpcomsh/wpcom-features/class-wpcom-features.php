@@ -535,11 +535,11 @@ class WPCOM_Features {
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::AI_SEO_ENHANCER                   => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			array(
 				'required_sticker' => 'gating-business-q1',
 				self::WPCOM_PREMIUM_PLANS,
 			),
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS                => array(
