@@ -1193,7 +1193,6 @@ class WPCOM_Features {
 				'required_sticker' => 'gating-business-q1',
 				self::WPCOM_PREMIUM_PLANS,
 			),
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_ALL_SITES,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
