@@ -98,7 +98,7 @@ type ScheduledSharesParams = {
 	timestamp: number;
 };
 type ScheduledSharesConfig = {
-	saveBeforeSharing?: boolean;
+	savePost?: boolean;
 };
 
 /**
@@ -110,7 +110,7 @@ type ScheduledSharesConfig = {
  */
 export function scheduleShares(
 	{ message, connectionIds, timestamp }: ScheduledSharesParams,
-	{ saveBeforeSharing = true }: ScheduledSharesConfig
+	{ savePost = true }: ScheduledSharesConfig
 ) {
 	return async function ( { dispatch, registry } ): Promise< boolean > {
 		if ( ! connectionIds.length || ! timestamp ) {
@@ -138,7 +138,7 @@ export function scheduleShares(
 
 		dispatch( setIsSchedulingShares( true ) );
 
-		if ( isEditedPostDirty() && isEditedPostAutosaveable() && saveBeforeSharing ) {
+		if ( isEditedPostDirty() && isEditedPostAutosaveable() && savePost ) {
 			await registry.dispatch( editorStore ).savePost();
 		}
 

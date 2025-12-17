@@ -60,7 +60,7 @@ type ShareCurrentPostParams = {
 };
 type ShareCurrentPostConfig = {
 	apiPath: string;
-	saveBeforeSharing?: boolean;
+	savePost?: boolean;
 };
 
 /**
@@ -72,7 +72,7 @@ type ShareCurrentPostConfig = {
  */
 export function shareCurrentPost(
 	{ message, skipped_connections }: ShareCurrentPostParams,
-	{ apiPath, saveBeforeSharing = true }: ShareCurrentPostConfig
+	{ apiPath, savePost = true }: ShareCurrentPostConfig
 ) {
 	return async function ( { dispatch, registry } ): Promise< boolean > {
 		const { createErrorNotice, createSuccessNotice, removeNotice } =
@@ -95,7 +95,7 @@ export function shareCurrentPost(
 
 		removeNotice( SHARE_POST_NOTICE_ID );
 
-		if ( isEditedPostDirty() && isEditedPostAutosaveable() && saveBeforeSharing ) {
+		if ( isEditedPostDirty() && isEditedPostAutosaveable() && savePost ) {
 			await registry.dispatch( editorStore ).savePost();
 		}
 

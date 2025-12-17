@@ -32,11 +32,11 @@ export function useSchedulePost() {
 			 * SIG is saved to the post meta and will be read on wpcom. Because of that we need to save
 			 * the post before sharing it, if it has the media features to make sure we use the latest data.
 			 */
-			const saveBeforeSharing =
+			const savePost =
 				siteHasFeature( features.IMAGE_GENERATOR ) ||
 				siteHasFeature( features.ENHANCED_PUBLISHING );
 
-			return await scheduleShares( { connectionIds, message, timestamp }, { saveBeforeSharing } );
+			return await scheduleShares( { connectionIds, message, timestamp }, { savePost } );
 		},
 		[ enabledConnections, message, scheduleShares ]
 	);

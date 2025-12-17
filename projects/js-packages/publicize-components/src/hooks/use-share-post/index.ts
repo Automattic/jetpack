@@ -33,13 +33,13 @@ export function useSharePost() {
 			 * SIG is saved to the post meta and will be read on wpcom. Because of that we need to save
 			 * the post before sharing it, if it has the media features to make sure we use the latest data.
 			 */
-			const saveBeforeSharing =
+			const savePost =
 				siteHasFeature( features.IMAGE_GENERATOR ) ||
 				siteHasFeature( features.ENHANCED_PUBLISHING );
 
 			return await shareCurrentPost(
 				{ message, skipped_connections },
-				{ saveBeforeSharing, apiPath: getSocialScriptData().api_paths.resharePost }
+				{ savePost, apiPath: getSocialScriptData().api_paths.resharePost }
 			);
 		},
 		[ message, shareCurrentPost, skippedConnections ]
