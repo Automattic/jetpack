@@ -223,8 +223,8 @@
 	function highlight_word( word, phrase ) {
 		// Escape special regex characters in the search word
 		const escapedWord = word.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
-		// Create a case-insensitive regex to find the word in the phrase
-		const regex = new RegExp( escapedWord, 'i' );
+		// Create a case-insensitive regex to find all occurrences in the phrase
+		const regex = new RegExp( escapedWord, 'gi' );
 		// Replace with the matched text (preserving original case) wrapped in a span
 		return phrase.replace( regex, function ( match ) {
 			return '<span class="highlight">' + match + '</span>';
