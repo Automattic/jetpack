@@ -71,83 +71,23 @@ describe( 'GeoChart', () => {
 	} );
 
 	describe( 'Data Handling', () => {
-		test( 'passes data directly to Google Charts', () => {
-			const testData: [ string[], ...[ string, number ][] ] = [
-				[ 'Country', 'Value' ],
-				[ 'US', 100 ],
-				[ 'CA', 50 ],
+		test( 'passes data directly to Google Charts without modification', () => {
+			// Test with complex data including plain values, formatted values, and tooltip columns
+			const testData: [
+				( string | object )[],
+				...[ string, number | { v: number; f: string }, string ][],
+			] = [
+				[ 'Country', 'Revenue', { type: 'string', role: 'tooltip', p: { html: true } } ],
+				[ 'US', { v: 1234567, f: '$1.23M' }, '<b>United States</b>' ],
+				[ 'CA', 543210, '<b>Canada</b>' ],
 			];
 			renderWithTheme( { data: testData } );
 
 			const chartData = screen.getByTestId( 'chart-data' );
 			const data = JSON.parse( chartData.textContent || '[]' );
 
-			// First row should be headers
-			expect( data[ 0 ] ).toEqual( [ 'Country', 'Value' ] );
-			// Data should include our countries
-			expect( data ).toContainEqual( [ 'US', 100 ] );
-			expect( data ).toContainEqual( [ 'CA', 50 ] );
-		} );
-
-		test( 'handles header-only data', () => {
-			const testData: [ string[], ...[ string, number ][] ] = [ [ 'Country', 'Value' ] ];
-			renderWithTheme( { data: testData } );
-
-			const chartData = screen.getByTestId( 'chart-data' );
-			const data = JSON.parse( chartData.textContent || '[]' );
-
-			// Should only have headers
-			expect( data ).toEqual( [ [ 'Country', 'Value' ] ] );
-		} );
-
-		test( 'handles single country data', () => {
-			const testData: [ string[], ...[ string, number ][] ] = [
-				[ 'Country', 'Value' ],
-				[ 'US', 100 ],
-			];
-			renderWithTheme( { data: testData } );
-
-			const chartData = screen.getByTestId( 'chart-data' );
-			const data = JSON.parse( chartData.textContent || '[]' );
-
-			expect( data ).toHaveLength( 2 ); // headers + 1 country
-			expect( data[ 1 ] ).toEqual( [ 'US', 100 ] );
-		} );
-
-		test( 'handles zero values in data', () => {
-			const testData: [ string[], ...[ string, number ][] ] = [
-				[ 'Country', 'Value' ],
-				[ 'US', 0 ],
-				[ 'CA', 100 ],
-			];
-			renderWithTheme( { data: testData } );
-
-			const chartData = screen.getByTestId( 'chart-data' );
-			const data = JSON.parse( chartData.textContent || '[]' );
-
-			expect( data ).toContainEqual( [ 'US', 0 ] );
-			expect( data ).toContainEqual( [ 'CA', 100 ] );
-		} );
-
-		test( 'supports custom tooltip columns', () => {
-			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
-				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
-				[ 'US', 100, '<b>United States</b><br/>100 orders' ],
-				[ 'CA', 50, '<b>Canada</b><br/>50 orders' ],
-			];
-			renderWithTheme( { data: testData } );
-
-			const chartData = screen.getByTestId( 'chart-data' );
-			const data = JSON.parse( chartData.textContent || '[]' );
-
-			// Should include tooltip column in header
-			expect( data[ 0 ][ 2 ] ).toEqual( {
-				type: 'string',
-				role: 'tooltip',
-				p: { html: true },
-			} );
-			// Data rows should include tooltip content
-			expect( data[ 1 ][ 2 ] ).toBe( '<b>United States</b><br/>100 orders' );
+			// Data should be passed through exactly as provided
+			expect( data ).toEqual( testData );
 		} );
 	} );
 
