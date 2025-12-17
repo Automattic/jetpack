@@ -31,15 +31,16 @@ export function UpsellNotice() {
 		planData?.product_name ||
 		_x( 'paid', 'The plan type - paid vs free', 'jetpack-publicize-components' );
 
+	// This is here to avoid the build minification error
+	const buttonText = __( 'Upgrade now', 'jetpack-publicize-components' );
+
 	return (
 		<Notice
 			status="info"
 			isDismissible={ false }
 			actions={ [
 				{
-					label: isRedirecting
-						? __( 'Redirecting…', 'jetpack-publicize-components' )
-						: _x( 'Upgrade now', 'Upgrade CTA', 'jetpack-publicize-components' ),
+					label: isRedirecting ? __( 'Redirecting…', 'jetpack-publicize-components' ) : buttonText,
 					variant: 'primary',
 					onClick: goToCheckoutPage,
 				},
