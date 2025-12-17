@@ -1,11 +1,9 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { getRequiredPlan, useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink } from '@wordpress/components';
+import { ExternalLink, Notice } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { external } from '@wordpress/icons';
-import clsx from 'clsx';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 
 /**
@@ -16,9 +14,7 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 export function UpsellNotice() {
 	const { isRePublicizeUpgradableViaUpsell, isRePublicizeFeatureAvailable } = usePublicizeConfig();
 	const requiredPlan = getRequiredPlan( 'republicize' );
-	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow(
-		`${ requiredPlan }`
-	);
+	const [ , goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( `${ requiredPlan }` );
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	/*
@@ -43,8 +39,6 @@ export function UpsellNotice() {
 	const docPageUrl = isPureJetpackSite
 		? 'https://jetpack.com/support/jetpack-social/#re-sharing-your-content'
 		: 'https://wordpress.com/support/jetpack-social/#share-your-content-again';
-
-	const buttonText = __( 'Upgrade now', 'jetpack-publicize-components' );
 
 	/*
 	 * Render an info message when the feature is not available
@@ -74,30 +68,27 @@ export function UpsellNotice() {
 	}
 
 	return (
-		<div className="jetpack-publicize__upsell">
-			<div className="jetpack-publicize__upsell-description">
-				{ sprintf(
-					/* translators: %s: the product name of the plan. */
-					__(
-						'To re-share a post, you need to upgrade to the %s plan',
-						'jetpack-publicize-components'
-					),
-					planName
-				) }
-			</div>
-
-			<Button
-				href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
-				onClick={ goToCheckoutPage }
-				target="_top"
-				icon={ external }
-				className={ clsx( 'jetpack-publicize__upsell-button is-primary', {
-					'jetpack-upgrade-plan__hidden': ! checkoutUrl,
-				} ) }
-				isBusy={ isRedirecting }
-			>
-				{ isRedirecting ? __( 'Redirecting…', 'jetpack-publicize-components' ) : buttonText }
-			</Button>
-		</div>
+		<Notice
+			status="info"
+			isDismissible={ false }
+			actions={ [
+				{
+					label: isRedirecting
+						? __( 'Redirecting…', 'jetpack-publicize-components' )
+						: _x( 'Upgrade now', 'Upgrade CTA', 'jetpack-publicize-components' ),
+					variant: 'primary',
+					onClick: goToCheckoutPage,
+				},
+			] }
+		>
+			{ sprintf(
+				/* translators: %s: the product name of the plan. */
+				__(
+					'To re-share a post, you need to upgrade to the %s plan',
+					'jetpack-publicize-components'
+				),
+				planName
+			) }
+		</Notice>
 	);
 }
