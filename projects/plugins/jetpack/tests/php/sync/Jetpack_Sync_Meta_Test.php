@@ -209,10 +209,6 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 				add_post_meta( $this->post_id, $meta_key, wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE ) );
 				continue;
 			}
-			if ( $meta_key === '_jetpack_newsletter_initial_debug_info' ) {
-				// This meta is populated by production code; do not override here.
-				continue;
-			}
 			add_post_meta( $this->post_id, $meta_key, 'foo' );
 		}
 
@@ -221,11 +217,6 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		foreach ( $white_listed_post_meta as $meta_key ) {
 			if ( $meta_key === 'footnotes' ) {
 				$this->assertOptionIsSynced( $meta_key, '[]', 'post', $this->post_id );
-				continue;
-			}
-			if ( $meta_key === '_jetpack_newsletter_initial_debug_info' ) {
-				// Assert parity with whatever structured value is stored locally.
-				$this->assertOptionIsSynced( $meta_key, get_post_meta( $this->post_id, $meta_key, true ), 'post', $this->post_id );
 				continue;
 			}
 
