@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0] - 2025-12-15
+### Added
+- Add Jetpack Form custom post type for reusable forms with REST API support and feature flag integration. [#46202]
+- Add CTA to install/activate Akismet on empty spam dashboard. [#46212]
+
+### Changed
+- Add `jetpack_forms_extra_webhooks` filter and include feedback ID in `jetpack_forms_before_webhook_request` filter. [#46228]
+- Auto-generate webhook id so users don't have to fill it. [#46270]
+- Refactor how we retrieve form submission fields to send in the webhook payload. [#46201]
+- Track webhook requests done in wpcom infrastructure. [#46273]
+- Track when users enable and disable webhooks. [#46277]
+- Use entire button area for selecting multi-select options. [#46263]
+- Replace use of confusing `esc_js` with `wp_json_encode`. [#46229]
+- Tests: Replace PHPUnit mocks with anonymous classes to eliminate PHPUnit 12 strictness warnings. [#46256]
+- Update package dependencies. [#46244]
+
+### Removed
+- Removes classic Admin initialization code. [#46254]
+
+### Fixed
+- Fix export functionality to handle null values properly for IP Address, Country code, and Browser fields. [#46250]
+- Fix `Contact_Form_Endpoint_Test::test_resend_email` attempting to actually send email. [#46261]
+- Ensure submission summary is contained within 100% width. [#46264]
+- Fix dashboard height. [#46276]
+- Fix slider field text labels showing borders in editor when using certain themes like Assembler. [#46182]
+- Fix validation accessibility. [#46275]
+- Make form buttons take full width on mobile devices. [#46154]
+
 ## [6.22.0] - 2025-12-08
 ### Added
 - Add filter to hide integration icons. [#46188]
@@ -1956,6 +1984,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.0.0]: https://github.com/automattic/jetpack-forms/compare/v6.22.0...v7.0.0
 [6.22.0]: https://github.com/automattic/jetpack-forms/compare/v6.21.2...v6.22.0
 [6.21.2]: https://github.com/automattic/jetpack-forms/compare/v6.21.1...v6.21.2
 [6.21.1]: https://github.com/automattic/jetpack-forms/compare/v6.21.0...v6.21.1

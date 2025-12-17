@@ -1421,7 +1421,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/external-media",
-				"reference": "e0109298816a8e2c683b41f461db3bf37e160cde"
+				"reference": "5b7765e2bdac7fadc932b75f0dff5e4d8174ce98"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1447,7 +1447,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.6.x-dev"
+					"dev-trunk": "0.7.x-dev"
 				},
 				"textdomain": "jetpack-external-media",
 				"version-constants": {
@@ -1490,7 +1490,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "6ba46b301f7889974ee9db4fec55496fe3725533"
+				"reference": "2a035c9527ca8bbdedbcf05d182fe0e79fbf840b"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1525,7 +1525,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.22.x-dev"
+					"dev-trunk": "7.0.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
