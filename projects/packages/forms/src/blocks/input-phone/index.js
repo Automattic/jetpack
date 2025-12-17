@@ -32,6 +32,10 @@ const settings = {
 			background: true,
 			gradients: false,
 		},
+		spacing: {
+			margin: true,
+			padding: true,
+		},
 		__experimentalBorder: {
 			color: true,
 			radius: true,
