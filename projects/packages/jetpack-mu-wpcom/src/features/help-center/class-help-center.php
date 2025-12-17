@@ -596,7 +596,7 @@ class Help_Center {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
-		} elseif ( $this->is_block_editor() || $is_next_admin ) {
+		} elseif ( $this->is_block_editor() ) {
 			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} else {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
