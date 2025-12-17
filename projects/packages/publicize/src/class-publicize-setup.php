@@ -188,16 +188,16 @@ class Publicize_Setup {
 		 *
 		 * The Share action allows users to reshare published posts via Jetpack Social.
 		 * It is automatically enabled for plans that support the 'republicize' feature,
-		 * but can also be enabled/disabled via this filter.
+		 * but can be disabled via this filter.
 		 *
 		 * @since 0.2.0 Originally in jetpack-post-list package.
 		 * @since $$NEXT_VERSION$$ Moved to jetpack-publicize package.
 		 *
-		 * @param bool   $show_share Whether to show the share action. Default false.
+		 * @param bool   $show_share Whether to show the share action. Default true.
 		 * @param string $post_type  The current post type.
 		 */
 		$show_share_action = Current_Plan::supports( 'republicize' )
-			|| apply_filters( 'jetpack_post_list_display_share_action', false, $current_screen->post_type );
+			&& apply_filters( 'jetpack_post_list_display_share_action', true, $current_screen->post_type );
 
 		if ( $show_share_action ) {
 			self::maybe_add_share_action( $current_screen->post_type );
@@ -214,8 +214,8 @@ class Publicize_Setup {
 			post_type_supports( $post_type, 'publicize' ) &&
 			use_block_editor_for_post_type( $post_type )
 		) {
-			add_filter( 'post_row_actions', array( self::class, 'add_share_action' ), 15, 2 );
-			add_filter( 'page_row_actions', array( self::class, 'add_share_action' ), 15, 2 );
+			add_filter( 'post_row_actions', array( self::class, 'add_share_action' ), 20, 2 );
+			add_filter( 'page_row_actions', array( self::class, 'add_share_action' ), 20, 2 );
 		}
 	}
 
