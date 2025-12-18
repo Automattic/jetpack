@@ -19,8 +19,9 @@ if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
  * Enqueue site switcher scripts in all wp-admin pages.
  */
 function jetpack_site_switcher_enqueue_scripts() {
-	// Require WordPress 6.9+ for Command Palette support
-	if ( version_compare( get_bloginfo( 'version' ), '6.9', '<' ) ) {
+	// Require WordPress 6.3+ for Command Palette support
+	// The command palette is available in the block editor since 6.3, and admin-wide since 6.9
+	if ( version_compare( get_bloginfo( 'version' ), '6.3-alpha', '<' ) ) {
 		return;
 	}
 
