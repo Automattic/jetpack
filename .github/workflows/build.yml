@@ -149,7 +149,7 @@ jobs:
         run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jetpack-build
           path: build.tar.xz
@@ -160,7 +160,7 @@ jobs:
 
       - name: Store plugins.tsv as artifact
         if: steps.plugins.outputs.any == 'true'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: plugins.tsv
           path: ${{ env.BUILD_BASE }}/plugins.tsv
@@ -191,7 +191,7 @@ jobs:
           path: monorepo
 
       - name: Download build artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: jetpack-build
       - name: Extract build archive
@@ -257,7 +257,7 @@ jobs:
           echo "any-built=$ANY_BUILT" >> "$GITHUB_OUTPUT"
 
       - name: Create plugins artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: steps.prepare.outputs.any-built == 'true'
         with:
           name: plugins
@@ -288,7 +288,7 @@ jobs:
         timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds
 
       - name: Download build artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: jetpack-build
         timeout-minutes: 2  # 2025-11-06: Successful runs normally take a few seconds

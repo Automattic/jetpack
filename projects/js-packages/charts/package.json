@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.51.0",
+	"version": "0.52.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -208,6 +208,7 @@
 		"@visx/shape": "^3.12.0",
 		"@visx/text": "^3.12.0",
 		"@visx/tooltip": "^3.12.0",
+		"@visx/vendor": "^3.12.0",
 		"@visx/xychart": "^3.12.0",
 		"@wordpress/i18n": "^6.0.0",
 		"clsx": "2.1.1",
@@ -215,6 +216,7 @@
 		"deepmerge": "4.3.1",
 		"fast-deep-equal": "3.1.3",
 		"gridicons": "3.4.2",
+		"react-google-charts": "^5.2.1",
 		"tslib": "2.8.1"
 	},
 	"devDependencies": {

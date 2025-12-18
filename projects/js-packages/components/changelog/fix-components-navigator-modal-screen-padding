@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+NavigatorModal: Remove extra padding for screen component following recent Gutenberg changes.

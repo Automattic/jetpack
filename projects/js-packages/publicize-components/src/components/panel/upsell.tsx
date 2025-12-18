@@ -1,11 +1,8 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { getRequiredPlan, useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { external } from '@wordpress/icons';
-import clsx from 'clsx';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 
 /**
@@ -14,11 +11,9 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
  * @return The upsell notice.
  */
 export function UpsellNotice() {
-	const { isRePublicizeUpgradableViaUpsell, isRePublicizeFeatureAvailable } = usePublicizeConfig();
+	const { isRePublicizeFeatureAvailable } = usePublicizeConfig();
 	const requiredPlan = getRequiredPlan( 'republicize' );
-	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow(
-		`${ requiredPlan }`
-	);
+	const [ , goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( `${ requiredPlan }` );
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	/*
@@ -32,72 +27,34 @@ export function UpsellNotice() {
 	}
 
 	// Define plan name, with a fallback value.
-	const planName = planData?.product_name || __( 'paid', 'jetpack-publicize-components' );
+	const planName =
+		planData?.product_name ||
+		_x( 'paid', 'The plan type - paid vs free', 'jetpack-publicize-components' );
 
-	const isPureJetpackSite = ! isWpcomPlatformSite();
-	const upgradeFeatureTitle = isPureJetpackSite
-		? __( 'Re-sharing your content', 'jetpack-publicize-components' )
-		: _x( 'Share Your Content Again', '', 'jetpack-publicize-components' );
-
-	// Doc page URL.
-	const docPageUrl = isPureJetpackSite
-		? 'https://jetpack.com/support/jetpack-social/#re-sharing-your-content'
-		: 'https://wordpress.com/support/jetpack-social/#share-your-content-again';
-
+	// This is here to avoid the build minification error
 	const buttonText = __( 'Upgrade now', 'jetpack-publicize-components' );
 
-	/*
-	 * Render an info message when the feature is not available
-	 * and when it shouldn't show upgrade notices.
-	 * (pure Jetpack sites, for instance).
-	 */
-	if ( ! isRePublicizeFeatureAvailable && ! isRePublicizeUpgradableViaUpsell ) {
-		return (
-			<div className="jetpack-publicize__upsell">
-				<strong>{ upgradeFeatureTitle }</strong>
-
-				<br />
-
-				{ sprintf(
-					/* translators: %s: the product name of the plan. */
-					__( 'This feature is for sites with a %s plan.', 'jetpack-publicize-components' ),
-					planName
-				) }
-
-				<br />
-
-				<ExternalLink href={ docPageUrl }>
-					{ __( 'More information.', 'jetpack-publicize-components' ) }
-				</ExternalLink>
-			</div>
-		);
-	}
-
 	return (
-		<div className="jetpack-publicize__upsell">
-			<div className="jetpack-publicize__upsell-description">
-				{ sprintf(
-					/* translators: %s: the product name of the plan. */
-					__(
-						'To re-share a post, you need to upgrade to the %s plan',
-						'jetpack-publicize-components'
-					),
-					planName
-				) }
-			</div>
-
-			<Button
-				href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
-				onClick={ goToCheckoutPage }
-				target="_top"
-				icon={ external }
-				className={ clsx( 'jetpack-publicize__upsell-button is-primary', {
-					'jetpack-upgrade-plan__hidden': ! checkoutUrl,
-				} ) }
-				isBusy={ isRedirecting }
-			>
-				{ isRedirecting ? __( 'Redirecting…', 'jetpack-publicize-components' ) : buttonText }
-			</Button>
-		</div>
+		<Notice
+			status="info"
+			isDismissible={ false }
+			actions={ [
+				{
+					label: isRedirecting ? __( 'Redirecting…', 'jetpack-publicize-components' ) : buttonText,
+					variant: 'primary',
+					className: 'is-compact',
+					onClick: goToCheckoutPage,
+				},
+			] }
+		>
+			{ sprintf(
+				/* translators: %s: the product name of the plan. */
+				__(
+					'To re-share a post, you need to upgrade to the %s plan',
+					'jetpack-publicize-components'
+				),
+				planName
+			) }
+		</Notice>
 	);
 }

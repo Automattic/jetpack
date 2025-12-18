@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.4-a.3 - 2025-12-15
+### Enhancements
+- External media: Add replace flow support. [#45841]
+- Forms: Use entire button area for selecting multi-select options. [#46263]
+- Social: Reuse AI image generation in media section. [#46147]
+
+### Bug fixes
+- Forms: Ensure submission summary is contained within 100% width. [#46264]
+- Forms: Fix validation accessibility. [#46275]
+- Forms: Remove the classic Admin initialization call. [#46254]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Development Mode: Remove references to previously removed code. [#46231]
+- General: Replace uses of confusing `esc_js()` function with clearer code. [#46229]
+- Update package dependencies. [#46244]
+
 ## 15.4-a.1 - 2025-12-08
 ### Enhancements
 - Forms: Add filter to hide integration icons. [#46188]

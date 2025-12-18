@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix new `esc_js` instances added since the cleanup PR.
-
-

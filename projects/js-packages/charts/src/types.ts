@@ -30,6 +30,11 @@ export type DataPoint = {
 	value: number;
 };
 
+/**
+ * Data format for GeoChart - maps country codes (ISO 3166-1 alpha-2, e.g., 'US', 'GB') to numeric values
+ */
+export type GeoData = Record< string, number >;
+
 export type DataPointDate = {
 	date?: Date;
 	/**
@@ -186,6 +191,11 @@ export type ChartTheme = {
 	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
+	/** GeoChart specific settings */
+	geoChart?: {
+		/** Default fill color for a geo chart feature (e.g. country) with no data */
+		featureFillColor?: string;
+	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
 		/** Gap between rows in the leaderboard grid */
