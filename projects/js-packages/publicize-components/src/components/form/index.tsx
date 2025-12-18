@@ -21,6 +21,7 @@ import { EmptyState } from './empty-state';
 import { EnhancedFeaturesNudge } from './enhanced-features-nudge';
 import { PreviewPostsTrigger } from './preview-posts-trigger';
 import { SharePostForm } from './share-post-form';
+import { UserConnectionNotice } from './user-connection-notice';
 
 /**
  * The Publicize form component. It contains the connection list, and the message box.
@@ -29,7 +30,8 @@ import { SharePostForm } from './share-post-form';
  */
 export default function PublicizeForm() {
 	const { hasConnections, hasEnabledConnections, connections } = useSocialMediaConnections();
-	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
+	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan, needsUserConnection } =
+		usePublicizeConfig();
 	const { attachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();
 
@@ -48,25 +50,21 @@ export default function PublicizeForm() {
 			attachedMedia.length > 0 ||
 			( Object.keys( validationErrors ).length !== 0 && ! isConvertible ) );
 
+	// If there are no connections, show the empty state or user connection notice.
+	if ( ! hasConnections ) {
+		// User connection has priority over empty state.
+		return needsUserConnection ? <UserConnectionNotice /> : <EmptyState />;
+	}
+
 	return (
 		<>
-			{ hasConnections ? (
-				<PanelRow>
-					<ConnectionsList />
-				</PanelRow>
-			) : null }
-			<EmptyState />
-			{ hasConnections ? (
-				<>
-					{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
-						<PreviewPostsTrigger />
-					) : (
-						<SocialPostModal />
-					) }
-					<EnhancedFeaturesNudge />
-					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
-				</>
-			) : null }
+			<PanelRow>
+				<ConnectionsList />
+			</PanelRow>
+			{ needsUserConnection ? <UserConnectionNotice /> : null }
+			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? <PreviewPostsTrigger /> : <SocialPostModal /> }
+			<EnhancedFeaturesNudge />
+			{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 		</>
 	);
 }
