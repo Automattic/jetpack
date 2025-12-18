@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -22,9 +23,23 @@ function jetpack_site_switcher_register_rest_routes() {
 		array(
 			'methods'             => WP_REST_Server::READABLE,
 			'callback'            => 'jetpack_site_switcher_get_sites',
-			'permission_callback' => 'is_user_logged_in',
+			'permission_callback' => 'jetpack_site_switcher_permission_check',
 		)
 	);
+}
+
+/**
+ * Check if the current user is connected to WordPress.com
+ *
+ * @return bool True if user is connected, false otherwise
+ */
+function jetpack_site_switcher_permission_check() {
+	if ( ! is_user_logged_in() ) {
+		return false;
+	}
+
+	$connection_manager = new Connection_Manager();
+	return $connection_manager->is_user_connected();
 }
 add_action( 'rest_api_init', 'jetpack_site_switcher_register_rest_routes' );
 

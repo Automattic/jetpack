@@ -6,6 +6,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -23,6 +25,14 @@ function jetpack_site_switcher_enqueue_scripts() {
 	// The command palette is available in the block editor since 6.3, and admin-wide since 6.9
 	if ( version_compare( get_bloginfo( 'version' ), '6.3-alpha', '<' ) ) {
 		return;
+	}
+
+	// Only enqueue for users connected to WordPress.com (unless on WPCOM where all users are connected)
+	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		$connection_manager = new Connection_Manager();
+		if ( ! $connection_manager->is_user_connected() ) {
+			return;
+		}
 	}
 
 	// Load asset file for dependencies and version
