@@ -66,8 +66,8 @@
 		"turndown": "7.1.2"
 	},
 	"devDependencies": {
-		"@storybook/addon-docs": "10.0.8",
-		"@storybook/react": "10.0.8",
+		"@storybook/addon-docs": "10.1.10",
+		"@storybook/react": "10.1.10",
 		"@testing-library/dom": "10.4.1",
 		"@types/markdown-it": "14.1.2",
 		"@types/turndown": "5.0.6",

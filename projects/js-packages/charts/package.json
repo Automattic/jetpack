@@ -222,8 +222,8 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.28.4",
-		"@storybook/addon-docs": "10.0.8",
-		"@storybook/react": "10.0.8",
+		"@storybook/addon-docs": "10.1.10",
+		"@storybook/react": "10.1.10",
 		"@testing-library/dom": "^10.0.0",
 		"@testing-library/jest-dom": "^6.0.0",
 		"@testing-library/react": "^16.0.0",
