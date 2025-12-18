@@ -107,6 +107,16 @@ function getHostnameFromURL( urlString ) {
 }
 
 /**
+ * Remove trailing slash from a URL string
+ *
+ * @param {string} url - The URL to process
+ * @return {string} URL without trailing slash
+ */
+function untrailingslashit( url ) {
+	return url ? url.replace( /\/+$/, '' ) : url;
+}
+
+/**
  * Custom hook to load site-switching commands based on search term
  *
  * @param {Object} props        - Hook properties
@@ -153,7 +163,20 @@ function useSiteSwitcherCommandLoader( { search } ) {
 					);
 			  } );
 
-		return filteredSites.map( site => {
+		// Exclude the current site from the list
+		const currentURL = untrailingslashit( window.location.href.toLowerCase() );
+		const otherSites = filteredSites.filter( site => {
+			if ( ! site.URL ) {
+				return true;
+			}
+			// Normalize site URL for comparison
+			const siteURL = untrailingslashit( site.URL.toLowerCase() );
+			// Check if current URL starts with site URL (handles multisite subdirectory installs)
+			// e.g., current: example.com/site1/wp-admin matches site: example.com/site1
+			return ! currentURL.startsWith( siteURL );
+		} );
+
+		return otherSites.map( site => {
 			// Extract domain from URL for display - don't want to display the protocol.
 			const domain = getHostnameFromURL( site.URL );
 
