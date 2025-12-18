@@ -2,7 +2,6 @@
  * Publicize sharing panel based on the
  * Jetpack plugin implementation.
  */
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -12,7 +11,6 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { features } from '../../utils/constants';
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
 import { ReSharingPanel } from '../resharing-panel';
@@ -73,7 +71,7 @@ const PublicizePanel = ( { prePublish }: PublicizePanelProps ) => {
 			) }
 			{ isPostPublished && (
 				<>
-					{ siteHasFeature( features.SHARE_STATUS ) ? <ReSharingPanel /> : null }
+					<ReSharingPanel />
 					<ManualSharing />
 				</>
 			) }

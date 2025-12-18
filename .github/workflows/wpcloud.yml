@@ -73,7 +73,7 @@ jobs:
       - name: Save wpcomsh build cache
         if: steps.changed.outputs.wpcomsh == 'true'
         id: wpcomsh-build-cache-save
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: |
             .
@@ -89,7 +89,7 @@ jobs:
 
       - name: Restore wpcomsh build cache
         id: wpcomsh-build-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: |
             .

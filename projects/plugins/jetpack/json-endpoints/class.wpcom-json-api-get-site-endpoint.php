@@ -219,6 +219,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
 		'is_summer_special_2025',
+		'is_gating_business_q1',
 		'site_intent',
 		'site_partner_bundle',
 		'onboarding_segment',
@@ -920,6 +921,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'is_summer_special_2025':
 					$options[ $key ] = $site->is_summer_special_2025();
+					break;
+				case 'is_gating_business_q1':
+					$options[ $key ] = $site->is_gating_business_q1();
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();

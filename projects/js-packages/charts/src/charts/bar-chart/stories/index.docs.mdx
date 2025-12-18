@@ -554,3 +554,28 @@ Bar Charts integrate seamlessly with the chart theming system. The default theme
 		<BarChart data={data} />
 	</GlobalChartsProvider>` }
 />
+
+## Animation
+
+The Bar Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ BarChartStories.Animation } />
+
+<Source
+	language="tsx"
+	code={ `<BarChart
+		data={ data }
+		width={ 800 }
+		height={ 400 }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a growing effect where bars scale from zero to their full size. Vertical bars rise from the bottom, while horizontal bars stretch from the left
+- **Duration**: 1000ms (1 second) with ease-out timing
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.

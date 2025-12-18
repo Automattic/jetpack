@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix connections management modal not opening from pre-publish panel.

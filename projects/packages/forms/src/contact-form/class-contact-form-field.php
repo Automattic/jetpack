@@ -1473,6 +1473,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'odt'             => 'application/vnd.oasis.opendocument.text',
 				'ppsx'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
 				'ppsm'            => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+				'csv'             => 'text/csv',
 				'xla|xls|xlt|xlw' => 'application/vnd.ms-excel',
 				'xlsx'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 				'xlsm'            => 'application/vnd.ms-excel.sheet.macroEnabled.12',

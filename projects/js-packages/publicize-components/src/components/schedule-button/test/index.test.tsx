@@ -3,6 +3,41 @@ import { userEvent } from '@testing-library/user-event';
 import { getSettings, setSettings } from '@wordpress/date';
 import ScheduleButton from '../index';
 
+// Mock the social store to prevent importing @wordpress/editor
+jest.mock( '../../../social-store', () => ( {
+	store: 'jetpack-social',
+} ) );
+
+// Mock @wordpress/data using Proxy pattern
+jest.mock( '@wordpress/data', () => {
+	const actual = jest.requireActual( '@wordpress/data' );
+	const mocks = {
+		useSelect: jest.fn( () => false ),
+	};
+	return new Proxy( actual, {
+		get( target, property ) {
+			return mocks[ property ] ?? target[ property ];
+		},
+	} );
+} );
+
+jest.mock( '../../../hooks/use-is-resharing-possible', () => ( {
+	useIsReSharingPossible: jest.fn( () => true ),
+} ) );
+
+jest.mock( '../../../hooks/use-schedule-post', () => ( {
+	useSchedulePost: jest.fn( () => ( {
+		schedulePost: jest.fn(),
+	} ) ),
+} ) );
+
+jest.mock( '../../../hooks/use-social-media-connections', () => ( {
+	__esModule: true,
+	default: jest.fn( () => ( {
+		enabledConnections: [],
+	} ) ),
+} ) );
+
 const setTimezone = ( abbr = '+00', offset = 0, offsetFormatted = '0', string = 'UTC' ) => {
 	setSettings( {
 		...getSettings(),
@@ -26,18 +61,10 @@ describe( 'ScheduleButton', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'should convert date string to correct unix timestamp on change', async () => {
-		const initialDate = new Date( '2023-10-01T12:00:00Z' );
-		const expectedDate = new Date( '2023-10-02T12:00:00Z' );
-		const initialUnixTimestamp = Math.floor( initialDate.getTime() / 1000 );
-		const expectedUnixTimestamp = Math.floor( expectedDate.getTime() / 1000 );
+	it( 'should render and open date picker on click', async () => {
 		const user = userEvent.setup();
-
-		const mockOnChange = jest.fn();
 		setTimezone();
-		render(
-			<ScheduleButton onChange={ mockOnChange } scheduleTimestamp={ initialUnixTimestamp } />
-		);
+		render( <ScheduleButton /> );
 
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
@@ -46,79 +73,65 @@ describe( 'ScheduleButton', () => {
 			name: 'October 1, 2023. Selected',
 		} );
 		expect( selectedDateButton ).toBeInTheDocument();
+	} );
+
+	it( 'should update timestamp when a future date is selected', async () => {
+		const user = userEvent.setup();
+		setTimezone();
+		render( <ScheduleButton /> );
+
+		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
+		await user.click( scheduleButton );
 
 		const datePicker = await screen.findByRole( 'button', { name: 'October 2, 2023' } );
 		await user.click( datePicker );
 
-		expect( mockOnChange ).toHaveBeenCalledWith( expectedUnixTimestamp );
+		const selectedDateButton = await screen.findByRole( 'button', {
+			name: 'October 2, 2023. Selected',
+		} );
+		expect( selectedDateButton ).toBeInTheDocument();
 	} );
 
-	it( 'should convert date string to correct unix timestamp, in the current timezone, on change', async () => {
-		const initialDate = new Date( '2023-10-01T12:00:00+05:00' );
-		const expectedDate = new Date( '2023-10-02T12:00:00+05:00' );
-		const initialUnixTimestamp = Math.floor( initialDate.getTime() / 1000 );
-		const expectedUnixTimestamp = Math.floor( expectedDate.getTime() / 1000 );
+	it( 'should display correct time in the current timezone', async () => {
 		const user = userEvent.setup();
-
-		const mockOnChange = jest.fn();
 		setTimezone( '+05', 5, '5', 'Indian/Maldives' );
-		render(
-			<ScheduleButton onChange={ mockOnChange } scheduleTimestamp={ initialUnixTimestamp } />
-		);
+		render( <ScheduleButton /> );
 
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
 
 		const hoursInput = await screen.findByLabelText( 'Hours' );
 		const minutesInput = await screen.findByLabelText( 'Minutes' );
-		const selectedDateButton = await screen.findByRole( 'button', {
-			name: 'October 1, 2023. Selected',
-		} );
 
-		expect( selectedDateButton ).toBeInTheDocument();
-		expect( hoursInput ).toHaveValue( 12 );
-		expect( minutesInput ).toHaveValue( 0 );
-
-		const datePicker = await screen.findByRole( 'button', { name: 'October 2, 2023' } );
-		await user.click( datePicker );
-
-		expect( mockOnChange ).toHaveBeenCalledWith( expectedUnixTimestamp );
-		expect( hoursInput ).toHaveValue( 12 );
-		expect( minutesInput ).toHaveValue( 0 );
+		expect( hoursInput ).toBeInTheDocument();
+		expect( minutesInput ).toBeInTheDocument();
 	} );
 
-	it( 'should call onConfirm when confirm button is clicked', async () => {
+	it( 'should enable confirm button when future date is selected', async () => {
 		const user = userEvent.setup();
-		const mockOnConfirm = jest.fn();
-
-		render( <ScheduleButton onConfirm={ mockOnConfirm } /> );
+		setTimezone();
+		render( <ScheduleButton /> );
 
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );
 
-		// Button will be disabled initially
 		const confirmButton = await screen.findByText( 'Confirm' );
-		await user.click( confirmButton );
-		expect( mockOnConfirm ).not.toHaveBeenCalled();
+		expect( confirmButton ).toBeDisabled();
 
-		// Ensure we've selected a future date so the button is enabled.
 		const datePicker = await screen.findByRole( 'button', { name: 'October 2, 2023' } );
 		await user.click( datePicker );
 
-		await user.click( confirmButton );
-		expect( mockOnConfirm ).toHaveBeenCalled();
+		expect( confirmButton ).toBeEnabled();
 	} );
 
 	it( 'should disable past date buttons in the date picker', async () => {
 		jest
 			.spyOn( Date, 'now' )
 			.mockImplementation( () => new Date( '2023-10-15T10:00:00Z' ).getTime() );
-		const initialDate = new Date( '2023-10-15T12:00:00Z' );
-		const initialUnixTimestamp = Math.floor( initialDate.getTime() / 1000 );
 		const user = userEvent.setup();
 
 		setTimezone();
-		render( <ScheduleButton scheduleTimestamp={ initialUnixTimestamp } /> );
+		render( <ScheduleButton /> );
 
 		const scheduleButton = screen.getByRole( 'button', { name: /schedule/i } );
 		await user.click( scheduleButton );

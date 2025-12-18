@@ -20,6 +20,7 @@ Main chart component for displaying ranked data with optional comparison values.
 | `valueFormatter` | `(value: number) => string` | `defaultValueFormatter` | Custom formatter for values |
 | `deltaFormatter` | `(value: number) => string` | `defaultDeltaFormatter` | Custom formatter for delta values |
 | `loading` | `boolean` | `false` | Whether the chart is in loading state |
+| `animation` | `boolean` | `false` | Enable entry animation on initial render. Bars stretch from left to right. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Whether to display the legend |
 | `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Position of the legend |
 | `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Alignment within position |
