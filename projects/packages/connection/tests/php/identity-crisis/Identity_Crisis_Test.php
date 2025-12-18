@@ -1274,11 +1274,13 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$sync_error = Identity_Crisis::get_sync_error_idc_option();
 		$result     = Identity_Crisis::validate_idc_from_remote( $sync_error );
 
+		delete_transient( 'jetpack_idc_validation_lock' );
+
 		$this->assertFalse( $result );
 	}
 
 	/**
-	 * Test validate_idc_from_remote() returns false and doesn't change option on network error.
+	 * Test validate_idc_from_remote() returns false and updates timing on network error.
 	 */
 	public function test_validate_idc_from_remote_handles_network_error_gracefully() {
 		Jetpack_Options::update_option( 'id', 12345 );
@@ -1298,14 +1300,17 @@ class Identity_Crisis_Test extends BaseTestCase {
 
 		Jetpack_Options::delete_option( 'id' );
 		Jetpack_Options::delete_option( 'sync_error_idc' );
+		delete_transient( 'jetpack_idc_validation_lock' );
 
 		$this->assertFalse( $result );
-		// Option should be unchanged.
-		$this->assertEquals( $initial_sync_error, $stored_option );
+		// last_checked should be updated to prevent hammering on errors.
+		$this->assertGreaterThan( $initial_sync_error['last_checked'], $stored_option['last_checked'] );
+		// Delay should remain unchanged on errors (no exponential backoff).
+		$this->assertEquals( $initial_sync_error['next_check_delay'], $stored_option['next_check_delay'] );
 	}
 
 	/**
-	 * Test validate_idc_from_remote() returns false and doesn't change option on non-200 response.
+	 * Test validate_idc_from_remote() returns false and updates timing on non-200 response.
 	 */
 	public function test_validate_idc_from_remote_handles_non_200_response() {
 		Jetpack_Options::update_option( 'id', 12345 );
@@ -1334,9 +1339,73 @@ class Identity_Crisis_Test extends BaseTestCase {
 
 		Jetpack_Options::delete_option( 'id' );
 		Jetpack_Options::delete_option( 'sync_error_idc' );
+		delete_transient( 'jetpack_idc_validation_lock' );
 
 		$this->assertFalse( $result );
-		// Option should be unchanged.
-		$this->assertEquals( $initial_sync_error, $stored_option );
+		// last_checked should be updated to prevent hammering on errors.
+		$this->assertGreaterThan( $initial_sync_error['last_checked'], $stored_option['last_checked'] );
+		// Delay should remain unchanged on errors (no exponential backoff).
+		$this->assertEquals( $initial_sync_error['next_check_delay'], $stored_option['next_check_delay'] );
+	}
+
+	/**
+	 * Test validate_idc_from_remote() uses transient lock to prevent concurrent validations.
+	 */
+	public function test_validate_idc_from_remote_uses_transient_lock() {
+		Jetpack_Options::update_option( 'id', 12345 );
+		$sync_error = Identity_Crisis::get_sync_error_idc_option();
+		Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+
+		// Set the lock transient to simulate another validation in progress.
+		set_transient( 'jetpack_idc_validation_lock', true, 60 );
+
+		$result = Identity_Crisis::validate_idc_from_remote( $sync_error );
+
+		// Clean up.
+		delete_transient( 'jetpack_idc_validation_lock' );
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+
+		// Should return false because lock is held.
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test validate_idc_from_remote() updates timing on invalid JSON response.
+	 */
+	public function test_validate_idc_from_remote_handles_invalid_json_gracefully() {
+		Jetpack_Options::update_option( 'id', 12345 );
+		$initial_sync_error = Identity_Crisis::get_sync_error_idc_option();
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		// Mock a 200 response with invalid JSON.
+		$mock_callback = function () {
+			return array(
+				'headers'  => array(),
+				'body'     => 'not valid json {{{',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
+
+		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+
+		remove_filter( 'pre_http_request', $mock_callback );
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		delete_transient( 'jetpack_idc_validation_lock' );
+
+		$this->assertFalse( $result );
+		// last_checked should be updated to prevent hammering on errors.
+		$this->assertGreaterThan( $initial_sync_error['last_checked'], $stored_option['last_checked'] );
+		// Delay should remain unchanged on errors (no exponential backoff).
+		$this->assertEquals( $initial_sync_error['next_check_delay'], $stored_option['next_check_delay'] );
 	}
 }

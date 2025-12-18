@@ -488,15 +488,33 @@ class Identity_Crisis {
 	 * If no IDC is detected in the response, the local IDC option is cleared.
 	 * If an IDC is still detected, the option is refreshed with the latest URL data from
 	 * WordPress.com and the validation timestamps are updated with progressive backoff.
-	 * If the request fails (network error, timeout, etc.), no changes are made.
+	 * If the request fails (network error, timeout, etc.), timing is updated to prevent
+	 * immediate retries but the delay interval is not increased.
 	 *
 	 * @param array $sync_error The stored sync_error_idc option with timing fields.
 	 * @return bool True if IDC was cleared, false otherwise.
 	 */
 	public static function validate_idc_from_remote( $sync_error ) {
+		// Prevent recursive calls that could cause infinite loops within the same request.
+		static $is_validating = false;
+		if ( $is_validating ) {
+			return false;
+		}
+
+		// Use a transient lock to prevent concurrent validations across multiple requests.
+		$lock_key = 'jetpack_idc_validation_lock';
+		if ( get_transient( $lock_key ) ) {
+			return false;
+		}
+		set_transient( $lock_key, true, 60 ); // 60 second lock.
+
+		$is_validating = true;
+
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			// Site not registered, can't make API call.
+			delete_transient( $lock_key );
+			$is_validating = false;
 			return false;
 		}
 
@@ -510,13 +528,22 @@ class Identity_Crisis {
 			'wpcom'
 		);
 
-		// Handle network/API errors - do nothing, will retry at next scheduled interval.
+		// Handle network/API errors - update timing to prevent hammering, but keep same delay interval.
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$sync_error['last_checked'] = time();
+			Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+			delete_transient( $lock_key );
+			$is_validating = false;
 			return false;
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! is_array( $body ) || JSON_ERROR_NONE !== json_last_error() ) {
+			// Invalid JSON response - update timing to prevent hammering.
+			$sync_error['last_checked'] = time();
+			Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+			delete_transient( $lock_key );
+			$is_validating = false;
 			return false;
 		}
 
@@ -533,11 +560,15 @@ class Identity_Crisis {
 			);
 
 			Jetpack_Options::update_option( 'sync_error_idc', $fresh_idc_data );
+			delete_transient( $lock_key );
+			$is_validating = false;
 			return false;
 		}
 
 		// No IDC detected in response - WordPress.com URLs now match, clear the local IDC.
 		Jetpack_Options::delete_option( 'sync_error_idc' );
+		delete_transient( $lock_key );
+		$is_validating = false;
 		return true;
 	}
 
