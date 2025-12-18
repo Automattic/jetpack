@@ -377,7 +377,7 @@ if ( wpcomsh_is_managed_plugin( 'gutenberg/gutenberg.php' ) ) {
  */
 function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) {
 	/*
-	 * Don't interfere with Jetpack API requests (e.g., plugin installation from Calypso).
+	 * Don't interfere with Jetpack XMLRPC API requests (e.g., plugin installation from Calypso).
 	 *
 	 * The Jetpack API endpoint handles auto_update_plugins updates via update_site_option().
 	 * If this filter modifies the value, it can interfere with WordPress's old vs new value
@@ -552,7 +552,7 @@ add_filter( 'atomic_managed_theme_auto_update_debug_label', 'wpcomsh_atomic_mana
  * @return mixed
  */
 function wpcomsh_remove_managed_plugins_from_update_plugins( $current ) {
-	if ( is_object( $current ) && isset( $current->response ) && is_array( $current->response ) ) {
+	if ( is_object( $current ) && is_array( $current->response ) ) {
 		foreach ( array_keys( $current->response ) as $plugin_key ) {
 			if ( wpcomsh_is_managed_plugin( $plugin_key ) ) {
 				unset( $current->response[ $plugin_key ] );
@@ -597,7 +597,7 @@ add_action( 'deleted_plugin', 'wpcomsh_update_managed_plugins', 100 );
 function wpcomsh_handle_update_managed_plugins_list( $upgrader, $hook_extra ): void {
 	$is_plugin_operation = isset( $hook_extra['type'] ) && 'plugin' === $hook_extra['type'];
 	$is_valid_action     = isset( $hook_extra['action'] ) && in_array( $hook_extra['action'], array( 'install', 'update' ), true );
-	$is_update_action    = isset( $hook_extra['action'] ) && 'update' === $hook_extra['action'];
+	$is_update_action    = 'update' === $hook_extra['action'];
 	$has_managed_plugins = get_option( 'wpcomsh_at_managed_plugins', false );
 
 	if ( $is_plugin_operation && $is_valid_action ) {
