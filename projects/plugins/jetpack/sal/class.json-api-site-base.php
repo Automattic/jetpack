@@ -1535,6 +1535,21 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Check if the site has the gating-business-q1 blog sticker.
+	 *
+	 * @return bool
+	 */
+	public function is_gating_business_q1() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'gating-business-q1' );
+		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			// For atomic sites
+			return wpcomsh_is_site_sticker_active( 'gating-business-q1' );
+		}
+		return false;
+	}
+
+	/**
 	 * Get the option of site intent which value is coming from the Hero Flow
 	 *
 	 * @return string
