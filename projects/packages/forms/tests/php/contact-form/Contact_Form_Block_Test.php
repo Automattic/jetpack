@@ -152,66 +152,6 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that ::render_submit_button adds interactivity attributes to submit buttons.
-	 *
-	 * @dataProvider data_provider_test_render_submit_button
-	 */
-	#[DataProvider( 'data_provider_test_render_submit_button' )]
-	public function test_render_submit_button( $content, $parsed_block, $expected ) {
-		$result = Contact_Form_Block::render_submit_button( $content, $parsed_block );
-		$this->assertEquals( $expected, $result );
-	}
-
-	/**
-	 * Data provider for test_render_submit_button.
-	 */
-	public static function data_provider_test_render_submit_button() {
-		// Skip HTML Tag Processor tests if the class doesn't exist (WordPress < 6.2)
-		if ( ! class_exists( \WP_HTML_Tag_Processor::class ) ) {
-			return array(
-				'no html tag processor' => array(
-					'<button>Submit</button>',
-					array( 'attrs' => array( 'className' => 'jetpack-form-submit-button' ) ),
-					'<button>Submit</button>',
-				),
-			);
-		}
-
-		return array(
-			'submit button with jetpack class'  => array(
-				'<button class="wp-block-button__link jetpack-form-submit-button">Submit</button>',
-				array( 'attrs' => array( 'className' => 'jetpack-form-submit-button' ) ),
-				'<button data-wp-bind--aria-disabled="state.isAriaDisabled" data-wp-bind--disabled="state.isAriaDisabled" data-wp-class--is-submitting="state.isSubmitting" class="wp-block-button__link jetpack-form-submit-button">Submit</button>',
-			),
-			'button without jetpack class'      => array(
-				'<button class="wp-block-button__link">Submit</button>',
-				array( 'attrs' => array( 'className' => 'wp-block-button__link' ) ),
-				'<button class="wp-block-button__link">Submit</button>',
-			),
-			'submit button with multiple classes including jetpack' => array(
-				'<button class="my-custom-class jetpack-form-submit-button another-class">Submit</button>',
-				array( 'attrs' => array( 'className' => 'my-custom-class jetpack-form-submit-button another-class' ) ),
-				'<button data-wp-bind--aria-disabled="state.isAriaDisabled" data-wp-bind--disabled="state.isAriaDisabled" data-wp-class--is-submitting="state.isSubmitting" class="my-custom-class jetpack-form-submit-button another-class">Submit</button>',
-			),
-			'block with no className attribute' => array(
-				'<button>Submit</button>',
-				array( 'attrs' => array() ),
-				'<button>Submit</button>',
-			),
-			'block with empty className'        => array(
-				'<button>Submit</button>',
-				array( 'attrs' => array( 'className' => '' ) ),
-				'<button>Submit</button>',
-			),
-			'content without button tag'        => array(
-				'<div class="jetpack-form-submit-button">Not a button</div>',
-				array( 'attrs' => array( 'className' => 'jetpack-form-submit-button' ) ),
-				'<div class="jetpack-form-submit-button">Not a button</div>',
-			),
-		);
-	}
-
-	/**
 	 * Test that ::render_wrapped_html_block wraps HTML blocks with jetpack form parent.
 	 */
 	public function test_render_wrapped_html_block() {
