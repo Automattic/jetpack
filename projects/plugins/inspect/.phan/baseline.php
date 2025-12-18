@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanAccessMethodInternal : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // PhanUndeclaredMethodInCallable : 1 occurrence
 
@@ -17,7 +16,6 @@ return [
     'file_suppressions' => [
         'app/Monitor.php' => ['PhanUndeclaredMethodInCallable'],
         'app/Options/Monitor_Status.php' => ['PhanTypeMismatchReturn'],
-        'functions.php' => ['PhanAccessMethodInternal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

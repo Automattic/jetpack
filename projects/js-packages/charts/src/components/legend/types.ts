@@ -24,6 +24,24 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
 	 */
 	textOverflow?: 'ellipsis' | 'wrap';
+	/**
+	 * Additional CSS class name for legend items.
+	 * This allows consumers to customize individual legend item styling.
+	 */
+	legendItemClassName?: string;
+	/**
+	 * Function for rendering a custom legend layout.
+	 */
+	render?: ( items: BaseLegendItem[] ) => ReactNode;
+	/**
+	 * Enable interactive legend items that can toggle series visibility.
+	 * Requires GlobalChartsProvider and chartId to be set.
+	 */
+	interactive?: boolean;
+	/**
+	 * Chart ID for series visibility tracking when interactive mode is enabled.
+	 */
+	chartId?: string;
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {

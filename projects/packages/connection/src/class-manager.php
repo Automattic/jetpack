@@ -451,6 +451,13 @@ class Manager {
 			return false;
 		}
 
+		// Skip XML-RPC signature verification for OAuth authorization flow.
+		// OAuth uses GET requests without body-hash and has its own
+		// signature verification in Authorize_Json_Api class.
+		if ( isset( $_GET['action'] ) && $_GET['action'] === 'jetpack_json_api_authorization' ) {
+			return false;
+		}
+
 		$signature_details = array(
 			'token'     => isset( $_GET['token'] ) ? wp_unslash( $_GET['token'] ) : '',
 			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',
@@ -1747,16 +1754,16 @@ class Manager {
 	 * @return array $amended arguments.
 	 */
 	public static function apply_activation_source_to_args( $args ) {
-		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
+		$activation_source = get_option( 'jetpack_activation_source' );
 
-		if ( $activation_source_name ) {
+		if ( ! empty( $activation_source[0] ) ) {
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode
-			$args['_as'] = urlencode( $activation_source_name );
+			$args['_as'] = urlencode( $activation_source[0] );
 		}
 
-		if ( $activation_source_keyword ) {
+		if ( ! empty( $activation_source[1] ) ) {
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode
-			$args['_ak'] = urlencode( $activation_source_keyword );
+			$args['_ak'] = urlencode( $activation_source[1] );
 		}
 
 		return $args;

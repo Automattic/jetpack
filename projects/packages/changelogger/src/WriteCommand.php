@@ -86,7 +86,7 @@ class WriteCommand extends Command {
 			->addOption( 'link', null, InputOption::VALUE_REQUIRED, 'Link for the new changelog entry' )
 			->addOption( 'add-pr-num', null, InputOption::VALUE_NONE, 'Try to append the GH PR number to each entry. Commit subject must end like: (#123)' )
 			->setHelp(
-				<<<EOF
+				<<<'EOF'
 The <info>write</info> command adds a new changelog entry based on the changes files, and removes the changes files.
 
 Various edge cases will interactively prompt for information if possible. Use <info>--no-interaction</info> to avoid

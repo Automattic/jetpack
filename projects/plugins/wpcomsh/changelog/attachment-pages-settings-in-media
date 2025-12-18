@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Introduces Attachment pages setting in the media settings screen in wp-admin which controlls the `wp_attachment_pages_enabled` option.

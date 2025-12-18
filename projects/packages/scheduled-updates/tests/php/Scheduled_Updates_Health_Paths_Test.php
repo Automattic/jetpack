@@ -20,13 +20,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Used to mock global functions inside a namespace.
-	 *
-	 * @see https://github.com/php-mock/php-mock-phpunit
-	 */
-	use \phpmock\phpunit\PHPMock;
-
-	/**
 	 * Admin user ID.
 	 *
 	 * @var int

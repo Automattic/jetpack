@@ -55,7 +55,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.5.x-dev"
+			"dev-trunk": "0.7.x-dev"
 		},
 		"textdomain": "jetpack-external-media",
 		"version-constants": {

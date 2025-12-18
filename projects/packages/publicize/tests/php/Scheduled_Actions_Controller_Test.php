@@ -7,6 +7,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Publicize\REST_API\Scheduled_Actions_Controller;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -18,6 +19,7 @@ use WpOrg\Requests\Requests;
 /**
  * Class Scheduled_Actions_Controller_Test
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 class Scheduled_Actions_Controller_Test extends TestCase {
 
 	/**
@@ -179,7 +181,7 @@ class Scheduled_Actions_Controller_Test extends TestCase {
 
 		$callback = function () use ( $result ) {
 			return array(
-				'body' => wp_json_encode( $result ),
+				'body' => wp_json_encode( $result, JSON_UNESCAPED_SLASHES ),
 			);
 		};
 

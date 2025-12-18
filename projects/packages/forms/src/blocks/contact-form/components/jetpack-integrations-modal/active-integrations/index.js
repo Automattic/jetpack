@@ -1,14 +1,8 @@
-import colorStudio from '@automattic/color-studio';
-import { JetpackIcon } from '@automattic/jetpack-components';
-import { Spinner, Tooltip } from '@wordpress/components';
+import { Icon, Spinner, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import AkismetIcon from '../../../../../icons/akismet';
-import MailPoetOrangeIcon from '../../../../../icons/mailpoet-orange';
-import SalesforceCircleIcon from '../../../../../icons/salesforce-circle';
-import { isValidSalesforceOrgId } from '../salesforce-card';
+import { plugins } from '@wordpress/icons';
+import { isValidSalesforceOrgId } from '../helpers/salesforce.tsx';
 import './style.scss';
-
-const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
 export default function ActiveIntegrations( { integrations, attributes, isLoading } ) {
 	const activeIntegrations = integrations.reduce( ( acc, integration ) => {
@@ -17,7 +11,6 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 				if ( integration.isConnected ) {
 					acc.push( {
 						...integration,
-						icon: <AkismetIcon width={ 30 } height={ 30 } className="icon-round" />,
 						tooltip: __( 'Akismet is connected for this form', 'jetpack-forms' ),
 					} );
 				}
@@ -26,7 +19,6 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 				if ( integration.isActive && integration.details?.hasExtension && attributes.jetpackCRM ) {
 					acc.push( {
 						...integration,
-						icon: <JetpackIcon size={ 30 } color={ COLOR_JETPACK } />,
 						tooltip: __( 'Jetpack CRM is connected for this form', 'jetpack-forms' ),
 					} );
 				}
@@ -39,8 +31,19 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 				) {
 					acc.push( {
 						...integration,
-						icon: <MailPoetOrangeIcon width={ 30 } height={ 30 } />,
 						tooltip: __( 'MailPoet is connected for this form', 'jetpack-forms' ),
+					} );
+				}
+				break;
+			case 'hostinger-reach':
+				if (
+					integration.isActive &&
+					integration.isConnected &&
+					attributes.hostingerReach?.enabledForForm
+				) {
+					acc.push( {
+						...integration,
+						tooltip: __( 'Hostinger Reach is connected for this form', 'jetpack-forms' ),
 					} );
 				}
 				break;
@@ -52,7 +55,6 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 				) {
 					acc.push( {
 						...integration,
-						icon: <SalesforceCircleIcon width={ 34 } height={ 34 } />,
 						tooltip: __( 'Salesforce is connected for this form', 'jetpack-forms' ),
 					} );
 				}
@@ -82,7 +84,21 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 			{ activeIntegrations.map( integration => (
 				<Tooltip key={ integration.id } text={ integration.tooltip }>
 					<span className="jetpack-forms-active-integrations__item">
-						{ integration.icon }
+						{ integration.iconUrl ? (
+							<img
+								src={ integration.iconUrl }
+								alt={ integration.title || integration.id }
+								width={ 30 }
+								height={ 30 }
+								className="jetpack-forms-active-integrations__icon"
+							/>
+						) : (
+							<Icon
+								icon={ plugins }
+								size={ 30 }
+								className="jetpack-forms-active-integrations__icon"
+							/>
+						) }
 						<span className="jetpack-forms-active-integrations__status" />
 					</span>
 				</Tooltip>

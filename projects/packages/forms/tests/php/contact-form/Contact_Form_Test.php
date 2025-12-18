@@ -256,6 +256,7 @@ class Contact_Form_Test extends BaseTestCase {
 				'user_email' => 'john@example.com',
 				'user_login' => 'test_user',
 				'user_pass'  => 'abc123',
+				'role'       => 'author',
 			)
 		);
 
@@ -337,7 +338,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Default metadata should be saved.
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 		$this->assertEquals( 'john <john@example.com>', $email['to'][0] );
-		$this->assertStringContainsString( 'IP Address: 127.0.0.1', $email['message'] );
+		$this->assertStringContainsString( 'IP Address: <a href="https://jetpack.com/redirect/?source=ip-lookup&#038;path=127.0.0.1">127.0.0.1</a>', $email['message'] );
 	}
 
 	/**
@@ -378,7 +379,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Create a contact form
 		$form = new Contact_Form(
 			array(
-				'customThankyou' => 'redirect', // Any value that's not 'message'
+				'customThankyou' => '',
 			),
 			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
 		);
@@ -488,6 +489,26 @@ class Contact_Form_Test extends BaseTestCase {
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 		$this->assertStringNotContainsString( 'IP Address', $email['message'] );
 		remove_all_filters( 'jetpack_contact_form_forget_ip_address' );
+	}
+
+	/**
+	 * Tests that the browser information is included in the email message.
+	 */
+	public function test_process_submission_includes_browser_in_email() {
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36';
+		$form                       = new Contact_Form( array() );
+		$result                     = $form->process_submission();
+
+		// Processing should be successful and produce the success message.
+		$this->assertTrue( is_string( $result ) );
+
+		$feedback_id = end( Posts::init()->posts )->ID;
+		$submission  = get_post( $feedback_id );
+
+		// Browser information should be included in the email.
+		$email = get_post_meta( $submission->ID, '_feedback_email', true );
+		$this->assertStringContainsString( 'Browser:', $email['message'] );
+		$this->assertStringContainsString( 'Chrome', $email['message'] );
 	}
 
 	/**
@@ -959,7 +980,7 @@ class Contact_Form_Test extends BaseTestCase {
 			'email_marketing_consent' => 'yes',
 		);
 
-		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values, JSON_UNESCAPED_SLASHES ), array() ) );
 		// Create a mock post with JSON_DATA format
 		$post_id = wp_insert_post(
 			array(
@@ -1013,7 +1034,7 @@ class Contact_Form_Test extends BaseTestCase {
 			'<strong>field2</strong>' => 'value2',
 		);
 
-		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values, JSON_UNESCAPED_SLASHES ), array() ) );
 		// Create a mock post with JSON_DATA format
 		$post_id = wp_insert_post(
 			array(
@@ -1439,7 +1460,8 @@ class Contact_Form_Test extends BaseTestCase {
 						'class' => 'has-text-color',
 						'style' => 'color:gummy; font-size:14px;',
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 			),
 		);
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
@@ -1470,7 +1492,8 @@ class Contact_Form_Test extends BaseTestCase {
 						'class' => 'has-text-color',
 						'style' => 'color:gummy; font-size:14px;',
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 			),
 		);
 		$contact_form_attributes = array(
@@ -1965,12 +1988,28 @@ class Contact_Form_Test extends BaseTestCase {
 			$this->assertCount( $n, $attributes['options'], 'Number of inputs doesn\'t match number of options' );
 			$this->assertCount( $n, $attributes['values'], 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
-				$item_label = $labels->item( $i );
+				$real_label = $labels->item( $i );
+				// Labels can be wrappers (new markup): <label><input><span><span>OPTION VALUE</span></span></label>
+				// Or siblings (old markup): <p><input /><label><span>OPTION VALUE</span></label></p>
+				// @phan-suppress-next-line PhanUndeclaredMethod -- getElementsByTagName is available on DOMElement, which label elements are.
+				$item_label = $real_label->getElementsByTagName( 'span' )->item( 0 );
+
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$this->assertEquals( $item_label->nodeValue, $attributes['options'][ $i ] );
 
-				// @phan-suppress-next-line PhanUndeclaredMethod -- parentElement was only added in PHP 8.3, and Phan can't know that parentNode will be an element.
-				$input = $item_label->parentNode->getElementsByTagName( 'input' )->item( 0 ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				// Try to get input from inside label (new markup)
+				// @phan-suppress-next-line PhanUndeclaredMethod -- getElementsByTagName is available on DOMElement, which label elements are.
+				$input = $real_label->getElementsByTagName( 'input' )->item( 0 ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+				// If input is not inside label, get it from parent (old markup)
+				// In old markup, each <p> has one input and one label, so always use item(0)
+				if ( ! $input ) {
+					// @phan-suppress-next-line PhanUndeclaredMethod -- parentElement was only added in PHP 8.3, and Phan can't know that parentNode will be an element.
+					$parent_inputs = $real_label->parentNode->getElementsByTagName( 'input' ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$input         = $parent_inputs->item( 0 );
+				}
+
+				$this->assertInstanceOf( DOMElement::class, $input, 'Input element not found' );
 				$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
 				if ( 'radio' === $attributes['input_type'] ) {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
@@ -1998,14 +2037,10 @@ class Contact_Form_Test extends BaseTestCase {
 					$option = $item_label->parentNode;  //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 					$option_data = array_values( $filtered )[0] ?? null;
-					// @phan-suppress-next-line PhanUndeclaredMethod - Phan doesn't know that getAttribute is available. But it is.
 					if ( ! empty( $item_label->getAttribute( 'style' ) ) ) {
-						// @phan-suppress-next-line PhanUndeclaredMethod
 						$this->assertEquals( $option->getAttribute( 'style' ), $option_data->style, 'Style doesn\'t match' );
 					}
-					// @phan-suppress-next-line PhanUndeclaredMethod
 					if ( ! empty( $item_label->getAttribute( 'class' ) ) ) {
-						// @phan-suppress-next-line PhanUndeclaredMethod
 						$this->assertContains( $option_data->class, explode( ' ', $option->getAttribute( 'class' ) ), 'Class doesn\'t match' );
 					}
 				}
@@ -2228,196 +2263,6 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Tests the functionality of the Util::grunion_contact_form_apply_block_attribute() function.
-	 */
-	public function test_grunion_contact_form_apply_block_attribute() {
-		// No contact form block.
-		$original = <<<EOT
-<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
-
-<!-- wp:spacer {"height":"150px"} -->
-<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
-
-<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
-<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
-<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
-<!-- /wp:column -->
-
-<!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
-<!-- /wp:column --></div>
-<!-- /wp:columns -->
-
-<!-- wp:post-comments /--></div>
-<!-- /wp:group -->
-EOT;
-		$expected = <<<EOT
-<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
-
-<!-- wp:spacer {"height":"150px"} -->
-<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
-
-<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
-<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
-<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
-<!-- /wp:column -->
-
-<!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
-<!-- /wp:column --></div>
-<!-- /wp:columns -->
-
-<!-- wp:post-comments /--></div>
-<!-- /wp:group -->
-EOT;
-		$this->assertEquals(
-			$expected,
-			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
-		);
-		// Contact form block without attributes.
-		$original = <<<EOT
-<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
-
-<!-- wp:spacer {"height":"150px"} -->
-<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
-
-<!-- wp:jetpack/contact-form -->
-<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
-
-<!-- wp:jetpack/field-textarea /-->
-
-<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
-<!-- /wp:jetpack/contact-form -->
-
-<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
-<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
-<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
-<!-- /wp:column -->
-
-<!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
-<!-- /wp:column --></div>
-<!-- /wp:columns -->
-
-<!-- wp:post-comments /--></div>
-<!-- /wp:group -->
-EOT;
-		$expected = <<<EOT
-<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
-
-<!-- wp:spacer {"height":"150px"} -->
-<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
-
-<!-- wp:jetpack/contact-form {"foo":"bar"} -->
-<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
-
-<!-- wp:jetpack/field-textarea /-->
-
-<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
-<!-- /wp:jetpack/contact-form -->
-
-<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
-<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
-<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
-<!-- /wp:column -->
-
-<!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
-<!-- /wp:column --></div>
-<!-- /wp:columns -->
-
-<!-- wp:post-comments /--></div>
-<!-- /wp:group -->
-EOT;
-		$this->assertEquals(
-			$expected,
-			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
-		);
-		// Contact form block with attributes.
-		$original = <<<EOT
-<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
-
-<!-- wp:spacer {"height":"150px"} -->
-<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
-
-<!-- wp:jetpack/contact-form {"customThankyou":"message"} -->
-<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
-
-<!-- wp:jetpack/field-textarea /-->
-
-<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
-<!-- /wp:jetpack/contact-form -->
-
-<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
-<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
-<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
-<!-- /wp:column -->
-
-<!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
-<!-- /wp:column --></div>
-<!-- /wp:columns -->
-
-<!-- wp:post-comments /--></div>
-<!-- /wp:group -->
-EOT;
-		$expected = <<<EOT
-<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
-
-<!-- wp:spacer {"height":"150px"} -->
-<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
-
-<!-- wp:jetpack/contact-form {"customThankyou":"message","foo":"bar"} -->
-<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
-
-<!-- wp:jetpack/field-textarea /-->
-
-<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
-<!-- /wp:jetpack/contact-form -->
-
-<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
-<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
-<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
-<!-- /wp:column -->
-
-<!-- wp:column -->
-<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
-<!-- /wp:column --></div>
-<!-- /wp:columns -->
-
-<!-- wp:post-comments /--></div>
-<!-- /wp:group -->
-EOT;
-		$this->assertEquals(
-			$expected,
-			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
-		);
-
-		// Check that the function return null if the function gets null.
-		$this->assertNull(
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
-			Util::grunion_contact_form_apply_block_attribute( null, array( 'foo' => 'bar' ) )
-		);
-
-		// Check that the function returns an array if the function gets an empty array.
-		$this->assertEquals(
-			array(), // @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
-			Util::grunion_contact_form_apply_block_attribute( array(), array( 'foo' => 'bar' ) )
-		);
-	}
-	/**
 	 * Helper function that tracks the ids of the feedbacks that got created.
 	 */
 	public function track_feedback_inserted( $post_id ) {
@@ -2504,31 +2349,131 @@ EOT;
 	}
 
 	/**
-	 * Tests get_default_to method with valid post author.
+	 * Tests get_default_to_for_editor method with valid post author
 	 */
-	public function test_get_default_to_with_valid_post_author() {
+	public function test_get_default_to_for_editor_with_valid_post_author() {
+		$email     = 'author@example.com';
 		$author_id = wp_insert_user(
 			array(
-				'user_email' => 'author@example.com',
+				'user_email' => $email,
 				'user_login' => 'test_author',
 				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+		$post_id   = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'This is a test post.',
+				'post_status'  => 'publish',
+				'post_author'  => $author_id,
 			)
 		);
 
-		$result = Contact_Form::get_default_to( $author_id );
-
-		$this->assertEquals( 'author@example.com', $result );
+		$post   = get_post( $post_id );
+		$result = Contact_Form::get_default_to_for_editor( $post );
+		$this->assertEquals( $email, $result );
 
 		wp_delete_user( $author_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Tests get_default_to_for_editor method with null
+	 */
+	public function test_get_default_to_for_editor_with_null() {
+		$result = Contact_Form::get_default_to_for_editor( null );
+		$this->assertEquals( get_option( 'admin_email' ), $result );
+	}
+
+	/**
+	 * Tests get_default_to method with valid post author.
+	 */
+	public function test_get_default_to_with_valid_post_author() {
+		$email     = 'author@example.com';
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => $email,
+				'user_login' => 'test_author',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+		$source    = $this->get_source( $author_id );
+		$result    = Contact_Form::get_default_to( $author_id, $source );
+
+		$this->assertEquals( $email, $result );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $source->get_id(), true );
+	}
+
+	/**
+	 * Tests get_default_to method with valid post author.
+	 */
+	public function test_get_default_to_with_valid_post_author_subscriber() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => 'subscriber@example.com',
+				'user_login' => 'test_author',
+				'user_pass'  => 'password123',
+				'role'       => 'subscriber',
+			)
+		);
+		$source    = $this->get_source( $author_id );
+		$result    = Contact_Form::get_default_to( $author_id, $source );
+
+		$this->assertEquals( get_option( 'admin_email' ), $result );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $source->get_id(), true );
+	}
+	/**
+	 * Helper function to create a Feedback_Source object from a post.
+	 */
+	public function get_source( $author_id ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'This is a test post.',
+				'post_status'  => 'publish',
+				'post_author'  => $author_id,
+			)
+		);
+
+		return Feedback_Source::from_serialized(
+			array(
+				'source_id' => $post_id,
+				'title'     => 'Test Post',
+			)
+		);
 	}
 
 	/**
 	 * Tests get_default_to method with invalid post author ID.
 	 */
 	public function test_get_default_to_with_invalid_post_author() {
-		$result = Contact_Form::get_default_to( 99999 ); // Non-existent user ID
+		$source = $this->get_source( 99999 );
+		$result = Contact_Form::get_default_to( 99999, $source ); // Non-existent user ID
 
+		wp_delete_post( $source->get_id(), true );
 		$this->assertEquals( get_option( 'admin_email' ), $result );
+	}
+
+	/**
+	 * Tests that the constructor handles non-integer $page global without warnings.
+	 */
+	public function test_constructor_handles_non_integer_page_global() {
+		global $page;
+		$original_page = $page;
+		$page          = 'not-an-integer'; // Simulating theme overwriting $page
+
+		$attributes = array( 'to' => 'test@example.com' );
+		$form       = new Contact_Form( $attributes );
+
+		// Verify no warnings and form is created successfully
+		$this->assertInstanceOf( Contact_Form::class, $form );
+		$page = $original_page; // Restore original value
 	}
 
 	/**
@@ -2549,14 +2494,18 @@ EOT;
 				'user_email' => '',
 				'user_login' => 'test_author_no_email',
 				'user_pass'  => 'password123',
+				'role'       => 'editor',
 			)
 		);
 
-		$result = Contact_Form::get_default_to( $author_id );
+		$source = $this->get_source( $author_id );
+
+		$result = Contact_Form::get_default_to( $author_id, $source );
 
 		$this->assertEquals( get_option( 'admin_email' ), $result );
 
 		wp_delete_user( $author_id );
+		wp_delete_post( $source->get_id(), true );
 	}
 
 	/**
@@ -2671,8 +2620,8 @@ EOT;
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 
-	public function test_get_instance_from_jwt_returns_null_when_no_secret() {
-		// Ensure JETPACK_BLOG_TOKEN is not defined
+	public function test_get_instance_from_jwt_uses_default_secret_when_no_token_secret() {
+		// Ensure JETPACK_BLOG_TOKEN is not defined, so default secret is used
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 
 		$form = new Contact_Form(
@@ -2720,15 +2669,24 @@ EOT;
 			), // Hidden fields to include in the form.
 			'stepTransition'         => 'fade-slide',
 			'mailpoet'               => '',
+			'emailNotifications'     => 'yes',
+			'disableGoBack'          => false,
+			'formTitle'              => 'Test Form',
 		);
 		// Add a widget ID to the attributes for testing.
-		$expected_attributes                        = $attributes;
-		$expected_attributes['jetpackCRM']          = '1';
-		$expected_attributes['block_template']      = '';
-		$expected_attributes['block_template_part'] = '';
-		$expected_attributes['id']                  = 'widget-string';
-		$expected_attributes['saveResponses']       = 'yes';
-
+		$expected_attributes                           = $attributes;
+		$expected_attributes['jetpackCRM']             = '1';
+		$expected_attributes['block_template']         = '';
+		$expected_attributes['block_template_part']    = '';
+		$expected_attributes['id']                     = 'widget-string';
+		$expected_attributes['saveResponses']          = 'yes';
+		$expected_attributes['disableGoBack']          = '';
+		$expected_attributes['notificationRecipients'] = array();
+		$expected_attributes['webhooks']               = array();
+		$expected_attributes['disableSummary']         = '';
+		$expected_attributes['confirmationType']       = '';
+		$expected_attributes['hostingerReach']         = '';
+		$expected_attributes['formTitle']              = 'Test Form';
 		$form = new Contact_Form(
 			$attributes,
 			"[contact-field label='Name' type='name' required='1'/]"
@@ -2748,16 +2706,123 @@ EOT;
 		$this->assertSame( '12345', $form_copy->get_attribute( 'salesforceData' )['organizationId'], 'organizationId should match' );
 
 		$this->assertEquals( $expected_attributes, $form_copy->get_attributes(), 'jetpackCRM should be true' );
+
+		$this->assertEquals( $form->get_source(), $form_copy->get_source(), 'Form sources should match' );
+	}
+
+	public function test_get_instance_from_jwt_throws_exception_for_invalid_jwt() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		$this->expectException( \Exception::class );
+		$this->expectExceptionMessage( 'Failed to decode JWT token' );
+
+		Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', true );
+
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 
 	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
 
-		$form_copy = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token' );
-		$this->assertNull( $form_copy, 'Should return null for invalid JWT token' );
+		$form = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', false );
+		$this->assertNull( $form, 'Form should be null if decoding fails and $throw_exception is false' );
 
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
+
+	public function test_jetpack_forms_jwt_decode_failure_filter_with_throw_exception() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		// Create a mock form instance to return from the filter
+		$mock_form = new Contact_Form(
+			array(
+				'to' => 'test@example.com',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+
+		// Add filter to return the mock form instead of throwing exception
+		$filter_called = false;
+		add_filter(
+			'jetpack_forms_jwt_decode_failure',
+			function ( $value, $jwt_token, $exception ) use ( $mock_form, &$filter_called ) {
+				$filter_called = true;
+				$this->assertNull( $value, 'Filter should receive null as first parameter' );
+				$this->assertEquals( 'invalid_jwt_token', $jwt_token, 'Filter should receive the JWT token' );
+				$this->assertInstanceOf( \Exception::class, $exception, 'Filter should receive an Exception instance' );
+				return $mock_form;
+			},
+			10,
+			3
+		);
+
+		// Call with throw_exception = true, but filter should prevent exception
+		$result = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', true );
+
+		$this->assertTrue( $filter_called, 'Filter should have been called' );
+		$this->assertSame( $mock_form, $result, 'Filter should return the mock form instead of throwing exception' );
+
+		remove_all_filters( 'jetpack_forms_jwt_decode_failure' );
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
+	public function test_jetpack_forms_jwt_decode_failure_filter_without_throw_exception() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		// Add filter to return a custom value
+		$custom_return_value = 'custom_fallback';
+		$filter_called       = false;
+		add_filter(
+			'jetpack_forms_jwt_decode_failure',
+			function ( $value, $jwt_token, $exception ) use ( $custom_return_value, &$filter_called ) {
+				$filter_called = true;
+				$this->assertNull( $value, 'Filter should receive null as first parameter' );
+				$this->assertEquals( 'invalid_jwt_token', $jwt_token, 'Filter should receive the JWT token' );
+				$this->assertInstanceOf( \Exception::class, $exception, 'Filter should receive an Exception instance' );
+				return $custom_return_value;
+			},
+			10,
+			3
+		);
+
+		// Call with throw_exception = false
+		$result = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', false );
+
+		$this->assertTrue( $filter_called, 'Filter should have been called' );
+		$this->assertEquals( $custom_return_value, $result, 'Filter should return the custom value' );
+
+		remove_all_filters( 'jetpack_forms_jwt_decode_failure' );
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
+	public function test_jetpack_forms_jwt_decode_failure_filter_returns_null_still_throws() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		// Add filter that returns null (should allow exception to be thrown)
+		$filter_called = false;
+		add_filter(
+			'jetpack_forms_jwt_decode_failure',
+			function ( $value, $jwt_token, $exception ) use ( &$filter_called ) {
+				$filter_called = true;
+				$this->assertNull( $value, 'Filter should receive null as first parameter' );
+				$this->assertEquals( 'invalid_jwt_token', $jwt_token, 'Filter should receive the JWT token' );
+				$this->assertInstanceOf( \Exception::class, $exception, 'Filter should receive an Exception instance' );
+				return null; // Returning null means "don't override default behavior"
+			},
+			10,
+			3
+		);
+
+		$this->expectException( \Exception::class );
+		$this->expectExceptionMessage( 'Failed to decode JWT token' );
+
+		Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', true );
+
+		// Note: Code after exception won't be reached, but filter will have been called
+		remove_all_filters( 'jetpack_forms_jwt_decode_failure' );
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
 	/**
 	 * Test compute_id method with basic attributes
 	 */
@@ -3464,5 +3529,358 @@ EOT;
 		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
 
 		Contact_Form::reset_errors();
+	}
+
+	/**
+	 * Test that email is sent when emailNotifications is 'yes' (default behavior)
+	 */
+	public function test_process_submission_sends_email_when_email_notifications_enabled() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				$this->assertContains( 'john <john@example.com>', $args['to'] );
+				$this->assertEquals( 'Contact Form', $args['subject'] );
+				return $args;
+			}
+		);
+
+		// Initialize a form with emailNotifications explicitly set to 'yes'
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'yes',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertTrue( $email_sent, 'Email should be sent when emailNotifications is "yes"' );
+	}
+
+	/**
+	 * Test that email is NOT sent when emailNotifications is 'no'
+	 */
+	public function test_process_submission_does_not_send_email_when_email_notifications_disabled() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				return $args;
+			}
+		);
+
+		// Initialize a form with emailNotifications set to 'no'
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertFalse( $email_sent, 'Email should NOT be sent when emailNotifications is "no"' );
+	}
+
+	/**
+	 * Test that emailNotifications does not affect spam email behavior
+	 */
+	public function test_process_submission_email_notifications_does_not_affect_spam_behavior() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Mark submission as spam
+		add_filter( 'jetpack_contact_form_is_spam', '__return_true', 11 );
+
+		// Track if wp_mail was called for spam
+		$spam_email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$spam_email_sent ) {
+				$spam_email_sent = true;
+				$this->assertStringContainsString( '***SPAM***', $args['subject'] );
+				return $args;
+			}
+		);
+
+		// Initialize a form with emailNotifications set to 'no' but spam email enabled
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		// Spam email should still be sent regardless of emailNotifications setting
+		$this->assertFalse( $spam_email_sent, 'Spam email should NOT be sent by default even when emailNotifications is disabled' );
+
+		// Now enable spam email sending
+		add_filter( 'grunion_still_email_spam', '__return_true' );
+
+		$spam_email_sent = false;
+		$result          = $form->process_submission();
+		$this->assertNotNull( $result );
+		// Spam email should be sent when grunion_still_email_spam filter is true
+		$this->assertTrue( $spam_email_sent, 'Spam email should be sent when grunion_still_email_spam filter is true, regardless of emailNotifications setting' );
+	}
+
+	/**
+	 * Test that emailNotifications defaults to 'yes' when not specified
+	 */
+	public function test_process_submission_sends_email_when_email_notifications_not_specified() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				$this->assertContains( 'john <john@example.com>', $args['to'] );
+				return $args;
+			}
+		);
+
+		// Initialize a form without specifying emailNotifications (should default to 'yes')
+		$form = new Contact_Form(
+			array(
+				'to'      => 'john@example.com',
+				'subject' => 'Contact Form',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertTrue( $email_sent, 'Email should be sent when emailNotifications is not specified (defaults to "yes")' );
+	}
+
+	/**
+	 * Test that email is not sent when grunion_should_send_email filter is false and emailNotifications is set to 'yes'
+	 */
+	public function test_process_submission_does_not_send_email_when_grunion_should_send_email_filter_is_false_and_emailNotifications_is_set_to_yes() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		add_filter( 'grunion_should_send_email', '__return_false' );
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				return $args;
+			}
+		);
+
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'yes',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertFalse( $email_sent, 'Email should NOT be sent when grunion_should_send_email filter is false' );
+
+		remove_filter( 'grunion_should_send_email', '__return_false' );
+	}
+
+	/**
+	 * Test that email is sent when grunion_should_send_email filter is true and emailNotifications is set to 'no'
+	 */
+	public function test_process_submission_sends_email_when_grunion_should_send_email_filter_is_true_and_emailNotifications_is_set_to_no() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		add_filter( 'grunion_should_send_email', '__return_true' );
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				$this->assertContains( 'john <john@example.com>', $args['to'] );
+				return $args;
+			}
+		);
+
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertTrue( $email_sent, 'Email should be sent when grunion_should_send_email filter is true and emailNotifications is set to no' );
+
+		remove_filter( 'grunion_should_send_email', '__return_true' );
+	}
+
+	/**
+	 * Test that parse method handles null or non-array fields gracefully without fatal error.
+	 * This tests the safety check added at line 738 to prevent PHP fatal errors
+	 * when $form->fields is null or not countable.
+	 */
+	public function test_parse_handles_null_fields_without_fatal_error() {
+		// Test 1: Create a form and set fields to null to simulate the error condition
+		$form = new Contact_Form(
+			array( 'to' => 'test@example.com' ),
+			'' // Empty content
+		);
+
+		// Manually set fields to null to simulate the error condition
+		// @phan-suppress-next-line PhanTypeMismatchPropertyProbablyReal -- purely for testing purposes
+		$form->fields = null;
+
+		// Now test that parse() doesn't throw a fatal error when accessing $form->fields
+		$result = Contact_Form::parse(
+			array( 'to' => 'test@example.com' ),
+			'',
+			array()
+		);
+
+		// Should return a valid string without throwing a fatal error
+		$this->assertIsString( $result, 'Parse should return a string even when fields is null' );
+
+		// Test 2: Test with fields set to false
+		$form2 = new Contact_Form(
+			array( 'to' => 'test@example.com' ),
+			''
+		);
+		// @phan-suppress-next-line PhanTypeMismatchPropertyProbablyReal -- purely for testing purposes
+		$form2->fields = false;
+
+		$result2 = Contact_Form::parse(
+			array( 'to' => 'test@example.com' ),
+			'',
+			array()
+		);
+
+		$this->assertIsString( $result2, 'Parse should return a string even when fields is false' );
+
+		// Test 3: Test with empty array (should identify as not single input form)
+		$form3         = new Contact_Form(
+			array( 'to' => 'test@example.com' ),
+			''
+		);
+		$form3->fields = array();
+
+		$result3 = Contact_Form::parse(
+			array( 'to' => 'test@example.com' ),
+			'',
+			array()
+		);
+
+		$this->assertIsString( $result3, 'Parse should return a string with empty fields array' );
+		$this->assertStringNotContainsString( 'is-single-input-form', $result3, 'Should not have single-input-form class with empty fields' );
+
+		// Test 4: Test with single field (should identify as single input form)
+		$result4 = Contact_Form::parse(
+			array( 'to' => 'test@example.com' ),
+			"[contact-field label='Name' type='name' required='1'/]",
+			array()
+		);
+
+		$this->assertIsString( $result4, 'Parse should return a string with single field' );
+		$this->assertStringContainsString( 'is-single-input-form', $result4, 'Should have single-input-form class with one field' );
+
+		// Test 5: Test with multiple fields (should not be single input form)
+		$result5 = Contact_Form::parse(
+			array( 'to' => 'test@example.com' ),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]",
+			array()
+		);
+
+		$this->assertIsString( $result5, 'Parse should return a string with multiple fields' );
+		$this->assertStringNotContainsString( 'is-single-input-form', $result5, 'Should not have single-input-form class with multiple fields' );
+	}
+
+	/**
+	 * Test is_webhooks_enabled returns false by default.
+	 */
+	public function test_is_webhooks_enabled_default() {
+		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+	}
+
+	/**
+	 * Test is_webhooks_enabled filter can be used to enable webhooks.
+	 */
+	public function test_is_webhooks_enabled_filter_enable() {
+		add_filter( 'jetpack_forms_webhooks_enabled', '__return_true' );
+
+		$this->assertTrue( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+
+		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_true' );
+	}
+
+	/**
+	 * Test is_webhooks_enabled filter can be used to keep webhooks disabled.
+	 */
+	public function test_is_webhooks_enabled_filter_disable() {
+		add_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
+
+		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+
+		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
 	}
 }

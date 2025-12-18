@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -19,6 +20,7 @@ use WP_Error;
 /**
  * Connection Manager functionality testing.
  */
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 class ManagerTest extends TestCase {
 
 	/**
@@ -59,7 +61,10 @@ class ManagerTest extends TestCase {
 		$manager    = new Manager();
 		$reflection = new \ReflectionClass( $manager );
 		$method     = $reflection->getMethod( 'add_connection_status_invalidation_hooks' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$method->invoke( $manager );
 	}
 
@@ -285,7 +290,7 @@ class ManagerTest extends TestCase {
 
 		( new Plugin( 'plugin-slug-2' ) )->add( 'Plugin Name 2' );
 
-		$stub = $this->createMock( Plugin::class );
+		$stub = $this->createStub( Plugin::class );
 		$stub->method( 'is_only' )
 			->willReturn( false );
 		$manager = ( new Manager() )->set_plugin_instance( $stub );
@@ -301,7 +306,7 @@ class ManagerTest extends TestCase {
 
 		( new Plugin( 'plugin-slug-2' ) )->add( 'Plugin Name 2' );
 
-		$stub = $this->createMock( Plugin::class );
+		$stub = $this->createStub( Plugin::class );
 		$stub->method( 'is_only' )
 			->willReturn( false );
 		$manager = ( new Manager() )->set_plugin_instance( $stub );

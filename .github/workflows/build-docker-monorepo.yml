@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 5  # 2025-03-04: Takes just a few seconds.
+    timeout-minutes: 5  # 2025-11-20: Takes just a few seconds.
     outputs:
       php-version: ${{ steps.buildargs.outputs.php-version }}
       composer-version: ${{ steps.buildargs.outputs.composer-version }}
@@ -34,7 +34,7 @@ jobs:
       images: ${{ steps.buildargs.outputs.images }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Fetch build args
         id: buildargs
@@ -72,7 +72,7 @@ jobs:
     permissions:
       packages: write
       contents: read
-    timeout-minutes: 15  # 2025-03-04: Arm64 build takes about 5 minutes, amd64 build about 3.
+    timeout-minutes: 15  # 2025-11-20: Arm64 build takes about 6 minutes, amd64 build about 3.
     strategy:
       matrix:
         include:
@@ -82,7 +82,7 @@ jobs:
             platform: arm64
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -134,7 +134,7 @@ jobs:
           touch "$TEMP/digests/${DIGEST#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: digests-linux-${{ matrix.platform }}
           path: ${{ runner.temp }}/digests/*
@@ -148,11 +148,11 @@ jobs:
     permissions:
       packages: write
       contents: read
-    timeout-minutes: 5  # 2025-03-04: Merge takes less than a minute.
+    timeout-minutes: 5  # 2025-11-20: Merge takes less than a minute.
 
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-*

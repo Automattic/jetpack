@@ -139,7 +139,7 @@ class Template_Tags {
 						<input type="checkbox"<?php checked( ! empty( $item['active'] ) ); ?> disabled="disabled" />&nbsp;
 						<a href="<?php echo esc_url( $url ); ?>">
 							<?php
-								echo esc_html( $item['name'] );
+								echo esc_html( (string) $item['name'] );
 								echo '&nbsp;';
 								echo esc_html(
 									sprintf(

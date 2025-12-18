@@ -153,45 +153,43 @@ class zeroBSCRM_Edit{
     // check ownership, access etc. 
     public function preChecks(){
 
-        global $zbs;
+		global $zbs;
 
-          $is_malformed_obj = false;
+		$is_malformed_obj = false;
 
-          if (is_array($this->obj) && isset($this->obj['owner'])){
-				$obj_owner = (int) $this->obj['owner'];
+		if ( is_array( $this->obj ) && isset( $this->obj['owner'] ) ) {
+			$obj_owner = (int) $this->obj['owner'];
 
 				// Transactions can have a contact or company assigned, and quotes just a contact. This covers checking owners for both.
 			if ( isset( $this->obj['contact'][0]['owner'] ) ) {
 					$obj_owner = (int) $this->obj['contact'][0]['owner'];
 
 			} elseif ( isset( $this->obj['company'][0]['owner'] ) ) {
-					$obj_owner = (int) $this->obj['company'][0]['owner'];
-				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect -- this sniff is incorrectly reporting spacing issues.
-				}
+				$obj_owner = (int) $this->obj['company'][0]['owner'];
+			}
 
-				// This covers checking owners for assigned contacts or companies in invoices.
-				if ( $this->objTypeID === ZBS_TYPE_INVOICE ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					$data = zeroBSCRM_invoicing_getInvoiceData( $this->objID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					if ( ! empty( $data['invoiceObj']['contact'] ) ) {
-						$obj_owner = (int) $data['invoiceObj']['contact'][0]['owner'];
-					} elseif ( ! empty( $data['invoiceObj']['contact'] ) ) {
-						$obj_owner = (int) $data['invoiceObj']['company'][0]['owner'];
-					}
+			// This covers checking owners for assigned contacts or companies in invoices.
+			if ( $this->objTypeID === ZBS_TYPE_INVOICE ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$data = zeroBSCRM_invoicing_getInvoiceData( $this->objID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				if ( ! empty( $data['invoiceObj']['contact'] ) ) {
+					$obj_owner = (int) $data['invoiceObj']['contact'][0]['owner'];
+				} elseif ( ! empty( $data['invoiceObj']['company'] ) ) {
+					$obj_owner = (int) $data['invoiceObj']['company'][0]['owner'];
 				}
-          } else {
-			// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect
-            // if $this->obj is not an array, somehow it's not been loaded properly (probably perms)
-            // get owner info anyway
-            $is_malformed_obj = true;
-				$obj_owner    = $zbs->DAL->getObjectOwner( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					array(
-						'objID'     => $this->objID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						'objTypeID' => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					)
-				);
-          }
-          // get current user
-			$current_user_id = get_current_user_id();
+			}
+		} else {
+			// if $this->obj is not an array, somehow it's not been loaded properly (probably perms)
+			// get owner info anyway
+			$is_malformed_obj = true;
+			$obj_owner        = $zbs->DAL->getObjectOwner( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				array(
+					'objID'     => $this->objID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					'objTypeID' => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				)
+			);
+		}
+		// get current user
+		$current_user_id = get_current_user_id();
 
 		if ( $obj_owner > 0 && $obj_owner != $current_user_id || $obj_owner == -1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual,Universal.Operators.StrictComparisons.LooseEqual -- see below.
 				// not current user

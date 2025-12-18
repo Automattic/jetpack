@@ -59,8 +59,8 @@ class WPCom_Themes_Merger {
 	 * @return stdClass The themes API result including wpcom themes.
 	 */
 	public function merge_by_release_date( stdClass $wporg_themes_object, array $wpcom_themes ): stdClass {
-		$last_theme_date  = strtotime( end( $wporg_themes_object->themes )->creation_time );
-		$first_theme_date = strtotime( reset( $wporg_themes_object->themes )->creation_time );
+		$last_theme_date  = strtotime( end( $wporg_themes_object->themes )?->creation_time ?? '2000-01-01' );
+		$first_theme_date = strtotime( reset( $wporg_themes_object->themes )?->creation_time ?? gmdate( 'Y-m-d' ) );
 
 		$themes = array();
 		foreach ( $wporg_themes_object->themes as $wporg_theme ) {

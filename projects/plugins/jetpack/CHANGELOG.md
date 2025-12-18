@@ -2,64 +2,249 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.1-a.5 - 2025-09-19
+## 15.4-a.3 - 2025-12-15
+### Enhancements
+- External media: Add replace flow support. [#45841]
+- Forms: Use entire button area for selecting multi-select options. [#46263]
+- Social: Reuse AI image generation in media section. [#46147]
+
+### Bug fixes
+- Forms: Ensure submission summary is contained within 100% width. [#46264]
+- Forms: Fix validation accessibility. [#46275]
+- Forms: Remove the classic Admin initialization call. [#46254]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Development Mode: Remove references to previously removed code. [#46231]
+- General: Replace uses of confusing `esc_js()` function with clearer code. [#46229]
+- Update package dependencies. [#46244]
+
+## 15.4-a.1 - 2025-12-08
+### Enhancements
+- Forms: Add filter to hide integration icons. [#46188]
+- Forms: Add integrations display filters. [#46156]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add the new media selection UI for Social. [#46085]
+- Ensure proper flags are used with `json_encode()`. [#46117]
+- Janitorial: emptied out to-test.md. [#46221]
+- OG tags: use media-only Jetpack_Media_Summary::get [#46094]
+- Tests: Check the publish post action exists, but is not necessarily the last action. [#46105]
+
+## 15.3.1 - 2025-12-04
+- Forms: Use the correct case on cipher names. [#46189]
+
+## 15.3 - 2025-12-03
+### Enhancements
+- Forms: Add browser info to the form response email notification. [#45710]
+- Forms: Add form response webhook support. [#46059]
+- Forms: Add integrations to dashboard mobile menu. [#45744]
+- Forms: Add keyboard navigation to go through reponses quickly. [#45811]
+- Forms: Add WordPress Abilities API integration for form submissions management and integrations access. [#45998]
+- Forms: Change integrations modal width. [#45855]
+- Forms: Improve MailPoet subscriber handling. [#45905]
+- Forms: Improve name variation handling. [#46054]
+- Forms: Remove related-posts from API calls. [#45928]
+- Forms: Update dashboard header buttons. [#45983]
+- Forms: Use core WP colors for basic primitive components such as buttons at Forms dashboard. [#45845]
+- Forms: Use first/last name for author. [#45944]
+- Premium Content Block: Added email rendering callback. [#46006]
+- Social: Improve auto-share UI in the editor by streamlining the notices and descriptions. [#45970]
+- Social: Improve the sidebar by making titles more descriptive and combining sections. [#46007]
+- Social: Update the connections list in the editor to a vertical toggle list with labels and icons. [#45939]
+
+### Improved compatibility
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+
+### Bug fixes
+- Cookies & Consents Banner Widget: ensure form headings are properly displayed. [#46144]
+- Fix a compatibility bug with the Gutenberg plugin. [#45967]
+- Forms: Do not link to empty source link. [#46133]
+- Forms: Ensure we show duplicate form field values on export. [#45809]
+- Forms: Fix integrations modal flash. [#45775]
+- Forms: Fix name variation isActive setting. [#46028]
+- Forms: Fix the flickering between the sidebar loading on different browser widths.
+- Forms: Reject form submissions when the parent post/page with the form has been deleted or is no longer published. [#46103]
+- Forms: Remove clashing between meta dn field names on export. [#46130]
+- GifBlock: Ensure url is not reset when publishing post. [#45900]
+- Google Docs: Ensure that slides/sheets embeds render on the front-end. [#45776]
+- GSheets embed: Give time for the iframe to finish before showing an error. [#46109]
+- My Jetpack: Fix expiring renewal prompt to show all products. [#45995]
+- Remove `getIconColor` functions for block icons. [#45992]
+- Restrict inline file preview to only image formats and PDFs, force download for other file types for security.
+- Social: Fix connection icon not reflecting the change when profile picture is updated. [#45937]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- About page: Remove Co-Authors Plus from and add ActivityPub to list of featured plugins. [#45792]
+- Blocks: Add filter to disable Jetpack block collection in editor. [#46077]
+- Editor assets endpoint: Filter returned assets with exclude query parameter. [#45715]
+- Editor assets endpoint: Mitigate hook errors originating from plugins referencing conditionally defined functions via `is_admin()`, which is false for the REST API. [#45924]
+- Editor assets endpoint: Refactor to reduce complexity. [#45714]
+- Improve PHP 8.5 compatibility. [#45771]
+- Jetpack AI: Remove tooltip for reading grade score. [#45847]
+- Likes: Update filter docblock formatting. [#46009]
+- Media Summary: Allow skipping excerpt and text counts. [#46091]
+- Newsletters: Add skeleton for new settings screen. [#46049]
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+- Podcasts block: Prevent warnings when podcast content is malformed. [#46083]
+- Shortcodes: Extract the jmpress.js dependency into pnpm. [#45707]
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+- Updated Jetpack sidebar labels for post editor sidebar. [#46098]
+- Update Jetpack notifications script tag to use wp_print_inline_script_tag. This allows for injection of a nonce attribute and CSP compatibility. [#45878]
+- Update package dependencies. [#45737] [#45756] [#45758]
+- Update package dependencies. [#45915] [#45958]
+- Update package dependencies. [#45961]
+- Update package dependencies. [#46072] [#46079] [#46143]
+- Update Social preview to show title as well with the preview. [#45938]
+- Update to-test.md file. [#46042]
+
+## 15.2 - 2025-11-04
+### Enhancements
+- Forms: Add browser info to form responses exports. [#45709]
+- Forms: Add emoji flag to the response email next to the IP address. [#45645]
+- Forms: Add first and last name variations. [#45517]
+- Forms: Add flag next to the IP Address. [#45643]
+- Forms: Add integrations store. [#45372] [#45432]
+- Forms: Add new integrations list component. [#45648]
+- Forms: Add notification settings panel. [#45396]
+- Forms: Add read and unread state for new form responses. [#45350]
+- Forms: Add required indicator settings and make forms with a single input required by default. [#45300]
+- Forms: Add shared ConsentToggle component. [#45556]
+- Forms: Add the IP address as the default field in the responses dashboard. [#45704]
+- Forms: Add time field. [#45665]
+- Forms: Avoid typographic orphans in Forms panels in editor. [#45455]
+- Forms: Disable Jetpack CRM integration by default. [#45667]
+- Forms: Enable forms push notifications functionality. [#45682]
+- Forms: Hide Google export card if disabled. [#45375]
+- Forms: Improve the performance of loading the form responses. [#45565]
+- Forms: Link IP to lookup service. [#45653]
+- Forms: merged email and push notification settings panels. [#45548]
+- Forms: Release Image Select Field to production. [#45577]
+- Forms: Remove Inbox view action for desktop and leave it just for mobile. [#45444]
+- Forms: Reorganize settings to a single panel for rating, slider and phone fields. [#45196]
+- Forms: Start storing the country_code based on the IP with the form responses. [#45599]
+- Forms: Update "Action after submit" sidebar section. [#45502]
+- Forms: Update Inbox empty state notices. [#45421]
+- Instant Search: Add global WooCommerce Product Attributes as filter options. [#45416]
+- Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search. [#45588]
+- Don't translate product names. [#43961]
+- Sharing Buttons block: Update Reddit logo to match updated design. [#45484]
+- Sitemaps: Use XMLWriter by default for more performant sitemap generation. [#45527]
+- Subscription forms: Provide autocomplete attribute for email fields, to help with filling in email addresses. [#44929]
+
+### Improved compatibility
+- Custom post types: Ensure features remain available when theme support is added. [#45407]
+- Forms: Remove Creative Mail promotion. [#45524]
+- Tested up to WordPress 6.9. [#45571]
+
+### Bug fixes
+- Forms: Fix a bug where ther responsive modal is not able to be closed. [#45541] [#45557]
+- Forms: Fix textarea submission on enter. [#45602]
+- Forms: Fix where notices show up so they don't overlap the bottom action bar. [#45616]
+- Forms: Prevent the required text from being removed from required fields when creating a form from a pattern. [#45495]
+- Forms: Reset the selection on tab switch in dashboard. [#45543]
+- Forms: Send emails to the author of the form only if they are able to edit it. [#45515]
+- Forms: Simplify the selection on the responses dashboard so that it changes every time to only the valid set of items. [#45618]
+- Forms: Stop preloading the integrations endpoint. [#45558]
+- Forms: Store the feedback source info with more context. [#45231]
+- Instant Search: Handle browser privacy settings stripping out the search query value. [#45533]
+- Maps Block: Fix compatibility with MapKit JS version 5.80.0+. [#45476]
+- My Jetpack page: Fix visual compatibility issue with Hello Dolly plugin. [#45474]
+- Newsletter: Update wording to clarify how the reply-to settings can be used. [#45368]
+- Podcast feed: Prevent fatals when content is empty. [#45498]
+- Related Posts: Prevent PHP errors when settings are malformed. [#45538]
+- Slideshow block: Ensure image size selection is correctly reflected in editor at all times. [#45500]
+- Stats: Prevent fatal when chart response is invalid. [#45496]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- API: Ensure API root is set prior to usage. [#45708]
+- Blaze: Hide module toggle on WordPress.com sites. [#45499]
+- Calendar Reader: Remove debugging statement added to bypass caching. [#45671]
+- Comment likes: Prevent PHP warnings if site URL is invalid. [#45420]
+- Editor assets endpoint: Mock current screen to avoid fatal errors from plugins/themes. [#45617]
+- External media: Prevent site editor performance issues by bringing back previous script enqueue approach. [#45546]
+- Fix duplicate tracking event for carousel. [#45720]
+- Flex sites: Return the `is_wpcom_flex` flag from the sites API for deleted sites. [#45719]
+- Flex sites: Return the `is_wpcom_flex` flag from the sites API. [#45395]
+- Forms: Add browser info to form responses detail view. [#45674]
+- Forms: Fix plugin activation state. [#45471]
+- Forms: Remove unused `hasAI` from config. [#45522]
+- Forms: Remove unused `useFormsConfig` hook. [#45554]
+- Forms: Strip period from Terms submission label on the post-submission page. [#45509]
+- Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
+- Post Images: Ensure type is WP_Post before treating it as a post. [#45623]
+- Prevent PHP error when handling malformed style source. [#45621]
+- Remove incorrect comment. [#45724]
+- Shortcodes: Fix JS error in presentation shortcode. [#45701]
+- Slideshow block: Fix sizing for lazy-loaded images. [#45164]
+- Sync: Handle lazy-loading of `WP_User` object properties. [#45450]
+- Tests: Update WooCommerce sync related tests to account for whitelisting order item meta. [#45684]
+- Update package dependencies. [#45478] [#45652] [#45676] [#45677]
+
+## 15.1.1 - 2025-10-10
+### Bug fixes
+- Asset CDN: avoid errors when we do not receive valid information about a plugin from WordPress.org. [#45387]
+
+## 15.1 - 2025-10-08
+
+- Testimonials: Prevent warning when custom post type is not registered.
+
 ### Enhancements
 - Forms: Add hidden field. [#45104]
+- Forms: Add hidden input field block. [#44079]
+- Forms: Add integrations permissions check. [#45063]
+- Forms: Add new block toggle to skip saving form submisions on WP Admin. [#45072]
+- Forms: Add preloaded config endpoint. [#45091]
 - Forms: Add scheduled deletion for submissions that skip the submission's inbox and are stored as temporary feedback. [#45178]
+- Forms: Add setting to enable or disable email notifications for form submissions. [#45230]
 - Forms: Allow enabling integration by default. [#45201]
+- Forms: Improve preloading for endpoints. [#45362]
+- Forms: Improve supported integrations filter. [#45123]
+- Forms: Make rating and slider fields available to self-hosted users. [#45094]
+- Forms: Phone field can now contain a country selector combobox. [#45120]
+- Forms: Rename 'Manage responses' forms sidebar block panel to 'Responses storage'. [#45228]
 - Forms: Return integration titles from endpoint. [#45151]
+- Forms: Use localized number format for number of responses shown. [#45326]
 
 ### Improved compatibility
 - Change the location of the Jetpack -> Stats submenu item to a new top-level admin menu item called "Stats". [#44524]
-
-### Bug fixes
-- Forms: Fix slider min/max editing. [#45219]
-- Forms: Fix slider value position. [#45218]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- On Dotcom Simple site, show all sharing settings even when the site is using a block theme, so that the sharing buttons filter can be disabled. [#45176]
-- Subscriptions: Always link to WP Admin in Newsletter widget. [#45180]
-- Update package dependencies. [#45173] [#45200] [#45229]
-- Widgets: Prevent PHP warnings when handling malformed data. [#45185]
-
-## 15.1-a.3 - 2025-09-15
-### Enhancements
-- Forms: Add new block toggle to skip saving form submisions on WP Admin. [#45072]
-- Forms: Add integrations permissions check. [#45063]
-- Forms: Add preloaded config endpoint. [#45091]
-- Forms: Improve supported integrations filter. [#45123]
-- Forms: Phone field can now contain a country selector combobox. [#45120]
-
-### Improved compatibility
+- Cookie Consent Block: Ensure we always have a default set of colors to style the block when theme colors are not available. [#45287]
 - Forms: Add integrations feature flag. [#45037]
 - Site Accelerator (Image CDN): Add support for images added via Breakdance blocks. [#45059]
 
 ### Bug fixes
 - AI Assistant: Fix spacing on Forms block. [#45143]
+- Cookie Consent Widget: Ensure the default widget text can be translated. [#45367]
+- Forms: Don't override field labels on transforms. [#45281]
 - Forms: Fix MailPoet string warning. [#45114]
+- Forms: Fix missing REST attributes. [#45274]
+- Forms: Fix slider min/max editing. [#45219]
+- Forms: Fix slider value position. [#45218]
+- Resolve conflict with WordPress 6.7.3. [#45320]
+- Sharing: Fix Facebook sharing URL. [#45083]
 - Widget Visibility: Prevent PHP error under specific block conditions. [#45087]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Prevent a PHP error when fetching a non-existing menu in JSON API. [#45147]
+- Add MCP abilities title to site settings. [#45064]
+- Admin Menu: Show `wp-admin` menu of self-hosted Jetpack sites in Calypso. [#45336]
+- Block editor: Update allowed block types for the mobile editor. [#45039]
+- Editor assets endpoint: Allow all `jetpack/contact-info` inner blocks. [#45252]
+- Editor assets endpoint: Enforce absolute URLs to mitigate failed requests from client origins. [#45319]
+- Editor assets endpoint: Optimize URL processing. [#45358]
+- Forms: Track form submission failure. [#45090]
+- Garden Sites: Exposes the `garden_is_provisioned` flag on the site endpoint. [#45321]
 - Garden Sites: Expose the Garden flags and information on the site endpoint. [#45107]
+- Integrate calls to add and remove the proxy speed module in Jetpack plugin initialization and deactivation processes. [#45243]
+- Internal updates.
+- Prevent a PHP error when fetching a non-existing menu in JSON API. [#45147]
 - Sharing: Prevent PHP warnings when dealing with unexpected data. [#45165]
 - Shortcodes: Load Recipe dependency via PNPM. [#45089] [#45134] [#45140]
-- Update package dependencies. [#45127] [#45128]
-
-## 15.1-a.1 - 2025-09-08
-### Enhancements
-- Forms: Add hidden input field block. [#44079]
-- Forms: Make rating and slider fields available to self-hosted users. [#45094]
-
-### Bug fixes
-- Sharing: Fix Facebook sharing URL. [#45083]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add MCP abilities title to site settings. [#45064]
-- Block editor: Update allowed block types for the mobile editor. [#45039]
-- Forms: Track form submission failure. [#45090]
+- Show all sharing settings on WordPress.com Simple sites even when using a block theme so that the sharing buttons filter can be disabled. [#45176]
 - Subscribe and Button blocks: Add email rendering for the WooCommerce Email Editor. [#45006]
-- Update package dependencies. [#45027] [#45096] [#45097]
+- Subscriptions: Always link to WP Admin in Newsletter widget. [#45180]
+- Tiled Gallery: Improve editor animation performance by removing loading animations when possible. [#45344]
+- Update package dependencies. [#45027] [#45096] [#45097] [#45127] [#45128] [#45173] [#45200] [#45229] [#45298] [#45299] [#45334] [#45335]
+- Widgets: Prevent PHP warnings. [#45327] [#45185]
+- Wrap upgrade nudge with span due to an ongoing Gutenberg issue where link clicks are not captured unless wrapped. [#45288]
 - Writing Settings: Add Mailchimp connection. [#44999]
 
 ## 15.0 - 2025-09-04

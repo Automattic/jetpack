@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Boost_Core\Lib;
 
 use Automattic\Jetpack\Boost_Core\Contracts\Boost_API_Client;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * A class that handles the Boost API client.
  *

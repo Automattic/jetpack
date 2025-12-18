@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.11 - 2025-12-15
+### Changed
+- Update dependencies. [#46271]
+
+## 0.4.10 - 2025-12-08
+### Changed
+- Update package dependencies. [#45914]
+
+## 0.4.9 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## 0.4.8 - 2025-11-24
+### Changed
+- Internal updates.
+
+## 0.4.7 - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## 0.4.6 - 2025-11-10
+### Changed
+- Update package dependencies. [#45735] [#45756]
+
+## 0.4.5 - 2025-11-03
+### Changed
+- Update package dependencies. [#45652]
+
+## 0.4.4 - 2025-10-27
+### Changed
+- Update package dependencies. [#45551]
+
+## 0.4.3 - 2025-10-10
+### Changed
+- Update package dependencies. [#45428]
+
+## 0.4.2 - 2025-10-06
+### Changed
+- Update package dependencies. [#45334]
+
+## 0.4.1 - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
 ## 0.4.0 - 2025-09-19
 ### Changed
 - Update @wordpress/dataviews package from v7 to v9. [#45213]

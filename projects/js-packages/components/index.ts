@@ -10,8 +10,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
 export { default as JetpackLogo } from './components/jetpack-logo/index.tsx';
@@ -85,3 +84,4 @@ export { default as DiffViewer } from './components/diff-viewer/index.tsx';
 export { default as MarkedLines } from './components/marked-lines/index.tsx';
 export { default as DetailsViewer } from './components/details-viewer/index.tsx';
 export * from './components/global-notices/index.ts';
+export * from './components/navigator-modal/index.tsx';

@@ -304,7 +304,7 @@ class Global_Styles {
 		$tracks_events_data = array();
 		if ( $current_user->exists() ) {
 			$tracks_events_data['user_id']    = (int) $current_user->ID;
-			$tracks_events_data['user_login'] = esc_js( $current_user->user_login );
+			$tracks_events_data['user_login'] = $current_user->user_login;
 		}
 
 		wp_localize_script(

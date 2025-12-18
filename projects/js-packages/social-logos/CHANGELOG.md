@@ -1,3 +1,36 @@
+## [3.3.5] - 2025-12-08
+### Fixed
+- Move `react` and `react-dom` to `devDependencies`. [#46167]
+
+## [3.3.4] - 2025-11-18
+### Changed
+- Update package dependencies. [#45961]
+
+## [3.3.3] - 2025-11-10
+### Changed
+- Update package dependencies. [#45737]
+
+## [3.3.2] - 2025-11-03
+### Changed
+- Update package dependencies. [#45678]
+
+## [3.3.1] - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## [3.3.0] - 2025-10-13
+### Added
+- Add a new Apple Podcasts logo. [#45436]
+- Add new Pocket Casts logo. [#45438] [#45485]
+
+### Changed
+- Reddit: Update logo to match new design. [#45437] [#45484]
+- Woo: Update logo to match recent redesign. [#45435]
+
+## [3.2.11] - 2025-10-02
+### Changed
+- Update package dependencies. [#45335]
+
 ## [3.2.10] - 2025-09-08
 ### Changed
 - Update package dependencies. [#45097]
@@ -260,6 +293,13 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.3.5]: https://github.com/Automattic/social-logos/compare/v3.3.4...v3.3.5
+[3.3.4]: https://github.com/Automattic/social-logos/compare/v3.3.3...v3.3.4
+[3.3.3]: https://github.com/Automattic/social-logos/compare/v3.3.2...v3.3.3
+[3.3.2]: https://github.com/Automattic/social-logos/compare/v3.3.1...v3.3.2
+[3.3.1]: https://github.com/Automattic/social-logos/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/Automattic/social-logos/compare/v3.2.11...v3.3.0
+[3.2.11]: https://github.com/Automattic/social-logos/compare/v3.2.10...v3.2.11
 [3.2.10]: https://github.com/Automattic/social-logos/compare/v3.2.9...v3.2.10
 [3.2.9]: https://github.com/Automattic/social-logos/compare/v3.2.8...v3.2.9
 [3.2.8]: https://github.com/Automattic/social-logos/compare/v3.2.7...v3.2.8

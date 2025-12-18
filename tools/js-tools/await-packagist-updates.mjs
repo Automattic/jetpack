@@ -76,7 +76,9 @@ function pollPackagist( name, versionRange ) {
 	return {
 		title: `${ name } ${ versionRange }`,
 		task: async ( ctx, task ) => {
+			let i = 0;
 			while ( ! aborter.aborted ) {
+				i++;
 				try {
 					const cleanup = [];
 					// http2 isn't a promise-based API, so wrap in a promise ourselves and await it.
@@ -117,7 +119,16 @@ function pollPackagist( name, versionRange ) {
 						} );
 
 						// Make the actual request.
-						const req = http2Client.request( reqHeaders, { signal: aborter.signal } );
+						// Note that Packagist's cache seems to be broken in some way, so we add a random param to the URL for now.
+						// See also: https://github.com/composer/packagist/issues/1612
+						const req = http2Client.request(
+							{
+								...reqHeaders,
+								[ http2.constants
+									.HTTP2_HEADER_PATH ]: `/p2/${ name }.json?cache_is_broken_see_packagist_GH_issue_1612=${ i }`,
+							},
+							{ signal: aborter.signal }
+						);
 						cleanup.push( () => {
 							// Make sure the request actually gets closed whenever the promise settles.
 							// We don't want hung connections waiting on us to read more data or something.
@@ -155,10 +166,12 @@ function pollPackagist( name, versionRange ) {
 								);
 							}
 
-							// Use the Last-Modified in an If-Modified-Since for future requests to save traffic.
-							if ( resHeaders[ 'last-modified' ] ) {
-								reqHeaders[ 'if-modified-since' ] = resHeaders[ 'last-modified' ];
-							}
+							// Ideally we'd use the Last-Modified in an If-Modified-Since for future requests to save traffic,
+							// but we've disabled it for now since Packagist's cache seems to be broken in some way.
+							// See also: https://github.com/composer/packagist/issues/1612
+							// if ( resHeaders[ 'last-modified' ] ) {
+							// 	reqHeaders[ 'if-modified-since' ] = resHeaders[ 'last-modified' ];
+							// }
 
 							// Any non-200 2xx is weird.
 							if ( status !== 200 ) {

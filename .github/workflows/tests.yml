@@ -3,25 +3,30 @@ name: Tests
 on:
   pull_request:
   push:
-    branches: [ 'trunk', '*/branch-*' ]
+    branches: ['trunk', '*/branch-*']
 
 concurrency:
   # Trunk runs need to not be cancelled for concurrency, mainly for code coverage. Everything else can be.
   group: tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' && github.run_id || '' }}
   cancel-in-progress: true
 
+permissions:
+  # actions/checkout, actions/upload-artifact, actions/download-artifact
+  contents: read
+  # Note posting the coverage comment uses an app token, so no need for permissions
+
 env:
-  COMPOSER_ROOT_VERSION: "dev-trunk"
+  COMPOSER_ROOT_VERSION: 'dev-trunk'
 
 jobs:
   create-matrix:
-    name: "Determine tests matrix"
+    name: 'Determine tests matrix'
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-02-03: Should only take a second.
+    timeout-minutes: 2 # 2025-11-20: Takes a few seconds.
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
@@ -33,7 +38,7 @@ jobs:
     needs: create-matrix
     services:
       database:
-        image: mariadb:10.4
+        image: mariadb:12.0
         env:
           MARIADB_ROOT_PASSWORD: root
         ports:
@@ -60,7 +65,7 @@ jobs:
       coverage-status: ${{ matrix.script == 'test-coverage' && steps.run-tests.conclusion || '' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Test coverage checks require a fetch depth > 1.
           fetch-depth: 2
@@ -304,7 +309,7 @@ jobs:
       - name: Upload artifacts
         id: upload-artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.artifact }}
           path: artifacts
@@ -314,11 +319,11 @@ jobs:
   publish-coverage-data:
     name: Publish coverage data
     runs-on: ubuntu-latest
-    timeout-minutes: 10 # 2025-01-10 Wild guess
+    timeout-minutes: 10 # 2025-11-20 Takes about 2 minutes.
     needs: run-tests
     if: always() && needs.run-tests.outputs.did-coverage == 'true' && github.repository == 'Automattic/jetpack' && ( github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name || github.event_name == 'push' && github.ref == 'refs/heads/trunk' )
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Get token
         id: get_token
@@ -332,7 +337,7 @@ jobs:
         uses: ./.github/actions/tool-setup
 
       - name: Download coverage artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: 'Code coverage'
           path: coverage
@@ -349,9 +354,9 @@ jobs:
   storybook-test:
     name: Storybook tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20 # 2024-02-23 Wild guess
+    timeout-minutes: 20 # 2025-11-20: Takes about 4 minutes
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -374,7 +379,7 @@ jobs:
         id: changed
         run: |
           CHANGED=$( .github/files/list-changed-projects.sh )
-          PROJECTS=$( node -e 'const r = { "js-packages/storybook": true }; for ( const p of require( "./projects/js-packages/storybook/storybook/projects.js" ) ) { const m = p.match( /\/projects\/([^/]+\/[^/]+)(?:$|\/)/ ); m && ( r[ m[1] ] = true ); } console.log( JSON.stringify( r ) );' )
+          PROJECTS=$( node -e 'const r = { "js-packages/storybook": true }; for ( const p of require( "./projects/js-packages/storybook/storybook/projects.js" ).projects ) { const m = p.match( /\/projects\/([^/]+\/[^/]+)(?:$|\/)/ ); m && ( r[ m[1] ] = true ); } console.log( JSON.stringify( r ) );' )
 
           ANY=$( jq --argjson changed "$CHANGED" --argjson projects "$PROJECTS" -n '$changed | with_entries( select( $projects[ .key ] ) ) | any' )
           echo "any=${ANY}" >> "$GITHUB_OUTPUT"
@@ -405,9 +410,9 @@ jobs:
   plugin-deps:
     name: Check plugin monorepo dep versions
     runs-on: ubuntu-latest
-    timeout-minutes: 2  # 2022-09-08: Should only take a few seconds.
+    timeout-minutes: 5 # 2025-11-20: Takes less than a minute.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:
@@ -439,105 +444,3 @@ jobs:
 
           echo "Running tools/check-plugin-monorepo-deps.sh ${ARGS[@]}"
           tools/check-plugin-monorepo-deps.sh "${ARGS[@]}"
-
-  typecheck:
-    name: Type checking
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup tools
-        uses: ./.github/actions/tool-setup
-      - name: Pnpm install
-        run: pnpm install
-      - name: Run type checking
-        # Can't just `pnpm typecheck` here, GitHub won't match the output files correctly
-        # and unfortunately https://github.com/microsoft/TypeScript/issues/36221 is still open.
-        run: |
-          EXIT=0
-          set -o pipefail
-          for DIR in $( jq -r 'if .scripts.typecheck then input_filename | sub( "/package.json"; "" ) else empty end' projects/*/*/package.json projects/*/*/tests/e2e/package.json tools/*/package.json 2>/dev/null ); do
-            echo "::group::$DIR"
-            if ! ( cd "$DIR" && pnpm run typecheck ) | sed -uE 's#^.+\([0-9,]+\): error #'"$DIR"'/&#'; then
-              EXIT=1
-            fi
-            echo "::endgroup::"
-          done
-          exit $EXIT
-
-  # Probably this should be a linting test too, but we don't run linting on trunk or release branches.
-  phan:
-    name: Static analysis
-    runs-on: ubuntu-latest
-    timeout-minutes: 20  # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup tools
-        uses: ./.github/actions/tool-setup
-      - name: Pnpm install
-        run: pnpm install
-      - name: Add back removed packages in case of a release branch.
-        run: |
-          echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
-          for FILE in projects/*/*/composer.json; do
-            PKGS=()
-            readarray -t PKGS < <( jq -r '.extra["non-mirrored-require-dev"] // empty | .[] | . += "=@dev"' "$FILE" )
-            if [[ ${#PKGS[@]} -gt 0 ]]; then
-              echo "::group::Adding packages for $FILE: ${PKGS[*]}"
-              # Make sure monorepo repositories entry is present.
-              JSON=$( jq --tab '.repositories //= [] | if any( .repositories[]; .type == "path" and ( .url | startswith( "../" ) ) and .options?.monorepo? ) then . else .repositories += [ { type: "path", url: "../../packages/*", options: { monorepo: true } } ] end' "$FILE" )
-              echo "$JSON" > "$FILE"
-              composer require --working-dir="${FILE%/composer.json}" --dev "${PKGS[@]}"
-              echo "::endgroup::"
-            fi
-          done
-      - name: Run phan
-        run: pnpm jetpack phan --all -v --update-baseline --format github
-      - name: Run phan for previous WP version too
-        env:
-          # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
-          NO_PHAN_UNUSED_SUPPRESSION: 1
-        run: |
-          composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs
-          # Don't re-update baselines here, only check.
-          pnpm jetpack phan --all -v --format github
-      - name: Check baselines
-        run: |
-          # Anything changed? (with a side of printing the diff)
-          if git diff --exit-code --ignore-matching-lines='^    // ' -- .phan/baseline.php '*/.phan/baseline.php'; then
-            exit 0
-          fi
-
-          # Collect which projects changed to suggest the right command.
-          PROJECTS=()
-          for f in $( git -c core.quotepath=off diff --name-only -- .phan/baseline.php '*/.phan/baseline.php' ); do
-            # --name-only and --ignore-matching-lines don't combine, so we have to do the check separately.
-            if git diff --quiet --exit-code --ignore-matching-lines='^    // ' -- "$f"; then
-              continue
-            fi
-
-            if [[ "$f" == ".phan/baseline.php" ]]; then
-              SLUG=monorepo
-            elif [[ "$f" == projects/*/*/.phan/baseline.php ]]; then
-              SLUG=${f%/.phan/baseline.php}
-              SLUG=${SLUG#projects/}
-            elif SLUG=$( grep -v '^[ \t]*\/\/' .phan/monorepo-pseudo-projects.jsonc | jq -re --arg f "${f%.phan/baseline.php}" 'to_entries[] | select( .value == $f ) | .key' ); then
-              : # Ok
-            else
-              SLUG=
-            fi
-            if grep -q 'This baseline has no suppressions' "$f"; then
-              if [[ -n "$SLUG" ]]; then
-                echo "::error file=$f::This Phan baseline is now empty (good job!). You may remove it, or if you want to keep it (e.g. if you expect new unfixed issues to be added in the future) you can run \`jetpack phan --update-baseline $SLUG\` to update it."
-              else
-                echo "::error file=$f::This Phan baseline is now empty (good job!). You may remove it."
-              fi
-            elif [[ -n "$SLUG" ]]; then
-              PROJECTS+=( "$SLUG" )
-            else
-              echo "::error file=$f::This Phan baseline has changed and should be updated. This Action was unable to determine the command needed to update it; please report this to the Monorepo team."
-            fi
-          done
-          if [[ ${#PROJECTS[@]} -gt 0 ]]; then
-            echo "::error::Phan baselines have changed (good job!). Run \`jetpack phan --update-baseline ${PROJECTS[*]}\` to update them."
-          fi
-          exit 1

@@ -441,6 +441,7 @@ class Search extends Module {
 		'_wc_general_product_dependency_theme'   => array(),
 		'_wc_general_product_dependency_plugin'  => array(),
 		'wpcom_marketplace_product_extra_fields' => array(),
+		'wccom_product_search_keywords'          => array( 'searchable_in_all_content' => true ),
 
 	); // end indexed post meta.
 

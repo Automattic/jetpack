@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix JS packages that were declared as both dependencies and dev dependencies. Note it doesn't really matter which is used for plugins.
+
+

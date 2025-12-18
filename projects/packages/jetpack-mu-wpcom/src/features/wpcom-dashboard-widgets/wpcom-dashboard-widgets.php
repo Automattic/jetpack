@@ -129,7 +129,8 @@ function enqueue_wpcom_dashboard_widgets( $args = array() ) {
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => wpcom_site_has_feature( 'custom-domain' ),
 			'tasks'           => $args['tasks'],
-		)
+		),
+		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
 
 	wp_add_inline_script(

@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-11-21
+### Changed
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+- Update dependencies. [#45488]
+- Update package dependencies. [#45551] [#45652] [#45735] [#45737] [#45915] [#45958] [#46022]
+
+## [1.2.0] - 2025-10-10
+### Added
+- Add missing types. [#44787]
+
+### Changed
+- Update @wordpress/dataviews package. [#44376] [#45012] [#45213]
+- Update package dependencies. [#44677] [#44701] [#45027] [#45097] [#45229] [#45335] [#45428]
+
 ## [1.1.0] - 2025-07-30
 ### Added
 - Add UI confirmation via text box when deleting an extension via delete-fixer so that the user is fully aware that it may break their site. [#44521]
@@ -143,6 +157,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Updated dependencies. [#39754]
 
+[1.2.1]: https://github.com/Automattic/jetpack-scan/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-scan/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Automattic/jetpack-scan/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/Automattic/jetpack-scan/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Automattic/jetpack-scan/compare/v1.0.0...v1.0.1

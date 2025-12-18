@@ -232,7 +232,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_id'       => 'some_id',
 			'utm_source'   => 'a_source',
 			'arch_search'  => 'term',
-			'arch_filters' => 'posts_per_page=10&paged=2&orderby=date&order=ASC&author_name=author&terms=' . wp_json_encode( array( 'testtax' => array( 'testterm' ) ) ),
+			'arch_filters' => 'posts_per_page=10&paged=2&orderby=date&order=ASC&author_name=author&terms=' . wp_json_encode( array( 'testtax' => array( 'testterm' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
 			'arch_results' => 2,
 		);
 		$this->assertSame( $expected_view_data, $view_data );
@@ -291,7 +291,10 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
 		$method = new \ReflectionMethod( Tracking_Pixel::class, 'get_amp_footer' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$amp_footer_data = $method->invoke( new Tracking_Pixel(), $data );
 
@@ -325,11 +328,14 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		);
 
 		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
 
 		$expected_pixel_details = '_stq = window._stq || [];
-_stq.push([ "view", JSON.parse("{\"v\":\"ext\",\"blog\":\"1234\",\"post\":\"0\",\"tz\":\"\",\"srv\":\"replaced.com\"}") ]);
+_stq.push([ "view", {"v":"ext","blog":"1234","post":"0","tz":"","srv":"replaced.com"} ]);
 _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 
 		remove_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ) );

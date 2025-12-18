@@ -5,20 +5,150 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.52.0] - 2025-12-15
+### Added
+- Add new sparkline chart type. [#46165]
+
+### Changed
+- Restructure directories to allow expansion of library. [#46232]
+
+## [0.51.0] - 2025-12-11
+### Changed
+- Update package dependencies. [#46245]
+
+### Removed
+- Remove Woo and Jetpack themes [#46119]
+
+## [0.50.2] - 2025-12-08
+### Changed
+- Internal updates.
+
+## [0.50.1] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+### Fixed
+- Fix zero value tooltip in conversion funnel chart. [#46106]
+- Improve guessOptimalNumTicks to use custom formatter and handle empty data. [#46096]
+
+## [0.50.0] - 2025-11-26
+### Added
+- Add Charts utils to package exports [#46095]
+- Global theme: enable color generation from CSS custom properties [#45889]
+
+## [0.49.1] - 2025-11-20
+### Changed
+- Update package dependencies. [#46022]
+
+### Fixed
+- Localize numbers in legend labels and tooltips [#45991]
+
+## [0.49.0] - 2025-11-19
+### Added
+- Add animation in circular shaped charts. [#45870]
+- Add usePrefersReducedMotion hook for accecibility. [#45955]
+
+## [0.48.0] - 2025-11-18
+### Changed
+- Remove inline styles from containers to allow consumer overrides. [#45953]
+
+## [0.47.0] - 2025-11-17
+### Added
+- Chart: Add animation support. [#45837]
+
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [0.46.3] - 2025-11-12
+### Changed
+- Internal updates.
+
+## [0.46.2] - 2025-11-10
+### Changed
+- Update package dependencies. [#45737]
+
+## [0.46.1] - 2025-11-03
+### Fixed
+- Fix lints. [#45658]
+
+## [0.46.0] - 2025-10-28
+### Added
+- Add interactive legend support to LeaderboardChart. [#45581]
+
+### Changed
+- Update package dependencies. [#45652]
+
+## [0.45.0] - 2025-10-27
+### Added
+- Add interactive legend support to BarChart. [#45561]
+- Add interactive legend to pie charts. [#45580]
+
+## [0.44.0] - 2025-10-21
+### Changed
+- Improve legends toggling. [#45545]
+
+## [0.43.0] - 2025-10-20
+### Added
+- Add legend interactivity. [#45506]
+- Show ticks in year format when the interval is more than a year. [#45529]
+
+### Changed
+- Add Group Storybook controls. [#45503]
+
+## [0.42.0] - 2025-10-14
+### Changed
+- Leaderboard chart: Update exports and layout flex behavior. [#45480]
+
+## [0.41.1] - 2025-10-13
+### Fixed
+- Fix conversion funnel height inconsistency when toggling comparison mode. [#45434]
+
+## [0.41.0] - 2025-10-08
+### Added
+- Add custom legend support. [#45347]
+- Set the color of the axis labels via the theme. [#45406]
+- Legend: Update docs. [#45391]
+- Show ticks in hours when the interval is less than 24 hours. [#45390]
+
+### Changed
+- Separate API reference documentation from usage documentation. [#45322]
+
+## [0.40.0] - 2025-10-06
+### Added
+- Add `legendItemClassName` prop for custom legend item styling. [#45286]
+
+### Changed
+- Update package dependencies. [#45334] [#45335]
+
+## [0.39.0] - 2025-09-29
+### Added
+- Generate extra colors from theme colors if needed. [#45276]
+- Global Charts context: Add documentation. [#45313]
+- Guess a better x-axis ticks value in line charts. [#45259]
+- Line Chart: Add support for annotated line section. [#45284]
+
+### Changed
+- Improve tooltip positioning in pie charts. [#45237]
+- Conversion Funnel chart: Use global charts context theme for consistency. [#45264]
+
+## [0.38.2] - 2025-09-22
+### Changed
+- Update dependencies. [#43811]
+
 ## [0.38.1] - 2025-09-19
 ### Changed
 - Update package dependencies. [#45241]
 
 ## [0.38.0] - 2025-09-19
 ### Added
-- Charts: Add get element styles utility to global context [#45207]
+- Add get element styles utility to global context. [#45207]
 
 ### Changed
 - Update package dependencies. [#45229]
 
 ## [0.37.0] - 2025-09-15
 ### Changed
-- Charts: Handle legend overflow when not enough space. [#45144]
+- Handle legend overflow when not enough space. [#45144]
 
 ## [0.36.0] - 2025-09-11
 ### Added
@@ -33,11 +163,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Export all unresponsive charts. [#45129]
 
 ### Removed
-- Charts: Deprecate ThemeProvider in favor of GlobalChartsProvider [#45081]
+- Deprecate ThemeProvider in favor of GlobalChartsProvider. [#45081]
 
 ## [0.34.1] - 2025-09-08
 ### Fixed
-- Charts: fix Type error with legendValueDisplay [#45099]
+- Fix Type error with legendValueDisplay. [#45099]
 
 ## [0.34.0] - 2025-09-08
 ### Changed
@@ -471,6 +601,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.52.0]: https://github.com/Automattic/charts/compare/v0.51.0...v0.52.0
+[0.51.0]: https://github.com/Automattic/charts/compare/v0.50.2...v0.51.0
+[0.50.2]: https://github.com/Automattic/charts/compare/v0.50.1...v0.50.2
+[0.50.1]: https://github.com/Automattic/charts/compare/v0.50.0...v0.50.1
+[0.50.0]: https://github.com/Automattic/charts/compare/v0.49.1...v0.50.0
+[0.49.1]: https://github.com/Automattic/charts/compare/v0.49.0...v0.49.1
+[0.49.0]: https://github.com/Automattic/charts/compare/v0.48.0...v0.49.0
+[0.48.0]: https://github.com/Automattic/charts/compare/v0.47.0...v0.48.0
+[0.47.0]: https://github.com/Automattic/charts/compare/v0.46.3...v0.47.0
+[0.46.3]: https://github.com/Automattic/charts/compare/v0.46.2...v0.46.3
+[0.46.2]: https://github.com/Automattic/charts/compare/v0.46.1...v0.46.2
+[0.46.1]: https://github.com/Automattic/charts/compare/v0.46.0...v0.46.1
+[0.46.0]: https://github.com/Automattic/charts/compare/v0.45.0...v0.46.0
+[0.45.0]: https://github.com/Automattic/charts/compare/v0.44.0...v0.45.0
+[0.44.0]: https://github.com/Automattic/charts/compare/v0.43.0...v0.44.0
+[0.43.0]: https://github.com/Automattic/charts/compare/v0.42.0...v0.43.0
+[0.42.0]: https://github.com/Automattic/charts/compare/v0.41.1...v0.42.0
+[0.41.1]: https://github.com/Automattic/charts/compare/v0.41.0...v0.41.1
+[0.41.0]: https://github.com/Automattic/charts/compare/v0.40.0...v0.41.0
+[0.40.0]: https://github.com/Automattic/charts/compare/v0.39.0...v0.40.0
+[0.39.0]: https://github.com/Automattic/charts/compare/v0.38.2...v0.39.0
+[0.38.2]: https://github.com/Automattic/charts/compare/v0.38.1...v0.38.2
 [0.38.1]: https://github.com/Automattic/charts/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/Automattic/charts/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/Automattic/charts/compare/v0.36.0...v0.37.0

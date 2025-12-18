@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.8.0 - 2025-09-09
 ### Added
-- Added typecheck support for E2E tests. [#44788]
-- My Jetpack: Added analytics for empty product search results. [#44344]
+- Add typecheck support for E2E tests. [#44788]
+- My Jetpack: Add analytics for empty product search results. [#44344]
 
 ### Changed
 - Improve performance of WordPress.com comment likes by caching and minimizing API requests. [#44205]

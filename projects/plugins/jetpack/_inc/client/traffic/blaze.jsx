@@ -38,7 +38,7 @@ function Blaze( props ) {
 
 	const { can_init: canInit, reason } = blazeAvailable;
 
-	if ( isWoASite() && ! blazeDashboardEnabled ) {
+	if ( isWoASite() ) {
 		return null;
 	}
 

@@ -1,18 +1,12 @@
-import {
-	useBlockProps,
-	useInnerBlocksProps,
-	InspectorControls,
-	BlockContextProvider,
-} from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps, BlockContextProvider } from '@wordpress/block-editor';
 import {
 	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	PanelBody,
 	RangeControl,
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 
 /**
  * Rating Field Edit Component
@@ -82,30 +76,6 @@ export default function RatingFieldEdit( props ) {
 				<div { ...innerBlocksProps } />
 			</BlockContextProvider>
 
-			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<NumberControl
-						__next40pxDefaultSize
-						__unstableInputWidth="50%"
-						help={ __( 'Highest rating users can select (2–10).', 'jetpack-forms' ) }
-						label={ __( 'Maximum rating', 'jetpack-forms' ) }
-						max={ 10 }
-						min={ 2 }
-						onChange={ updateMax }
-						spinControls="custom"
-						value={ max }
-					/>
-					<RangeControl
-						label={ __( 'Default rating', 'jetpack-forms' ) }
-						help={ __( 'Pre-selected rating value (0 for no selection)', 'jetpack-forms' ) }
-						min={ 0 }
-						max={ max }
-						value={ defaultValue }
-						onChange={ onChangeDefault }
-					/>
-				</PanelBody>
-			</InspectorControls>
-
 			<JetpackFieldControls
 				clientId={ clientId }
 				id={ id }
@@ -113,6 +83,34 @@ export default function RatingFieldEdit( props ) {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
+				extraFieldSettings={ [
+					{
+						index: 1,
+						element: (
+							<div key="ratingFieldControls">
+								<NumberControl
+									__next40pxDefaultSize
+									__unstableInputWidth="50%"
+									help={ __( 'Highest rating users can select (2–10).', 'jetpack-forms' ) }
+									label={ __( 'Maximum rating', 'jetpack-forms' ) }
+									max={ 10 }
+									min={ 2 }
+									onChange={ updateMax }
+									spinControls="custom"
+									value={ max }
+								/>
+								<RangeControl
+									label={ __( 'Default rating', 'jetpack-forms' ) }
+									help={ __( 'Pre-selected rating value (0 for no selection)', 'jetpack-forms' ) }
+									min={ 0 }
+									max={ max }
+									value={ defaultValue }
+									onChange={ onChangeDefault }
+								/>
+							</div>
+						),
+					},
+				] }
 			/>
 		</>
 	);

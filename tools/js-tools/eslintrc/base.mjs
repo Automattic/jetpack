@@ -149,6 +149,9 @@ export function makeBaseConfig( configurl, opts = {} ) {
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
 
+		// Gutenberg stopped publishing the `.native.js` files in their packages, so we can't effectively lint them anymore.
+		globalIgnores( [ '**/*.native.[jt]s' ] ),
+
 		// Extended configs.
 		{
 			files: javascriptFiles,
@@ -318,6 +321,10 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				'jsdoc/require-param-description': 'warn',
 				'jsdoc/require-returns': 'warn',
 				'jsdoc/require-yields': 'warn',
+
+				// Too many of these to clean up now. Unclear if we even want to.
+				'jsdoc/reject-any-type': 'off',
+				'jsdoc/reject-function-type': 'off',
 
 				'jsx-a11y/anchor-has-content': 'off',
 				'jsx-a11y/anchor-is-valid': 'off',
@@ -494,6 +501,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			rules: {
 				'package-json/require-description': 'off',
 				'package-json/require-version': 'off',
+				'package-json/require-license': 'off',
 			},
 		},
 

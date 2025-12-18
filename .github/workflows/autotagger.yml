@@ -7,12 +7,19 @@ on:
       - prerelease
       - '*/branch-*'
 
+permissions:
+  # ./.github/actions/turnstile
+  actions: read
+  # read: actions/checkout
+  # write: `git push`
+  contents: write
+
 jobs:
   tag:
     name: Tag
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Fetch tags, shallowly and blobless
         run: |

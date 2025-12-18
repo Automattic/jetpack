@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix empty state mix up when all connections are removed after attaching an image.

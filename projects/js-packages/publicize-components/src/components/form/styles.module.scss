@@ -1,16 +1,5 @@
 @use "@automattic/jetpack-base-styles/root-variables";
-
-.connections-list {
-	list-style-type: none;
-	margin: 0;
-	width: 100%;
-	display: flex;
-	flex-wrap: wrap;
-
-	.components-notice {
-		margin: 5px 0 10px;
-	}
-}
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .more-link {
 	display: inline-block;
@@ -60,7 +49,7 @@
 
 .settings-button.settings-button {
 	display: block;
-	margin-bottom: 0.5rem;
+	margin-top: 1rem;
 }
 
 .share-post-form__media-section {
@@ -70,4 +59,30 @@
 .unsupported-connections-list {
 	margin-inline-start: 1rem;
 	list-style-type: disc;
+}
+
+.connections-list {
+	border-radius: 2px;
+	border: 1px solid gb.$gray-200;
+}
+
+.empty-state {
+
+	.connect-account-text {
+		text-align: center;
+	}
+
+	.connect-account-button {
+		width: 100%;
+
+		:global(.components-button) {
+			width: 100%;
+		}
+	}
+}
+
+.preview-posts-trigger {
+	width: 100%;
+	justify-content: center;
+	margin-block: 1rem;
 }

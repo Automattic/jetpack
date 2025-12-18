@@ -1,4 +1,4 @@
-import transforms from './transforms';
+import transforms from './transforms.js';
 
 export default {
 	apiVersion: 3,
@@ -8,8 +8,12 @@ export default {
 			type: 'boolean',
 			default: false,
 		},
+		requiredIndicator: {
+			type: 'boolean',
+			default: true,
+		},
 		width: {
-			type: 'number',
+			enum: [ 25, 33, 50, 75, 100, 'auto' ],
 			default: 100,
 		},
 		shareFieldAttributes: {

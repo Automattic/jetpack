@@ -1,5 +1,5 @@
 import { Warning } from '@wordpress/block-editor';
-import { Icon, warning } from '@wordpress/icons';
+import { Icon, cautionFilled as warning } from '@wordpress/icons';
 import { useProductManagementContext } from './context';
 import { getMessageByProductType } from './utils';
 

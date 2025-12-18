@@ -514,7 +514,7 @@ class Updates extends Module {
 		}
 		if ( ! is_array( $args[0]->response ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-			trigger_error( 'Warning: Not an Array as expected but -> ' . wp_json_encode( $args[0]->response ) . ' instead', E_USER_WARNING );
+			trigger_error( 'Warning: Not an Array as expected but -> ' . wp_json_encode( $args[0]->response, JSON_UNESCAPED_SLASHES ) . ' instead', E_USER_WARNING );
 			return $args;
 		}
 		foreach ( $args[0]->response as $stylesheet => &$theme_data ) {

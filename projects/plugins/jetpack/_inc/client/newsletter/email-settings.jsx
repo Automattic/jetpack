@@ -218,6 +218,45 @@ const EmailSettings = props => {
 					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
 					label={ <span className="jp-form-toggle-explanation">{ featuredImageInfo }</span> }
 					onChange={ handleEnableFeaturedImageInEmailToggleChange }
+					className="email-settings__featured-image-toggle"
+				/>
+			</SettingsGroup>
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
+				module={ subscriptionsModule }
+				support={ {
+					link: subscriptionsAndNewslettersSupportUrl,
+					text: __(
+						'Sets whether email subscribers can read full posts in emails or just an excerpt and link to the full version of the post.',
+						'jetpack'
+					),
+				} }
+			>
+				<FormLegend className="jp-form-label-wide">
+					{ __( 'For each new post email, include', 'jetpack' ) }
+				</FormLegend>
+
+				<RadioControl
+					className="jp-form-radio-gap"
+					selected={ subscriptionEmailsUseExcerpt ? 'excerpt' : 'full' }
+					disabled={ excerptInputDisabled }
+					options={ [
+						{
+							label: (
+								<span className="jp-form-toggle-explanation">{ __( 'Full text', 'jetpack' ) }</span>
+							),
+							value: 'full',
+						},
+						{
+							label: (
+								<span className="jp-form-toggle-explanation">{ __( 'Excerpt', 'jetpack' ) }</span>
+							),
+							value: 'excerpt',
+						},
+					] }
+					onChange={ handleSubscriptionEmailsUseExcerptChange }
 				/>
 			</SettingsGroup>
 			<SettingsGroup
@@ -334,44 +373,6 @@ const EmailSettings = props => {
 				disableInOfflineMode
 				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
-				support={ {
-					link: subscriptionsAndNewslettersSupportUrl,
-					text: __(
-						'Sets whether email subscribers can read full posts in emails or just an excerpt and link to the full version of the post.',
-						'jetpack'
-					),
-				} }
-			>
-				<FormLegend className="jp-form-label-wide">
-					{ __( 'For each new post email, include', 'jetpack' ) }
-				</FormLegend>
-
-				<RadioControl
-					className="jp-form-radio-gap"
-					selected={ subscriptionEmailsUseExcerpt ? 'excerpt' : 'full' }
-					disabled={ excerptInputDisabled }
-					options={ [
-						{
-							label: (
-								<span className="jp-form-toggle-explanation">{ __( 'Full text', 'jetpack' ) }</span>
-							),
-							value: 'full',
-						},
-						{
-							label: (
-								<span className="jp-form-toggle-explanation">{ __( 'Excerpt', 'jetpack' ) }</span>
-							),
-							value: 'excerpt',
-						},
-					] }
-					onChange={ handleSubscriptionEmailsUseExcerptChange }
-				/>
-			</SettingsGroup>
-			<SettingsGroup
-				hasChild
-				disableInOfflineMode
-				disableInSiteConnectionMode={ ! siteHasConnectedUser }
-				module={ subscriptionsModule }
 				className="newsletter-group"
 				support={ {
 					link: getRedirectUrl( 'jetpack-support-subscriptions', {
@@ -383,15 +384,7 @@ const EmailSettings = props => {
 					),
 				} }
 			>
-				<FormLegend className="jp-form-label-wide">
-					{ __( 'Sender name and reply-to settings', 'jetpack' ) }
-				</FormLegend>
-				<p>
-					{ __(
-						"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
-						'jetpack'
-					) }
-				</p>
+				<FormLegend className="jp-form-label-wide">{ __( 'Sender name', 'jetpack' ) }</FormLegend>
 				<Container horizontalGap={ 0 } fluid className="sender-name">
 					<Col sm={ 3 } md={ 4 } lg={ 4 }>
 						<TextInput
@@ -411,13 +404,41 @@ const EmailSettings = props => {
 							{ __( 'Save', 'jetpack' ) }
 						</Button>
 					</Col>
+					<Col className="sender-name-example">
+						{ sprintf(
+							/* translators: 1. Site name or user entered replacement value 2. is the example email */
+							__( 'Preview: %1$s <%2$s>', 'jetpack' ),
+							fromNameState.value || siteName,
+							getExampleEmail( subscriptionReplyTo )
+						) }
+					</Col>
 				</Container>
-				<p className="reply-to">
+				<p className="jp-form-setting-explanation">
 					{ __(
-						'Choose who receives emails when subscribers reply to your newsletter.',
+						"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
 						'jetpack'
 					) }
 				</p>
+			</SettingsGroup>
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
+				module={ subscriptionsModule }
+				className="newsletter-group"
+				support={ {
+					link: getRedirectUrl( 'jetpack-support-subscriptions', {
+						anchor: 'reply-to-email-address',
+					} ),
+					text: __(
+						"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
+						'jetpack'
+					),
+				} }
+			>
+				<FormLegend className="jp-form-label-wide">
+					{ __( 'Reply-to settings', 'jetpack' ) }
+				</FormLegend>
 				<RadioControl
 					className="jp-form-radio-gap"
 					selected={ subscriptionReplyTo || 'comment' }
@@ -450,16 +471,18 @@ const EmailSettings = props => {
 					] }
 					onChange={ handleSubscriptionReplyToChange }
 				/>
-				<Container horizontalGap={ 0 } fluid className="sender-name">
-					<Col className="sender-name-example byline-preview">
-						{ sprintf(
-							/* translators: 1. Site name or user entered replacement value 2. is the example email */
-							__( 'Preview: %1$s <%2$s>', 'jetpack' ),
-							fromNameState.value || siteName,
-							getExampleEmail( subscriptionReplyTo )
-						) }
-					</Col>
-				</Container>
+				<p className="reply-to jp-form-setting-explanation">
+					{ __(
+						'Choose who receives emails when subscribers reply to your newsletter.',
+						'jetpack'
+					) }
+					{ subscriptionReplyTo === 'author' &&
+						' ' +
+							__(
+								'The author’s account must be connected to WordPress.com to use their email as the reply-to address.',
+								'jetpack'
+							) }
+				</p>
 			</SettingsGroup>
 		</SettingsCard>
 	);

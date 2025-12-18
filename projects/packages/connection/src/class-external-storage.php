@@ -154,10 +154,10 @@ class External_Storage {
 
 		if ( 'error' === $event_type ) {
 			// Report external storage errors for supported environments
-			$should_report_remote = self::should_report_for_environment();
+			$should_report_remote = self::should_report_for_environment( $key );
 		} elseif ( 'empty' === $event_type ) {
 			// Use delay mechanism to distinguish disconnection from a delay
-			$should_report_remote = self::should_report_for_environment() && self::should_report_empty_state( $key );
+			$should_report_remote = self::should_report_for_environment( $key ) && self::should_report_empty_state( $key );
 		}
 
 		if ( ! $should_report_remote || ! class_exists( 'Automattic\Jetpack\Connection\Error_Handler' ) ) {
@@ -188,15 +188,34 @@ class External_Storage {
 
 	/**
 	 * Determine if the current environment should report external storage errors to WordPress.com.
-	 * Allows wpcomsh and other environments to control remote error reporting independently.
+	 * Allows providers to control remote error reporting per-option via optional should_report_errors_for() method.
 	 *
 	 * @since 6.18.0
 	 *
+	 * @param string $key The option key being accessed.
 	 * @return bool True if this environment should report external storage errors to WordPress.com.
 	 */
-	private static function should_report_for_environment() {
-		if ( defined( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' ) && constant( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' ) ) {
-			return true;
+	private static function should_report_for_environment( $key = '' ) {
+		$provider = self::$provider;
+
+		// Check if provider implements per-option reporting (optional method not defined in interface).
+		// Providers can optionally implement: public function should_report_errors_for( $option_name )
+		if ( null !== $provider && method_exists( $provider, 'should_report_errors_for' ) && ! empty( $key ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethodInCallable - Optional method, checked via method_exists()
+			return call_user_func( array( $provider, 'should_report_errors_for' ), $key );
+		}
+
+		// Deprecated: JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED constant
+		// @deprecated 6.18.13 Use should_report_errors_for() method in your Storage Provider instead.
+		if ( defined( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				trigger_error(
+					'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED constant is deprecated. Implement should_report_errors_for() method in your Storage Provider instead.',
+					E_USER_DEPRECATED
+				);
+			}
+			return (bool) constant( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' );
 		}
 
 		return false;

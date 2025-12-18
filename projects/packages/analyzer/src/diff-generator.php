@@ -82,7 +82,6 @@ class Scripts {
 
 	static function rm($folder) {
 		$iter = new \RecursiveIteratorIterator(
-			// @phan-suppress-next-line PhanTypeMismatchArgumentInternal -- Phan is confused; resolved in Phan >5.5.1.
 			new \RecursiveDirectoryIterator( escapeshellarg( $folder ), \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS ),
 			\RecursiveIteratorIterator::CHILD_FIRST
 		);

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.30.4 - 2025-12-15
+### Changed
+- Internal updates.
+
+## 0.30.3 - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## 0.30.2 - 2025-12-01
+### Changed
+- Update dependencies. [#44736]
+
+## 0.30.1 - 2025-11-10
+### Changed
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+
+### Fixed
+- Stats: Display post views after quick edit. [#45793]
+
+## 0.30.0 - 2025-10-27
+### Removed
+- Remove "Jetpack > Stats" menu. [#45607]
+
+## 0.29.1 - 2025-09-29
+### Fixed
+- Fix dashboard.wordpress.com breaking non-odyssey stats on older versions of Jetpack. [#45283]
+
 ## 0.29.0 - 2025-09-19
 ### Changed
 - Change the location of the Jetpack -> Stats submenu item to a new top-level admin menu item called "Stats". [#44524]

@@ -8,7 +8,14 @@ import clsx from 'clsx';
 import { close, downChevron, leftChevron, rightChevron, upChevron } from '../icons';
 
 class GalleryImageEdit extends Component {
+	/**
+	 * @type {import('react').RefObject<HTMLImageElement>}
+	 */
 	img = createRef();
+
+	state = {
+		isLoading: false,
+	};
 
 	onImageClick = () => {
 		if ( ! this.props.isSelected ) {
@@ -26,8 +33,64 @@ class GalleryImageEdit extends Component {
 		}
 	};
 
-	componentDidUpdate() {
-		const { alt, height, image, link, url, width } = this.props;
+	onImageLoadComplete = () => {
+		this.setState( { isLoading: false } );
+		this.removeImageEventListeners();
+	};
+
+	addImageEventListeners = () => {
+		this.removeImageEventListeners();
+
+		if ( this.img.current && ! isBlobURL( this.props.origUrl ) ) {
+			const isComplete = this.img.current.complete;
+			this.setState( { isLoading: ! isComplete } );
+
+			// Only add event listeners if image is not complete
+			if ( ! isComplete ) {
+				this.img.current.addEventListener( 'load', this.onImageLoadComplete, {
+					once: true,
+				} );
+				this.img.current.addEventListener( 'error', this.onImageLoadComplete, {
+					once: true,
+				} );
+			}
+		}
+	};
+
+	removeImageEventListeners = () => {
+		if ( this.img.current ) {
+			this.img.current.removeEventListener( 'load', this.onImageLoadComplete );
+			this.img.current.removeEventListener( 'error', this.onImageLoadComplete );
+		}
+	};
+
+	componentDidMount() {
+		if ( ! isBlobURL( this.props.origUrl ) && ! this.img.current?.complete ) {
+			this.setState( { isLoading: true } );
+			this.addImageEventListeners();
+		}
+	}
+
+	componentWillUnmount() {
+		this.removeImageEventListeners();
+	}
+
+	componentDidUpdate( prevProps ) {
+		const { alt, height, image, link, url, width, origUrl } = this.props;
+
+		// Handle URL transitions
+		const wasTransient = isBlobURL( prevProps.origUrl );
+		const isTransient = isBlobURL( origUrl );
+
+		if (
+			! isTransient &&
+			! this.img.current?.complete &&
+			( wasTransient || // transitioned from blob to regular URL
+				prevProps.url !== url ) // URL updated
+		) {
+			this.setState( { isLoading: true } );
+			this.addImageEventListeners();
+		}
 
 		if ( image ) {
 			const nextAtts = {};
@@ -78,6 +141,8 @@ class GalleryImageEdit extends Component {
 			width,
 		} = this.props;
 
+		const { isLoading } = this.state;
+
 		let href;
 
 		switch ( linkTo ) {
@@ -120,6 +185,7 @@ class GalleryImageEdit extends Component {
 				className={ clsx( 'tiled-gallery__item', {
 					'is-selected': isSelected,
 					'is-transient': isTransient,
+					'is-loading': ! isTransient && isLoading,
 					[ `filter__${ imageFilter }` ]: !! imageFilter,
 				} ) }
 				tabIndex="0"

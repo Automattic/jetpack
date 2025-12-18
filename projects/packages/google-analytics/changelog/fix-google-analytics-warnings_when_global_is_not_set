@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Provide fallback value when $woocommerce_loop global is not set.

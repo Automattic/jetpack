@@ -72,7 +72,13 @@ class ApplicationTest extends TestCase {
 
 		$command = new Command( 'testDoRun' );
 		$command->setCode( $callback );
-		$app->add( $command );
+		// @todo Remove test and else branch when we drop support for symfony/console <7.4 (i.e. PHP <8.2)
+		if ( is_callable( array( $app, 'addCommand' ) ) ) {
+			$app->addCommand( $command );
+		} else {
+			// @phan-suppress-next-line PhanDeprecatedFunction -- Guarded.
+			$app->add( $command );
+		}
 
 		$tester = new ApplicationTester( $app );
 

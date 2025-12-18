@@ -64,10 +64,20 @@ export type SharePost = {
 	isModalOpen?: boolean;
 };
 
+export type UnifiedModalState = {
+	isOpen?: boolean;
+	initialPath?: string;
+	isScreenLocked?: boolean;
+};
+
+export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
+
 export type SocialStoreState = {
 	connectionData: ConnectionData;
 	shareStatus?: ShareStatus;
 	sharePost?: SharePost;
+	unifiedModal?: UnifiedModalState;
+	renderCount?: RenderCount;
 };
 
 export interface KeyringAdditionalUser {

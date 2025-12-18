@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -16,6 +17,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Connection\REST_Authentication
  */
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 #[CoversClass( REST_Authentication::class )]
 class REST_Authentication_Test extends TestCase {
 
@@ -39,7 +41,10 @@ class REST_Authentication_Test extends TestCase {
 	private static function clear_auth_singleton() {
 		$reflection_class  = new \ReflectionClass( Rest_Authentication::class );
 		$instance_property = $reflection_class->getProperty( 'instance' );
-		$instance_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance_property->setAccessible( true );
+		}
 		$instance_property->setValue( null, null );
 	}
 
@@ -57,7 +62,10 @@ class REST_Authentication_Test extends TestCase {
 
 		$reflection_class = new \ReflectionClass( get_class( $this->rest_authentication ) );
 		$manager_property = $reflection_class->getProperty( 'connection_manager' );
-		$manager_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$manager_property->setAccessible( true );
+		}
 		$manager_property->setValue( $this->rest_authentication, $this->manager );
 	}
 

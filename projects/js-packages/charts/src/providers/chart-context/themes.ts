@@ -1,4 +1,4 @@
-import type { ChartTheme, CompleteChartTheme } from '../../types';
+import type { CompleteChartTheme } from '../../types';
 
 /**
  * Default theme configuration
@@ -24,6 +24,7 @@ const defaultTheme: CompleteChartTheme = {
 	seriesLineStyles: [],
 	legendShapeStyles: [],
 	glyphs: [],
+	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)' },
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
@@ -38,74 +39,16 @@ const defaultTheme: CompleteChartTheme = {
 			radius: 5,
 		},
 	},
-	leaderboardChart: {
-		rowGap: 12,
-		columnGap: 4,
-		labelSpacing: 1.5,
-		primaryColor: '#006DAB',
-		secondaryColor: '#98C8DF',
-		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
-	},
-	conversionFunnelChart: {
-		primaryColor: '#3858E9',
-		backgroundColor: '#F3F4F6',
-		positiveChangeColor: '#008A20',
-		negativeChangeColor: '#D63638',
-	},
-	lineChart: {
-		lineStyles: {
-			comparison: {
-				strokeDasharray: '4 4',
-				strokeLinecap: 'square',
-			},
-		},
-	},
-};
-
-/**
- * Jetpack theme configuration
- */
-const jetpackTheme: ChartTheme = {
-	backgroundColor: '#FFFFFF', // chart background color
-	labelBackgroundColor: 'transparent', // label background color (transparent by default)
-	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
-	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
-	gridStyles: {
-		stroke: '#DCDCDE',
-		strokeWidth: 1,
-	},
-	tickLength: 4,
-	gridColor: '',
-	gridColorDark: '',
-	xTickLineStyles: { stroke: 'black' },
-	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
-	legendLabelStyles: {
-		color: 'var(--jp-gray-80, #2c3338)',
-	},
-	annotationStyles: {
-		label: {
-			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
-			backgroundFill: '#fff',
-		},
-		connector: {
-			stroke: 'var(--jp-gray-80, #2c3338)',
-		},
-		circleSubject: {
-			stroke: 'transparent',
-			fill: 'var(--jp-gray-80, #2c3338)',
-			radius: 5,
-		},
+	geoChart: {
+		featureFillColor: 'var(--jp-gray-0, #f6f7f7)',
 	},
 	leaderboardChart: {
 		rowGap: 12,
 		columnGap: 4,
 		labelSpacing: 1.5,
-		primaryColor: '#006DAB',
-		secondaryColor: '#98C8DF',
 		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
-		primaryColor: '#006DAB',
 		backgroundColor: '#F3F4F6',
 		positiveChangeColor: '#1F9828',
 		negativeChangeColor: '#FF8C8F',
@@ -118,76 +61,10 @@ const jetpackTheme: ChartTheme = {
 			},
 		},
 	},
-};
-
-/**
- * Woo theme configuration
- */
-const wooTheme: ChartTheme = {
-	backgroundColor: '#FFFFFF', // chart background color
-	labelBackgroundColor: 'transparent', // label background color (transparent by default)
-	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
-	colors: [
-		'#3858E9', // WooCommerce brand blue
-		'#873EFF', // Purple
-		'#66BDFF', // Light blue
-		'#7B90FF', // Periwinkle blue
-		'#EB6594', // Pink/rose
-	],
-	gridStyles: {
-		stroke: '#787C82',
-		strokeWidth: 1,
-	},
-	tickLength: 4,
-	gridColor: '',
-	gridColorDark: '',
-	xTickLineStyles: { stroke: 'black' },
-	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
-	legendLabelStyles: {
-		fontSize: '12px',
-		fontWeight: 400,
-		color: '#757575',
-	},
-	legendContainerStyles: {
-		gap: '8px',
-	},
-	annotationStyles: {
-		label: {
-			anchorLineStroke: 'black',
-			backgroundFill: '#fff',
-		},
-		connector: {
-			stroke: 'black',
-		},
-		circleSubject: {
-			stroke: 'transparent',
-			fill: 'black',
-			radius: 5,
-		},
-	},
-	leaderboardChart: {
-		rowGap: 12,
-		columnGap: 4,
-		labelSpacing: 1.5,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
-		deltaColors: [ '#D63638', '#757575', '#008A20' ], // [negative, neutral, positive]
-	},
-	conversionFunnelChart: {
-		primaryColor: '#3858E9',
-		backgroundColor: '#F3F4F6',
-		positiveChangeColor: '#008A20',
-		negativeChangeColor: '#D63638',
-	},
-	lineChart: {
-		lineStyles: {
-			comparison: {
-				strokeDasharray: '4 4',
-				strokeWidth: 1.5,
-				strokeLinecap: 'square',
-			},
-		},
+	sparkline: {
+		margin: { top: 2, right: 2, bottom: 2, left: 2 },
+		strokeWidth: 1.5,
 	},
 };
 
-export { defaultTheme, jetpackTheme, wooTheme };
+export { defaultTheme };

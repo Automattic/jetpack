@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+`react` and `react-dom` should be peer dependencies, not direct dependencies.

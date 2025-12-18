@@ -69,11 +69,16 @@ function handle_file_download() {
 	 */
 	$file = apply_filters( 'jetpack_unauth_file_upload_get_file', array(), $file_id );
 
-	if ( is_wp_error( $file ) || empty( $file ) ) {
+	if ( is_wp_error( $file ) || empty( $file ) || ! is_array( $file ) ) {
 		wp_die( esc_html__( 'Error retrieving file content.', 'jetpack' ) );
 	}
 
-	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'];
+	// Given $file can be manipulated by a filter, make sure everything is as it should be.
+	$file['content'] = $file['content'] ?? '';
+	$file['type']    = $file['type'] ?? 'application/octet-stream';
+	$file['name']    = $file['name'] ?? '';
+
+	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'] && is_file_type_previewable( $file['type'] );
 
 	// Clean output buffer
 	if ( ob_get_length() ) {
@@ -159,4 +164,24 @@ function get_file_content( $file_content, $file_id ) {
 		'type'    => $type,
 		'name'    => $filename,
 	);
+}
+
+/**
+ * Check which file type is previewable in the browser without downloading them.
+ *
+ * Allow images with extensions jpg, jpeg, png, gif, webp and pdf files.
+ *
+ * @param string $file_type The MIME type of the file.
+ * @return bool True if the file is previable, false otherwise.
+ */
+function is_file_type_previewable( $file_type ) {
+	$previable_types = array(
+		'image/jpeg',
+		'image/png',
+		'image/gif',
+		'image/webp',
+		'application/pdf',
+	);
+
+	return in_array( $file_type, $previable_types, true );
 }

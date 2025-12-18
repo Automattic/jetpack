@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Jetpack Debug Tools
  * Description: Give me a Jetpack connection, and I'll break it every way possible.
- * Author: Automattic - Jetpack Crew
- * Version: 2.2.2
+ * Author: Automattic
+ * Version: 2.2.3
  * Text Domain: jetpack
  *
  * @package automattic/jetpack-debug-helper.
@@ -21,8 +21,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
 namespace Automattic\Jetpack\Debug_Helper;
@@ -33,7 +32,7 @@ define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
  * The plugin version.
  * Increase that if you do any edits to ensure refreshing the cached assets.
  */
-define( 'JETPACK_DEBUG_HELPER_VERSION', '2.2.2' );
+define( 'JETPACK_DEBUG_HELPER_VERSION', '2.2.3' );
 
 /**
  * Include file names from the modules directory here.

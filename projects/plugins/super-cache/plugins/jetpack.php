@@ -1,11 +1,8 @@
 <?php
 
-if ( ! class_exists( 'Automattic\Jetpack\Device_Detection' ) ) {
-	// Manually load Device_Detection before autoload is initialized.
-	if ( defined( 'WPCACHEHOME' ) ) {
-		if ( file_exists( WPCACHEHOME . '/vendor/automattic/jetpack-device-detection/src/class-device-detection.php' ) ) {
-			require_once WPCACHEHOME . '/vendor/automattic/jetpack-device-detection/src/class-device-detection.php';
-		}
+if ( defined( 'WPCACHEHOME' ) ) {
+	if ( file_exists( WPCACHEHOME . '/src/device-detection/class-device-detection.php' ) ) {
+		require_once WPCACHEHOME . '/src/device-detection/class-device-detection.php';
 	}
 }
 
@@ -69,11 +66,11 @@ function wp_super_cache_jetpack_cookie_check( $cache_key ) {
 		}
 	}
 
-	if ( ! class_exists( 'Automattic\Jetpack\Device_Detection' ) ) {
+	if ( ! class_exists( 'Automattic\WPSC\Device_Detection' ) ) {
 		return 'normal';
 	}
 
-	if ( \Automattic\Jetpack\Device_Detection::is_phone() ) {
+	if ( \Automattic\WPSC\Device_Detection::is_phone() ) {
 		return 'mobile';
 	} else {
 		return 'normal';

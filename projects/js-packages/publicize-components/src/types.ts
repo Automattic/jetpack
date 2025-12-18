@@ -16,11 +16,6 @@ export type SharesData = {
 	is_share_limit_enabled: boolean;
 };
 
-export interface FeatureFlags {
-	useAdminUiV1: boolean;
-	useEditorPreview: boolean;
-}
-
 export type ConnectionService = {
 	id: string;
 	label: string;
@@ -51,7 +46,6 @@ export type PluginInfo = Record< 'social' | 'jetpack', { version: string | null 
 export interface SocialScriptData {
 	api_paths: ApiPaths;
 	assets_url: string;
-	feature_flags: FeatureFlags;
 	is_publicize_enabled: boolean;
 	plugin_info: PluginInfo;
 	review?: {

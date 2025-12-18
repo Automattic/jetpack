@@ -1,22 +1,34 @@
-import type { ILanguage } from '../contact-form/libs/date-picker/interfaces';
+import type { ILanguage } from '../contact-form/libs/date-picker/interfaces.ts';
 import type { ReactNode } from 'react';
 
 /**
- * Describes an integration (plugin or service) available for Jetpack Forms.
+ * Static metadata for an integration (without status fields).
+ * This is a lightweight subset returned by the /integrations-metadata endpoint.
  */
-export interface Integration {
-	/** The type of integration: 'plugin' or 'service'. */
-	type: 'plugin' | 'service';
-	/** The unique slug for the integration. */
-	slug: string;
+export interface IntegrationMetadata {
 	/** The unique identifier for the integration. */
 	id: string;
+	/** The unique slug for the integration. */
+	slug: string;
+	/** The type of integration: 'plugin' or 'service'. */
+	type: 'plugin' | 'service';
 	/** Default title for displaying the integration (server-provided, filterable). */
 	title?: string;
 	/** Default subtitle/description for the integration (server-provided, filterable). */
 	subtitle?: string;
+	/** A URL to learn about the integration, if available. */
+	marketingUrl?: string | null;
 	/** Whether this integration should be enabled by default for new forms. */
 	enabledByDefault?: boolean;
+	/** URL to an SVG/icon for this integration provided by the backend. */
+	iconUrl?: string | null;
+}
+
+/**
+ * Describes an integration (plugin or service) available for Jetpack Forms.
+ * This extends IntegrationMetadata with status fields.
+ */
+export interface Integration extends IntegrationMetadata {
 	/** The plugin file path, if applicable. */
 	pluginFile?: string | null;
 	/** Whether the integration is installed. */
@@ -31,10 +43,10 @@ export interface Integration {
 	version?: string | null;
 	/** The URL to the integration's settings page, if available. */
 	settingsUrl?: string | null;
-	/** A URL to learn about the integration, if available. */
-	marketingUrl?: string | null;
 	/** Additional details about the integration. */
 	details: Record< string, unknown >;
+	/** Whether this is partial data (metadata only) or full status data. */
+	__isPartial?: boolean;
 }
 
 /**
@@ -90,14 +102,22 @@ export interface FormResponse {
 	author_avatar: string;
 	/** The IP address of the response author. */
 	ip: string;
+	/** The country code of the response author. */
+	country_code: string;
+	/** The browser and platform used to submit the form. */
+	browser?: string;
 	/** The title of the form that the response was submitted to. */
 	entry_title: string;
 	/** The permalink of the form that the response was submitted to. */
 	entry_permalink: string;
 	/** Whether the response has a file attached. */
 	has_file: boolean;
+	/** Whether the response is unread. */
+	is_unread: boolean;
 	/** The fields of the response. */
 	fields: Record< string, unknown >;
+	/** The URL to edit the form that the response was submitted to. */
+	edit_form_url: string;
 }
 
 /**
@@ -110,6 +130,10 @@ export interface JPFormsBlocksDefaults {
 	formsResponsesSpamUrl?: string;
 	/** Whether MailPoet integration is enabled. */
 	isMailPoetEnabled?: boolean;
+	/** The default subject for the form. */
+	subject?: string;
+	/** The default recipient email address for the form. */
+	to?: string;
 }
 
 /**
@@ -143,6 +167,8 @@ declare global {
  * This type extends Integration and includes additional UI and state fields used by cards.
  */
 export type IntegrationCardData = Partial< Integration > & {
+	/** URL to an SVG/icon for this integration used in card UIs. */
+	iconUrl?: string | null;
 	/** Whether to show the header toggle. */
 	showHeaderToggle?: boolean;
 	/** The value of the header toggle (on/off). */
@@ -208,18 +234,24 @@ export type BlockEditorStoreSelect = {
 export interface FormsConfigData {
 	/** Whether MailPoet integration is enabled across contexts. */
 	isMailPoetEnabled?: boolean;
+	/** Whether Hostinger Reach integration is enabled across contexts. */
+	isHostingerReachEnabled?: boolean;
 	/** Whether integrations UI is enabled (feature-flagged). */
 	isIntegrationsEnabled?: boolean;
+	/** Whether webhooks are enabled (feature-flagged). */
+	isWebhooksEnabled?: boolean;
+	/** Whether to show integrations in the Forms dashboard UI. */
+	showDashboardIntegrations?: boolean;
+	/** Whether to show integrations in the Form block editor UI. */
+	showBlockIntegrations?: boolean;
+	/** Whether to show integration icons across UI (editor sidebar and modal). */
+	showIntegrationIcons?: boolean;
 	/** Whether the current user can install plugins (install_plugins). */
 	canInstallPlugins?: boolean;
 	/** Whether the current user can activate plugins (activate_plugins). */
 	canActivatePlugins?: boolean;
-	/** Whether to render the migration/announcement page instead of the main dashboard. */
-	renderMigrationPage?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
-	/** Whether AI Assist features are available for the site/user. */
-	hasAI?: boolean;
 	/** The URL of the Forms responses list in wp-admin. */
 	formsResponsesUrl?: string;
 	/** Current site blog ID. */
@@ -236,4 +268,6 @@ export interface FormsConfigData {
 	exportNonce?: string;
 	/** Nonce for creating a new form (dashboard-only). */
 	newFormNonce?: string;
+	/** Number of days before WordPress permanently deletes trash. See https://developer.wordpress.org/advanced-administration/wordpress/wp-config/#empty-trash */
+	emptyTrashDays?: number;
 }

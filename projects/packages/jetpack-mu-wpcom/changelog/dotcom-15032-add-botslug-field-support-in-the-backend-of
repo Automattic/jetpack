@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Help Center: Add `bot_slug` flag to support interaction requests

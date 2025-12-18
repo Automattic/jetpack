@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 4.0.3
+ * Version: 4.0.6
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || die( 0 );
 
 define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.2' );
-define( 'VAULTPRESS__VERSION', '4.0.3' );
+define( 'VAULTPRESS__VERSION', '4.0.6' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
@@ -1016,8 +1016,8 @@ class VaultPress {
 	function ui_logo() {
 		if ( ! class_exists( 'Jetpack_Logo' ) ) {
 			require_once VAULTPRESS__PLUGIN_DIR . 'class-jetpack-logo.php';
-			$jetpack_logo = new Jetpack_Logo();
 		}
+		$jetpack_logo = new Jetpack_Logo();
 
 		return $jetpack_logo->output();
 	}
@@ -2605,7 +2605,7 @@ JS;
 			return;
 
 		switch( $type ) {
-			case 'editedtables';
+			case 'editedtables':
 				$vaultpress_pings[$type] = $data;
 				return;
 			case 'uploads':
@@ -2836,7 +2836,7 @@ JS;
 		if ( $this->check_connection( true ) ) {
 			$registration['action'] = 'response';
 			$registration['error'] = 'VaultPress is already registered on this site.';
-			update_option( $this->auto_register_option, json_encode( $registration ) );
+			update_option( $this->auto_register_option, wp_json_encode( $registration, JSON_UNESCAPED_SLASHES ) );
 			return;
 		}
 
@@ -2857,7 +2857,7 @@ JS;
 			$registration['error'] = false;
 		}
 
-		update_option( $this->auto_register_option, json_encode( $registration ) );
+		update_option( $this->auto_register_option, wp_json_encode( $registration, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	function add_global_actions_and_filters() {

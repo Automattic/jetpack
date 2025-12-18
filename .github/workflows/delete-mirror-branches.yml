@@ -2,14 +2,19 @@ name: Delete mirror branches
 on:
   delete:
 
+permissions:
+  # actions/checkout
+  contents: read
+  # Deletion step uses secrets.API_TOKEN_GITHUB, so no need for permissions.
+
 jobs:
   delete:
     name: Delete `${{ github.event.ref }}`
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2022-11-21: Shouldn't take long.
+    timeout-minutes: 5  # 2025-11-20: Less than a minute.
     if: github.event_name == 'delete' && github.repository == 'Automattic/jetpack' && github.event.ref == 'prerelease'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: trunk
       - name: Delete branches

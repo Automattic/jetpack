@@ -98,7 +98,7 @@ class Feedback_Field {
 
 		$postfix = $count > 1 ? " ({$count})" : '';
 
-		if ( 'api' === $context ) {
+		if ( in_array( $context, array( 'api', 'csv' ), true ) ) {
 			if ( empty( $this->label ) ) {
 				return __( 'Field', 'jetpack-forms' ) . $postfix;
 			}
@@ -178,6 +178,10 @@ class Feedback_Field {
 					$this->value['choices']
 				)
 			);
+		}
+
+		if ( $this->value === null ) {
+			return '';
 		}
 
 		return $this->get_render_default_value();
@@ -501,6 +505,7 @@ class Feedback_Field {
 
 	/**
 	 * Checks if the file is previewable based on its type or extension.
+	 * Only image formats are allowed to be previewed in the modal. PDFs may be previewed in the browser elsewhere, but not in the modal.
 	 *
 	 * @param array $file File data.
 	 * @return bool True if the file is previewable, false otherwise.

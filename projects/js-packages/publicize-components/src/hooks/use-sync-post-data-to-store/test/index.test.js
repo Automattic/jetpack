@@ -21,7 +21,6 @@ describe( 'useSyncPostDataToStore', () => {
 		const registry = createRegistryWithStores( post );
 		await registry.resolveSelect( socialStore ).getConnections();
 
-		// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 		const prevConnections = registry.select( socialStore ).getConnections();
 
 		expect( prevConnections ).not.toEqual( [] );
@@ -32,7 +31,6 @@ describe( 'useSyncPostDataToStore', () => {
 			),
 		} );
 
-		// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 		const freshConnections = registry.select( socialStore ).getConnections();
 
 		expect( freshConnections ).toEqual( prevConnections );
@@ -42,7 +40,6 @@ describe( 'useSyncPostDataToStore', () => {
 		const registry = createRegistryWithStores( post );
 		await registry.resolveSelect( socialStore ).getConnections();
 
-		// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 		const prevConnections = registry.select( socialStore ).getConnections();
 
 		renderHook( () => useSyncPostDataToStore(), {
@@ -57,7 +54,6 @@ describe( 'useSyncPostDataToStore', () => {
 			} );
 		} );
 
-		// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 		const freshConnections = registry.select( socialStore ).getConnections();
 
 		expect( freshConnections ).toEqual( prevConnections );
@@ -70,7 +66,6 @@ describe( 'useSyncPostDataToStore', () => {
 		// Mock apiFetch response.
 		apiFetch.setFetchHandler( postPublishFetchHandler( post ) );
 
-		// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 		const prevConnections = registry.select( socialStore ).getConnections();
 
 		renderHook( () => useSyncPostDataToStore(), {
@@ -97,7 +92,6 @@ describe( 'useSyncPostDataToStore', () => {
 		} );
 		await act( async () => p );
 
-		// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 		const freshConnections = registry.select( socialStore ).getConnections();
 
 		expect( freshConnections ).not.toEqual( prevConnections );

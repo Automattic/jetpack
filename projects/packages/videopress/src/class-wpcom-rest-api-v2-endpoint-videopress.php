@@ -245,6 +245,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		$request_args = array_merge( $args, array( 'body' => $body ) );
 
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional.
 		$result = Client::_wp_remote_request( $url, $request_args );
 
 		if ( is_wp_error( $result ) ) {
@@ -289,7 +290,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			return $this->wpcom_poster_request(
 				$video_guid,
 				$args,
-				wp_json_encode( $json_params )
+				wp_json_encode( $json_params, JSON_UNESCAPED_SLASHES )
 			);
 		} catch ( \Exception $e ) {
 			return rest_ensure_response( new WP_Error( 'videopress_block_update_poster_error', $e->getMessage() ) );
@@ -455,7 +456,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			$endpoint,
 			'2',
 			$args,
-			wp_json_encode( $video_request_params ),
+			wp_json_encode( $video_request_params, JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
 

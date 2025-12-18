@@ -1,0 +1,171 @@
+.conversionFunnelChart {
+	font-family: var(--funnel-font-family, "SF Pro Text");
+
+	&.loading {
+		opacity: 0.6;
+		pointer-events: none;
+	}
+}
+
+.main-metric {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	margin-bottom: 24px;
+	height: 20px;
+}
+
+.main-rate {
+	overflow: hidden;
+	color: #1e1e1e;
+	text-overflow: ellipsis;
+	font-family: var(--funnel-font-family, "SF Pro Text");
+	font-size: 18px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 20px;
+	margin: 0;
+}
+
+.change-indicator {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-family: var(--funnel-font-family, "SF Pro Text");
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 20px;
+	margin: 0;
+}
+
+.funnel-container {
+	display: flex;
+	gap: 16px;
+	align-items: flex-end;
+	height: 200px;
+	width: 100%;
+}
+
+.funnel-step {
+	flex: 1 1 0;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	transition: all 0.3s ease;
+
+	&.blurred {
+		opacity: 0.3;
+	}
+}
+
+.step-header {
+	margin-bottom: 24px;
+}
+
+.step-label {
+	color: #757575;
+	font-family: var(--step-font-family, "SF Pro");
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 16px;
+	margin: 0 0 2px 0;
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.step-rate {
+	color: #1e1e1e;
+	font-family: var(--step-font-family, "SF Pro");
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 20px;
+	margin: 0;
+	display: block;
+}
+
+.bar-container {
+	flex: 1;
+	display: flex;
+	align-items: flex-end;
+	border-radius: 4px;
+	position: relative;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+
+	&.disabled {
+		cursor: pointer;
+	}
+}
+
+.funnel-bar {
+	width: 100%;
+	min-height: 4px;
+	border-radius: 4px 4px 0 0;
+	transition: all 0.3s ease;
+
+	&.selected {
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+		filter: brightness(1.1);
+	}
+
+	&--animated {
+		transform-origin: bottom;
+		transform-box: fill-box;
+		transform: scaleY(0);
+		animation: stretch 1s ease-out forwards;
+	}
+
+	@keyframes stretch {
+
+		to {
+			transform: scaleY(1);
+		}
+	}
+}
+
+.tooltip-wrapper {
+	display: inline-flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 4px;
+
+	border-bottom: 1px solid var(--Gray-Gray-5, #dcdcde);
+	background: var(--black-white-white, #fff);
+
+	// Override .visx-tooltip inline styles.
+	border-radius: 4px !important;
+	padding: 12px !important;
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.15), 0 3px 9px 0 rgba(0, 0, 0, 0.12) !important;
+
+}
+
+.tooltip-title {
+	color: #1e1e1e;
+	font-family: "SF Pro", sans-serif;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 16px;
+}
+
+.tooltip-content {
+	color: #1e1e1e;
+	font-family: "SF Pro", sans-serif;
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 20px;
+}
+
+.empty-state {
+	text-align: center;
+	padding: 48px 24px;
+	color: #6b7280;
+	font-size: 16px;
+}

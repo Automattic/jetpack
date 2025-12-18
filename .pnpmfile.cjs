@@ -21,6 +21,7 @@ const wpPkgs = {
 		'@wordpress/date',
 		'@wordpress/hooks',
 		'react-colorful',
+		'react-day-picker',
 	],
 	'@wordpress/element': [ 'react-dom' ],
 	'@wordpress/data': [ 'use-memo-one' ],
@@ -41,22 +42,26 @@ async function fixDeps( pkg ) {
 	if (
 		pkg.name === '@automattic/social-previews' ||
 		pkg.name === '@automattic/components' ||
-		pkg.name === '@automattic/launchpad'
+		pkg.name === '@automattic/launchpad' ||
+		pkg.name === '@automattic/api-core'
 	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
-				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+			if ( dep.startsWith( '@wordpress/' ) ) {
+				if ( ver.startsWith( '^' ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+				} else if ( ver.match( /^\d/ ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver;
+				}
 			}
 		}
 	}
 
-	// Currently v3 of @automattic/components has some issues:
-	// https://github.com/Automattic/wp-calypso/pull/103385
+	// Breaking change in @wordpress/icons v11.
 	if (
-		pkg.name.startsWith( '@automattic/calypso-products' ) ||
-		pkg.name.startsWith( '@automattic/launchpad' )
+		pkg.name === '@automattic/components' &&
+		pkg.dependencies[ '@wordpress/icons' ]?.startsWith( '>=10' )
 	) {
-		pkg.dependencies[ '@automattic/components' ] = '^2.2.0';
+		pkg.dependencies[ '@wordpress/icons' ] += ' <11';
 	}
 
 	// Outdated dependency version causing dependabot warnings.
@@ -69,9 +74,11 @@ async function fixDeps( pkg ) {
 	}
 
 	// Missing dep or peer dep on react.
-	// https://github.com/WordPress/gutenberg/issues/55171
+	// https://github.com/WordPress/gutenberg/issues/73257
 	if (
-		pkg.name === '@wordpress/icons' &&
+		( pkg.name === '@wordpress/icons' ||
+			pkg.name === '@wordpress/media-utils' ||
+			pkg.name === '@wordpress/admin-ui' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -98,29 +105,6 @@ async function fixDeps( pkg ) {
 				pkg.optionalDependencies[ dep ] = deps[ dep ];
 			}
 		}
-
-		// @todo Move this to wpPkgs when all indirect deps on `@wordpress/dataviews` are on v5.
-		pkg.optionalDependencies[ 'react-day-picker' ] = '^9.0.0';
-	}
-
-	// Missing dep or peer dep.
-	// https://github.com/TanStack/query/issues/9097
-	if (
-		pkg.name === '@tanstack/eslint-plugin-query' &&
-		! pkg.dependencies?.typescript &&
-		! pkg.peerDependencies?.typescript
-	) {
-		pkg.peerDependencies ??= {};
-		pkg.peerDependencies.typescript = '*';
-	}
-
-	// Missing dep. Already fixed upstream, pending release.
-	// https://github.com/typescript-eslint/typescript-eslint/issues/11382
-	if (
-		pkg.name === '@typescript-eslint/type-utils' &&
-		! pkg.dependencies[ '@typescript-eslint/types' ]
-	) {
-		pkg.dependencies[ '@typescript-eslint/types' ] = '8.36.0';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
@@ -170,8 +154,7 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Seemingly unmaintained upstream, and has strict deps that are outdated.
-	// https://github.com/mbalabash/estimo/issues/50
+	// Unnecessary strict deps.
 	if ( pkg.name === 'estimo' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
@@ -188,7 +171,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
-	// No upstream bug link yet, upstream seems unmaintained anyway.
+	// https://github.com/egoist/rollup-plugin-postcss/issues/469
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
 	}
@@ -247,21 +230,12 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Hack-update Jest to v30 for ts-jest and @storybook/test-runner. Not sure if they'd 100% work, but they seem to work for us in CI.
-	// https://github.com/storybookjs/test-runner/issues/567
-	if ( pkg.name === '@storybook/test-runner' && pkg.dependencies.jest === '^29.6.4' ) {
-		pkg.dependencies.jest = '^30.0.0';
-		pkg.dependencies[ 'jest-circus' ] = '^30.0.0';
-		pkg.dependencies[ 'jest-environment-node' ] = '^30.0.0';
-		pkg.dependencies[ 'jest-runner' ] = '^30.0.0';
-		pkg.dependencies[ 'jest-watch-typeahead' ] = '^3.0.0';
+	// Update all glob 10 deps for CVE-2025-64756. The only difference from 10.4.4→11.0.0 is dropping node <20 support.
+	if ( pkg.dependencies?.glob?.match( /^\^10(?:\.\d+)*$/ ) ) {
+		pkg.dependencies.glob += ' || ^11.0.0';
 	}
-	// https://github.com/playwright-community/jest-playwright/issues/824
-	if ( pkg.name === 'jest-playwright-preset' && pkg.peerDependencies.jest === '^29.3.1' ) {
-		pkg.peerDependencies.jest += ' || ^30.0.0';
-		pkg.peerDependencies[ 'jest-circus' ] += ' || ^30.0.0';
-		pkg.peerDependencies[ 'jest-environment-node' ] += ' || ^30.0.0';
-		pkg.peerDependencies[ 'jest-runner' ] += ' || ^30.0.0';
+	if ( pkg.peerDependencies?.glob?.match( /^\^10(?:\.\d+)*$/ ) ) {
+		pkg.peerDependencies.glob += ' || ^11.0.0';
 	}
 
 	return pkg;
@@ -318,6 +292,12 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
 	) {
 		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
+	}
+
+	// Should be an optional peer dep, but isn't.
+	// Since it already has a (non-optional 🙄) peer dep on sass-embedded, we can just delete the sass dep.
+	if ( pkg.name === 'esbuild-sass-plugin' && pkg.dependencies.sass ) {
+		delete pkg.dependencies.sass;
 	}
 
 	return pkg;

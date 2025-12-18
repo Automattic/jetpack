@@ -13,7 +13,6 @@ return [
     // PhanPluginSimplifyExpressionBool : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
-    // PhanPluginRedundantAssignment : 1 occurrence
     // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
@@ -23,7 +22,7 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-cookiestate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentNullableInternal'],
+        'src/class-cookiestate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal'],
         'src/class-host.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-status.php' => ['PhanUndeclaredFunction'],

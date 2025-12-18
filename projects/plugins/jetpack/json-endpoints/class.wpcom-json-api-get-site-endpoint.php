@@ -98,6 +98,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_garden'                   => '(bool) If the site is a Garden site.',
 		'garden_name'                 => '(string) The name of the Garden site.',
 		'garden_partner'              => '(string) The partner of the Garden site.',
+		'garden_is_provisioned'       => '(bool) If the Garden site is provisioned.',
+		'is_wpcom_flex'               => '(bool) If the site is a Flex site',
 	);
 
 	/**
@@ -132,6 +134,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_atomic',
 		'is_wpcom_staging_site',
 		'is_deleted',
+		'is_wpcom_flex',
 		'is_a4a_client',
 		'is_a4a_dev_site',
 	);
@@ -216,6 +219,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
 		'is_summer_special_2025',
+		'is_gating_business_q1',
 		'site_intent',
 		'site_partner_bundle',
 		'onboarding_segment',
@@ -253,6 +257,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_garden',
 		'garden_name',
 		'garden_partner',
+		'garden_is_provisioned',
+		'is_wpcom_flex',
 	);
 
 	/**
@@ -270,7 +276,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Jetpack response option additions.
 	 *
-	 * @var array $jetpack_response_field_member_additions
+	 * @var array $jetpack_response_option_additions
 	 */
 	protected static $jetpack_response_option_additions = array(
 		'publicize_permanently_disabled',
@@ -313,7 +319,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	);
 
 	/**
-	 * Site
+	 * Site.
 	 *
 	 * @var SAL_Site $site.
 	 */
@@ -340,8 +346,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * /sites/mine
 	 * /sites/%s -> $blog_id\
 	 *
-	 * @param string $path - the path.
-	 * @param int    $blog_id - the blog ID.
+	 * @param string     $path - the path.
+	 * @param int|string $blog_id - the blog ID or the string 'mine'.
+	 *
+	 * @return array|\WP_Error Site response array on success, or WP_Error on failure.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		if ( 'mine' === $blog_id ) {
@@ -648,6 +656,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'garden_partner':
 				$response[ $key ] = $this->site->garden_partner();
 				break;
+			case 'garden_is_provisioned':
+				$response[ $key ] = $this->site->garden_is_provisioned();
+				break;
+			case 'is_wpcom_flex':
+				$response[ $key ] = $this->site->is_wpcom_flex();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
@@ -908,6 +922,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'is_summer_special_2025':
 					$options[ $key ] = $site->is_summer_special_2025();
 					break;
+				case 'is_gating_business_q1':
+					$options[ $key ] = $site->is_gating_business_q1();
+					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
 					break;
@@ -1091,6 +1108,8 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 *
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
+	 *
+	 * @return array|\WP_Error Array with 'formats' on success, or WP_Error on failure.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
@@ -1157,6 +1176,8 @@ class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoin
 	 *
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
+	 *
+	 * @return array|\WP_Error Array with 'templates' on success, or WP_Error on failure.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );

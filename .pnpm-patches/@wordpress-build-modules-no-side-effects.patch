@@ -1,0 +1,9 @@
+Hack for https://github.com/WordPress/gutenberg/issues/73363
+
+diff --git a/build-module/package.json b/build-module/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..089153bcb5adf57dc25f206a9dad3114c9cff80d
+--- /dev/null
++++ b/build-module/package.json
+@@ -0,0 +1 @@
++{"type":"module","sideEffects":false}

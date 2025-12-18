@@ -39,6 +39,13 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	 */
 	private $plugin;
 
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
+
+		// Avoid actually trying to send any mail.
+		add_filter( 'pre_wp_mail', '__return_true', PHP_INT_MAX );
+	}
+
 	/**
 	 * Setting up the test.
 	 */
@@ -99,6 +106,30 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Test GET feedback/count
+	 */
+	public function test_get_feedbacks_count_returns_200() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'inbox', $data );
+		$this->assertArrayHasKey( 'spam', $data );
+		$this->assertArrayHasKey( 'trash', $data );
+	}
+
+	/**
+	 * Test GET feedback/count unautorized.
+	 */
+	public function test_get_feedbacks_count_returns_401() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
 	 * Test DELETE feedback/trash
 	 */
 	public function test_empty_trash_returns_200() {
@@ -131,6 +162,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$schema_properties = $data['schema']['properties'];
 		$this->assertArrayHasKey( 'uid', $schema_properties );
 		$this->assertArrayHasKey( 'author_name', $schema_properties );
+		$this->assertArrayHasKey( 'author_display_name', $schema_properties );
 		$this->assertArrayHasKey( 'author_email', $schema_properties );
 		$this->assertArrayHasKey( 'author_url', $schema_properties );
 		$this->assertArrayHasKey( 'author_avatar', $schema_properties );
@@ -140,6 +172,15 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'entry_permalink', $schema_properties );
 		$this->assertArrayHasKey( 'subject', $schema_properties );
 		$this->assertArrayHasKey( 'fields', $schema_properties );
+		$this->assertArrayHasKey( 'is_unread', $schema_properties );
+
+		// Also make sure that we don't have fields that are not relevant to feedback.
+		$this->assertArrayNotHasKey( 'link', $schema_properties );
+		$this->assertArrayNotHasKey( 'password', $schema_properties );
+		$this->assertArrayNotHasKey( 'template', $schema_properties );
+		$this->assertArrayNotHasKey( 'title', $schema_properties );
+		$this->assertArrayNotHasKey( 'content', $schema_properties );
+		$this->assertArrayNotHasKey( 'excerpt', $schema_properties );
 	}
 
 	/**
@@ -160,7 +201,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 		// Verify required integrations exist
 		$this->assertArrayHasKey( 'akismet', $data );
-		$this->assertArrayHasKey( 'creative-mail-by-constant-contact', $data );
 		$this->assertArrayHasKey( 'zero-bs-crm', $data );
 		$this->assertArrayHasKey( 'google-drive', $data );
 		$this->assertArrayHasKey( 'mailpoet', $data );
@@ -202,7 +242,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		// Verify core integrations are present (by id)
 		$integration_ids = array_column( $data, 'id' );
 		$this->assertContains( 'akismet', $integration_ids );
-		$this->assertContains( 'creative-mail-by-constant-contact', $integration_ids );
 		$this->assertContains( 'zero-bs-crm', $integration_ids );
 		$this->assertContains( 'google-drive', $integration_ids );
 		$this->assertContains( 'mailpoet', $integration_ids );
@@ -250,6 +289,155 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test GET feedback/integrations-metadata returns 200 and expected structure
+	 */
+	public function test_get_integrations_metadata_returns_200() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations-metadata' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify response code
+		$this->assertEquals( 200, $response->get_status() );
+
+		// Verify basic structure (array format)
+		$this->assertIsArray( $data );
+		$this->assertNotEmpty( $data, 'Should have at least one integration' );
+
+		// Verify core integrations are present (by id)
+		$integration_ids = array_column( $data, 'id' );
+		$this->assertContains( 'akismet', $integration_ids );
+		$this->assertContains( 'zero-bs-crm', $integration_ids );
+		$this->assertContains( 'google-drive', $integration_ids );
+		$this->assertContains( 'mailpoet', $integration_ids );
+
+		// Verify structure of each integration - should only have metadata fields
+		foreach ( $data as $integration ) {
+			// Fields that SHOULD be present
+			$this->assertArrayHasKey( 'id', $integration );
+			$this->assertArrayHasKey( 'slug', $integration );
+			$this->assertArrayHasKey( 'type', $integration );
+			$this->assertArrayHasKey( 'title', $integration );
+			$this->assertArrayHasKey( 'subtitle', $integration );
+			$this->assertArrayHasKey( 'marketingUrl', $integration );
+			$this->assertArrayHasKey( 'enabledByDefault', $integration );
+
+			// Fields that should NOT be present (expensive to compute)
+			$this->assertArrayNotHasKey( 'isInstalled', $integration );
+			$this->assertArrayNotHasKey( 'isActive', $integration );
+			$this->assertArrayNotHasKey( 'isConnected', $integration );
+			$this->assertArrayNotHasKey( 'needsConnection', $integration );
+			$this->assertArrayNotHasKey( 'settingsUrl', $integration );
+			$this->assertArrayNotHasKey( 'pluginFile', $integration );
+			$this->assertArrayNotHasKey( 'version', $integration );
+			$this->assertArrayNotHasKey( 'details', $integration );
+
+			// Verify expected data types
+			$this->assertIsString( $integration['id'] );
+			$this->assertIsString( $integration['slug'] );
+			$this->assertIsString( $integration['type'] );
+			$this->assertTrue( $integration['title'] === '' || is_string( $integration['title'] ) );
+			$this->assertTrue( $integration['subtitle'] === '' || is_string( $integration['subtitle'] ) );
+			$this->assertTrue( $integration['marketingUrl'] === null || is_string( $integration['marketingUrl'] ) );
+			$this->assertIsBool( $integration['enabledByDefault'] );
+		}
+	}
+
+	/**
+	 * Test GET feedback/integrations-metadata unauthorized access
+	 */
+	public function test_get_integrations_metadata_returns_401() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations-metadata' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test that metadata endpoint does not make any external HTTP calls
+	 */
+	public function test_get_integrations_metadata_makes_no_external_calls() {
+		$http_requests_made = array();
+
+		// Hook into HTTP API to track any external requests
+		$http_filter = function ( $false, $parsed_args, $url ) use ( &$http_requests_made ) {
+			$http_requests_made[] = $url;
+			// Return a mock response to prevent actual calls
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array(), JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+
+		add_filter( 'pre_http_request', $http_filter, 10, 3 );
+
+		// Make the request
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations-metadata' );
+		$response = $this->server->dispatch( $request );
+
+		// Remove the filter
+		remove_filter( 'pre_http_request', $http_filter, 10 );
+
+		// Verify the endpoint returns 200
+		$this->assertEquals( 200, $response->get_status() );
+
+		// Verify NO external HTTP requests were made
+		$this->assertEmpty(
+			$http_requests_made,
+			'Metadata endpoint should not make any external HTTP requests. Found: ' . implode( ', ', $http_requests_made )
+		);
+
+		// Verify we still get data back
+		$data = $response->get_data();
+		$this->assertNotEmpty( $data, 'Should return integration metadata' );
+	}
+
+	/**
+	 * Test that metadata endpoint returns consistent data with full endpoint
+	 */
+	public function test_integrations_metadata_consistency_with_full_endpoint() {
+		// Fetch metadata endpoint
+		$metadata_request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations-metadata' );
+		$metadata_response = $this->server->dispatch( $metadata_request );
+		$metadata_data     = $metadata_response->get_data();
+
+		// Fetch full integrations endpoint
+		$full_request = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations' );
+		$full_request->set_param( 'version', 2 );
+		$full_response = $this->server->dispatch( $full_request );
+		$full_data     = $full_response->get_data();
+
+		// Both should return the same number of integrations
+		$this->assertSameSize( $full_data, $metadata_data, 'Metadata and full endpoints should return the same number of integrations' );
+
+		// Build a map of metadata by slug
+		$metadata_by_slug = array();
+		foreach ( $metadata_data as $meta ) {
+			$metadata_by_slug[ $meta['slug'] ] = $meta;
+		}
+
+		// Verify that metadata fields match between endpoints
+		foreach ( $full_data as $integration ) {
+			$slug = $integration['slug'];
+			$this->assertArrayHasKey( $slug, $metadata_by_slug, "Integration $slug should be in metadata endpoint" );
+
+			$meta = $metadata_by_slug[ $slug ];
+
+			// Compare shared fields
+			$this->assertEquals( $integration['id'], $meta['id'], "ID should match for $slug" );
+			$this->assertEquals( $integration['slug'], $meta['slug'], "Slug should match for $slug" );
+			$this->assertEquals( $integration['type'], $meta['type'], "Type should match for $slug" );
+			$this->assertEquals( $integration['title'], $meta['title'], "Title should match for $slug" );
+			$this->assertEquals( $integration['subtitle'], $meta['subtitle'], "Subtitle should match for $slug" );
+			$this->assertEquals( $integration['marketingUrl'], $meta['marketingUrl'], "Marketing URL should match for $slug" );
+			$this->assertEquals( $integration['enabledByDefault'], $meta['enabledByDefault'], "Enabled by default should match for $slug" );
+		}
 	}
 
 	/**
@@ -424,16 +612,13 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		// Required keys
 		$expected_keys = array(
 			'formsResponsesUrl',
-			'preferredView',
 			'isMailPoetEnabled',
 			'blogId',
 			'gdriveConnectSupportURL',
 			'pluginAssetsURL',
 			'siteURL',
 			'hasFeedback',
-			'hasAI',
 			'isIntegrationsEnabled',
-			'renderMigrationPage',
 			'dashboardURL',
 			'canInstallPlugins',
 			'canActivatePlugins',
@@ -509,6 +694,15 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		remove_filter( 'wp_mail', array( $this, 'mock_wp_mail_succeeded' ) );
 	}
 
+	public function test_404_single_feedback_response() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/999999' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 404, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_post_invalid_id', $data['code'] );
+		$this->assertEquals( 'Invalid post ID.', $data['message'] );
+	}
+
 	/**
 	 * Mock wp_mail_succeeded filter
 	 */
@@ -526,9 +720,11 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 		$this->assertArrayHasKey( 'parent', $params );
 		$this->assertArrayHasKey( 'parent_exclude', $params );
+		$this->assertArrayHasKey( 'is_unread', $params );
 
 		$this->assertEquals( 'array', $params['parent']['type'] );
 		$this->assertEquals( 'array', $params['parent_exclude']['type'] );
+		$this->assertEquals( 'boolean', $params['is_unread']['type'] );
 
 		$this->assertEquals( 'integer', $params['parent']['items']['type'] );
 		$this->assertEquals( 'integer', $params['parent_exclude']['items']['type'] );
@@ -666,5 +862,235 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 
 		$this->assertArrayHasKey( 'has_file', $data );
 		$this->assertFalse( $data['has_file'] );
+	}
+
+	/**
+	 * Test default unread state on new feedback
+	 */
+	public function test_feedback_is_unread_by_default() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			true // is_unread
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertArrayHasKey( 'is_unread', $data );
+		$this->assertTrue( $data['is_unread'] );
+
+		// Verify Feedback class method
+		$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
+		$this->assertTrue( $feedback->is_unread() );
+	}
+
+	/**
+	 * Test marking feedback as read
+	 */
+	public function test_mark_feedback_as_read() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'',
+			'publish',
+			false,
+			true // is_unread
+		);
+
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( $post_id, $data['id'] );
+		$this->assertFalse( $data['is_unread'] );
+
+		// Verify the state persists
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertFalse( $data['is_unread'] );
+
+		// Verify Feedback class method
+		$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
+		$this->assertFalse( $feedback->is_unread() );
+	}
+
+	/**
+	 * Test marking feedback as read
+	 */
+	public function test_mark_feedback_as_read_on_non_feedback() {
+
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/99999999/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+	}
+
+	/**
+	 * Test marking feedback as read
+	 */
+	public function test_mark_feedback_as_unread_on_non_feedback() {
+
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/99999999/read' );
+		$request->set_param( 'is_unread', true );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+	}
+
+	public function test_bad_db_read_update() {
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'',
+			'publish',
+			false,
+			true // is_unread
+		);
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertEquals( 500, $response->get_status() );
+	}
+
+	public function test_bad_db_unread_update() {
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'',
+			'publish',
+			false,
+			false // is_unread
+		);
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', true );
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertEquals( 500, $response->get_status() );
+	}
+
+	/**
+	 * Test marking feedback as unread
+	 */
+	public function test_mark_feedback_as_unread() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com'
+		);
+
+		// First mark as read
+		wp_update_post(
+			array(
+				'ID'             => $post_id,
+				'comment_status' => 'closed',
+			)
+		);
+
+		// Then mark as unread
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', true );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( $post_id, $data['id'] );
+		$this->assertTrue( $data['is_unread'] );
+
+		// Verify Feedback class method
+		$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
+		$this->assertTrue( $feedback->is_unread() );
+	}
+
+	/**
+	 * Test marking feedback with invalid ID
+	 */
+	public function test_mark_feedback_with_invalid_id() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/999999/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_post_invalid_id', $data['code'] );
+	}
+
+	/**
+	 * Test unauthorized access to mark feedback
+	 */
+	public function test_mark_feedback_unauthorized() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com'
+		);
+
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
 	}
 }

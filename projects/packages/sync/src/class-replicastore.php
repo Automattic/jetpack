@@ -873,6 +873,7 @@ class Replicastore implements Replicastore_Interface {
 		if ( ! $t || is_wp_error( $t ) ) {
 			return $t;
 		}
+		// @phan-suppress-next-line PhanAccessMethodInternal -- the @internal annotation is for an internal comment, not to mark the function as internal
 		return get_terms( $taxonomy );
 	}
 

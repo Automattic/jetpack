@@ -5,6 +5,7 @@ import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubje
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
+import type { TextProps } from '@visx/text/lib/Text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 
@@ -28,6 +29,11 @@ export type DataPoint = {
 	label: string;
 	value: number;
 };
+
+/**
+ * Data format for GeoChart - maps country codes (ISO 3166-1 alpha-2, e.g., 'US', 'GB') to numeric values
+ */
+export type GeoData = Record< string, number >;
 
 export type DataPointDate = {
 	date?: Date;
@@ -89,8 +95,20 @@ export type LeaderboardEntry = {
 	imageColor?: string;
 };
 
+export type GradientStop = {
+	offset: string;
+	color?: string;
+	opacity?: number;
+};
+
 export type SeriesDataOptions = {
-	gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
+	gradient?: {
+		from: string;
+		to: string;
+		fromOpacity?: number;
+		toOpacity?: number;
+		stops?: GradientStop[];
+	};
 	stroke?: string;
 	seriesLineStyle?: LineStyles;
 	legendShapeStyle?: CSSProperties;
@@ -170,7 +188,14 @@ export type ChartTheme = {
 	legendLabelStyles?: CSSProperties;
 	/** Styles for legend container */
 	legendContainerStyles?: CSSProperties;
+	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
+	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
+	/** GeoChart specific settings */
+	geoChart?: {
+		/** Default fill color for a geo chart feature (e.g. country) with no data */
+		featureFillColor?: string;
+	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
 		/** Gap between rows in the leaderboard grid */
@@ -200,6 +225,18 @@ export type ChartTheme = {
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
+	/** Sparkline specific settings */
+	sparkline?: {
+		/** Margin around the sparkline chart */
+		margin?: {
+			top?: number;
+			right?: number;
+			bottom?: number;
+			left?: number;
+		};
+		/** Stroke width for the sparkline line */
+		strokeWidth?: number;
+	};
 };
 
 /**
@@ -207,10 +244,21 @@ export type ChartTheme = {
  * Useful for merged themes where defaults are provided for all optional properties.
  */
 export type CompleteChartTheme = Required< ChartTheme > & {
-	leaderboardChart: Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >;
-	conversionFunnelChart: Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >;
+	leaderboardChart: Omit<
+		Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >,
+		'primaryColor' | 'secondaryColor'
+	> &
+		Pick< NonNullable< ChartTheme[ 'leaderboardChart' ] >, 'primaryColor' | 'secondaryColor' >;
+	conversionFunnelChart: Omit<
+		Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >,
+		'primaryColor'
+	> &
+		Pick< NonNullable< ChartTheme[ 'conversionFunnelChart' ] >, 'primaryColor' >;
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
+	};
+	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
+		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
 };
 
@@ -222,6 +270,10 @@ declare type AxisOptions = {
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * Whether to display this axis. Defaults to true.
+	 */
+	display?: boolean;
 	/**
 	 * For more control over rendering or to add event handlers to datum, pass a function as children.
 	 */
@@ -344,9 +396,25 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	legendTextOverflow?: 'ellipsis' | 'wrap';
 	/**
+	 * Additional CSS class name for legend items.
+	 * This allows consumers to customize individual legend item styling.
+	 */
+	legendItemClassName?: string;
+	/**
+	 * Enable interactive legend items that can toggle series visibility.
+	 * Supported for LineChart, PieChart, and PieSemiCircleChart.
+	 * Requires chartId and GlobalChartsProvider.
+	 * For pie charts, percentages are recalculated so visible segments total 100%.
+	 */
+	legendInteractive?: boolean;
+	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+	/**
+	 * Whether to show chart animation on initial render or not
+	 */
+	animation?: boolean;
 
 	/**
 	 * More options for the chart.

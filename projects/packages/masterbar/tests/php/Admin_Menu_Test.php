@@ -132,81 +132,6 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_posts_menu
-	 */
-	public function test_add_posts_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_posts_menu();
-		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, $submenu['edit.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][2][2] );
-	}
-
-	/**
-	 * Tests add_media_menu
-	 */
-	public function test_add_media_menu() {
-		global $menu, $submenu;
-
-		static::$admin_menu->add_media_menu();
-
-		$this->assertSame( 'https://wordpress.com/media/' . static::$domain, $menu[10][2] );
-		$this->assertFalse( static::$admin_menu->has_visible_items( $submenu['upload.php'] ) );
-	}
-
-	/**
-	 * Tests add_page_menu
-	 */
-	public function test_add_page_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_page_menu();
-		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, $submenu['edit.php?post_type=page'][0][2] );
-		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][2][2] );
-	}
-
-	/**
-	 * Tests add_custom_post_type_menu
-	 */
-	public function test_add_custom_post_type_menu() {
-		global $menu, $submenu;
-
-		// Don't show post types that don't want to be shown.
-		get_post_type_object( 'revision' );
-		static::$admin_menu->add_custom_post_type_menu( 'revision' );
-		$last_item = array_pop( $menu );
-		$this->assertNotSame( 'https://wordpress.com/types/revision/' . static::$domain, $last_item[2] );
-
-		register_post_type(
-			'custom_test_type',
-			array(
-				'label'         => 'Custom Test Types',
-				'show_ui'       => true,
-				'menu_position' => 2020,
-			)
-		);
-
-		static::$admin_menu->add_custom_post_type_menu( 'custom_test_type' );
-
-		// Clean up.
-		unregister_post_type( 'custom_test_type' );
-		$this->assertSame( 'https://wordpress.com/types/custom_test_type/' . static::$domain, $submenu['edit.php?post_type=custom_test_type'][0][2] );
-		$this->assertSame( 'https://wordpress.com/edit/custom_test_type/' . static::$domain, $submenu['edit.php?post_type=custom_test_type'][2][2] );
-	}
-
-	/**
-	 * Tests add_comments_menu
-	 */
-	public function test_add_comments_menu() {
-		global $menu, $submenu;
-
-		static::$admin_menu->add_comments_menu();
-
-		$this->assertSame( 'https://wordpress.com/comments/all/' . static::$domain, $menu[25][2] );
-		$this->assertFalse( self::$admin_menu->has_visible_items( $submenu['edit-comments.php'] ) );
-	}
-
-	/**
 	 * Tests add_appearance_menu
 	 */
 	public function test_add_appearance_menu() {
@@ -283,18 +208,6 @@ class Admin_Menu_Test extends TestCase {
 
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
 		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][3][2] );
-	}
-
-	/**
-	 * Tests add_tools_menu
-	 */
-	public function test_add_tools_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu();
-
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][2][2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][3][2] );
 	}
 
 	/**

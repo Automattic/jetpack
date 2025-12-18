@@ -96,6 +96,7 @@ export const JETPACK_NON_PAID_MODULES = [
 	'comments',
 	'contact-form',
 	'copy-post',
+	'custom-content-types',
 	'google-fonts',
 	'gravatar-hovercards',
 	'infinite-scroll',

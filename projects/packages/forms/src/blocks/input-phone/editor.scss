@@ -16,6 +16,7 @@
 		&.is-selected {
 			border-color: #2271b1;
 			box-shadow: 0 0 0 1px #2271b1;
+			z-index: 1;
 		}
 
 		// these class is used to style input and textarea elements
@@ -101,10 +102,6 @@
 
 .is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-phone,
 .is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
-
-	.jetpack-field__input {
-		padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
-	}
 
 	&:not(.has-placeholder):not(.is-selected),
 	&:not(.has-placeholder):not(.has-child-selected) {

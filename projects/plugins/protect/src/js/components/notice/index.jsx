@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { check, close, info, warning, Icon } from '@wordpress/icons';
+import { check, close, info, cautionFilled as warning, Icon } from '@wordpress/icons';
 import { useCallback, useEffect } from 'react';
 import useNotices from '../../hooks/use-notices';
 import styles from './styles.module.scss';

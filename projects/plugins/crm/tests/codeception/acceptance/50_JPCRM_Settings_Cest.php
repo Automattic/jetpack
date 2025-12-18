@@ -186,7 +186,7 @@ class JPCRM_Settings_Cest {
 
 		$I->submitForm( 'form', $tax_data );
 
-		$I->seeInSource( '{"id":"1","owner":"1","name":"IGIC","rate":"7.00"' );
+		$I->seeInSource( '{"id":"1","owner":"1","name":"IGIC","rate":"7.0000000000"' );
 	}
 
 	public function see_license_settings( AcceptanceTester $I ) {

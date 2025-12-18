@@ -6,7 +6,11 @@
 
 name: Linting
 
-on: pull_request
+on:
+  pull_request:
+  push:
+    branches:
+      - trunk
 concurrency:
   group: linting-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -14,13 +18,23 @@ concurrency:
 env:
   COMPOSER_ROOT_VERSION: "dev-trunk"
 
+permissions:
+  # actions/checkout
+  contents: read
+
 jobs:
 
   ### Job to categorize changed files. Other jobs depend on this to know when they should run.
+  ### On trunk pushes, all jobs run (no file filtering).
   changed_files:
     name: detect changed files
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+    timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds
+    permissions:
+      # actions/checkout
+      contents: read
+      # dorny/paths-filter
+      pull-requests: read
     outputs:
       # Whether any PHP files have changed.
       php: ${{ steps.filter.outputs.php }}
@@ -46,7 +60,7 @@ jobs:
       # Whether any miscellaneous files related to JS linting have changed.
       misc_js: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_js == 'true' }}
 
-      # Whether any miscellaneous files related to JS linting have changed.
+      # Whether any miscellaneous files related to CSS linting have changed.
       misc_css: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_css == 'true' }}
 
       # JSON string holding an array of files in phpcs-excludelist.json that have changed.
@@ -62,9 +76,11 @@ jobs:
       phanstubs: ${{ steps.filter.outputs.phanstubs == 'true' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - if: github.event_name == 'pull_request'
+        uses: actions/checkout@v6
 
-      - uses: dorny/paths-filter@v3
+      - if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           list-files: json
@@ -154,7 +170,8 @@ jobs:
               # If auto-generated Phan stub files are changed, we may want to post a warning to the PR.
               - '.phan/stubs/**'
 
-      - id: filterPHP
+      - if: github.event_name == 'pull_request'
+        id: filterPHP
         shell: bash
         env:
           PHP_FILES: ${{ steps.filter.outputs.php_files }}
@@ -164,7 +181,8 @@ jobs:
           echo "Excluded files:"
           jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
-      - id: filterJS
+      - if: github.event_name == 'pull_request'
+        id: filterJS
         shell: bash
         env:
           JS_FILES: ${{ steps.filter.outputs.js_files }}
@@ -174,7 +192,8 @@ jobs:
           echo "Excluded files:"
           jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
-      - id: filterExcludeList
+      - if: github.event_name == 'pull_request'
+        id: filterExcludeList
         shell: bash
         env:
           FILES: ${{ steps.filter.outputs.excludelist_files }}
@@ -186,21 +205,24 @@ jobs:
 
   ### Runs `php -l` over all PHP files, in all relevant PHP versions
   # Local equivalent: `composer php:lint`
+  # We don't use an `if` here because GH Actions had issues expanding the name when we did. See also:
+  #    - https://github.com/Automattic/jetpack/pull/17940
+  #    - https://github.com/Automattic/jetpack/pull/18979
   php_lint:
     name: PHP lint (${{ matrix.php-versions }})
     runs-on: ubuntu-latest
     needs: changed_files
     continue-on-error: ${{ matrix.experimental }}
-    timeout-minutes: 3  # 2021-01-18: Successful runs seem to take ~1 minute
+    timeout-minutes: 3  # 2025-11-06: Successful runs seem to take ~1 minute
 
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [ '7.2', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ]
+        php-versions: [ '7.2', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ]
         experimental: [ false ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -224,15 +246,17 @@ jobs:
 
   ### Runs phpcs on all PHP files not listed in phpcs-excludelist.json.
   # Local equivalent: `composer phpcs:lint:required`
+  # On trunk: runs on all non-excluded PHP files
+  # On PRs: runs only if PHP files or relevant config changed
   phpcs:
     name: PHP Code Sniffer (non-excluded files only)
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
-    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
+    if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
+    timeout-minutes: 5  # 2025-11-06: Successful runs seem to take ~2 minutes. Leaving some extra for future expansion.
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -250,15 +274,17 @@ jobs:
 
   ### Runs PHPCompatibility over all PHP files.
   # Local equivalent: `composer phpcs:compatibility`
+  # On trunk: runs on all PHP files
+  # On PRs: runs only if PHP files or relevant config changed
   phpcompatibility:
     name: PHP Compatibility
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
-    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
+    if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
+    timeout-minutes: 5  # 2025-11-06: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -283,13 +309,13 @@ jobs:
     name: PHP Code Sniffer (changes to excluded files only)
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.php_excluded_files != '[]'
+    if: github.event_name == 'pull_request' && needs.changed_files.outputs.php_excluded_files != '[]'
     continue-on-error: true
-    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
+    timeout-minutes: 5  # 2025-11-06: Successful runs seem to take 30 seconds. Leaving some extra for future expansion.
 
     steps:
       # We don't need full git history, but phpcs-changed does need everything up to the merge-base.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -316,15 +342,17 @@ jobs:
 
   ### Runs eslint on JS files not listed in eslint-excludelist.json
   # Local equivalent: `pnpm run lint-required`
+  # On trunk: runs on all non-excluded JS files
+  # On PRs: runs only if JS files or relevant config changed
   eslint:
     name: ESLint (non-excluded files only)
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
-    timeout-minutes: 10  # 2021-03-05: Runs now take ~5 minutes due to now installing all php/js deps to ensure valid linting.
+    if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
+    timeout-minutes: 10  # 2025-11-06: Runs now take ~5 minutes due to now installing all php/js deps to ensure valid linting.
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -342,13 +370,13 @@ jobs:
     name: ESLint (changes to excluded files only)
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.js_excluded_files != '[]'
+    if: github.event_name == 'pull_request' && needs.changed_files.outputs.js_excluded_files != '[]'
     continue-on-error: true
-    timeout-minutes: 10  # 2021-03-05: Taking ~4:30 now due to now installing all php/js deps to ensure valid linting.
+    timeout-minutes: 10  # 2025-11-06: Takes about a minute, but rarely runs.
 
     steps:
       # We don't need full git history, but eslint-changed does need everything up to the merge-base.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -367,15 +395,17 @@ jobs:
 
   ### Runs lint-style on all CSS/SCSS files in the monorepo except those ignored in .stylelintignore.
   # Local equivalent: `pnpm run lint-style .`
+  # On trunk: runs on all CSS/SCSS files
+  # On PRs: runs only if CSS/SCSS files or relevant config changed
   lint_style:
     name: Stylelint
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.css == 'true' || needs.changed_files.outputs.misc_css == 'true'
-    timeout-minutes: 5  # 2025-04-03: Takes about a minute, so give a little wiggle room.
+    if: github.event_name == 'push' || needs.changed_files.outputs.css == 'true' || needs.changed_files.outputs.misc_css == 'true'
+    timeout-minutes: 5  # 2025-11-06: Takes a bit more than a minute, so give a little wiggle room.
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -387,14 +417,16 @@ jobs:
 
   ### Lints GitHub Actions yaml files.
   # Local equivalent: `./tools/js-tools/lint-gh-actions.mjs <files>`
+  # On trunk: runs on all GitHub Actions yaml files
+  # On PRs: runs only if GitHub Actions files or relevant config changed
   lint_gh_actions:
     name: Lint GitHub Actions yaml files
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.ghactionsfiles == 'true' || needs.changed_files.outputs.misc == 'true'
-    timeout-minutes: 5  # 2021-03-24: Pnpm stuff takes about a minute.
+    if: github.event_name == 'push' || needs.changed_files.outputs.ghactionsfiles == 'true' || needs.changed_files.outputs.misc == 'true'
+    timeout-minutes: 5  # 2025-11-06: Takes less than a minute.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -410,22 +442,24 @@ jobs:
   copied_files:
     name: Copied files are in sync
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds.
+    timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds.
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: ./tools/check-copied-files.sh
 
   ### Runs tools/cleanup-excludelists.sh and checks for any changes
   # Local equivalent: `tools/cleanup-excludelists.sh`
+  # On trunk: always runs
+  # On PRs: runs only if excludelist-related files changed
   check_excludelists:
     name: Check linter exclude lists
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.excludelist == 'true'
-    timeout-minutes: 10  # 2022-05-11: The check itself takes 4 minutes.
+    if: github.event_name == 'push' || needs.changed_files.outputs.excludelist == 'true'
+    timeout-minutes: 10  # 2025-11-06: The check itself takes 2 minutes.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -443,11 +477,12 @@ jobs:
   # Local equivalent: Probably `tools/check-changelogger-use.php origin/trunk HEAD`
   changelogger_used:
     name: Changelogger use
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2021-03-24: Takes about a minute.
+    timeout-minutes: 5  # 2025-11-06: Takes a few seconds.
     steps:
       # We don't need full git history, but tools/check-changelogger-use.php does need everything up to the merge-base.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -469,9 +504,9 @@ jobs:
   changelogger_valid:
     name: Changelogger validity
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2021-03-24: Takes about a minute
+    timeout-minutes: 5  # 2025-11-06: Takes less than a minute.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -484,14 +519,16 @@ jobs:
   ### Checks that lock files are up to date.
   # Local equivalent: .github/files/check-lock-files.sh
   # Note that may modify lock files in your working tree!
+  # On trunk: always runs
+  # On PRs: runs only if lock files or relevant config changed
   lock_files:
     name: "Lock files are up to date"
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
-    timeout-minutes: 7  # 2021-03-17: Successful runs seem to take 3+ minutes, thanks to pnpm building stuff.
+    if: github.event_name == 'push' || needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
+    timeout-minutes: 7  # 2025-11-06: Successful runs seem to take about 2 minutes.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -500,14 +537,16 @@ jobs:
 
   ### Check that monorepo packages are correctly referenced.
   # Local equivalent: tools/check-intra-monorepo-deps.sh -v && .github/files/check-monorepo-package-repos.sh
+  # On trunk: always runs
+  # On PRs: runs only if lock files or relevant config changed
   monorepo_package_refs:
     name: Monorepo package version refs
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
-    timeout-minutes: 5  # 2022-03-25: The pnpm install will probably take a minute or so.
+    if: github.event_name == 'push' || needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
+    timeout-minutes: 7  # 2025-11-06: Takes a minute or two.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - run: pnpm install
@@ -519,9 +558,9 @@ jobs:
   project_structure:
     name: Project structure
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2021-03-24: Pnpm stuff takes about a minute.
+    timeout-minutes: 5  # 2025-11-06: Takes a minute or two.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -534,10 +573,15 @@ jobs:
     name: Phan stubs
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.phanstubs == 'true' && github.event.pull_request.user.login != 'matticbot'
-    timeout-minutes: 5  # 2025-07-28: Probably takes about a minute.
+    if: github.event_name == 'pull_request' && needs.changed_files.outputs.phanstubs == 'true' && github.event.pull_request.user.login != 'matticbot'
+    timeout-minutes: 5  # 2025-11-06: Probably takes about a minute.
+    permissions:
+      # actions/checkout
+      contents: read
+      # step "Warn about stubs"
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/deepen-to-merge-base
         id: deepen
       - name: Warn about stubs
@@ -559,3 +603,103 @@ jobs:
             gh api "/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" -X POST --input - <<<"$REQ"
             exit 1
           fi
+
+  typecheck:
+    name: Type checking
+    runs-on: ubuntu-latest
+    timeout-minutes: 10 # 2025-11-20: Takes around 3 minutes.
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+      - name: Pnpm install
+        run: pnpm install
+      - name: Run type checking
+        # Can't just `pnpm typecheck` here, GitHub won't match the output files correctly
+        # and unfortunately https://github.com/microsoft/TypeScript/issues/36221 is still open.
+        run: |
+          EXIT=0
+          set -o pipefail
+          for DIR in $( jq -r 'if .scripts.typecheck then input_filename | sub( "/package.json"; "" ) else empty end' projects/*/*/package.json projects/*/*/tests/e2e/package.json tools/*/package.json 2>/dev/null ); do
+            if ! ( cd "$DIR" && pnpm run typecheck ) | sed -uE 's#^.+\([0-9,]+\): error #'"$DIR"'/&#'; then
+              EXIT=1
+            fi
+          done
+          exit $EXIT
+
+  phan:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+      - name: Pnpm install
+        run: pnpm install
+      - name: Add back removed packages in case of a release branch.
+        run: |
+          echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
+          for FILE in projects/*/*/composer.json; do
+            PKGS=()
+            readarray -t PKGS < <( jq -r '.extra["non-mirrored-require-dev"] // empty | .[] | . += "=@dev"' "$FILE" )
+            if [[ ${#PKGS[@]} -gt 0 ]]; then
+              echo "::group::Adding packages for $FILE: ${PKGS[*]}"
+              # Make sure monorepo repositories entry is present.
+              JSON=$( jq --tab '.repositories //= [] | if any( .repositories[]; .type == "path" and ( .url | startswith( "../" ) ) and .options?.monorepo? ) then . else .repositories += [ { type: "path", url: "../../packages/*", options: { monorepo: true } } ] end' "$FILE" )
+              echo "$JSON" > "$FILE"
+              composer require --working-dir="${FILE%/composer.json}" --dev "${PKGS[@]}"
+              echo "::endgroup::"
+            fi
+          done
+      - name: Run phan
+        run: pnpm jetpack phan --all -v --update-baseline --format github
+      - name: Run phan for previous WP version and old Woo
+        env:
+          # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
+          NO_PHAN_UNUSED_SUPPRESSION: 1
+        run: |
+          composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs php-stubs/woocommerce-stubs
+          # Don't re-update baselines here, only check.
+          pnpm jetpack phan --all -v --format github
+      - name: Check baselines
+        run: |
+          # Anything changed? (with a side of printing the diff)
+          if git diff --exit-code --ignore-matching-lines='^    // ' -- .phan/baseline.php '*/.phan/baseline.php'; then
+            exit 0
+          fi
+
+          # Collect which projects changed to suggest the right command.
+          PROJECTS=()
+          for f in $( git -c core.quotepath=off diff --name-only -- .phan/baseline.php '*/.phan/baseline.php' ); do
+            # --name-only and --ignore-matching-lines don't combine, so we have to do the check separately.
+            if git diff --quiet --exit-code --ignore-matching-lines='^    // ' -- "$f"; then
+              continue
+            fi
+
+            if [[ "$f" == ".phan/baseline.php" ]]; then
+              SLUG=monorepo
+            elif [[ "$f" == projects/*/*/.phan/baseline.php ]]; then
+              SLUG=${f%/.phan/baseline.php}
+              SLUG=${SLUG#projects/}
+            elif SLUG=$( grep -v '^[ \t]*\/\/' .phan/monorepo-pseudo-projects.jsonc | jq -re --arg f "${f%.phan/baseline.php}" 'to_entries[] | select( .value == $f ) | .key' ); then
+              : # Ok
+            else
+              SLUG=
+            fi
+            if grep -q 'This baseline has no suppressions' "$f"; then
+              if [[ -n "$SLUG" ]]; then
+                echo "::error file=$f::This Phan baseline is now empty (good job!). You may remove it, or if you want to keep it (e.g. if you expect new unfixed issues to be added in the future) you can run \`jetpack phan --update-baseline $SLUG\` to update it."
+              else
+                echo "::error file=$f::This Phan baseline is now empty (good job!). You may remove it."
+              fi
+            elif [[ -n "$SLUG" ]]; then
+              PROJECTS+=( "$SLUG" )
+            else
+              echo "::error file=$f::This Phan baseline has changed and should be updated. This Action was unable to determine the command needed to update it; please report this to the Monorepo team."
+            fi
+          done
+          if [[ ${#PROJECTS[@]} -gt 0 ]]; then
+            echo "::error::Phan baselines have changed (good job!). Run \`jetpack phan --update-baseline ${PROJECTS[*]}\` to update them."
+          fi
+          exit 1

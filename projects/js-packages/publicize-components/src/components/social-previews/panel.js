@@ -30,7 +30,7 @@ const SocialPreviewsPanel = ( { openModal } ) => {
 			<Button
 				variant="secondary"
 				onClick={ openModal }
-				label={ __( 'Open Social Previews', 'jetpack-publicize-components' ) }
+				label={ __( 'Open link preview', 'jetpack-publicize-components' ) }
 			>
 				{ _x(
 					'Preview',

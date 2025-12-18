@@ -1,8 +1,8 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { store as singleStepStore } from '../../../store/form-step-preview';
-import useFormSteps from './use-form-steps';
+import { store as singleStepStore } from '../../../store/form-step-preview.js';
+import useFormSteps from './use-form-steps.js';
 
 /**
  * Custom hook to manage navigation between form steps.

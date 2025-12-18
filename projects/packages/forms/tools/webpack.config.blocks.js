@@ -1,10 +1,15 @@
 /**
- *WARNING: No ES6 modules here. Not transpiled! ****
+ * Webpack config for blocks
  */
 
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
+import path from 'path';
+import { fileURLToPath } from 'url';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
+import autoprefixer from 'autoprefixer';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = path.dirname( __filename );
 
 /**
  * Internal variables
@@ -42,6 +47,13 @@ const sharedWebpackConfig = {
 	module: {
 		strictExportPresence: true,
 		rules: [
+			// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
+			// https://github.com/WordPress/gutenberg/issues/73362
+			{
+				test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
+				resolve: { fullySpecified: false },
+			},
+
 			// Transpile JavaScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
@@ -68,7 +80,7 @@ const sharedWebpackConfig = {
 						loader: 'postcss-loader',
 						options: {
 							// postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
+							postcssOptions: { plugins: [ autoprefixer ] },
 						},
 					},
 					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
@@ -84,7 +96,7 @@ const sharedWebpackConfig = {
 	},
 };
 
-module.exports = [
+export default [
 	{
 		...sharedWebpackConfig,
 		plugins: [

@@ -55,7 +55,8 @@ class WordAds_Consent_Management_Provider {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		if ( ! isset( $_POST['consent'] ) ) {
-			wp_send_json_error();
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_error( null, null, JSON_UNESCAPED_SLASHES );
 		}
 
 		// TODO: Is there better sanitizing we can do here?
@@ -63,7 +64,8 @@ class WordAds_Consent_Management_Provider {
 
 		setcookie( self::COOKIE_NAME, $consent, time() + YEAR_IN_SECONDS, '/', self::get_cookie_domain(), is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- Client side CMP needs to be able to read this value.
 
-		wp_send_json_success( true );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_success( true, null, JSON_UNESCAPED_SLASHES );
 
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}

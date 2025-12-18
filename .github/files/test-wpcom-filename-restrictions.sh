@@ -4,8 +4,8 @@ set -eo pipefail
 
 source "$GITHUB_WORKSPACE/trunk/.github/files/gh-funcs.sh"
 
-# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/050-stop-underscores.sh
-IGNORE_UNDERSCORE_RULE_FOR='bin/wp-cli|bin/wp-cli-wpcom|wp-includes/sodium_compat|wp-content/plugins/glotpress|.phabricator-linter|wp-content/lib/nosara/ThriftSQL.src/ThriftGenerated/|wp-content/lib/aws/vendor/|wp-content/plugins/woocommerce/|wp-content/plugins/woocommerce-payments/|wp-content/plugins/woocommerce-subscriptions/|wp-content/plugins/p2(-wpcom)?|wp-content/lib/google/|wp-content/plugins/woo-gutenberg-products-block/vendor/|/autoload_|/vendor/composer/|wp-content/a8c-plugins/one-offs/a8cmaileditor/'
+# Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (050_stop_underscores)
+IGNORE_UNDERSCORE_RULE_FOR='bin/wp-cli|bin/wp-cli-wpcom|wp-includes/sodium_compat|wp-content/plugins/glotpress|.phabricator-linter|wp-content/lib/nosara/ThriftSQL.src/ThriftGenerated/|wp-content/lib/aws/vendor/|wp-content/plugins/woocommerce/|wp-content/plugins/woocommerce-payments/|wp-content/plugins/woocommerce-subscriptions/|wp-content/plugins/p2(-wpcom)?|wp-content/lib/google/|wp-content/plugins/woo-gutenberg-products-block/vendor/|/autoload_|/vendor/composer/|wp-content/a8c-plugins/one-offs/a8cmaileditor/|docs/vendor/'
 function check_underscores {
 	local FILE="$1"
 	if echo "$PREFIX/$FILE" |
@@ -22,30 +22,29 @@ function check_underscores {
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/120-stop-invalid-chars.sh
+# Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (120_stop_invalid_characters)
 function check_invalid_chars {
 	local FILE="$1"
-	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/-]' <<<"$FILE" || true )
+	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@-]' <<<"$FILE" || true )
 	if [[ -n "$Z" ]]; then
 		echo '  ❌ Filename contains disallowed characters!'
-		local snark=
-		if [[ "$FILE" =~ @ ]]; then
-			snark=$' Yes, it\'s silly `@` is not allowed when many such files already exist, but 🤷.'
-		fi
-		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, and `-` are allowed.'"$snark"
+		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, `@`, and `-` are allowed.'
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/376c99d3/common/130-stop-executables.sh
+# Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (130_stop_executables)
 function check_executable {
 	local FILE="$1"
-	if [[ "$( git ls-files -s "${FILE}" | awk '{ print $1 }' )" == "100755" ]]; then
+	local line=$( git diff --cached --raw "${FILE}" )
+	local old_mode="$(echo "$line" | cut -d' ' -f1 | cut -c2-)"
+	local new_mode="$(echo "$line" | cut -d' ' -f2)"
+	if [[ "100755" == "$new_mode" && "100755" != "$old_mode" ]]; then
 		echo '  ❌ File cannot be executable!'
 		failed "$SLUG: File \`$FILE\` may not be executable"
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/160-stop-symlinks.sh
+# Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (160_stop_symlinks)
 function check_symlink {
 	local FILE="$1"
 	if [[ "$( git ls-files -s "${FILE}" | awk '{ print $1 }' )" == "120000" ]]; then
@@ -167,6 +166,7 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 	echo 'Modified files:'
 	while IFS= read -r FILE; do
 		echo "- $FILE"
+		check_executable "$FILE"
 		check_symlink "$FILE"
 	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=M )
 

@@ -1,5 +1,5 @@
 import { createBlock } from '@wordpress/blocks';
-import deprecateFieldStyles from '../util/deprecate-field-styles';
+import deprecateFieldStyles from '../util/deprecate-field-styles.js';
 
 const INNER_BLOCKS_DEPRECATION = {
 	attributes: {
@@ -13,6 +13,10 @@ const INNER_BLOCKS_DEPRECATION = {
 		},
 		requiredText: {
 			type: 'string',
+		},
+		requiredIndicator: {
+			type: 'boolean',
+			default: true,
 		},
 		options: {
 			type: 'array',
@@ -92,6 +96,7 @@ const INNER_BLOCKS_DEPRECATION = {
 			createBlock( 'jetpack/label', {
 				label: attributes.label,
 				requiredText: attributes.requiredText,
+				requiredIndicator: attributes.requiredIndicator,
 				style: labelStyles,
 			} ),
 			createBlock( 'jetpack/input', {

@@ -1,5 +1,5 @@
 import { Path } from '@wordpress/components';
-import renderMaterialIcon from '../shared/components/render-material-icon';
+import renderMaterialIcon from '../shared/components/render-material-icon.js';
 
 const StepContainerIcon = renderMaterialIcon(
 	<>

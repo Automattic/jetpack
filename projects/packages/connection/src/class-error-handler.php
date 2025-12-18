@@ -296,7 +296,11 @@ class Error_Handler {
 	 */
 	protected function should_allow_error_filtering() {
 		$host = new \Automattic\Jetpack\Status\Host();
-		return $host->is_woa_site();
+		if ( $host->is_woa_site() || $host->is_vip_site() || $host->is_newspack_site() ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -661,7 +665,7 @@ class Error_Handler {
 		try {
 			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			$encrypted_data = base64_encode( sodium_crypto_box_seal( wp_json_encode( $data ), base64_decode( JETPACK__ERRORS_PUBLIC_KEY ) ) );
+			$encrypted_data = base64_encode( sodium_crypto_box_seal( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ), base64_decode( JETPACK__ERRORS_PUBLIC_KEY ) ) );
 			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		} catch ( \SodiumException $e ) {

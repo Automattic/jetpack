@@ -50,7 +50,10 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 
 		// this is a hack so that our setUp method can access the $store instance and call reset()
 		$prop = new ReflectionProperty( 'PHPUnit_Framework_TestCase', 'data' );
-		$prop->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		$test_data = $prop->getValue( $this );
 
 		if ( isset( $test_data[0] ) && $test_data[0] ) {

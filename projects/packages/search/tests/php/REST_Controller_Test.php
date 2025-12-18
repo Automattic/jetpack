@@ -41,7 +41,7 @@ class REST_Controller_Test extends Search_TestCase {
 
 		wp_set_current_user( 0 );
 
-		$plan = $this->createMock( Plan::class );
+		$plan = $this->createStub( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( true );
 		$plan->method( 'supports_instant_search' )->willReturn( true );
 
@@ -100,7 +100,8 @@ class REST_Controller_Test extends Search_TestCase {
 				array(
 					'module_active'          => true,
 					'instant_search_enabled' => true,
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			)
 		);
 		$response = $this->server->dispatch( $request );
@@ -121,7 +122,7 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $new_settings ) );
+		$request->set_body( wp_json_encode( $new_settings, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( $new_settings, $response->get_data() );
@@ -140,7 +141,7 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $new_settings ) );
+		$request->set_body( wp_json_encode( $new_settings, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
 	}
@@ -154,7 +155,7 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $new_settings ) );
+		$request->set_body( wp_json_encode( $new_settings, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
 	}
@@ -172,7 +173,7 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $new_settings ) );
+		$request->set_body( wp_json_encode( $new_settings, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( $new_settings, $response->get_data() );
@@ -194,7 +195,7 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $new_settings ) );
+		$request->set_body( wp_json_encode( $new_settings, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( $expected, $response->get_data() );
@@ -216,7 +217,7 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $new_settings ) );
+		$request->set_body( wp_json_encode( $new_settings, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( $expected, $response->get_data() );
@@ -238,7 +239,7 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $new_settings ) );
+		$request->set_body( wp_json_encode( $new_settings, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( $expected, $response->get_data() );
@@ -260,7 +261,7 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $new_settings ) );
+		$request->set_body( wp_json_encode( $new_settings, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( $expected, $response->get_data() );

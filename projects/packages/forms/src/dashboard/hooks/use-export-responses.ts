@@ -3,6 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
@@ -10,8 +11,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { config } from '..';
-import { store as dashboardStore } from '../store';
+import useConfigValue from '../../hooks/use-config-value.ts';
+import { store as dashboardStore } from '../store/index.js';
 
 type ExportHookReturn = {
 	showExportModal: boolean;
@@ -54,7 +55,9 @@ export default function useExportResponses(): ExportHookReturn {
 	}
 
 	const exportLabel =
-		selectedResponsesCount > 0 ? `${ statusLabel } (${ selectedResponsesCount })` : statusLabel;
+		selectedResponsesCount > 0
+			? `${ statusLabel } (${ formatNumber( selectedResponsesCount ) })`
+			: statusLabel;
 
 	const openModal = useCallback( () => {
 		setShowExportModal( true );
@@ -75,11 +78,13 @@ export default function useExportResponses(): ExportHookReturn {
 		return { selected: getSelectedResponsesFromCurrentDataset(), currentQuery: getCurrentQuery() };
 	}, [] );
 
+	const exportNonce = useConfigValue( 'exportNonce' );
+
 	const onExport = useCallback(
 		( action: string, nonceName: string ) => {
 			const data = new FormData();
 			data.append( 'action', action );
-			data.append( nonceName, config( 'exportNonce' ) );
+			data.append( nonceName, exportNonce );
 			selected.forEach( ( id: string ) => data.append( 'selected[]', id ) );
 			data.append( 'post', currentQuery.parent || 'all' );
 			data.append( 'search', currentQuery.search || '' );
@@ -92,7 +97,7 @@ export default function useExportResponses(): ExportHookReturn {
 
 			return fetch( window.ajaxurl, { method: 'POST', body: data } );
 		},
-		[ currentQuery, selected ]
+		[ currentQuery, selected, exportNonce ]
 	);
 
 	useEffect( () => {

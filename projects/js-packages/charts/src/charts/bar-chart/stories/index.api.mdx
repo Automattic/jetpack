@@ -1,0 +1,103 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Bar Chart/API Reference" />
+
+# Bar Chart API Reference
+
+## BarChart
+
+Main chart component with responsive behavior by default.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
+| `chartId` | `string` | auto-generated | Optional unique identifier for the chart |
+| `width` | `number` | responsive | Chart width in pixels |
+| `height` | `number` | `400` | Chart height in pixels |
+| `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
+| `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
+| `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
+| `animation` | `boolean` | `false` | Enable entry animation on initial render. Vertical bars rise from the bottom; horizontal bars stretch from the left. Automatically respects user's `prefers-reduced-motion` system setting |
+| `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
+| `showLegend` | `boolean` | `false` | Display chart legend |
+| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
+| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
+| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
+| `legendShape` | `LegendShape` | `'rect'` | Shape used in legend markers |
+| `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
+| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
+| `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
+| `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
+| `className` | `string` | - | Additional CSS class name |
+| `children` | `ReactNode` | - | Child components (e.g., `<BarChart.Legend />`) |
+
+## BarChart.Legend
+
+Composition API component for displaying chart legends. Must be used as a child of `<BarChart>`.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
+| `alignment` | `'start' \| 'center' \| 'end'` | `'center'` | Horizontal legend alignment |
+| `position` | `'top' \| 'bottom'` | `'bottom'` | Vertical legend alignment |
+| `shape` | `LegendShape` | `'rect'` | Shape used in legend markers |
+| `className` | `string` | - | Additional CSS class name |
+| `chartId` | `string` | auto-detected | Chart ID (automatically detected from parent context) |
+
+## SeriesData Type
+
+```typescript
+type SeriesData = {
+	label: string;
+	data: DataPointDate[];
+	options?: {
+		stroke?: string;
+	};
+};
+```
+
+## DataPointDate Type
+
+```typescript
+type DataPointDate = {
+	date?: Date;
+	dateString?: string; // Multiple formats supported
+	value: number | null;
+	label?: string;
+};
+```
+
+## ChartOptions Type
+
+```typescript
+type ChartOptions = {
+	yScale?: {
+		type?: 'linear' | 'band';
+		zero?: boolean;
+		domain?: [number, number];
+		nice?: boolean;
+		padding?: number;
+	};
+	xScale?: {
+		type?: 'time' | 'linear' | 'band';
+		domain?: [Date, Date] | [number, number];
+		padding?: number;
+	};
+	axis?: {
+		x?: {
+			orientation?: 'top' | 'bottom';
+			numTicks?: number;
+			tickFormat?: (value: any) => string;
+		};
+		y?: {
+			orientation?: 'left' | 'right';
+			numTicks?: number;
+			tickFormat?: (value: number) => string;
+		};
+	};
+};
+```

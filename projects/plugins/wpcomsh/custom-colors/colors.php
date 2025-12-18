@@ -355,11 +355,11 @@ class Colors_Manager_Common {
 			'themeSupport'      => array( 'customBackground' => current_theme_supports( 'custom-background' ) ),
 			'defaultImage'      => get_theme_support( 'custom-background', 'default-image' ),
 			'topPatterns'       => self::get_patterns( array( 'limit' => 30 ) ),
-			'genPalette'        => esc_js( __( 'Generating...', 'wpcomsh' ) ),
-			'backgroundTitle'   => esc_js( __( 'Background', 'wpcomsh' ) ),
-			'colorsTitle'       => esc_js( __( 'Colors', 'wpcomsh' ) ),
-			'mediaTitle'        => esc_js( __( 'Select background image', 'wpcomsh' ) ),
-			'mediaSelectButton' => esc_js( __( 'Select', 'wpcomsh' ) ),
+			'genPalette'        => __( 'Generating...', 'wpcomsh' ),
+			'backgroundTitle'   => __( 'Background', 'wpcomsh' ),
+			'colorsTitle'       => __( 'Colors', 'wpcomsh' ),
+			'mediaTitle'        => __( 'Select background image', 'wpcomsh' ),
+			'mediaSelectButton' => __( 'Select', 'wpcomsh' ),
 		);
 
 		wp_localize_script( 'colors-tool', 'ColorsTool', $settings );
@@ -404,7 +404,7 @@ class Colors_Manager_Common {
 	 */
 	public static function get_colors() {
 		$opts   = get_theme_mod( 'colors_manager', array( 'colors' => false ) );
-		$colors = ( $opts['colors'] ) ? $opts['colors'] : self::$default_colors;
+		$colors = ! empty( $opts['colors'] ) ? $opts['colors'] : self::$default_colors;
 		unset( $colors['undefined'] );
 		return $colors;
 	}
@@ -602,7 +602,8 @@ class Colors_Manager_Common {
 		$response = array( 'palettes' => $palettes );
 
 		header( 'Content-Type: text/javascript' );
-		wp_send_json( $response );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -613,7 +614,8 @@ class Colors_Manager_Common {
 	public static function ajax_generate_palette() {
 		$response = self::get_generated_palette( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
 		header( 'Content-Type: text/javascript' );
-		wp_send_json( $response );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -627,7 +629,8 @@ class Colors_Manager_Common {
 		$response = array( 'colors' => $colors );
 
 		header( 'Content-Type: text/javascript' );
-		wp_send_json( $response );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -641,7 +644,8 @@ class Colors_Manager_Common {
 		$response = array( 'patterns' => $patterns );
 
 		header( 'Content-Type: text/javascript' );
-		wp_send_json( $response );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -1494,6 +1498,10 @@ class Colors_Manager_Common {
 	public static function css_rule( $rule, $color ) {
 		$css = '';
 
+		if ( ! isset( $rule[0] ) || ! isset( $rule[1] ) ) {
+			return $css;
+		}
+
 		if ( isset( $rule[2] ) ) {
 			// we'll need it in either case
 			if ( ! class_exists( 'Jetpack_color' ) ) {
@@ -1555,6 +1563,7 @@ class Colors_Manager_Common {
 				$color = $working_color->toCSS( 'rgba', intval( $number ) );
 			}
 		}
+
 		$css .= "{$rule[0]} { {$rule[1]}: {$color};}\n";
 		return $css;
 	}
@@ -1733,6 +1742,11 @@ class Colors_Manager_Common {
 				),
 			)
 		);
+
+		if ( ! $top_palette ) {
+			return array();
+		}
+
 		$top_palette = $top_palette[0];
 
 		$equivalent_color_hex = $top_palette['colors'][ $role ];

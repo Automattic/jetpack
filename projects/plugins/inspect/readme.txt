@@ -3,8 +3,8 @@ Contributors: automattic,
 Tags: jetpack, stuff
 Requires at least: 6.7
 Requires PHP: 7.2
-Tested up to: 6.8
-Stable tag: 1.0.0-alpha
+Tested up to: 6.9
+Stable tag: 2.0.0-a.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,13 +33,12 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 2.0.0-a.5 - 2025-08-05
-#### Changed
-- My Jetpack: Unify the user connection flow with a unified screen.
-- Update package dependencies.
+### 2.0.0-a.7 - 2025-10-09
+#### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked.
 
-#### Fixed
-- Autoloader: Prevent double slash in autoloader path.
+#### Changed
+- Update package dependencies.
 
 == Arbitrary section ==
 

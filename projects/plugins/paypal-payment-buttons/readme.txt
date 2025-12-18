@@ -3,12 +3,12 @@ Contributors: paypal,automattic,woocommerce
 Tags: paypal, payments, ecommerce, blocks, checkout
 Requires at least: 6.7
 Requires PHP: 7.2
-Tested up to: 6.8
-Stable tag: 0.1.0
+Tested up to: 6.9
+Stable tag: 0.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Accept PayPal payments from any post or page on your website.
+Easily showcase products/services, upload images, manage variants, set pricing options, and simplify checkout with shipping and taxes.
 
 == Description ==
 
@@ -80,10 +80,13 @@ By repeating the process above, you can add as many PayPal Payment Buttons block
 It is possible to perform test payments with the PayPal Payment Buttons block. To get started you would need to create a [PayPal Developer account](https://developer.paypal.com/home/). Once you are logged into your PayPal developer account, you can access or create new sandbox accounts. You will need to make note of your sandbox business account and personal account email addresses and passwords. Once you have this information, you would login to the [PayPal Sandbox site](https://www.sandbox.paypal.com/) with the sandbox business account. Create a [payment button on the PayPal sandbox site](https://www.sandbox.paypal.com/ncp/buttons/create?utm_source=wp&at_code=wp). Follow the instructions above to add the payment button code to your PayPal Payment Buttons block. Publish the post or page that contains the block. Then use the sandbox personal account to complete the purchase. All successful test payments will show up in the business sandbox account on the PayPal Sandbox.
 
 == Changelog ==
-### 0.3.0 - 2025-09-16
+### 0.3.2 - 2025-11-20
+#### Added
+- Tested up to WordPress 6.9.
+
 #### Changed
-- Improve robustness of PayPal Payment Buttons parsing
-- Remove admin page for PayPal Payment Buttons plugin.
 - Update package dependencies.
-- Update readme.txt and adds assets for distribution.
+
+#### Fixed
+- Jetpack: Remove getIconColor functions for block icons.
 

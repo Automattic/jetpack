@@ -110,7 +110,7 @@ class REST_Controller_Test extends TestCase {
 		);
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 403, $response->get_status() );
 		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
@@ -126,7 +126,7 @@ class REST_Controller_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response      = $this->dispatch_request_signed_with_blog_token( $request );
 		$response_data = $response->get_data();
@@ -165,7 +165,7 @@ class REST_Controller_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 400, $response->get_status() );
@@ -194,7 +194,7 @@ class REST_Controller_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 403, $response->get_status() );
@@ -211,7 +211,7 @@ class REST_Controller_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 200, $response->get_status() );
@@ -230,7 +230,7 @@ class REST_Controller_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 500, $response->get_status() );

@@ -3,10 +3,11 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import clsx from 'clsx';
-import useFieldSelected from '../hooks/use-field-selected';
-import useJetpackFieldStyles from '../hooks/use-jetpack-field-styles';
-import { ALLOWED_INNER_BLOCKS } from '../util/constants';
-import JetpackFieldControls from './jetpack-field-controls';
+import useFieldSelected from '../hooks/use-field-selected.js';
+import useJetpackFieldStyles from '../hooks/use-jetpack-field-styles.js';
+import useSyncRequiredIndicator from '../hooks/use-sync-required-indicator.js';
+import { ALLOWED_INNER_BLOCKS } from '../util/constants.js';
+import JetpackFieldControls from './jetpack-field-controls.js';
 
 const JetpackField = props => {
 	const {
@@ -17,6 +18,7 @@ const JetpackField = props => {
 		label,
 		required,
 		requiredText,
+		requiredIndicator,
 		setAttributes,
 		type,
 		width,
@@ -33,10 +35,18 @@ const JetpackField = props => {
 
 	const template = useMemo( () => {
 		return [
-			[ 'jetpack/label', { label, required, requiredText } ],
+			[ 'jetpack/label', { label, required, requiredText, requiredIndicator } ],
 			[ 'jetpack/input', { type } ],
 		];
-	}, [ label, required, requiredText, type ] );
+	}, [ label, required, requiredText, requiredIndicator, type ] );
+
+	useSyncRequiredIndicator( {
+		clientId,
+		blockName: 'jetpack/field-sync',
+		isSynced: attributes?.shareFieldAttributes,
+		attributes,
+		setAttributes,
+	} );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,

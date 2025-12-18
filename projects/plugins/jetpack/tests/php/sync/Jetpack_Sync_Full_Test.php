@@ -467,6 +467,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	public function test_full_sync_sends_all_users() {
 		self::factory()->user->create( array( 'role' => 'subscriber' ) );
 		$first_user_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		$user_id       = 0; // Phan thinks the for loop might not run and thus $user_id might not be declared, so let's initialize it.
 		for ( $i = 0; $i < 9; $i++ ) {
 			$user_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
 		}
@@ -1041,7 +1042,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 								),
 							),
 							'translations' => array(),
-						)
+						),
+						JSON_UNESCAPED_SLASHES
 					),
 				);
 			},
@@ -1157,6 +1159,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 	public function create_dummy_data_and_empty_the_queue() {
 		// lets create a bunch of posts
+		$post = 0; // Phan thinks the for loop might not run and thus $post might not be declared, so let's initialize it.
 		for ( $i = 0; $i < $this->test_posts_count; $i++ ) {
 			$post = self::factory()->post->create();
 		}

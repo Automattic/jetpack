@@ -4,4 +4,5 @@ export type JetpackLogoProps = {
 	height?: number;
 	showText?: boolean;
 	logoColor?: string;
+	title?: string;
 };

@@ -185,3 +185,20 @@ function is_user_connected( $user_id ) {
 
 	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
 }
+
+/**
+ * Wrapper to test a blog sticker on both Simple and Atomic sites at once.
+ *
+ * @param string $blog_sticker The blog sticker.
+ * @param int    $blog_id The WPCOM blog ID.
+ * @return bool Whether the site has the blog sticker.
+ */
+function wpcom_has_blog_sticker( $blog_sticker, $blog_id ) {
+	if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( $blog_sticker, $blog_id ) ) {
+		return true;
+	}
+	if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( $blog_sticker ) ) {
+		return true;
+	}
+	return false;
+}

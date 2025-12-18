@@ -40,7 +40,7 @@ function add_wpcom_writing_features_moved_script() {
 			document.addEventListener('click', function(event) {
 				if (event.target.closest('.notice[data-notice="options_writing"] .notice-dismiss')) {
 					wp.ajax.post('dismiss_wpcom_writing_features_moved_notice', {
-						nonce: '<?php echo esc_js( $ajax_nonce ); ?>'
+						nonce: <?php echo wp_json_encode( $ajax_nonce, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
 					});
 				}
 			});

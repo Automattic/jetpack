@@ -19,12 +19,13 @@
 	},
 	"browserslist": [],
 	"devDependencies": {
-		"@playwright/test": "1.55.0",
+		"@playwright/test": "1.55.1",
 		"@types/node": "^20.4.2",
 		"_jetpack-e2e-commons": "workspace:*",
-		"allure-playwright": "2.9.2",
-		"config": "3.3.12",
-		"typescript": "5.9.2"
+		"allure-playwright": "2.15.1",
+		"config": "4.1.1",
+		"playwright-ctrf-json-reporter": "^0.0.26",
+		"typescript": "5.9.3"
 	},
 	"ci": {
 		"pluginSlug": "jetpack-videopress",

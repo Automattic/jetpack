@@ -201,7 +201,7 @@ class Products_Rest_Test extends TestCase {
 		// Activate.
 		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/activate' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->server->dispatch( $request );
 
@@ -234,7 +234,7 @@ class Products_Rest_Test extends TestCase {
 		// Deactivate.
 		$request = new WP_REST_Request( 'DELETE', '/my-jetpack/v1/site/products/deactivate' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->server->dispatch( $request );
 
@@ -268,7 +268,7 @@ class Products_Rest_Test extends TestCase {
 		// Activate.
 		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/activate' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();

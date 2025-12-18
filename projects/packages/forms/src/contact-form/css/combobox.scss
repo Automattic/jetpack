@@ -9,11 +9,17 @@
 		background-color: inherit;
 	}
 
+	// special override for aggressive themes (2021) that set background-color
+	.has-background & button.jetpack-combobox-trigger:not(:active):not(:hover):not(.has-background) {
+		background-color: transparent;
+	}
+
 	.jetpack-combobox-trigger {
 		width: 100%;
 		border: 0 solid #ddd;
 		border-radius: 4px;
 		background: transparent;
+		background-color: transparent;
 		cursor: pointer;
 		display: flex;
 		align-items: center;
@@ -24,6 +30,7 @@
 		padding-inline: 0;
 		gap: 0.4em;
 		color: inherit;
+		height: unset;
 
 		&:focus {
 			outline: 0;
@@ -33,6 +40,7 @@
 
 		&:hover {
 			text-decoration: none;
+			background-color: transparent;
 		}
 
 		.jetpack-combobox-trigger-arrow {

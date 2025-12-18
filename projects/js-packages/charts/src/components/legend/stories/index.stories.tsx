@@ -1,8 +1,13 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { simpleChartDecorator, ChartStoryArgs, themeArgTypes } from '../../../stories';
-import { BarChart } from '../../bar-chart';
-import { LineChart } from '../../line-chart';
-import { PieChart } from '../../pie-chart';
+import { BarChart } from '../../../charts/bar-chart';
+import { LineChart } from '../../../charts/line-chart';
+import { PieChart } from '../../../charts/pie-chart';
+import {
+	simpleChartDecorator,
+	ChartStoryArgs,
+	themeArgTypes,
+	sharedThemeArgs,
+} from '../../../stories';
 import { useChartLegendItems } from '../hooks/use-chart-legend-items';
 import { Legend } from '../legend';
 import type { SeriesData, DataPointPercentage } from '../../../types';
@@ -10,71 +15,10 @@ import type { SeriesData, DataPointPercentage } from '../../../types';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Legend > >;
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Composites/Legend',
+	title: 'JS Packages/Charts Library/Components/Legend',
 	component: Legend,
 	parameters: {
 		layout: 'centered',
-		docs: {
-			description: {
-				component: `
-The Legend component provides a flexible way to display chart legends either as standalone components or integrated with charts through the chart context.
-
-## Key Features
-
-- **Standalone Usage**: Display legends independently from charts
-- **Context Integration**: Automatically retrieve legend data from charts using \`chartId\`
-- **Flexible Positioning**: Place legends anywhere in your layout
-- **Works with Hidden Legends**: Charts with \`showLegend={false}\` still provide data to standalone legends
-- **Full Customization**: Inherits all props from BaseLegend for complete control
-
-## Usage Examples
-
-### Basic Usage with Manual Data
-\`\`\`jsx
-<Legend
-  items={[
-    { label: 'Series 1', value: '25%', color: '#3858E9' },
-    { label: 'Series 2', value: '35%', color: '#80C8FF' }
-  ]}
-  orientation="horizontal"
-/>
-\`\`\`
-
-### Automatic Data from Chart Context
-\`\`\`jsx
-// Chart registers its legend data with chartId
-<LineChart
-  chartId="sales-chart"
-  data={salesData}
-  showLegend={false} // Legend hidden on chart
-/>
-
-// Standalone legend retrieves data automatically
-<Legend
-  chartId="sales-chart"
-  orientation="vertical"
-  alignment="end"
-/>
-\`\`\`
-
-### Dashboard Layout Example
-\`\`\`jsx
-<div className="dashboard">
-  <div className="charts-grid">
-    <LineChart chartId="revenue" showLegend={false} />
-    <BarChart chartId="units" showLegend={false} />
-    <PieChart chartId="regions" showLegend={false} />
-  </div>
-  <aside className="legend-panel">
-    <Legend chartId="revenue" />
-    <Legend chartId="units" />
-    <Legend chartId="regions" />
-  </aside>
-</div>
-\`\`\`
-`,
-			},
-		},
 	},
 	decorators: [ simpleChartDecorator ],
 	argTypes: {
@@ -133,10 +77,11 @@ const pieChartData: DataPointPercentage[] = [
 export const Horizontal: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { themeName, ...legendProps } = args;
+		const { themeName, accentColor, ...legendProps } = args;
 		return <Legend { ...legendProps } />;
 	},
 	args: {
+		...sharedThemeArgs,
 		items: [
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
@@ -148,10 +93,11 @@ export const Horizontal: Story = {
 export const Vertical: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { themeName, ...legendProps } = args;
+		const { themeName, accentColor, ...legendProps } = args;
 		return <Legend { ...legendProps } />;
 	},
 	args: {
+		...sharedThemeArgs,
 		items: [
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
@@ -184,13 +130,6 @@ const WithLineChartData = () => {
 
 export const WithLineChart: Story = {
 	render: () => <WithLineChartData />,
-	parameters: {
-		docs: {
-			description: {
-				story: 'Legend used with LineChart data, positioned independently below the chart.',
-			},
-		},
-	},
 };
 
 // Story showing use with BarChart data
@@ -207,13 +146,6 @@ const WithBarChartData = () => {
 
 export const WithBarChart: Story = {
 	render: () => <WithBarChartData />,
-	parameters: {
-		docs: {
-			description: {
-				story: 'Legend used with BarChart data, positioned vertically beside the chart.',
-			},
-		},
-	},
 };
 
 // Story showing standalone legend using chartId to automatically get data from context
@@ -238,70 +170,6 @@ const StandaloneLegendWithChartIdComponent = () => {
 
 export const StandaloneLegendWithChartId: Story = {
 	render: () => <StandaloneLegendWithChartIdComponent />,
-	parameters: {
-		docs: {
-			source: {
-				code: `<div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-  {/* Chart with legend hidden but still registering data */}
-  <LineChart
-    chartId="standalone-legend-chart"
-    data={lineChartData}
-    showLegend={false}
-    width={400}
-    height={200}
-  />
-  {/* Standalone legend that automatically gets data from chart context */}
-  <Legend chartId="standalone-legend-chart" orientation="horizontal" />
-</div>`,
-			},
-			description: {
-				story: `
-## Standalone Legend with Chart Context Integration
-
-This example demonstrates the power of the Legend component's context integration feature.
-
-### How It Works
-
-1. **Chart Registration**: When a chart is rendered with a \`chartId\`, it automatically registers its legend data in the chart context
-2. **Data Retrieval**: The Legend component can then retrieve this data using the same \`chartId\`
-3. **Decoupled Display**: The legend can be placed anywhere in your layout, completely independent from the chart
-
-### Key Benefits
-
-- **Flexible Layouts**: Create complex dashboard layouts with centralized legend areas
-- **Consistent Legends**: Multiple charts can share legend styles and positioning
-- **Dynamic Updates**: Legend automatically updates when chart data changes
-- **No Prop Drilling**: No need to pass legend data through multiple component levels
-
-### Code Example
-
-\`\`\`jsx
-// Chart with hidden legend
-<LineChart
-  chartId="standalone-legend-chart"
-  data={lineChartData}
-  showLegend={false}
-  width={400}
-  height={200}
-/>
-
-// Standalone legend that retrieves data automatically
-<Legend
-  chartId="standalone-legend-chart"
-  orientation="horizontal"
-/>
-\`\`\`
-
-### Important Notes
-
-- The chart and legend must be wrapped in the same GlobalChartsProvider context
-- The \`chartId\` must match exactly between chart and legend
-- Charts with \`showLegend={false}\` still register their legend data
-- If no chart with the given \`chartId\` exists, the legend will render nothing
-`,
-			},
-		},
-	},
 };
 
 // Story showing a real-world dashboard layout with centralized legends
@@ -402,45 +270,6 @@ export const DashboardExample: Story = {
 	render: () => <DashboardWithCentralizedLegend />,
 	parameters: {
 		layout: 'fullscreen',
-		docs: {
-			description: {
-				story: `
-## Real-World Dashboard Example
-
-This example demonstrates a complete dashboard implementation using Legend with chart context integration.
-
-### Key Implementation Details
-
-1. **Chart Setup**: Each chart has a unique \`chartId\` and \`showLegend={false}\`
-2. **Centralized Legends**: All legends are placed in a dedicated sidebar
-3. **Automatic Data Sync**: Legends automatically retrieve data from their respective charts
-4. **Clean Layout**: Charts remain uncluttered while legends are easily accessible
-
-### Benefits of This Approach
-
-- **Consistent Legend Styling**: All legends share the same visual style
-- **Space Efficiency**: Charts can use full width without legend taking up space
-- **Better Mobile Experience**: Legends can be collapsed or repositioned on smaller screens
-- **Easier Maintenance**: Legend updates only need to happen in one place
-
-### Implementation Code
-
-\`\`\`jsx
-// Charts with hidden legends
-<LineChart chartId="dashboard-revenue" data={revenueData} showLegend={false} />
-<BarChart chartId="dashboard-sales" data={salesData} showLegend={false} />
-<PieChart chartId="dashboard-devices" data={deviceData} showLegend={false} />
-
-// Centralized legend panel
-<aside>
-  <Legend chartId="dashboard-revenue" orientation="vertical" />
-  <Legend chartId="dashboard-sales" orientation="vertical" />
-  <Legend chartId="dashboard-devices" orientation="vertical" />
-</aside>
-\`\`\`
-`,
-			},
-		},
 	},
 };
 
@@ -454,13 +283,6 @@ export const AlignmentOptions: Story = {
 		],
 		orientation: 'horizontal',
 		alignment: 'start',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Legend with custom alignment options.',
-			},
-		},
 	},
 };
 
@@ -512,62 +334,21 @@ export const TextOverflow: Story = {
 		orientation: {
 			control: { type: 'radio' },
 			options: [ 'horizontal', 'vertical' ],
-			description: 'Legend orientation',
 		},
 		maxWidth: {
 			control: { type: 'range', min: 0, max: 300, step: 10 },
-			description: 'Maximum width for legend items (pixels). Set to 0 to disable.',
-			table: {
-				type: { summary: 'number | string | undefined' },
-				defaultValue: { summary: 'undefined' },
-			},
 		},
 		textOverflow: {
 			control: { type: 'radio' },
 			options: [ 'wrap', 'ellipsis' ],
-			description: 'Text overflow behavior when maxWidth is set',
 		},
 		position: {
 			control: { type: 'radio' },
 			options: [ 'top', 'bottom' ],
-			description: 'Vertical position of the legend',
 		},
 		alignment: {
 			control: { type: 'radio' },
 			options: [ 'start', 'center', 'end' ],
-			description: 'Horizontal alignment of the legend',
-		},
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: `
-## Text Overflow and Wrapping
-
-This interactive story demonstrates all the text overflow and wrapping features of the Legend component.
-
-### Features
-
-- **Text Overflow Modes**:
-  - **Wrap** (default): Text wraps naturally to multiple lines when it exceeds maxWidth
-  - **Ellipsis**: Truncates text with ellipsis (...) and shows tooltip on hover
-
-- **Orientation**: Switch between horizontal and vertical layouts
-- **Max Width**: Adjust the maximum width constraint with the slider (50-300px)
-- **Position & Alignment**: Control legend placement
-
-### Use Cases
-
-- **Widgets/Dashboards**: Use ellipsis mode with small maxWidth values
-- **Full Displays**: Use wrap mode with larger maxWidth values
-- **Mobile**: Use vertical orientation with appropriate maxWidth
-
-### Accessibility
-When using ellipsis mode, truncated text automatically includes a \`title\` attribute for screen readers and displays a native tooltip on hover showing the complete text.
-
-Try different combinations using the controls above to see how the legend adapts to various constraints!
-`,
-			},
 		},
 	},
 };
@@ -581,12 +362,5 @@ export const CustomShape: Story = {
 		],
 		orientation: 'horizontal',
 		shape: 'circle',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Legend with circle shape instead of default rectangle.',
-			},
-		},
 	},
 };

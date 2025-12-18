@@ -6,6 +6,16 @@ module.exports = {
 	'no-asyncdisposablestack': 'javascript.builtins.AsyncDisposableStack.AsyncDisposableStack',
 	'no-disposablestack': 'javascript.builtins.DisposableStack.DisposableStack',
 	'no-error-iserror': 'javascript.builtins.Error.isError',
+	'no-intl-locale-prototype-firstdayofweek': false, // No compat data yet.
+	'no-intl-locale-prototype-getcalendars': 'javascript.builtins.Intl.Locale.getCalendars',
+	'no-intl-locale-prototype-getcollations': 'javascript.builtins.Intl.Locale.getCollations',
+	'no-intl-locale-prototype-gethourcycles': 'javascript.builtins.Intl.Locale.getHourCycles',
+	'no-intl-locale-prototype-getnumberingsystems':
+		'javascript.builtins.Intl.Locale.getNumberingSystems',
+	'no-intl-locale-prototype-gettextinfo': 'javascript.builtins.Intl.Locale.getTextInfo',
+	'no-intl-locale-prototype-gettimezones': 'javascript.builtins.Intl.Locale.getTimeZones',
+	'no-intl-locale-prototype-getweekinfo': 'javascript.builtins.Intl.Locale.getWeekInfo',
+	'no-iterator-concat': false, // No compat data yet.
 	'no-suppressederror': 'javascript.builtins.SuppressedError.SuppressedError',
 	'no-symbol-asyncdispose': 'javascript.builtins.Symbol.asyncDispose',
 	'no-symbol-dispose': 'javascript.builtins.Symbol.dispose',
@@ -211,6 +221,12 @@ module.exports = {
 		'javascript.statements.function.trailing_comma_in_parameters',
 		'javascript.statements.generator_function.trailing_comma_in_parameters',
 	],
+	'no-uint8array-frombase64': 'javascript.builtins.Uint8Array.fromBase64',
+	'no-uint8array-fromhex': 'javascript.builtins.Uint8Array.fromHex',
+	'no-uint8array-prototype-setfrombase64': 'javascript.builtins.Uint8Array.setFromBase64',
+	'no-uint8array-prototype-setfromhex': 'javascript.builtins.Uint8Array.setFromHex',
+	'no-uint8array-prototype-tobase64': 'javascript.builtins.Uint8Array.toBase64',
+	'no-uint8array-prototype-tohex': 'javascript.builtins.Uint8Array.toHex',
 
 	// ES2016
 	'no-array-prototype-includes': 'javascript.builtins.Array.includes',
@@ -261,6 +277,7 @@ module.exports = {
 	'no-math-log2': 'javascript.builtins.Math.log2',
 	'no-math-sign': 'javascript.builtins.Math.sign',
 	'no-math-sinh': 'javascript.builtins.Math.sinh',
+	'no-math-sumprecise': 'javascript.builtins.Math.sumPrecise',
 	'no-math-tanh': 'javascript.builtins.Math.tanh',
 	'no-math-trunc': 'javascript.builtins.Math.trunc',
 	'no-modules': [ 'javascript.statements.import', 'javascript.statements.export' ],

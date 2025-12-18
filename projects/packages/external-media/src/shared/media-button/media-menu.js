@@ -1,6 +1,7 @@
 import { Button, MenuItem, MenuGroup, Dropdown, NavigableMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, media } from '@wordpress/icons';
+import { isGutenbergKit } from '../utils/is-gutenberg-kit';
 import { isSupportNext40pxDefaultSize } from '../utils/is-support-next-40px-default-size';
 import MediaSources from './media-sources';
 
@@ -12,6 +13,13 @@ import MediaSources from './media-sources';
 function MediaButtonMenu( props ) {
 	const { mediaProps, open, setSelectedSource, isFeatured, isReplace, hasImage } = props;
 	const originalComponent = mediaProps.render;
+
+	// Disable the media button menu for GutenbergKit (mobile app) as the APIs for
+	// the external media sources do not currently support GutenbergKit's token
+	// authentication and CORS requests.
+	if ( isGutenbergKit() ) {
+		return originalComponent( { open } );
+	}
 
 	if ( isReplace ) {
 		return (
@@ -80,6 +88,7 @@ function MediaButtonMenu( props ) {
 							</MenuItem>
 
 							<MediaSources
+								mediaProps={ mediaProps }
 								open={ open }
 								setSource={ setSelectedSource }
 								onClick={ onClose }

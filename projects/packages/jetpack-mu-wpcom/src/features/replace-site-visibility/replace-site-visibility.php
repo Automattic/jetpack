@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Load dependencies.
@@ -38,12 +39,14 @@ function wp_ajax_wpcom_generate_site_preview_link() {
 	);
 
 	if ( is_wp_error( $body ) ) {
-		wp_send_json_error( $body );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_error( $body, null, JSON_UNESCAPED_SLASHES );
 		return;
 	}
 
 	$response = json_decode( wp_remote_retrieve_body( $body ) );
-	wp_send_json( $response[0] ?? $response );
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+	wp_send_json( $response[0] ?? $response, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_wpcom_generate_site_preview_link', 'wp_ajax_wpcom_generate_site_preview_link' );
 
@@ -57,7 +60,9 @@ function wp_ajax_wpcom_delete_site_preview_link() {
 		wp_send_json_error(
 			array(
 				'error' => 'Missing code',
-			)
+			),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 		return;
 	}
@@ -107,25 +112,32 @@ function wpcom_get_site_preview_link() {
 function replace_site_visibility_load_assets() {
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-replace-site-visibility', array( 'js', 'css' ) );
 
-	$data = wp_json_encode(
-		array(
-			'homeUrl'                => home_url( '/' ),
-			'siteTitle'              => bloginfo( 'name' ),
-			'isWpcomStagingSite'     => (bool) get_option( 'wpcom_is_staging_site' ),
-			'isUnlaunchedSite'       => get_option( 'launch-status' ) === 'unlaunched',
-			'hasSitePreviewLink'     => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::SITE_PREVIEW_LINKS ),
-			'sitePreviewLink'        => wpcom_get_site_preview_link(),
-			'sitePreviewLinkNonce'   => wp_create_nonce( 'wpcom_site_visibility_site_preview_link' ),
-			'blogPublic'             => get_option( 'blog_public' ),
-			'wpcomComingSoon'        => get_option( 'wpcom_coming_soon' ),
-			'wpcomPublicComingSoon'  => get_option( 'wpcom_public_coming_soon' ),
-			'wpcomDataSharingOptOut' => (bool) get_option( 'wpcom_data_sharing_opt_out' ),
-		)
+	$data = array(
+		'homeUrl'                => home_url( '/' ),
+		'siteTitle'              => get_bloginfo( 'name' ),
+		'isWpcomStagingSite'     => (bool) get_option( 'wpcom_is_staging_site' ),
+		'isUnlaunchedSite'       => get_option( 'launch-status' ) === 'unlaunched',
+		'hasSitePreviewLink'     => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::SITE_PREVIEW_LINKS ),
+		'sitePreviewLink'        => wpcom_get_site_preview_link(),
+		'sitePreviewLinkNonce'   => wp_create_nonce( 'wpcom_site_visibility_site_preview_link' ),
+		'blogPublic'             => get_option( 'blog_public' ),
+		'wpcomComingSoon'        => get_option( 'wpcom_coming_soon' ),
+		'wpcomPublicComingSoon'  => get_option( 'wpcom_public_coming_soon' ),
+		'wpcomDataSharingOptOut' => (bool) get_option( 'wpcom_data_sharing_opt_out' ),
 	);
 
+	// If the site is launched, replace the option value with the actual site visibility.
+	if ( ( new Host() )->is_woa_site() && function_exists( '\Private_Site\site_is_private' )
+		&& ! $data['isUnlaunchedSite'] && ! $data['wpcomPublicComingSoon'] && ! $data['wpcomComingSoon'] && (string) $data['blogPublic'] !== '0'
+	) {
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		$data['blogPublic'] = \Private_Site\site_is_private() ? '-1' : '1';
+	}
+
+	$encoded_data = wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 	wp_add_inline_script(
 		$handle,
-		"var JETPACK_MU_WPCOM_SITE_VISIBILITY = $data;",
+		"var JETPACK_MU_WPCOM_SITE_VISIBILITY = $encoded_data;",
 		'before'
 	);
 }
@@ -148,7 +160,7 @@ function replace_site_visibility() {
 	} elseif ( ! is_jetpack_connected() ) {
 		return;
 	} else {
-		$escaped_content = <<<HTML
+		$escaped_content = <<<'HTML'
 <fieldset id="wpcom-site-visibility">
 	<img src="images/loading.gif" alt="Loading..." width="16" height="16">
 </fieldset>
@@ -159,7 +171,7 @@ HTML;
 
 	?>
 <noscript>
-<p><?php echo wp_json_encode( $escaped_content, JSON_HEX_TAG | JSON_HEX_AMP ); ?></p>
+<p><?php echo wp_json_encode( $escaped_content, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?></p>
 </noscript>
 <script>
 ( function() {
@@ -167,7 +179,7 @@ HTML;
 	if ( ! widgetArea ) {
 		return;
 	}
-	widgetArea.innerHTML = <?php echo wp_json_encode( $escaped_content, JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+	widgetArea.innerHTML = <?php echo wp_json_encode( $escaped_content, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 } )()
 </script>
 		<?php
@@ -235,7 +247,7 @@ function load_options_update_site_visibility() {
 				'content-type' => 'application/json',
 			),
 		),
-		wp_json_encode( $data ),
+		wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
 		'wpcom'
 	);
 

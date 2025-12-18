@@ -6,8 +6,8 @@ import {
 import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { isValidElement, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import JetpackFieldWidth from './jetpack-field-width';
-import ToolbarRequiredGroup from './toolbar-required-group';
+import JetpackFieldWidth from './jetpack-field-width.js';
+import ToolbarRequiredGroup from './toolbar-required-group.js';
 
 // List of reserved HTML form element attribute names
 const reservedAttributes = [
@@ -75,6 +75,19 @@ const JetpackFieldControls = ( {
 			help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 			__nextHasNoMarginBottom={ true }
 		/>,
+		required && (
+			<ToggleControl
+				key="requiredIndicator"
+				label={ __( 'Show required text', 'jetpack-forms' ) }
+				checked={ !! attributes.requiredIndicator }
+				onChange={ value => setAttributes( { requiredIndicator: value } ) }
+				help={ __(
+					'Toggle whether to display the required indicator text for this field.',
+					'jetpack-forms'
+				) }
+				__nextHasNoMarginBottom={ true }
+			/>
+		),
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
 		<ToggleControl
 			key="shareFieldAttributes"
@@ -112,7 +125,10 @@ const JetpackFieldControls = ( {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Field settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<>{ fieldSettings }</>
 				</PanelBody>
 			</InspectorControls>

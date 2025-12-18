@@ -765,10 +765,10 @@ class Jetpack_Gutenberg {
 
 		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
-			'available_blocks' => self::get_availability(),
-			'blocks_variation' => $blocks_variation,
-			'modules'          => $modules,
-			'jetpack'          => array(
+			'available_blocks'        => self::get_availability(),
+			'blocks_variation'        => $blocks_variation,
+			'modules'                 => $modules,
+			'jetpack'                 => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
 				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
@@ -795,14 +795,22 @@ class Jetpack_Gutenberg {
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 			),
-			'siteFragment'     => $status->get_site_suffix(),
-			'adminUrl'         => esc_url( admin_url() ),
-			'tracksUserData'   => $user_data,
-			'wpcomBlogId'      => $blog_id,
-			'allowedMimeTypes' => wp_get_mime_types(),
-			'siteLocale'       => str_replace( '_', '-', get_locale() ),
-			'ai-assistant'     => $ai_assistant_state,
-			'screenBase'       => $screen_base,
+			'siteFragment'            => $status->get_site_suffix(),
+			'adminUrl'                => esc_url( admin_url() ),
+			'tracksUserData'          => $user_data,
+			'wpcomBlogId'             => $blog_id,
+			'allowedMimeTypes'        => wp_get_mime_types(),
+			'siteLocale'              => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'            => $ai_assistant_state,
+			'screenBase'              => $screen_base,
+			/**
+			 * Should all blocks get registered the Jetpack block collection in addition to their own categories?
+			 *
+			 * @since 15.3
+			 *
+			 * @param boolean true Enable Jetpack block collection in block categories. Defaults to true.
+			 */
+			'registerBlockCollection' => apply_filters( 'jetpack_register_block_collection', true ),
 			/**
 			 * Add your own feature flags to the block editor.
 			 *
@@ -812,8 +820,8 @@ class Jetpack_Gutenberg {
 			 *
 			 * @param array true Enable the RePublicize UI in the block editor context. Defaults to true.
 			 */
-			'feature_flags'    => apply_filters( 'jetpack_block_editor_feature_flags', array() ),
-			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'feature_flags'           => apply_filters( 'jetpack_block_editor_feature_flags', array() ),
+			'pluginBasePath'          => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
 
 		wp_localize_script(

@@ -13,6 +13,9 @@ use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Error;
 
+// Load the Form_Submission_Error class for testing.
+require_once __DIR__ . '/../../../src/contact-form/class-form-submission-error.php';
+
 /**
  * Test class for Contact_Form_Plugin
  *
@@ -128,7 +131,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Render the shortcode.
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox_multiple( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label has-text-color has-swamp-green-color" optionsclasses="wp-block-jetpack-options" options="truth,dare" optionsdata="&#091;{&quot;label&quot;:&quot;truth&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:caramel; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;dare&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:gummy; font-size:24px;&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"/]';
+		$expected  = '[contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label has-text-color has-swamp-green-color" labelhiddenbyblockvisibility="" optionsclasses="wp-block-jetpack-options" options="truth,dare" optionsdata="&#091;{&quot;label&quot;:&quot;truth&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:caramel; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;dare&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:gummy; font-size:24px;&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"/]';
 
 		$this->assertEquals( $expected, $shortcode, 'Shortcode is not as expected' );
 	}
@@ -162,7 +165,33 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="checkbox" label="single" optionclasses="wp-block-jetpack-option has-text-color" optionstyles="color:caramel; font-size:24px;" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
+		$expected  = '[contact-field type="checkbox" label="single" optionclasses="wp-block-jetpack-option has-text-color" optionstyles="color:caramel;font-size:24px" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
+
+		$this->assertEquals( $expected, $shortcode );
+	}
+
+	/**
+	 * Tests that requiredText from jetpack/option block is passed through correctly in checkbox field.
+	 */
+	public function test_gutenblock_render_field_checkbox_with_required_text() {
+		$block     = array(
+			'blockName'   => 'jetpack/field-checkbox',
+			'attrs'       => array(
+				'required' => true,
+			),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/option',
+					'attrs'     => array(
+						'label'        => 'I agree to the terms',
+						'isStandalone' => true,
+						'requiredText' => '(must check)',
+					),
+				),
+			),
+		);
+		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new WP_Block( $block ) );
+		$expected  = '[contact-field type="checkbox" label="I agree to the terms" optionclasses="wp-block-jetpack-option" requiredText="(must check)" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
 
 		$this->assertEquals( $expected, $shortcode );
 	}
@@ -228,7 +257,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_text( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="text" label="Label" requiredText="Do it" labelclasses="wp-block-jetpack-label has-text-color" labelstyles="color:caramel; font-size:24px;" placeholder="hi!" min="1" max="10" inputclasses="wp-block-jetpack-input has-text-color has-border-color" inputstyles="color:toot; font-size:33rem; border-color:toot;border-width:1px;" stylevariationattributes="{&quot;border&quot;:{&quot;color&quot;:&quot;toot&quot;&#044;&quot;width&quot;:&quot;1px&quot;}}" stylevariationclasses=" has-border-color" stylevariationstyles="border-color:toot;border-width:1px;" fieldwrapperclasses="wp-block-jetpack-field-text"/]';
+		$expected  = '[contact-field type="text" label="Label" requiredText="Do it" labelclasses="wp-block-jetpack-label has-text-color" labelstyles="color:caramel;font-size:24px" labelhiddenbyblockvisibility="" placeholder="hi!" min="1" max="10" inputclasses="wp-block-jetpack-input has-text-color has-border-color" inputstyles="color:toot;font-size:33rem;border-color:toot;border-width:1px" stylevariationattributes="{&quot;border&quot;:{&quot;color&quot;:&quot;toot&quot;&#044;&quot;width&quot;:&quot;1px&quot;}}" stylevariationclasses=" has-border-color" stylevariationstyles="border-color:toot;border-width:1px" fieldwrapperclasses="wp-block-jetpack-field-text"/]';
 
 		$this->assertEquals( $expected, $shortcode );
 	}
@@ -301,7 +330,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Render the shortcode.
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_radio( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="radio" label="Radio gaga" labelclasses="wp-block-jetpack-label has-text-color has-turmoil-purple-color" optionsclasses="wp-block-jetpack-options" options="freddy,brian" optionsdata="&#091;{&quot;label&quot;:&quot;freddy&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:reddo; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;brian&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:blueo; font-size:100rem;&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-radio"/]';
+		$expected  = '[contact-field type="radio" label="Radio gaga" labelclasses="wp-block-jetpack-label has-text-color has-turmoil-purple-color" labelhiddenbyblockvisibility="" optionsclasses="wp-block-jetpack-options" options="freddy,brian" optionsdata="&#091;{&quot;label&quot;:&quot;freddy&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:reddo; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;brian&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:blueo; font-size:100rem;&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-radio"/]';
 
 		$this->assertEquals( $expected, $shortcode, 'Shortcode is not as expected' );
 	}
@@ -348,20 +377,21 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		return array(
 			'label and input'   => array(
 				'expected'     => array(
-					'labelclasses'             => 'wp-block-jetpack-label has-text-color has-accent-3-color',
-					'labelstyles'              => 'font-size:32px;',
-					'inputclasses'             => 'wp-block-jetpack-input has-text-color has-background has-border-color',
-					'inputstyles'              => 'color:swamp-green;background-color:swamp-red; font-size:24px;font-style:italic;font-weight:bold;line-height:1.5;letter-spacing:0.1em; border-color:swamp-blue;border-style:dashed;border-width:1px;',
-					'label'                    => 'Label and Input',
-					'requiredText'             => 'Do it',
-					'placeholder'              => 'Yo',
-					'min'                      => '1',
-					'max'                      => '10',
-					'type'                     => 'text',
-					'fieldwrapperclasses'      => 'wp-block-jetpack-field-text',
-					'stylevariationclasses'    => ' has-background has-border-color',
-					'stylevariationattributes' => '{"border":{"color":"swamp-blue","width":"1px","style":"dashed"},"color":{"background":"swamp-red"}}',
-					'stylevariationstyles'     => 'background-color:swamp-red; border-color:swamp-blue;border-style:dashed;border-width:1px;',
+					'labelclasses'                 => 'wp-block-jetpack-label has-text-color has-accent-3-color',
+					'labelstyles'                  => 'font-size:32px;',
+					'labelhiddenbyblockvisibility' => '',
+					'inputclasses'                 => 'wp-block-jetpack-input has-text-color has-background has-border-color',
+					'inputstyles'                  => 'color:swamp-green;background-color:swamp-red; font-size:24px;font-style:italic;font-weight:bold;line-height:1.5;letter-spacing:0.1em; border-color:swamp-blue;border-style:dashed;border-width:1px;',
+					'label'                        => 'Label and Input',
+					'requiredText'                 => 'Do it',
+					'placeholder'                  => 'Yo',
+					'min'                          => '1',
+					'max'                          => '10',
+					'type'                         => 'text',
+					'fieldwrapperclasses'          => 'wp-block-jetpack-field-text',
+					'stylevariationclasses'        => ' has-background has-border-color',
+					'stylevariationattributes'     => '{"border":{"color":"swamp-blue","width":"1px","style":"dashed"},"color":{"background":"swamp-red"}}',
+					'stylevariationstyles'         => 'background-color:swamp-red; border-color:swamp-blue;border-style:dashed;border-width:1px;',
 				),
 				'atts'         => array(),
 				'inner_blocks' => array(
@@ -415,6 +445,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'optionclasses'       => 'wp-block-jetpack-option has-text-color has-swamp-cheese-color',
 					'optionstyles'        => 'font-size:24px;font-style:italic;font-weight:bold;line-height:1.5;letter-spacing:0.1em;',
 					'label'               => 'Option',
+					'requiredText'        => null,
 					'type'                => 'radio',
 					'fieldwrapperclasses' => 'wp-block-jetpack-field-radio',
 				),
@@ -449,20 +480,21 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 			'label and options' => array(
 				'expected'     => array(
-					'class'                    => 'some-custom-class',
-					'labelclasses'             => 'wp-block-jetpack-label has-text-color has-accent-3-color',
-					'labelstyles'              => 'letter-spacing:0.1em;',
-					'options'                  => 'Option 1,Option 2',
-					'optionsdata'              => '[{"label":"Option 1","class":"has-text-color has-sweet-potato-option-1-color wp-block-jetpack-option","style":"font-size:24px;font-weight:bold;line-height:1.5;letter-spacing:0.1em;"},{"label":"Option 2","class":"has-text-color has-sweet-potato-option-2-color wp-block-jetpack-option","style":"font-size:22px;font-weight:normal;"}]',
-					'label'                    => 'Label multiple options',
-					'type'                     => 'checkbox-multiple',
-					'requiredText'             => 'Do it again',
-					'fieldwrapperclasses'      => 'wp-block-jetpack-field-checkbox-multiple is-style-button  is-style-button-wrap',
-					'optionsclasses'           => 'wp-block-jetpack-options has-background',
-					'optionsstyles'            => 'background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
-					'stylevariationclasses'    => ' has-background',
-					'stylevariationattributes' => '{"border":{"top":{"color":"terrible-red","width":"2px","style":"solid","radius":"10px"}},"color":{"background":"green-tonight"}}',
-					'stylevariationstyles'     => 'background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
+					'class'                        => 'some-custom-class',
+					'labelclasses'                 => 'wp-block-jetpack-label has-text-color has-accent-3-color',
+					'labelstyles'                  => 'letter-spacing:0.1em;',
+					'labelhiddenbyblockvisibility' => '',
+					'options'                      => 'Option 1,Option 2',
+					'optionsdata'                  => '[{"label":"Option 1","class":"has-text-color has-sweet-potato-option-1-color wp-block-jetpack-option","style":"font-size:24px;font-weight:bold;line-height:1.5;letter-spacing:0.1em;"},{"label":"Option 2","class":"has-text-color has-sweet-potato-option-2-color wp-block-jetpack-option","style":"font-size:22px;font-weight:normal;"}]',
+					'label'                        => 'Label multiple options',
+					'type'                         => 'checkbox-multiple',
+					'requiredText'                 => 'Do it again',
+					'fieldwrapperclasses'          => 'wp-block-jetpack-field-checkbox-multiple is-style-button  is-style-button-wrap',
+					'optionsclasses'               => 'wp-block-jetpack-options has-background',
+					'optionsstyles'                => 'background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
+					'stylevariationclasses'        => ' has-background',
+					'stylevariationattributes'     => '{"border":{"top":{"color":"terrible-red","width":"2px","style":"solid","radius":"10px"}},"color":{"background":"green-tonight"}}',
+					'stylevariationstyles'         => 'background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
 				),
 				'atts'         => array(
 					'className' => 'is-style-button some-custom-class',
@@ -554,7 +586,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_process_from_with_jwt() {
+	public function test_process_form_with_jwt() {
 		$previous_post = $this->setup_token_test( null, 'Test User' );
 
 		$plugin = Contact_Form_Plugin::init();
@@ -566,24 +598,70 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->teardown_post_for_test( $previous_post );
 	}
 
-	public function test_process_from_with_jwt_validation_error() {
+	public function test_process_form_with_jwt_validation_error() {
 		$previous_post = $this->setup_token_test( null );
 
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
-		$this->assertInstanceOf( WP_Error::class, $result, 'Expected a WP_Error when processing the form submission.' );
-		$this->assertEquals( 'Name field is required.', $result->get_error_message(), 'Expected the error code to be "check_spam".' );
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission.' );
+		$this->assertEquals( 'Name field is required.', $result->get_error_message(), 'Expected the error message to be "Name field is required.".' );
+		$this->assertTrue( $result->is_validation_type(), 'Expected this to be a validation error.' );
 
 		$this->teardown_post_for_test( $previous_post );
 	}
 
-	public function test_process_from_with_fake_jwt() {
+	public function test_process_form_with_fake_jwt() {
 		$previous_post = $this->setup_token_test( 'fake.jwt.token' );
 
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
 
-		$this->assertFalse( $result, 'Expected a WP_Error when processing the form submission.' );
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission with invalid JWT.' );
+		$this->assertEquals( 'invalid_jwt', $result->get_error_code(), 'Expected the error code to be "invalid_jwt".' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
+
+		$this->teardown_post_for_test( $previous_post );
+	}
+
+	public function test_process_form_with_deleted_parent_post() {
+		global $post;
+		$previous_post = $this->setup_token_test( null, 'Test User' );
+		$post_id       = $post->ID;
+
+		// Delete the parent post after JWT is created
+		wp_delete_post( $post_id, true );
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when parent post is deleted.' );
+		$this->assertEquals( 'form_unavailable', $result->get_error_code(), 'Expected the error code to be "form_unavailable".' );
+		$this->assertEquals( 'This form is no longer available.', $result->get_error_message(), 'Expected appropriate error message.' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
+
+		$post = $previous_post; // Restore the previous post.
+		remove_filter( 'jetpack_contact_form_is_spam', array( $this, 'return_error_for_test' ) );
+		unset( $_POST['contact-form-hash'] );
+		unset( $_POST['jetpack_contact_form_jwt'] );
+		unset( $_POST['contact-form-id'] );
+		unset( $_POST[ 'g' . $post_id . '-name' ] );
+	}
+
+	public function test_process_form_with_trashed_parent_post() {
+		global $post;
+		$previous_post = $this->setup_token_test( null, 'Test User' );
+		$post_id       = $post->ID;
+
+		// Move the parent post to trash after JWT is created
+		wp_trash_post( $post_id );
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when parent post is trashed.' );
+		$this->assertEquals( 'form_unavailable', $result->get_error_code(), 'Expected the error code to be "form_unavailable".' );
+		$this->assertEquals( 'This form is no longer available.', $result->get_error_message(), 'Expected appropriate error message.' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
 
 		$this->teardown_post_for_test( $previous_post );
 	}
@@ -651,6 +729,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			array(
 				'1_field_A' => 'value1',
 				'2_field_C' => 'value2',
+				'3_Date'    => '2024-01-01',
 			)
 		);
 		$post_2     = get_post( $post_id_2 );
@@ -659,19 +738,22 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$default_consent = 'No';
 		$ip              = 'https://127.0.0.1';
 
+		$country_code = null; // No country code for legacy feedback
+		$prefix_meta  = ' ';
 		$this->assertEquals(
 			array(
-
-				'ID'         => array( $post_id_1, $post_id_2 ),
-				'Date'       => array( $post_1->post_date, $post_2->post_date ),
-				'Title'      => array( $current_post->post_title, $current_post->post_title ),
-				'field_A'    => array( 'value1', 'value1' ),
-				'field_B'    => array( 'value2', '' ),
-				'field_C'    => array( '', 'value2' ),
-				'Source'     => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
-				'Consent'    => array( $default_consent, $default_consent ),
-				'IP Address' => array( $ip, $ip ),
-
+				$prefix_meta . 'ID'           => array( $post_id_1, $post_id_2 ),
+				$prefix_meta . 'Date'         => array( $post_1->post_date, $post_2->post_date ),
+				$prefix_meta . 'Title'        => array( $current_post->post_title, $current_post->post_title ),
+				'field_A'                     => array( 'value1', 'value1' ),
+				'field_B'                     => array( 'value2', '' ),
+				'field_C'                     => array( '', 'value2' ),
+				'Date'                        => array( '', '2024-01-01' ),
+				$prefix_meta . 'Source'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
+				$prefix_meta . 'Consent'      => array( $default_consent, $default_consent ),
+				$prefix_meta . 'IP Address'   => array( $ip, $ip ),
+				$prefix_meta . 'Country code' => array( $country_code, $country_code ),
+				$prefix_meta . 'Browser'      => array( null, null ), // No browser for legacy feedback
 			),
 			$plugin->get_export_feedback_data( $post_ids )
 		);
@@ -739,6 +821,44 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test get_export_feedback_data with duplicate field labels (legacy format).
+	 * Ensures that when the same label appears multiple times in a form response,
+	 * the duplicates are incremented with "(2)", "(3)", etc.
+	 */
+	public function test_get_export_feedback_data_same_fields() {
+		$current_post = Utility::create_post_context();
+
+		// Create two feedback entries with duplicate "Name" fields
+		$post_id_1 = Utility::create_legacy_feedback(
+			array(
+				'1_Name' => 'User 1',
+				'2_Name' => 'First message',
+			)
+		);
+
+		$post_id_2 = Utility::create_legacy_feedback(
+			array(
+				'1_Name' => 'User 2',
+				'2_Name' => '123-456-7890',
+			)
+		);
+		$plugin    = Contact_Form_Plugin::init();
+		$result    = $plugin->get_export_feedback_data( array( $post_id_1, $post_id_2 ) );
+
+		// Verify that the result contains the expected fields with incremented labels
+		$this->assertIsArray( $result );
+		$this->assertTrue( isset( $result['Name'] ), 'First Name field should exist' );
+		$this->assertCount( 2, $result['Name'] );
+		$this->assertEquals( array( 'User 1', 'User 2' ), $result['Name'] );
+
+		$this->assertTrue( isset( $result['Name (2)'] ), 'Second Name field should be incremented to "Name (2)"' );
+		$this->assertCount( 2, $result['Name (2)'] );
+		$this->assertEquals( array( 'First message', '123-456-7890' ), $result['Name (2)'] );
+
+		Utility::destroy_post_context( $current_post );
+	}
+
+	/**
 	 * Test get_export_feedback_data returns correct structure
 	 */
 	public function test_get_export_feedback_data_structure() {
@@ -754,15 +874,27 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin       = Contact_Form_Plugin::init();
 		$result       = $plugin->get_export_feedback_data( array( $post_id ) );
 
+		$prefix_meta = ' ';
+
 		// Verify the basic structure
 		$this->assertIsArray( $result );
-		$this->assertTrue( isset( $result['ID'] ) );
-		$this->assertTrue( isset( $result['Date'] ) );
-		$this->assertTrue( isset( $result['Title'] ) );
-		$this->assertTrue( isset( $result['Source'] ) );
-		$this->assertTrue( isset( $result['Consent'] ) );
-		$this->assertTrue( isset( $result['IP Address'] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'ID' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Date' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Title' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Source' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Consent' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'IP Address' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Browser' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Country code' ] ) );
 
+		// check that none of the fields are null
+		$fields = array_keys( $result );
+
+		foreach ( $fields as $field ) {
+			foreach ( $result[ $field ] as $index => $value ) {
+				$this->assertNotNull( $value, "Field {$field}[{$index}] should not be null." );
+			}
+		}
 		$equals = array(
 			'Name'    => array( 'Test "Quotes" User' ),
 			'Text'    => array( 'test@example.com' ),
@@ -772,8 +904,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 
 		// Each field should be an array with one entry
-		$this->assertCount( 1, $result['ID'] );
-		$this->assertEquals( $post_id, $result['ID'][0] );
+		$this->assertCount( 1, $result[ $prefix_meta . 'ID' ] );
+		$this->assertEquals( $post_id, $result[ $prefix_meta . 'ID' ][0] );
 
 		foreach ( $equals as $key => $value ) {
 			$this->assertTrue( isset( $result[ $key ] ) );
@@ -785,7 +917,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	public function test_interpersonal_data_exporter() {
-		global $post;
 
 		$post_id = Utility::create_legacy_feedback(
 			array(
@@ -809,11 +940,11 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				),
 				array(
 					'name'  => 'Source Title',
-					'value' => 'Cool Post Title', // the default value in the create_legacy_feedback
+					'value' => '(deleted) Cool Post Title', // the default value in the create_legacy_feedback
 				),
 				array(
 					'name'  => 'Source URL:',
-					'value' => get_permalink( $post->ID ),
+					'value' => '',
 				),
 				array(
 					'name'  => 'field',
@@ -835,6 +966,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'name'  => 'IP Address',
 					'value' => 'https://127.0.0.1',
 				), // same as the default value in the create_legacy_feedback
+				array(
+					'name'  => 'Country code',
+					'value' => null,
+				), // no country code for legacy feedback
 			),
 		);
 
@@ -843,5 +978,197 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			$exporter[0]
 		);
 		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
+	}
+
+	public function test_get_unread_count_zero() {
+		delete_option( 'jetpack_feedback_unread_count' );
+		$this->assertIsInt( Contact_Form_Plugin::get_unread_count() );
+		$this->assertGreaterThanOrEqual( 0, Contact_Form_Plugin::get_unread_count() );
+	}
+
+	public function test_get_unread_count_nonzero() {
+		update_option( 'jetpack_feedback_unread_count', 5 );
+		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
+		delete_option( 'jetpack_feedback_unread_count' );
+	}
+
+	public function test_recalculate_unread_count() {
+		update_option( 'jetpack_feedback_unread_count', 5 );
+		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
+		Contact_Form_Plugin::recalculate_unread_count();
+		$this->assertSame( 0, Contact_Form_Plugin::get_unread_count() );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns true when flag is enabled
+	 */
+	public function test_has_editor_feature_flag_enabled() {
+		add_filter(
+			'jetpack_block_editor_feature_flags',
+			function ( $flags ) {
+				$flags['central-form-management'] = true;
+				return $flags;
+			}
+		);
+
+		$this->assertTrue( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) );
+
+		remove_all_filters( 'jetpack_block_editor_feature_flags' );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns false when flag is disabled
+	 */
+	public function test_has_editor_feature_flag_disabled() {
+		add_filter(
+			'jetpack_block_editor_feature_flags',
+			function ( $flags ) {
+				$flags['central-form-management'] = false;
+				return $flags;
+			}
+		);
+
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) );
+
+		remove_all_filters( 'jetpack_block_editor_feature_flags' );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns false when flag does not exist
+	 */
+	public function test_has_editor_feature_flag_not_set() {
+		add_filter(
+			'jetpack_block_editor_feature_flags',
+			function ( $flags ) {
+				return $flags;
+			}
+		);
+
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'non-existent-flag' ) );
+
+		remove_all_filters( 'jetpack_block_editor_feature_flags' );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns false when no filter is applied
+	 */
+	public function test_has_editor_feature_flag_no_filter() {
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'any-flag' ) );
+	}
+
+	/**
+	 * Test get_export_feedback_data with duplicate field labels and empty labels.
+	 * Ensures that duplicate labels are incremented (e.g., "Name", "Name (2)", "Name (3)")
+	 * and empty labels are replaced with "Field", "Field (2)", etc.
+	 */
+	public function test_get_export_feedback_data_duplicate_and_empty_labels() {
+		global $post;
+		$current_post = Utility::create_post_context();
+
+		// Create feedback with duplicate field labels manually
+		$feedback_time_1  = current_time( 'mysql' );
+		$feedback_title_1 = 'Test User 1 - ' . $feedback_time_1;
+		$feedback_id_1    = md5( $feedback_title_1 );
+
+		// Create fields with duplicates and empty labels
+		$fields_1 = array(
+			( new Feedback_Field( '1_question', 'Question', 'Answer 1', 'text', array(), 'question' ) )->serialize(),
+			( new Feedback_Field( '2_email', 'Email', 'user1@example.com', 'email', array(), 'email' ) )->serialize(),
+			( new Feedback_Field( '3_question', 'Question', 'Answer 2', 'text', array(), 'question' ) )->serialize(), // Duplicate label
+			( new Feedback_Field( '4_empty', '', 'Hidden value 1', 'text', array(), 'empty' ) )->serialize(), // Empty label
+			( new Feedback_Field( '5_question', 'Question', 'Answer 3', 'text', array(), 'question' ) )->serialize(), // Another duplicate
+			( new Feedback_Field( '6_empty', '', 'Hidden value 2', 'text', array(), 'empty' ) )->serialize(), // Another empty label
+		);
+
+		$content_1 = array(
+			'subject'     => 'Test Subject',
+			'ip'          => 'https://127.0.0.1',
+			'entry_title' => 'Cool Post Title',
+			'entry_page'  => 1,
+			'fields'      => $fields_1,
+		);
+
+		$post_id_1 = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => addslashes( wp_kses( $feedback_title_1, array() ) ),
+				'post_date'      => $feedback_time_1,
+				'post_name'      => $feedback_id_1,
+				'post_content'   => wp_json_encode( $content_1, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v2',
+				'post_parent'    => $post ? $post->ID : 0,
+			)
+		);
+
+		// Create another feedback with different duplicate pattern
+		$feedback_time_2  = current_time( 'mysql' );
+		$feedback_title_2 = 'Test User 2 - ' . $feedback_time_2;
+		$feedback_id_2    = md5( $feedback_title_2 );
+
+		$fields_2 = array(
+			( new Feedback_Field( '1_name', 'Name', 'John Doe', 'text', array(), 'name' ) )->serialize(),
+			( new Feedback_Field( '2_question', 'Question', 'What is this?', 'text', array(), 'question' ) )->serialize(),
+			( new Feedback_Field( '3_empty', '', 'Some data', 'text', array(), 'empty' ) )->serialize(), // Empty label
+		);
+
+		$content_2 = array(
+			'subject'     => 'Test Subject 2',
+			'ip'          => 'https://127.0.0.2',
+			'entry_title' => 'Cool Post Title',
+			'entry_page'  => 1,
+			'fields'      => $fields_2,
+		);
+
+		$post_id_2 = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => addslashes( wp_kses( $feedback_title_2, array() ) ),
+				'post_date'      => $feedback_time_2,
+				'post_name'      => $feedback_id_2,
+				'post_content'   => wp_json_encode( $content_2, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v2',
+				'post_parent'    => $post ? $post->ID : 0,
+			)
+		);
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->get_export_feedback_data( array( $post_id_1, $post_id_2 ) );
+
+		// Verify that the result contains the expected fields with incremented labels
+		$this->assertIsArray( $result );
+
+		// Check that duplicate "Question" labels are incremented
+		$this->assertTrue( isset( $result['Question'] ), 'First Question field should exist' );
+		$this->assertTrue( isset( $result['Question (2)'] ), 'Second Question field should be incremented' );
+		$this->assertTrue( isset( $result['Question (3)'] ), 'Third Question field should be incremented' );
+
+		// Check that empty labels are replaced with "Field" and incremented
+		$this->assertTrue( isset( $result['Field'] ), 'First empty field should be "Field"' );
+		$this->assertTrue( isset( $result['Field (2)'] ), 'Second empty field should be "Field (2)"' );
+
+		// Check regular fields
+		$this->assertTrue( isset( $result['Email'] ), 'Email field should exist' );
+		$this->assertTrue( isset( $result['Name'] ), 'Name field should exist' );
+
+		// Verify the data integrity - all fields should have 2 entries (one per feedback)
+		$this->assertCount( 2, $result['Question'], 'Question should have 2 entries' );
+		$this->assertCount( 2, $result['Question (2)'], 'Question (2) should have 2 entries' );
+		$this->assertCount( 2, $result['Question (3)'], 'Question (3) should have 2 entries' );
+
+		// Verify the actual values for the first feedback
+		$this->assertEquals( 'Answer 1', $result['Question'][0], 'First Question should have correct value' );
+		$this->assertEquals( 'Answer 2', $result['Question (2)'][0], 'Second Question should have correct value' );
+		$this->assertEquals( 'Answer 3', $result['Question (3)'][0], 'Third Question should have correct value' );
+		$this->assertEquals( 'Hidden value 1', $result['Field'][0], 'First Field should have correct value' );
+		$this->assertEquals( 'Hidden value 2', $result['Field (2)'][0], 'Second Field should have correct value' );
+
+		// Verify the second feedback has empty values for fields it doesn't have
+		$this->assertEquals( 'What is this?', $result['Question'][1], 'Second feedback Question should have value' );
+		$this->assertSame( '', $result['Question (2)'][1], 'Second feedback should have empty Question (2)' );
+		$this->assertSame( '', $result['Question (3)'][1], 'Second feedback should have empty Question (3)' );
+
+		Utility::destroy_post_context( $current_post );
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed wpcom_theme_switch tracking not working on Simple sites.

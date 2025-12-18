@@ -1,6 +1,6 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import clsx from 'clsx';
-import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'backgroundColor', 'borderColor', 'style', 'textColor' ];

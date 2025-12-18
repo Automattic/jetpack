@@ -6,8 +6,8 @@ import {
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 
 export default function MultipleChoiceFieldEdit( props ) {
 	const { className, clientId, setAttributes, isSelected, attributes } = props;

@@ -3,15 +3,19 @@ on:
   create:
   delete:
 
+permissions:
+  # actions/checkout
+  contents: read
+
 jobs:
   notify:
     name: Notify
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2022-11-22: Shouldn't take long.
+    timeout-minutes: 5 # 2025-11-20: Takes a few seconds.
     if: github.event.ref == 'prerelease'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: trunk
       - name: Generate message

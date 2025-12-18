@@ -1,5 +1,15 @@
 :global {
 
+	// Hello Dolly compatibility fix
+	body.jetpack_page_my-jetpack p#dolly {
+		position: absolute;
+		inset-inline-end: 0;
+
+		@media (max-width: 782px) {
+			padding-inline-end: 10px;
+		}
+	}
+
 	#my-jetpack-container {
 		--wp-admin-theme-color: var(--jp-black);
 		--wp-admin-theme-color-darker-10: var(--jp-black-80);
@@ -68,6 +78,10 @@
 				margin-top: 0 !important;
 				padding-top: 0 !important;
 			}
+		}
+
+		p#dolly { // Hide Hello Dolly
+			display: none;
 		}
 	}
 }

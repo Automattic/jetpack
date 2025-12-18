@@ -197,7 +197,7 @@ class Jetpack_WPCOM_Block_Editor {
 		<script type="application/javascript">
 			document.getElementById( 'loginform' ).addEventListener( 'submit' , function() {
 				document.getElementById( 'wp-submit' ).setAttribute( 'disabled', 'disabled' );
-				document.getElementById( 'wp-submit' ).value = '<?php echo esc_js( __( 'Logging In...', 'jetpack-mu-wpcom' ) ); ?>';
+				document.getElementById( 'wp-submit' ).value = <?php echo wp_json_encode( __( 'Logging In...', 'jetpack-mu-wpcom' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 			} );
 		</script>
 		<?php
@@ -391,7 +391,6 @@ class Jetpack_WPCOM_Block_Editor {
 					? '//widgets.wp.com/wpcom-block-editor/calypso.editor.js?minify=false'
 					: '//widgets.wp.com/wpcom-block-editor/calypso.editor.min.js',
 				array(
-					'calypsoify_wpadminmods_js',
 					'jquery',
 					'lodash',
 					'react',

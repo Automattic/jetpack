@@ -21,7 +21,10 @@ class Modules_Test extends BaseTestCase {
 			$reflection_class->setStaticPropertyValue( 'initialized_modules', null );
 		} catch ( \ReflectionException $e ) { // PHP 7 compat
 			$configured = $reflection_class->getProperty( 'initialized_modules' );
-			$configured->setAccessible( true );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$configured->setAccessible( true );
+			}
 			$configured->setValue( null );
 		}
 	}

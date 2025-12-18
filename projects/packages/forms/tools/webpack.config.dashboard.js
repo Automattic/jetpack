@@ -2,13 +2,19 @@
  * Builds the forms dashboard JS bundle.
  */
 
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+import { createRequire } from 'module';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
+
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = path.dirname( __filename );
+const require = createRequire( import.meta.url );
 
 /**
- * Generate i18n function variants for @automattic/babel-plugin-replace-textdomain.
+ * Generate i18n function variants for `@automattic/babel-plugin-replace-textdomain`.
  *
- * The @wordpress/dataviews currently uses the i18n functions under a variety of aliases,
+ * The `@wordpress/dataviews` currently uses the i18n functions under a variety of aliases,
  * which makes it a pain to add the proper textdomain. This function generates an object
  * with the base function and 99 more variants as keys.
  *
@@ -24,7 +30,7 @@ const generateI18nVariants = ( baseFn, value ) =>
 		] )
 	);
 
-module.exports = {
+export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
 		'jetpack-forms-dashboard': path.join( __dirname, '..', 'src/dashboard/index.tsx' ),
@@ -42,6 +48,15 @@ module.exports = {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
+			'@wordpress/admin-ui/build-style/style.css': path.join(
+				__dirname,
+				'..',
+				'node_modules',
+				'@wordpress',
+				'admin-ui',
+				'build-style',
+				'style.css'
+			),
 		},
 	},
 	externals: {
@@ -52,6 +67,13 @@ module.exports = {
 	},
 	module: {
 		rules: [
+			// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
+			// https://github.com/WordPress/gutenberg/issues/73362
+			{
+				test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
+				resolve: { fullySpecified: false },
+			},
+
 			// Transpile JavaScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
@@ -63,7 +85,7 @@ module.exports = {
 			} ),
 
 			/**
-			 * Transpile @wordpress/dataviews in node_modules too.
+			 * Transpile `@wordpress/dataviews` in node_modules too.
 			 *
 			 * @see https://github.com/Automattic/jetpack/issues/39907
 			 */
@@ -97,7 +119,19 @@ module.exports = {
 			jetpackWebpackConfig.FileRule(),
 		],
 	},
-	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+	plugins: [
+		...jetpackWebpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: {
+				requestMap: {
+					// Bundle the package with our assets until WP core exposes wp-admin-ui.
+					'@wordpress/admin-ui': { external: false },
+					'@wordpress/admin-ui/build-style/style.css': { external: false },
+					// Bundle jetpack-connection since it's used by IntegrationsModal
+					'@automattic/jetpack-connection': { external: false },
+				},
+			},
+		} ),
+	],
 	watchOptions: {
 		...jetpackWebpackConfig.watchOptions,
 	},

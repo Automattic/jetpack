@@ -30,9 +30,9 @@ if $ALL; then
 		SKIPS+=( -o -name php8 )
 	fi
 
-	# `tools/` and `.github/` only need to be compatibile with 8.2.
+	# `tools/` and `.github/` only need to be compatible with 8.4.
 	# See also the `.phpcs.dir.xml` and `.phpcs.dir.phpcompatibility.xml` files in those dirs, and PHP_VERSION in .github/versions.sh.
-	if php -r 'exit( PHP_VERSION_ID < 80200 ? 0 : 1 );'; then
+	if php -r 'exit( PHP_VERSION_ID < 80400 ? 0 : 1 );'; then
 		SKIPS+=( -o -path ./tools )
 		SKIPS+=( -o -path ./.github )
 	fi

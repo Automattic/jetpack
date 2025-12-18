@@ -5,8 +5,7 @@ import { Path } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import { getIconColor } from '../shared/util/block-icons';
+import renderMaterialIcon from '../shared/components/render-material-icon.js';
 
 // "group" icon from @wordpress/icons
 const ImageOptionInputIcon = renderMaterialIcon(
@@ -14,6 +13,5 @@ const ImageOptionInputIcon = renderMaterialIcon(
 );
 
 export default {
-	foreground: getIconColor(),
 	src: ImageOptionInputIcon,
 };

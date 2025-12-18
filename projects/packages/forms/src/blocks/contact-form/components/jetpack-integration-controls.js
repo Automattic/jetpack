@@ -1,12 +1,14 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton, Button, PanelBody } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
-import IntegrationsModal from './jetpack-integrations-modal';
-import ActiveIntegrations from './jetpack-integrations-modal/active-integrations';
-import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/use-integrations-status';
+import useConfigValue from '../../../hooks/use-config-value.ts';
+import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
+import ActiveIntegrations from './jetpack-integrations-modal/active-integrations/index.js';
+import IntegrationsModal from './jetpack-integrations-modal/index.tsx';
 
 /**
  * Integration controls component containing Panel for settings sidebar and block toolbar.
@@ -18,8 +20,14 @@ import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/use-in
  */
 export default function IntegrationControls( { attributes, setAttributes } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const { integrations, refreshIntegrations, isLoading } = useIntegrationsStatus();
+	const integrations = useSelect( select => {
+		const store = select( INTEGRATIONS_STORE );
+		return store.getIntegrations() || [];
+	}, [] );
+	const isLoading = useSelect( select => select( INTEGRATIONS_STORE ).isIntegrationsLoading(), [] );
+	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const { tracks } = useAnalytics();
+	const showIntegrationIcons = useConfigValue( 'showIntegrationIcons' );
 
 	const handleOpenModal = entry_point => {
 		tracks.recordEvent( 'jetpack_forms_block_modal_view', { entry_point } );
@@ -30,14 +38,16 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 		<>
 			<PanelBody
 				title={ __( 'Integrations', 'jetpack-forms' ) }
-				className="jetpack-contact-form__integrations-panel"
+				className="jetpack-contact-form__panel jetpack-contact-form__integrations-panel"
 				initialOpen={ false }
 			>
-				<ActiveIntegrations
-					integrations={ integrations }
-					attributes={ attributes }
-					isLoading={ isLoading }
-				/>
+				{ showIntegrationIcons !== false && (
+					<ActiveIntegrations
+						integrations={ integrations }
+						attributes={ attributes }
+						isLoading={ isLoading }
+					/>
+				) }
 				<Button
 					variant="secondary"
 					onClick={ () => handleOpenModal( 'block-sidebar' ) }

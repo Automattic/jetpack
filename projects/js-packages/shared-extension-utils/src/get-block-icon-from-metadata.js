@@ -1,5 +1,4 @@
 import { createElement } from '@wordpress/element';
-import getIconColor from './get-icon-color';
 
 /**
  * Generate an icon as a React component from the SVG markup defined in a block.json metadata file.
@@ -50,6 +49,5 @@ export function getBlockIconComponent( metadata ) {
 export function getBlockIconProp( metadata ) {
 	return {
 		src: getBlockIconComponent( metadata ),
-		foreground: getIconColor(),
 	};
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Limit persisted Help Center history stack to 50 entries

@@ -187,6 +187,10 @@ function enrich_video_meta( $media_file ) {
  * @return string
  */
 function render_image( $media ) {
+	$src    = '';
+	$width  = null;
+	$height = null;
+
 	if ( empty( $media['id'] ) || empty( $media['url'] ) ) {
 		return __( 'Error retrieving media', 'jetpack' );
 	}
@@ -196,7 +200,7 @@ function render_image( $media ) {
 	}
 
 	// if image does not match.
-	if ( ! $image || isset( $media['url'] ) && ! is_same_resource( $media['url'], $src ) ) {
+	if ( ! $image || isset( $media['url'] ) && ! is_same_resource( $media['url'], $src ?? '' ) ) {
 		$width  = isset( $media['width'] ) ? $media['width'] : null;
 		$height = isset( $media['height'] ) ? $media['height'] : null;
 		$title  = isset( $media['title'] ) ? $media['title'] : '';
@@ -502,7 +506,7 @@ function render_block( $attributes ) {
 		</div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes, array( 'wp-story', 'aligncenter' ) ) ),
 		esc_attr( 'wp-story-' . get_the_ID() . '-' . strval( ++$story_block_counter ) ),
-		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
+		filter_var( wp_json_encode( $settings, JSON_UNESCAPED_SLASHES ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
 		__( 'Play story in new tab', 'jetpack' ),
 		__( 'Site icon', 'jetpack' ),

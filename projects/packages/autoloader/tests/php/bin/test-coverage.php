@@ -165,7 +165,7 @@ function get_path_transformation_map( $report_file_paths ) {
  *
  * @phan-suppress PhanAccessMethodInternal -- There's not really a way to avoid this.
  */
-function process_coverage_11( $report ) {
+function process_coverage_12( $report ) {
 	$data      = $report->getData( true );
 	$classname = get_class( $data );
 

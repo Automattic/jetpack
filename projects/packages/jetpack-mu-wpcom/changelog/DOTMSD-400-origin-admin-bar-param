@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added query parameter to detect when Calypso navigation is coming from wpcom admin bar.

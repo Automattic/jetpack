@@ -11,6 +11,10 @@ namespace Automattic\Jetpack\Image_CDN\Compatibility;
 
 use Automattic\Jetpack\Image_CDN\Image_CDN;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Hook the compatibility functions into ActivityPub filters if necessary.
  *

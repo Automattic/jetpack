@@ -3,23 +3,27 @@
 	"description": "Enhances your site with features powered by WordPress.com",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
+	"_comment": [
+		"Dependency on symfony/filesystem is so scssphp/scssphp doesn't bring in 7.x which requires PHP 8.2."
+	],
 	"require": {
 		"php": ">=8.1",
+		"automattic/block-delimiter": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-blocks": "@dev",
-		"automattic/jetpack-calypsoify": "@dev",
 		"automattic/jetpack-classic-theme-helper": "@dev",
+		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-google-analytics": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-subscribers-dashboard": "@dev",
 		"automattic/scheduled-updates": "@dev",
-		"automattic/jetpack-compat": "@dev",
-		"automattic/jetpack-google-analytics": "@dev",
-		"automattic/block-delimiter": "@dev",
-		"scssphp/scssphp": "1.13.0",
-		"automattic/jetpack-subscribers-dashboard": "@dev"
+		"scssphp/scssphp": "2.1.0",
+		"symfony/filesystem": "^6.0.0",
+		"automattic/jetpack-explat": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
@@ -71,7 +75,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "6.7.x-dev"
+			"dev-trunk": "6.8.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

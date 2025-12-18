@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Device Detection: use an embedded version instead of the Composer dependency

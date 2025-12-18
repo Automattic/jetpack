@@ -8,9 +8,15 @@ on:
 jobs:
   stale:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 10 # 2025-11-20: Takes less than a minute.
+    permissions:
+      # Per actions/stale docs
+      actions: write
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
-      - uses: actions/stale@v9
+      - uses: actions/stale@v10
         with:
           # Get PRs in ascending (oldest first) order.
           ascending: true

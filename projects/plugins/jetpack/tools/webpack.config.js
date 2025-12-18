@@ -38,6 +38,13 @@ const sharedWebpackConfig = {
 	module: {
 		strictExportPresence: true,
 		rules: [
+			// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
+			// https://github.com/WordPress/gutenberg/issues/73362
+			{
+				test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
+				resolve: { fullySpecified: false },
+			},
+
 			// Transpile JavaScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
@@ -166,7 +173,7 @@ module.exports = [
 			} ),
 		},
 	},
-	// Build static.jsx (which produces pre-rendered HTML).
+	// Build generator.jsx (which produces pre-rendered HTML).
 	{
 		...sharedWebpackConfig,
 		entry: { static: path.join( __dirname, '../_inc/client', 'generator.jsx' ) },

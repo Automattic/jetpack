@@ -5,8 +5,7 @@ import { Path } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import { getIconColor } from '../shared/util/block-icons';
+import renderMaterialIcon from '../shared/components/render-material-icon.js';
 
 // "image" icon from @wordpress/icons
 const ImageSelectFieldIcon = renderMaterialIcon(
@@ -14,6 +13,5 @@ const ImageSelectFieldIcon = renderMaterialIcon(
 );
 
 export default {
-	foreground: getIconColor(),
 	src: ImageSelectFieldIcon,
 };

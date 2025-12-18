@@ -1,19 +1,13 @@
-import {
-	useBlockProps,
-	useInnerBlocksProps,
-	InspectorControls,
-	BlockContextProvider,
-} from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps, BlockContextProvider } from '@wordpress/block-editor';
 import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	PanelBody,
 	TextControl,
 } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import './editor.scss';
 
 export default function SliderFieldEdit( props ) {
@@ -149,77 +143,6 @@ export default function SliderFieldEdit( props ) {
 
 	return (
 		<>
-			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<HStack alignment="top" className="jp-field-slider-inspector-row">
-						<NumberControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Min value', 'jetpack-forms' ) }
-							max={ max }
-							min={ Number.MIN_SAFE_INTEGER }
-							onChange={ onChangeMin }
-							value={ min }
-							spinControls="custom"
-						/>
-						<NumberControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Max value', 'jetpack-forms' ) }
-							max={ Number.MAX_SAFE_INTEGER }
-							min={ min }
-							onChange={ onChangeMax }
-							value={ max }
-							spinControls="custom"
-						/>
-					</HStack>
-					<HStack alignment="top" className="jp-field-slider-inspector-row">
-						<TextControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Min label', 'jetpack-forms' ) }
-							value={ minLabel }
-							onChange={ onChangeMinLabel }
-						/>
-						<TextControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Max label', 'jetpack-forms' ) }
-							value={ maxLabel }
-							onChange={ onChangeMaxLabel }
-						/>
-					</HStack>
-					<HStack alignment="top" className="jp-field-slider-inspector-row">
-						<NumberControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Default value', 'jetpack-forms' ) }
-							min={ min }
-							max={ max }
-							value={ localDefault }
-							onChange={ val => {
-								setLocalDefault( val );
-								const snapped = snapToStep( val, step );
-								setAttributes( { default: snapped } );
-							} }
-							onFocus={ () => setDefaultFocused( true ) }
-							onBlur={ () => setDefaultFocused( false ) }
-							spinControls="custom"
-							step={ step || 1 }
-						/>
-						<NumberControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Increment', 'jetpack-forms' ) }
-							min={ 0 }
-							step={ 1 }
-							value={ step }
-							onChange={ onChangeStep }
-							spinControls="custom"
-						/>
-					</HStack>
-				</PanelBody>
-			</InspectorControls>
 			<BlockContextProvider
 				value={ {
 					'jetpack/field-slider-onChangeDefault': onChangeDefault,
@@ -239,6 +162,82 @@ export default function SliderFieldEdit( props ) {
 				required={ required }
 				setAttributes={ setAttributes }
 				width={ width }
+				extraFieldSettings={ [
+					{
+						index: 1,
+						element: (
+							<>
+								<HStack alignment="top" className="jp-field-slider-inspector-row">
+									<NumberControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										label={ __( 'Min value', 'jetpack-forms' ) }
+										max={ max }
+										min={ Number.MIN_SAFE_INTEGER }
+										onChange={ onChangeMin }
+										value={ min }
+										spinControls="custom"
+									/>
+									<NumberControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										label={ __( 'Max value', 'jetpack-forms' ) }
+										max={ Number.MAX_SAFE_INTEGER }
+										min={ min }
+										onChange={ onChangeMax }
+										value={ max }
+										spinControls="custom"
+									/>
+								</HStack>
+								<HStack alignment="top" className="jp-field-slider-inspector-row">
+									<TextControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										label={ __( 'Min label', 'jetpack-forms' ) }
+										value={ minLabel }
+										onChange={ onChangeMinLabel }
+									/>
+									<TextControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										label={ __( 'Max label', 'jetpack-forms' ) }
+										value={ maxLabel }
+										onChange={ onChangeMaxLabel }
+									/>
+								</HStack>
+								<HStack alignment="top" className="jp-field-slider-inspector-row">
+									<NumberControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										label={ __( 'Default value', 'jetpack-forms' ) }
+										min={ min }
+										max={ max }
+										value={ localDefault }
+										onChange={ val => {
+											setLocalDefault( val );
+											const snapped = snapToStep( val, step );
+											setAttributes( { default: snapped } );
+										} }
+										onFocus={ () => setDefaultFocused( true ) }
+										onBlur={ () => setDefaultFocused( false ) }
+										spinControls="custom"
+										step={ step || 1 }
+									/>
+									<NumberControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										label={ __( 'Increment', 'jetpack-forms' ) }
+										min={ 0 }
+										step={ 1 }
+										value={ step }
+										onChange={ onChangeStep }
+										spinControls="custom"
+									/>
+								</HStack>
+							</>
+						),
+					},
+				] }
 			/>
 		</>
 	);

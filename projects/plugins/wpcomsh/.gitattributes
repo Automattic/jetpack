@@ -12,7 +12,15 @@ package.json      export-ignore
 /vendor/automattic/**                         production-include
 /vendor/composer/**                           production-include
 /vendor/jetpack-autoloader/**                 production-include
+/vendor/league/uri-interfaces/**              production-include
+/vendor/league/uri/**                         production-include
+/vendor/psr/http-factory/**                   production-include
+/vendor/psr/http-message/**                   production-include
 /vendor/scssphp/scssphp/**                    production-include
+/vendor/scssphp/source-span/**                production-include
+/vendor/symfony/filesystem/**                 production-include
+/vendor/symfony/polyfill-ctype/**             production-include
+/vendor/symfony/polyfill-mbstring/**          production-include
 /vendor/tubalmartin/**                        production-include
 /vendor/wordpress/classic-editor-plugin/**    production-include
 /jetpack_vendor/**                            production-include

@@ -11,6 +11,10 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Checks whether the navigation customizations should be performed for the given class.
  *
@@ -28,11 +32,6 @@ function should_customize_nav( $admin_menu_class ) {
 
 	// No nav customizations on WP Admin of Atomic sites when SSO is disabled.
 	if ( is_a( $admin_menu_class, Atomic_Admin_Menu::class, true ) && ! $is_api_request && ! ( new Modules() )->is_active( 'sso' ) ) {
-		return false;
-	}
-
-	// No nav customizations on WP Admin of Jetpack sites.
-	if ( is_a( $admin_menu_class, Jetpack_Admin_Menu::class, true ) && ! $is_api_request ) {
 		return false;
 	}
 
@@ -82,21 +81,14 @@ function get_admin_menu_class() {
 			return Domain_Only_Admin_Menu::class;
 		}
 
-		// P2 sites.
-		require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
-		if ( \WPForTeams\is_wpforteams_site( $blog_id ) ) {
-			require_once __DIR__ . '/class-p2-admin-menu.php';
-			return P2_Admin_Menu::class;
-		}
-
 		// Rest of simple sites.
 		require_once __DIR__ . '/class-wpcom-admin-menu.php';
 		return WPcom_Admin_Menu::class;
 	}
 
-	// Jetpack sites.
-	require_once __DIR__ . '/class-jetpack-admin-menu.php';
-	return Jetpack_Admin_Menu::class;
+	// Default menu class.
+	require_once __DIR__ . '/class-admin-menu.php';
+	return Admin_Menu::class;
 }
 
 /**

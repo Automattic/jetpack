@@ -36,11 +36,9 @@ $config = array(
 
 $iter = new AppendIterator();
 $iter->append(
-	// @phan-suppress-next-line PhanTypeMismatchArgumentInternal -- Phan is confused; resolved in Phan >5.5.1. RecursiveDirectoryIterator implements RecursiveIterator
 	new RecursiveIteratorIterator( new RecursiveDirectoryIterator( 'vendor/phpunit' ) )
 );
 $iter->append(
-	// @phan-suppress-next-line PhanTypeMismatchArgumentInternal -- Phan is confused; resolved in Phan >5.5.1. RecursiveDirectoryIterator implements RecursiveIterator
 	new RecursiveIteratorIterator( new RecursiveDirectoryIterator( 'vendor/sebastian' ) )
 );
 foreach ( $iter as $k => $v ) {

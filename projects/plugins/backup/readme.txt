@@ -3,8 +3,8 @@ Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraft
 Tags: jetpack, backup, restore
 Requires at least: 6.7
 Requires PHP: 7.2
-Tested up to: 6.8
-Stable tag: 2.2
+Tested up to: 6.9
+Stable tag: 3.7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -175,25 +175,10 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 3.5 - 2025-09-08
-#### Added
-- My Jetpack: Added analytics for empty product search results.
-
-#### Changed
-- - Remove CRM installation nudge for Complete plan users.
-- My Jetpack: Enable access to My Jetpack on WP Multisite.
-- My Jetpack: Fix multisite availability check for restricted products and modules.
-- My Jetpack: Unify the user connection flow with a unified screen.
-- My Jetpack: Update Stats card to include a chart for better analytics.
-- Sync: Ignore the ActivityPub Outbox CPT.
-- Update package dependencies.
-
+### 3.7.1 - 2025-11-20
 #### Fixed
-- JITM: Fix ineffective caching due to expired plugin sync transient/
-- My Jetpack: Fix footer alignment for disconnected accounts.
-- My Jetpack: Prevent expiration alerts for products covered by active bundles.
-- My Jetpack: Restore plan purchase link.
-- JITM: Remove jQuery dependency.
+- Jetpack: Remove getIconColor functions for block icons.
+- My Jetpack: Fix expiring renewal prompt to show all products.
 
 --------
 

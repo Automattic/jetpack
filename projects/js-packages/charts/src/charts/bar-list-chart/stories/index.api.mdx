@@ -1,0 +1,77 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Bar List Chart/API Reference" />
+
+# Bar List Chart API Reference
+
+## BarListChart
+
+A horizontal bar chart component optimized for list-style data presentation.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `SeriesData[]` | - | **Required.** Array of series data objects |
+| `width` | `number` | - | Chart width in pixels |
+| `height` | `number` | `400` | Chart height in pixels |
+| `margin` | `ChartMargin` | `{ left: 0, right: 20, bottom: 0, top: 0 }` | Chart margins |
+| `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
+| `animation` | `boolean` | `false` | Enable entry animation on initial render. Bars stretch from left to right. Automatically respects user's `prefers-reduced-motion` system setting |
+| `renderTooltip` | `Function` | - | Custom tooltip render function |
+| `options` | `BarListChartOptions` | `{}` | Chart configuration options |
+
+## SeriesData Type
+
+```typescript
+type SeriesData = {
+	group: string;
+	label: string;
+	data: Array<{
+		label: string;
+		value: number;
+	}>;
+};
+```
+
+## BarListChartOptions Type
+
+```typescript
+type BarListChartOptions = {
+	yScale?: Omit<ScaleOptions, 'type'>;
+	xScale?: Omit<ScaleOptions, 'type'>;
+	labelFormatter?: (value: string) => string;
+	valueFormatter?: (value: number) => string;
+	yOffset?: number;
+	labelPosition?: number;
+	valuePosition?: number;
+	labelComponent?: ComponentType<RenderLabelProps>;
+	valueComponent?: ComponentType<RenderValueProps>;
+};
+```
+
+## RenderLabelProps Type
+
+```typescript
+type RenderLabelProps = {
+	textProps: TextProps;
+	x: number;
+	y: number;
+	label: string;
+	formatter: (value: string) => string;
+};
+```
+
+## RenderValueProps Type
+
+```typescript
+type RenderValueProps = {
+	textProps: TextProps;
+	x: number;
+	y: number;
+	value: number;
+	data: SeriesData[];
+	index: number;
+	formatter: (value: number) => string;
+};
+```

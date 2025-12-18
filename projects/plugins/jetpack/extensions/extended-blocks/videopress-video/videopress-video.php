@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Extensions\VideoPress_Video;
 
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Set the videopress/video block availability, depending on the site plan.
 add_action(
 	'jetpack_register_gutenberg_extensions',

@@ -14,7 +14,11 @@ const AttributesControls = ( { attributes, setAttributes } ) => {
 
 	return (
 		<InspectorControls>
-			<PanelBody title={ __( 'Settings', 'jetpack-forms' ) } initialOpen={ true }>
+			<PanelBody
+				title={ __( 'Settings', 'jetpack-forms' ) }
+				initialOpen={ true }
+				className="jetpack-contact-form__panel"
+			>
 				<TextControl
 					label={ __( 'Step label', 'jetpack-forms' ) }
 					value={ stepLabel }

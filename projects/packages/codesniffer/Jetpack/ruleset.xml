@@ -26,7 +26,7 @@
 	-->
 	<rule ref="MediaWiki.Usage.InArrayUsage" />
 	<rule ref="MediaWiki.Usage.MagicConstantClosure" />
-	<rule ref="MediaWiki.Usage.NestedFunctions" />
+	<rule ref="Squiz.PHP.InnerFunctions" /> <!-- Formerly MediaWiki.Usage.NestedFunctions -->
 	<rule ref="MediaWiki.Usage.PlusStringConcat" />
 	<rule ref="MediaWiki.Usage.ReferenceThis" />
 	<rule ref="MediaWiki.WhiteSpace.EmptyLinesBetweenUse" />

@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial_Title_Control' ) ) {
 	/**
 	 * Extends the WP_Customize_Control class to clean the title parameter.

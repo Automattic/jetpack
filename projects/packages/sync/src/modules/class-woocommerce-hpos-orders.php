@@ -119,7 +119,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	public function init_listeners( $callable ) {
 		foreach ( self::get_order_types_to_sync() as $type ) {
 			add_action( "woocommerce_after_{$type}_object_save", $callable );
-			add_filter( "jetpack_sync_before_enqueue_woocommerce_after_{$type}_object_save", array( $this, 'expand_order_object' ) );
+			add_filter( "jetpack_sync_before_enqueue_woocommerce_after_{$type}_object_save", array( $this, 'on_before_enqueue_order_save' ) );
 		}
 		add_action( 'woocommerce_delete_order', $callable );
 		add_action( 'woocommerce_delete_subscription', $callable );
@@ -148,6 +148,10 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
+		// Incremental Sync
+		foreach ( self::get_order_types_to_sync() as $type ) {
+			add_filter( "jetpack_sync_before_send_woocommerce_after_{$type}_object_save", array( $this, 'expand_order_object' ) );
+		}
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_hpos_orders', array( $this, 'build_full_sync_action_array' ) );
 	}
@@ -263,15 +267,41 @@ class WooCommerce_HPOS_Orders extends Module {
 	}
 
 	/**
+	 * Retrieve filtered order data before sending.
+	 *
+	 * @access public
+	 *
+	 * @param array $args An array with order data.
+	 *
+	 * @return array|false
+	 */
+	public function expand_order_object( $args ) {
+		if ( empty( $args['id'] ) ) {
+			return false;
+		}
+
+		$order_object = wc_get_order( $args['id'] );
+
+		if ( ! $order_object instanceof \WC_Abstract_Order ) {
+			return false;
+		}
+
+		return $this->filter_order_data( $order_object );
+	}
+
+	/**
 	 * Retrieve order data by its ID.
 	 *
 	 * @access public
 	 *
 	 * @param array $args Order ID.
 	 *
-	 * @return array
+	 * @return array|false
 	 */
-	public function expand_order_object( $args ) {
+	public function on_before_enqueue_order_save( $args ) {
+		// Prevent multiple triggers on a single request.
+		static $processed = array();
+
 		if ( ! is_array( $args ) || ! isset( $args[0] ) ) {
 			return false;
 		}
@@ -285,7 +315,19 @@ class WooCommerce_HPOS_Orders extends Module {
 			return false;
 		}
 
-		return $this->filter_order_data( $order_object );
+		$order_id = $order_object->get_id();
+
+		if ( empty( $order_id ) ) {
+			return false;
+		}
+
+		if ( isset( $processed[ $order_id ] ) ) {
+			return false;
+		}
+
+		$processed[ $order_id ] = true;
+
+		return array( 'id' => $order_id );
 	}
 
 	/**

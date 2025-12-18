@@ -120,8 +120,11 @@ class Main {
 	public static function map_meta_caps( $caps, $cap, $user_id ) {
 		// Map view_stats to exists.
 		if ( 'view_stats' === $cap ) {
-			$user        = new WP_User( $user_id );
-			$user_role   = array_shift( $user->roles );
+			$user = new WP_User( $user_id );
+			// WordPress 6.9 introduced lazy-loading of some WP_User properties, including `roles`.
+			// It also made said properties protected, so we can't modify keys directly.
+			$user_roles  = $user->roles;
+			$user_role   = array_shift( $user_roles ); // Work with the copy
 			$stats_roles = Options::get_option( 'roles' );
 
 			// Is the users role in the available stats roles?

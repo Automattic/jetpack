@@ -32,7 +32,8 @@ class Utility {
 		$comment_ip_text = 'https://127.0.0.1',
 		$subject = 'Test Subject',
 		$status = 'publish',
-		$strip_new_lines = false
+		$strip_new_lines = false,
+		$is_unread = false
 	) {
 		global $post;
 		$feedback_time  = current_time( 'mysql' );
@@ -66,20 +67,21 @@ class Utility {
 			$entry_values
 		);
 
-		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values, JSON_UNESCAPED_SLASHES ), array() ) );
 		if ( $strip_new_lines ) {
 			$content = str_replace( array( "\n", "\r" ), ' ', $content );
 		}
 		// Create a mock post with JSON_DATA format
 		return wp_insert_post(
 			array(
-				'post_date'    => addslashes( $feedback_time ),
-				'post_type'    => 'feedback',
-				'post_status'  => addslashes( $status ),
-				'post_parent'  => $post ? $post->ID : 0,
-				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
-				'post_content' => $content, // so that search will pick up this data
-				'post_name'    => $feedback_id,
+				'post_date'      => addslashes( $feedback_time ),
+				'post_type'      => 'feedback',
+				'post_status'    => addslashes( $status ),
+				'post_parent'    => $post ? $post->ID : 0,
+				'post_title'     => addslashes( wp_kses( $feedback_title, array() ) ),
+				'post_content'   => $content, // so that search will pick up this data
+				'post_name'      => $feedback_id,
+				'comment_status' => $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ,
 			)
 		);
 	}
@@ -138,7 +140,7 @@ class Utility {
 				'post_title'     => addslashes( wp_kses( $feedback_title, array() ) ),
 				'post_date'      => $feedback_time,
 				'post_name'      => $feedback_id,
-				'post_content'   => wp_json_encode( $content ),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
 				'post_mime_type' => 'v2', // a way to help us identify what version of the data this is.
 				'post_parent'    => $post ? $post->ID : 0,
 			)

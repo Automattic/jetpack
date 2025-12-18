@@ -112,9 +112,12 @@ class Instant_Search extends Classic_Search {
 			'build/instant-search/jp-search.js',
 			$package_base_path . '/src', // A full path to a file or a directory inside a plugin.
 			array(
-				'dependencies' => array( 'wp-i18n' ),
-				'in_footer'    => true,
-				'textdomain'   => 'jetpack-search-pkg',
+				'dependencies'     => array( 'wp-i18n' ),
+				'in_footer'        => true,
+				'textdomain'       => 'jetpack-search-pkg',
+				// CSS is extracted by webpack but not auto-injected, allowing WordPress to control loading
+				'css_path'         => 'build/instant-search/jp-search.chunk-main-payload.css',
+				'css_dependencies' => array(),
 			)
 		);
 		Assets::enqueue_script( 'jetpack-instant-search' );
@@ -128,7 +131,7 @@ class Instant_Search extends Classic_Search {
 	protected function inject_javascript_options() {
 		$options = Helper::generate_initial_javascript_state();
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
+		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=' . wp_json_encode( $options, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
 	}
 
 	/**
@@ -225,7 +228,7 @@ class Instant_Search extends Classic_Search {
 		$start_time = microtime( true );
 
 		// Cache locally to avoid remote request slowing the page.
-		$transient_name = 'jetpack_instant_search_cache_' . md5( wp_json_encode( $args ) );
+		$transient_name = 'jetpack_instant_search_cache_' . md5( wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) );
 		$cache          = get_transient( $transient_name );
 		if ( false !== $cache ) {
 			return $cache;

@@ -8,7 +8,17 @@ import GeneratedImagePreview, {
 } from '..';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 
-jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
+jest.mock( '@wordpress/data', () => {
+	const actual = jest.requireActual( '@wordpress/data' );
+	const mocks = {
+		useSelect: jest.fn(),
+	};
+	return new Proxy( actual, {
+		get( target, property ) {
+			return mocks[ property ] ?? target[ property ];
+		},
+	} );
+} );
 jest.mock( '@wordpress/api-fetch' );
 
 jest.mock( '../../../hooks/use-image-generator-config', () => jest.fn() );

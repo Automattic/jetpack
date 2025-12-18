@@ -375,7 +375,7 @@ class Sharing_Admin {
 	</div>
 
 	<script type="text/javascript">
-		var sharing_loading_icon = '<?php echo esc_js( admin_url( '/images/loading.gif' ) ); ?>';
+		var sharing_loading_icon = <?php echo wp_json_encode( admin_url( '/images/loading.gif' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		<?php
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- we handle the nonce on the PHP side.
 		if (
@@ -385,9 +385,9 @@ class Sharing_Admin {
 			?>
 		jQuery(document).ready(function() {
 			// Prefill new service box and then open it
-			jQuery( '#new_sharing_name' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['name'] ) ) ); ?>' );
-			jQuery( '#new_sharing_url' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['url'] ) ) ); ?>' );
-			jQuery( '#new_sharing_icon' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['icon'] ) ) ); ?>' );
+			jQuery( '#new_sharing_name' ).val( <?php echo wp_json_encode( sanitize_text_field( wp_unslash( $_GET['name'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
+			jQuery( '#new_sharing_url' ).val( <?php echo wp_json_encode( sanitize_text_field( wp_unslash( $_GET['url'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
+			jQuery( '#new_sharing_icon' ).val( <?php echo wp_json_encode( sanitize_text_field( wp_unslash( $_GET['icon'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			jQuery( '#add-a-new-service' ).click();
 		});
 		<?php endif; ?>
@@ -403,7 +403,7 @@ class Sharing_Admin {
 	 */
 	public function should_use_site_editor() {
 			$block_availability = Jetpack_Gutenberg::get_cached_availability();
-			$is_block_available = (bool) isset( $block_availability['sharing-buttons'] ) && $block_availability['sharing-buttons']['available'];
+			$is_block_available = isset( $block_availability['sharing-buttons'] ) && $block_availability['sharing-buttons']['available'];
 			$is_block_theme     = wp_is_block_theme();
 			return $is_block_available && $is_block_theme;
 	}
@@ -849,7 +849,7 @@ function jetpack_post_sharing_get_value( array $post ) {
 	}
 
 	// if sharing IS disabled on this post, enabled=false, so negate the meta
-	return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
+	return ! get_post_meta( $post['id'], 'sharing_disabled', true );
 }
 
 /**

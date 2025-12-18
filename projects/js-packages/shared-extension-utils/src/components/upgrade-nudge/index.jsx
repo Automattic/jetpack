@@ -49,7 +49,7 @@ export const Nudge = ( {
 						} ) }
 						isBusy={ isRedirecting }
 					>
-						{ isRedirecting ? redirectingText : buttonText }
+						<span>{ isRedirecting ? redirectingText : buttonText }</span>
 					</Button>
 				) }
 			</div>

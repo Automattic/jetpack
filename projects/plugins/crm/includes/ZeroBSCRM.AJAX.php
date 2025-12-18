@@ -1044,11 +1044,6 @@ add_action( 'wp_ajax_nopriv_zbs_quotes_accept_quote', 'ZeroBSCRM_accept_quote' )
 add_action( 'wp_ajax_zbs_quotes_accept_quote', 'ZeroBSCRM_accept_quote' );
 
 function ZeroBSCRM_accept_quote() {
-	// We probably want to see all errors:
-	ini_set( 'display_errors', 1 );
-	ini_set( 'display_startup_errors', 1 );
-	error_reporting( E_ALL );
-
 	// } Check nonce
 	check_ajax_referer( 'zbscrmquo-nonce', 'sec' );
 
@@ -1072,12 +1067,22 @@ function ZeroBSCRM_accept_quote() {
 	if ( empty( $quoteHash ) ) {
 		$uinfo = wp_get_current_user();
 
-		// validate that this has been posted by the contact associated with the quote
+		// validate that this has been posted by the contact associated with the quote, allow admin/staff to accept on behalf of the contact
 		global $zbs;
-		if ( ! $uinfo->ID
-			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== $zbs->DAL->quotes->getQuoteContactID( $quoteID ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		) {
-			wp_send_json_error( array( 'access' => 1 ), 403 );
+		// Check if user has admin privileges or quote permissions; otherwise, verify contact ownership for access control.
+		$can = zeroBSCRM_isZBSAdminOrAdmin() || zeroBSCRM_permsQuotes();
+		if ( ! $can ) {
+			// Require login
+			if ( ! is_user_logged_in() ) {
+				wp_send_json_error( array( 'access' => 1 ), 403 );
+			}
+			// Resolve IDs safely
+			$customer_id      = (int) zeroBS_getCustomerIDWithEmail( $uinfo->user_email );
+			$quote_contact_id = (int) $zbs->DAL->quotes->getQuoteContactID( $quoteID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			// Both IDs must exist and match
+			if ( $customer_id <= 0 || $quote_contact_id <= 0 || $customer_id !== $quote_contact_id ) {
+				wp_send_json_error( array( 'access' => 1 ), 403 );
+			}
 		}
 	} elseif ( ! zeroBSCRM_quotes_getFromHash( $quoteHash )['success'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		wp_send_json_error( array( 'hash' => 1 ), 403 );
@@ -5356,18 +5361,6 @@ function zeroBSCRM_AJAX_sendStatement() {
 		$r['success'] = __( 'Sent', 'zero-bs-crm' );
 		wp_send_json( $r );
 }
-
-/*
-replaced with zeroBSCRM_retrieve
-function zbs_get_content($URL){
-		//need to wrap this in if function exists...
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_URL, $URL);
-		$data = curl_exec($ch);
-		curl_close($ch);
-		return $data;
-} */
 
 add_action( 'wp_ajax_zbs_invoice_mark_paid', 'zbs_invoice_mark_paid' );
 function zbs_invoice_mark_paid() {

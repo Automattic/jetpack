@@ -5,13 +5,14 @@ import {
 	getContext,
 	store,
 	getConfig,
+	getElement,
 	withSyncEvent as originalWithSyncEvent,
 } from '@wordpress/interactivity';
 /*
  * Internal dependencies
  */
-import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper';
-import { focusNextInput, dispatchSubmitEvent, submitForm } from './shared';
+import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
+import { focusNextInput, submitForm } from './shared.ts';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -65,6 +66,10 @@ const registerField = (
 ) => {
 	const context = getContext();
 
+	if ( ! context.fields ) {
+		context.fields = {};
+	}
+
 	if ( ! context.fields[ fieldId ] ) {
 		context.fields[ fieldId ] = {
 			id: fieldId,
@@ -99,8 +104,10 @@ const maybeAddColonToLabel = label => {
 	if ( ! formattedLabel ) {
 		return null;
 	}
-
-	return formattedLabel.endsWith( '?' ) ? formattedLabel : formattedLabel.replace( /:$/, '' ) + ':';
+	// Special case for the Terms consent field block which has a period at the end of the text.
+	return formattedLabel.endsWith( '?' )
+		? formattedLabel
+		: formattedLabel.replace( /[.:]$/, '' ) + ':';
 };
 
 const maybeTransformValue = value => {
@@ -129,7 +136,7 @@ const maybeTransformValue = value => {
 
 const getImages = value => {
 	if ( value?.type === 'image-select' ) {
-		return value.choices.filter( choice => choice.image?.src ).map( choice => choice.image?.src );
+		return value.choices.map( choice => choice.image?.src );
 	}
 
 	return null;
@@ -163,6 +170,11 @@ const toggleImageOptionInput = ( input, optionElement ) => {
 	}
 };
 
+const stripHtml = html => {
+	const doc = new DOMParser().parseFromString( html, 'text/html' );
+	return doc.body.textContent || '';
+};
+
 const { state, actions } = store( NAMESPACE, {
 	state: {
 		validators: {},
@@ -174,6 +186,11 @@ const { state, actions } = store( NAMESPACE, {
 			// Don't show is_required untill the user first tries to submit the form.
 			if ( ! context.showErrors && field.error && field.error === 'is_required' ) {
 				return false;
+			}
+
+			// For single input forms, show submission errors in the field error div
+			if ( context.isSingleInputForm && context.submissionError ) {
+				return true;
 			}
 
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
@@ -225,6 +242,11 @@ const { state, actions } = store( NAMESPACE, {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
+
+			// For single input forms, show submission errors in the field error div
+			if ( context.isSingleInputForm && context.submissionError ) {
+				return context.submissionError;
+			}
 
 			if ( ! ( context.showErrors || field.showFieldError ) || ! field.error ) {
 				return '';
@@ -284,7 +306,7 @@ const { state, actions } = store( NAMESPACE, {
 					if ( field.error && field.error !== 'yes' ) {
 						errors.push( {
 							anchor: '#' + field.id,
-							label: field.label + ' : ' + getError( field ),
+							label: stripHtml( field.label ) + ': ' + getError( field ),
 							id: field.id,
 						} );
 					}
@@ -491,19 +513,6 @@ const { state, actions } = store( NAMESPACE, {
 			}
 		} ),
 
-		onKeyDownTextarea: withSyncEvent( event => {
-			if ( ! ( event.key === 'Enter' && event.shiftKey ) ) {
-				return;
-			}
-			// Prevent the default behavior of adding a new line.
-			event.preventDefault();
-			event.stopPropagation();
-
-			const context = getContext();
-
-			dispatchSubmitEvent( context.formHash );
-		} ),
-
 		scrollIntoView: withSyncEvent( event => {
 			const context = getContext();
 
@@ -575,19 +584,36 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		setImageOptionCheckColor() {
-			const context = getContext();
+			const { ref } = getElement();
 
-			const { inputId } = context;
-			const input = document.getElementById( inputId );
-
-			if ( ! input ) {
+			if ( ! ref ) {
 				return;
 			}
 
-			const color = window.getComputedStyle( input ).color;
+			const color = window.getComputedStyle( ref ).color;
 			const inverseColor = window.jetpackForms.getInverseReadableColor( color );
+			const style = ref.getAttribute( 'style' ) ?? '';
 
-			input.setAttribute( 'style', `--jetpack-input-image-option--check-color: ${ inverseColor }` );
+			ref.setAttribute(
+				'style',
+				style + `--jetpack-input-image-option--check-color: ${ inverseColor }`
+			);
+		},
+
+		setImageOptionOutlineColor() {
+			const { ref } = getElement();
+
+			if ( ! ref ) {
+				return;
+			}
+
+			const { borderColor } = window.getComputedStyle( ref );
+			const style = ref.getAttribute( 'style' ) ?? '';
+
+			ref.setAttribute(
+				'style',
+				style + `--jetpack-input-image-option--outline-color: ${ borderColor }`
+			);
 		},
 	},
 } );

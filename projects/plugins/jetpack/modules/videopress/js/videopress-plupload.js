@@ -125,7 +125,7 @@ window.wp = window.wp || {};
 		 * Custom error callback.
 		 *
 		 * Add a new error to the errors collection, so other modules can track
-		 * and display errors. @see wp.Uploader.errors.
+		 * and display errors. {@see wp.Uploader.errors}.
 		 *
 		 * @param {string}        message
 		 * @param {object}        data

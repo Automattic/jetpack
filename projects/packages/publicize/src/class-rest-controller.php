@@ -106,6 +106,13 @@ class REST_Controller {
 							return is_array( $param );
 						},
 						'sanitize_callback' => function ( $param ) {
+							if ( ! is_array( $param ) ) {
+								return new WP_Error(
+									'rest_invalid_param',
+									esc_html__( 'The skipped_connections argument must be an array of connection IDs.', 'jetpack-publicize-pkg' ),
+									array( 'status' => 400 )
+								);
+							}
 							return array_map( 'absint', $param );
 						},
 					),

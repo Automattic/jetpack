@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Launch Celebration: Remove direct dependency on @automattic/components. 

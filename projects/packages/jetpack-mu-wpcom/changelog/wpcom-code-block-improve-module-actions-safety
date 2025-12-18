@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Code Block: Ensure Core Script Modules actions are safely removed and restored.

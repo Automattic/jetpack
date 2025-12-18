@@ -1,0 +1,518 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as ChartContextStories from './index.stories';
+
+<Meta title="JS Packages/Charts Library/Chart Context" of={ ChartContextStories } />
+
+# Global Charts Context
+
+The Global Charts Context provides centralized theme management, color coordination, and chart registration for multiple charts within an application. It ensures consistent styling and behavior across all chart components while optimizing performance through intelligent color caching and stable group assignments.
+
+<Canvas of={ ChartContextStories.Default } />
+
+## Overview
+
+The Global Charts Context system consists of three main parts:
+
+1. **GlobalChartsProvider** - A React provider component that wraps your application
+2. **GlobalChartsContext** - The underlying React context that manages shared state
+3. **Context hooks** - Utilities for accessing theme and registration functionality
+
+## Basic Usage
+
+### Setting Up the Provider
+
+Wrap your application or chart components with `GlobalChartsProvider` to enable theme sharing and color coordination:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, LineChart, BarChart } from '@automattic/charts';
+
+	function App() {
+		return (
+			<GlobalChartsProvider>
+				<div className="dashboard">
+					<LineChart data={ salesData } />
+					<BarChart data={ conversionData } />
+					{ /* All charts share the same theme and color coordination */ }
+				</div>
+			</GlobalChartsProvider>
+		);
+	}` }
+/>
+
+### Basic Provider Props
+
+- **`theme`** *(optional)*: Partial theme object to customize chart appearance
+- **`children`**: Chart components and other React elements
+
+## Color Coordination
+
+### Stable Colors for Groups
+
+One of the key features of the Global Charts Context is **stable color assignment for groups**. When data series have a `group` property, the same group will always receive the same color across all charts, even when data changes:
+
+**Try toggling the countries on/off in the Default story** - notice how each country maintains its assigned color regardless of which other countries are visible. This creates a consistent visual experience across multiple charts and data updates.
+
+<Source
+	language="tsx"
+	code={ `// Data with group assignments
+	const data = [
+		{
+			label: 'United States Sales',
+			group: 'united-states', // This group will always get the same color
+			data: [ /* time series data */ ],
+			options: {}
+		},
+		{
+			label: 'Great Britain Sales',
+			group: 'great-britain', // Different group, different stable color
+			data: [ /* time series data */ ],
+			options: {}
+		}
+	];` }
+/>
+
+### Color Override Behavior
+
+The context respects explicit color overrides while maintaining group stability for non-overridden elements:
+
+<Canvas of={ ChartContextStories.WithColorOverrides } />
+
+<Source
+	language="tsx"
+	code={ `// Some elements have color overrides, others use global coordination
+	const dataWithOverrides = [
+		{
+			label: 'Priority Metric',
+			group: 'priority',
+			options: { stroke: '#e74c3c' }, // Red override - always red
+			data: [ /* data */ ]
+		},
+		{
+			label: 'Standard Metric',
+			group: 'standard', // Uses coordinated theme color
+			data: [ /* data */ ]
+		}
+	];` }
+/>
+
+## Theme System
+
+### Theme Structure
+
+The Global Charts Context uses a comprehensive theme system that controls all visual aspects of charts:
+
+<Source
+	language="tsx"
+	code={ `const customTheme: ChartTheme = {
+		// Core colors used for data visualization
+		colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
+
+		// Chart background and labels
+		backgroundColor: '#FFFFFF',
+		labelBackgroundColor: 'transparent',
+		labelTextColor: '#FFFFFF',
+
+		// Grid and axis styling
+		gridStyles: {
+			stroke: '#DCDCDE',
+			strokeWidth: 1,
+		},
+		xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
+
+		// Legend appearance
+		legendLabelStyles: {
+			color: 'var(--jp-gray-80, #2c3338)',
+		},
+
+		// Chart-specific theming
+		leaderboardChart: {
+			primaryColor: '#006DAB',
+			secondaryColor: '#98C8DF',
+			deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
+		},
+
+		conversionFunnelChart: {
+			primaryColor: '#006DAB',
+			backgroundColor: '#F3F4F6',
+		}
+	};
+
+	<GlobalChartsProvider theme={ customTheme }>
+		{ /* All charts inherit these styles */ }
+	</GlobalChartsProvider>` }
+/>
+
+### Theme Inheritance and Merging
+
+Themes are merged with the default theme, so you only need to specify the properties you want to customize:
+
+<Source
+	language="tsx"
+	code={ `// Only customize colors - everything else uses defaults
+	const brandColors = {
+		colors: [ '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7' ]
+	};
+
+	<GlobalChartsProvider theme={ brandColors }>
+		{ /* Charts use custom colors but default grid, legends, etc. */ }
+	</GlobalChartsProvider>` }
+/>
+
+## Chart Registration
+
+### Automatic Registration
+
+Charts automatically register themselves with the Global Charts Context when mounted. This enables features like:
+
+- **Coordinated legends** - Multiple charts can share legend items
+- **Color synchronization** - Ensures consistent colors across charts
+- **Metadata sharing** - Charts can share contextual information
+
+<Source
+	language="tsx"
+	code={ `// Charts automatically register with a unique ID
+	<LineChart
+		data={ data }
+		chartId="sales-trends" // Optional: provide explicit ID
+	/>
+
+	// The context tracks:
+	// - Legend items from this chart
+	// - Chart type ('line-chart')
+	// - Any additional metadata` }
+/>
+
+## Context Hooks
+
+### useGlobalChartsContext
+
+Access the full context for advanced chart functionality:
+
+<Source
+	language="tsx"
+	code={ `import { useGlobalChartsContext } from '@automattic/charts';
+
+	function CustomChart() {
+		const {
+			theme,
+			getElementStyles,
+			registerChart,
+			unregisterChart,
+			getChartData
+		} = useGlobalChartsContext();
+
+		// Get consistent styling for chart elements
+		const elementStyles = getElementStyles( {
+			data: myDataPoint,
+			index: 0,
+			overrideColor: undefined,
+			legendShape: 'line'
+		} );
+
+		return (
+			<div style={ { color: elementStyles.color } }>
+				{ /* Custom chart implementation */ }
+			</div>
+		);
+	}` }
+/>
+
+### useGlobalChartsTheme
+
+Access just the theme when you only need styling information:
+
+<Source
+	language="tsx"
+	code={ `import { useGlobalChartsTheme } from '@automattic/charts';
+
+	function ThemeAwareComponent() {
+		const theme = useGlobalChartsTheme();
+
+		return (
+			<div style={ {
+				backgroundColor: theme.backgroundColor,
+				color: theme.legendLabelStyles?.color
+			} }>
+				Styled using global chart theme
+			</div>
+		);
+	}` }
+/>
+
+### useChartRegistration
+
+Register custom charts with the global context:
+
+<Source
+	language="tsx"
+	code={ `import { useChartRegistration } from '@automattic/charts';
+
+	function CustomChart( { data, chartId } ) {
+		// Register this chart with the global context
+		useChartRegistration( {
+			chartId: chartId || 'custom-chart',
+			legendItems: data.map( item => ( {
+				label: item.label,
+				color: item.color
+			} ) ),
+			chartType: 'custom-chart',
+			isDataValid: data.length > 0,
+			metadata: { customProperty: 'value' }
+		} );
+
+		return <div>{ /* Chart implementation */ }</div>;
+	}` }
+/>
+
+## Performance Considerations
+
+### Color Caching
+
+The Global Charts Context implements intelligent color caching to optimize performance:
+
+- **HSL conversion caching** - Color format conversions are cached and reused
+- **Hue analysis** - Color relationships are pre-computed for better color selection
+- **Group mapping persistence** - Group-to-color assignments persist across renders
+
+### Efficient Updates
+
+- **Stable references** - Context functions use `useCallback` for stable references
+- **Selective re-renders** - Only charts that need updates are re-rendered when context changes
+- **Deep comparison** - Legend items use deep comparison to prevent unnecessary updates
+
+## Advanced Usage
+
+### Custom Element Styling
+
+Use the context's `getElementStyles` function to get consistent styling for custom chart elements:
+
+<Source
+	language="tsx"
+	code={ `function CustomChartElement( { seriesData, index, isHighlighted } ) {
+		const { getElementStyles } = useGlobalChartsContext();
+
+		const styles = getElementStyles( {
+			data: seriesData,
+			index,
+			overrideColor: isHighlighted ? '#FF0000' : undefined,
+			legendShape: 'circle'
+		} );
+
+		return (
+			<circle
+				fill={ styles.color }
+				stroke={ styles.lineStyles.stroke }
+				strokeWidth={ styles.lineStyles.strokeWidth }
+				r="5"
+			/>
+		);
+	}` }
+/>
+
+### Multi-Chart Coordination
+
+The chart registration system enables powerful coordination between charts and standalone legends, allowing for flexible dashboard layouts with centralized legend areas.
+
+#### Chart Registration for Standalone Legends
+
+When charts register with a `chartId`, their legend data becomes available to standalone Legend components anywhere in your application:
+
+<Source
+	language="tsx"
+	code={ `function DashboardWithCentralizedLegends() {
+		return (
+			<GlobalChartsProvider>
+				<div className="dashboard-layout">
+					{ /* Charts with hidden legends but registered data */ }
+					<div className="charts-grid">
+						<LineChart
+							chartId="revenue-trends"
+							data={ revenueData }
+							showLegend={ false }
+							width={ 600 }
+							height={ 200 }
+						/>
+						<BarChart
+							chartId="sales-quarters"
+							data={ salesData }
+							showLegend={ false }
+							width={ 300 }
+							height={ 200 }
+						/>
+						<PieChart
+							chartId="device-distribution"
+							data={ deviceData }
+							showLegend={ false }
+						/>
+					</div>
+
+					{ /* Centralized legend panel retrieves data automatically */ }
+					<aside className="legend-panel">
+						<h3>Revenue Trends</h3>
+						<Legend chartId="revenue-trends" orientation="vertical" shape="line" />
+
+						<h3>Sales by Quarter</h3>
+						<Legend chartId="sales-quarters" orientation="vertical" />
+
+						<h3>Device Distribution</h3>
+						<Legend chartId="device-distribution" orientation="vertical" shape="circle" />
+					</aside>
+				</div>
+			</GlobalChartsProvider>
+		);
+	}` }
+/>
+
+**Key Benefits:**
+- **Flexible Layouts** - Create complex dashboard designs with legends positioned anywhere
+- **Automatic Updates** - Legend data updates automatically when chart data changes
+- **No Prop Drilling** - No need to pass legend data through component hierarchies
+
+## API Reference
+
+### GlobalChartsProvider
+
+The main provider component that enables chart context functionality.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `theme` | `Partial<ChartTheme>` | `defaultTheme` | Custom theme object that gets merged with the default theme |
+| `children` | `ReactNode` | - | **Required.** Chart components and other React elements |
+
+### GlobalChartsContextValue
+
+The context value shape provided by `useGlobalChartsContext`:
+
+```typescript
+interface GlobalChartsContextValue {
+	// Chart registry
+	charts: Map<string, ChartRegistration>;
+	registerChart: (id: string, data: ChartRegistration) => void;
+	unregisterChart: (id: string) => void;
+	getChartData: (id: string) => ChartRegistration | undefined;
+
+	// Theme and styling
+	theme: CompleteChartTheme;
+	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
+}
+```
+
+### ChartRegistration Type
+
+```typescript
+interface ChartRegistration {
+	legendItems: BaseLegendItem[];
+	chartType: string;
+	metadata?: Record<string, unknown>;
+}
+```
+
+### ElementStyles Type
+
+```typescript
+interface ElementStyles {
+	color: string;
+	lineStyles: CSSProperties & LineStyles;
+	glyph?: (props: GlyphProps) => ReactNode;
+	shapeStyles: CSSProperties & LineStyles;
+}
+```
+
+## Accessibility
+
+### Theme Color Considerations
+
+When creating custom themes, ensure sufficient contrast between background and foreground colors to meet WCAG AA standards (4.5:1 for normal text, 3:1 for large text)
+
+### Automatic Color Generation
+
+When your data has more series than colors defined in your theme, the Global Charts Context automatically generates additional colors using a sophisticated algorithm:
+
+#### Golden Ratio Distribution
+
+The system uses the **golden ratio (φ ≈ 0.618)** to generate mathematically pleasing color distributions:
+
+- **Hue spacing** - New hues are distributed for optimal visual separation
+- **Hue range constraint** - Generated colors stay within an expanded range (130%) of your theme's existing colors
+- **Wrap-around handling** - Intelligently handles cases where theme colors span across the 0° hue boundary
+
+**Note that only hex colors are supported for generating colors.**
+
+#### Accessibility-First Generation
+
+All generated colors maintain WCAG AA compliance:
+
+- **Base lightness: 35%** - Ensures 4.5:1 contrast ratio against white backgrounds
+- **Lightness variations** - Creates 4 levels (35%, 43%, 51%, 59%) for variety while maintaining accessibility
+- **Saturation variations** - Uses 3 levels (60%, 75%, 90%) for visual distinction
+
+#### Perceptual Distance Optimization
+
+The algorithm ensures visual distinction between colors:
+
+- **Minimum distance threshold** - Maintains 25+ units of perceptual distance between colors
+- **Smart retry logic** - Up to 50 attempts per color to find sufficiently different options
+- **Distance calculation** - Uses weighted HSL distance optimized for chart readability
+
+#### Practical Example
+
+<Source
+	language="tsx"
+	code={ `// Theme with 3 colors
+	const limitedTheme = {
+		colors: [ '#006DAB', '#1F9828', '#FF8C8F' ]
+	};
+
+	// Data with 8 series - 5 additional colors will be auto-generated
+	const dataWithManySeries = [
+		{ label: 'Series 1', group: 'A' }, // Uses #006DAB
+		{ label: 'Series 2', group: 'B' }, // Uses #1F9828
+		{ label: 'Series 3', group: 'C' }, // Uses #FF8C8F
+		{ label: 'Series 4', group: 'D' }, // Auto-generated: ~hsl(193, 75%, 43%)
+		{ label: 'Series 5', group: 'E' }, // Auto-generated: ~hsl(76, 60%, 51%)
+		{ label: 'Series 6', group: 'F' }, // Auto-generated: ~hsl(318, 90%, 35%)
+		{ label: 'Series 7', group: 'G' }, // Auto-generated: ~hsl(201, 75%, 59%)
+		{ label: 'Series 8', group: 'H' }, // Auto-generated: ~hsl(84, 60%, 35%)
+	];
+
+	// All colors remain consistent across charts and re-renders
+	<GlobalChartsProvider theme={ limitedTheme }>
+		<LineChart data={ dataWithManySeries } />
+		<BarChart data={ dataWithManySeries } />
+	</GlobalChartsProvider>` }
+/>
+
+This ensures that even with limited theme colors, your charts maintain visual harmony, accessibility compliance, and consistent color assignments across your entire application.
+
+## Troubleshooting
+
+### Common Issues
+
+**Charts not inheriting theme:**
+- Ensure charts are wrapped with `GlobalChartsProvider`
+- Check that the theme object is properly structured
+
+**Colors not staying consistent:**
+- Verify that data points include consistent `group` properties
+- Check for conflicting color overrides in individual chart data
+
+**Performance issues:**
+- Avoid creating new theme objects on every render
+- Use `useMemo` for complex theme calculations
+- Minimize frequent context value changes
+
+### Error Boundaries
+
+The context includes error handling for invalid usage, for example, accessing the context outside of a `GlobalChartsProvider`:
+
+<Source
+	language="tsx"
+	code={ `// This will throw a helpful error
+	function ChartWithoutProvider() {
+		const context = useGlobalChartsContext(); // Error: must be used within GlobalChartsProvider
+		return <div>Chart content</div>;
+	}` }
+/>

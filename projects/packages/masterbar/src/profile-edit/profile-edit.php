@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Masterbar;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use WP_User;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Hides profile fields for WordPress.com connected users.
  *

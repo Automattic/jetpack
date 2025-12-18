@@ -66,8 +66,9 @@ class Customberg {
 		// Intentionally omits adding a submenu via the first empty argument.
 		$hook = add_submenu_page(
 			'',
-			__( 'Jetpack Search', 'jetpack-search-pkg' ),
-			__( 'Search', 'jetpack-search-pkg' ),
+			/** "Search" is a product name, do not translate. */
+			'Jetpack Search',
+			'Search',
 			'manage_options', // Must be an admin.
 			'jetpack-search-configure',
 			array( $this, 'jetpack_search_admin_page' )
@@ -140,7 +141,7 @@ class Customberg {
 		Assets::enqueue_script( 'jp-search-configure' );
 
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'jp-search-configure', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Helper::generate_initial_javascript_state() ) ) . '"));', 'before' );
+		wp_add_inline_script( 'jp-search-configure', 'var JetpackInstantSearchOptions=' . wp_json_encode( Helper::generate_initial_javascript_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
 		wp_add_inline_script(
 			'jp-search-configure',
 			"window.jetpackSearchConfigureInit( 'jp-search-configure' )"

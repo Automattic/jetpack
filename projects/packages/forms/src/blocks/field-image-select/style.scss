@@ -1,5 +1,6 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @use "../shared/styles/visually-hidden" as *;
+@use "../shared/styles/empty_image_option" as *;
 
 @mixin image-select-responsive-width {
 	width: calc(( 1 / var(--row-options-count) ) * 100% - var(--jetpack-field-image-options-gap) * ( (var(--row-options-count) - 1) / var(--row-options-count) ));
@@ -56,6 +57,7 @@ figure.wp-block-image {
 	}
 
 	.jetpack-input-image-option {
+		--outline-color: var(--jetpack-input-image-option--outline-color, var(--wp--preset--color--primary, var(--jetpack--contact-form--button-outline--background-color)));
 		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
@@ -66,10 +68,11 @@ figure.wp-block-image {
 		&.is-checked {
 			backdrop-filter: contrast(0.9) saturate(1.2);
 			cursor: pointer;
+			outline: 1px solid var(--outline-color);
 		}
 
 		&:not(.wp-block):focus-within {
-			outline: 2px solid var(--wp--preset--color--primary, var(--jetpack--contact-form--button-outline--background-color));
+			outline: 2px solid var(--outline-color);
 		}
 
 		.jetpack-input-image-option__wrapper {
@@ -151,7 +154,6 @@ figure.wp-block-image {
 }
 
 div:where(.jetpack-input-image-option__outer) {
-	border-radius: 5px;
 	background-color: var(--jetpack--contact-form--background-color);
 }
 
@@ -160,4 +162,18 @@ div:where(.jetpack-input-image-option) {
 	border-radius: 4px;
 	padding: 8px;
 	margin: 0;
+}
+
+.jetpack-input-image-option__empty-image {
+	position: relative;
+
+	&::before {
+
+		@extend %empty-image-option-background;
+	}
+
+	&::after {
+
+		@extend %empty-image-option-icon;
+	}
 }

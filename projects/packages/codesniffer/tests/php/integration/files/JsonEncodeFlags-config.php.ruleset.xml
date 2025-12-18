@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ruleset>
+
+	<rule ref="./default.xml" />
+
+	<rule ref="Jetpack.Functions.JsonEncodeFlags">
+		<properties>
+			<property name="help_link" value="docs/json_encode_flags.txt"/>
+			<property name="json_encode_functions" type="array">
+				<element key="wp_json_encode" value="0" />
+				<element key="xxx_json_encode" value="4" />
+			</property>
+		</properties>
+	</rule>
+
+</ruleset>

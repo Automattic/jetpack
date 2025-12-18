@@ -35,8 +35,10 @@ function jetpack_docker_plugins_url( $url, $path, $plugin ) {
 	$packages = ( new Monorepo() )->get( 'packages' );
 
 	if ( strpos( $url, $packages ) !== false && strpos( $plugin, $packages ) === 0 ) {
+		$is_woocommerce_analytics = strpos( $plugin, 'class-woocommerce-analytics.php' ) !== false;
+
 		// Look through available monorepo plugins until we find one with the plugin symlink.
-		$suffix1     = '/jetpack_vendor/automattic/jetpack-' . substr( $plugin, strlen( $packages ) );
+		$suffix1     = '/jetpack_vendor/automattic/' . ($is_woocommerce_analytics ? '' : 'jetpack-') . substr( $plugin, strlen( $packages ) );
 		$suffix2     = '/vendor/automattic/jetpack-' . substr( $plugin, strlen( $packages ) );
 		$real_plugin = realpath( $plugin );
 		if ( false !== $real_plugin ) {

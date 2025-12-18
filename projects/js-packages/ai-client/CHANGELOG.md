@@ -5,13 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.25] - 2025-12-15
+### Changed
+- Update package dependencies. [#46244]
+
+### Fixed
+- Fix minification issue with production build. [#46147]
+
+## [0.33.24] - 2025-12-08
+### Changed
+- Update dependencies. [#45553]
+
+## [0.33.23] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [0.33.22] - 2025-11-24
+### Changed
+- Update package dependencies. [#46022]
+
+## [0.33.21] - 2025-11-18
+### Changed
+- Update dependencies. [#45553]
+
+## [0.33.20] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [0.33.19] - 2025-11-10
+### Changed
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+- Update package dependencies. [#45737]
+
+## [0.33.18] - 2025-11-03
+### Changed
+- Update package dependencies. [#45652]
+
+## [0.33.17] - 2025-10-20
+### Changed
+- Update dependencies. [#45488]
+
+## [0.33.16] - 2025-10-06
+### Changed
+- Update package dependencies. [#45335]
+
+## [0.33.15] - 2025-09-29
+### Changed
+- Update dependencies. [#44940]
+
+## [0.33.14] - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
 ## [0.33.13] - 2025-09-19
 ### Changed
 - Update package dependencies. [#45229]
 
 ## [0.33.12] - 2025-09-15
 ### Changed
-- Jetpack AI: Change moderation error message [#45121]
+- Jetpack AI: Change moderation error message. [#45121]
 
 ## [0.33.11] - 2025-09-08
 ### Changed
@@ -710,6 +762,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.33.25]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.24...v0.33.25
+[0.33.24]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.23...v0.33.24
+[0.33.23]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.22...v0.33.23
+[0.33.22]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.21...v0.33.22
+[0.33.21]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.20...v0.33.21
+[0.33.20]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.19...v0.33.20
+[0.33.19]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.18...v0.33.19
+[0.33.18]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.17...v0.33.18
+[0.33.17]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.16...v0.33.17
+[0.33.16]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.15...v0.33.16
+[0.33.15]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.14...v0.33.15
+[0.33.14]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.13...v0.33.14
 [0.33.13]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.12...v0.33.13
 [0.33.12]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.11...v0.33.12
 [0.33.11]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.10...v0.33.11

@@ -64,6 +64,17 @@ module.exports = {
 				requestToExternal,
 				requestToHandle: defaultRequestToHandle,
 			},
+			// Configure MiniCssExtractPlugin for WordPress Interactivity API compatibility
+			// Use static filenames so WordPress can enqueue the same URL
+			MiniCssExtractPlugin: {
+				filename: '[name].css',
+				chunkFilename: '[name].css', // No contenthash - WordPress handles versioning
+				// Disable runtime CSS loading - WordPress will enqueue it
+				runtime: false,
+			},
+			// Disable MiniCssWithRtlPlugin since we're not using webpack CSS runtime
+			// WordPress will handle RTL CSS loading
+			MiniCssWithRtlPlugin: false,
 		} ),
 		// Replace 'debug' module with a dummy implementation in production
 		...( jetpackWebpackConfig.isDevelopment

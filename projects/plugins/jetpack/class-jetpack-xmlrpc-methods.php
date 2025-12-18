@@ -177,7 +177,7 @@ class Jetpack_XMLRPC_Methods {
 		return array(
 			(string) $output,
 			(string) $nonce,
-			(string) $hmac,
+			$hmac,
 		);
 	}
 

@@ -3,9 +3,9 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 4.4.0
+Stable tag: 4.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,24 +183,13 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.4.0 - 2025-09-18
-#### Added
-- Cornerstone Pages: Add filter to allow the full list of pages to be changed.
-
+### 4.5.4 - 2025-12-12
 #### Changed
-- Critical CSS: Updated UI to indicate when generated CSS is too much.
-- Do not force CRM installation for Complete plan users
-- LCP Optimization: Add User-facing notice for unstable LCP elements (carousels)
-- Updated PNG import location after refactors in My Jetpack.
+- Image CDN: cache image quality settings per format to reduce repeated processing.
 - Update package dependencies.
 
 #### Fixed
-- Cornerstone Pages: Fix validation error preventing URLs with GET parameters from being added to the cornerstone pages list.
-- E2E tests: improved connection flow
-- General: Fix translation warning when activating Boost.
-- Image CDN: Add support for images added via Breakdance blocks.
-- Image CDN: gracefully handle an attempt to filter null.
-- Page Cache: Fix fatal error when updating a page on multisite.
+- Ensure proper flags are used with `json_encode()`.
 
 --------
 

@@ -409,10 +409,10 @@ class Waf_Blocklog_Manager {
 		$log_data['user_agent']   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? \stripslashes( $_SERVER['HTTP_USER_AGENT'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$log_data['referer']      = isset( $_SERVER['HTTP_REFERER'] ) ? \stripslashes( $_SERVER['HTTP_REFERER'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$log_data['content_type'] = isset( $_SERVER['CONTENT_TYPE'] ) ? \stripslashes( $_SERVER['CONTENT_TYPE'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		$log_data['get_params']   = json_encode( $_GET );
+		$log_data['get_params']   = json_encode( $_GET, JSON_UNESCAPED_SLASHES );
 
 		if ( defined( 'JETPACK_WAF_SHARE_DEBUG_DATA' ) && JETPACK_WAF_SHARE_DEBUG_DATA ) {
-			$log_data['post_params'] = json_encode( $_POST );
+			$log_data['post_params'] = json_encode( $_POST, JSON_UNESCAPED_SLASHES );
 			$log_data['headers']     = self::get_request_headers();
 		}
 
@@ -425,7 +425,7 @@ class Waf_Blocklog_Manager {
 
 				if ( $fp ) {
 					try {
-						fwrite( $fp, json_encode( $log_data ) . "\n" );
+						fwrite( $fp, json_encode( $log_data, JSON_UNESCAPED_SLASHES ) . "\n" );
 					} finally {
 						fclose( $fp );
 					}

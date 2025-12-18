@@ -1,6 +1,6 @@
 .integration-card {
 
-	&__header {
+	&__header.is-clickable {
 		cursor: pointer;
 	}
 
@@ -65,7 +65,6 @@
 	&__service-icon {
 		flex-shrink: 0;
 		margin-top: 0;
-		border-radius: 50%;
 	}
 
 	&__title {
@@ -80,11 +79,13 @@
 	&__connected-badge,
 	&__setup-badge {
 		order: 2;
+		min-width: 60px;
 
 		@media (max-width: 782px) {
 			order: 3;
 		}
 	}
+
 
 	&__description {
 		color: var(--jp-gray-50);
@@ -143,17 +144,18 @@
 		padding-right: 0;
 	}
 
-	.jetpack-forms-creative-mail-settings-button {
-		margin-top: 12px;
-	}
-
 	p {
 		text-wrap: balance; // TODO: remove this fallback once `pretty` is globally supported.
 		text-wrap: pretty;
 	}
 
 	&__service-icon--google-sheets,
-	&__service-icon--mailpoet {
+	&__service-icon--mailpoet,
+	&__service-icon--hostinger-reach {
 		border-radius: 0 !important;
+	}
+
+	&:last-child {
+		border-bottom: none;
 	}
 }

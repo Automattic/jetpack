@@ -1,28 +1,34 @@
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { Disabled, __experimentalSpacer as Spacer } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import PublicizeConnection from '../connection';
+import { Connection } from '../../social-store/types';
+import { ConnectionsToggleList } from '../connections-toggle-list';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
-import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { MediaValidationNotices } from './media-validation-notices';
 import { SettingsButton } from './settings-button';
 import styles from './styles.module.scss';
-import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
-import { useConnectionState } from './use-connection-state';
-import type { FC } from 'react';
 
-export const ConnectionsList: FC = () => {
-	const { recordEvent } = useAnalytics();
-
-	const { connections, toggleById } = useSocialMediaConnections();
-	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
-
+export const ConnectionsList: React.FC = () => {
 	const { needsUserConnection, isPublicizeEnabled } = usePublicizeConfig();
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
-	const toggleConnection = useCallback(
-		( connectionId: string, connection ) => () => {
-			toggleById( connectionId );
+	const disableConnectionsList =
+		// We want to disable the connections list if Publicize is disabled
+		! isPublicizeEnabled ||
+		// or if the user needs to connect their WordPress.com account
+		// to reshare a published post.
+		( isPostPublished && needsUserConnection );
+	const { recordEvent } = useAnalytics();
+	const { toggleById } = useSocialMediaConnections();
+
+	const onClickConnection = useCallback(
+		( connection: Connection ) => {
+			toggleById( connection.connection_id );
 			recordEvent( 'jetpack_social_connection_toggled', {
 				location: 'editor',
 				enabled: ! connection.enabled,
@@ -34,30 +40,16 @@ export const ConnectionsList: FC = () => {
 
 	return (
 		<div>
-			<ul className={ styles[ 'connections-list' ] }>
-				{ connections.map( conn => {
-					const { display_name, service_name, profile_picture, connection_id } = conn;
-
-					return (
-						<PublicizeConnection
-							disabled={ shouldBeDisabled( conn ) }
-							enabled={ canBeTurnedOn( conn ) && conn.enabled }
-							key={ connection_id }
-							id={ connection_id }
-							label={ display_name }
-							name={ service_name }
-							toggleConnection={ toggleConnection( connection_id, conn ) }
-							profilePicture={ profile_picture }
-						/>
-					);
-				} ) }
-			</ul>
+			<Disabled isDisabled={ disableConnectionsList }>
+				<div className={ styles[ 'connections-list' ] }>
+					<ConnectionsToggleList onClickItem={ onClickConnection } />
+				</div>
+			</Disabled>
 			{ isPublicizeEnabled ? (
 				<>
+					<Spacer marginTop="1rem" />
 					<MediaValidationNotices />
 					<BrokenConnectionsNotice />
-					<UnsupportedConnectionsNotice />
-					<EnabledConnectionsNotice />
 				</>
 			) : null }
 

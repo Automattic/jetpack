@@ -41,7 +41,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 ## Compatibility
 
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.4.
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.5.
 
 ## First Time
 
@@ -60,7 +60,7 @@ Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart th
 
 * Make sure you're checked out to the branch you want.
 * Use the CLI command `jetpack generate` to start the process.
-* The wizard will walk you through the steps of starting a new package, plugin, or Github action.
+* The wizard will walk you through the steps of starting a new package, plugin, or GitHub action.
 
 ### Accepted Arguments
 
@@ -96,7 +96,7 @@ The Jetpack Generate Wizard includes the following for each project:
 - readme.txt
 - A main plugin.php (plugin_name.php), with filled in header
 
-#### Github Actions
+#### GitHub Actions
 
 - action.yml
 
@@ -182,7 +182,7 @@ The test environment will be set up with appropriate tools, including node, pnpm
 
 All test commands must return a shell failure status when tests fail and a success status if tests pass or are skipped; usually your testing framework will already do this for you, but if you write custom shell scripts you'll need to make sure any failure is propagated.
 
-If your project has multiple logical groups of tests, feel free to make use of GitHub Actions's [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
+If your project has multiple logical groups of tests, feel free to make use of GitHub Actions [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
 
 The following environment variables are available for all tests:
 
@@ -213,7 +213,7 @@ On most Linux distributions, you can install the PHP ast extension using your pa
 
 - For Ubuntu/Debian-based systems:
   ```
-  sudo apt-get install php8.2-ast
+  sudo apt-get install php8.4-ast
   ```
 - For Arch Linux:
   Install the AUR package "php-ast" from https://aur.archlinux.org/packages/php-ast
@@ -226,15 +226,15 @@ Mac users have reported having trouble installing the PHP ast extension. See the
 
 <details><summary>Installing the PHP ast extension on Mac</summary>
 
-This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.4`.
 
 1. First, check whether ast is already installed by running `php --ri ast`. If it prints something like this, you should already be good (unless you need a newer version; see [Phan's README](https://github.com/phan/phan#getting-started) for version requirements):
    ```
    ast
 
    ast support => enabled
-   extension version => 1.1.1
-   AST version => Current version is 90. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100}
+   extension version => 1.1.3
+   AST version => Current version is 120. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100, 110, 120}
    ```
 2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
 3. Update the list of available extensions: `pecl channel-update pecl.php.net`
@@ -259,7 +259,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 7.2 to 8.4. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
+Tests are run with a variety of supported PHP versions from 7.2 to 8.5. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -267,7 +267,7 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 9.6, to support PHP 7.2 to 8.4.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 12.4, to support PHP 7.2 to 8.5.
 * [automattic/phpunit-select-config](https://packagist.org/packages/automattic/phpunit-select-config) allows for selecting a configuration file based on the version of PHPUnit in use, since configs are often not compatible across major versions since PHPUnit 9.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
@@ -326,7 +326,7 @@ On most Linux distributions, you can install the PHP pcov extension using your p
 
 - For Ubuntu/Debian-based systems:
   ```
-  sudo apt-get install php8.2-pcov
+  sudo apt-get install php8.4-pcov
   ```
 - For Arch Linux:
   Install the AUR package "php-pcov" from https://aur.archlinux.org/packages/php-pcov
@@ -339,7 +339,7 @@ Mac users have reported having trouble installing the PHP pcov extension. See th
 
 <details><summary>Installing the PHP pcov extension on Mac</summary>
 
-This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.4`.
 
 1. First, check whether pcov is already installed by running `php --ri pcov`. If it prints something like this, you should already be good:
    ```
@@ -370,16 +370,16 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
 1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
-   1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror, for issue tracking and development head to: https://github.com/automattic/jetpack`.
+   1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
    2. The default branch should be `trunk`, matching the monorepo.
       * Note that you can't set the default branch until at least one branch is created in the repo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
    4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. Usually no special configuration is needed for repos under the Automattic organization.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
-   6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
+   6. Set up any secrets and configuration needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
    1. Be sure that `automattic` is added as a maintainer.
-   2. If creating the package with your own account, make sure to link your Github account to Packagist so that you can sync the new package.
+   2. If creating the package with your own account, make sure to link your GitHub account to Packagist so that you can sync the new package.
 3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
@@ -417,8 +417,7 @@ Note the following will also be done by the build process:
 
 If `.extra.npmjs-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will run `npm publish` when a version tag is created. This works with Autotagger. Versions must have a "v" prefix and have 3 components.
 
-Note that, for this to work, you'll need to create a secret `NPMJS_AUTOMATION_TOKEN` in the mirror repo. The value of the secret must be an npmjs.com automation token for an account with the ability to publish the package.
-See PCYsg-xsv-p2#mirror-repo-secrets for details.
+You'll also need to [configure the repo as a Trusted Provider](https://docs.npmjs.com/trusted-publishers) at npmjs.com.
 
 Note the following will also be done by the build process:
 
@@ -485,16 +484,16 @@ Comment: Update composer.lock, no need for a changelog entry
 
 The “Linting / Changelogger validity” GitHub Actions check will help in making sure that all these version numbers are in sync with the version inferred from the changelog and change files. You can also check this locally with `tools/changelogger-validate-all.sh`.
 
-Within a single project, changlogger’s `version next` command can tell you the next version, and the monorepo script `tools/project-version.sh` can be used to check and update the version numbers.
+Within a single project, changelogger’s `version next` command can tell you the next version, and the monorepo script `tools/project-version.sh` can be used to check and update the version numbers.
 
 ## New Projects
 
 To begin,
-* For Automatticians, drop us a line in #jetpack-crew to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
+* For Automatticians, drop us a line in #jetpack-monorepo to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
 * Use the `jetpack generate` command to create a skeleton project.
 * Create your project based on the skeleton and submit a PR as usual.
 
-Once we're sure that the project will be created and what its name will be, someone (you or the Crew team) does the following:
+Once we're sure that the project will be created and what its name will be, someone (you or the Monorepo team) does the following:
 * Create a GitHub repo in the Automattic repo to be the mirror repo for this project. The new repo follows the [mirror repo guidelines](#mirror-repositories).
 
 ### Creating a new Composer Package

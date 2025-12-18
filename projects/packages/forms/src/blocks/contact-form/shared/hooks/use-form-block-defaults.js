@@ -1,5 +1,6 @@
+import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { useIntegrationsStatus } from '../../components/jetpack-integrations-modal/hooks/use-integrations-status';
+import { INTEGRATIONS_STORE } from '../../../../store/integrations/index.ts';
 
 /**
  * Apply default form block settings once per block instance when needed.
@@ -12,7 +13,11 @@ import { useIntegrationsStatus } from '../../components/jetpack-integrations-mod
  * @param {Function} params.setAttributes - Setter for block attributes
  */
 export default function useFormBlockDefaults( { attributes, setAttributes } ) {
-	const { integrations, isLoading } = useIntegrationsStatus();
+	const integrations = useSelect( select => {
+		const store = select( INTEGRATIONS_STORE );
+		return store.getIntegrations() || [];
+	}, [] );
+	const isLoading = useSelect( select => select( INTEGRATIONS_STORE ).isIntegrationsLoading(), [] );
 
 	useEffect( () => {
 		if ( isLoading || ! Array.isArray( integrations ) ) {

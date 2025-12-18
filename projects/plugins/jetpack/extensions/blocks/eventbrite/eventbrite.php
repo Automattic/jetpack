@@ -127,9 +127,9 @@ function render_embed_block( $widget_id, $is_amp, $attr ) {
 			'eventbrite-widget',
 			"window.EBWidgets.createWidget( {
 				widgetType: 'checkout',
-				eventId: " . absint( $attr['eventId'] ) . ",
-				iframeContainerId: '" . esc_js( $widget_id ) . "',
-			} );"
+				eventId: " . absint( $attr['eventId'] ) . ',
+				iframeContainerId: ' . wp_json_encode( $widget_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ',
+			} );'
 		);
 	}
 
@@ -214,10 +214,10 @@ function render_modal_block( $widget_id, $is_amp, $attr, $content ) {
 		'eventbrite-widget',
 		"window.EBWidgets.createWidget( {
 			widgetType: 'checkout',
-			eventId: " . absint( $attr['eventId'] ) . ",
+			eventId: " . absint( $attr['eventId'] ) . ',
 			modal: true,
-			modalTriggerElementId: '" . esc_js( $widget_id ) . "',
-		} );"
+			modalTriggerElementId: ' . wp_json_encode( $widget_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ',
+		} );'
 	);
 
 	// Modal button is saved as an `<a>` element with `role="button"` because `<button>` is not allowed
@@ -225,8 +225,8 @@ function render_modal_block( $widget_id, $is_amp, $attr, $content ) {
 	// @link https://www.w3.org/TR/wai-aria-practices/examples/button/button.html.
 	wp_add_inline_script(
 		'eventbrite-widget',
-		"( function() {
-			var widget = document.getElementById( '" . esc_js( $widget_id ) . "' );
+		'( function() {
+			var widget = document.getElementById( ' . wp_json_encode( $widget_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . " );
 			if ( widget ) {
 				widget.addEventListener( 'click', function( event ) {
 					event.preventDefault();

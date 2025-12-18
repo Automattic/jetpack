@@ -3,12 +3,18 @@ import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
-import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 import { ALLOWED_FORMATS, DATE_FORMATS, FORM_STYLE } from '../shared/util/constants.js';
 import getBlockStyle from '../shared/util/get-block-style.js';
 
-const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
+const SYNCED_ATTRIBUTE_KEYS = [
+	'textColor',
+	'fontFamily',
+	'fontSize',
+	'style',
+	'requiredIndicator',
+];
 
 const getLabelOrFallback = ( label, placeholder ) => {
 	if ( label === '' ) {
@@ -86,7 +92,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	} = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
-	const { label, placeholder, requiredText } = attributes;
+	const { label, placeholder, requiredText, requiredIndicator } = attributes;
 	const placeholderValue = placeholder !== '' ? placeholder : __( 'Add label…', 'jetpack-forms' );
 	const suffix = dateFormat
 		? `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })`
@@ -148,7 +154,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 					withoutInteractiveFormatting
 				/>
 				{ suffix && <span className="jetpack-field-label__suffix">{ suffix }</span> }
-				{ required && (
+				{ required && requiredIndicator && (
 					<RichText
 						allowedFormats={ ALLOWED_FORMATS }
 						className="required"

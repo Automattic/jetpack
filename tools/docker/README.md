@@ -269,31 +269,41 @@ define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 
 ## Jurassic Tube Tunneling Service
 
-This is for Automatticians only. More information: PCYsg-snO-p2.
+This is for Automatticians only. More information: PCYsg-GJ2-p2.
 
-If you have persistent trouble with the `jetpack docker jt-*` commands complaining that "Tunneling scripts are not installed", it could be because Docker wasn't running properly when you ran the installer.
+Jurassic Tube is a tunneling service that allows you to expose your local Docker environment to the internet, enabling you to connect Jetpack to WordPress.com for testing.
 
-To solve this problem, run these commands from the repo root:
+### Setup
 
+To set up Jurassic Tube and establish a tunnel to your local machine, follow the instructions here: PCYsg-GJ2-p2
+
+### Recommended Proxy Configuration
+
+When using Jurassic Tube with Docker, you may need to configure proxy settings to ensure proper connectivity with WordPress.com. If you experience connection issues (such as cURL SSL errors), use one of these methods:
+
+**Method 1: Configure Docker Desktop Proxy Settings**
+
+1. Open Docker Desktop
+2. Click the gear icon in the top right
+3. Navigate to **Resources** → **Proxy**
+4. Enable "Manual proxy configuration"
+
+**Method 2: Configure Proxy in wp-config.php**
+
+Add the following lines to `tools/docker/wordpress/wp-config.php`:
+
+```php
+define( 'WP_PROXY_HOST', 'socks://host.docker.internal' );
+define( 'WP_PROXY_PORT', '8080' );
 ```
+
+**Note:** If you're not using Autoproxxy or working with Jetpack Boost alongside a Boost Cloud dev environment, these proxy settings may cause issues. Only apply them if needed.
+
+After applying either method, restart your Docker container:
+
+```bash
+jetpack docker down
 jetpack docker up -d
-chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh
-```
-
-Once you have successfully installed Jurassic Tube, you can use these commands during development:
-
-* Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
-* Break the connection: `jetpack docker jt-down`
-
-You can also set default values:
-
-```shell script
-jetpack docker jt-config username your-username
-jetpack docker jt-config subdomain your-subdomain
-```
-That will let you omit those parameters while initiating the connection:
-```shell script
-jetpack docker jt-up
 ```
 
 ## Using Ngrok with Jetpack
@@ -362,6 +372,46 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 - Server username: `wordpress`
 - Server password: `wordpress`
 - WordPress installation path: `/var/www/html`
+
+### Improved performance when tunneling
+
+Loading tunnelled local sites like Jurassic Tube or Ngrok can sometimes be slow due to all traffic having to go to the server and back. Depending on where you live, there can be a considerable delay for most browser requests.
+
+**Solution**: Make the site reachable from the outside world, but _when working locally, load everything locally_, without tunneling, using a reverse proxy.
+
+#### Setup
+1. Install [Caddy](https://formulae.brew.sh/formula/caddy)
+
+    Why Caddy? The developer environment only listens for HTTP traffic, not HTTPS traffic. Caddy accepts the HTTPS connection and proxies the request to the developer environment.
+
+    ```sh
+    brew install caddy
+    ```
+
+2. Edit the hosts file (`/etc/hosts` on macOS/Linux) as an administrator (requires `sudo` privileges)
+
+    For example, you can run:
+
+    ```sh
+    sudo nano /etc/hosts
+    ```
+    Add this line:
+
+    ```
+    127.0.0.1 localhost your-test-site.example.com
+    ```
+
+3. Start Jurassic Tube tunnel or Ngrok
+
+4. Run Caddy
+
+    ```sh
+    caddy reverse-proxy --from your-test-site.example.com --to localhost:80 --internal-certs --disable-redirects
+    ```
+
+    `--internal-certs` and `--disable-redirects` are needed for HTTPS. [Read more](https://caddyserver.com/docs/command-line#caddy-reverse-proxy).
+
+That’s it!
 
 ## Custom plugins & themes in the container
 

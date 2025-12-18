@@ -1,7 +1,97 @@
 /**
  * @jest-environment jsdom
  */
-import { generateDateRangeFilter, setDocumentCountsToZero } from '../api';
+import { buildFilterAggregations, generateDateRangeFilter, setDocumentCountsToZero } from '../api';
+
+describe( 'buildFilterAggregations', () => {
+	test( 'generates aggregations for product_attribute filters', () => {
+		const widgets = [
+			{
+				filters: [
+					{
+						type: 'product_attribute',
+						attribute: 'pa_color',
+						count: 10,
+						filter_id: 'product_attribute_color',
+					},
+				],
+			},
+		];
+		expect( buildFilterAggregations( widgets ) ).toEqual( {
+			product_attribute_color: {
+				terms: {
+					field: 'taxonomy.pa_color.slug_slash_name',
+					size: 10,
+				},
+			},
+		} );
+	} );
+
+	test( 'generates aggregations for multiple product_attribute filters', () => {
+		const widgets = [
+			{
+				filters: [
+					{
+						type: 'product_attribute',
+						attribute: 'pa_color',
+						count: 10,
+						filter_id: 'product_attribute_color',
+					},
+					{
+						type: 'product_attribute',
+						attribute: 'pa_size',
+						count: 5,
+						filter_id: 'product_attribute_size',
+					},
+				],
+			},
+		];
+		expect( buildFilterAggregations( widgets ) ).toEqual( {
+			product_attribute_color: {
+				terms: {
+					field: 'taxonomy.pa_color.slug_slash_name',
+					size: 10,
+				},
+			},
+			product_attribute_size: {
+				terms: {
+					field: 'taxonomy.pa_size.slug_slash_name',
+					size: 5,
+				},
+			},
+		} );
+	} );
+
+	test( 'generates aggregations for mixed filter types including product_attribute', () => {
+		const widgets = [
+			{
+				filters: [
+					{
+						type: 'taxonomy',
+						taxonomy: 'category',
+						count: 5,
+						filter_id: 'category_filter',
+					},
+					{
+						type: 'product_attribute',
+						attribute: 'pa_color',
+						count: 10,
+						filter_id: 'product_attribute_color',
+					},
+				],
+			},
+		];
+		const result = buildFilterAggregations( widgets );
+		expect( result ).toHaveProperty( 'category_filter' );
+		expect( result ).toHaveProperty( 'product_attribute_color' );
+		expect( result.product_attribute_color ).toEqual( {
+			terms: {
+				field: 'taxonomy.pa_color.slug_slash_name',
+				size: 10,
+			},
+		} );
+	} );
+} );
 
 describe( 'generateDateRangeFilter', () => {
 	test( 'generates correct ranges for yearly date ranges', () => {

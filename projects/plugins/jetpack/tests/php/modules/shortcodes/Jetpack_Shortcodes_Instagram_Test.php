@@ -86,7 +86,7 @@ class Jetpack_Shortcodes_Instagram_Test extends WP_UnitTestCase {
 				'type'       => 'OAuthException',
 			);
 
-			$response['body'] = wp_json_encode( compact( 'error' ) );
+			$response['body'] = wp_json_encode( compact( 'error' ), JSON_UNESCAPED_SLASHES );
 			return $response;
 		}
 
@@ -113,7 +113,7 @@ class Jetpack_Shortcodes_Instagram_Test extends WP_UnitTestCase {
 				'type'             => 'OAuthException',
 			);
 
-			$response['body'] = wp_json_encode( compact( 'error' ) );
+			$response['body'] = wp_json_encode( compact( 'error' ), JSON_UNESCAPED_SLASHES );
 			return $response;
 		}
 
@@ -121,7 +121,7 @@ class Jetpack_Shortcodes_Instagram_Test extends WP_UnitTestCase {
 		switch ( $path ) {
 			case '/p/BnMO9vRleEx/':
 			case '/jeherve/p/BnMO9vRleEx/':
-				$response['body'] = <<<BODY
+				$response['body'] = <<<'BODY'
 {
   "version": "1.0",
   "title": "PJ Masks for the Birthday girl!",
@@ -143,7 +143,7 @@ BODY;
 				break;
 			case '/tv/BkQjCfsBIzi/':
 			case '/instagram/tv/BkQjCfsBIzi/':
-				$response['body'] = <<<BODY
+				$response['body'] = <<<'BODY'
 {
   "version": "1.0",
   "title": "Look back at Instagram co-founder and CEO Kevin Systrom (@kevin) introduce IGTV from a live event in San Francisco.",
@@ -164,7 +164,7 @@ BODY;
 BODY;
 				break;
 			case '/reel/COWmlFLB_7P/':
-				$response['body'] = <<<BODY
+				$response['body'] = <<<'BODY'
 {
   "version": "1.0",
   "author_name": "beautifuldestinations",

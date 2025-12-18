@@ -38,9 +38,9 @@ class Feedback_Source_Test extends BaseTestCase {
 		$entry = new Feedback_Source( -5, 'Test Title' );
 
 		$this->assertSame( 0, $entry->get_id() );
-		$this->assertEquals( 'Test Title', $entry->get_title() );
+		$this->assertEquals( '(deleted) Test Title', $entry->get_title() );
 		$this->assertSame( 1, $entry->get_page_number() );
-		$this->assertSame( home_url(), $entry->get_permalink() );
+		$this->assertSame( '', $entry->get_permalink() );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class Feedback_Source_Test extends BaseTestCase {
 		$entry = new Feedback_Source( 999999, 'Fallback Title' );
 
 		$this->assertSame( 999999, $entry->get_id() );
-		$this->assertEquals( 'Fallback Title', $entry->get_title() );
+		$this->assertEquals( '(deleted) Fallback Title', $entry->get_title() );
 		$this->assertSame( 1, $entry->get_page_number() );
 		$this->assertSame( '', $entry->get_permalink() );
 		$this->assertSame( '', $entry->get_relative_permalink() );
@@ -119,15 +119,26 @@ class Feedback_Source_Test extends BaseTestCase {
 	 * Test from_submission with post missing title
 	 */
 	public function test_from_submission_with_missing_title() {
-		$post = new \WP_Post(
-			(object) array(
-				'ID' => 456,
+
+		$post_id = wp_insert_post(
+			array(
+				'post_status'  => 'publish',
+				'post_type'    => 'post',
+				'post_content' => 'Content without title',
+				'post_title'   => 'howdy',
 			)
 		);
+		wp_update_post(
+			array(
+				'ID'         => $post_id,
+				'post_title' => '',
+			)
+		);
+		$post = \get_post( $post_id );
 
 		$entry = Feedback_Source::from_submission( $post, 3 );
 
-		$this->assertEquals( 456, $entry->get_id() );
+		$this->assertEquals( $post_id, $entry->get_id() );
 		$this->assertSame( '', $entry->get_title() );
 		$this->assertEquals( 3, $entry->get_page_number() );
 	}
@@ -243,12 +254,18 @@ class Feedback_Source_Test extends BaseTestCase {
 		$expected = array(
 			'entry_title' => 'Serialized Title',
 			'entry_page'  => 2,
+			'source_id'   => 0,
+			'source_type' => 'single',
+			'request_url' => '',
 		);
 
 		$this->assertEquals( $expected, $serialized );
 		$this->assertIsArray( $serialized );
 		$this->assertArrayHasKey( 'entry_title', $serialized );
 		$this->assertArrayHasKey( 'entry_page', $serialized );
+
+		$new_source = Feedback_Source::from_serialized( $serialized );
+		$this->assertEquals( $serialized, $new_source->serialize() );
 	}
 
 	/**
@@ -261,9 +278,15 @@ class Feedback_Source_Test extends BaseTestCase {
 		$expected = array(
 			'entry_title' => '',
 			'entry_page'  => 1,
+			'source_id'   => 0,
+			'source_type' => 'single',
+			'request_url' => '',
 		);
 
 		$this->assertEquals( $expected, $serialized );
+
+		$new_source = Feedback_Source::from_serialized( $serialized );
+		$this->assertEquals( $expected, $new_source->serialize() );
 	}
 
 	/**

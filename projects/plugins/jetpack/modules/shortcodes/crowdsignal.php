@@ -110,13 +110,13 @@ if (
 				$placeholder = sprintf(
 					'<a class="cs-embed pd-embed" href="%1$s" data-settings="%2$s">%3$s</a>',
 					esc_url( $survey_url ),
-					esc_attr( wp_json_encode( $settings ) ),
+					esc_attr( wp_json_encode( $settings, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ),
 					esc_html( $settings['title'] )
 				);
 			} else {
 				$placeholder = sprintf(
 					'<div class="cs-embed pd-embed" data-settings="%1$s"></div><noscript>%2$s</noscript>',
-					esc_attr( wp_json_encode( $settings ) ),
+					esc_attr( wp_json_encode( $settings, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ),
 					$survey_link
 				);
 			}
@@ -228,7 +228,6 @@ if (
 			$inline = ! in_the_loop()
 				&& ! Constants::is_defined( 'TESTING_IN_JETPACK' );
 
-			$no_script       = false;
 			$infinite_scroll = false;
 
 			if ( is_home() && current_theme_supports( 'infinite-scroll' ) ) {
@@ -239,16 +238,12 @@ if (
 				$inline = true;
 			}
 
-			if ( is_feed() || ( defined( 'DOING_AJAX' ) && ! $infinite_scroll ) ) {
-				$no_script = false;
-			}
-
 			self::$add_script = $infinite_scroll;
 
 			/*
 			 * Rating embed.
 			 */
-			if ( (int) $attributes['rating'] > 0 && ! $no_script ) {
+			if ( (int) $attributes['rating'] > 0 ) {
 				$post_id = $post instanceof WP_Post ? $post->ID : get_the_ID();
 				$post_id = $post_id ?? '';
 
@@ -286,10 +281,9 @@ if (
 						'title'     => rawurlencode( trim( $attributes['title'] ) ),
 						'permalink' => esc_url( $attributes['permalink'] ),
 						'item_id'   => $item_id,
-					)
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				);
-
-				$item_id = esc_js( $item_id );
 
 				if (
 					class_exists( 'Jetpack_AMP_Support' )
@@ -337,7 +331,7 @@ if (
 							'<div class="cs-rating pd-rating" id="pd_rating_holder_%1$d%2$s" data-settings="%3$s"></div>',
 							absint( $rating ),
 							esc_attr( $item_id ),
-							esc_attr( wp_json_encode( $data ) )
+							esc_attr( wp_json_encode( $data, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) )
 						);
 					} else {
 						return sprintf(
@@ -371,10 +365,7 @@ if (
 					esc_html( $attributes['title'] )
 				);
 
-				if (
-					$no_script
-					|| ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() )
-				) {
+				if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 					return $poll_link;
 				} elseif ( 'slider' === $attributes['type'] && ! $inline ) { // Slider poll.
 					if ( ! in_array(
@@ -390,7 +381,7 @@ if (
 						'embed' => 'poll',
 						'delay' => (int) $attributes['delay'],
 						'visit' => $attributes['visit'],
-						'id'    => (int) $poll,
+						'id'    => $poll,
 						'site'  => $attributes['site'],
 					);
 
@@ -434,7 +425,7 @@ if (
 
 						$data = array( 'url' => $poll_js );
 
-						self::$scripts['poll'][ (int) $poll ] = $data;
+						self::$scripts['poll'][ $poll ] = $data;
 
 						add_action( 'wp_footer', array( $this, 'generate_scripts' ) );
 
@@ -459,12 +450,12 @@ if (
 						 *
 						 * @param int $poll Poll ID.
 						 */
-						do_action( 'crowdsignal_shortcode_before', (int) $poll );
+						do_action( 'crowdsignal_shortcode_before', $poll );
 
 						return sprintf(
 							'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="%2$s" style="%3$s%4$s"></div><div id="PD_superContainer"></div><noscript>%5$s</noscript>',
 							absint( $poll ),
-							esc_attr( wp_json_encode( $data ) ),
+							esc_attr( wp_json_encode( $data, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ),
 							$float,
 							$margins,
 							$poll_link
@@ -483,7 +474,7 @@ if (
 						);
 
 						/** This action is already documented in modules/shortcodes/crowdsignal.php */
-						do_action( 'crowdsignal_shortcode_before', (int) $poll );
+						do_action( 'crowdsignal_shortcode_before', $poll );
 
 						return sprintf(
 							'<a id="pd_a_%1$s"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$s" style="%2$s%3$s"></div><div id="PD_superContainer"></div><noscript>%4$s</noscript>',
@@ -558,7 +549,7 @@ if (
 								$attributes['width'] = $content_width;
 							}
 
-							if ( ! $attributes['width'] ) {
+							if ( empty( $attributes['width'] ) ) {
 								$attributes['width'] = '100%';
 							} else {
 								$attributes['width'] = (int) $attributes['width'];
@@ -655,7 +646,7 @@ if (
 								'back_color' => $back_color,
 								'align'      => $attributes['align'],
 								'style'      => $attributes['style'],
-								'id'         => $survey,
+								'id'         => $survey ?? null,
 								'site'       => $attributes['site'],
 							)
 						);

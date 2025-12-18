@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Unreleased code block: Ensure PRE element does not break scroll behavior.

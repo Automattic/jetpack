@@ -1233,9 +1233,8 @@ class Jetpack_Widget_Conditions {
 				foreach ( $instances as $number => $instance ) {
 					if (
 						! is_array( $instance ) ||
-						empty( $instance['conditions'] ) ||
-						! is_array( $instance['conditions']['rules'] ) ||
-						empty( $instance['conditions']['rules'] )
+						empty( $instance['conditions']['rules'] ) ||
+						! is_array( $instance['conditions']['rules'] )
 					) {
 						continue;
 					}

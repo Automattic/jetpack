@@ -12,7 +12,7 @@
 	--color-pinterest: #cc2127;
 	--color-pocket: #ee4256;
 	--color-print: #f8f8f8;
-	--color-reddit: #5f99cf;
+	--color-reddit: #ff4500;
 	--color-squarespace: #222;
 	--color-stumbleupon: #eb4924;
 	--color-substack: #ff6719;

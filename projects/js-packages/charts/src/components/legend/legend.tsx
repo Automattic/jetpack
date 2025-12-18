@@ -1,6 +1,6 @@
 import { useContext, useMemo, forwardRef } from 'react';
+import { SingleChartContext } from '../../charts/private/single-chart-context';
 import { GlobalChartsContext } from '../../providers';
-import { SingleChartContext } from '../private/single-chart-context';
 import { BaseLegend } from './private';
 import type { LegendProps } from './types';
 
@@ -28,6 +28,6 @@ export const Legend = forwardRef< HTMLDivElement, LegendProps >(
 			return null;
 		}
 
-		return <BaseLegend ref={ ref } items={ legendItems } { ...props } />;
+		return <BaseLegend ref={ ref } items={ legendItems } { ...props } chartId={ contextChartId } />;
 	}
 );

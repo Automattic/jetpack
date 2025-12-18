@@ -3,7 +3,7 @@ import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { FORM_BLOCK_NAME } from '../util/constants';
+import { FORM_BLOCK_NAME } from '../util/constants.js';
 
 export default function useFormWrapper( { attributes, clientId, name } ) {
 	const { replaceBlock, __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );

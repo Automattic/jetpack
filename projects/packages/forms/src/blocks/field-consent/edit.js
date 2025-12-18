@@ -10,8 +10,17 @@ import { usePrevious } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import JetpackFieldWidth from '../shared/components/jetpack-field-width';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import JetpackFieldWidth from '../shared/components/jetpack-field-width.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+
+// Returns a translated placeholder based on the consent type.
+function getConsentPlaceholder( consentType ) {
+	return sprintf(
+		/* translators: %s a type of consent: implicit or explicit */
+		__( 'Add %s consent message…', 'jetpack-forms' ),
+		consentType
+	);
+}
 
 export default function ConsentFieldEdit( props ) {
 	const { attributes, clientId, setAttributes } = props;
@@ -42,11 +51,7 @@ export default function ConsentFieldEdit( props ) {
 				'jetpack/option',
 				{
 					label: implicitConsentMessage,
-					placeholder: sprintf(
-						/* translators: %s a type of consent: implicit or explicit */
-						__( 'Add %s consent message…', 'jetpack-forms' ),
-						'implicit'
-					),
+					placeholder: getConsentPlaceholder( 'implicit' ),
 					isStandalone: true,
 					hideInput: true,
 				},
@@ -73,26 +78,33 @@ export default function ConsentFieldEdit( props ) {
 	const prevConsentType = usePrevious( consentType );
 	const prevLabel = usePrevious( optionBlock?.attributes?.label );
 
-	// Update the inner option block when the consentType changes.
+	// Update the inner option block when the consentType changes,
+	// or when hideInput is out of sync with the consentType (e.g., programmatic insert).
 	useEffect( () => {
-		if ( optionBlockId && consentType !== prevConsentType ) {
-			const label = consentType === 'explicit' ? explicitConsentMessage : implicitConsentMessage;
+		if ( ! optionBlockId ) {
+			return;
+		}
 
+		const shouldHideInput = consentType !== 'explicit';
+		const label = shouldHideInput ? implicitConsentMessage : explicitConsentMessage;
+		const placeholder = getConsentPlaceholder( consentType );
+
+		const shouldUpdate =
+			optionBlock?.attributes?.hideInput !== shouldHideInput || consentType !== prevConsentType;
+
+		if ( shouldUpdate ) {
 			// As this is an automated update, ensure it doesn't end up in the undo stack
 			// by calling `__unstableMarkNextChangeAsNotPersistent`.
 			__unstableMarkNextChangeAsNotPersistent();
 			updateBlockAttributes( optionBlockId, {
 				label,
-				placeholder: sprintf(
-					/* translators: %s a type of consent: implicit or explicit */
-					__( 'Add %s consent message…', 'jetpack-forms' ),
-					consentType
-				),
-				hideInput: consentType !== 'explicit',
+				placeholder,
+				hideInput: shouldHideInput,
 			} );
 		}
 	}, [
 		optionBlockId,
+		optionBlock?.attributes?.hideInput,
 		consentType,
 		prevConsentType,
 		explicitConsentMessage,
@@ -160,7 +172,10 @@ export default function ConsentFieldEdit( props ) {
 		<>
 			<div { ...innerBlocksProps } />
 			<InspectorControls>
-				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Field settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<ToggleControl
 						label={ __( 'Sync fields style', 'jetpack-forms' ) }
@@ -170,7 +185,10 @@ export default function ConsentFieldEdit( props ) {
 						__nextHasNoMarginBottom
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Consent settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Consent settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<BaseControl __nextHasNoMarginBottom>
 						<SelectControl
 							label={ __( 'Permission to email', 'jetpack-forms' ) }

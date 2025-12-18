@@ -212,7 +212,10 @@ class REST_Controller_Test extends Stats_TestCase {
 	 */
 	public function test_filter_and_build_query_string() {
 		$filter_and_build_query_string = new \ReflectionMethod( $this->rest_controller, 'filter_and_build_query_string' );
-		$filter_and_build_query_string->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$filter_and_build_query_string->setAccessible( true );
+		}
 
 		$this->assertEquals(
 			'c=d&e=f',
@@ -253,7 +256,10 @@ class REST_Controller_Test extends Stats_TestCase {
 	 */
 	public function test_get_wp_error() {
 		$get_wp_error = new \ReflectionMethod( WPCOM_Client::class, 'get_wp_error' );
-		$get_wp_error->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_wp_error->setAccessible( true );
+		}
 
 		$error = $get_wp_error->invoke(
 			$this->rest_controller,

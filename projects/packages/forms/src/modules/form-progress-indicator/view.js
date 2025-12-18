@@ -1,5 +1,5 @@
 import { getContext, store } from '@wordpress/interactivity';
-import { calculateProgressPercentage } from '../../blocks/shared/util/progress-calculation';
+import { calculateProgressPercentage } from '../../blocks/shared/util/progress-calculation.js';
 
 store( 'jetpack/form', {
 	state: {

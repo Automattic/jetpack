@@ -11,6 +11,7 @@
 		"url": "https://github.com/Automattic/jetpack.git",
 		"directory": "projects/js-packages/jetpack-cli"
 	},
+	"license": "GPL-2.0-or-later",
 	"type": "module",
 	"bin": {
 		"jp": "bin/jp.js"

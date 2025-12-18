@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Social
  * Plugin URI: https://wordpress.org/plugins/jetpack-social
  * Description: Share your site’s posts on several social media networks automatically when you publish a new post.
- * Version: 7.1.0
+ * Version: 7.3.0
  * Author: Automattic - Jetpack Social team
  * Author URI: https://jetpack.com/social/
  * License: GPLv2 or later
@@ -25,8 +25,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
 if ( ! defined( 'ABSPATH' ) ) {

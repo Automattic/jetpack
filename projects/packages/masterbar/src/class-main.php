@@ -14,7 +14,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.23.1';
+	const PACKAGE_VERSION = '0.27.5';
 
 	/**
 	 * Initializer.
@@ -35,17 +35,17 @@ class Main {
 			add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 		}
 
+		// Show Additional CSS nudges on both Simple and Atomic, independently of the admin interface.
+		require_once __DIR__ . '/nudges/bootstrap.php';
+
 		if ( $is_wp_admin_interface ) {
 			return;
 		}
 
 		$host = new Host();
 
-		if ( $host->is_wpcom_platform() ) {
-			new Inline_Help();
-			require_once __DIR__ . '/wp-posts-list/bootstrap.php';
-			require_once __DIR__ . '/nudges/bootstrap.php';
-		}
+		new Inline_Help();
+		require_once __DIR__ . '/wp-posts-list/bootstrap.php';
 
 		if ( $host->is_woa_site() ) {
 			require_once __DIR__ . '/profile-edit/bootstrap.php';

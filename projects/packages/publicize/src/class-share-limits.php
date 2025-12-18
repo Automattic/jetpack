@@ -166,6 +166,6 @@ class Share_Limits {
 			'numberOfConnections' => count( $this->connections ),
 		);
 
-		return 'var jetpackSocialClassicEditorInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $state ) ) . '"));';
+		return 'var jetpackSocialClassicEditorInitialState=' . wp_json_encode( $state, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 	}
 }

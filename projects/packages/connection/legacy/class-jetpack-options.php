@@ -250,7 +250,7 @@ class Jetpack_Options {
 	 *
 	 * @var array
 	 */
-	private static $external_storage_allowlist = array( 'blog_token', 'id' );
+	private static $external_storage_allowlist = array( 'blog_token', 'id', 'master_user', 'user_tokens' );
 
 	/**
 	 * Determines if external storage should be used for a given option.

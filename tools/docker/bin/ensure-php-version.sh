@@ -31,6 +31,7 @@ PKGS=(
 	"php${VER}-mbstring"
 	"php${VER}-mysql"
 	"php${VER}-opcache"
+	"php${VER}-pcov"
 	"php${VER}-pgsql"
 	"php${VER}-soap"
 	"php${VER}-sqlite3"

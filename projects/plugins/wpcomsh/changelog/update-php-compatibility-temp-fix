@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Added phpcs ignore comments due to temporary failing CI test
+
+

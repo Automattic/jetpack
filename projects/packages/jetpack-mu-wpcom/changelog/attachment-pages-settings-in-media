@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Introduces setting for controlling the Attachment pages to media options in wp-admin. Controlls the `wp_attachment_pages_enabled` option via checkbox.

@@ -5,7 +5,7 @@ import domReady from '@wordpress/dom-ready';
 /*
  * Internal dependencies
  */
-import { DatePicker } from '../libs/date-picker/date-picker';
+import { DatePicker } from '../libs/date-picker/date-picker.ts';
 
 domReady( () => {
 	(

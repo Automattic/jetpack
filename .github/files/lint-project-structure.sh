@@ -702,4 +702,26 @@ while IFS=$'\t' read -r FILE NAME; do
 	fi
 done < <( jq -r '.name // empty | select( startswith( "@automattic/" ) or startswith( "_" ) | not ) | [ input_filename, . ] | @tsv' $( git ls-files package.json '*/package.json' ) )
 
+# - Check for old GPL text.
+debug "Checking for references to the FSF's old addresses"
+while IFS= read -r X; do
+	EXIT=1
+	ADDR=${X##*:}
+	X=${X%:*}
+	COL=${X##*:}
+	X=${X%:*}
+	LINE=${X##*:}
+	FILE=${X%:*}
+	if [[ "$ADDR" = 675*Massachusetts ]]; then
+		MOVED='675 Massachusetts Ave in 1995'
+	elif [[ "$ADDR" = 59*Temple ]]; then
+		MOVED='59 Temple Place in 2005'
+	else
+		MOVED='51 Franklin Street in 2024'
+	fi
+	echo "---" # Bracket message containing newlines for better visibility in GH's logs.
+	echo "::error file=$FILE,line=$LINE,col=$COL::The Free Software Foundation moved out of $MOVED. The recommended text for the GPL license notice is now%0A    You should have received a copy of the GNU General Public License%0A    along with this program; if not, see <https://www.gnu.org/licenses/>."
+	echo "---"
+done < <( git grep --line-number --column -o '675\s\+Massachusetts\|59\s\+Temple\|51\s\+Franklin' ':!.github/files/lint-project-structure.sh' ':!*/changelog/*' )
+
 exit $EXIT

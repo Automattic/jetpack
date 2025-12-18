@@ -22,4 +22,7 @@ export { isSafari } from './is-safari';
 export { mergeThemes } from './merge-themes';
 
 // Color utilities
-export { hexToRgba } from './color-utils';
+export * from './color-utils';
+
+// CSS utilities
+export { resolveCssVariable } from './resolve-css-var';

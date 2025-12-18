@@ -157,7 +157,7 @@ class Jetpack_Test extends WP_UnitTestCase {
 	 */
 	public function test_absolutize_css_urls_properly_handles_use_cases() {
 
-		$css = <<<CSS
+		$css = <<<'CSS'
 .test-it {
 	background: url(same-dir.png);
 	background: url('same-dir.png');
@@ -179,7 +179,7 @@ class Jetpack_Test extends WP_UnitTestCase {
 }
 CSS;
 
-		$expected = <<<EXPECTED
+		$expected = <<<'EXPECTED'
 .test-it {
 	background: url("http://example.com/dir1/dir2/same-dir.png");
 	background: url("http://example.com/dir1/dir2/same-dir.png");

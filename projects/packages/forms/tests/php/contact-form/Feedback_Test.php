@@ -266,6 +266,153 @@ class Feedback_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test the user agent is included in the serialized response.
+	 * It should be available when the response is created during the form submission.
+	 */
+	public function test_user_agent_included_in_serialized_response() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Set a test user agent
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36';
+
+		// Create a contact form
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// The user agent should be present.
+		$this->assertNotEmpty( $response->get_user_agent(), 'User agent should not be empty' );
+		$this->assertNotEmpty( $saved_response->get_user_agent(), 'User agent should not be empty' );
+		$this->assertEquals( $response->get_user_agent(), $saved_response->get_user_agent(), 'User agent should match' );
+		$this->assertEquals( $_SERVER['HTTP_USER_AGENT'], $saved_response->get_user_agent(), 'User agent should match server value' );
+
+		// Clean up
+		unset( $_SERVER['HTTP_USER_AGENT'] );
+	}
+
+	/**
+	 * Test that country code is included in serialized response and persists after save/load.
+	 */
+	public function test_country_code_included_in_serialized_response() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'Jane Doe',
+				'email'   => 'jane@example.com',
+				'message' => 'Test message from Canada',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Set up filter to return a test country code
+		$test_country_code = 'CA';
+		$filter_callback   = function () use ( $test_country_code ) {
+			return $test_country_code;
+		};
+		add_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+
+		// Create a contact form response
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// The country code should be present and match the test value.
+		$this->assertNotEmpty( $response->get_country_code(), 'Country code should not be empty' );
+		$this->assertNotEmpty( $saved_response->get_country_code(), 'Country code should not be empty after save/load' );
+		$this->assertEquals( $response->get_country_code(), $saved_response->get_country_code(), 'Country code should match after save/load' );
+		$this->assertEquals( $test_country_code, $saved_response->get_country_code(), 'Country code should match the filter value' );
+
+		add_filter( 'jetpack_contact_form_forget_ip_address', '__return_true' );
+		$new_post_id = $response->save();
+		remove_filter( 'jetpack_contact_form_forget_ip_address', '__return_true' );
+
+		$saved_response = Feedback::get( $new_post_id );
+		$this->assertEmpty( $saved_response->get_country_code(), 'Country code should be empty when IP is forgotten' );
+		// Clean up
+		remove_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+	}
+
+	/**
+	 * Test the browser information is parsed correctly from user agent.
+	 */
+	public function test_browser_parsing_from_user_agent() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Test Chrome Desktop
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36';
+		$response                   = Feedback::from_submission( $_post_data, $form );
+		$browser                    = $response->get_browser();
+		$this->assertStringContainsString( 'Chrome', $browser, 'Browser should be Chrome' );
+		$this->assertStringContainsString( 'Desktop', $browser, 'Platform should be Desktop' );
+
+		// Test Safari Mobile (iPhone)
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1';
+		$response                   = Feedback::from_submission( $_post_data, $form );
+		$browser                    = $response->get_browser();
+		$this->assertStringContainsString( 'Safari', $browser, 'Browser should be Safari' );
+		$this->assertStringContainsString( 'Mobile', $browser, 'Platform should be Mobile' );
+
+		// Test Firefox Desktop
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0';
+		$response                   = Feedback::from_submission( $_post_data, $form );
+		$browser                    = $response->get_browser();
+		$this->assertStringContainsString( 'Firefox', $browser, 'Browser should be Firefox' );
+		$this->assertStringContainsString( 'Desktop', $browser, 'Platform should be Desktop' );
+
+		// Test no user agent
+		unset( $_SERVER['HTTP_USER_AGENT'] );
+		$response = Feedback::from_submission( $_post_data, $form );
+		$browser  = $response->get_browser();
+		$this->assertNull( $browser, 'Browser should be null when no user agent' );
+	}
+
+	/**
 	 * Test the subject line is computed for legacy correctly.
 	 */
 	public function test_computed_subject_legacy() {
@@ -443,6 +590,64 @@ class Feedback_Test extends BaseTestCase {
 
 		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $author, $saved_response->get_author(), 'Author should match the legacy feedback post author' );
+	}
+
+	public function test_author_name() {
+		$author  = 'Mikey Mouse';
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => $author,
+				'email'   => 'email@email.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Create a contact form
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEquals( $author, $response->get_author_name(), 'Author name should match the form submission' );
+		$this->assertEquals( $author, $saved_response->get_author_name(), 'Author name should match the saved form submission' );
+	}
+
+	public function test_author_name_with_email() {
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@email.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Create a contact form
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertSame( '', $response->get_author_name(), 'Author name should match the form submission' );
+		$this->assertSame( '', $saved_response->get_author_name(), 'Author name should match the saved form submission' );
 	}
 
 	public function test_computed_name() {
@@ -1072,7 +1277,7 @@ class Feedback_Test extends BaseTestCase {
 		$saved_response = Feedback::get( $post_id );
 
 		$this->assertNotEmpty( $saved_response->get_entry_title(), 'Post Title should NOT be empty after the post is deleted' );
-		$this->assertEquals( $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
+		$this->assertEquals( '(deleted) ' . $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
 	}
 
 	public function test_get_all_values() {
@@ -1189,19 +1394,59 @@ class Feedback_Test extends BaseTestCase {
 		$_post_data = Utility::get_post_request(
 			array(
 				'images' => array(
-					'{"perceived":"B","selected":"B","label":"Test choice","showLabels":true,"image":{"id":null,"src":"https://www.example.com/test-choice.png"}}',
-					'{"perceived":"C","selected":"C","label":"Another test choice","showLabels":true,"image":{"id":12346,"src":"https://www.example.com/another-test-choice.png"}}',
+					'{"perceived":"B","selected":"B","label":"Choice B","showLabels":true,"image":{"id":null,"src":"https://www.example.com/choice-b.png"}}',
+					'{"perceived":"C","selected":"C","label":"Choice C","showLabels":true,"image":{"id":12346,"src":"https://www.example.com/choice-c.png"}}',
 				),
 			),
 			'g' . $form_id
 		);
+
+		// Helper function to create image block data for optionsdata
+		$create_image_block = function ( $url, $alt ) {
+			return array(
+				'blockName'    => 'core/image',
+				'attrs'        => array(
+					'url'         => $url,
+					'alt'         => $alt,
+					'scale'       => 'cover',
+					'aspectRatio' => '1',
+				),
+				'innerHTML'    => "<img src=\"{$url}\" alt=\"{$alt}\" />",
+				'innerContent' => array( "<img src=\"{$url}\" alt=\"{$alt}\" />" ),
+			);
+		};
+
+		$optionsdata = Contact_Form::esc_shortcode_val(
+			wp_json_encode(
+				array(
+					array(
+						'letter' => 'A',
+						'label'  => 'Choice A',
+						'image'  => $create_image_block( 'https://www.example.com/choice-a.png', 'Choice A' ),
+					),
+					array(
+						'letter' => 'B',
+						'label'  => 'Choice B',
+						'image'  => $create_image_block( 'https://www.example.com/choice-b.png', 'Choice B' ),
+					),
+					array(
+						'letter' => 'C',
+						'label'  => 'Choice C',
+						'image'  => $create_image_block( 'https://www.example.com/choice-c.png', 'Choice C' ),
+					),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			)
+		);
+
+		$shortcode = "[contact-field type=\"image-select\" label=\"Images\" isMultiple=\"1\" options=\"A,B,C\" showLabels=\"1\" optionsdata=\"{$optionsdata}\" /]";
 
 		$form = new Contact_Form(
 			array(
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field type='image-select' label='Images' isMultiple='1' options='A,B,C' showLabels='1' /]"
+			$shortcode
 		);
 
 		$expected_images = array(
@@ -1210,21 +1455,21 @@ class Feedback_Test extends BaseTestCase {
 				array(
 					'perceived'  => 'B',
 					'selected'   => 'B',
-					'label'      => 'Test choice',
+					'label'      => 'Choice B',
 					'showLabels' => true,
 					'image'      => array(
 						'id'  => null,
-						'src' => 'https://www.example.com/test-choice.png',
+						'src' => 'https://www.example.com/choice-b.png',
 					),
 				),
 				array(
 					'perceived'  => 'C',
 					'selected'   => 'C',
-					'label'      => 'Another test choice',
+					'label'      => 'Choice C',
 					'showLabels' => true,
 					'image'      => array(
 						'id'  => 12346,
-						'src' => 'https://www.example.com/another-test-choice.png',
+						'src' => 'https://www.example.com/choice-c.png',
 					),
 				),
 			),
@@ -1390,8 +1635,10 @@ class Feedback_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Feedback::from_submission( $_post_data, $form, $current_post );
-		$post_id  = $response->save();
+		$response = Feedback::from_submission( $_post_data, $form );
+		$response->set_source( new Feedback_Source( $current_post->ID, $current_post->post_title, 1, 'single', home_url( '?p=' . $current_post->ID ) ) );
+
+		$post_id = $response->save();
 		Utility::destroy_post_context( $current_post ); // Destroy the post context to simulate a deleted post.
 		$saved_response = Feedback::get( $post_id );
 		$this->assertEmpty( $saved_response->get_entry_permalink(), 'Post permalink should match the form submission' );
@@ -1620,6 +1867,11 @@ class Feedback_Test extends BaseTestCase {
 				),
 				'message'  => 'Compiled fields should return only labels as indexed array.',
 			),
+			'id-value_format'    => array(
+				'format'   => 'id-value',
+				'expected' => array(), // Rebuilt dynamically in the test with actual form_id
+				'message'  => 'Compiled fields should return field IDs mapped to values.',
+			),
 		);
 	}
 
@@ -1658,6 +1910,17 @@ class Feedback_Test extends BaseTestCase {
 
 		// Test the specified format
 		$compiled_fields = $response->get_compiled_fields( 'default', $format );
+
+		// For id-value format, rebuild expected with actual form_id, there
+		// was no way of passing the form_id to the data provider.
+		if ( 'id-value' === $format ) {
+			$expected = array(
+				'g' . $form_id . '-name'    => $test_name,
+				'g' . $form_id . '-email'   => $test_email,
+				'g' . $form_id . '-website' => $test_website,
+				'g' . $form_id . '-message' => $test_message,
+			);
+		}
 
 		$this->assertEquals( $expected, $compiled_fields, $message );
 	}
@@ -1746,6 +2009,17 @@ class Feedback_Test extends BaseTestCase {
 	}
 
 	public function test_legacy_get_all_legacy_values() {
+		// Setup the post context.
+		$holding_post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_title'  => 'Cool Post Title',
+				'post_status' => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $holding_post_id );
+
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'1_field' => 'value1',
@@ -1766,7 +2040,7 @@ class Feedback_Test extends BaseTestCase {
 				'2_field'                 => 'value2',
 				'email_marketing_consent' => 'no',
 				'entry_title'             => 'Cool Post Title',
-				'entry_permalink'         => '',
+				'entry_permalink'         => 'http://example.org/?p=' . $holding_post_id,
 				'feedback_id'             => 'skip',
 			),
 		);
@@ -2313,7 +2587,7 @@ class Feedback_Test extends BaseTestCase {
 			),
 		);
 		foreach ( $test_cases_data as $case ) {
-			$this->assertEquals( wp_json_encode( $case ), Feedback::fix_malformed_json( stripslashes( wp_json_encode( $case ) ) ) );
+			$this->assertEquals( wp_json_encode( $case, JSON_UNESCAPED_SLASHES ), Feedback::fix_malformed_json( stripslashes( wp_json_encode( $case, JSON_UNESCAPED_SLASHES ) ) ) );
 		}
 	}
 
@@ -2511,5 +2785,405 @@ class Feedback_Test extends BaseTestCase {
 
 		$this->assertEquals( 'こんにちは世界', $saved_response->get_field_value_by_label( 'Special' ), 'Special field value should match saved value' );
 		$this->assertEquals( '🙈', $saved_response->get_field_value_by_label( 'Message' ), 'Message field value should match saved value' );
+	}
+
+	public function test_mark_as_read() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			true // is_unread
+		);
+
+		$feedback = Feedback::get( $post_id );
+		$this->assertTrue( $feedback->is_unread(), 'Feedback should start as unread' );
+
+		$result = $feedback->mark_as_read();
+		$this->assertTrue( $result, 'mark_as_read should return true on success' );
+		$this->assertFalse( $feedback->is_unread(), 'Feedback should be marked as read' );
+
+		// Then mark as unread
+		$result = $feedback->mark_as_unread();
+		$this->assertTrue( $result, 'mark_as_unread should return true on success' );
+		$this->assertTrue( $feedback->is_unread(), 'Feedback should be marked as unread' );
+	}
+
+	public function test_mark_as_read_without_post_id() {
+		$form     = new Contact_Form( array() );
+		$response = Feedback::from_submission( array(), $form );
+		$response->save();
+
+		// Should return false if not saved yet (no post_id)
+		$result = $response->mark_as_read();
+		$this->assertFalse( $result, 'mark_as_read should return false when post_id is not set' );
+	}
+
+	public function test_mark_as_unread_without_post_id() {
+		$form     = new Contact_Form( array() );
+		$response = Feedback::from_submission( array(), $form );
+
+		// Should return false if not saved yet (no post_id)
+		$result = $response->mark_as_unread();
+		$this->assertFalse( $result, 'mark_as_unread should return false when post_id is not set' );
+	}
+
+	public function test_unread_status_uses_constants() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			true // unread
+		);
+
+		$feedback = Feedback::get( $post_id );
+
+		// Check the comment_status field directly
+		$post = get_post( $post_id );
+		$this->assertEquals( 'open', $post->comment_status, 'Unread feedback should have comment_status = open' );
+
+		$feedback->mark_as_read();
+		$post = get_post( $post_id );
+		$this->assertEquals( 'closed', $post->comment_status, 'Read feedback should have comment_status = closed' );
+
+		$feedback->mark_as_unread();
+		$post = get_post( $post_id );
+		$this->assertEquals( 'open', $post->comment_status, 'Unread feedback should have comment_status = open' );
+	}
+
+	public function test_mark_as_read_db_failure() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			true // unread
+		);
+
+		$feedback = Feedback::get( $post_id );
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		$result = $feedback->mark_as_read();
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertFalse( $result, 'mark_as_read should return false on DB failure' );
+		$this->assertTrue( $feedback->is_unread(), 'Feedback should remain unread' );
+	}
+
+	public function test_mark_as_unread_db_failure() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			false // unread
+		);
+
+		$feedback = Feedback::get( $post_id );
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		$result = $feedback->mark_as_unread();
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertFalse( $result, 'mark_as_unread should return false on DB failure' );
+		$this->assertFalse( $feedback->is_unread(), 'Feedback should remain read' );
+	}
+
+	/**
+	 * Test that notification recipients are stored and retrieved correctly.
+	 *
+	 * @since 6.10.0
+	 */
+	public function test_notification_recipients_handling() {
+		// Create valid users with edit capabilities
+		$user_id_1 = wp_insert_user(
+			array(
+				'user_login' => 'test_user_1',
+				'user_email' => 'user1@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+
+		$user_id_2 = wp_insert_user(
+			array(
+				'user_login' => 'test_user_2',
+				'user_email' => 'user2@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => '🙈',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'                  => 'Test Form',
+				'description'            => 'This is a test form.',
+				'notificationRecipients' => array( (string) $user_id_1, (string) $user_id_2 ),
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertEquals( array( (string) $user_id_1, (string) $user_id_2 ), $response->get_notification_recipients(), 'Notification recipients should match for form submission' );
+		$feedback_post_id = $response->save();
+
+		// Check that the saved response returns the same thing.
+		$saved_response = Feedback::get( $feedback_post_id );
+		$this->assertEquals( array( (string) $user_id_1, (string) $user_id_2 ), $saved_response->get_notification_recipients(), 'Notification recipients should match for saved response' );
+
+		// Clean up
+		wp_delete_user( $user_id_1 );
+		wp_delete_user( $user_id_2 );
+	}
+
+	/**
+	 * Test that notification recipients default to empty array when not set.
+	 *
+	 * @since 6.10.0
+	 */
+	public function test_notification_recipients_default_empty() {
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertEquals( array(), $response->get_notification_recipients(), 'Notification recipients should default to empty array' );
+		$feedback_post_id = $response->save();
+
+		// Check that the saved response returns the same thing.
+		$saved_response = Feedback::get( $feedback_post_id );
+		$this->assertEquals( array(), $saved_response->get_notification_recipients(), 'Saved notification recipients should default to empty array' );
+	}
+
+	/**
+	 * Test that notification recipients validates user capabilities.
+	 *
+	 * @since 6.10.0
+	 */
+	public function test_notification_recipients_validates_capabilities() {
+		// Create users with different capabilities
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_user',
+				'user_email' => 'admin@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'administrator',
+			)
+		);
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor_user',
+				'user_email' => 'editor@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+
+		$author_id = wp_insert_user(
+			array(
+				'user_login' => 'author_user',
+				'user_email' => 'author@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'author',
+			)
+		);
+
+		$subscriber_id = wp_insert_user(
+			array(
+				'user_login' => 'subscriber_user',
+				'user_email' => 'subscriber@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'subscriber',
+			)
+		);
+
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		// Include admin, editor, author, subscriber, and a non-existent user ID
+		$form = new Contact_Form(
+			array(
+				'title'                  => 'Test Form',
+				'description'            => 'This is a test form.',
+				'notificationRecipients' => array(
+					(string) $admin_id,
+					(string) $editor_id,
+					(string) $author_id,
+					(string) $subscriber_id,
+					'999999', // Non-existent user
+				),
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		// Only admin, editor, and author should be included (they have edit_posts capability)
+		// Subscriber and non-existent user should be filtered out
+		$expected_recipients = array(
+			(string) $admin_id,
+			(string) $editor_id,
+			(string) $author_id,
+		);
+
+		$this->assertEquals( $expected_recipients, $response->get_notification_recipients(), 'Only users with edit capabilities should be included' );
+
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+		$this->assertEquals( $expected_recipients, $saved_response->get_notification_recipients(), 'Saved response should maintain validated recipients' );
+
+		// Clean up
+		wp_delete_user( $admin_id );
+		wp_delete_user( $editor_id );
+		wp_delete_user( $author_id );
+		wp_delete_user( $subscriber_id );
+	}
+
+	/**
+	 * Test that country flags are returned correctly.
+	 */
+	public function test_get_country_flag() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Test valid country codes
+		$test_cases = array(
+			'US' => '🇺🇸',
+			'GB' => '🇬🇧',
+			'DE' => '🇩🇪',
+			'CA' => '🇨🇦',
+			'JP' => '🇯🇵',
+			'us' => '🇺🇸', // Test lowercase (should be converted to uppercase internally)
+		);
+
+		foreach ( $test_cases as $country_code => $expected_flag ) {
+			$filter_callback = function () use ( $country_code ) {
+				return $country_code;
+			};
+			add_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+
+			$response = Feedback::from_submission( $_post_data, $form );
+
+			$this->assertEquals( $expected_flag, $response->get_country_flag(), "Country code {$country_code} should convert to flag emoji {$expected_flag}" );
+
+			remove_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+		}
+
+		// Test when no country code is available
+		$filter_callback = function () {
+			return null;
+		};
+		add_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertSame( '', $response->get_country_flag(), 'Should return empty string when no country code is available' );
+
+		remove_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+	}
+
+	/**
+	 * Minimal: submission with first-name/last-name sets author name and first/last getters.
+	 */
+	public function test_author_first_last_on_submission() {
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"
+			[contact-field label='First name' type='name' id='first-name'/]
+			[contact-field label='Last name' type='name' id='last-name'/]
+			[contact-field label='Email' type='email' id='email'/]
+			"
+		);
+
+		$post_data = array(
+			'first-name' => 'Jane',
+			'last-name'  => 'Doe',
+			'email'      => 'jane@example.com',
+		);
+
+		$response = Feedback::from_submission( $post_data, $form );
+
+		$this->assertEquals( 'Jane Doe', $response->get_author_name(), 'Author name should combine first and last' );
+		$this->assertSame( 'Jane', $response->get_author_first_name(), 'First name getter should return raw first name' );
+		$this->assertSame( 'Doe', $response->get_author_last_name(), 'Last name getter should return raw last name' );
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Sync: Removed an option from the sync whitelist as it is not in use.

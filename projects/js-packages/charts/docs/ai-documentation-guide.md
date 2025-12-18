@@ -12,7 +12,7 @@ All chart documentation should follow this standardized structure:
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as [FeatureName]Stories from './[feature-name].stories';
 
-<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
+<Meta title="JS Packages/Charts Library/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
 ```
 
 ### 2. Title & Introduction
@@ -39,21 +39,68 @@ Always include:
 The [Component] component supports [feature description], providing [benefits]:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { [Component] } from '@automattic/charts';
 
-    <[Component] data={ data }>
-    	<[Component].[FeatureComponent]>
-    		<[Component].[SubComponent]
-    			[key-props]
-    		/>
-    	</[Component].[FeatureComponent]>
-    </[Component]>` }
+    	<[Component] data={ data }>
+    		<[Component].[FeatureComponent]>
+    			<[Component].[SubComponent]
+    				[key-props]
+    			/>
+    		</[Component].[FeatureComponent]>
+    	</[Component]>
+    ` }
 
 />
 ```
 
-### 4. Basic Usage Section
+### 4. API Reference Section (Link)
+
+Immediately after the overview, include a link to the separate API reference document:
+
+```mdx
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [[Component] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-api-reference--docs).
+```
+
+#### Creating the Separate API Reference Document
+
+The API reference should be created as a separate MDX document using the `feature-api-documentation.mdx.template`. This document will appear as a separate entry in Storybook below the main 'Docs' entry.
+
+```mdx
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/[Category]/[Component]/[Feature]/API Reference" />
+
+# [Feature Name] API Reference
+
+[Use the feature-api-documentation.mdx.template structure]
+```
+
+The separate API reference should include:
+
+- Complete component prop tables with types, defaults, and descriptions
+- TypeScript type definitions
+- Required vs optional prop distinctions
+
+The API reference should NOT include:
+
+- Usage examples or code snippets
+- Usage patterns or best practices
+- Integration examples
+- Notes about behavior
+
+All usage documentation, code examples, patterns, and behavioral notes belong in the main documentation file. The API reference is strictly for technical specifications.
+
+This separation allows users to:
+
+- Quickly access examples and usage patterns in the main docs
+- Reference detailed API information when needed
+- Navigate Storybook more efficiently with focused documentation
+- Find all usage examples in one place (main docs) rather than scattered across files
+
+### 5. Basic Usage Section
 
 ```mdx
 ## Basic Usage
@@ -64,7 +111,7 @@ Description of simplest implementation:
 
 <Canvas of={ [FeatureName]Stories.Default } />
 
-<Source language="jsx" code={ `[minimal-example]` } />
+<Source language="tsx" code={ `[minimal-example]` } />
 
 ### Required Props
 
@@ -73,11 +120,10 @@ Description of simplest implementation:
 
 ### Optional Props
 
-- **`optionalProp`**: Description and default behavior
-- **`anotherOptional`**: Description
+For detailed information about all optional props, see the [[Component] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-api-reference--docs).
 ```
 
-### 5. Feature Variations
+### 6. Feature Variations
 
 Document all major variations with:
 
@@ -101,10 +147,10 @@ Description and use case:
 
 <Canvas of={ [FeatureName]Stories.[AnotherVariation] } />
 
-<Source language="jsx" code={ `example-code` } />
+<Source language="tsx" code={ `example-code` } />
 ```
 
-### 6. Styling and Customization
+### 7. Styling and Customization
 
 ```mdx
 ## Styling and Customization
@@ -115,7 +161,7 @@ How to customize appearance:
 
 <Canvas of={ [FeatureName]Stories.Styled } />
 
-<Source language="jsx" code={ `styling-example` } />
+<Source language="tsx" code={ `styling-example` } />
 
 ### Styling Options
 
@@ -128,28 +174,61 @@ Controls [what this category affects]:
 - `property`: Description and possible values
 - `anotherProperty`: Description
 
-### Theme Integration
+## Theming Integration
 
-Explanation of how feature integrates with chart themes.
+For the Theming Integration section, use the standardized format from the `feature-documentation.mdx.template`. This section should be a top-level `##` heading (not nested under Styling) and include:
+
+- A description explaining that the chart integrates seamlessly with the theming system
+- An explanation that the default theme has neutral colors and styling
+- A code example showing how to wrap the chart in `GlobalChartsProvider` with a custom theme
+
+See the template for the complete section structure.
+
+## Animation
+
+Only include this section if the chart component supports animation (check the implementation for an `animation` prop). If animation is not supported, remove this section entirely.
+
+When documenting animation:
+
+- Show the Animation story with a Canvas example
+- Include a basic code example with `animation={true}`
+- Document animation behavior in a bulleted list covering:
+  - Opt-in nature (disabled by default)
+  - Accessibility (respects `prefers-reduced-motion`)
+  - Effect description (e.g., "radial wipe reveal effect")
+  - Duration in milliseconds
+- Note that animation plays once on initial render and does not repeat
+
+See the `feature-documentation.mdx.template` for the complete section structure.
 ```
 
-### 7. Advanced Features
+### 8. Advanced Usage
 
-Document complex functionality:
+Document complex functionality with practical examples. All usage examples, including advanced patterns, should be in the main documentation file, NOT in the API reference:
 
 ```mdx
-## Advanced Features
+## Advanced Usage
 
 ### [Advanced Feature Name]
 
-Explanation of complex functionality with examples.
+Explanation of complex functionality with examples:
+
+<Source language="tsx" code={ `[comprehensive-example]` } />
 
 ### [Another Advanced Feature]
 
-More advanced usage patterns.
+More advanced usage patterns with code examples:
+
+<Source language="tsx" code={ `[advanced-pattern-example]` } />
+
+### Important Notes
+
+- Key behavioral notes
+- Best practices
+- Common pitfalls to avoid
 ```
 
-### 8. Accessibility Section
+### 9. Accessibility Section
 
 Always include accessibility information:
 
@@ -170,72 +249,21 @@ Always include accessibility information:
 - Focus behavior and visual indicators
 ```
 
-### 9. Browser Compatibility
+### 10. Migration
 
-Include any browser-specific considerations:
-
-```mdx
-## Browser Compatibility
-
-### [Browser Name] Considerations
-
-Any browser-specific behaviors or workarounds.
-
-### [API/Feature] Support
-
-Information about feature support and fallbacks.
-```
-
-### 10. API Reference
-
-Comprehensive prop documentation:
-
-````mdx
-## API Reference
-
-### [Component].[SubComponent]
-
-Description of the component.
-
-**Props:**
-
-- `children`: Description
-
-### [Component].[MainComponent]
-
-Description of main component.
-
-**Props:**
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `requiredProp` | `Type` | - | **Required.** Description |
-| `optionalProp` | `Type \| Other` | `default` | Description |
-
-### [TypeName] Type
-
-```typescript
-type TypeName = {
-	property: Type;
-	optional?: Type;
-};
-```
-````
-
-````
-
-### 11. Migration
 ```mdx
 ## Migration from [Legacy/Previous API]
+
 If applicable, provide migration examples:
 
-<Source language="jsx" code={`
-// Old API
-[old-example]
+<Source language="tsx" code={`
+	// Old API
+	[old-example]
 
-// New API
-[new-example]
-`} />
-````
+    // New API
+    [new-example]
+    `} />
+```
 
 ## Content Guidelines
 
@@ -250,6 +278,8 @@ If applicable, provide migration examples:
 
 - **Always use realistic data**: Show complete, runnable examples
 - **Follow TypeScript patterns**: Include proper typing in examples
+- **Use `tsx` for component code**: All `<Source>` blocks with tsx/component code should use `language="tsx"`, use `language="typescript"` only for pure type definitions or imports
+- **Use tabs for indentation**: All code examples in `<Source>` blocks must use tabs, not spaces, for indentation
 - **Use consistent naming**: `data`, `dataPoint`, `sampleData` for chart data
 - **Show progressive complexity**: Start simple, build up to advanced usage
 
@@ -276,6 +306,7 @@ If applicable, provide migration examples:
 ### File Naming
 
 - Main docs: `[feature-name].docs.mdx`
+- API reference: `[feature-name].api.mdx`
 - Stories: `[feature-name].stories.tsx`
 
 ### Directory Structure
@@ -283,6 +314,7 @@ If applicable, provide migration examples:
 ```
 src/components/[chart-type]/stories/
 ├── [feature-name].docs.mdx
+├── [feature-name].api.mdx
 ├── [feature-name].stories.tsx
 ```
 
@@ -294,28 +326,35 @@ src/components/[chart-type]/stories/
 
 ## Quality Checklist
 
-Before considering documentation complete, verify:
+Before considering documentation complete, verify both main docs and API reference:
 
 ### Completeness
 
-- [ ] All props documented with types and descriptions
-- [ ] Visual examples for all major variations
-- [ ] Code examples are complete and runnable
-- [ ] Accessibility considerations covered
-- [ ] Browser compatibility notes included
+- [ ] Main docs: All usage patterns and examples documented
+- [ ] API docs: All props documented with types and descriptions
+- [ ] API docs: Contains NO usage examples or code snippets
+- [ ] Visual examples for all major variations in main docs
+- [ ] Code examples are complete and runnable in main docs
+- [ ] Accessibility considerations covered in main docs
+- [ ] Animation section included if chart supports animation (check for `animation` prop)
+- [ ] Browser compatibility notes included where relevant
+- [ ] Both documents created using appropriate templates
 
 ### Accuracy
 
 - [ ] Code examples match actual implementation
-- [ ] Type definitions are current
+- [ ] API reference type definitions are current and accurate
 - [ ] Examples use current API patterns
+- [ ] Prop names and types match between documents
+- [ ] Cross-references between docs are accurate
 
 ### Usability
 
-- [ ] Progressive complexity (simple → advanced)
-- [ ] Clear section headings and navigation
-- [ ] Practical use case examples
+- [ ] Main docs: Progressive complexity (simple → advanced)
+- [ ] Clear section headings and navigation in both documents
+- [ ] Practical use case examples in main docs
 - [ ] Migration guidance where applicable
+- [ ] API reference is easily discoverable from main docs
 
 ### Standards Compliance
 
@@ -323,18 +362,36 @@ Before considering documentation complete, verify:
 - [ ] Uses established styling conventions
 - [ ] Integrates with chart theming system
 - [ ] Maintains accessibility standards
+- [ ] Proper Storybook organization with separate API reference entry
 
-## Using the Feature Documentation Template
+## Using the Documentation Templates
 
-AI agents should use the provided `feature-documentation.mdx.template` as a starting point for any new chart feature documentation:
+AI agents should use both provided templates when creating comprehensive chart feature documentation:
 
-1. **Copy the template**: Start with `feature-documentation.mdx.template`
+### Main Feature Documentation
+
+1. **Copy the main template**: Start with `feature-documentation.mdx.template`
 2. **Replace all bracketed placeholders**: Fill in `[Component]`, `[FeatureName]`, `[feature-name]`, etc. with actual values
 3. **Follow the structure**: Keep all sections but adapt content to your specific feature
 4. **Remove irrelevant sections**: If your feature doesn't have certain capabilities (e.g., no interactive features), remove those sections
 5. **Add feature-specific sections**: Include additional sections if your feature has unique aspects not covered in the template
 
-The template includes all the standard sections, proper MDX formatting, and placeholder text to guide content creation.
+### API Reference Documentation
+
+1. **Copy the API template**: Start with `feature-api-documentation.mdx.template`
+2. **Replace all bracketed placeholders**: Fill in component and type names
+3. **Complete all prop tables**: Ensure comprehensive coverage of all component props
+4. **Include TypeScript definitions**: Document all custom types used by the feature
+5. **Use consistent naming**: Match prop names and types exactly as implemented
+
+### Template Integration
+
+- The main documentation focuses on usage patterns, examples, and best practices
+- The API reference provides comprehensive technical details and prop specifications
+- Both documents should cross-reference each other where appropriate
+- Maintain consistent terminology and naming between both documents
+
+Both templates include proper MDX formatting and placeholder text to guide content creation.
 
 ## Example Analysis
 

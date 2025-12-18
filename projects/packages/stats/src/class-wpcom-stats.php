@@ -445,7 +445,7 @@ class WPCOM_Stats {
 	protected function fetch_stats( $args = array() ) {
 		$endpoint       = $this->build_endpoint();
 		$api_version    = self::STATS_REST_API_VERSION;
-		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args ) ) ) );
+		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
 		$transient_name = self::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
 		$stats_cache    = get_transient( $transient_name );
 
@@ -463,7 +463,7 @@ class WPCOM_Stats {
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
 
 		// To reduce size in storage: store with time as key, store JSON encoded data.
-		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats );
+		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats, JSON_UNESCAPED_SLASHES );
 
 		/**
 		 * Filters the expiration time for the stats cache.
@@ -488,7 +488,11 @@ class WPCOM_Stats {
 	 *
 	 * Unlike the above function, this caches data in the post meta table. As such,
 	 * it prevents wp_options from blowing up when retrieving views for large numbers
-	 * of posts at the same time. However, the final response is the same as above.
+	 * of posts at the same time.
+	 *
+	 * This function returns valid arrays and WP_Error objects from cache if within the expiration period.
+	 * If the cached entry is malformed or invalid, a refresh is triggered regardless of cache time.
+	 * This self-healing behavior reduces API calls when remote fetch fails, but ensures data validity.
 	 *
 	 * @param array $args Query parameters.
 	 * @param int   $post_id Post ID to acquire stats for.
@@ -498,39 +502,64 @@ class WPCOM_Stats {
 	protected function fetch_post_stats( $args, $post_id ) {
 		$endpoint    = $this->build_endpoint();
 		$meta_name   = '_' . self::STATS_CACHE_TRANSIENT_PREFIX;
-		$stats_cache = get_post_meta( $post_id, $meta_name );
+		$stats_cache = get_post_meta( $post_id, $meta_name, false );
 
 		if ( $stats_cache ) {
 			$data = reset( $stats_cache );
 
-			if (
-				! is_array( $data )
-				|| empty( $data )
-				|| is_wp_error( $data )
-			) {
-				return $data;
-			}
+			// Check if we have a valid cache structure with a time key.
+			if ( is_array( $data ) && ! empty( $data ) ) {
+				$time = key( $data );
 
-			$time  = key( $data );
-			$views = $data[ $time ] ?? null;
+				// If we have a numeric time, check if cache is still valid.
+				if ( is_numeric( $time ) ) {
+					/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
+					$expiration = apply_filters(
+						'jetpack_fetch_stats_cache_expiration',
+						self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
+					);
 
-			// Bail if data is malformed.
-			if ( ! is_numeric( $time ) || ! is_array( $views ) ) {
-				return $data;
-			}
+					// If within cache period, return cached data after type validation.
+					if ( ( time() - $time ) < $expiration ) {
+						$cached_value = $data[ $time ];
 
-			/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
-			$expiration = apply_filters(
-				'jetpack_fetch_stats_cache_expiration',
-				self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
-			);
+						// If it's an array or WP_Error, handle appropriately.
+						if ( is_wp_error( $cached_value ) ) {
+							return $cached_value;
+						}
+						if ( is_array( $cached_value ) ) {
+							return array_merge( array( 'cached_at' => $time ), $cached_value );
+						}
 
-			if ( ( time() - $time ) < $expiration ) {
-				return array_merge( array( 'cached_at' => $time ), $views );
+						// For any other unexpected type, treat as malformed cache.
+						// Fall through to refresh.
+					}
+				}
 			}
 		}
 
+		// Cache doesn't exist, is expired, or is malformed - refresh it.
+		return $this->refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name );
+	}
+
+	/**
+	 * Force fetch stats from WPCOM, and always update cache.
+	 *
+	 * This function will cache the result regardless of whether the fetch succeeds
+	 * or fails. This ensures that failed requests are also cached, reducing the
+	 * frequency of API calls when the remote service is experiencing issues.
+	 *
+	 * @param string $endpoint The stats endpoint.
+	 * @param array  $args The query arguments.
+	 * @param int    $post_id The post ID.
+	 * @param string $meta_name The meta name.
+	 *
+	 * @return array|WP_Error
+	 */
+	protected function refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name ) {
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
+
+		// Always cache the result, even if it's an error or empty.
 		update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
 
 		return $wpcom_stats;
@@ -585,7 +614,7 @@ class WPCOM_Stats {
 		if ( is_wp_error( $stats_array ) ) {
 			return $stats_array;
 		}
-		$encoded_array = wp_json_encode( $stats_array );
+		$encoded_array = wp_json_encode( $stats_array, JSON_UNESCAPED_SLASHES );
 		if ( ! $encoded_array ) {
 			return new WP_Error( 'stats_encoding_error', 'Failed to encode stats array' );
 		}

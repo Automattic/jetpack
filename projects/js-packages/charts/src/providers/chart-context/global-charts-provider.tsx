@@ -1,5 +1,21 @@
-import { createContext, useCallback, useMemo, useState, useEffect } from 'react';
-import { getItemShapeStyles, getSeriesLineStyles, mergeThemes } from '../../utils';
+import { hsl as d3Hsl } from '@visx/vendor/d3-color';
+import {
+	createContext,
+	useCallback,
+	useMemo,
+	useState,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+} from 'react';
+import {
+	getItemShapeStyles,
+	getSeriesLineStyles,
+	mergeThemes,
+	resolveCssVariable,
+	normalizeColorToHex,
+} from '../../utils';
+import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
@@ -14,10 +30,89 @@ export interface GlobalChartsProviderProps {
 
 export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
+	// Track hidden series per chart: chartId -> Set<seriesLabel>
+	const [ hiddenSeries, setHiddenSeries ] = useState< Map< string, Set< string > > >(
+		() => new Map()
+	);
+
+	// Ref to the wrapper element for resolving scoped CSS variables
+	const wrapperRef = useRef< HTMLDivElement >( null );
 
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
 	}, [ theme ] );
+
+	// Cache expensive color computations that only change when theme colors change
+	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
+	// in <style> tags are applied to the DOM before we try to resolve them
+	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
+		colors: [],
+		hues: [],
+		existingHslColors: [],
+		minHue: 360,
+		maxHue: 0,
+	} ) );
+
+	// Compute color cache after DOM is updated (so CSS variables are available)
+	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
+	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
+	// This is intentional, as wrapperRef is expected to be stable for the lifetime of the provider.
+	useLayoutEffect( () => {
+		const { colors } = providerTheme;
+		const resolvedColors: string[] = [];
+		const hues: number[] = [];
+		const existingHslColors: Array< [ number, number, number ] > = [];
+		let minHue = 360;
+		let maxHue = 0;
+
+		// Process all colors once and cache the results
+		if ( Array.isArray( colors ) ) {
+			for ( const color of colors ) {
+				if ( color && typeof color === 'string' ) {
+					let colorValue = color;
+
+					// Handle CSS custom properties - resolve them to actual values
+					// Supports both '--var-name' and 'var(--var-name)' formats
+					// Use wrapper element to resolve scoped CSS variables
+					if ( color.startsWith( '--' ) || color.startsWith( 'var(' ) ) {
+						const resolved = resolveCssVariable( color, wrapperRef.current );
+
+						if ( resolved === null || resolved === '' ) {
+							continue;
+						}
+
+						colorValue = resolved;
+					}
+
+					// Process hex colors
+					if ( colorValue.startsWith( '#' ) ) {
+						resolvedColors.push( colorValue );
+						const hslColor = d3Hsl( colorValue );
+						// d3Hsl returns NaN values for invalid colors
+						if ( ! isNaN( hslColor.h ) ) {
+							const hslTuple: [ number, number, number ] = [
+								hslColor.h,
+								hslColor.s * 100,
+								hslColor.l * 100,
+							];
+							hues.push( hslTuple[ 0 ] );
+							existingHslColors.push( hslTuple );
+							minHue = Math.min( minHue, hslTuple[ 0 ] );
+							maxHue = Math.max( maxHue, hslTuple[ 0 ] );
+						}
+					}
+				}
+			}
+		}
+
+		setColorCache( {
+			colors: resolvedColors,
+			hues,
+			existingHslColors,
+			minHue,
+			maxHue,
+		} );
+	}, [ providerTheme ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
 		() => new Map()
@@ -60,29 +155,29 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		} ): string => {
 			// Highest precedence: eg. explicit series stroke or chart color prop
 			if ( overrideColor ) {
-				return overrideColor;
+				return normalizeColorToHex( overrideColor, wrapperRef.current, resolveCssVariable );
 			}
-
-			const { colors } = providerTheme;
 
 			// If group provided, maintain a stable assignment
 			if ( group ) {
 				const existing = groupToColorMap.get( group );
+
 				if ( existing ) {
 					return existing;
 				}
-				// Assign next color from palette in a deterministic cycling manner
 
+				// Use map size as index to assign colors sequentially (0, 1, 2...)
+				// ensuring each new group gets the next available palette color
 				const assignedCount = groupToColorMap.size;
-				const color = colors.length > 0 ? colors[ assignedCount % colors.length ] : '#000000';
+				const color = getChartColor( assignedCount, colorCache );
 				groupToColorMap.set( group, color );
+
 				return color;
 			}
 
-			// Fallback: index-based color cycling
-			return colors.length > 0 ? colors[ ( index || 0 ) % colors.length ] : '#000000';
+			return getChartColor( index, colorCache );
 		},
-		[ providerTheme, groupToColorMap ]
+		[ colorCache, groupToColorMap ]
 	);
 
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
@@ -109,6 +204,45 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ providerTheme, resolveColor ]
 	);
 
+	// Series visibility management methods
+	const toggleSeriesVisibility = useCallback( ( chartId: string, seriesLabel: string ) => {
+		setHiddenSeries( prev => {
+			const newMap = new Map( prev );
+			const chartHidden = newMap.get( chartId ) || new Set();
+			const newSet = new Set( chartHidden );
+
+			if ( newSet.has( seriesLabel ) ) {
+				newSet.delete( seriesLabel );
+			} else {
+				newSet.add( seriesLabel );
+			}
+
+			if ( newSet.size === 0 ) {
+				newMap.delete( chartId );
+			} else {
+				newMap.set( chartId, newSet );
+			}
+
+			return newMap;
+		} );
+	}, [] );
+
+	const isSeriesVisible = useCallback(
+		( chartId: string, seriesLabel: string ) => {
+			const chartHidden = hiddenSeries.get( chartId );
+			return ! chartHidden || ! chartHidden.has( seriesLabel );
+		},
+		[ hiddenSeries ]
+	);
+
+	const getHiddenSeries = useCallback(
+		( chartId: string ): Set< string > => {
+			const set = hiddenSeries.get( chartId );
+			return set ? new Set( set ) : new Set< string >();
+		},
+		[ hiddenSeries ]
+	);
+
 	const value: GlobalChartsContextValue = useMemo(
 		() => ( {
 			charts,
@@ -117,9 +251,28 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			getChartData,
 			theme: providerTheme,
 			getElementStyles,
+			toggleSeriesVisibility,
+			isSeriesVisible,
+			getHiddenSeries,
 		} ),
-		[ charts, registerChart, unregisterChart, getChartData, providerTheme, getElementStyles ]
+		[
+			charts,
+			registerChart,
+			unregisterChart,
+			getChartData,
+			providerTheme,
+			getElementStyles,
+			toggleSeriesVisibility,
+			isSeriesVisible,
+			getHiddenSeries,
+		]
 	);
 
-	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;
+	return (
+		<GlobalChartsContext.Provider value={ value }>
+			<div ref={ wrapperRef } style={ { display: 'contents' } }>
+				{ children }
+			</div>
+		</GlobalChartsContext.Provider>
+	);
 };

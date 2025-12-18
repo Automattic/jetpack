@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update the @automattic/social-previews dependency source to the monorepo.

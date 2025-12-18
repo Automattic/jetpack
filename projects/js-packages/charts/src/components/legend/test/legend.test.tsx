@@ -1,4 +1,7 @@
+/* eslint-disable react/jsx-no-bind */
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { GlobalChartsProvider } from '../../../providers';
 import { BaseLegend } from '../private/base-legend';
 import type { LegendProps } from '../types';
 
@@ -41,6 +44,20 @@ describe( 'BaseLegend', () => {
 		render( <BaseLegend items={ [] } orientation="horizontal" /> );
 		const legendItems = screen.queryAllByRole( 'listitem' );
 		expect( legendItems ).toHaveLength( 0 );
+	} );
+
+	test( 'applies legendItemClassName to legend items', () => {
+		render(
+			<BaseLegend
+				items={ defaultItems }
+				orientation="horizontal"
+				legendItemClassName="custom-legend-item"
+			/>
+		);
+		const legendItems = screen.getAllByTestId( 'legend-item' );
+		legendItems.forEach( item => {
+			expect( item ).toHaveClass( 'custom-legend-item' );
+		} );
 	} );
 
 	test( 'handles missing values', () => {
@@ -191,6 +208,241 @@ describe( 'BaseLegend', () => {
 			// Should still render the legend items
 			const legendItems = screen.getAllByTestId( 'legend-item' );
 			expect( legendItems ).toHaveLength( 2 );
+		} );
+	} );
+
+	describe( 'custom render prop', () => {
+		test( 'calls render function with items', () => {
+			const renderFn = jest.fn( () => <div data-testid="custom-legend">Custom Legend</div> );
+			render( <BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } /> );
+
+			expect( renderFn ).toHaveBeenCalledWith( defaultItems );
+			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
+		} );
+
+		test( 'uses custom render instead of default legend markup', () => {
+			const renderFn = () => (
+				<div data-testid="custom-legend">
+					<span>Custom rendering</span>
+				</div>
+			);
+			render( <BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } /> );
+
+			// Custom markup should be present
+			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Custom rendering' ) ).toBeInTheDocument();
+
+			// Default legend markup should not be present
+			expect( screen.queryByTestId( 'legend-horizontal' ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'legend-item' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'custom render can access all item properties', () => {
+			const renderFn = ( items: typeof defaultItems ) => (
+				<ul data-testid="custom-legend-list">
+					{ items.map( ( item, index ) => (
+						<li key={ index } data-testid={ `custom-item-${ index }` }>
+							<span style={ { color: item.color } }>{ item.label }</span>
+							<span>{ item.value }</span>
+						</li>
+					) ) }
+				</ul>
+			);
+			render( <BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } /> );
+
+			expect( screen.getByTestId( 'custom-legend-list' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'custom-item-0' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'custom-item-1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Item 1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+		} );
+
+		test( 'custom render handles empty items array', () => {
+			const renderFn = ( items: typeof defaultItems ) => (
+				<div data-testid="custom-legend">
+					{ items.length === 0 ? 'No items' : `${ items.length } items` }
+				</div>
+			);
+			render( <BaseLegend items={ [] } orientation="horizontal" render={ renderFn } /> );
+
+			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'No items' ) ).toBeInTheDocument();
+		} );
+
+		test( 'custom render can create alternative layouts', () => {
+			const renderFn = ( items: typeof defaultItems ) => (
+				<div data-testid="custom-grid-legend" style={ { display: 'grid' } }>
+					{ items.map( ( item, index ) => (
+						<div key={ index } data-testid="grid-item">
+							<div style={ { backgroundColor: item.color, width: 20, height: 20 } } />
+							<div>{ item.label }</div>
+							<div>{ item.value }</div>
+						</div>
+					) ) }
+				</div>
+			);
+			render( <BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } /> );
+
+			expect( screen.getByTestId( 'custom-grid-legend' ) ).toBeInTheDocument();
+			const gridItems = screen.getAllByTestId( 'grid-item' );
+			expect( gridItems ).toHaveLength( 2 );
+		} );
+
+		test( 'custom render with complex JSX structure', () => {
+			const renderFn = ( items: typeof defaultItems ) => (
+				<div data-testid="complex-legend">
+					<h3>Legend Title</h3>
+					<div className="legend-body">
+						{ items.map( ( item, index ) => (
+							<div key={ index } className="legend-row">
+								<svg width={ 10 } height={ 10 }>
+									<circle cx={ 5 } cy={ 5 } r={ 5 } fill={ item.color } />
+								</svg>
+								<span>{ item.label }: </span>
+								<strong>{ item.value }</strong>
+							</div>
+						) ) }
+					</div>
+				</div>
+			);
+			render( <BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } /> );
+
+			expect( screen.getByTestId( 'complex-legend' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Legend Title' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Item 1:' ) ).toBeInTheDocument();
+			expect( screen.getByText( '50%' ) ).toBeInTheDocument();
+		} );
+
+		test( 'orientation prop is ignored when using custom render', () => {
+			const renderFn = () => <div data-testid="custom-legend">Custom</div>;
+			const { rerender } = render(
+				<BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } />
+			);
+
+			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'legend-horizontal' ) ).not.toBeInTheDocument();
+
+			rerender( <BaseLegend items={ defaultItems } orientation="vertical" render={ renderFn } /> );
+
+			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'legend-vertical' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Interactive legend', () => {
+		it( 'renders interactive legend items with proper attributes', () => {
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+			expect( legendItems ).toHaveLength( 2 );
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'tabIndex', '0' );
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'handles click events to toggle visibility', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+
+			// Click to toggle
+			await user.click( legendItems[ 0 ] );
+
+			// After click, the aria-pressed should change
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'handles Enter key to toggle visibility', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+			legendItems[ 0 ].focus();
+
+			// Press Enter
+			await user.keyboard( '{Enter}' );
+
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'handles Space key to toggle visibility', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+			legendItems[ 1 ].focus();
+
+			// Press Space
+			await user.keyboard( ' ' );
+
+			expect( legendItems[ 1 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'does not toggle on non-action keys', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+			legendItems[ 0 ].focus();
+
+			// Press a random key
+			await user.keyboard( 'a' );
+
+			// Should remain pressed (visible)
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'renders non-interactive legend when interactive is false', () => {
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ false } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const buttons = screen.queryAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 0 );
+		} );
+
+		it( 'works without chartId but does not toggle', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+
+			// Click should not change state without chartId
+			await user.click( legendItems[ 0 ] );
+
+			// Should still be visible (pressed)
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
 		} );
 	} );
 } );

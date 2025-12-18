@@ -48,6 +48,8 @@ class SearchFilter extends Component {
 			return `${ this.props.configuration.interval }_${ this.props.configuration.field }`;
 		} else if ( this.props.type === 'taxonomy' ) {
 			return this.props.configuration.taxonomy;
+		} else if ( this.props.type === 'productAttribute' ) {
+			return this.props.configuration.attribute;
 		} else if ( this.props.type === 'group' ) {
 			return this.props.configuration.filter_id;
 		}
@@ -194,6 +196,32 @@ class SearchFilter extends Component {
 		);
 	};
 
+	renderProductAttribute = ( { key, doc_count: count } ) => {
+		// Product attribute keys contain slug and name separated by a slash
+		const [ slug, name ] = key && key.split( /\/(.+)/ );
+
+		return (
+			<div>
+				<input
+					checked={ this.isChecked( slug ) }
+					disabled={ ! this.isChecked( slug ) && count === 0 }
+					id={ `${ this.idPrefix }-product-attributes-${ slug }` }
+					name={ slug }
+					onChange={ this.toggleFilter }
+					type="checkbox"
+					className="jetpack-instant-search__search-filter-list-input"
+				/>
+
+				<label
+					htmlFor={ `${ this.idPrefix }-product-attributes-${ slug }` }
+					className="jetpack-instant-search__search-filter-list-label"
+				>
+					{ strip( name ) } ({ count })
+				</label>
+			</div>
+		);
+	};
+
 	renderGroup = group => {
 		return (
 			<div className="jetpack-instant-search__search-filter-group-item">
@@ -241,6 +269,10 @@ class SearchFilter extends Component {
 		return this.props.aggregation.buckets.map( this.renderTaxonomy );
 	}
 
+	renderProductAttributes() {
+		return this.props.aggregation.buckets.map( this.renderProductAttribute );
+	}
+
 	renderGroups() {
 		return this.props.configuration.values.map( this.renderGroup );
 	}
@@ -271,6 +303,7 @@ class SearchFilter extends Component {
 							{ this.props.type === 'author' && this.renderAuthors() }
 							{ this.props.type === 'blogId' && this.renderBlogIds() }
 							{ this.props.type === 'taxonomy' && this.renderTaxonomies() }
+							{ this.props.type === 'productAttribute' && this.renderProductAttributes() }
 						</div>
 					) }
 				</div>

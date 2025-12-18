@@ -5,6 +5,105 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2025-12-15
+### Added
+- Add edit template modal. [#46220]
+- Open unified modal for social preview by default on pre-publish panel. [#46265]
+- Reuse AI image generation in media section. [#46147]
+
+### Changed
+- Janitorial: Improve structure of Social Media section. [#46253]
+- Social: Remove our own Notice component in favor of the Core one. [#46266]
+- Update social connections list in the preview modal to improve it for smaller screens. [#46239]
+- Update social post preview modal to add customization UI. [#46252]
+
+### Removed
+- Social: Remove the usage of `useAdminUiV1` feature flag. [#46280]
+
+### Fixed
+- Social: Fix the submit button label and alignment for custom input form. [#46282]
+
+## [1.8.0] - 2025-12-08
+### Added
+- Add the new media selection UI for Social. [#46085]
+- Add unified modal integration for Social. [#46102]
+
+### Changed
+- Social: Update empty connections UI in the editor. [#46219]
+- Update connections list in the editor sidebar to flip the toggle position. [#46218]
+- Update package dependencies. [#45914]
+
+## [1.7.1] - 2025-12-01
+### Added
+- Add unified UI v1 feature flag. [#46061]
+- Create a hook for getting the Social Image Generator preview [#46100]
+
+### Changed
+- Updated Jetpack sidebar labels for post editor sidebar. [#46098]
+- Update package dependencies. [#46143]
+
+## [1.7.0] - 2025-11-24
+### Changed
+- Add title for the Facebook share preview. [#45938]
+- Social: Improve the sidebar by making titles more descriptive and combining sections. [#46007]
+- Social: Update the UI for cases when user connection to WordPress.com is required. [#46011]
+
+## [1.6.1] - 2025-11-21
+### Changed
+- Social: Replace ConnectionIcon component with the implementation of ConnectionImage component. [#45972]
+- Update package dependencies. [#46022]
+
+## [1.6.0] - 2025-11-19
+### Changed
+- Update auto-share UI and the corresponding descriptions. [#45970]
+- Update the connections list in the editor to a vertical toggle list with labels and icons. [#45939]
+
+## [1.5.1] - 2025-11-18
+### Changed
+- Update dependencies. [#45553]
+
+## [1.5.0] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+### Removed
+- Remove unsupported connections notice as it's not used now. [#45844]
+
+### Fixed
+- Social: Fix connection icon not reflecting the change when profile picture is updated. [#45937]
+
+## [1.4.8] - 2025-11-10
+### Changed
+- Update package dependencies. [#45735] [#45737]
+
+## [1.4.7] - 2025-11-03
+### Changed
+- Update package dependencies. [#45652]
+
+## [1.4.6] - 2025-10-27
+### Changed
+- Update package dependencies. [#45551]
+
+## [1.4.5] - 2025-10-20
+### Changed
+- Update dependencies. [#45488]
+
+## [1.4.4] - 2025-10-10
+### Changed
+- Update package dependencies. [#45428]
+
+## [1.4.3] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334] [#45335]
+
+## [1.4.2] - 2025-09-29
+### Changed
+- Update dependencies. [#44940]
+
+## [1.4.1] - 2025-09-22
+### Fixed
+- Fix lints. [#45242]
+
 ## [1.4.0] - 2025-09-19
 ### Changed
 - Update @wordpress/dataviews package from v7 to v9. [#45213]
@@ -1369,6 +1468,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[1.9.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.7.1...v1.8.0
+[1.7.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.6.1...v1.7.0
+[1.6.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.6.0...v1.6.1
+[1.6.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.5.1...v1.6.0
+[1.5.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.4.8...v1.5.0
+[1.4.8]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.4.7...v1.4.8
+[1.4.7]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.4.6...v1.4.7
+[1.4.6]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.4.5...v1.4.6
+[1.4.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.4.4...v1.4.5
+[1.4.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.4.1...v1.4.2
+[1.4.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.6...v1.3.0

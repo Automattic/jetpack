@@ -188,7 +188,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 */
 	private function filter_post_meta_keys( $metas ) {
 		// Convert array of keys to a plain array of key strings
-		$meta_keys = array_unique( array_values( array_keys( $metas ) ) );
+		$meta_keys = array_unique( array_keys( $metas ) );
 		// // Filter the array by removing the excluded keys and any keys that include '_oembed'
 		$filtered_keys = array_filter(
 			$meta_keys,
@@ -210,6 +210,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 * @return array                  Array of term IDs.
 	 */
 	protected function get_term_ids_from_slugs( $term_slugs, $taxonomy_name ) {
+		// @phan-suppress-next-line PhanAccessMethodInternal -- the @internal annotation is for an internal comment, not to mark the function as internal
 		return get_terms(
 			array(
 				'fields'     => 'ids',

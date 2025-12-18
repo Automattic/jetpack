@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Waf;
 
 require_once __DIR__ . '/functions.php';
 
-<<<PHAN
+<<<'PHAN'
 @phan-type RequestFile = array{ name: string, filename: string }
 PHAN;
 

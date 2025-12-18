@@ -15,8 +15,8 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanNonClassMethodCall : 2 occurrences
+    // PhanPluginMixedKeyNoKey : 2 occurrences
     // PhanTypeMismatchReturnNullable : 2 occurrences
-    // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence

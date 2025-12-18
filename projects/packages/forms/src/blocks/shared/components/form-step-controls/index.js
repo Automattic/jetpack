@@ -1,4 +1,4 @@
-import { BlockControls, store as blockEditorStore } from '@wordpress/block-editor';
+import { BlockControls } from '@wordpress/block-editor';
 import {
 	ToolbarGroup,
 	ToolbarButton,
@@ -6,14 +6,17 @@ import {
 	MenuGroup,
 	MenuItem,
 	ToolbarDropdownMenu,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalTruncate as Truncate,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { next, previous, check } from '@wordpress/icons';
-import { store as singleStepStore } from '../../../../store/form-step-preview';
-import StepIcon from '../../../form-step/icon';
-import StepContainerIcon from '../../../form-step-container/icon';
-import useStepNavigation from '../../hooks/use-step-navigation';
+import { store as singleStepStore } from '../../../../store/form-step-preview.js';
+import StepIcon from '../../../form-step/icon.js';
+import StepContainerIcon from '../../../form-step-container/icon.js';
+import useStepNavigation from '../../hooks/use-step-navigation.js';
+import { getStepLabel } from '../../util/step-labels.js';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.
@@ -26,13 +29,10 @@ export default function StepControls( { formClientId } ) {
 	const { setActiveStep, enableSingleStepMode, disableSingleStepMode } =
 		useDispatch( singleStepStore );
 
-	// Access the block editor dispatcher to programmatically select blocks when needed.
-	const { selectBlock } = useDispatch( blockEditorStore );
-
 	// Use our custom navigation hook
 	const { navigateToNextStep, navigateToPreviousStep, currentStepInfo, steps } = useStepNavigation(
 		formClientId,
-		true // always update the selected block when navigating
+		false
 	);
 
 	const { selectedStepId, isSingleStep } = useSelect(
@@ -111,7 +111,6 @@ export default function StepControls( { formClientId } ) {
 									onClick={ () => {
 										setActiveStep( formClientId, step.clientId );
 										enableSingleStepMode( formClientId );
-										selectBlock( step.clientId );
 										onClose();
 									} }
 									isSelected={ selectedStepId === step.clientId && isSingleStep }
@@ -121,12 +120,9 @@ export default function StepControls( { formClientId } ) {
 										) : null
 									}
 								>
-									{ sprintf(
-										/* translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label. */
-										__( '%1$d – %2$s', 'jetpack-forms' ),
-										index + 1,
-										step?.attributes?.stepLabel || __( 'Unlabeled', 'jetpack-forms' )
-									) }
+									<Truncate limit={ 50 }>
+										{ getStepLabel( index, step?.attributes?.stepLabel ) }
+									</Truncate>
 								</MenuItem>
 							) ) }
 						</MenuGroup>

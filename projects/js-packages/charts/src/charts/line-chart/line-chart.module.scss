@@ -1,0 +1,127 @@
+.line-chart {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+
+	&--animated {
+
+		path {
+			transform-origin: 0 95%;
+			transform: scaleY(0);
+			animation: rise 1s ease-out forwards;
+		}
+	}
+
+	&--legend-top {
+		flex-direction: column-reverse;
+	}
+
+	svg {
+		overflow: visible;
+	}
+
+	&__tooltip,
+	&__annotation-label-popover {
+		background: #fff;
+		padding: 0.5rem;
+	}
+
+	&__tooltip-date {
+		font-weight: 700;
+		padding-bottom: 10px;
+	}
+
+	&__tooltip-row {
+		display: flex;
+		align-items: center;
+		padding: 4px 0;
+		justify-content: space-between;
+	}
+
+	&__tooltip-label {
+		font-weight: 500;
+		padding-right: 1rem;
+	}
+
+	&__annotations-overlay {
+		position: absolute;
+		left: 0;
+		top: 0;
+		overflow: visible;
+		pointer-events: none;
+	}
+
+	&__annotation-label {
+		pointer-events: auto;
+	}
+
+	&__annotation-label-trigger-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		pointer-events: auto;
+		cursor: pointer;
+		border: none;
+		background: none;
+		padding: 0;
+	}
+
+	&__annotation-label-popover {
+		min-width: 125px;
+		background: #fff;
+		border: none;
+		border-radius: 4px;
+		font-size: 14px;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+		position: fixed;
+		margin: 0.5rem;
+		visibility: hidden;
+
+		&--visible {
+			visibility: visible;
+		}
+
+		&--safari {
+			position: initial;
+			margin: auto;
+		}
+	}
+
+	&__annotation-label-popover-header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: start;
+	}
+
+	&__annotation-label-popover-content {
+		padding: 0.5rem;
+	}
+
+	&__annotation-label-popover-close-button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		width: 44px;
+		height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0;
+	}
+}
+
+:global(.visx-tooltip-glyph) {
+
+	svg {
+		width: 10px;
+		height: 10px;
+	}
+}
+
+@keyframes rise {
+
+	to {
+		transform: scaleY(1);
+	}
+}

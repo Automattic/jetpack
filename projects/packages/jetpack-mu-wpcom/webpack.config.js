@@ -1,6 +1,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const verbumConfig = require( './verbum.webpack.config.js' );
+const CodeMirrorLanguageDataPlugin = require( './webpack-plugins/codemirror-language-data-plugin.js' );
 const moduleConfig = require( './webpack.config.modules.js' );
 
 module.exports = async () => {
@@ -18,10 +19,16 @@ module.exports = async () => {
 				'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 				'error-reporting': './src/features/error-reporting/index.js',
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
+				'html-block-restricted-tags':
+					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',
 				'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
 				'jetpack-global-styles-customizer-fonts':
 					'./src/features/jetpack-global-styles/customizer-fonts/index.js',
 				'mailerlite-subscriber-popup': './src/features/mailerlite/subscriber-popup.js',
+				marketing: [
+					'./src/features/marketing/marketing.js',
+					'./src/features/marketing/marketing.scss',
+				],
 				'newspack-blocks-blog-posts-editor': './src/features/newspack-blocks/blog-posts/editor.js',
 				'newspack-blocks-blog-posts-view': './src/features/newspack-blocks/blog-posts/view.js',
 				'newspack-blocks-carousel-editor': './src/features/newspack-blocks/carousel/editor.js',
@@ -32,6 +39,10 @@ module.exports = async () => {
 					'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
 				'tags-education': './src/features/tags-education/tags-education.js',
 				'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.js',
+				'wpcom-blocks-code-block-definition':
+					'./src/features/wpcom-blocks/code/block-definition/block-definition.tsx',
+				'wpcom-blocks-code-editor-style': './src/features/wpcom-blocks/code/editor.css',
+				'wpcom-blocks-code-style': './src/features/wpcom-blocks/code/style.css',
 				'wpcom-blocks-event-countdown-editor':
 					'./src/features/wpcom-blocks/event-countdown/editor.js',
 				'wpcom-blocks-event-countdown-view': './src/features/wpcom-blocks/event-countdown/view.js',
@@ -80,7 +91,7 @@ module.exports = async () => {
 				...jetpackWebpackConfig.resolve,
 				alias: {
 					...jetpackWebpackConfig.resolve.alias,
-					/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
+					/** Replace the `classnames` used by `@automattic/newspack-blocks` with `clsx` because we changed to use `clsx` */
 					classnames: await findPackage( 'clsx' ),
 				},
 				fallback: {
@@ -98,10 +109,18 @@ module.exports = async () => {
 						__i18n_text_domain__: JSON.stringify( 'jetpack-mu-wpcom' ),
 					},
 				} ),
+				new CodeMirrorLanguageDataPlugin(),
 			],
 			module: {
 				strictExportPresence: true,
 				rules: [
+					// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
+					// https://github.com/WordPress/gutenberg/issues/73362
+					{
+						test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
+						resolve: { fullySpecified: false },
+					},
+
 					// Transpile JavaScript.
 					jetpackWebpackConfig.TranspileRule( {
 						exclude: /node_modules\//,

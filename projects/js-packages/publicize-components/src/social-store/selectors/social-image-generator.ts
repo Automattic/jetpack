@@ -26,10 +26,7 @@ export const getSocialImageFontOptions = createRegistrySelector( select => {
  */
 export const isFetchingSocialImageFontOptions = createRegistrySelector( select => {
 	return (): boolean => {
-		const {
-			// @ts-expect-error isResolving does exist but is not typed
-			isResolving,
-		} = select( coreStore );
+		const { isResolving } = select( coreStore );
 
 		return isResolving( 'getEntityRecords', [
 			'wpcom/v2',

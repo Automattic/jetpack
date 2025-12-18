@@ -1,0 +1,30 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.wrapper {
+
+	.item {
+		padding: 0.5rem 0.625rem;
+		width: 100%;
+
+		&:not(:last-child) {
+			border-radius: 0;
+			border-bottom: 1px solid gb.$gray-100;
+		}
+	}
+
+	.connection-info {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0.5rem;
+		align-items: center;
+		width: 100%;
+		margin-inline-end: 0.5rem;
+	}
+
+	.display-name {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		text-align: start;
+	}
+}

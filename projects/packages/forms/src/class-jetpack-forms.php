@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '6.5.0';
+	const PACKAGE_VERSION = '7.0.0';
 
 	/**
 	 * Load the contact form module.
@@ -38,6 +38,9 @@ class Jetpack_Forms {
 
 		// Enforces the availability of block support controls in the UI for classic themes.
 		add_filter( 'wp_theme_json_data_default', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_theme_json_data_for_classic_themes' ) );
+
+		// Initialize abilities registration for WordPress Abilities API (WP 6.9+)
+		\Automattic\Jetpack\Forms\Abilities\Forms_Abilities::init();
 	}
 
 	/**
@@ -95,6 +98,20 @@ class Jetpack_Forms {
 	}
 
 	/**
+	 * Returns true if Hostinger Reach integration is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_hostinger_reach_enabled() {
+		/**
+		 * Enable Hostinger Reach integration.
+		 *
+		 * @param bool false Whether Hostinger Reach integration be enabled. Default is false.
+		 */
+		return apply_filters( 'jetpack_forms_hostinger_reach_enable', false );
+	}
+
+	/**
 	 * Returns true if the Integrations UI should be enabled.
 	 *
 	 * @return boolean
@@ -106,5 +123,76 @@ class Jetpack_Forms {
 		 * @param bool true Whether to enable the Integrations UI. Default true.
 		 */
 		return apply_filters( 'jetpack_forms_is_integrations_enabled', true );
+	}
+
+	/**
+	 * Returns true if webhooks are enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_webhooks_enabled() {
+		/**
+		 * Whether to enable webhooks for Jetpack Forms.
+		 *
+		 * @param bool false Whether webhooks should be enabled. Default false.
+		 */
+		return apply_filters( 'jetpack_forms_webhooks_enabled', false );
+	}
+
+	/**
+	 * Returns true if the Integrations UI should be shown in the Forms dashboard.
+	 *
+	 * @since 6.22.0
+	 *
+	 * @return boolean
+	 */
+	public static function show_dashboard_integrations() {
+		/**
+		 * Whether to show Integrations UI in the Forms dashboard.
+		 *
+		 * @since 6.22.0
+		 *
+		 * @param bool true Whether to show the Integrations UI in the dashboard. Default true.
+		 */
+		return apply_filters( 'jetpack_forms_show_dashboard_integrations', true );
+	}
+
+	/**
+	 * Returns true if the Integrations UI should be shown in the Form block editor.
+	 *
+	 * @since 6.22.0
+	 *
+	 * @return boolean
+	 */
+	public static function show_block_integrations() {
+		/**
+		 * Whether to show Integrations UI in the Form block editor.
+		 *
+		 * @since 6.22.0
+		 *
+		 * @param bool true Whether to show the Integrations UI in the editor. Default true.
+		 */
+		return apply_filters( 'jetpack_forms_show_block_integrations', true );
+	}
+
+	/**
+	 * Returns true if integration icons should be shown (editor sidebar and integrations modal).
+	 *
+	 * @since 6.22.0
+	 *
+	 * @return boolean
+	 */
+	public static function show_integration_icons() {
+		/**
+		 * Whether to show integration icons in the UI.
+		 *
+		 * If set to false, the ActiveIntegrations component (editor sidebar) will be hidden
+		 * and integration icons in the integrations modal will not be rendered.
+		 *
+		 * @since 6.22.0
+		 *
+		 * @param bool true Whether to show integration icons. Default true.
+		 */
+		return apply_filters( 'jetpack_forms_show_integration_icons', true );
 	}
 }

@@ -2,17 +2,18 @@
  * External dependencies
  */
 import { Button, Spinner, Tooltip } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useFormsConfig from '../../../../../hooks/use-forms-config';
-import { usePluginInstallation } from '../hooks/use-plugin-installation';
+import { usePluginInstallation } from '../../../../../hooks/use-plugin-installation.ts';
 
 type PluginActionButtonProps = {
 	slug: string;
 	pluginFile: string;
 	isInstalled: boolean;
+	isActive: boolean;
 	refreshStatus: () => void;
 	trackEventName: string;
 };
@@ -21,23 +22,26 @@ const PluginActionButton = ( {
 	slug,
 	pluginFile,
 	isInstalled,
+	isActive,
 	refreshStatus,
 	trackEventName,
 }: PluginActionButtonProps ) => {
-	const { isInstalling, installPlugin } = usePluginInstallation(
-		slug,
-		pluginFile,
-		isInstalled,
-		trackEventName
-	);
+	const trackEventProps = {
+		screen: 'block-editor',
+	};
 
-	// Permissions from consolidated Forms config (shared across editor and dashboard)
-	const config = useFormsConfig();
-	const canUserInstallPlugins = Boolean( config?.canInstallPlugins );
-	const canUserActivatePlugins = Boolean( config?.canActivatePlugins );
+	const { isInstalling, installPlugin, canInstallPlugins, canActivatePlugins } =
+		usePluginInstallation( {
+			slug,
+			pluginPath: pluginFile,
+			isInstalled,
+			trackEventName,
+			trackEventProps,
+		} );
 
-	const canPerformAction = isInstalled ? canUserActivatePlugins : canUserInstallPlugins;
-	const isDisabled = isInstalling || ! canPerformAction;
+	const canPerformAction = isInstalled ? canActivatePlugins : canInstallPlugins;
+	const [ isReconcilingStatus, setIsReconcilingStatus ] = useState( false );
+	const isDisabled = isInstalling || isReconcilingStatus || ! canPerformAction;
 
 	const handleAction = async ( event: MouseEvent ) => {
 		event.stopPropagation();
@@ -47,14 +51,23 @@ const PluginActionButton = ( {
 		const success = await installPlugin();
 
 		if ( success && refreshStatus ) {
+			setIsReconcilingStatus( true ); // Keeps button in loading state until integrations refresh.
 			refreshStatus();
 		}
 	};
 
+	useEffect( () => {
+		if ( isReconcilingStatus && isActive ) {
+			setIsReconcilingStatus( false ); // Removes button loading state when integratoin status is recevied and isActive.
+		}
+	}, [ isReconcilingStatus, isActive ] );
+
 	const getButtonText = () => {
 		return (
-			( isInstalling && isInstalled && __( 'Activating…', 'jetpack-forms' ) ) ||
-			( isInstalling && __( 'Installing…', 'jetpack-forms' ) ) ||
+			( ( isInstalling || isReconcilingStatus ) &&
+				isInstalled &&
+				__( 'Activating…', 'jetpack-forms' ) ) ||
+			( ( isInstalling || isReconcilingStatus ) && __( 'Installing…', 'jetpack-forms' ) ) ||
 			( isInstalled && __( 'Activate', 'jetpack-forms' ) ) ||
 			__( 'Install', 'jetpack-forms' )
 		);
@@ -72,10 +85,10 @@ const PluginActionButton = ( {
 	);
 
 	const getTooltipText = (): string => {
-		if ( isInstalled && ! canUserActivatePlugins ) {
+		if ( isInstalled && ! canActivatePlugins ) {
 			return tooltipTextNoActivatePerms;
 		}
-		if ( ! isInstalled && ! canUserInstallPlugins ) {
+		if ( ! isInstalled && ! canInstallPlugins ) {
 			return tooltipTextNoInstallPerms;
 		}
 		return String( isInstalled ? tooltipTextActivate : tooltipTextInstall );
@@ -89,7 +102,7 @@ const PluginActionButton = ( {
 					onClick={ handleAction }
 					disabled={ isDisabled }
 					style={ isDisabled ? { pointerEvents: 'none' } : undefined }
-					icon={ isInstalling ? <Spinner /> : undefined }
+					icon={ isInstalling || isReconcilingStatus ? <Spinner /> : undefined }
 					__next40pxDefaultSize
 				>
 					{ getButtonText() }

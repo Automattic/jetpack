@@ -9,10 +9,9 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginDuplicateConditionalNullCoalescing : 25+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanTypeMismatchArgument : 3 occurrences
     // PhanPluginSimplifyExpressionBool : 1 occurrence
-    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions

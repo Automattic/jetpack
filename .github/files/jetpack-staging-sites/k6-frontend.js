@@ -18,6 +18,7 @@ export const options = {
 			},
 		],
 	},
+	tlsCipherSuites: [ 'TLS_AES_256_GCM_SHA384' ],
 };
 
 /**
@@ -31,12 +32,14 @@ export default function () {
 			check( res, {
 				'homepage status was 200': r => r.status == 200,
 			} );
+			console.log( `${ site.url } homepage status: ${ res.status }` );
 
 			// A random post.
 			res = http.get( `${ site.url }/?random` );
 			check( res, {
 				'random post status was 200': r => r.status == 200,
 			} );
+			console.log( `${ site.url } random post status: ${ res.status }` );
 		} );
 	} );
 

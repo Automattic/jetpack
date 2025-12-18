@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import * as React from 'react';
-import { Fragment, useState, useEffect, useRef } from 'react';
+import { Fragment, useState, useEffect, useRef, forwardRef } from 'react';
 import { OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME } from '../lib/constants';
 import Gridicon from './gridicon';
 import './search-box.scss';
@@ -14,17 +14,18 @@ const restoreFocus = () => initiallyFocusedElement && initiallyFocusedElement.fo
 
 let searchBoxCounter = 0;
 
-const SearchBox = props => {
+const SearchBox = forwardRef( ( props, ref ) => {
 	const [ inputId ] = useState( () => `jetpack-instant-search__box-input-${ ++searchBoxCounter }` );
-	const inputRef = useRef( null );
+	const localInputRef = useRef( null );
+	const inputRef = ref || localInputRef;
 
 	useEffect( () => {
-		if ( props.isVisible ) {
+		if ( props.isVisible && inputRef.current ) {
 			stealFocusWithInput( inputRef.current )();
 		} else if ( props.shouldRestoreFocus ) {
 			restoreFocus();
 		}
-	}, [ props.isVisible, props.shouldRestoreFocus ] );
+	}, [ props.isVisible, props.shouldRestoreFocus, inputRef ] );
 
 	return (
 		<Fragment>
@@ -64,6 +65,6 @@ const SearchBox = props => {
 			</div>
 		</Fragment>
 	);
-};
+} );
 
 export default SearchBox;

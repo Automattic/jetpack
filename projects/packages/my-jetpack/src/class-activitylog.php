@@ -46,8 +46,9 @@ class Activitylog {
 		}
 
 		return Admin_Menu::add_menu(
-			__( 'Activity Log', 'jetpack-my-jetpack' ),
-			_x( 'Activity Log', 'product name shown in menu', 'jetpack-my-jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+			/** "Activity Log" is a product name, do not translate. */
+			'Activity Log',
+			'Activity Log <span class="dashicons dashicons-external"></span>',
 			'manage_options',
 			esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', $args ) ),
 			null,

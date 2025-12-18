@@ -347,7 +347,7 @@ class Jetpack_Likes {
 				),
 				array( 'jquery' ),
 				JETPACK__VERSION,
-				$in_footer = false
+				false
 			);
 			wp_enqueue_script(
 				'likes-post-count-jetpack',
@@ -357,7 +357,7 @@ class Jetpack_Likes {
 				),
 				array( 'jquery', 'likes-post-count' ),
 				JETPACK__VERSION,
-				$in_footer = false
+				false
 			);
 		}
 	}

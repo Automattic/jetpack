@@ -13,7 +13,11 @@ user="${APACHE_RUN_USER:-www-data}"
 group="${APACHE_RUN_GROUP:-www-data}"
 
 # Download WordPress
-[ -f /var/www/html/xmlrpc.php ] || wp core download
+# Sometimes it fails, and a retry would be nice:
+#   https://github.com/wp-cli/core-command/pull/258
+#   https://github.com/wp-cli/wp-cli/pull/6140
+# For now this should work well enough
+[ -f /var/www/html/xmlrpc.php ] || wp core download || { sleep $(( 30 + RANDOM % 8 )) && wp core download; }
 
 # Configure WordPress
 if [ ! -f /var/www/html/wp-config.php ]; then
@@ -109,10 +113,14 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	fi
 fi
 
+PLUGINS_TO_NOT_SYMLINK=('wpcloud-sso')
 for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
 	[[ -d "$DIR" ]] || continue # We are only interested in directories, e.g. different plugins.
 	[[ -f "$DIR/composer.json" ]] || continue # If there's no composer.json in the folder, it's probably not a plugin.
 	PLUGIN="$(basename "$DIR")"
+
+	# Some plugins should not be symlinked
+	printf '%s\n' "${PLUGINS_TO_NOT_SYMLINK[@]}" | grep -qxF "$PLUGIN" && continue
 
 	# Read plugin slug from composer.json, with fallback to beta-plugin-slug
 	PLUGIN_SLUG=$(jq -r '.extra["wp-plugin-slug"] // .extra["beta-plugin-slug"]' "$DIR/composer.json")
@@ -123,8 +131,6 @@ for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
 		ln -s "$DIR" /var/www/html/wp-content/plugins/"$PLUGIN_SLUG"
 	fi
 done
-
-
 
 WP_HOST_PORT=":$HOST_PORT"
 

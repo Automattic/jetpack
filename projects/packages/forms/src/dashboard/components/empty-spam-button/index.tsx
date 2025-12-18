@@ -2,6 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { formatNumber } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { store as coreStore } from '@wordpress/core-data';
@@ -13,29 +14,46 @@ import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
-import useInboxData from '../../hooks/use-inbox-data';
+import useInboxData from '../../hooks/use-inbox-data.ts';
+import { store as dashboardStore } from '../../store/index.js';
 
 type CoreStore = typeof coreStore & {
 	invalidateResolution: ( selector: string, args: unknown[] ) => void;
 };
 
+interface EmptySpamButtonProps {
+	totalItemsSpam?: number;
+	isLoadingCounts?: boolean;
+}
+
 /**
  * Renders a button to empty form responses.
  *
+ * @param {object}  props                 - Component props.
+ * @param {number}  props.totalItemsSpam  - The total number of spam items (optional, will use hook if not provided).
+ * @param {boolean} props.isLoadingCounts - Whether counts are loading (optional, will use hook if not provided).
  * @return {JSX.Element} The empty spam button.
  */
-const EmptySpamButton = (): JSX.Element => {
+const EmptySpamButton = ( {
+	totalItemsSpam: totalItemsSpamProp,
+	isLoadingCounts: isLoadingCountsProp,
+}: EmptySpamButtonProps = {} ): JSX.Element => {
 	const [ isConfirmDialogOpen, setConfirmDialogOpen ] = useState( false );
 	const [ isEmptying, setIsEmptying ] = useState( false );
 	const [ isEmpty, setIsEmpty ] = useState( true );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { invalidateResolution } = useDispatch( coreStore ) as unknown as CoreStore;
+	const { invalidateCounts } = useDispatch( dashboardStore );
 
-	const { selectedResponsesCount, currentQuery, totalItemsSpam, isLoadingData } = useInboxData();
+	// Use props if provided, otherwise use hook
+	const hookData = useInboxData();
+	const totalItemsSpam = totalItemsSpamProp ?? hookData.totalItemsSpam;
+	const isLoadingCounts = isLoadingCountsProp ?? false;
+	const { selectedResponsesCount, currentQuery } = hookData;
 
 	useEffect( () => {
-		setIsEmpty( isLoadingData || ! totalItemsSpam );
-	}, [ totalItemsSpam, isLoadingData ] );
+		setIsEmpty( isLoadingCounts || ! totalItemsSpam );
+	}, [ totalItemsSpam, isLoadingCounts ] );
 
 	const openConfirmDialog = useCallback( () => setConfirmDialogOpen( true ), [] );
 	const closeConfirmDialog = useCallback( () => setConfirmDialogOpen( false ), [] );
@@ -60,14 +78,14 @@ const EmptySpamButton = (): JSX.Element => {
 					deleted === 1
 						? __( 'Response deleted permanently.', 'jetpack-forms' )
 						: sprintf(
-								/* translators: %d: The number of responses. */
+								/* translators: %s: The number of responses. */
 								_n(
-									'%d response deleted permanently.',
-									'%d responses deleted permanently.',
+									'%s response deleted permanently.',
+									'%s responses deleted permanently.',
 									deleted,
 									'jetpack-forms'
 								),
-								deleted
+								formatNumber( deleted )
 						  );
 				createSuccessNotice( successMessage, { type: 'snackbar', id: 'empty-spam' } );
 			} )
@@ -87,12 +105,15 @@ const EmptySpamButton = (): JSX.Element => {
 					'feedback',
 					{ ...currentQuery, per_page: 1, _fields: 'id' },
 				] );
+				// invalidate counts to refresh the counts across all status tabs
+				invalidateCounts();
 			} );
 	}, [
 		closeConfirmDialog,
 		createErrorNotice,
 		createSuccessNotice,
 		invalidateResolution,
+		invalidateCounts,
 		isEmpty,
 		isEmptying,
 		currentQuery,
@@ -101,9 +122,8 @@ const EmptySpamButton = (): JSX.Element => {
 	return (
 		<>
 			<Button
-				__next40pxDefaultSize
+				size="compact"
 				accessibleWhenDisabled
-				className="jp-forms__button--large-green"
 				disabled={ isEmpty || isEmptying }
 				icon={ trash }
 				isBusy={ isEmptying }
@@ -124,14 +144,14 @@ const EmptySpamButton = (): JSX.Element => {
 				<p>
 					{ selectedResponsesCount > 0
 						? sprintf(
-								// translators: %d: the number of responses in spam
+								// translators: %s: the number of responses in spam
 								_n(
-									'%d response in spam will be deleted forever. This action cannot be undone.',
-									'All %d responses in spam will be deleted forever. This action cannot be undone.',
+									'%s response in spam will be deleted forever. This action cannot be undone.',
+									'All %s responses in spam will be deleted forever. This action cannot be undone.',
 									totalItemsSpam || 0,
 									'jetpack-forms'
 								),
-								totalItemsSpam
+								formatNumber( totalItemsSpam )
 						  )
 						: __(
 								'All responses in spam will be deleted forever. This action cannot be undone.',

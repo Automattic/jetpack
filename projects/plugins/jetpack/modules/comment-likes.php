@@ -70,7 +70,12 @@ class Jetpack_Comment_Likes {
 		$this->settings = new Jetpack_Likes_Settings();
 		$this->blog_id  = Jetpack_Options::get_option( 'id' );
 		$url_parts      = wp_parse_url( home_url() );
-		$this->domain   = $url_parts['host'];
+
+		// Abort if domain can't be determined.
+		if ( ! $url_parts || ! isset( $url_parts['host'] ) ) {
+			return;
+		}
+		$this->domain = $url_parts['host'];
 
 		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
