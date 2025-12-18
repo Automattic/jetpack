@@ -417,8 +417,10 @@ class Identity_Crisis {
 					if ( self::should_validate_idc( $sync_error ) ) {
 						// Perform remote validation.
 						if ( self::validate_idc_from_remote( $sync_error ) ) {
-							// IDC was cleared remotely, mark as invalid so we return false.
-							$is_valid = false;
+							// IDC was cleared remotely. The option is already deleted by
+							// validate_idc_from_remote(), so return false immediately to
+							// avoid double deletion and allow the filter to run.
+							return (bool) apply_filters( 'jetpack_sync_error_idc_validation', false );
 						}
 					}
 				}
@@ -518,10 +520,21 @@ class Identity_Crisis {
 			return false;
 		}
 
+		// Build API path with current URLs as query params.
+		// We must explicitly include URLs because add_idc_query_args_to_url() skips
+		// adding them when the site is in IDC (to prevent sync). For revalidation,
+		// we need WordPress.com to compare current URLs against what it has stored.
+		$api_path = sprintf(
+			'sites/%d?home=%s&siteurl=%s&idc=1',
+			$blog_id,
+			rawurlencode( Urls::home_url() ),
+			rawurlencode( Urls::site_url() )
+		);
+
 		// Make a lightweight API call to WordPress.com.
-		// The response will automatically include 'idc_detected' if URLs still mismatch.
+		// The response will include 'idc_detected' if URLs still mismatch.
 		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( 'sites/%d', $blog_id ),
+			$api_path,
 			'2',
 			array( 'method' => 'GET' ),
 			null,
