@@ -648,9 +648,11 @@ class Identity_Crisis {
 			$returned_values                 = self::reverse_wpcom_urls_for_idc( $returned_values );
 		}
 
-		// Add validation timing fields for backward compatibility with existing IDC options.
+		// Add validation timing fields.
+		// Set last_checked to current time so remote validation doesn't trigger immediately.
+		// This ensures the first validation happens after the initial delay period.
 		if ( ! isset( $returned_values['last_checked'] ) ) {
-			$returned_values['last_checked'] = 0;
+			$returned_values['last_checked'] = time();
 		}
 		if ( ! isset( $returned_values['next_check_delay'] ) ) {
 			$returned_values['next_check_delay'] = self::IDC_VALIDATION_INITIAL_DELAY;

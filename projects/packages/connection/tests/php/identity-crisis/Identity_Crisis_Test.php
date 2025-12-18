@@ -1171,11 +1171,15 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 * Test that get_sync_error_idc_option() adds timing fields for new IDC options.
 	 */
 	public function test_get_sync_error_idc_option_adds_timing_fields() {
+		$before = time();
 		$option = Identity_Crisis::get_sync_error_idc_option();
+		$after  = time();
 
 		$this->assertArrayHasKey( 'last_checked', $option );
 		$this->assertArrayHasKey( 'next_check_delay', $option );
-		$this->assertSame( 0, $option['last_checked'] );
+		// last_checked should be set to current time to prevent immediate validation.
+		$this->assertGreaterThanOrEqual( $before, $option['last_checked'] );
+		$this->assertLessThanOrEqual( $after, $option['last_checked'] );
 		$this->assertEquals( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $option['next_check_delay'] );
 	}
 
