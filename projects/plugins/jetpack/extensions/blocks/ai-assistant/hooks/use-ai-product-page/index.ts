@@ -19,10 +19,10 @@ export default function useAiProductPage(): {
 	productPageUrl: string;
 	isMyJetpackAvailable: boolean;
 } {
-	const productPageUrl =
-		isMyJetpackAvailable() && ! isSimpleSite()
-			? `${ getJetpackData()?.adminUrl || '' }admin.php?page=my-jetpack#/jetpack-ai`
-			: getRedirectUrl( 'org-ai' );
+	const isMyJetpackReallyAvailable = isMyJetpackAvailable() && ! isSimpleSite();
+	const productPageUrl = isMyJetpackReallyAvailable
+		? `${ getJetpackData()?.adminUrl || '' }admin.php?page=my-jetpack#/jetpack-ai`
+		: getRedirectUrl( 'org-ai' );
 
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( productPageUrl );
 
@@ -30,6 +30,6 @@ export default function useAiProductPage(): {
 		productPageUrl,
 		autosaveAndRedirect,
 		isRedirecting,
-		isMyJetpackAvailable: isMyJetpackAvailable(),
+		isMyJetpackAvailable: isMyJetpackReallyAvailable,
 	};
 }
