@@ -81,6 +81,7 @@ const BackupCard = props => {
 	const statusType = doesModuleNeedAttention?.type || undefined;
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const noDescription = () => null;
+	const { siteUrl = '' } = getMyJetpackWindowInitialState();
 
 	const { reasonContent, isLoading: isBackupFailedReasonLoading } =
 		useGetReadableFailedBackupReason() || {};
@@ -106,6 +107,14 @@ const BackupCard = props => {
 
 	const defaultDescriptionText = __( 'Check out our troubleshooting guide.', 'jetpack-my-jetpack' );
 
+	// Build support URL with pre-filled subject and site URL
+	const supportUrl = getRedirectUrl( 'jetpack-backup-support-reactivate', {
+		site: siteUrl,
+		query: `subject=${ encodeURIComponent(
+			__( 'Please reactivate Backup on my site', 'jetpack-my-jetpack' )
+		) }`,
+	} );
+
 	return (
 		<ProductCard
 			{ ...props }
@@ -124,7 +133,7 @@ const BackupCard = props => {
 									'jetpack-my-jetpack'
 								),
 								{
-									a: <ExternalLink href="https://jetpack.com/contact-support/" />,
+									a: <ExternalLink href={ supportUrl } />,
 								}
 							) }
 						</Text>
