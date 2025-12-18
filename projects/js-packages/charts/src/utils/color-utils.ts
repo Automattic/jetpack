@@ -110,14 +110,17 @@ export const parseHslString = ( hslString: string ): [ number, number, number ] 
 
 /**
  * Parse an RGB string like 'rgb(255, 0, 0)' into a hex color.
+ * Note: This function specifically handles rgb() format only, not rgba().
+ * For general color normalization including rgba(), use normalizeColorToHex() instead.
  *
- * @param rgbString - RGB color string
+ * @param rgbString - RGB color string (not RGBA)
  * @return hex color string or null if invalid
  */
 export const parseRgbString = ( rgbString: string ): string | null => {
 	const lower = rgbString.toLowerCase().trim();
 
 	// Check prefix - only handle rgb(), not rgba()
+	// This is intentional - use normalizeColorToHex for rgba() support
 	if ( ! lower.startsWith( 'rgb(' ) || lower.startsWith( 'rgba(' ) ) {
 		return null;
 	}
@@ -179,12 +182,12 @@ export const normalizeColorToHex = (
 		return color;
 	}
 
-	// Handle HSL and RGB strings using d3-color
-	if ( trimmed.startsWith( 'hsl(' ) || trimmed.startsWith( 'rgb(' ) ) {
-		// Reject rgba() - we only handle rgb()
-		if ( trimmed.startsWith( 'rgba(' ) ) {
-			return color;
-		}
+	// Handle HSL, RGB, and RGBA strings using d3-color
+	if (
+		trimmed.startsWith( 'hsl(' ) ||
+		trimmed.startsWith( 'rgb(' ) ||
+		trimmed.startsWith( 'rgba(' )
+	) {
 		const parsed = d3Color( trimmed );
 		if ( parsed ) {
 			return parsed.formatHex();

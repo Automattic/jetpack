@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Support HSL, RGB, and RGBA theme colors in addition to hex format

@@ -726,6 +726,22 @@ describe( 'normalizeColorToHex', () => {
 		} );
 	} );
 
+	describe( 'RGBA strings', () => {
+		it( 'converts rgba(255, 0, 0, 1) to #ff0000', () => {
+			expect( normalizeColorToHex( 'rgba(255, 0, 0, 1)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts rgba(0, 0, 255, 0.5) to #0000ff', () => {
+			// Alpha channel is lost in hex conversion
+			expect( normalizeColorToHex( 'rgba(0, 0, 255, 0.5)' ) ).toBe( '#0000ff' );
+		} );
+
+		it( 'converts rgba(128, 128, 128, 0) to #000000', () => {
+			// d3-color converts fully transparent colors (alpha=0) to black
+			expect( normalizeColorToHex( 'rgba(128, 128, 128, 0)' ) ).toBe( '#000000' );
+		} );
+	} );
+
 	describe( 'CSS variables', () => {
 		it( 'returns original if no resolveCss function provided', () => {
 			expect( normalizeColorToHex( '--my-color' ) ).toBe( '--my-color' );
