@@ -77,8 +77,7 @@ const BackupCard = props => {
 	const { detail } = useProduct( productSlug );
 	const { status, doesModuleNeedAttention } = detail;
 	const lastBackupFailed = !! doesModuleNeedAttention;
-	const lastBackupStatus = doesModuleNeedAttention?.data?.status || undefined;
-	const statusType = doesModuleNeedAttention?.type || undefined;
+	const lastBackupStatus = doesModuleNeedAttention?.data?.status || {};
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const noDescription = () => null;
 	const { siteUrl = '' } = getMyJetpackWindowInitialState();
@@ -93,12 +92,9 @@ const BackupCard = props => {
 
 	// Check if backups are deactivated (INACTIVE status with info type).
 	const isDeactivated =
-		status === PRODUCT_STATUSES.INACTIVE &&
-		statusType === 'info' &&
-		lastBackupStatus === 'backups-deactivated';
+		status === PRODUCT_STATUSES.INACTIVE && lastBackupStatus === 'backups-deactivated';
 
-	const isError =
-		status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && lastBackupFailed && ! isDeactivated;
+	const isError = status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && lastBackupFailed;
 
 	// Build support URL with pre-filled subject and site URL
 	const supportUrl = getRedirectUrl( 'jetpack-backup-support-reactivate', {
@@ -140,7 +136,7 @@ const BackupCard = props => {
 					</div>
 					<div className={ styles.contentContainer }>
 						<Text variant="body-small" className="value-section__heading">
-							{ errorTitle || __( 'The last backup attempt failed.', 'jetpack-my-jetpack' ) }
+							{ __( 'The last backup attempt failed.', 'jetpack-my-jetpack' ) }
 							<InfoTooltip
 								tracksEventName={ 'backup_card_tooltip_open' }
 								tracksEventProps={ {
