@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Main orchestrator for Jetpack performance testing.
- * Rsyncs plugin, runs LCP measurements, posts to CodeVitals.
+ * Uses pre-built plugin from jetpack-production mirror, runs LCP measurements, posts to CodeVitals.
  */
 
 import { execFileSync } from 'child_process';
@@ -34,9 +34,10 @@ const __dirname = __dirname_early;
 
 // Path constants
 const PERFORMANCE_DIR = path.join( __dirname, '..' );
-const MONOREPO_ROOT = path.join( PERFORMANCE_DIR, '..', '..' );
-const BUILD_DIR = path.join( PERFORMANCE_DIR, 'build' );
-const JETPACK_BUILD_DIR = path.join( BUILD_DIR, 'jetpack' );
+const PLUGIN_DIR = path.join( PERFORMANCE_DIR, 'plugin' );
+
+// jetpack-production mirror repo - pre-built plugin, no build step needed
+const JETPACK_PRODUCTION_REPO = 'https://github.com/Automattic/jetpack-production.git';
 
 // Docker Compose project name - use env var if set, otherwise default
 const COMPOSE_PROJECT_NAME = process.env.COMPOSE_PROJECT_NAME || 'jetpack-perf';
@@ -164,101 +165,82 @@ function checkDocker() {
 	}
 }
 
-/** Get git hash and branch. */
+/** Get git hash and branch from jetpack-production mirror. */
 function getGitInfo() {
-	// Prefer GIT_COMMIT env var (set by CI for the specific commit being tested)
-	// over HEAD (which may be different when testing historical commits)
-	const hash =
-		process.env.GIT_COMMIT ||
-		( () => {
-			try {
-				return execFile( 'git', [ 'rev-parse', 'HEAD' ], { silent: true } )?.trim();
-			} catch {
-				return null;
-			}
-		} )() ||
-		'unknown';
+	// Git commands must run from the plugin directory (where jetpack-production is checked out)
+	const gitOpts = { cwd: PLUGIN_DIR, silent: true };
 
-	// Always use 'trunk' as the branch - we're tracking performance on the main branch,
-	// and backfill commits (detached HEAD) also come from trunk history.
-	const branch = 'trunk';
-
-	return { hash, branch };
-}
-
-/** Rsync Jetpack plugin to build directory (resolves symlinks). */
-function rsyncJetpack() {
-	console.log( 'Syncing Jetpack plugin (resolving symlinks)...' );
-
-	// Ensure build directory exists
-	if ( ! fs.existsSync( BUILD_DIR ) ) {
-		fs.mkdirSync( BUILD_DIR, { recursive: true } );
+	// Get the mirror commit hash
+	let mirrorHash = 'unknown';
+	try {
+		mirrorHash = execFile( 'git', [ 'rev-parse', 'HEAD' ], gitOpts )?.trim() || 'unknown';
+	} catch {
+		// Plugin directory may not be a git repo (e.g., extracted from zip)
 	}
 
-	// Use the jetpack CLI rsync command which handles symlink resolution
-	// The rsync command copies files directly to the target directory,
-	// so we rsync to build/jetpack directly
+	// Parse Upstream-Ref from commit message to get the original monorepo commit
+	// Format: "Upstream-Ref: Automattic/jetpack@<40-char-sha>"
+	let upstreamHash = null;
 	try {
-		execFile( 'pnpm', [ 'jetpack', 'rsync', 'jetpack', JETPACK_BUILD_DIR ], {
-			cwd: MONOREPO_ROOT,
-		} );
+		const commitBody = execFile( 'git', [ 'log', '-1', '--format=%b' ], gitOpts );
+		const match = commitBody?.match( /Upstream-Ref:\s*Automattic\/jetpack@([a-f0-9]{40})/i );
+		upstreamHash = match?.[ 1 ];
+	} catch {
+		// Fall back to mirror hash
+	}
 
-		// On macOS, remove extended attributes that can cause "Operation not permitted"
-		// errors when Docker tries to read the files.
-		if ( process.platform === 'darwin' ) {
-			execFile( 'xattr', [ '-cr', JETPACK_BUILD_DIR ], { silent: true, ignoreError: true } );
-		}
+	// Prefer upstream (monorepo) hash for CodeVitals tracking, fall back to mirror hash
+	const hash = process.env.GIT_COMMIT || upstreamHash || mirrorHash;
 
-		console.log( '✓ Jetpack synced to build/jetpack\n' );
+	// Always use 'trunk' as the branch - we're tracking performance on the main branch
+	const branch = 'trunk';
+
+	return { hash, mirrorHash, branch };
+}
+
+/** Ensure the Jetpack plugin is available (clone from jetpack-production if needed). */
+function ensurePlugin() {
+	// Check if plugin directory exists and has jetpack.php
+	if ( fs.existsSync( path.join( PLUGIN_DIR, 'jetpack.php' ) ) ) {
+		console.log( '✓ Plugin directory exists\n' );
+		return true;
+	}
+
+	// In CI, plugin should be checked out by the build system
+	if ( process.env.CI ) {
+		console.error( '✗ Plugin directory not found at:', PLUGIN_DIR );
+		console.error( '  TeamCity should clone jetpack-production to tools/performance/plugin/' );
+		return false;
+	}
+
+	// Local development: clone on demand
+	console.log( 'Plugin not found. Cloning jetpack-production...' );
+	console.log( `  Repository: ${ JETPACK_PRODUCTION_REPO }` );
+	console.log( `  Target: ${ PLUGIN_DIR }` );
+	console.log( '' );
+
+	try {
+		execFile( 'git', [ 'clone', '--depth', '1', JETPACK_PRODUCTION_REPO, PLUGIN_DIR ] );
+		console.log( '✓ Plugin cloned successfully\n' );
 		return true;
 	} catch ( err ) {
-		console.error( '✗ Failed to rsync Jetpack:', err.message );
-		console.error( '  Make sure pnpm and jetpack CLI are available\n' );
+		console.error( '✗ Failed to clone jetpack-production:', err.message );
 		return false;
 	}
 }
 
-/** Check if Jetpack build exists and is valid. */
-function checkJetpackBuild() {
-	if ( ! fs.existsSync( path.join( JETPACK_BUILD_DIR, 'jetpack.php' ) ) ) {
+/** Check if Jetpack plugin exists and is valid. */
+function checkPlugin() {
+	if ( ! fs.existsSync( path.join( PLUGIN_DIR, 'jetpack.php' ) ) ) {
 		return { valid: false, reason: 'jetpack.php not found' };
 	}
 
-	if ( ! fs.existsSync( path.join( JETPACK_BUILD_DIR, 'vendor' ) ) ) {
+	if ( ! fs.existsSync( path.join( PLUGIN_DIR, 'vendor' ) ) ) {
 		return { valid: false, reason: 'vendor directory not found' };
 	}
 
-	const jetpackVendorDir = path.join( JETPACK_BUILD_DIR, 'jetpack_vendor' );
-	if ( ! fs.existsSync( jetpackVendorDir ) ) {
+	if ( ! fs.existsSync( path.join( PLUGIN_DIR, 'jetpack_vendor' ) ) ) {
 		return { valid: false, reason: 'jetpack_vendor directory not found' };
-	}
-
-	// Check that jetpack_vendor contains actual files, not broken symlinks
-	const jetpackVendorContents = fs.readdirSync( jetpackVendorDir );
-	if ( jetpackVendorContents.length === 0 ) {
-		return { valid: false, reason: 'jetpack_vendor is empty' };
-	}
-
-	// Check that automattic/ subdirectory exists and contains at least one valid package
-	// This validates that symlinks were resolved properly without depending on a specific package name
-	const automatticDir = path.join( jetpackVendorDir, 'automattic' );
-	try {
-		const stats = fs.statSync( automatticDir );
-		if ( ! stats.isDirectory() ) {
-			return { valid: false, reason: 'jetpack_vendor/automattic is not a directory' };
-		}
-		const packages = fs.readdirSync( automatticDir );
-		if ( packages.length === 0 ) {
-			return { valid: false, reason: 'jetpack_vendor/automattic is empty' };
-		}
-		// Verify at least one package is accessible (not a broken symlink)
-		const firstPackage = path.join( automatticDir, packages[ 0 ] );
-		const packageStats = fs.statSync( firstPackage );
-		if ( ! packageStats.isDirectory() ) {
-			return { valid: false, reason: `${ packages[ 0 ] } is not a directory` };
-		}
-	} catch {
-		return { valid: false, reason: 'jetpack_vendor/automattic not accessible (broken symlink?)' };
 	}
 
 	return { valid: true };
@@ -318,19 +300,11 @@ async function main() {
 	const options = {
 		skipSetup: args.includes( '--skip-setup' ),
 		skipCodeVitals: args.includes( '--skip-codevitals' ),
-		skipRsync: args.includes( '--skip-rsync' ),
 		allowCodeVitalsFailure: args.includes( '--allow-codevitals-failure' ),
 		iterations: parseInt( process.env.ITERATIONS || '5', 10 ),
 	};
 
 	console.log( 'Options:', options );
-	console.log( '' );
-
-	// Get git information
-	const gitInfo = getGitInfo();
-	console.log( 'Git Information:' );
-	console.log( `  Hash: ${ gitInfo.hash.substring( 0, 8 ) }` );
-	console.log( `  Branch: ${ gitInfo.branch }` );
 	console.log( '' );
 
 	// Check Docker
@@ -339,31 +313,29 @@ async function main() {
 		process.exit( 1 );
 	}
 
-	// Rsync Jetpack (unless skipped)
-	if ( ! options.skipRsync ) {
-		// Check if we need to rsync
-		const buildCheck = checkJetpackBuild();
-		if ( ! buildCheck.valid ) {
-			console.log( `Jetpack build not valid: ${ buildCheck.reason }` );
-			if ( ! rsyncJetpack() ) {
-				console.error( 'Failed to prepare Jetpack plugin. Exiting.' );
-				process.exit( 1 );
-			}
-		} else {
-			console.log( '✓ Jetpack build already exists and is valid\n' );
-			console.log( '  (Use --skip-rsync to skip this check, or delete build/ to force re-sync)\n' );
-		}
-	} else {
-		console.log( 'Skipping Jetpack rsync (--skip-rsync)\n' );
-	}
-
-	// Verify Jetpack build is valid before proceeding
-	const finalBuildCheck = checkJetpackBuild();
-	if ( ! finalBuildCheck.valid ) {
-		console.error( `✗ Jetpack build is invalid: ${ finalBuildCheck.reason }` );
-		console.error( '  Please run without --skip-rsync to rebuild' );
+	// Ensure Jetpack plugin is available (clone from jetpack-production if needed)
+	if ( ! ensurePlugin() ) {
+		console.error( 'Failed to prepare Jetpack plugin. Exiting.' );
 		process.exit( 1 );
 	}
+
+	// Verify plugin is valid
+	const pluginCheck = checkPlugin();
+	if ( ! pluginCheck.valid ) {
+		console.error( `✗ Jetpack plugin is invalid: ${ pluginCheck.reason }` );
+		console.error( '  Delete plugin/ directory and re-run to clone fresh' );
+		process.exit( 1 );
+	}
+
+	// Get git information (must run after ensurePlugin so plugin directory exists)
+	const gitInfo = getGitInfo();
+	console.log( 'Git Information (from jetpack-production):' );
+	console.log( `  Upstream Hash: ${ gitInfo.hash.substring( 0, 8 ) }` );
+	if ( gitInfo.mirrorHash !== gitInfo.hash ) {
+		console.log( `  Mirror Hash: ${ gitInfo.mirrorHash.substring( 0, 8 ) }` );
+	}
+	console.log( `  Branch: ${ gitInfo.branch }` );
+	console.log( '' );
 
 	// Check if WordPress instances are ready (using default URLs initially)
 	const wpReady = await checkWordPressInstances();

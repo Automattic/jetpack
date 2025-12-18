@@ -1,5 +1,6 @@
 # Jetpack Performance Testing Environment
 # Single WordPress instance with simulated Jetpack connection for LCP measurement.
+# Plugin is mounted from ../plugin (cloned from jetpack-production mirror).
 #
 # Ports are assigned dynamically by Docker. Use 'docker compose port <service> 80' to discover.
 
@@ -41,7 +42,7 @@ services:
       WPCOM_SIMULATED_LATENCY_MS: ${WPCOM_SIMULATED_LATENCY_MS:-200}
     volumes:
       - wp_jetpack_connected:/var/www/html
-      - ../build/jetpack:/var/www/html/wp-content/plugins/jetpack:ro
+      - ../plugin:/var/www/html/wp-content/plugins/jetpack:ro
       # Mount the mu-plugin for connection simulation
       - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
     networks:
@@ -57,7 +58,7 @@ services:
     volumes:
       - wp_jetpack_connected:/var/www/html/jetpack-connected
       - ./setup-wordpress.sh:/usr/local/bin/setup-wordpress.sh:ro
-      - ../build/jetpack:/var/www/html/jetpack-connected/wp-content/plugins/jetpack:ro
+      - ../plugin:/var/www/html/jetpack-connected/wp-content/plugins/jetpack:ro
       - ./mu-plugins:/var/www/html/jetpack-connected/wp-content/mu-plugins:ro
     networks:
       - jetpack-perf

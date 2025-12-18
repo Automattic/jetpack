@@ -6,4 +6,5 @@ results/*.log
 playwright-report/
 test-results/
 build/
+plugin/
 calibration.json
