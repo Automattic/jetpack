@@ -42,6 +42,7 @@ export default function PublicizeForm() {
 
 	const showSharePostForm =
 		isPublicizeEnabled &&
+		! isPublicizeDisabledBySitePlan &&
 		( hasEnabledConnections ||
 			// We show the form if there is any attached media or validation errors to let the user
 			// fix the issues with uploading an image.
@@ -66,14 +67,9 @@ export default function PublicizeForm() {
 						<SocialPostModal />
 					) }
 					<EnhancedFeaturesNudge />
+					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 				</>
 			) : null }
-
-			{ ! isPublicizeDisabledBySitePlan && (
-				<Fragment>
-					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
-				</Fragment>
-			) }
 		</Wrapper>
 	);
 }
