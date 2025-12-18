@@ -100,13 +100,6 @@ const BackupCard = props => {
 	const isError =
 		status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && lastBackupFailed && ! isDeactivated;
 
-	const defaultTooltipText = __(
-		'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
-		'jetpack-my-jetpack'
-	);
-
-	const defaultDescriptionText = __( 'Check out our troubleshooting guide.', 'jetpack-my-jetpack' );
-
 	// Build support URL with pre-filled subject and site URL
 	const supportUrl = getRedirectUrl( 'jetpack-backup-support-reactivate', {
 		site: siteUrl,
@@ -161,12 +154,17 @@ const BackupCard = props => {
 								<>
 									<h3>{ errorTitle }</h3>
 									<p>{ errorDescription }</p>
-									<p>{ defaultTooltipText }</p>
+									<p>
+										{ __(
+											'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
+											'jetpack-my-jetpack'
+										) }
+									</p>
 								</>
 							</InfoTooltip>
 						</Text>
 						<Text variant="body-small" className={ styles.error_description }>
-							{ defaultDescriptionText }
+							{ __( 'Check out our troubleshooting guide.', 'jetpack-my-jetpack' ) }
 						</Text>
 					</div>
 				</div>
