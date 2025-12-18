@@ -1472,7 +1472,12 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$mock_callback = function () {
 			return array(
 				'headers'  => array(),
-				'body'     => wp_json_encode( array( 'ID' => 12345 ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+				'body'     => wp_json_encode(
+					array(
+						'is_healthy' => true,
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				),
 				'response' => array(
 					'code'    => 200,
 					'message' => 'OK',

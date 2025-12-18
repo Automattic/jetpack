@@ -524,14 +524,16 @@ class Identity_Crisis {
 		// We must explicitly include URLs because add_idc_query_args_to_url() skips
 		// adding them when the site is in IDC (to prevent sync). For revalidation,
 		// we need WordPress.com to compare current URLs against what it has stored.
+		// We use the jetpack-token-health/blog endpoint which performs IDC detection
+		// and returns idc_detected in the response when URLs don't match.
 		$api_path = sprintf(
-			'sites/%d?home=%s&siteurl=%s&idc=1',
+			'sites/%d/jetpack-token-health/blog?home=%s&siteurl=%s&idc=1',
 			$blog_id,
 			rawurlencode( Urls::home_url() ),
 			rawurlencode( Urls::site_url() )
 		);
 
-		// Make a lightweight API call to WordPress.com.
+		// Make an API call to WordPress.com to check token health and IDC status.
 		// The response will include 'idc_detected' if URLs still mismatch.
 		$response = Client::wpcom_json_api_request_as_blog(
 			$api_path,
