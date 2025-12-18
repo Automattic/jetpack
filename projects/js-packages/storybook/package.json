@@ -60,7 +60,7 @@
 		"require-from-string": "2.0.2",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
-		"storybook": "10.0.8",
+		"storybook": "10.1.10",
 		"style-loader": "2.0.0",
 		"ts-dedent": "2.2.0",
 		"typescript": "5.9.3",
