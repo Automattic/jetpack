@@ -11,6 +11,7 @@ use Automattic\Jetpack\Codesniffer\Utils\AddDocBlockTagsTrait;
 use Automattic\Jetpack\Codesniffer\Utils\AddUseClassTrait;
 use Automattic\Jetpack\Codesniffer\Utils\Attributes;
 use Automattic\Jetpack\Codesniffer\Utils\DocBlocks;
+use Automattic\Jetpack\Codesniffer\Utils\IsTestClassTrait;
 use Automattic\Jetpack\Codesniffer\Utils\NamespaceInfo;
 use Automattic\Jetpack\Codesniffer\Utils\RemoveDocBlockIfEmptyTrait;
 use Automattic\Jetpack\Sniffs\PHPUnit\AttributesSniff\CoverageHandler;
@@ -50,9 +51,9 @@ use PHPUnit\Framework\Attributes\TestDox;
  * Sniff for PHPUnit's transition from annotations to attributes.
  */
 class AttributesSniff implements Sniff {
-	use \MediaWiki\Sniffs\PHPUnit\PHPUnitTestTrait;
 	use AddDocBlockTagsTrait;
 	use AddUseClassTrait;
+	use IsTestClassTrait;
 	use RemoveDocBlockIfEmptyTrait;
 
 	/**

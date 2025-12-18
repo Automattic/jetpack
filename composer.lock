@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "03a695db5cb87764b99dce21ec82e38484586d13"
+                "reference": "d008962c16be9aa62bae76e9e9a9627bcf6dfba2"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -89,7 +89,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.0.x-dev"
+                    "dev-trunk": "7.0.x-dev"
                 }
             },
             "autoload": {
@@ -119,7 +119,7 @@
                 ]
             },
             "license": [
-                "GPL-2.0-or-later"
+                "MIT"
             ],
             "description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
             "keywords": [
@@ -198,7 +198,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "2ba3e32d86c44977977e422380bf0501c30c5427"
+                "reference": "b7208ae78cf0a31da783170a8a9cb47c7a94f4d2"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -213,7 +213,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "3.1.x-dev"
+                    "dev-trunk": "4.0.x-dev"
                 }
             },
             "autoload": {
@@ -233,7 +233,7 @@
                 ]
             },
             "license": [
-                "GPL-2.0-or-later"
+                "MIT"
             ],
             "description": "A filter for PHP CodeSniffer to add support for .phpcsignore files and per-directory configuration files.",
             "keywords": [

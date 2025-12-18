@@ -277,7 +277,6 @@ class Help_Center {
 			$display_name       = $user_data->display_name;
 			$avatar_url         = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
 			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
-			$is_next_admin      = (bool) did_action( 'next_admin_init' );
 
 			wp_add_inline_script(
 				'help-center',
@@ -287,7 +286,6 @@ class Help_Center {
 						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
 						'isSSP'            => isset( $_COOKIE['ssp'] ),
 						'sectionName'      => $this->is_support_site ? 'wp.com/support' : $variant,
-						'isNextAdmin'      => $is_next_admin,
 						'isCommerceGarden' => $is_commerce_garden,
 						'currentUser'      => array(
 							'ID'           => $user_id,
@@ -592,11 +590,13 @@ class Help_Center {
 			return;
 		}
 
-		if ( $this->is_support_site ) {
+		if ( $is_next_admin ) {
+			$variant = 'ciab-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+		} elseif ( $this->is_support_site ) {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
-		} elseif ( $this->is_block_editor() || $is_next_admin ) {
+		} elseif ( $this->is_block_editor() ) {
 			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} else {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );

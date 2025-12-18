@@ -233,6 +233,31 @@ Pie Semi Circle Charts integrate seamlessly with the chart theming system. The d
 	</GlobalChartsProvider>` }
 />
 
+## Animation
+
+The Pie Semi Circle Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ PieSemiCircleChartStories.Animation } />
+
+<Source
+	language="jsx"
+	code={ `<PieSemiCircleChart
+		data={ data }
+		width={ 600 }
+		animation={ true }
+		label="Animated Chart"
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a radial wipe reveal effect that sweeps clockwise from the top, progressively revealing the chart segments
+- **Duration**: 1000ms (1 second)
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.
+
 ## Legend Integration
 
 ### Legend Positioning

@@ -1,3 +1,4 @@
+import { hsl as d3Hsl } from '@visx/vendor/d3-color';
 import { getColorDistance } from '../../../utils';
 
 export interface ColorCache {
@@ -113,7 +114,7 @@ const SINGLE_COLOR_HUE_RANGE_FACTOR = 0.33;
  * @param colorCache - pre-computed color data for performance
  * @return a color from the colors array or a new color using the golden ratio
  */
-export const getChartColor = ( index: number, colorCache: ColorCache ) => {
+export const getChartColor = ( index: number, colorCache: ColorCache ): string => {
 	const {
 		colors,
 		hues,
@@ -198,7 +199,8 @@ export const getChartColor = ( index: number, colorCache: ColorCache ) => {
 		}
 
 		if ( isSufficientlyDifferent ) {
-			return `hsl(${ Math.round( hue ) }, ${ saturation }%, ${ lightness }%)`;
+			// d3-color uses 0-1 scale for saturation and lightness
+			return d3Hsl( Math.round( hue ), saturation / 100, lightness / 100 ).formatHex();
 		}
 	}
 
@@ -212,5 +214,10 @@ export const getChartColor = ( index: number, colorCache: ColorCache ) => {
 		BASE_SATURATION + ( index % SATURATION_VARIATION_STEPS ) * SATURATION_INCREMENT;
 	const fallbackLightness =
 		BASE_LIGHTNESS + ( index % LIGHTNESS_VARIATION_STEPS ) * LIGHTNESS_INCREMENT;
-	return `hsl(${ Math.round( fallbackHue ) }, ${ fallbackSaturation }%, ${ fallbackLightness }%)`;
+	// d3-color uses 0-1 scale for saturation and lightness
+	return d3Hsl(
+		Math.round( fallbackHue ),
+		fallbackSaturation / 100,
+		fallbackLightness / 100
+	).formatHex();
 };
