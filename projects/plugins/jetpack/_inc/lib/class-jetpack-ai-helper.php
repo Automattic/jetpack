@@ -206,6 +206,14 @@ class Jetpack_AI_Helper {
 
 		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
+			// If the site is not connected, return a more helpful error message.
+			if ( 'unavailable_site_id' === $site_id->get_error_code() ) {
+				return new WP_Error(
+					'unavailable_site_id',
+					__( 'Your account must be connected to WordPress.com to generate AI content. Please connect your account from the Jetpack settings screen to proceed.', 'jetpack' ),
+					array( 'status' => 403 )
+				);
+			}
 			return $site_id;
 		}
 
@@ -271,6 +279,14 @@ class Jetpack_AI_Helper {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			// If the user is not connected, return a more helpful error message.
+			if ( 'missing_token' === $response->get_error_code() ) {
+				return new WP_Error(
+					'missing_token',
+					__( 'Your account must be connected to WordPress.com to use AI assistance. Please connect your account from the Jetpack settings screen to proceed.', 'jetpack' ),
+					array( 'status' => 403 )
+				);
+			}
 			return $response;
 		}
 
@@ -312,6 +328,14 @@ class Jetpack_AI_Helper {
 
 		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
+			// If the site is not connected, return a more helpful error message.
+			if ( 'unavailable_site_id' === $site_id->get_error_code() ) {
+				return new WP_Error(
+					'unavailable_site_id',
+					__( 'Your account must be connected to WordPress.com to generate AI images. Please connect your account from the Jetpack settings screen to proceed.', 'jetpack' ),
+					array( 'status' => 403 )
+				);
+			}
 			return $site_id;
 		}
 
@@ -346,6 +370,14 @@ class Jetpack_AI_Helper {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			// If the user is not connected, return a more helpful error message.
+			if ( 'missing_token' === $response->get_error_code() ) {
+				return new WP_Error(
+					'missing_token',
+					__( 'Your account must be connected to WordPress.com to generate AI images. Please connect your account from the Jetpack settings screen to proceed.', 'jetpack' ),
+					array( 'status' => 403 )
+				);
+			}
 			return $response;
 		}
 
