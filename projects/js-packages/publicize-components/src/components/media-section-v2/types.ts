@@ -5,7 +5,7 @@
 /**
  * Media source types
  */
-export type MediaSourceType = 'featured-image' | 'media-library' | 'upload-video' | 'sig' | null;
+export type MediaSourceType = 'featured-image' | 'media-library' | 'sig' | null;
 
 /**
  * Menu option IDs - includes all menu items including 'ai-image' which is handled specially

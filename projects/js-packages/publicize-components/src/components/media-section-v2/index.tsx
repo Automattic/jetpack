@@ -68,7 +68,7 @@ export default function MediaSectionV2( {
 		if ( currentSource === 'featured-image' ) {
 			return featuredImageId;
 		}
-		if ( currentSource === 'media-library' || currentSource === 'upload-video' ) {
+		if ( currentSource === 'media-library' ) {
 			return attachedMedia?.[ 0 ]?.id;
 		}
 		return null;
@@ -313,7 +313,7 @@ export default function MediaSectionV2( {
 							) }
 						</>
 					) }
-					{ ( currentSource === 'media-library' || currentSource === 'upload-video' ) && (
+					{ currentSource === 'media-library' && (
 						<ExternalLink
 							href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }
 							className={ styles[ 'learn-more' ] }

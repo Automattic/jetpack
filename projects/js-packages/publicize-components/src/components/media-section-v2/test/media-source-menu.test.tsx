@@ -21,10 +21,6 @@ describe( 'getMediaSourceDescription', () => {
 	it( 'should return media library description', () => {
 		expect( getMediaSourceDescription( 'media-library' ) ).toBe( 'You are using a custom image.' );
 	} );
-
-	it( 'should return upload video description', () => {
-		expect( getMediaSourceDescription( 'upload-video' ) ).toBe( 'Upload a video file.' );
-	} );
 } );
 
 describe( 'MediaSourceMenu', () => {
@@ -80,8 +76,7 @@ describe( 'MediaSourceMenu', () => {
 		// Check that menu items are rendered
 		expect( screen.getByRole( 'menuitem', { name: 'Featured Image' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'menuitem', { name: 'Social Image Template' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'menuitem', { name: 'Media Library' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'menuitem', { name: 'Upload video' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'menuitem', { name: 'From Media Library' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'should call onSelect when Featured Image is clicked', async () => {
@@ -130,7 +125,7 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'Media Library' } ) );
+		await user.click( screen.getByRole( 'menuitem', { name: 'From Media Library' } ) );
 
 		expect( mockOnMediaLibraryClick ).toHaveBeenCalledTimes( 1 );
 		expect( mockOnSelect ).not.toHaveBeenCalled();
