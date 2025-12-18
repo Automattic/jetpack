@@ -157,11 +157,7 @@ function useSiteSwitcherCommandLoader( { search } ) {
 			// Extract domain from URL for display - don't want to display the protocol.
 			const domain = getHostnameFromURL( site.URL );
 
-			const iconElement = site.icon?.img ? (
-				<img src={ site.icon.img } alt={ site.name } />
-			) : (
-				siteLogo
-			);
+			const iconElement = site.icon?.img ? <img src={ site.icon.img } alt="" /> : siteLogo;
 
 			// Use site name if available, otherwise just show domain
 			const label = site.name
@@ -219,7 +215,7 @@ function JetpackSiteSwitcher() {
 
 // Render the site switcher into wp-admin
 // This works with WordPress 6.9+ admin-wide command palette
-if ( typeof window !== 'undefined' && window.wp && window.wp.element ) {
+if ( typeof window !== 'undefined' && window.wp && window.wp.element && window.wp.commands ) {
 	const { createRoot, createElement } = window.wp.element;
 
 	// Create a container for our site switcher
