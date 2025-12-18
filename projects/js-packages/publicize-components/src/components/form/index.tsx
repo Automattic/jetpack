@@ -7,8 +7,7 @@
  */
 
 import { siteHasFeature } from '@automattic/jetpack-script-data';
-import { Disabled, PanelRow } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { PanelRow } from '@wordpress/components';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useMediaDetails from '../../hooks/use-media-details';
@@ -49,10 +48,8 @@ export default function PublicizeForm() {
 			attachedMedia.length > 0 ||
 			( Object.keys( validationErrors ).length !== 0 && ! isConvertible ) );
 
-	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
-
 	return (
-		<Wrapper>
+		<>
 			{ hasConnections ? (
 				<PanelRow>
 					<ConnectionsList />
@@ -70,6 +67,6 @@ export default function PublicizeForm() {
 					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 				</>
 			) : null }
-		</Wrapper>
+		</>
 	);
 }
