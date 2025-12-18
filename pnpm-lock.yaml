@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-n8UNQt+1x71cSTyJGIIk9y1EkAqkZSbMyO89Z3MbS8I=
+pnpmfileChecksum: sha256-wQ44PEaHjUY2VsIQwAw994UP4fImgcsEj0CYOVgniu8=
 
 patchedDependencies:
   '@wordpress/a11y':
@@ -31498,6 +31498,7 @@ snapshots:
       '@testing-library/jest-dom': 6.9.1
       '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.1)
       '@vitest/expect': 3.2.4
+      '@vitest/mocker': 3.2.4
       '@vitest/spy': 3.2.4
       esbuild: 0.25.9
       open: 10.2.0
@@ -31508,9 +31509,11 @@ snapshots:
     transitivePeerDependencies:
       - '@testing-library/dom'
       - bufferutil
+      - msw
       - react
       - react-dom
       - utf-8-validate
+      - vite
 
   streamx@2.23.0:
     dependencies:
