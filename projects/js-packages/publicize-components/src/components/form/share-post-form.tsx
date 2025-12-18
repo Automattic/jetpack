@@ -6,6 +6,7 @@ import { useCallback, type FC } from 'react';
 import { usePostCanUseSig } from '../../hooks/use-post-can-use-sig';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { store as socialStore } from '../../social-store';
+import { hasSocialPaidFeatures } from '../../utils';
 import { features } from '../../utils/constants';
 import { useIsSocialNote } from '../../utils/use-is-social-note';
 import MediaSection from '../media-section';
@@ -13,6 +14,7 @@ import MediaSectionV2 from '../media-section-v2';
 import MessageBoxControl from '../message-box-control';
 import SocialImageGeneratorPanel from '../social-image-generator/panel';
 import styles from './styles.module.scss';
+import { UpgradeNotice } from './upgrade-notice';
 
 type SharePostFormProps = {
 	/** Data for tracking analytics */
@@ -68,7 +70,11 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 			) }
 			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
 				<div className={ styles[ 'share-post-form__media-section' ] }>
-					<MediaSectionV2 analyticsData={ analyticsData } onEditTemplate={ onEditTemplate } />
+					{ ! hasSocialPaidFeatures() ? (
+						<UpgradeNotice />
+					) : (
+						<MediaSectionV2 analyticsData={ analyticsData } onEditTemplate={ onEditTemplate } />
+					) }
 				</div>
 			) : (
 				<>
