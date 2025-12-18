@@ -42,6 +42,7 @@ export function UpsellNotice() {
 				{
 					label: isRedirecting ? __( 'Redirecting…', 'jetpack-publicize-components' ) : buttonText,
 					variant: 'primary',
+					className: 'is-compact',
 					onClick: goToCheckoutPage,
 				},
 			] }

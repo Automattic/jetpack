@@ -63,7 +63,7 @@ export default function PublicizeForm() {
 			</PanelRow>
 			{ needsUserConnection ? <UserConnectionNotice /> : null }
 			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? <PreviewPostsTrigger /> : <SocialPostModal /> }
-			<EnhancedFeaturesNudge />
+			{ ! siteHasFeature( features.UNIFIED_UI_V1 ) ? <EnhancedFeaturesNudge /> : null }
 			{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 		</>
 	);
