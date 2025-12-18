@@ -382,32 +382,7 @@ class Backup extends Hybrid_Product {
 			}
 
 			if ( $last_backup && isset( $last_backup->status ) ) {
-				// Statuses that are informational (not errors, shown as neutral/inactive state).
-				$info_statuses = array(
-					'backups-deactivated',  // Manually disabled by user - shown as inactive, not error.
-				);
-
-				// Statuses that should NOT trigger any notification.
-				$success_statuses = array(
-					'started',
-					'finished',
-				);
-
-				// Check if status ends with '-will-retry' (transient errors that shouldn't be flagged).
-				$is_will_retry = preg_match( '/-will-retry$/', $last_backup->status );
-
-				if ( in_array( $last_backup->status, $info_statuses, true ) ) {
-					// Store as 'info' type so get_status() can return INACTIVE instead of NEEDS_ATTENTION.
-					$backup_failed_status = array(
-						'type' => 'info',
-						'data' => array(
-							'source'       => 'last_backup',
-							'status'       => $last_backup->status,
-							'last_updated' => $last_backup->last_updated,
-						),
-					);
-				} elseif ( ! in_array( $last_backup->status, $success_statuses, true ) && ! $is_will_retry ) {
-					// Actual error status.
+				if ( $last_backup->status !== 'started' && ! preg_match( '/-will-retry$/', $last_backup->status ) && $last_backup->status !== 'finished' ) {
 					$backup_failed_status = array(
 						'type' => 'error',
 						'data' => array(
@@ -417,10 +392,15 @@ class Backup extends Hybrid_Product {
 						),
 					);
 				}
+
+				// Override 'backups-deactivated' type as `info`
+				if ( 'backups-deactivated' === $last_backup->status && $backup_failed_status ) {
+					$backup_failed_status['type'] = 'info';
+				}
 			}
 		}
 
-		if ( is_array( $backup_failed_status ) && in_array( $backup_failed_status['type'], array( 'error', 'info' ), true ) ) {
+		if ( is_array( $backup_failed_status ) ) {
 			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, $backup_failed_status, 5 * MINUTE_IN_SECONDS );
 		} else {
 			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, 'no_errors', HOUR_IN_SECONDS );
