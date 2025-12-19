@@ -1183,6 +1183,13 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 * Test backward compatibility: validate_sync_error_idc_option() adds timing fields to existing IDC options.
 	 */
 	public function test_validate_sync_error_idc_option_adds_timing_fields_for_backward_compatibility() {
+		// Clean up any state from previous tests.
+		delete_transient( 'jetpack_idc_validation_lock' );
+
+		// Set blog_id so the "clear IDC on missing blog_id" path is avoided.
+		// The API call will fail due to missing blog_token, but that's handled gracefully.
+		Jetpack_Options::update_option( 'id', 12345 );
+
 		add_filter( 'jetpack_should_handle_idc', '__return_true' );
 
 		// Create an IDC option without timing fields (simulating an old option).
@@ -1191,13 +1198,17 @@ class Identity_Crisis_Test extends BaseTestCase {
 		unset( $option['next_check_delay'] );
 		Jetpack_Options::update_option( 'sync_error_idc', $option );
 
-		// Validate it - this should add timing fields in memory.
+		// Validate it - this should add timing fields and trigger remote validation.
+		// The API call will fail, but failures are handled gracefully (IDC persists).
 		$result = Identity_Crisis::validate_sync_error_idc_option();
 
+		// Clean up.
 		Jetpack_Options::delete_option( 'sync_error_idc' );
+		Jetpack_Options::delete_option( 'id' );
+		delete_transient( 'jetpack_idc_validation_lock' );
 		remove_filter( 'jetpack_should_handle_idc', '__return_true' );
 
-		// Should still be valid.
+		// Should still be valid (IDC persists because API failure doesn't clear it).
 		$this->assertTrue( $result );
 	}
 
