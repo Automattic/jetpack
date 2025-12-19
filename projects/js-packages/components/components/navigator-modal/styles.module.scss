@@ -4,10 +4,9 @@
 	container-type: inline-size;
 	container-name: navigator-modal;
 
-	width: 80rem;
+	width: 100%;
 
 	@include gb.break-medium() {
-		height: 40rem;
 		max-height: 90%;
 	}
 
