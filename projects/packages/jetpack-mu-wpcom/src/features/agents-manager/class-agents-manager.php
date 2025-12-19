@@ -7,6 +7,8 @@
 
 namespace A8C\FSE;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 /**
  * Class Agents_Manager
  */
@@ -131,6 +133,23 @@ class Agents_Manager {
 	}
 
 	/**
+	 * Returns whether the current request is coming from the A8C proxy.
+	 *
+	 * @return bool
+	 */
+	private static function is_proxied() {
+		// On Simple sites, use the wpcom function if available.
+		if ( function_exists( 'wpcom_is_proxied_request' ) ) {
+			return wpcom_is_proxied_request();
+		}
+
+		// On WoA/Garden sites, check server variable or constant.
+		return isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
+			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
+	}
+
+	/**
 	 * Register the Agents Manager endpoints.
 	 */
 	public function register_rest_api() {
@@ -145,6 +164,12 @@ class Agents_Manager {
 	 * @return bool
 	 */
 	public function should_use_unified_experience() {
+		// Early return for non-proxied requests.
+		// This feature is currently only available to Automattic employees testing via proxy.
+		if ( ! self::is_proxied() ) {
+			return false;
+		}
+
 		$user_id = get_current_user_id();
 
 		if ( ! $user_id ) {
@@ -164,7 +189,7 @@ class Agents_Manager {
 		// On WoA and Garden sites, delegate to wpcom via the /me/preferences endpoint.
 		// This avoids duplicating rollout logic and handles cases where
 		// wpcom-specific functions (like get_user_attribute) aren't available.
-		if ( $this->get_unified_experience_from_wpcom() ) {
+		if ( $this->fetch_unified_experience_preference() ) {
 			return true;
 		}
 
@@ -193,23 +218,31 @@ class Agents_Manager {
 	}
 
 	/**
-	 * Get unified experience flag from wpcom via Jetpack Connection.
+	 * Fetch unified experience preference from wpcom via Jetpack Connection.
 	 *
 	 * Used on Atomic sites to delegate the decision to wpcom, which has
 	 * access to user attributes and can evaluate the rollout logic.
 	 *
 	 * Calls /me/preferences endpoint which is accessible via Jetpack user tokens.
 	 *
-	 * @codeCoverageIgnore Cannot test without mocking Jetpack Connection Client.
-	 *
 	 * @return bool Whether user should see unified experience.
 	 */
-	private function get_unified_experience_from_wpcom() {
-		// Use static cache to avoid multiple HTTP requests in same request.
-		static $cached_value = null;
+	private function fetch_unified_experience_preference() {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
 
-		if ( $cached_value !== null ) {
-			return $cached_value;
+		// Check transient cache first (per-user cache).
+		$cache_key     = 'unified-experience-' . $user_id;
+		$cached_result = get_transient( $cache_key );
+		if ( false !== $cached_result ) {
+			return (bool) $cached_result;
+		}
+
+		// Check if user is connected before making API call.
+		if ( ! ( new Connection_Manager() )->is_user_connected( $user_id ) ) {
+			return false;
 		}
 
 		// Call /me/preferences via wpcom/v2 namespace (works with Jetpack user tokens).
@@ -220,13 +253,14 @@ class Agents_Manager {
 		);
 
 		if ( is_wp_error( $wpcom_request ) ) {
-			$cached_value = false;
+			// Cache failures too to avoid hammering the API.
+			set_transient( $cache_key, 0, MINUTE_IN_SECONDS );
 			return false;
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 !== $response_code ) {
-			$cached_value = false;
+			set_transient( $cache_key, 0, MINUTE_IN_SECONDS );
 			return false;
 		}
 
@@ -234,8 +268,12 @@ class Agents_Manager {
 		$decoded_body = json_decode( $body, true );
 
 		// The response is the value of the preference directly when using preference_key.
-		$cached_value = ! empty( $decoded_body );
-		return $cached_value;
+		$result = ! empty( $decoded_body );
+
+		// Cache for 1 minute.
+		set_transient( $cache_key, $result ? 1 : 0, MINUTE_IN_SECONDS );
+
+		return $result;
 	}
 }
 
