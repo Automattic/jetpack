@@ -52,11 +52,7 @@ export function isSiteConnected(): boolean {
 		return true;
 	}
 
-	if (
-		initialState?.connectionStatus?.isRegistered ||
-		initialState?.connectionStatus?.isActive ||
-		initialState?.connectionStatus?.isConnected
-	) {
+	if ( initialState?.connectionStatus?.isRegistered || initialState?.connectionStatus?.isActive ) {
 		debug( 'Jetpack site is connected ✅' );
 		return true;
 	}
