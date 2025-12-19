@@ -39,7 +39,7 @@ export const ConnectionsList: React.FC = () => {
 	);
 
 	return (
-		<div>
+		<div className={ styles[ 'connections-list-wrapper' ] }>
 			<Disabled isDisabled={ disableConnectionsList }>
 				<div className={ styles[ 'connections-list' ] }>
 					<ConnectionsToggleList onClickItem={ onClickConnection } />
