@@ -47,22 +47,25 @@ export function usePostData() {
 
 			const media = [];
 
-			const getMediaDetails = id => {
-				const mediaItem = getEntityRecord( 'postType', 'attachment', id );
-				if ( ! mediaItem ) {
-					return null;
-				}
-				return {
-					type: mediaItem.mime_type,
-					url: getMediaSourceUrl( mediaItem ),
-					alt: mediaItem.alt_text,
-				};
-			};
+			for ( const item of attachedMedia ) {
+				// It can be a SIG (Social Image Generator) image allowed to be attached without an ID.
+				if ( ! item.id && item.url ) {
+					media.push( {
+						type: item.type || 'image/jpeg',
+						url: item.url,
+						alt: item.alt || '',
+					} );
+				} else {
+					// Otherwise, fetch the media details from the store.
+					const mediaItem = getEntityRecord( 'postType', 'attachment', item.id );
 
-			for ( const { id } of attachedMedia ) {
-				const mediaDetails = getMediaDetails( id );
-				if ( mediaDetails ) {
-					media.push( mediaDetails );
+					if ( mediaItem ) {
+						media.push( {
+							type: mediaItem.mime_type,
+							url: getMediaSourceUrl( mediaItem ),
+							alt: mediaItem.alt_text,
+						} );
+					}
 				}
 			}
 
