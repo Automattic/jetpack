@@ -1266,20 +1266,28 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test validate_idc_from_remote() returns false when site is not registered.
+	 * Test validate_idc_from_remote() clears IDC when site is not registered.
 	 */
-	public function test_validate_idc_from_remote_returns_false_when_not_registered() {
+	public function test_validate_idc_from_remote_clears_idc_when_not_registered() {
 		// Clean up any state from previous tests.
 		delete_transient( 'jetpack_idc_validation_lock' );
 
 		Jetpack_Options::delete_option( 'id' );
 
-		$sync_error = Identity_Crisis::get_sync_error_idc_option();
-		$result     = Identity_Crisis::validate_idc_from_remote( $sync_error );
+		$initial_sync_error = Identity_Crisis::get_sync_error_idc_option();
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
 
+		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Clean up.
 		delete_transient( 'jetpack_idc_validation_lock' );
 
-		$this->assertFalse( $result );
+		// Should return true (IDC was cleared) because IDC is invalid without a blog_id.
+		$this->assertTrue( $result );
+		// Option should be deleted.
+		$this->assertFalse( $stored_option );
 	}
 
 	/**
