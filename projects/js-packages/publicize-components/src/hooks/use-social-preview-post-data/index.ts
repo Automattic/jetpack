@@ -19,7 +19,6 @@ export function useSocialPreviewPostData() {
 	const { getEditedPostAttribute, getEditedPostContent } = useSelect( editorStore, [] );
 
 	return useMemo(
-		// eslint-disable-next-line no-unused-vars -- This is here temporarily to avoid prettier making the diff unreadable.
 		_ => {
 			const featuredImageId = getEditedPostAttribute( 'featured_media' );
 
