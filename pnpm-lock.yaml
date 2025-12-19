@@ -2013,8 +2013,8 @@ importers:
         specifier: 6.11.0
         version: 6.11.0(webpack@5.101.3)
       esbuild-loader:
-        specifier: 4.3.0
-        version: 4.3.0(webpack@5.101.3)
+        specifier: 4.4.0
+        version: 4.4.0(webpack@5.101.3)
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -12090,8 +12090,8 @@ packages:
   es6-error@4.1.1:
     resolution: {integrity: sha512-Um/+FxMr9CISWh0bi5Zv0iOD+4cFh5qLeks1qhAopKVAJw3drgKbKySikp7wGhDL0HPeaja0P5ULZrxLkniUVg==}
 
-  esbuild-loader@4.3.0:
-    resolution: {integrity: sha512-D7HeJNdkDKKMarPQO/3dlJT6RwN2YJO7ENU6RPlpOz5YxSHnUNi2yvW41Bckvi1EVwctIaLzlb0ni5ag2GINYA==}
+  esbuild-loader@4.4.0:
+    resolution: {integrity: sha512-4J+hXTpTtEdzUNLoY8ReqDNJx2NoldfiljRCiKbeYUuZmVaiJeDqFgyAzz8uOopaekwRoCcqBFyEroGQLFVZ1g==}
     peerDependencies:
       webpack: ^4.40.0 || ^5.0.0
 
@@ -26478,7 +26478,7 @@ snapshots:
 
   es6-error@4.1.1: {}
 
-  esbuild-loader@4.3.0(webpack@5.101.3):
+  esbuild-loader@4.4.0(webpack@5.101.3):
     dependencies:
       esbuild: 0.25.9
       get-tsconfig: 4.13.0
