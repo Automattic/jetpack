@@ -19,14 +19,6 @@ strictPeerDependencies: true
 # No hoisting by default.
 hoistPattern: []
 
-# Public hoist for wp-build packages that need to be resolvable from anywhere
-publicHoistPattern:
-  - "@wordpress/boot"
-  - "@wordpress/lazy-editor"
-  - "@wordpress/route"
-  - "@wordpress/theme"
-  - "@wordpress/build"
-
 # Silence this warning. Our `jetpack dependencies build-order` (also used by `jetpack build --all`) checks for cycles itself, plus it has a way to indicate that a dep is only for testing.
 ignoreWorkspaceCycles: true
 
