@@ -5,7 +5,7 @@
 
 import type { FunnelStep } from '../../charts/conversion-funnel-chart';
 import type { LeaderboardEntry } from '../../charts/leaderboard-chart';
-import type { DataPointPercentage, SeriesData } from '../../types';
+import type { DataPointPercentage, GeoData, SeriesData } from '../../types';
 
 /**
  * Olympic medals data for top countries (1896-2020)
@@ -935,21 +935,81 @@ export const customerRevenueLegendData = [
  *
  * Orders by country data for geo chart visualization
  * - Category: categorical
- * - Data points: 13
+ * - Data points: 25
  * - Suitable for: GeoChart
  */
-export const ordersByCountry: Record< string, number > = {
-	US: 1000,
-	CA: 500,
-	GB: 450,
-	DE: 400,
-	AU: 350,
-	FR: 300,
-	MX: 250,
-	JP: 200,
-	BR: 150,
-	IN: 120,
-	IT: 100,
-	ES: 80,
-	NL: 60,
-};
+export const viewsByCountry: GeoData = [
+	[ 'Country', 'Views' ],
+	[ 'United States', 1000 ],
+	[ 'United Kingdom', 500 ],
+	[ 'Japan', 450 ],
+	[ 'Germany', 400 ],
+	[ 'France', 350 ],
+	[ 'Mexico', 250 ],
+	[ 'Brazil', 200 ],
+	[ 'India', 150 ],
+	[ 'Italy', 120 ],
+	[ 'Netherlands', 100 ],
+	[ 'Spain', 80 ],
+	[ 'Sweden', 40 ],
+	[ 'Norway', 30 ],
+	[ 'Denmark', 20 ],
+	[ 'Finland', 10 ],
+	[ 'Ireland', 5 ],
+	[ 'Portugal', 3 ],
+	[ 'Greece', 2 ],
+	[ 'Turkey', 1 ],
+	[ 'Egypt', 0.5 ],
+	[ 'South Africa', 0.25 ],
+	[ 'Nigeria', 0.125 ],
+	[ 'Kenya', 0.0625 ],
+	[ 'South Korea', 0.03125 ],
+];
+
+/**
+ * US states views data
+ *
+ * Views by US state for geo chart visualization
+ * - Category: categorical
+ * - Data points: 15
+ * - Suitable for: GeoChart with region='US' and resolution='provinces'
+ */
+export const viewsByUSState: GeoData = [
+	[ 'State', 'Views' ],
+	[ 'California', 2500 ],
+	[ 'Texas', 1800 ],
+	[ 'Florida', 1500 ],
+	[ 'New York', 1400 ],
+	[ 'Illinois', 900 ],
+	[ 'Pennsylvania', 850 ],
+	[ 'Ohio', 750 ],
+	[ 'Georgia', 700 ],
+	[ 'North Carolina', 650 ],
+	[ 'Michigan', 600 ],
+	[ 'Washington', 550 ],
+	[ 'Arizona', 500 ],
+	[ 'Massachusetts', 480 ],
+	[ 'Colorado', 450 ],
+	[ 'Virginia', 420 ],
+];
+
+/**
+ * European countries views data
+ *
+ * Views by European country for geo chart visualization
+ * - Category: categorical
+ * - Data points: 9
+ * - Suitable for: GeoChart with region='150' (Europe)
+ */
+export const viewsByEuropeanCountry: GeoData = [
+	[ 'Country', 'Views' ],
+	[ 'United Kingdom', 1500 ],
+	[ 'France', 1000 ],
+	[ 'Germany', 800 ],
+	[ 'Italy', 600 ],
+	[ 'Spain', 500 ],
+	[ 'Portugal', 400 ],
+	[ 'Greece', 300 ],
+	[ 'Turkey', 200 ],
+	[ 'Russia', 100 ],
+];
