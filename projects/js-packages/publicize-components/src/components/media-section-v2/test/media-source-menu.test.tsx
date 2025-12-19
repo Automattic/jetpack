@@ -70,16 +70,16 @@ describe( 'MediaSourceMenu', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 		// Check that menu groups are rendered
-		expect( screen.getByText( 'Link Preview' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Attachment' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'For link preview' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'For attachment' ) ).toBeInTheDocument();
 
 		// Check that menu items are rendered
-		expect( screen.getByRole( 'menuitem', { name: 'Featured Image' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'menuitem', { name: 'Social Image Template' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'menuitem', { name: 'Use featured image' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'menuitem', { name: 'Use template' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'menuitem', { name: 'From Media Library' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'should call onSelect when Featured Image is clicked', async () => {
+	it( 'should call onSelect when Use featured image is clicked', async () => {
 		const user = userEvent.setup();
 
 		render(
@@ -91,12 +91,12 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'Featured Image' } ) );
+		await user.click( screen.getByRole( 'menuitem', { name: 'Use featured image' } ) );
 
 		expect( mockOnSelect ).toHaveBeenCalledWith( 'featured-image' );
 	} );
 
-	it( 'should call onSelect when Social Image Template is clicked', async () => {
+	it( 'should call onSelect when Use template is clicked', async () => {
 		const user = userEvent.setup();
 
 		render(
@@ -108,7 +108,7 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'Social Image Template' } ) );
+		await user.click( screen.getByRole( 'menuitem', { name: 'Use template' } ) );
 
 		expect( mockOnSelect ).toHaveBeenCalledWith( 'sig' );
 	} );
@@ -160,7 +160,7 @@ describe( 'MediaSourceMenu', () => {
 
 		// Clicking custom trigger should open dropdown
 		await user.click( screen.getByRole( 'button', { name: 'Custom Trigger' } ) );
-		expect( screen.getByText( 'Link Preview' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'For link preview' ) ).toBeInTheDocument();
 	} );
 
 	it( 'should render menu with current source item', async () => {
@@ -177,7 +177,7 @@ describe( 'MediaSourceMenu', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 		// Verify the menu renders with all options including the current source
-		const featuredImageItem = screen.getByRole( 'menuitem', { name: 'Featured Image' } );
+		const featuredImageItem = screen.getByRole( 'menuitem', { name: 'Use featured image' } );
 		expect( featuredImageItem ).toBeInTheDocument();
 
 		// Verify clicking the current source still triggers onSelect
