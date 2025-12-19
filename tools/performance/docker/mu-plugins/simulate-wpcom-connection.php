@@ -255,12 +255,14 @@ class Jetpack_WPCom_Connection_Simulator {
 		$path   = $parsed['path'] ?? '';
 
 		// Default successful response.
-		$response_body = array( 'success' => true );
-		$status_code   = 200;
+		$response_body   = array( 'success' => true );
+		$status_code     = 200;
+		$matched_handler = false;
 
 		// Handle specific endpoints.
 		if ( strpos( $path, '/jetpack-token-health' ) !== false ) {
-			$response_body = array(
+			$matched_handler = true;
+			$response_body   = array(
 				'is_healthy'      => true,
 				'is_registered'   => true,
 				'is_connected'    => true,
@@ -270,6 +272,7 @@ class Jetpack_WPCom_Connection_Simulator {
 				'is_healthy_user' => true,
 			);
 		} elseif ( strpos( $path, '/sites/' . $this->fake_site_id ) !== false ) {
+			$matched_handler = true;
 			// Site info endpoint.
 			$response_body = array(
 				'ID'         => $this->fake_site_id,
@@ -287,12 +290,14 @@ class Jetpack_WPCom_Connection_Simulator {
 				),
 			);
 		} elseif ( strpos( $path, '/jetpack-sync-actions' ) !== false || strpos( $path, '/sync/checkout' ) !== false ) {
+			$matched_handler = true;
 			// Sync endpoints.
 			$response_body = array(
 				'success' => true,
 				'data'    => array(),
 			);
 		} elseif ( strpos( $path, '/me' ) !== false ) {
+			$matched_handler = true;
 			// User info endpoint.
 			$response_body = array(
 				'ID'           => 1,
@@ -301,6 +306,7 @@ class Jetpack_WPCom_Connection_Simulator {
 				'email'        => 'test@example.com',
 			);
 		} elseif ( strpos( $path, '/stats/summary' ) !== false || strpos( $path, '/stats/visits' ) !== false ) {
+			$matched_handler = true;
 			// Stats summary endpoint - returns empty but valid structure.
 			$response_body = array(
 				'date'   => gmdate( 'Y-m-d' ),
@@ -334,6 +340,7 @@ class Jetpack_WPCom_Connection_Simulator {
 				),
 			);
 		} elseif ( strpos( $path, '/stats/streak' ) !== false ) {
+			$matched_handler = true;
 			// Stats streak endpoint.
 			$response_body = array(
 				'streak' => array(
@@ -351,6 +358,7 @@ class Jetpack_WPCom_Connection_Simulator {
 				'data'   => array(),
 			);
 		} elseif ( strpos( $path, '/stats/top-posts' ) !== false || strpos( $path, '/stats/postviews' ) !== false ) {
+			$matched_handler = true;
 			// Top posts stats endpoint.
 			$response_body = array(
 				'date'      => gmdate( 'Y-m-d' ),
@@ -358,24 +366,28 @@ class Jetpack_WPCom_Connection_Simulator {
 				'top-posts' => array(),
 			);
 		} elseif ( strpos( $path, '/stats/referrers' ) !== false ) {
+			$matched_handler = true;
 			// Referrers stats endpoint.
 			$response_body = array(
 				'date' => gmdate( 'Y-m-d' ),
 				'days' => array(),
 			);
 		} elseif ( strpos( $path, '/stats/clicks' ) !== false ) {
+			$matched_handler = true;
 			// Clicks stats endpoint.
 			$response_body = array(
 				'date' => gmdate( 'Y-m-d' ),
 				'days' => array(),
 			);
 		} elseif ( strpos( $path, '/stats/search-terms' ) !== false ) {
+			$matched_handler = true;
 			// Search terms stats endpoint.
 			$response_body = array(
 				'date' => gmdate( 'Y-m-d' ),
 				'days' => array(),
 			);
 		} elseif ( strpos( $path, '/stats' ) !== false ) {
+			$matched_handler = true;
 			// Generic stats endpoint fallback.
 			$response_body = array(
 				'date'   => gmdate( 'Y-m-d' ),
@@ -387,7 +399,7 @@ class Jetpack_WPCom_Connection_Simulator {
 				),
 			);
 		} elseif ( strpos( $url, 'stats.wordpress.com/csv.php' ) !== false ) {
-			// Legacy CSV stats endpoint - return empty CSV.
+			// Legacy CSV stats endpoint - return empty CSV (early return, no logging needed).
 			return array(
 				'headers'  => array(
 					'content-type' => 'text/csv',
@@ -403,8 +415,18 @@ class Jetpack_WPCom_Connection_Simulator {
 				'filename' => null,
 			);
 		} elseif ( strpos( $url, 'xmlrpc.php' ) !== false ) {
-			// XML-RPC response.
+			// XML-RPC response (early return, no logging needed).
 			return $this->get_xmlrpc_mock_response();
+		}
+
+		// Log unhandled endpoints so we can identify missing mock responses.
+		if ( ! $matched_handler ) {
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				sprintf(
+					'[WPCom Simulator] Unhandled endpoint (using fallback response): %s',
+					$url
+				)
+			);
 		}
 
 		return array(
