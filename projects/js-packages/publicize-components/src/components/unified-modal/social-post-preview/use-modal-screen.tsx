@@ -5,6 +5,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback, useId, useMemo, useState } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
+import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
 import { ScreenDetails } from '../types';
 import { Content } from './content';
@@ -22,9 +23,9 @@ export function useModalScreen(): ScreenDetails {
 
 	const [ selectedId, setSelectedId ] = useState( connections[ 0 ]?.connection_id );
 
-	// Get fresh connection data from the array to react to enabled/disabled changes
 	const selectedConnection =
-		connections.find( c => c.connection_id === selectedId ) ?? connections[ 0 ];
+		useSelect( select => select( socialStore ).getConnectionById( selectedId ), [ selectedId ] ) ??
+		connections[ 0 ];
 
 	const onSelectConnection = useCallback(
 		( c: Connection ) => setSelectedId( c.connection_id ),

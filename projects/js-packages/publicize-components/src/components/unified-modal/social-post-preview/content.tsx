@@ -61,9 +61,7 @@ export function Content( { baseId, selectedConnection, forSmallScreen }: Content
 				</Flex>
 			) : (
 				<Flex className={ styles[ 'inactive-preview' ] } align="center" justify="center">
-					<p>
-						{ __( 'No post will be shared for this account.', 'jetpack-publicize-components' ) }
-					</p>
+					<p>{ __( 'Enable this account to see the preview.', 'jetpack-publicize-components' ) }</p>
 				</Flex>
 			) }
 		</div>
