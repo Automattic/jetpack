@@ -12,7 +12,7 @@ import { getMediaSourceUrl, getPostImageUrl } from './utils';
  *
  * @return {object} The post data.
  */
-export function usePostData() {
+export function useSocialPreviewPostData() {
 	const { attachedMedia, imageGeneratorSettings } = usePostMeta();
 
 	const { getEntityRecord } = useSelect( coreStore, [] );
