@@ -36,3 +36,8 @@ export type { GeoChartProps } from './charts/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
+export type {
+	GoogleDataTableColumn,
+	GoogleDataTableRow,
+	GoogleDataTableColumnRoleType,
+} from 'react-google-charts';

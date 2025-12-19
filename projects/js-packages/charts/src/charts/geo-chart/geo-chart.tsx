@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { FC, useContext } from 'react';
+import { FC, useContext, useMemo } from 'react';
 import { Chart, type GoogleChartOptions } from 'react-google-charts';
 /**
  * Internal dependencies
@@ -21,8 +21,14 @@ const DEFAULT_BACKGROUND_COLOR = '#ffffff';
 /**
  * Renders a geographical chart using Google Charts GeoChart to visualize data by country.
  *
+ * Supports the full Google Charts data format including custom tooltips, formatted values,
+ * and multiple data columns for maximum flexibility.
+ *
+ * Countries can be identified by full name (e.g., 'United States') or ISO 3166-1 alpha-2
+ * codes (e.g., 'US'). Full names are recommended for better readability in tooltips.
+ *
  * @param props                   - The props for the GeoChart component
- * @param props.data              - Record mapping country IDs to numeric values
+ * @param props.data              - Data in Google Charts format (array of arrays with headers)
  * @param props.width             - Width of the chart in pixels
  * @param props.height            - Height of the chart in pixels
  * @param props.className         - Additional CSS class name for the chart container
@@ -64,20 +70,37 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	const defaultFillColorHex =
 		normalizeColorToHex( featureFillColor, null, resolveCssVariable ) || DEFAULT_FEATURE_FILL_COLOR;
 
-	// Transform data from Record<string, number> to Google Charts format
-	// Google Charts expects [['Country', 'Value'], ['US', 100], ['CA', 50], ...]
-	// Country codes must be ISO 3166-1 alpha-2 format (2-letter codes)
-	const chartData = [ [ 'Country', 'Value' ], ...Object.entries( data ) ];
+	// Check if data has HTML tooltips (column with role: 'tooltip' and p.html: true)
+	const hasHtmlTooltips = useMemo(
+		() =>
+			data.length > 0 &&
+			data[ 0 ].some(
+				col =>
+					typeof col === 'object' &&
+					col !== null &&
+					'role' in col &&
+					col.role === 'tooltip' &&
+					'p' in col &&
+					typeof col.p === 'object' &&
+					col.p !== null &&
+					'html' in col.p &&
+					col.p.html === true
+			),
+		[ data ]
+	);
 
-	const options: GoogleChartOptions = {
-		colorAxis: { colors: [ lightColorHex, fullColorHex ] },
-		backgroundColor: backgroundColorHex,
-		datalessRegionColor: defaultFillColorHex,
-		defaultColor: defaultFillColorHex,
-		tooltip: { trigger: 'focus' },
-		legend: 'none',
-		keepAspectRatio: true,
-	};
+	const options: GoogleChartOptions = useMemo(
+		() => ( {
+			colorAxis: { colors: [ lightColorHex, fullColorHex ] },
+			backgroundColor: backgroundColorHex,
+			datalessRegionColor: defaultFillColorHex,
+			defaultColor: defaultFillColorHex,
+			tooltip: { trigger: 'focus', isHtml: hasHtmlTooltips },
+			legend: 'none',
+			keepAspectRatio: true,
+		} ),
+		[ lightColorHex, fullColorHex, backgroundColorHex, defaultFillColorHex, hasHtmlTooltips ]
+	);
 
 	return (
 		<div
@@ -89,7 +112,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 				chartType="GeoChart"
 				width={ width }
 				height={ height }
-				data={ chartData }
+				data={ data }
 				options={ options }
 				loader={ loadingPlaceholder }
 			/>

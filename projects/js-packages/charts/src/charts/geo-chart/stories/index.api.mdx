@@ -12,7 +12,7 @@ Main component for rendering geographical data on an interactive world map using
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `data` | `Record<string, number>` | - | **Required.** Record mapping country ISO 3166-1 alpha-2 codes (e.g., 'US', 'CA', 'GB') to numeric values |
+| `data` | `GeoData` | - | **Required.** Data in Google Charts format. First row contains column headers, subsequent rows contain data. Countries can be identified by full name (e.g., 'United States') or ISO codes (e.g., 'US'). Full names are recommended for better readability in tooltips. |
 | `width` | `number` | - | **Required.** Width of the chart in pixels |
 | `height` | `number` | - | **Required.** Height of the chart in pixels |
 | `className` | `string` | - | Additional CSS class name for the chart container |
@@ -24,9 +24,42 @@ Main component for rendering geographical data on an interactive world map using
 ```typescript
 interface GeoChartProps
   extends Pick<BaseChartProps, 'className' | 'chartId' | 'width' | 'height'> {
-  data: Record<string, number>;
+  data: GeoData;
   renderPlaceholder?: () => React.ReactNode;
 }
+```
+
+## GeoData Type
+
+The `GeoData` type uses Google Charts native data format for maximum flexibility:
+
+```typescript
+type GeoData = [GoogleDataTableColumn[], ...GoogleDataTableRow[]];
+```
+
+Supports:
+- Full country names or ISO 3166-1 alpha-2 codes
+- Custom tooltips (text or HTML)
+- Formatted values (display format separate from actual value)
+- Multiple data columns
+- Cell-level properties and styling
+
+**Basic Example:**
+```typescript
+const data: GeoData = [
+  ['Country', 'Value'],
+  ['United States', 100],
+  ['Canada', 50],
+];
+```
+
+**With Custom Tooltips:**
+```typescript
+const data: GeoData = [
+  ['Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } }],
+  ['United States', 100, '<b>USA</b><br/>100 visitors'],
+  ['Canada', 50, '<b>Canada</b><br/>50 visitors'],
+];
 ```
 
 ## Theme Properties
@@ -39,9 +72,40 @@ The following properties can be customized via the theme system:
 | `backgroundColor` | `string` | `'#FFFFFF'` | Background color of the map |
 | `geoChart.featureFillColor` | `string` | `'var(--jp-white, #ffffff)'` | Fill color for countries without data values |
 
-## Country ISO Codes
+## Country Identification
 
-The `data` prop requires two-letter ISO 3166-1 alpha-2 country codes. Common examples:
+Countries can be identified in two ways:
+
+### Full Country Names (Recommended)
+
+Use full country names for better readability:
+
+| Country Name |
+| ------------ |
+| United States |
+| Canada |
+| United Kingdom |
+| Germany |
+| France |
+| Japan |
+| Australia |
+| Brazil |
+| India |
+| China |
+| Mexico |
+| Spain |
+| Italy |
+| Netherlands |
+| Russia |
+| South Korea |
+| South Africa |
+| Nigeria |
+| Argentina |
+| Saudi Arabia |
+
+### ISO 3166-1 Alpha-2 Codes
+
+Alternatively, use two-letter ISO country codes:
 
 | Code | Country |
 | ---- | ------- |
@@ -53,20 +117,8 @@ The `data` prop requires two-letter ISO 3166-1 alpha-2 country codes. Common exa
 | JP | Japan |
 | AU | Australia |
 | BR | Brazil |
-| IN | India |
-| CN | China |
-| MX | Mexico |
-| ES | Spain |
-| IT | Italy |
-| NL | Netherlands |
-| RU | Russia |
-| KR | South Korea |
-| ZA | South Africa |
-| NG | Nigeria |
-| AR | Argentina |
-| SA | Saudi Arabia |
 
-For a complete list, refer to the [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+For a complete list of ISO codes, refer to the [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
 
 ## Map Projection
 

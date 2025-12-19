@@ -1,50 +1,34 @@
-import {
-	chartDecorator,
-	sharedChartArgTypes,
-	ChartStoryArgs,
-	ordersByCountry,
-	themeArgTypes,
-} from '../../../stories';
 import GeoChart from '../geo-chart';
+import { geoChartMetaArgs, geoChartStoryArgs } from './config';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof GeoChart > >;
-
-const meta: Meta< StoryArgs > = {
+const meta: Meta< typeof GeoChart > = {
+	...geoChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Geo Chart',
-	component: GeoChart,
-	parameters: {
-		layout: 'centered',
-	},
-	decorators: [ chartDecorator ],
-	argTypes: {
-		...sharedChartArgTypes,
-		...themeArgTypes,
-	},
 };
 
 export default meta;
-type Story = StoryObj< StoryArgs >;
+type Story = StoryObj< typeof GeoChart >;
 
 export const Default: Story = {
 	args: {
-		data: ordersByCountry,
-		withPadding: false,
+		...geoChartStoryArgs,
 	},
 };
 
 export const SingleCountry: Story = {
 	args: {
-		...Default.args,
-		data: {
-			US: 1500,
-		},
+		...geoChartStoryArgs,
+		data: [
+			[ 'Country', 'Views' ],
+			[ 'United States', 1500 ],
+		],
 	},
 };
 
 export const EmptyData: Story = {
 	args: {
-		...Default.args,
-		data: {},
+		...geoChartStoryArgs,
+		data: [ [ 'Country', 'Views' ] ],
 	},
 };
