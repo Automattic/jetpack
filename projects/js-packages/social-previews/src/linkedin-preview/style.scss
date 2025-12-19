@@ -1,8 +1,6 @@
 .linkedin-preview {
 
 	&__wrapper {
-		padding: 20px;
-		background-color: #fff;
 		margin-inline: auto;
 		max-width: clamp(200px, 100%, 555px);
 	}
@@ -18,6 +16,7 @@
 
 	&__container {
 		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+		background-color: #fff;
 		border-radius: 8px;
 		overflow: hidden;
 
