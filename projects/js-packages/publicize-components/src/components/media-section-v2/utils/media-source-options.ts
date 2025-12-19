@@ -4,7 +4,7 @@
 
 import { AiSVG } from '@automattic/jetpack-ai-client';
 import { __ } from '@wordpress/i18n';
-import { image, video, starEmpty, media as mediaIcon } from '@wordpress/icons';
+import { image, starEmpty, media as mediaIcon } from '@wordpress/icons';
 import { MediaSourceOption, MediaSourceType } from '../types';
 
 /**
@@ -39,16 +39,9 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 		},
 		{
 			id: 'media-library',
-			label: __( 'Media Library', 'jetpack-publicize-components' ),
+			label: __( 'From Media Library', 'jetpack-publicize-components' ),
 			description: __( 'You are using a custom image.', 'jetpack-publicize-components' ),
 			icon: mediaIcon,
-			group: 'attachment',
-		},
-		{
-			id: 'upload-video',
-			label: __( 'Upload video', 'jetpack-publicize-components' ),
-			description: __( 'Upload a video file.', 'jetpack-publicize-components' ),
-			icon: video,
 			group: 'attachment',
 		},
 		{

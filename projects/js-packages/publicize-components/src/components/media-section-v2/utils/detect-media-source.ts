@@ -27,7 +27,7 @@ export function detectMediaSource(
 		if ( sigEnabled && attachedMedia[ 0 ].id === 0 ) {
 			return 'sig';
 		}
-		return attachedMedia[ 0 ].type?.startsWith( 'video/' ) ? 'upload-video' : 'media-library';
+		return 'media-library';
 	}
 
 	// Priority 2: Social Image Generator
