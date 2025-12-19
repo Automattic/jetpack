@@ -110,10 +110,10 @@ const ProductCard: FC< ProductCardProps > = props => {
 
 	// Reset isActionLoading when admin becomes false to prevent stuck loading state
 	useEffect( () => {
-		if ( ! admin && isActionLoading ) {
+		if ( ! admin ) {
 			setIsActionLoading( false );
 		}
-	}, [ admin, isActionLoading ] );
+	}, [ admin ] );
 
 	const manageHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
