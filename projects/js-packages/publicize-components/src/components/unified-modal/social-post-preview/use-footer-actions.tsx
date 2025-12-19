@@ -1,7 +1,7 @@
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { _x } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import usePublicizeConfig from '../../../hooks/use-publicize-config';
 import ScheduleButton from '../../schedule-button';
@@ -28,7 +28,7 @@ export function useFooterActions(): ScreenDetails[ 'footerActions' ] {
 		return [
 			( { navigate } ) => (
 				<Button key="save" variant="primary" onClick={ navigate }>
-					{ __( 'Save Changes', 'jetpack-publicize-components' ) }
+					{ _x( 'Close', 'Button text to close the modal.', 'jetpack-publicize-components' ) }
 				</Button>
 			),
 		];
