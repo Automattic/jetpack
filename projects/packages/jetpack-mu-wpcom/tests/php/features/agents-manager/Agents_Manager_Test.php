@@ -658,4 +658,241 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Result is false because API call fails, but we verified the proxy check passed.
 		$this->assertFalse( $result );
 	}
+
+	/**
+	 * Tests that fetch_unified_experience_preference returns true when API returns unified_ai_chat enabled.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_fetch_unified_experience_preference_returns_true_when_api_returns_enabled() {
+		// Simulate being on an Atomic (WoA) site with proxy.
+		Cache::set( 'is_woa_site', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_api_enabled',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection by setting user tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Mock the API response.
+		add_filter( 'pre_http_request', array( $this, 'mock_preferences_api_enabled' ), 10, 3 );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_preferences_api_enabled' ), 10 );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that fetch_unified_experience_preference returns false when API returns unified_ai_chat disabled.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_fetch_unified_experience_preference_returns_false_when_api_returns_disabled() {
+		// Simulate being on an Atomic (WoA) site with proxy.
+		Cache::set( 'is_woa_site', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_api_disabled',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection by setting user tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Mock the API response.
+		add_filter( 'pre_http_request', array( $this, 'mock_preferences_api_disabled' ), 10, 3 );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_preferences_api_disabled' ), 10 );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that fetch_unified_experience_preference uses cached value on subsequent calls.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_fetch_unified_experience_preference_uses_cache() {
+		// Simulate being on an Atomic (WoA) site with proxy.
+		Cache::set( 'is_woa_site', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_cache',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection by setting user tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Set transient cache directly.
+		set_transient( 'unified-experience-' . $user_id, 1, MINUTE_IN_SECONDS );
+
+		// Track API calls - should not be called if cache is used.
+		$api_call_count = 0;
+		$count_callback = function () use ( &$api_call_count ) {
+			++$api_call_count;
+			return array(
+				'body'     => wp_json_encode( true, JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $count_callback, 10, 3 );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		remove_filter( 'pre_http_request', $count_callback, 10 );
+
+		// Should return true from cache and not make any API calls.
+		$this->assertTrue( $result );
+		$this->assertSame( 0, $api_call_count );
+	}
+
+	/**
+	 * Tests that fetch_unified_experience_preference caches API failures.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_fetch_unified_experience_preference_caches_failures() {
+		// Simulate being on an Atomic (WoA) site with proxy.
+		Cache::set( 'is_woa_site', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_cache_failure',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection by setting user tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Mock API failure.
+		add_filter( 'pre_http_request', array( $this, 'mock_preferences_api_error' ), 10, 3 );
+
+		// First call - should fail and cache the failure.
+		$result1 = $this->agents_manager->should_use_unified_experience();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_preferences_api_error' ), 10 );
+
+		$this->assertFalse( $result1 );
+
+		// Verify failure is cached.
+		$cached = get_transient( 'unified-experience-' . $user_id );
+		$this->assertSame( 0, $cached );
+	}
+
+	/**
+	 * Mock the preferences API to return enabled.
+	 *
+	 * @param mixed  $response The response.
+	 * @param array  $args The request args.
+	 * @param string $url The URL.
+	 * @return array The mocked response.
+	 */
+	public function mock_preferences_api_enabled( $response, $args, $url ) {
+		if ( strpos( $url, '/me/preferences' ) === false ) {
+			return $response;
+		}
+
+		return array(
+			'body'     => wp_json_encode( true, JSON_UNESCAPED_SLASHES ),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+		);
+	}
+
+	/**
+	 * Mock the preferences API to return disabled.
+	 *
+	 * @param mixed  $response The response.
+	 * @param array  $args The request args.
+	 * @param string $url The URL.
+	 * @return array The mocked response.
+	 */
+	public function mock_preferences_api_disabled( $response, $args, $url ) {
+		if ( strpos( $url, '/me/preferences' ) === false ) {
+			return $response;
+		}
+
+		return array(
+			'body'     => wp_json_encode( false, JSON_UNESCAPED_SLASHES ),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+		);
+	}
+
+	/**
+	 * Mock the preferences API to return an error.
+	 *
+	 * @param mixed  $response The response.
+	 * @param array  $args The request args.
+	 * @param string $url The URL.
+	 * @return \WP_Error The mocked error response.
+	 */
+	public function mock_preferences_api_error( $response, $args, $url ) {
+		if ( strpos( $url, '/me/preferences' ) === false ) {
+			return $response;
+		}
+
+		return new \WP_Error( 'http_request_failed', 'Connection failed' );
+	}
 }
