@@ -471,7 +471,11 @@ class Backup extends Hybrid_Product {
 
 		// Check if backups are deactivated (not an error, just manually turned off).
 		$needs_attention = static::does_module_need_attention();
-		if ( is_array( $needs_attention ) && 'backups-deactivated' === $needs_attention['data']['status'] ) {
+		if (
+			is_array( $needs_attention ) &&
+			isset( $needs_attention['data']['status'] ) &&
+			'backups-deactivated' === $needs_attention['data']['status']
+		) {
 			// Return INACTIVE status for deactivated backups (neutral, not attention-grabbing).
 			return \Automattic\Jetpack\My_Jetpack\Products::STATUS_INACTIVE;
 		}
