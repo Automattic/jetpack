@@ -8,7 +8,7 @@ import type { Attachment } from '@wordpress/core-data';
  */
 export function getMediaSourceUrl( media: Attachment | null ): string {
 	if ( ! media ) {
-		return null;
+		return '';
 	}
 
 	// Try getting the large size (1024px width) and fallback to the full size.
