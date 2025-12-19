@@ -400,9 +400,8 @@ that needs to mimic the input element styles */
 
 	.wp-block-button__link {
 		min-height: var(--jetpack--contact-form--input-height, auto);
-		padding: var(--jetpack--contact-form--input-padding);
+		padding: var(--jetpack--contact-form--button-primary--padding);
 	}
-
 }
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {

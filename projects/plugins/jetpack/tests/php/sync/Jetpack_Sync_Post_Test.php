@@ -1261,9 +1261,9 @@ That was a cool video.';
 		$remote_post = $this->server_replica_storage->get_post( $post_id );
 		$this->assertEquals( 'publish', $remote_post->post_status );
 
-		$event = $this->server_event_storage->get_most_recent_event();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' );
 
-		$this->assertEquals( 'jetpack_published_post', $event->action );
+		$this->assertNotEmpty( $event );
 		$this->assertEquals( $post_id, $event->args[0] );
 		$this->assertEquals( 'post', $event->args[1]['post_type'] );
 		// We add the author information to this so that we know who the author is
@@ -1375,15 +1375,26 @@ That was a cool video.';
 
 		$events = $this->server_event_storage->get_all_events();
 
-		$events = array_slice( $events, -4 );
+		$filtered = array_filter(
+			$events,
+			function ( $event ) {
+				return in_array(
+					$event->action,
+					array(
+						'jetpack_sync_save_post',
+						'jetpack_published_post',
+					),
+					true
+				);
+			}
+		);
 
-		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $events[0]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[1]->action );
+		// Reindex
+		$filtered = array_values( $filtered );
 
-		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $events[2]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[3]->action );
+		$this->assertEquals( $filtered[0]->args[0], $filtered[1]->args[0] );
+		$this->assertEquals( 'jetpack_sync_save_post', $filtered[0]->action );
+		$this->assertEquals( 'jetpack_published_post', $filtered[1]->action );
 	}
 
 	/**

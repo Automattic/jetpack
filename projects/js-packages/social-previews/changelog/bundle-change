@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Bundle the package CSS instead of exposing SASS files. CSS now needs to be imported explicitly.

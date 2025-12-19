@@ -19,21 +19,9 @@ class Jetpack_Sync_Integration_Test extends Jetpack_Sync_TestBase {
 	public function test_sends_publish_post_action() {
 		$post_id = self::factory()->post->create();
 		$this->sender->do_sync();
-		$events = $this->server_event_storage->get_all_events();
-
-		$found          = null;
-		$target_post_id = (int) $post_id;
-		$events_count   = count( $events );
-		for ( $i = $events_count - 1; $i >= 0; $i-- ) {
-			$event = $events[ $i ];
-			if ( 'jetpack_published_post' === $event->action && (int) $event->args[0] === $target_post_id ) {
-				$found = $event;
-				break;
-			}
-		}
-
-		$this->assertNotNull( $found, 'Expected jetpack_published_post for post ' . $post_id );
-		$this->assertEquals( $post_id, $found->args[0] );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' );
+		$this->assertNotEmpty( $event );
+		$this->assertEquals( $post_id, $event->args[0] );
 	}
 
 	public function test_schedules_incremental_sync_cron() {
