@@ -145,7 +145,7 @@ class Agents_Manager {
 
 		// On WoA/Garden sites, check server variable or constant.
 		return isset( $_SERVER['A8C_PROXIED_REQUEST'] )
-			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
+			? (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
 			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
 	}
 
