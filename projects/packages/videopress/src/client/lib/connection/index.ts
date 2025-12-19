@@ -85,9 +85,7 @@ export function isVideoPressModuleActive(): boolean {
  * @return {boolean} True if the feature is active, false otherwise.
  */
 export function isVideoPressActive(): boolean {
-	debug( 'Checking if VideoPress is active...' );
 	if ( ! isSiteConnected() ) {
-		debug( 'Site is not connected ❌' );
 		return false;
 	}
 
