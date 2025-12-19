@@ -8,13 +8,13 @@ import { Button, Modal, TabPanel } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
+import { useSocialPreviewPostData } from '../../hooks/use-social-preview-post-data';
 import { useAvailableSerivces } from './use-available-services';
-import { usePostData } from './use-post-data';
 import './modal.scss';
 
 const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabName = null } ) {
 	const availableServices = useAvailableSerivces();
-	const { image, media, title, description, url, excerpt } = usePostData();
+	const { image, media, title, description, url, excerpt } = useSocialPreviewPostData();
 
 	return (
 		<Modal
