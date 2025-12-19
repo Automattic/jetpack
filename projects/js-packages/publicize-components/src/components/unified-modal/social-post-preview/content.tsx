@@ -1,5 +1,6 @@
 import { Flex } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
@@ -54,9 +55,17 @@ export function Content( { baseId, selectedConnection, forSmallScreen }: Content
 			id={ `${ baseId }-preview-content-${ selectedConnection.connection_id }` }
 			aria-labelledby={ `${ baseId }-preview-tab-${ selectedConnection.connection_id }` }
 		>
-			<Flex className={ styles.preview } align="center" justify="center">
-				<PostPreview connection={ selectedConnection } />
-			</Flex>
+			{ selectedConnection.enabled ? (
+				<Flex className={ styles.preview } align="center" justify="center">
+					<PostPreview connection={ selectedConnection } />
+				</Flex>
+			) : (
+				<Flex className={ styles[ 'inactive-preview' ] } align="center" justify="center">
+					<p>
+						{ __( 'No post will be shared for this account.', 'jetpack-publicize-components' ) }
+					</p>
+				</Flex>
+			) }
 		</div>
 	);
 }

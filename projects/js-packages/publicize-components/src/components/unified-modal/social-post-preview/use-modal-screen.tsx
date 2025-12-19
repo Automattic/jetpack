@@ -3,7 +3,7 @@ import { useBreakpoint } from '@automattic/viewport-react';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
-import { useId, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
 import { Connection } from '../../../social-store/types';
 import { ScreenDetails } from '../types';
@@ -20,7 +20,16 @@ import { useFooterActions } from './use-footer-actions';
 export function useModalScreen(): ScreenDetails {
 	const { connections } = useSocialMediaConnections();
 
-	const [ selectedConnection, setSelectedConnection ] = useState< Connection >( connections[ 0 ] );
+	const [ selectedId, setSelectedId ] = useState( connections[ 0 ]?.connection_id );
+
+	// Get fresh connection data from the array to react to enabled/disabled changes
+	const selectedConnection =
+		connections.find( c => c.connection_id === selectedId ) ?? connections[ 0 ];
+
+	const onSelectConnection = useCallback(
+		( c: Connection ) => setSelectedId( c.connection_id ),
+		[]
+	);
 
 	const baseId = useId();
 	const isSmallScreen = useBreakpoint( '<660px' );
@@ -48,7 +57,7 @@ export function useModalScreen(): ScreenDetails {
 			sidebar: isSmallScreen ? null : (
 				<Sidebar
 					baseId={ baseId }
-					onSelectConnection={ setSelectedConnection }
+					onSelectConnection={ onSelectConnection }
 					selectedConnection={ selectedConnection }
 				/>
 			),
@@ -67,6 +76,7 @@ export function useModalScreen(): ScreenDetails {
 			isPrePublishScreen,
 			isSmallScreen,
 			baseId,
+			onSelectConnection,
 			selectedConnection,
 			footerActions,
 		]

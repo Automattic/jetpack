@@ -88,12 +88,18 @@
 	&[role="tabpanel"] {
 		background-color: gb.$gray-100;
 		padding: 1.5rem;
+		display: grid;
+		place-items: center;
 	}
 
 	.preview {
 		height: 100%;
 		max-width: max-content;
 		margin: 0 auto;
+	}
+
+	.inactive-preview {
+		color: gb.$gray-600;
 	}
 
 	.toggle-wrapper {
