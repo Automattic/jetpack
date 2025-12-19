@@ -156,6 +156,62 @@ describe( 'GeoChart', () => {
 
 			expect( options.tooltip ).toEqual( { trigger: 'focus', isHtml: false } );
 		} );
+
+		test( 'does not include region in options when set to world (default)', () => {
+			renderWithTheme();
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.region ).toBeUndefined();
+		} );
+
+		test( 'does not include resolution in options when set to countries (default)', () => {
+			renderWithTheme();
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.resolution ).toBeUndefined();
+		} );
+
+		test( 'passes region to Google Charts when not world', () => {
+			renderWithTheme( { region: 'US' } );
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.region ).toBe( 'US' );
+		} );
+
+		test( 'passes resolution to Google Charts when not countries', () => {
+			renderWithTheme( { resolution: 'provinces' } );
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.resolution ).toBe( 'provinces' );
+		} );
+
+		test( 'passes both region and resolution for US states view', () => {
+			const stateData = [
+				[ 'State', 'Value' ],
+				[ 'California', 100 ],
+				[ 'Texas', 50 ],
+			] as [ string[], ...[ string, number ][] ];
+
+			renderWithTheme( {
+				region: 'US',
+				resolution: 'provinces',
+				data: stateData,
+			} );
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.region ).toBe( 'US' );
+			expect( options.resolution ).toBe( 'provinces' );
+		} );
 	} );
 
 	describe( 'Loading State', () => {

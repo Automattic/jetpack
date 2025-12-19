@@ -19,27 +19,31 @@ const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
 const DEFAULT_BACKGROUND_COLOR = '#ffffff';
 
 /**
- * Renders a geographical chart using Google Charts GeoChart to visualize data by country.
+ * Renders a geographical chart using Google Charts GeoChart to visualize data.
  *
  * Supports the full Google Charts data format including custom tooltips, formatted values,
  * and multiple data columns for maximum flexibility.
  *
- * Countries can be identified by full name (e.g., 'United States') or ISO 3166-1 alpha-2
- * codes (e.g., 'US'). Full names are recommended for better readability in tooltips.
+ * Locations can be identified by full name (e.g., 'United States', 'California') or codes
+ * (e.g., 'US', 'US-CA'). Full names are recommended for better readability in tooltips.
  *
  * @param props                   - The props for the GeoChart component
  * @param props.data              - Data in Google Charts format (array of arrays with headers)
  * @param props.width             - Width of the chart in pixels
  * @param props.height            - Height of the chart in pixels
+ * @param props.region            - Region to display ('world', 'US', or ISO 3166-1 alpha-2 code)
+ * @param props.resolution        - Resolution level ('countries', 'provinces', or 'metros')
  * @param props.className         - Additional CSS class name for the chart container
  * @param props.renderPlaceholder - Optional render function for the loading placeholder
- * @return A React component displaying an interactive world map with data visualization
+ * @return A React component displaying an interactive map with data visualization
  */
 const GeoChartInternal: FC< GeoChartProps > = ( {
 	className,
 	data,
 	width,
 	height,
+	region = 'world',
+	resolution = 'countries',
 	renderPlaceholder,
 } ) => {
 	const {
@@ -91,6 +95,8 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 
 	const options: GoogleChartOptions = useMemo(
 		() => ( {
+			...( region !== 'world' && { region } ),
+			...( resolution !== 'countries' && { resolution } ),
 			colorAxis: { colors: [ lightColorHex, fullColorHex ] },
 			backgroundColor: backgroundColorHex,
 			datalessRegionColor: defaultFillColorHex,
@@ -99,7 +105,15 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			legend: 'none',
 			keepAspectRatio: true,
 		} ),
-		[ lightColorHex, fullColorHex, backgroundColorHex, defaultFillColorHex, hasHtmlTooltips ]
+		[
+			region,
+			resolution,
+			lightColorHex,
+			fullColorHex,
+			backgroundColorHex,
+			defaultFillColorHex,
+			hasHtmlTooltips,
+		]
 	);
 
 	return (

@@ -1,3 +1,4 @@
+import { viewsByEuropeanCountry, viewsByUSState } from '../../../stories/sample-data';
 import GeoChart from '../geo-chart';
 import { geoChartMetaArgs, geoChartStoryArgs } from './config';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -30,5 +31,23 @@ export const EmptyData: Story = {
 	args: {
 		...geoChartStoryArgs,
 		data: [ [ 'Country', 'Views' ] ],
+	},
+};
+
+export const USStates: Story = {
+	args: {
+		...geoChartStoryArgs,
+		region: 'US',
+		resolution: 'provinces',
+		data: viewsByUSState,
+	},
+};
+
+export const EuropeanCountries: Story = {
+	args: {
+		...geoChartStoryArgs,
+		region: '150',
+		resolution: 'countries',
+		data: viewsByEuropeanCountry,
 	},
 };

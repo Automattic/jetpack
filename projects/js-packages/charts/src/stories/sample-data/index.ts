@@ -5,7 +5,7 @@
 
 import type { FunnelStep } from '../../charts/conversion-funnel-chart';
 import type { LeaderboardEntry } from '../../charts/leaderboard-chart';
-import type { DataPointPercentage, SeriesData } from '../../types';
+import type { DataPointPercentage, GeoData, SeriesData } from '../../types';
 
 /**
  * Olympic medals data for top countries (1896-2020)
@@ -938,7 +938,7 @@ export const customerRevenueLegendData = [
  * - Data points: 25
  * - Suitable for: GeoChart
  */
-export const viewsByCountry: [ string[], ...[ string, number ][] ] = [
+export const viewsByCountry: GeoData = [
 	[ 'Country', 'Views' ],
 	[ 'United States', 1000 ],
 	[ 'United Kingdom', 500 ],
@@ -964,4 +964,52 @@ export const viewsByCountry: [ string[], ...[ string, number ][] ] = [
 	[ 'Nigeria', 0.125 ],
 	[ 'Kenya', 0.0625 ],
 	[ 'South Korea', 0.03125 ],
+];
+
+/**
+ * US states views data
+ *
+ * Views by US state for geo chart visualization
+ * - Category: categorical
+ * - Data points: 15
+ * - Suitable for: GeoChart with region='US' and resolution='provinces'
+ */
+export const viewsByUSState: GeoData = [
+	[ 'State', 'Views' ],
+	[ 'California', 2500 ],
+	[ 'Texas', 1800 ],
+	[ 'Florida', 1500 ],
+	[ 'New York', 1400 ],
+	[ 'Illinois', 900 ],
+	[ 'Pennsylvania', 850 ],
+	[ 'Ohio', 750 ],
+	[ 'Georgia', 700 ],
+	[ 'North Carolina', 650 ],
+	[ 'Michigan', 600 ],
+	[ 'Washington', 550 ],
+	[ 'Arizona', 500 ],
+	[ 'Massachusetts', 480 ],
+	[ 'Colorado', 450 ],
+	[ 'Virginia', 420 ],
+];
+
+/**
+ * European countries views data
+ *
+ * Views by European country for geo chart visualization
+ * - Category: categorical
+ * - Data points: 9
+ * - Suitable for: GeoChart with region='150' (Europe)
+ */
+export const viewsByEuropeanCountry: GeoData = [
+	[ 'Country', 'Views' ],
+	[ 'United Kingdom', 1500 ],
+	[ 'France', 1000 ],
+	[ 'Germany', 800 ],
+	[ 'Italy', 600 ],
+	[ 'Spain', 500 ],
+	[ 'Portugal', 400 ],
+	[ 'Greece', 300 ],
+	[ 'Turkey', 200 ],
+	[ 'Russia', 100 ],
 ];
