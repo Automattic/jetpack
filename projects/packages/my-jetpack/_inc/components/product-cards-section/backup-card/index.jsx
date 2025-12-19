@@ -77,7 +77,7 @@ const BackupCard = props => {
 	const { detail } = useProduct( productSlug );
 	const { status, doesModuleNeedAttention } = detail;
 	const lastBackupFailed = !! doesModuleNeedAttention;
-	const lastBackupStatus = doesModuleNeedAttention?.data?.status || {};
+	const lastBackupStatus = doesModuleNeedAttention?.data?.status || '';
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const noDescription = () => null;
 	const { siteUrl = '' } = getMyJetpackWindowInitialState();
