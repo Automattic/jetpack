@@ -170,6 +170,11 @@ const toggleImageOptionInput = ( input, optionElement ) => {
 	}
 };
 
+const stripHtml = html => {
+	const doc = new DOMParser().parseFromString( html, 'text/html' );
+	return doc.body.textContent || '';
+};
+
 const { state, actions } = store( NAMESPACE, {
 	state: {
 		validators: {},
@@ -301,7 +306,7 @@ const { state, actions } = store( NAMESPACE, {
 					if ( field.error && field.error !== 'yes' ) {
 						errors.push( {
 							anchor: '#' + field.id,
-							label: field.label + ' : ' + getError( field ),
+							label: stripHtml( field.label ) + ': ' + getError( field ),
 							id: field.id,
 						} );
 					}

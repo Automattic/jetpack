@@ -40,24 +40,27 @@ class Help_Center {
 	 * Help_Center constructor.
 	 */
 	public function __construct() {
-		global $wp_customize;
-
-		if ( isset( $wp_customize ) ) {
-			return;
-		}
-
 		if ( function_exists( 'wpcom_get_site_purchases' ) ) {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
+		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
+
+		// Always register REST API endpoints.
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
+		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
+
+		// Handle customizer separately.
+		if ( is_customize_preview() ) {
+			add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_customizer_scripts' ) );
+			add_action( 'customize_controls_print_footer_scripts', array( $this, 'add_help_center_container' ) );
+			return;
+		}
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'next_admin_init', array( $this, 'enqueue_wp_admin_scripts' ), 1000 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
-		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
-
-		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
 	}
 
 	/**
@@ -277,7 +280,6 @@ class Help_Center {
 			$display_name       = $user_data->display_name;
 			$avatar_url         = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
 			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
-			$is_next_admin      = (bool) did_action( 'next_admin_init' );
 
 			wp_add_inline_script(
 				'help-center',
@@ -287,7 +289,6 @@ class Help_Center {
 						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
 						'isSSP'            => isset( $_COOKIE['ssp'] ),
 						'sectionName'      => $this->is_support_site ? 'wp.com/support' : $variant,
-						'isNextAdmin'      => $is_next_admin,
 						'isCommerceGarden' => $is_commerce_garden,
 						'currentUser'      => array(
 							'ID'           => $user_id,
@@ -305,9 +306,12 @@ class Help_Center {
 			);
 		}
 
-		if ( ! is_admin() ) {
+		$should_enqueue_wp_components = ! is_admin() || ( is_customize_preview() && ( new Host() )->is_wpcom_simple() );
+
+		if ( $should_enqueue_wp_components ) {
 			$stylesheet     = is_rtl() ? 'build/components/style-rtl.css' : 'build/components/style.css';
 			$stylesheet_url = plugins_url( 'gutenberg/' . $stylesheet );
+
 			if ( function_exists( 'gutenberg_url' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredFunction
 				$stylesheet_url = gutenberg_url( $stylesheet );
@@ -570,6 +574,42 @@ class Help_Center {
 	}
 
 	/**
+	 * Enqueue Help Center assets for the customizer.
+	 */
+	public function enqueue_customizer_scripts() {
+		if ( $this->is_jetpack_disconnected() ) {
+			$variant = 'wp-admin-disconnected';
+		} else {
+			$variant = 'customizer';
+		}
+
+		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';
+		$asset_file = get_transient( $cache_key );
+
+		if ( ! $asset_file ) {
+			$asset_file = self::get_assets_json( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
+			if ( ! $asset_file ) {
+				return;
+			}
+			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
+		}
+
+		// When the request is proxied, use a random cache buster as the version for easier debugging.
+		$version = self::is_proxied() ? wp_rand() : $asset_file['version'];
+
+		$this->enqueue_script( $variant, $asset_file['dependencies'], $version );
+	}
+
+	/**
+	 * Add Help Center container div in customizer.
+	 */
+	public function add_help_center_container() {
+		?>
+		<div id="help-center-customizer"></div>
+		<?php
+	}
+
+	/**
 	 * Add icon to WP-ADMIN admin bar.
 	 */
 	public function enqueue_wp_admin_scripts() {
@@ -592,11 +632,13 @@ class Help_Center {
 			return;
 		}
 
-		if ( $this->is_support_site ) {
+		if ( $is_next_admin ) {
+			$variant = 'ciab-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+		} elseif ( $this->is_support_site ) {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
-		} elseif ( $this->is_block_editor() || $is_next_admin ) {
+		} elseif ( $this->is_block_editor() ) {
 			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} else {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );

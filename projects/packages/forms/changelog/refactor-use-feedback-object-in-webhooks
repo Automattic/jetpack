@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Forms: refactored how we retrieve form submission fields to send in the webhook payload.

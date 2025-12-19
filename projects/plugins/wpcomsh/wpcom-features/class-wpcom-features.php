@@ -536,6 +536,10 @@ class WPCOM_Features {
 		),
 		self::AI_SEO_ENHANCER                   => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			array(
+				'required_sticker' => 'gating-business-q1',
+				self::WPCOM_PREMIUM_PLANS,
+			),
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS                => array(
@@ -552,6 +556,10 @@ class WPCOM_Features {
 		 * - Not VIP sites.
 		 */
 		self::ADVANCED_SEO                      => array(
+			array(
+				'required_sticker' => 'gating-business-q1',
+				self::WPCOM_PREMIUM_PLANS,
+			),
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
@@ -781,7 +789,13 @@ class WPCOM_Features {
 		// FIELD_FILE - Premium block/feature (jetpack/field-file) for uploading files with cloud backend.
 		// See: https://github.com/Automattic/jetpack/pull/43177 / https://github.a8c.com/Automattic/wpcom/pull/179247
 		self::FIELD_FILE                        => array(
-			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PERSONAL_PLANS,
+				self::WPCOM_PREMIUM_PLANS,
+			),
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::FORM_WEBHOOKS                     => array(
@@ -924,6 +938,10 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::MAILPOET_BUSINESS                 => array(
+			array(
+				'required_sticker' => 'gating-business-q1',
+				self::WPCOM_BUSINESS_PLANS,
+			),
 			self::WPCOM_ECOMMERCE_PLANS,
 			self::WPCOM_WOOEXPRESS_PLANS,
 			self::WOO_HOSTED_PLANS,
@@ -965,7 +983,13 @@ class WPCOM_Features {
 			self::A4A_JETPACK_MONITOR_YEARLY,
 		),
 		self::MULTISTEP_FORM                    => array(
-			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PERSONAL_PLANS,
+				self::WPCOM_PREMIUM_PLANS,
+			),
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
 		self::NO_ADVERTS_NO_ADVERTS_PHP         => array(
@@ -993,7 +1017,12 @@ class WPCOM_Features {
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::PAYMENTS                          => array(
-			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PERSONAL_PLANS,
+			),
+			self::WPCOM_STARTER_PLANS,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
 		self::PERFORMANCE                       => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -1084,7 +1113,12 @@ class WPCOM_Features {
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::RECURRING_PAYMENTS                => array(
-			self::WPCOM_ALL_SITES,
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_ALL_SITES,
+			),
+			self::WPCOM_STARTER_PLANS,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
 
@@ -1155,6 +1189,10 @@ class WPCOM_Features {
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::SEO_PREVIEW_TOOLS                 => array(
+			array(
+				'required_sticker' => 'gating-business-q1',
+				self::WPCOM_PREMIUM_PLANS,
+			),
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_ALL_SITES,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -1483,7 +1521,12 @@ class WPCOM_Features {
 		 * - Jetpack sites with Premium or up plan.
 		 */
 		self::VIDEO_HOSTING                     => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PREMIUM_PLANS,
+			),
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
@@ -1495,7 +1538,12 @@ class WPCOM_Features {
 			self::JETPACK_PERSONAL_PLANS,
 			self::JETPACK_PREMIUM_PLANS,
 			self::JETPACK_VIDEOPRESS_PLANS,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PREMIUM_PLANS,
+			),
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_VIDEOPRESS,
 			self::WPCOM_VIDEOPRESS_PRO,
 			self::WP_P2_PLUS_MONTHLY,
@@ -1528,7 +1576,12 @@ class WPCOM_Features {
 		// VIDEOPRESS_VIDEO - videopress/video requires a paid plan.
 		self::VIDEOPRESS_VIDEO                  => array(
 			self::WP_P2_PLUS_MONTHLY,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PREMIUM_PLANS,
+			),
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_PREMIUM_PLANS,
 			self::EXCLUDE_PLANS => array(
@@ -1773,6 +1826,23 @@ class WPCOM_Features {
 				unset( $product_definition['required_sticker'] );
 			} else {
 				$purchase_eligible_by_sticker = true; // No sticker requirement, so eligible by default.
+			}
+
+			// Check if sticker_not_present requirement exists (feature only available when sticker is NOT present).
+			$sticker_not_present = $product_definition['sticker_not_present'] ?? null;
+			if ( $sticker_not_present ) {
+				$has_sticker = false;
+				if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+					// Fallback for Atomic sites
+					$has_sticker = wpcomsh_is_site_sticker_active( $sticker_not_present );
+				} elseif ( function_exists( 'has_blog_sticker' ) ) {
+					$blog_id   ??= get_current_blog_id();
+					$has_sticker = has_blog_sticker( $sticker_not_present, $blog_id );
+				}
+				// Only eligible if the sticker is NOT present.
+				$purchase_eligible_by_sticker = $purchase_eligible_by_sticker && ! $has_sticker;
+				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
+				unset( $product_definition['sticker_not_present'] );
 			}
 
 			// If 'before' & 'after' are empty, this is not a legacy feature.

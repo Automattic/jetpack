@@ -1,4 +1,3 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore, PluginPostPublishPanel } from '@wordpress/editor';
 import { useIsSharingPossible } from '../../hooks/use-is-sharing-possible';
@@ -6,7 +5,6 @@ import { usePostMeta } from '../../hooks/use-post-meta';
 import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils/constants';
 import { ShareStatus } from './share-status';
 
 /**
@@ -34,7 +32,7 @@ export function PostPublishShareStatus() {
 
 	const willPostBeShared = isPublicizeEnabled && enabledConnections.length > 0 && isSharingPossible;
 
-	const showStatus = siteHasFeature( features.SHARE_STATUS ) && willPostBeShared && isPostPublished;
+	const showStatus = willPostBeShared && isPostPublished;
 
 	usePostJustPublished( () => {
 		if ( showStatus ) {

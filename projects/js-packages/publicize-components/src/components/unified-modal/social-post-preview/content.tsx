@@ -7,6 +7,7 @@ import { MediaValidationNotices } from '../../form/media-validation-notices';
 import { SharePostForm } from '../../form/share-post-form';
 import { PostPreview } from '../../social-post-modal/post-preview';
 import { ConnectionPanels } from './connection-panels';
+import { ScheduledPosts } from './scheduled-posts';
 import styles from './styles.module.scss';
 
 type ContentProps = {
@@ -39,6 +40,7 @@ export function Content( { baseId, selectedConnection, forSmallScreen }: Content
 					<div className={ styles[ 'customization-form' ] }>
 						<SharePostForm analyticsData={ { location: 'preview-modal' } } isInsideNavigatorModal />
 					</div>
+					<ScheduledPosts />
 				</Flex>
 			</div>
 		);

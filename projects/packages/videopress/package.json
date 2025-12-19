@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-videopress",
-	"version": "0.32.18",
+	"version": "0.32.19",
 	"private": true,
 	"description": "VideoPress package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/videopress/#readme",
@@ -68,8 +68,8 @@
 		"@babel/preset-react": "7.27.1",
 		"@csstools/postcss-global-data": "2.1.1",
 		"@jest/globals": "30.2.0",
-		"@storybook/addon-docs": "10.0.8",
-		"@storybook/react": "10.0.8",
+		"@storybook/addon-docs": "10.1.10",
+		"@storybook/react": "10.1.10",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/jest-dom": "^6.4.2",
 		"@testing-library/react": "16.3.0",
@@ -89,7 +89,7 @@
 		"require-from-string": "2.0.2",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
-		"storybook": "10.0.8",
+		"storybook": "10.1.10",
 		"typescript": "5.9.3",
 		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"

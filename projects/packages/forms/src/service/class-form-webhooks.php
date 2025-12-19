@@ -161,7 +161,7 @@ class Form_Webhooks {
 		/**
 		 * Fires when a webhook request is made, allowing stats tracking.
 		 *
-		 * @since $$next-version$$
+		 * @since 7.0.0
 		 *
 		 * @param string $stat_group The stat group name.
 		 * @param string $status The status of the request: 'success', 'failed', or 'error'.

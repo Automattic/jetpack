@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-account-protection",
-	"version": "0.2.9",
+	"version": "0.2.10",
 	"private": true,
 	"description": "Account protection",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/account-protection/#readme",

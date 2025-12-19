@@ -5,6 +5,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { MyJetpackModule } from '../../types';
+import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
 import { useProductFiltersContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
 import type { ChangeEvent } from 'react';
 
@@ -40,11 +41,7 @@ export function ModuleToggle( { module: $module }: ModuleToggleProps ) {
 			if ( noticeType === 'success' ) {
 				const message =
 					action === 'activation'
-						? sprintf(
-								/* translators: %s is the module name */
-								__( '%s has been activated.', 'jetpack-my-jetpack' ),
-								$module.name
-						  )
+						? getModuleActivationMessage( $module.module, $module.name )
 						: sprintf(
 								/* translators: %s is the module name */
 								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
@@ -68,7 +65,7 @@ export function ModuleToggle( { module: $module }: ModuleToggleProps ) {
 				createErrorNotice( message );
 			}
 		},
-		[ $module.name, createErrorNotice, createSuccessNotice ]
+		[ $module.module, $module.name, createErrorNotice, createSuccessNotice ]
 	);
 
 	const onChange = useCallback(

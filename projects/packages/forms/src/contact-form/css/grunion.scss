@@ -18,14 +18,18 @@
 	clear: both;
 }
 
+.contact-form textarea::placeholder,
 .contact-form input::placeholder {
+	color: inherit;
 	transition: opacity 0.3s ease-out;
 }
 
+.contact-form textarea:hover::placeholder,
 .contact-form input:hover::placeholder {
 	opacity: 0.5;
 }
 
+.contact-form textarea:focus::placeholder,
 .contact-form input:focus::placeholder {
 	opacity: 0.3;
 }
@@ -396,9 +400,8 @@ that needs to mimic the input element styles */
 
 	.wp-block-button__link {
 		min-height: var(--jetpack--contact-form--input-height, auto);
-		padding: var(--jetpack--contact-form--input-padding);
+		padding: var(--jetpack--contact-form--button-primary--padding);
 	}
-
 }
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {

@@ -1,5 +1,6 @@
 import { getAdminUrl, getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
 import { SocialScriptData } from '../types';
+import { features } from './constants';
 
 /**
  * Get the social script data from the window object.
@@ -13,10 +14,10 @@ export function getSocialScriptData(): SocialScriptData {
 /**
  * Check if the site has social paid features.
  *
- * @return {boolean} Whether the site has social paid features.
+ * @return Whether the site has social paid features.
  */
 export function hasSocialPaidFeatures() {
-	return siteHasFeature( 'social-enhanced-publishing' );
+	return siteHasFeature( features.ENHANCED_PUBLISHING );
 }
 
 /**

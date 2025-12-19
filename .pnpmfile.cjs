@@ -238,6 +238,12 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.glob += ' || ^11.0.0';
 	}
 
+	// Seems to depend on hoisting. 33306 doesn't seem to directly address it, but 33315 looks like it will fix it anyway.
+	// https://github.com/storybookjs/storybook/issues/33306
+	if ( pkg.name === 'storybook' && ! pkg.dependencies[ '@vitest/mocker' ] ) {
+		pkg.dependencies[ '@vitest/mocker' ] = '*';
+	}
+
 	return pkg;
 }
 

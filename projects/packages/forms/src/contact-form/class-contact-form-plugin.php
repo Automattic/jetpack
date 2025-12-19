@@ -1650,7 +1650,7 @@ class Contact_Form_Plugin {
 			 * }, 10, 2 );
 			 * ```
 			 *
-			 * @since $$next-version$$
+			 * @since 7.0.0
 			 *
 			 * @param array        $extra_webhooks Array of webhook configuration arrays. Default empty array.
 			 * @param Contact_Form $form           The form instance being processed.

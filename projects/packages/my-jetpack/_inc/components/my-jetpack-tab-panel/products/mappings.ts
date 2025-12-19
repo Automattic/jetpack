@@ -67,6 +67,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 		modules: [
 			'blocks',
 			'carousel',
+			'custom-content-types',
 			'google-fonts',
 			'gravatar-hovercards',
 			'infinite-scroll',

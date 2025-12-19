@@ -62,7 +62,7 @@
 		"jest-environment-jsdom": "30.2.0",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
-		"storybook": "10.0.8",
+		"storybook": "10.1.10",
 		"typescript": "5.9.3",
 		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"

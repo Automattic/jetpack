@@ -14,6 +14,7 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 	containerWidth?: string;
 	containerHeight?: string;
 	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
+	withPadding?: boolean;
 };
 
 /**
@@ -27,13 +28,14 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
  */
 export const chartDecorator: Decorator = ( Story, context ) => {
 	const args = context.args as ChartStoryArgs;
+	const withPadding = args.withPadding !== false;
 
 	const StoryWithContainer = () => (
 		<div
 			style={ {
 				resize: args.resize || 'both',
 				overflow: 'auto',
-				padding: '1rem',
+				padding: withPadding ? '1rem' : undefined,
 				width: args.containerWidth || '800px',
 				height: args.containerHeight,
 				maxWidth: '1200px',

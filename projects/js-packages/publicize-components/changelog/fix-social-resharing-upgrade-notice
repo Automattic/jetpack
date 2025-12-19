@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace resharing upgrade nudge with Notice component with action.

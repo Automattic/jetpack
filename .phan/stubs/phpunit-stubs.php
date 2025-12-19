@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.2
+ * Stubs automatically generated from PHPUnit 12.5.4
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -11364,7 +11364,7 @@ final readonly class AfterClass
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-#[\Attribute(\Attribute::TARGET_CLASS)]
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class AllowMockObjectsWithoutExpectations
 {
 }
@@ -17743,7 +17743,10 @@ abstract readonly class Metadata
     public static function afterClass(int $priority): \PHPUnit\Metadata\AfterClass
     {
     }
-    public static function allowMockObjectsWithoutExpectations(): \PHPUnit\Metadata\AllowMockObjectsWithoutExpectations
+    public static function allowMockObjectsWithoutExpectationsOnClass(): \PHPUnit\Metadata\AllowMockObjectsWithoutExpectations
+    {
+    }
+    public static function allowMockObjectsWithoutExpectationsOnMethod(): \PHPUnit\Metadata\AllowMockObjectsWithoutExpectations
     {
     }
     public static function backupGlobalsOnClass(bool $enabled): \PHPUnit\Metadata\BackupGlobals
