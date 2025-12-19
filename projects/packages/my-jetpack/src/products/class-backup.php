@@ -476,7 +476,11 @@ class Backup extends Hybrid_Product {
 			isset( $needs_attention['data']['status'] ) &&
 			'backups-deactivated' === $needs_attention['data']['status']
 		) {
-			// Return INACTIVE status for deactivated backups (neutral, not attention-grabbing).
+			// Preserve NEEDS_PLAN status - user must purchase before reactivating.
+			if ( \Automattic\Jetpack\My_Jetpack\Products::STATUS_NEEDS_PLAN === $status ) {
+				return $status;
+			}
+
 			return \Automattic\Jetpack\My_Jetpack\Products::STATUS_INACTIVE;
 		}
 
