@@ -5,7 +5,7 @@
 
 import { Button, Dropdown, MenuGroup } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import MediaSourceMenuItem from './media-source-menu-item';
 import styles from './styles.module.scss';
 import { MediaSourceMenuProps } from './types';
@@ -61,7 +61,13 @@ export default function MediaSourceMenu( {
 	const renderContent = useCallback(
 		( { onClose }: { onClose: () => void } ) => (
 			<>
-				<MenuGroup label={ __( 'Link Preview', 'jetpack-publicize-components' ) }>
+				<MenuGroup
+					label={ _x(
+						'For link preview',
+						'The image source to use for post link preview on social media.',
+						'jetpack-publicize-components'
+					) }
+				>
 					{ linkPreviewOptions.map( option => (
 						<MediaSourceMenuItem
 							key={ option.id }
@@ -72,7 +78,13 @@ export default function MediaSourceMenu( {
 						/>
 					) ) }
 				</MenuGroup>
-				<MenuGroup label={ __( 'Attachment', 'jetpack-publicize-components' ) }>
+				<MenuGroup
+					label={ _x(
+						'For attachment',
+						'The media source to use for post attachment on social media.',
+						'jetpack-publicize-components'
+					) }
+				>
 					{ attachmentOptions.map( option => (
 						<MediaSourceMenuItem
 							key={ option.id }
