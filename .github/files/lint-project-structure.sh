@@ -726,7 +726,7 @@ done < <( git grep --line-number --column -o '675\s\+Massachusetts\|59\s\+Temple
 
 # - Unexpected packages in monorepo root.
 debug "Checking for unexpected JS packages in monorepo root"
-TMP=$( shopt -u dotglob; printf "%s\n" node_modules/* node_modules/@*/* | sed 's!^node_modules/!!' | grep -v '^@[^/]*$' | grep -E --line-regexp -v 'eslint|husky|jetpack-cli|jetpack-js-tools|stylelint|@\*/\*' )
+TMP=$( shopt -u dotglob; printf "%s\n" node_modules/* node_modules/@*/* | sed 's!^node_modules/!!' | grep -v '^@[^/]*$' | grep -E --line-regexp -v 'eslint|husky|jetpack-cli|jetpack-js-tools|stylelint|@\*/\*' || true )
 if [[ -n "$TMP" ]]; then
 	EXIT=1
 	echo "::error::Unexpected packages are installed in the monorepo root node_modules. This is likely to lead to phantom dependencies! Whatever you did that resulted in this is probably wrong. Ask for help in Slack #jetpack-monorepo.%0A%0APackages found are: ${TMP//$'\n'/ }"
