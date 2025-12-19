@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+GeoChart: Add region and resolution props for state/province-level map views
