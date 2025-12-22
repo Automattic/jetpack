@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Videopress: make Gutenberg block depend on Jetpack site connection instead of user ocnnection

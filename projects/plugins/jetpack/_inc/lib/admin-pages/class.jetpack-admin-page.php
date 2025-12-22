@@ -416,7 +416,7 @@ abstract class Jetpack_Admin_Page {
 	 * We set these here because we do not register a page title when we register them,
 	 * so they do not appear in the admin navigation.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.4
 	 *
 	 * @param WP_Screen $screen The screen object.
 	 *

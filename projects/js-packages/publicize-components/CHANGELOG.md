@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2025-12-22
+### Added
+- Add documentation link for media best practices in the media section. [#46301]
+- Add resharing and scheduling to the unified modal. [#46279]
+- Show inactive message when connection is disabled in preview modal. [#46371]
+
+### Changed
+- Adjust media selection for Replace action in the new media UI. [#46370]
+- Integrate post list share action with the unified modal. [#46336]
+- Refactor resharing logic to move it to data store. [#46322]
+- Remove "Upload video" option from media dropdown and rename Media Library to "From Media Library". [#46356]
+- Replace resharing upgrade nudge with Notice component with action. [#46335]
+- Show upgrade notice when media feature is not available. [#46353]
+- Update unified modal footer button labels. [#46372]
+- Update the @automattic/social-previews dependency source to the monorepo. [#46313]
+- Update package dependencies. [#46362] [#46363]
+
+### Removed
+- Remove the use of share status feature flag. [#46314]
+
+### Fixed
+- Fix connection icon profile picture being partly hidden. [#46317]
+- Fix connections management modal not opening from pre-publish panel. [#46316]
+- Fix empty state mix up when all connections are removed after attaching an image. [#46351]
+- Fix social previews post data reactivity for attached media. [#46369]
+- Fix template image not shown as attached when send as attachment is enabled. [#46367]
+- Make connection list in sidebar full width for single connection. [#46365]
+
 ## [1.9.0] - 2025-12-15
 ### Added
 - Add edit template modal. [#46220]
@@ -1468,6 +1496,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[1.10.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.7.0...v1.7.1

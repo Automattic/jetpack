@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Tests: Update sync tests to allow for actions occuring after post publish.

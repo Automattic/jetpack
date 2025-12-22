@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.4-a.5 - 2025-12-22
+### Enhancements
+- Social: Improve social preview for LinkedIn and Tumblr. [#46364]
+
+### Bug fixes
+- AI Assistant: Fix product page URL for Simple sites to use jetpack.com instead of My Jetpack. [#46358]
+- Forms: Strip HTML from styled labels in error summary. [#46319]
+- Jetpack settings: Avoid deprecation notices when loading Settings screen or Debugger screen. [#46283]
+- Scan: Replace inline onclick handler with target="_blank" for CSP compliance in admin bar notice. [#46340]
+- Social: Fix connections management modal not opening from pre-publish panel. [#46316]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add or remove features to plans for a future experiment. [#46285]
+- JSON API: Add an error check in taxonomy update endpoint. [#46359]
+- Tests: Update sync tests to allow for actions occuring after post publish. [#46236]
+- Update the @automattic/social-previews dependency source to the monorepo. [#46313]
+
 ## 15.4-a.3 - 2025-12-15
 ### Enhancements
 - External media: Add replace flow support. [#45841]
@@ -31,6 +48,7 @@
 - Tests: Check the publish post action exists, but is not necessarily the last action. [#46105]
 
 ## 15.3.1 - 2025-12-04
+
 - Forms: Use the correct case on cipher names. [#46189]
 
 ## 15.3 - 2025-12-03
