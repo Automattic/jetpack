@@ -2400,6 +2400,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$post_id = $feedback_post->ID;
 		}
 
+		if ( $post_id ) {
+			$form_reusable_id = $this->get_attribute( 'ref' );
+			$form_reusable_id = is_numeric( $form_reusable_id ) ? absint( $form_reusable_id ) : 0;
+
+			if ( $form_reusable_id > 0 ) {
+				update_post_meta( $post_id, 'jetpack_form_id', (string) $form_reusable_id );
+			}
+		}
+
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 

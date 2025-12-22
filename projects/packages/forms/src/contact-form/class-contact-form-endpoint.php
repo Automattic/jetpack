@@ -309,36 +309,42 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
 				'callback'            => array( $this, 'get_status_counts' ),
 				'args'                => array(
-					'search'    => array(
+					'search'          => array(
 						'description'       => 'Limit results to those matching a string.',
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'parent'    => array(
+					'parent'          => array(
 						'description'       => 'Limit results to those of a specific parent ID.',
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'before'    => array(
+					'before'          => array(
 						'description'       => 'Limit results to feedback published before a given ISO8601 compliant date.',
 						'type'              => 'string',
 						'format'            => 'date-time',
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'after'     => array(
+					'after'           => array(
 						'description'       => 'Limit results to feedback published after a given ISO8601 compliant date.',
 						'type'              => 'string',
 						'format'            => 'date-time',
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'is_unread' => array(
+					'is_unread'       => array(
 						'description'       => 'Limit results to read or unread feedback items.',
 						'type'              => 'boolean',
 						'sanitize_callback' => 'rest_sanitize_boolean',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'jetpack_form_id' => array(
+						'description'       => __( 'Limit results to feedback submitted via a specific reusable form.', 'jetpack-forms' ),
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
@@ -406,6 +412,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$before    = $request->get_param( 'before' );
 		$after     = $request->get_param( 'after' );
 		$is_unread = $request->get_param( 'is_unread' );
+		$form_id   = $request->get_param( 'jetpack_form_id' );
 
 		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
 
@@ -432,6 +439,15 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		$where_clause = implode( ' AND ', $where_conditions );
+		$join_clause  = '';
+
+		if ( ! empty( $form_id ) ) {
+			$join_clause = $wpdb->prepare(
+				' INNER JOIN ' . $wpdb->postmeta . ' AS pm_form_id ON pm_form_id.post_id = ' . $wpdb->posts . '.ID AND pm_form_id.meta_key = %s AND pm_form_id.meta_value = %s',
+				'jetpack_form_id',
+				$form_id
+			);
+		}
 
 		// Execute single query with CASE statements for all status counts.
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -441,6 +457,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			SUM(CASE WHEN post_status = 'spam' THEN 1 ELSE 0 END) as spam,
 			SUM(CASE WHEN post_status = 'trash' THEN 1 ELSE 0 END) as trash
 			FROM $wpdb->posts
+			$join_clause
 			WHERE $where_clause",
 			ARRAY_A
 		);
@@ -611,6 +628,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'description' => __( 'The subject line of the form submission.', 'jetpack-forms' ),
 			'type'        => 'string',
 			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'readonly'    => true,
+		);
+
+		$schema['properties']['jetpack_form_id'] = array(
+			'description' => __( 'The reusable form ID associated with this response.', 'jetpack-forms' ),
+			'type'        => 'string',
+			'context'     => array( 'view', 'edit' ),
 			'arg_options' => array(
 				'sanitize_callback' => 'sanitize_text_field',
 			),
@@ -871,6 +898,14 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['is_unread'] = $feedback_response->is_unread();
 		}
 
+		if ( rest_is_field_included( 'jetpack_form_id', $fields ) ) {
+			$form_id = $feedback_response->get_form_id();
+			if ( null === $form_id ) {
+				$form_id = get_post_meta( $item->ID, 'jetpack_form_id', true );
+			}
+			$data['jetpack_form_id'] = $form_id ? $form_id : null;
+		}
+
 		$response->set_data( $data );
 
 		return rest_ensure_response( $response );
@@ -948,6 +983,19 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$args['comment_status'] = $request['is_unread'] ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
 		}
 
+		if ( ! empty( $request['jetpack_form_id'] ) ) {
+			$form_meta_query = array(
+				'key'   => 'jetpack_form_id',
+				'value' => (string) $request['jetpack_form_id'],
+			);
+
+			if ( isset( $args['meta_query'] ) ) {
+				$args['meta_query'][] = $form_meta_query;
+			} else {
+				$args['meta_query'] = array( $form_meta_query );
+			}
+		}
+
 		return $args;
 	}
 
@@ -961,7 +1009,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		// Add parent related query parameters since the `feedback` post type is not hierarchical, but
 		// it uses the `parent` field to store the ID of the post/page where the feedback was created.
-		$query_params['parent']         = array(
+		$query_params['parent']          = array(
 			'description' => __( 'Limit result set to items with particular parent IDs.', 'jetpack-forms' ),
 			'type'        => 'array',
 			'items'       => array(
@@ -969,7 +1017,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			),
 			'default'     => array(),
 		);
-		$query_params['parent_exclude'] = array(
+		$query_params['parent_exclude']  = array(
 			'description' => __( 'Limit result set to all items except those of a particular parent ID.', 'jetpack-forms' ),
 			'type'        => 'array',
 			'items'       => array(
@@ -977,13 +1025,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			),
 			'default'     => array(),
 		);
-		$query_params['is_unread']      = array(
+		$query_params['is_unread']       = array(
 			'description'       => __( 'Limit result set to read or unread feedback items.', 'jetpack-forms' ),
 			'type'              => 'boolean',
 			'sanitize_callback' => 'rest_sanitize_boolean',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
-		$query_params['invalid_ids']    = array(
+		$query_params['invalid_ids']     = array(
 			'description'       => __( 'List of item IDs to include in results regardless of filters.', 'jetpack-forms' ),
 			'type'              => 'array',
 			'items'             => array(
@@ -993,6 +1041,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'sanitize_callback' => function ( $param ) {
 				return array_map( 'absint', (array) $param );
 			},
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+		$query_params['jetpack_form_id'] = array(
+			'description'       => __( 'Limit result set to responses submitted via the specified reusable form.', 'jetpack-forms' ),
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		return $query_params;

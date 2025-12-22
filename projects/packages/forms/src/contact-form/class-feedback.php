@@ -176,6 +176,13 @@ class Feedback {
 	protected $notification_recipients = array();
 
 	/**
+	 * Reusable form ID associated with this feedback, when available.
+	 *
+	 * @var string|null
+	 */
+	protected $form_id = null;
+
+	/**
 	 * Create a response object from a feedback post ID.
 	 *
 	 * @param int $feedback_post_id The ID of the feedback post.
@@ -222,6 +229,9 @@ class Feedback {
 		$this->legacy_feedback_id = $feedback_post->post_name;
 		$this->feedback_time      = $feedback_post->post_date;
 		$this->is_unread          = $feedback_post->comment_status === self::STATUS_UNREAD;
+
+		$form_id_meta  = get_post_meta( $feedback_post->ID, 'jetpack_form_id', true );
+		$this->form_id = '' !== $form_id_meta ? $form_id_meta : null;
 
 		$this->fields = $parsed_content['fields'] ?? array();
 		$source_id    = $feedback_post->post_parent ? (int) $feedback_post->post_parent : 0;
@@ -291,6 +301,11 @@ class Feedback {
 	private function load_from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
 
 		$this->source = Feedback_Source::from_submission( $current_post, $current_page_number );
+
+		$form_id_attribute = $form->get_attribute( 'ref' );
+		$form_id_attribute = is_numeric( $form_id_attribute ) ? absint( $form_id_attribute ) : 0;
+		$this->form_id     = $form_id_attribute > 0 ? (string) $form_id_attribute : null;
+
 		// If post_data is provided, use it to populate fields.
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
 		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
@@ -492,6 +507,15 @@ class Feedback {
 			$entry_values['entry_page'] = $this->source->get_page_number();
 		}
 		return $entry_values;
+	}
+
+	/**
+	 * Get the reusable form ID associated with the feedback, when available.
+	 *
+	 * @return string|null
+	 */
+	public function get_form_id() {
+		return $this->form_id;
 	}
 
 	/**
