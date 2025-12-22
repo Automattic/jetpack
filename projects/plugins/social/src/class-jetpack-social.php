@@ -25,9 +25,8 @@ use Automattic\Jetpack\Tracking;
  * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Social {
-	const JETPACK_PUBLICIZE_MODULE_SLUG          = 'publicize';
-	const JETPACK_SOCIAL_ACTIVATION_OPTION       = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
-	const JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_review_prompt_dismissed';
+	const JETPACK_PUBLICIZE_MODULE_SLUG    = 'publicize';
+	const JETPACK_SOCIAL_ACTIVATION_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
 
 	/**
 	 * The connection manager used to check if we have a Jetpack connection.
@@ -101,9 +100,6 @@ class Jetpack_Social {
 
 		// Add REST routes.
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
-
-		// Adds the review prompt initial state.
-		add_action( 'jetpack_social_admin_script_data', array( $this, 'add_review_initial_state' ), 10, 1 );
 
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
@@ -206,27 +202,6 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Adds the extra bits of initial state needed to display the review prompt.
-	 *
-	 * @param array $data The initial state data.
-	 *
-	 * @return array The modified initial state data.
-	 */
-	public function add_review_initial_state( $data ) {
-
-		if ( ! $this->should_enqueue_block_editor_scripts() ) {
-			return $data;
-		}
-
-		$data['review'] = array(
-			'dismissed'    => self::is_review_request_dismissed(),
-			'dismiss_path' => '/jetpack/v4/social/review-dismiss',
-		);
-
-		return $data;
-	}
-
-	/**
 	 * Main plugin settings page.
 	 */
 	public function plugin_settings_page() {
@@ -304,19 +279,6 @@ class Jetpack_Social {
 	 */
 	public function social_filter_available_modules( $modules ) {
 		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
-	}
-
-	/**
-	 * Check to see if the request to review the plugin has already been dismissed.
-	 * This will also return true if Jetpack promotions are disabled via a filter ( allows this prompt to be disabled )
-	 *
-	 * @return bool
-	 */
-	public static function is_review_request_dismissed() {
-		$saved_as_dismissed         = (bool) get_option( self::JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION, false );
-		$jetpack_promotions_enabled = apply_filters( 'jetpack_show_promotions', true );
-
-		return $saved_as_dismissed || ! $jetpack_promotions_enabled;
 	}
 
 	/**
