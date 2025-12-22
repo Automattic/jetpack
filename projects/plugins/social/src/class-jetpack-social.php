@@ -25,10 +25,9 @@ use Automattic\Jetpack\Tracking;
  * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Social {
-	const JETPACK_PUBLICIZE_MODULE_SLUG           = 'publicize';
-	const JETPACK_SOCIAL_ACTIVATION_OPTION        = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
-	const JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_show_pricing_page';
-	const JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION  = JETPACK_SOCIAL_PLUGIN_SLUG . '_review_prompt_dismissed';
+	const JETPACK_PUBLICIZE_MODULE_SLUG          = 'publicize';
+	const JETPACK_SOCIAL_ACTIVATION_OPTION       = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
+	const JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_review_prompt_dismissed';
 
 	/**
 	 * The connection manager used to check if we have a Jetpack connection.
@@ -305,15 +304,6 @@ class Jetpack_Social {
 	 */
 	public function social_filter_available_modules( $modules ) {
 		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
-	}
-
-	/**
-	 * Check if the pricing page should be displayed.
-	 *
-	 * @return bool
-	 */
-	public static function should_show_pricing_page() {
-		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, 1 );
 	}
 
 	/**
