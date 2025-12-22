@@ -349,15 +349,15 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		<?php
 		switch ( get_locale() ) {
 			case 'es':
-				$support = 'https://es.support.wordpress.com/social-media-icons-widget/#iconos-disponibles';
+				$support = 'https://wordpress.com/es/support/personaliza-tus-iconos-sociales/#anadir-un-borde-a-los-iconos-sociales';
 				break;
 
 			case 'pt-br':
-				$support = 'https://br.support.wordpress.com/widgets/widget-de-icones-sociais/#ícones-disponíveis';
+				$support = 'https://wordpress.com/pt-br/support/exibir-perfis-de-redes-sociais/#icones-de-redes-sociais-compativeis';
 				break;
 
 			default:
-				$support = 'https://en.support.wordpress.com/widgets/social-media-icons-widget/#available-icons';
+				$support = 'https://wordpress.com/support/wordpress-editor/blocks/social-icons-block/display-social-profiles/#supported-social-icons';
 		}
 		?>
 
