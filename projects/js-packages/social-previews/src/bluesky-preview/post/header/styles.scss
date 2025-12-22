@@ -11,9 +11,9 @@
 	font-size: 0.9375rem;
 	line-height: 1.47;
 
-	&--user {
+	&-user {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: auto auto;
 		align-items: center;
 		gap: 0.5rem;
 	}
@@ -22,6 +22,7 @@
 	&--username {
 		overflow: hidden;
 		text-overflow: ellipsis;
+		white-space: nowrap;
 		min-width: 2ch;
 	}
 
