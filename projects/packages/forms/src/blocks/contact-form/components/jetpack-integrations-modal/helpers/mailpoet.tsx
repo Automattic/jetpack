@@ -7,7 +7,6 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MailPoetIcon from '../../../../../icons/mailpoet.tsx';
-import ConsentToggle from '../components/consent-toggle.tsx';
 import type { CardItem, CardBuilderProps } from './types.ts';
 import type { Integration } from '../../../../../types/index.ts';
 
@@ -19,7 +18,9 @@ export function buildMailPoetCard( {
 	context,
 	attributes,
 	setAttributes,
+	components,
 }: CardBuilderProps ): CardItem {
+	const ConsentToggle = components?.ConsentToggle;
 	const {
 		isConnected = false,
 		settingsUrl = '',
@@ -120,7 +121,7 @@ export function buildMailPoetCard( {
 							) }
 						</p>
 					) ) }
-				{ context === 'block-editor' && <ConsentToggle /> }
+				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
 				<p className="integration-card__description">
 					<ExternalLink href={ settingsUrl }>
 						{ __( 'View MailPoet dashboard', 'jetpack-forms' ) }

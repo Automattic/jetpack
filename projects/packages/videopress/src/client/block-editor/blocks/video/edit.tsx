@@ -25,7 +25,7 @@ import debugFactory from 'debug';
  */
 import {
 	isStandaloneActive,
-	isUserConnected,
+	isSiteConnected,
 	isVideoPressActive,
 	isVideoPressModuleActive,
 } from '../../../lib/connection';
@@ -153,7 +153,7 @@ export default function VideoPressEdit( {
 
 	// Get the redirect URI for the connection flow.
 	const [ isRedirectingToMyJetpack, setIsRedirectingToMyJetpack ] = useState( false );
-	const hasUserConnection = isUserConnected();
+	const hasSiteConnection = isSiteConnected();
 	const { tracks: analyticsTracks } = useAnalytics();
 
 	// Detect if the chapter file is auto-generated.
@@ -406,12 +406,12 @@ export default function VideoPressEdit( {
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
 					<ConnectBanner
-						isConnected={ hasUserConnection }
+						isConnected={ hasSiteConnection }
 						isModuleActive={ isModuleActive || isStandalonePluginActive }
 						isConnecting={ isRedirectingToMyJetpack }
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
-							if ( ! hasUserConnection ) {
+							if ( ! hasSiteConnection ) {
 								analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
 									block: 'VideoPress',
 								} );
@@ -610,11 +610,11 @@ export default function VideoPressEdit( {
 
 			<ConnectBanner
 				isModuleActive={ isModuleActive || isStandalonePluginActive }
-				isConnected={ hasUserConnection }
+				isConnected={ hasSiteConnection }
 				isConnecting={ isRedirectingToMyJetpack }
 				onConnect={ () => {
 					setIsRedirectingToMyJetpack( true );
-					if ( ! hasUserConnection ) {
+					if ( ! hasSiteConnection ) {
 						analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
 							block: 'VideoPress',
 						} );
