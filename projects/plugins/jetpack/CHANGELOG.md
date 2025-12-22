@@ -16,7 +16,7 @@
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add or remove features to plans for a future experiment. [#46285]
 - JSON API: Add an error check in taxonomy update endpoint. [#46359]
-- Tests: Update sync tests to allow for actions occuring after post publish. [#46236]
+- Tests: Update sync tests to allow for actions occurring after post publish. [#46236]
 - Update the @automattic/social-previews dependency source to the monorepo. [#46313]
 
 ## 15.4-a.3 - 2025-12-15
