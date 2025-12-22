@@ -1301,7 +1301,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'type'     => 'submit',
 			)
 		) ) {
-			if ( $occurrence === $button_count ) {
+			if ( $occurrence === $button_count - 1 ) {
 				$p->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
 				$p->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
 				$p->set_attribute( 'data-wp-bind--disabled', 'state.isAriaDisabled' );
