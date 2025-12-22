@@ -5,7 +5,7 @@ import { _x } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import usePublicizeConfig from '../../../hooks/use-publicize-config';
 import ScheduleButton from '../../schedule-button';
-import { SharePostButton } from '../../share-post';
+import { SharePostButton } from '../../share-post-button';
 import { ScreenDetails } from '../types';
 
 /**

@@ -2,30 +2,29 @@ import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils';
+import { features, getSocialScriptData } from '../../utils';
 import useSocialMediaConnections from '../use-social-media-connections';
 import useSocialMediaMessage from '../use-social-media-message';
 
-type SchedulePostOptions = {
-	/** The timestamp to schedule the share for. */
-	timestamp: number;
+type SharePostOptions = {
+	connectionsToSkip?: Array< string >;
 };
 
 /**
- * Hook to schedule a post for sharing to social media connections.
+ * Hook to share a post to social media connections.
  *
- * @return Object containing schedule functionality and state.
+ * @return The callback to share the post.
  */
-export function useSchedulePost() {
-	const { scheduleShares } = useDispatch( socialStore );
+export function useSharePost() {
+	// Sharing data.
 	const { message } = useSocialMediaMessage();
-	const { enabledConnections } = useSocialMediaConnections();
+	const { skippedConnections } = useSocialMediaConnections();
+
+	const { shareCurrentPost } = useDispatch( socialStore );
 
 	return useCallback(
-		async ( { timestamp }: SchedulePostOptions ) => {
-			const connectionIds = enabledConnections.map( connection =>
-				Number( connection.connection_id )
-			);
+		async ( { connectionsToSkip }: SharePostOptions = {} ) => {
+			const skipped_connections = connectionsToSkip || skippedConnections;
 
 			/**
 			 * The share endpoint only gets the custom message as a parameter, the attached media and
@@ -36,8 +35,11 @@ export function useSchedulePost() {
 				siteHasFeature( features.IMAGE_GENERATOR ) ||
 				siteHasFeature( features.ENHANCED_PUBLISHING );
 
-			return await scheduleShares( { connectionIds, message, timestamp }, { savePost } );
+			return await shareCurrentPost(
+				{ message, skipped_connections },
+				{ savePost, apiPath: getSocialScriptData().api_paths.resharePost }
+			);
 		},
-		[ enabledConnections, message, scheduleShares ]
+		[ message, shareCurrentPost, skippedConnections ]
 	);
 }

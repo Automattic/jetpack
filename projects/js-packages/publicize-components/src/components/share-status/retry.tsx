@@ -2,11 +2,10 @@ import { IconTooltip } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
-import useSharePost from '../../hooks/use-share-post';
+import { useSharePost } from '../../hooks/use-share-post';
 import { store as socialStore } from '../../social-store';
 import { ShareStatusItem } from '../../social-store/types';
 import {
@@ -24,18 +23,17 @@ export type RetryProps = {
  *
  * @param {RetryProps} props - component props
  *
- * @return {import('react').ReactNode} - React element
+ * @return - React element
  */
 export function Retry( { shareItem }: RetryProps ) {
 	const { recordEvent } = useAnalytics();
-	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
 
 	const { isRePublicizeFeatureAvailable } = usePublicizeConfig();
 
 	const connectionStillExists = connections.some( connectionMatchesShareItem( shareItem ) );
 
-	const { doPublicize } = useSharePost( Number( postId ) );
+	const sharePost = useSharePost();
 	const { pollForPostShareStatus } = useDispatch( socialStore );
 
 	const [ isRetrying, setIsRetrying ] = useState( false );
@@ -47,11 +45,11 @@ export function Retry( { shareItem }: RetryProps ) {
 		} );
 		const connectionMatches = connectionMatchesShareItem( shareItem );
 
-		const skippedConnections = connections
+		const connectionsToSkip = connections
 			.filter( connection => ! connectionMatches( connection ) )
 			.map( ( { connection_id } ) => connection_id );
 
-		if ( skippedConnections.length === connections.length ) {
+		if ( connectionsToSkip.length === connections.length ) {
 			// We should ideally never reach this point,
 			// because we disable the retry button if the connection doesn't still exist,
 			// but just in case, if we do, we should return early
@@ -60,7 +58,7 @@ export function Retry( { shareItem }: RetryProps ) {
 
 		setIsRetrying( true );
 
-		await doPublicize( skippedConnections );
+		await sharePost( { connectionsToSkip } );
 
 		await pollForPostShareStatus( {
 			isRequestComplete( { postShareStatus, lastTimestamp } ) {
@@ -77,7 +75,7 @@ export function Retry( { shareItem }: RetryProps ) {
 				return isComplete;
 			},
 		} );
-	}, [ recordEvent, shareItem, connections, doPublicize, pollForPostShareStatus ] );
+	}, [ recordEvent, shareItem, connections, sharePost, pollForPostShareStatus ] );
 
 	if ( isRetrying ) {
 		return <Spinner />;
