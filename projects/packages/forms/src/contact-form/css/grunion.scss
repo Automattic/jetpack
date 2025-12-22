@@ -1055,28 +1055,18 @@ on production builds, the attributes are being reordered, causing side-effects
 	&::before {
 		border-radius: 50%;
 		content: "";
-		opacity: 0;
-		scale: 0.5;
 
-		/* Inherit the font size from the parent element.
-		 * This allows the input to scale with the font size
-		 * set from global styles or from block styles */
-		font-size: inherit;
-		height: 40%;
-		width: 40%;
-		margin-left: 50%;
-		margin-top: 50%;
-		position: absolute;
-		transform: translate(-100%, -100%);
-		top: 0;
-		left: 0;
-		border-width: 6px;
+		border-width: 1px;
 		border-style: solid;
-		border-color: currentColor;
-		transition:
-			opacity 0.1s ease-in-out,
-			scale 0.1s ease-in-out,
-			transform 0.1s ease-in-out;
+
+		width: 1em;
+		height: 1em;
+		display: block;
+		position: absolute;
+		top: -1px;
+		left: -1px;
+		box-sizing: border-box;
+		transition: all 0.1s ease-in-out;
 	}
 }
 
@@ -1117,9 +1107,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.radio:checked::before {
-	opacity: 1;
-	scale: 1;
-	transform: translate(-50%, -50%);
+	border-width: 0.3em;
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
