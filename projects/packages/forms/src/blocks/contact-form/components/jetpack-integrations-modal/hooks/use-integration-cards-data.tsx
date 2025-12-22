@@ -17,6 +17,7 @@ const useIntegrationCardsData = ( {
 	handlers,
 	attributes,
 	setAttributes,
+	components,
 }: IntegrationsListProps ): CardItem[] => {
 	return integrations.map( integration => {
 		const base: CardItem = {
@@ -60,6 +61,7 @@ const useIntegrationCardsData = ( {
 					context,
 					attributes,
 					setAttributes,
+					components,
 				} );
 			case 'hostinger-reach':
 				return buildHostingerReachCard( {
@@ -68,6 +70,7 @@ const useIntegrationCardsData = ( {
 					context,
 					attributes,
 					setAttributes,
+					components,
 				} );
 			case 'salesforce':
 				return buildSalesforceCard( {

@@ -45,7 +45,7 @@ export type DispatchActions = {
 		kind: string,
 		name: string,
 		recordId: number,
-		query: Record< string, unknown >,
+		query?: Record< string, unknown >,
 		options?: { throwOnError?: boolean }
 	) => Promise< void >;
 	editEntityRecord: (
@@ -68,7 +68,7 @@ export type DispatchActions = {
 		status: string,
 		newStatus: string,
 		count: number,
-		queryParams: QueryParams
+		queryParams?: QueryParams
 	) => void;
 	doBulkAction: ( ids: string[], action: string ) => void;
 	invalidateFilters: () => void;
@@ -88,6 +88,7 @@ export type SelectActions = {
 	getTrashCount: ( queryParams: QueryParams ) => number;
 	getSpamCount: ( queryParams: QueryParams ) => number;
 	getInboxCount: ( queryParams: QueryParams ) => number;
+	getCounts: () => { inbox: number; spam: number; trash: number };
 
 	// Core store select actions
 	getEntityRecord: (
@@ -95,6 +96,7 @@ export type SelectActions = {
 		name: string,
 		recordId: number
 	) => Record< string, unknown > | undefined;
+	isResolving: ( selector: string, args: unknown[] ) => boolean;
 };
 
 export type ResolveSelectActions = {

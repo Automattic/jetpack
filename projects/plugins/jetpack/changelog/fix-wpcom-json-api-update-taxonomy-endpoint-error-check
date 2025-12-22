@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+JSON API: Add an error check in taxonomy update endpoint.

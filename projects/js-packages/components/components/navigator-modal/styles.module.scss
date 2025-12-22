@@ -8,10 +8,9 @@
 		z-index: 99999; // Slightly lower than snackbar z-index (100001) so snackbars remain visible above the modal
 	}
 
-	width: 80rem;
+	width: 100%;
 
 	@include gb.break-medium() {
-		height: 48rem;
 		max-height: 90%;
 	}
 

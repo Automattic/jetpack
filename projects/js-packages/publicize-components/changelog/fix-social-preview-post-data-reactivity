@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix social previews post data reactivity for attached media.

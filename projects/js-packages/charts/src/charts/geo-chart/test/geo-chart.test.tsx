@@ -22,11 +22,12 @@ describe( 'GeoChart', () => {
 	const defaultProps = {
 		width: 800,
 		height: 400,
-		data: {
-			US: 100,
-			CA: 50,
-			GB: 25,
-		},
+		data: [
+			[ 'Country', 'Value' ],
+			[ 'US', 100 ],
+			[ 'CA', 50 ],
+			[ 'GB', 25 ],
+		] as [ string[], ...[ string, number ][] ],
 	};
 
 	const renderWithTheme = ( props = {} ) => {
@@ -70,47 +71,23 @@ describe( 'GeoChart', () => {
 	} );
 
 	describe( 'Data Handling', () => {
-		test( 'transforms data to Google Charts format', () => {
-			renderWithTheme( { data: { US: 100, CA: 50 } } );
+		test( 'passes data directly to Google Charts without modification', () => {
+			// Test with complex data including plain values, formatted values, and tooltip columns
+			const testData: [
+				( string | object )[],
+				...[ string, number | { v: number; f: string }, string ][],
+			] = [
+				[ 'Country', 'Revenue', { type: 'string', role: 'tooltip', p: { html: true } } ],
+				[ 'US', { v: 1234567, f: '$1.23M' }, '<b>United States</b>' ],
+				[ 'CA', 543210, '<b>Canada</b>' ],
+			];
+			renderWithTheme( { data: testData } );
 
 			const chartData = screen.getByTestId( 'chart-data' );
 			const data = JSON.parse( chartData.textContent || '[]' );
 
-			// First row should be headers
-			expect( data[ 0 ] ).toEqual( [ 'Country', 'Value' ] );
-			// Data should include our countries
-			expect( data ).toContainEqual( [ 'US', 100 ] );
-			expect( data ).toContainEqual( [ 'CA', 50 ] );
-		} );
-
-		test( 'handles empty data object', () => {
-			renderWithTheme( { data: {} } );
-
-			const chartData = screen.getByTestId( 'chart-data' );
-			const data = JSON.parse( chartData.textContent || '[]' );
-
-			// Should only have headers
-			expect( data ).toEqual( [ [ 'Country', 'Value' ] ] );
-		} );
-
-		test( 'handles single country data', () => {
-			renderWithTheme( { data: { US: 100 } } );
-
-			const chartData = screen.getByTestId( 'chart-data' );
-			const data = JSON.parse( chartData.textContent || '[]' );
-
-			expect( data ).toHaveLength( 2 ); // headers + 1 country
-			expect( data[ 1 ] ).toEqual( [ 'US', 100 ] );
-		} );
-
-		test( 'handles zero values in data', () => {
-			renderWithTheme( { data: { US: 0, CA: 100 } } );
-
-			const chartData = screen.getByTestId( 'chart-data' );
-			const data = JSON.parse( chartData.textContent || '[]' );
-
-			expect( data ).toContainEqual( [ 'US', 0 ] );
-			expect( data ).toContainEqual( [ 'CA', 100 ] );
+			// Data should be passed through exactly as provided
+			expect( data ).toEqual( testData );
 		} );
 	} );
 
@@ -143,13 +120,97 @@ describe( 'GeoChart', () => {
 			expect( options.legend ).toBe( 'none' );
 		} );
 
-		test( 'sets tooltip trigger to focus', () => {
+		test( 'sets tooltip trigger to focus with isHtml false by default', () => {
 			renderWithTheme();
 
 			const chartOptions = screen.getByTestId( 'chart-options' );
 			const options = JSON.parse( chartOptions.textContent || '{}' );
 
-			expect( options.tooltip ).toEqual( { trigger: 'focus' } );
+			expect( options.tooltip ).toEqual( { trigger: 'focus', isHtml: false } );
+		} );
+
+		test( 'enables HTML tooltips when data has HTML tooltip column', () => {
+			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
+				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
+				[ 'US', 100, '<b>United States</b><br/>100 orders' ],
+				[ 'CA', 50, '<b>Canada</b><br/>50 orders' ],
+			];
+			renderWithTheme( { data: testData } );
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.tooltip ).toEqual( { trigger: 'focus', isHtml: true } );
+		} );
+
+		test( 'keeps isHtml false for text-only tooltips', () => {
+			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
+				[ 'Country', 'Value', { type: 'string', role: 'tooltip' } ],
+				[ 'US', 100, 'United States: 100 orders' ],
+				[ 'CA', 50, 'Canada: 50 orders' ],
+			];
+			renderWithTheme( { data: testData } );
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.tooltip ).toEqual( { trigger: 'focus', isHtml: false } );
+		} );
+
+		test( 'does not include region in options when set to world (default)', () => {
+			renderWithTheme();
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.region ).toBeUndefined();
+		} );
+
+		test( 'does not include resolution in options when set to countries (default)', () => {
+			renderWithTheme();
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.resolution ).toBeUndefined();
+		} );
+
+		test( 'passes region to Google Charts when not world', () => {
+			renderWithTheme( { region: 'US' } );
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.region ).toBe( 'US' );
+		} );
+
+		test( 'passes resolution to Google Charts when not countries', () => {
+			renderWithTheme( { resolution: 'provinces' } );
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.resolution ).toBe( 'provinces' );
+		} );
+
+		test( 'passes both region and resolution for US states view', () => {
+			const stateData = [
+				[ 'State', 'Value' ],
+				[ 'California', 100 ],
+				[ 'Texas', 50 ],
+			] as [ string[], ...[ string, number ][] ];
+
+			renderWithTheme( {
+				region: 'US',
+				resolution: 'provinces',
+				data: stateData,
+			} );
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.region ).toBe( 'US' );
+			expect( options.resolution ).toBe( 'provinces' );
 		} );
 	} );
 

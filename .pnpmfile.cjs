@@ -40,10 +40,12 @@ async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
 	if (
-		pkg.name === '@automattic/social-previews' ||
+		pkg.name === '@automattic/api-core' ||
 		pkg.name === '@automattic/components' ||
+		pkg.name === '@automattic/data-stores' ||
+		pkg.name === '@automattic/i18n-utils' ||
 		pkg.name === '@automattic/launchpad' ||
-		pkg.name === '@automattic/api-core'
+		pkg.name === '@automattic/ui'
 	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) ) {
@@ -65,20 +67,17 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency version causing dependabot warnings.
+	// Once we can drop @wordpress/icons v10 (see above), looks like this can go away.
 	// https://github.com/WordPress/gutenberg/issues/69557
-	if (
-		pkg.name.startsWith( '@wordpress/' ) &&
-		pkg.dependencies?.[ '@babel/runtime' ] === '7.25.7'
-	) {
+	if ( pkg.name === '@wordpress/icons' && pkg.dependencies?.[ '@babel/runtime' ] === '7.25.7' ) {
 		pkg.dependencies[ '@babel/runtime' ] = '^7.26.10';
 	}
 
 	// Missing dep or peer dep on react.
+	// Once we can drop @wordpress/icons v10 (see above), looks like this can go away.
 	// https://github.com/WordPress/gutenberg/issues/73257
 	if (
-		( pkg.name === '@wordpress/icons' ||
-			pkg.name === '@wordpress/media-utils' ||
-			pkg.name === '@wordpress/admin-ui' ) &&
+		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -135,6 +134,18 @@ async function fixDeps( pkg ) {
 			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
 				pkg.dependencies[ dep ] = '^' + ver;
 			}
+		}
+	}
+
+	// Outdated dependency and unnecessarily explicit deps.
+	if ( pkg.name === '@wordpress/build' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+		if ( pkg.dependencies.cssnano === '^6.0.1' ) {
+			pkg.dependencies.cssnano = '^6 || ^7';
 		}
 	}
 
@@ -230,12 +241,10 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Update all glob 10 deps for CVE-2025-64756. The only difference from 10.4.4→11.0.0 is dropping node <20 support.
-	if ( pkg.dependencies?.glob?.match( /^\^10(?:\.\d+)*$/ ) ) {
-		pkg.dependencies.glob += ' || ^11.0.0';
-	}
-	if ( pkg.peerDependencies?.glob?.match( /^\^10(?:\.\d+)*$/ ) ) {
-		pkg.peerDependencies.glob += ' || ^11.0.0';
+	// Seems to depend on hoisting. 33306 doesn't seem to directly address it, but 33315 looks like it will fix it anyway.
+	// https://github.com/storybookjs/storybook/issues/33306
+	if ( pkg.name === 'storybook' && ! pkg.dependencies[ '@vitest/mocker' ] ) {
+		pkg.dependencies[ '@vitest/mocker' ] = '*';
 	}
 
 	return pkg;

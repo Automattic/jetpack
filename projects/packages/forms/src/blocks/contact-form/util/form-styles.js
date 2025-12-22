@@ -100,6 +100,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		borderColor: buttonPrimaryBorderColor,
 		backgroundColor: buttonPrimaryBackgroundColor,
 		color: buttonPrimaryColor,
+		padding: buttonPrimaryPadding,
 	} = window.getComputedStyle( buttonPrimaryNode );
 
 	const {
@@ -165,6 +166,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--button-primary--background-color': buttonPrimaryBackgroundColor,
 		'--jetpack--contact-form--button-primary--border': buttonPrimaryBorder,
 		'--jetpack--contact-form--button-primary--border-color': buttonPrimaryBorderColor,
+		'--jetpack--contact-form--button-primary--padding': buttonPrimaryPadding,
 		'--jetpack--contact-form--button-outline--padding': buttonOutlinePadding,
 		'--jetpack--contact-form--button-outline--border': buttonOutlineBorder,
 		'--jetpack--contact-form--button-outline--background-color': buttonOutlineBackgroundColor,

@@ -32,7 +32,12 @@ export {
 export type * from './types';
 export type * from './visx/types';
 export type { PieChartProps } from './charts/pie-chart';
-export type { GeoChartProps } from './charts/geo-chart';
+export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
+export type {
+	GoogleDataTableColumn,
+	GoogleDataTableRow,
+	GoogleDataTableColumnRoleType,
+} from 'react-google-charts';
