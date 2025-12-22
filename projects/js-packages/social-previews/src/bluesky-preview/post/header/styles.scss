@@ -1,7 +1,9 @@
 .bluesky-preview__post-header {
-	display: flex;
-	align-items: start;
-	gap: 4px;
+	display: grid;
+	grid-template-columns: 1fr auto auto;
+	align-items: center;
+	gap: 0.5rem;
+	max-width: max-content;
 
 	margin-bottom: 0.625rem;
 
@@ -9,12 +11,27 @@
 	font-size: 0.9375rem;
 	line-height: 1.47;
 
+	&--user {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	&--displayname,
+	&--username {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		min-width: 2ch;
+	}
+
 	&--displayname {
 		font-size: 16px;
 		letter-spacing: 0.25px;
 		font-weight: 700;
 		line-height: 19px;
 		color: rgb(11, 15, 20);
+		min-width: 3ch;
 	}
 
 	&--username,
