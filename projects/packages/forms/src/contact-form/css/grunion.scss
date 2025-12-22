@@ -1331,16 +1331,27 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: none;
 }
 
-.jetpack-form-submit-button:not(.wp-block-button) button.is-submitting::after {
-	content: "";
-	display: inline-block;
-	width: 1em;
-	height: 1em;
-	margin-left: 0.5em;
-	border: 2px solid currentColor;
-	border-right-color: transparent;
-	border-radius: 50%;
-	animation: jp-forms-submit-spinner 0.75s linear infinite;
+// hide spinner for any legacy jetpack button
+.contact-form .wp-block-jetpack-button .is-submitting .spinner {
+	display: none;
+}
+
+// use new ::after approach for animated spinner inside forms
+.contact-form .wp-block-jetpack-button button[type="submit"].is-submitting:last-of-type,
+.contact-form .wp-block-button button[type="submit"].is-submitting:last-of-type {
+
+	&::after {
+
+		content: "";
+		display: inline-block;
+		width: 1em;
+		height: 1em;
+		margin-left: 0.5em;
+		border: 2px solid currentColor;
+		border-right-color: transparent;
+		border-radius: 50%;
+		animation: jp-forms-submit-spinner 0.75s linear infinite;
+	}
 }
 
 @keyframes jp-forms-submit-spinner {
