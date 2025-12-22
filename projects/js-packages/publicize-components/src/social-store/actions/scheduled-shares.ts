@@ -1,7 +1,11 @@
 import { store as coreStore } from '@wordpress/core-data';
+import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { ScheduledShare } from '../types';
+import { SET_IS_SCHEDULING_SHARES } from './constants';
+
+const SCHEDULE_SHARE_NOTICE_ID = 'social-scheduled-share';
 
 /**
  * Creates a new scheduled share.
@@ -17,7 +21,7 @@ export function createScheduledShare(
 	return async function ( { registry } ): Promise< boolean > {
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { getLastEntitySaveError } = registry.select( coreStore );
-		const { createErrorNotice, createSuccessNotice } = registry.dispatch( noticesStore );
+		const { createErrorNotice } = registry.dispatch( noticesStore );
 		const success = await saveEntityRecord( 'wpcom/v2', 'publicize/scheduled-actions', data );
 		// If the creation was not successful, show an error notice.
 		if ( ! success ) {
@@ -31,12 +35,7 @@ export function createScheduledShare(
 			}
 			createErrorNotice( message, {
 				type: 'snackbar',
-				id: 'social-scheduled-share',
-			} );
-		} else {
-			createSuccessNotice( __( 'Post scheduled successfully.', 'jetpack-publicize-components' ), {
-				type: 'snackbar',
-				id: 'social-scheduled-share',
+				id: SCHEDULE_SHARE_NOTICE_ID,
 			} );
 		}
 
@@ -76,5 +75,99 @@ export function deleteScheduledShare( id: number ) {
 				type: 'snackbar',
 			} );
 		}
+	};
+}
+
+/**
+ * Sets whether the current post is having scheduled shares created.
+ *
+ * @param isScheduling - Scheduling status.
+ *
+ * @return - An action object.
+ */
+export function setIsSchedulingShares( isScheduling: boolean ) {
+	return {
+		type: SET_IS_SCHEDULING_SHARES,
+		isScheduling,
+	};
+}
+
+type ScheduledSharesParams = {
+	message: string;
+	connectionIds: Array< number >;
+	timestamp: number;
+};
+type ScheduledSharesConfig = {
+	savePost?: boolean;
+};
+
+/**
+ * Creates scheduled shares for the current post.
+ *
+ * @param {ScheduledSharesParams} params - The params.
+ * @param {ScheduledSharesConfig} config - The share configuration.
+ * @return A thunk.
+ */
+export function scheduleShares(
+	{ message, connectionIds, timestamp }: ScheduledSharesParams,
+	{ savePost = true }: ScheduledSharesConfig
+) {
+	return async function ( { dispatch, registry } ): Promise< boolean > {
+		if ( ! connectionIds.length || ! timestamp ) {
+			return false;
+		}
+
+		const { isCurrentPostPublished, isEditedPostDirty, isEditedPostAutosaveable } =
+			registry.select( editorStore );
+
+		const { createErrorNotice, createSuccessNotice } = registry.dispatch( noticesStore );
+
+		if ( ! isCurrentPostPublished() ) {
+			createErrorNotice(
+				__(
+					'You must publish your post before you can schedule it.',
+					'jetpack-publicize-components'
+				),
+				{
+					id: SCHEDULE_SHARE_NOTICE_ID,
+				}
+			);
+
+			return false;
+		}
+
+		dispatch( setIsSchedulingShares( true ) );
+
+		if ( isEditedPostDirty() && isEditedPostAutosaveable() && savePost ) {
+			await registry.dispatch( editorStore ).savePost();
+		}
+
+		const post_id = registry.select( editorStore ).getCurrentPostId();
+
+		const result = await Promise.all(
+			connectionIds.map( connection_id => {
+				return dispatch(
+					createScheduledShare( {
+						post_id,
+						connection_id,
+						message,
+						timestamp,
+					} )
+				);
+			} )
+		);
+
+		const success = result.every( Boolean );
+
+		if ( success ) {
+			createSuccessNotice( __( 'Post scheduled successfully.', 'jetpack-publicize-components' ), {
+				type: 'snackbar',
+				id: SCHEDULE_SHARE_NOTICE_ID,
+			} );
+		}
+
+		dispatch( setIsSchedulingShares( false ) );
+
+		return success;
 	};
 }

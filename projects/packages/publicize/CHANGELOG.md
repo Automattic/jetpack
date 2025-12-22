@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.69.0] - 2025-12-22
+### Added
+- Added Share post action to the post list screen. Shows automatically for plans with republicize support, and supports the `jetpack_post_list_display_share_action` filter for custom overrides. [#46323]
+
+### Changed
+- Update dependencies. [#46381]
+
 ## [0.68.1] - 2025-12-15
 ### Changed
 - Replace use of confusing `esc_js` with `wp_json_encode`. [#46229]
@@ -1181,6 +1188,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.69.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.68.1...v0.69.0
 [0.68.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.68.0...v0.68.1
 [0.68.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.7...v0.68.0
 [0.67.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.6...v0.67.7

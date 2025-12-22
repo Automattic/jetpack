@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "1.4.2",
+	"version": "1.4.3",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -23,6 +23,11 @@
 			"jetpack:src": "./index.ts",
 			"types": "./build/index.d.ts",
 			"default": "./build/index.js"
+		},
+		"./jetpack-logo": {
+			"jetpack:src": "./components/jetpack-logo/index.tsx",
+			"types": "./build/components/jetpack-logo/index.d.ts",
+			"default": "./build/components/jetpack-logo/index.js"
 		},
 		"./tools/jp-redirect": {
 			"jetpack:src": "./tools/jp-redirect/index.ts",

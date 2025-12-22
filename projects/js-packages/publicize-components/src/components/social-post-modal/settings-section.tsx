@@ -5,7 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { SharePostForm } from '../form/share-post-form';
 import ScheduleButton from '../schedule-button';
-import { SharePostButton } from '../share-post';
+import { SharePostButton } from '../share-post-button';
 import { ScheduledShares } from './scheduled-shares';
 import styles from './styles.module.scss';
 

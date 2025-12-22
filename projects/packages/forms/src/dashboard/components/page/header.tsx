@@ -10,14 +10,6 @@ import { SidebarToggleSlot } from './sidebar-toggle-slot';
 import { Stack } from './stack';
 
 /**
- * WordPress dependencies
- */
-
-/**
- * Internal dependencies
- */
-
-/**
  * Page header component
  *
  * @param root0                   - Component props
@@ -74,12 +66,7 @@ export default function Header( {
 					{ breadcrumbs }
 					{ badges }
 				</Stack>
-				<Stack
-					direction="row"
-					gap={ 2 }
-					style={ { width: 'auto', flexShrink: 0 } }
-					className="admin-ui-page__header-actions"
-				>
+				<Stack direction="row" gap={ 2 }>
 					{ actions }
 				</Stack>
 			</Stack>

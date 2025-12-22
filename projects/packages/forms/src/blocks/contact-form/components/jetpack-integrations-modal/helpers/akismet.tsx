@@ -1,4 +1,4 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';

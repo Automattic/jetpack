@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
@@ -61,7 +61,6 @@ export const usePluginInstallation = ( {
 	errorNotice,
 }: UsePluginInstallationArgs ): PluginInstallation => {
 	const [ isInstalling, setIsInstalling ] = useState( false );
-	const { tracks } = useAnalytics();
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const canInstallPlugins = useConfigValue( 'canInstallPlugins' );
 	const canActivatePlugins = useConfigValue( 'canActivatePlugins' );
@@ -70,7 +69,7 @@ export const usePluginInstallation = ( {
 		setIsInstalling( true );
 
 		if ( trackEventName ) {
-			tracks.recordEvent( trackEventName, {
+			jetpackAnalytics.tracks.recordEvent( trackEventName, {
 				intent: isInstalled ? 'activate-plugin' : 'install-plugin',
 				...( trackEventProps ?? {} ),
 			} );
@@ -118,7 +117,6 @@ export const usePluginInstallation = ( {
 		}
 	}, [
 		trackEventName,
-		tracks,
 		isInstalled,
 		trackEventProps,
 		successNotices?.activate,
