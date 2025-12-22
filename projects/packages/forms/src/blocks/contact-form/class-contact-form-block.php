@@ -23,6 +23,12 @@ use Jetpack;
  */
 class Contact_Form_Block {
 	/**
+	 * The ID of the synced form being rendered, if any.
+	 *
+	 * @var int|null
+	 */
+	private $synced_form_id = null;
+	/**
 	 * Register the Contact Form block.
 	 * We are core block dependent only on whether the jetpack contact form plugin
 	 * is active or not. This is allowing us to make it more discoverable
@@ -806,7 +812,7 @@ class Contact_Form_Block {
 
 		// Mark as seen for circular reference prevention.
 		$seen_refs[ $ref_id ] = true;
-
+		Contact_Form::set_ref_id( $ref_id );
 		// Parse and render blocks from post_content.
 		$blocks = parse_blocks( $synced_form->post_content );
 		$output = '';
@@ -817,7 +823,7 @@ class Contact_Form_Block {
 
 		// Clean up.
 		unset( $seen_refs[ $ref_id ] );
-
+		Contact_Form::clear_ref_id();
 		return $output;
 	}
 

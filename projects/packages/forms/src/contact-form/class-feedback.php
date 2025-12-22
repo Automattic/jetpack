@@ -177,6 +177,13 @@ class Feedback {
 	protected $notification_recipients = array();
 
 	/**
+	 * The jetpack_form post ID associated with this feedback, when available.
+	 *
+	 * @var int|null
+	 */
+	protected $form_id = null;
+
+	/**
 	 * Create a response object from a feedback post ID.
 	 *
 	 * @param int $feedback_post_id The ID of the feedback post.
@@ -236,16 +243,8 @@ class Feedback {
 			}
 		}
 
-		// Determine the source ID for this feedback.
-		// Prefer the explicit source_id from parsed content when available,
-		// otherwise fall back to the legacy behavior where post_parent was
-		// used as the source post ID, but only when no explicit form_id exists.
-		$source_id = 0;
-		if ( isset( $parsed_content['source_id'] ) && null !== $parsed_content['source_id'] ) {
-			$source_id = (int) $parsed_content['source_id'];
-		} elseif ( $feedback_post->post_parent && ! $this->form_id ) {
-			$source_id = (int) $feedback_post->post_parent;
-		}
+		// Always use source_id from parsed content as the source of truth
+		$source_id = $parsed_content['source_id'] ?? ( $feedback_post->post_parent && ! $this->form_id ? (int) $feedback_post->post_parent : 0 );
 
 		$this->source = new Feedback_Source(
 			$source_id,
@@ -312,6 +311,12 @@ class Feedback {
 	private function load_from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
 
 		$this->source = Feedback_Source::from_submission( $current_post, $current_page_number );
+
+		// Extract and validate form ID from POST data or ref attribute
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification happens in process_form_submission()
+		$form_id_attribute = isset( $post_data['contact-form-ref'] ) ? $post_data['contact-form-ref'] : $form->get_attribute( 'ref' );
+		$form_id_attribute = is_numeric( $form_id_attribute ) ? absint( $form_id_attribute ) : 0;
+		$this->form_id     = $form_id_attribute > 0 ? $form_id_attribute : null;
 
 		// If post_data is provided, use it to populate fields.
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
@@ -1213,6 +1218,7 @@ class Feedback {
 	 * @return int
 	 */
 	public function save() {
+		l( 'Saving feedback, form_id: ' . $this->form_id );
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => self::POST_TYPE,
