@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Scan: Replace inline onclick handler with target="_blank" for CSP compliance in admin bar notice.
