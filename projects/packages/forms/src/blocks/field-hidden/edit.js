@@ -2,7 +2,7 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, TextControl, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import JetpackFieldId from '../shared/components/jetpack-field-id-control.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
 import './editor.scss';
@@ -51,12 +51,7 @@ export default function HiddenFieldEdit( props ) {
 					</HStack>
 				</Placeholder>
 			</div>
-			<JetpackFieldControls
-				id={ attributes.id }
-				setAttributes={ setAttributes }
-				attributes={ attributes }
-				extraFieldSettings={ [] }
-			/>
+			<JetpackFieldId id={ attributes.id } setAttributes={ setAttributes } />
 		</>
 	);
 }
