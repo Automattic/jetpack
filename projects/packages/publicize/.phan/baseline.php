@@ -9,6 +9,7 @@
  */
 return [
     // # Issue statistics:
+    // PhanDeprecatedFunction : 1 occurrences
     // PhanPluginMixedKeyNoKey : 8 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 7 occurrences
     // PhanPluginUnreachableCode : 4 occurrences
