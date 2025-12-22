@@ -570,6 +570,7 @@ class Identity_Crisis {
 
 		if ( $idc_detected ) {
 			// Valid idc_detected response - refresh data and apply exponential backoff.
+			// @phan-suppress-next-line PhanTypeArraySuspiciousNullable -- $body is verified as array in $idc_detected check
 			$fresh_idc_data                     = self::get_sync_error_idc_option( $body['idc_detected'] );
 			$fresh_idc_data['last_checked']     = time();
 			$fresh_idc_data['next_check_delay'] = min(
