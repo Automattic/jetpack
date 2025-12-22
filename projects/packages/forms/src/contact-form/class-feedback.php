@@ -176,6 +176,13 @@ class Feedback {
 	protected $notification_recipients = array();
 
 	/**
+	 * The jetpack_form post ID associated with this feedback, when available.
+	 *
+	 * @var int|null
+	 */
+	protected $form_id = null;
+
+	/**
 	 * Create a response object from a feedback post ID.
 	 *
 	 * @param int $feedback_post_id The ID of the feedback post.
@@ -224,10 +231,22 @@ class Feedback {
 		$this->is_unread          = $feedback_post->comment_status === self::STATUS_UNREAD;
 
 		$this->fields = $parsed_content['fields'] ?? array();
-		$source_id    = $feedback_post->post_parent ? (int) $feedback_post->post_parent : 0;
+
+		// Check if post_parent is a jetpack_form post
+		$potential_form_id = $feedback_post->post_parent;
+		if ( $potential_form_id > 0 ) {
+			$parent_post = get_post( $potential_form_id );
+			if ( $parent_post && $parent_post->post_type === 'jetpack_form' ) {
+				// New data: post_parent is form ID
+				$this->form_id = $potential_form_id;
+			}
+		}
+
+		// Always use source_id from parsed content as the source of truth
+		$source_id = $parsed_content['source_id'] ?? ( $feedback_post->post_parent && ! $this->form_id ? (int) $feedback_post->post_parent : 0 );
 
 		$this->source = new Feedback_Source(
-			$parsed_content['source_id'] ?? $source_id,
+			$source_id,
 			$parsed_content['entry_title'] ?? '',
 			$parsed_content['entry_page'] ?? 1,
 			$parsed_content['source_type'] ?? 'single',
@@ -291,6 +310,12 @@ class Feedback {
 	private function load_from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
 
 		$this->source = Feedback_Source::from_submission( $current_post, $current_page_number );
+
+		// Extract and validate form ID from POST data or ref attribute
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification happens in process_form_submission()
+		$form_id_attribute = isset( $post_data['contact-form-ref'] ) ? $post_data['contact-form-ref'] : $form->get_attribute( 'ref' );
+		$form_id_attribute = is_numeric( $form_id_attribute ) ? absint( $form_id_attribute ) : 0;
+		$this->form_id     = $form_id_attribute > 0 ? $form_id_attribute : null;
 
 		// If post_data is provided, use it to populate fields.
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
@@ -505,6 +530,15 @@ class Feedback {
 	public function get_all_values( $context = 'default' ) {
 		// This is a legacy method to maintain compatibility with older code.
 		return array_merge( $this->get_compiled_fields( $context, 'key-value' ), $this->get_entry_values() );
+	}
+
+	/**
+	 * Get the jetpack_form post ID associated with this feedback.
+	 *
+	 * @return int|null The form ID, or null if not submitted via reusable form.
+	 */
+	public function get_form_id() {
+		return $this->form_id;
 	}
 
 	/**
@@ -1199,6 +1233,9 @@ class Feedback {
 	 * @return string
 	 */
 	public function get_edit_form_url() {
+		if ( ! empty( $this->form_id ) ) {
+			return \get_edit_post_link( (int) $this->form_id, 'url' );
+		}
 		return $this->source->get_edit_form_url();
 	}
 	/**
@@ -1215,6 +1252,7 @@ class Feedback {
 	 * @return int
 	 */
 	public function save() {
+		l( 'Saving feedback, form_id: ' . $this->form_id );
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => self::POST_TYPE,
@@ -1224,7 +1262,7 @@ class Feedback {
 				'post_name'      => $this->legacy_feedback_id,
 				'post_content'   => $this->serialize(), // In V3 we started to addslashes.
 				'post_mime_type' => 'v3', // a way to help us identify what version of the data this is.
-				'post_parent'    => $this->source->get_id(),
+				'post_parent'    => $this->form_id ?? $this->source->get_id(),
 				'comment_status' => self::STATUS_UNREAD, // New feedback is unread by default.
 			)
 		);
