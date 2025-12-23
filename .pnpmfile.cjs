@@ -309,6 +309,12 @@ function fixPeerDeps( pkg ) {
 		delete pkg.dependencies.sass;
 	}
 
+	// These peer deps are marked as optional in @wordpress/build but pnpm still complains.
+	// Remove them since they're not actually required.
+	if ( pkg.name === '@wordpress/build' && pkg.peerDependencies ) {
+		delete pkg.peerDependencies[ '@wordpress/theme' ];
+	}
+
 	return pkg;
 }
 

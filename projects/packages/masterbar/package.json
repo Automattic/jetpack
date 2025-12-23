@@ -33,7 +33,7 @@
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@babel/core": "7.28.4",
 		"@csstools/postcss-global-data": "2.1.1",
-		"@wordpress/browserslist-config": "6.36.0",
+		"@wordpress/browserslist-config": "6.36.1-next.738bb1424.0",
 		"autoprefixer": "10.4.20",
 		"glob": "11.1.0",
 		"postcss": "8.5.6",
