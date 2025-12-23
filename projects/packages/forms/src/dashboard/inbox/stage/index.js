@@ -5,17 +5,18 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { Badge } from '@automattic/ui';
-import { ExternalLink, Modal } from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
+import { ExternalLink, Modal, SelectControl } from '@wordpress/components';
 import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { Icon, globe } from '@wordpress/icons';
+import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
@@ -33,6 +34,7 @@ import InboxStatusToggle from '../../components/inbox-status-toggle/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
 import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
+import ViewToggle from '../../components/page/view-toggle.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
 import { getPath, getItemId } from '../utils.js';
 import {
@@ -128,6 +130,7 @@ export default function InboxView() {
 	}, [] );
 
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
+	const isCFMEnabled = useConfigValue( 'isCFMEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 
 	const {
@@ -157,6 +160,46 @@ export default function InboxView() {
 	);
 
 	const isInboxLoading = isLoadingData || isAkismetStatusPending;
+	const [ formFilterOptions, setFormFilterOptions ] = useState( [] );
+
+	useEffect( () => {
+		if ( ! isCFMEnabled ) {
+			setFormFilterOptions( [] );
+			return;
+		}
+
+		let isMounted = true;
+		const path = addQueryArgs( '/wp/v2/jetpack-forms', {
+			context: 'edit',
+			per_page: 100,
+			order: 'desc',
+			orderby: 'modified',
+			_fields: 'id,title',
+		} );
+
+		apiFetch( { path } )
+			.then( data => {
+				if ( ! isMounted ) {
+					return;
+				}
+
+				const options = ( data || [] ).map( form => ( {
+					value: String( form.id ),
+					label:
+						decodeEntities( form?.title?.rendered || '' ) || __( '(Untitled)', 'jetpack-forms' ),
+				} ) );
+				setFormFilterOptions( options );
+			} )
+			.catch( () => {
+				if ( isMounted ) {
+					setFormFilterOptions( [] );
+				}
+			} );
+
+		return () => {
+			isMounted = false;
+		};
+	}, [ isCFMEnabled ] );
 
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
@@ -165,6 +208,9 @@ export default function InboxView() {
 			}
 			if ( field === 'source' ) {
 				accumulator.parent = value;
+			}
+			if ( field === 'form' ) {
+				accumulator.jetpack_form_id = value;
 			}
 			if ( field === 'date' ) {
 				const [ year, month ] = value.split( '/' ).map( Number );
@@ -191,6 +237,7 @@ export default function InboxView() {
 	}, [ view, statusFilter, setCurrentQuery ] );
 
 	const selection = selectedResponses?.split( ',' ) || EMPTY_ARRAY;
+	const formFilterParam = searchParams.get( 'form' );
 
 	// We need to keep the valid selection item in state to be used in `export`.
 	// We do this because a user can have in their selection either ids that
@@ -202,6 +249,51 @@ export default function InboxView() {
 
 		setSelectedResponses( validSelectedIds );
 	}, [ records, selection, setSelectedResponses ] );
+
+	useEffect( () => {
+		if ( ! isCFMEnabled ) {
+			return;
+		}
+
+		const currentFilters = view.filters || [];
+		const existingFormFilter = currentFilters.find( filter => filter.field === 'form' );
+
+		if ( ! formFilterParam ) {
+			if ( ! existingFormFilter ) {
+				return;
+			}
+			setView( {
+				...view,
+				filters: currentFilters.filter( filter => filter.field !== 'form' ),
+			} );
+			return;
+		}
+
+		const label =
+			formFilterOptions.find( option => option.value === formFilterParam )?.label ||
+			formFilterParam;
+
+		if (
+			existingFormFilter &&
+			existingFormFilter.value === formFilterParam &&
+			existingFormFilter.label === label
+		) {
+			return;
+		}
+
+		setView( {
+			...view,
+			filters: [
+				...currentFilters.filter( filter => filter.field !== 'form' ),
+				{
+					field: 'form',
+					operator: 'is',
+					value: formFilterParam,
+					label,
+				},
+			],
+		} );
+	}, [ formFilterParam, formFilterOptions, isCFMEnabled, setView, view ] );
 
 	const onChangeSelection = useCallback(
 		items => {
@@ -221,6 +313,21 @@ export default function InboxView() {
 	);
 
 	const [ sidePanelItem, setSidePanelItem ] = useState();
+
+	const handleFormFilterChange = useCallback(
+		value => {
+			setSearchParams( previousSearchParams => {
+				const params = new URLSearchParams( previousSearchParams );
+				if ( value ) {
+					params.set( 'form', value );
+				} else {
+					params.delete( 'form' );
+				}
+				return params;
+			} );
+		},
+		[ setSearchParams ]
+	);
 
 	// Manage sidebar visibility based on selection
 	// Only show sidebar when exactly one item is selected on desktop
@@ -255,6 +362,11 @@ export default function InboxView() {
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
 		[ totalItems, totalPages ]
+	);
+
+	const formSelectOptions = useMemo(
+		() => [ { label: __( 'All forms', 'jetpack-forms' ), value: '' }, ...formFilterOptions ],
+		[ formFilterOptions ]
 	);
 
 	const wrapperUnread = ( isUnread, itemValue ) => {
@@ -497,8 +609,12 @@ export default function InboxView() {
 			}
 		}
 
+		if ( isCFMEnabled ) {
+			headerActionsArray.unshift( <ViewToggle key="view-toggle" /> );
+		}
+
 		return headerActionsArray;
-	}, [ statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
+	}, [ statusFilter, isIntegrationsEnabled, showDashboardIntegrations, isCFMEnabled ] );
 
 	const pageContent = (
 		<Page
@@ -533,8 +649,18 @@ export default function InboxView() {
 				}
 			>
 				<div className="jp-forms-view-actions">
-					<div>
+					<div className="jp-forms-view-actions__filters">
 						<InboxStatusToggle onChange={ resetPage } />
+						{ isCFMEnabled && formSelectOptions.length > 1 && (
+							<SelectControl
+								className="jp-forms__form-filter"
+								label={ __( 'Filter by form', 'jetpack-forms' ) }
+								hideLabelFromVision
+								value={ formFilterParam || '' }
+								options={ formSelectOptions }
+								onChange={ handleFormFilterChange }
+							/>
+						) }
 					</div>
 					<div
 						style={ {

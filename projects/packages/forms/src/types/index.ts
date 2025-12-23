@@ -238,6 +238,8 @@ export interface FormsConfigData {
 	isHostingerReachEnabled?: boolean;
 	/** Whether integrations UI is enabled (feature-flagged). */
 	isIntegrationsEnabled?: boolean;
+	/** Whether central form management is enabled. */
+	isCFMEnabled?: boolean;
 	/** Whether webhooks are enabled (feature-flagged). */
 	isWebhooksEnabled?: boolean;
 	/** Whether to show integrations in the Forms dashboard UI. */

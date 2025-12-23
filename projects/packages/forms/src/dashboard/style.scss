@@ -40,3 +40,76 @@ body.jetpack_page_jetpack-forms-admin {
 	padding-left: 24px;
 	padding-right: 24px;
 }
+
+.jp-forms-view-toggle {
+
+	.components-button {
+		min-width: 120px;
+	}
+}
+
+.jp-forms-view-actions__filters {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.jp-forms__form-filter {
+	min-width: 200px;
+}
+
+.jp-forms-form-stats {
+
+	&__summary {
+		margin-bottom: 24px;
+
+		&-label {
+			font-size: 12px;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			margin: 0;
+			color: #6c7781;
+		}
+
+		&-value {
+			margin: 4px 0 0;
+			font-size: 28px;
+			font-weight: 600;
+		}
+	}
+
+	&__activity {
+
+		&-heading {
+			font-weight: 600;
+			margin-bottom: 8px;
+		}
+
+		ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		li {
+			display: flex;
+			justify-content: space-between;
+			padding: 6px 0;
+			border-bottom: 1px solid var(--jp-forms-border-color);
+
+			&:last-child {
+				border-bottom: 0;
+			}
+		}
+
+		&-empty {
+			color: #6c7781;
+		}
+	}
+
+	&__loading {
+		display: flex;
+		justify-content: center;
+		padding: 32px 0;
+	}
+}

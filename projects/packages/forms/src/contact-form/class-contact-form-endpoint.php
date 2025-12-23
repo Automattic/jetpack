@@ -1504,6 +1504,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'siteURL'                   => ( new Status() )->get_site_suffix(),
 			'hasFeedback'               => ( new Forms_Dashboard() )->has_feedback(),
 			'isIntegrationsEnabled'     => Jetpack_Forms::is_integrations_enabled(),
+			'isCFMEnabled'              => Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ),
 			'isWebhooksEnabled'         => Jetpack_Forms::is_webhooks_enabled(),
 			'showDashboardIntegrations' => Jetpack_Forms::show_dashboard_integrations(),
 			'showBlockIntegrations'     => Jetpack_Forms::show_block_integrations(),
