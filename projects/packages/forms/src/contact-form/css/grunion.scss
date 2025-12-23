@@ -1051,6 +1051,23 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.radio {
 	border-radius: 50%;
+
+	&::before {
+		border-radius: 50%;
+		content: "";
+
+		border-width: 1px;
+		border-style: solid;
+
+		width: 1em;
+		height: 1em;
+		display: block;
+		position: absolute;
+		top: -1px;
+		left: -1px;
+		box-sizing: border-box;
+		transition: all 0.1s ease-in-out;
+	}
 }
 
 .contact-form .is-style-list input.consent:checked,
@@ -1096,22 +1113,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.radio:checked::before {
-	background: currentColor;
-	border-radius: 50%;
-	content: "";
-
-	/* Inherit the font size from the parent element.
-	 * This allows the input to scale with the font size
-	 * set from global styles or from block styles */
-	font-size: inherit;
-	height: calc(1em / 2);
-	width: calc(1em / 2);
-	margin-left: 50%;
-	margin-top: 50%;
-	position: absolute;
-	transform: translate(-50%, -50%);
-	top: 0;
-	left: 0;
+	border-width: 0.3em;
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
