@@ -10,10 +10,26 @@
  */
 
 import { subscribe, select, dispatch } from '@wordpress/data';
-import { unregisterPlugin } from '@wordpress/plugins';
+import { unregisterPlugin, registerPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
+import { useFormRenameCommand } from './use-form-rename-command.tsx';
 
 import './style.scss';
+
+/**
+ * Form Rename Command Component
+ * Renders the rename modal and registers the command
+ *
+ * @return {JSX.Element|null} The rename modal component or null
+ */
+function FormRenameCommand() {
+	return useFormRenameCommand();
+}
+
+// Register the rename command plugin
+registerPlugin( 'jetpack-form-rename-command', {
+	render: FormRenameCommand,
+} );
 
 /**
  * Remove Jetpack block categories from the editor.
