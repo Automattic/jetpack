@@ -299,7 +299,7 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 		);
 
 		$post_object = get_post( $post_id );
-		$this->assertTrue( str_contains( $post_object->post_content, 'ud83dude48' ) ); // ud83dude48 => 🙈 withouth the /
+		$this->assertTrue( str_contains( $post_object->post_content, 'ud83dude48' ) ); // ud83dude48 => 🙈 without the /
 
 		$response = Feedback::get( $post_id );
 
