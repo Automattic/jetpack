@@ -10,9 +10,48 @@
  */
 
 import { subscribe, select, dispatch } from '@wordpress/data';
+import { unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 
 import './style.scss';
+
+/**
+ * Remove Jetpack block categories from the editor.
+ */
+const moveFormsCategoryToFront = () => {
+	const { getCategories } = select( 'core/blocks' );
+	const { setCategories } = dispatch( 'core/blocks' );
+
+	const categories = getCategories();
+
+	// move the category with the slug 'contact-form' to the beginning of the list
+	const contactFormCategoryIndex = categories.findIndex( cat => cat.slug === 'contact-form' );
+	if ( contactFormCategoryIndex > -1 ) {
+		const [ contactFormCategory ] = categories.splice( contactFormCategoryIndex, 1 );
+		categories.unshift( contactFormCategory );
+	}
+	setCategories( categories );
+};
+
+const moveFormsCategoryToBack = () => {
+	const { getCategories } = select( 'core/blocks' );
+	const { setCategories } = dispatch( 'core/blocks' );
+
+	const categories = getCategories();
+
+	const contactFormCategoryIndex = categories.findIndex( cat => cat.slug === 'contact-form' );
+	if ( contactFormCategoryIndex > -1 ) {
+		const [ contactFormCategory ] = categories.splice( contactFormCategoryIndex, 1 );
+		const contactFormGrowIndex = categories.findIndex( cat => cat.slug === 'grow' );
+		if ( contactFormGrowIndex > -1 ) {
+			categories.splice( contactFormGrowIndex + 1, 0, contactFormCategory );
+			setCategories( categories );
+			return;
+		}
+		categories.push( contactFormCategory );
+		setCategories( categories );
+	}
+};
 
 let formBlockClientId = null;
 /**
@@ -125,16 +164,26 @@ const enforceBlockNesting = () => {
 };
 
 let isJetpackFormEditor = null;
+let categoriesFiltered = false;
+
 // Subscribe to editor changes to lock the form block when ready.
 subscribe( () => {
 	const { getCurrentPostType } = select( 'core/editor' );
 	const isCurrentPostTypeJetpackForm = getCurrentPostType() === FORM_POST_TYPE;
-
 	if ( isCurrentPostTypeJetpackForm ) {
 		enforceBlockNesting();
 		enforceBlockSelection();
 		lockFormBlock();
 		! formBlockClientId && locateFormBlock(); // Locate the form block if we haven't
+
+		if ( ! categoriesFiltered ) {
+			categoriesFiltered = true;
+			moveFormsCategoryToFront();
+			unregisterPlugin( 'block-directory' );
+		}
+	} else if ( categoriesFiltered ) {
+		categoriesFiltered = false;
+		moveFormsCategoryToBack();
 	}
 
 	if ( isCurrentPostTypeJetpackForm === isJetpackFormEditor ) {
@@ -146,6 +195,8 @@ subscribe( () => {
 	} else {
 		document.body.classList.remove( 'post-type-jetpack_form' );
 		formBlockClientId = null; // Reset the form block client ID if we are not in the Form editor anymore.
+		categoriesFiltered = false; // Reset the flag
+		// moveFormsCategoryToBack();
 	}
 	// Update the flag.
 	isJetpackFormEditor = isCurrentPostTypeJetpackForm;
