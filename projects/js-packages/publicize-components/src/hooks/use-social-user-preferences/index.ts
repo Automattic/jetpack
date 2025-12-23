@@ -5,7 +5,15 @@ import { store as preferencesStore } from '@wordpress/preferences';
 const NAMESPACE = 'jetpack/social';
 
 export type SocialUserPreferences = {
+	/**
+	 * Whether to show a confirmation before publishing a post with social shares.
+	 */
 	prePublishConfirmation: boolean | undefined;
+
+	/**
+	 * Whether the review prompt has been dismissed by the user.
+	 */
+	reviewPromptDismissed: boolean | undefined;
 };
 
 type BooleanPreferences = {
@@ -18,6 +26,7 @@ type Preference = keyof SocialUserPreferences;
 
 const PREFERENCES: Record< Preference, string > = {
 	prePublishConfirmation: 'pre_publish_confirmation',
+	reviewPromptDismissed: 'review_prompt_dismissed',
 } as const;
 
 /**

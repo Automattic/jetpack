@@ -1,18 +1,15 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import apiFetch from '@wordpress/api-fetch';
 import { PluginPostPublishPanel } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { usePostStartedPublishing } from '../../hooks/use-saving-post';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { getSocialScriptData } from '../../utils';
+import { useSocialUserPreferences } from '../../hooks/use-social-user-preferences';
 import ReviewPrompt from '../review-prompt';
 
 const PostPublishReviewPrompt = () => {
-	const { review } = getSocialScriptData();
-	const [ isReviewRequestDismissed, setIsReviewRequestDismissed ] = useState(
-		review?.dismissed ?? true
-	);
+	const preferences = useSocialUserPreferences();
+
 	const [ shouldReviewRequestShow, setShouldReviewRequestShow ] = useState( false );
 
 	const { hasEnabledConnections } = useSocialMediaConnections();
@@ -27,19 +24,11 @@ const PostPublishReviewPrompt = () => {
 
 	// Handle when the review request is dismissed
 	const handleReviewDismiss = useCallback( () => {
-		// Save that the user has dismissed this by calling to the social plugin API method
-		apiFetch( {
-			path: review?.dismiss_path,
-			method: 'POST',
-			data: { dismissed: true },
-		} ).catch( error => {
-			throw error;
-		} );
+		// Save the user preference to not show the prompt again
+		preferences.set( 'reviewPromptDismissed', true );
+	}, [ preferences ] );
 
-		setIsReviewRequestDismissed( true );
-	}, [ review?.dismiss_path ] );
-
-	if ( isReviewRequestDismissed || ! shouldReviewRequestShow ) {
+	if ( preferences.data.reviewPromptDismissed || ! shouldReviewRequestShow ) {
 		return null;
 	}
 

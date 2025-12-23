@@ -48,10 +48,6 @@ export interface SocialScriptData {
 	assets_url: string;
 	is_publicize_enabled: boolean;
 	plugin_info: PluginInfo;
-	review?: {
-		dismissed: boolean;
-		dismiss_path: string;
-	};
 	settings: SocialSettings;
 	shares_data: SharesData;
 	store_initial_state: SocialStoreState;
