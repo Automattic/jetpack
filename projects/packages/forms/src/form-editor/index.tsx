@@ -1,98 +1,51 @@
 /**
- * Jetpack Form Editor - Keeps the form block selected and enforces block nesting.
+ * Jetpack Form Editor - Makes the form block unselectable and enforces block nesting.
  *
- * This script ensures that the jetpack/contact-form block remains selected
- * in the jetpack-form custom post type editor when no other block is selected,
- * and ensures that blocks can only be added inside the form block, not as siblings to it.
- * It also locks the form block to prevent it from being moved or removed.
+ * This script prevents the jetpack/contact-form block from being selected
+ * in the jetpack-form custom post type editor, and ensures that blocks can
+ * only be added inside the form block, not as siblings to it.
+ *
+ * It also registers the Form Document Settings plugin to display form settings
+ * in the Document Settings sidebar.
  */
 
 import { subscribe, select, dispatch } from '@wordpress/data';
-import { unregisterPlugin } from '@wordpress/plugins';
+import { registerPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
-import {
-	BlockLock,
-	findFormBlock,
-	getInsertionIndex,
-	shouldLockBlock,
-	getBlocksToMove,
-} from './utils/block-utils';
-import {
-	moveContactFormCategoryToFront as moveCategoryToFront,
-	moveContactFormCategoryToBack as moveCategoryToBack,
-} from './utils/category-utils';
+import { FormDocumentSettings } from './form-document-settings.tsx';
 
 import './style.scss';
 
-/**
- * Move the Jetpack contact form block category to the front in the editor.
- * @return {unknown[]} previous categories array
- */
-const moveFormsCategoryToFront = () => {
-	const { getCategories } = select( 'core/blocks' );
-	const { setCategories } = dispatch( 'core/blocks' ) as {
-		setCategories: ( categories: unknown[] ) => void;
-	};
-
-	const categories = getCategories();
-	const newCategories = moveCategoryToFront( categories );
-	setCategories( newCategories );
-	return categories;
-};
+let formBlockClientId = null;
 
 /**
- * Move the Jetpack contact form block category back to its original position.
- * @param previousCategories - The previous categories array to restore
- */
-const moveFormsCategoryBackToOriginalOrder = ( previousCategories: unknown[] ) => {
-	const { setCategories } = dispatch( 'core/blocks' ) as {
-		setCategories: ( categories: unknown[] ) => void;
-	};
-	if ( previousCategories.length !== 0 ) {
-		setCategories( previousCategories );
-		return;
-	}
-
-	const { getCategories } = select( 'core/blocks' );
-	const categories = getCategories();
-	const newCategories = moveCategoryToBack( categories );
-	setCategories( newCategories );
-};
-
-let formBlockClientId: string | null = null;
-/**
- * Locate the contact-form block in the editor and store its client ID.
- */
-const locateFormBlock = () => {
-	const { getBlocks } = select( 'core/block-editor' );
-	const blocks = getBlocks();
-
-	const formBlock = findFormBlock( blocks );
-
-	if ( formBlock ) {
-		formBlockClientId = formBlock.clientId;
-	}
-};
-
-/**
- * Lock the contact-form block to prevent moving and removing the block.
+ * Lock the contact-form block to prevent selection.
  */
 const lockFormBlock = () => {
-	if ( ! formBlockClientId ) {
-		return;
-	}
+	const { getBlocks, getSelectedBlockClientId } = select( 'core/block-editor' );
 
-	const { getBlock } = select( 'core/block-editor' );
-	const { updateBlockAttributes } = dispatch( 'core/block-editor' ) as {
+	const { updateBlockAttributes, clearSelectedBlock } = dispatch( 'core/block-editor' ) as {
 		updateBlockAttributes: ( clientId: string, attributes: Record< string, unknown > ) => void;
+		clearSelectedBlock: () => void;
 	};
 
-	const formBlock = getBlock( formBlockClientId );
+	const blocks = getBlocks();
+	if ( blocks.length === 0 ) {
+		return;
+	}
+	// Find the jetpack/contact-form block (should be the first and only root block).
+	const formBlock = blocks.find( block => block.name === 'jetpack/contact-form' );
 	if ( ! formBlock ) {
 		return;
 	}
 
-	if ( shouldLockBlock( formBlock ) ) {
+	// Store the form block client ID for later use.
+	formBlockClientId = formBlock.clientId;
+	// Set the flag BEFORE making any changes to prevent recursion.
+	// hasLocked = true;
+
+	if ( ! formBlock.attributes?.lock?.remove ) {
+		// Lock the block to prevent removal, moving, and selection.
 		updateBlockAttributes( formBlockClientId, {
 			lock: {
 				remove: true,
@@ -100,32 +53,39 @@ const lockFormBlock = () => {
 			},
 		} );
 	}
-};
 
-/**
- * Ensure the contact-form block is always selected when no other block is selected.
- */
-const enforceBlockSelection = () => {
-	if ( ! formBlockClientId ) {
-		return;
-	}
-	const { getSelectedBlockClientId, hasMultiSelection } = select( 'core/block-editor' );
-
-	if ( hasMultiSelection() ) {
-		return;
-	}
+	// If the form block is currently selected, clear the selection.
 	const selectedBlockId = getSelectedBlockClientId();
-	if ( ! selectedBlockId ) {
-		const { selectBlock } = dispatch( 'core/block-editor' ) as {
-			selectBlock: ( clientId: string ) => void;
-		};
-		selectBlock( formBlockClientId );
+	if ( selectedBlockId === formBlock.clientId ) {
+		clearSelectedBlock();
+	}
+
+	// // Add CSS to hide the form block's selection outline and controls.
+	if ( ! document.getElementById( 'jetpack-form-block-lock-styles' ) ) {
+		const style = document.createElement( 'style' );
+		style.id = 'jetpack-form-block-lock-styles';
+		style.textContent = `
+			/* Hide selection outline and controls for the form block */
+			.wp-block[data-type="jetpack/contact-form"] > .block-editor-block-list__block-edit::before {
+				display: none !important;
+			}
+			.wp-block[data-type="jetpack/contact-form"] > .block-editor-block-contextual-toolbar,
+			.wp-block[data-type="jetpack/contact-form"] > .block-list-appender {
+				display: none !important;
+			}
+
+			/* Hide the root-level block appender to prevent adding blocks outside the form */
+			.editor-styles-wrapper > .block-editor-block-list__layout > .block-list-appender,
+			.editor-styles-wrapper > .block-editor-block-list__layout > .wp-block > .block-list-appender {
+				display: none !important;
+			}
+		`;
+		document.head.appendChild( style );
 	}
 };
 
 /**
  * Monitor for blocks added at the root level and move them inside the form.
- * Uses pure utility functions for easier testing.
  */
 const enforceBlockNesting = () => {
 	if ( ! formBlockClientId ) {
@@ -139,19 +99,12 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	// Find any blocks that aren't the form block
-	const blocksToMove = getBlocksToMove( rootBlocks, formBlockClientId );
+	// Find any blocks that aren't the form block.
+	const blocksToMove = rootBlocks.filter( block => block.clientId !== formBlockClientId );
 
 	if ( blocksToMove.length === 0 ) {
 		return;
 	}
-
-	// Get the form block to determine where to insert the blocks
-	const formBlock = rootBlocks.find( b => b.clientId === formBlockClientId );
-	const targetIndex = formBlock ? getInsertionIndex( formBlock ) : 0;
-
-	// Collect all client IDs to move
-	const clientIdsToMove = blocksToMove.map( block => block.clientId );
 
 	const { moveBlocksToPosition } = dispatch( 'core/block-editor' ) as {
 		moveBlocksToPosition: (
@@ -161,116 +114,63 @@ const enforceBlockNesting = () => {
 			index: number
 		) => void;
 	};
-	// Move all blocks at once to avoid state conflicts
-	moveBlocksToPosition(
-		clientIdsToMove,
-		'', // From root
-		formBlockClientId, // To form block
-		targetIndex
-	);
+	// Move each block inside the form block.
+	blocksToMove.forEach( block => {
+		// Get the current number of inner blocks to append at the end.
+		const formBlock = rootBlocks.find( b => b.clientId === formBlockClientId );
+		const targetIndex = formBlock ? formBlock.innerBlocks.length : 0;
+
+		// Move the block from root to inside the form.
+		moveBlocksToPosition(
+			[ block.clientId ],
+			'', // From root
+			formBlockClientId, // To form block
+			targetIndex
+		);
+	} );
 };
-
-let isJetpackFormEditor: boolean | null = null;
-let categoriesFiltered: boolean = false;
-
-let lastRootBlockIds: string = '';
-let lastSelectedBlockId: string | null | undefined = null;
-let isFormBlockLocked: boolean = false;
-let previousCategories: unknown[] | null = null;
-
-let unsubscribe: ( () => void ) | null = null;
 
 /**
- * Sets up a subscription to monitor editor state changes and enforce form editor behavior.
+ * Remove default WordPress document panels for jetpack-form post type.
+ * This makes the sidebar show only form-specific settings.
  */
-const setupFormEditorSubscription = () => {
-	if ( unsubscribe ) {
+const removeDefaultPanels = () => {
+	const { getCurrentPostType } = select( 'core/editor' );
+	if ( getCurrentPostType() !== FORM_POST_TYPE ) {
 		return;
 	}
-	unsubscribe = subscribe( () => {
-		const { getCurrentPostType } = select( 'core/editor' );
-		const isCurrentPostTypeJetpackForm = getCurrentPostType() === FORM_POST_TYPE;
-		if ( isCurrentPostTypeJetpackForm ) {
-			// Check if root blocks changed by comparing their IDs
-			// This detects when blocks are added, removed, or reordered at the root level
-			const { getBlocks } = select( 'core/block-editor' );
-			const rootBlocks = getBlocks();
-			const currentRootBlockIds = JSON.stringify( rootBlocks.map( b => b.clientId ) );
 
-			if ( currentRootBlockIds !== lastRootBlockIds ) {
-				lastRootBlockIds = currentRootBlockIds;
-				enforceBlockNesting();
-			}
-
-			// Only check selection when it changes
-			const { getSelectedBlockClientId } = select( 'core/block-editor' );
-			const currentSelectedBlockId = getSelectedBlockClientId();
-			if ( currentSelectedBlockId !== lastSelectedBlockId ) {
-				lastSelectedBlockId = currentSelectedBlockId;
-				enforceBlockSelection();
-			}
-
-			// Only try to lock the form block once
-			if ( ! isFormBlockLocked && formBlockClientId ) {
-				lockFormBlock();
-				// Verify the block is now locked by checking the attributes
-				const { getBlock } = select( 'core/block-editor' );
-				const formBlock = getBlock( formBlockClientId );
-				const lock = formBlock?.attributes?.lock as BlockLock | undefined;
-				if ( formBlock && lock?.remove && lock?.move ) {
-					isFormBlockLocked = true;
-				}
-			}
-
-			if ( ! formBlockClientId ) {
-				locateFormBlock();
-			}
-
-			if ( ! categoriesFiltered ) {
-				categoriesFiltered = true;
-				previousCategories = moveFormsCategoryToFront();
-				try {
-					unregisterPlugin( 'block-directory' );
-				} catch {
-					// Plugin may not be registered, ignore.
-				}
-			}
-		} else if ( categoriesFiltered ) {
-			categoriesFiltered = false;
-			moveFormsCategoryBackToOriginalOrder( previousCategories || [] );
-		}
-
-		if ( isCurrentPostTypeJetpackForm === isJetpackFormEditor ) {
-			return;
-		}
-
-		if ( isCurrentPostTypeJetpackForm ) {
-			document.body.classList.add( 'post-type-jetpack_form' );
-		} else {
-			document.body.classList.remove( 'post-type-jetpack_form' );
-			formBlockClientId = null; // Reset the form block client ID if we are not in the Form editor anymore.
-
-			// Reset performance tracking state
-			lastRootBlockIds = '';
-			lastSelectedBlockId = null;
-			isFormBlockLocked = false;
-		}
-		// Update the flag.
-		isJetpackFormEditor = isCurrentPostTypeJetpackForm;
-	} );
-
-	// Ensure we clean up the subscription when the editor/page unloads to avoid leaks.
-	const handleUnload = () => {
-		if ( unsubscribe ) {
-			try {
-				unsubscribe();
-			} finally {
-				unsubscribe = null;
-			}
-		}
-		window.removeEventListener( 'beforeunload', handleUnload );
+	const { removeEditorPanel } = dispatch( 'core/edit-post' ) as {
+		removeEditorPanel: ( panelName: string ) => void;
 	};
-	window.addEventListener( 'beforeunload', handleUnload );
+
+	// Remove default WordPress panels that aren't relevant for forms
+	const panelsToRemove = [
+		'post-status', // Status & visibility
+		'post-link', // Permalink
+		'featured-image', // Featured image
+		'post-excerpt', // Excerpt
+		'discussion-panel', // Discussion
+		'page-attributes', // Page attributes
+	];
+
+	panelsToRemove.forEach( panel => {
+		removeEditorPanel( panel );
+	} );
 };
 
-setupFormEditorSubscription();
+// Subscribe to editor changes to lock the form block when ready.
+subscribe( () => {
+	const { getCurrentPostType } = select( 'core/editor' );
+	if ( getCurrentPostType() === FORM_POST_TYPE ) {
+		lockFormBlock();
+		enforceBlockNesting();
+		removeDefaultPanels();
+	}
+} );
+
+// Register Form Document Settings plugin
+registerPlugin( 'jetpack-form-document-settings', {
+	render: FormDocumentSettings,
+	icon: null,
+} );
