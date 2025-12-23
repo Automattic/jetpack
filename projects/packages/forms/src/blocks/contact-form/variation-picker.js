@@ -4,7 +4,7 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { createBlock, serialize, store as blocksStore } from '@wordpress/blocks';
-import { Button, Modal } from '@wordpress/components';
+import { Button, Modal, SelectControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -30,16 +30,23 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 	const { replaceInnerBlocks, selectBlock } = useDispatch( blockEditorStore );
 	const { saveEntityRecord } = useDispatch( coreStore );
 	const { createSuccessNotice } = useDispatch( noticesStore );
-	const { blockType, defaultVariation, variations, currentPostType } = useSelect(
+	const { blockType, defaultVariation, variations, currentPostType, jetpackForms } = useSelect(
 		select => {
 			const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( blocksStore );
 			const { getCurrentPostType } = select( editorStore );
+			const { getEntityRecords } = select( coreStore );
 
 			return {
 				blockType: getBlockType( blockName ),
 				defaultVariation: getDefaultBlockVariation( blockName, 'block' ),
 				variations: getBlockVariations( blockName, 'block' ),
 				currentPostType: getCurrentPostType(),
+				jetpackForms:
+					getEntityRecords( 'postType', FORM_POST_TYPE, {
+						per_page: 100,
+						status: 'publish',
+						orderBy: 'modified',
+					} ) || [],
 			};
 		},
 		[ blockName ]
@@ -58,13 +65,29 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
+	const handleFormSelection = formId => {
+		if ( ! formId ) {
+			return;
+		}
+
+		registry.batch( () => {
+			setAttributes( { ref: parseInt( formId, 10 ) } );
+			selectBlock( clientId );
+		} );
+
+		createSuccessNotice( __( 'Form selected.', 'jetpack-forms' ), {
+			type: 'snackbar',
+			isDismissible: true,
+		} );
+	};
+
 	return (
 		<div className={ clsx( classNames, 'is-placeholder' ) }>
 			<BlockVariationPicker
 				icon={ blockType?.icon?.src }
 				label={ blockType?.title }
 				instructions={ __(
-					'Start by selecting one of these templates, or browse patterns.',
+					'Start by selecting one of these templates, browse patterns, or select an existing form below.',
 					'jetpack-forms'
 				) }
 				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
@@ -142,6 +165,20 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				<Button variant="secondary" onClick={ () => setIsPatternsModalOpen( true ) }>
 					{ __( 'Browse form patterns', 'jetpack-forms' ) }
 				</Button>
+				{ ! isEditingJetpackFormPost && (
+					<SelectControl
+						label={ __( 'Or select an existing form', 'jetpack-forms' ) }
+						value=""
+						options={ [
+							{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
+							...jetpackForms.map( form => ( {
+								label: form.title?.rendered || __( '(Untitled)', 'jetpack-forms' ),
+								value: form.id.toString(),
+							} ) ),
+						] }
+						onChange={ handleFormSelection }
+					/>
+				) }
 			</div>
 			{ isPatternsModalOpen && (
 				<Modal
