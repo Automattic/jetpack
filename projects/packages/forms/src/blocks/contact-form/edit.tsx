@@ -1019,7 +1019,11 @@ function JetpackContactFormEdit( {
 							className="jetpack-contact-form__panel"
 							initialOpen={ false }
 						>
-							<WebhooksSettings webhooks={ webhooks } setAttributes={ setAttributes } />
+							<WebhooksSettings
+								webhooks={ webhooks }
+								setAttributes={ setAttributes }
+								clientId={ clientId }
+							/>
 						</PanelBody>
 					) }
 					<PanelBody
