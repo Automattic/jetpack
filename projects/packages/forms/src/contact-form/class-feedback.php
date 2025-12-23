@@ -313,7 +313,7 @@ class Feedback {
 
 		// Extract and validate form ID from POST data or ref attribute
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification happens in process_form_submission()
-		$form_id_attribute = isset( $post_data['contact-form-ref'] ) ? $post_data['contact-form-ref'] : $form->get_attribute( 'ref' );
+		$form_id_attribute = $post_data['contact-form-ref'] ?? $form->get_attribute( 'ref' );
 		$form_id_attribute = is_numeric( $form_id_attribute ) ? absint( $form_id_attribute ) : 0;
 		$this->form_id     = $form_id_attribute > 0 ? $form_id_attribute : null;
 
