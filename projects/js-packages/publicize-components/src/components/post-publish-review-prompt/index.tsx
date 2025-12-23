@@ -5,6 +5,7 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { usePostStartedPublishing } from '../../hooks/use-saving-post';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { useSocialUserPreferences } from '../../hooks/use-social-user-preferences';
+import { getSocialScriptData } from '../../utils';
 import ReviewPrompt from '../review-prompt';
 
 const PostPublishReviewPrompt = () => {
@@ -32,12 +33,17 @@ const PostPublishReviewPrompt = () => {
 		return null;
 	}
 
+	const pluginReviewUrl = getRedirectUrl(
+		// If the social plugin is active, direct to that review page
+		getSocialScriptData().plugin_info.social.version
+			? 'jetpack-social-plugin-reviews'
+			: // Otherwise, direct to the main Jetpack plugin review page
+			  'jetpack-plugin-reviews'
+	);
+
 	return (
 		<PluginPostPublishPanel>
-			<ReviewPrompt
-				href={ getRedirectUrl( 'jetpack-social-plugin-reviews' ) }
-				onClose={ handleReviewDismiss }
-			/>
+			<ReviewPrompt href={ pluginReviewUrl } onClose={ handleReviewDismiss } />
 		</PluginPostPublishPanel>
 	);
 };
