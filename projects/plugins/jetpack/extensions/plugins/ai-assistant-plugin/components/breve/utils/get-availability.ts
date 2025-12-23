@@ -27,10 +27,9 @@ export function getBreveAvailability() {
 	}
 
 	// Only available for English sites.
-	const siteLanguage = (
-		select( 'core' ).getEntityRecord( 'root', 'site' ) as { language?: string }
-	 )?.language;
-	if ( ! siteLanguage?.startsWith( 'en' ) ) {
+	const siteLocale = window?.Jetpack_Editor_Initial_State?.siteLocale || '';
+	const siteLanguage = siteLocale.split( '-' )[ 0 ] || '';
+	if ( siteLanguage !== 'en' ) {
 		return false;
 	}
 
