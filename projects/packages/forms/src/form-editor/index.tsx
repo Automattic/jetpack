@@ -46,7 +46,9 @@ const lockFormBlock = () => {
 	};
 
 	const formBlock = getBlock( formBlockClientId );
-
+	if ( ! formBlock ) {
+		return;
+	}
 	if ( ! formBlock.attributes?.lock?.remove ) {
 		// Lock the block to prevent removal, moving, and selection.
 		updateBlockAttributes( formBlockClientId, {
@@ -62,7 +64,11 @@ const enforceBlockSelection = () => {
 	if ( ! formBlockClientId ) {
 		return;
 	}
-	const { getSelectedBlockClientId } = select( 'core/block-editor' );
+	const { getSelectedBlockClientId, hasMultiSelection } = select( 'core/block-editor' );
+
+	if ( hasMultiSelection() ) {
+		return;
+	}
 	const selectedBlockId = getSelectedBlockClientId();
 	if ( ! selectedBlockId ) {
 		const { selectBlock } = dispatch( 'core/block-editor' ) as {
@@ -127,6 +133,7 @@ subscribe( () => {
 	if ( isCurrentPostTypeJetpackForm ) {
 		enforceBlockNesting();
 		enforceBlockSelection();
+		lockFormBlock();
 		! formBlockClientId && locateFormBlock(); // Locate the form block if we haven't
 	}
 
@@ -135,7 +142,6 @@ subscribe( () => {
 	}
 
 	if ( isCurrentPostTypeJetpackForm ) {
-		lockFormBlock();
 		document.body.classList.add( 'post-type-jetpack_form' );
 	} else {
 		document.body.classList.remove( 'post-type-jetpack_form' );
