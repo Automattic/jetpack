@@ -23,11 +23,17 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 	const [ isConverting, setIsConverting ] = useState( false );
 
 	// Get the current page/post title and navigation function from settings
-	const { postTitle, onNavigateToEntityRecord } = useSelect( select => {
+	const { postTitle } = useSelect( select => {
 		const editedPost = select( editorStore ).getEditedPostAttribute( 'title' );
-		const { getSettings } = select( blockEditorStore );
 		return {
 			postTitle: editedPost || 'Untitled',
+		};
+	} );
+
+	// Get the current page/post title and navigation function from settings
+	const { onNavigateToEntityRecord } = useSelect( select => {
+		const { getSettings } = select( blockEditorStore );
+		return {
 			onNavigateToEntityRecord: getSettings().onNavigateToEntityRecord,
 		};
 	}, [] );
@@ -56,7 +62,8 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 
 		try {
 			// Remove ref from attributes if it exists (shouldn't, but safety check)
-			const { ...cleanAttributes } = attributes;
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { ref, ...cleanAttributes } = attributes;
 
 			// Create the synced form post with all attributes and innerBlocks
 			const postId = await createSyncedForm(
@@ -84,6 +91,11 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 
 			// Update attributes using updateBlockAttributes which properly clears them
 			updateBlockAttributes( clientId, clearedAttributes );
+
+			onNavigateToEntityRecord( {
+				postId: postId as number,
+				postType: FORM_POST_TYPE,
+			} );
 
 			createSuccessNotice( __( 'Form converted successfully', 'jetpack-forms' ), {
 				type: 'snackbar',
@@ -133,7 +145,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 					disabled={ isConverting }
 					label={ __( 'Convert to synced form', 'jetpack-forms' ) }
 				>
-					{ __( 'Convert Form', 'jetpack-forms' ) }
+					{ __( 'Edit Form', 'jetpack-forms' ) }
 				</ToolbarButton>
 			) }
 		</ToolbarGroup>
