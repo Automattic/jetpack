@@ -162,11 +162,11 @@ export default function useAiImage( {
 	 */
 	const getImageNameSuggestion = useCallback( ( userPrompt: string ) => {
 		if ( ! userPrompt ) {
-			return 'image.png';
+			return 'ai-image.png';
 		}
 
 		const truncatedPrompt = userPrompt.split( ' ' ).slice( 0, 10 ).join( ' ' );
-		return cleanForSlug( truncatedPrompt ) + '.png';
+		return 'ai-' + cleanForSlug( truncatedPrompt ) + '.png';
 	}, [] );
 
 	/*
