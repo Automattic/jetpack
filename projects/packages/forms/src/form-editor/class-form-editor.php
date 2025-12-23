@@ -125,11 +125,14 @@ class Form_Editor {
 	}
 
 	/**
-	 * Enqueue admin scripts for jetpack-form post type.
+	 * Enqueue admin scripts for block editor.
+	 * Loads in any block editor context to support rename command when form block is selected.
 	 */
 	public static function enqueue_admin_scripts() {
 		$screen = get_current_screen();
-		if ( ! $screen || $screen->id === 'site-editor' ) {
+
+		// Only load in block editor contexts, not site editor
+		if ( ! $screen || $screen->id === 'site-editor' || ! $screen->is_block_editor ) {
 			return;
 		}
 		Assets::register_script(

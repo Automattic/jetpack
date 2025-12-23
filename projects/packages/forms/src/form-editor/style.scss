@@ -10,3 +10,23 @@
 .post-type-jetpack_form .block-editor-block-list__layout .block-editor-block-list__block.is-selected {
 	box-shadow: none;
 }
+
+// Rename modal styles
+.jetpack-forms-rename-modal {
+
+	.components-modal__content {
+		padding: 24px;
+		min-width: 400px;
+	}
+
+	.components-text-control__input {
+		margin-bottom: 24px;
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 12px;
+		margin-top: 24px;
+	}
+}
