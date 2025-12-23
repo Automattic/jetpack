@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the unused Dismissed_Notices class.
