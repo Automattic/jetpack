@@ -26,13 +26,6 @@ export function getBreveAvailability() {
 		return false;
 	}
 
-	// Only available for English sites.
-	const siteLocale = window?.Jetpack_Editor_Initial_State?.siteLocale || '';
-	const siteLanguage = siteLocale.split( '-' )[ 0 ] || '';
-	if ( siteLanguage !== 'en' ) {
-		return false;
-	}
-
 	// Free plan users have access to Breve while it's in beta.
 	// const isFreePlan = currentTier?.value === 0;
 	// TODO: Review this logic when Breve is out of beta.
