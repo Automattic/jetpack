@@ -1,7 +1,7 @@
 // Hide the post title for jetpack_form post type
-.edit-post-visual-editor__post-title-wrapper,
-.editor-post-title,
-.editor-post-title__input {
+.post-type-jetpack_form .edit-post-visual-editor__post-title-wrapper,
+.post-type-jetpack_form .editor-post-title,
+.post-type-jetpack_form .editor-post-title__input {
 	display: none !important;
 }
 
@@ -12,4 +12,8 @@
 .components-base-control:where(:not(:last-child)),
 .components-radio-control:where(:not(:last-child)) {
 	margin-bottom: 16px;
+}
+
+.post-type-jetpack_form .editor-sidebar__panel-tabs {
+	display: none !important;
 }
