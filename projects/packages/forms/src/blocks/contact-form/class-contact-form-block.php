@@ -735,8 +735,13 @@ class Contact_Form_Block {
 		self::load_view_scripts();
 
 		// Handle ref attribute - load form from jetpack-form post
-		if ( isset( $atts['ref'] ) && is_numeric( $atts['ref'] ) ) {
-			return self::render_synced_form( $atts['ref'] );
+		if ( isset( $atts['ref'] ) ) {
+			$ref_id = absint( $atts['ref'] );
+			if ( $ref_id > 0 ) {
+				return self::render_synced_form( $ref_id );
+			} else {
+				return ''; // Invalid ref ID.
+			}
 		}
 
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
