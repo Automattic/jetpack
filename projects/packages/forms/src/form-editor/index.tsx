@@ -36,7 +36,9 @@ registerPlugin( 'jetpack-form-rename-command', {
  */
 const moveFormsCategoryToFront = () => {
 	const { getCategories } = select( 'core/blocks' );
-	const { setCategories } = dispatch( 'core/blocks' );
+	const { setCategories } = dispatch( 'core/blocks' ) as {
+		setCategories: ( categories: unknown[] ) => void;
+	};
 
 	const categories = getCategories();
 
@@ -51,7 +53,9 @@ const moveFormsCategoryToFront = () => {
 
 const moveFormsCategoryToBack = () => {
 	const { getCategories } = select( 'core/blocks' );
-	const { setCategories } = dispatch( 'core/blocks' );
+	const { setCategories } = dispatch( 'core/blocks' ) as {
+		setCategories: ( categories: unknown[] ) => void;
+	};
 
 	const categories = getCategories();
 
