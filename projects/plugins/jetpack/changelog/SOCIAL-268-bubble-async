@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+My Jetpack: Check red bubble notification async when cache is not available.
