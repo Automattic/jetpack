@@ -463,11 +463,11 @@ export const SettingsCard = inprops => {
 				);
 
 			case FEATURE_ADVANCED_SEO:
-				if ( props.hasAdvancedSeo || props.inOfflineMode ) {
+				if ( props.hasAdvancedSeo || props.inOfflineMode || ! props.hasConnectedOwner ) {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
+				return (
 					<JetpackBanner
 						title={ __(
 							'Optimize your site for search engines with advanced SEO tools and preview how your content will look on Google, Facebook, and Twitter.',
@@ -478,18 +478,6 @@ export const SettingsCard = inprops => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.seoUpgradeUrl }
-						rna
-					/>
-				) : (
-					<JetpackBanner
-						title={ __(
-							'Connect your WordPress.com account to optimize your site for search engines with advanced SEO tools.',
-							'jetpack'
-						) }
-						callToAction={ connectLabel() }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_ADVANCED_SEO ) }
-						feature={ feature }
-						onClick={ handleConnectClick( feature ) }
 						rna
 					/>
 				);
