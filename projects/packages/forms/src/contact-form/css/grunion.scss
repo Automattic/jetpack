@@ -1060,6 +1060,12 @@ on production builds, the attributes are being reordered, causing side-effects
 
 }
 
+// don't allow ::after pseudo-element to be displayed for checkboxes and radios
+.contact-form input[type="checkbox"]::after,
+.contact-form input[type="radio"]::after {
+	display: none;
+}
+
 .contact-form .is-style-list input.consent::before,
 .contact-form .is-style-list input.checkbox::before,
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple::before {
