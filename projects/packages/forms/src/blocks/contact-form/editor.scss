@@ -1,5 +1,14 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
+// Hide the post title for jetpack_form post type
+.post-type-jetpack_form .edit-post-visual-editor__post-title-wrapper,
+.post-type-jetpack_form .editor-post-title,
+.post-type-jetpack_form .editor-post-title__input,
+.post-type-jetpack_form .editor-visual-editor__post-title-wrapper {
+	display: none !important;
+}
+
+
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
 
