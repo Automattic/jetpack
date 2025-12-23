@@ -77,3 +77,6 @@ patchedDependencies:
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.
   'uuid@<11': .pnpm-patches/uuid.patch
+
+overrides:
+  '@wordpress/is-shallow-equal': 'next'
