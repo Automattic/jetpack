@@ -688,7 +688,8 @@ class Initializer {
 	}
 
 	/**
-	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show
+	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show.
+	 * Uses cached data only to avoid blocking page load, then lazy loads fresh data via REST API.
 	 *
 	 * @return void
 	 */
@@ -708,12 +709,17 @@ class Initializer {
 			return;
 		}
 
-		$rbn = new Red_Bubble_Notifications();
+		// Only use cached data - never trigger expensive computation on page load
+		$cached_alerts = Red_Bubble_Notifications::get_cached_alerts();
 
-		// filters for the items in this file
-		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $rbn, 'add_red_bubble_alerts' ) );
+		// If no cache, enqueue script to fetch alerts asynchronously
+		if ( empty( $cached_alerts ) ) {
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_red_bubble_script' ) );
+			return;
+		}
+
 		$red_bubble_alerts = array_filter(
-			$rbn::get_red_bubble_alerts(),
+			$cached_alerts,
 			function ( $alert ) {
 				// We don't want to show the red bubble for silent alerts
 				return empty( $alert['is_silent'] );
@@ -729,6 +735,47 @@ class Initializer {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$menu[3][0] .= sprintf( ' <span class="awaiting-mod">%d</span>', count( $red_bubble_alerts ) );
 		}
+	}
+
+	/**
+	 * Enqueue the red bubble lazy loader script.
+	 * Fetches fresh alert data via REST API without blocking page load.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_red_bubble_script() {
+		wp_register_script(
+			'my_jetpack_red_bubble',
+			false,
+			array( 'wp-api-fetch' ),
+			self::PACKAGE_VERSION,
+			array( 'in_footer' => true )
+		);
+
+		$inline_script = 'wp.apiFetch( { path: "my-jetpack/v1/red-bubble-notifications", method: "POST" } )
+			.then( function( alerts ) {
+				var count = Object.values( alerts ).filter( function( a ) { return !a.is_silent; } ).length;
+				var menuItem = document.querySelector( "#toplevel_page_jetpack .wp-menu-name" );
+				if ( ! menuItem ) return;
+				var bubble = menuItem.querySelector( ".awaiting-mod" );
+				if ( count > 0 ) {
+					if ( bubble ) {
+						bubble.className = "awaiting-mod";
+						bubble.textContent = count;
+					} else {
+						var span = document.createElement( "span" );
+						span.className = "awaiting-mod";
+						span.textContent = count;
+						menuItem.appendChild( document.createTextNode( " " ) );
+						menuItem.appendChild( span );
+					}
+				} else if ( bubble ) {
+					bubble.remove();
+				}
+			} );';
+
+		wp_add_inline_script( 'my_jetpack_red_bubble', $inline_script );
+		wp_enqueue_script( 'my_jetpack_red_bubble' );
 	}
 
 	/**

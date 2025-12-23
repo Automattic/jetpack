@@ -369,6 +369,17 @@ class Red_Bubble_Notifications {
 	}
 
 	/**
+	 * Get cached red bubble alerts without triggering expensive computation.
+	 * Returns the cached transient value or an empty array if not cached.
+	 *
+	 * @return array Cached alerts or empty array.
+	 */
+	public static function get_cached_alerts() {
+		$stored_alerts = get_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY );
+		return $stored_alerts !== false ? $stored_alerts : array();
+	}
+
+	/**
 	 * Collect all possible alerts that we might use a red bubble notification for
 	 *
 	 * @param bool $bypass_cache - whether to bypass the red bubble cache.
