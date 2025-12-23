@@ -166,6 +166,14 @@
 	color: currentColor;
 }
 
+// input wrappers with combobox open should raise to avoid oclusion
+.contact-form .wp-block-jetpack-input-wrap {
+
+	&:has(.is-combobox-open) {
+		z-index: 2;
+	}
+}
+
 // Editor styles
 .wp-block .jetpack-custom-combobox {
 

@@ -1081,6 +1081,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<div class="jetpack-custom-combobox">
 
 						<button
+							tabindex="0"
 							class="jetpack-combobox-trigger"
 							type="button"
 							data-wp-on--click="actions.phoneComboboxToggle"
