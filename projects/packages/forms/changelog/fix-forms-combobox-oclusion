@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed combobox dropdown occlusion by adding z-index when open
