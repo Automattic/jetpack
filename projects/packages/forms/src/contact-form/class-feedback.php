@@ -1218,7 +1218,6 @@ class Feedback {
 	 * @return int
 	 */
 	public function save() {
-		l( 'Saving feedback, form_id: ' . $this->form_id );
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => self::POST_TYPE,
