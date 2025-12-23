@@ -177,6 +177,15 @@ await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils', ()
 	hasFeatureFlag: jest.fn( () => true ),
 } ) );
 
+// Mock Jetpack shared extension utils components
+await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils/components', () => ( {
+	WpcomSupportLink: ( { supportLink, children } ) => (
+		<a href={ supportLink } data-testid="wpcom-support-link">
+			{ children }
+		</a>
+	),
+} ) );
+
 // Mock Jetpack script data
 await jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( {
 	isWpcomPlatformSite: jest.fn( () => false ),
