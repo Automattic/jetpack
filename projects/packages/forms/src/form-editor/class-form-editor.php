@@ -103,7 +103,7 @@ class Form_Editor {
 	/**
 	 * Modify block editor settings for jetpack-form posts.
 	 *
-	 * Disables the inserter in the top toolbar.
+	 * Disables the inserter in the top toolbar and hides the title field.
 	 *
 	 * @param array  $settings       Block editor settings.
 	 * @param object $editor_context The current editor context.
@@ -117,6 +117,9 @@ class Form_Editor {
 
 		// Enable block locking capability (was previously disabled)
 		$settings['canLockBlocks'] = false;
+
+		// Hide the title field in the editor
+		$settings['__experimentalDisablePostTitle'] = true;
 
 		return $settings;
 	}

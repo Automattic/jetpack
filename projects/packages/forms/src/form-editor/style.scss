@@ -1,3 +1,10 @@
+// Hide the post title for jetpack_form post type
+.edit-post-visual-editor__post-title-wrapper,
+.editor-post-title,
+.editor-post-title__input {
+	display: none !important;
+}
+
 .components-base-control {
 	margin-bottom: 16px;
 }
