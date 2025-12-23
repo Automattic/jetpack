@@ -1,6 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PluginPostPublishPanel } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { usePostStartedPublishing } from '../../hooks/use-saving-post';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
@@ -42,7 +44,11 @@ const PostPublishReviewPrompt = () => {
 	);
 
 	return (
-		<PluginPostPublishPanel>
+		<PluginPostPublishPanel
+			initialOpen
+			title={ __( 'Jetpack Social', 'jetpack-publicize-components' ) }
+			icon={ <JetpackEditorPanelLogo /> }
+		>
 			<ReviewPrompt href={ pluginReviewUrl } onClose={ handleReviewDismiss } />
 		</PluginPostPublishPanel>
 	);

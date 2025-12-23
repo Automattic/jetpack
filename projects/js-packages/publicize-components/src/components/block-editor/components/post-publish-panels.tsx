@@ -6,9 +6,9 @@ import { PostPublishShareStatus } from '../../post-publish-share-status';
 const PostPublishPanels = () => {
 	return (
 		<ThemeProvider targetDom={ document.body }>
+			<PostPublishReviewPrompt />
 			<PostPublishShareStatus />
 			<PostPublishManualSharing />
-			<PostPublishReviewPrompt />
 		</ThemeProvider>
 	);
 };
