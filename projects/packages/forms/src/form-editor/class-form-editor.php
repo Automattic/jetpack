@@ -125,6 +125,10 @@ class Form_Editor {
 	 * Enqueue admin scripts for jetpack-form post type.
 	 */
 	public static function enqueue_admin_scripts() {
+		$screen = get_current_screen();
+		if ( ! $screen || $screen->id === 'site-editor' ) {
+			return;
+		}
 		Assets::register_script(
 			self::SCRIPT_HANDLE,
 			'../../dist/form-editor/jetpack-forms-editor.js',
