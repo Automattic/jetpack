@@ -1,6 +1,7 @@
 import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useJetpackSocialPreferences } from '../../../hooks/use-jetpack-social-preferences';
+import { useCallback } from 'react';
+import { useSocialUserPreferences } from '../../../hooks/use-social-user-preferences';
 
 /**
  * Shows a checkbox to enable/disable pre-publish confirmation for social shares.
@@ -8,15 +9,18 @@ import { useJetpackSocialPreferences } from '../../../hooks/use-jetpack-social-p
  * @return ConfirmationConfig component.
  */
 export function ConfirmationConfig(): JSX.Element {
-	const { togglePrePublishConfirmation, showPrePublishConfirmation } =
-		useJetpackSocialPreferences();
+	const preferences = useSocialUserPreferences();
+
+	const onChange = useCallback( () => {
+		preferences.toggle( 'prePublishConfirmation' );
+	}, [ preferences ] );
 
 	return (
 		<CheckboxControl
 			__nextHasNoMarginBottom
 			label={ __( 'Always confirm before publishing', 'jetpack-publicize-components' ) }
-			checked={ showPrePublishConfirmation }
-			onChange={ togglePrePublishConfirmation }
+			checked={ preferences.data.prePublishConfirmation }
+			onChange={ onChange }
 		/>
 	);
 }
