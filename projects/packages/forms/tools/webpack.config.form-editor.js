@@ -33,7 +33,7 @@ const generateI18nVariants = ( baseFn, value ) =>
 export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
-		'jetpack-forms-editor': path.join( __dirname, '..', 'src/form-editor/index.ts' ),
+		'jetpack-forms-editor': path.join( __dirname, '..', 'src/form-editor/index.tsx' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
