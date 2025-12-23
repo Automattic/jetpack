@@ -57,6 +57,7 @@ export const settings = {
 			margin: true,
 		},
 		align: [ 'wide', 'full' ],
+		listView: true,
 	},
 	attributes: defaultAttributes,
 	providesContext: {
