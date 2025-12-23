@@ -1,19 +1,10 @@
-// Hide the post title for jetpack_form post type
-.post-type-jetpack_form .edit-post-visual-editor__post-title-wrapper,
-.post-type-jetpack_form .editor-post-title,
-.post-type-jetpack_form .editor-post-title__input {
-	display: none !important;
-}
-
-.components-base-control {
-	margin-bottom: 16px;
-}
-
-.components-base-control:where(:not(:last-child)),
-.components-radio-control:where(:not(:last-child)) {
-	margin-bottom: 16px;
-}
-
 .post-type-jetpack_form .editor-sidebar__panel-tabs {
 	display: none !important;
+}
+
+}
+
+
+.post-type-jetpack_form .block-editor-block-list__layout .block-editor-block-list__block.is-selected {
+	box-shadow: none;
 }
