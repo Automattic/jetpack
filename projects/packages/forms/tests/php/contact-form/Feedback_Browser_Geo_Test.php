@@ -64,7 +64,7 @@ class Feedback_Browser_Geo_Test extends BaseTestCase {
 
 	/**
 	 * Test the IP address is included in the serialized response.
-	 * It should be always available when the reponse is created during the form submission.
+	 * It should be always available when the response is created during the form submission.
 	 *
 	 * It should only be empty if the response that has the filter applied to it.
 	 */
