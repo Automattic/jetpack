@@ -137,7 +137,7 @@ class Form_Editor {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-data', 'wp-hooks', 'wp-polyfill' ),
+				'dependencies' => array( 'wp-data', 'wp-hooks', 'wp-polyfill', 'wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n' ),
 			)
 		);
 	}

@@ -106,7 +106,14 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	const { moveBlocksToPosition } = dispatch( 'core/block-editor' );
+	const { moveBlocksToPosition } = dispatch( 'core/block-editor' ) as {
+		moveBlocksToPosition: (
+			clientIds: string[],
+			source: string,
+			destination: string,
+			index: number
+		) => void;
+	};
 	// Move each block inside the form block.
 	blocksToMove.forEach( block => {
 		// Get the current number of inner blocks to append at the end.
@@ -123,12 +130,42 @@ const enforceBlockNesting = () => {
 	} );
 };
 
+/**
+ * Remove default WordPress document panels for jetpack-form post type.
+ * This makes the sidebar show only form-specific settings.
+ */
+const removeDefaultPanels = () => {
+	const { getCurrentPostType } = select( 'core/editor' );
+	if ( getCurrentPostType() !== FORM_POST_TYPE ) {
+		return;
+	}
+
+	const { removeEditorPanel } = dispatch( 'core/edit-post' ) as {
+		removeEditorPanel: ( panelName: string ) => void;
+	};
+
+	// Remove default WordPress panels that aren't relevant for forms
+	const panelsToRemove = [
+		'post-status', // Status & visibility
+		'post-link', // Permalink
+		'featured-image', // Featured image
+		'post-excerpt', // Excerpt
+		'discussion-panel', // Discussion
+		'page-attributes', // Page attributes
+	];
+
+	panelsToRemove.forEach( panel => {
+		removeEditorPanel( panel );
+	} );
+};
+
 // Subscribe to editor changes to lock the form block when ready.
 subscribe( () => {
 	const { getCurrentPostType } = select( 'core/editor' );
 	if ( getCurrentPostType() === FORM_POST_TYPE ) {
 		lockFormBlock();
 		enforceBlockNesting();
+		removeDefaultPanels();
 	}
 } );
 
