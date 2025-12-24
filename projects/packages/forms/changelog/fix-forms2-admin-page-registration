@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed Forms2 admin page registration to use proper callback
