@@ -38,7 +38,7 @@ function register_block() {
 				'title'        => __( 'Instagram', 'jetpack' ),
 				'description'  => __( 'Display your more recent images from Instagram.', 'jetpack' ),
 				'support_link' => array(
-					'wpcom'   => 'https://wordpress.com/support/instagram/#embed-a-feed-of-instagram-posts',
+					'wpcom'   => 'https://wordpress.com/support/latest-instagram-posts/',
 					'jetpack' => 'latest-instagram-posts-block',
 				),
 			)
