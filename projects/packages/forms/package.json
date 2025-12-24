@@ -105,7 +105,7 @@
 		"@types/react-dom": "18.3.7",
 		"@wordpress/api-fetch": "7.36.0",
 		"@wordpress/browserslist-config": "6.36.0",
-		"@wordpress/build": "0.4.1-next.6deb34194.0",
+		"@wordpress/build": "0.4.1-next.8fd3f8831.0",
 		"@wordpress/date": "5.36.0",
 		"autoprefixer": "10.4.20",
 		"browserslist": "^4.24.0",
