@@ -266,6 +266,17 @@ export type ChartTheme = {
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
 	};
+	/** SegmentedBar specific settings */
+	segmentedBar?: {
+		/** Height of the bar in pixels */
+		height?: number;
+		/** Gap between segments in pixels */
+		gap?: number;
+		/** Corner radius for the bar ends */
+		borderRadius?: number;
+		/** Default color for markers */
+		markerColor?: string;
+	};
 };
 
 /**
@@ -289,6 +300,7 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
+	segmentedBar: Required< NonNullable< ChartTheme[ 'segmentedBar' ] > >;
 };
 
 declare type AxisOptions = {

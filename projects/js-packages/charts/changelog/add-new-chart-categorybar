@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: Add SegmentedBar component for horizontal segmented progress bars

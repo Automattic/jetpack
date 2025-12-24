@@ -82,12 +82,18 @@
 			"import": "./dist/providers/index.js",
 			"require": "./dist/providers/index.cjs"
 		},
-		"./sparkline": {
-			"jetpack:src": "./src/components/sparkline/index.ts",
-			"import": "./dist/components/sparkline/index.js",
-			"require": "./dist/components/sparkline/index.cjs"
+		"./segmented-bar": {
+			"jetpack:src": "./src/charts/segmented-bar/index.ts",
+			"import": "./dist/charts/segmented-bar/index.js",
+			"require": "./dist/charts/segmented-bar/index.cjs"
 		},
-		"./sparkline/style.css": "./dist/components/sparkline/index.css",
+		"./segmented-bar/style.css": "./dist/charts/segmented-bar/index.css",
+		"./sparkline": {
+			"jetpack:src": "./src/charts/sparkline/index.ts",
+			"import": "./dist/charts/sparkline/index.js",
+			"require": "./dist/charts/sparkline/index.cjs"
+		},
+		"./sparkline/style.css": "./dist/charts/sparkline/index.css",
 		"./style.css": "./dist/index.css",
 		"./tooltip": {
 			"jetpack:src": "./src/components/tooltip/index.ts",
@@ -156,8 +162,11 @@
 			"legend": [
 				"./dist/components/legend/index.d.ts"
 			],
+			"segmented-bar": [
+				"./dist/charts/segmented-bar/index.d.ts"
+			],
 			"sparkline": [
-				"./dist/components/sparkline/index.d.ts"
+				"./dist/charts/sparkline/index.d.ts"
 			],
 			"trend-indicator": [
 				"./dist/components/trend-indicator/index.d.ts"

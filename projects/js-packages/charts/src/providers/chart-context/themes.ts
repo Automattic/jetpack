@@ -65,6 +65,12 @@ const defaultTheme: CompleteChartTheme = {
 		margin: { top: 2, right: 2, bottom: 2, left: 2 },
 		strokeWidth: 1.5,
 	},
+	segmentedBar: {
+		height: 8,
+		gap: 0,
+		borderRadius: 4,
+		markerColor: '#374151',
+	},
 };
 
 export { defaultTheme };

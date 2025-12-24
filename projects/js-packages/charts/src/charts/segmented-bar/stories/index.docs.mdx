@@ -1,0 +1,264 @@
+import { Meta, Canvas, Source } from '@storybook/addon-docs/blocks';
+import * as SegmentedBarStories from './index.stories';
+
+<Meta title="JS Packages/Charts Library/Charts/Segmented Bar" of={ SegmentedBarStories } />
+
+# Segmented Bar
+
+A horizontal segmented bar component for visualizing proportions, progress, or status indicators.
+
+<Canvas of={ SegmentedBarStories.Default } />
+
+## Overview
+
+The Segmented Bar displays colored segments that can show proportional data or equal-width status indicators. It supports tooltips, markers, and customizable labels.
+
+**Key features:**
+- Two display modes: proportional (widths based on values) or equal (same width segments)
+- Optional position markers with animation
+- Tooltips on hover
+- Customizable colors, gap, and border radius
+- Responsive and fixed-width variants
+
+<Source
+	language="jsx"
+	code={`import { SegmentedBar } from '@automattic/charts';
+	import '@automattic/charts/segmented-bar/style.css';
+
+	<SegmentedBar
+		values={[
+			{ value: 40, label: 'Direct' },
+			{ value: 30, label: 'Organic Search' },
+			{ value: 20, label: 'Referral' },
+			{ value: 10, label: 'Social' },
+		]}
+		height={8}
+		withTooltips
+	/>`}
+/>
+
+## API Reference
+
+For detailed information about component props and types, see the [Segmented Bar API Reference](./?path=/docs/js-packages-charts-library-charts-segmented-bar-api-reference--docs).
+
+## Basic Usage
+
+### Simple Segmented Bar
+
+The simplest segmented bar requires only a `values` prop with an array of numeric values or segment objects:
+
+<Canvas of={ SegmentedBarStories.Default } />
+
+<Source
+	language="jsx"
+	code={`<SegmentedBar
+		values={[40, 30, 20, 10]}
+		height={8}
+	/>`}
+/>
+
+### Required Props
+
+- **`values`**: Array of numeric values or segment objects (`{ value, label?, color? }`)
+
+### Optional Props
+
+- **`mode`** (default: `'proportional'`): Display mode - `'proportional'` or `'equal'`
+- **`height`** (default: `8`): Height of the bar in pixels
+- **`gap`** (default: `0`): Gap between segments in pixels
+- **`borderRadius`** (default: `4`): Corner radius for bar ends
+- **`showLabels`** (default: `true`): Whether to show cumulative value labels
+- **`withTooltips`** (default: `false`): Enable tooltips on hover
+- **`colors`**: Custom colors array (overrides theme colors)
+- **`marker`**: Position indicator configuration
+- **`labelFormatter`**: Custom function to format label values
+
+For detailed prop information and type definitions, see the [Segmented Bar API Reference](./?path=/docs/js-packages-charts-library-charts-segmented-bar-api-reference--docs).
+
+## Display Modes
+
+### Proportional Mode (Default)
+
+Segment widths are calculated based on their values relative to the total:
+
+<Canvas of={ SegmentedBarStories.Default } />
+
+### Equal Mode
+
+All segments have the same width regardless of values. Useful for status indicators:
+
+<Canvas of={ SegmentedBarStories.EqualMode } />
+
+<Source
+	language="jsx"
+	code={`<SegmentedBar
+		values={[
+			{ value: 1, label: 'Critical' },
+			{ value: 1, label: 'Warning' },
+			{ value: 1, label: 'Good' },
+		]}
+		mode="equal"
+		colors={['#ef4444', '#f59e0b', '#22c55e']}
+		gap={2}
+		showLabels={false}
+	/>`}
+/>
+
+## Marker Indicator
+
+Add a marker to indicate a specific position on the bar, useful for showing targets or thresholds:
+
+<Canvas of={ SegmentedBarStories.WithMarker } />
+
+<Source
+	language="jsx"
+	code={`<SegmentedBar
+		values={[25, 35, 25, 15]}
+		marker={{
+			value: 60,
+			tooltip: 'Target: 60%',
+			showAnimation: true,
+		}}
+		withTooltips
+	/>`}
+/>
+
+## Visual Customization
+
+### Custom Colors
+
+Override theme colors with the `colors` prop:
+
+<Source
+	language="jsx"
+	code={`<SegmentedBar
+		values={[40, 30, 20, 10]}
+		colors={['#3B82F6', '#10B981', '#F59E0B', '#EF4444']}
+	/>`}
+/>
+
+### Gaps Between Segments
+
+Add visual separation between segments:
+
+<Source
+	language="jsx"
+	code={`<SegmentedBar
+		values={[30, 40, 30]}
+		gap={2}
+		borderRadius={4}
+	/>`}
+/>
+
+### Custom Labels
+
+Use `labelFormatter` to customize how values are displayed:
+
+<Source
+	language="jsx"
+	code={`<SegmentedBar
+		values={[25, 50, 25]}
+		labelFormatter={(value) => \`\${value}%\`}
+	/>`}
+/>
+
+## Theming Integration
+
+Segmented bars integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={`import { GlobalChartsProvider, SegmentedBar, type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		segmentedBar: {
+			height: 12,
+			gap: 2,
+			borderRadius: 6,
+			markerColor: '#1F2937',
+		},
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<SegmentedBar values={[30, 40, 30]} />
+	</GlobalChartsProvider>`}
+/>
+
+## Edge Cases
+
+The component handles various edge cases gracefully:
+
+### Empty Data
+
+When values is empty (`[]`), renders an empty container with the `segmentedBar--empty` class:
+
+<Source
+	language="jsx"
+	code={`<SegmentedBar values={[]} />
+	// Renders empty placeholder`}
+/>
+
+### Single Segment
+
+Renders a full-width bar:
+
+<Source
+	language="jsx"
+	code={`<SegmentedBar values={[100]} />`}
+/>
+
+### All Zero Values
+
+In proportional mode, all segments get equal width when total is zero:
+
+<Source
+	language="jsx"
+	code={`<SegmentedBar values={[0, 0, 0]} />
+	// All segments: 33.33% width each`}
+/>
+
+### Marker Out of Range
+
+Marker values are clamped to the valid range (0 to total data value):
+
+<Source
+	language="jsx"
+	code={`<SegmentedBar
+		values={[50, 50]}
+		marker={{ value: 150 }}  // Clamped to 100 (total value)
+	/>`}
+/>
+
+## Accessibility
+
+Segmented bars are decorative visualizations. For accessibility, wrap the component in a container that provides context:
+
+<Source
+	language="jsx"
+	code={`<div role="img" aria-label="Traffic sources: Direct 40%, Organic 30%, Referral 20%, Social 10%" aria-hidden="true">
+		<SegmentedBar values={[40, 30, 20, 10]} />
+	</div>`}
+/>
+
+**Best Practices:**
+- Use `role="img"` on the container
+- Provide `aria-label` describing what the segments represent
+- Add `aria-hidden="true"` to the wrapper container (not the component itself)
+- Consider showing percentage or value text alongside the visualization
+
+## Browser Compatibility
+
+Segmented bar charts are compatible with all modern browsers:
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## Performance
+
+Segmented bars are optimized for performance with:
+- Memoized segment calculations and color resolution
+- Efficient CSS-based rendering
+- Tooltip portal only rendered when `withTooltips` is enabled
+- Responsive variant uses `ResizeObserver` for efficient resizing

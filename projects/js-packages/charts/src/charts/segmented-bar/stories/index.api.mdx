@@ -1,0 +1,223 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Segmented Bar/API Reference" />
+
+# Segmented Bar API Reference
+
+Complete API documentation for the Segmented Bar component.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `values` | `number[] \| SegmentedBarSegment[]` | **Required** | Array of segment values or segment objects |
+| `mode` | `'proportional' \| 'equal'` | `'proportional'` | How segment widths are calculated |
+| `colors` | `string[]` | Theme colors | Custom colors for segments |
+| `marker` | `SegmentedBarMarker` | - | Optional position indicator |
+| `showLabels` | `boolean` | `true` | Whether to show cumulative value labels |
+| `width` | `number` | `300` | Width of the bar in pixels |
+| `height` | `number` | Theme default (`8`) | Height of the bar in pixels |
+| `gap` | `number` | Theme default (`0`) | Gap between segments in pixels |
+| `borderRadius` | `number` | Theme default (`4`) | Corner radius for bar ends |
+| `className` | `string` | - | Additional CSS class name |
+| `chartId` | `string` | Auto-generated | Unique ID for the chart |
+| `labelFormatter` | `(value: number) => string` | `value.toString()` | Formatter for label values |
+| `withTooltips` | `boolean` | `false` | Whether to show tooltips on hover |
+
+## Responsive Variant Props
+
+The responsive `SegmentedBar` variant accepts additional props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `resizeDebounceTime` | `number` | `300` | Debounce time for resize events in ms |
+| `maxWidth` | `number` | `1200` | Maximum width for the responsive chart |
+
+## Type Definitions
+
+### SegmentedBarSegment
+
+<Source
+	language="typescript"
+	code={`interface SegmentedBarSegment {
+	/** Numeric value for this segment */
+	value: number;
+	/** Optional label for the segment (used in tooltips) */
+	label?: string;
+	/** Optional color override for this segment */
+	color?: string;
+}`}
+/>
+
+### SegmentedBarMarker
+
+<Source
+	language="typescript"
+	code={`interface SegmentedBarMarker {
+	/** Position value where the marker should appear (0 to total) */
+	value: number;
+	/** Optional tooltip text for the marker */
+	tooltip?: string;
+	/** Whether to animate the marker position */
+	showAnimation?: boolean;
+	/** Marker color (defaults to theme segmentedBar.markerColor) */
+	color?: string;
+}`}
+/>
+
+### SegmentedBarMode
+
+<Source
+	language="typescript"
+	code={`type SegmentedBarMode = 'proportional' | 'equal';`}
+/>
+
+### SegmentedBarProps
+
+<Source
+	language="typescript"
+	code={`interface SegmentedBarProps {
+	values: number[] | SegmentedBarSegment[];
+	mode?: SegmentedBarMode;
+	colors?: string[];
+	marker?: SegmentedBarMarker;
+	showLabels?: boolean;
+	width?: number;
+	height?: number;
+	gap?: number;
+	borderRadius?: number;
+	className?: string;
+	chartId?: string;
+	labelFormatter?: (value: number) => string;
+	withTooltips?: boolean;
+}`}
+/>
+
+### SegmentedBarResponsiveConfig
+
+<Source
+	language="typescript"
+	code={`type SegmentedBarResponsiveConfig = {
+	maxWidth?: number;
+	resizeDebounceTime?: number;
+}`}
+/>
+
+## Exports
+
+<Source
+	language="typescript"
+	code={`// Component exports
+import { SegmentedBar, SegmentedBarUnresponsive } from '@automattic/charts';
+
+// Type exports
+import type {
+	SegmentedBarProps,
+	SegmentedBarSegment,
+	SegmentedBarMarker,
+	SegmentedBarMode,
+} from '@automattic/charts';
+
+// Direct import (tree-shakeable)
+import { SegmentedBar } from '@automattic/charts/segmented-bar';`}
+/>
+
+## Component Variants
+
+| Variant | Description |
+|---------|-------------|
+| `SegmentedBar` | Responsive variant that adapts to container width |
+| `SegmentedBarUnresponsive` | Fixed-size variant requiring explicit width |
+
+## CSS Classes
+
+The component uses CSS Modules with the following class structure:
+
+| Class | Description |
+|-------|-------------|
+| `.segmentedBar` | Root container element |
+| `.segmentedBar--empty` | Applied when values array is empty |
+| `.segmentedBar__bar` | The horizontal bar container |
+| `.segmentedBar__segment` | Individual segment elements |
+| `.segmentedBar__segment--first` | First segment (has left border radius) |
+| `.segmentedBar__segment--last` | Last segment (has right border radius) |
+| `.segmentedBar__marker` | Position marker element |
+| `.segmentedBar__marker--animated` | Marker with animation enabled |
+| `.segmentedBar__labels` | Labels container |
+| `.segmentedBar__label` | Individual label elements |
+| `.segmentedBar__tooltip` | Tooltip container |
+| `.segmentedBar__tooltip__label` | Tooltip label text |
+| `.segmentedBar__tooltip__value` | Tooltip value text |
+
+## CSS Custom Properties
+
+The component exposes CSS custom properties for theming:
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `--segmented-bar-empty-bg` | `#e5e7eb` | Empty state background color |
+| `--segmented-bar-label-color` | `#6b7280` | Label text color |
+| `--segmented-bar-label-font-size` | `12px` | Label font size |
+| `--segmented-bar-tooltip-bg` | `#1f2937` | Tooltip background color |
+| `--segmented-bar-tooltip-color` | `#fff` | Tooltip text color |
+| `--segmented-bar-tooltip-font-size` | `12px` | Tooltip font size |
+| `--segmented-bar-segment-hover-opacity` | `0.8` | Segment hover opacity |
+| `--segmented-bar-marker-width` | `2px` | Marker line width |
+
+## Theme Configuration
+
+The component reads from the theme's `segmentedBar` configuration:
+
+<Source
+	language="typescript"
+	code={`interface ChartTheme {
+	segmentedBar?: {
+		height?: number;        // Default bar height
+		gap?: number;           // Default gap between segments
+		borderRadius?: number;  // Default corner radius
+		markerColor?: string;   // Default marker color
+	};
+}`}
+/>
+
+## Data Test IDs
+
+For testing, the component provides these test IDs:
+
+| Test ID | Description |
+|---------|-------------|
+| `segmented-bar` | Main component container |
+| `segmented-bar-empty` | Empty state container |
+| `segmented-bar-segment-{index}` | Individual segments (0-indexed) |
+| `segmented-bar-marker` | Position marker |
+| `segmented-bar-label-{index}` | Cumulative labels (0-indexed) |
+
+## Display Mode Calculations
+
+### Proportional Mode
+
+```
+Segment width = (segment.value / total) * 100%
+```
+
+### Equal Mode
+
+```
+Segment width = 100% / number of segments
+```
+
+### Marker Positioning
+
+```
+Marker position = (marker.value / total) * 100%
+```
+
+Values outside the valid range (0 to total) are clamped.
+
+## Color Priority
+
+Colors are resolved in this order:
+
+1. `segment.color` (from segment object)
+2. `colors[index]` (from colors prop)
+3. `getElementStyles({ index })` (from theme context)

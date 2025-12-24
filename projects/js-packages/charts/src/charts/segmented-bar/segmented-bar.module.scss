@@ -1,0 +1,105 @@
+.segmentedBar {
+	// CSS custom properties for theming
+	--segmented-bar-empty-bg: #e5e7eb;
+	--segmented-bar-label-color: #6b7280;
+	--segmented-bar-label-font-size: 12px;
+	--segmented-bar-tooltip-bg: #1f2937;
+	--segmented-bar-tooltip-color: #fff;
+	--segmented-bar-tooltip-font-size: 12px;
+	--segmented-bar-segment-hover-opacity: 0.8;
+	--segmented-bar-marker-width: 2px;
+
+	display: flex;
+	flex-direction: column;
+	position: relative;
+
+	&--empty {
+		display: block;
+		background-color: var(--segmented-bar-empty-bg);
+		border-radius: 4px;
+	}
+
+	&__bar {
+		display: flex;
+		width: 100%;
+		position: relative;
+		overflow: visible;
+	}
+
+	&__segment {
+		height: 100%;
+		flex-shrink: 0;
+		transition: opacity 0.15s ease;
+		cursor: default;
+
+		&:hover {
+			opacity: var(--segmented-bar-segment-hover-opacity);
+		}
+	}
+
+	&__marker {
+		position: absolute;
+		width: var(--segmented-bar-marker-width);
+		transform: translateX(-50%);
+		pointer-events: none;
+		z-index: 1;
+
+		&--animated {
+			transition: left 0.5s ease-out;
+		}
+
+		// Triangle indicator at top
+		&::before {
+			content: "";
+			position: absolute;
+			top: -4px;
+			left: 50%;
+			transform: translateX(-50%);
+			border-left: 4px solid transparent;
+			border-right: 4px solid transparent;
+			border-top: 4px solid currentColor;
+		}
+	}
+
+	&__labels {
+		display: flex;
+		position: relative;
+		margin-top: 4px;
+		height: 16px;
+		font-size: var(--segmented-bar-label-font-size);
+		color: var(--segmented-bar-label-color);
+	}
+
+	&__label {
+		position: absolute;
+		transform: translateX(-50%);
+		white-space: nowrap;
+
+		// First label aligned to left edge
+		&:first-child {
+			transform: translateX(0);
+		}
+
+		// Last label aligned to right edge
+		&:last-child {
+			transform: translateX(-100%);
+		}
+	}
+
+	&__tooltip {
+		background-color: var(--segmented-bar-tooltip-bg);
+		color: var(--segmented-bar-tooltip-color);
+		padding: 4px 8px;
+		border-radius: 4px;
+		font-size: var(--segmented-bar-tooltip-font-size);
+		white-space: nowrap;
+	}
+
+	&__tooltip__label {
+		font-weight: 500;
+	}
+
+	&__tooltip__value {
+		font-weight: 400;
+	}
+}
