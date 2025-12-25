@@ -65,7 +65,7 @@
 
 	.jetpack-combobox-dropdown {
 		position: absolute;
-		left: calc(var(--jetpack--contact-form--border-right-size) * -1);
+		left: calc(var(--jetpack--contact-form--border-left-size) * -1);
 		right: calc(var(--jetpack--contact-form--border-left-size) * -1);
 		top: 100%;
 		width: -webkit-fill-available;
