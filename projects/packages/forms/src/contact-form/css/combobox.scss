@@ -10,8 +10,11 @@
 	}
 
 	// special override for aggressive themes (2021) that set background-color
-	.has-background & button.jetpack-combobox-trigger:not(:active):not(:hover):not(.has-background) {
+	button.jetpack-combobox-trigger:not(:active):not(:hover),
+	button.jetpack-combobox-trigger:not(:active):hover,
+	button.jetpack-combobox-trigger:focus {
 		background-color: transparent;
+		color: inherit;
 	}
 
 	.jetpack-combobox-trigger {
