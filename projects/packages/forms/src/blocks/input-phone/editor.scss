@@ -127,6 +127,10 @@
 .is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone,
 .is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
 
+	&:has(.jetpack-combobox-open) {
+		z-index: 2;
+	}
+
 	.jetpack-field__input {
 
 		&.is-selected {
