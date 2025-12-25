@@ -157,12 +157,15 @@
 					font-size: 0.8em;
 				}
 			}
+
+			&:has(~.jetpack-field__input-phone-wrapper.is-combobox-open) .notched-label__notch,
+			&:has(~.jetpack-field__input-phone-wrapper:focus-within) .notched-label__notch,
+			&:has(~* .jetpack-field__input-element:focus) .notched-label__notch,
+			&:has(~* .jetpack-field__input-element.has-value) .notched-label__notch,
+			&:has(~* .jetpack-field__input-element.has-placeholder) .notched-label__notch {
+				border-top-color: transparent !important;
+			}
 		}
 
-		.notched-label:has(~* .jetpack-field__input-element:focus) .notched-label__notch,
-		.notched-label:has(~* .jetpack-field__input-element.has-value) .notched-label__notch,
-		.notched-label:has(~* .jetpack-field__input-element.has-placeholder) .notched-label__notch {
-			border-top-color: transparent !important;
-		}
 	}
 }
