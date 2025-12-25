@@ -65,7 +65,8 @@
 
 	.jetpack-combobox-dropdown {
 		position: absolute;
-		left: -1px;
+		left: calc(var(--jetpack--contact-form--border-right-size) * -1);
+		right: calc(var(--jetpack--contact-form--border-left-size) * -1);
 		top: 100%;
 		width: -webkit-fill-available;
 		min-width: 60%;
@@ -88,7 +89,9 @@
 		.jetpack-combobox-search {
 			width: 100%;
 			padding: 8px 12px;
-			border: none;
+			border-top: none !important;
+			border-left: none !important;
+			border-right: none !important;
 			border-bottom: 1px solid #eee;
 			outline: none;
 			font-size: 14px;
@@ -97,8 +100,8 @@
 			color: inherit;
 			background-color: inherit;
 			z-index: 1;
-			border-bottom-left-radius: 0;
-			border-bottom-right-radius: 0;
+			border-bottom-left-radius: 0 !important;
+			border-bottom-right-radius: 0 !important;
 
 			&:focus {
 				outline: none;
