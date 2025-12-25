@@ -8,6 +8,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import style from './style.module.scss';
 
 const ReviewPrompt = ( { href, onClose } ) => {
 	const { recordEvent } = useAnalytics( {
@@ -26,6 +27,7 @@ const ReviewPrompt = ( { href, onClose } ) => {
 			<Notice
 				isDismissible={ false }
 				status="info"
+				className={ style.reviewPrompt }
 				actions={ [
 					{
 						variant: 'primary',
