@@ -1072,12 +1072,22 @@ on production builds, the attributes are being reordered, causing side-effects
 		box-sizing: border-box;
 		transition: all 0.1s ease-in-out;
 	}
+
+	&:checked::before {
+		border-width: 0.3em;
+		border-color: currentColor;
+		background-color: var(--jetpack--contact-form--inverted-body-text-color, var(--jetpack--contact-form--input-background));
+	}
 }
 
-.contact-form .is-style-list input.consent:checked,
-.contact-form .is-style-list input.checkbox:checked,
-.contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple:checked {
-	background-color: currentColor;
+
+.contact-form .is-style-list input.consent,
+.contact-form .is-style-list input.checkbox,
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple {
+
+	&:not(.is-style-button):checked {
+		background-color: currentColor;
+	}
 
 }
 
@@ -1102,7 +1112,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	transition: opacity 0.1s ease-in-out, scale 0.15s ease-in-out;
 
 	font-size: inherit;
-	border: solid var(--jetpack--contact-form--inverted-text-color, var(--jetpack--contact-form--input-background));
+	border-style: solid;
+	border-color: var(--jetpack--contact-form--inverted-body-text-color, var(--jetpack--contact-form--input-background));
 	border-width: 0 2px 2px 0;
 	transform: translate(-50%, -60%) rotate(40deg);
 	top: 0;
@@ -1116,8 +1127,13 @@ on production builds, the attributes are being reordered, causing side-effects
 	opacity: 1;
 }
 
-.contact-form .grunion-field-wrap:not(.is-style-plain) input.radio:checked::before {
-	border-width: 0.3em;
+// button style uses the primary button face color and white checkboxes
+.contact-form .is-style-button input.consent:checked::before,
+.contact-form .is-style-button input.checkbox:checked::before,
+.contact-form .grunion-field-wrap:not(.is-style-plain,.is-style-list) input.checkbox-multiple:checked::before {
+	$button-bg-fallback: var(--jetpack--contact-form--button-outline--background-color-fallback, fieldText);
+	$button-bg: var(--jetpack--contact-form--button-outline--background-color, #{$button-bg-fallback});
+	border-color: #{$button-bg};
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
@@ -1157,12 +1173,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	content: "\2713";
 }
 
-.contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field:focus-within,
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:focus + .grunion-radio-label {
-	outline: var(--jetpack--contact-form--button-outline--border);
-	outline-offset: 2px;
-}
-
 .contact-form :where(.grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple) {
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 	color: var(--jetpack--contact-form--button-outline--text-color);
@@ -1177,41 +1187,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	* This is not needed for the button style.
 	*/
 	transform: unset !important;
-}
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple:focus {
-	outline-width: 0; /* focus style defined on parent */
-}
-
-.contact-form .grunion-field-wrap.is-style-button-wrap input.checkbox-multiple::before {
-	border-color: var(--jetpack--contact-form--button-outline--background-color, fieldText);
-}
-
-/* TODO - is this style used anywhere? if not, remove it */
-.contact-form :where(.is-style-button-wrap input.grunion-field + .grunion-field-text::before) {
-	background: var(--jetpack--contact-form--button-outline--background-color);
-	border: var(--jetpack--contact-form--button-outline--border);
-	border-color: currentColor;
-	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
-	box-sizing: initial;
-	content: "";
-	display: block;
-	height: 100%;
-	left: calc(var(--jetpack--contact-form--button-outline--border-size) * -1);
-	position: absolute;
-	top: calc(var(--jetpack--contact-form--button-outline--border-size) * -1);
-	width: 100%;
-	z-index: -1;
+	&:focus {
+		outline-width: 0; /* focus style defined on parent */
+	}
 }
 
 .contact-form :where(.is-style-button-wrap input.grunion-field) {
 	color: var(--jetpack--contact-form--button-outline--color);
 }
 
-.contact-form :where(.is-style-button-wrap input.grunion-field:checked),
-.contact-form :where(.is-style-button-wrap input.grunion-field:checked + .grunion-field-text) {
-	color: var(--jetpack--contact-form--button-outline--background-color-fallback);
-}
 
 .contact-form :where(.is-style-button-wrap input.grunion-field:checked + .grunion-field-text::before) {
 	background: var(--jetpack--contact-form--button-outline--text-color);

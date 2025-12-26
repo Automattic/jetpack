@@ -427,7 +427,7 @@
 	}
 
 	.jetpack-field-option__checkbox.jetpack-field-option__checkbox,
-	.jetpack-option__type.jetpack-option__type {
+	.jetpack-option__type {
 		align-items: center;
 		display: flex;
 		justify-content: center;
@@ -588,6 +588,7 @@
 
 	.jetpack-field-option .jetpack-option__type {
 		color: inherit;
+		transform: translateY(0.15em);
 
 		&::before {
 
