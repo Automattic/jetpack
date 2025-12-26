@@ -1072,6 +1072,12 @@ on production builds, the attributes are being reordered, causing side-effects
 		box-sizing: border-box;
 		transition: all 0.1s ease-in-out;
 	}
+
+	&:checked::before {
+		border-width: 0.3em;
+		border-color: currentColor;
+		background-color: var(--jetpack--contact-form--inverted-body-text-color, var(--jetpack--contact-form--input-background));
+	}
 }
 
 .contact-form .is-style-list input.consent:checked,
@@ -1208,10 +1214,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	color: var(--jetpack--contact-form--button-outline--color);
 }
 
-.contact-form :where(.is-style-button-wrap input.grunion-field:checked),
-.contact-form :where(.is-style-button-wrap input.grunion-field:checked + .grunion-field-text) {
-	color: var(--jetpack--contact-form--button-outline--background-color-fallback);
-}
 
 .contact-form :where(.is-style-button-wrap input.grunion-field:checked + .grunion-field-text::before) {
 	background: var(--jetpack--contact-form--button-outline--text-color);
