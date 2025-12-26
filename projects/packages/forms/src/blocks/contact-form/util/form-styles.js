@@ -54,16 +54,22 @@ window.jetpackForms.getInverseReadableColor = function ( color ) {
 };
 
 window.jetpackForms.generateStyleVariables = function ( formNode ) {
-	const STYLE_PROBE_CLASS = 'contact-form__style-probe';
+	// the probe is creating a sibling of the form node, we need to assign the same class as
+	// the main node selector (.wp-block-jetpack-contact-form-container, see view.ts)
+	const STYLE_PROBE_CLASS = 'contact-form__style-probe .wp-block-jetpack-contact-form-container';
 	const STYLE_PROBE_STYLE =
 		'position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden';
 	const HTML = `
 			<div class="contact-form">
-				<div class="wp-block-button">
-					<div class="wp-block-button__link btn-primary">Test</div>
+				<div class="wp-block-buttons">
+					<div class="wp-block-button">
+						<div class="wp-block-button__link wp-element-button btn-primary">Test</div>
+					</div>
 				</div>
-				<div class="wp-block-button is-style-outline">
-					<div class="wp-block-button__link btn-outline">Test</div>
+				<div class="wp-block-buttons">
+					<div class="wp-block-button is-style-outline">
+						<div class="wp-block-button__link wp-element-button btn-outline">Test</div>
+					</div>
 				</div>
 				<div class="jetpack-field">
 					<input class="jetpack-field__input" type="text">
