@@ -53,6 +53,16 @@ window.jetpackForms.getInverseReadableColor = function ( color ) {
 	return luminance > 186 ? '#000000' : '#FFFFFF';
 };
 
+function isTransparent( color ) {
+	return (
+		color === 'rgba(0, 0, 0, 0)' ||
+		color === 'transparent' ||
+		color === '#00000000' ||
+		color === 'none' ||
+		color === 'transparent none'
+	);
+}
+
 window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	// the probe is creating a sibling of the form node, we need to assign the same class as
 	// the main node selector (.wp-block-jetpack-contact-form-container, see view.ts)
@@ -122,6 +132,12 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	const buttonOutlineBackgroundColorFallback =
 		window.jetpackForms.getBackgroundColor( buttonOutlineNode );
 
+	// Fallbacks don't cut it, we need to evaluate bg/fg/border color
+	const buttonOutlineSafeBackgroundColor =
+		buttonOutlineBackgroundColor === buttonOutlineTextColor
+			? 'transparent'
+			: buttonOutlineBackgroundColor;
+
 	const {
 		color: textColor,
 		padding: inputPadding,
@@ -139,10 +155,6 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		backdropFilter: inputBackdropFilter,
 		backgroundColor: inputBackground,
 	} = window.getComputedStyle( inputNode );
-	const inputBackgroundIsTransparent =
-		inputBackground === 'rgba(0, 0, 0, 0)' ||
-		inputBackground === 'transparent' ||
-		inputBackground === '#00000000';
 
 	styleProbe.remove();
 
@@ -157,9 +169,10 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--border-size': borderWidth,
 		'--jetpack--contact-form--border-style': borderStyle,
 		'--jetpack--contact-form--border-radius': borderRadius,
-		...( inputBackgroundIsTransparent
+		...( isTransparent( inputBackground )
 			? {}
 			: { '--jetpack--contact-form--input-background': inputBackground } ),
+		'--jetpack--contact-form--input-backdrop-filter': inputBackdropFilter,
 		'--jetpack--contact-form--input-background-fallback': inputBackgroundFallback,
 		'--jetpack--contact-form--input-padding': inputPadding,
 		'--jetpack--contact-form--input-padding-top': inputPaddingTop,
@@ -168,20 +181,26 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--font-size': fontSize,
 		'--jetpack--contact-form--font-family': fontFamily,
 		'--jetpack--contact-form--line-height': lineHeight === 'normal' ? '1.2em' : lineHeight,
+		// Primary button styles
 		'--jetpack--contact-form--button-primary--color': buttonPrimaryColor,
 		'--jetpack--contact-form--button-primary--background-color': buttonPrimaryBackgroundColor,
 		'--jetpack--contact-form--button-primary--border': buttonPrimaryBorder,
 		'--jetpack--contact-form--button-primary--border-color': buttonPrimaryBorderColor,
 		'--jetpack--contact-form--button-primary--padding': buttonPrimaryPadding,
+		// Outline button styles
 		'--jetpack--contact-form--button-outline--padding': buttonOutlinePadding,
 		'--jetpack--contact-form--button-outline--border': buttonOutlineBorder,
-		'--jetpack--contact-form--button-outline--background-color': buttonOutlineBackgroundColor,
+		...( isTransparent( buttonOutlineBackgroundColor )
+			? {}
+			: {
+					'--jetpack--contact-form--button-outline--background-color':
+						buttonOutlineSafeBackgroundColor,
+			  } ),
 		'--jetpack--contact-form--button-outline--background-color-fallback':
 			buttonOutlineBackgroundColorFallback,
 		'--jetpack--contact-form--button-outline--border-size': buttonOutlineBorderSize,
 		'--jetpack--contact-form--button-outline--border-radius': buttonOutlineBorderRadius,
 		'--jetpack--contact-form--button-outline--text-color': buttonOutlineTextColor,
 		'--jetpack--contact-form--button-outline--line-height': buttonOutlineLineHeight,
-		'--jetpack--contact-form--input-backdrop-filter': inputBackdropFilter,
 	};
 };
