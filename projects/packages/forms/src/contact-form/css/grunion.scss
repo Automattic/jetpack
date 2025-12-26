@@ -1131,9 +1131,9 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-button input.consent:checked::before,
 .contact-form .is-style-button input.checkbox:checked::before,
 .contact-form .grunion-field-wrap:not(.is-style-plain,.is-style-list) input.checkbox-multiple:checked::before {
-	$button-bg: var(--jetpack--contact-form--button-outline--background-color);
 	$button-bg-fallback: var(--jetpack--contact-form--button-outline--background-color-fallback, fieldText);
-	border-color: #{$button-bg}, #{$button-bg-fallback};
+	$button-bg: var(--jetpack--contact-form--button-outline--background-color, #{$button-bg-fallback});
+	border-color: #{$button-bg};
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
