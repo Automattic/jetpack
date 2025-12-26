@@ -1,6 +1,13 @@
 .jetpack-contact-form .jetpack-field.jetpack-field-phone,
 .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
 
+	&:has(.jetpack-combobox-open) {
+		// GB re-sets z-index every time the block is moved
+		// so we need to force it to 3 to stay on top of other
+		// blocks so the dropdown overlay stays on top of them.
+		z-index: 3 !important;
+	}
+
 	.jetpack-field__input,
 	.jetpack-field__textarea {
 		box-sizing: border-box;
@@ -96,6 +103,10 @@
 					box-shadow: none;
 				}
 			}
+		}
+
+		.jetpack-field__input-element {
+			backdrop-filter: none;
 		}
 	}
 }
