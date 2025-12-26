@@ -1112,7 +1112,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	transition: opacity 0.1s ease-in-out, scale 0.15s ease-in-out;
 
 	font-size: inherit;
-	border: solid var(--jetpack--contact-form--inverted-text-color, var(--jetpack--contact-form--input-background));
+	border-style: solid;
+	border-color: var(--jetpack--contact-form--inverted-body-text-color, var(--jetpack--contact-form--input-background));
 	border-width: 0 2px 2px 0;
 	transform: translate(-50%, -60%) rotate(40deg);
 	top: 0;
