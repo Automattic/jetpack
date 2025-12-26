@@ -1127,8 +1127,13 @@ on production builds, the attributes are being reordered, causing side-effects
 	opacity: 1;
 }
 
-.contact-form .grunion-field-wrap:not(.is-style-plain) input.radio:checked::before {
-	border-width: 0.3em;
+// button style uses the primary button face color and white checkboxes
+.contact-form .is-style-button input.consent:checked::before,
+.contact-form .is-style-button input.checkbox:checked::before,
+.contact-form .grunion-field-wrap:not(.is-style-plain,.is-style-list) input.checkbox-multiple:checked::before {
+	$button-bg: var(--jetpack--contact-form--button-outline--background-color);
+	$button-bg-fallback: var(--jetpack--contact-form--button-outline--background-color-fallback, fieldText);
+	border-color: #{$button-bg}, #{$button-bg-fallback};
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
@@ -1166,12 +1171,6 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:checked + .grunion-radio-label::before {
 	content: "\2713";
-}
-
-.contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field:focus-within,
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:focus + .grunion-radio-label {
-	outline: var(--jetpack--contact-form--button-outline--border);
-	outline-offset: 2px;
 }
 
 .contact-form :where(.grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple) {
