@@ -92,9 +92,14 @@
 		.jetpack-combobox-search {
 			width: 100%;
 			padding: 8px 12px;
+
+			// Using !important to keep tight control over the
+			// search input looks.
 			border-top: none !important;
 			border-left: none !important;
 			border-right: none !important;
+			border-bottom-left-radius: 0 !important;
+			border-bottom-right-radius: 0 !important;
 			border-bottom: 1px solid #eee;
 			outline: none;
 			font-size: 14px;
@@ -103,8 +108,6 @@
 			color: inherit;
 			background-color: inherit;
 			z-index: 1;
-			border-bottom-left-radius: 0 !important;
-			border-bottom-right-radius: 0 !important;
 
 			&:focus {
 				outline: none;
