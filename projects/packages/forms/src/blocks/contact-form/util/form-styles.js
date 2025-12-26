@@ -64,9 +64,7 @@ function isTransparent( color ) {
 }
 
 window.jetpackForms.generateStyleVariables = function ( formNode ) {
-	// the probe is creating a sibling of the form node, we need to assign the same class as
-	// the main node selector (.wp-block-jetpack-contact-form-container, see view.ts)
-	const STYLE_PROBE_CLASS = 'contact-form__style-probe .wp-block-jetpack-contact-form-container';
+	const STYLE_PROBE_CLASS = 'contact-form__style-probe';
 	const STYLE_PROBE_STYLE =
 		'position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden';
 	const HTML = `
