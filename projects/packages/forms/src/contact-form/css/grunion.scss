@@ -1187,31 +1187,10 @@ on production builds, the attributes are being reordered, causing side-effects
 	* This is not needed for the button style.
 	*/
 	transform: unset !important;
-}
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple:focus {
-	outline-width: 0; /* focus style defined on parent */
-}
-
-.contact-form .grunion-field-wrap.is-style-button-wrap input.checkbox-multiple::before {
-	border-color: var(--jetpack--contact-form--button-outline--background-color, fieldText);
-}
-
-/* TODO - is this style used anywhere? if not, remove it */
-.contact-form :where(.is-style-button-wrap input.grunion-field + .grunion-field-text::before) {
-	background: var(--jetpack--contact-form--button-outline--background-color);
-	border: var(--jetpack--contact-form--button-outline--border);
-	border-color: currentColor;
-	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
-	box-sizing: initial;
-	content: "";
-	display: block;
-	height: 100%;
-	left: calc(var(--jetpack--contact-form--button-outline--border-size) * -1);
-	position: absolute;
-	top: calc(var(--jetpack--contact-form--button-outline--border-size) * -1);
-	width: 100%;
-	z-index: -1;
+	&:focus {
+		outline-width: 0; /* focus style defined on parent */
+	}
 }
 
 .contact-form :where(.is-style-button-wrap input.grunion-field) {
