@@ -1129,7 +1129,8 @@ on production builds, the attributes are being reordered, causing side-effects
 
 // button style uses the primary button face color and white checkboxes
 .contact-form .is-style-button input.consent:checked::before,
-.contact-form .is-style-button input.checkbox:checked::before {
+.contact-form .is-style-button input.checkbox:checked::before,
+.contact-form .is-style-button input.checkbox-multiple:checked::before {
 	$button-bg-fallback: var(--jetpack--contact-form--button-outline--background-color-fallback, fieldText);
 	$button-bg: var(--jetpack--contact-form--button-outline--background-color, #{$button-bg-fallback});
 	border-color: #{$button-bg};
