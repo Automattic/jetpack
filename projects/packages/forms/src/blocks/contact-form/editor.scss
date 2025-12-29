@@ -55,16 +55,18 @@
 		}
 
 		.wp-block {
-			flex: 1 1 100%;
+			flex: 0 0 100%;
 			margin-top: 0;
 			margin-bottom: 0;
 			max-width: 100%;
 
+			&.wp-block-button,
 			&.wp-block-jetpack-button {
 				flex: 0 0 auto;
 				min-height: var(--jetpack--contact-form--input-height, auto);
 				align-self: flex-end;
 				line-height: 1;
+				margin-block: 0;
 
 				.wp-block-button__link {
 					min-height: var(--jetpack--contact-form--input-height, auto);
@@ -86,6 +88,7 @@
 				box-sizing: border-box;
 			}
 
+			&.wp-block-button__width-25,
 			&.jetpack-field__width-25 {
 				flex: 1 1 calc(25% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 				max-width: 25%;
@@ -96,14 +99,28 @@
 				max-width: 33.33%;
 			}
 
+			&.wp-block-button__width-50,
 			&.jetpack-field__width-50 {
 				flex: 1 1 calc(50% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 				max-width: 50%;
 			}
 
+			&.wp-block-button__width-75,
 			&.jetpack-field__width-75 {
 				flex: 1 1 calc(75% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 				max-width: 75%;
+			}
+
+			&.wp-block-button__width-100 {
+				flex: 1 1 100%;
+				max-width: 100%;
+			}
+
+			&.wp-block-button.has-custom-width {
+
+				.wp-block-button__link {
+					width: 100%;
+				}
 			}
 
 			&.jetpack-field__width-auto {

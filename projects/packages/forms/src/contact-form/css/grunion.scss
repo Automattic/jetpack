@@ -52,6 +52,7 @@
 	display: block;
 }
 
+.contact-form .wp-block-button:has(button.is-hidden),
 .contact-form .wp-block-jetpack-button:has(button.is-hidden) {
 	display: none;
 }
@@ -365,7 +366,7 @@ that needs to mimic the input element styles */
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
 
-.wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button) {
+.wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button,.wp-block-button) {
 	flex: 0 0 100%;
 	box-sizing: border-box;
 }
@@ -392,12 +393,15 @@ that needs to mimic the input element styles */
 	&:has(.contact-form__input-error.has-errors) {
 		margin-bottom: calc(var(--wp--style--block-gap, 1.5rem) * 2);
 
-		.wp-block-jetpack-button.wp-block-button {
+		// buttons on single input form need to be pushed down to avoid overlap
+		// but only if they are not animated or outlined.
+		:is(.wp-block-button.wp-block-button, .wp-block-jetpack-button.wp-block-button):not(.is-style-animated *):not(.is-style-outlined *) {
 			margin-top: var(--wp--style--block-gap, 1.5rem);
 		}
 	}
 }
 
+.wp-block-jetpack-contact-form .wp-block-button,
 .wp-block-jetpack-contact-form .wp-block-jetpack-button {
 	min-height: var(--jetpack--contact-form--input-height, auto);
 	align-self: flex-end;
@@ -438,6 +442,7 @@ that needs to mimic the input element styles */
 	}
 }
 
+.wp-block-jetpack-contact-form .wp-block-button__width-25,
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
 	flex: 1 1 calc(25% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 25%;
@@ -448,11 +453,13 @@ that needs to mimic the input element styles */
 	max-width: 33.33%;
 }
 
+.wp-block-jetpack-contact-form .wp-block-button__width-50,
 .wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
 	flex: 1 1 calc(50% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 50%;
 }
 
+.wp-block-jetpack-contact-form .wp-block-button__width-75,
 .wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
 	flex: 1 1 calc(75% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 75%;
@@ -469,6 +476,7 @@ that needs to mimic the input element styles */
 		max-width: none;
 	}
 
+	.wp-block-jetpack-contact-form .wp-block-button,
 	.wp-block-jetpack-contact-form .wp-block-jetpack-button {
 		flex-basis: 100%;
 
@@ -889,7 +897,6 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > textarea,
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select:not(.jetpack-field__input-element) {
-	padding-top: 1.4em;
 	padding-left: var(--field-padding);
 	padding-right: var(--field-padding);
 }
@@ -1319,4 +1326,34 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form-ajax-submission:not(.submission-success) {
 	display: none;
+}
+
+// hide spinner for any legacy jetpack button
+.contact-form .wp-block-jetpack-button .is-submitting .spinner {
+	display: none;
+}
+
+// use new ::after approach for animated spinner inside forms
+.contact-form .wp-block-jetpack-button button[type="submit"].is-submitting:last-of-type,
+.contact-form .wp-block-button button[type="submit"].is-submitting:last-of-type {
+
+	&::after {
+
+		content: "";
+		display: inline-block;
+		width: 1em;
+		height: 1em;
+		margin-left: 0.5em;
+		border: 2px solid currentColor;
+		border-right-color: transparent;
+		border-radius: 50%;
+		animation: jp-forms-submit-spinner 0.75s linear infinite;
+	}
+}
+
+@keyframes jp-forms-submit-spinner {
+
+	to {
+		transform: rotate(360deg);
+	}
 }
