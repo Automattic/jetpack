@@ -2,6 +2,7 @@
 	display: flex;
 	justify-content: space-between;
 	padding: 0.5rem;
+	padding-left: 1rem;
 
 	.content {
 		display: flex;
@@ -10,6 +11,7 @@
 		padding: 0.25rem;
 		align-items: center;
 		gap: 0.875rem;
+		margin-right: 1rem;
 	}
 
 	.display-name {
@@ -17,6 +19,7 @@
 		max-width: 70%;
 		overflow: hidden;
 		white-space: nowrap;
+		margin-top: 1rem;
 	}
 
 	.date {
@@ -25,6 +28,7 @@
 		gap: 0.25rem;
 		color: var(--gutenberg-gray-700, #757575);
 		text-overflow: ellipsis;
+		left: 0;
 	}
 
 	.actions {
