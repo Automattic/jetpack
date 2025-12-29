@@ -1,12 +1,16 @@
 /**
  * External dependencies
  */
+import { select } from '@wordpress/data';
 import debugFactory from 'debug';
-/*
- * Types & constants
+/**
+ * Internal dependencies
  */
 import requestJwt from '../jwt/index.ts';
-import { AskQuestionOptionsArgProps } from './index.ts';
+/**
+ * Types & constants
+ */
+import type { AskQuestionOptionsArgProps } from './index.ts';
 import type { PromptProp } from '../types.ts';
 
 /**
@@ -37,6 +41,9 @@ export default async function askQuestionSync(
 	question: PromptProp,
 	options: AskQuestionOptionsArgProps = {}
 ): Promise< ResponseData > {
+	options.languageCode =
+		options.languageCode || select( 'core' ).getEntityRecord( 'root', 'site' )?.language || 'en_US';
+
 	debug( 'Asking question with no streaming: %o. options: %o', question, options );
 
 	/**
