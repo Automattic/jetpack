@@ -8,7 +8,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import style from './style.module.scss';
+import style from './styles.module.scss';
 
 const ReviewPrompt = ( { href, onClose } ) => {
 	const { recordEvent } = useAnalytics( {
