@@ -18,18 +18,27 @@ export function useSocialPreviewPostData(): PostData {
 
 	const { getEditedPostAttribute } = useSelect( editorStore, [] );
 
-	// pre-fetch media items from the store.
+	// Prepare a comma-separated list of media IDs to fetch.
+	const mediaIdsStr = attachedMedia
+		.map( item => item.id )
+		.filter( Boolean )
+		.join( ',' );
+
+	// Pre-fetch media items from the store.
 	const mediaItems = useSelect(
 		select => {
-			return select( coreStore ).getEntityRecords< Attachment >( 'postType', 'attachment', {
-				// A comma-separated list of media IDs to fetch.
-				include: attachedMedia
-					.map( item => item.id )
-					.filter( Boolean )
-					.join( ',' ),
-			} );
+			let items: Array< Attachment >;
+
+			// Avoid fetching if there are no media IDs.
+			if ( mediaIdsStr.length ) {
+				items = select( coreStore ).getEntityRecords( 'postType', 'attachment', {
+					include: mediaIdsStr,
+				} );
+			}
+
+			return items || [];
 		},
-		[ attachedMedia ]
+		[ mediaIdsStr ]
 	);
 
 	const media = useMemo(
@@ -47,7 +56,7 @@ export function useSocialPreviewPostData(): PostData {
 					} );
 				} else {
 					// Otherwise, fetch the media details from the store.
-					const mediaItem = mediaItems?.find( $item => $item.id === item.id );
+					const mediaItem = mediaItems.find( $item => $item.id === item.id );
 
 					if ( mediaItem ) {
 						items.push( {
