@@ -351,13 +351,22 @@ const BlockHeader = ( props: Props ) => {
 			: 'wp-element-button';
 
 	const showRight = props.attributes.showCopyButton || showLanguage;
+
+	const onClick = () => {
+		navigator.clipboard.writeText( props.attributes.content.toPlainText() ).catch();
+	};
+
 	return (
 		<div className="a8c/code__header">
 			<Filename { ...props } />
 			{ showRight && (
 				<div className="a8c/code__header-right">
 					{ props.attributes.showCopyButton && (
-						<button className={ `${ wpElementButtonClass } a8c/code__btn-copy` } type="button">
+						<button
+							className={ `${ wpElementButtonClass } a8c/code__btn-copy` }
+							type="button"
+							onClick={ onClick }
+						>
 							{ __( 'Copy', 'jetpack-mu-wpcom' ) }
 						</button>
 					) }
