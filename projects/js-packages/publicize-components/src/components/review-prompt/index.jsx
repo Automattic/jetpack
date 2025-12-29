@@ -34,6 +34,8 @@ const ReviewPrompt = ( { href, onClose } ) => {
 						label: __( 'Leave a Review', 'jetpack-publicize-components' ),
 						url: href,
 						className: 'is-compact',
+						// TODO Add back tracking on click when Notice actions support onClick on links
+						// See https://github.com/WordPress/gutenberg/pull/74094
 					},
 					{
 						variant: 'secondary',
