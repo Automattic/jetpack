@@ -2548,8 +2548,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return $mimes;
 		}
 
-		// bail early if they already have the upgrade..
-		if ( wpcom_site_has_videopress() ) {
+		// bail early if they already have video upload capability.
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) && wpcom_site_can_upload_videos() ) {
+			return $mimes;
+		} elseif ( wpcom_site_has_videopress() ) {
 			return $mimes;
 		}
 
