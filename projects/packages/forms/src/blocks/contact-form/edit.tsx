@@ -13,6 +13,7 @@ import {
 	store as blockEditorStore,
 	BlockControls,
 	BlockContextProvider,
+	ToolbarBlockAppender,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
@@ -839,6 +840,7 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
+					<ToolbarBlockAppender defaultBlock={ { name: 'jetpack/field-text', attributes: {} } } />
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody
