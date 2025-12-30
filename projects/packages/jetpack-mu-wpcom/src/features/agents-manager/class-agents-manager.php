@@ -231,7 +231,6 @@ class Agents_Manager {
 	 * @param string $variant The variant of the asset file to get.
 	 */
 	private function enqueue_script( $variant ) {
-
 		$cache_key  = 'agents-manager-asset-' . $variant . '.asset.json';
 		$asset_file = get_transient( $cache_key );
 
