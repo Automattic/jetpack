@@ -432,9 +432,16 @@ abstract class Code_Block {
 			)
 			: '';
 
-		$language_html = ( ( $attributes['showLanguageName'] ?? false ) && ! empty( $attributes['language'] ) )
-			? \sprintf( '<span>%s</span>', esc_html( $attributes['language'] ) )
-			: '';
+		$language_html = '';
+		if ( $attributes['showLanguageName'] ) {
+			$language_text = empty( $attributes['language'] )
+				? __( 'Plain text', 'jetpack-mu-wpcom' )
+				: $attributes['language'];
+			$language_html = \sprintf(
+				'<span>%s</span>',
+				esc_html( $language_text )
+			);
+		}
 
 		$header_right_html = ( $copy_html || $language_html )
 			? "<div class=\"a8c/code__header-right\">{$copy_html}{$language_html}</div>"

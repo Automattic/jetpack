@@ -42,10 +42,11 @@ const LINE_NUMBER_START_MIN = 0;
 const LINE_NUMBER_START_MAX = 10_000;
 
 type Props = EditBlockProps | SaveBlockProps;
+const plainLanguageName = __( 'Plain text', 'jetpack-mu-wpcom' ) as string;
 
 const emptyLanguageOption = {
 	value: '',
-	label: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
+	label: plainLanguageName as string,
 };
 const selectLanguageOptions: {
 	readonly value: string;
@@ -349,9 +350,8 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 };
 
 const BlockHeader = ( props: Props ) => {
-	const showLanguage = props.attributes.showLanguageName && props.attributes.language;
-
-	if ( ! props.attributes.filename && ! props.attributes.showCopyButton && ! showLanguage ) {
+	const showRightSection = props.attributes.showCopyButton || props.attributes.showLanguageName;
+	if ( ! props.attributes.filename && ! showRightSection ) {
 		return null;
 	}
 
@@ -360,8 +360,6 @@ const BlockHeader = ( props: Props ) => {
 			? __experimentalGetElementClassName( 'button' )
 			: 'wp-element-button';
 
-	const showRight = props.attributes.showCopyButton || showLanguage;
-
 	const onClick = () => {
 		navigator.clipboard.writeText( props.attributes.content.toPlainText() ).catch();
 	};
@@ -369,7 +367,7 @@ const BlockHeader = ( props: Props ) => {
 	return (
 		<div className="a8c/code__header">
 			<Filename { ...props } />
-			{ showRight && (
+			{ showRightSection && (
 				<div className="a8c/code__header-right">
 					{ props.attributes.showCopyButton && (
 						<button
@@ -380,7 +378,9 @@ const BlockHeader = ( props: Props ) => {
 							{ __( 'Copy', 'jetpack-mu-wpcom' ) }
 						</button>
 					) }
-					{ showLanguage ? <span>{ props.attributes.language }</span> : null }
+					{ props.attributes.showLanguageName ? (
+						<span>{ props.attributes.language || plainLanguageName }</span>
+					) : null }
 				</div>
 			) }
 		</div>
