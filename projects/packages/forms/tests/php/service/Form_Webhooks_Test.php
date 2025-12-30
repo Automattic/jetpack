@@ -916,6 +916,127 @@ class Form_Webhooks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that webhook blocks IPv6 loopback addresses.
+	 * SSRF protection should block ::1 (IPv6 loopback).
+	 */
+	public function test_send_webhooks_blocks_ipv6_loopback() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://[::1]/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		// IPv6 loopback should be blocked
+		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
+		$this->assertNotEmpty( $error_meta, 'Error should be logged for IPv6 loopback URLs' );
+	}
+
+	/**
+	 * Test that webhook blocks IPv6 link-local addresses.
+	 * SSRF protection should block fe80::/10 range.
+	 */
+	public function test_send_webhooks_blocks_ipv6_link_local() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://[fe80::1]/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		// IPv6 link-local should be blocked
+		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
+		$this->assertNotEmpty( $error_meta, 'Error should be logged for IPv6 link-local URLs' );
+	}
+
+	/**
+	 * Test that webhook blocks IPv6 unique local addresses (fd00::/8).
+	 * SSRF protection should block fc00::/7 range which includes fd00::/8 used for private networks
+	 * and cloud metadata endpoints like fd00::a9fe:a9fe.
+	 */
+	public function test_send_webhooks_blocks_ipv6_unique_local() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://[fd00::1]/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		// IPv6 unique local addresses should be blocked
+		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
+		$this->assertNotEmpty( $error_meta, 'Error should be logged for IPv6 unique local URLs' );
+	}
+
+	/**
+	 * Test that webhook blocks IPv6 site-local addresses (fec0::/10).
+	 * These are deprecated but still blocked for security.
+	 */
+	public function test_send_webhooks_blocks_ipv6_site_local() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://[fec0::1]/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		// IPv6 site-local addresses (deprecated) should be blocked
+		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
+		$this->assertNotEmpty( $error_meta, 'Error should be logged for IPv6 site-local URLs' );
+	}
+
+	/**
 	 * Test webhook allows valid public HTTPS URLs.
 	 */
 	public function test_send_webhooks_allows_valid_public_https_urls() {

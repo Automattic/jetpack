@@ -170,11 +170,17 @@ class Form_Webhooks {
 	}
 
 	/**
-	 * Block requests to link-local IP addresses (169.254.x.x) at request time.
+	 * Block requests to link-local and private IP addresses at request time.
 	 *
 	 * This filter runs when WordPress resolves DNS during an HTTP request,
 	 * preventing TOCTOU (Time-of-Check Time-of-Use) attacks via DNS rebinding.
-	 * The link-local range includes AWS/cloud metadata endpoints (169.254.169.254).
+	 *
+	 * Blocks:
+	 * - IPv4 link-local (169.254.0.0/16) - includes AWS metadata endpoint (169.254.169.254)
+	 * - IPv6 loopback (::1)
+	 * - IPv6 link-local (fe80::/10)
+	 * - IPv6 unique local addresses (fc00::/7, includes fd00::/8)
+	 * - IPv6 site-local addresses (fec0::/10) - deprecated but still blocked
 	 *
 	 * This filter is added/removed around webhook requests in send_webhook().
 	 *
@@ -184,15 +190,53 @@ class Form_Webhooks {
 	 * @return bool|null False to block the request, original value otherwise.
 	 */
 	public function block_link_local_requests( $is_external, $host, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Resolve hostname to IP (WordPress has resolved it by this point in the request)
-		$ip = gethostbyname( $host );
+		// Strip brackets from IPv6 addresses if present (e.g., [::1] -> ::1)
+		$host = trim( $host, '[]' );
 
-		// Check if the resolved IP is in the link-local range (169.254.0.0/16)
+		// Get IP address - either directly if host is an IP, or resolve via DNS
+		$ip = filter_var( $host, FILTER_VALIDATE_IP ) ? $host : gethostbyname( $host );
+
+		// Check IPv4 link-local addresses (169.254.0.0/16)
+		// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 			$ip_long = ip2long( $ip );
 			// 169.254.0.0/16 = 2851995648 to 2852061183
 			if ( $ip_long !== false && $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
-				return false; // Block the request
+				return false;
+			}
+		}
+
+		// Check IPv6 addresses for private/internal ranges
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			$ip_binary = inet_pton( $ip );
+			if ( $ip_binary === false ) {
+				return false; // Invalid IPv6, let other filters handle it
+			}
+
+			// Check for IPv6 loopback (::1)
+			if ( $ip === '::1' ) {
+				return false;
+			}
+
+			$first_byte  = ord( $ip_binary[0] );
+			$second_byte = ord( $ip_binary[1] );
+
+			// Check for IPv6 link-local addresses (fe80::/10)
+			// First byte is 0xfe (254), second byte's top 2 bits are 10 (0x80-0xbf)
+			if ( $first_byte === 0xfe && ( $second_byte & 0xc0 ) === 0x80 ) {
+				return false;
+			}
+
+			// Check for IPv6 unique local addresses (fc00::/7)
+			// Covers fc00::/8 and fd00::/8 (used for private networks, cloud metadata)
+			if ( ( $first_byte & 0xfe ) === 0xfc ) {
+				return false;
+			}
+
+			// Check for IPv6 site-local addresses (fec0::/10) - deprecated but still blocked
+			// First byte is 0xfe (254), second byte's top 2 bits are 11 (0xc0-0xff)
+			if ( $first_byte === 0xfe && ( $second_byte & 0xc0 ) === 0xc0 ) {
+				return false;
 			}
 		}
 
