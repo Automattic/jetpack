@@ -9,6 +9,7 @@
 		//fields and flex-end on buttons.
 		align-items: flex-start;
 
+		.wp-block-button,
 		.wp-block-jetpack-button {
 			align-self: flex-end;
 			// this is so button has the same style on editor and frontend.
