@@ -170,6 +170,50 @@ class Form_Webhooks {
 	}
 
 	/**
+	 * Validate a webhook URL for security (SSRF protection).
+	 *
+	 * Ensures the URL uses HTTPS and doesn't point to internal/private networks.
+	 * Uses WordPress's wp_http_validate_url() for SSRF protection, plus additional
+	 * checks for link-local addresses (169.254.x.x) which includes AWS metadata endpoints.
+	 *
+	 * @param string $url The webhook URL to validate.
+	 * @return bool|WP_Error True if valid, WP_Error with reason if invalid.
+	 */
+	private function validate_webhook_url( $url ) {
+		// Parse the URL to check scheme
+		$parsed = wp_parse_url( $url );
+
+		if ( ! $parsed || empty( $parsed['host'] ) ) {
+			return new WP_Error( 'invalid_url', __( 'Invalid webhook URL format.', 'jetpack-forms' ) );
+		}
+
+		// Require HTTPS scheme
+		if ( empty( $parsed['scheme'] ) || strtolower( $parsed['scheme'] ) !== 'https' ) {
+			return new WP_Error( 'https_required', __( 'Webhook URL must use HTTPS.', 'jetpack-forms' ) );
+		}
+
+		// Use WordPress's built-in SSRF protection
+		// wp_http_validate_url() blocks private/internal IP ranges (127.x, 10.x, 172.16-31.x, 192.168.x)
+		if ( ! wp_http_validate_url( $url ) ) {
+			return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
+		}
+
+		// Additional check for link-local addresses (169.254.x.x) which wp_http_validate_url() doesn't block
+		// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
+		$host = $parsed['host'];
+		$ip   = filter_var( $host, FILTER_VALIDATE_IP ) ? $host : gethostbyname( $host );
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			$ip_long = ip2long( $ip );
+			// 169.254.0.0/16 = 2851995648 to 2852061183
+			if ( $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
+				return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get the enabled webhooks from the form attributes.
 	 *
 	 * @param array $attributes - the attributes of the contact form.
@@ -203,6 +247,13 @@ class Form_Webhooks {
 			// Validate webhook configuration
 			if ( empty( $setup['url'] ) ) {
 				do_action( 'jetpack_forms_log', 'webhook_skipped', 'url_empty' );
+				continue;
+			}
+
+			// Validate URL for security (SSRF protection)
+			$url_validation = $this->validate_webhook_url( $setup['url'] );
+			if ( is_wp_error( $url_validation ) ) {
+				do_action( 'jetpack_forms_log', 'webhook_skipped', $url_validation->get_error_code(), $setup );
 				continue;
 			}
 

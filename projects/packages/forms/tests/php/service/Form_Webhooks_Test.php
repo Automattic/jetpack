@@ -708,6 +708,318 @@ class Form_Webhooks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test webhook is blocked when URL uses HTTP instead of HTTPS.
+	 */
+	public function test_send_webhooks_blocks_http_urls() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'http://example.com/webhook', // HTTP instead of HTTPS
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+				);
+			}
+		);
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for non-HTTPS URLs' );
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'https_required', $logged_events[0]['reason'] );
+	}
+
+	/**
+	 * Test webhook is blocked when URL points to localhost.
+	 */
+	public function test_send_webhooks_blocks_localhost_urls() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://127.0.0.1/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+				);
+			}
+		);
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for localhost URLs' );
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'private_ip', $logged_events[0]['reason'] );
+	}
+
+	/**
+	 * Test webhook is blocked when URL points to private Class A network (10.x.x.x).
+	 */
+	public function test_send_webhooks_blocks_private_class_a_urls() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://10.0.0.1/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+				);
+			}
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for private Class A URLs' );
+	}
+
+	/**
+	 * Test webhook is blocked when URL points to private Class B network (172.16-31.x.x).
+	 */
+	public function test_send_webhooks_blocks_private_class_b_urls() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://172.16.0.1/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+				);
+			}
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for private Class B URLs' );
+	}
+
+	/**
+	 * Test webhook is blocked when URL points to private Class C network (192.168.x.x).
+	 */
+	public function test_send_webhooks_blocks_private_class_c_urls() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://192.168.1.1/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+				);
+			}
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for private Class C URLs' );
+	}
+
+	/**
+	 * Test webhook is blocked when URL points to link-local network (169.254.x.x - includes AWS metadata).
+	 */
+	public function test_send_webhooks_blocks_link_local_urls() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://169.254.169.254/latest/meta-data/',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+				);
+			}
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for link-local/AWS metadata URLs' );
+	}
+
+	/**
+	 * Test webhook allows valid public HTTPS URLs.
+	 */
+	public function test_send_webhooks_allows_valid_public_https_urls() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://hooks.zapier.com/webhook/123',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+					'headers'  => new CaseInsensitiveDictionary( array( 'Content-Type' => 'application/json' ) ),
+				);
+			}
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertTrue( $http_request_made, 'HTTP request should be made for valid public HTTPS URLs' );
+	}
+
+	/**
 	 * Helper method to create a test form object.
 	 *
 	 * @param array $attributes Form attributes.
