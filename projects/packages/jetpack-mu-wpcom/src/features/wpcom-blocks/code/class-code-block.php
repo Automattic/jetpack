@@ -261,10 +261,6 @@ abstract class Code_Block {
 				'type'    => 'boolean',
 				'default' => false,
 			),
-			'showFileName'            => array(
-				'type'    => 'boolean',
-				'default' => false,
-			),
 			'showCopyButton'          => array(
 				'type'    => 'boolean',
 				'default' => false,
@@ -423,7 +419,7 @@ abstract class Code_Block {
 
 		$attrs = get_block_wrapper_attributes( $extra_attrs );
 
-		$filename_html = ( ( $attributes['showFileName'] ?? false ) && ! empty( $attributes['filename'] ) )
+		$filename_html = ( ! empty( $attributes['filename'] ) )
 			? \sprintf( '<span class="a8c/code__filename">%s</span>', esc_html( $attributes['filename'] ) )
 			: '';
 

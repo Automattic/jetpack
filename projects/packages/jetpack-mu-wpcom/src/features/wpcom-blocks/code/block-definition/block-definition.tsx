@@ -32,7 +32,6 @@ const {
 	__experimentalGetElementClassName,
 	BlockControls,
 	InspectorControls,
-	PlainText,
 	useBlockProps,
 	withColors,
 }: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
@@ -139,6 +138,11 @@ const blockEdit = withColors(
 )( ( props: EditBlockProps ) => {
 	const { setAttributes, attributes } = props;
 
+	const placeholderExtension =
+		extensionToLang.find(
+			( [ , languageName ] ) => props.attributes.language === languageName
+		)?.[ 0 ] ?? 'txt';
+
 	return (
 		<>
 			<BlockControls>
@@ -197,19 +201,25 @@ const blockEdit = withColors(
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 					/>
+					<TextControl
+						label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
+						value={ attributes.filename }
+						onChange={ ( nextValue: string ) => {
+							setAttributes!( { filename: nextValue } );
+						} }
+						placeholder={ sprintf(
+							/* translators: Placeholder for a filename input. %s is a file extension, like "txt". */
+							__( 'filename.%s', 'jetpack-mu-wpcom' ),
+							placeholderExtension
+						) }
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+					/>
 					<ToggleControl
 						label={ __( 'Show language name', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showLanguageName }
 						onChange={ ( next: boolean ) => {
 							setAttributes( { showLanguageName: next } );
-						} }
-						__nextHasNoMarginBottom
-					/>
-					<ToggleControl
-						label={ __( 'Show filename', 'jetpack-mu-wpcom' ) }
-						checked={ attributes.showFileName }
-						onChange={ ( next: boolean ) => {
-							setAttributes( { showFileName: next } );
 						} }
 						__nextHasNoMarginBottom
 					/>
@@ -341,7 +351,7 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 const BlockHeader = ( props: Props ) => {
 	const showLanguage = props.attributes.showLanguageName && props.attributes.language;
 
-	if ( ! props.attributes.showFileName && ! props.attributes.showCopyButton && ! showLanguage ) {
+	if ( ! props.attributes.filename && ! props.attributes.showCopyButton && ! showLanguage ) {
 		return null;
 	}
 
@@ -378,40 +388,10 @@ const BlockHeader = ( props: Props ) => {
 };
 
 const Filename = ( props: Props ) => {
-	if ( ! props.attributes.showFileName ) {
+	if ( ! props.attributes.filename ) {
 		return null;
 	}
-	const { setAttributes, isSelected = false } = props;
-	const { filename } = props.attributes;
-
-	if ( isSelected ) {
-		const placeholderExtension =
-			extensionToLang.find(
-				( [ , languageName ] ) => props.attributes.language === languageName
-			)?.[ 0 ] ?? 'txt';
-
-		return (
-			<PlainText
-				__experimentalVersion={ 2 }
-				value={ filename }
-				onChange={ ( nextValue: string ) => {
-					setAttributes!( { filename: nextValue } );
-				} }
-				disableLineBreaks
-				className="a8c/code__filename"
-				placeholder={ sprintf(
-					/* translators: Placeholder for a filename input. %s is a file extension, like "txt". */
-					__( 'filename.%s', 'jetpack-mu-wpcom' ),
-					placeholderExtension
-				) }
-			/>
-		);
-	}
-
-	if ( filename ) {
-		return <span className="a8c/code__filename">{ filename }</span>;
-	}
-	return null;
+	return <span className="a8c/code__filename">{ props.attributes.filename }</span>;
 };
 
 /**
