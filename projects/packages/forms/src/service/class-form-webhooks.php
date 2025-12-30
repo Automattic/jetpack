@@ -174,7 +174,7 @@ class Form_Webhooks {
 	 *
 	 * Ensures the URL uses HTTPS and doesn't point to internal/private networks.
 	 * Uses WordPress's wp_http_validate_url() for SSRF protection, plus additional
-	 * checks for link-local addresses (169.254.x.x) which includes AWS metadata endpoints.
+	 * checks for link-local addresses and private IPv6 ranges which wp_http_validate_url() doesn't block.
 	 *
 	 * @param string $url The webhook URL to validate.
 	 * @return bool|WP_Error True if valid, WP_Error with reason if invalid.
@@ -198,14 +198,50 @@ class Form_Webhooks {
 			return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
 		}
 
-		// Additional check for link-local addresses (169.254.x.x) which wp_http_validate_url() doesn't block
-		// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
+		// Additional checks for addresses that wp_http_validate_url() doesn't block
 		$host = $parsed['host'];
+		// Strip brackets from IPv6 addresses if present
+		$host = trim( $host, '[]' );
 		$ip   = filter_var( $host, FILTER_VALIDATE_IP ) ? $host : gethostbyname( $host );
+
+		// Check IPv4 link-local addresses (169.254.0.0/16)
+		// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 			$ip_long = ip2long( $ip );
 			// 169.254.0.0/16 = 2851995648 to 2852061183
 			if ( $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
+				return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
+			}
+		}
+
+		// Check IPv6 addresses for private/internal ranges
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			// Normalize IPv6 address for comparison
+			$ip_binary = inet_pton( $ip );
+			if ( $ip_binary === false ) {
+				return new WP_Error( 'invalid_url', __( 'Invalid IPv6 address in webhook URL.', 'jetpack-forms' ) );
+			}
+
+			// Check for IPv6 loopback (::1)
+			if ( $ip === '::1' ) {
+				return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
+			}
+
+			// Check for IPv6 link-local addresses (fe80::/10)
+			// First byte should be 0xfe and second byte should be 0x80-0xbf
+			if ( ord( $ip_binary[0] ) === 0xfe && ( ord( $ip_binary[1] ) & 0xc0 ) === 0x80 ) {
+				return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
+			}
+
+			// Check for IPv6 unique local addresses (fc00::/7)
+			// First byte should be 0xfc or 0xfd
+			if ( ( ord( $ip_binary[0] ) & 0xfe ) === 0xfc ) {
+				return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
+			}
+
+			// Check for IPv6 site-local addresses (fec0::/10) - deprecated but still blocked
+			// First byte should be 0xfe and second byte should be 0xc0-0xff
+			if ( ord( $ip_binary[0] ) === 0xfe && ( ord( $ip_binary[1] ) & 0xc0 ) === 0xc0 ) {
 				return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
 			}
 		}
