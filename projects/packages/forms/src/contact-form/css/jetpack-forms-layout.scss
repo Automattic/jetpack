@@ -60,6 +60,12 @@
 		// so the auxiliary elements (nav/progress) remain on top/bottom of the step.
 		display: block;
 
+		// since we are forced to use a block container,
+		// we need to use margin-top the container children instead of flex-gap.
+		> *:not(:first-child) {
+			margin-top: var(--wp--style--block-gap, 1.5rem);
+		}
+
 		.wp-block-jetpack-form-step {
 			display: flex;
 			flex-wrap: wrap;
