@@ -495,7 +495,7 @@ class Agents_Manager {
 		}
 
 		$current_screen = get_current_screen();
-		// widgets screen does have the block editor but also no Gutenberg top bar.
+		// The widgets screen has the block editor but no Gutenberg top bar.
 		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
 	}
 }
