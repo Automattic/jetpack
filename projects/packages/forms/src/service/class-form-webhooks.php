@@ -202,6 +202,8 @@ class Form_Webhooks {
 		$host = $parsed['host'];
 		// Strip brackets from IPv6 addresses if present
 		$host = trim( $host, '[]' );
+		// Note: gethostbyname() is used after wp_http_validate_url() has already validated the URL.
+		// The resolved IP is then checked against additional ranges not covered by wp_http_validate_url().
 		$ip   = filter_var( $host, FILTER_VALIDATE_IP ) ? $host : gethostbyname( $host );
 
 		// Check IPv4 link-local addresses (169.254.0.0/16)
@@ -228,19 +230,21 @@ class Form_Webhooks {
 			}
 
 			// Check for IPv6 link-local addresses (fe80::/10)
-			// First byte should be 0xfe and second byte should be 0x80-0xbf
+			// Hex 0xfe = 11111110, 0x80 = 10000000, mask 0xc0 = 11000000
+			// First byte must be 0xfe (254) and bits 0-1 of second byte must be 10 (0x80-0xbf range)
 			if ( ord( $ip_binary[0] ) === 0xfe && ( ord( $ip_binary[1] ) & 0xc0 ) === 0x80 ) {
 				return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
 			}
 
 			// Check for IPv6 unique local addresses (fc00::/7)
-			// First byte should be 0xfc or 0xfd
+			// Hex 0xfc = 11111100, mask 0xfe = 11111110
+			// First byte with mask 0xfe must equal 0xfc, matching both 0xfc and 0xfd
 			if ( ( ord( $ip_binary[0] ) & 0xfe ) === 0xfc ) {
 				return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
 			}
 
 			// Check for IPv6 site-local addresses (fec0::/10) - deprecated but still blocked
-			// First byte should be 0xfe and second byte should be 0xc0-0xff
+			// First byte must be 0xfe (254) and bits 0-1 of second byte must be 11 (0xc0-0xff range)
 			if ( ord( $ip_binary[0] ) === 0xfe && ( ord( $ip_binary[1] ) & 0xc0 ) === 0xc0 ) {
 				return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
 			}
