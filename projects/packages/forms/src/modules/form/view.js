@@ -248,7 +248,10 @@ const { state, actions } = store( NAMESPACE, {
 			}
 
 			// For single input forms, show submission errors in the field error div
-			if ( context.isSingleInputForm && context.submissionError ) {
+			if (
+				( context.isForcedHorizontal || context.isSingleInputForm ) &&
+				context.submissionError
+			) {
 				return true;
 			}
 
@@ -314,7 +317,10 @@ const { state, actions } = store( NAMESPACE, {
 			const field = context.fields[ fieldId ] || {};
 
 			// For single input forms, show submission errors in the field error div
-			if ( context.isSingleInputForm && context.submissionError ) {
+			if (
+				( context.isForcedHorizontal || context.isSingleInputForm ) &&
+				context.submissionError
+			) {
 				return context.submissionError;
 			}
 
@@ -352,7 +358,11 @@ const { state, actions } = store( NAMESPACE, {
 		get showSubmissionError() {
 			const context = getContext();
 
-			return !! context.submissionError && ! state.showFormErrors;
+			return (
+				! ( context.isForcedHorizontal || context.isSingleInputForm ) &&
+				!! context.submissionError &&
+				! state.showFormErrors
+			);
 		},
 
 		get getFormErrorMessage() {
