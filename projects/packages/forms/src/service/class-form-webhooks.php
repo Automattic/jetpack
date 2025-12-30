@@ -193,29 +193,62 @@ class Form_Webhooks {
 		// Strip brackets from IPv6 addresses if present (e.g., [::1] -> ::1)
 		$host = trim( $host, '[]' );
 
-		// Get IP address - either directly if host is an IP, or resolve via DNS
-		$ip = filter_var( $host, FILTER_VALIDATE_IP ) ? $host : gethostbyname( $host );
+		// If host is already an IP, check it directly
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			return $this->is_blocked_ip( $host ) ? false : $is_external;
+		}
 
+		// For hostnames, check IPv4 via gethostbyname
+		$ipv4 = gethostbyname( $host );
+		if ( $ipv4 !== $host && $this->is_blocked_ip( $ipv4 ) ) {
+			return false;
+		}
+
+		// Check IPv6 via DNS AAAA records (gethostbyname only resolves IPv4)
+		// This catches hostnames that resolve to blocked IPv6 addresses
+		if ( function_exists( 'dns_get_record' ) ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- dns_get_record may fail on some systems
+			$aaaa_records = @dns_get_record( $host, DNS_AAAA );
+			if ( $aaaa_records ) {
+				foreach ( $aaaa_records as $record ) {
+					if ( isset( $record['ipv6'] ) && $this->is_blocked_ip( $record['ipv6'] ) ) {
+						return false;
+					}
+				}
+			}
+		}
+
+		return $is_external;
+	}
+
+	/**
+	 * Check if an IP address is in a blocked range.
+	 *
+	 * @param string $ip The IP address to check.
+	 * @return bool True if the IP should be blocked.
+	 */
+	private function is_blocked_ip( $ip ) {
 		// Check IPv4 link-local addresses (169.254.0.0/16)
 		// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 			$ip_long = ip2long( $ip );
 			// 169.254.0.0/16 = 2851995648 to 2852061183
 			if ( $ip_long !== false && $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
-				return false;
+				return true;
 			}
+			return false;
 		}
 
 		// Check IPv6 addresses for private/internal ranges
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
 			$ip_binary = inet_pton( $ip );
 			if ( $ip_binary === false ) {
-				return false; // Invalid IPv6, let other filters handle it
+				return false;
 			}
 
 			// Check for IPv6 loopback (::1)
 			if ( $ip === '::1' ) {
-				return false;
+				return true;
 			}
 
 			$first_byte  = ord( $ip_binary[0] );
@@ -224,23 +257,23 @@ class Form_Webhooks {
 			// Check for IPv6 link-local addresses (fe80::/10)
 			// First byte is 0xfe (254), second byte's top 2 bits are 10 (0x80-0xbf)
 			if ( $first_byte === 0xfe && ( $second_byte & 0xc0 ) === 0x80 ) {
-				return false;
+				return true;
 			}
 
 			// Check for IPv6 unique local addresses (fc00::/7)
 			// Covers fc00::/8 and fd00::/8 (used for private networks, cloud metadata)
 			if ( ( $first_byte & 0xfe ) === 0xfc ) {
-				return false;
+				return true;
 			}
 
 			// Check for IPv6 site-local addresses (fec0::/10) - deprecated but still blocked
 			// First byte is 0xfe (254), second byte's top 2 bits are 11 (0xc0-0xff)
 			if ( $first_byte === 0xfe && ( $second_byte & 0xc0 ) === 0xc0 ) {
-				return false;
+				return true;
 			}
 		}
 
-		return $is_external;
+		return false;
 	}
 
 	/**
