@@ -389,12 +389,13 @@ class Form_Webhooks {
 		// Add filter for request-time SSRF protection (blocks link-local IPs like AWS metadata endpoint)
 		add_filter( 'http_request_host_is_external', array( $this, 'block_link_local_requests' ), 10, 3 );
 
-		// Use wp_safe_remote_request for built-in SSRF protection and redirect validation
-		$response = wp_safe_remote_request( $url, $args );
-
-		// Remove filter after request
-		remove_filter( 'http_request_host_is_external', array( $this, 'block_link_local_requests' ), 10 );
-
+		try {
+			// Use wp_safe_remote_request for built-in SSRF protection and redirect validation
+			$response = wp_safe_remote_request( $url, $args );
+		} finally {
+			// Always remove filter after request to avoid affecting subsequent HTTP requests.
+			remove_filter( 'http_request_host_is_external', array( $this, 'block_link_local_requests' ), 10 );
+		}
 		return $response;
 	}
 }
