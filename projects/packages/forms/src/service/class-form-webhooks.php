@@ -170,17 +170,50 @@ class Form_Webhooks {
 	}
 
 	/**
-	 * Validate a webhook URL for security (SSRF protection).
+	 * Block requests to link-local IP addresses (169.254.x.x) at request time.
 	 *
-	 * Ensures the URL uses HTTPS and doesn't point to internal/private networks.
-	 * Uses WordPress's wp_http_validate_url() for SSRF protection, plus additional
-	 * checks for link-local addresses (169.254.x.x) which includes AWS metadata endpoints.
+	 * This filter runs when WordPress resolves DNS during an HTTP request,
+	 * preventing TOCTOU (Time-of-Check Time-of-Use) attacks via DNS rebinding.
+	 * The link-local range includes AWS/cloud metadata endpoints (169.254.169.254).
+	 *
+	 * This filter is added/removed around webhook requests in send_webhook().
+	 *
+	 * @param bool|null $is_external Whether the host is considered external. Default null.
+	 * @param string    $host        The host being checked.
+	 * @param string    $url         The full URL being requested.
+	 * @return bool|null False to block the request, original value otherwise.
+	 */
+	public function block_link_local_requests( $is_external, $host, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Resolve hostname to IP (WordPress has resolved it by this point in the request)
+		$ip = gethostbyname( $host );
+
+		// Check if the resolved IP is in the link-local range (169.254.0.0/16)
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			$ip_long = ip2long( $ip );
+			// 169.254.0.0/16 = 2851995648 to 2852061183
+			if ( $ip_long !== false && $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
+				return false; // Block the request
+			}
+		}
+
+		return $is_external;
+	}
+
+	/**
+	 * Validate a webhook URL format and scheme.
+	 *
+	 * Performs basic validation:
+	 * - Valid URL format
+	 * - HTTPS scheme requirement (policy decision)
+	 *
+	 * SSRF protection (private IPs, link-local addresses) is handled at request time
+	 * by wp_safe_remote_request() and our http_request_host_is_external filter.
+	 * This avoids TOCTOU vulnerabilities from DNS resolution during validation.
 	 *
 	 * @param string $url The webhook URL to validate.
 	 * @return bool|WP_Error True if valid, WP_Error with reason if invalid.
 	 */
 	private function validate_webhook_url( $url ) {
-		// Parse the URL to check scheme
 		$parsed = wp_parse_url( $url );
 
 		if ( ! $parsed || empty( $parsed['host'] ) ) {
@@ -190,24 +223,6 @@ class Form_Webhooks {
 		// Require HTTPS scheme
 		if ( empty( $parsed['scheme'] ) || strtolower( $parsed['scheme'] ) !== 'https' ) {
 			return new WP_Error( 'https_required', __( 'Webhook URL must use HTTPS.', 'jetpack-forms' ) );
-		}
-
-		// Use WordPress's built-in SSRF protection
-		// wp_http_validate_url() blocks private/internal IP ranges (127.x, 10.x, 172.16-31.x, 192.168.x)
-		if ( ! wp_http_validate_url( $url ) ) {
-			return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
-		}
-
-		// Additional check for link-local addresses (169.254.x.x) which wp_http_validate_url() doesn't block
-		// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
-		$host = $parsed['host'];
-		$ip   = filter_var( $host, FILTER_VALIDATE_IP ) ? $host : gethostbyname( $host );
-		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-			$ip_long = ip2long( $ip );
-			// 169.254.0.0/16 = 2851995648 to 2852061183
-			if ( $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
-				return new WP_Error( 'private_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
-			}
 		}
 
 		return true;
@@ -283,11 +298,14 @@ class Form_Webhooks {
 	/**
 	 * Send webhook request
 	 *
+	 * Uses wp_safe_remote_request() for built-in SSRF protection including redirect validation.
+	 * The http_request_host_is_external filter provides additional protection for link-local IPs.
+	 *
 	 * @param array $data The data key/value pairs to send.
 	 * @param array $webhook Webhook configuration.
 	 * @param int   $feedback_id The unique identifier for the feedback post.
 	 *
-	 * @return array|WP_Error The result value from wp_remote_request
+	 * @return array|WP_Error The result value from wp_safe_remote_request
 	 */
 	private function send_webhook( $data, $webhook, $feedback_id ) {
 		global $wp_version;
@@ -324,6 +342,15 @@ class Form_Webhooks {
 			'sslverify' => true,
 		);
 
-		return wp_remote_request( $url, $args );
+		// Add filter for request-time SSRF protection (blocks link-local IPs like AWS metadata endpoint)
+		add_filter( 'http_request_host_is_external', array( $this, 'block_link_local_requests' ), 10, 3 );
+
+		// Use wp_safe_remote_request for built-in SSRF protection and redirect validation
+		$response = wp_safe_remote_request( $url, $args );
+
+		// Remove filter after request
+		remove_filter( 'http_request_host_is_external', array( $this, 'block_link_local_requests' ), 10 );
+
+		return $response;
 	}
 }

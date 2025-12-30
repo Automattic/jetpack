@@ -767,6 +767,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 	/**
 	 * Test webhook is blocked when URL points to localhost.
+	 * SSRF protection is handled at request time by wp_safe_remote_request().
 	 */
 	public function test_send_webhooks_blocks_localhost_urls() {
 		$form   = $this->create_mock_form(
@@ -786,45 +787,17 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		$http_request_made = false;
-		add_filter(
-			'pre_http_request',
-			function () use ( &$http_request_made ) {
-				$http_request_made = true;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{"success":true}',
-				);
-			}
-		);
-
-		$logged_events = array();
-		add_action(
-			'jetpack_forms_log',
-			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
-				$logged_events[] = array(
-					'event'  => $event,
-					'reason' => $reason,
-					'data'   => $data,
-				);
-			},
-			10,
-			3
-		);
-
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		$this->assertFalse( $http_request_made, 'HTTP request should not be made for localhost URLs' );
-		$this->assertCount( 1, $logged_events );
-		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
-		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
-		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
-		$this->assertEquals( 'private_ip', $logged_events[0]['reason'] );
+		// wp_safe_remote_request() blocks private IPs and returns WP_Error, which gets logged
+		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
+		$this->assertNotEmpty( $error_meta, 'Error should be logged for localhost URLs' );
 	}
 
 	/**
 	 * Test webhook is blocked when URL points to private Class A network (10.x.x.x).
+	 * SSRF protection is handled at request time by wp_safe_remote_request().
 	 */
 	public function test_send_webhooks_blocks_private_class_a_urls() {
 		$form   = $this->create_mock_form(
@@ -844,26 +817,17 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		$http_request_made = false;
-		add_filter(
-			'pre_http_request',
-			function () use ( &$http_request_made ) {
-				$http_request_made = true;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{"success":true}',
-				);
-			}
-		);
-
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		$this->assertFalse( $http_request_made, 'HTTP request should not be made for private Class A URLs' );
+		// wp_safe_remote_request() blocks private IPs and returns WP_Error, which gets logged
+		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
+		$this->assertNotEmpty( $error_meta, 'Error should be logged for private Class A URLs' );
 	}
 
 	/**
 	 * Test webhook is blocked when URL points to private Class B network (172.16-31.x.x).
+	 * SSRF protection is handled at request time by wp_safe_remote_request().
 	 */
 	public function test_send_webhooks_blocks_private_class_b_urls() {
 		$form   = $this->create_mock_form(
@@ -883,26 +847,17 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		$http_request_made = false;
-		add_filter(
-			'pre_http_request',
-			function () use ( &$http_request_made ) {
-				$http_request_made = true;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{"success":true}',
-				);
-			}
-		);
-
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		$this->assertFalse( $http_request_made, 'HTTP request should not be made for private Class B URLs' );
+		// wp_safe_remote_request() blocks private IPs and returns WP_Error, which gets logged
+		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
+		$this->assertNotEmpty( $error_meta, 'Error should be logged for private Class B URLs' );
 	}
 
 	/**
 	 * Test webhook is blocked when URL points to private Class C network (192.168.x.x).
+	 * SSRF protection is handled at request time by wp_safe_remote_request().
 	 */
 	public function test_send_webhooks_blocks_private_class_c_urls() {
 		$form   = $this->create_mock_form(
@@ -922,26 +877,17 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		$http_request_made = false;
-		add_filter(
-			'pre_http_request',
-			function () use ( &$http_request_made ) {
-				$http_request_made = true;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{"success":true}',
-				);
-			}
-		);
-
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		$this->assertFalse( $http_request_made, 'HTTP request should not be made for private Class C URLs' );
+		// wp_safe_remote_request() blocks private IPs and returns WP_Error, which gets logged
+		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
+		$this->assertNotEmpty( $error_meta, 'Error should be logged for private Class C URLs' );
 	}
 
 	/**
 	 * Test webhook is blocked when URL points to link-local network (169.254.x.x - includes AWS metadata).
+	 * SSRF protection for link-local is handled at request time by our http_request_host_is_external filter.
 	 */
 	public function test_send_webhooks_blocks_link_local_urls() {
 		$form   = $this->create_mock_form(
@@ -961,22 +907,12 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		$http_request_made = false;
-		add_filter(
-			'pre_http_request',
-			function () use ( &$http_request_made ) {
-				$http_request_made = true;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{"success":true}',
-				);
-			}
-		);
-
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		$this->assertFalse( $http_request_made, 'HTTP request should not be made for link-local/AWS metadata URLs' );
+		// Our http_request_host_is_external filter blocks link-local IPs, causing a WP_Error
+		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
+		$this->assertNotEmpty( $error_meta, 'Error should be logged for link-local/AWS metadata URLs' );
 	}
 
 	/**
