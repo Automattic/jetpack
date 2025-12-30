@@ -270,8 +270,7 @@ class Agents_Manager {
 		$accessible_directly = file_exists( ABSPATH . $filepath );
 
 		if ( $accessible_directly ) {
-
-			$file_contents = @file_get_contents( ABSPATH . $filepath );
+			$file_contents = file_get_contents( ABSPATH . $filepath );
 
 			if ( false === $file_contents ) {
 				return null;
