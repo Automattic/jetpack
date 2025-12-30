@@ -609,16 +609,25 @@ that needs to mimic the input element styles */
 	padding-left: 0;
 }
 
-.wp-block-jetpack-contact-form-container.is-forced-horizontal-form,
-.wp-block-jetpack-contact-form-container.is-single-input-form {
+.jetpack-contact-form-container.is-forced-horizontal-form,
+.jetpack-contact-form-container.is-single-input-form {
 
 	&:has(.contact-form__input-error.has-errors) {
 		margin-bottom: calc(var(--wp--style--block-gap, 1.5rem) * 2);
 
-		// buttons on single input form need to be pushed down to avoid overlap
+		// buttons on single input form are printed AFTER the input error,
+		// so they need to be pushed down to avoid overlap
 		// but only if they are not animated or outlined.
-		:is(.wp-block-button.wp-block-button, .wp-block-jetpack-button.wp-block-button):not(.is-style-animated *):not(.is-style-outlined *) {
-			margin-top: var(--wp--style--block-gap, 1.5rem);
+		:is(.wp-block-button.wp-block-button, .wp-block-jetpack-button.wp-block-button) {
+			// height of input error + margins (.25 top + bottom)
+			// NOTE: double lined errors get the button unaligned.
+			margin-bottom: 2rem;
+
+			&:not(.is-style-animated *,.is-style-outlined *) {
+				// since field labels are rendered inside the field,
+				// we need to compensate with the button top margin.
+				margin-top: var(--wp--style--block-gap, 1.5rem);
+			}
 		}
 	}
 }
