@@ -197,21 +197,6 @@ class Agents_Manager {
 		 */
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
 
-		// For now, we want this added wherever the help-center script is enqueued.
-		// This allows us to be quite blunt here because the logic for whether to inject this is currently
-		// in the help-center script.
-		wp_add_inline_script(
-			'agents-manager',
-			'const agentsManagerData = ' . wp_json_encode(
-				array(
-					'agentProviders'       => $agent_providers,
-					'useUnifiedExperience' => $use_unified_experience,
-				),
-				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-			) . ';',
-			'before'
-		);
-
 		if ( ! $use_unified_experience ) {
 			return;
 		}
@@ -223,6 +208,18 @@ class Agents_Manager {
 		}
 
 		$this->enqueue_script( $variant );
+
+		wp_add_inline_script(
+			'agents-manager',
+			'const agentsManagerData = ' . wp_json_encode(
+				array(
+					'agentProviders'       => $agent_providers,
+					'useUnifiedExperience' => $use_unified_experience,
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) . ';',
+			'before'
+		);
 	}
 
 	/**
@@ -270,14 +267,25 @@ class Agents_Manager {
 	 * @return array|null The asset file data or null on failure.
 	 */
 	private static function get_assets_json( $filepath ) {
-		$accessible_directly = file_exists( ABSPATH . '/' . $filepath );
+		$accessible_directly = file_exists( ABSPATH . $filepath );
+
 		if ( $accessible_directly ) {
-			return json_decode( file_get_contents( ABSPATH . $filepath ), true );
+
+			$file_contents = @file_get_contents( ABSPATH . $filepath );
+
+			if ( false === $file_contents ) {
+				return null;
+			}
+
+			return json_decode( $file_contents, true );
 		}
+
 		$request = wp_remote_get( 'https://' . $filepath );
+
 		if ( is_wp_error( $request ) ) {
 			return null;
 		}
+
 		return json_decode( wp_remote_retrieve_body( $request ), true );
 	}
 
