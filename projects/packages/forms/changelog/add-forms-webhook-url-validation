@@ -1,0 +1,5 @@
+Significance: patch
+Type: security
+Comment: Addresses potential SSRF vulnerability in webhooks feature by validating URLs using wp_http_validate_url() and blocking link-local addresses.
+
+Add SSRF protection for webhook URLs to prevent requests to internal networks and cloud metadata endpoints.
