@@ -1761,7 +1761,7 @@ class Contact_Form_Plugin {
 				'slug'    => $block_template_part_slug,
 				'tagName' => 'div',
 			);
-			do_blocks( '<!-- wp:template-part ' . wp_wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' /-->' );
+			do_blocks( '<!-- wp:template-part ' . wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' /-->' );
 		} else {
 			// It's a form embedded in a post
 
