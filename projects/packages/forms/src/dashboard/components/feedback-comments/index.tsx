@@ -194,7 +194,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 					<div className="jp-forms__feedback-comments-user-info">
 						{ currentUser && (
 							<div className="jp-forms__feedback-comments-form-avatar">
-								<img src={ currentUser.avatar_urls?.[ '48' ] || '' } alt={ currentUser.name } />
+								<img src={ currentUser.avatar_urls?.[ '48' ] || '' } alt={ __( 'User avatar', 'jetpack-forms' ) } />
 								<strong>{ currentUser.name }</strong>
 							</div>
 						) }
