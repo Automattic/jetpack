@@ -2829,6 +2829,12 @@ class Contact_Form_Plugin {
 			// Build SQL with all patterns
 			$placeholders = implode( ' OR ', array_fill( 0, count( $patterns ), "{$wpdb->posts}.post_content LIKE %s" ) );
 
+			// Validate that the number of placeholders matches the number of pattern values
+			$placeholder_count = substr_count( $placeholders, '%s' );
+			if ( $placeholder_count !== count( $patterns ) ) {
+				return $search;
+			}
+
 			$search = (string) $wpdb->prepare(
 				' AND ( ' . $placeholders . ' )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 				...$patterns
