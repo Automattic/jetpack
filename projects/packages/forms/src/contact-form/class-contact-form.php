@@ -2885,7 +2885,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		require apply_filters( 'jetpack_forms_response_email_template', __DIR__ . '/templates/email-response.php' );
 
 		/**
-		 * Filtert the HTML for the powered by section in the email.
+		 * Filter the HTML for the powered by section in the email.
 		 *
 		 * @module contact-form
 		 *

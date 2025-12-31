@@ -848,7 +848,10 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Tests that the email does not contain "Powered by".
 	 */
-	public function test_no_powered_by_jetpack_in_email_header() {
+	public function test_jetpack_forms_email_powered_by_html_filter() {
+
+		$this->assertStringContainsString( 'Powered by', Contact_Form::wrap_message_in_html_tags( '$title', '$message', '$footer', '$actions' ) );
+
 		add_filter( 'jetpack_forms_email_powered_by_html', '__return_empty_string' );
 		$this->assertStringNotContainsString( 'Powered by', Contact_Form::wrap_message_in_html_tags( '$title', '$message', '$footer', '$actions' ) );
 		remove_filter( 'jetpack_forms_email_powered_by_html', '__return_empty_string' );
