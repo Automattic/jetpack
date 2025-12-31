@@ -2559,8 +2559,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
 
-		/**
-		 * Filters whether to include the email logo in the response email.
 		// This is called after `contact_form_message`, in order to preserve back-compat
 		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions );
 
