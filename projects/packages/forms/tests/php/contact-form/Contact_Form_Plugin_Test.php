@@ -994,7 +994,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		// Should search for both original AND V2 corrupted version
 		$this->assertStringContainsString( $email_with_emoji, $result, 'Should search for original email' );
 		$this->assertStringContainsString( 'testud83cudf89@example.com', $result, 'Should ALSO search for V2 corrupted version' );
-
 	}
 
 	public function test_personal_data_search_filter_includes_json_pattern() {
@@ -1084,7 +1083,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			}
 		);
 
-		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'non - existent - flag' ) );
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'non-existent-flag' ) );
 
 		remove_all_filters( 'jetpack_block_editor_feature_flags' );
 	}
