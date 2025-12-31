@@ -1761,7 +1761,7 @@ class Contact_Form_Plugin {
 				'slug'    => $block_template_part_slug,
 				'tagName' => 'div',
 			);
-			do_blocks( '<!-- wp:template-part ' . wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' /-->' );
+			do_blocks( '<!-- wp:template-part ' . wp_wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' /-->' );
 		} else {
 			// It's a form embedded in a post
 
@@ -2612,12 +2612,12 @@ class Contact_Form_Plugin {
 
 			$post_export_data[] = array(
 				'name'  => __( 'IP Address', 'jetpack-forms' ),
-				'value' => $feedback->get_ip_address(),
+				'value' => $feedback->get_ip_address() ?? '',
 			);
 
 			$post_export_data[] = array(
 				'name'  => __( 'Country code', 'jetpack-forms' ),
-				'value' => $feedback->get_country_code(),
+				'value' => $feedback->get_country_code() ?? '',
 			);
 
 			$export_data[] = array(
@@ -2742,7 +2742,7 @@ class Contact_Form_Plugin {
 		add_filter( 'posts_search', array( $this, 'personal_data_search_filter' ) );
 
 		$this->pde_last_post_id_erased = $last_post_id;
-		$this->pde_email_address       = $email;
+		$this->set_pde_email_address( $email );
 
 		$post_ids = get_posts(
 			array(
@@ -2769,6 +2769,18 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Sets the email address to filter searches by.
+	 * Helper for tests.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  string $email Email address.
+	 */
+	public function set_pde_email_address( $email ) {
+		$this->pde_email_address = $email;
+	}
+
+	/**
 	 * Filters searches by email address.
 	 *
 	 * @since 6.1.1
@@ -2781,18 +2793,38 @@ class Contact_Form_Plugin {
 		global $wpdb;
 
 		/*
-		 * Limits search to `post_content` only, and we only match the
-		 * author's email address whenever it's on a line by itself.
+		 * Searches for email addresses in feedback post_content across all storage formats:
+		 * - Legacy format: AUTHOR EMAIL on its own line
+		 * - V2/V3 format: JSON with email in field values
 		 */
 		if ( $this->pde_email_address && str_contains( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
-			$search = (string) $wpdb->prepare(
-				" AND (
-					{$wpdb->posts}.post_content LIKE %s
-					OR {$wpdb->posts}.post_content LIKE %s
-				)",
-				// `chr( 10 )` = `\n`, `chr( 13 )` = `\r` - Keeping this in case someone needs it for reference.
+			// Build search patterns for all formats
+			$patterns = array(
+				// Pattern 1 & 2: Legacy format - AUTHOR EMAIL on its own line
+				// `chr( 10 )` = `\n`, `chr( 13 )` = `\r`
 				'%' . $wpdb->esc_like( chr( 10 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 10 ) ) . '%',
-				'%' . $wpdb->esc_like( chr( 13 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 13 ) ) . '%'
+				'%' . $wpdb->esc_like( chr( 13 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 13 ) ) . '%',
+
+				// Pattern 3: V2/V3 format - JSON field value with escaped quotes
+				// Both V2 and V3 store with escaped quotes. Searches for: \"value\":\"user@example.com
+				'%\\"value\\":\\"' . $wpdb->esc_like( $this->pde_email_address ) . '%',
+				'%\"value\":\"' . $wpdb->esc_like( $this->pde_email_address ) . '%',
+			);
+
+			// V2 has a bug where emojis become malformed: 🎉 becomes ud83cudf89 instead of \ud83c\udf89
+			// If the email contains unicode, also search for the V2 corrupted version
+			$v2_corrupted_email = stripslashes( trim( wp_json_encode( $this->pde_email_address, JSON_UNESCAPED_SLASHES ), '"' ) );
+			if ( $v2_corrupted_email !== $this->pde_email_address ) {
+				// Email contains unicode - add pattern for V2's corrupted format
+				$patterns[] = '%\"value\":\"' . $wpdb->esc_like( $v2_corrupted_email ) . '%';
+			}
+
+			// Build SQL with all patterns
+			$placeholders = implode( ' OR ', array_fill( 0, count( $patterns ), "{$wpdb->posts}.post_content LIKE %s" ) );
+
+			$search = (string) $wpdb->prepare(
+				' AND ( ' . $placeholders . ' )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				...$patterns
 			);
 
 			if ( $this->pde_last_post_id_erased ) {

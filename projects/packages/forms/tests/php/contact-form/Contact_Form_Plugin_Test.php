@@ -980,6 +980,46 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
 	}
 
+	public function test_personal_data_search_filter_v2_unicode_search() {
+
+		$email_with_emoji = 'test🎉@example.com';
+
+		// Test the conversion function
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->set_pde_email_address( $email_with_emoji );
+
+		$search = '..PDE..AUTHOR EMAIL:..PDE..';
+		$result = $plugin->personal_data_search_filter( $search );
+
+		// Should search for both original AND V2 corrupted version
+		$this->assertStringContainsString( $email_with_emoji, $result, 'Should search for original email' );
+		$this->assertStringContainsString( 'testud83cudf89@example.com', $result, 'Should ALSO search for V2 corrupted version' );
+		$this->assertStringContainsString( $email_with_emoji, $result, 'Should ALSO search for regular email' );
+	}
+
+	public function test_personal_data_search_filter_includes_json_pattern() {
+		// Test that the filter generates the correct SQL pattern for V2/V3 JSON formats
+		$test_email = 'user+test@example.com'; // Email with + sign
+		$plugin     = Contact_Form_Plugin::init();
+		$plugin->set_pde_email_address( $test_email );
+
+		// Call the filter with a mock search string
+		$search = '..PDE..AUTHOR EMAIL:..PDE..';
+		$result = $plugin->personal_data_search_filter( $search );
+
+		// Verify JSON format pattern: \"value\":\"email
+		// The pattern should contain the escaped quotes and the email
+		$this->assertStringContainsString( $test_email, $result, 'Should include email address in pattern' );
+
+		// Verify it contains multiple OR conditions (for legacy + JSON patterns)
+		$or_count = substr_count( $result, ' OR ' );
+		$this->assertGreaterThanOrEqual( 3, $or_count, 'Should have at least 2 OR clauses (legacy LF, legacy CR, JSON)' );
+		$this->assertStringContainsString( 'AND (', $result, 'Should start with AND (' );
+		$this->assertStringContainsString( 'post_content LIKE', $result, 'Should include LIKE clause' );
+		$this->assertStringContainsString( '\"value\":\"' . $test_email, $result, 'Should include JSON value pattern' );
+		$this->assertStringContainsString( '\\"value\\":\\"' . $test_email, $result, 'Should include JSON value pattern v2' );
+	}
+
 	public function test_get_unread_count_zero() {
 		delete_option( 'jetpack_feedback_unread_count' );
 		$this->assertIsInt( Contact_Form_Plugin::get_unread_count() );
@@ -1006,12 +1046,12 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		add_filter(
 			'jetpack_block_editor_feature_flags',
 			function ( $flags ) {
-				$flags['central-form-management'] = true;
+				$flags['central - form - management'] = true;
 				return $flags;
 			}
 		);
 
-		$this->assertTrue( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) );
+		$this->assertTrue( Contact_Form_Plugin::has_editor_feature_flag( 'central - form - management' ) );
 
 		remove_all_filters( 'jetpack_block_editor_feature_flags' );
 	}
@@ -1023,12 +1063,12 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		add_filter(
 			'jetpack_block_editor_feature_flags',
 			function ( $flags ) {
-				$flags['central-form-management'] = false;
+				$flags['central - form - management'] = false;
 				return $flags;
 			}
 		);
 
-		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) );
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'central - form - management' ) );
 
 		remove_all_filters( 'jetpack_block_editor_feature_flags' );
 	}
@@ -1044,7 +1084,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			}
 		);
 
-		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'non-existent-flag' ) );
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'non - existent - flag' ) );
 
 		remove_all_filters( 'jetpack_block_editor_feature_flags' );
 	}
@@ -1053,7 +1093,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 * Test has_editor_feature_flag returns false when no filter is applied
 	 */
 	public function test_has_editor_feature_flag_no_filter() {
-		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'any-flag' ) );
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'any - flag' ) );
 	}
 
 	/**
@@ -1073,7 +1113,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		// Create fields with duplicates and empty labels
 		$fields_1 = array(
 			( new Feedback_Field( '1_question', 'Question', 'Answer 1', 'text', array(), 'question' ) )->serialize(),
-			( new Feedback_Field( '2_email', 'Email', 'user1@example.com', 'email', array(), 'email' ) )->serialize(),
+			( new Feedback_Field( '2_email', 'Email', 'user1@example . com', 'email', array(), 'email' ) )->serialize(),
 			( new Feedback_Field( '3_question', 'Question', 'Answer 2', 'text', array(), 'question' ) )->serialize(), // Duplicate label
 			( new Feedback_Field( '4_empty', '', 'Hidden value 1', 'text', array(), 'empty' ) )->serialize(), // Empty label
 			( new Feedback_Field( '5_question', 'Question', 'Answer 3', 'text', array(), 'question' ) )->serialize(), // Another duplicate
@@ -1082,7 +1122,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$content_1 = array(
 			'subject'     => 'Test Subject',
-			'ip'          => 'https://127.0.0.1',
+			'ip'          => 'https:// 127.0.0.1',
 			'entry_title' => 'Cool Post Title',
 			'entry_page'  => 1,
 			'fields'      => $fields_1,
