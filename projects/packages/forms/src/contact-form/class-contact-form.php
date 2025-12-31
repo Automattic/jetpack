@@ -2883,6 +2883,35 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string the filename of the HTML template used for response emails to the form owner.
 		 */
 		require apply_filters( 'jetpack_forms_response_email_template', __DIR__ . '/templates/email-response.php' );
+
+		/**
+		 * Filter the HTML for the powered by section in the email.
+		 *
+		 * @module contact-form
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $powered_by_html The HTML for the powered by section in the email.
+		 */
+		$powered_by_html = apply_filters(
+			'jetpack_forms_email_powered_by_html',
+			str_replace(
+				"\t",
+				'',
+				'
+				<tr>
+					<td class="content-block powered-by">
+					' .
+					sprintf(
+						// translators: %1$s is a link to the Jetpack Forms page.
+						__( 'Powered by %1$s', 'jetpack-forms' ),
+						'<a href="https://jetpack.com/forms/?utm_source=jetpack-forms&utm_medium=email&utm_campaign=form-submissions">Jetpack Forms</a>'
+					) . '
+					</td>
+				</tr>'
+			)
+		);
+
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
 			// They're removed so that they don't affect the final message sent to users
@@ -2898,7 +2927,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$footer,
 			$style,
 			$tracking_pixel,
-			$actions
+			$actions,
+			$powered_by_html
 		);
 
 		return $html_message;
