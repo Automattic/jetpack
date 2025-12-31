@@ -8,6 +8,7 @@
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Plugins_Installer;
 
 /**
  * Class Agents_Manager
@@ -198,6 +199,12 @@ class Agents_Manager {
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
 
 		if ( ! $use_unified_experience ) {
+			return;
+		}
+
+		// If the user is in the block editor, BigSky is active
+		// and the 'unified-big-sky' flag is not set, don't enqueue the script.
+		if ( $this->is_block_editor() && $this->should_use_big_sky_ui() ) {
 			return;
 		}
 
@@ -504,6 +511,30 @@ class Agents_Manager {
 		$current_screen = get_current_screen();
 		// The widgets screen has the block editor but no Gutenberg top bar.
 		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+	}
+
+	/**
+	 * Determine if the user should use the Big Sky UI.
+	 *
+	 * @return bool True if the user should use the Big Sky UI.
+	 */
+	private function should_use_big_sky_ui() {
+		if ( ! Plugins_Installer::is_plugin_active( 'big-sky-plugin/big-sky.php' ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
+		if ( ! isset( $_GET['flags'] ) ) {
+			return true;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
+		$flags = explode( ',', sanitize_text_field( wp_unslash( $_GET['flags'] ) ) );
+		if ( ! in_array( 'unified-big-sky', $flags, true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 }
 
