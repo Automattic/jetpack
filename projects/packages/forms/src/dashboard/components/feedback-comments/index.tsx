@@ -111,7 +111,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			} catch ( err ) {
 				setError( __( 'Failed to delete the note. Please try again.', 'jetpack-forms' ) );
-				createErrorNotice( __( 'Failed to save the note.', 'jetpack-forms' ) );
+				createErrorNotice( __( 'Failed to delete the note.', 'jetpack-forms' ) );
 			} finally {
 				setIsDeleting( false );
 			}
