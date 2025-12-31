@@ -114,6 +114,10 @@ $style = '<style media="all" type="text/css">
 		width: 640px;
 	}
 
+	.powered-by a {
+		text-decoration: none;
+	}
+
 	.content {
 		box-sizing: border-box;
 		display: block;
@@ -197,10 +201,6 @@ $style = '<style media="all" type="text/css">
 		font-weight: normal;
 		margin: 0;
 		margin-bottom: 16px;
-	}
-
-	.powered-by a {
-		text-decoration: none;
 	}
 
 	@media only screen and (max-width: 640px) {
