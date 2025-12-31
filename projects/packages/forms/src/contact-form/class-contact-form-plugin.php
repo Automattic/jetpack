@@ -2805,8 +2805,10 @@ class Contact_Form_Plugin {
 				'%' . $wpdb->esc_like( chr( 10 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 10 ) ) . '%',
 				'%' . $wpdb->esc_like( chr( 13 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 13 ) ) . '%',
 
-				// Pattern 3: V2/V3 format - JSON field value with escaped quotes
-				// Both V2 and V3 store with escaped quotes. Searches for: \"value\":\"user@example.com
+				// Pattern 3 & 4: V2/V3 format - JSON field value with escaped quotes
+				// Handles both storage variants:
+				// - Pattern 3: double-escaped quotes (e.g. stored as \"value\":\" in JSON-encoded content).
+				// - Pattern 4: single-escaped quotes (e.g. stored as "value":" after one level of unescaping).
 				'%\\"value\\":\\"' . $wpdb->esc_like( $this->pde_email_address ) . '%',
 				'%\"value\":\"' . $wpdb->esc_like( $this->pde_email_address ) . '%',
 			);
