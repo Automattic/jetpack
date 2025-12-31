@@ -2561,17 +2561,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		/**
 		 * Filters whether to include the email logo in the response email.
-		 *
-		 * @module contact-form
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $has_email_logo Whether to include the email logo. Default true.
-		 */
-		$has_email_logo = apply_filters( 'jetpack_forms_email_logo_in_response', true );
-
 		// This is called after `contact_form_message`, in order to preserve back-compat
-		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions, $has_email_logo );
+		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
@@ -2859,11 +2850,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $body - the message body.
 	 * @param string $footer - the footer containing meta information.
 	 * @param string $actions - HTML for actions displayed in the email.
-	 * @param bool   $has_email_logo Whether to include the email logo.
 	 *
 	 * @return string
 	 */
-	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '', $has_email_logo = true ) {
+	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '' ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
 		if ( str_contains( $body, '<html' ) ) {
@@ -2896,13 +2886,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		require apply_filters( 'jetpack_forms_response_email_template', __DIR__ . '/templates/email-response.php' );
 
-		$logo_html = '';
-		if ( $has_email_logo ) {
-
-			// Add the logo styles at the end.
-			$style = str_replace( '</style>', '.powered-by a {text-decoration: none;} @media only screen and (max-width: 640px) { .powered-by { padding: 0 16px 16px!important; }} </style>', $style );
-
-			$logo_html = str_replace(
+		/**
+		 * Filtert the HTML for the powered by section in the email.
+		 *
+		 * @module contact-form
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $powered_by_html The HTML for the powered by section in the email.
+		 */
+		$powered_by_html = apply_filters(
+			'jetpack_forms_email_powered_by_html',
+			str_replace(
 				"\t",
 				'',
 				'
@@ -2916,8 +2911,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					) . '
 					</td>
 				</tr>'
-			);
-		}
+			)
+		);
 
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
@@ -2935,7 +2930,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$style,
 			$tracking_pixel,
 			$actions,
-			$logo_html
+			$powered_by_html
 		);
 
 		return $html_message;

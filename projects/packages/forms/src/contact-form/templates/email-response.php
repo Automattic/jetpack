@@ -199,6 +199,10 @@ $style = '<style media="all" type="text/css">
 		margin-bottom: 16px;
 	}
 
+	.powered-by a {
+		text-decoration: none;
+	}
+
 	@media only screen and (max-width: 640px) {
 		.main p,
 		.main td,
@@ -229,6 +233,10 @@ $style = '<style media="all" type="text/css">
 		.collapse { display: none; }
 
 		h1 { padding:0 16px; }
+
+		.powered-by {
+			padding: 0 16px 16px!important;
+		}
 	}
 
 	@media all {
