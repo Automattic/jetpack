@@ -317,9 +317,7 @@ function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
 
 	// Allow video uploads if site has either VIDEOPRESS or UPLOAD_VIDEO_FILES feature.
 	// Sites with UPLOAD_VIDEO_FILES can upload videos without VideoPress (e.g. Premium plans with gating-business-q1 sticker).
-	$can_upload_videos = wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS ) || wpcom_site_has_feature( WPCOM_Features::UPLOAD_VIDEO_FILES );
-
-	if ( ! $can_upload_videos ) {
+	if ( ! wpcom_site_can_upload_videos() ) {
 		// Copied from WPCOM (see `WPCOM_UPLOAD_FILETYPES_FOR_VIDEOS` in `.config/wpcom-options.php`).
 		$video_upload_filetypes = 'ogv mp4 m4v mov wmv avi mpg 3gp 3g2';
 		$disallowed_mimes       = array_merge( $disallowed_mimes, explode( ' ', $video_upload_filetypes ) );
