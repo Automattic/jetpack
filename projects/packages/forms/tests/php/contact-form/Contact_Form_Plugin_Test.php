@@ -1046,12 +1046,12 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		add_filter(
 			'jetpack_block_editor_feature_flags',
 			function ( $flags ) {
-				$flags['central - form - management'] = true;
+				$flags['central-form-management'] = true;
 				return $flags;
 			}
 		);
 
-		$this->assertTrue( Contact_Form_Plugin::has_editor_feature_flag( 'central - form - management' ) );
+		$this->assertTrue( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) );
 
 		remove_all_filters( 'jetpack_block_editor_feature_flags' );
 	}
@@ -1063,12 +1063,12 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		add_filter(
 			'jetpack_block_editor_feature_flags',
 			function ( $flags ) {
-				$flags['central - form - management'] = false;
+				$flags['central-form-management'] = false;
 				return $flags;
 			}
 		);
 
-		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'central - form - management' ) );
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) );
 
 		remove_all_filters( 'jetpack_block_editor_feature_flags' );
 	}
@@ -1093,7 +1093,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 * Test has_editor_feature_flag returns false when no filter is applied
 	 */
 	public function test_has_editor_feature_flag_no_filter() {
-		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'any - flag' ) );
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'any-flag' ) );
 	}
 
 	/**
@@ -1113,7 +1113,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		// Create fields with duplicates and empty labels
 		$fields_1 = array(
 			( new Feedback_Field( '1_question', 'Question', 'Answer 1', 'text', array(), 'question' ) )->serialize(),
-			( new Feedback_Field( '2_email', 'Email', 'user1@example . com', 'email', array(), 'email' ) )->serialize(),
+			( new Feedback_Field( '2_email', 'Email', 'user1@example.com', 'email', array(), 'email' ) )->serialize(),
 			( new Feedback_Field( '3_question', 'Question', 'Answer 2', 'text', array(), 'question' ) )->serialize(), // Duplicate label
 			( new Feedback_Field( '4_empty', '', 'Hidden value 1', 'text', array(), 'empty' ) )->serialize(), // Empty label
 			( new Feedback_Field( '5_question', 'Question', 'Answer 3', 'text', array(), 'question' ) )->serialize(), // Another duplicate
@@ -1122,7 +1122,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$content_1 = array(
 			'subject'     => 'Test Subject',
-			'ip'          => 'https:// 127.0.0.1',
+			'ip'          => 'https://127.0.0.1',
 			'entry_title' => 'Cool Post Title',
 			'entry_page'  => 1,
 			'fields'      => $fields_1,
