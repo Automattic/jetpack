@@ -62,7 +62,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 	// Load comments on mount and when postId changes
 	useEffect( () => {
 		loadComments();
-	}, [ postId, createErrorNotice, loadComments, setIsLoadingComments, setError, setComments ] );
+	}, [ postId, loadComments ] );
 
 	const handleSubmit = useCallback( async () => {
 		if ( ! newComment.trim() ) {
