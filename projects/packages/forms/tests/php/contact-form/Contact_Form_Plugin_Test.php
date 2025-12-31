@@ -1016,8 +1016,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertGreaterThanOrEqual( 3, $or_count, 'Should have at least 2 OR clauses (legacy LF, legacy CR, JSON)' );
 		$this->assertStringContainsString( 'AND (', $result, 'Should start with AND (' );
 		$this->assertStringContainsString( 'post_content LIKE', $result, 'Should include LIKE clause' );
-		$this->assertStringContainsString( '\"value\":\"' . $test_email, $result, 'Should include JSON value pattern' );
-		$this->assertStringContainsString( '\\"value\\":\\"' . $test_email, $result, 'Should include JSON value pattern v2' );
+		$this->assertStringContainsString( '\"value\":\"' . $test_email, $result, 'Should include JSON value pattern v2' );
+		$this->assertStringContainsString( '\\"value\\":\\"' . $test_email, $result, 'Should include JSON value pattern' );
 	}
 
 	public function test_get_unread_count_zero() {
