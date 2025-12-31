@@ -994,7 +994,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		// Should search for both original AND V2 corrupted version
 		$this->assertStringContainsString( $email_with_emoji, $result, 'Should search for original email' );
 		$this->assertStringContainsString( 'testud83cudf89@example.com', $result, 'Should ALSO search for V2 corrupted version' );
-		$this->assertStringContainsString( $email_with_emoji, $result, 'Should ALSO search for regular email' );
+
 	}
 
 	public function test_personal_data_search_filter_includes_json_pattern() {
@@ -1013,7 +1013,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Verify it contains multiple OR conditions (for legacy + JSON patterns)
 		$or_count = substr_count( $result, ' OR ' );
-		$this->assertGreaterThanOrEqual( 3, $or_count, 'Should have at least 2 OR clauses (legacy LF, legacy CR, JSON)' );
+		$this->assertGreaterThanOrEqual( 3, $or_count, 'Should have at least 3 OR clauses (legacy LF, legacy CR, JSON escaped, JSON unescaped)' );
 		$this->assertStringContainsString( 'AND (', $result, 'Should start with AND (' );
 		$this->assertStringContainsString( 'post_content LIKE', $result, 'Should include LIKE clause' );
 		$this->assertStringContainsString( '\"value\":\"' . $test_email, $result, 'Should include JSON value pattern v2' );
