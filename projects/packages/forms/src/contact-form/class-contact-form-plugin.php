@@ -2816,7 +2816,7 @@ class Contact_Form_Plugin {
 			// - wp_json_encode( '🎉' ) produces the JSON string "\"\ud83c\udf89\"" (note the backslashes).
 			// - trim( ..., '"' ) removes the surrounding JSON quotes, giving "\ud83c\udf89".
 			// - stripslashes() then removes the backslashes from the escape sequence, yielding "ud83cudf89",
-			//   which is exactly how V2 stored the corrupted value in post_content.
+			// which is exactly how V2 stored the corrupted value in post_content.
 			// If the email contains unicode, also search for the V2 corrupted version generated this way.
 			$v2_corrupted_email = stripslashes( trim( wp_json_encode( $this->pde_email_address, JSON_UNESCAPED_SLASHES ), '"' ) );
 			if ( $v2_corrupted_email !== $this->pde_email_address ) {
