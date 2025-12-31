@@ -17,6 +17,10 @@ const ReviewPrompt = ( { href, onClose } ) => {
 		pageViewSuffix: 'view',
 	} );
 
+	const recordReviewClick = useCallback( () => {
+		recordEvent( 'jetpack_social_plugin_review_prompt_new_review_click' );
+	}, [ recordEvent ] );
+
 	const handleDismiss = useCallback( () => {
 		recordEvent( 'jetpack_social_plugin_review_prompt_dismiss_click' );
 		onClose();
@@ -34,8 +38,7 @@ const ReviewPrompt = ( { href, onClose } ) => {
 						label: __( 'Leave a Review', 'jetpack-publicize-components' ),
 						url: href,
 						className: 'is-compact',
-						// TODO Add back tracking on click when Notice actions support onClick on links
-						// See https://github.com/WordPress/gutenberg/pull/74094
+						onClick: recordReviewClick,
 					},
 					{
 						variant: 'secondary',
