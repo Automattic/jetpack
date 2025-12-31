@@ -106,7 +106,13 @@ function wpcom_site_can_upload_videos( $blog_id = 0 ) {
 	}
 
 	// VideoPress includes video upload capability.
-	if ( wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS, $blog_id ) ) {
+	// On WPCOM, use wpcom_site_has_videopress() to respect the filter.
+	// On WPCOMSH/Atomic, that function doesn't exist so use direct feature check.
+	if ( function_exists( 'wpcom_site_has_videopress' ) ) {
+		if ( wpcom_site_has_videopress( $blog_id ) ) {
+			return true;
+		}
+	} elseif ( wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS, $blog_id ) ) {
 		return true;
 	}
 
