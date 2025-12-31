@@ -94,6 +94,25 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		}
 	}, [ newComment, postId, comments, createSuccessNotice, createErrorNotice ] );
 
+	const handleKeyDown = useCallback(
+		( event: React.KeyboardEvent< HTMLTextAreaElement > ) => {
+			// Submit on Enter (without Shift) - works with mobile "Send" button
+			// Use Shift+Enter for new lines
+			if ( event.key === 'Enter' && ! event.shiftKey ) {
+				event.preventDefault();
+				handleSubmit();
+			}
+		},
+		[ handleSubmit ]
+	);
+
+	const scrollToBottom = useCallback( () => {
+		const button = document.querySelector( '.jp-forms__feedback-comments-form-button' );
+		if ( button ) {
+			button.scrollIntoView( { behavior: 'smooth', block: 'nearest' } );
+		}
+	}, [] );
+
 	const handleDelete = useCallback(
 		async ( commentId: number ) => {
 			if ( comments.length === 0 ) {
@@ -186,6 +205,9 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 							label={ __( 'Leave a note', 'jetpack-forms' ) }
 							value={ newComment }
 							onChange={ setNewComment }
+							onKeyDown={ handleKeyDown }
+							onBlur={ scrollToBottom }
+							enterKeyHint="send"
 							rows={ 1 }
 							disabled={ isSubmitting }
 							placeholder={ __( 'Write a quick note…', 'jetpack-forms' ) }
@@ -194,18 +216,19 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 					<div className="jp-forms__feedback-comments-user-info">
 						{ currentUser && (
 							<div className="jp-forms__feedback-comments-form-avatar">
-								<img src={ currentUser.avatar_urls?.[ '48' ] || '' } alt={ __( 'User avatar', 'jetpack-forms' ) } />
+								<img src={ currentUser.avatar_urls?.[ '48' ] || '' } alt={ '' } />
 								<strong>{ currentUser.name }</strong>
 							</div>
 						) }
 						<div className="jp-forms__feedback-comments-form-button">
 							<Button
 								variant="primary"
+								type="submit"
 								onClick={ handleSubmit }
 								disabled={ isSubmitting || ! newComment.trim() }
 								isBusy={ isSubmitting }
 							>
-								{ __( 'Post', 'jetpack-forms' ) }
+								{ __( 'Add note', 'jetpack-forms' ) }
 							</Button>
 						</div>
 					</div>
