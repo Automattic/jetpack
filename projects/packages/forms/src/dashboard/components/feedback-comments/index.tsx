@@ -46,10 +46,34 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		setError( null );
 
 		try {
-			const fetchedComments = await apiFetch< FeedbackComment[] >( {
-				path: `/wp/v2/comments?post=${ postId }&per_page=100&order=asc`,
-			} );
-			setComments( fetchedComments || [] );
+			// Use paginated requests to ensure all comments are loaded, not just the first 100.
+			const perPage = 100;
+			const allComments: FeedbackComment[] = [];
+			let page = 1;
+
+			// Fetch comments page by page until a page returns fewer than perPage items.
+			// This avoids silently truncating the list when there are more than 100 comments.
+			// The perPage value is kept at 100 to balance performance and number of requests.
+			// eslint-disable-next-line no-constant-condition
+			while ( true ) {
+				const fetchedPage = await apiFetch< FeedbackComment[] >( {
+					path: `/wp/v2/comments?post=${ postId }&per_page=${ perPage }&page=${ page }&order=asc`,
+				} );
+
+				if ( ! fetchedPage || fetchedPage.length === 0 ) {
+					break;
+				}
+
+				allComments.push( ...fetchedPage );
+
+				if ( fetchedPage.length < perPage ) {
+					break;
+				}
+
+				page += 1;
+			}
+
+			setComments( allComments );
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch ( err ) {
 			setError( __( 'Failed to load comments.', 'jetpack-forms' ) );
