@@ -1139,6 +1139,24 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		$attached_media = array(
+			'type'  => 'array',
+			'items' => array(
+				'type'       => 'object',
+				'properties' => array(
+					'id'   => array(
+						'type' => 'number',
+					),
+					'url'  => array(
+						'type' => 'string',
+					),
+					'type' => array(
+						'type' => 'string',
+					),
+				),
+			),
+		);
+
 		$jetpack_social_options_args = array(
 			'type'          => 'object',
 			'description'   => __( 'Post options related to Jetpack Social.', 'jetpack-publicize-pkg' ),
@@ -1160,23 +1178,7 @@ abstract class Publicize_Base {
 						'version'                  => array(
 							'type' => 'number',
 						),
-						'attached_media'           => array(
-							'type'  => 'array',
-							'items' => array(
-								'type'       => 'object',
-								'properties' => array(
-									'id'   => array(
-										'type' => 'number',
-									),
-									'url'  => array(
-										'type' => 'string',
-									),
-									'type' => array(
-										'type' => 'string',
-									),
-								),
-							),
-						),
+						'attached_media'           => $attached_media,
 						'image_generator_settings' => array(
 							'type'       => 'object',
 							'properties' => array(
@@ -1216,6 +1218,34 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		// Per-connection overrides for message and attached media.
+		// This allows users to customize what gets shared to each social network connection.
+		$connection_overrides_args = array(
+			'type'          => 'object',
+			'description'   => __( 'Per-connection customizations for message and media.', 'jetpack-publicize-pkg' ),
+			'single'        => true,
+			'default'       => array(),
+			'show_in_rest'  => array(
+				'name'   => 'jetpack_publicize_connection_overrides',
+				'schema' => array(
+					'type'                 => 'object',
+					'additionalProperties' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'override_settings' => array(
+								'type' => 'boolean',
+							),
+							'message'           => array(
+								'type' => 'string',
+							),
+							'attached_media'    => $attached_media,
+						),
+					),
+				),
+			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
 		foreach ( get_post_types() as $post_type ) {
 			if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
 				continue;
@@ -1225,11 +1255,13 @@ abstract class Publicize_Base {
 			$publicize_feature_enable_args['object_subtype'] = $post_type;
 			$already_shared_flag_args['object_subtype']      = $post_type;
 			$jetpack_social_options_args['object_subtype']   = $post_type;
+			$connection_overrides_args['object_subtype']     = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
 			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
 			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
+			register_meta( 'post', '_wpas_connection_overrides', $connection_overrides_args );
 		}
 	}
 

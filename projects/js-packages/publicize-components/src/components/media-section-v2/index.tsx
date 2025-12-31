@@ -34,12 +34,33 @@ export default function MediaSectionV2( {
 	analyticsData = {},
 	disabled = false,
 	onEditTemplate,
+	attachedMedia: attachedMediaProp,
+	imageGeneratorSettings: imageGeneratorSettingsProp,
+	mediaSource: mediaSourceProp,
+	onMediaChange,
 }: MediaSectionV2Props ) {
 	const { recordEvent } = useAnalytics();
 	const featuredImageId = useFeaturedImage();
 	const { isEnabled: sigEnabled } = useImageGeneratorConfig();
-	const { attachedMedia, imageGeneratorSettings, mediaSource, updateJetpackSocialOptions } =
-		usePostMeta();
+	const {
+		attachedMedia: storeAttachedMedia,
+		imageGeneratorSettings: storeImageGeneratorSettings,
+		mediaSource: storeMediaSource,
+		updateJetpackSocialOptions,
+	} = usePostMeta();
+
+	// Check if we're in "controlled" mode (props provided)
+	const isControlled = onMediaChange !== undefined;
+
+	// Use props if in controlled mode, otherwise fall back to store values
+	const attachedMedia = isControlled ? attachedMediaProp ?? [] : storeAttachedMedia;
+	const imageGeneratorSettings = isControlled
+		? imageGeneratorSettingsProp ?? { enabled: false }
+		: storeImageGeneratorSettings;
+	const mediaSource = isControlled ? mediaSourceProp : storeMediaSource;
+
+	// Unified update function that uses props callback or store
+	const updateMediaOptions = isControlled ? onMediaChange : updateJetpackSocialOptions;
 
 	// Get SIG preview URL when SIG is enabled
 	const { url: sigPreviewUrl, isLoading: sigIsLoading } = useSigPreview( sigEnabled );
@@ -110,7 +131,7 @@ export default function MediaSectionV2( {
 			} );
 
 			// Single batch update with explicit media_source and all related fields
-			updateJetpackSocialOptions( {
+			updateMediaOptions( {
 				media_source: source || 'none',
 				attached_media: [], // Reset attachment when changing source
 				image_generator_settings: {
@@ -119,7 +140,7 @@ export default function MediaSectionV2( {
 				},
 			} );
 		},
-		[ recordEvent, analyticsData, updateJetpackSocialOptions, imageGeneratorSettings ]
+		[ recordEvent, analyticsData, updateMediaOptions, imageGeneratorSettings ]
 	);
 
 	// Handle media selection from Media Library
@@ -128,7 +149,7 @@ export default function MediaSectionV2( {
 			const { id, url, mime } = media;
 
 			// Single batch update with explicit media_source
-			updateJetpackSocialOptions( {
+			updateMediaOptions( {
 				media_source: 'media-library',
 				attached_media: [ { id, url, type: mime } ],
 				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
@@ -139,7 +160,7 @@ export default function MediaSectionV2( {
 				source: 'media-library',
 			} );
 		},
-		[ updateJetpackSocialOptions, imageGeneratorSettings, recordEvent, analyticsData ]
+		[ updateMediaOptions, imageGeneratorSettings, recordEvent, analyticsData ]
 	);
 
 	const handleMediaLibraryClick = useCallback( () => {
@@ -152,7 +173,7 @@ export default function MediaSectionV2( {
 	const handleAiImageSelect = useCallback(
 		( { id, url, mime }: WPMediaObject ) => {
 			// Use 'media-library' as the source since the AI image is uploaded to the media library
-			updateJetpackSocialOptions( {
+			updateMediaOptions( {
 				media_source: 'media-library',
 				attached_media: [ { id, url, type: mime || 'image/png' } ],
 				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
@@ -166,7 +187,7 @@ export default function MediaSectionV2( {
 
 			toggleShowAiImageModal();
 		},
-		[ updateJetpackSocialOptions, imageGeneratorSettings, recordEvent, analyticsData ]
+		[ updateMediaOptions, imageGeneratorSettings, recordEvent, analyticsData ]
 	);
 
 	const renderMediaUpload = useCallback( ( { open }: { open: () => void } ) => {
@@ -177,7 +198,7 @@ export default function MediaSectionV2( {
 	// Handle remove - go to "no image" state
 	const handleRemove = useCallback( () => {
 		// Single batch update with explicit 'none' source
-		updateJetpackSocialOptions( {
+		updateMediaOptions( {
 			media_source: 'none',
 			attached_media: [],
 			image_generator_settings: { ...imageGeneratorSettings, enabled: false },
@@ -187,20 +208,14 @@ export default function MediaSectionV2( {
 			...analyticsData,
 			source: currentSource,
 		} );
-	}, [
-		updateJetpackSocialOptions,
-		imageGeneratorSettings,
-		recordEvent,
-		analyticsData,
-		currentSource,
-	] );
+	}, [ updateMediaOptions, imageGeneratorSettings, recordEvent, analyticsData, currentSource ] );
 
 	// Handle attachment toggle change
 	const handleAttachmentToggle = useCallback(
 		( checked: boolean ) => {
 			if ( currentSource === 'featured-image' && previewData ) {
 				// Featured image: toggle attachment mode
-				updateJetpackSocialOptions( {
+				updateMediaOptions( {
 					media_source: 'featured-image',
 					attached_media: checked
 						? [ { id: previewData.id, url: previewData.url, type: 'image/jpeg' } ]
@@ -208,7 +223,7 @@ export default function MediaSectionV2( {
 				} );
 			} else if ( currentSource === 'sig' && sigPreviewUrl ) {
 				// SIG: toggle attachment mode (add SIG URL to attached_media)
-				updateJetpackSocialOptions( {
+				updateMediaOptions( {
 					media_source: 'sig',
 					attached_media: checked ? [ { id: 0, url: sigPreviewUrl, type: 'image/jpeg' } ] : [],
 					// Keep SIG enabled regardless
@@ -230,7 +245,7 @@ export default function MediaSectionV2( {
 			currentSource,
 			previewData,
 			sigPreviewUrl,
-			updateJetpackSocialOptions,
+			updateMediaOptions,
 			imageGeneratorSettings,
 			recordEvent,
 			analyticsData,

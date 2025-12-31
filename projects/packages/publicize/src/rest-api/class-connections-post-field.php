@@ -123,10 +123,44 @@ class Connections_Post_Field {
 				$deprecated_fields,
 				$connection_fields,
 				array(
-					'enabled' => array(
+					'enabled'           => array(
 						'description' => __( 'Whether to share to this connection.', 'jetpack-publicize-pkg' ),
 						'type'        => 'boolean',
 						'context'     => array( 'edit' ),
+					),
+					'override_settings' => array(
+						'description' => __( 'Whether to use per-connection settings instead of global settings. When true, message and attached_media values will be used even if empty.', 'jetpack-publicize-pkg' ),
+						'type'        => 'boolean',
+						'context'     => array( 'edit' ),
+						'default'     => false,
+					),
+					'message'           => array(
+						'description' => __( 'Custom message to use for this connection instead of the global message. Only used when override_settings is true.', 'jetpack-publicize-pkg' ),
+						'type'        => 'string',
+						'context'     => array( 'edit' ),
+					),
+					'attached_media'    => array(
+						'description' => __( 'Custom media to attach for this connection instead of the global media. Only used when override_settings is true.', 'jetpack-publicize-pkg' ),
+						'type'        => 'array',
+						'context'     => array( 'edit' ),
+						'items'       => array(
+							'type'       => 'object',
+							'properties' => array(
+								'id'   => array(
+									'description' => __( 'Media attachment ID.', 'jetpack-publicize-pkg' ),
+									'type'        => 'integer',
+								),
+								'url'  => array(
+									'description' => __( 'Media URL.', 'jetpack-publicize-pkg' ),
+									'type'        => 'string',
+									'format'      => 'uri',
+								),
+								'type' => array(
+									'description' => __( 'Media type (e.g., image, video).', 'jetpack-publicize-pkg' ),
+									'type'        => 'string',
+								),
+							),
+						),
 					),
 				)
 			),
@@ -372,13 +406,67 @@ class Connections_Post_Field {
 			return;
 		}
 		foreach ( $this->get_meta_to_update( $requested_connections, $post->ID ) as $meta_key => $meta_value ) {
-			if ( $meta_value === null ) {
+			if ( null === $meta_value ) {
 				delete_post_meta( $post->ID, $meta_key );
 			} else {
 				update_post_meta( $post->ID, $meta_key, $meta_value );
 			}
 		}
+
+		// Save per-connection overrides (message and attached_media).
+		$this->save_connection_overrides( $requested_connections, $post->ID );
+
 		$this->meta_saved[ $post->ID ] = true;
+	}
+
+	/**
+	 * Save per-connection message and media overrides to post meta.
+	 *
+	 * Extracts 'message' and 'attached_media' from each connection and saves
+	 * them to the '_wpas_connection_overrides' post meta. This allows users
+	 * to customize what gets shared to each social network connection.
+	 *
+	 * @param array $requested_connections Array of connection objects with optional message/attached_media.
+	 * @param int   $post_id               Post ID to save overrides for.
+	 */
+	private function save_connection_overrides( $requested_connections, $post_id ) {
+		$overrides = array();
+
+		foreach ( $requested_connections as $connection ) {
+			// We need a connection_id to store overrides.
+			if ( empty( $connection['connection_id'] ) ) {
+				continue;
+			}
+
+			// Only save overrides if override_settings is explicitly true.
+			if ( empty( $connection['override_settings'] ) ) {
+				continue;
+			}
+
+			$connection_id = $connection['connection_id'];
+
+			$overrides[ $connection_id ] = array(
+				'override_settings' => true,
+			);
+
+			// Save message (can be empty string to explicitly clear global message).
+			if ( isset( $connection['message'] ) ) {
+				$overrides[ $connection_id ]['message'] = sanitize_textarea_field( $connection['message'] );
+			}
+
+			// Save attached_media (can be empty array to explicitly clear global media).
+			// REST API schema validates the structure, so we save as-is.
+			if ( isset( $connection['attached_media'] ) && is_array( $connection['attached_media'] ) ) {
+				$overrides[ $connection_id ]['attached_media'] = $connection['attached_media'];
+			}
+		}
+
+		// Only save if there are overrides, otherwise delete any existing meta.
+		if ( ! empty( $overrides ) ) {
+			update_post_meta( $post_id, '_wpas_connection_overrides', $overrides );
+		} else {
+			delete_post_meta( $post_id, '_wpas_connection_overrides' );
+		}
 	}
 
 	/**
