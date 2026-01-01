@@ -17,7 +17,7 @@
 		font-size: var(--jetpack--contact-form--font-size);
 		line-height: var(--jetpack--contact-form--line-height);
 		// defaulting to white, it's gutenberg's default background for inputs
-		background-color: var(--jetpack--contact-form--input-background, #fff);
+		background-color: var(--jetpack--contact-form--input-background);
 
 		// TODO: Doesn't work well with next version of Gutenberg, should be removed
 		&.is-selected {
