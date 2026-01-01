@@ -57,8 +57,8 @@ class Dashboard_View_Switch {
 	/**
 	 * Appends the appropriate tab parameter to the URL.
 	 *
-	 * @param string $url              Base URL to append to.
-	 * @param string $tab              Tab to open.
+	 * @param string      $url Base URL to append to.
+	 * @param string|null $tab Tab to open.
 	 *
 	 * @return string
 	 */
