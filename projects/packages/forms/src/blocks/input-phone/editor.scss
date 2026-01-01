@@ -20,9 +20,10 @@
 		background-color: var(--jetpack--contact-form--input-background);
 
 		// TODO: Doesn't work well with next version of Gutenberg, should be removed
-		&.is-selected {
+		&.is-selected,
+		&:focus-within {
 			border-color: #2271b1;
-			box-shadow: 0 0 0 1px #2271b1;
+			box-shadow: revert;
 			z-index: 1;
 		}
 
@@ -136,7 +137,8 @@
 
 	.jetpack-field__input {
 
-		&.is-selected {
+		&.is-selected,
+		&:focus-within {
 			box-shadow: unset;
 		}
 	}

@@ -64,6 +64,10 @@
 				transform: scaleY(-1);
 			}
 		}
+
+		.jetpack-combobox-selected {
+			white-space: nowrap;
+		}
 	}
 
 	.jetpack-combobox-dropdown {
