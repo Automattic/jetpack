@@ -152,6 +152,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		height: inputHeight,
 		backdropFilter: inputBackdropFilter,
 		backgroundColor: inputBackground,
+		filter: inputFilter,
 	} = window.getComputedStyle( inputNode );
 
 	styleProbe.remove();
@@ -176,6 +177,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--input-padding-top': inputPaddingTop,
 		'--jetpack--contact-form--input-padding-left': inputPaddingLeft,
 		'--jetpack--contact-form--input-height': inputHeight,
+		'--jetpack--contact-form--input-filter': inputFilter,
 		'--jetpack--contact-form--font-size': fontSize,
 		'--jetpack--contact-form--font-family': fontFamily,
 		'--jetpack--contact-form--line-height': lineHeight === 'normal' ? '1.2em' : lineHeight,
