@@ -20,6 +20,7 @@
 		line-height: var(--jetpack--contact-form--line-height);
 		align-items: center;
 		backdrop-filter: var(--jetpack--contact-form--input-backdrop-filter, none);
+		filter: var(--jetpack--contact-form--input-filter, none);
 
 		&:has(.jetpack-field__input-element:focus) {
 			outline-width: 2px;
