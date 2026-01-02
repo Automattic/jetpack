@@ -31,7 +31,7 @@ await jest.unstable_mockModule( '@wordpress/components', () => ( {
 				aria-label={ label }
 				placeholder={ props.placeholder }
 				value={ value }
-				onChange={ handleChange } // eslint-disable-line react/jsx-no-bind
+				onChange={ handleChange } // eslint-disable-line react/jsx-no-bind -- Test mock function
 				{ ...textareaProps }
 			/>
 		);
@@ -128,6 +128,18 @@ const FeedbackCommentsModule = await import(
 const FeedbackComments = FeedbackCommentsModule.default;
 
 describe( 'FeedbackComments', () => {
+	/**
+	 * Helper function to extract page number from API path
+	 *
+	 * @param {string} path - API path string
+	 * @return {number} Page number (defaults to 1 if not found)
+	 */
+	const extractPageNumber = path => {
+		const pathStr = String( path || '' );
+		const pageMatch = pathStr.match( /[?&]page=(\d+)/ );
+		return pageMatch ? parseInt( pageMatch[ 1 ], 10 ) : 1;
+	};
+
 	const mockComments = [
 		{
 			id: 1,
@@ -236,10 +248,7 @@ describe( 'FeedbackComments', () => {
 			];
 
 			mockApiFetch.mockImplementation( options => {
-				const pathStr = String( options?.path || '' );
-				// Extract page number from path - use word boundary to avoid matching per_page
-				const pageMatch = pathStr.match( /[?&]page=(\d+)/ );
-				const pageNum = pageMatch ? parseInt( pageMatch[ 1 ], 10 ) : 1;
+				const pageNum = extractPageNumber( options?.path );
 
 				if ( pageNum === 1 ) {
 					return Promise.resolve( firstPage );
