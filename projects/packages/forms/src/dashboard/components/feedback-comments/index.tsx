@@ -1,15 +1,13 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { Button, TextareaControl, DropdownMenu, Spinner } from '@wordpress/components';
+import { Button, TextareaControl, Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useState, useEffect, useCallback } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { moreVertical, trash } from '@wordpress/icons';
+import { useState, useCallback, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import CommentItem from './comment-item';
 /**
  * Internal dependencies
  */
@@ -28,65 +26,91 @@ export type FeedbackCommentsProps = {
  * @return {JSX.Element} The feedback comments component
  */
 const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
-	const [ comments, setComments ] = useState< FeedbackComment[] >( [] );
-	const [ isLoadingComments, setIsLoadingComments ] = useState( true );
 	const [ newComment, setNewComment ] = useState( '' );
 	const [ isSubmitting, setIsSubmitting ] = useState( false );
 	const [ isDeleting, setIsDeleting ] = useState( false );
 	const [ error, setError ] = useState< string | null >( null );
+	// Page-based loading: fetch one page at a time and append to `loadedComments`.
+	const [ page, setPage ] = useState( 1 );
+	const perPage = 50;
+	const [ loadedComments, setLoadedComments ] = useState< FeedbackComment[] >( [] );
+	// Comments created in this session (locally appended) — shown after the "Load more" button.
+	const [ clientAddedComments, setClientAddedComments ] = useState< FeedbackComment[] >( [] );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { deleteEntityRecord, saveEntityRecord } = useDispatch( coreStore );
 
 	// Get current user data
 	const currentUser = useSelect( select => {
 		return select( coreStore ).getCurrentUser();
 	}, [] );
 
-	const loadComments = useCallback( async () => {
-		setIsLoadingComments( true );
+	const {
+		comments: commentsPage,
+		totalComments,
+		isLoadingComments,
+	} = useSelect(
+		select => {
+			const commentsData = select( coreStore ).getEntityRecords( 'root', 'comment', {
+				per_page: perPage,
+				page,
+				orderby: 'date',
+				order: 'asc',
+				post: postId,
+			} ) as FeedbackComment[] | null | undefined;
+
+			const total = select( coreStore ).getEntityRecordsTotalItems( 'root', 'comment', {
+				per_page: perPage,
+				page,
+				post: postId,
+			} );
+
+			return {
+				comments: commentsData,
+				totalComments: total || 0,
+				isLoadingComments: commentsData === undefined || commentsData === null,
+			};
+		},
+		[ postId, page, perPage ]
+	);
+	const hasMoreComments = page * perPage < ( totalComments || 0 );
+	useEffect( () => {
+		// If the selector returned nothing yet, do nothing.
+		if ( ! commentsPage ) {
+			return;
+		}
+
+		// If the API returned an error object (not an array), surface it.
+		if ( ! Array.isArray( commentsPage ) ) {
+			const message =
+				( commentsPage as unknown as { message?: string } ).message ||
+				__( 'Failed to load comments. Please try again.', 'jetpack-forms' );
+			setError( message );
+			return;
+		}
+
+		// Clear any previous load error on successful array result.
 		setError( null );
 
-		try {
-			// Use paginated requests to ensure all comments are loaded, not just the first 100.
-			const perPage = 100;
-			const allComments: FeedbackComment[] = [];
-			let page = 1;
-
-			// Fetch comments page by page until a page returns fewer than perPage items.
-			// This avoids silently truncating the list when there are more than 100 comments.
-			// The perPage value is kept at 100 to balance performance and number of requests.
-
-			while ( true ) {
-				const fetchedPage = await apiFetch< FeedbackComment[] >( {
-					path: `/wp/v2/comments?post=${ postId }&per_page=${ perPage }&page=${ page }&order=asc`,
-				} );
-
-				if ( ! fetchedPage || fetchedPage.length === 0 ) {
-					break;
-				}
-
-				allComments.push( ...fetchedPage );
-
-				if ( fetchedPage.length < perPage ) {
-					break;
-				}
-
-				page += 1;
-			}
-
-			setComments( allComments );
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		} catch ( err ) {
-			setError( __( 'Failed to load comments.', 'jetpack-forms' ) );
-			createErrorNotice( __( 'Failed to load comments.', 'jetpack-forms' ) );
-		} finally {
-			setIsLoadingComments( false );
+		if ( commentsPage.length === 0 ) {
+			return;
 		}
-	}, [ postId, createErrorNotice ] );
 
-	// Load comments on mount and when postId changes
+		setLoadedComments( prev => {
+			const existing = new Set( prev.map( c => c.id ) );
+			const toAdd = commentsPage.filter( c => ! existing.has( c.id ) );
+			// Remove any client-added comments that the server just returned.
+			setClientAddedComments( prevClient =>
+				prevClient.filter( c => ! commentsPage.some( pc => pc.id === c.id ) )
+			);
+			return prev.concat( toAdd );
+		} );
+	}, [ commentsPage ] );
+
 	useEffect( () => {
-		loadComments();
-	}, [ postId, loadComments ] );
+		setLoadedComments( [] );
+		setClientAddedComments( [] );
+		setPage( 1 );
+	}, [ postId ] );
 
 	const scrollToBottom = useCallback( () => {
 		const button = document.querySelector( '.jp-forms__feedback-comments-form-button' );
@@ -95,7 +119,11 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		}
 	}, [] );
 
-	const handleSubmit = useCallback( async () => {
+	const handleLoadMore = useCallback( () => {
+		setPage( prevPage => prevPage + 1 );
+	}, [] );
+
+	const handleNewComment = useCallback( async () => {
 		if ( ! newComment.trim() ) {
 			return;
 		}
@@ -104,18 +132,35 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		setError( null );
 
 		try {
-			const createdComment = await apiFetch< FeedbackComment >( {
-				path: '/wp/v2/comments',
-				method: 'POST',
-				data: {
-					post: postId,
-					content: newComment,
-				},
+			const saved = await saveEntityRecord( 'root', 'comment', {
+				post: postId,
+				content: newComment,
 			} );
 
-			setComments( [ ...comments, createdComment ] );
+			if ( saved === undefined ) {
+				setError( __( 'Failed to save the note. Please try again.', 'jetpack-forms' ) );
+				createErrorNotice( __( 'Failed to save the note.', 'jetpack-forms' ) );
+				setIsSubmitting( false );
+				return;
+			}
+
 			setNewComment( '' );
 			createSuccessNotice( __( 'Note added successfully.', 'jetpack-forms' ) );
+			// Append the newly saved comment to the client-only list so it appears
+			// after the "Load more comments" button.
+			setClientAddedComments( prev => {
+				if ( ! saved || ! ( saved as FeedbackComment ).id ) {
+					return prev;
+				}
+
+				const savedComment = saved as FeedbackComment;
+				const existing = new Set( prev.map( c => c.id ) );
+				if ( existing.has( savedComment.id ) ) {
+					return prev;
+				}
+				return prev.concat( savedComment );
+			} );
+			scrollToBottom();
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch ( err ) {
 			setError( __( 'Failed to save the note. Please try again.', 'jetpack-forms' ) );
@@ -123,7 +168,14 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		} finally {
 			setIsSubmitting( false );
 		}
-	}, [ newComment, postId, comments, createSuccessNotice, createErrorNotice ] );
+	}, [
+		newComment,
+		saveEntityRecord,
+		postId,
+		createSuccessNotice,
+		scrollToBottom,
+		createErrorNotice,
+	] );
 
 	const handleKeyDown = useCallback(
 		( event: React.KeyboardEvent< HTMLTextAreaElement > ) => {
@@ -131,23 +183,21 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 			// Use Shift+Enter for new lines
 			if ( event.key === 'Enter' && ! event.shiftKey ) {
 				event.preventDefault();
-				handleSubmit();
+				handleNewComment();
 			}
 		},
-		[ handleSubmit ]
+		[ handleNewComment ]
 	);
 
 	const handleDelete = useCallback(
 		async ( commentId: number ) => {
 			setIsDeleting( true );
 			try {
-				await apiFetch( {
-					path: `/wp/v2/comments/${ commentId }`,
-					method: 'DELETE',
-				} );
-
-				setComments( comments.filter( c => c.id !== commentId ) );
+				await deleteEntityRecord( 'root', 'comment', commentId );
 				createSuccessNotice( __( 'Note deleted.', 'jetpack-forms' ) );
+				// Remove deleted comment from local lists so UI updates immediately.
+				setLoadedComments( prev => prev.filter( c => c.id !== commentId ) );
+				setClientAddedComments( prev => prev.filter( c => c.id !== commentId ) );
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			} catch ( err ) {
 				setError( __( 'Failed to delete the note. Please try again.', 'jetpack-forms' ) );
@@ -156,17 +206,10 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 				setIsDeleting( false );
 			}
 		},
-		[ comments, createSuccessNotice, createErrorNotice ]
+		[ deleteEntityRecord, createSuccessNotice, createErrorNotice ]
 	);
 
-	const formatCommentDate = ( dateString: string ) => {
-		return sprintf(
-			/* Translators: %1$s is the date, %2$s is the time. */
-			__( '%1$s at %2$s', 'jetpack-forms' ),
-			dateI18n( getDateSettings().formats.date, dateString ),
-			dateI18n( getDateSettings().formats.time, dateString )
-		);
-	};
+	// Date formatting is handled in the CommentItem component now.
 
 	return (
 		<div className="jp-forms__feedback-comments">
@@ -181,36 +224,36 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 			</h3>
 
 			<div className="jp-forms__feedback-comments-content">
-				{ ! isLoadingComments && comments.length > 0 && (
+				{ ! isLoadingComments && loadedComments.length > 0 && (
 					<div className="jp-forms__feedback-comments-list">
-						{ comments.map( comment => (
-							<div key={ comment.id } className="jp-forms__feedback-comment">
-								<div className="jp-forms__feedback-comment-meta">
-									<strong className="jp-forms__feedback-comment-author">
-										{ comment.author_name }
-									</strong>
-									<span className="jp-forms__feedback-comment-date">
-										{ formatCommentDate( comment.date ) }
-									</span>
-									<DropdownMenu
-										icon={ moreVertical }
-										label={ __( 'Note options', 'jetpack-forms' ) }
-										controls={ [
-											{
-												title: __( 'Delete', 'jetpack-forms' ),
-												icon: trash,
-												onClick: () => handleDelete( comment.id ),
-												isDisabled: isDeleting,
-											},
-										] }
-									/>
-								</div>
-								<div
-									className="jp-forms__feedback-comment-content"
-									// eslint-disable-next-line react/no-danger
-									dangerouslySetInnerHTML={ { __html: comment.content.rendered } }
-								/>
-							</div>
+						{ loadedComments.map( comment => (
+							<CommentItem
+								key={ comment.id }
+								comment={ comment }
+								onDelete={ handleDelete }
+								isDeleting={ isDeleting }
+							/>
+						) ) }
+					</div>
+				) }
+
+				{ ! isLoadingComments && hasMoreComments && (
+					<div className="jp-forms__feedback-comments-load-more">
+						<Button variant="secondary" onClick={ handleLoadMore }>
+							{ __( 'Load more comments', 'jetpack-forms' ) }
+						</Button>
+					</div>
+				) }
+
+				{ clientAddedComments.length > 0 && (
+					<div className="jp-forms__feedback-comments-list jp-forms__feedback-comments-new">
+						{ clientAddedComments.map( comment => (
+							<CommentItem
+								key={ comment.id }
+								comment={ comment }
+								onDelete={ handleDelete }
+								isDeleting={ isDeleting }
+							/>
 						) ) }
 					</div>
 				) }
@@ -245,7 +288,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 							<Button
 								variant="primary"
 								type="submit"
-								onClick={ handleSubmit }
+								onClick={ handleNewComment }
 								disabled={ isSubmitting || ! newComment.trim() }
 								isBusy={ isSubmitting }
 							>

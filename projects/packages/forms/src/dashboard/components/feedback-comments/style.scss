@@ -48,54 +48,63 @@
 	margin-bottom: 24px;
 }
 
-// Individual comment
-.jp-forms__feedback-comment {
+// Load more button
+.jp-forms__feedback-comments-load-more {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 24px;
+	padding: 12px;
+	border-top: 1px solid var(--jp-forms-border-color, #ddd);
+}
+
+// Individual comment (item)
+.jp-forms__feedback-comments-comment {
 	background-color: var(--jp-forms-white-off);
 	border-radius: var(--jp-forms-border-radius);
 	padding: 12px;
 
 	@include mixins.flex-column;
 	gap: 8px;
-}
 
-.jp-forms__feedback-comment-meta {
+	.jp-forms__feedback-comments-comment-meta {
 
-	@include mixins.flex-center;
-	gap: 8px;
-	flex-wrap: wrap;
+		@include mixins.flex-center;
+		gap: 8px;
+		flex-wrap: wrap;
 
-	.jp-forms__feedback-comment-date {
-		flex-grow: 4;
+		.jp-forms__feedback-comments-comment-date {
+			flex-grow: 4;
+		}
+
+		.components-dropdown {
+			align-self: flex-end;
+		}
 	}
 
-	.components-dropdown {
-		align-self: flex-end;
-	}
-}
-
-.jp-forms__feedback-comment-author {
-	font-size: 14px;
-	font-weight: 600;
-	color: var(--jp-forms-color-darker-20);
-}
-
-.jp-forms__feedback-comment-date {
-	font-size: 12px;
-	color: var(--jp-gray-80, #50575e);
-}
-
-.jp-forms__feedback-comment-content {
-	font-size: 14px;
-	line-height: 1.5;
-	word-wrap: break-word;
-
-	// Remove default margins from rendered HTML
-	p {
-		margin: 0;
+	.jp-forms__feedback-comments-comment-author {
+		font-size: 14px;
+		font-weight: 600;
+		color: var(--jp-forms-color-darker-20);
 	}
 
-	p + p {
-		margin-top: 8px;
+	.jp-forms__feedback-comments-comment-date {
+		font-size: 12px;
+		color: var(--jp-gray-80, #50575e);
+	}
+
+	.jp-forms__feedback-comments-comment-content {
+		font-size: 14px;
+		line-height: 1.5;
+		word-wrap: break-word;
+
+		// Remove default margins from rendered HTML
+		p {
+			margin: 0;
+		}
+
+		p + p {
+			margin-top: 8px;
+		}
 	}
 }
 
