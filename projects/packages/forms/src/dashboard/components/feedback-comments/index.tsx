@@ -70,7 +70,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 				isLoadingComments: commentsData === undefined || commentsData === null,
 			};
 		},
-		[ postId, page, perPage ]
+		[ postId, page ]
 	);
 	const hasMoreComments = page * perPage < ( totalComments || 0 );
 	useEffect( () => {
