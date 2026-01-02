@@ -52,7 +52,7 @@ const emptyLanguageOption: LanguageOption = {
 	value: '',
 	label: plainLanguageName,
 };
-const selectLanguageOptions: ReadonlyArray< LanguageOption > = [ emptyLanguageOption ];
+const selectLanguageOptions: ReadonlyArray< LanguageOption > = [];
 {
 	const langNames = new Set< string >();
 	extensionToLang.forEach( ( [ , lang ] ) => {
@@ -184,6 +184,20 @@ const blockEdit = withColors(
 						renderContent={ ( { onClose }: { onClose: () => void } ) => (
 							<NavigableMenu role="menu" stopNavigationEvents>
 								<MenuGroup>
+									<MenuItem
+										key={ emptyLanguageOption.value }
+										role="menuitemradio"
+										isSelected={ emptyLanguageOption.value === props.attributes.language }
+										onClick={ () => {
+											props.setAttributes( {
+												language: emptyLanguageOption.value,
+												languageConfidence: 'certain',
+											} );
+											onClose();
+										} }
+									>
+										{ emptyLanguageOption.label }
+									</MenuItem>
 									{ selectLanguageOptions.map( option => (
 										<MenuItem
 											key={ option.value }
