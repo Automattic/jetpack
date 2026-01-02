@@ -41,7 +41,7 @@ class Dashboard_View_Switch {
 	/**
 	 * Returns url of forms admin page.
 	 *
-	 * @deprecated 6.6.0 Use Dashboard::get_forms_admin_url() instead.
+	 * @deprecated 6.6.0 Use Dashboard::get_forms_admin_url() instead. The $force_inbox parameter has been removed.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
 	 *
