@@ -28,7 +28,7 @@ export type FeedbackCommentsProps = {
 const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 	const [ newComment, setNewComment ] = useState( '' );
 	const [ isSubmitting, setIsSubmitting ] = useState( false );
-	const [ isDeleting, setIsDeleting ] = useState( false );
+	const [ deletingCommentIds, setDeletingCommentIds ] = useState< Set< number > >( new Set() );
 	const [ error, setError ] = useState< string | null >( null );
 	// Page-based loading: fetch one page at a time and append to `loadedComments`.
 	const [ page, setPage ] = useState( 1 );
@@ -191,7 +191,11 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 
 	const handleDelete = useCallback(
 		async ( commentId: number ) => {
-			setIsDeleting( true );
+			setDeletingCommentIds( prev => {
+				const next = new Set( prev );
+				next.add( commentId );
+				return next;
+			} );
 			try {
 				await deleteEntityRecord( 'root', 'comment', commentId );
 				createSuccessNotice( __( 'Note deleted.', 'jetpack-forms' ) );
@@ -203,7 +207,11 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 				setError( __( 'Failed to delete the note. Please try again.', 'jetpack-forms' ) );
 				createErrorNotice( __( 'Failed to delete the note.', 'jetpack-forms' ) );
 			} finally {
-				setIsDeleting( false );
+				setDeletingCommentIds( prev => {
+					const next = new Set( prev );
+					next.delete( commentId );
+					return next;
+				} );
 			}
 		},
 		[ deleteEntityRecord, createSuccessNotice, createErrorNotice ]
@@ -231,7 +239,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 								key={ comment.id }
 								comment={ comment }
 								onDelete={ handleDelete }
-								isDeleting={ isDeleting }
+								isDeleting={ deletingCommentIds.has( comment.id ) }
 							/>
 						) ) }
 					</div>
@@ -252,7 +260,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 								key={ comment.id }
 								comment={ comment }
 								onDelete={ handleDelete }
-								isDeleting={ isDeleting }
+								isDeleting={ deletingCommentIds.has( comment.id ) }
 							/>
 						) ) }
 					</div>
