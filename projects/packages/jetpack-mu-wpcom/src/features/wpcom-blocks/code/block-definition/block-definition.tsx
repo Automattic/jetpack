@@ -257,7 +257,7 @@ const blockEdit = withColors(
 						label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
 						value={ attributes.filename }
 						onChange={ ( nextValue: string ) => {
-							setAttributes!( { filename: nextValue } );
+							setAttributes( { filename: nextValue } );
 						} }
 						placeholder={ sprintf(
 							/* translators: Placeholder for a filename input. %s is a file extension, like "txt". */
