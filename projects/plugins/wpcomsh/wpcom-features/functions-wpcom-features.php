@@ -91,6 +91,46 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 }
 
 /**
+ * Find out if the site can upload video files.
+ *
+ * This checks if the site has either VideoPress or the general video upload capability.
+ * Sites with the UPLOAD_VIDEO_FILES feature can upload videos even without VideoPress
+ * (e.g. Premium plans with the gating-business-q1 sticker).
+ *
+ * @param int $blog_id Blog ID. Defaults to the current blog ID if none is passed.
+ * @return bool Whether the site can upload video files.
+ */
+function wpcom_site_can_upload_videos( $blog_id = 0 ) {
+	if ( ! $blog_id ) {
+		$blog_id = _wpcom_get_current_blog_id();
+	}
+
+	// VideoPress includes video upload capability.
+	// On WPCOM, use wpcom_site_has_videopress() to respect the filter.
+	// On WPCOMSH/Atomic, that function doesn't exist so use direct feature check.
+	if ( function_exists( 'wpcom_site_has_videopress' ) ) {
+		if ( wpcom_site_has_videopress( $blog_id ) ) {
+			return true;
+		}
+	} elseif ( wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS, $blog_id ) ) {
+		return true;
+	}
+
+	// Check for the general video upload feature (Premium+ plans with gating-business-q1 sticker).
+	if ( wpcom_site_has_feature( WPCOM_Features::UPLOAD_VIDEO_FILES, $blog_id ) ) {
+		return true;
+	}
+
+	/**
+	 * Filters whether the site can upload video files.
+	 *
+	 * @param bool $can_upload_videos Whether the site can upload video files.
+	 * @param int  $blog_id Blog ID.
+	 */
+	return apply_filters( 'wpcom_site_can_upload_videos', false, $blog_id );
+}
+
+/**
  * Returns a list of purchased products.
  *
  * This function checks if we're on an Atomic (WPCOMSH) or Simple (WPCOM) site, and pulls the purchases for that current
