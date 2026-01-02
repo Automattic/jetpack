@@ -113,7 +113,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 				},
 			} );
 
-			setComments( [ ...comments, createdComment ] );
+			setComments( prevComments => [ ...prevComments, createdComment ] );
 			setNewComment( '' );
 			createSuccessNotice( __( 'Note added successfully.', 'jetpack-forms' ) );
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -123,7 +123,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		} finally {
 			setIsSubmitting( false );
 		}
-	}, [ newComment, postId, comments, createSuccessNotice, createErrorNotice ] );
+	}, [ newComment, postId, createSuccessNotice, createErrorNotice ] );
 
 	const handleKeyDown = useCallback(
 		( event: React.KeyboardEvent< HTMLTextAreaElement > ) => {
@@ -146,7 +146,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 					method: 'DELETE',
 				} );
 
-				setComments( comments.filter( c => c.id !== commentId ) );
+				setComments( prevComments => prevComments.filter( c => c.id !== commentId ) );
 				createSuccessNotice( __( 'Note deleted.', 'jetpack-forms' ) );
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			} catch ( err ) {
@@ -156,7 +156,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 				setIsDeleting( false );
 			}
 		},
-		[ comments, createSuccessNotice, createErrorNotice ]
+		[ createSuccessNotice, createErrorNotice ]
 	);
 
 	const formatCommentDate = ( dateString: string ) => {
