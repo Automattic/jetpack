@@ -44,14 +44,15 @@ const LINE_NUMBER_START_MAX = 10_000;
 type Props = EditBlockProps | SaveBlockProps;
 const plainLanguageName = __( 'Plain text', 'jetpack-mu-wpcom' ) as string;
 
-const emptyLanguageOption = {
-	value: '',
-	label: plainLanguageName as string,
-};
-const selectLanguageOptions: {
+interface LanguageOption {
 	readonly value: string;
 	readonly label: string;
-}[] = [ emptyLanguageOption ];
+}
+const emptyLanguageOption: LanguageOption = {
+	value: '',
+	label: plainLanguageName,
+};
+const selectLanguageOptions: ReadonlyArray< LanguageOption > = [ emptyLanguageOption ];
 {
 	const langNames = new Set< string >();
 	extensionToLang.forEach( ( [ , lang ] ) => {
@@ -60,11 +61,32 @@ const selectLanguageOptions: {
 	const sortedLangNames = Array.of( ...langNames );
 	sortedLangNames.sort( ( a, b ) => a.localeCompare( b ) );
 	sortedLangNames.forEach( lang =>
-		selectLanguageOptions.push( {
+		( selectLanguageOptions as LanguageOption[] ).push( {
 			value: lang,
 			label: lang,
 		} )
 	);
+}
+
+const selectPopularLanguageOptions: ReadonlyArray< LanguageOption > = [];
+{
+	const popularLanguages = new Set< string >( [
+		'JavaScript',
+		'HTML',
+		'CSS',
+		'SQL',
+		'Python',
+		'Java',
+		'C++',
+		'PHP',
+		'TypeScript',
+		'Bash',
+	] );
+	for ( const opt of selectLanguageOptions ) {
+		if ( popularLanguages.has( opt.value ) ) {
+			( selectPopularLanguageOptions as LanguageOption[] ).push( opt );
+		}
+	}
 }
 
 /**
@@ -192,7 +214,6 @@ const blockEdit = withColors(
 					<SelectControl
 						label={ __( 'Language', 'jetpack-mu-wpcom' ) }
 						value={ attributes.language }
-						options={ selectLanguageOptions }
 						onChange={ ( newLanguage: string ) => {
 							setAttributes( {
 								language: newLanguage,
@@ -201,7 +222,23 @@ const blockEdit = withColors(
 						} }
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
-					/>
+					>
+						<option value="">{ plainLanguageName }</option>
+						<optgroup label={ __( 'Popular Languages', 'jetpack-mu-wpcom' ) }>
+							{ selectPopularLanguageOptions.map( option => (
+								<option key={ option.value } value={ option.value }>
+									{ option.label }
+								</option>
+							) ) }
+						</optgroup>
+						<optgroup label={ __( 'All Languages', 'jetpack-mu-wpcom' ) }>
+							{ selectLanguageOptions.map( option => (
+								<option key={ option.value } value={ option.value }>
+									{ option.label }
+								</option>
+							) ) }
+						</optgroup>
+					</SelectControl>
 					<TextControl
 						label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
 						value={ attributes.filename }
