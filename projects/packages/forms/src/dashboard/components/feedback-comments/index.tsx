@@ -54,7 +54,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 			// Fetch comments page by page until a page returns fewer than perPage items.
 			// This avoids silently truncating the list when there are more than 100 comments.
 			// The perPage value is kept at 100 to balance performance and number of requests.
-			// eslint-disable-next-line no-constant-condition
+
 			while ( true ) {
 				const fetchedPage = await apiFetch< FeedbackComment[] >( {
 					path: `/wp/v2/comments?post=${ postId }&per_page=${ perPage }&page=${ page }&order=asc`,
@@ -87,6 +87,13 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 	useEffect( () => {
 		loadComments();
 	}, [ postId, loadComments ] );
+
+	const scrollToBottom = useCallback( () => {
+		const button = document.querySelector( '.jp-forms__feedback-comments-form-button' );
+		if ( button ) {
+			button.scrollIntoView( { behavior: 'smooth', block: 'nearest' } );
+		}
+	}, [] );
 
 	const handleSubmit = useCallback( async () => {
 		if ( ! newComment.trim() ) {
@@ -130,18 +137,8 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		[ handleSubmit ]
 	);
 
-	const scrollToBottom = useCallback( () => {
-		const button = document.querySelector( '.jp-forms__feedback-comments-form-button' );
-		if ( button ) {
-			button.scrollIntoView( { behavior: 'smooth', block: 'nearest' } );
-		}
-	}, [] );
-
 	const handleDelete = useCallback(
 		async ( commentId: number ) => {
-			if ( comments.length === 0 ) {
-				return;
-			}
 			setIsDeleting( true );
 			try {
 				await apiFetch( {
