@@ -461,8 +461,8 @@ function wpcom_get_product_features( $product ) {
 	$cache_group = 'site_purchases';
 	$cache_found = false;
 
-	// Include sticker status in cache key only for Personal and Premium plans since they're affected by summer-special-2025
-	$has_summer_sticker = '';
+	// Include sticker status in cache key only for Personal and Premium plans since they're affected by feature gating experiments.
+	$sticker_cache_suffix = '';
 	// @phan-suppress-next-line PhanRedundantCondition
 	if ( function_exists( 'has_blog_sticker' ) && $purchase ) {
 		// Use existing WPCOM_Store helper methods to check plan types
@@ -472,12 +472,17 @@ function wpcom_get_product_features( $product ) {
 		}
 
 		if ( $is_personal_or_premium_plan ) {
-			$current_blog_id    = get_current_blog_id();
-			$has_summer_sticker = has_blog_sticker( 'summer-special-2025', $current_blog_id ) ? '_summer2025_' : '';
+			$current_blog_id = get_current_blog_id();
+			if ( has_blog_sticker( 'summer-special-2025', $current_blog_id ) ) {
+				$sticker_cache_suffix .= '_summer2025';
+			}
+			if ( has_blog_sticker( 'gating-business-q1', $current_blog_id ) ) {
+				$sticker_cache_suffix .= '_gatingbq1';
+			}
 		}
 	}
 
-	$cache_key = $purchase->product_slug . $has_summer_sticker . filemtime( __DIR__ . '/class-wpcom-features.php' );
+	$cache_key = $purchase->product_slug . $sticker_cache_suffix . filemtime( __DIR__ . '/class-wpcom-features.php' );
 	$features  = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
 
 	if ( false === $cache_found ) {
