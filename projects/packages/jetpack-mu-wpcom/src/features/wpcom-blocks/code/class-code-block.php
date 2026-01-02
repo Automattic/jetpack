@@ -433,7 +433,7 @@ abstract class Code_Block {
 			: '';
 
 		$language_html = '';
-		if ( $attributes['showLanguageName'] ) {
+		if ( $attributes['showLanguageName'] ?? false ) {
 			$language_text = empty( $attributes['language'] )
 				? __( 'Plain text', 'jetpack-mu-wpcom' )
 				: $attributes['language'];
