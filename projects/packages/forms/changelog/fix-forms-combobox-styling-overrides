@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix combobox dropdown styling overrides for phone input field

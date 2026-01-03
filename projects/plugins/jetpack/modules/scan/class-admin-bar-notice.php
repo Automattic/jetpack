@@ -175,10 +175,11 @@ class Admin_Bar_Notice {
 		);
 
 		if ( $has_threats ) {
-			$node['href']            = esc_url( Redirect::get_url( 'calypso-scanner' ) );
-			$node['meta']['onclick'] = 'window.open( this.href ); return false;';
-			$node['meta']['class']   = 'error';
-			$node['title']           = sprintf(
+			$node['href']           = esc_url( Redirect::get_url( 'calypso-scanner' ) );
+			$node['meta']['target'] = '_blank';
+			$node['meta']['rel']    = 'noopener noreferrer';
+			$node['meta']['class']  = 'error';
+			$node['title']          = sprintf(
 				esc_html(
 				/* translators: %s is the alert icon */
 					_n( '%s Threat found', '%s Threats found', $this->get_threat_count(), 'jetpack' )

@@ -247,7 +247,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
 
 			// Select SIG
-			await user.click( screen.getByRole( 'menuitem', { name: 'Social Image Template' } ) );
+			await user.click( screen.getByRole( 'menuitem', { name: 'Use template' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'sig',
@@ -256,7 +256,7 @@ describe( 'MediaSectionV2', () => {
 			} );
 		} );
 
-		it( 'should call updateJetpackSocialOptions when selecting Featured Image', async () => {
+		it( 'should call updateJetpackSocialOptions when selecting Use featured image', async () => {
 			const user = userEvent.setup();
 
 			// Start with SIG enabled
@@ -270,8 +270,8 @@ describe( 'MediaSectionV2', () => {
 			// Open dropdown
 			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
 
-			// Select Featured Image
-			await user.click( screen.getByRole( 'menuitem', { name: 'Featured Image' } ) );
+			// Select Use featured image
+			await user.click( screen.getByRole( 'menuitem', { name: 'Use featured image' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'featured-image',
@@ -295,7 +295,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
 
 			// Select SIG
-			await user.click( screen.getByRole( 'menuitem', { name: 'Social Image Template' } ) );
+			await user.click( screen.getByRole( 'menuitem', { name: 'Use template' } ) );
 
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_source_changed', {
 				test: 'data',

@@ -1580,7 +1580,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/post-list",
-                "reference": "62d4a8fbfe514aff5ce54806df3c7cc1d58f7e9b"
+                "reference": "b80081090e9695ec2c03b7830039abf9495cf85b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1607,7 +1607,7 @@
                     "link-template": "https://github.com/automattic/jetpack-post-list/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 }
             },
             "autoload": {

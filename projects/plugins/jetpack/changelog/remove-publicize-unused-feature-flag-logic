@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Clean up the logic for admin page access for Social as the settings page is now widely available.

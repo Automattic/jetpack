@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+Fix product features cache key to include gating-business-q1 sticker status for the calypso_plans_differentiators_20251210 experiment.
+

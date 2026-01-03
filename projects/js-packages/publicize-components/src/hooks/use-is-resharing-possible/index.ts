@@ -1,8 +1,8 @@
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { store as socialStore } from '../../social-store';
 import { useIsSharingPossible } from '../use-is-sharing-possible';
 import usePublicizeConfig from '../use-publicize-config';
-import useSharePost from '../use-share-post';
 
 /**
  * Returns whether re-sharing is possible currently.
@@ -18,14 +18,14 @@ import useSharePost from '../use-share-post';
 export function useIsReSharingPossible() {
 	const { isPublicizeEnabled, needsUserConnection } = usePublicizeConfig();
 	const isSharingPossible = useIsSharingPossible();
-	const { isFetching } = useSharePost();
+	const isSharingCurrentPost = useSelect( select => select( socialStore ).isSharingCurrentPost() );
 
 	const { isCurrentPostPublished: isPostPublished, isSavingPost } = useSelect( editorStore, [] );
 
 	return (
 		isPublicizeEnabled &&
 		isSharingPossible &&
-		! isFetching &&
+		! isSharingCurrentPost &&
 		isPostPublished() &&
 		! isSavingPost() &&
 		! needsUserConnection
