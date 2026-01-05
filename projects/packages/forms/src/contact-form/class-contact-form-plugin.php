@@ -2980,9 +2980,10 @@ class Contact_Form_Plugin {
 		if ( ! empty( $_POST['after'] ) && ! empty( $_POST['before'] ) ) {
 			$before = strtotime( sanitize_text_field( wp_unslash( $_POST['before'] ) ) );
 			$after  = strtotime( sanitize_text_field( wp_unslash( $_POST['after'] ) ) );
-			if ( $before && $after && $before < $after ) {
-				$args['date_query']['after']  = $after;
-				$args['date_query']['before'] = $before;
+			if ( $before && $after && $after < $before ) {
+				// date_query expects date strings/arrays, not timestamps.
+				$args['date_query']['after']  = gmdate( 'Y-m-d H:i:s', $after );
+				$args['date_query']['before'] = gmdate( 'Y-m-d H:i:s', $before );
 			}
 		}
 
