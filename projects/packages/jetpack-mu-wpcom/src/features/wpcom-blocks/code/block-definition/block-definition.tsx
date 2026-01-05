@@ -255,9 +255,9 @@ const blockEdit = withColors(
 					</SelectControl>
 					<TextControl
 						label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
-						value={ attributes.filename }
+						defaultValue={ attributes.filename }
 						onChange={ ( nextValue: string ) => {
-							setAttributes( { filename: nextValue } );
+							setAttributes( { filename: nextValue.trim() } );
 						} }
 						placeholder={ sprintf(
 							/* translators: Placeholder for a filename input. %s is a file extension, like "txt". */
