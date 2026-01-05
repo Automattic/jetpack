@@ -346,10 +346,10 @@ class Form_Editor_Test extends BaseTestCase {
 	 * Test that enqueue_admin_scripts handles null screen gracefully.
 	 */
 	public function test_enqueue_admin_scripts_with_null_screen() {
-		global $wp_scripts;
+		global $wp_scripts, $current_screen;
 
-		// Set current screen to null
-		set_current_screen( null );
+		// Set current screen to null directly
+		$current_screen = null;
 
 		// Reset wp_scripts to ensure clean state
 		$wp_scripts = null;
