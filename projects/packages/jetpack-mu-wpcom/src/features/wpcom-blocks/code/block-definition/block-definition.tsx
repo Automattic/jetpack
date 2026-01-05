@@ -205,7 +205,7 @@ const blockEdit = withColors(
 						} }
 						renderToggle={ ( { isOpen, onToggle }: { isOpen: boolean; onToggle: () => void } ) => (
 							<Button onClick={ onToggle } aria-expanded={ isOpen } aria-haspopup="true">
-								{ props.attributes.language || emptyLanguageOption.label }
+								{ languageNameDisplay( props.attributes.language || emptyLanguageOption.label ) }
 							</Button>
 						) }
 						renderContent={ ( { onClose }: { onClose: () => void } ) => (
