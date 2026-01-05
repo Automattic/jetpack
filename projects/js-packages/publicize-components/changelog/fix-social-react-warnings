@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix React warnings for unknown prop and a component changing an uncontrolled input to be controlled.
