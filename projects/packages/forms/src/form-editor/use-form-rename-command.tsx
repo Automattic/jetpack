@@ -72,7 +72,9 @@ export function useFormRenameCommand() {
 	}, [] );
 
 	const handleRename = useCallback( () => {
-		if ( newTitle && newTitle !== formTitle && formPostId ) {
+		const trimmedNewTitle = newTitle.trim();
+		const trimmedFormTitle = ( formTitle || '' ).trim();
+		if ( trimmedNewTitle && trimmedNewTitle !== trimmedFormTitle && formPostId ) {
 			// If editing jetpack_form post directly
 			if ( currentPostType === FORM_POST_TYPE ) {
 				editPost( { title: newTitle } );
