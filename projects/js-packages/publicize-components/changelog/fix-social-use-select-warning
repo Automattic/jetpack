@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix `useSelect` warning in `useSocialPreviewPostData`.
