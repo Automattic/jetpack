@@ -43,10 +43,17 @@ const moveFormsCategoryToFront = () => {
 	const categories = getCategories();
 
 	// move the category with the slug 'contact-form' to the beginning of the list
-	const contactFormCategoryIndex = categories.findIndex( cat => cat.slug === 'contact-form' );
-	if ( contactFormCategoryIndex > -1 ) {
-		const [ contactFormCategory ] = categories.splice( contactFormCategoryIndex, 1 );
-		categories.unshift( contactFormCategory );
+	const contactFormIndex = categories.findIndex( cat => cat.slug === 'contact-form' );
+	if ( contactFormIndex > -1 ) {
+		const contactFormCategory = categories[ contactFormIndex ];
+		// Build a new array without mutating the original
+		const newCategories = [
+			contactFormCategory,
+			...categories.slice( 0, contactFormIndex ),
+			...categories.slice( contactFormIndex + 1 ),
+		];
+		setCategories( newCategories );
+		return;
 	}
 	setCategories( categories );
 };
@@ -59,17 +66,23 @@ const moveFormsCategoryToBack = () => {
 
 	const categories = getCategories();
 
-	const contactFormCategoryIndex = categories.findIndex( cat => cat.slug === 'contact-form' );
-	if ( contactFormCategoryIndex > -1 ) {
-		const [ contactFormCategory ] = categories.splice( contactFormCategoryIndex, 1 );
-		const contactFormGrowIndex = categories.findIndex( cat => cat.slug === 'grow' );
-		if ( contactFormGrowIndex > -1 ) {
-			categories.splice( contactFormGrowIndex + 1, 0, contactFormCategory );
-			setCategories( categories );
+	const contactFormIndex = categories.findIndex( cat => cat.slug === 'contact-form' );
+	if ( contactFormIndex > -1 ) {
+		const contactFormCategory = categories[ contactFormIndex ];
+		// Build an array without the contact form category
+		const withoutContact = categories.filter( cat => cat.slug !== 'contact-form' );
+
+		const growIndex = withoutContact.findIndex( cat => cat.slug === 'grow' );
+		if ( growIndex > -1 ) {
+			const newCategories = [
+				...withoutContact.slice( 0, growIndex + 1 ),
+				contactFormCategory,
+				...withoutContact.slice( growIndex + 1 ),
+			];
+			setCategories( newCategories );
 			return;
 		}
-		categories.push( contactFormCategory );
-		setCategories( categories );
+		setCategories( [ ...withoutContact, contactFormCategory ] );
 	}
 };
 
@@ -160,7 +173,14 @@ const enforceBlockNesting = () => {
 
 	// Get the form block to determine where to insert the blocks
 	const formBlock = rootBlocks.find( b => b.clientId === formBlockClientId );
-	const targetIndex = formBlock ? formBlock.innerBlocks.length : 0;
+
+	// the targetIndex should be before the last button block if one exists
+	const buttonBlockIndex = formBlock?.innerBlocks.findIndex(
+		block => block.name === 'jetpack/button' || block.name === 'core/button'
+	);
+
+	const defaultTargetIndex = formBlock ? formBlock.innerBlocks.length : 0;
+	const targetIndex = buttonBlockIndex > -1 ? buttonBlockIndex : defaultTargetIndex;
 
 	// Collect all client IDs to move
 	const clientIdsToMove = blocksToMove.map( block => block.clientId );
@@ -173,7 +193,6 @@ const enforceBlockNesting = () => {
 			index: number
 		) => void;
 	};
-
 	// Move all blocks at once to avoid state conflicts
 	moveBlocksToPosition(
 		clientIdsToMove,
@@ -183,41 +202,63 @@ const enforceBlockNesting = () => {
 	);
 };
 
-let isJetpackFormEditor = null;
+let isJetpackFormEditor: boolean | null = null;
 let categoriesFiltered = false;
 
+let unsubscribe: ( () => void ) | null = null;
+
 // Subscribe to editor changes to lock the form block when ready.
-subscribe( () => {
-	const { getCurrentPostType } = select( 'core/editor' );
-	const isCurrentPostTypeJetpackForm = getCurrentPostType() === FORM_POST_TYPE;
-	if ( isCurrentPostTypeJetpackForm ) {
-		enforceBlockNesting();
-		enforceBlockSelection();
-		lockFormBlock();
-		! formBlockClientId && locateFormBlock(); // Locate the form block if we haven't
-
-		if ( ! categoriesFiltered ) {
-			categoriesFiltered = true;
-			moveFormsCategoryToFront();
-			unregisterPlugin( 'block-directory' );
-		}
-	} else if ( categoriesFiltered ) {
-		categoriesFiltered = false;
-		moveFormsCategoryToBack();
-	}
-
-	if ( isCurrentPostTypeJetpackForm === isJetpackFormEditor ) {
+const setupFormEditorSubscription = () => {
+	if ( unsubscribe ) {
 		return;
 	}
+	unsubscribe = subscribe( () => {
+		const { getCurrentPostType } = select( 'core/editor' );
+		const isCurrentPostTypeJetpackForm = getCurrentPostType() === FORM_POST_TYPE;
+		if ( isCurrentPostTypeJetpackForm ) {
+			enforceBlockNesting();
+			enforceBlockSelection();
+			lockFormBlock();
+			if ( ! formBlockClientId ) {
+				locateFormBlock(); // Locate the form block if we haven't
+			}
+			if ( ! categoriesFiltered ) {
+				categoriesFiltered = true;
+				moveFormsCategoryToFront();
+				unregisterPlugin( 'block-directory' );
+			}
+		} else if ( categoriesFiltered ) {
+			categoriesFiltered = false;
+			moveFormsCategoryToBack();
+		}
 
-	if ( isCurrentPostTypeJetpackForm ) {
-		document.body.classList.add( 'post-type-jetpack_form' );
-	} else {
-		document.body.classList.remove( 'post-type-jetpack_form' );
-		formBlockClientId = null; // Reset the form block client ID if we are not in the Form editor anymore.
-		categoriesFiltered = false; // Reset the flag
-		// moveFormsCategoryToBack();
-	}
-	// Update the flag.
-	isJetpackFormEditor = isCurrentPostTypeJetpackForm;
-} );
+		if ( isCurrentPostTypeJetpackForm === isJetpackFormEditor ) {
+			return;
+		}
+
+		if ( isCurrentPostTypeJetpackForm ) {
+			document.body.classList.add( 'post-type-jetpack_form' );
+		} else {
+			document.body.classList.remove( 'post-type-jetpack_form' );
+			formBlockClientId = null; // Reset the form block client ID if we are not in the Form editor anymore.
+			categoriesFiltered = false; // Reset the flag
+		}
+		// Update the flag.
+		isJetpackFormEditor = isCurrentPostTypeJetpackForm;
+	} );
+
+	// Ensure we clean up the subscription when the editor/page unloads to avoid leaks.
+	const handleUnload = () => {
+		if ( unsubscribe ) {
+			try {
+				unsubscribe();
+			} finally {
+				unsubscribe = null;
+			}
+		}
+		window.removeEventListener( 'beforeunload', handleUnload );
+	};
+	window.addEventListener( 'beforeunload', handleUnload );
+};
+
+setupFormEditorSubscription();
