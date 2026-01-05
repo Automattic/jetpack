@@ -1,12 +1,10 @@
 /**
- * Jetpack Form Editor - Makes the form block unselectable and enforces block nesting.
+ * Jetpack Form Editor - Keeps the form block selected and enforces block nesting.
  *
- * This script prevents the jetpack/contact-form block from being selected
- * in the jetpack-form custom post type editor, and ensures that blocks can
- * only be added inside the form block, not as siblings to it.
- *
- * It also registers the Form Document Settings plugin to display form settings
- * in the Document Settings sidebar.
+ * This script ensures that the jetpack/contact-form block remains selected
+ * in the jetpack-form custom post type editor when no other block is selected,
+ * and ensures that blocks can only be added inside the form block, not as siblings to it.
+ * It also locks the form block to prevent it from being moved or removed.
  */
 
 import { subscribe, select, dispatch } from '@wordpress/data';
