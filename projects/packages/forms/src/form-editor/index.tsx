@@ -178,6 +178,12 @@ const enforceBlockNesting = () => {
 let isJetpackFormEditor: boolean | null = null;
 let categoriesFiltered = false;
 
+// State tracking for performance optimization
+let lastBlockCount = 0;
+let lastRootBlockIds = '';
+let lastSelectedBlockId: string | null | undefined = null;
+let isFormBlockLocked = false;
+
 let unsubscribe: ( () => void ) | null = null;
 
 // Subscribe to editor changes to lock the form block when ready.
@@ -192,9 +198,37 @@ const setupFormEditorSubscription = () => {
 			if ( ! formBlockClientId ) {
 				locateFormBlock(); // Locate the form block if we haven't
 			}
-			enforceBlockNesting();
-			enforceBlockSelection();
-			lockFormBlock();
+
+			// Only check block nesting when blocks change at the root level
+			const { getBlocks } = select( 'core/block-editor' );
+			const rootBlocks = getBlocks();
+			const currentBlockCount = rootBlocks.length;
+			const currentRootBlockIds = rootBlocks.map( b => b.clientId ).join( ',' );
+
+			if ( currentBlockCount !== lastBlockCount || currentRootBlockIds !== lastRootBlockIds ) {
+				lastBlockCount = currentBlockCount;
+				lastRootBlockIds = currentRootBlockIds;
+				enforceBlockNesting();
+			}
+
+			// Only check selection when it changes
+			const { getSelectedBlockClientId } = select( 'core/block-editor' );
+			const currentSelectedBlockId = getSelectedBlockClientId();
+
+			if ( currentSelectedBlockId !== lastSelectedBlockId ) {
+				lastSelectedBlockId = currentSelectedBlockId;
+				enforceBlockSelection();
+			}
+
+			// Only lock the form block once
+			if ( ! isFormBlockLocked && formBlockClientId ) {
+				const { getBlock } = select( 'core/block-editor' );
+				const formBlock = getBlock( formBlockClientId );
+				if ( formBlock && shouldLockBlock( formBlock ) ) {
+					lockFormBlock();
+					isFormBlockLocked = true;
+				}
+			}
 
 			if ( ! categoriesFiltered ) {
 				categoriesFiltered = true;
@@ -216,6 +250,11 @@ const setupFormEditorSubscription = () => {
 			document.body.classList.remove( 'post-type-jetpack_form' );
 			formBlockClientId = null; // Reset the form block client ID if we are not in the Form editor anymore.
 			categoriesFiltered = false; // Reset the flag
+			// Reset performance tracking state
+			lastBlockCount = 0;
+			lastRootBlockIds = '';
+			lastSelectedBlockId = null;
+			isFormBlockLocked = false;
 		}
 		// Update the flag.
 		isJetpackFormEditor = isCurrentPostTypeJetpackForm;
