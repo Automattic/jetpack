@@ -33,10 +33,10 @@ export const validateHexColor = ( hex: unknown ): void => {
 };
 
 /**
- * Convert hex color to rgba with specified opacity
- * This is genuinely reusable across chart components
+ * Convert hex color to rgba with specified opacity.
+ * This is genuinely reusable across chart components.
  * @param  hex   - The hex color string (e.g., '#ff0000')
- * @param  alpha - The opacity value between 0 and 1
+ * @param  alpha - The opacity value. Values outside the [0, 1] range will be clamped by the underlying d3 color library.
  * @return The rgba color string (e.g., 'rgba(255, 0, 0, 0.5)')
  * @throws {Error} if hex string is malformed or alpha is not a valid number
  */
