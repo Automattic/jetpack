@@ -30,7 +30,7 @@ registerPlugin( 'jetpack-form-rename-command', {
 } );
 
 /**
- * Remove Jetpack block categories from the editor.
+ * Move the Jetpack contact form block category to the front in the editor.
  */
 const moveFormsCategoryToFront = () => {
 	const { getCategories } = select( 'core/blocks' );
@@ -120,7 +120,7 @@ const lockFormBlock = () => {
 		return;
 	}
 	if ( ! formBlock.attributes?.lock?.remove ) {
-		// Lock the block to prevent removal, moving, and selection.
+		// Lock the block to prevent removal and moving.
 		updateBlockAttributes( formBlockClientId, {
 			lock: {
 				remove: true,
