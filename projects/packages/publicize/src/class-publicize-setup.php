@@ -159,18 +159,9 @@ class Publicize_Setup {
 
 		// Things that should not happen on WPCOM.
 		if ( ! $is_wpcom_simple ) {
-			add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
-			add_action( 'admin_init', array( static::class, 'register_core_options' ) );
 			add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 			add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 		}
-	}
-
-	/**
-	 * Registers the core options for the Publicize package.
-	 */
-	public static function register_core_options() {
-		( new Jetpack_Social_Settings\Dismissed_Notices() )->register();
 	}
 
 	/**
