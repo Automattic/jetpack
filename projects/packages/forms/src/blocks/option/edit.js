@@ -7,6 +7,8 @@ import useEnter from './use-enter.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 
+const noop = () => {};
+
 const getLabelOrFallback = ( label, placeholder ) => {
 	if ( label === '' ) {
 		return placeholder;
@@ -68,6 +70,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 					<input
 						className="jetpack-field-option__checkbox"
 						checked={ !! defaultValue }
+						onChange={ noop }
 						type={ type }
 					/>
 				) }
