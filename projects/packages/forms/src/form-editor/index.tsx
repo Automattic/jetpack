@@ -11,6 +11,16 @@ import { subscribe, select, dispatch } from '@wordpress/data';
 import { unregisterPlugin, registerPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 import { useFormRenameCommand } from './use-form-rename-command.tsx';
+import {
+	findFormBlock,
+	getInsertionIndex,
+	shouldLockBlock,
+	getBlocksToMove,
+} from './utils/block-utils';
+import {
+	moveContactFormCategoryToFront as moveCategoryToFront,
+	moveContactFormCategoryToBack as moveCategoryToBack,
+} from './utils/category-utils';
 
 import './style.scss';
 
@@ -39,23 +49,13 @@ const moveFormsCategoryToFront = () => {
 	};
 
 	const categories = getCategories();
-
-	// move the category with the slug 'contact-form' to the beginning of the list
-	const contactFormIndex = categories.findIndex( cat => cat.slug === 'contact-form' );
-	if ( contactFormIndex > -1 ) {
-		const contactFormCategory = categories[ contactFormIndex ];
-		// Build a new array without mutating the original
-		const newCategories = [
-			contactFormCategory,
-			...categories.slice( 0, contactFormIndex ),
-			...categories.slice( contactFormIndex + 1 ),
-		];
-		setCategories( newCategories );
-		return;
-	}
-	setCategories( categories );
+	const newCategories = moveCategoryToFront( categories );
+	setCategories( newCategories );
 };
 
+/**
+ * Move the Jetpack contact form block category back to its original position.
+ */
 const moveFormsCategoryToBack = () => {
 	const { getCategories } = select( 'core/blocks' );
 	const { setCategories } = dispatch( 'core/blocks' ) as {
@@ -63,25 +63,8 @@ const moveFormsCategoryToBack = () => {
 	};
 
 	const categories = getCategories();
-
-	const contactFormIndex = categories.findIndex( cat => cat.slug === 'contact-form' );
-	if ( contactFormIndex > -1 ) {
-		const contactFormCategory = categories[ contactFormIndex ];
-		// Build an array without the contact form category
-		const withoutContact = categories.filter( cat => cat.slug !== 'contact-form' );
-
-		const growIndex = withoutContact.findIndex( cat => cat.slug === 'grow' );
-		if ( growIndex > -1 ) {
-			const newCategories = [
-				...withoutContact.slice( 0, growIndex + 1 ),
-				contactFormCategory,
-				...withoutContact.slice( growIndex + 1 ),
-			];
-			setCategories( newCategories );
-			return;
-		}
-		setCategories( [ ...withoutContact, contactFormCategory ] );
-	}
+	const newCategories = moveCategoryToBack( categories );
+	setCategories( newCategories );
 };
 
 let formBlockClientId = null;
@@ -91,15 +74,12 @@ let formBlockClientId = null;
 const locateFormBlock = () => {
 	const { getBlocks } = select( 'core/block-editor' );
 	const blocks = getBlocks();
-	if ( blocks.length === 0 ) {
-		return;
-	}
-	const formBlock = blocks.find( block => block.name === 'jetpack/contact-form' );
 
-	if ( ! formBlock ) {
-		return;
+	const formBlock = findFormBlock( blocks );
+
+	if ( formBlock ) {
+		formBlockClientId = formBlock.clientId;
 	}
-	formBlockClientId = formBlock.clientId;
 };
 
 /**
@@ -119,8 +99,9 @@ const lockFormBlock = () => {
 	if ( ! formBlock ) {
 		return;
 	}
-	if ( ! formBlock.attributes?.lock?.remove ) {
-		// Lock the block to prevent removal and moving.
+
+	if ( shouldLockBlock( formBlock ) ) {
+		// Lock the block to prevent removal and moving
 		updateBlockAttributes( formBlockClientId, {
 			lock: {
 				remove: true,
@@ -149,6 +130,7 @@ const enforceBlockSelection = () => {
 };
 /**
  * Monitor for blocks added at the root level and move them inside the form.
+ * Uses pure utility functions for easier testing.
  */
 const enforceBlockNesting = () => {
 	if ( ! formBlockClientId ) {
@@ -162,8 +144,8 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	// Find any blocks that aren't the form block.
-	const blocksToMove = rootBlocks.filter( block => block.clientId !== formBlockClientId );
+	// Find any blocks that aren't the form block
+	const blocksToMove = getBlocksToMove( rootBlocks, formBlockClientId );
 
 	if ( blocksToMove.length === 0 ) {
 		return;
@@ -171,14 +153,7 @@ const enforceBlockNesting = () => {
 
 	// Get the form block to determine where to insert the blocks
 	const formBlock = rootBlocks.find( b => b.clientId === formBlockClientId );
-
-	// the targetIndex should be before the last button block if one exists
-	const buttonBlockIndex = formBlock?.innerBlocks.findIndex(
-		block => block.name === 'jetpack/button' || block.name === 'core/button'
-	);
-
-	const defaultTargetIndex = formBlock ? formBlock.innerBlocks.length : 0;
-	const targetIndex = buttonBlockIndex > -1 ? buttonBlockIndex : defaultTargetIndex;
+	const targetIndex = formBlock ? getInsertionIndex( formBlock ) : 0;
 
 	// Collect all client IDs to move
 	const clientIdsToMove = blocksToMove.map( block => block.clientId );
@@ -214,12 +189,13 @@ const setupFormEditorSubscription = () => {
 		const { getCurrentPostType } = select( 'core/editor' );
 		const isCurrentPostTypeJetpackForm = getCurrentPostType() === FORM_POST_TYPE;
 		if ( isCurrentPostTypeJetpackForm ) {
-			enforceBlockNesting();
-			enforceBlockSelection();
-			lockFormBlock();
 			if ( ! formBlockClientId ) {
 				locateFormBlock(); // Locate the form block if we haven't
 			}
+			enforceBlockNesting();
+			enforceBlockSelection();
+			lockFormBlock();
+
 			if ( ! categoriesFiltered ) {
 				categoriesFiltered = true;
 				moveFormsCategoryToFront();
