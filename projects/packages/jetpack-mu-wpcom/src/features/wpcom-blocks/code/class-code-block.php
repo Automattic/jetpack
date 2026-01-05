@@ -22,6 +22,13 @@ abstract class Code_Block {
 	const MODULE_PREFIX = '@a8cCodeBlock/';
 
 	/**
+	 * Language name rewrites for display.
+	 *
+	 * @var array<string, string>
+	 */
+	public static $language_name_rewrites = array();
+
+	/**
 	 * Filterable check for whether the block should be available.
 	 *
 	 * @return bool
@@ -39,9 +46,20 @@ abstract class Code_Block {
 			return;
 		}
 
+		self::$language_name_rewrites = array(
+			'Brainfuck' => 'Brainf***',
+		);
+
 		self::init();
 		add_action( 'init', array( __CLASS__, 'override_block_style' ) );
 		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
+		add_filter(
+			'script_module_data_' . self::MODULE_PREFIX . 'dummy',
+			function ( array $data ): array {
+				$data['languageNameRewrites'] = Code_Block::$language_name_rewrites;
+				return $data;
+			}
+		);
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
 		add_action(
 			'wp_enqueue_scripts',
@@ -437,6 +455,7 @@ abstract class Code_Block {
 			$language_text = empty( $attributes['language'] )
 				? __( 'Plain text', 'jetpack-mu-wpcom' )
 				: $attributes['language'];
+			$language_text = self::$language_name_rewrites[ $language_text ] ?? $language_text;
 			$language_html = \sprintf(
 				'<span>%s</span>',
 				esc_html( $language_text )

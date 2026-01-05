@@ -52,6 +52,29 @@ const emptyLanguageOption: LanguageOption = {
 	value: '',
 	label: plainLanguageName,
 };
+
+interface LanguageNameRewrite {
+	rewrites?: Map< string, string >;
+	( lang: string ): string;
+}
+const languageNameDisplay: LanguageNameRewrite = ( language: string ): string => {
+	if ( typeof languageNameDisplay.rewrites === 'undefined' ) {
+		try {
+			languageNameDisplay.rewrites = new Map(
+				Object.entries(
+					JSON.parse(
+						document.getElementById( 'wp-script-module-data-@a8cCodeBlock/dummy' )?.textContent
+					)?.languageNameRewrites
+				)
+			);
+		} catch {
+			languageNameDisplay.rewrites = new Map();
+		}
+	}
+
+	return languageNameDisplay.rewrites.get( language ) ?? language;
+};
+
 const selectLanguageOptions: ReadonlyArray< LanguageOption > = [];
 {
 	const langNames = new Set< string >();
@@ -63,7 +86,7 @@ const selectLanguageOptions: ReadonlyArray< LanguageOption > = [];
 	sortedLangNames.forEach( lang =>
 		( selectLanguageOptions as LanguageOption[] ).push( {
 			value: lang,
-			label: lang,
+			label: languageNameDisplay( lang ),
 		} )
 	);
 }
@@ -237,7 +260,7 @@ const blockEdit = withColors(
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 					>
-						<option value="">{ plainLanguageName }</option>
+						<option value="">{ languageNameDisplay( plainLanguageName ) }</option>
 						<optgroup label={ __( 'Popular Languages', 'jetpack-mu-wpcom' ) }>
 							{ selectPopularLanguageOptions.map( option => (
 								<option key={ option.value } value={ option.value }>
@@ -430,7 +453,7 @@ const BlockHeader = ( props: Props ) => {
 						</button>
 					) }
 					{ props.attributes.showLanguageName ? (
-						<span>{ props.attributes.language || plainLanguageName }</span>
+						<span>{ languageNameDisplay( props.attributes.language || plainLanguageName ) }</span>
 					) : null }
 				</div>
 			) }
