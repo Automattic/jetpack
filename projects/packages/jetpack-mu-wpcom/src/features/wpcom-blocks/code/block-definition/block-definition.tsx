@@ -54,6 +54,9 @@ const emptyLanguageOption: LanguageOption = {
 };
 
 interface LanguageNameRewrite {
+	/**
+	 * Language names for display.
+	 */
 	rewrites?: Map< string, string >;
 	( lang: string ): string;
 }
@@ -63,6 +66,7 @@ const languageNameDisplay: LanguageNameRewrite = ( language: string ): string =>
 			languageNameDisplay.rewrites = new Map(
 				Object.entries(
 					JSON.parse(
+						// @ts-expect-error -- This is OK in this try/catch block.
 						document.getElementById( 'wp-script-module-data-@a8cCodeBlock/dummy' )?.textContent
 					)?.languageNameRewrites
 				)

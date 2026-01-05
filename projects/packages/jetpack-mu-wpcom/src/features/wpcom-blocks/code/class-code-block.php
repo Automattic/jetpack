@@ -22,7 +22,7 @@ abstract class Code_Block {
 	const MODULE_PREFIX = '@a8cCodeBlock/';
 
 	/**
-	 * Language name rewrites for display.
+	 * Language names for display.
 	 *
 	 * @var array<string, string>
 	 */
