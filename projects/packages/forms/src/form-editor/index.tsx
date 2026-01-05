@@ -215,7 +215,6 @@ const setupFormEditorSubscription = () => {
 		} else {
 			document.body.classList.remove( 'post-type-jetpack_form' );
 			formBlockClientId = null; // Reset the form block client ID if we are not in the Form editor anymore.
-			categoriesFiltered = false; // Reset the flag
 		}
 		// Update the flag.
 		isJetpackFormEditor = isCurrentPostTypeJetpackForm;
