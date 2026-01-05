@@ -429,7 +429,7 @@ describe( 'hexToRgba', () => {
 				expect( () => hexToRgba( '#ff0000', NaN ) ).toThrow( 'Alpha must be a number' );
 			} );
 
-			it( 'accepts negative and greater than 1 alpha values without throwing (d3 color formatRgb() clamps them))', () => {
+			it( 'accepts negative and greater than 1 alpha values without throwing (d3 color formatRgb() clamps them)', () => {
 				// These should not throw - CSS allows alpha values outside 0-1 range
 				expect( () => hexToRgba( '#ff0000', -0.5 ) ).not.toThrow();
 				expect( () => hexToRgba( '#ff0000', 1.5 ) ).not.toThrow();
