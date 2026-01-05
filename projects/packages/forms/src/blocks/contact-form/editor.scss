@@ -1203,7 +1203,12 @@
 	display: grid;
 	grid-template-columns: 1fr auto;
 	align-items: baseline;
+
+	&.is-other {
+		font-style: italic;
+	}
 }
+
 
 .notched-label,
 .notched-label__notch,

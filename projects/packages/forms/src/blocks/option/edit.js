@@ -1,6 +1,13 @@
-import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
+import {
+	RichText,
+	store as blockEditorStore,
+	useBlockProps,
+	BlockControls,
+} from '@wordpress/block-editor';
+import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
 import { ALLOWED_FORMATS } from '../shared/util/constants.js';
 import useEnter from './use-enter.js';
@@ -24,7 +31,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 		'jetpack/field-required': required,
 		'jetpack/field-share-attributes': isSynced,
 	} = context;
-	const { hideInput, label, isStandalone, requiredText, placeholder } = attributes;
+	const { hideInput, label, isStandalone, requiredText, placeholder, isOther } = attributes;
 
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
@@ -55,7 +62,11 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 	const isPreviewMode = useSelect( select => {
 		return select( blockEditorStore ).getSettings().isPreviewMode;
 	}, [] );
-	const placeholderValue = placeholder !== '' ? placeholder : __( 'Add option…', 'jetpack-forms' );
+	const emptyPlaceholder = isOther
+		? __( 'Other', 'jetpack-forms' )
+		: __( 'Add option…', 'jetpack-forms' );
+	const placeholderValue = placeholder !== '' ? placeholder : emptyPlaceholder;
+
 	// The label value to use for the RichText field must manually fall back to the
 	// placeholder to be rendered in previews.
 	const labelValue = isPreviewMode ? getLabelOrFallback( label, placeholderValue ) : label;
@@ -66,6 +77,17 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 	if ( isStandalone ) {
 		return (
 			<div { ...blockProps }>
+				<BlockControls>
+					<ToolbarGroup>
+						<ToolbarButton
+							onClick={ () => setAttributes( { isOther: ! isOther } ) }
+							className={ isOther ? 'is-pressed' : undefined }
+						>
+							{ __( 'Other', 'jetpack-forms' ) }
+						</ToolbarButton>
+					</ToolbarGroup>
+				</BlockControls>
+
 				{ ! hideInput && (
 					<input
 						className="jetpack-field-option__checkbox"
@@ -74,7 +96,8 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 						type={ type }
 					/>
 				) }
-				<div className="jetpack-field-option__label-wrapper">
+
+				<div className={ clsx( 'jetpack-field-option__label-wrapper', { 'is-other': isOther } ) }>
 					<RichText
 						ref={ useEnterRef }
 						identifier="label"
@@ -86,6 +109,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 						onChange={ newLabel => setAttributes( { label: newLabel } ) }
 						onRemove={ onRemove }
 					/>
+
 					{ required && (
 						<RichText
 							ref={ useEnterRequiredRef }
@@ -104,6 +128,16 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 
 	return (
 		<li { ...blockProps }>
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarButton
+						onClick={ () => setAttributes( { isOther: ! isOther } ) }
+						className={ isOther ? 'is-pressed' : undefined }
+					>
+						{ __( 'Other', 'jetpack-forms' ) }
+					</ToolbarButton>
+				</ToolbarGroup>
+			</BlockControls>
 			<input type={ type } className="jetpack-option__type" tabIndex="-1" />
 			<RichText
 				ref={ useEnterRef }

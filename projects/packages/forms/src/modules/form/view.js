@@ -91,6 +91,20 @@ const registerField = (
 	}
 
 	if ( ! context.fields[ fieldId ] ) {
+		// For radio fields, check if value uses an "Other" pattern
+		let isOtherSelected = false;
+		let otherLabel = null;
+		if ( type === 'radio' && value && value.includes( ': ' ) ) {
+			// Check if this might be an "Other" value (has the pattern "Label: text")
+			const colonIndex = value.indexOf( ': ' );
+			const possibleLabel = value.substring( 0, colonIndex );
+			// Simple heuristic: if the label part is short (< 30 chars), it might be an "Other" label
+			if ( possibleLabel.length < 30 ) {
+				isOtherSelected = true;
+				otherLabel = possibleLabel;
+			}
+		}
+
 		context.fields[ fieldId ] = {
 			id: fieldId,
 			type,
@@ -100,6 +114,8 @@ const registerField = (
 			extra,
 			error: validateField( type, value, isRequired, extra ),
 			step: context?.step ? context.step : 1,
+			isOtherSelected,
+			otherLabel,
 		};
 	}
 };
@@ -265,6 +281,13 @@ const { state, actions } = store( NAMESPACE, {
 			// Return 'true' for invalid fields, null to remove the attribute entirely.
 			// Using null instead of false prevents VoiceOver from announcing "invalid" for valid fields.
 			return state.fieldHasErrors ? 'true' : null;
+		},
+
+		get isOtherSelected() {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
+			return field?.isOtherSelected || false;
 		},
 
 		get isFormEmpty() {
@@ -448,12 +471,75 @@ const { state, actions } = store( NAMESPACE, {
 			let value = event.target.value;
 			const context = getContext();
 			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
 
 			if ( context.fieldType === 'checkbox' ) {
 				value = event.target.checked ? '1' : '';
 			}
 
+			// Handle radio field "Other" deselection
+			if ( context.fieldType === 'radio' && field?.isOtherSelected ) {
+				// Check if the new value matches the stored otherLabel
+				const otherLabel = field.otherLabel || 'Other';
+				if ( value !== otherLabel ) {
+					field.isOtherSelected = false;
+					field.otherLabel = null;
+
+					// Clear the "Other" text input when switching to a different option
+					const fieldset = event.target.closest( 'fieldset' );
+					const otherTextInput = fieldset?.querySelector( '.jetpack-other-text-input' );
+					if ( otherTextInput ) {
+						otherTextInput.value = '';
+					}
+				}
+			}
+
 			actions.updateField( fieldId, value );
+		},
+
+		onOtherRadioChange: event => {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
+
+			if ( event.target.checked ) {
+				// Get the custom label from the radio button
+				const otherLabel =
+					event.target.getAttribute( 'data-other-label' ) || event.target.value || 'Other';
+
+				field.isOtherSelected = true;
+				field.otherLabel = otherLabel;
+
+				// Get the text input value
+				const fieldset = event.target.closest( 'fieldset' );
+				const otherTextInput = fieldset?.querySelector( '.jetpack-other-text-input' );
+				const otherText = otherTextInput?.value || '';
+
+				// Set combined value using the custom label
+				const combinedValue = otherText ? `${ otherLabel }: ${ otherText }` : otherLabel;
+
+				actions.updateField( fieldId, combinedValue );
+
+				// Focus the text input after a small delay to ensure it's visible
+				if ( otherTextInput ) {
+					setTimeout( () => {
+						otherTextInput.focus();
+					}, 100 );
+				}
+			}
+		},
+
+		onOtherTextInput: event => {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
+
+			if ( field?.isOtherSelected ) {
+				const otherText = event.target.value;
+				const otherLabel = field.otherLabel || 'Other';
+				const combinedValue = otherText ? `${ otherLabel }: ${ otherText }` : otherLabel;
+				actions.updateField( fieldId, combinedValue );
+			}
 		},
 
 		onMultipleFieldChange: event => {

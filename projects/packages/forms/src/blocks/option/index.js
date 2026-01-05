@@ -62,6 +62,10 @@ const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		isOther: {
+			type: 'boolean',
+			default: false,
+		},
 	},
 	usesContext: [
 		'jetpack/field-default-value',
