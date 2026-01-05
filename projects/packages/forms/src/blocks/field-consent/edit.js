@@ -163,7 +163,10 @@ export default function ConsentFieldEdit( props ) {
 
 	const onConsentTypeChange = useCallback(
 		value => {
-			setAttributes( { consentType: value } );
+			setAttributes( {
+				consentType: value,
+				...( value === 'implicit' ? { required: false } : {} ),
+			} );
 		},
 		[ setAttributes ]
 	);
