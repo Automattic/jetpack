@@ -1,0 +1,27 @@
+{
+	"name": "@automattic/jetpack-performance-testing",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Performance baseline testing for Jetpack using Playwright LCP measurements and CodeVitals",
+	"type": "module",
+	"scripts": {
+		"calibrate": "node scripts/calibrate-throttling.js",
+		"docker:down": "docker compose -f docker/docker-compose.yml down -v",
+		"docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
+		"docker:reset": "pnpm run docker:down && pnpm test -- --skip-codevitals",
+		"docker:setup": "docker compose -f docker/docker-compose.yml run --rm wpcli",
+		"docker:up": "docker compose -f docker/docker-compose.yml up -d",
+		"measure": "node scripts/measure-lcp.js",
+		"report": "node scripts/post-to-codevitals.js",
+		"setup:browsers": "playwright install chromium",
+		"test": "node scripts/run-performance-tests.js",
+		"test:quick": "ITERATIONS=2 node scripts/run-performance-tests.js"
+	},
+	"dependencies": {
+		"dotenv": "^16.3.1",
+		"playwright": "^1.48.0"
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	}
+}

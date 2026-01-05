@@ -5,6 +5,7 @@ packages:
   - tools/cli
   - tools/e2e-commons
   - tools/js-tools
+  - tools/performance
   - .github/files/coverage-munger
 
 engineStrict: true
