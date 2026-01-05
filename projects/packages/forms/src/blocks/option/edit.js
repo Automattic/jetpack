@@ -7,7 +7,7 @@ import useEnter from './use-enter.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 
-const noop = () => {};
+const noop = () => undefined;
 
 const getLabelOrFallback = ( label, placeholder ) => {
 	if ( label === '' ) {
