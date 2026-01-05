@@ -16,7 +16,7 @@ use WP_Screen;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.8.36';
+	const PACKAGE_VERSION = '0.9.0';
 	const FEATURE         = 'enhanced_post_list';
 
 	/**
@@ -125,34 +125,6 @@ class Post_List {
 	}
 
 	/**
-	 * Checks the current post type and adds the Share post
-	 * action if it is appropriate to do so.
-	 *
-	 * @param string $post_type The post type associated with the current request.
-	 */
-	public function maybe_add_share_action( $post_type ) {
-		// Add Share action if post type supports 'publicize', uses the 'block editor', and the feature flag is true.
-		if (
-			post_type_supports( $post_type, 'publicize' ) &&
-			use_block_editor_for_post_type( $post_type ) &&
-			/**
-			 * Determine whether we should show the share action for this post type.
-			 * The default is false.
-			 *
-			 * @since 0.2.0
-			 *
-			 * @param boolean Whether we should show the share action for this post type.
-			 * @param string  The current post type.
-			 */
-			apply_filters( 'jetpack_post_list_display_share_action', false, $post_type )
-		) {
-			// Add Share post action.
-			add_filter( 'post_row_actions', array( $this, 'add_share_action' ), 20, 2 );
-			add_filter( 'page_row_actions', array( $this, 'add_share_action' ), 20, 2 );
-		}
-	}
-
-	/**
 	 * If the current_screen has 'edit' as the base, add filters and actions to change the post list tables.
 	 *
 	 * @param object $current_screen The current screen.
@@ -163,7 +135,6 @@ class Post_List {
 		}
 
 		$this->maybe_customize_columns( $current_screen->post_type );
-		$this->maybe_add_share_action( $current_screen->post_type );
 		$this->maybe_add_copy_link_action( $current_screen->post_type );
 	}
 
@@ -215,33 +186,8 @@ class Post_List {
 		if ( ! empty( $_POST['screen'] ) && str_starts_with( sanitize_key( $_POST['screen'] ), 'edit-' ) && ! empty( $_POST['post_type'] ) ) {
 			$type = sanitize_key( $_POST['post_type'] );
 			$this->maybe_customize_columns( $type );
-			$this->maybe_add_share_action( $type );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
-	}
-
-	/**
-	 * Adds the Share post action which links to the editor with the sidebar open.
-	 *
-	 * @param array   $post_actions The current array of post actions.
-	 * @param WP_Post $post The current post in the post list table.
-	 *
-	 * @return array The modified post actions array.
-	 */
-	public function add_share_action( $post_actions, $post ) {
-		$edit_url = get_edit_post_link( $post->ID, 'raw' );
-		if ( ! $edit_url || 'publish' !== $post->post_status ) {
-			// Do nothing since we do not have an edit URL to work with.
-			return $post_actions;
-		}
-
-		$url   = add_query_arg( 'jetpack-editor-action', 'share_post', $edit_url );
-		$text  = _x( 'Share', 'Share the post on social networks', 'jetpack-post-list' );
-		$title = _draft_or_post_title( $post );
-		/* translators: post title */
-		$label                 = sprintf( __( 'Share &#8220;%s&#8221; via Jetpack Social', 'jetpack-post-list' ), $title );
-		$post_actions['share'] = sprintf( '<a href="%s" aria-label="%s">%s</a>', esc_url( $url ), esc_attr( $label ), esc_html( $text ) );
-		return $post_actions;
 	}
 
 	/**

@@ -83,18 +83,6 @@ class Note {
 		}
 
 		add_filter( 'the_title', array( $this, 'override_empty_title' ), 10, 2 );
-		add_filter( 'jetpack_post_list_display_share_action', array( $this, 'show_share_action' ), 10, 2 );
-	}
-
-	/**
-	 * Used as a filter to determine if we should show the share action on the post list screen.
-	 *
-	 * @param bool   $show_share The current filter value.
-	 * @param string $post_type The current post type on the post list screen.
-	 * @return bool Whether to show the share action.
-	 */
-	public function show_share_action( $show_share, $post_type ) {
-		return self::JETPACK_SOCIAL_NOTE_CPT === $post_type || $show_share;
 	}
 
 	/**

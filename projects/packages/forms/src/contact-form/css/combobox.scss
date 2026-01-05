@@ -10,8 +10,11 @@
 	}
 
 	// special override for aggressive themes (2021) that set background-color
-	.has-background & button.jetpack-combobox-trigger:not(:active):not(:hover):not(.has-background) {
+	button.jetpack-combobox-trigger:not(:active):not(:hover),
+	button.jetpack-combobox-trigger:not(:active):hover,
+	button.jetpack-combobox-trigger:focus {
 		background-color: transparent;
+		color: inherit;
 	}
 
 	.jetpack-combobox-trigger {
@@ -61,11 +64,16 @@
 				transform: scaleY(-1);
 			}
 		}
+
+		.jetpack-combobox-selected {
+			white-space: nowrap;
+		}
 	}
 
 	.jetpack-combobox-dropdown {
 		position: absolute;
-		left: -1px;
+		left: calc(var(--jetpack--contact-form--border-left-size, 1px) * -1);
+		right: calc(var(--jetpack--contact-form--border-left-size, 1px) * -1);
 		top: 100%;
 		width: -webkit-fill-available;
 		min-width: 60%;
@@ -88,7 +96,14 @@
 		.jetpack-combobox-search {
 			width: 100%;
 			padding: 8px 12px;
-			border: none;
+
+			// Using !important to keep tight control over the
+			// search input looks.
+			border-top: none !important;
+			border-left: none !important;
+			border-right: none !important;
+			border-bottom-left-radius: 0 !important;
+			border-bottom-right-radius: 0 !important;
 			border-bottom: 1px solid #eee;
 			outline: none;
 			font-size: 14px;
@@ -97,8 +112,6 @@
 			color: inherit;
 			background-color: inherit;
 			z-index: 1;
-			border-bottom-left-radius: 0;
-			border-bottom-right-radius: 0;
 
 			&:focus {
 				outline: none;
@@ -164,6 +177,14 @@
 .jetpack-combobox-option-description {
 	pointer-events: none;
 	color: currentColor;
+}
+
+// input wrappers with combobox open should raise to avoid occlusion
+.contact-form .wp-block-jetpack-input-wrap {
+
+	&:has(.is-combobox-open) {
+		z-index: 2;
+	}
 }
 
 // Editor styles

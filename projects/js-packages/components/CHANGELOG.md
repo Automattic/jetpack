@@ -2,6 +2,19 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.4.3] - 2025-12-22
+### Added
+- Added subpath export for jetpack-logo component. [#46206]
+- NavigatorModal: Add support for dynamic footer actions. [#46279]
+
+### Changed
+- NavigatorModal: Improve modal height and z-index. [#46322]
+- NavigatorModal: Make the modal full size by default. [#46366]
+- Update package dependencies. [#46362] [#46363]
+
+### Fixed
+- NavigatorModal: Remove extra padding for screen component following recent Gutenberg changes. [#46334]
+
 ## [1.4.2] - 2025-12-15
 ### Added
 - NavigatorModal: Add header icon support for Screen component. [#46265]
@@ -1591,6 +1604,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.4.3]: https://github.com/Automattic/jetpack-components/compare/1.4.2...1.4.3
 [1.4.2]: https://github.com/Automattic/jetpack-components/compare/1.4.1...1.4.2
 [1.4.1]: https://github.com/Automattic/jetpack-components/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/Automattic/jetpack-components/compare/1.3.13...1.4.0

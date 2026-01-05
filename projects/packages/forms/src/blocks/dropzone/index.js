@@ -11,7 +11,7 @@ const settings = {
 	description: __( 'A dropzone for file uploads.', 'jetpack-forms' ),
 	parent: [ 'jetpack/field-file' ],
 	allowedBlocks: [
-		'core/buttons',
+		'core/button',
 		'core/heading',
 		'core/image',
 		'core/list',

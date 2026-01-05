@@ -15,9 +15,9 @@ import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { useSocialPreviewPostData } from '../../hooks/use-social-preview-post-data';
 import { Connection } from '../../social-store/types';
 import { InstagramNoMediaNotice } from '../form/instagram-no-media-notice';
-import { usePostData } from '../social-previews/use-post-data';
 
 export type PostPreviewProps = {
 	connection: Connection;
@@ -54,7 +54,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 		[ connection ]
 	);
 
-	const { image, media, title, description, url, excerpt } = usePostData();
+	const { image, media, title, description, url, excerpt } = useSocialPreviewPostData();
 	const message = ( useSocialMediaMessage().message || '' ).trim();
 
 	const commonProps = useMemo(

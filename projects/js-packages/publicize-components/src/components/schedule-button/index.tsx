@@ -1,13 +1,11 @@
 import { Dropdown, Button, DateTimePicker } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { getDate, date, isInTheFuture } from '@wordpress/date';
-import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
 import { useIsReSharingPossible } from '../../hooks/use-is-resharing-possible';
 import { useSchedulePost } from '../../hooks/use-schedule-post';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import styles from './styles.module.scss';
 
@@ -72,41 +70,37 @@ const ScheduleButton = () => {
 	const defaultTimestamp = Math.floor( Date.now() / 1000 );
 	const [ currentTimestamp, setCurrentTimestamp ] = useState( defaultTimestamp );
 	const isReSharingPossible = useIsReSharingPossible();
-	const { enabledConnections } = useSocialMediaConnections();
-	const { schedulePost } = useSchedulePost();
-	const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
+	const schedulePost = useSchedulePost();
+	const isSharingCurrentPost = useSelect( select => select( socialStore ).isSharingCurrentPost() );
 
-	const isSavingScheduledShare = useSelect(
-		select => select( socialStore ).isSavingScheduledShare(),
-		[]
-	);
-	const isBusy = isSavingScheduledShare || isSavingPost;
+	const isSchedulingShares = useSelect( select => select( socialStore ).isSchedulingShares(), [] );
+	const isBusy = isSchedulingShares;
+	const isDisabled = ! isReSharingPossible || isSharingCurrentPost;
 
 	const onConfirm = useCallback(
 		async ( scheduleTimestamp: number ) => {
 			await schedulePost( {
-				connectionIds: enabledConnections.map( connection => Number( connection.connection_id ) ),
 				timestamp: scheduleTimestamp,
 			} );
 		},
-		[ schedulePost, enabledConnections ]
+		[ schedulePost ]
 	);
 
 	const toggle = useCallback(
 		( { onToggle, isOpen } ) => (
 			<Button
-				onClick={ ! isBusy ? onToggle : null }
+				onClick={ ! isBusy && ! isDisabled ? onToggle : null }
 				aria-expanded={ isOpen }
 				aria-live="polite"
 				icon={ calendar }
 				isSecondary
 				isBusy={ isBusy }
-				disabled={ ! isReSharingPossible }
+				disabled={ isDisabled }
 			>
 				{ __( 'Schedule', 'jetpack-publicize-components' ) }
 			</Button>
 		),
-		[ isBusy, isReSharingPossible ]
+		[ isBusy, isDisabled ]
 	);
 
 	const content = useCallback(

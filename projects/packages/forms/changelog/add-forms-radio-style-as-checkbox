@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update radio button styling to use ::before pseudo-element approach for consistency with checkboxes

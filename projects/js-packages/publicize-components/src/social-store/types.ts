@@ -62,6 +62,11 @@ export type ShareStatus = {
 
 export type SharePost = {
 	isModalOpen?: boolean;
+	isSharingCurrentPost?: boolean;
+};
+
+export type ScheduledShares = {
+	isScheduling?: boolean;
 };
 
 export type UnifiedModalState = {
@@ -76,6 +81,7 @@ export type SocialStoreState = {
 	connectionData: ConnectionData;
 	shareStatus?: ShareStatus;
 	sharePost?: SharePost;
+	scheduledShares?: ScheduledShares;
 	unifiedModal?: UnifiedModalState;
 	renderCount?: RenderCount;
 };

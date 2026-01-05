@@ -1,4 +1,5 @@
 .cache/
+build/
 dist/
 node_modules/
 vendor/
@@ -7,3 +8,6 @@ wordpress/
 /src/**/*.css.map
 /src/**/*.min.css
 /src/**/*.rtl.css
+
+# wp-build generated entry files
+/routes/**/.content-entry.js

@@ -261,10 +261,6 @@ abstract class Code_Block {
 				'type'    => 'boolean',
 				'default' => false,
 			),
-			'showFileName'            => array(
-				'type'    => 'boolean',
-				'default' => false,
-			),
 			'showCopyButton'          => array(
 				'type'    => 'boolean',
 				'default' => false,
@@ -423,7 +419,7 @@ abstract class Code_Block {
 
 		$attrs = get_block_wrapper_attributes( $extra_attrs );
 
-		$filename_html = ( ( $attributes['showFileName'] ?? false ) && ! empty( $attributes['filename'] ) )
+		$filename_html = ( ! empty( $attributes['filename'] ) )
 			? \sprintf( '<span class="a8c/code__filename">%s</span>', esc_html( $attributes['filename'] ) )
 			: '';
 
@@ -436,9 +432,16 @@ abstract class Code_Block {
 			)
 			: '';
 
-		$language_html = ( ( $attributes['showLanguageName'] ?? false ) && ! empty( $attributes['language'] ) )
-			? \sprintf( '<span>%s</span>', esc_html( $attributes['language'] ) )
-			: '';
+		$language_html = '';
+		if ( $attributes['showLanguageName'] ?? false ) {
+			$language_text = empty( $attributes['language'] )
+				? __( 'Plain text', 'jetpack-mu-wpcom' )
+				: $attributes['language'];
+			$language_html = \sprintf(
+				'<span>%s</span>',
+				esc_html( $language_text )
+			);
+		}
 
 		$header_right_html = ( $copy_html || $language_html )
 			? "<div class=\"a8c/code__header-right\">{$copy_html}{$language_html}</div>"

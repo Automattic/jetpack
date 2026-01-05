@@ -1,6 +1,13 @@
 .jetpack-contact-form .jetpack-field.jetpack-field-phone,
 .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
 
+	&:has(.jetpack-combobox-open) {
+		// GB re-sets z-index every time the block is moved
+		// so we need to force it to 3 to stay on top of other
+		// blocks so the dropdown overlay stays on top of them.
+		z-index: 3 !important;
+	}
+
 	.jetpack-field__input,
 	.jetpack-field__textarea {
 		box-sizing: border-box;
@@ -10,12 +17,13 @@
 		font-size: var(--jetpack--contact-form--font-size);
 		line-height: var(--jetpack--contact-form--line-height);
 		// defaulting to white, it's gutenberg's default background for inputs
-		background-color: var(--jetpack--contact-form--input-background, #fff);
+		background-color: var(--jetpack--contact-form--input-background);
 
 		// TODO: Doesn't work well with next version of Gutenberg, should be removed
-		&.is-selected {
+		&.is-selected,
+		&:focus-within {
 			border-color: #2271b1;
-			box-shadow: 0 0 0 1px #2271b1;
+			box-shadow: revert;
 			z-index: 1;
 		}
 
@@ -97,6 +105,10 @@
 				}
 			}
 		}
+
+		.jetpack-field__input-element {
+			backdrop-filter: none;
+		}
 	}
 }
 
@@ -125,7 +137,8 @@
 
 	.jetpack-field__input {
 
-		&.is-selected {
+		&.is-selected,
+		&:focus-within {
 			box-shadow: unset;
 		}
 	}

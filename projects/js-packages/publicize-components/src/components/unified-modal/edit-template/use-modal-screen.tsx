@@ -1,5 +1,5 @@
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import useFeaturedImage from '../../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
@@ -58,7 +58,9 @@ export function useModalScreen(): ScreenDetails {
 			content: <Content localState={ localState } />,
 			footerActions: [
 				{
-					text: __( 'Save Changes', 'jetpack-publicize-components' ),
+					text: isScreenLocked
+						? _x( 'Close', 'Button text to close the modal.', 'jetpack-publicize-components' )
+						: _x( 'Done', 'Button text to save changes.', 'jetpack-publicize-components' ),
 					variant: 'primary',
 					onClick: handleSave,
 				},
