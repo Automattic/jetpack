@@ -233,7 +233,22 @@ describe( 'block-utils', () => {
 			expect( shouldLockBlock( block ) ).toBe( true );
 		} );
 
-		test( 'returns false when block has remove lock set to true', () => {
+		test( 'returns true when block has lock but no move property', () => {
+			const block = {
+				name: 'jetpack/contact-form',
+				clientId: '123',
+				innerBlocks: [],
+				attributes: {
+					lock: {
+						remove: true,
+					},
+				},
+			};
+
+			expect( shouldLockBlock( block ) ).toBe( true );
+		} );
+
+		test( 'returns false when block has both remove and move locks set to true', () => {
 			const block = {
 				name: 'jetpack/contact-form',
 				clientId: '123',
@@ -249,7 +264,55 @@ describe( 'block-utils', () => {
 			expect( shouldLockBlock( block ) ).toBe( false );
 		} );
 
-		test( 'returns true when block has remove lock set to false', () => {
+		test( 'returns true when block has remove lock but move is false', () => {
+			const block = {
+				name: 'jetpack/contact-form',
+				clientId: '123',
+				innerBlocks: [],
+				attributes: {
+					lock: {
+						remove: true,
+						move: false,
+					},
+				},
+			};
+
+			expect( shouldLockBlock( block ) ).toBe( true );
+		} );
+
+		test( 'returns true when block has move lock but remove is false', () => {
+			const block = {
+				name: 'jetpack/contact-form',
+				clientId: '123',
+				innerBlocks: [],
+				attributes: {
+					lock: {
+						remove: false,
+						move: true,
+					},
+				},
+			};
+
+			expect( shouldLockBlock( block ) ).toBe( true );
+		} );
+
+		test( 'returns true when both locks are set to false', () => {
+			const block = {
+				name: 'jetpack/contact-form',
+				clientId: '123',
+				innerBlocks: [],
+				attributes: {
+					lock: {
+						remove: false,
+						move: false,
+					},
+				},
+			};
+
+			expect( shouldLockBlock( block ) ).toBe( true );
+		} );
+
+		test( 'returns true when only remove is set to false', () => {
 			const block = {
 				name: 'jetpack/contact-form',
 				clientId: '123',
@@ -264,19 +327,67 @@ describe( 'block-utils', () => {
 			expect( shouldLockBlock( block ) ).toBe( true );
 		} );
 
-		test( 'returns false when block has remove lock set to truthy value', () => {
+		test( 'returns true when only move is set to false', () => {
 			const block = {
 				name: 'jetpack/contact-form',
 				clientId: '123',
 				innerBlocks: [],
 				attributes: {
 					lock: {
-						remove: 1, // Truthy value
+						move: false,
+					},
+				},
+			};
+
+			expect( shouldLockBlock( block ) ).toBe( true );
+		} );
+
+		test( 'returns false when both locks are set to truthy values', () => {
+			const block = {
+				name: 'jetpack/contact-form',
+				clientId: '123',
+				innerBlocks: [],
+				attributes: {
+					lock: {
+						remove: 1,
+						move: 'yes',
 					},
 				},
 			};
 
 			expect( shouldLockBlock( block ) ).toBe( false );
+		} );
+
+		test( 'returns true when remove is truthy but move is falsy', () => {
+			const block = {
+				name: 'jetpack/contact-form',
+				clientId: '123',
+				innerBlocks: [],
+				attributes: {
+					lock: {
+						remove: 1,
+						move: 0,
+					},
+				},
+			};
+
+			expect( shouldLockBlock( block ) ).toBe( true );
+		} );
+
+		test( 'returns true when move is truthy but remove is falsy', () => {
+			const block = {
+				name: 'jetpack/contact-form',
+				clientId: '123',
+				innerBlocks: [],
+				attributes: {
+					lock: {
+						remove: 0,
+						move: 1,
+					},
+				},
+			};
+
+			expect( shouldLockBlock( block ) ).toBe( true );
 		} );
 	} );
 

@@ -48,14 +48,15 @@ export function getInsertionIndex( formBlock: Block ): number {
 /**
  * Checks if a block should be locked (prevent removal and moving).
  *
- * A block should be locked if it doesn't already have a remove lock applied.
+ * A block should be locked if it doesn't already have both remove and move locks applied.
+ * Returns true if either lock is missing, false if both locks are already set.
  *
  * @param block - The block to check
  * @return True if the block should be locked
  */
 export function shouldLockBlock( block: Block ): boolean {
-	const lock = block.attributes?.lock as { remove?: boolean } | undefined;
-	return ! lock?.remove;
+	const lock = block.attributes?.lock as { remove?: boolean; move?: boolean } | undefined;
+	return ! lock?.remove || ! lock?.move;
 }
 
 /**
