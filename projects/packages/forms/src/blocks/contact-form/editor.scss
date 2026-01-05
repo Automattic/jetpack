@@ -443,8 +443,8 @@
 		opacity: 1;
 	}
 
-	.jetpack-field-option__checkbox.jetpack-field-option__checkbox,
-	.jetpack-option__type {
+	.jetpack-field-option__checkbox, // standalone and consent
+	.jetpack-option__type { // radios and checkboxes (multiple option fields)
 		align-items: center;
 		display: flex;
 		justify-content: center;
@@ -456,87 +456,74 @@
 		width: 1em !important;
 		height: 1em !important;
 		box-shadow: none !important;
-		border: none !important;
 		appearance: none !important;
 		outline: none !important;
 
 		/* Some classic themes set the min-widths, which gives
 		 * an elliptical shape to the input. */
-		min-width: auto;
+		// min-width: auto;
+
+
+		box-sizing: border-box;
+
+		/* Inherit the font size from the parent element.
+		 * This allows the input to scale with the font size
+		 * set from global styles or from block styles */
+		font-size: inherit;
+		// width: 1em;
+		min-width: 1em;
+		// height: 1em;
+		min-height: 1em;
+		margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
+		padding: 0;
+
+		// appearance: none;
+		border: solid 1px currentColor;
+		border-radius: 4px;
+		color: currentColor;
+		outline-offset: 1px;
+		transform: translateY(0.15em);
+		background-color: var(--jetpack--contact-form--input-background, field);
+
+		&::before {
+			position: absolute;
+			width: 0.25em;
+			height: 0.5em;
+			content: "";
+			display: block;
+			opacity: 0; /* Hidden by default */
+			scale: 0.7;
+			margin-left: 50%;
+			margin-top: 50%;
+			transition: opacity 0.1s ease-in-out, scale 0.15s ease-in-out;
+
+			font-size: inherit;
+			border-style: solid;
+			border-color: var(--jetpack--contact-form--inverted-body-text-color, var(--jetpack--contact-form--input-background));
+			border-width: 0 2px 2px 0;
+			transform: translate(-50%, -60%) rotate(40deg);
+			top: 0;
+			left: 0;
+
+		}
+
+		&:checked {
+			background-color: currentColor;
+
+			&::before {
+				scale: 1;
+				opacity: 1;
+			}
+		}
 	}
 
-	:where(.jetpack-field-option__checkbox),
-	:where(.jetpack-option__type) {
-		all: initial;
-		color: currentColor;
-		// Inherit the font size from the parent element, this needs
-		// to override the `all: initial` above.
-		// Set the height and width to 1em, so that the input scales
-		// with the font size.
-		font-size: inherit;
-
-		&::after,
-		&::before {
-			all: initial;
-			color: inherit;
-			font-size: inherit;
-			font-family: inherit;
-		}
-
-		&::before {
-			align-items: center;
-			border-color: currentColor;
-			border-radius: min(var(--jetpack--contact-form--button-outline--border-radius, 0px), 4px);
-			border-style: solid;
-			border-width: 1px;
-			box-sizing: border-box;
-			content: " ";
-			display: flex;
-			font-weight: 700;
-			height: 1em;
-			justify-content: center;
-			width: 1em;
-			transform: translateY(-0.35em);
-			background-color: var(--jetpack--contact-form--input-background, field);
-			pointer-events: none;
-		}
-
-		&[type="radio"]::before {
-			border-radius: 50%;
-		}
+	// Radios are .jetpack-option__type nested within this selector.
+	.jetpack-field-option.field-option-radio .jetpack-option__type {
+		border-radius: 50%;
 	}
 
 	.jetpack-field-consent__checkbox + .jetpack-field-label {
 		line-height: normal;
-	}
-
-	.jetpack-field-option__checkbox:checked {
-		margin-bottom: 0.45em;
-	}
-
-	.jetpack-field-option__checkbox:checked::after {
-		content: "";
-		position: absolute;
-		transform: translate(0, 0) rotate(40deg);
-		border: solid #fff;
-		width: 0.25em;
-		height: 0.5em;
-		border-width: 0 2px 2px 0;
-		border-radius: 0;
-		margin: 0;
-	}
-
-	.jetpack-field-option__checkbox:checked::before {
-		content: "";
-		margin: 0;
-		transform: translateY(0.15em);
-		background-color: currentColor;
-		width: 1em;
-		height: 1em;
-		float: none;
-		display: flex;
-		vertical-align: middle;
-		margin-bottom: 2px;
 	}
 
 	.jetpack-field-option__checkbox,
