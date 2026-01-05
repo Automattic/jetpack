@@ -459,20 +459,13 @@
 		appearance: none !important;
 		outline: none !important;
 
-		/* Some classic themes set the min-widths, which gives
-		 * an elliptical shape to the input. */
-		// min-width: auto;
-
-
 		box-sizing: border-box;
 
 		/* Inherit the font size from the parent element.
 		 * This allows the input to scale with the font size
 		 * set from global styles or from block styles */
 		font-size: inherit;
-		// width: 1em;
 		min-width: 1em;
-		// height: 1em;
 		min-height: 1em;
 		margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
 		padding: 0;
