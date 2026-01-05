@@ -199,35 +199,33 @@ const setupFormEditorSubscription = () => {
 				locateFormBlock(); // Locate the form block if we haven't
 			}
 
-			// Only check block nesting when blocks change at the root level
-			const { getBlocks } = select( 'core/block-editor' );
-			const rootBlocks = getBlocks();
-			const currentBlockCount = rootBlocks.length;
-			const currentRootBlockIds = rootBlocks.map( b => b.clientId ).join( ',' );
+			const { getBlocks, getSelectedBlockClientId, getBlockCount } = select( 'core/block-editor' );
 
-			if ( currentBlockCount !== lastBlockCount || currentRootBlockIds !== lastRootBlockIds ) {
+			// Quick check: only get block list if count changed
+			const currentBlockCount = getBlockCount();
+			if ( currentBlockCount !== lastBlockCount ) {
 				lastBlockCount = currentBlockCount;
-				lastRootBlockIds = currentRootBlockIds;
-				enforceBlockNesting();
+				const rootBlocks = getBlocks();
+				const currentRootBlockIds = rootBlocks.map( b => b.clientId ).join( ',' );
+				
+				// Only enforce nesting if root block structure changed
+				if ( currentRootBlockIds !== lastRootBlockIds ) {
+					lastRootBlockIds = currentRootBlockIds;
+					enforceBlockNesting();
+				}
 			}
 
 			// Only check selection when it changes
-			const { getSelectedBlockClientId } = select( 'core/block-editor' );
 			const currentSelectedBlockId = getSelectedBlockClientId();
-
 			if ( currentSelectedBlockId !== lastSelectedBlockId ) {
 				lastSelectedBlockId = currentSelectedBlockId;
 				enforceBlockSelection();
 			}
 
-			// Only lock the form block once
+			// Only lock the form block once - lockFormBlock handles its own guards
 			if ( ! isFormBlockLocked && formBlockClientId ) {
-				const { getBlock } = select( 'core/block-editor' );
-				const formBlock = getBlock( formBlockClientId );
-				if ( formBlock && shouldLockBlock( formBlock ) ) {
-					lockFormBlock();
-					isFormBlockLocked = true;
-				}
+				lockFormBlock();
+				isFormBlockLocked = true;
 			}
 
 			if ( ! categoriesFiltered ) {
