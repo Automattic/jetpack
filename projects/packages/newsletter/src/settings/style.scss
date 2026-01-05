@@ -1,8 +1,84 @@
 .newsletter-settings {
-	padding: 20px;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0;
 
-	h1 {
-		font-size: 24px;
-		margin-bottom: 16px;
+	// Card-based sections
+	&__section {
+		background: #fff;
+		border: 1px solid #c3c4c7;
+		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+		margin-bottom: 20px;
+		padding: 1.5em;
+	}
+
+	&__section-title {
+		margin: 0;
+		padding: 0;
+	}
+
+	&__section-description {
+		margin: 0;
+		padding: 0;
+		text-wrap: pretty;
+	}
+
+	&__section-content {
+		padding-top: 1em;
+
+		// Disabled state styling
+		&:disabled {
+			opacity: 0.5;
+			pointer-events: none;
+			position: relative;
+
+			&::after {
+				content: "";
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: rgba(255, 255, 255, 0.6);
+				pointer-events: none;
+			}
+		}
+	}
+
+	&__section-actions {
+		margin-top: 2em;
+		display: flex;
+		justify-content: flex-start;
+	}
+
+	// Links styling
+	&__link {
+		margin-top: 2em;
+	}
+
+	// Help text with links
+	&__help-text {
+		margin-top: 12px;
+		font-size: 13px;
+	}
+
+	&--error {
+		padding: 20px;
+
+		h2 {
+			color: #d63638;
+			font-size: 18px;
+			margin-bottom: 12px;
+		}
+
+		p {
+			color: #646970;
+		}
+	}
+
+
+	// Notice component styling
+	.components-notice {
+		margin: 0 0 20px;
 	}
 }
