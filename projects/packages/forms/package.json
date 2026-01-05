@@ -16,11 +16,12 @@
 	"author": "Automattic",
 	"type": "module",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build:blocks && pnpm run build:contact-form && pnpm run build:dashboard && pnpm run module:build",
+		"build": "pnpm run clean && pnpm run build:blocks && pnpm run build:contact-form && pnpm run build:dashboard && pnpm run build:form-editor && pnpm run module:build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"build:blocks": "webpack --config ./tools/webpack.config.blocks.js",
 		"build:contact-form": "webpack --config ./tools/webpack.config.contact-form.js",
 		"build:dashboard": "webpack --config ./tools/webpack.config.dashboard.js",
+		"build:form-editor": "webpack --config ./tools/webpack.config.form-editor.js",
 		"build:wp-build": "wp-build",
 		"clean": "rm -rf dist/ .cache/",
 		"module:build": "webpack --config ./tools/webpack.config.modules.js",
@@ -29,7 +30,7 @@
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
-		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch' 'pnpm:module:watch'",
+		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch' 'pnpm:module:watch' 'pnpm:build:form-editor --watch'",
 		"watch:wp-build": "wp-build --watch"
 	},
 	"browserslist": [
@@ -106,7 +107,9 @@
 		"@wordpress/api-fetch": "7.36.0",
 		"@wordpress/browserslist-config": "6.36.0",
 		"@wordpress/build": "0.4.1-next.6deb34194.0",
+		"@wordpress/commands": "1.36.0",
 		"@wordpress/date": "5.36.0",
+		"@wordpress/plugins": "7.36.0",
 		"autoprefixer": "10.4.20",
 		"browserslist": "^4.24.0",
 		"concurrently": "9.2.1",
