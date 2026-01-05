@@ -887,7 +887,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 	/**
 	 * Test webhook is blocked when URL points to link-local network (169.254.x.x - includes AWS metadata).
-	 * SSRF protection for link-local is handled at request time by our http_request_host_is_external filter.
+	 * SSRF protection blocks link-local IPs at validation time.
 	 */
 	public function test_send_webhooks_blocks_link_local_urls() {
 		$form   = $this->create_mock_form(
@@ -907,17 +907,29 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
+		// Track if HTTP request was made
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+				);
+			}
+		);
+
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// Our http_request_host_is_external filter blocks link-local IPs, causing a WP_Error
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertNotEmpty( $error_meta, 'Error should be logged for link-local/AWS metadata URLs' );
+		// Link-local IPs should be blocked at validation time, no HTTP request made
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for link-local/AWS metadata URLs' );
 	}
 
 	/**
 	 * Test that webhook blocks IPv6 loopback addresses.
-	 * SSRF protection should block ::1 (IPv6 loopback).
+	 * SSRF protection should block ::1 (IPv6 loopback) at validation time.
 	 */
 	public function test_send_webhooks_blocks_ipv6_loopback() {
 		$form   = $this->create_mock_form(
@@ -937,17 +949,29 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
+		// Track if HTTP request was made
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+				);
+			}
+		);
+
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// IPv6 loopback should be blocked
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertNotEmpty( $error_meta, 'Error should be logged for IPv6 loopback URLs' );
+		// IPv6 loopback should be blocked at validation time
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for IPv6 loopback URLs' );
 	}
 
 	/**
 	 * Test that webhook blocks IPv6 link-local addresses.
-	 * SSRF protection should block fe80::/10 range.
+	 * SSRF protection should block fe80::/10 range at validation time.
 	 */
 	public function test_send_webhooks_blocks_ipv6_link_local() {
 		$form   = $this->create_mock_form(
@@ -967,12 +991,24 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
+		// Track if HTTP request was made
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+				);
+			}
+		);
+
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// IPv6 link-local should be blocked
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertNotEmpty( $error_meta, 'Error should be logged for IPv6 link-local URLs' );
+		// IPv6 link-local should be blocked at validation time
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for IPv6 link-local URLs' );
 	}
 
 	/**
@@ -998,17 +1034,29 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
+		// Track if HTTP request was made
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+				);
+			}
+		);
+
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// IPv6 unique local addresses should be blocked
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertNotEmpty( $error_meta, 'Error should be logged for IPv6 unique local URLs' );
+		// IPv6 unique local addresses should be blocked at validation time
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for IPv6 unique local URLs' );
 	}
 
 	/**
 	 * Test that webhook blocks IPv6 site-local addresses (fec0::/10).
-	 * These are deprecated but still blocked for security.
+	 * These are deprecated but still blocked for security at validation time.
 	 */
 	public function test_send_webhooks_blocks_ipv6_site_local() {
 		$form   = $this->create_mock_form(
@@ -1028,12 +1076,24 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
+		// Track if HTTP request was made
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+				);
+			}
+		);
+
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// IPv6 site-local addresses (deprecated) should be blocked
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertNotEmpty( $error_meta, 'Error should be logged for IPv6 site-local URLs' );
+		// IPv6 site-local addresses (deprecated) should be blocked at validation time
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for IPv6 site-local URLs' );
 	}
 
 	/**

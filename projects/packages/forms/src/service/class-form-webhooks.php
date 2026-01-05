@@ -170,58 +170,6 @@ class Form_Webhooks {
 	}
 
 	/**
-	 * Block requests to link-local and private IP addresses at request time.
-	 *
-	 * This filter runs when WordPress resolves DNS during an HTTP request,
-	 * preventing TOCTOU (Time-of-Check Time-of-Use) attacks via DNS rebinding.
-	 *
-	 * Blocks:
-	 * - IPv4 link-local (169.254.0.0/16) - includes AWS metadata endpoint (169.254.169.254)
-	 * - IPv6 loopback (::1)
-	 * - IPv6 link-local (fe80::/10)
-	 * - IPv6 unique local addresses (fc00::/7, includes fd00::/8)
-	 * - IPv6 site-local addresses (fec0::/10) - deprecated but still blocked
-	 *
-	 * This filter is added/removed around webhook requests in send_webhook().
-	 *
-	 * @param bool|null $is_external Whether the host is considered external. Default null.
-	 * @param string    $host        The host being checked.
-	 * @param string    $url         The full URL being requested.
-	 * @return bool|null False to block the request, original value otherwise.
-	 */
-	public function block_link_local_requests( $is_external, $host, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Strip brackets from IPv6 addresses if present (e.g., [::1] -> ::1)
-		$host = trim( $host, '[]' );
-
-		// If host is already an IP, check it directly
-		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
-			return $this->is_blocked_ip( $host ) ? false : $is_external;
-		}
-
-		// For hostnames, check IPv4 via gethostbyname
-		$ipv4 = gethostbyname( $host );
-		if ( $ipv4 !== $host && $this->is_blocked_ip( $ipv4 ) ) {
-			return false;
-		}
-
-		// Check IPv6 via DNS AAAA records (gethostbyname only resolves IPv4)
-		// This catches hostnames that resolve to blocked IPv6 addresses
-		if ( function_exists( 'dns_get_record' ) ) {
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- dns_get_record may fail on some systems
-			$aaaa_records = @dns_get_record( $host, DNS_AAAA );
-			if ( $aaaa_records ) {
-				foreach ( $aaaa_records as $record ) {
-					if ( isset( $record['ipv6'] ) && $this->is_blocked_ip( $record['ipv6'] ) ) {
-						return false;
-					}
-				}
-			}
-		}
-
-		return $is_external;
-	}
-
-	/**
 	 * Check if an IP address is in a blocked range.
 	 *
 	 * @param string $ip The IP address to check.
@@ -277,15 +225,12 @@ class Form_Webhooks {
 	}
 
 	/**
-	 * Validate a webhook URL format and scheme.
+	 * Validate a webhook URL format, scheme, and check for blocked IP ranges.
 	 *
-	 * Performs basic validation:
+	 * Performs validation:
 	 * - Valid URL format
-	 * - HTTPS scheme requirement (policy decision)
-	 *
-	 * SSRF protection (private IPs, link-local addresses) is handled at request time
-	 * by wp_safe_remote_request() and our http_request_host_is_external filter.
-	 * This avoids TOCTOU vulnerabilities from DNS resolution during validation.
+	 * - HTTPS scheme requirement
+	 * - Blocks link-local and private IP ranges not covered by wp_safe_remote_request()
 	 *
 	 * @param string $url The webhook URL to validate.
 	 * @return bool|WP_Error True if valid, WP_Error with reason if invalid.
@@ -300,6 +245,39 @@ class Form_Webhooks {
 		// Require HTTPS scheme
 		if ( empty( $parsed['scheme'] ) || strtolower( $parsed['scheme'] ) !== 'https' ) {
 			return new WP_Error( 'https_required', __( 'Webhook URL must use HTTPS.', 'jetpack-forms' ) );
+		}
+
+		// Check for blocked IP ranges (link-local, private IPv6)
+		$host = $parsed['host'];
+		// Strip brackets from IPv6 addresses if present (e.g., [::1] -> ::1)
+		$host = trim( $host, '[]' );
+
+		// If host is already an IP, check it directly
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			if ( $this->is_blocked_ip( $host ) ) {
+				return new WP_Error( 'blocked_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
+			}
+			return true;
+		}
+
+		// For hostnames, check IPv4 via gethostbyname
+		$ipv4 = gethostbyname( $host );
+		if ( $ipv4 !== $host && $this->is_blocked_ip( $ipv4 ) ) {
+			return new WP_Error( 'blocked_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
+		}
+
+		// Check IPv6 via DNS AAAA records (gethostbyname only resolves IPv4)
+		// This catches hostnames that resolve to blocked IPv6 addresses
+		if ( function_exists( 'dns_get_record' ) ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- dns_get_record may fail on some systems
+			$aaaa_records = @dns_get_record( $host, DNS_AAAA );
+			if ( $aaaa_records ) {
+				foreach ( $aaaa_records as $record ) {
+					if ( isset( $record['ipv6'] ) && $this->is_blocked_ip( $record['ipv6'] ) ) {
+						return new WP_Error( 'blocked_ip', __( 'Webhook URL cannot point to private or internal networks.', 'jetpack-forms' ) );
+					}
+				}
+			}
 		}
 
 		return true;
@@ -376,7 +354,6 @@ class Form_Webhooks {
 	 * Send webhook request
 	 *
 	 * Uses wp_safe_remote_request() for built-in SSRF protection including redirect validation.
-	 * The http_request_host_is_external filter provides additional protection for link-local IPs.
 	 *
 	 * @param array $data The data key/value pairs to send.
 	 * @param array $webhook Webhook configuration.
@@ -419,16 +396,7 @@ class Form_Webhooks {
 			'sslverify' => true,
 		);
 
-		// Add filter for request-time SSRF protection (blocks link-local IPs like AWS metadata endpoint)
-		add_filter( 'http_request_host_is_external', array( $this, 'block_link_local_requests' ), 10, 3 );
-
-		try {
-			// Use wp_safe_remote_request for built-in SSRF protection and redirect validation
-			$response = wp_safe_remote_request( $url, $args );
-		} finally {
-			// Always remove filter after request to avoid affecting subsequent HTTP requests.
-			remove_filter( 'http_request_host_is_external', array( $this, 'block_link_local_requests' ), 10 );
-		}
-		return $response;
+		// Use wp_safe_remote_request for built-in SSRF protection and redirect validation
+		return wp_safe_remote_request( $url, $args );
 	}
 }
