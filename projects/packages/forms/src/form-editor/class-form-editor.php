@@ -120,7 +120,8 @@ class Form_Editor {
 
 	/**
 	 * Enqueue admin scripts for block editor.
-	 * Loads in any block editor context to support rename command when form block is selected.
+	 * Loads in all post block editor contexts (excluding the site editor) so that the
+	 * rename command is available and can be used when a form block is selected.
 	 */
 	public static function enqueue_admin_scripts() {
 		$screen = get_current_screen();
