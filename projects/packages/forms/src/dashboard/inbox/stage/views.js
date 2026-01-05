@@ -14,7 +14,7 @@ export const defaultView = {
 	page: 1,
 	perPage: 20,
 	titleField: 'from',
-	fields: [ 'date', 'source', 'ip' ],
+	fields: [ 'date', 'form', 'ip' ],
 };
 
 export const defaultLayouts = {
@@ -32,20 +32,37 @@ export const defaultLayouts = {
 export function useView() {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const urlSearch = searchParams.get( 'search' );
+	const urlForm = searchParams.get( 'form' );
 	const [ view, setView ] = useState( () => ( {
 		...defaultView,
 		search: urlSearch ?? '',
+		filters: urlForm ? [ { field: 'form', operator: 'is', value: urlForm } ] : defaultView.filters,
 	} ) );
+
+	const getFormsFilterValue = currentView => {
+		const filter = currentView.filters?.find( f => f.field === 'form' );
+		return filter?.value ?? null;
+	};
+
 	// When view changes, update the URL params if needed.
 	const setViewWithUrlUpdate = useEvent( newView => {
 		setView( newView );
-		if ( newView.search !== urlSearch ) {
+		const formsFilterValue = getFormsFilterValue( newView );
+		const shouldUpdateSearch = newView.search !== urlSearch;
+		const shouldUpdateForms = ( urlForm ?? null ) !== ( formsFilterValue ?? null );
+
+		if ( shouldUpdateSearch || shouldUpdateForms ) {
 			setSearchParams( previousSearchParams => {
 				const _searchParams = new URLSearchParams( previousSearchParams );
-				if ( newView.search ) {
+				if ( shouldUpdateSearch && newView.search ) {
 					_searchParams.set( 'search', newView.search );
-				} else {
+				} else if ( shouldUpdateSearch ) {
 					_searchParams.delete( 'search' );
+				}
+				if ( shouldUpdateForms && formsFilterValue ) {
+					_searchParams.set( 'form', formsFilterValue );
+				} else if ( shouldUpdateForms ) {
+					_searchParams.delete( 'form' );
 				}
 				return _searchParams;
 			} );
@@ -68,5 +85,31 @@ export function useView() {
 	useEffect( () => {
 		onUrlSearchChange();
 	}, [ onUrlSearchChange, urlSearch ] );
+
+	const onUrlFormsChange = useEvent( () => {
+		setView( previousView => {
+			const currentValue = getFormsFilterValue( previousView );
+			const newValue = urlForm ?? null;
+
+			if ( currentValue === newValue ) {
+				return previousView;
+			}
+
+			const nextFilters = ( previousView.filters || [] ).filter( f => f.field !== 'form' );
+			if ( newValue ) {
+				nextFilters.push( { field: 'form', operator: 'is', value: newValue } );
+			}
+
+			return {
+				...previousView,
+				filters: nextFilters,
+			};
+		} );
+	} );
+
+	useEffect( () => {
+		onUrlFormsChange();
+	}, [ onUrlFormsChange, urlForm ] );
+
 	return [ view, setViewWithUrlUpdate ];
 }
