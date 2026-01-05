@@ -274,14 +274,8 @@ function JetpackContactFormEdit( {
 				hasAnyInnerBlocks: innerBlocksData.length > 0,
 				postAuthorEmail: authorEmail,
 				selectedBlockClientId: selectedStepBlockId,
-<<<<<<< HEAD
 				onlySubmitBlock: isSingleButtonBlock,
 				isJetpackFormEditor: getCurrentPostType() === FORM_POST_TYPE,
-=======
-				isJetpackFormEditor: postType === FORM_POST_TYPE,
-				onlySubmitBlock:
-					innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
->>>>>>> 3b1522d7e6 (Add inline editing and syncing for reusable contact forms)
 			};
 		},
 		[ clientId ]
