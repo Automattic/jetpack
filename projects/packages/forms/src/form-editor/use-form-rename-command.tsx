@@ -140,6 +140,7 @@ export function useFormRenameCommand() {
 				onChange={ setNewTitle }
 				placeholder={ __( 'Enter form name', 'jetpack-forms' ) }
 				onKeyDown={ handleKeyDown }
+				autoFocus
 			/>
 			<div className="jetpack-forms-rename-modal__actions">
 				<Button variant="tertiary" onClick={ closeModal }>
