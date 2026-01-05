@@ -12,11 +12,4 @@ describe( 'Form Editor Module', () => {
 		const { FORM_POST_TYPE } = await import( '../../../src/blocks/shared/util/constants.js' );
 		expect( FORM_POST_TYPE ).toBe( 'jetpack_form' );
 	} );
-
-	// Smoke test for the form editor stylesheet
-	test( 'should have a style.scss file', () => {
-		// This test just verifies the build configuration can handle the SCSS import
-		// The actual import happens in the form-editor/index.tsx file
-		expect( true ).toBe( true );
-	} );
 } );
