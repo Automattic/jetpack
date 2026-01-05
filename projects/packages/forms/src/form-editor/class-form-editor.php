@@ -52,7 +52,6 @@ class Form_Editor {
 		// Allow only field blocks, button, and core blocks.
 		// Visual wrapping is handled by JavaScript DOM manipulation.
 		return array(
-			// 'jetpack/contact-form',
 			// Field blocks.
 			'jetpack/field-name',
 			'jetpack/field-email',
@@ -103,8 +102,6 @@ class Form_Editor {
 	/**
 	 * Modify block editor settings for jetpack-form posts.
 	 *
-	 * Disables the inserter in the top toolbar and hides the title field.
-	 *
 	 * @param array  $settings       Block editor settings.
 	 * @param object $editor_context The current editor context.
 	 * @return array Modified block editor settings for jetpack-form posts.
@@ -115,11 +112,8 @@ class Form_Editor {
 			return $settings;
 		}
 
-		// Enable block locking capability (was previously disabled)
+		// Disable block locking capability.
 		$settings['canLockBlocks'] = false;
-
-		// Hide the title field in the editor
-		$settings['__experimentalDisablePostTitle'] = true;
 
 		return $settings;
 	}
@@ -143,7 +137,7 @@ class Form_Editor {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-data', 'wp-hooks', 'wp-polyfill', 'wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n' ),
+				'dependencies' => array( 'wp-data', 'wp-hooks', 'wp-polyfill', 'wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n', 'wp-plugins', 'wp-commands' ),
 			)
 		);
 	}
