@@ -290,6 +290,8 @@ export interface FormsConfigData {
 	canActivatePlugins?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
+	/** Whether form notes are enabled. */
+	isNotesEnabled?: boolean;
 	/** The URL of the Forms responses list in wp-admin. */
 	formsResponsesUrl?: string;
 	/** Current site blog ID. */

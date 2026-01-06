@@ -140,6 +140,7 @@ const ResponseViewBody = ( {
 	const { editEntityRecord } = useDispatch( 'core' );
 
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
+	const isNotesEnabled = useConfigValue( 'isNotesEnabled' ) ?? false;
 
 	// When opening a "Mark as spam" link from the email, the ResponseViewBody component is rendered, so we use a hook here to handle it.
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } = useMarkAsSpam(
@@ -399,7 +400,8 @@ const ResponseViewBody = ( {
 				</ConfirmDialog>
 			</div>
 			{ /* Comments section */ }
-			<FeedbackComments postId={ response.id } />
+
+			{ isNotesEnabled && <FeedbackComments postId={ response.id } /> }
 			{ response.status === 'spam' && (
 				<div className="jp-forms__inbox__tip-container">
 					<Tip>

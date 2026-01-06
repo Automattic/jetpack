@@ -255,4 +255,21 @@ class Dashboard {
 		$screen = get_current_screen();
 		return $screen && $screen->id === 'jetpack_page_jetpack-forms-admin';
 	}
+
+	/**
+	 * Returns true if form notes feature is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_notes_enabled() {
+		/**
+		* Enable form notes feature in Jetpack Forms .
+		*
+		* @module contact - form
+		* @since $$next_version$$
+		*
+		* @param bool false Should the form notes feature be enabled ? default to false .
+		*/
+		return apply_filters( 'jetpack_forms_notes_enable', false );
+	}
 }
