@@ -179,7 +179,6 @@ let isJetpackFormEditor: boolean | null = null;
 let categoriesFiltered = false;
 
 // State tracking for performance optimization
-let lastBlockCount = 0;
 let lastRootBlockIds = '';
 let lastSelectedBlockId: string | null | undefined = null;
 let isFormBlockLocked = false;
@@ -199,22 +198,15 @@ const setupFormEditorSubscription = () => {
 				locateFormBlock(); // Locate the form block if we haven't
 			}
 
-			// Quick check: only get block list if count changed
-			// Note: getBlockCount() returns the total count including nested blocks,
-			// but we track root block IDs to detect only root-level changes
-			const { getBlockCount } = select( 'core/block-editor' );
-			const currentBlockCount = getBlockCount();
-			if ( currentBlockCount !== lastBlockCount ) {
-				lastBlockCount = currentBlockCount;
-				const { getBlocks } = select( 'core/block-editor' );
-				const rootBlocks = getBlocks();
-				const currentRootBlockIds = rootBlocks.map( b => b.clientId ).join( ',' );
-				
-				// Only enforce nesting if root block structure changed
-				if ( currentRootBlockIds !== lastRootBlockIds ) {
-					lastRootBlockIds = currentRootBlockIds;
-					enforceBlockNesting();
-				}
+			// Check if root blocks changed by comparing their structure
+			const { getBlocks } = select( 'core/block-editor' );
+			const rootBlocks = getBlocks();
+			const currentRootBlockIds = JSON.stringify( rootBlocks.map( b => b.clientId ) );
+			
+			// Only enforce nesting if root block structure changed
+			if ( currentRootBlockIds !== lastRootBlockIds ) {
+				lastRootBlockIds = currentRootBlockIds;
+				enforceBlockNesting();
 			}
 
 			// Only check selection when it changes
@@ -226,14 +218,13 @@ const setupFormEditorSubscription = () => {
 			}
 
 			// Only try to lock the form block once
-			// lockFormBlock() handles all the logic for checking if locking is needed
 			if ( ! isFormBlockLocked && formBlockClientId ) {
 				lockFormBlock();
-				// Verify the block was actually locked
+				// Verify the block is now locked by checking the attributes
 				const { getBlock } = select( 'core/block-editor' );
 				const formBlock = getBlock( formBlockClientId );
-				if ( formBlock && ! shouldLockBlock( formBlock ) ) {
-					// Block is now locked (shouldLockBlock returns false when already locked)
+				const lock = formBlock?.attributes?.lock as { remove?: boolean; move?: boolean } | undefined;
+				if ( formBlock && lock?.remove && lock?.move ) {
 					isFormBlockLocked = true;
 				}
 			}
@@ -259,7 +250,6 @@ const setupFormEditorSubscription = () => {
 			formBlockClientId = null; // Reset the form block client ID if we are not in the Form editor anymore.
 			categoriesFiltered = false; // Reset the flag
 			// Reset performance tracking state
-			lastBlockCount = 0;
 			lastRootBlockIds = '';
 			lastSelectedBlockId = null;
 			isFormBlockLocked = false;
