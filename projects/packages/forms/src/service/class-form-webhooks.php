@@ -187,6 +187,13 @@ class Form_Webhooks {
 			if ( $ip_long !== false && $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
 				return true;
 			}
+
+			// Block Azure Wire Server (168.63.129.16)
+			// Used for Azure internal services including Instance Metadata Service
+			if ( $ip === '168.63.129.16' ) {
+				return true;
+			}
+
 			return false;
 		}
 
