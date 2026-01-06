@@ -241,47 +241,40 @@ class VideoPress_Edit_Attachment {
 		$post_id = absint( $post->ID );
 
 		$meta = wp_get_attachment_metadata( $post_id );
+		$info = (object) $meta['videopress'];
+
 		$guid = get_post_meta( $post_id, 'videopress_guid', true );
 
 		// If this has not been processed by videopress, we can skip the rest.
-		if ( ! is_videopress_attachment( $post_id ) ) {
+		if ( ! is_videopress_attachment( $post_id ) || empty( $guid ) ) {
 			return;
 		}
+		?>
 
-		$info = (object) $meta['videopress'];
+		<p class="post-attributes-label-wrapper">
+			<label class="post-attributes-label" for="videopress-shortcode"><?php esc_html_e( 'Shortcode', 'jetpack' ); ?></label>
+		</p>
+		<input type="text" class="widefat" id="videopress-shortcode" readonly="readonly" value="<?php echo esc_attr( "[videopress $guid]" ); ?>" onclick="this.focus();this.select();" />
 
-		$embed = "[videopress {$guid}]";
+		<p class="post-attributes-label-wrapper">
+			<label class="post-attributes-label"><?php esc_html_e( 'URL', 'jetpack' ); ?></label>
+		</p>
+		<?php printf( '<a href="%1$s">%1$s</a>', esc_url( videopress_build_url( $guid ) ) ); ?>
 
-		$shortcode = '<input type="text" id="plugin-embed" readonly="readonly" style="width:180px;" value="' . esc_attr( $embed ) . '" onclick="this.focus();this.select();" />';
-
-		$url = 'empty';
-		if ( ! empty( $guid ) ) {
-			$url = videopress_build_url( $guid );
-			$url = "<a href=\"{$url}\">{$url}</a>";
-		}
-
-		$poster = '<em>Still Processing</em>';
-		if ( ! empty( $info->poster ) ) {
-			$poster = "<br><img src=\"{$info->poster}\" width=\"175px\">";
-		}
-
-		$html = <<<HTML
-
-<div class="misc-pub-section misc-pub-shortcode">
-	<strong>Shortcode</strong><br>
-	{$shortcode}
-</div>
-<div class="misc-pub-section misc-pub-url">
-	<strong>Url</strong>
-	{$url}
-</div>
-<div class="misc-pub-section misc-pub-poster">
-	<strong>Poster</strong>
-	{$poster}
-</div>
-HTML;
-
-		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Variables built above.
+		<?php
+		// If the video is private, we need a metadata token to view the poster, which we don't have access to from here.
+		if ( ! $info->is_private ) :
+			?>
+			<p class="post-attributes-label-wrapper">
+				<label class="post-attributes-label"><?php esc_html_e( 'Poster', 'jetpack' ); ?></label>
+			</p>
+			<?php if ( ! empty( $info->poster ) ) : ?>
+				<img src="<?php echo esc_url( $info->poster ); ?>" width="100%" alt="" />
+			<?php else : ?>
+				<em><?php esc_html_e( 'Processing&hellip;', 'jetpack' ); ?></em>
+				<?php
+			endif;
+		endif;
 	}
 
 	/**
