@@ -32,11 +32,11 @@ function formatCommentDate( dateString: string ) {
  * Renders a single feedback comment item, including author, date, content,
  * and an options menu to delete the comment.
  *
- * @param {CommentItemProps} props - Component props.
- * @param {FeedbackComment} props.comment - The feedback comment to display.
- * @param {(id: number) => void} props.onDelete - Callback invoked when the delete action is selected.
- * @param {boolean} props.isDeleting - Whether a delete operation is currently in progress.
- * @returns {JSX.Element} The rendered feedback comment item element.
+ * @param {CommentItemProps}     props            - Component props.
+ * @param {FeedbackComment}      props.comment    - The feedback comment to display.
+ * @param {(id: number) => void} props.onDelete   - Callback invoked when the delete action is selected.
+ * @param {boolean}              props.isDeleting - Whether a delete operation is currently in progress.
+ * @return {JSX.Element} The rendered feedback comment item element.
  */
 const CommentItem = ( { comment, onDelete, isDeleting }: CommentItemProps ) => {
 	return (
