@@ -57,7 +57,15 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		restApi
 			.fetchSettings()
 			.then( ( settings: Record< string, unknown > ) => {
-				setData( settings as NewsletterSettings );
+				// Convert category IDs from numbers to strings
+				const normalizedSettings: NewsletterSettings = {
+					...( settings as NewsletterSettings ),
+					// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1')
+					wpcom_subscription_emails_use_excerpt: String(
+						Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
+					),
+				};
+				setData( normalizedSettings );
 				setIsLoading( false );
 			} )
 			.catch( ( err: Error ) => {

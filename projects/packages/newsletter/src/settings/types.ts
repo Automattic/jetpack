@@ -16,7 +16,7 @@ export interface NewsletterSettings {
 	jetpack_subscriptions_login_navigation_enabled: boolean;
 	jetpack_subscriptions_subscribe_navigation_enabled: boolean;
 	wpcom_featured_image_in_email: boolean;
-	wpcom_subscription_emails_use_excerpt: boolean;
+	wpcom_subscription_emails_use_excerpt: string;
 	jetpack_gravatar_in_email: boolean;
 	jetpack_author_in_email: boolean;
 	jetpack_post_date_in_email: boolean;
