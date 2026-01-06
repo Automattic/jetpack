@@ -25,6 +25,7 @@ import './style.scss';
 
 /**
  * Move the Jetpack contact form block category to the front in the editor.
+ * @return previous categories array
  */
 const moveFormsCategoryToFront = () => {
 	const { getCategories } = select( 'core/blocks' );
@@ -35,17 +36,23 @@ const moveFormsCategoryToFront = () => {
 	const categories = getCategories();
 	const newCategories = moveCategoryToFront( categories );
 	setCategories( newCategories );
+	return categories;
 };
 
 /**
  * Move the Jetpack contact form block category back to its original position.
+ * @param previousCategories - The previous categories array to restore
  */
-const moveFormsCategoryToBack = () => {
-	const { getCategories } = select( 'core/blocks' );
+const moveFormsCategoryBackToOriginalOrder = ( previousCategories: unknown[] ) => {
 	const { setCategories } = dispatch( 'core/blocks' ) as {
 		setCategories: ( categories: unknown[] ) => void;
 	};
+	if ( previousCategories.length !== 0 ) {
+		setCategories( previousCategories );
+		return;
+	}
 
+	const { getCategories } = select( 'core/blocks' );
 	const categories = getCategories();
 	const newCategories = moveCategoryToBack( categories );
 	setCategories( newCategories );
@@ -168,6 +175,7 @@ let categoriesFiltered = false;
 let lastRootBlockIds = '';
 let lastSelectedBlockId: string | null | undefined = null;
 let isFormBlockLocked = false;
+let previousCategories: unknown[] | null = null;
 
 let unsubscribe: ( () => void ) | null = null;
 
@@ -221,7 +229,7 @@ const setupFormEditorSubscription = () => {
 
 			if ( ! categoriesFiltered ) {
 				categoriesFiltered = true;
-				moveFormsCategoryToFront();
+				previousCategories = moveFormsCategoryToFront();
 				try {
 					unregisterPlugin( 'block-directory' );
 				} catch {
@@ -230,8 +238,7 @@ const setupFormEditorSubscription = () => {
 			}
 		} else if ( categoriesFiltered ) {
 			categoriesFiltered = false;
-
-			moveFormsCategoryToBack();
+			moveFormsCategoryBackToOriginalOrder( previousCategories || [] );
 		}
 
 		if ( isCurrentPostTypeJetpackForm === isJetpackFormEditor ) {
