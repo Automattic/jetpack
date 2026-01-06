@@ -328,11 +328,25 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 15.4-beta - 2026-01-06
 #### Enhancements
+- External media: Add replace flow support.
+- Forms: Add filter to hide integration icons.
+- Forms: Add integrations display filters.
 - Forms: add list view sidebar for easier field management.
 - Forms: support Math and Code blocks inside forms.
+- Forms: Use entire button area for selecting multi-select options.
+- Social: Improve social preview for LinkedIn and Tumblr.
+- Social: Reuse AI image generation in media section.
 
 #### Bug fixes
 - AI Assistant: disabled Write Brief functionality for non-English sites.
+- AI Assistant: Fix product page URL for Simple sites to use jetpack.com instead of My Jetpack.
+- Forms: Ensure submission summary is contained within 100% width.
+- Forms: Fix validation accessibility.
+- Forms: Remove the classic Admin initialization call.
+- Forms: Strip HTML from styled labels in error summary.
+- Jetpack settings: Avoid deprecation notices when loading Settings screen or Debugger screen.
+- Scan: Replace inline onclick handler with target="_blank" for CSP compliance in admin bar notice.
+- Social: Fix connections management modal not opening from pre-publish panel.
 
 --------
 
