@@ -1221,65 +1221,65 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test should_validate_idc() returns false when max delay reached.
+	 * Test should_remote_validate_idc() returns false when max delay reached.
 	 */
-	public function test_should_validate_idc_returns_false_when_max_delay_reached() {
+	public function test_should_remote_validate_idc_returns_false_when_max_delay_reached() {
 		$sync_error = array(
 			'last_checked'     => time() - 3600,
 			'next_check_delay' => Identity_Crisis::IDC_VALIDATION_MAX_DELAY,
 		);
 
-		$result = Identity_Crisis::should_validate_idc( $sync_error );
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
 
 		$this->assertFalse( $result );
 	}
 
 	/**
-	 * Test should_validate_idc() returns false when not enough time has passed.
+	 * Test should_remote_validate_idc() returns false when not enough time has passed.
 	 */
-	public function test_should_validate_idc_returns_false_when_not_enough_time_passed() {
+	public function test_should_remote_validate_idc_returns_false_when_not_enough_time_passed() {
 		$sync_error = array(
 			'last_checked'     => time() - 1800, // 30 minutes ago.
 			'next_check_delay' => 3600, // 1 hour delay.
 		);
 
-		$result = Identity_Crisis::should_validate_idc( $sync_error );
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
 
 		$this->assertFalse( $result );
 	}
 
 	/**
-	 * Test should_validate_idc() returns true when enough time has passed.
+	 * Test should_remote_validate_idc() returns true when enough time has passed.
 	 */
-	public function test_should_validate_idc_returns_true_when_enough_time_passed() {
+	public function test_should_remote_validate_idc_returns_true_when_enough_time_passed() {
 		$sync_error = array(
 			'last_checked'     => time() - 7200, // 2 hours ago.
 			'next_check_delay' => 3600, // 1 hour delay.
 		);
 
-		$result = Identity_Crisis::should_validate_idc( $sync_error );
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
 
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * Test should_validate_idc() returns true when last_checked is 0 (never checked).
+	 * Test should_remote_validate_idc() returns true when last_checked is 0 (never checked).
 	 */
-	public function test_should_validate_idc_returns_true_when_never_checked() {
+	public function test_should_remote_validate_idc_returns_true_when_never_checked() {
 		$sync_error = array(
 			'last_checked'     => 0,
 			'next_check_delay' => 3600,
 		);
 
-		$result = Identity_Crisis::should_validate_idc( $sync_error );
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
 
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * Test validate_idc_from_remote() clears IDC when site is not registered.
+	 * Test remote_validate_idc() clears IDC when site is not registered.
 	 */
-	public function test_validate_idc_from_remote_clears_idc_when_not_registered() {
+	public function test_remote_validate_idc_clears_idc_when_not_registered() {
 		// Clean up any state from previous tests.
 		delete_transient( 'jetpack_idc_validation_lock' );
 
@@ -1288,7 +1288,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$initial_sync_error = Identity_Crisis::get_sync_error_idc_option();
 		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
 
-		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
 
 		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
 
@@ -1302,9 +1302,9 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test validate_idc_from_remote() returns false and updates timing on network error.
+	 * Test remote_validate_idc() returns false and updates timing on network error.
 	 */
-	public function test_validate_idc_from_remote_handles_network_error_gracefully() {
+	public function test_remote_validate_idc_handles_network_error_gracefully() {
 		// Clean up any state from previous tests.
 		delete_transient( 'jetpack_idc_validation_lock' );
 
@@ -1325,7 +1325,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		};
 		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
 
-		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
 
 		remove_filter( 'pre_http_request', $mock_callback );
 		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
@@ -1345,9 +1345,9 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test validate_idc_from_remote() returns false and updates timing on non-200 response.
+	 * Test remote_validate_idc() returns false and updates timing on non-200 response.
 	 */
-	public function test_validate_idc_from_remote_handles_non_200_response() {
+	public function test_remote_validate_idc_handles_non_200_response() {
 		// Clean up any state from previous tests.
 		delete_transient( 'jetpack_idc_validation_lock' );
 
@@ -1377,7 +1377,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		};
 		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
 
-		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
 
 		remove_filter( 'pre_http_request', $mock_callback );
 		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
@@ -1397,9 +1397,9 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test validate_idc_from_remote() uses transient lock to prevent concurrent validations.
+	 * Test remote_validate_idc() uses transient lock to prevent concurrent validations.
 	 */
-	public function test_validate_idc_from_remote_uses_transient_lock() {
+	public function test_remote_validate_idc_uses_transient_lock() {
 		Jetpack_Options::update_option( 'id', 12345 );
 		$sync_error = Identity_Crisis::get_sync_error_idc_option();
 		Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
@@ -1407,7 +1407,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		// Set the lock transient to simulate another validation in progress.
 		set_transient( 'jetpack_idc_validation_lock', true, 60 );
 
-		$result = Identity_Crisis::validate_idc_from_remote( $sync_error );
+		$result = Identity_Crisis::remote_validate_idc( $sync_error );
 
 		// Clean up.
 		delete_transient( 'jetpack_idc_validation_lock' );
@@ -1419,9 +1419,9 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test validate_idc_from_remote() updates timing on invalid JSON response.
+	 * Test remote_validate_idc() updates timing on invalid JSON response.
 	 */
-	public function test_validate_idc_from_remote_handles_invalid_json_gracefully() {
+	public function test_remote_validate_idc_handles_invalid_json_gracefully() {
 		// Clean up any state from previous tests.
 		delete_transient( 'jetpack_idc_validation_lock' );
 
@@ -1451,7 +1451,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		};
 		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
 
-		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
 
 		remove_filter( 'pre_http_request', $mock_callback );
 		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
@@ -1471,9 +1471,9 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test validate_idc_from_remote() clears IDC when WordPress.com returns no idc_detected.
+	 * Test remote_validate_idc() clears IDC when WordPress.com returns no idc_detected.
 	 */
-	public function test_validate_idc_from_remote_clears_idc_when_resolved() {
+	public function test_remote_validate_idc_clears_idc_when_resolved() {
 		// Clean up any state from previous tests.
 		delete_transient( 'jetpack_idc_validation_lock' );
 
@@ -1507,7 +1507,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		};
 		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
 
-		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
 
 		remove_filter( 'pre_http_request', $mock_callback );
 		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
@@ -1525,9 +1525,9 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test validate_idc_from_remote() updates timing with backoff when IDC still exists.
+	 * Test remote_validate_idc() updates timing with backoff when IDC still exists.
 	 */
-	public function test_validate_idc_from_remote_updates_timing_when_idc_persists() {
+	public function test_remote_validate_idc_updates_timing_when_idc_persists() {
 		// Clean up any state from previous tests.
 		delete_transient( 'jetpack_idc_validation_lock' );
 
@@ -1568,7 +1568,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		};
 		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
 
-		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
 
 		remove_filter( 'pre_http_request', $mock_callback );
 		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );

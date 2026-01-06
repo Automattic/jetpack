@@ -414,11 +414,11 @@ class Identity_Crisis {
 					$is_valid = true;
 
 					// Check if it's time to validate the IDC with a remote call to WordPress.com.
-					if ( self::should_validate_idc( $sync_error ) ) {
+					if ( self::should_remote_validate_idc( $sync_error ) ) {
 						// Perform remote validation.
-						if ( self::validate_idc_from_remote( $sync_error ) ) {
+						if ( self::remote_validate_idc( $sync_error ) ) {
 							// IDC was cleared remotely. The option is already deleted by
-							// validate_idc_from_remote(), so return false immediately to
+							// remote_validate_idc(), so return false immediately to
 							// avoid double deletion and allow the filter to run.
 							return (bool) apply_filters( 'jetpack_sync_error_idc_validation', false );
 						}
@@ -472,7 +472,7 @@ class Identity_Crisis {
 	 * @param array $sync_error The stored sync_error_idc option.
 	 * @return bool True if validation should be performed, false otherwise.
 	 */
-	public static function should_validate_idc( $sync_error ) {
+	public static function should_remote_validate_idc( $sync_error ) {
 		// If delay is not set or invalid, validate immediately to bring into new system.
 		if ( empty( $sync_error['next_check_delay'] ) ) {
 			return true;
@@ -501,11 +501,20 @@ class Identity_Crisis {
 	 * @param array $sync_error The stored sync_error_idc option with timing fields.
 	 * @return bool True if IDC was cleared, false otherwise.
 	 */
-	public static function validate_idc_from_remote( $sync_error ) {
+	public static function remote_validate_idc( $sync_error ) {
 		// Prevent recursive calls that could cause infinite loops within the same request.
 		static $is_validating = false;
 		if ( $is_validating ) {
 			return false;
+		}
+
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			// Site not registered - IDC state is invalid without a connection to WordPress.com.
+			// Clear the IDC since there's nothing to validate against, and the site can't
+			// restore the blog_id while in IDC anyway (connection flow is blocked).
+			Jetpack_Options::delete_option( 'sync_error_idc' );
+			return true; // Return true to indicate IDC was cleared.
 		}
 
 		// Use a transient lock to prevent concurrent validations across multiple requests.
@@ -516,17 +525,6 @@ class Identity_Crisis {
 		set_transient( $lock_key, true, 60 ); // 60 second lock.
 
 		$is_validating = true;
-
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			// Site not registered - IDC state is invalid without a connection to WordPress.com.
-			// Clear the IDC since there's nothing to validate against, and the site can't
-			// restore the blog_id while in IDC anyway (connection flow is blocked).
-			Jetpack_Options::delete_option( 'sync_error_idc' );
-			delete_transient( $lock_key );
-			$is_validating = false;
-			return true; // Return true to indicate IDC was cleared.
-		}
 
 		// Build API path with current URLs as query params.
 		// We must explicitly include URLs because add_idc_query_args_to_url() skips
