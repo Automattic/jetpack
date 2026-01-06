@@ -265,7 +265,7 @@ class Dashboard {
 		/**
 		* Enable form notes feature in Jetpack Forms .
 		*
-		* @module contact - form
+		* @module contact-form
 		* @since $$next-version$$
 		*
 		* @param bool false Should the form notes feature be enabled ? default to false .
