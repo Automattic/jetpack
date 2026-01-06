@@ -268,7 +268,7 @@ class Dashboard {
 		* @module contact-form
 		* @since $$next-version$$
 		*
-		* @param bool false Should the form notes feature be enabled ? default to false .
+		* @param bool $enabled Should the form notes feature be enabled? Defaults to false.
 		*/
 		return apply_filters( 'jetpack_forms_notes_enable', false );
 	}
