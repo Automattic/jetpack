@@ -20,7 +20,7 @@
 		"./social-admin-page": "./src/components/admin-page/entry-point.tsx"
 	},
 	"scripts": {
-		"test": "jest",
+		"test": "TZ=UTC jest",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit"
 	},
