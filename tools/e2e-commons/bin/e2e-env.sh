@@ -74,7 +74,8 @@ configure_wp_env() {
 	$BASE_CMD exec-silent -- chown -R www-data:www-data /var/www/html/wp-content/jetpack-waf
 	$BASE_CMD wp plugin status
 
-	$BASE_CMD wp plugin activate jetpack
+	# Activate Jetpack plugin if available
+	$BASE_CMD wp plugin is-installed jetpack && $BASE_CMD wp plugin activate jetpack || true
 	$BASE_CMD wp plugin activate e2e-direct-filesystem
 	$BASE_CMD wp plugin activate e2e-plan-helper
 	$BASE_CMD wp plugin activate e2e-waf-data-interceptor
@@ -89,11 +90,13 @@ configure_wp_env() {
 		done
 	fi
 	$BASE_CMD wp option set permalink_structure ""
-	$BASE_CMD wp jetpack module deactivate sso
 
-	# Disable modules that may interfere with login flow.
-	$BASE_CMD wp jetpack module deactivate account-protection
-	$BASE_CMD wp jetpack module deactivate protect
+	# Disable Jetpack modules that may interfere with login flow (only if Jetpack is active)
+	if $BASE_CMD wp plugin is-active jetpack 2>/dev/null; then
+		$BASE_CMD wp jetpack module deactivate sso
+		$BASE_CMD wp jetpack module deactivate account-protection
+		$BASE_CMD wp jetpack module deactivate protect
+	fi
 
 	echo
 	$BASE_CMD wp plugin status
