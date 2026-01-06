@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -239,16 +240,18 @@ class VideoPress_Edit_Attachment {
 	 */
 	public function videopress_information_box( $post ) {
 		$post_id = absint( $post->ID );
-
-		$meta = wp_get_attachment_metadata( $post_id );
-		$info = (object) $meta['videopress'];
-
-		$guid = get_post_meta( $post_id, 'videopress_guid', true );
+		$guid    = get_post_meta( $post_id, 'videopress_guid', true );
 
 		// If this has not been processed by videopress, we can skip the rest.
 		if ( ! is_videopress_attachment( $post_id ) || empty( $guid ) ) {
 			return;
 		}
+
+		$meta = wp_get_attachment_metadata( $post_id );
+		$info = (object) $meta['videopress'];
+
+		// If the video is private, we need a metadata token to view the poster, which we don't have access to from here.
+		$is_public = VIDEOPRESS_PRIVACY::IS_PUBLIC === $info->privacy_setting || ( VIDEOPRESS_PRIVACY::SITE_DEFAULT === $info->privacy_setting && ! ( new Status() )->is_private_site() );
 		?>
 
 		<p class="post-attributes-label-wrapper">
@@ -261,10 +264,7 @@ class VideoPress_Edit_Attachment {
 		</p>
 		<?php printf( '<a href="%1$s">%1$s</a>', esc_url( videopress_build_url( $guid ) ) ); ?>
 
-		<?php
-		// If the video is private, we need a metadata token to view the poster, which we don't have access to from here.
-		if ( ! $info->is_private ) :
-			?>
+		<?php if ( $is_public ) : ?>
 			<p class="post-attributes-label-wrapper">
 				<label class="post-attributes-label"><?php esc_html_e( 'Poster', 'jetpack' ); ?></label>
 			</p>
