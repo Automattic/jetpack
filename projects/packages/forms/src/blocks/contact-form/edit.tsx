@@ -114,7 +114,7 @@ const isInputWithRequiredField = ( fullName?: string ): boolean => {
 		field?.name === 'field-consent' &&
 		// @ts-expect-error: childBlocks are defined in JS without explicit types.
 		// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
-		field?.attributes?.consentType === 'implicit';
+		field?.settings?.attributes?.consentType !== 'explicit';
 	return hasRequired && ! isHidden && ! isImplicitConsent;
 };
 
