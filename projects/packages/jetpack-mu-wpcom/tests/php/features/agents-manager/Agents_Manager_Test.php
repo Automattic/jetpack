@@ -286,7 +286,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts adds script with empty providers and useUnifiedExperience false by default.
 	 */
 	public function test_enqueue_scripts_with_empty_providers() {
-		// Register the help-center script so we can attach inline script to it.
+		// Register the agents-manager script so we can attach inline script to it.
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		// Add a filter to enable unified experience.
@@ -319,7 +319,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		global $wp_scripts;
 		$wp_scripts = null;
 
-		// Register the help-center script so we can attach inline script to it.
+		// Register the agents-manager script so we can attach inline script to it.
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		// Add a filter to provide agent providers.
@@ -363,7 +363,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		global $wp_scripts;
 		$wp_scripts = null;
 
-		// Register the help-center script so we can attach inline script to it.
+		// Register the agents-manager script so we can attach inline script to it.
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		// Add a filter to enable unified experience.
