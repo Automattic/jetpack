@@ -5789,7 +5789,7 @@ function jpcrm_get_total_value_from_contact_or_company( $entity ) {
 
 		// throwaway obj apart from totals
 		// later could optimise, but better to optimise 1 level up and not even use this func
-		if (isset($contactWithVals['quotes_value'])) return $contactWithVals['quotes_value'];
+		if (isset($contactWithVals['quotes_total'])) return $contactWithVals['quotes_total'];
 
 		return 0;
 
@@ -5808,7 +5808,7 @@ function jpcrm_get_total_value_from_contact_or_company( $entity ) {
 
 		// throwaway obj apart from totals
 		// later could optimise, but better to optimise 1 level up and not even use this func
-		if (isset($contactWithVals['invoices_value'])) return $contactWithVals['invoices_value'];
+		if (isset($contactWithVals['invoices_total'])) return $contactWithVals['invoices_total'];
 
 		return 0;		
 	}
@@ -5827,7 +5827,7 @@ function jpcrm_get_total_value_from_contact_or_company( $entity ) {
 
 		// throwaway obj apart from totals
 		// later could optimise, but better to optimise 1 level up and not even use this func
-		if (isset($contactWithVals['transactions_value'])) return $contactWithVals['transactions_value'];
+		if (isset($contactWithVals['transactions_total'])) return $contactWithVals['transactions_total'];
 
 		return 0;		
 	}
