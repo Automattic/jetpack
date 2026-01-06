@@ -13,7 +13,7 @@ MONOREPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
 FORCE_PULL=0
 ARGS=()
 for arg in "$@"; do
-    if [ "$arg" = "--latest-image" ]; then
+    if [[ "$arg" = "--latest-image" ]]; then
         FORCE_PULL=1
     else
         ARGS+=("$arg")
@@ -36,15 +36,15 @@ SHOULD_PULL=0
 if ! docker image inspect jetpack-monorepo:latest >/dev/null 2>&1; then
     SHOULD_PULL=1
 # Force pull if --latest-image flag is passed
-elif [ "$FORCE_PULL" = "1" ]; then
+elif [[ "$FORCE_PULL" = "1" ]]; then
     SHOULD_PULL=1
     echo "Forcing image update due to --latest-image flag..."
 # Pull if cache file doesn't exist or is older than 24 hours (86400 seconds)
-elif [ ! -f "$CACHE_FILE" ]; then
+elif [[ ! -f "$CACHE_FILE" ]]; then
     SHOULD_PULL=1
 else
     # Check if file is older than 24 hours
-    if [ "$(uname)" = "Darwin" ]; then
+    if [[ "$(uname)" = "Darwin" ]]; then
         # macOS date command
         FILE_TIME=$(stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)
     else
@@ -54,14 +54,14 @@ else
     CURRENT_TIME=$(date +%s)
     TIME_DIFF=$((CURRENT_TIME - FILE_TIME))
 
-    if [ "$TIME_DIFF" -gt 86400 ]; then
+    if [[ "$TIME_DIFF" -gt 86400 ]]; then
         SHOULD_PULL=1
     fi
 fi
 
 # Pull or build the image if needed
-if [ "$SHOULD_PULL" = "1" ]; then
-    if [ "${BUILD_LOCAL:-}" = "1" ]; then
+if [[ "$SHOULD_PULL" = "1" ]]; then
+    if [[ "${BUILD_LOCAL:-}" = "1" ]]; then
         echo "Building monorepo image locally..."
         docker build \
             --build-arg PHP_VERSION="$PHP_VERSION" \
