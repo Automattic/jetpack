@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: don't allow ::after pseudo element manipulation on Jetpack Forms radio and checkbox input elements

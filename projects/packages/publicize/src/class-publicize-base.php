@@ -275,7 +275,7 @@ abstract class Publicize_Base {
 	/**
 	 * Whether the site has the feature flag enabled.
 	 *
-	 * @deprecated $$next-version$$ Use Current_Plan::supports() directly instead.
+	 * @deprecated 0.69.1 Use Current_Plan::supports() directly instead.
 	 *
 	 * @todo Remove this method After March 2026.
 	 *
