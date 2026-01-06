@@ -9,7 +9,18 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MONOREPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
 
-echo "Running command in monorepo container: $*"
+# Parse --latest-image flag
+FORCE_PULL=0
+ARGS=()
+for arg in "$@"; do
+    if [ "$arg" = "--latest-image" ]; then
+        FORCE_PULL=1
+    else
+        ARGS+=("$arg")
+    fi
+done
+
+echo "Running command in monorepo container: ${ARGS[*]}"
 
 # Source the versions file
 source "$MONOREPO_ROOT/.github/versions.sh"
@@ -17,8 +28,39 @@ source "$MONOREPO_ROOT/.github/versions.sh"
 # Export variables needed by docker-compose
 export HOST_CWD="$MONOREPO_ROOT"
 
-# Build the image if it doesn't exist
+# Check if we should pull the latest image
+CACHE_FILE="$MONOREPO_ROOT/tools/docker/data/.monorepo-image-check"
+SHOULD_PULL=0
+
+# Always pull if image doesn't exist
 if ! docker image inspect jetpack-monorepo:latest >/dev/null 2>&1; then
+    SHOULD_PULL=1
+# Force pull if --latest-image flag is passed
+elif [ "$FORCE_PULL" = "1" ]; then
+    SHOULD_PULL=1
+    echo "Forcing image update due to --latest-image flag..."
+# Pull if cache file doesn't exist or is older than 24 hours (86400 seconds)
+elif [ ! -f "$CACHE_FILE" ]; then
+    SHOULD_PULL=1
+else
+    # Check if file is older than 24 hours
+    if [ "$(uname)" = "Darwin" ]; then
+        # macOS date command
+        FILE_TIME=$(stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)
+    else
+        # Linux date command
+        FILE_TIME=$(stat -c %Y "$CACHE_FILE" 2>/dev/null || echo 0)
+    fi
+    CURRENT_TIME=$(date +%s)
+    TIME_DIFF=$((CURRENT_TIME - FILE_TIME))
+
+    if [ "$TIME_DIFF" -gt 86400 ]; then
+        SHOULD_PULL=1
+    fi
+fi
+
+# Pull or build the image if needed
+if [ "$SHOULD_PULL" = "1" ]; then
     if [ "${BUILD_LOCAL:-}" = "1" ]; then
         echo "Building monorepo image locally..."
         docker build \
@@ -30,10 +72,14 @@ if ! docker image inspect jetpack-monorepo:latest >/dev/null 2>&1; then
             -f "$MONOREPO_ROOT/tools/docker/Dockerfile.monorepo" \
             "$MONOREPO_ROOT/tools/docker"
     else
-        echo "Pulling monorepo image..."
+        echo "Checking for latest monorepo image..."
         docker pull automattic/jetpack-monorepo:latest
         docker tag automattic/jetpack-monorepo:latest jetpack-monorepo:latest
     fi
+
+    # Update the timestamp file
+    mkdir -p "$(dirname "$CACHE_FILE")"
+    touch "$CACHE_FILE"
 fi
 
 # Run the command in the container
@@ -52,4 +98,4 @@ docker run --rm -it \
     -e PNPM_HOME=/root/.local/share/pnpm \
     -e PNPM_STORE_DIR=/root/.pnpm-store \
     jetpack-monorepo:latest \
-    "$@"
+    "${ARGS[@]}"
