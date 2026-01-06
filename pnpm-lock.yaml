@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-0SdWaa2+cyquJmdgXslNd8UwWdZlgrhnXz6Jjx9Ey24=
+pnpmfileChecksum: sha256-+cl+Y3YxOtCHlaSoNgP86ed3IpjdInfa1rdYDdnVKhA=
 
 patchedDependencies:
   '@wordpress/a11y':
@@ -10559,6 +10559,8 @@ packages:
   '@wordpress/image-cropper@1.1.0':
     resolution: {integrity: sha512-UT5f/8AdWxRo0wiEOpAeOk8UNdHJEXfNYy9MZ1kit7mG0o8WW7T8+0Rroktbz5wej4T38KYI3zDOMXGlBhr43g==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      react: ^18
 
   '@wordpress/interactivity-router@2.37.0':
     resolution: {integrity: sha512-wqMB5NC2KTmVn+ZdO26skeQ0HzYmeim+iDo8QtjxTFEuR6KcVpmFSm+0VctuZZzUIdF33Awdidja6OREYukOlw==}
@@ -24714,9 +24716,9 @@ snapshots:
       '@wordpress/element': 6.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
       clsx: 2.1.1
       dequal: 2.0.3
+      react: 18.3.1
       react-easy-crop: 5.5.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
-      - react
       - react-dom
 
   '@wordpress/interactivity-router@2.37.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)':
