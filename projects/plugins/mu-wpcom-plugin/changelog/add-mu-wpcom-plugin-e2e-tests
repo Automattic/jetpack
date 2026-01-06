@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add basic E2E test infrastructure with plugin activation tests
