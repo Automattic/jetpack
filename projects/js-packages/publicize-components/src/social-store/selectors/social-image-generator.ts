@@ -26,6 +26,7 @@ export const getSocialImageFontOptions = createRegistrySelector( select => {
  */
 export const isFetchingSocialImageFontOptions = createRegistrySelector( select => {
 	return (): boolean => {
+		// @ts-expect-error TS2339 -- isResolving is there but not declared; AFAICT, it's a base method from @wordpress/data and @wordpress/core-data only declares its custom methods.
 		const { isResolving } = select( coreStore );
 
 		return isResolving( 'getEntityRecords', [
