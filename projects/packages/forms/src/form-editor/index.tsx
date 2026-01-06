@@ -200,6 +200,8 @@ const setupFormEditorSubscription = () => {
 			}
 
 			// Quick check: only get block list if count changed
+			// Note: getBlockCount() returns the total count including nested blocks,
+			// but we track root block IDs to detect only root-level changes
 			const { getBlockCount } = select( 'core/block-editor' );
 			const currentBlockCount = getBlockCount();
 			if ( currentBlockCount !== lastBlockCount ) {
@@ -223,16 +225,15 @@ const setupFormEditorSubscription = () => {
 				enforceBlockSelection();
 			}
 
-			// Only lock the form block once
+			// Only try to lock the form block once
+			// lockFormBlock() handles all the logic for checking if locking is needed
 			if ( ! isFormBlockLocked && formBlockClientId ) {
+				lockFormBlock();
+				// Verify the block was actually locked
 				const { getBlock } = select( 'core/block-editor' );
 				const formBlock = getBlock( formBlockClientId );
-				// Only mark as locked if the block exists and was successfully checked
-				if ( formBlock && shouldLockBlock( formBlock ) ) {
-					lockFormBlock();
-					isFormBlockLocked = true;
-				} else if ( formBlock && ! shouldLockBlock( formBlock ) ) {
-					// Block exists and is already locked
+				if ( formBlock && ! shouldLockBlock( formBlock ) ) {
+					// Block is now locked (shouldLockBlock returns false when already locked)
 					isFormBlockLocked = true;
 				}
 			}
