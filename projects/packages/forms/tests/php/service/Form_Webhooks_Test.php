@@ -1365,7 +1365,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 	/**
 	 * Test webhook is blocked for Azure Wire Server endpoint.
-	 * Azure uses 168.63.129.16 for internal services which should be blocked.
+	 * Azure uses 168.63.129.16 for internal services including Instance Metadata Service.
 	 */
 	public function test_send_webhooks_blocks_azure_wire_server() {
 		$form   = $this->create_mock_form(
@@ -1385,16 +1385,28 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		// Track if HTTP request was made and to what URL
-		$request_url = null;
+		// Track if HTTP request was made
+		$http_request_made = false;
 		add_filter(
 			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( &$request_url ) {
-				$request_url = $url;
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
 				return array(
 					'response' => array( 'code' => 200 ),
 					'body'     => '{}',
 					'headers'  => new CaseInsensitiveDictionary( array( 'Content-Type' => 'application/json' ) ),
+				);
+			}
+		);
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
 				);
 			},
 			10,
@@ -1404,16 +1416,11 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// Azure Wire Server IP - note: this may pass validation but should be considered
-		// This test documents the current behavior; wp_safe_remote_request may block it
-		if ( $request_url !== null ) {
-			// If request was made, check if wp_safe_remote_request blocked it
-			$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-			// Either no error (allowed) or error (blocked) - document the behavior
-			$this->assertTrue( true, 'Azure Wire Server IP behavior documented' );
-		} else {
-			$this->assertNull( $request_url, 'Azure Wire Server should be blocked' );
-		}
+		// Azure Wire Server IP should be blocked at validation time
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for Azure Wire Server URLs' );
+		$this->assertNotEmpty( $logged_events, 'Blocked IP should be logged' );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'] );
 	}
 
 	/**
