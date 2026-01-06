@@ -980,6 +980,45 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
 	}
 
+	public function test_personal_data_search_filter_v2_unicode_search() {
+
+		$email_with_emoji = 'test🎉@example.com';
+
+		// Test the conversion function
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->set_pde_email_address( $email_with_emoji );
+
+		$search = '..PDE..AUTHOR EMAIL:..PDE..';
+		$result = $plugin->personal_data_search_filter( $search );
+
+		// Should search for both original AND V2 corrupted version
+		$this->assertStringContainsString( $email_with_emoji, $result, 'Should search for original email' );
+		$this->assertStringContainsString( 'testud83cudf89@example.com', $result, 'Should ALSO search for V2 corrupted version' );
+	}
+
+	public function test_personal_data_search_filter_includes_v2_v3_json_patterns() {
+		// Test that the filter generates the correct SQL pattern for V2/V3 JSON formats
+		$test_email = 'user+test@example.com'; // Email with + sign
+		$plugin     = Contact_Form_Plugin::init();
+		$plugin->set_pde_email_address( $test_email );
+
+		// Call the filter with a mock search string
+		$search = '..PDE..AUTHOR EMAIL:..PDE..';
+		$result = $plugin->personal_data_search_filter( $search );
+
+		// Verify JSON format pattern: \"value\":\"email
+		// The pattern should contain the escaped quotes and the email
+		$this->assertStringContainsString( $test_email, $result, 'Should include email address in pattern' );
+
+		// Verify it contains multiple OR conditions (for legacy + JSON patterns)
+		$or_count = substr_count( $result, ' OR ' );
+		$this->assertGreaterThanOrEqual( 3, $or_count, 'Should have at least 3 OR clauses (legacy LF, legacy CR, JSON escaped, JSON unescaped)' );
+		$this->assertStringContainsString( 'AND (', $result, 'Should start with AND (' );
+		$this->assertStringContainsString( 'post_content LIKE', $result, 'Should include LIKE clause' );
+		$this->assertStringContainsString( '\"value\":\"' . $test_email, $result, 'Should include JSON value pattern with single-escaped quotes' );
+		$this->assertStringContainsString( '\\"value\\":\\"' . $test_email, $result, 'Should include JSON value pattern' );
+	}
+
 	public function test_get_unread_count_zero() {
 		delete_option( 'jetpack_feedback_unread_count' );
 		$this->assertIsInt( Contact_Form_Plugin::get_unread_count() );
