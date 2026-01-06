@@ -3,6 +3,7 @@
  */
 import { DropdownMenu } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { safeHTML } from '@wordpress/dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical, trash } from '@wordpress/icons';
 import type { FeedbackComment } from '../../../types';
@@ -64,7 +65,7 @@ const CommentItem = ( { comment, onDelete, isDeleting }: CommentItemProps ) => {
 			<div
 				className="jp-forms__feedback-comments-comment-content"
 				// eslint-disable-next-line react/no-danger
-				dangerouslySetInnerHTML={ { __html: comment.content.rendered } }
+				dangerouslySetInnerHTML={ { __html: safeHTML( comment.content.rendered ) } }
 			/>
 		</div>
 	);

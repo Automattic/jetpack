@@ -90,7 +90,7 @@ class Dashboard {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-api-fetch', 'wp-data', 'wp-core-data', 'wp-dom-ready' ),
+				'dependencies' => array( 'wp-api-fetch', 'wp-data', 'wp-core-data', 'wp-dom-ready', 'wp-dom' ),
 			)
 		);
 
