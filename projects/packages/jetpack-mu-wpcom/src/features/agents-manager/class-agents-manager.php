@@ -291,7 +291,27 @@ class Agents_Manager {
 			return null;
 		}
 
-		return json_decode( wp_remote_retrieve_body( $request ), true );
+		$response_code = wp_remote_retrieve_response_code( $request );
+		if ( 200 !== $response_code ) {
+			return null;
+		}
+
+		$content_type = wp_remote_retrieve_header( $request, 'content-type' );
+		if ( is_string( $content_type ) && false === strpos( $content_type, 'json' ) ) {
+			return null;
+		}
+
+		$body = wp_remote_retrieve_body( $request );
+		if ( '' === $body ) {
+			return null;
+		}
+
+		$decoded = json_decode( $body, true );
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			return null;
+		}
+
+		return $decoded;
 	}
 
 	/**
