@@ -192,6 +192,17 @@ export default function ConsentFieldEdit( props ) {
 	return (
 		<>
 			<div { ...innerBlocksProps } />
+			<BlockControls __experimentalShareWithChildBlocks>
+				<ToolbarRequiredGroup
+					required={ required }
+					onClick={ () => setAttributes( { required: ! required } ) }
+					disabled={ consentType !== 'explicit' }
+					disabledTooltip={ __(
+						'Implicit consent cannot be required. Please add a privacy checkbox from the block settings to make it required.',
+						'jetpack-forms'
+					) }
+				/>
+			</BlockControls>
 			<InspectorControls>
 				<PanelBody
 					title={ __( 'Field settings', 'jetpack-forms' ) }
