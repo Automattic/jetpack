@@ -1,0 +1,92 @@
+/**
+ * External dependencies
+ */
+import { Notice } from '@wordpress/components';
+import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import type { NewsletterSettings } from '../types';
+
+interface EmailContentSectionProps {
+	data: NewsletterSettings;
+	onChange: ( updates: Partial< NewsletterSettings > ) => void;
+	isSitePublic: boolean;
+	isNewsletterEnabled: boolean;
+}
+
+/**
+ * Email Content Section Component
+ *
+ * Handles featured image and full text/excerpt settings for newsletter emails.
+ *
+ * @param {EmailContentSectionProps} props - Component props
+ * @return {JSX.Element} The email content section
+ */
+export function EmailContentSection( {
+	data,
+	onChange,
+	isSitePublic,
+	isNewsletterEnabled,
+}: EmailContentSectionProps ): JSX.Element {
+	const fields: Field< NewsletterSettings >[] = [
+		{
+			id: 'wpcom_featured_image_in_email',
+			label: __( "Include the post's featured image in the new post emails", 'jetpack-newsletter' ),
+			type: 'boolean' as const,
+			Edit: 'toggle' as const,
+		},
+		{
+			id: 'wpcom_subscription_emails_use_excerpt',
+			label: __( 'For each new post email, include', 'jetpack-newsletter' ),
+			type: 'integer' as const,
+			Edit: 'radio' as const,
+			elements: [
+				{
+					value: 0,
+					label: __( 'Full text', 'jetpack-newsletter' ),
+				},
+				{
+					value: 1,
+					label: __( 'Excerpt', 'jetpack-newsletter' ),
+				},
+			],
+			description: __(
+				'Sets whether email subscribers can read full posts in emails or just an excerpt and link to the full version of the post.',
+				'jetpack-newsletter'
+			),
+		},
+	];
+
+	return (
+		<div className="newsletter-settings__section">
+			<h3 className="newsletter-settings__section-title">
+				{ __( 'Email content', 'jetpack-newsletter' ) }
+			</h3>
+			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
+				{ ! isSitePublic && (
+					<Notice status="warning" isDismissible={ false }>
+						{ __(
+							'Featured images will not be used in your emails while the site is private, because access to the images is restricted to your site only.',
+							'jetpack-newsletter'
+						) }
+					</Notice>
+				) }
+
+				<DataForm
+					data={ data }
+					fields={ fields }
+					form={ {
+						layout: {
+							type: 'regular',
+							labelPosition: 'top',
+						},
+						fields: [ 'wpcom_featured_image_in_email', 'wpcom_subscription_emails_use_excerpt' ],
+					} }
+					onChange={ onChange }
+				/>
+			</fieldset>
+		</div>
+	);
+}
