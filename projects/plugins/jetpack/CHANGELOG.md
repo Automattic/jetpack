@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.4-beta - 2026-01-06
+## 15.4 - 2026-01-06
 ### Enhancements
 - Forms: add list view sidebar for easier field management. [#46403]
 - Forms: support Math and Code blocks inside forms. [#46421]
