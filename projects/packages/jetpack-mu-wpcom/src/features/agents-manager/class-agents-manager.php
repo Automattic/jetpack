@@ -8,7 +8,6 @@
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Plugins_Installer;
 
 /**
  * Class Agents_Manager
@@ -519,7 +518,11 @@ class Agents_Manager {
 	 * @return bool True if the user should use the Big Sky UI.
 	 */
 	private function should_use_big_sky_ui() {
-		if ( ! Plugins_Installer::is_plugin_active( 'big-sky-plugin/big-sky.php' ) ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		if ( ! is_plugin_active( 'big-sky-plugin/big-sky.php' ) ) {
 			return false;
 		}
 
