@@ -2781,8 +2781,8 @@ importers:
         specifier: 11.0.0
         version: 11.0.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(@types/react@18.3.26)(react@18.3.1)
       '@wordpress/dom':
-        specifier: 4.36.0
-        version: 4.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
+        specifier: 4.37.0
+        version: 4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
       '@wordpress/dom-ready':
         specifier: 4.37.0
         version: 4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
@@ -10449,6 +10449,13 @@ packages:
     resolution: {integrity: sha512-igored8VegL2n/koKIyUhgPLhUfTa4N6zWO4gZpyeznr49M5wP/9Ak/tvIljUts9McHc2CVnCYMjZV0Zyz2aWg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
+  '@wordpress/dom@4.37.0':
+    resolution: {integrity: sha512-OY78iz+3bkkjOygE7pZ8Z4gSIfm+d72W6WOx5/LCuaiCKfZN2RvKzbS9r9ML5/gGgeWmhTIbwSMx6YSBIBXsXw==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
+  '@wordpress/e2e-test-utils-playwright@1.37.0':
+    resolution: {integrity: sha512-H77He9+sPNchzbEeFk2YSuYW5JNk3oHnlXJ1EVPUHpIZTr6gM80AGBuxP/W4WtWdLn0A5/TxCmTAxsN1M8YVvQ==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       '@playwright/test': '>=1'
 
