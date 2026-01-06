@@ -1,4 +1,4 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
+import { test, expect } from '@wordpress/e2e-test-utils-playwright';
 
 test.describe( 'mu-wpcom-plugin', () => {
 	test( 'Plugin is active and admin is accessible', async ( { page, admin } ) => {

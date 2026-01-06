@@ -5402,6 +5402,9 @@ importers:
       '@types/node':
         specifier: ^20.4.2
         version: 20.19.25
+      '@wordpress/e2e-test-utils-playwright':
+        specifier: ^1.37.0
+        version: 1.37.0(@playwright/test@1.55.1)
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -10582,6 +10585,12 @@ packages:
 
   '@wordpress/e2e-test-utils-playwright@1.36.0':
     resolution: {integrity: sha512-K0DVhz96wD0qXRXZwqF/HpeYi4A+1e2yv+cvfqbSYs6+Q8t9z7XyVpgRDqj08ZrTpOOsFL5g/SFEtyY9iMnNsw==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      '@playwright/test': '>=1'
+
+  '@wordpress/e2e-test-utils-playwright@1.37.0':
+    resolution: {integrity: sha512-H77He9+sPNchzbEeFk2YSuYW5JNk3oHnlXJ1EVPUHpIZTr6gM80AGBuxP/W4WtWdLn0A5/TxCmTAxsN1M8YVvQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       '@playwright/test': '>=1'
@@ -24629,6 +24638,22 @@ snapshots:
       '@wordpress/deprecated': 4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
 
   '@wordpress/e2e-test-utils-playwright@1.36.0(@playwright/test@1.55.1)':
+    dependencies:
+      '@playwright/test': 1.55.1
+      change-case: 4.1.2
+      get-port: 5.1.1
+      lighthouse: 12.8.2
+      mime: 3.0.0
+      web-vitals: 4.2.4
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bufferutil
+      - react-native-b4a
+      - supports-color
+      - utf-8-validate
+
+  '@wordpress/e2e-test-utils-playwright@1.37.0(@playwright/test@1.55.1)':
     dependencies:
       '@playwright/test': 1.55.1
       change-case: 4.1.2
