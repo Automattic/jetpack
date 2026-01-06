@@ -176,6 +176,9 @@ class Form_Webhooks {
 	 * @return bool True if the IP should be blocked.
 	 */
 	private function is_blocked_ip( $ip ) {
+		// Strip IPv6 zone identifier if present (e.g., fe80::1%eth0 -> fe80::1)
+		$ip = preg_replace( '/%.*$/', '', $ip );
+
 		// Check IPv4 link-local addresses (169.254.0.0/16)
 		// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
@@ -197,6 +200,22 @@ class Form_Webhooks {
 			// Check for IPv6 loopback (::1)
 			if ( $ip === '::1' ) {
 				return true;
+			}
+
+			// Check for IPv4-mapped IPv6 addresses (::ffff:x.x.x.x)
+			// These are 16 bytes where first 10 are zeros, next 2 are 0xff, last 4 are IPv4
+			// phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found -- string concat for readability
+			if ( strlen( $ip_binary ) === 16 &&
+				substr( $ip_binary, 0, 10 ) === "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" &&
+				substr( $ip_binary, 10, 2 ) === "\xff\xff" ) {
+				// Extract the embedded IPv4 address and check it
+				$ipv4_bytes = substr( $ip_binary, 12, 4 );
+				$ipv4       = inet_ntop( "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" . $ipv4_bytes );
+				// Convert to proper IPv4 format
+				$ipv4 = long2ip( ip2long( substr( $ip, strrpos( $ip, ':' ) + 1 ) ) );
+				if ( $ipv4 && $this->is_blocked_ip( $ipv4 ) ) {
+					return true;
+				}
 			}
 
 			$first_byte  = ord( $ip_binary[0] );
@@ -251,6 +270,18 @@ class Form_Webhooks {
 		$host = $parsed['host'];
 		// Strip brackets from IPv6 addresses if present (e.g., [::1] -> ::1)
 		$host = trim( $host, '[]' );
+
+		// URL-decode the host to prevent bypass attempts using encoded characters
+		// e.g., 169%2e254%2e169%2e254 -> 169.254.169.254
+		// e.g., fe80::1%25eth0 -> fe80::1%eth0 (zone identifier becomes visible)
+		$host = rawurldecode( $host );
+
+		// Strip IPv6 zone identifier if present (e.g., fe80::1%eth0 -> fe80::1)
+		// Zone identifiers are used for link-local addresses and should be blocked
+		// Must happen AFTER URL decoding since %25 decodes to %
+		if ( strpos( $host, '%' ) !== false ) {
+			$host = preg_replace( '/%.*$/', '', $host );
+		}
 
 		// If host is already an IP, check it directly
 		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
