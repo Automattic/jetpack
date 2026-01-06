@@ -1,5 +1,5 @@
 /**
- * Builds the forms dashboard JS bundle.
+ * Builds the forms editor JS bundle.
  */
 
 import path from 'path';
