@@ -8,9 +8,8 @@
  */
 
 import { subscribe, select, dispatch } from '@wordpress/data';
-import { unregisterPlugin, registerPlugin } from '@wordpress/plugins';
+import { unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
-import { useFormRenameCommand } from './use-form-rename-command.tsx';
 import {
 	findFormBlock,
 	getInsertionIndex,
@@ -23,21 +22,6 @@ import {
 } from './utils/category-utils';
 
 import './style.scss';
-
-/**
- * Form Rename Command Component
- * Renders the rename modal and registers the command
- *
- * @return {JSX.Element|null} The rename modal component or null
- */
-function FormRenameCommand() {
-	return useFormRenameCommand();
-}
-
-// Register the rename command plugin
-registerPlugin( 'jetpack-form-rename-command', {
-	render: FormRenameCommand,
-} );
 
 /**
  * Move the Jetpack contact form block category to the front in the editor.
@@ -101,7 +85,6 @@ const lockFormBlock = () => {
 	}
 
 	if ( shouldLockBlock( formBlock ) ) {
-		// Lock the block to prevent removal and moving
 		updateBlockAttributes( formBlockClientId, {
 			lock: {
 				remove: true,
@@ -199,9 +182,6 @@ const setupFormEditorSubscription = () => {
 		const { getCurrentPostType } = select( 'core/editor' );
 		const isCurrentPostTypeJetpackForm = getCurrentPostType() === FORM_POST_TYPE;
 		if ( isCurrentPostTypeJetpackForm ) {
-			if ( ! formBlockClientId ) {
-				locateFormBlock(); // Locate the form block if we haven't
-			}
 			// Check if root blocks changed by comparing their IDs
 			// This detects when blocks are added, removed, or reordered at the root level
 			const { getBlocks } = select( 'core/block-editor' );
@@ -233,6 +213,10 @@ const setupFormEditorSubscription = () => {
 				if ( formBlock && lock?.remove && lock?.move ) {
 					isFormBlockLocked = true;
 				}
+			}
+
+			if ( ! formBlockClientId ) {
+				locateFormBlock();
 			}
 
 			if ( ! categoriesFiltered ) {
