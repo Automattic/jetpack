@@ -2889,7 +2889,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 7.2.0
 		 *
 		 * @param string $powered_by_html The HTML for the powered by section in the email.
 		 */

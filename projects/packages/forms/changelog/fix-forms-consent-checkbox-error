@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed React console error on checkbox/radio option inputs by providing an onChange handler
