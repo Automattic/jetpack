@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Skip if this is an initial checkout (no previous ref) or if previous ref is null
+if [[ -z "$1" || "$1" = "0000000000000000000000000000000000000000" ]]; then
+	exit 0
+fi
+
 changedFiles="$(git -c core.quotepath=off diff-tree -r --name-only --no-commit-id "$1" HEAD)"
 SEP=$'---\n'
 
