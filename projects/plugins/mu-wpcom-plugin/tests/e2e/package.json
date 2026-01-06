@@ -1,0 +1,38 @@
+{
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"allure-report": "allure generate --clean --output ./output/allure-report ./output/allure-results && allure open ./output/allure-report",
+		"build": "pnpm jetpack build plugins/mu-wpcom-plugin -v --no-pnpm-install --production",
+		"clean": "rm -rf output",
+		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -d -pass env:CONFIG_KEY -in ./node_modules/_jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
+		"distclean": "rm -rf node_modules",
+		"env:down": "e2e-env stop",
+		"env:reset": "e2e-env reset --activate-plugins jetpack-mu-wpcom-plugin",
+		"env:up": "e2e-env start --activate-plugins jetpack-mu-wpcom-plugin",
+		"pretest:run": "pnpm run clean",
+		"test:run": "playwright install chromium && NODE_CONFIG_DIR='./config' ALLURE_RESULTS_DIR=./output/allure-results NODE_PATH=\"$PWD/node_modules\" playwright test",
+		"tunnel:down": "tunnel down",
+		"tunnel:reset": "tunnel reset",
+		"tunnel:up": "tunnel up",
+		"typecheck": "tsc --noEmit"
+	},
+	"browserslist": [],
+	"devDependencies": {
+		"@playwright/test": "1.55.1",
+		"@types/node": "^20.4.2",
+		"_jetpack-e2e-commons": "workspace:*",
+		"allure-playwright": "2.15.1",
+		"config": "4.1.1",
+		"playwright-ctrf-json-reporter": "^0.0.26",
+		"typescript": "5.9.3"
+	},
+	"ci": {
+		"targets": [
+			"plugins/mu-wpcom-plugin",
+			"tools/e2e-commons"
+		],
+		"pluginSlug": "jetpack-mu-wpcom-plugin",
+		"mirrorName": "jetpack-mu-wpcom-plugin"
+	}
+}
