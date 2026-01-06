@@ -88,9 +88,9 @@ export function useFormRenameCommand() {
 	}, [ newTitle, formTitle, formPostId, currentPostType, editPost, editEntityRecord, closeModal ] );
 
 	const handleKeyDown = useCallback(
-		e => {
-			if ( e.key === 'Enter' ) {
-				e.preventDefault();
+		( event: React.KeyboardEvent ) => {
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
 				handleRename();
 			}
 		},
@@ -140,6 +140,7 @@ export function useFormRenameCommand() {
 				onChange={ setNewTitle }
 				placeholder={ __( 'Enter form name', 'jetpack-forms' ) }
 				onKeyDown={ handleKeyDown }
+				// eslint-disable-next-line jsx-a11y/no-autofocus
 				autoFocus
 			/>
 			<div className="jetpack-forms-rename-modal__actions">
