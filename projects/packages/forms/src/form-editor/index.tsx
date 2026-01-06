@@ -199,12 +199,12 @@ const setupFormEditorSubscription = () => {
 				locateFormBlock(); // Locate the form block if we haven't
 			}
 
-			const { getBlocks, getSelectedBlockClientId, getBlockCount } = select( 'core/block-editor' );
-
 			// Quick check: only get block list if count changed
+			const { getBlockCount } = select( 'core/block-editor' );
 			const currentBlockCount = getBlockCount();
 			if ( currentBlockCount !== lastBlockCount ) {
 				lastBlockCount = currentBlockCount;
+				const { getBlocks } = select( 'core/block-editor' );
 				const rootBlocks = getBlocks();
 				const currentRootBlockIds = rootBlocks.map( b => b.clientId ).join( ',' );
 				
@@ -216,16 +216,25 @@ const setupFormEditorSubscription = () => {
 			}
 
 			// Only check selection when it changes
+			const { getSelectedBlockClientId } = select( 'core/block-editor' );
 			const currentSelectedBlockId = getSelectedBlockClientId();
 			if ( currentSelectedBlockId !== lastSelectedBlockId ) {
 				lastSelectedBlockId = currentSelectedBlockId;
 				enforceBlockSelection();
 			}
 
-			// Only lock the form block once - lockFormBlock handles its own guards
+			// Only lock the form block once
 			if ( ! isFormBlockLocked && formBlockClientId ) {
-				lockFormBlock();
-				isFormBlockLocked = true;
+				const { getBlock } = select( 'core/block-editor' );
+				const formBlock = getBlock( formBlockClientId );
+				// Only mark as locked if the block exists and was successfully checked
+				if ( formBlock && shouldLockBlock( formBlock ) ) {
+					lockFormBlock();
+					isFormBlockLocked = true;
+				} else if ( formBlock && ! shouldLockBlock( formBlock ) ) {
+					// Block exists and is already locked
+					isFormBlockLocked = true;
+				}
 			}
 
 			if ( ! categoriesFiltered ) {
