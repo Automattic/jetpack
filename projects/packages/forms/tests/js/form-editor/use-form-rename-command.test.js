@@ -24,7 +24,7 @@ await jest.unstable_mockModule( '@wordpress/commands', () => ( {
 const blockEditorModule = await import( '@wordpress/block-editor' );
 const coreModule = await import( '@wordpress/core-data' );
 const editorModule = await import( '@wordpress/editor' );
-const hookModule = await import( '../../../src/form-editor/use-form-rename-command' );
+const hookModule = await import( '../../../src/form-editor/use-form-rename-command.tsx' );
 const constantsModule = await import( '../../../src/blocks/shared/util/constants.js' );
 
 const blockEditorStore = blockEditorModule.store;
