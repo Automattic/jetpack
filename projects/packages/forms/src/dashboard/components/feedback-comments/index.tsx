@@ -197,7 +197,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 				return next;
 			} );
 			try {
-				await deleteEntityRecord( 'root', 'comment', commentId );
+				await deleteEntityRecord( 'root', 'comment', commentId, {}, { throwOnError: true } );
 				createSuccessNotice( __( 'Note deleted.', 'jetpack-forms' ) );
 				// Remove deleted comment from local lists so UI updates immediately.
 				setLoadedComments( prev => prev.filter( c => c.id !== commentId ) );
