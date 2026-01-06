@@ -6,7 +6,7 @@ import { dirname, resolve } from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import prompts from 'prompts';
 import updateNotifier from 'update-notifier';
 
@@ -82,6 +82,122 @@ const cloneMonorepo = async targetDir => {
 };
 
 /**
+ * Initialize git hooks that work with Docker.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @throws {Error} If hook installation fails
+ */
+const initHooks = monorepoRoot => {
+	const hooksDir = resolve( monorepoRoot, '.git/hooks' );
+
+	if ( ! fs.existsSync( hooksDir ) ) {
+		throw new Error( 'Git hooks directory not found. Is this a git repository?' );
+	}
+
+	console.log( chalk.blue( 'Setting up jp git hooks...' ) );
+
+	// Check if git is configured to use a custom hooks path (e.g., husky)
+	const hooksPathResult = spawnSync( 'git', [ 'config', 'core.hooksPath' ], {
+		cwd: monorepoRoot,
+		encoding: 'utf8',
+	} );
+
+	if ( hooksPathResult.stdout && hooksPathResult.stdout.trim() ) {
+		const currentHooksPath = hooksPathResult.stdout.trim();
+		console.log(
+			chalk.yellow(
+				`  Detected custom git hooks path: ${ currentHooksPath }`
+			)
+		);
+		console.log( chalk.yellow( '  Resetting to use .git/hooks/ for jp hooks' ) );
+
+		const unsetResult = spawnSync( 'git', [ 'config', '--unset', 'core.hooksPath' ], {
+			cwd: monorepoRoot,
+		} );
+
+		if ( unsetResult.status !== 0 ) {
+			throw new Error( 'Failed to unset core.hooksPath git configuration' );
+		}
+	}
+
+	const hooks = {
+		'pre-commit': 'node tools/js-tools/git-hooks/pre-commit-hook.mjs',
+		'pre-push': 'node tools/js-tools/git-hooks/pre-push-hook.mjs',
+		'post-checkout': './tools/js-tools/git-hooks/post-merge-checkout-hook.sh "$@"',
+		'post-merge': './tools/js-tools/git-hooks/post-merge-checkout-hook.sh ORIG_HEAD',
+	};
+
+	for ( const [ hookName, command ] of Object.entries( hooks ) ) {
+		const hookPath = resolve( hooksDir, hookName );
+		const hookContent = `#!/bin/sh
+# Jetpack CLI git hook
+# This hook runs in Docker to ensure consistent environment
+
+# Check if we're already in the Docker container
+if [ -n "$JETPACK_MONOREPO_ENV" ]; then
+	echo "✓ Using jp hooks (running in Docker)"
+	${ command }
+	exit $?
+fi
+
+# Not in Docker - delegate to jp to run in Docker
+echo "✓ Using jp hooks (delegating to Docker)"
+jp git-hook ${ hookName } "$@"
+exit $?
+`;
+
+		fs.writeFileSync( hookPath, hookContent, { mode: 0o755 } );
+		console.log( chalk.green( `  Created ${ hookName } hook` ) );
+	}
+
+	console.log(
+		chalk.green( '\n✓ Git hooks installed! Hooks will run automatically in Docker.\n' )
+	);
+};
+
+/**
+ * Run a git hook inside the Docker container.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @param {string} hookName     - Name of the hook to run
+ * @param {Array}  hookArgs     - Arguments to pass to the hook
+ * @throws {Error} If hook execution fails
+ */
+const runGitHook = ( monorepoRoot, hookName, hookArgs ) => {
+	console.log( chalk.blue( `Running ${ hookName } hook in Docker...` ) );
+
+	const hookCommands = {
+		'pre-commit': 'node tools/js-tools/git-hooks/pre-commit-hook.mjs',
+		'pre-push': 'node tools/js-tools/git-hooks/pre-push-hook.mjs',
+		'post-checkout': `./tools/js-tools/git-hooks/post-merge-checkout-hook.sh ${ hookArgs.join(
+			' '
+		) }`,
+		'post-merge': './tools/js-tools/git-hooks/post-merge-checkout-hook.sh ORIG_HEAD',
+	};
+
+	const command = hookCommands[ hookName ];
+	if ( ! command ) {
+		throw new Error( `Unknown git hook: ${ hookName }` );
+	}
+
+	// Run the hook command through the monorepo script
+	const result = spawnSync(
+		resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
+		[ 'sh', '-c', command ],
+		{
+			stdio: 'inherit',
+			shell: true,
+			cwd: monorepoRoot,
+			env: { ...process.env, CI: 'true' },
+		}
+	);
+
+	if ( result.status !== 0 ) {
+		throw new Error( `Git hook ${ hookName } failed with status ${ result.status }` );
+	}
+};
+
+/**
  * Initialize a new Jetpack development environment.
  *
  * @throws {Error} If initialization fails
@@ -108,6 +224,9 @@ const initJetpack = async () => {
 		await cloneMonorepo( targetDir );
 
 		console.log( chalk.green( '\nJetpack monorepo has been cloned successfully!' ) );
+
+		// Initialize git hooks
+		initHooks( targetDir );
 
 		console.log( '\nNext steps:' );
 
@@ -152,6 +271,27 @@ const main = async () => {
 
 			console.log( '2. Navigate to an existing Jetpack monorepo directory' );
 			throw new Error( 'Monorepo not found' );
+		}
+
+		// Handle 'init-hooks' command
+		if ( args[ 0 ] === 'init-hooks' ) {
+			initHooks( monorepoRoot );
+			return;
+		}
+
+		// Handle 'git-hook' command
+		if ( args[ 0 ] === 'git-hook' ) {
+			const hookName = args[ 1 ];
+			const hookArgs = args.slice( 2 );
+
+			if ( ! hookName ) {
+				console.error( chalk.red( 'Error: git-hook command requires a hook name' ) );
+				console.log( 'Usage: jp git-hook <hook-name> [args...]' );
+				throw new Error( 'Missing hook name' );
+			}
+
+			runGitHook( monorepoRoot, hookName, hookArgs );
+			return;
 		}
 
 		// Handle docker commands that must run on the host machine

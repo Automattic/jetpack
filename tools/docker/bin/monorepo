@@ -37,13 +37,22 @@ if ! docker image inspect jetpack-monorepo:latest >/dev/null 2>&1; then
 fi
 
 # Run the command in the container
-docker run --rm -it \
+# Use -it only if we have a TTY available
+  if [ -t 0 ]; then
+      TTY_FLAG="-it"
+  else
+      TTY_FLAG=""
+  fi
+
+  docker run --rm $TTY_FLAG \
     -v "$MONOREPO_ROOT:/workspace" \
     -v "$MONOREPO_ROOT/tools/docker/data/monorepo:/root" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -w /workspace \
     -e TERM=$TERM \
     -e COLORTERM=$COLORTERM \
+    -e JETPACK_MONOREPO_ENV=1 \
+    -e CI="${CI:-}" \
     -e DOCKER_ROOT="$MONOREPO_ROOT/tools/docker" \
     -e HOST_CWD="$MONOREPO_ROOT" \
     -e WORKSPACE_PATH="$MONOREPO_ROOT" \
