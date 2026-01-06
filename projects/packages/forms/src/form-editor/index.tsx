@@ -198,12 +198,12 @@ const setupFormEditorSubscription = () => {
 				locateFormBlock(); // Locate the form block if we haven't
 			}
 
-			// Check if root blocks changed by comparing their structure
+			// Check if root blocks changed by comparing their IDs
+			// This detects when blocks are added, removed, or reordered at the root level
 			const { getBlocks } = select( 'core/block-editor' );
 			const rootBlocks = getBlocks();
 			const currentRootBlockIds = JSON.stringify( rootBlocks.map( b => b.clientId ) );
 			
-			// Only enforce nesting if root block structure changed
 			if ( currentRootBlockIds !== lastRootBlockIds ) {
 				lastRootBlockIds = currentRootBlockIds;
 				enforceBlockNesting();
