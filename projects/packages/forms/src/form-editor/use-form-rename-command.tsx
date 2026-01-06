@@ -77,11 +77,11 @@ export function useFormRenameCommand() {
 		if ( trimmedNewTitle && trimmedNewTitle !== trimmedFormTitle && formPostId ) {
 			// If editing jetpack_form post directly
 			if ( currentPostType === FORM_POST_TYPE ) {
-				editPost( { title: newTitle } );
+				editPost( { title: trimmedNewTitle } );
 			}
 			// If editing a synced form (has ref attribute)
 			else {
-				editEntityRecord( 'postType', FORM_POST_TYPE, formPostId, { title: newTitle } );
+				editEntityRecord( 'postType', FORM_POST_TYPE, formPostId, { title: trimmedNewTitle } );
 			}
 		}
 		closeModal();
