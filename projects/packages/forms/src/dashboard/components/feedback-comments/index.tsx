@@ -7,10 +7,10 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import CommentItem from './comment-item';
 /**
  * Internal dependencies
  */
+import CommentItem from './comment-item';
 import type { FeedbackComment } from '../../../types';
 import './style.scss';
 
@@ -82,7 +82,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		// If the API returned an error object (not an array), surface it.
 		if ( ! Array.isArray( commentsPage ) ) {
 			const message =
-				( commentsPage as unknown as { message?: string } ).message ||
+				( commentsPage as { message?: string } ).message ||
 				__( 'Failed to load comments. Please try again.', 'jetpack-forms' );
 			setError( message );
 			return;

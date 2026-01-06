@@ -1256,7 +1256,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$user_id = wp_insert_user(
 			array(
-				'user_login' => 'testuser',
+				'user_login' => 'testuser3',
 				'user_pass'  => 'password',
 				'role'       => 'editor',
 			)
@@ -1282,7 +1282,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$user_id = wp_insert_user(
 			array(
-				'user_login' => 'testuser',
+				'user_login' => 'testuser2',
 				'user_pass'  => 'password',
 				'role'       => 'editor',
 			)
@@ -1298,9 +1298,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that logged-in subscribers can not comment even when comment_status is 'closed' (read posts)
+	 * Test that logged-in subscribers cannot comment even when comment_status is 'closed' (read posts)
 	 */
-	public function test_logged_in_subscriber_can_not_comment_on_read_feedback() {
+	public function test_logged_in_subscriber_cannot_comment_on_read_feedback() {
 		$feedback_id = wp_insert_post(
 			array(
 				'post_type'      => 'feedback',
@@ -1310,7 +1310,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$user_id = wp_insert_user(
 			array(
-				'user_login' => 'testuser',
+				'user_login' => 'testuser1',
 				'user_pass'  => 'password',
 				'role'       => 'subscriber',
 			)
@@ -1322,7 +1322,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		// Pass false to simulate that comment_status is 'closed'
 		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( false, $feedback_id );
 
-		$this->assertFalse( $comments_open, 'Comments should be open for logged-in users even when feedback is marked as read (comment_status=closed)' );
+		$this->assertFalse( $comments_open, 'Comments should be closed for logged-in subscribers when feedback is marked as read (comment_status=closed)' );
 	}
 
 	/**

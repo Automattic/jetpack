@@ -3524,8 +3524,8 @@ class Contact_Form_Plugin {
 			return $open;
 		}
 
-		// For feedback posts, comments are always open for user that can read pages.
-		// regardless of comment_status (which we use for read/unread tracking)
+		// For feedback posts, comments are always open for users that can read pages.
+		// regardless of comment_status (which we use for read/unread tracking).
 		return current_user_can( 'edit_pages' );
 	}
 
