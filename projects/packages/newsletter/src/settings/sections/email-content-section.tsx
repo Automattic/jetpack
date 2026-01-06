@@ -40,15 +40,15 @@ export function EmailContentSection( {
 		{
 			id: 'wpcom_subscription_emails_use_excerpt',
 			label: __( 'For each new post email, include', 'jetpack-newsletter' ),
-			type: 'integer' as const,
+			type: 'text' as const,
 			Edit: 'radio' as const,
 			elements: [
 				{
-					value: 0,
+					value: '0',
 					label: __( 'Full text', 'jetpack-newsletter' ),
 				},
 				{
-					value: 1,
+					value: '1',
 					label: __( 'Excerpt', 'jetpack-newsletter' ),
 				},
 			],

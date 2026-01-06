@@ -85,6 +85,10 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					wpcom_newsletter_categories: (
 						( settings.wpcom_newsletter_categories as number[] ) || []
 					).map( String ),
+					// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1')
+					wpcom_subscription_emails_use_excerpt: String(
+						Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
+					),
 				};
 				setData( normalizedSettings );
 				setIsLoading( false );
