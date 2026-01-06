@@ -85,17 +85,21 @@ class Form_Editor {
 			'jetpack/form-progress-indicator',
 
 			// Core blocks for rich content.
-			'core/paragraph',
+			'core/audio',
+			'core/columns',
+			'core/group',
 			'core/heading',
+			'core/html',
+			'core/image',
 			'core/list',
 			'core/list-item',
+			'core/paragraph',
+			'core/row',
 			'core/separator',
 			'core/spacer',
-			'core/columns',
-			'core/column',
-			'core/group',
-			'core/image',
-			'core/html',
+			'core/stack',
+			'core/subhead',
+			'core/video',
 		);
 	}
 
