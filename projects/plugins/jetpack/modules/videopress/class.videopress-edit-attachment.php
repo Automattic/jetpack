@@ -252,6 +252,8 @@ class VideoPress_Edit_Attachment {
 
 		// If the video is private, we need a metadata token to view the poster, which we don't have access to from here.
 		$is_public = VIDEOPRESS_PRIVACY::IS_PUBLIC === $info->privacy_setting || ( VIDEOPRESS_PRIVACY::SITE_DEFAULT === $info->privacy_setting && ! ( new Status() )->is_private_site() );
+		/* Translators: %s is the video title */
+		$alt_text = sprintf( __( 'Poster image for video: %s', 'jetpack' ), get_the_title( $post_id ) );
 		?>
 
 		<p class="post-attributes-label-wrapper">
@@ -269,9 +271,9 @@ class VideoPress_Edit_Attachment {
 				<label class="post-attributes-label"><?php esc_html_e( 'Poster', 'jetpack' ); ?></label>
 			</p>
 			<?php if ( ! empty( $info->poster ) ) : ?>
-				<img src="<?php echo esc_url( $info->poster ); ?>" width="100%" alt="" />
+				<img src="<?php echo esc_url( $info->poster ); ?>" width="100%" alt="<?php echo esc_attr( $alt_text ); ?>" />
 			<?php else : ?>
-				<em><?php esc_html_e( 'Processing&hellip;', 'jetpack' ); ?></em>
+				<em><?php esc_html_e( 'Processing…', 'jetpack' ); ?></em>
 				<?php
 			endif;
 		endif;
