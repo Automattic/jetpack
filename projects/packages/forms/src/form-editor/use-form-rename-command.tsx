@@ -33,8 +33,8 @@ export function useFormRenameCommand() {
 		const currentType = getCurrentPostType();
 
 		// Get form post ID and title
-		let postId = null;
-		let title = '';
+		let postId: number | null = null;
+		let title: string = '';
 
 		if ( isContactFormBlock ) {
 			// If editing a jetpack_form post directly
@@ -46,7 +46,7 @@ export function useFormRenameCommand() {
 			else if ( selectedBlock?.attributes?.ref ) {
 				postId = selectedBlock.attributes.ref;
 				const formPost = getEditedEntityRecord( 'postType', FORM_POST_TYPE, postId );
-				title = formPost?.title || '';
+				title = formPost?.title?.raw || '';
 			}
 		}
 
@@ -88,7 +88,7 @@ export function useFormRenameCommand() {
 	}, [ newTitle, formTitle, formPostId, currentPostType, editPost, editEntityRecord, closeModal ] );
 
 	const handleKeyDown = useCallback(
-		( event: React.KeyboardEvent ) => {
+		( event: React.KeyboardEvent< HTMLInputElement > ) => {
 			if ( event.key === 'Enter' ) {
 				event.preventDefault();
 				handleRename();

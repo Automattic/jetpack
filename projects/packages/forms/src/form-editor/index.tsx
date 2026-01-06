@@ -83,7 +83,7 @@ const locateFormBlock = () => {
 };
 
 /**
- * Lock the contact-form block to moving and removing the block.
+ * Lock the contact-form block to prevent moving and removing the block.
  */
 const lockFormBlock = () => {
 	if ( ! formBlockClientId ) {
@@ -238,7 +238,11 @@ const setupFormEditorSubscription = () => {
 			if ( ! categoriesFiltered ) {
 				categoriesFiltered = true;
 				moveFormsCategoryToFront();
-				unregisterPlugin( 'block-directory' );
+				try {
+					unregisterPlugin( 'block-directory' );
+				} catch {
+					// Plugin may not be registered, ignore.
+				}
 			}
 		} else if ( categoriesFiltered ) {
 			categoriesFiltered = false;
