@@ -38,7 +38,7 @@ fi
 
 # Run the command in the container
 # Use -it only if we have a TTY available
-  if [ -t 0 ]; then
+  if [[ -t 0 ]]; then
       TTY_FLAG="-it"
   else
       TTY_FLAG=""
