@@ -22,7 +22,7 @@ class Form_Editor {
 	 *
 	 * @var string
 	 */
-	const SCRIPT_HANDLE = 'jetpack-forms-editor';
+	const SCRIPT_HANDLE = 'jetpack-form-editor';
 
 	/**
 	 * Initialize the form editor.
@@ -135,15 +135,22 @@ class Form_Editor {
 		if ( ! $screen || $screen->id === 'site-editor' || ! $screen->is_block_editor ) {
 			return;
 		}
+		$asset_file = __DIR__ . '/../../dist/form-editor/jetpack-form-editor.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'Form Editor asset file not found: ' . $asset_file );
+			return;
+		}
+		$asset = require $asset_file;
 		Assets::register_script(
 			self::SCRIPT_HANDLE,
-			'../../dist/form-editor/jetpack-forms-editor.js',
+			'../../dist/form-editor/jetpack-form-editor.js',
 			__FILE__,
 			array(
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-data', 'wp-hooks', 'wp-polyfill', 'wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n', 'wp-plugins', 'wp-commands' ),
+				'dependencies' => $asset['dependencies'],
 			)
 		);
 	}

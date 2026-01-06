@@ -7,11 +7,11 @@
  * @package
  */
 
-export interface Block {
-	name: string;
-	clientId: string;
-	attributes?: Record< string, unknown >;
-	innerBlocks: Block[];
+import type { Block } from '@wordpress/blocks';
+
+export interface BlockLock {
+	remove?: boolean;
+	move?: boolean;
 }
 
 /**
@@ -55,7 +55,7 @@ export function getInsertionIndex( formBlock: Block ): number {
  * @return True if the block should be locked
  */
 export function shouldLockBlock( block: Block ): boolean {
-	const lock = block.attributes?.lock as { remove?: boolean; move?: boolean } | undefined;
+	const lock = block.attributes?.lock as BlockLock | undefined;
 	return ! lock?.remove || ! lock?.move;
 }
 

@@ -12,7 +12,7 @@ const __dirname = path.dirname( __filename );
 export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
-		'jetpack-forms-editor': path.join( __dirname, '..', 'src/form-editor/index.tsx' ),
+		'jetpack-form-editor': path.join( __dirname, '..', 'src/form-editor/index.tsx' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,

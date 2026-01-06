@@ -11,6 +11,7 @@ import { subscribe, select, dispatch } from '@wordpress/data';
 import { unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 import {
+	BlockLock,
 	findFormBlock,
 	getInsertionIndex,
 	shouldLockBlock,
@@ -25,7 +26,7 @@ import './style.scss';
 
 /**
  * Move the Jetpack contact form block category to the front in the editor.
- * @return previous categories array
+ * @return {unknown[]} previous categories array
  */
 const moveFormsCategoryToFront = () => {
 	const { getCategories } = select( 'core/blocks' );
@@ -58,7 +59,7 @@ const moveFormsCategoryBackToOriginalOrder = ( previousCategories: unknown[] ) =
 	setCategories( newCategories );
 };
 
-let formBlockClientId = null;
+let formBlockClientId: string | null = null;
 /**
  * Locate the contact-form block in the editor and store its client ID.
  */
@@ -170,11 +171,11 @@ const enforceBlockNesting = () => {
 };
 
 let isJetpackFormEditor: boolean | null = null;
-let categoriesFiltered = false;
+let categoriesFiltered: boolean = false;
 
-let lastRootBlockIds = '';
+let lastRootBlockIds: string = '';
 let lastSelectedBlockId: string | null | undefined = null;
-let isFormBlockLocked = false;
+let isFormBlockLocked: boolean = false;
 let previousCategories: unknown[] | null = null;
 
 let unsubscribe: ( () => void ) | null = null;
@@ -215,9 +216,7 @@ const setupFormEditorSubscription = () => {
 				// Verify the block is now locked by checking the attributes
 				const { getBlock } = select( 'core/block-editor' );
 				const formBlock = getBlock( formBlockClientId );
-				const lock = formBlock?.attributes?.lock as
-					| { remove?: boolean; move?: boolean }
-					| undefined;
+				const lock = formBlock?.attributes?.lock as BlockLock | undefined;
 				if ( formBlock && lock?.remove && lock?.move ) {
 					isFormBlockLocked = true;
 				}
