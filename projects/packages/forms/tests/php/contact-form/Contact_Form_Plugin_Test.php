@@ -1254,7 +1254,13 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			)
 		);
 
-		$user_id = wp_create_user( 'testuser', 'password' );
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
 		wp_set_current_user( $user_id );
 
 		$plugin        = Contact_Form_Plugin::init();
@@ -1264,9 +1270,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that logged-in users can comment even when comment_status is 'closed' (read posts)
+	 * Test that logged-in editor can comment even when comment_status is 'closed' (read posts)
 	 */
-	public function test_logged_in_users_can_comment_on_read_feedback() {
+	public function test_logged_in_editor_can_comment_on_read_feedback() {
 		$feedback_id = wp_insert_post(
 			array(
 				'post_type'      => 'feedback',
@@ -1274,7 +1280,13 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			)
 		);
 
-		$user_id = wp_create_user( 'testuser', 'password' );
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
 		wp_set_current_user( $user_id );
 
 		$plugin = Contact_Form_Plugin::init();
@@ -1283,6 +1295,34 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( false, $feedback_id );
 
 		$this->assertTrue( $comments_open, 'Comments should be open for logged-in users even when feedback is marked as read (comment_status=closed)' );
+	}
+
+	/**
+	 * Test that logged-in subscribers can not comment even when comment_status is 'closed' (read posts)
+	 */
+	public function test_logged_in_subscriber_can_not_comment_on_read_feedback() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'comment_status' => 'closed', // Marked as read
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		// Pass false to simulate that comment_status is 'closed'
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( false, $feedback_id );
+
+		$this->assertFalse( $comments_open, 'Comments should be open for logged-in users even when feedback is marked as read (comment_status=closed)' );
 	}
 
 	/**
