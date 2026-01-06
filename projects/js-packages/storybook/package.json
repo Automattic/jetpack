@@ -20,7 +20,8 @@
 		"storybook:dev": "storybook dev -c ./storybook -p 50240"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "7.36.0"
+		"@wordpress/api-fetch": "7.36.0",
+		"@wordpress/data": "10.36.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",

@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { dispatch } from '@wordpress/data';
 
 // import '@wordpress/components/build-style/style.css';
 
@@ -43,6 +44,26 @@ const preview = {
 		backgrounds: { value: 'jetpack-dashboard' },
 	},
 	decorators: [
+		Story => {
+			// Ensure WordPress stores are properly initialized and clean
+			try {
+				const stores = [ 'core/block-editor', 'core/editor', 'core' ];
+				stores.forEach( storeName => {
+					try {
+						const store = dispatch( storeName );
+						// Clear any locks or listeners that might cause issues
+						if ( store && store.__unstableMarkListeningStores ) {
+							store.__unstableMarkListeningStores( [] );
+						}
+					} catch ( e ) {
+						// Store may not exist in this context, continue silently
+					}
+				} );
+			} catch ( error ) {
+				// Silently handle initialization errors
+			}
+			return <Story />;
+		},
 		Story => (
 			<ThemeProvider id="storybook-stories" targetDom={ document.body }>
 				<Story />
