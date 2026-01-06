@@ -146,6 +146,14 @@ const projects = [
 		suite: '',
 		buildGroup: 'jetpack-protect',
 	},
+	{
+		project: 'mu-wpcom-plugin',
+		path: 'projects/plugins/mu-wpcom-plugin/tests/e2e',
+		testArgs: [ 'specs' ],
+		targets: [ 'plugins/mu-wpcom-plugin' ],
+		suite: '',
+		buildGroup: 'jetpack-mu-wpcom-plugin',
+	},
 ];
 
 const matrix = [];
