@@ -907,6 +907,7 @@ class Helper {
 				'enableInfScroll'             => get_option( $prefix . 'inf_scroll', '1' ) === '1',
 				'enableFilteringOpensOverlay' => get_option( $prefix . 'filtering_opens_overlay', '1' ) === '1',
 				'enablePostDate'              => get_option( $prefix . 'show_post_date', '1' ) === '1',
+				'enableProductPrice'          => get_option( $prefix . 'show_product_price', '1' ) === '1',
 				'enableSort'                  => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'              => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'              => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
