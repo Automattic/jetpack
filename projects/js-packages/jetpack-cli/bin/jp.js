@@ -104,11 +104,7 @@ const initHooks = monorepoRoot => {
 
 	if ( hooksPathResult.stdout && hooksPathResult.stdout.trim() ) {
 		const currentHooksPath = hooksPathResult.stdout.trim();
-		console.log(
-			chalk.yellow(
-				`  Detected custom git hooks path: ${ currentHooksPath }`
-			)
-		);
+		console.log( chalk.yellow( `  Detected custom git hooks path: ${ currentHooksPath }` ) );
 		console.log( chalk.yellow( '  Resetting to use .git/hooks/ for jp hooks' ) );
 
 		const unsetResult = spawnSync( 'git', [ 'config', '--unset', 'core.hooksPath' ], {
