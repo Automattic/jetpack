@@ -111,6 +111,9 @@ const lockFormBlock = () => {
 	}
 };
 
+/**
+ * Ensure the contact-form block is always selected when no other block is selected.
+ */
 const enforceBlockSelection = () => {
 	if ( ! formBlockClientId ) {
 		return;
@@ -128,6 +131,7 @@ const enforceBlockSelection = () => {
 		selectBlock( formBlockClientId );
 	}
 };
+
 /**
  * Monitor for blocks added at the root level and move them inside the form.
  * Uses pure utility functions for easier testing.
@@ -180,7 +184,9 @@ let categoriesFiltered = false;
 
 let unsubscribe: ( () => void ) | null = null;
 
-// Subscribe to editor changes to lock the form block when ready.
+/**
+ * Sets up a subscription to monitor editor state changes and enforce form editor behavior.
+ */
 const setupFormEditorSubscription = () => {
 	if ( unsubscribe ) {
 		return;
