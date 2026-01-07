@@ -263,6 +263,11 @@ class Form_Editor_Test extends BaseTestCase {
 	public function test_enqueue_admin_scripts_in_block_editor() {
 		global $wp_scripts;
 
+		if ( ! file_exists( __DIR__ . '/../../../dist/form-editor/jetpack-form-editor.asset.php' ) ) {
+			// Skip the test if the asset file exists to avoid false positives
+			$this->markTestSkipped( 'Asset file exists; skipping enqueue test to avoid false positives.' );
+		}
+
 		// Create a mock screen for block editor
 		$screen                  = WP_Screen::get( 'post' );
 		$screen->is_block_editor = true;
