@@ -292,16 +292,9 @@ class Universal {
 	 * @param int|string|WC_Order $order_id_or_order Order Id or Order object.
 	 */
 	public function order_process( $order_id_or_order ) {
-		if ( is_numeric( $order_id_or_order ) ) {
-			$order = wc_get_order( $order_id_or_order );
-		} else {
-			$order = $order_id_or_order;
-		}
+		$order = wc_get_order( $order_id_or_order );
 
-		if (
-			! $order
-			|| ! $order instanceof WC_Order
-		) {
+		if ( ! $order ) {
 			return;
 		}
 
