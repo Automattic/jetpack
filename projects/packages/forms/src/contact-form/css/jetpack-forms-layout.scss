@@ -23,10 +23,6 @@
 
 	&.is-vertical:not(.is-content-justification-stretch) {
 
-		.jetpack-field__width-auto {
-			align-self: stretch;
-		}
-
 		.jetpack-field__width-25,
 		.wp-block-button__width-25 {
 			width: 25%;
