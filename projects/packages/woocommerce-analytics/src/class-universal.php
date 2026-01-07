@@ -393,7 +393,7 @@ class Universal {
 		}
 
 		// Mark order as tracked to prevent duplicates on page refresh.
-		$order->add_meta_data( self::PURCHASE_TRACKED_META_KEY, true );
+		$order->update_meta_data( self::PURCHASE_TRACKED_META_KEY, '1' );
 		$order->save();
 	}
 	/**
