@@ -339,18 +339,41 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Redirect GET requests to WordAds DSP for the site.
+	 * Get a list of posts that are eligible for Blaze campaigns.
+	 *
+	 * Routes to WPCOM API or local database based on Jetpack Sync status:
+	 * - If sync is ready: Uses WPCOM API (has stats data like like_count, monthly_view_count).
+	 * - If sync is not ready: Uses local database query (stats show as -1, stats-based
+	 *   sorting falls back to date).
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
 	 */
 	public function get_blaze_posts( $req ) {
+		if ( $this->are_posts_ready() ) {
+			return $this->get_blaze_posts_from_wpcom( $req );
+		}
+
+		return $this->get_blaze_posts_local( $req );
+	}
+
+	/**
+	 * Get Blaze posts from the WPCOM API.
+	 *
+	 * Used when Jetpack Sync is ready and posts are available on WPCOM.
+	 * Provides full functionality including stats data (like_count, monthly_view_count)
+	 * and stats-based sorting.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	private function get_blaze_posts_from_wpcom( $req ) {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
 		}
 
-		// We don't use sub_path in the blaze posts, only query strings
+		// We don't use sub_path in the blaze posts, only query strings.
 		if ( isset( $req['sub_path'] ) ) {
 			unset( $req['sub_path'] );
 		}
@@ -373,6 +396,219 @@ class Dashboard_REST_Controller {
 		$response = $this->add_warnings_to_posts_response( $response );
 
 		return $response;
+	}
+
+	/**
+	 * Get Blaze posts from the local WordPress database.
+	 *
+	 * Used as fallback when Jetpack Sync is not ready. Stats fields (like_count,
+	 * monthly_view_count) are returned as -1 since they are only available on WPCOM.
+	 * If user requests sorting by stats fields, falls back to sorting by date.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	private function get_blaze_posts_local( $req ) {
+
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
+		// Parse request parameters.
+		$page           = absint( $req->get_param( 'page' ) ?? 1 );
+		$posts_per_page = absint( $req->get_param( 'posts_per_page' ) ?? 20 );
+		$order          = $req->get_param( 'order' ) ?? 'DESC';
+		$order_by       = $req->get_param( 'order_by' ) ?? 'date';
+		$post_types     = $req->get_param( 'filter_post_type' ) ?? implode( ',', $this->get_blazable_post_types() );
+		$title          = strtolower( sanitize_text_field( $req->get_param( 'title' ) ?? '' ) );
+
+		// Sanitize and validate post types.
+		$post_type_list = $this->sanitize_post_type( $post_types );
+
+		// Validate post per page parameter (use default value if invalid)
+		if ( $posts_per_page <= 0 || $posts_per_page > 20 ) {
+			$posts_per_page = 20;
+		}
+
+		// Validate order.
+		$order = in_array( strtoupper( $order ), array( 'ASC', 'DESC' ), true ) ? strtoupper( $order ) : 'DESC';
+
+		// Validate order_by - stats-related fields fall back to date (handled by WPCOM).
+		$valid_order_by = array( 'post_title', 'type', 'date', 'modified', 'comment_count' );
+		if ( ! in_array( $order_by, $valid_order_by, true ) ) {
+			$order_by = 'date';
+		}
+
+		$args = array(
+			'post_type'           => $post_type_list,
+			'post_status'         => 'publish',
+			'post_password'       => '',
+			'posts_per_page'      => $posts_per_page,
+			'paged'               => $page,
+			'ignore_sticky_posts' => 1,
+			'orderby'             => $order_by,
+			'order'               => $order,
+		);
+
+		// Add title search filter if provided.
+		$title_filter = null;
+		if ( ! empty( $title ) ) {
+			$title_filter = function ( $where ) use ( $title ) {
+				global $wpdb;
+				$title_like = '%' . $wpdb->esc_like( $title ) . '%';
+				$where     .= $wpdb->prepare( " AND {$wpdb->posts}.post_title LIKE %s", $title_like );
+				return $where;
+			};
+			add_filter( 'posts_where', $title_filter );
+		}
+
+		$query       = new \WP_Query( $args );
+		$posts       = $query->get_posts();
+		$total_pages = $query->max_num_pages;
+
+		// Remove the title filter after query.
+		if ( $title_filter !== null ) {
+			remove_filter( 'posts_where', $title_filter );
+		}
+
+		// Format posts for the response.
+		$formatted_posts = array();
+		if ( $page <= $total_pages ) {
+			foreach ( $posts as $post ) {
+				$formatted_posts[] = $this->format_post_for_blaze( $post );
+			}
+		}
+
+		// Add prices for WooCommerce products.
+		if ( count( $formatted_posts ) > 0 ) {
+			$formatted_posts = $this->add_prices_in_posts( $formatted_posts );
+		}
+
+		return array(
+			'posts'         => $formatted_posts,
+			'total_items'   => $query->found_posts,
+			'post_title'    => addslashes( $title ),
+			'page'          => $page,
+			'total_pages'   => $total_pages,
+			'stats_enabled' => $this->is_jetpack_module_active( 'stats' ),
+			'likes_enabled' => $this->is_jetpack_module_active( 'likes' ),
+			'tsp_eligible'  => $this->count_tsp_eligible_posts(),
+		);
+	}
+
+	/**
+	 * Format a post object for the Blaze API response.
+	 *
+	 * @param \WP_Post $post The post object.
+	 * @return array Formatted post data.
+	 */
+	protected function format_post_for_blaze( $post ) {
+		// Get featured image - try Jetpack_PostImages first (like WPCOM), fall back to thumbnail.
+		$featured_image = null;
+		if ( class_exists( 'Jetpack_PostImages' ) ) {
+			$post_images    = \Jetpack_PostImages::get_image( $post->ID );
+			$featured_image = is_array( $post_images ) ? ( $post_images['src'] ?? null ) : null;
+		}
+		if ( $featured_image === null ) {
+			$thumbnail_url  = get_the_post_thumbnail_url( $post->ID );
+			$featured_image = $thumbnail_url ? $thumbnail_url : null;
+		}
+
+		// Get SKU for WooCommerce products.
+		$sku = get_post_meta( $post->ID, '_sku', true );
+
+		// Get permalink based on permalink structure (matches WPCOM).
+		$permalink_structure = get_option( 'permalink_structure' );
+		$post_url            = $permalink_structure === '' ? $post->guid : get_permalink( $post->ID );
+
+		return array(
+			'ID'                 => $post->ID,
+			'title'              => $post->post_title,
+			'type'               => $post->post_type,
+			'date'               => gmdate( 'c', strtotime( $post->post_date_gmt ) ),
+			'modified'           => gmdate( 'c', strtotime( $post->post_modified_gmt ) ),
+			'comment_count'      => (int) $post->comment_count,
+			'like_count'         => -1, // Stats not available locally.
+			'featured_image'     => $featured_image,
+			'author'             => $post->post_author,
+			'sku'                => $sku,
+			'post_url'           => $post_url,
+			'monthly_view_count' => -1, // Stats not available locally.
+		);
+	}
+
+	/**
+	 * Get the post types that are eligible for Blaze campaigns.
+	 *
+	 * @return array List of post type slugs.
+	 */
+	private function get_blazable_post_types() {
+		return array( 'post', 'page', 'product' );
+	}
+
+	/**
+	 * Sanitize and validate post types for Blaze.
+	 *
+	 * @param string $post_types Comma-separated list of post types.
+	 * @return array Valid post types, or all blazable types if none valid.
+	 */
+	private function sanitize_post_type( $post_types ) {
+		$blazable_post_types = $this->get_blazable_post_types();
+		$post_types          = sanitize_text_field( $post_types );
+		$post_type_list      = explode( ',', $post_types );
+
+		$allowed_types = array();
+
+		foreach ( $post_type_list as $post_type ) {
+			if ( in_array( $post_type, $blazable_post_types, true ) ) {
+				$allowed_types[] = $post_type;
+			}
+		}
+
+		return count( $allowed_types )
+			? $allowed_types
+			: $blazable_post_types;
+	}
+
+	/**
+	 * Check if a Jetpack module is active.
+	 * Uses jetpack-status Modules class which handles WPCOM and self-hosted sites.
+	 *
+	 * @param string $module_name The module name (e.g., 'stats', 'likes').
+	 * @return bool Whether the module is active.
+	 */
+	private function is_jetpack_module_active( $module_name ) {
+		// Default to true if Modules class is unavailable (matches WPCOM behavior).
+		if ( ! class_exists( '\Automattic\Jetpack\Modules' ) ) {
+			return true;
+		}
+		$modules = new \Automattic\Jetpack\Modules();
+		return $modules->is_active( $module_name );
+	}
+
+	/**
+	 * Count posts eligible for TSP (has Gutenberg blocks).
+	 * Matches WPCOM's count_tsp_eligible_posts implementation.
+	 *
+	 * @return bool Whether there are TSP eligible posts.
+	 */
+	private function count_tsp_eligible_posts() {
+		$query = array(
+			'posts_per_page'      => 1,
+			'order'               => 'DESC',
+			'orderby'             => 'date',
+			'post_type'           => 'post',
+			'post_status'         => array( 'publish' ),
+			's'                   => '<!-- wp:',
+			'fields'              => 'ids',
+			'ignore_sticky_posts' => 1,
+			'offset'              => 0,
+		);
+
+		$wp_query = new \WP_Query( $query );
+
+		return (int) $wp_query->found_posts > 0;
 	}
 
 	/**
