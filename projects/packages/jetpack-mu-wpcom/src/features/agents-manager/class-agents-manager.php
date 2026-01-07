@@ -197,17 +197,16 @@ class Agents_Manager {
 		 */
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
 
-		if ( ! $use_unified_experience ) {
+		$is_block_editor = $this->is_block_editor();
+
+		// Enqueue rules:
+		// - In block editor: enqueue when should_use_big_sky_ui is true (BigSky is available and 'unified-big-sky' flag is not set)
+		// - Outside block editor: enqueue only when unified experience is enabled.
+		if ( ( $is_block_editor && $this->should_use_big_sky_ui() ) || ( ! $is_block_editor && ! $use_unified_experience ) ) {
 			return;
 		}
 
-		// If the user is in the block editor, BigSky is active
-		// and the 'unified-big-sky' flag is not set, don't enqueue the script.
-		if ( $this->is_block_editor() && $this->should_use_big_sky_ui() ) {
-			return;
-		}
-
-		if ( $this->is_block_editor() ) {
+		if ( $is_block_editor ) {
 			$variant = 'gutenberg';
 		} else {
 			$variant = 'wp-admin';
