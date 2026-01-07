@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add jp init-hooks and jp git-hook commands to run git hooks in Docker container.

@@ -43,6 +43,37 @@ const isMonorepoRoot = dir => {
 };
 
 /**
+ * Check if the CLI is running from monorepo source (vs npm installed).
+ *
+ * @return {boolean} True if running from source
+ */
+const isRunningFromSource = () => {
+	let dir = __dirname;
+	let prevDir;
+	while ( dir !== prevDir ) {
+		if ( isMonorepoRoot( dir ) ) {
+			return true;
+		}
+		prevDir = dir;
+		dir = dirname( dir );
+	}
+	return false;
+};
+
+/**
+ * Compute development version by incrementing patch number.
+ *
+ * @return {string} Development version string (e.g., "1.0.3-alpha" for released "1.0.2")
+ */
+const computeDevVersion = () => {
+	const [ major, minor, patch ] = packageJson.version.split( '.' ).map( Number );
+	return `${ major }.${ minor }.${ patch + 1 }-alpha`;
+};
+
+// Version to display - dev version when running from source, package version otherwise
+const displayVersion = isRunningFromSource() ? computeDevVersion() : packageJson.version;
+
+/**
  * Find monorepo root from a starting directory.
  *
  * @param {string} startDir - Directory to start searching from
@@ -243,7 +274,7 @@ const main = async () => {
 
 		// Handle version flag
 		if ( args[ 0 ] === '--version' || args[ 0 ] === '-v' ) {
-			console.log( chalk.green( packageJson.version ) );
+			console.log( chalk.green( displayVersion ) );
 			return;
 		}
 
