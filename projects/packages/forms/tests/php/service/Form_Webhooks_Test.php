@@ -952,11 +952,30 @@ class Form_Webhooks_Test extends BaseTestCase {
 			}
 		);
 
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
+		);
+
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		// Link-local IPs should be blocked at validation time, no HTTP request made
 		$this->assertFalse( $http_request_made, 'HTTP request should not be made for link-local/AWS metadata URLs' );
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'] );
 	}
 
 	/**
