@@ -1234,23 +1234,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Get default required plan for blocks that need a fallback when no plan is found in features data.
-	 * This ensures upgrade banners appear for blocks that are available via WPCOM_ALL_SITES/JETPACK_ALL_SITES
-	 * but should still show upgrade prompts.
-	 *
-	 * @param string $slug Block slug.
-	 * @return string|false Plan slug if a default should be used, false otherwise.
-	 */
-	private static function get_default_plan_for_block( $slug ) {
-		$default_plans = array(
-			'donations'       => 'value_bundle', // Premium plan slug for WordPress.com.
-			'payment-buttons' => 'value_bundle', // Premium plan slug for WordPress.com.
-		);
-
-		return isset( $default_plans[ $slug ] ) ? $default_plans[ $slug ] : false;
-	}
-
-	/**
 	 * Set the availability of the block as the editor
 	 * is loaded.
 	 *
@@ -1284,13 +1267,6 @@ class Jetpack_Gutenberg {
 
 			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
-			}
-
-			if ( empty( $plan ) ) {
-				$default_plan = self::get_default_plan_for_block( $slug );
-				if ( $default_plan ) {
-					$plan = $default_plan;
-				}
 			}
 		} else {
 			// Jetpack sites.
