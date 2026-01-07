@@ -17,7 +17,7 @@
 		"@wordpress/core-data": "7.36.1-next.6deb34194.0",
 		"@wordpress/data": "10.36.1-next.6deb34194.0",
 		"@wordpress/dataviews": "11.1.1-next.6deb34194.0",
-		"@wordpress/date": "5.36.1-next.6deb34194.0",
+		"@wordpress/date": "5.36.2-next.6deb34194.0",
 		"@wordpress/element": "6.36.1-next.6deb34194.0",
 		"@wordpress/html-entities": "4.36.1-next.6deb34194.0",
 		"@wordpress/i18n": "6.9.1-next.6deb34194.0",

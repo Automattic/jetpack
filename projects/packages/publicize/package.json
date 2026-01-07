@@ -29,8 +29,8 @@
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-publicize-components": "workspace:*",
-		"@wordpress/api-fetch": "7.36.1-next.738bb1424.0",
-		"@wordpress/i18n": "6.9.1-next.738bb1424.0",
+		"@wordpress/api-fetch": "7.36.1-next.76cff8c98.0",
+		"@wordpress/i18n": "6.9.1-next.76cff8c98.0",
 		"jquery": "3.7.1"
 	},
 	"devDependencies": {
@@ -41,7 +41,7 @@
 		"@babel/preset-env": "7.28.3",
 		"@babel/runtime": "7.28.4",
 		"@csstools/postcss-global-data": "2.1.1",
-		"@wordpress/browserslist-config": "6.36.1-next.738bb1424.0",
+		"@wordpress/browserslist-config": "6.36.1-next.76cff8c98.0",
 		"autoprefixer": "10.4.20",
 		"concurrently": "9.2.1",
 		"postcss": "8.5.6",

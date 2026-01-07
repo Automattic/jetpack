@@ -23,7 +23,7 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-config": "workspace:*",
-		"@wordpress/url": "4.36.1-next.738bb1424.0"
+		"@wordpress/url": "4.36.1-next.76cff8c98.0"
 	},
 	"devDependencies": {
 		"jest": "30.2.0",

@@ -21,7 +21,7 @@
 		"validate": "pnpm exec validate-es build/"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "6.9.1-next.738bb1424.0"
+		"@wordpress/i18n": "6.9.1-next.76cff8c98.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
