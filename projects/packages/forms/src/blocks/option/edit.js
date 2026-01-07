@@ -81,7 +81,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 					<ToolbarGroup>
 						<ToolbarButton
 							onClick={ () => setAttributes( { isOther: ! isOther } ) }
-							className={ isOther ? 'is-pressed' : undefined }
+							className={ clsx( { 'is-pressed': isOther } ) }
 						>
 							{ __( 'Other', 'jetpack-forms' ) }
 						</ToolbarButton>
