@@ -2780,6 +2780,9 @@ importers:
       '@wordpress/dataviews':
         specifier: 11.0.0
         version: 11.0.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(@types/react@18.3.26)(react@18.3.1)
+      '@wordpress/dom':
+        specifier: 4.37.0
+        version: 4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
       '@wordpress/dom-ready':
         specifier: 4.37.0
         version: 4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
