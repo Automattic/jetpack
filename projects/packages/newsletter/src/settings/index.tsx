@@ -15,6 +15,7 @@ import {
 	EmailSenderSettingsSection,
 	EmailReplyToSettingsSection,
 	NewsletterSection,
+	NewsletterCategoriesSection,
 	PaidNewsletterSection,
 	SubscriptionsSection,
 	WelcomeEmailSection,
@@ -31,6 +32,9 @@ import './style.scss';
 function normalizeSettings( settings: Record< string, unknown > ): NewsletterSettings {
 	return {
 		...( settings as NewsletterSettings ),
+		wpcom_newsletter_categories: ( ( settings.wpcom_newsletter_categories as number[] ) || [] ).map(
+			String
+		),
 		// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1')
 		wpcom_subscription_emails_use_excerpt: String(
 			Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
@@ -62,6 +66,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	// Snackbar notification state
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string | null >( null );
+
+	// Newsletter categories state (for manual save)
+	const [ newsletterCategoriesChanges, setNewsletterCategoriesChanges ] = useState<
+		Partial< NewsletterSettings >
+	>( {} );
+	const [ isSavingNewsletterCategories, setIsSavingNewsletterCategories ] = useState( false );
 
 	// Welcome email state (for manual save)
 	const [ welcomeEmailChanges, setWelcomeEmailChanges ] = useState< Partial< NewsletterSettings > >(
@@ -196,6 +206,83 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			} );
 	}, [ subscriptionChanges, data ] );
 
+	// Handle newsletter categories changes (staged, not auto-saved)
+	const handleNewsletterCategoriesChange = useCallback(
+		( updates: Partial< NewsletterSettings > ) => {
+			// Update local state immediately (like auto-save)
+			setData( prev => ( { ...prev, ...updates } ) );
+			// Track changes for save button state
+			setNewsletterCategoriesChanges( prev => ( { ...prev, ...updates } ) );
+		},
+		[]
+	);
+
+	// Save newsletter categories settings
+	const saveNewsletterCategories = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingNewsletterCategories( true );
+		setError( null );
+
+		// Convert categories from strings to numbers for API
+		const apiUpdates: Record< string, unknown > = { ...newsletterCategoriesChanges };
+
+		// Only include categories if they exist AND are not empty
+		if (
+			apiUpdates.wpcom_newsletter_categories &&
+			Array.isArray( apiUpdates.wpcom_newsletter_categories )
+		) {
+			if ( ( apiUpdates.wpcom_newsletter_categories as string[] ).length > 0 ) {
+				apiUpdates.wpcom_newsletter_categories = (
+					apiUpdates.wpcom_newsletter_categories as string[]
+				 ).map( Number );
+			} else {
+				// Remove empty categories from the update payload to avoid API error
+				delete apiUpdates.wpcom_newsletter_categories;
+			}
+		}
+
+		restApi
+			.updateSettings( apiUpdates )
+			.then( () => {
+				setError( null );
+				setNewsletterCategoriesChanges( {} );
+				setSnackbarMessage( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
+
+				// Re-fetch settings to sync client with server
+				// (backend may not update empty categories)
+				return restApi.fetchSettings();
+			} )
+			.then( ( settings: Record< string, unknown > ) => {
+				// Update client state with server values, preserving unsaved changes in other sections
+				const serverData = normalizeSettings( settings );
+				setData( {
+					...serverData,
+					...subscriptionChanges,
+					...senderNameChanges,
+					...welcomeEmailChanges,
+				} );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter categories save error:', err );
+				setError(
+					err.message || __( 'Failed to save newsletter categories', 'jetpack-newsletter' )
+				);
+			} )
+			.finally( () => {
+				setIsSavingNewsletterCategories( false );
+			} );
+	}, [
+		newsletterCategoriesChanges,
+		data,
+		subscriptionChanges,
+		senderNameChanges,
+		welcomeEmailChanges,
+	] );
+
 	// Handle welcome email changes (staged, not auto-saved)
 	const handleWelcomeEmailChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
 		// Update local state immediately (like auto-save)
@@ -256,6 +343,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
 	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
+	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
 	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
@@ -282,6 +370,17 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 			<PaidNewsletterSection
 				jetpackSettings={ jetpackSettings }
+				isNewsletterEnabled={ data.subscriptions }
+			/>
+
+			<NewsletterCategoriesSection
+				data={ data }
+				onChange={ handleNewsletterCategoriesChange }
+				onSave={ saveNewsletterCategories }
+				isSaving={ isSavingNewsletterCategories }
+				hasChanges={ hasNewsletterCategoriesChanges }
+				jetpackSettings={ jetpackSettings }
+				onError={ setError }
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 
