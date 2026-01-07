@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `jp wp-env` commands as an alternative Docker environment using @wordpress/env
