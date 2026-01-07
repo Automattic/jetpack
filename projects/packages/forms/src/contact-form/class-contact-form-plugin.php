@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
+use Automattic\Jetpack\Forms\Editor\Form_Editor;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Form_Webhooks;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
@@ -374,6 +375,7 @@ class Contact_Form_Plugin {
 
 		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
 			Contact_Form::register_post_type();
+			Form_Editor::init();
 		}
 	}
 
