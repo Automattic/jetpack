@@ -216,6 +216,37 @@ const { actions, callbacks } = store( NAMESPACE, {
 		},
 	},
 	callbacks: {
+		/**
+		 * Updates the flag display by modifying existing text node data
+		 * instead of replacing textContent, to avoid triggering wp-emoji
+		 * MutationObserver which only watches childList, not characterData.
+		 */
+		updateSelectedFlag() {
+			const { ref } = getElement();
+			const context = getContext();
+			const flag = context.selectedCountry?.flag || '';
+			// Modify existing text node's data (nodeType 3 = TEXT_NODE) instead of
+			// replacing textContent to avoid triggering wp-emoji's MutationObserver,
+			// which converts emoji characters to SVG images.
+			if ( ref.firstChild?.nodeType === 3 ) {
+				ref.firstChild.data = flag;
+			} else {
+				ref.textContent = flag;
+			}
+		},
+		updateOptionFlag() {
+			const { ref } = getElement();
+			const context = getContext();
+			const flag = context.filtered?.flag || '';
+			// Modify existing text node's data (nodeType 3 = TEXT_NODE) instead of
+			// replacing textContent to avoid triggering wp-emoji's MutationObserver,
+			// which converts emoji characters to SVG images.
+			if ( ref.firstChild?.nodeType === 3 ) {
+				ref.firstChild.data = flag;
+			} else {
+				ref.textContent = flag;
+			}
+		},
 		registerPhoneInput() {
 			const element = getElement().ref;
 			const context = getContext();
