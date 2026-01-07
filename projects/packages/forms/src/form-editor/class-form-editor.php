@@ -151,6 +151,7 @@ class Form_Editor {
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
 				'dependencies' => $asset['dependencies'],
+				'version'      => $asset['version'],
 			)
 		);
 	}
