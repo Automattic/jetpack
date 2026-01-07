@@ -9,18 +9,7 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MONOREPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
 
-# Parse --latest-image flag
-FORCE_PULL=0
-ARGS=()
-for arg in "$@"; do
-    if [[ "$arg" = "--latest-image" ]]; then
-        FORCE_PULL=1
-    else
-        ARGS+=("$arg")
-    fi
-done
-
-echo "Running command in monorepo container: ${ARGS[*]}"
+echo "Running command in monorepo container: $*"
 
 # Source the versions file
 source "$MONOREPO_ROOT/.github/versions.sh"
@@ -35,10 +24,10 @@ SHOULD_PULL=0
 # Always pull if image doesn't exist
 if ! docker image inspect jetpack-monorepo:latest >/dev/null 2>&1; then
     SHOULD_PULL=1
-# Force pull if --latest-image flag is passed
-elif [[ "$FORCE_PULL" = "1" ]]; then
+# Force pull if FORCE_PULL environment variable is set
+elif [[ "${FORCE_PULL:-}" = "1" ]]; then
     SHOULD_PULL=1
-    echo "Forcing image update due to --latest-image flag..."
+    echo "Forcing image update due to FORCE_PULL environment variable..."
 # Pull if cache file doesn't exist or is older than 24 hours (86400 seconds)
 elif [[ ! -f "$CACHE_FILE" ]]; then
     SHOULD_PULL=1
@@ -98,4 +87,4 @@ docker run --rm -it \
     -e PNPM_HOME=/root/.local/share/pnpm \
     -e PNPM_STORE_DIR=/root/.pnpm-store \
     jetpack-monorepo:latest \
-    "${ARGS[@]}"
+    "$@"
