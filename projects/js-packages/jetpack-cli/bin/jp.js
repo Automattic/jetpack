@@ -134,7 +134,12 @@ const getHookCommand = ( monorepoRoot, hookName ) => {
 	// Return the last non-empty line as the command
 	for ( let i = lines.length - 1; i >= 0; i-- ) {
 		const line = lines[ i ].trim();
-		if ( line && ! line.startsWith( 'if ' ) && ! line.startsWith( 'exec ' ) && ! line.startsWith( 'fi' ) ) {
+		if (
+			line &&
+			! line.startsWith( 'if ' ) &&
+			! line.startsWith( 'exec ' ) &&
+			! line.startsWith( 'fi' )
+		) {
 			return line;
 		}
 	}
