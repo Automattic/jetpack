@@ -68,8 +68,54 @@ require_once __DIR__ . '/widgets/class-widget-top-clicks.php';
 require_once __DIR__ . '/widgets/class-pd-top-rated.php';
 require_once __DIR__ . '/widgets/class-jetpack-widget-twitter.php';
 
-// autoload composer sourced plugins
-require_once __DIR__ . '/vendor/autoload_packages.php';
+/*
+ * Autoloader check: This ensures the plugin doesn't fatal if activated before
+ * `composer install` has been run. This is a common oversight during development
+ * setup. The admin notice helps developers quickly identify the issue.
+ */
+$jetpack_autoloader = __DIR__ . '/vendor/autoload_packages.php';
+if ( is_readable( $jetpack_autoloader ) ) {
+	require_once $jetpack_autoloader;
+} else {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			__( 'Error loading autoloader file for WordPress.com Site Helper plugin', 'starter-plugin' )
+		);
+	}
+
+	add_action(
+		'admin_notices',
+		function () {
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
+
+			$message = sprintf(
+				wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+					__( 'Your installation of WordPress.com Site Helper is incomplete. If you installed WordPress.com Site Helper from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. WordPress.com Site Helper must have Composer dependencies installed and built via the build command.', 'starter-plugin' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+					)
+				),
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
+			);
+		}
+	);
+
+	return;
+}
 require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts/custom-fonts.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts-typekit/custom-fonts-typekit.php';
