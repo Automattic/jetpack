@@ -738,44 +738,21 @@ class Initializer {
 	}
 
 	/**
-	 * Enqueue the red bubble lazy loader script.
+	 * Enqueue the notification bubble script.
 	 * Fetches fresh alert data via REST API without blocking page load.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_red_bubble_script() {
-		wp_register_script(
-			'my_jetpack_red_bubble',
-			false,
-			array( 'wp-api-fetch' ),
-			self::PACKAGE_VERSION,
-			array( 'in_footer' => true )
+		Assets::register_script(
+			'my_jetpack_notification_bubble',
+			'../build/async-notification-bubble.js',
+			__FILE__,
+			array(
+				'enqueue'   => true,
+				'in_footer' => true,
+			)
 		);
-
-		$inline_script = 'wp.apiFetch( { path: "my-jetpack/v1/red-bubble-notifications", method: "POST" } )
-			.then( function( alerts ) {
-				var count = Object.values( alerts ).filter( function( a ) { return !a.is_silent; } ).length;
-				var menuItem = document.querySelector( "#toplevel_page_jetpack .wp-menu-name" );
-				if ( ! menuItem ) return;
-				var bubble = menuItem.querySelector( ".awaiting-mod" );
-				if ( count > 0 ) {
-					if ( bubble ) {
-						bubble.className = "awaiting-mod";
-						bubble.textContent = count;
-					} else {
-						var span = document.createElement( "span" );
-						span.className = "awaiting-mod";
-						span.textContent = count;
-						menuItem.appendChild( document.createTextNode( " " ) );
-						menuItem.appendChild( span );
-					}
-				} else if ( bubble ) {
-					bubble.remove();
-				}
-			} );';
-
-		wp_add_inline_script( 'my_jetpack_red_bubble', $inline_script );
-		wp_enqueue_script( 'my_jetpack_red_bubble' );
 	}
 
 	/**
