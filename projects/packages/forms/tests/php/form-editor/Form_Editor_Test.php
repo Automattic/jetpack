@@ -264,8 +264,8 @@ class Form_Editor_Test extends BaseTestCase {
 		global $wp_scripts;
 
 		if ( ! file_exists( __DIR__ . '/../../../dist/form-editor/jetpack-form-editor.asset.php' ) ) {
-			// Skip the test if the asset file exists to avoid false positives
-			$this->markTestSkipped( 'Asset file exists; skipping enqueue test to avoid false positives.' );
+			// Skip the test if the asset file does not exist to avoid false positives
+			$this->markTestSkipped( 'Asset file does not exist; skipping enqueue test to avoid false positives.' );
 		}
 
 		// Create a mock screen for block editor
