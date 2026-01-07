@@ -183,13 +183,15 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.4 - 2025-12-12
+### 4.5.5-beta - 2026-01-07
+#### Added
+- Connection: Add revalidation for IDCs.
+
 #### Changed
-- Image CDN: cache image quality settings per format to reduce repeated processing.
 - Update package dependencies.
 
 #### Fixed
-- Ensure proper flags are used with `json_encode()`.
+- Critical CSS: Fix breaking stylesheets without media attributes.
 
 --------
 
