@@ -7,7 +7,7 @@ settings:
 overrides:
   '@wordpress/is-shallow-equal': next
 
-pnpmfileChecksum: sha256-AEDbLSAzI05RxM8tYsVolwKqr5DnKFHYBkqTdWQlblw=
+pnpmfileChecksum: sha256-G3hxMk1egmffXhSeLywqsM5k9YVmfWadZVlCM8n4FPY=
 
 patchedDependencies:
   '@wordpress/components@31.0.1-next.76cff8c98.0':
@@ -10372,6 +10372,12 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     hasBin: true
 
+  '@wordpress/icons@10.32.0':
+    resolution: {integrity: sha512-1WvJdT361X1LnetYBpBWUjAVXZzl+pBdIwHbYRAp8ej47EI/igPmNxmq81nFd40s8fer/9qtipielcqSI6H2rA==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      react: ^18
+
   '@wordpress/icons@11.3.1-next.76cff8c98.0':
     resolution: {integrity: sha512-HloCDuzhH8SuDtNvreJOfwcuZrXKEuTtFItKg8fAEQ3M2zRRUdWi1pIY43JJ9Qwo4vpY8gwvw9F3/eJA6hAy5Q==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -17803,7 +17809,7 @@ snapshots:
       '@wordpress/date': 5.36.2-next.76cff8c98.0(patch_hash=9e1f5fafdc9e6765faefa61c5fb2d30d0d45c8ad80b838b35f632180e70c7a12)
       '@wordpress/html-entities': 4.36.1-next.76cff8c98.0
       '@wordpress/i18n': 6.9.1-next.76cff8c98.0
-      '@wordpress/icons': 11.3.1-next.76cff8c98.0(react@18.3.1)
+      '@wordpress/icons': 10.32.0(react@18.3.1)
       '@wordpress/primitives': 4.36.1-next.76cff8c98.0(react@18.3.1)
       '@wordpress/react-i18n': 4.36.1-next.76cff8c98.0
       '@wordpress/url': 4.36.1-next.76cff8c98.0
@@ -17919,7 +17925,7 @@ snapshots:
       '@wordpress/data': 10.36.1-next.76cff8c98.0(react@18.3.1)
       '@wordpress/element': 6.36.1-next.76cff8c98.0
       '@wordpress/i18n': 6.9.1-next.76cff8c98.0
-      '@wordpress/icons': 11.3.1-next.76cff8c98.0(react@18.3.1)
+      '@wordpress/icons': 10.32.0(react@18.3.1)
       '@wordpress/url': 4.36.1-next.76cff8c98.0
       clsx: 2.1.1
       debug: 4.4.3
@@ -17983,7 +17989,7 @@ snapshots:
       '@wordpress/compose': 7.36.1-next.76cff8c98.0(patch_hash=00669f857f1343b76623f32af89d130ee34251cb0d8f0669738e86e9c60f2029)(react@18.3.1)
       '@wordpress/element': 6.36.1-next.76cff8c98.0
       '@wordpress/i18n': 6.9.1-next.76cff8c98.0
-      '@wordpress/icons': 11.3.1-next.76cff8c98.0(react@18.3.1)
+      '@wordpress/icons': 10.32.0(react@18.3.1)
       '@wordpress/primitives': 4.36.1-next.76cff8c98.0(react@18.3.1)
       clsx: 2.1.1
       date-fns: 4.1.0
@@ -24421,6 +24427,13 @@ snapshots:
       gettext-parser: 1.4.0
       memize: 2.1.1
       tannin: 1.2.0
+
+  '@wordpress/icons@10.32.0(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@wordpress/element': 6.36.1-next.76cff8c98.0
+      '@wordpress/primitives': 4.36.1-next.76cff8c98.0(react@18.3.1)
+      react: 18.3.1
 
   '@wordpress/icons@11.3.1-next.76cff8c98.0(react@18.3.1)':
     dependencies:
