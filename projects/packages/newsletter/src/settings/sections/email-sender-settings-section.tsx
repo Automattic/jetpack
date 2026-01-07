@@ -3,7 +3,8 @@
  */
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -74,16 +75,24 @@ export function EmailSenderSettingsSection( {
 					onChange={ onChange }
 				/>
 
-				{ /* Inline preview of how the sender name appears in email */ }
+				{ /* Preview of how the sender name appears in email */ }
 				<div className="newsletter-settings__sender-preview">
 					<p className="newsletter-settings__field-description">
-						{ __( 'Preview:', 'jetpack-newsletter' ) }{ ' ' }
-						<strong>
-							{ senderName ||
-								jetpackSettings?.displayName ||
-								__( 'Your Name', 'jetpack-newsletter' ) }
-						</strong>{ ' ' }
-						&lt;comment-reply@wordpress.com&gt;
+						{ createInterpolateElement(
+							sprintf(
+								/* translators: %1$s is the sender name that will appear in subscriber inboxes */
+								__(
+									'Preview: <strong>%1$s</strong> <comment-reply@wordpress.com>',
+									'jetpack-newsletter'
+								),
+								senderName ||
+									jetpackSettings?.displayName ||
+									__( 'Your Name', 'jetpack-newsletter' )
+							),
+							{
+								strong: <strong />,
+							}
+						) }
 					</p>
 				</div>
 
