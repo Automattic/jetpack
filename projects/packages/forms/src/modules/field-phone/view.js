@@ -21,6 +21,23 @@ const asYouTypes = {};
 const phoneInputRefs = {};
 const searchInputRefs = {};
 const optionsListRefs = {};
+
+/**
+ * Sets flag text on an element by modifying existing text node data instead of
+ * replacing textContent. This avoids triggering wp-emoji's MutationObserver
+ * (which only watches childList, not characterData) that converts emoji to SVG.
+ *
+ * @param {HTMLElement} element - The element to set flag text on.
+ * @param {string}      flag    - The flag emoji to display.
+ */
+const setFlagText = ( element, flag ) => {
+	const text = flag || '';
+	if ( element.firstChild?.nodeType === 3 ) {
+		element.firstChild.data = text;
+	} else {
+		element.textContent = text;
+	}
+};
 const updateSelection = selectedCountry => {
 	const context = getContext();
 	context.phoneCountryCode = selectedCountry.code;
@@ -217,35 +234,19 @@ const { actions, callbacks } = store( NAMESPACE, {
 	},
 	callbacks: {
 		/**
-		 * Updates the flag display by modifying existing text node data
-		 * instead of replacing textContent, to avoid triggering wp-emoji
-		 * MutationObserver which only watches childList, not characterData.
+		 * Sets flag text by modifying existing text node data (nodeType 3 = TEXT_NODE)
+		 * instead of replacing textContent, to avoid triggering wp-emoji's MutationObserver
+		 * which only watches childList (not characterData) and converts emoji to SVG images.
 		 */
 		updateSelectedFlag() {
 			const { ref } = getElement();
 			const context = getContext();
-			const flag = context.selectedCountry?.flag || '';
-			// Modify existing text node's data (nodeType 3 = TEXT_NODE) instead of
-			// replacing textContent to avoid triggering wp-emoji's MutationObserver,
-			// which converts emoji characters to SVG images.
-			if ( ref.firstChild?.nodeType === 3 ) {
-				ref.firstChild.data = flag;
-			} else {
-				ref.textContent = flag;
-			}
+			setFlagText( ref, context.selectedCountry?.flag );
 		},
 		updateOptionFlag() {
 			const { ref } = getElement();
 			const context = getContext();
-			const flag = context.filtered?.flag || '';
-			// Modify existing text node's data (nodeType 3 = TEXT_NODE) instead of
-			// replacing textContent to avoid triggering wp-emoji's MutationObserver,
-			// which converts emoji characters to SVG images.
-			if ( ref.firstChild?.nodeType === 3 ) {
-				ref.firstChild.data = flag;
-			} else {
-				ref.textContent = flag;
-			}
+			setFlagText( ref, context.filtered?.flag );
 		},
 		registerPhoneInput() {
 			const element = getElement().ref;
