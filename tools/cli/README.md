@@ -80,7 +80,7 @@ Lets you create a new project in the monorepo. Running the command with no argum
 
 **Install**: Install project dependencies.
 
-- Install dependencies for the Jetpack plugin project: `jetpack install projects/plugins`
+- Install dependencies for the Jetpack plugin project: `jetpack install plugins/jetpack`
 - Installs dependencies for all projects in the monorepo: `jetpack install --all`
 
 Lets you install project dependencies by selecting a project from a list, or providing one as an argument.
