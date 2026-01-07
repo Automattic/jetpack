@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-explat",
-	"version": "0.4.4",
+	"version": "0.4.5",
 	"private": true,
 	"description": "A package for running A/B tests on the Experimentation Platform (ExPlat) in the plugin.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/explat/#readme",
@@ -37,7 +37,7 @@
 		"@wordpress/url": "4.36.1-next.76cff8c98.0",
 		"cookie": "1.0.2",
 		"debug": "4.4.3",
-		"qs": "6.12.1"
+		"qs": "6.14.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",

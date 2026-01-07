@@ -28541,6 +28541,18 @@ final class CodeCoverage
     public function validate(\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $targets): \SebastianBergmann\CodeCoverage\Test\Target\ValidationResult
     {
     }
+    /**
+     * @internal
+     */
+    public function driverIsPcov(): bool
+    {
+    }
+    /**
+     * @internal
+     */
+    public function driverIsXdebug(): bool
+    {
+    }
 }
 final class BranchAndPathCoverageNotSupportedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
@@ -29083,6 +29095,12 @@ abstract class Driver
     public function disableBranchAndPathCoverage(): void
     {
     }
+    public function isPcov(): bool
+    {
+    }
+    public function isXdebug(): bool
+    {
+    }
     abstract public function nameAndVersion(): string;
     abstract public function start(): void;
     abstract public function stop(): \SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData;
@@ -29108,6 +29126,9 @@ final class PcovDriver extends \SebastianBergmann\CodeCoverage\Driver\Driver
     {
     }
     public function nameAndVersion(): string
+    {
+    }
+    public function isPcov(): true
     {
     }
 }
@@ -29184,6 +29205,9 @@ final class XdebugDriver extends \SebastianBergmann\CodeCoverage\Driver\Driver
     {
     }
     public function nameAndVersion(): string
+    {
+    }
+    public function isXdebug(): true
     {
     }
 }
@@ -29812,7 +29836,7 @@ namespace SebastianBergmann\CodeCoverage\Report\Xml;
  */
 final readonly class BuildInformation
 {
-    public function __construct(\XMLWriter $xmlWriter, \SebastianBergmann\Environment\Runtime $runtime, \DateTimeImmutable $buildDate, string $phpUnitVersion, string $coverageVersion)
+    public function __construct(\XMLWriter $xmlWriter, \SebastianBergmann\Environment\Runtime $runtime, \DateTimeImmutable $buildDate, string $phpUnitVersion, string $coverageVersion, string $driverExtensionName, string $driverExtensionVersion)
     {
     }
 }
@@ -29911,7 +29935,7 @@ final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
     public function projectSourceDirectory(): string
     {
     }
-    public function buildInformation(\SebastianBergmann\Environment\Runtime $runtime, \DateTimeImmutable $buildDate, string $phpUnitVersion, string $coverageVersion): void
+    public function buildInformation(\SebastianBergmann\Environment\Runtime $runtime, \DateTimeImmutable $buildDate, string $phpUnitVersion, string $coverageVersion, string $driverExtensionName, string $driverExtensionVersion): void
     {
     }
     public function tests(): \SebastianBergmann\CodeCoverage\Report\Xml\Tests
