@@ -112,6 +112,35 @@ const cloneMonorepo = async targetDir => {
 	}
 };
 
+// Supported git hooks - read commands from .husky/ files
+const SUPPORTED_HOOKS = [ 'pre-commit', 'pre-push', 'post-checkout', 'post-merge' ];
+
+/**
+ * Read the command for a git hook from the .husky/ directory.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @param {string} hookName     - Name of the hook
+ * @return {string|null} The hook command, or null if not found
+ */
+const getHookCommand = ( monorepoRoot, hookName ) => {
+	const huskyPath = resolve( monorepoRoot, '.husky', hookName );
+	if ( ! fs.existsSync( huskyPath ) ) {
+		return null;
+	}
+
+	const content = fs.readFileSync( huskyPath, 'utf8' ).trim();
+	// Extract the actual command - skip any shell setup lines (like tty handling in pre-push)
+	const lines = content.split( '\n' );
+	// Return the last non-empty line as the command
+	for ( let i = lines.length - 1; i >= 0; i-- ) {
+		const line = lines[ i ].trim();
+		if ( line && ! line.startsWith( 'if ' ) && ! line.startsWith( 'exec ' ) && ! line.startsWith( 'fi' ) ) {
+			return line;
+		}
+	}
+	return content;
+};
+
 /**
  * Initialize git hooks that work with Docker.
  *
@@ -147,14 +176,13 @@ const initHooks = monorepoRoot => {
 		}
 	}
 
-	const hooks = {
-		'pre-commit': 'node tools/js-tools/git-hooks/pre-commit-hook.mjs',
-		'pre-push': 'node tools/js-tools/git-hooks/pre-push-hook.mjs',
-		'post-checkout': './tools/js-tools/git-hooks/post-merge-checkout-hook.sh "$@"',
-		'post-merge': './tools/js-tools/git-hooks/post-merge-checkout-hook.sh ORIG_HEAD',
-	};
+	for ( const hookName of SUPPORTED_HOOKS ) {
+		const command = getHookCommand( monorepoRoot, hookName );
+		if ( ! command ) {
+			console.log( chalk.yellow( `  Skipping ${ hookName } (not found in .husky/)` ) );
+			continue;
+		}
 
-	for ( const [ hookName, command ] of Object.entries( hooks ) ) {
 		const hookPath = resolve( hooksDir, hookName );
 		const hookContent = `#!/bin/sh
 # Jetpack CLI git hook
@@ -193,19 +221,15 @@ exit $?
 const runGitHook = ( monorepoRoot, hookName, hookArgs ) => {
 	console.log( chalk.blue( `Running ${ hookName } hook in Docker...` ) );
 
-	const hookCommands = {
-		'pre-commit': 'node tools/js-tools/git-hooks/pre-commit-hook.mjs',
-		'pre-push': 'node tools/js-tools/git-hooks/pre-push-hook.mjs',
-		'post-checkout': `./tools/js-tools/git-hooks/post-merge-checkout-hook.sh ${ hookArgs.join(
-			' '
-		) }`,
-		'post-merge': './tools/js-tools/git-hooks/post-merge-checkout-hook.sh ORIG_HEAD',
-	};
-
-	const command = hookCommands[ hookName ];
+	let command = getHookCommand( monorepoRoot, hookName );
 	if ( ! command ) {
 		throw new Error( `Unknown git hook: ${ hookName }` );
 	}
+
+	// Replace shell argument placeholders with actual args
+	// .husky files use "$1", "$@" etc which we need to substitute
+	command = command.replace( /"\$[@*]"/g, hookArgs.join( ' ' ) );
+	command = command.replace( /"\$1"/g, hookArgs[ 0 ] || '' );
 
 	// Run the hook command through the monorepo script
 	const result = spawnSync(
