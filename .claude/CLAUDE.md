@@ -81,37 +81,8 @@ Comment: Update internal documentation, no user-facing changes.
 
 PR descriptions must follow the template in @.github/PULL_REQUEST_TEMPLATE.md - CI checks expect the metadata format defined there.
 
-**Required labels:**
-- **[Status]**: `[Status] In Progress`, `[Status] Needs Review`
-- **[Type]**: `[Type] Bug`, `[Type] Enhancement`, `[Type] Janitorial`
-
-**Assignee:** Always assign the PR to the person submitting it (`--assignee @me`).
-
 ```bash
-gh pr create --title "Title" --body-file <(cat <<'EOF'
-Fixes #
-
-## Proposed changes:
-- Change 1
-- Change 2
-
-### Other information:
-
-- [ ] Have you written new tests for your changes, if applicable?
-- [ ] Have you checked the E2E test CI results, and verified that your changes do not break them?
-- [ ] Have you tested your changes on WordPress.com, if applicable?
-
-## Jetpack product discussion
-N/A (or link to p2 discussion)
-
-## Does this pull request change what data or activity we track or use?
-No
-
-## Testing instructions:
-* Step 1
-* Step 2
-EOF
-) --label "[Status] Needs Review" --label "[Type] Enhancement" --assignee @me
+gh pr create --title "Title" --body-file pr-body.md --label "[Status] Needs Review" --label "[Type] Enhancement" --assignee @me
 ```
 
 ## Project Structure
