@@ -21,6 +21,12 @@ class Universal {
 	use Woo_Analytics_Trait;
 
 	/**
+	 * Meta key used to track if purchase event was already recorded.
+	 * Used to prevent duplicate tracking when the thank you page is refreshed.
+	 */
+	const PURCHASE_TRACKED_META_KEY = '_woocommerce_analytics_purchase_tracked';
+
+	/**
 	 * Constructor.
 	 */
 	public function init_hooks() {
@@ -43,9 +49,9 @@ class Universal {
 		// Send events after checkout block.
 		add_action( 'woocommerce_blocks_enqueue_checkout_block_scripts_after', array( $this, 'checkout_process' ) );
 
-		// order processed.
-		add_action( 'woocommerce_checkout_order_processed', array( $this, 'order_process' ), 10, 1 );
-		add_action( 'woocommerce_store_api_checkout_order_processed', array( $this, 'order_process' ), 10, 1 );
+		// Fire purchase event on thank you page (JS side) for both shortcode and block checkout.
+		// Using order meta to prevent duplicate tracking on page refresh.
+		add_action( 'woocommerce_thankyou', array( $this, 'order_process' ), 10, 1 );
 
 		add_filter( 'woocommerce_checkout_posted_data', array( $this, 'save_checkout_post_data' ), 10, 1 );
 
@@ -287,12 +293,13 @@ class Universal {
 	}
 
 	/**
-	 * After the order processed, fire an event for each item in the order
+	 * On the thank you page, fire an event for each item in the order.
+	 * Uses order meta to prevent duplicate tracking on page refresh.
 	 *
-	 * @param string|WC_Order $order_id_or_order Order Id or Order object.
+	 * @param string|int|WC_Order $order_id_or_order Order ID or Order object.
 	 */
 	public function order_process( $order_id_or_order ) {
-		if ( is_string( $order_id_or_order ) ) {
+		if ( is_string( $order_id_or_order ) || is_int( $order_id_or_order ) ) {
 			$order = wc_get_order( $order_id_or_order );
 		} else {
 			$order = $order_id_or_order;
@@ -302,6 +309,11 @@ class Universal {
 			! $order
 			|| ! $order instanceof WC_Order
 		) {
+			return;
+		}
+
+		// Prevent duplicate tracking (e.g., when user refreshes the thank you page).
+		if ( $order->get_meta( self::PURCHASE_TRACKED_META_KEY ) ) {
 			return;
 		}
 
@@ -342,28 +354,22 @@ class Universal {
 			$checkout_page_contains_checkout_shortcode = '1';
 		}
 
-		// loop through products in the order and queue a purchase event.
-		foreach ( $order->get_items() as $order_item ) {
+		$order_items       = $order->get_items();
+		$order_items_count = is_array( $order_items ) ? count( $order_items ) : 0;
+
+		$order_coupons       = $order->get_coupons();
+		$order_coupons_count = is_array( $order_coupons ) ? count( $order_coupons ) : 0;
+
+		// Loop through products in the order and enqueue a purchase event for client-side tracking.
+		foreach ( $order_items as $order_item ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- Checked before being called. See also https://github.com/phan/phan/issues/1204.
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
 
-			$order_items       = $order->get_items();
-			$order_items_count = 0;
-			if ( is_array( $order_items ) ) {
-				$order_items_count = count( $order_items );
-			}
-			$order_coupons       = $order->get_coupons();
-			$order_coupons_count = 0;
-			if ( is_array( $order_coupons ) ) {
-				$order_coupons_count = count( $order_coupons );
-			}
-
-			WC_Analytics_Tracking::record_event(
+			$this->enqueue_event(
 				'product_purchase',
 				$this->get_cart_checkout_event_properties(
 					array(
 						'oi'                       => $order->get_order_number(),
-						'pi'                       => $product_id,
 						'pq'                       => $order_item->get_quantity(),
 						'payment_option'           => $payment_option,
 						'create_account'           => $create_account,
@@ -381,9 +387,14 @@ class Universal {
 						'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
 						'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
 					)
-				)
+				),
+				$product_id
 			);
 		}
+
+		// Mark order as tracked to prevent duplicates on page refresh.
+		$order->add_meta_data( self::PURCHASE_TRACKED_META_KEY, true );
+		$order->save();
 	}
 	/**
 	 * Gets the inner blocks of a block.

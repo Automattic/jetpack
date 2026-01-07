@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Move product_purchase event to fire on thank you page (JS-side) to align with product_checkout event, ensuring consistent funnel analysis. Added duplicate prevention via order meta.
