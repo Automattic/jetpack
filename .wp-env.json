@@ -1,0 +1,47 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/wp-env.json",
+	"core": null,
+	"phpVersion": "8.2",
+	"plugins": [
+		"./projects/plugins/automattic-for-agencies-client",
+		"./projects/plugins/backup",
+		"./projects/plugins/beta",
+		"./projects/plugins/boost",
+		"./projects/plugins/classic-theme-helper-plugin",
+		"./projects/plugins/crm",
+		"./projects/plugins/debug-helper",
+		"./projects/plugins/inspect",
+		"./projects/plugins/jetpack",
+		"./projects/plugins/mu-wpcom-plugin",
+		"./projects/plugins/paypal-payment-buttons",
+		"./projects/plugins/protect",
+		"./projects/plugins/search",
+		"./projects/plugins/social",
+		"./projects/plugins/starter-plugin",
+		"./projects/plugins/super-cache",
+		"./projects/plugins/vaultpress",
+		"./projects/plugins/videopress",
+		"./projects/plugins/wpcomsh"
+	],
+	"themes": [],
+	"port": 8888,
+	"testsPort": 8889,
+	"mappings": {
+		"wp-content/mu-plugins": "./tools/docker/mu-plugins"
+	},
+	"config": {
+		"WP_DEBUG": true,
+		"WP_DEBUG_LOG": true,
+		"WP_DEBUG_DISPLAY": false,
+		"SCRIPT_DEBUG": true,
+		"JETPACK_DOCKER_ENV": true
+	},
+	"env": {
+		"tests": {
+			"config": {
+				"WP_DEBUG": false,
+				"SCRIPT_DEBUG": false
+			}
+		}
+	}
+}

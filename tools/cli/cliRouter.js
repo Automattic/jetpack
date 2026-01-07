@@ -16,6 +16,7 @@ import { releaseDefine } from './commands/release.js';
 import { rsyncDefine } from './commands/rsync.js';
 import * as testCommand from './commands/test.js';
 import { watchDefine } from './commands/watch.js';
+import { wpEnvDefine } from './commands/wp-env.js';
 
 /**
  * The main CLI router function.
@@ -50,6 +51,7 @@ export async function cli() {
 	argv = rsyncDefine( argv );
 	argv.command( testCommand );
 	argv = watchDefine( argv );
+	argv = wpEnvDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
 	argv

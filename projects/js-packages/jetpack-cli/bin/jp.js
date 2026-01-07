@@ -6,7 +6,7 @@ import { dirname, resolve } from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import prompts from 'prompts';
 import updateNotifier from 'update-notifier';
 
@@ -152,6 +152,84 @@ const main = async () => {
 
 			console.log( '2. Navigate to an existing Jetpack monorepo directory' );
 			throw new Error( 'Monorepo not found' );
+		}
+
+		// Handle wp-env commands that must run on the host machine
+		if ( args[ 0 ] === 'wp-env' ) {
+			// Use local wp-env if available, otherwise use npx
+			const localWpEnv = resolve( monorepoRoot, 'node_modules/.bin/wp-env' );
+			const wpEnvBin = fs.existsSync( localWpEnv ) ? localWpEnv : 'npx';
+			const useNpx = ! fs.existsSync( localWpEnv );
+
+			// Map jp wp-env commands to wp-env commands
+			const wpEnvArgs = args.slice( 1 );
+			let wpEnvCommand = [];
+
+			switch ( wpEnvArgs[ 0 ] ) {
+				case 'start':
+				case 'stop':
+				case 'destroy':
+				case 'clean':
+				case 'logs':
+				case 'install-path':
+					wpEnvCommand = wpEnvArgs;
+					break;
+				case 'run':
+					wpEnvCommand = wpEnvArgs;
+					break;
+				case 'wp':
+					// jp wp-env wp <command> -> wp-env run cli wp <command>
+					wpEnvCommand = [ 'run', 'cli', 'wp', ...wpEnvArgs.slice( 1 ) ];
+					break;
+				case 'sh':
+					// jp wp-env sh -> wp-env run wordpress bash
+					wpEnvCommand = [ 'run', 'wordpress', 'bash' ];
+					break;
+				case 'status': {
+					// Check if wp-env containers are running (they have hash prefixes like fd645e64...)
+					const statusResult = spawnSync(
+						'docker',
+						[
+							'ps',
+							'--filter',
+							'name=wordpress-1',
+							'--filter',
+							'name=mysql-1',
+							'--format',
+							'{{.Names}}\t{{.Status}}',
+						],
+						{
+							cwd: monorepoRoot,
+							encoding: 'utf-8',
+						}
+					);
+
+					if ( statusResult.stdout && statusResult.stdout.trim() ) {
+						console.log( chalk.green( 'wp-env is running:' ) );
+						console.log( statusResult.stdout );
+					} else {
+						console.log( chalk.yellow( 'wp-env is not running. Start with: jp wp-env start' ) );
+					}
+					return;
+				}
+				default:
+					// Pass through any unknown commands
+					wpEnvCommand = wpEnvArgs;
+			}
+
+			// If using npx, prepend @wordpress/env to the command
+			const finalCommand = useNpx ? [ '@wordpress/env', ...wpEnvCommand ] : wpEnvCommand;
+
+			const result = spawnSync( wpEnvBin, finalCommand, {
+				stdio: 'inherit',
+				shell: true,
+				cwd: monorepoRoot,
+			} );
+
+			if ( result.status !== 0 && result.status !== null ) {
+				throw new Error( `wp-env command failed with status ${ result.status }` );
+			}
+			return;
 		}
 
 		// Handle docker commands that must run on the host machine

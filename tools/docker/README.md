@@ -52,9 +52,67 @@ _You are now ready to login to your new WordPress install and connect Jetpack, c
 
 You should follow [Jetpack’s development documentation](../../docs/development-environment.md#development-workflow) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
 
+## Alternative: wp-env
+
+As an alternative to the custom Docker setup, you can use [@wordpress/env](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/) - the official WordPress local development environment. This provides a simpler, standardized setup that's used across the WordPress ecosystem.
+
+### Quick Start with wp-env
+
+```sh
+# Start the environment (WordPress on port 8888)
+jp wp-env start
+
+# Check status
+jp wp-env status
+
+# Run WP-CLI commands
+jp wp-env wp plugin list
+jp wp-env wp option get siteurl
+
+# Stop the environment
+jp wp-env stop
+
+# Remove all data and start fresh
+jp wp-env destroy
+```
+
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `jp wp-env start` | Start WordPress environment |
+| `jp wp-env stop` | Stop the environment |
+| `jp wp-env destroy` | Remove all containers and data |
+| `jp wp-env clean [env]` | Clean environment data (all, tests, development) |
+| `jp wp-env wp <cmd>` | Run WP-CLI commands |
+| `jp wp-env sh` | Open shell in WordPress container |
+| `jp wp-env logs` | View container logs |
+| `jp wp-env status` | Check if environment is running |
+| `jp wp-env run <container> <cmd>` | Run command in specific container |
+| `jp wp-env install-path` | Show where WordPress files are stored |
+
+### Configuration
+
+The environment is configured via `.wp-env.json` in the monorepo root. All monorepo plugins are automatically included.
+
+### Key Differences from Custom Docker
+
+| Feature | Custom Docker (`jp docker`) | wp-env (`jp wp-env`) |
+|---------|----------------------------|---------------------|
+| **Port** | 80 (default) | 8888 |
+| **Plugins** | Auto-symlinked, ready to use | Need `composer install` first |
+| **Mailpit** | Included | Not included |
+| **phpMyAdmin** | Included | Not included |
+| **SFTP** | Included | Not included |
+| **Maintenance** | Custom scripts | WordPress core team |
+
+For migration planning details, see [TODO.md](./TODO.md).
+
+---
+
 ## Good to know
 
-WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic in `./tools/docker/wordpress/wp-config.php` so you shouldn’t need to change these even if you access the site via different domains.
+WordPress' `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic in `./tools/docker/wordpress/wp-config.php` so you shouldn’t need to change these even if you access the site via different domains.
 
 ## Custom mounts, environment Variables, `.env` Files, and Ports
 

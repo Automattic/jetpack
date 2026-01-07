@@ -724,9 +724,34 @@ while IFS= read -r X; do
 	echo "---"
 done < <( git grep --line-number --column -o '675\s\+Massachusetts\|59\s\+Temple\|51\s\+Franklin' ':!.github/files/lint-project-structure.sh' ':!*/changelog/*' )
 
+# - .wp-env.json plugins list should match projects/plugins/ (excluding wpcloud-sso).
+debug "Checking .wp-env.json plugins list"
+WPENV_PLUGINS=$(jq -r '.plugins[]' .wp-env.json 2>/dev/null | sed 's!^\./projects/plugins/!!' | sort)
+ACTUAL_PLUGINS=$(for DIR in projects/plugins/*/; do
+	[[ -f "$DIR/composer.json" ]] || continue
+	PLUGIN="$(basename "$DIR")"
+	# wpcloud-sso is excluded from Docker setup
+	[[ "$PLUGIN" == "wpcloud-sso" ]] && continue
+	echo "$PLUGIN"
+done | sort)
+MISSING_FROM_WPENV=$(comm -23 <(echo "$ACTUAL_PLUGINS") <(echo "$WPENV_PLUGINS"))
+EXTRA_IN_WPENV=$(comm -13 <(echo "$ACTUAL_PLUGINS") <(echo "$WPENV_PLUGINS"))
+if [[ -n "$MISSING_FROM_WPENV" ]]; then
+	EXIT=1
+	for PLUGIN in $MISSING_FROM_WPENV; do
+		echo "::error file=.wp-env.json::Plugin $PLUGIN exists in projects/plugins/ but is missing from .wp-env.json plugins list. Add \"./projects/plugins/$PLUGIN\" to the plugins array."
+	done
+fi
+if [[ -n "$EXTRA_IN_WPENV" ]]; then
+	EXIT=1
+	for PLUGIN in $EXTRA_IN_WPENV; do
+		echo "::error file=.wp-env.json::Plugin $PLUGIN is listed in .wp-env.json but does not exist in projects/plugins/. Remove it from the plugins array."
+	done
+fi
+
 # - Unexpected packages in monorepo root.
 debug "Checking for unexpected JS packages in monorepo root"
-TMP=$( shopt -u dotglob; printf "%s\n" node_modules/* node_modules/@*/* | sed 's!^node_modules/!!' | grep -v '^@[^/]*$' | grep -E --line-regexp -v 'eslint|husky|jetpack-cli|jetpack-js-tools|stylelint|@\*/\*' || true )
+TMP=$( shopt -u dotglob; printf "%s\n" node_modules/* node_modules/@*/* | sed 's!^node_modules/!!' | grep -v '^@[^/]*$' | grep -E --line-regexp -v '@wordpress/env|eslint|husky|jetpack-cli|jetpack-js-tools|stylelint|@\*/\*' || true )
 if [[ -n "$TMP" ]]; then
 	EXIT=1
 	echo "::error::Unexpected packages are installed in the monorepo root node_modules. This is likely to lead to phantom dependencies! Whatever you did that resulted in this is probably wrong. Ask for help in Slack #jetpack-monorepo.%0A%0APackages found are: ${TMP//$'\n'/ }"

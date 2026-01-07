@@ -30,6 +30,7 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
+		"@wordpress/env": "10.21.0",
 		"eslint": "9.39.1",
 		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
