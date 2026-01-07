@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add missing jetpack-blocks dependency required for Blocks::is_fse_theme() usage.
