@@ -47,7 +47,7 @@ function swiperResize( swiper ) {
 	if ( ! img ) {
 		return;
 	}
-	const hasNatural = img && img.naturalWidth > 0 && img.naturalHeight > 0;
+	const hasNatural = img.naturalWidth > 0 && img.naturalHeight > 0;
 	const aspectRatio = hasNatural ? img.naturalWidth / img.naturalHeight : SIXTEEN_BY_NINE;
 	const sanityAspectRatio = Math.max( Math.min( aspectRatio, SIXTEEN_BY_NINE ), 1 );
 	const sanityHeight =
