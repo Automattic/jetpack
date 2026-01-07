@@ -3498,7 +3498,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/woocommerce-analytics",
-				"reference": "fb8bcf0334e3554fb4fadbfaf07cd818dc5140a7"
+				"reference": "2d860201575459f72ce71798f89572fc0e4310bf"
 			},
 			"require": {
 				"automattic/block-delimiter": "@dev",
@@ -3510,6 +3510,7 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
+				"automattic/jetpack-test-environment": "@dev",
 				"automattic/phpunit-select-config": "@dev",
 				"yoast/phpunit-polyfills": "^4.0.0"
 			},
