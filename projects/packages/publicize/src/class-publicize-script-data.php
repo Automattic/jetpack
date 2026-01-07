@@ -207,15 +207,13 @@ class Publicize_Script_Data {
 		$share_status = array();
 
 		// get_post_share_status is not available on WPCOM yet.
-		if ( Utils::should_block_editor_have_social() && $post && self::has_feature_flag( 'share-status' ) ) {
+		if ( Utils::should_block_editor_have_social() && $post ) {
 			$share_status[ $post->ID ] = Share_Status::get_post_share_status( $post->ID );
 		}
 
-		$should_have_connections = self::has_feature_flag( 'connections-management' ) || self::has_feature_flag( 'editor-preview' );
-
 		return array(
 			'connectionData' => array(
-				'connections' => $should_have_connections ? Connections::get_all_for_user() : array(),
+				'connections' => Connections::get_all_for_user(),
 			),
 			'shareStatus'    => $share_status,
 		);
@@ -224,23 +222,14 @@ class Publicize_Script_Data {
 	/**
 	 * Whether the site has the feature flag enabled.
 	 *
+	 * @deprecated 0.69.1 Use Current_Plan::supports() directly instead.
+	 *
+	 * @todo Remove this method After March 2026.
+	 *
 	 * @param string $feature The feature name to check for, without the "social-" prefix.
 	 * @return bool
 	 */
 	public static function has_feature_flag( $feature ): bool {
-		$flag_name = str_replace( '-', '_', $feature );
-
-		// If the option is set, use it.
-		if ( get_option( 'jetpack_social_has_' . $flag_name, false ) ) {
-			return true;
-		}
-
-		$constant_name = 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name );
-		// If the constant is set, use it.
-		if ( defined( $constant_name ) && constant( $constant_name ) ) {
-			return true;
-		}
-
 		return Current_Plan::supports( 'social-' . $feature );
 	}
 

@@ -14,6 +14,11 @@ jest.mock( 'state/settings', () => {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isWoASite: jest.fn().mockReturnValue( true ),
+	getScriptData: jest.fn().mockReturnValue( {
+		site: {
+			suffix: null,
+		},
+	} ),
 } ) );
 
 describe( 'Google Analytics', () => {

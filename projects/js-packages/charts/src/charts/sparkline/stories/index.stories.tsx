@@ -56,6 +56,11 @@ const meta: Meta< SparklineProps > = {
 			description: 'Margin around the chart',
 			table: { category: 'Dimensions' },
 		},
+		animation: {
+			control: 'boolean',
+			description: 'Enable entry animation on initial render',
+			table: { category: 'Visual Style' },
+		},
 	},
 };
 
@@ -189,5 +194,19 @@ export const Dashboard: Story = {
 				) ) }
 			</div>
 		);
+	},
+};
+
+/**
+ * Sparkline with entry animation that creates a smooth rising effect.
+ * The animation respects the user's prefers-reduced-motion setting for accessibility.
+ */
+export const Animation: Story = {
+	args: {
+		data: defaultData,
+		width: 120,
+		height: 48,
+		color: '#4CAF50',
+		animation: true,
 	},
 };

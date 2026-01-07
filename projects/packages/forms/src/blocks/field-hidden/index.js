@@ -18,6 +18,7 @@ const settings = {
 	edit,
 	save,
 	attributes: {
+		id: { type: 'string', default: '' },
 		label: { type: 'string', default: '' },
 		default: { type: 'string', default: '' },
 	},

@@ -25,10 +25,10 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 				clientId,
 				createBlock( FORM_BLOCK_NAME, {}, [
 					createBlock( name, attributes, getBlocks( clientId ) ),
-					createBlock( 'jetpack/button', {
+					createBlock( 'core/button', {
 						text: __( 'Submit', 'jetpack-forms' ),
-						element: 'button',
-						lock: { remove: true },
+						type: 'submit',
+						tagName: 'button',
 					} ),
 				] )
 			);

@@ -20,17 +20,16 @@
 		line-height: var(--jetpack--contact-form--line-height);
 		align-items: center;
 		backdrop-filter: var(--jetpack--contact-form--input-backdrop-filter, none);
+		filter: var(--jetpack--contact-form--input-filter, none);
 
 		&:has(.jetpack-field__input-element:focus) {
-			outline-width: 2px;
+			outline-width: 1px;
 			outline-style: solid;
-			// mimics default focus outline color, this is something we cannot
-			// fully control as the probe would fail to capture :focus styles
-			outline-color: rgb(0, 95, 204);
 		}
 
 		.jetpack-field__input-prefix:not([hidden]) {
-			background-color: inherit;
+			background-color: transparent;
+			z-index: 1;
 
 			.jetpack-field__input-element {
 				width: 100%;
@@ -43,7 +42,6 @@
 				}
 			}
 		}
-
 
 		.jetpack-field__input-element {
 			border: 0;
@@ -59,6 +57,7 @@
 			min-width: unset;
 			min-height: unset;
 			backdrop-filter: none;
+			z-index: 1;
 
 			&:not(.jetpack-field__input-prefix .jetpack-field__input-element) {
 				letter-spacing: inherit;
@@ -156,12 +155,15 @@
 					font-size: 0.8em;
 				}
 			}
+
+			&:has(~.jetpack-field__input-phone-wrapper.is-combobox-open) .notched-label__notch,
+			&:has(~.jetpack-field__input-phone-wrapper:focus-within) .notched-label__notch,
+			&:has(~* .jetpack-field__input-element:focus) .notched-label__notch,
+			&:has(~* .jetpack-field__input-element.has-value) .notched-label__notch,
+			&:has(~* .jetpack-field__input-element.has-placeholder) .notched-label__notch {
+				border-top-color: transparent !important;
+			}
 		}
 
-		.notched-label:has(~* .jetpack-field__input-element:focus) .notched-label__notch,
-		.notched-label:has(~* .jetpack-field__input-element.has-value) .notched-label__notch,
-		.notched-label:has(~* .jetpack-field__input-element.has-placeholder) .notched-label__notch {
-			border-top-color: transparent !important;
-		}
 	}
 }

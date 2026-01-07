@@ -74,10 +74,10 @@ async function fixDeps( pkg ) {
 	}
 
 	// Missing dep or peer dep on react.
-	// Once we can drop @wordpress/icons v10 (see above), looks like this can go away.
-	// https://github.com/WordPress/gutenberg/issues/73257
+	// https://github.com/WordPress/gutenberg/issues/73257 (fixed in @wordpress/icons v11, but see above)
+	// https://github.com/WordPress/gutenberg/issues/74394
 	if (
-		pkg.name === '@wordpress/icons' &&
+		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/image-cropper' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
