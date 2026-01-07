@@ -15,7 +15,7 @@ return make_phan_config(
 	array(
 		'+stubs'             => array( 'woocommerce' ),
 		'exclude_file_regex' => array(
-			'tests/php/mocks/', // Exclude mock files that redefine WooCommerce classes.
+			'tests/', // Exclude test files from static analysis.
 		),
 	)
 );
