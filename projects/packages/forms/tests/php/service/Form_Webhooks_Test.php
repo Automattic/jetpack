@@ -1314,11 +1314,11 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// URL-encoded IPs should be decoded and blocked at validation time
+		// URL-encoded IPs are rejected as invalid URLs by filter_var()
 		$this->assertFalse( $http_request_made, 'HTTP request should not be made for URL-encoded IP URLs' );
-		$this->assertNotEmpty( $logged_events, 'Blocked IP should be logged' );
+		$this->assertNotEmpty( $logged_events, 'Invalid URL should be logged' );
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
-		$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'] );
+		$this->assertEquals( 'invalid_url', $logged_events[0]['reason'] );
 	}
 
 	/**
@@ -1629,12 +1629,11 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// IPv6 with zone identifier should be blocked at validation time
-		// The zone ID is stripped, revealing the fe80:: link-local address
+		// IPv6 with zone identifier is rejected as invalid URL by filter_var()
 		$this->assertFalse( $http_request_made, 'HTTP request should not be made for IPv6 with zone identifier' );
-		$this->assertNotEmpty( $logged_events, 'Blocked IP should be logged' );
+		$this->assertNotEmpty( $logged_events, 'Invalid URL should be logged' );
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
-		$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'] );
+		$this->assertEquals( 'invalid_url', $logged_events[0]['reason'] );
 	}
 
 	/**

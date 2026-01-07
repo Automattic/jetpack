@@ -260,6 +260,12 @@ class Form_Webhooks {
 	 * @return bool|WP_Error True if valid, WP_Error with reason if invalid.
 	 */
 	private function validate_webhook_url( $url ) {
+		// Validate URL format before parsing to catch malformed URLs
+		// e.g., "https:///example.com" or URLs with unusual syntax
+		if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			return new WP_Error( 'invalid_url', __( 'Invalid webhook URL format.', 'jetpack-forms' ) );
+		}
+
 		$parsed = wp_parse_url( $url );
 
 		if ( ! $parsed || empty( $parsed['host'] ) ) {
