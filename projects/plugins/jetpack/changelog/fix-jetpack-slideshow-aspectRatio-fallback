@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Slideshow: Ensureslideshows do not stretch to parent container width on mobile if no list height is set.
+Slideshow: Ensure slideshows do not stretch to parent container width on mobile if no list height is set.
