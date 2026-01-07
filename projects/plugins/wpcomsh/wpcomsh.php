@@ -79,7 +79,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for WordPress.com Site Helper plugin', 'starter-plugin' )
+			__( 'Error loading autoloader file for WordPress.com Site Helper plugin', 'wpcomsh' )
 		);
 	}
 
@@ -93,7 +93,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 			$message = sprintf(
 				wp_kses(
 					/* translators: Placeholder is a link to a support document. */
-					__( 'Your installation of WordPress.com Site Helper is incomplete. If you installed WordPress.com Site Helper from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. WordPress.com Site Helper must have Composer dependencies installed and built via the build command.', 'starter-plugin' ),
+					__( 'Your installation of WordPress.com Site Helper is incomplete. If you installed WordPress.com Site Helper from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. WordPress.com Site Helper must have Composer dependencies installed and built via the build command.', 'wpcomsh' ),
 					array(
 						'a' => array(
 							'href'   => array(),
