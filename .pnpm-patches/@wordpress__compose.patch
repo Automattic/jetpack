@@ -1,0 +1,12 @@
+diff --git a/build-module/hooks/use-keyboard-shortcut/index.mjs b/build-module/hooks/use-keyboard-shortcut/index.mjs
+index 0ba9c7313234f23ef3c0af29089430450cea6ae3..9e187b0a882d2667771a109b54eb4d692c0b9b77 100644
+--- a/build-module/hooks/use-keyboard-shortcut/index.mjs
++++ b/build-module/hooks/use-keyboard-shortcut/index.mjs
+@@ -1,6 +1,6 @@
+ // packages/compose/src/hooks/use-keyboard-shortcut/index.js
+ import Mousetrap from "mousetrap";
+-import "mousetrap/plugins/global-bind/mousetrap-global-bind";
++import "mousetrap/plugins/global-bind/mousetrap-global-bind.js";
+ import { useEffect, useRef } from "@wordpress/element";
+ import { isAppleOS } from "@wordpress/keycodes";
+ function useKeyboardShortcut(shortcuts, callback, {

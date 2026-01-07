@@ -1,0 +1,23 @@
+diff --git a/build-module/components/dataviews-filters/input-widget.mjs b/build-module/components/dataviews-filters/input-widget.mjs
+index d344f041950fb26d1411a16cc52b26799f8ef223..04f59cdf989b571ff422b40720f3526f61ea7838 100644
+--- a/build-module/components/dataviews-filters/input-widget.mjs
++++ b/build-module/components/dataviews-filters/input-widget.mjs
+@@ -1,5 +1,5 @@
+ // packages/dataviews/src/components/dataviews-filters/input-widget.tsx
+-import fastDeepEqual from "fast-deep-equal/es6";
++import fastDeepEqual from "fast-deep-equal/es6/index.js";
+ import { useEvent } from "@wordpress/compose";
+ import { useMemo } from "@wordpress/element";
+ import { Flex } from "@wordpress/components";
+diff --git a/build-module/hooks/use-form-validity.mjs b/build-module/hooks/use-form-validity.mjs
+index 63f4c83df6919f08b9e177292a0eae78c6bf5a6b..b101b45154ca47ad7b5a0e4fc72d863eafa6c0e2 100644
+--- a/build-module/hooks/use-form-validity.mjs
++++ b/build-module/hooks/use-form-validity.mjs
+@@ -1,6 +1,6 @@
+ // packages/dataviews/src/hooks/use-form-validity.ts
+ import deepMerge from "deepmerge";
+-import fastDeepEqual from "fast-deep-equal/es6";
++import fastDeepEqual from "fast-deep-equal/es6/index.js";
+ import { useCallback, useEffect, useRef, useState } from "@wordpress/element";
+ import { __ } from "@wordpress/i18n";
+ import normalizeFields from "../field-types/index.mjs";

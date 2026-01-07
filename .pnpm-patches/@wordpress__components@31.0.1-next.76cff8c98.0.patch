@@ -1,0 +1,34 @@
+diff --git a/build-module/context/context-system-provider.mjs b/build-module/context/context-system-provider.mjs
+index b548dab923d383146fabeb778095cc9b7904692b..34f810cddbaa21cd287184fc30c4137f690bbaae 100644
+--- a/build-module/context/context-system-provider.mjs
++++ b/build-module/context/context-system-provider.mjs
+@@ -1,6 +1,6 @@
+ // packages/components/src/context/context-system-provider.js
+ import deepmerge from "deepmerge";
+-import fastDeepEqual from "fast-deep-equal/es6";
++import fastDeepEqual from "fast-deep-equal/es6/index.js";
+ import { isPlainObject } from "is-plain-object";
+ import { createContext, useContext, useRef, useMemo, memo } from "@wordpress/element";
+ import warn from "@wordpress/warning";
+diff --git a/build-module/duotone-picker/duotone-picker.mjs b/build-module/duotone-picker/duotone-picker.mjs
+index 01ab217568e3d63cf15801a38bb6af7a65bbff39..4b2353496535b6194ecb7eeffc6439d6176354cc 100644
+--- a/build-module/duotone-picker/duotone-picker.mjs
++++ b/build-module/duotone-picker/duotone-picker.mjs
+@@ -1,5 +1,5 @@
+ // packages/components/src/duotone-picker/duotone-picker.tsx
+-import fastDeepEqual from "fast-deep-equal/es6";
++import fastDeepEqual from "fast-deep-equal/es6/index.js";
+ import { useMemo } from "@wordpress/element";
+ import { __, sprintf } from "@wordpress/i18n";
+ import ColorListPicker from "./color-list-picker/index.mjs";
+diff --git a/build-module/higher-order/with-fallback-styles/index.mjs b/build-module/higher-order/with-fallback-styles/index.mjs
+index a59421fd3a4097bb59604d7426624b70ea2d181b..1257ad75dce23abeb9f758cd157f08dc425294b3 100644
+--- a/build-module/higher-order/with-fallback-styles/index.mjs
++++ b/build-module/higher-order/with-fallback-styles/index.mjs
+@@ -1,5 +1,5 @@
+ // packages/components/src/higher-order/with-fallback-styles/index.tsx
+-import fastDeepEqual from "fast-deep-equal/es6";
++import fastDeepEqual from "fast-deep-equal/es6/index.js";
+ import { Component } from "@wordpress/element";
+ import { createHigherOrderComponent } from "@wordpress/compose";
+ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";

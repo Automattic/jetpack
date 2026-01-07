@@ -1,0 +1,14 @@
+diff --git a/build-module/index.mjs b/build-module/index.mjs
+index ba2e98f36ebedb4f225cc533d7172da63dae1279..87dbbc92288c5c0d4ac216e6ad886ee7a8ecd697 100644
+--- a/build-module/index.mjs
++++ b/build-module/index.mjs
+@@ -1,7 +1,7 @@
+ // packages/date/src/index.ts
+ import momentLib from "moment";
+-import "moment-timezone/moment-timezone";
+-import "moment-timezone/moment-timezone-utils";
++import "moment-timezone/moment-timezone.js";
++import "moment-timezone/moment-timezone-utils.js";
+ import deprecated from "@wordpress/deprecated";
+ var WP_ZONE = "WP";
+ var VALID_UTC_OFFSET = /^[+-][0-1][0-9](:?[0-9][0-9])?$/;
