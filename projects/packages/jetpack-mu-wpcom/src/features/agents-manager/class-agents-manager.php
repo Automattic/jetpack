@@ -197,16 +197,13 @@ class Agents_Manager {
 		 */
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
 
-		$is_block_editor = $this->is_block_editor();
-
-		// Enqueue rules:
-		// - In block editor: enqueue when should_use_big_sky_ui is true (BigSky is available and 'unified-big-sky' flag is not set)
-		// - Outside block editor: enqueue only when unified experience is enabled.
-		if ( ( $is_block_editor && $this->should_use_big_sky_ui() ) || ( ! $is_block_editor && ! $use_unified_experience ) ) {
+		if ( $this->is_block_editor() && $this->is_big_sky_active() && ! $this->has_unified_big_sky_flag() ) {
+			return;
+		} elseif ( ! $use_unified_experience ) {
 			return;
 		}
 
-		if ( $is_block_editor ) {
+		if ( $this->is_block_editor() ) {
 			$variant = 'gutenberg';
 		} else {
 			$variant = 'wp-admin';
@@ -532,29 +529,30 @@ class Agents_Manager {
 	}
 
 	/**
-	 * Determine if the user should use the Big Sky UI.
-	 *
-	 * @return bool True if the user should use the Big Sky UI.
+	 * Determine if Big Sky plugin is active.
 	 */
-	private function should_use_big_sky_ui() {
+	private function is_big_sky_active() {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		if ( ! is_plugin_active( 'big-sky-plugin/big-sky.php' ) && ! is_plugin_active( 'big-sky/big-sky.php' ) ) {
-			return false;
-		}
+		return is_plugin_active( 'big-sky-plugin/big-sky.php' ) || is_plugin_active( 'big-sky/big-sky.php' );
+	}
 
+	/**
+	 * Determine if the user should use unified experience for Big Sky.
+	 */
+	private function has_unified_big_sky_flag() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
 		if ( isset( $_GET['flags'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
 			$flags = explode( ',', sanitize_text_field( wp_unslash( $_GET['flags'] ) ) );
 			if ( in_array( 'unified-big-sky', $flags, true ) ) {
-				return false;
+				return true;
 			}
 		}
 
-		return true;
+		return false;
 	}
 }
 
