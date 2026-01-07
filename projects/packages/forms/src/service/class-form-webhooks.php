@@ -204,8 +204,9 @@ class Form_Webhooks {
 				return false;
 			}
 
-			// Check for IPv6 loopback (::1)
-			if ( $ip === '::1' ) {
+			// Check for IPv6 loopback (::1) using binary comparison
+			// This handles all valid representations (e.g., 0:0:0:0:0:0:0:1, ::0:1)
+			if ( $ip_binary === inet_pton( '::1' ) ) {
 				return true;
 			}
 
