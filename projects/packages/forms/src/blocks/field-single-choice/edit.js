@@ -49,7 +49,7 @@ export default function SingleChoiceFieldEdit( props ) {
 			element: (
 				<ToggleControl
 					key="allowOther"
-					label={ __( 'Allow "Other" option', 'jetpack-forms' ) }
+					label={ __( 'Include "Other" option', 'jetpack-forms' ) }
 					checked={ !! allowOther }
 					onChange={ value => {
 						setAttributes( { allowOther: value } );
@@ -72,7 +72,12 @@ export default function SingleChoiceFieldEdit( props ) {
 								isOther: true,
 							} );
 
-							insertBlock( newOption, optionsBlock.innerBlocks.length, optionsBlock.clientId );
+							insertBlock(
+								newOption,
+								optionsBlock.innerBlocks.length,
+								optionsBlock.clientId,
+								false // Don't update block selection
+							);
 						} else {
 							// Remove any existing "Other" option blocks.
 							optionsBlock.innerBlocks.forEach( b => {
@@ -82,11 +87,14 @@ export default function SingleChoiceFieldEdit( props ) {
 							} );
 						}
 					} }
-					help={ __( 'Adds an "Other" option with a text input field', 'jetpack-forms' ) }
+					help={ __(
+						'Includes an "Other" option with a text input field below it',
+						'jetpack-forms'
+					) }
 					__nextHasNoMarginBottom={ true }
 				/>
 			),
-			index: 1,
+			index: 2,
 		},
 	];
 
