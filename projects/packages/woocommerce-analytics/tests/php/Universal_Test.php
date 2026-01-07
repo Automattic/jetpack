@@ -84,11 +84,10 @@ class Universal_Test extends BaseTestCase {
 		// Set up mock to return false.
 		$wc_get_order_mock_return = false;
 
-		// Mock WC_Analytics_Tracking::record_event to ensure it's not called.
 		$universal = new Universal();
 		$universal->order_process( 12345 );
 
-		// If we get here without errors, the method returned early as expected.
-		$this->assertTrue( true, 'order_process should return early when order is not found.' );
+		// If we get here without errors, the method completed without processing a non-existent order.
+		$this->assertTrue( true, 'order_process should handle a missing order without throwing an exception.' );
 	}
 }
