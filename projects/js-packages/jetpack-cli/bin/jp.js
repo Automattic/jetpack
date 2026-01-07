@@ -112,38 +112,18 @@ const cloneMonorepo = async targetDir => {
 	}
 };
 
-// Supported git hooks - read commands from .husky/ files
+// Supported git hooks - these must exist in .husky/ directory
 const SUPPORTED_HOOKS = [ 'pre-commit', 'pre-push', 'post-checkout', 'post-merge' ];
 
 /**
- * Read the command for a git hook from the .husky/ directory.
+ * Check if a husky hook file exists.
  *
  * @param {string} monorepoRoot - Path to the monorepo root
  * @param {string} hookName     - Name of the hook
- * @return {string|null} The hook command, or null if not found
+ * @return {boolean} True if the hook exists
  */
-const getHookCommand = ( monorepoRoot, hookName ) => {
-	const huskyPath = resolve( monorepoRoot, '.husky', hookName );
-	if ( ! fs.existsSync( huskyPath ) ) {
-		return null;
-	}
-
-	const content = fs.readFileSync( huskyPath, 'utf8' ).trim();
-	// Extract the actual command - skip any shell setup lines (like tty handling in pre-push)
-	const lines = content.split( '\n' );
-	// Return the last non-empty line as the command
-	for ( let i = lines.length - 1; i >= 0; i-- ) {
-		const line = lines[ i ].trim();
-		if (
-			line &&
-			! line.startsWith( 'if ' ) &&
-			! line.startsWith( 'exec ' ) &&
-			! line.startsWith( 'fi' )
-		) {
-			return line;
-		}
-	}
-	return content;
+const huskyHookExists = ( monorepoRoot, hookName ) => {
+	return fs.existsSync( resolve( monorepoRoot, '.husky', hookName ) );
 };
 
 /**
@@ -182,8 +162,7 @@ const initHooks = monorepoRoot => {
 	}
 
 	for ( const hookName of SUPPORTED_HOOKS ) {
-		const command = getHookCommand( monorepoRoot, hookName );
-		if ( ! command ) {
+		if ( ! huskyHookExists( monorepoRoot, hookName ) ) {
 			console.log( chalk.yellow( `  Skipping ${ hookName } (not found in .husky/)` ) );
 			continue;
 		}
@@ -191,12 +170,12 @@ const initHooks = monorepoRoot => {
 		const hookPath = resolve( hooksDir, hookName );
 		const hookContent = `#!/bin/sh
 # Jetpack CLI git hook
-# This hook runs in Docker to ensure consistent environment
+# Runs the .husky hook in Docker to ensure consistent environment
 
 # Check if we're already in the Docker container
 if [ -n "$JETPACK_MONOREPO_ENV" ]; then
 	echo "✓ Using jp hooks (running in Docker)"
-	${ command }
+	sh .husky/${ hookName } "$@"
 	exit $?
 fi
 
@@ -226,20 +205,14 @@ exit $?
 const runGitHook = ( monorepoRoot, hookName, hookArgs ) => {
 	console.log( chalk.blue( `Running ${ hookName } hook in Docker...` ) );
 
-	let command = getHookCommand( monorepoRoot, hookName );
-	if ( ! command ) {
+	if ( ! huskyHookExists( monorepoRoot, hookName ) ) {
 		throw new Error( `Unknown git hook: ${ hookName }` );
 	}
 
-	// Replace shell argument placeholders with actual args
-	// .husky files use "$1", "$@" etc which we need to substitute
-	command = command.replace( /"\$[@*]"/g, hookArgs.join( ' ' ) );
-	command = command.replace( /"\$1"/g, hookArgs[ 0 ] || '' );
-
-	// Run the hook command through the monorepo script
+	// Run the .husky hook directly through the monorepo script
 	const result = spawnSync(
 		resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
-		[ 'sh', '-c', command ],
+		[ 'sh', `.husky/${ hookName }`, ...hookArgs ],
 		{
 			stdio: 'inherit',
 			shell: true,
