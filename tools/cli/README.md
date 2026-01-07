@@ -35,12 +35,13 @@ The CLI commands can be run from anywhere, and the changes will be made in which
 * `completion` - Generate bash/zsh completions.
 * `dependencies` - Analyze and display project dependencies.
 * `docker` - Manage docker containers.
+* `docs` - Parse PHPDoc documentation from a project and output it into a JSON file.
 * `draft` - Enable or disable draft mode for relaxed pre-commit/pre-push checks.
 * `generate` - Create a new project in the monorepo.
 * `install` - Install project dependencies.
 * `phan` - Run PHP static analysis using Phan.
 * `release` - Manage releases and versioning.
-* `rsync` - Rsync projects/plugins to external destinations.
+* `rsync` - rsync projects/plugins to external destinations.
 * `test` - Run PHP, JavaScript, or E2E tests for a project.
 * `watch` - Watch a specific project and rebuild on changes.
 
