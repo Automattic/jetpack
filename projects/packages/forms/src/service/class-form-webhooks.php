@@ -216,11 +216,8 @@ class Form_Webhooks {
 			if ( strlen( $ip_binary ) === 16 &&
 				substr( $ip_binary, 0, 10 ) === "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" &&
 				substr( $ip_binary, 10, 2 ) === "\xff\xff" ) {
-				// Extract the embedded IPv4 address and check it
-				$ipv4_bytes = substr( $ip_binary, 12, 4 );
-				$ipv4       = inet_ntop( "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" . $ipv4_bytes );
-				// Convert to proper IPv4 format
-				$ipv4 = long2ip( ip2long( substr( $ip, strrpos( $ip, ':' ) + 1 ) ) );
+				// Extract the embedded IPv4 address (last 4 bytes) and check it
+				$ipv4 = inet_ntop( substr( $ip_binary, 12, 4 ) );
 				if ( $ipv4 && $this->is_blocked_ip( $ipv4 ) ) {
 					return true;
 				}
