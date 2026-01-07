@@ -200,7 +200,7 @@ class Form_Webhooks {
 		// Check IPv6 addresses for private/internal ranges
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
 			$ip_binary = inet_pton( $ip );
-			if ( $ip_binary === false ) {
+			if ( $ip_binary === false || strlen( $ip_binary ) < 2 ) {
 				return false;
 			}
 
