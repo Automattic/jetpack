@@ -787,6 +787,14 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
+		// Prevent actual network requests - return WP_Error simulating blocked private IP
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_not_executed', 'A valid URL was not provided.' );
+			}
+		);
+
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
@@ -816,6 +824,14 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
 		$post_id = $this->create_feedback_post( $form, $fields );
+
+		// Prevent actual network requests - return WP_Error simulating blocked private IP
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_not_executed', 'A valid URL was not provided.' );
+			}
+		);
 
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
@@ -847,6 +863,14 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
+		// Prevent actual network requests - return WP_Error simulating blocked private IP
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_not_executed', 'A valid URL was not provided.' );
+			}
+		);
+
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
@@ -876,6 +900,14 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
 		$post_id = $this->create_feedback_post( $form, $fields );
+
+		// Prevent actual network requests - return WP_Error simulating blocked private IP
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_not_executed', 'A valid URL was not provided.' );
+			}
+		);
 
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
