@@ -5,7 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { Badge } from '@automattic/ui';
-import { ExternalLink, Modal } from '@wordpress/components';
+import { ExternalLink, Modal, Spinner } from '@wordpress/components';
 import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
@@ -478,6 +478,14 @@ export default function InboxView() {
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
+	// Consider both "true empty" tabs and "filtered empty" views as empty states for layout purposes.
+	// We still keep tabs/search/filters visible so users can change/clear them.
+	const isFilteredView = !! view.search || !! readStatusFilter || ( view.filters?.length ?? 0 ) > 0;
+	const hasData = ( records?.length ?? 0 ) > 0;
+	const showLoading = isInboxLoading && ! hasData;
+	const showEmptyResponses = ! isInboxLoading && ! hasData;
+	const showLayout = hasData;
+
 	// Conditional header actions based on status filter
 	const headerActions = useMemo( () => {
 		const exportIsPrimary = statusFilter !== 'trash' && statusFilter !== 'spam';
@@ -524,13 +532,6 @@ export default function InboxView() {
 				onChangeSelection={ onChangeSelection }
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
-				empty={
-					<EmptyResponses
-						status={ statusFilter }
-						isSearch={ !! view.search }
-						readStatusFilter={ readStatusFilter }
-					/>
-				}
 			>
 				<div className="jp-forms-view-actions">
 					<div>
@@ -550,8 +551,30 @@ export default function InboxView() {
 				</div>
 				<DataViews.FiltersToggled className="jp-forms-filters-container" />
 				<div className="jp-forms-dataviews-layout-container">
-					<DataViews.Layout />
-					<DataViews.Footer />
+					{ showLoading && (
+						<div className="jp-forms-dataviews-layout-container__placeholder">
+							<div className="dataviews-loading">
+								<p>
+									<Spinner />
+								</p>
+							</div>
+						</div>
+					) }
+					{ showEmptyResponses && (
+						<div className="jp-forms-dataviews-layout-container__placeholder">
+							<EmptyResponses
+								status={ statusFilter }
+								isSearch={ isFilteredView }
+								readStatusFilter={ readStatusFilter }
+							/>
+						</div>
+					) }
+					{ showLayout && (
+						<>
+							<DataViews.Layout />
+							<DataViews.Footer />
+						</>
+					) }
 				</div>
 			</DataViews>
 		</Page>
