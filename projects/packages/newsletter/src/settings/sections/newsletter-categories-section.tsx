@@ -53,6 +53,7 @@ export function NewsletterCategoriesSection( {
 
 		// Fetch categories from WordPress REST API
 		fetch( `${ wpApiSettings.root }wp/v2/categories?per_page=100`, {
+			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': wpApiSettings.nonce,
 			},
