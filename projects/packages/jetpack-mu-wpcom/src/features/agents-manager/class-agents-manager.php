@@ -542,22 +542,20 @@ class Agents_Manager {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		if ( ! is_plugin_active( 'big-sky-plugin/big-sky.php' ) ) {
+		if ( ! is_plugin_active( 'big-sky-plugin/big-sky.php' ) && ! is_plugin_active( 'big-sky/big-sky.php' ) ) {
 			return false;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-		if ( ! isset( $_GET['flags'] ) ) {
-			return true;
+		if ( isset( $_GET['flags'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
+			$flags = explode( ',', sanitize_text_field( wp_unslash( $_GET['flags'] ) ) );
+			if ( in_array( 'unified-big-sky', $flags, true ) ) {
+				return false;
+			}
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-		$flags = explode( ',', sanitize_text_field( wp_unslash( $_GET['flags'] ) ) );
-		if ( ! in_array( 'unified-big-sky', $flags, true ) ) {
-			return true;
-		}
-
-		return false;
+		return true;
 	}
 }
 
