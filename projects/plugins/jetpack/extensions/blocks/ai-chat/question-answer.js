@@ -26,38 +26,38 @@ const waitStrings = [
 	__( '🤔 Thinking, thinking, will be back with an answer soon', 'jetpack' ),
 ];
 
-// This component displays the text word by word if show animation is true
+// Animates responses word-by-word using stripped text, then shows full HTML.
+// This avoids invalid HTML fragments that break React's DOM reconciliation.
 function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
-	// This is the HTML to be displayed.
-	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
+	const [ displayedContent, setDisplayedContent ] = useState( '' );
 
 	useEffect(
 		() => {
-			// That will only happen once
 			if ( showAnimation && html ) {
-				// This is to animate text input. I think this will give an idea of a "better" AI.
-				// At this point this is an established pattern.
-				const tokens = html.split( ' ' );
+				// Strip HTML tags to get plain text for animation
+				const plainText = html.replace( /<[^>]+>/g, '' ).trim();
+				const tokens = plainText.split( ' ' );
+
 				for ( let i = 1; i < tokens.length; i++ ) {
 					const output = tokens.slice( 0, i ).join( ' ' );
-					setTimeout( () => setDisplayedRawHTML( output ), 50 * i );
+					setTimeout( () => setDisplayedContent( output ), 50 * i );
 				}
 				setTimeout( () => {
-					setDisplayedRawHTML( html );
+					setDisplayedContent( html );
 					onAnimationDone();
 				}, 50 * tokens.length );
 			} else {
-				setDisplayedRawHTML( html );
+				setDisplayedContent( html || '' );
 				onAnimationDone();
 			}
 		},
-		// eslint-disable-next-line
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
 	);
 
 	return (
 		<div className="content">
-			<RawHTML>{ displayedRawHTML }</RawHTML>
+			<RawHTML>{ displayedContent }</RawHTML>
 		</div>
 	);
 }
@@ -153,15 +153,13 @@ export default function QuestionAnswer( {
 			<div>
 				<div className="jetpack-ai-chat-answer-container">
 					{ submittedQuestion && <h2>{ submittedQuestion }</h2> }
-					{ isLoading && waitStrings[ Math.floor( Math.random() * 3 ) ] }
+					{ isLoading && <span>{ waitStrings[ Math.floor( Math.random() * 3 ) ] }</span> }
 					{ ! isLoading && (
-						<>
-							<ShowLittleByLittle
-								showAnimation={ ! animationDone }
-								onAnimationDone={ handleSetAnimationDone }
-								html={ answer }
-							/>
-						</>
+						<ShowLittleByLittle
+							showAnimation={ ! animationDone }
+							onAnimationDone={ handleSetAnimationDone }
+							html={ answer }
+						/>
 					) }
 				</div>
 				{ askError && ! isLoading && <DisplayError error={ askError } /> }
