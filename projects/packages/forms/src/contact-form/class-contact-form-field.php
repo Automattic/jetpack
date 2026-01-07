@@ -1415,7 +1415,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( $allow_other && $has_option_is_other_id ) {
 			$other_text_id      = esc_attr( $has_option_is_other_id ) . '-other-text';
 			$other_label_id     = esc_attr( $has_option_is_other_id ) . '-other-label';
-			$other_label_text   = __( 'Please specify', 'jetpack-forms' );
+			$other_label_text   = __( 'Please specify…', 'jetpack-forms' );
 			$aria_required_attr = $required ? "aria-required='true'" : '';
 
 			// Prepare styles for the text input to match other form fields
@@ -1437,7 +1437,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						type='text'
 						class='grunion-field'
 						" . $other_input_styles . "
-						placeholder='" . esc_attr( __( 'Please specify...', 'jetpack-forms' ) ) . "'
+						placeholder='" . esc_attr( __( 'Please specify…', 'jetpack-forms' ) ) . "'
 						value=''
 						aria-labelledby='" . $other_label_id . "'
 						" . $aria_required_attr . "
