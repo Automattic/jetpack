@@ -52,6 +52,7 @@ fi
     -e TERM=$TERM \
     -e COLORTERM=$COLORTERM \
     -e JETPACK_MONOREPO_ENV=1 \
+    -e HUSKY=0 \
     -e CI="${CI:-}" \
     -e DOCKER_ROOT="$MONOREPO_ROOT/tools/docker" \
     -e HOST_CWD="$MONOREPO_ROOT" \
