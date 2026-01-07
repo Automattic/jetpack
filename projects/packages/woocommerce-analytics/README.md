@@ -99,7 +99,7 @@ When WP Consent API is not available, the package defaults to allowing all track
 | `remove_from_cart`        | Remove from cart    | ✓          | PHP (Immediate)  | When products are removed from cart                |
 | `checkout_view`           | Checkout page       | ✓          | PHP → JS Queue   | When checkout page is viewed                       |
 | `product_checkout`        | Checkout page       | ✓          | PHP → JS Queue   | When checkout page is viewed and cart is not empty |
-| `product_purchase`        | Order placed        | ✓          | PHP (Immediate)  | When purchase is completed                         |
+| `product_purchase`        | Thank you page      | ✓          | PHP → JS Queue   | When purchase is completed (fires once per order)  |
 | `order_confirmation_view` | Thank you page      | ✓          | PHP → JS Queue   | When order confirmation page is viewed             |
 | `post_account_creation`   | Account creation    | -          | PHP → JS Queue   | When new account is created during checkout        |
 
