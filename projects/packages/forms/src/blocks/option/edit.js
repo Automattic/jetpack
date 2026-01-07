@@ -76,7 +76,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 	// to allow for custom required text.
 	if ( isStandalone ) {
 		return (
-			<div { ...blockProps }>
+			<>
 				<BlockControls>
 					<ToolbarGroup>
 						<ToolbarButton
@@ -87,42 +87,43 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 						</ToolbarButton>
 					</ToolbarGroup>
 				</BlockControls>
-
-				{ ! hideInput && (
-					<input
-						className="jetpack-field-option__checkbox"
-						checked={ !! defaultValue }
-						onChange={ noop }
-						type={ type }
-					/>
-				) }
-
-				<div className={ clsx( 'jetpack-field-option__label-wrapper', { 'is-other': isOther } ) }>
-					<RichText
-						ref={ useEnterRef }
-						identifier="label"
-						tagName="div"
-						className="wp-block"
-						value={ labelValue }
-						placeholder={ placeholderValue }
-						__unstableDisableFormats
-						onChange={ newLabel => setAttributes( { label: newLabel } ) }
-						onRemove={ onRemove }
-					/>
-
-					{ required && (
-						<RichText
-							ref={ useEnterRequiredRef }
-							allowedFormats={ ALLOWED_FORMATS }
-							className="required"
-							onChange={ value => setAttributes( { requiredText: value } ) }
-							tagName="span"
-							value={ requiredText || __( '(required)', 'jetpack-forms' ) }
-							withoutInteractiveFormatting
+				<div { ...blockProps }>
+					{ ! hideInput && (
+						<input
+							className="jetpack-field-option__checkbox"
+							checked={ !! defaultValue }
+							onChange={ noop }
+							type={ type }
 						/>
 					) }
+
+					<div className={ clsx( 'jetpack-field-option__label-wrapper', { 'is-other': isOther } ) }>
+						<RichText
+							ref={ useEnterRef }
+							identifier="label"
+							tagName="div"
+							className="wp-block"
+							value={ labelValue }
+							placeholder={ placeholderValue }
+							__unstableDisableFormats
+							onChange={ newLabel => setAttributes( { label: newLabel } ) }
+							onRemove={ onRemove }
+						/>
+
+						{ required && (
+							<RichText
+								ref={ useEnterRequiredRef }
+								allowedFormats={ ALLOWED_FORMATS }
+								className="required"
+								onChange={ value => setAttributes( { requiredText: value } ) }
+								tagName="span"
+								value={ requiredText || __( '(required)', 'jetpack-forms' ) }
+								withoutInteractiveFormatting
+							/>
+						) }
+					</div>
 				</div>
-			</div>
+			</>
 		);
 	}
 
