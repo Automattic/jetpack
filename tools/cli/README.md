@@ -29,15 +29,20 @@ The CLI commands can be run from anywhere, and the changes will be made in which
 ## Available Commands
 
 * `build` - Build a project in the monorepo.
-* `changelog` -  Manage changelog files for a project.
+* `changelog` - Manage changelog files for a project.
 * `clean` - Clean unwanted files in the monorepo.
 * `cli` - Manage global symlink for the CLI.
-* `completion` - Generate bash/zsh completions
+* `completion` - Generate bash/zsh completions.
+* `dependencies` - Analyze and display project dependencies.
 * `docker` - Manage docker containers.
+* `draft` - Enable or disable draft mode for relaxed pre-commit/pre-push checks.
 * `generate` - Create a new project in the monorepo.
 * `install` - Install project dependencies.
-* `watch` - Watch a specific project.
-* `rsync` - rsync projects/plugins to external destinations.
+* `phan` - Run PHP static analysis using Phan.
+* `release` - Manage releases and versioning.
+* `rsync` - Rsync projects/plugins to external destinations.
+* `test` - Run PHP, JavaScript, or E2E tests for a project.
+* `watch` - Watch a specific project and rebuild on changes.
 
 ## Examples
 
