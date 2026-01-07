@@ -37,6 +37,7 @@ const wpPkgFetches = {};
  * @return {object} Modified pkg.
  */
 async function fixDeps( pkg ) {
+
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
 	if (
@@ -104,6 +105,8 @@ async function fixDeps( pkg ) {
 				pkg.optionalDependencies[ dep ] = deps[ dep ];
 			}
 		}
+		// Needed in the 'next' version but the hack here doesn't know we're installing the 'next' version.
+		pkg.optionalDependencies['@base-ui/react'] = '*';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
@@ -330,6 +333,17 @@ async function readPackage( pkg, context ) {
 	if ( pkg.name ) {
 		pkg = await fixDeps( pkg, context );
 		pkg = fixPeerDeps( pkg, context );
+
+		// Hack: Update all @wordpress deps to 'next', except for @wordpress/icons v10.
+		if ( pkg.dependencies ) {
+			for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+				if ( dep === '@wordpress/icons' && pkg.dependencies[ dep ].match( /^(^|~)10\./ ) ) {
+					pkg.dependencies['@wordpress/icons'] = '>=10 <11';
+				} else if ( dep.startsWith( '@wordpress/' ) ) {
+					pkg.dependencies[ dep ] = 'next';
+				}
+			}
+		}
 	}
 	return pkg;
 }
