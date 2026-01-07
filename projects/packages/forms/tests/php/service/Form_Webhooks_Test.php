@@ -1000,17 +1000,28 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		// Track if HTTP request was made
+		// Prevent actual network requests - return WP_Error if filter is reached
 		$http_request_made = false;
 		add_filter(
 			'pre_http_request',
 			function () use ( &$http_request_made ) {
 				$http_request_made = true;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{}',
-				);
+				return new \WP_Error( 'http_request_not_executed', 'Request should have been blocked.' );
 			}
+		);
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
 		);
 
 		$webhooks = Form_Webhooks::init();
@@ -1018,6 +1029,11 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		// IPv6 loopback should be blocked at validation time
 		$this->assertFalse( $http_request_made, 'HTTP request should not be made for IPv6 loopback URLs' );
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'] );
 	}
 
 	/**
@@ -1042,17 +1058,28 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		// Track if HTTP request was made
+		// Prevent actual network requests - return WP_Error if filter is reached
 		$http_request_made = false;
 		add_filter(
 			'pre_http_request',
 			function () use ( &$http_request_made ) {
 				$http_request_made = true;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{}',
-				);
+				return new \WP_Error( 'http_request_not_executed', 'Request should have been blocked.' );
 			}
+		);
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
 		);
 
 		$webhooks = Form_Webhooks::init();
@@ -1060,6 +1087,11 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		// IPv6 link-local should be blocked at validation time
 		$this->assertFalse( $http_request_made, 'HTTP request should not be made for IPv6 link-local URLs' );
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'] );
 	}
 
 	/**
@@ -1085,17 +1117,28 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		// Track if HTTP request was made
+		// Prevent actual network requests - return WP_Error if filter is reached
 		$http_request_made = false;
 		add_filter(
 			'pre_http_request',
 			function () use ( &$http_request_made ) {
 				$http_request_made = true;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{}',
-				);
+				return new \WP_Error( 'http_request_not_executed', 'Request should have been blocked.' );
 			}
+		);
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
 		);
 
 		$webhooks = Form_Webhooks::init();
@@ -1103,6 +1146,11 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		// IPv6 unique local addresses should be blocked at validation time
 		$this->assertFalse( $http_request_made, 'HTTP request should not be made for IPv6 unique local URLs' );
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'] );
 	}
 
 	/**
@@ -1127,17 +1175,28 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		// Track if HTTP request was made
+		// Prevent actual network requests - return WP_Error if filter is reached
 		$http_request_made = false;
 		add_filter(
 			'pre_http_request',
 			function () use ( &$http_request_made ) {
 				$http_request_made = true;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{}',
-				);
+				return new \WP_Error( 'http_request_not_executed', 'Request should have been blocked.' );
 			}
+		);
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
 		);
 
 		$webhooks = Form_Webhooks::init();
@@ -1145,6 +1204,11 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		// IPv6 site-local addresses (deprecated) should be blocked at validation time
 		$this->assertFalse( $http_request_made, 'HTTP request should not be made for IPv6 site-local URLs' );
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'] );
 	}
 
 	/**
