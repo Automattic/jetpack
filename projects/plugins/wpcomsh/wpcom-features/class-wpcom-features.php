@@ -731,15 +731,7 @@ class WPCOM_Features {
 			self::WOO_HOSTED_PLANS,
 		),
 		self::DONATIONS                         => array(
-			array(
-				'sticker_not_present' => 'gating-business-q1',
-				self::WPCOM_ALL_SITES,
-			),
-			array(
-				'sticker_not_present' => 'gating-business-q1',
-				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-			),
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_ALL_SITES,
 			self::JETPACK_ALL_SITES,
 		),
 		// ECOMMERCE_MANAGED_PLUGINS - Can install the plugin bundle that comes with eCommerce plans.
