@@ -3678,7 +3678,7 @@ class Contact_Form_Plugin {
 	 * @param WP_Post $post       The post object.
 	 */
 	private function track_recount_unread( $new_status, $old_status, WP_Post $post ) {
-		// If the feedback is already marked as read, it does't matter if its status changes.
+		// If the feedback is already marked as read, it doesn't matter if its status changes.
 		if ( $post->comment_status === Feedback::STATUS_READ ) {
 			return;
 		}
