@@ -197,9 +197,7 @@ class Agents_Manager {
 		 */
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
 
-		if ( $this->is_block_editor() && $this->is_big_sky_active() && ! $this->has_unified_big_sky_flag() ) {
-			return;
-		} elseif ( ! $use_unified_experience ) {
+		if ( ! $this->should_enqueue_script() ) {
 			return;
 		}
 
@@ -222,6 +220,21 @@ class Agents_Manager {
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Determine if the agents manager files should be enqueued.
+	 */
+	private function should_enqueue_script() {
+		if ( $this->should_use_unified_experience() ) {
+			return true;
+		}
+
+		if ( $this->is_block_editor() && $this->is_big_sky_active() && $this->has_unified_big_sky_flag() ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
