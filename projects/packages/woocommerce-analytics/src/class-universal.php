@@ -277,7 +277,6 @@ class Universal {
 			$session->save_data();
 		}
 
-		// Skip if cart is empty.
 		if ( empty( $cart ) ) {
 			return;
 		}
@@ -319,7 +318,6 @@ class Universal {
 			);
 		}
 
-		// Mark checkout as tracked for this cart state.
 		$this->mark_checkout_tracked( $session );
 	}
 
