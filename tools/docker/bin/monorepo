@@ -73,7 +73,8 @@ fi
 
 # Run the command in the container
 # Use -it only if we have a TTY available
-  if [[ -t 0 ]]; then
+# Note: Check stdout (-t 1) instead of stdin (-t 0) because git hooks redirect stdin
+  if [[ -t 1 ]]; then
       TTY_FLAG="-it"
   else
       TTY_FLAG=""
