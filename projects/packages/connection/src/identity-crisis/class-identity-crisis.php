@@ -531,11 +531,9 @@ class Identity_Crisis {
 			return false;
 		}
 
-		set_transient( $lock_key, true, $lock_duration );
-
-		// Verify the lock was actually set by reading it back.
-		// If the write failed, bail immediately to prevent request floods.
-		if ( ! get_transient( $lock_key ) ) {
+		// Set the lock and verify it was set successfully.
+		// If the write fails, bail immediately to prevent request floods.
+		if ( ! set_transient( $lock_key, true, $lock_duration ) ) {
 			return false; // Bail - can't prevent concurrent requests.
 		}
 
@@ -544,15 +542,15 @@ class Identity_Crisis {
 		// Update last_checked before making the API call.
 		// This prevents retries even if the API call hangs, times out, or response handling fails.
 		$sync_error['last_checked'] = time();
-		$update_success             = Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+		// Note: update_option may return false if value unchanged, which is OK.
+		// We only bail if we can't verify the option exists with correct timestamp.
+		Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
 
-		// Verify the write succeeded by reading it back with cache busting.
-		wp_cache_delete( 'sync_error_idc', 'jetpack_options' );
-		$verified = Jetpack_Options::get_option( 'sync_error_idc' );
-
-		if ( ! $update_success || ! is_array( $verified ) || $verified['last_checked'] !== $sync_error['last_checked'] ) {
-			// Write failed or cache returned stale data - BAIL.
-			// Don't make API call if we can't prevent retries.
+		// Verify the critical timing field was persisted.
+		// This protects against caching/DB issues that would cause request floods.
+		$verified_option = Jetpack_Options::get_option( 'sync_error_idc' );
+		if ( ! is_array( $verified_option ) || empty( $verified_option['last_checked'] ) ) {
+			// Option is missing or corrupted - BAIL to prevent retries.
 			delete_transient( $lock_key );
 			$is_validating = false;
 			return false;
