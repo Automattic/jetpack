@@ -62,9 +62,12 @@ export default async function askQuestionSync(
 
 	const messages = Array.isArray( question ) ? { messages: question } : { question: question };
 
+	const { languageCode, ...otherOptions } = options;
+
 	const body = {
 		...messages,
-		...options,
+		...otherOptions,
+		language_code: languageCode,
 		stream: false,
 	};
 

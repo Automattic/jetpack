@@ -35,6 +35,7 @@ export function getService( state: unknown, id: string ) {
  * Returns whether the services list is being fetched
  */
 export const isFetchingServicesList = createRegistrySelector( select => (): boolean => {
+	// @ts-expect-error TS2339 -- isResolving is there but not declared; AFAICT, it's a base method from @wordpress/data and @wordpress/core-data only declares its custom methods.
 	const { isResolving } = select( coreStore );
 
 	return isResolving( 'getEntityRecords', [ 'wpcom/v2', 'publicize/services' ] );
