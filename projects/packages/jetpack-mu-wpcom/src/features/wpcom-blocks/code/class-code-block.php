@@ -26,7 +26,9 @@ abstract class Code_Block {
 	 *
 	 * @var array<string, string>
 	 */
-	public static $language_name_rewrites = array();
+	public static $language_name_rewrites = array(
+		'Brainfuck' => 'Brainf***',
+	);
 
 	/**
 	 * Filterable check for whether the block should be available.
@@ -45,10 +47,6 @@ abstract class Code_Block {
 		if ( ! self::should_load_block() ) {
 			return;
 		}
-
-		self::$language_name_rewrites = array(
-			'Brainfuck' => 'Brainf***',
-		);
 
 		self::init();
 		add_action( 'init', array( __CLASS__, 'override_block_style' ) );
