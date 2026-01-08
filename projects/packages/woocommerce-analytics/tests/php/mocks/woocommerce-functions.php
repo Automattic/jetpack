@@ -23,6 +23,14 @@ $wc_get_order_mock_return = false;
 global $wc_get_order_calls;
 $wc_get_order_calls = array();
 
+/**
+ * Global variable to store mock WC instance for testing.
+ *
+ * @var object|null
+ */
+global $wc_mock_instance;
+$wc_mock_instance = null;
+
 if ( ! function_exists( 'wc_get_order' ) ) {
 	/**
 	 * Mock wc_get_order function.
@@ -44,6 +52,10 @@ if ( ! function_exists( 'WC' ) ) {
 	 * @return object Mock WooCommerce object.
 	 */
 	function WC() {
+		global $wc_mock_instance;
+		if ( $wc_mock_instance !== null ) {
+			return $wc_mock_instance;
+		}
 		return new class() {
 			/**
 			 * Session property.
@@ -53,4 +65,22 @@ if ( ! function_exists( 'WC' ) ) {
 			public $session = null;
 		};
 	}
+}
+
+/**
+ * Helper function to set the mock WC instance for testing.
+ *
+ * @param object|null $instance The mock WC instance.
+ */
+function set_wc_mock_instance( $instance ) {
+	global $wc_mock_instance;
+	$wc_mock_instance = $instance;
+}
+
+/**
+ * Helper function to reset the mock WC instance.
+ */
+function reset_wc_mock_instance() {
+	global $wc_mock_instance;
+	$wc_mock_instance = null;
 }

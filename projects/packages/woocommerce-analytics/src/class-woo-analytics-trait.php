@@ -316,6 +316,25 @@ trait Woo_Analytics_Trait {
 	}
 
 	/**
+	 * Get JS session ID from cookie (if sessionTracking is enabled).
+	 * Cookie format: {"session_id":"uuid","landing_page":"...","expires":"..."}
+	 *
+	 * @return string|null Session ID or null if not available.
+	 */
+	protected function get_js_session_id() {
+		$cookie_name = 'woocommerceanalytics_session';
+
+		if ( ! isset( $_COOKIE[ $cookie_name ] ) ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- We're just reading and JSON-decoding the cookie.
+		$cookie_value = wp_unslash( $_COOKIE[ $cookie_name ] );
+		$cookie_data  = json_decode( urldecode( $cookie_value ), true );
+		return $cookie_data['session_id'] ?? null;
+	}
+
+	/**
 	 * Gather relevant product information
 	 *
 	 * @param \WC_Product $product product.
