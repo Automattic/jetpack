@@ -57,7 +57,7 @@ tools/check-development-environment.sh
 Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development:
 
 - All green `ok` or `yes` messages mean you're ready to start
-- Red `no` messages mean something is wrong or missing, and a link will be provided to help you with a fix.
+- Red `no` or similar messages mean something is wrong or missing, and a link will be provided to help you with a fix.
 - Yellow messages indicate something optional is broken or missing.
 
 ## Running Jetpack locally
