@@ -368,7 +368,7 @@ class Main extends Component {
 						/>
 					}
 					buttonLabel={ __( 'Set up Jetpack', 'jetpack' ) }
-					redirectUri="admin.php?page=jetpack"
+					redirectUri="admin.php?page=my-jetpack"
 					redirectTo={ redirectTo }
 					from={ this.props.location.pathname }
 					isSiteConnected={ this.props.isSiteConnected }
@@ -440,7 +440,7 @@ class Main extends Component {
 						)
 					}
 					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
-					redirectUri="admin.php?page=jetpack"
+					redirectUri="admin.php?page=my-jetpack"
 					apiRoot={ this.props.apiRoot }
 					apiNonce={ this.props.apiNonce }
 					registrationNonce=""
@@ -471,7 +471,7 @@ class Main extends Component {
 					images={ [ '/images/connect-right.jpg' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
-					redirectUri="admin.php?page=jetpack"
+					redirectUri="admin.php?page=my-jetpack"
 					from={ searchParams && searchParams.get( 'from' ) }
 				>
 					<p>
