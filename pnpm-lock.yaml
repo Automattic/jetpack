@@ -2780,6 +2780,9 @@ importers:
       '@wordpress/dataviews':
         specifier: 11.0.0
         version: 11.0.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(@types/react@18.3.26)(react@18.3.1)
+      '@wordpress/dom':
+        specifier: 4.37.0
+        version: 4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
       '@wordpress/dom-ready':
         specifier: 4.37.0
         version: 4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
@@ -2810,6 +2813,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.37.0
         version: 5.37.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)(react@18.3.1)
+      '@wordpress/plugins':
+        specifier: 7.37.0
+        version: 7.37.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/primitives':
         specifier: 4.37.0
         version: 4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react@18.3.1)
@@ -3055,7 +3061,7 @@ importers:
         version: 2.11.8
       '@preact/signals':
         specifier: 1.2.2
-        version: 1.2.2(preact@10.22.1)
+        version: 1.2.2(preact@10.28.2)
       '@sentry/browser':
         specifier: 10.22.0
         version: 10.22.0
@@ -3156,8 +3162,8 @@ importers:
         specifier: 2.30.1
         version: 2.30.1
       preact:
-        specifier: 10.22.1
-        version: 10.22.1
+        specifier: 10.28.2
+        version: 10.28.2
       react-popper:
         specifier: ^2.3.0
         version: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3872,8 +3878,8 @@ importers:
         specifier: 4.1.1
         version: 4.1.1
       preact:
-        specifier: 10.22.1
-        version: 10.22.1
+        specifier: 10.28.2
+        version: 10.28.2
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -3937,7 +3943,7 @@ importers:
         version: 10.4.1
       '@testing-library/preact':
         specifier: 3.2.4
-        version: 3.2.4(preact@10.22.1)
+        version: 3.2.4(preact@10.28.2)
       '@testing-library/react':
         specifier: 16.3.0
         version: 16.3.0(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -15489,11 +15495,8 @@ packages:
   preact@10.12.1:
     resolution: {integrity: sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==}
 
-  preact@10.22.1:
-    resolution: {integrity: sha512-jRYbDDgMpIb5LHq3hkI0bbl+l/TQ9UnkdQ0ww+lp+4MMOdqaUYdFc5qeyP+IV8FAd/2Em7drVPeKdQxsiWCf/A==}
-
-  preact@10.28.0:
-    resolution: {integrity: sha512-rytDAoiXr3+t6OIP3WGlDd0ouCUG1iCWzkcY3++Nreuoi17y6T5i/zRhe6uYfoVcxq6YU+sBtJouuRDsq8vvqA==}
+  preact@10.28.2:
+    resolution: {integrity: sha512-lbteaWGzGHdlIuiJ0l2Jq454m6kcpI1zNje6d8MlGAFlYvP2GO4ibnat7P74Esfz4sPTdM6UxtTwh/d3pwM9JA==}
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -20725,15 +20728,15 @@ snapshots:
 
   '@preact/signals-core@1.12.1': {}
 
-  '@preact/signals@1.2.2(preact@10.22.1)':
+  '@preact/signals@1.2.2(preact@10.28.2)':
     dependencies:
       '@preact/signals-core': 1.12.1
-      preact: 10.22.1
+      preact: 10.28.2
 
-  '@preact/signals@1.3.2(preact@10.28.0)':
+  '@preact/signals@1.3.2(preact@10.28.2)':
     dependencies:
       '@preact/signals-core': 1.12.1
-      preact: 10.28.0
+      preact: 10.28.2
 
   '@prisma/instrumentation@6.11.1(@opentelemetry/api@1.9.0)':
     dependencies:
@@ -22009,10 +22012,10 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
 
-  '@testing-library/preact@3.2.4(preact@10.22.1)':
+  '@testing-library/preact@3.2.4(preact@10.28.2)':
     dependencies:
       '@testing-library/dom': 8.20.1
-      preact: 10.22.1
+      preact: 10.28.2
 
   '@testing-library/react@16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -24729,8 +24732,8 @@ snapshots:
 
   '@wordpress/interactivity@6.37.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)':
     dependencies:
-      '@preact/signals': 1.3.2(preact@10.28.0)
-      preact: 10.28.0
+      '@preact/signals': 1.3.2(preact@10.28.2)
+      preact: 10.28.2
 
   '@wordpress/interface@9.22.0(patch_hash=57cc082d9587bde54ffc571654a44448eb70f47eef3ee35824f69a2785ebfc67)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -31096,9 +31099,7 @@ snapshots:
 
   preact@10.12.1: {}
 
-  preact@10.22.1: {}
-
-  preact@10.28.0: {}
+  preact@10.28.2: {}
 
   prelude-ls@1.2.1: {}
 
