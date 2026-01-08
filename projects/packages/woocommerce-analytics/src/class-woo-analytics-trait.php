@@ -332,7 +332,7 @@ trait Woo_Analytics_Trait {
 		$cookie_value = wp_unslash( $_COOKIE[ $cookie_name ] );
 		$cookie_data  = json_decode( urldecode( $cookie_value ), true );
 
-		if ( ! is_array( $cookie_data ) ) {
+		if ( JSON_ERROR_NONE !== json_last_error() || ! is_array( $cookie_data ) ) {
 			return null;
 		}
 		return $cookie_data['session_id'] ?? null;
