@@ -350,8 +350,13 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function get_blaze_posts( $req ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
 		if ( $this->are_posts_ready() ) {
-			return $this->get_blaze_posts_from_wpcom( $req );
+			return $this->get_blaze_posts_from_wpcom( $req, $site_id );
 		}
 
 		return $this->get_blaze_posts_local( $req );
@@ -365,14 +370,10 @@ class Dashboard_REST_Controller {
 	 * and stats-based sorting.
 	 *
 	 * @param WP_REST_Request $req The request object.
+	 * @param int             $site_id The site ID.
 	 * @return array|WP_Error
 	 */
-	private function get_blaze_posts_from_wpcom( $req ) {
-		$site_id = $this->get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return array();
-		}
-
+	private function get_blaze_posts_from_wpcom( $req, $site_id ) {
 		// We don't use sub_path in the blaze posts, only query strings.
 		if ( isset( $req['sub_path'] ) ) {
 			unset( $req['sub_path'] );
@@ -393,8 +394,6 @@ class Dashboard_REST_Controller {
 			$response['posts'] = $this->add_prices_in_posts( $response['posts'] );
 		}
 
-		$response = $this->add_warnings_to_posts_response( $response );
-
 		return $response;
 	}
 
@@ -410,11 +409,6 @@ class Dashboard_REST_Controller {
 	 */
 	private function get_blaze_posts_local( $req ) {
 
-		$site_id = $this->get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return array();
-		}
-
 		// Parse request parameters.
 		$page           = absint( $req->get_param( 'page' ) ?? 1 );
 		$posts_per_page = absint( $req->get_param( 'posts_per_page' ) ?? 20 );
@@ -425,6 +419,11 @@ class Dashboard_REST_Controller {
 
 		// Sanitize and validate post types.
 		$post_type_list = $this->sanitize_post_type( $post_types );
+
+		// Validate page parameter.
+		if ( $page < 1 ) {
+			$page = 1;
+		}
 
 		// Validate post per page parameter (use default value if invalid)
 		if ( $posts_per_page <= 0 || $posts_per_page > 20 ) {
@@ -555,8 +554,11 @@ class Dashboard_REST_Controller {
 	 */
 	private function sanitize_post_type( $post_types ) {
 		$blazable_post_types = $this->get_blazable_post_types();
-		$post_types          = sanitize_text_field( $post_types );
-		$post_type_list      = explode( ',', $post_types );
+		if ( ! is_string( $post_types ) ) {
+			return $blazable_post_types;
+		}
+		$post_types     = sanitize_text_field( $post_types );
+		$post_type_list = explode( ',', $post_types );
 
 		$allowed_types = array();
 
@@ -612,22 +614,6 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Adds warning flags to the posts response.
-	 *
-	 * @param array $response The response object.
-	 * @return array
-	 */
-	private function add_warnings_to_posts_response( $response ) {
-		if ( ! $this->are_posts_ready() && is_array( $response ) ) {
-			$response['warnings'] = array_merge(
-				array( 'sync_in_progress' ),
-				$response['warnings'] ?? array()
-			);
-		}
-		return $response;
-	}
-
-	/**
 	 * Builds the subpath including the query string to be used in the DSP call
 	 *
 	 * @param array $params The request object parameters.
@@ -652,36 +638,46 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Redirect GET requests to WordAds DSP Blaze Posts endpoint for the site.
+	 * Get Blaze posts for DSP
+	 *
+	 * Maps DSP parameters to blaze/posts format and reuses get_blaze_posts
+	 * for consistent local/WPCOM routing logic.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
 	 */
 	public function get_dsp_blaze_posts( $req ) {
-		$site_id = $this->get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return array();
+		// Map DSP params → blaze params.
+		$param_map = array(
+			'title'            => $req->get_param( 'search' ),
+			'filter_post_type' => $req->get_param( 'post_type' ),
+			'posts_per_page'   => $req->get_param( 'limit' ),
+			'page'             => $req->get_param( 'page' ),
+			'order'            => $req->get_param( 'order' ),
+			'order_by'         => $req->get_param( 'order_by' ),
+		);
+
+		// Create new request with transformed params (only non-null values).
+		$blaze_req = new \WP_REST_Request( 'GET' );
+		foreach ( $param_map as $key => $value ) {
+			if ( $value !== null ) {
+				$blaze_req->set_param( $key, $value );
+			}
 		}
 
-		// We don't use sub_path in the blaze posts, only query strings
-		if ( isset( $req['sub_path'] ) ) {
-			unset( $req['sub_path'] );
-		}
+		// Reuse get_blaze_posts (handles local/WPCOM routing).
+		$response = $this->get_blaze_posts( $blaze_req );
 
-		$response = $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
-
-		// Bail if we get an error (WP_ERROR or an already formatted WP_REST_Response error).
+		// Bail if we get an error.
 		if ( is_wp_error( $response ) || $response instanceof \WP_REST_Response ) {
 			return $response;
 		}
 
-		if ( isset( $response['results'] ) && count( $response['results'] ) > 0 ) {
-			$response['results'] = $this->add_prices_in_posts( $response['results'] );
-		}
-
-		$response = $this->add_warnings_to_posts_response( $response );
-
-		return $response;
+		// Transform response to DSP format.
+		return array(
+			'results' => $response['posts'] ?? array(),
+			'total'   => $response['total_items'] ?? 0,
+		);
 	}
 
 	/**
