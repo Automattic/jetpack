@@ -127,6 +127,8 @@ class WPCOM_JSON_API_Update_Comment_Endpoint_Test extends WP_UnitTestCase {
 
 		remove_filter( 'jetpack_subscription_comment_subscribe_skip', '__return_true' );
 
+		WPCOM_JSON_API::init()->token_details = array();
+
 		parent::tear_down();
 	}
 
@@ -296,6 +298,68 @@ class WPCOM_JSON_API_Update_Comment_Endpoint_Test extends WP_UnitTestCase {
 		$this->assertNotNull( $comment, 'Comment should exist in the database.' );
 		$this->assertEquals( self::$post_id, $comment->comment_post_ID, 'Comment should be attached to the correct post.' );
 		$this->assertEquals( self::USER_IP, $comment->comment_author_IP );
+	}
+
+	/**
+	 * Test new_comment creates a comment on a post even with invalid IP-address provided by WPCOM.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_new_comment_on_post_wrong_ip() {
+		global $blog_id;
+
+		$endpoint = $this->create_new_post_reply_endpoint();
+		$path     = sprintf( '/sites/%d/posts/%d/replies/new', $blog_id, self::$post_id );
+
+		$endpoint->api->token_details['user']['user_ip'] = '12-34-56-wrong-ip';
+
+		$content = 'This is a new comment on the post.';
+		$this->set_input( compact( 'content' ) );
+
+		$response = $endpoint->callback( $path, $blog_id, self::$post_id );
+
+		$this->assertIsArray( $response, 'Response should be an array.' );
+		$this->assertArrayHasKey( 'ID', $response, 'Response should have an ID.' );
+		$this->assertArrayHasKey( 'content', $response, 'Response should have content.' );
+		$this->assertStringContainsString( $content, $response['content'], 'Comment content should match what we just added.' );
+
+		// Verify the comment was actually created.
+		$comment = get_comment( $response['ID'] );
+		$this->assertNotNull( $comment, 'Comment should exist in the database.' );
+		$this->assertEquals( self::$post_id, $comment->comment_post_ID, 'Comment should be attached to the correct post.' );
+		$this->assertNotEquals( self::USER_IP, $comment->comment_author_IP );
+	}
+
+	/**
+	 * Test new_comment creates a comment on a post even with IP-address not provided.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_new_comment_on_post_missing_ip() {
+		global $blog_id;
+
+		$endpoint = $this->create_new_post_reply_endpoint();
+		$path     = sprintf( '/sites/%d/posts/%d/replies/new', $blog_id, self::$post_id );
+
+		unset( $endpoint->api->token_details['user']['user_ip'] );
+
+		$content = 'This is a new comment on the post.';
+		$this->set_input( compact( 'content' ) );
+
+		$response = $endpoint->callback( $path, $blog_id, self::$post_id );
+
+		$this->assertIsArray( $response, 'Response should be an array.' );
+		$this->assertArrayHasKey( 'ID', $response, 'Response should have an ID.' );
+		$this->assertArrayHasKey( 'content', $response, 'Response should have content.' );
+		$this->assertStringContainsString( $content, $response['content'], 'Comment content should match what we just added.' );
+
+		// Verify the comment was actually created.
+		$comment = get_comment( $response['ID'] );
+		$this->assertNotNull( $comment, 'Comment should exist in the database.' );
+		$this->assertEquals( self::$post_id, $comment->comment_post_ID, 'Comment should be attached to the correct post.' );
+		$this->assertNotEquals( self::USER_IP, $comment->comment_author_IP );
 	}
 
 	/**
