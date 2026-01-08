@@ -689,12 +689,14 @@ class Initializer {
 
 	/**
 	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show.
-	 * Uses cached data only to avoid blocking page load, then lazy loads fresh data via REST API.
+	 *
+	 * On My Jetpack page: Uses blocking behavior to fetch fresh data.
+	 * On other admin pages: Uses cached data only to avoid blocking, with async JS fetch if cache is empty.
 	 *
 	 * @return void
 	 */
 	public static function maybe_show_red_bubble() {
-		global $menu;
+		global $menu, $pagenow;
 
 		// Don't show red bubble alerts for non-admin users
 		// These alerts are generally only actionable for admins
@@ -709,19 +711,32 @@ class Initializer {
 			return;
 		}
 
-		// Only use cached data - never trigger expensive computation on page load
-		$cached_alerts = Red_Bubble_Notifications::get_cached_alerts();
+		// Check if we're on the My Jetpack page
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page               = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		$is_my_jetpack_page = $pagenow === 'admin.php' && $page === 'my-jetpack';
 
-		// If no cache, enqueue script to fetch alerts asynchronously
-		if ( empty( $cached_alerts ) ) {
-			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_red_bubble_script' ) );
-			return;
+		if ( $is_my_jetpack_page ) {
+			// On My Jetpack page: use blocking behavior for fresh data
+			add_filter( 'my_jetpack_red_bubble_notification_slugs', array( Red_Bubble_Notifications::class, 'add_red_bubble_alerts' ) );
+			$red_bubble_alerts = Red_Bubble_Notifications::get_red_bubble_alerts();
+		} else {
+			// On other pages: use cached data only to avoid blocking
+			$cached_alerts = Red_Bubble_Notifications::get_cached_alerts();
+
+			if ( empty( $cached_alerts ) ) {
+				// No cache - fetch asynchronously via JS
+				add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_red_bubble_script' ) );
+				return;
+			}
+
+			$red_bubble_alerts = $cached_alerts;
 		}
 
+		// Filter out silent alerts
 		$red_bubble_alerts = array_filter(
-			$cached_alerts,
+			$red_bubble_alerts,
 			function ( $alert ) {
-				// We don't want to show the red bubble for silent alerts
 				return empty( $alert['is_silent'] );
 			}
 		);
