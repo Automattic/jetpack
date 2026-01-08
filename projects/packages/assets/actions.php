@@ -23,3 +23,5 @@ if ( function_exists( 'add_action' ) ) {
 		'function'      => array( Automattic\Jetpack\Assets\Script_Data::class, 'configure' ),
 	);
 }
+
+// There are changes going on here.
