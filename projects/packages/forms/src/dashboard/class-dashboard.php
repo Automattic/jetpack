@@ -55,6 +55,9 @@ class Dashboard {
 	public function init() {
 		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
 
+		// Dashboard REST endpoints used by the Forms list and stats sidebar.
+		Forms_Endpoint::init();
+
 		if ( $is_wp_build_enabled ) {
 			// Load wp-build generated files for the new DataViews-based UI.
 			self::load_wp_build();
@@ -122,6 +125,13 @@ class Dashboard {
 		);
 		$filters_path                  = '/wp/v2/feedback/filters';
 		$filters_locale_path           = \add_query_arg( array( '_locale' => 'user' ), $filters_path );
+		$initial_forms_path            = \add_query_arg(
+			array(
+				'page'     => 1,
+				'per_page' => 20,
+			),
+			'/jetpack-forms/v1/forms'
+		);
 		$preload_paths                 = array(
 			'/wp/v2/types?context=view',
 			'/wp/v2/feedback/config',
@@ -131,6 +141,7 @@ class Dashboard {
 			$filters_locale_path,
 			$initial_responses_path,
 			$initial_responses_locale_path,
+			$initial_forms_path,
 		);
 		$preload_data_raw              = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 

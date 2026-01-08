@@ -28,6 +28,7 @@ import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
 import ExportResponsesButton from '../../components/export-responses/button.tsx';
 import Flag from '../../components/flag/index.tsx';
+import FormsViewToggleButton from '../../components/forms-view-toggle-button/index.tsx';
 import Gravatar from '../../components/gravatar/index.tsx';
 import InboxStatusToggle from '../../components/inbox-status-toggle/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
@@ -163,7 +164,7 @@ export default function InboxView() {
 			if ( ! value ) {
 				return accumulator;
 			}
-			if ( field === 'source' ) {
+			if ( field === 'form' ) {
 				accumulator.parent = value;
 			}
 			if ( field === 'date' ) {
@@ -353,8 +354,8 @@ export default function InboxView() {
 				enableSorting: false,
 			},
 			{
-				id: 'source',
-				label: __( 'Source', 'jetpack-forms' ),
+				id: 'form',
+				label: __( 'Form', 'jetpack-forms' ),
 				render: ( { item } ) => {
 					if ( ! item.entry_permalink ) {
 						return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
@@ -368,9 +369,9 @@ export default function InboxView() {
 						</ExternalLink>
 					);
 				},
-				elements: ( filterOptions?.source || [] ).map( source => ( {
-					value: source.id,
-					label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
+				elements: ( filterOptions?.form || [] ).map( form => ( {
+					value: form.id,
+					label: decodeEntities( form.title ) || getPath( { entry_permalink: form.url } ),
 				} ) ),
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
@@ -411,7 +412,7 @@ export default function InboxView() {
 		],
 		[
 			filterOptions?.date,
-			filterOptions?.source,
+			filterOptions?.form,
 			isMobileViewport,
 			openResponseModal,
 			dateSettings.formats.date,
@@ -480,22 +481,21 @@ export default function InboxView() {
 
 	// Conditional header actions based on status filter
 	const headerActions = useMemo( () => {
-		const exportIsPrimary = statusFilter !== 'trash' && statusFilter !== 'spam';
-		const headerActionsArray = [
-			<ExportResponsesButton key="export" isPrimary={ exportIsPrimary } />,
-		];
+		const headerActionsArray = [ <FormsViewToggleButton key="toggle-view" /> ];
 
 		if ( statusFilter === 'trash' ) {
 			headerActionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		} else if ( statusFilter === 'spam' ) {
 			headerActionsArray.push( <EmptySpamButton key="empty-spam" /> );
 		} else {
-			headerActionsArray.unshift( <CreateFormButton key="create" /> );
 			// Only show Create Form and Integrations buttons on inbox (when not in trash or spam)
 			if ( isIntegrationsEnabled && showDashboardIntegrations ) {
-				headerActionsArray.unshift( <IntegrationsButton key="integrations" /> );
+				headerActionsArray.push( <IntegrationsButton key="integrations" /> );
 			}
+			headerActionsArray.push( <CreateFormButton key="create" /> );
 		}
+
+		headerActionsArray.push( <ExportResponsesButton key="export" isPrimary={ false } /> );
 
 		return headerActionsArray;
 	}, [ statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
@@ -505,7 +505,7 @@ export default function InboxView() {
 			title={
 				<div className="jp-forms-page-header-title">
 					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
+					{ __( 'Form Responses', 'jetpack-forms' ) }
 				</div>
 			}
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }

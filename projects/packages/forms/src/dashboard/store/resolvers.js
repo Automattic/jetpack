@@ -8,7 +8,12 @@ export const getFilters =
 		const results = await apiFetch( {
 			path: '/wp/v2/feedback/filters',
 		} );
-		dispatch.receiveFilters( results );
+		// The backend filter response uses the historical `source` naming.
+		// In the UI, we expose this filter as `form` (it maps to feedback post_parent).
+		dispatch.receiveFilters( {
+			...results,
+			form: results?.source || [],
+		} );
 	};
 
 getFilters.shouldInvalidate = action => action.type === INVALIDATE_FILTERS;

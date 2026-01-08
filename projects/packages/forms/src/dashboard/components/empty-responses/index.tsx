@@ -2,12 +2,7 @@
  * External dependencies
  */
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import {
-	Button,
-	ExternalLink,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -18,6 +13,7 @@ import useConfigValue from '../../../hooks/use-config-value.ts';
 import { usePluginInstallation } from '../../../hooks/use-plugin-installation.ts';
 import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
 import CreateFormButton from '../create-form-button/index.tsx';
+import EmptyWrapper from '../empty-wrapper/index.tsx';
 /**
  * Types
  */
@@ -41,12 +37,6 @@ type EmptyResponsesProps = {
 	status: string;
 	isSearch: boolean;
 	readStatusFilter?: 'unread' | 'read';
-};
-
-type EmptyWrapperProps = {
-	heading?: string;
-	body?: string | ReactNode;
-	actions?: ReactNode;
 };
 
 /**
@@ -151,17 +141,7 @@ const useInstallAkismet = (): UseInstallAkismetReturn => {
 	};
 };
 
-const EmptyWrapper = ( { heading = '', body = '', actions = null }: EmptyWrapperProps ) => (
-	<VStack alignment="center" spacing="2">
-		{ heading && (
-			<Text as="h3" weight="500" size="15">
-				{ heading }
-			</Text>
-		) }
-		{ body && <Text variant="muted">{ body }</Text> }
-		{ actions && <span style={ { marginBlockStart: '16px' } }>{ actions }</span> }
-	</VStack>
-);
+// EmptyWrapper is shared between empty states (responses, forms, etc.).
 
 const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesProps ) => {
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
