@@ -5,7 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { Badge } from '@automattic/ui';
-import { ExternalLink, Modal } from '@wordpress/components';
+import { ExternalLink, Modal, Button, Composite } from '@wordpress/components';
 import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
@@ -141,6 +141,9 @@ export default function InboxView() {
 		isLoadingData,
 		totalItems,
 		totalPages,
+		totalItemsInbox,
+		totalItemsSpam,
+		totalItemsTrash,
 	} = useInboxData();
 
 	const urlStatus = searchParams.get( 'status' ) || 'inbox';
@@ -197,10 +200,26 @@ export default function InboxView() {
 					setSelectedResponses( [] );
 				}
 			}
-
 			setView( newView );
 		},
 		[ isCentralFormManagementEnabled, setSearchParams, setSelectedResponses, setView, view.filters ]
+	);
+
+	// A function that changes the status filter such as index, spam, trash
+	const onChangeStatus = useCallback(
+		newStatus => {
+			const newView = { ...view };
+
+			newView.filters = ( newView.filters || [] ).filter( f => f.field !== 'folder' );
+			newView.filters.push( {
+				field: 'folder',
+				operator: 'is',
+				value: newStatus,
+			} );
+
+			onChangeView( newView );
+		},
+		[ onChangeView, view ]
 	);
 	const isAkismetStatusPending = useSelect(
 		select => {
@@ -328,22 +347,6 @@ export default function InboxView() {
 
 	const fields = useMemo(
 		() => [
-			...( isCentralFormManagementEnabled
-				? [
-						{
-							id: 'folder',
-							label: __( 'Folder', 'jetpack-forms' ),
-							elements: [
-								{ label: __( 'Inbox', 'jetpack-forms' ), value: 'inbox' },
-								{ label: __( 'Spam', 'jetpack-forms' ), value: 'spam' },
-								{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
-							],
-							filterBy: { operators: [ 'is' ], isPrimary: true },
-							enableSorting: false,
-							enableHiding: false,
-						},
-				  ]
-				: [] ),
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
@@ -615,6 +618,33 @@ export default function InboxView() {
 				{ isCentralFormManagementEnabled ? (
 					<div className="jp-forms-filters-bar">
 						<div className="jp-forms-filters-bar__chips">
+							<Composite className="jp-forms-filters-bar__status-chips">
+								<Button
+									size="compact"
+									variant={ 'tertiary' }
+									className={ statusFilter === 'draft,publish' ? 'is-active' : '' }
+									onClick={ () => onChangeStatus( 'inbox' ) }
+								>
+									{ __( 'Status is Inbox', 'jetpack-forms' ) } ({ totalItemsInbox })
+								</Button>
+
+								<Button
+									size="compact"
+									variant={ 'tertiary' }
+									className={ statusFilter === 'spam' ? 'is-active' : '' }
+									onClick={ () => onChangeStatus( 'spam' ) }
+								>
+									{ __( 'Status is Spam', 'jetpack-forms' ) } ({ totalItemsSpam })
+								</Button>
+								<Button
+									size="compact"
+									variant={ 'tertiary' }
+									className={ statusFilter === 'trash' ? 'is-active' : '' }
+									onClick={ () => onChangeStatus( 'trash' ) }
+								>
+									{ __( 'Status is Trash', 'jetpack-forms' ) } ({ totalItemsTrash })
+								</Button>
+							</Composite>
 							<DataViews.FiltersToggled className="jp-forms-filters-container" />
 						</div>
 						<div
