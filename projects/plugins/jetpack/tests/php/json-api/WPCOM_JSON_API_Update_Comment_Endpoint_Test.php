@@ -122,7 +122,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint_Test extends WP_UnitTestCase {
 		// Clean up any comments created during tests.
 		$comments = get_comments( array( 'post_id' => self::$post_id ) );
 		foreach ( $comments as $comment ) {
-			wp_delete_comment( $comment->comment_ID, true );
+			wp_delete_comment( (int) $comment->comment_ID, true );
 		}
 
 		remove_filter( 'jetpack_subscription_comment_subscribe_skip', '__return_true' );
