@@ -188,7 +188,7 @@ const OptionEdit = ( {
 					<input
 						id={ `${ clientId }-other-text` }
 						className="grunion-field jetpack-field__input"
-						onChange={ newPlaceholder => setAttributes( { otherPlaceholder: newPlaceholder } ) }
+						onChange={ event => setAttributes( { otherPlaceholder: event.target.value } ) }
 						onFocus={ () => setIsFocusedOtherPlaceholder( true ) }
 						onBlur={ () => setIsFocusedOtherPlaceholder( false ) }
 						type="text"
