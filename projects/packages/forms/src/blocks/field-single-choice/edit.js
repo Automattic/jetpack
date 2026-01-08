@@ -13,7 +13,7 @@ import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 
 export default function SingleChoiceFieldEdit( props ) {
 	const { className, clientId, setAttributes, isSelected, attributes } = props;
-	const { required, id, width, allowOther } = attributes;
+	const { required, id, width } = attributes;
 
 	useFormWrapper( props );
 
@@ -44,26 +44,42 @@ export default function SingleChoiceFieldEdit( props ) {
 		templateLock: 'all',
 	} );
 
+	const hasOtherOption = useSelect(
+		select => {
+			const block = select( blockEditorStore ).getBlock( clientId );
+			if ( ! block || ! block.innerBlocks || block.innerBlocks.length < 2 ) {
+				return false;
+			}
+			// Get the options container block (second inner block)
+			const optionsBlock = block.innerBlocks[ 1 ];
+			if ( ! optionsBlock || ! optionsBlock.innerBlocks ) {
+				return false;
+			}
+			// Check if any option block has isOther attribute set to true
+			return optionsBlock.innerBlocks.some(
+				innerBlock => innerBlock?.attributes?.isOther === true
+			);
+		},
+		[ clientId ]
+	);
+
 	const extraFieldSettings = [
 		{
 			element: (
 				<ToggleControl
 					key="allowOther"
 					label={ __( 'Include "Other" option', 'jetpack-forms' ) }
-					checked={ !! allowOther }
-					onChange={ value => {
-						setAttributes( { allowOther: value } );
-
+					checked={ !! hasOtherOption }
+					onChange={ toggleValue => {
 						// Find the options container block (second inner block)
 						const optionsBlock = innerBlocks?.[ 1 ];
 						if ( ! optionsBlock ) {
 							return;
 						}
 
-						if ( value ) {
+						if ( toggleValue ) {
 							// If an "Other" option already exists, do nothing.
-							const hasOther = optionsBlock.innerBlocks.some( b => b?.attributes?.isOther );
-							if ( hasOther ) {
+							if ( hasOtherOption ) {
 								return;
 							}
 
@@ -88,7 +104,7 @@ export default function SingleChoiceFieldEdit( props ) {
 						}
 					} }
 					help={ __(
-						'Includes an "Other" option with a text input field below it',
+						'Include an "Other" option with a text input field below it',
 						'jetpack-forms'
 					) }
 					__nextHasNoMarginBottom={ true }

@@ -20,14 +20,6 @@ export default {
 			type: 'boolean',
 			default: true,
 		},
-		allowOther: {
-			type: 'boolean',
-			default: false,
-		},
-		otherLabel: {
-			type: 'string',
-			default: 'Other',
-		},
 	},
 	category: 'contact-form',
 	providesContext: {
