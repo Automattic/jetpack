@@ -231,7 +231,7 @@ const processStatusChange = async ( {
 		// Update counts optimistically
 		updateCountsOptimistically( item.status, newStatus, 1, queryParams );
 
-		// Update unread counts optimistically in the sidebar only since they do not
+		// Update unread counts optimistically in the sidebar only since they do not affect server-side counts and are purely a UI hint.
 		if (
 			item.is_unread &&
 			( newStatus === 'spam' || newStatus === 'trash' ) &&

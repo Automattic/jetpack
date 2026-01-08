@@ -1442,7 +1442,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Count should be recalculated
 		$count = get_option( 'jetpack_feedback_unread_count' );
-		// Since the this test mocking can't do a proper recount, just check that it was reset to 0.
+		// Since this test mocking can't do a proper recount, just check that it was reset to 0.
 		$this->assertSame( 0, $count, 'Unread count should be recalculated when status changes from publish' );
 	}
 

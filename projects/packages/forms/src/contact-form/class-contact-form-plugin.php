@@ -3630,8 +3630,8 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Tracks when a feedback post status changes to 'publish' and stores the timestamp.
-	 * This allows us to accurately determine when feedback was published, independent of other post updates.
+	 * Tracks when a feedback post status changes and triggers related handlers.
+	 * Used to handle spam meta tracking and unread count recalculation for feedback posts.
 	 *
 	 * @param string       $new_status The new post status.
 	 * @param string       $old_status The old post status.
