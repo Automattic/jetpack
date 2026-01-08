@@ -99,7 +99,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
 				setIsLoading( false );
 			} );
-	}, [ jetpackSettings ] );
+	}, [ jetpackSettings?.restApiRoot, jetpackSettings?.restApiNonce ] );
 
 	// Handle auto-save for newsletter toggle and email settings
 	const handleAutoSave = useCallback(
