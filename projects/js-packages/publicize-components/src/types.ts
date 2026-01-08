@@ -9,13 +9,6 @@ export interface SocialUrls {
 	connectionsManagementPage: string;
 }
 
-export type SharesData = {
-	to_be_publicized_count: number;
-	publicized_count: number;
-	shared_posts_count: number;
-	is_share_limit_enabled: boolean;
-};
-
 export type ConnectionService = {
 	id: string;
 	label: string;
@@ -49,7 +42,6 @@ export interface SocialScriptData {
 	is_publicize_enabled: boolean;
 	plugin_info: PluginInfo;
 	settings: SocialSettings;
-	shares_data: SharesData;
 	store_initial_state: SocialStoreState;
 	supported_services: Array< ConnectionService >;
 	urls: SocialUrls;
