@@ -51,21 +51,41 @@ export function NewsletterCategoriesSection( {
 			return;
 		}
 
-		// Fetch categories from WordPress REST API
-		fetch( `${ wpApiSettings.root }wp/v2/categories?per_page=100`, {
-			credentials: 'same-origin',
-			headers: {
-				'X-WP-Nonce': wpApiSettings.nonce,
-			},
-		} )
-			.then( response => {
-				if ( ! response.ok ) {
-					throw new Error(
-						`Failed to load categories: ${ response.status } ${ response.statusText }`
-					);
+		// Recursive function to fetch all pages of categories
+		const fetchAllCategories = async (
+			page = 1,
+			allCategories: { id: number; name: string }[] = []
+		): Promise< { id: number; name: string }[] > => {
+			const response = await fetch(
+				`${ wpApiSettings.root }wp/v2/categories?per_page=100&page=${ page }`,
+				{
+					credentials: 'same-origin',
+					headers: {
+						'X-WP-Nonce': wpApiSettings.nonce,
+					},
 				}
-				return response.json();
-			} )
+			);
+
+			if ( ! response.ok ) {
+				throw new Error(
+					`Failed to load categories: ${ response.status } ${ response.statusText }`
+				);
+			}
+
+			const pageCategories = await response.json();
+			const totalPages = parseInt( response.headers.get( 'X-WP-TotalPages' ) || '1', 10 );
+			const combined = [ ...allCategories, ...pageCategories ];
+
+			// If there are more pages, fetch them recursively
+			if ( page < totalPages ) {
+				return fetchAllCategories( page + 1, combined );
+			}
+
+			return combined;
+		};
+
+		// Fetch all categories from WordPress REST API
+		fetchAllCategories()
 			.then( ( fetchedCategories: { id: number; name: string }[] ) => {
 				// Convert category IDs to strings
 				setCategories(
