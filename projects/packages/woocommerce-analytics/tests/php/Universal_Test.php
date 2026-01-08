@@ -149,4 +149,243 @@ class Universal_Test extends BaseTestCase {
 			'CHECKOUT_SESSION_ID_KEY should be defined correctly.'
 		);
 	}
+
+	/**
+	 * Test that first checkout should be tracked.
+	 */
+	public function test_first_checkout_should_track(): void {
+		$session = new \WC_Session();
+
+		// Create a mock WC instance with the session.
+		$wc_mock          = new \stdClass();
+		$wc_mock->session = $session;
+		set_wc_mock_instance( $wc_mock );
+
+		$universal = new Universal();
+
+		// Use reflection to test the private should_track_checkout method.
+		$reflection = new \ReflectionClass( $universal );
+		$method     = $reflection->getMethod( 'should_track_checkout' );
+		$method->setAccessible( true );
+
+		// First checkout - should return true.
+		$result = $method->invoke( $universal, $session );
+		$this->assertTrue( $result, 'First checkout should be tracked.' );
+
+		// Clean up.
+		reset_wc_mock_instance();
+	}
+
+	/**
+	 * Test that duplicate checkout with same cart state should not track.
+	 */
+	public function test_duplicate_checkout_same_cart_should_not_track(): void {
+		$session = new \WC_Session();
+		$session->set( Universal::CHECKOUT_TRACKED_KEY, true );
+
+		// Create a mock WC instance with the session.
+		$wc_mock          = new \stdClass();
+		$wc_mock->session = $session;
+		set_wc_mock_instance( $wc_mock );
+
+		$universal = new Universal();
+
+		// Use reflection to test the private should_track_checkout method.
+		$reflection = new \ReflectionClass( $universal );
+		$method     = $reflection->getMethod( 'should_track_checkout' );
+		$method->setAccessible( true );
+
+		// Duplicate checkout - should return false.
+		$result = $method->invoke( $universal, $session );
+		$this->assertFalse( $result, 'Duplicate checkout with same cart state should not be tracked.' );
+
+		// Clean up.
+		reset_wc_mock_instance();
+	}
+
+	/**
+	 * Test that checkout after cart modification should track.
+	 */
+	public function test_checkout_after_cart_modification_should_track(): void {
+		$session = new \WC_Session();
+		$session->set( Universal::CHECKOUT_TRACKED_KEY, true );
+
+		// Create a mock WC instance with the session.
+		$wc_mock          = new \stdClass();
+		$wc_mock->session = $session;
+		set_wc_mock_instance( $wc_mock );
+
+		$universal = new Universal();
+
+		// Simulate cart modification by resetting the tracking state.
+		$universal->reset_checkout_tracking_state();
+
+		// Use reflection to test the private should_track_checkout method.
+		$reflection = new \ReflectionClass( $universal );
+		$method     = $reflection->getMethod( 'should_track_checkout' );
+		$method->setAccessible( true );
+
+		// After cart modification - should return true.
+		$result = $method->invoke( $universal, $session );
+		$this->assertTrue( $result, 'Checkout after cart modification should be tracked.' );
+
+		// Clean up.
+		reset_wc_mock_instance();
+	}
+
+	/**
+	 * Test that checkout with different JS session ID should track.
+	 */
+	public function test_checkout_with_different_session_id_should_track(): void {
+		$session = new \WC_Session();
+		$session->set( Universal::CHECKOUT_TRACKED_KEY, true );
+		$session->set( Universal::CHECKOUT_SESSION_ID_KEY, 'old-session-id' );
+
+		// Create a mock WC instance with the session.
+		$wc_mock          = new \stdClass();
+		$wc_mock->session = $session;
+		set_wc_mock_instance( $wc_mock );
+
+		// Mock the cookie with a new session ID.
+		$_COOKIE['woocommerceanalytics_session'] = rawurlencode(
+			wp_json_encode(
+				array(
+					'session_id' => 'new-session-id',
+				)
+			)
+		);
+
+		$universal = new Universal();
+
+		// Use reflection to test the private should_track_checkout method.
+		$reflection = new \ReflectionClass( $universal );
+		$method     = $reflection->getMethod( 'should_track_checkout' );
+		$method->setAccessible( true );
+
+		// With different session ID - should return true.
+		$result = $method->invoke( $universal, $session );
+		$this->assertTrue( $result, 'Checkout with different JS session ID should be tracked.' );
+
+		// Clean up.
+		unset( $_COOKIE['woocommerceanalytics_session'] );
+		reset_wc_mock_instance();
+	}
+
+	/**
+	 * Test that checkout with same JS session ID should not track.
+	 */
+	public function test_checkout_with_same_session_id_should_not_track(): void {
+		$session = new \WC_Session();
+		$session->set( Universal::CHECKOUT_TRACKED_KEY, true );
+		$session->set( Universal::CHECKOUT_SESSION_ID_KEY, 'same-session-id' );
+
+		// Create a mock WC instance with the session.
+		$wc_mock          = new \stdClass();
+		$wc_mock->session = $session;
+		set_wc_mock_instance( $wc_mock );
+
+		// Mock the cookie with the same session ID.
+		$_COOKIE['woocommerceanalytics_session'] = rawurlencode(
+			wp_json_encode(
+				array(
+					'session_id' => 'same-session-id',
+				)
+			)
+		);
+
+		$universal = new Universal();
+
+		// Use reflection to test the private should_track_checkout method.
+		$reflection = new \ReflectionClass( $universal );
+		$method     = $reflection->getMethod( 'should_track_checkout' );
+		$method->setAccessible( true );
+
+		// With same session ID - should return false.
+		$result = $method->invoke( $universal, $session );
+		$this->assertFalse( $result, 'Checkout with same JS session ID should not be tracked.' );
+
+		// Clean up.
+		unset( $_COOKIE['woocommerceanalytics_session'] );
+		reset_wc_mock_instance();
+	}
+
+	/**
+	 * Test that mark_checkout_tracked stores the session ID.
+	 */
+	public function test_mark_checkout_tracked_stores_session_id(): void {
+		$session = new \WC_Session();
+
+		// Create a mock WC instance with the session.
+		$wc_mock          = new \stdClass();
+		$wc_mock->session = $session;
+		set_wc_mock_instance( $wc_mock );
+
+		// Mock the cookie with a session ID.
+		$_COOKIE['woocommerceanalytics_session'] = rawurlencode(
+			wp_json_encode(
+				array(
+					'session_id' => 'test-session-id',
+				)
+			)
+		);
+
+		$universal = new Universal();
+
+		// Use reflection to test the private mark_checkout_tracked method.
+		$reflection = new \ReflectionClass( $universal );
+		$method     = $reflection->getMethod( 'mark_checkout_tracked' );
+		$method->setAccessible( true );
+
+		// Mark checkout as tracked.
+		$method->invoke( $universal, $session );
+
+		// Verify the session was marked as tracked.
+		$this->assertTrue(
+			$session->get( Universal::CHECKOUT_TRACKED_KEY ),
+			'Session should be marked as tracked.'
+		);
+
+		// Verify the session ID was stored.
+		$this->assertSame(
+			'test-session-id',
+			$session->get( Universal::CHECKOUT_SESSION_ID_KEY ),
+			'Session ID should be stored.'
+		);
+
+		// Clean up.
+		unset( $_COOKIE['woocommerceanalytics_session'] );
+		reset_wc_mock_instance();
+	}
+
+	/**
+	 * Test that mark_checkout_tracked handles null session gracefully.
+	 */
+	public function test_mark_checkout_tracked_handles_null_session(): void {
+		$universal = new Universal();
+
+		// Use reflection to test the private mark_checkout_tracked method.
+		$reflection = new \ReflectionClass( $universal );
+		$method     = $reflection->getMethod( 'mark_checkout_tracked' );
+		$method->setAccessible( true );
+
+		// Should not throw an exception with null session.
+		$method->invoke( $universal, null );
+		$this->assertTrue( true, 'mark_checkout_tracked should handle null session without throwing an exception.' );
+	}
+
+	/**
+	 * Test that should_track_checkout handles null session.
+	 */
+	public function test_should_track_checkout_handles_null_session(): void {
+		$universal = new Universal();
+
+		// Use reflection to test the private should_track_checkout method.
+		$reflection = new \ReflectionClass( $universal );
+		$method     = $reflection->getMethod( 'should_track_checkout' );
+		$method->setAccessible( true );
+
+		// With null session - should return true (safe to track).
+		$result = $method->invoke( $universal, null );
+		$this->assertTrue( $result, 'should_track_checkout should return true with null session.' );
+	}
 }
