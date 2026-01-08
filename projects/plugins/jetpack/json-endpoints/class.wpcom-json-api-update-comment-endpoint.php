@@ -316,7 +316,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			'comment_type'         => 'comment',
 		);
 
-		if ( ! empty( $this->api->token_details['user']['user_ip'] ) ) {
+		if ( ! empty( $this->api->token_details['user']['user_ip'] ) && filter_var( $this->api->token_details['user']['user_ip'], FILTER_VALIDATE_IP ) ) {
 			$insert['comment_author_IP'] = $this->api->token_details['user']['user_ip'];
 		}
 
