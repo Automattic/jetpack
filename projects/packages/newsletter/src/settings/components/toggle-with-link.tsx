@@ -110,6 +110,7 @@ export function ToggleWithEditorLink( {
 			onChange={ onChange }
 			url={ url }
 			linkText={ __( 'Preview and edit', 'jetpack-newsletter' ) }
+			isExternal={ false }
 		/>
 	);
 }
