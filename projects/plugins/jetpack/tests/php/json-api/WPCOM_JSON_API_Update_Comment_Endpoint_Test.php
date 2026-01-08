@@ -23,7 +23,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint_Test extends WP_UnitTestCase {
 	/**
 	 * Commenting user IP-address.
 	 */
-	const USER_IP = '123.456.78.910';
+	const USER_IP = '123.45.67.89';
 
 	/**
 	 * Admin user ID.
