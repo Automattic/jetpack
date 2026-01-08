@@ -724,7 +724,7 @@ class Initializer {
 			// On other pages: use cached data only to avoid blocking.
 			$cached_alerts = Red_Bubble_Notifications::get_cached_alerts();
 
-			if ( empty( $cached_alerts ) ) {
+			if ( false === $cached_alerts ) {
 				// No cache - fetch asynchronously via JS.
 				add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_red_bubble_script' ) );
 				return;
