@@ -473,6 +473,11 @@ class Identity_Crisis {
 	 * @return bool True if validation should be performed, false otherwise.
 	 */
 	public static function should_remote_validate_idc( $sync_error ) {
+		// If a validation is already in progress or recently completed, don't trigger another.
+		if ( get_transient( 'jetpack_idc_validation_lock' ) ) {
+			return false;
+		}
+
 		// If delay is not set or invalid, validate immediately to bring into new system.
 		if ( empty( $sync_error['next_check_delay'] ) ) {
 			return true;
@@ -518,13 +523,40 @@ class Identity_Crisis {
 		}
 
 		// Use a transient lock to prevent concurrent validations across multiple requests.
-		$lock_key = 'jetpack_idc_validation_lock';
+		// Lock for the full backoff duration to prevent retries during the delay window.
+		$lock_key      = 'jetpack_idc_validation_lock';
+		$lock_duration = $sync_error['next_check_delay'] ?? self::IDC_VALIDATION_INITIAL_DELAY;
+
 		if ( get_transient( $lock_key ) ) {
 			return false;
 		}
-		set_transient( $lock_key, true, 60 ); // 60 second lock.
+
+		set_transient( $lock_key, true, $lock_duration );
+
+		// Verify the lock was actually set by reading it back.
+		// If the write failed, bail immediately to prevent request floods.
+		if ( ! get_transient( $lock_key ) ) {
+			return false; // Bail - can't prevent concurrent requests.
+		}
 
 		$is_validating = true;
+
+		// Update last_checked before making the API call.
+		// This prevents retries even if the API call hangs, times out, or response handling fails.
+		$sync_error['last_checked'] = time();
+		$update_success             = Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+
+		// Verify the write succeeded by reading it back with cache busting.
+		wp_cache_delete( 'sync_error_idc', 'jetpack_options' );
+		$verified = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		if ( ! $update_success || ! is_array( $verified ) || $verified['last_checked'] !== $sync_error['last_checked'] ) {
+			// Write failed or cache returned stale data - BAIL.
+			// Don't make API call if we can't prevent retries.
+			delete_transient( $lock_key );
+			$is_validating = false;
+			return false;
+		}
 
 		// Build API path with current URLs as query params.
 		// We must explicitly include URLs because add_idc_query_args_to_url() skips
@@ -576,10 +608,14 @@ class Identity_Crisis {
 				self::IDC_VALIDATION_MAX_DELAY
 			);
 			Jetpack_Options::update_option( 'sync_error_idc', $fresh_idc_data );
+			// Force cache refresh to ensure next request sees updated data.
+			wp_cache_delete( 'sync_error_idc', 'jetpack_options' );
 		} else {
 			// Network error, invalid JSON, or non-200 - just update last_checked without backoff.
 			$sync_error['last_checked'] = time();
 			Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+			// Force cache refresh to ensure next request sees updated data.
+			wp_cache_delete( 'sync_error_idc', 'jetpack_options' );
 		}
 
 		delete_transient( $lock_key );
