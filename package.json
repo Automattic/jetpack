@@ -36,9 +36,9 @@
 		"jetpack-js-tools": "workspace:*",
 		"stylelint": "16.26.1"
 	},
-	"packageManager": "pnpm@10.22.0",
+	"packageManager": "pnpm@10.27.0",
 	"engines": {
 		"node": "^22.19.0",
-		"pnpm": "^10.22.0"
+		"pnpm": "^10.27.0"
 	}
 }

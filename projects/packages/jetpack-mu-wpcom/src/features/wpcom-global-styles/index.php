@@ -586,16 +586,8 @@ function wpcom_display_global_styles_notice_admin_bar( $wp_admin_bar ) {
 		array(
 			'parent' => 'wpcom-global-styles',
 			'id'     => 'wpcom-global-styles-reset',
-			'title'  =>
-				'<svg class="wpcom-global-styles-reset-help-icon" width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M5.8125 5.6875C5.8125 4.75552 6.56802 4 7.5 4C8.43198 4 9.1875 4.75552 9.1875 5.6875C9.1875 6.55621 8.53108 7.2716 7.6872 7.36473C7.58427 7.37609 7.5 7.45895 7.5 7.5625V8.5M7.5 9.25V10.375M13.5 7C13.5 10.3137 10.8137 13 7.5 13C4.18629 13 1.5 10.3137 1.5 7C1.5 3.68629 4.18629 1 7.5 1C10.8137 1 13.5 3.68629 13.5 7Z" stroke-width="1.5"/>
-				</svg>' .
-				esc_html__( 'Remove premium styles', 'jetpack-mu-wpcom' ) .
-				'<svg class="wpcom-global-styles-reset-external-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg>',
-			'href'   => 'https://wordpress.com/support/using-styles/#remove-premium-styles',
-			'meta'   => array(
-				'target' => '_blank',
-			),
+			'title'  => esc_html__( 'Remove premium styles', 'jetpack-mu-wpcom' ),
+			'href'   => admin_url( 'site-editor.php?p=/styles' ),
 		)
 	);
 

@@ -55,4 +55,20 @@ class Dashboard_Test extends BaseTestCase {
 		// When get_current_screen doesn't exist, should return false
 		$this->assertFalse( Dashboard::is_jetpack_forms_admin_page() );
 	}
+
+	/**
+	 * Test is_notes_enabled returns false by default
+	 */
+	public function test_is_notes_enabled_default() {
+		$this->assertFalse( Dashboard::is_notes_enabled() );
+	}
+
+	/**
+	 * Test is_notes_enabled returns true when filter is applied
+	 */
+	public function test_is_notes_enabled_with_filter() {
+		add_filter( 'jetpack_forms_notes_enable', '__return_true' );
+		$this->assertTrue( Dashboard::is_notes_enabled() );
+		remove_filter( 'jetpack_forms_notes_enable', '__return_true' );
+	}
 }
