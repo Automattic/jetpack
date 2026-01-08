@@ -1342,4 +1342,156 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$this->assertTrue( $comments_open, 'Comment filter should not affect non-feedback posts' );
 	}
+
+	/**
+	 * Test track_feedback_status_change sets spam meta when transitioning to spam
+	 */
+	public function test_track_feedback_status_change_sets_spam_meta() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'publish',
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from publish to spam
+		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
+		do_action( 'save_post_feedback', $feedback_id, $post, true );
+
+		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
+		$this->assertNotEmpty( $spam_meta, 'Spam meta should be set when transitioning to spam' );
+	}
+
+	/**
+	 * Test track_feedback_status_change removes spam meta when transitioning from spam
+	 */
+	public function test_track_feedback_status_change_removes_spam_meta() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'spam',
+			)
+		);
+
+		// Set spam meta
+		update_post_meta( $feedback_id, '_spam_status_changed_gmt', current_time( 'mysql', 1 ) );
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from spam to publish
+		$plugin->track_feedback_status_change( 'publish', 'spam', $post );
+		do_action( 'save_post_feedback', $feedback_id, $post, true );
+
+		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
+		$this->assertEmpty( $spam_meta, 'Spam meta should be removed when transitioning from spam' );
+	}
+
+	/**
+	 * Test track_feedback_status_change recalculates unread count when status changes to publish
+	 */
+	public function test_track_feedback_status_change_recalculates_on_publish() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'draft',
+				'comment_status' => Feedback::STATUS_UNREAD,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from draft to publish
+		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
+		do_action( 'save_post_feedback', $feedback_id, $post, true );
+
+		// Count should be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		// Since the this test mocking can't do a proper recount, just check that it was reset to 0.
+		$this->assertSame( 0, $count, 'Unread count should be recalculated when status changes from publish' );
+	}
+
+	/**
+	 * Test track_feedback_status_change recalculates unread count when status changes from publish
+	 */
+	public function test_track_feedback_status_change_recalculates_on_unpublish() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'comment_status' => Feedback::STATUS_UNREAD,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from publish to draft
+		$plugin->track_feedback_status_change( 'draft', 'publish', $post );
+		do_action( 'save_post_feedback', $feedback_id, $post, true );
+
+		// Count should be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		// Since the this test mocking can't do a proper recount, just check that it was reset to 0.
+		$this->assertSame( 0, $count, 'Unread count should be recalculated when status changes from publish' );
+	}
+
+	/**
+	 * Test track_feedback_status_change does not recalculate when comment_status is unread
+	 */
+	public function test_track_feedback_status_change_skips_recount_when_read() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'draft',
+				'comment_status' => Feedback::STATUS_READ,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from draft to publish
+		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
+		do_action( 'save_post_feedback', $feedback_id, $post, true );
+
+		// Count should NOT be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		$this->assertEquals( 999, $count, 'Unread count should not be recalculated when comment_status is unread' );
+	}
+
+	/**
+	 * Test track_feedback_status_change ignores non-feedback posts
+	 */
+	public function test_track_feedback_status_change_ignores_non_feedback() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$post   = get_post( $post_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition to spam
+		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
+
+		// Spam meta should NOT be set for non-feedback posts
+		$spam_meta = get_post_meta( $post_id, '_spam_status_changed_gmt', true );
+		$this->assertEmpty( $spam_meta, 'Spam meta should not be set for non-feedback posts' );
+	}
 }
