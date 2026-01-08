@@ -95,7 +95,11 @@ async function fixDeps( pkg ) {
 				);
 			}
 			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' );
-			const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
+			const verRecord = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ];
+			if ( ! verRecord ) {
+				continue;
+			}
+			const deps = verRecord.dependencies;
 			for ( const dep of wpPkgs[ fromPkg ] ) {
 				if ( deps[ dep ] === undefined ) {
 					// prettier-ignore

@@ -24,10 +24,10 @@
 	},
 	"dependencies": {
 		"@automattic/request-external-access": "1.0.1",
-		"@wordpress/dom-ready": "4.36.1-next.76cff8c98.0",
-		"@wordpress/element": "6.36.1-next.76cff8c98.0",
-		"@wordpress/hooks": "4.36.1-next.76cff8c98.0",
-		"@wordpress/i18n": "6.9.1-next.76cff8c98.0",
+		"@wordpress/dom-ready": "4.37.1-next.79a2f3cdd.0",
+		"@wordpress/element": "6.37.1-next.79a2f3cdd.0",
+		"@wordpress/hooks": "4.37.1-next.79a2f3cdd.0",
+		"@wordpress/i18n": "6.10.1-next.79a2f3cdd.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},
