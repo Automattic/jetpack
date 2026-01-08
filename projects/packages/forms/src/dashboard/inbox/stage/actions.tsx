@@ -279,6 +279,23 @@ const processStatusChange = async ( {
 
 		// Revert the count change
 		updateCountsOptimistically( newStatus, originalStatus, 1, queryParams );
+
+		// Revert the menu counter change
+		if (
+			item.is_unread &&
+			( newStatus === 'spam' || newStatus === 'trash' ) &&
+			originalStatus === 'publish'
+		) {
+			updateMenuCounterOptimistically( 1 ); // Revert the decrement
+		}
+
+		if (
+			item.is_unread &&
+			( originalStatus === 'spam' || originalStatus === 'trash' ) &&
+			newStatus === 'publish'
+		) {
+			updateMenuCounterOptimistically( -1 ); // Revert the increment
+		}
 	} );
 
 	return {
