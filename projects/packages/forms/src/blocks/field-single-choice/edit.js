@@ -98,7 +98,10 @@ export default function SingleChoiceFieldEdit( props ) {
 							// Remove any existing "Other" option blocks.
 							optionsBlock.innerBlocks.forEach( b => {
 								if ( b?.attributes?.isOther ) {
-									removeBlock( b.clientId );
+									removeBlock(
+										b.clientId,
+										false // Don't update block selection
+									);
 								}
 							} );
 						}
