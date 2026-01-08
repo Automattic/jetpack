@@ -6,6 +6,7 @@ import {
 } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
@@ -24,14 +25,23 @@ const getLabelOrFallback = ( label, placeholder ) => {
 	return label ?? placeholder;
 };
 
-const OptionEdit = ( { attributes, clientId, context, name, setAttributes, mergeBlocks } ) => {
+const OptionEdit = ( {
+	attributes,
+	clientId,
+	context,
+	isSelected,
+	mergeBlocks,
+	name,
+	setAttributes,
+} ) => {
 	const {
 		'jetpack/field-default-value': defaultValue,
 		'jetpack/field-options-type': type = 'checkbox',
 		'jetpack/field-required': required,
 		'jetpack/field-share-attributes': isSynced,
 	} = context;
-	const { hideInput, label, isStandalone, requiredText, placeholder, isOther } = attributes;
+	const { hideInput, label, isStandalone, requiredText, placeholder, isOther, otherPlaceholder } =
+		attributes;
 
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
@@ -44,6 +54,19 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 		[ clientId ]
 	);
 
+	const isParentSelected = useSelect(
+		select => {
+			const { getBlockRootClientId, getSelectedBlockClientId } = select( blockEditorStore );
+			const parentClientId = getBlockRootClientId( clientId );
+			if ( ! parentClientId ) {
+				return false;
+			}
+			const selectedBlockClientId = getSelectedBlockClientId();
+			return selectedBlockClientId === parentClientId;
+		},
+		[ clientId ]
+	);
+
 	const onRemove = () => {
 		if ( siblingsCount <= 1 ) {
 			return;
@@ -51,6 +74,8 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 
 		removeBlock( clientId );
 	};
+
+	const [ isFocusedOtherPlaceholder, setIsFocusedOtherPlaceholder ] = useState( false );
 
 	const blockProps = useBlockProps( {
 		className: `jetpack-field-option field-option-${ type }`,
@@ -128,31 +153,51 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes, merge
 	}
 
 	return (
-		<li { ...blockProps }>
+		<>
 			<BlockControls>
 				<ToolbarGroup>
 					<ToolbarButton
 						onClick={ () => setAttributes( { isOther: ! isOther } ) }
-						className={ isOther ? 'is-pressed' : undefined }
+						className={ clsx( { 'is-pressed': isOther } ) }
 					>
 						{ __( 'Other', 'jetpack-forms' ) }
 					</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
-			<input type={ type } className="jetpack-option__type" tabIndex="-1" />
-			<RichText
-				ref={ useEnterRef }
-				identifier="label"
-				tagName="div"
-				className="wp-block"
-				onMerge={ mergeBlocks }
-				value={ labelValue }
-				placeholder={ __( 'Add option…', 'jetpack-forms' ) }
-				__unstableDisableFormats
-				onChange={ newLabel => setAttributes( { label: newLabel } ) }
-				onRemove={ onRemove }
-			/>
-		</li>
+			<li { ...blockProps }>
+				<input type={ type } className="jetpack-option__type" tabIndex="-1" />
+				<RichText
+					ref={ useEnterRef }
+					identifier="label"
+					tagName="div"
+					className="wp-block"
+					value={ labelValue }
+					placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+					__unstableDisableFormats
+					onChange={ newLabel => setAttributes( { label: newLabel } ) }
+					onMerge={ mergeBlocks }
+					onRemove={ onRemove }
+				/>
+			</li>
+			{ isOther && ( isSelected || isParentSelected ) && (
+				<li className="jetpack-other-text-input-wrapper is-visible">
+					<label htmlFor={ `${ clientId }-other-text` } className="screen-reader-text">
+						{ otherPlaceholder }
+					</label>
+
+					<input
+						id={ `${ clientId }-other-text` }
+						className="grunion-field jetpack-field__input"
+						onChange={ newPlaceholder => setAttributes( { otherPlaceholder: newPlaceholder } ) }
+						onFocus={ () => setIsFocusedOtherPlaceholder( true ) }
+						onBlur={ () => setIsFocusedOtherPlaceholder( false ) }
+						type="text"
+						value={ isFocusedOtherPlaceholder ? otherPlaceholder : '' }
+						placeholder={ otherPlaceholder }
+					/>
+				</li>
+			) }
+		</>
 	);
 };
 

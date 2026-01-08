@@ -66,6 +66,10 @@ const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		otherPlaceholder: {
+			type: 'string',
+			default: __( 'Please specify…', 'jetpack-forms' ),
+		},
 	},
 	usesContext: [
 		'jetpack/field-default-value',
