@@ -396,19 +396,37 @@ class Full_Sync_Immediately extends Module {
 		foreach ( $this->get_remaining_modules_to_send() as $module ) {
 			$module_name = $module->name();
 
-			$progress[ $module_name ] = $module->send_full_sync_actions( $config[ $module_name ] ?? null, $progress[ $module_name ] ?? null, $send_until, $started );
-			if ( isset( $progress[ $module_name ]['error'] ) ) {
-				unset( $progress[ $module_name ]['error'] );
-				$this->update_status( array( 'progress' => $progress ) );
-				return false;
-			} elseif ( ! $progress[ $module_name ]['finished'] ) {
-				$this->update_status( array( 'progress' => $progress ) );
-				return true;
+			if ( isset( $progress[ $module_name ] ) && array_key_exists( $module_name, $config ) ) {
+				$progress[ $module_name ] = $module->send_full_sync_actions( $config[ $module_name ], $progress[ $module_name ], $send_until, $started );
+				if ( isset( $progress[ $module_name ]['error'] ) ) {
+					unset( $progress[ $module_name ]['error'] );
+					$this->update_status( array( 'progress' => $progress ) );
+					return false;
+				} elseif ( ! $progress[ $module_name ]['finished'] ) {
+					$this->update_status( array( 'progress' => $progress ) );
+					return true;
+				}
 			}
+
 			if ( $this->get_status()['started'] !== $started ) {
 				// Full sync was restarted, stop sending.
 				return false;
 			}
+		}
+
+		// Only end if everything is finished. If not, persist and try again next time.
+		// We may end up in this state if get_remaining_modules_to_send returns more modules than we initially stored in $progress or $config.
+		$all_progress_finished = true;
+		foreach ( $progress as $progress_module_name ) {
+			if ( empty( $progress_module_name['finished'] ) || true !== $progress_module_name['finished'] ) {
+				$all_progress_finished = false;
+				break;
+			}
+		}
+
+		if ( ! $all_progress_finished ) {
+			$this->update_status( array( 'progress' => $progress ) );
+			return true; // release lock and continue later
 		}
 
 		$this->send_full_sync_end();
