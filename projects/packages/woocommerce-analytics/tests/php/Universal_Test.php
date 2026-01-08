@@ -36,7 +36,8 @@ class Universal_Test extends BaseTestCase {
 			wp_json_encode(
 				array(
 					'session_id' => $session_id,
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			)
 		);
 	}
