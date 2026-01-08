@@ -57,6 +57,30 @@
 	}
 }
 
+.jp-forms-filters-bar {
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	padding-inline: variables.$grid-unit * 2.5;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: variables.$grid-unit * 1.25;
+	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+
+	&__chips {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	&__controls {
+		flex: 0 0 auto;
+	}
+
+	.jp-forms-filters-container {
+		padding: 0;
+	}
+}
+
 .jp-forms-dataviews-layout-container {
 	overflow-x: auto;
 	width: 100%;
