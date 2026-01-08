@@ -90,4 +90,63 @@ class Universal_Test extends BaseTestCase {
 		// If we get here without errors, the method completed without processing a non-existent order.
 		$this->assertTrue( true, 'order_process should handle a missing order without throwing an exception.' );
 	}
+
+	/**
+	 * Test that reset_checkout_tracking_state clears the session flag.
+	 */
+	public function test_reset_checkout_tracking_state_clears_session(): void {
+		$session = new \WC_Session();
+		$session->set( Universal::CHECKOUT_TRACKED_KEY, true );
+
+		// Create a mock WC instance with the session.
+		$wc_mock          = new \stdClass();
+		$wc_mock->session = $session;
+		set_wc_mock_instance( $wc_mock );
+
+		$universal = new Universal();
+		$universal->reset_checkout_tracking_state();
+
+		$this->assertFalse(
+			$session->get( Universal::CHECKOUT_TRACKED_KEY ),
+			'reset_checkout_tracking_state should set the tracked key to false.'
+		);
+
+		// Clean up.
+		reset_wc_mock_instance();
+	}
+
+	/**
+	 * Test that reset_checkout_tracking_state works when session is not available.
+	 */
+	public function test_reset_checkout_tracking_state_handles_null_session(): void {
+		// Create a mock WC instance with null session.
+		$wc_mock          = new \stdClass();
+		$wc_mock->session = null;
+		set_wc_mock_instance( $wc_mock );
+
+		$universal = new Universal();
+
+		// Should not throw an exception.
+		$universal->reset_checkout_tracking_state();
+		$this->assertTrue( true, 'reset_checkout_tracking_state should handle null session without throwing an exception.' );
+
+		// Clean up.
+		reset_wc_mock_instance();
+	}
+
+	/**
+	 * Test that checkout tracking session keys are defined correctly.
+	 */
+	public function test_checkout_session_keys_are_defined(): void {
+		$this->assertSame(
+			'wca_checkout_tracked',
+			Universal::CHECKOUT_TRACKED_KEY,
+			'CHECKOUT_TRACKED_KEY should be defined correctly.'
+		);
+		$this->assertSame(
+			'wca_checkout_session_id',
+			Universal::CHECKOUT_SESSION_ID_KEY,
+			'CHECKOUT_SESSION_ID_KEY should be defined correctly.'
+		);
+	}
 }

@@ -21,6 +21,16 @@ class Universal {
 	use Woo_Analytics_Trait;
 
 	/**
+	 * Session key for tracking if checkout has been tracked for current cart state.
+	 */
+	const CHECKOUT_TRACKED_KEY = 'wca_checkout_tracked';
+
+	/**
+	 * Session key for storing the last tracked JS session ID.
+	 */
+	const CHECKOUT_SESSION_ID_KEY = 'wca_checkout_session_id';
+
+	/**
 	 * Constructor.
 	 */
 	public function init_hooks() {
@@ -36,6 +46,12 @@ class Universal {
 		add_action( 'woocommerce_after_cart_item_quantity_update', array( $this, 'capture_cart_quantity_update' ), 10, 4 );
 		add_action( 'woocommerce_cart_item_removed', array( $this, 'capture_remove_from_cart' ), 10, 2 );
 		add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'remove_from_cart_attributes' ), 10, 2 );
+
+		// Reset checkout tracking state when cart changes.
+		add_action( 'woocommerce_add_to_cart', array( $this, 'reset_checkout_tracking_state' ) );
+		add_action( 'woocommerce_cart_item_removed', array( $this, 'reset_checkout_tracking_state' ) );
+		add_action( 'woocommerce_after_cart_item_quantity_update', array( $this, 'reset_checkout_tracking_state' ) );
+		add_action( 'woocommerce_cart_emptied', array( $this, 'reset_checkout_tracking_state' ) );
 
 		// Checkout.
 		// Send events after checkout template (shortcode).
@@ -246,7 +262,9 @@ class Universal {
 	}
 
 	/**
-	 * On the Checkout page, trigger an event for each product in the cart
+	 * On the Checkout page, trigger an event for each product in the cart.
+	 * Events are deduplicated based on cart state and session ID.
+	 * Fires PHP-side via record_event() for consistency with product_purchase.
 	 */
 	public function checkout_process() {
 		global $post;
@@ -257,6 +275,16 @@ class Universal {
 		if ( is_object( $session ) ) {
 			$session->set( 'checkout_page_used', 'Yes' === $is_in_checkout_page );
 			$session->save_data();
+		}
+
+		// Skip if cart is empty.
+		if ( empty( $cart ) ) {
+			return;
+		}
+
+		// Deduplicate: check if we should track this checkout.
+		if ( ! $this->should_track_checkout( $session ) ) {
+			return;
 		}
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
@@ -282,7 +310,80 @@ class Universal {
 			}
 
 			$data['pq'] = $cart_item['quantity'];
-			$this->enqueue_event( 'product_checkout', $this->get_cart_checkout_event_properties( $data ), $product->get_id() );
+			$data['pi'] = $product->get_id();
+
+			// Fire PHP-side for consistency with product_purchase event.
+			WC_Analytics_Tracking::record_event(
+				'product_checkout',
+				$this->get_cart_checkout_event_properties( $data )
+			);
+		}
+
+		// Mark checkout as tracked for this cart state.
+		$this->mark_checkout_tracked( $session );
+	}
+
+	/**
+	 * Check if checkout should be tracked.
+	 * Returns true if cart changed or JS session changed.
+	 *
+	 * @param \WC_Session|null $session WooCommerce session.
+	 * @return bool True if checkout should be tracked.
+	 */
+	private function should_track_checkout( $session ) {
+		if ( ! is_object( $session ) ) {
+			return true; // No session, track to be safe.
+		}
+
+		// Check if already tracked for this cart state.
+		$has_tracked = $session->get( self::CHECKOUT_TRACKED_KEY );
+		if ( ! $has_tracked ) {
+			return true; // Not tracked yet.
+		}
+
+		// Check if JS session changed (if sessionTracking is enabled).
+		// Only re-track if we have both a current and previous session ID to compare,
+		// and they differ - indicating a new session started.
+		$current_session_id = $this->get_js_session_id();
+		$last_session_id    = $session->get( self::CHECKOUT_SESSION_ID_KEY );
+
+		if ( $current_session_id && $last_session_id && $current_session_id !== $last_session_id ) {
+			return true; // Session changed.
+		}
+
+		return false; // Already tracked, no changes.
+	}
+
+	/**
+	 * Mark checkout as tracked and store current session ID.
+	 *
+	 * @param \WC_Session|null $session WooCommerce session.
+	 */
+	private function mark_checkout_tracked( $session ) {
+		if ( ! is_object( $session ) ) {
+			return;
+		}
+
+		$session->set( self::CHECKOUT_TRACKED_KEY, true );
+
+		// Store current JS session ID (if sessionTracking is enabled).
+		$current_session_id = $this->get_js_session_id();
+		if ( $current_session_id ) {
+			$session->set( self::CHECKOUT_SESSION_ID_KEY, $current_session_id );
+		}
+
+		$session->save_data();
+	}
+
+	/**
+	 * Reset checkout tracking state when cart changes.
+	 * This ensures product_checkout fires again after cart modifications.
+	 */
+	public function reset_checkout_tracking_state() {
+		$session = WC()->session;
+		if ( is_object( $session ) ) {
+			$session->set( self::CHECKOUT_TRACKED_KEY, false );
+			$session->save_data();
 		}
 	}
 
