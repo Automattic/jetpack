@@ -212,8 +212,9 @@ const runGitHook = ( monorepoRoot, hookName, hookArgs ) => {
 	// Build environment for the hook
 	// Only set CI=true if we're actually in CI or don't have a TTY,
 	// otherwise allow interactive prompts (e.g., changelog creation)
+	// Note: Check stdout.isTTY because git hooks redirect stdin
 	const hookEnv = { ...process.env };
-	if ( ! process.stdin.isTTY && ! process.env.CI ) {
+	if ( ! process.stdout.isTTY && ! process.env.CI ) {
 		hookEnv.CI = 'true';
 	}
 
