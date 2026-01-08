@@ -29,7 +29,7 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		setupSpies();
 		const initialProps = {
 			registrationNonce: 'REGISTRATION',
-			redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
+			redirectUri: 'admin.php?page=my-jetpack&partnerCoupon=TEST_TST_1234',
 			from: 'jetpack-partner-coupon',
 		};
 		const { result } = renderHook( props => useConnection( props ), { initialProps } );
@@ -40,14 +40,14 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 			expect( stubRegisterSite ).toHaveBeenCalledTimes( 1 );
 			expect( stubRegisterSite ).toHaveBeenCalledWith( {
 				registrationNonce: 'REGISTRATION',
-				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
+				redirectUri: 'admin.php?page=my-jetpack&partnerCoupon=TEST_TST_1234',
 				from: 'jetpack-partner-coupon',
 			} );
 
 			expect( stubConnectUser ).toHaveBeenCalledTimes( 1 );
 			expect( stubConnectUser ).toHaveBeenCalledWith( {
 				from: 'jetpack-partner-coupon',
-				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
+				redirectUri: 'admin.php?page=my-jetpack&partnerCoupon=TEST_TST_1234',
 			} );
 			done();
 		}, 50 );
@@ -59,7 +59,7 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		const { result } = renderHook( props => useConnection( props ), {
 			initialProps: {
 				from: 'jetpack-partner-coupon',
-				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
+				redirectUri: 'admin.php?page=my-jetpack&partnerCoupon=TEST_TST_1234',
 			},
 		} );
 
@@ -68,7 +68,7 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		expect( stubConnectUser ).toHaveBeenCalledTimes( 1 );
 		expect( stubConnectUser ).toHaveBeenCalledWith( {
 			from: 'jetpack-partner-coupon',
-			redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
+			redirectUri: 'admin.php?page=my-jetpack&partnerCoupon=TEST_TST_1234',
 		} );
 	} );
 } );

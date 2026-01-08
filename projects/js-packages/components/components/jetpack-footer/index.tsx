@@ -53,10 +53,8 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 		{
 			label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack-components' ),
 			title: __( 'About Jetpack', 'jetpack-components' ),
-			href: useInternalLinks
-				? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
-				: getRedirectUrl( 'jetpack-about' ),
-			target: useInternalLinks ? '_self' : '_blank',
+			href: getRedirectUrl( 'jetpack-about' ),
+			target: '_blank',
 			onClick: onAboutClick,
 		},
 		{
@@ -138,11 +136,9 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 				} ) }
 				<li className="jp-dashboard-footer__a8c-item">
 					<a
-						href={
-							useInternalLinks
-								? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
-								: getRedirectUrl( 'a8c-about' )
-						}
+						href={ getRedirectUrl( 'a8c-about' ) }
+						target="_blank"
+						rel="noopener noreferrer"
 						aria-label={ __( 'An Automattic Airline', 'jetpack-components' ) }
 					>
 						<AutomatticBylineLogo aria-hidden="true" />
