@@ -230,7 +230,7 @@ class Agents_Manager {
 			return true;
 		}
 
-		if ( $this->is_block_editor() && $this->is_big_sky_active() && $this->has_unified_big_sky_flag() ) {
+		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->has_unified_big_sky_flag() ) {
 			return true;
 		}
 
@@ -539,17 +539,6 @@ class Agents_Manager {
 		$current_screen = get_current_screen();
 		// The widgets screen has the block editor but no Gutenberg top bar.
 		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
-	}
-
-	/**
-	 * Determine if Big Sky plugin is active.
-	 */
-	private function is_big_sky_active() {
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-
-		return is_plugin_active( 'big-sky-plugin/big-sky.php' ) || is_plugin_active( 'big-sky/big-sky.php' );
 	}
 
 	/**
