@@ -69,6 +69,8 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				setIsLoading( false );
 			} )
 			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter settings load error:', err );
 				setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
 				setIsLoading( false );
 			} );
@@ -85,11 +87,18 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			setData( { ...data, ...updates } );
 
 			// Save to backend
-			restApi.updateSettings( updates ).catch( ( err: Error ) => {
-				setError( err.message || 'Failed to save settings' );
-				// Revert optimistic update on error
-				setData( data );
-			} );
+			restApi
+				.updateSettings( updates )
+				.then( () => {
+					setError( null );
+				} )
+				.catch( ( err: Error ) => {
+					// eslint-disable-next-line no-console
+					console.error( 'Newsletter settings auto-save error:', err );
+					setError( err.message || __( 'Failed to save settings', 'jetpack-newsletter' ) );
+					// Revert optimistic update on error
+					setData( data );
+				} );
 		},
 		[ data ]
 	);
@@ -119,12 +128,15 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		restApi
 			.updateSettings( senderNameChanges )
 			.then( () => {
+				setError( null );
 				setData( { ...data, ...senderNameChanges } );
 				setSenderNameChanges( {} );
 				setSnackbarMessage( __( 'Sender name saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
-				setError( err.message || 'Failed to save sender name' );
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter sender name save error:', err );
+				setError( err.message || __( 'Failed to save sender name', 'jetpack-newsletter' ) );
 			} )
 			.finally( () => {
 				setIsSavingSenderName( false );
