@@ -717,15 +717,15 @@ class Initializer {
 		$is_my_jetpack_page = $pagenow === 'admin.php' && $page === 'my-jetpack';
 
 		if ( $is_my_jetpack_page ) {
-			// On My Jetpack page: use blocking behavior for fresh data
+			// On My Jetpack page: use blocking behavior for fresh data.
 			add_filter( 'my_jetpack_red_bubble_notification_slugs', array( Red_Bubble_Notifications::class, 'add_red_bubble_alerts' ) );
 			$red_bubble_alerts = Red_Bubble_Notifications::get_red_bubble_alerts();
 		} else {
-			// On other pages: use cached data only to avoid blocking
+			// On other pages: use cached data only to avoid blocking.
 			$cached_alerts = Red_Bubble_Notifications::get_cached_alerts();
 
 			if ( empty( $cached_alerts ) ) {
-				// No cache - fetch asynchronously via JS
+				// No cache - fetch asynchronously via JS.
 				add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_red_bubble_script' ) );
 				return;
 			}
