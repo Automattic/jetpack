@@ -1,10 +1,10 @@
 import {
+	InspectorControls,
 	RichText,
 	store as blockEditorStore,
 	useBlockProps,
-	BlockControls,
 } from '@wordpress/block-editor';
-import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
+import { ToggleControl, PanelBody } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -102,16 +102,6 @@ const OptionEdit = ( {
 	if ( isStandalone ) {
 		return (
 			<>
-				<BlockControls>
-					<ToolbarGroup>
-						<ToolbarButton
-							onClick={ () => setAttributes( { isOther: ! isOther } ) }
-							className={ clsx( { 'is-pressed': isOther } ) }
-						>
-							{ __( 'Other', 'jetpack-forms' ) }
-						</ToolbarButton>
-					</ToolbarGroup>
-				</BlockControls>
 				<div { ...blockProps }>
 					{ ! hideInput && (
 						<input
@@ -154,16 +144,26 @@ const OptionEdit = ( {
 
 	return (
 		<>
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarButton
-						onClick={ () => setAttributes( { isOther: ! isOther } ) }
-						className={ clsx( { 'is-pressed': isOther } ) }
-					>
-						{ __( 'Other', 'jetpack-forms' ) }
-					</ToolbarButton>
-				</ToolbarGroup>
-			</BlockControls>
+			<InspectorControls>
+				<PanelBody
+					title={ __( 'Settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
+					<ToggleControl
+						key="allowOther"
+						label={ __( '"Other" option', 'jetpack-forms' ) }
+						checked={ !! isOther }
+						onChange={ toggleValue => {
+							setAttributes( { isOther: toggleValue } );
+						} }
+						help={ __(
+							'Show as "Other" option with a text input field below it.',
+							'jetpack-forms'
+						) }
+						__nextHasNoMarginBottom={ true }
+					/>
+				</PanelBody>
+			</InspectorControls>
 			<li { ...blockProps }>
 				<input type={ type } className="jetpack-option__type" tabIndex="-1" />
 				<RichText
