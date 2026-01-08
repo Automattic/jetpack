@@ -60,10 +60,8 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 		{
 			label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack-components' ),
 			title: __( "Automattic's Privacy Policy", 'jetpack-components' ),
-			href: useInternalLinks
-				? new URL( 'admin.php?page=jetpack#/privacy', siteAdminUrl ).href
-				: getRedirectUrl( 'a8c-privacy' ),
-			target: useInternalLinks ? '_self' : '_blank',
+			href: getRedirectUrl( 'a8c-privacy' ),
+			target: '_blank',
 			onClick: onPrivacyClick,
 		},
 		{
