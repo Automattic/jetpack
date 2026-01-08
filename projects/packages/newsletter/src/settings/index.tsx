@@ -175,7 +175,10 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				return;
 			}
 
-			// Merge updates into staged changes
+			// Update local state
+			setData( { ...data, ...updates } );
+
+			// Track changes for save button
 			setSenderNameChanges( { ...senderNameChanges, ...updates } );
 		},
 		[ data, senderNameChanges ]
@@ -194,7 +197,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.updateSettings( senderNameChanges )
 			.then( () => {
 				setError( null );
-				setData( { ...data, ...senderNameChanges } );
 				setSenderNameChanges( {} );
 				setSnackbarMessage( __( 'Sender name saved', 'jetpack-newsletter' ) );
 			} )
@@ -384,7 +386,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			/>
 
 			<EmailSenderSettingsSection
-				data={ { ...data, ...senderNameChanges } }
+				data={ data }
 				onChange={ handleSenderNameChange }
 				onSave={ saveSenderName }
 				isSaving={ isSavingSenderName }
