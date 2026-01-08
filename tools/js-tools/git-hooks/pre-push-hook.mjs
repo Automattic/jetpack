@@ -185,6 +185,8 @@ async function checkChangelogFiles() {
 					'--cached',
 				] );
 
+				console.log( 'DEBUG: changelogFiles =', changelogFiles );
+
 				for ( const file of changelogFiles ) {
 					const match = file.match( /^projects\/([^/]+\/[^/]+)\/changelog\// );
 					if ( match ) {
@@ -192,8 +194,13 @@ async function checkChangelogFiles() {
 					}
 				}
 
+				console.log( 'DEBUG: filesToCommit =', filesToCommit );
+
 				if ( filesToCommit.length > 0 ) {
-					const commitFiles = spawnSync( 'git', [ 'commit', ...filesToCommit, '-m', 'changelog' ] );
+					const commitFiles = spawnSync( 'git', [ 'commit', ...filesToCommit, '-m', 'changelog' ], {
+						stdio: 'inherit',
+					} );
+					console.log( 'DEBUG: commitFiles.status =', commitFiles.status );
 					if ( commitFiles.status === 0 ) {
 						pushAgain();
 					}
