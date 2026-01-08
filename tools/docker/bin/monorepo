@@ -74,7 +74,7 @@ fi
 # Run the command in the container
 # Use -it only if we have a TTY available
 # If stdin was redirected (e.g., by git hooks) but /dev/tty is available, reconnect to it
-  if [[ ! -t 0 ]] && [[ -c /dev/tty ]] && sh -c ': < /dev/tty' >/dev/null 2>/dev/null; then
+  if [[ ! -t 0 && -c /dev/tty ]] && sh -c ': < /dev/tty' >/dev/null 2>/dev/null; then
       exec < /dev/tty
   fi
 

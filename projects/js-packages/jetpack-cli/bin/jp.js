@@ -112,8 +112,25 @@ const cloneMonorepo = async targetDir => {
 	}
 };
 
-// Supported git hooks - these must exist in .husky/ directory
-const SUPPORTED_HOOKS = [ 'pre-commit', 'pre-push', 'post-checkout', 'post-merge' ];
+/**
+ * Get list of git hooks from the .husky directory.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @return {Array<string>} List of hook names
+ */
+const getHuskyHooks = monorepoRoot => {
+	const huskyDir = resolve( monorepoRoot, '.husky' );
+	if ( ! fs.existsSync( huskyDir ) ) {
+		return [];
+	}
+
+	// Filter for valid git hook names (lowercase letters and hyphens)
+	const hookPattern = /^[a-z][a-z-]*$/;
+	return fs.readdirSync( huskyDir ).filter( name => {
+		const fullPath = resolve( huskyDir, name );
+		return hookPattern.test( name ) && fs.statSync( fullPath ).isFile();
+	} );
+};
 
 /**
  * Check if a husky hook file exists.
@@ -161,16 +178,22 @@ const initHooks = monorepoRoot => {
 		}
 	}
 
-	for ( const hookName of SUPPORTED_HOOKS ) {
-		if ( ! huskyHookExists( monorepoRoot, hookName ) ) {
-			console.log( chalk.yellow( `  Skipping ${ hookName } (not found in .husky/)` ) );
-			continue;
-		}
+	const hooks = getHuskyHooks( monorepoRoot );
+	if ( hooks.length === 0 ) {
+		console.log( chalk.yellow( '  No hooks found in .husky/' ) );
+		return;
+	}
 
+	for ( const hookName of hooks ) {
 		const hookPath = resolve( hooksDir, hookName );
 		const hookContent = `#!/bin/sh
 # Jetpack CLI git hook
 # Runs the .husky hook in Docker to ensure consistent environment
+
+# Exit gracefully if the .husky hook was removed
+if [ ! -f .husky/${ hookName } ]; then
+	exit 0
+fi
 
 # Check if we're already in the Docker container
 if [ -n "$JETPACK_MONOREPO_ENV" ]; then
