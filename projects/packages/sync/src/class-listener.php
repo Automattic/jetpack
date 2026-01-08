@@ -289,6 +289,12 @@ class Listener {
 			return;
 		}
 
+		// Skip enqueueing if current action is blacklisted.
+		$sync_actions_blacklist = Settings::get_setting( 'sync_actions_blacklist' );
+		if ( is_array( $sync_actions_blacklist ) && in_array( $current_filter, $sync_actions_blacklist, true ) ) {
+			return;
+		}
+
 		/**
 		 * Add an action hook to execute when anything on the whitelist gets sent to the queue to sync.
 		 *
