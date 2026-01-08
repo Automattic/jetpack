@@ -369,8 +369,6 @@ class Universal {
 		if ( $current_session_id ) {
 			$session->set( self::CHECKOUT_SESSION_ID_KEY, $current_session_id );
 		}
-
-		$session->save_data();
 	}
 
 	/**
@@ -381,7 +379,6 @@ class Universal {
 		$session = WC()->session;
 		if ( is_object( $session ) ) {
 			$session->set( self::CHECKOUT_TRACKED_KEY, false );
-			$session->save_data();
 		}
 	}
 
