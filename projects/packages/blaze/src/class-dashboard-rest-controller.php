@@ -503,9 +503,10 @@ class Dashboard_REST_Controller {
 	 * @return array Formatted post data.
 	 */
 	protected function format_post_for_blaze( $post ) {
-		// Get featured image - try Jetpack_PostImages first (like WPCOM), fall back to thumbnail.
+		// Get featured image - try Jetpack_PostImages first, fall back to thumbnail.
 		$featured_image = null;
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
+		if ( class_exists( '\Jetpack_PostImages' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Class is checked with class_exists() above.
 			$post_images    = \Jetpack_PostImages::get_image( $post->ID );
 			$featured_image = is_array( $post_images ) ? ( $post_images['src'] ?? null ) : null;
 		}
@@ -517,7 +518,7 @@ class Dashboard_REST_Controller {
 		// Get SKU for WooCommerce products.
 		$sku = get_post_meta( $post->ID, '_sku', true );
 
-		// Get permalink based on permalink structure (matches WPCOM).
+		// Get permalink based on permalink structure.
 		$permalink_structure = get_option( 'permalink_structure' );
 		$post_url            = $permalink_structure === '' ? $post->guid : get_permalink( $post->ID );
 
