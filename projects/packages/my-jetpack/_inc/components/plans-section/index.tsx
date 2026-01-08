@@ -204,18 +204,22 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
 	}, [ recordEvent ] );
 
-	let activateLicenceDescription: string = __( 'Activate a license', 'jetpack-my-jetpack' );
+	let activateLicenceDescription: string;
 	if ( ! isUserConnected ) {
 		activateLicenceDescription = __(
 			'Activate a license (requires a user connection)',
 			'jetpack-my-jetpack'
 		);
+	} else if ( numberOfPurchases > 0 ) {
+		activateLicenceDescription = __( 'Activate a new license', 'jetpack-my-jetpack' );
+	} else {
+		activateLicenceDescription = __( 'Activate a license', 'jetpack-my-jetpack' );
 	}
 
 	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
 
 	return (
-		<ul>
+		<ul className={ styles[ 'actions-list' ] }>
 			{ numberOfPurchases > 0 && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<ExternalLink onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
