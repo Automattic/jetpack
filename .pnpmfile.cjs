@@ -95,11 +95,7 @@ async function fixDeps( pkg ) {
 				);
 			}
 			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' );
-			const verRecord = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ];
-			if ( ! verRecord ) {
-				continue;
-			}
-			const deps = verRecord.dependencies;
+			const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
 			for ( const dep of wpPkgs[ fromPkg ] ) {
 				if ( deps[ dep ] === undefined ) {
 					// prettier-ignore
@@ -108,8 +104,6 @@ async function fixDeps( pkg ) {
 				pkg.optionalDependencies[ dep ] = deps[ dep ];
 			}
 		}
-		// Needed in the 'next' version but the hack here doesn't know we're installing the 'next' version.
-		pkg.optionalDependencies[ '@base-ui/react' ] = '*';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
@@ -217,7 +211,7 @@ async function fixDeps( pkg ) {
 	if ( pkg.name.startsWith( '@types/wordpress__' ) && pkg.dependencies ) {
 		for ( const k of Object.keys( pkg.dependencies ) ) {
 			if ( k.startsWith( '@wordpress/' ) ) {
-				pkg.dependencies[ k ] = '*';
+				pkg.dependencies[ k ] = 'next';
 			}
 		}
 	}
@@ -315,10 +309,13 @@ function fixPeerDeps( pkg ) {
 		delete pkg.dependencies.sass;
 	}
 
-	// These peer deps are marked as optional in @wordpress/build but pnpm still complains.
-	// Remove them since they're not actually required.
+	// 0.x versions treat `^` like `~`. Replace with `>=`.
 	if ( pkg.name === '@wordpress/build' && pkg.peerDependencies ) {
-		delete pkg.peerDependencies[ '@wordpress/theme' ];
+		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
+			if ( ver.startsWith( '^0.' ) ) {
+				pkg.peerDependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
 	}
 
 	return pkg;
@@ -336,17 +333,6 @@ async function readPackage( pkg, context ) {
 	if ( pkg.name ) {
 		pkg = await fixDeps( pkg, context );
 		pkg = fixPeerDeps( pkg, context );
-
-		// Hack: Update all @wordpress deps to 'next', except for @wordpress/icons v10.
-		if ( pkg.dependencies ) {
-			for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-				if ( dep === '@wordpress/icons' && ver.match( /^(^|~|>=)10\./ ) ) {
-					pkg.dependencies[ '@wordpress/icons' ] = '>=10 <11';
-				} else if ( dep.startsWith( '@wordpress/' ) ) {
-					pkg.dependencies[ dep ] = 'next';
-				}
-			}
-		}
 	}
 	return pkg;
 }
