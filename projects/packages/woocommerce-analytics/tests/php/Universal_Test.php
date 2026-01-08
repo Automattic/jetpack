@@ -26,6 +26,28 @@ class Universal_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Helper method to set up a mock session cookie with a session ID.
+	 *
+	 * @param string $session_id The session ID to set in the cookie.
+	 */
+	private function set_session_cookie( $session_id ) {
+		$_COOKIE['woocommerceanalytics_session'] = rawurlencode(
+			wp_json_encode(
+				array(
+					'session_id' => $session_id,
+				)
+			)
+		);
+	}
+
+	/**
+	 * Helper method to clear the session cookie.
+	 */
+	private function clear_session_cookie() {
+		unset( $_COOKIE['woocommerceanalytics_session'] );
+	}
+
+	/**
 	 * Test that order_process calls wc_get_order with an integer order ID.
 	 */
 	public function test_order_process_handles_integer_order_id(): void {
@@ -247,13 +269,7 @@ class Universal_Test extends BaseTestCase {
 		set_wc_mock_instance( $wc_mock );
 
 		// Mock the cookie with a new session ID.
-		$_COOKIE['woocommerceanalytics_session'] = rawurlencode(
-			wp_json_encode(
-				array(
-					'session_id' => 'new-session-id',
-				)
-			)
-		);
+		$this->set_session_cookie( 'new-session-id' );
 
 		$universal = new Universal();
 
@@ -267,7 +283,7 @@ class Universal_Test extends BaseTestCase {
 		$this->assertTrue( $result, 'Checkout with different JS session ID should be tracked.' );
 
 		// Clean up.
-		unset( $_COOKIE['woocommerceanalytics_session'] );
+		$this->clear_session_cookie();
 		reset_wc_mock_instance();
 	}
 
@@ -285,13 +301,7 @@ class Universal_Test extends BaseTestCase {
 		set_wc_mock_instance( $wc_mock );
 
 		// Mock the cookie with the same session ID.
-		$_COOKIE['woocommerceanalytics_session'] = rawurlencode(
-			wp_json_encode(
-				array(
-					'session_id' => 'same-session-id',
-				)
-			)
-		);
+		$this->set_session_cookie( 'same-session-id' );
 
 		$universal = new Universal();
 
@@ -305,7 +315,7 @@ class Universal_Test extends BaseTestCase {
 		$this->assertFalse( $result, 'Checkout with same JS session ID should not be tracked.' );
 
 		// Clean up.
-		unset( $_COOKIE['woocommerceanalytics_session'] );
+		$this->clear_session_cookie();
 		reset_wc_mock_instance();
 	}
 
@@ -321,13 +331,7 @@ class Universal_Test extends BaseTestCase {
 		set_wc_mock_instance( $wc_mock );
 
 		// Mock the cookie with a session ID.
-		$_COOKIE['woocommerceanalytics_session'] = rawurlencode(
-			wp_json_encode(
-				array(
-					'session_id' => 'test-session-id',
-				)
-			)
-		);
+		$this->set_session_cookie( 'test-session-id' );
 
 		$universal = new Universal();
 
@@ -353,7 +357,7 @@ class Universal_Test extends BaseTestCase {
 		);
 
 		// Clean up.
-		unset( $_COOKIE['woocommerceanalytics_session'] );
+		$this->clear_session_cookie();
 		reset_wc_mock_instance();
 	}
 
