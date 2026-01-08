@@ -230,6 +230,23 @@ const processStatusChange = async ( {
 
 		// Update counts optimistically
 		updateCountsOptimistically( item.status, newStatus, 1, queryParams );
+
+		// Update unread counts optimistically in the sidebar only since they do not
+		if (
+			item.is_unread &&
+			( newStatus === 'spam' || newStatus === 'trash' ) &&
+			item.status === 'publish'
+		) {
+			updateMenuCounterOptimistically( -1 );
+		}
+
+		if (
+			item.is_unread &&
+			( item.status === 'spam' || item.status === 'trash' ) &&
+			newStatus === 'publish'
+		) {
+			updateMenuCounterOptimistically( 1 );
+		}
 	} );
 
 	// Call API with timeout
