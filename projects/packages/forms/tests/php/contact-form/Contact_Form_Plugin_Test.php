@@ -1414,7 +1414,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Count should be recalculated
 		$count = get_option( 'jetpack_feedback_unread_count' );
-		// Since the this test mocking can't do a proper recount, just check that it was reset to 0.
+		// Since this test mocking can't do a proper recount, just check that it was reset to 0.
 		$this->assertSame( 0, $count, 'Unread count should be recalculated when status changes from publish' );
 	}
 
@@ -1447,7 +1447,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test track_feedback_status_change does not recalculate when comment_status is unread
+	 * Test track_feedback_status_change does not recalculate when comment_status is read
 	 */
 	public function test_track_feedback_status_change_skips_recount_when_read() {
 		// Set initial count
@@ -1470,7 +1470,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Count should NOT be recalculated
 		$count = get_option( 'jetpack_feedback_unread_count' );
-		$this->assertEquals( 999, $count, 'Unread count should not be recalculated when comment_status is unread' );
+		$this->assertEquals( 999, $count, 'Unread count should not be recalculated when comment_status is read' );
 	}
 
 	/**
