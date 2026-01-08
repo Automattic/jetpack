@@ -393,7 +393,9 @@ class Full_Sync_Immediately extends Module {
 
 		$started = $this->get_status()['started'];
 
-		foreach ( $this->get_remaining_modules_to_send() as $module ) {
+		$remaining_modules = $this->get_remaining_modules_to_send();
+
+		foreach ( $remaining_modules as $module ) {
 			$module_name = $module->name();
 
 			if ( isset( $progress[ $module_name ] ) && array_key_exists( $module_name, $config ) ) {
@@ -416,20 +418,21 @@ class Full_Sync_Immediately extends Module {
 
 		// Only end if everything is finished. If not, persist and try again next time.
 		// We may end up in this state if get_remaining_modules_to_send returns more modules than we initially stored in $progress or $config.
-		$all_progress_finished = true;
-		foreach ( $progress as $progress_module_name ) {
-			if ( empty( $progress_module_name['finished'] ) || true !== $progress_module_name['finished'] ) {
-				$all_progress_finished = false;
+		$has_unfinished = false;
+		foreach ( $remaining_modules as $module ) {
+			$name = $module->name();
+			if ( isset( $progress[ $name ] ) && empty( $progress[ $name ]['finished'] ) ) {
+				$has_unfinished = true;
 				break;
 			}
 		}
 
-		if ( ! $all_progress_finished ) {
+		if ( ! $has_unfinished ) {
+			$this->send_full_sync_end();
 			$this->update_status( array( 'progress' => $progress ) );
-			return true; // release lock and continue later
+			return true;
 		}
 
-		$this->send_full_sync_end();
 		$this->update_status( array( 'progress' => $progress ) );
 		return true;
 	}
