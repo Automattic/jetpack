@@ -210,12 +210,12 @@ const runGitHook = ( monorepoRoot, hookName, hookArgs ) => {
 	}
 
 	// Run the .husky hook directly through the monorepo script
+	// Note: Don't use shell: true as it interferes with TTY detection in the monorepo script
 	const result = spawnSync(
 		resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
 		[ 'sh', `.husky/${ hookName }`, ...hookArgs ],
 		{
 			stdio: 'inherit',
-			shell: true,
 			cwd: monorepoRoot,
 			env: { ...process.env, CI: 'true' },
 		}
