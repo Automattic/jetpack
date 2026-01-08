@@ -6,67 +6,31 @@
  */
 import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 
-// Mock functions
+// Create mock function
 const updateMenuCounterOptimistically = jest.fn();
-const editEntityRecord = jest.fn();
-const updateCountsOptimistically = jest.fn();
 
-// Recreate the core logic from processStatusChange for testing
-// This matches the implementation in actions.tsx lines 234-250
-const processStatusChange = async ( {
-	items,
-	newStatus,
-	apiCall,
-	editEntityRecord: editEntity,
-	updateCountsOptimistically: updateCounts,
-	queryParams,
-} ) => {
-	// Make optimistic updates
-	items.forEach( item => {
-		editEntity( 'postType', 'feedback', item.id, {
-			status: newStatus,
-		} );
+// Mock the utils module before importing
+await jest.unstable_mockModule( '../../../../src/dashboard/inbox/utils.js', () => ( {
+	updateMenuCounterOptimistically,
+	updateMenuCounter: jest.fn(),
+	getItemId: item => item?.id?.toString() ?? '',
+} ) );
 
-		updateCounts( item.status, newStatus, 1, queryParams );
-
-		// Update unread counts optimistically
-		if (
-			item.is_unread &&
-			( newStatus === 'spam' || newStatus === 'trash' ) &&
-			item.status === 'publish'
-		) {
-			updateMenuCounterOptimistically( -1 );
-		}
-
-		if (
-			item.is_unread &&
-			( item.status === 'spam' || item.status === 'trash' ) &&
-			newStatus === 'publish'
-		) {
-			updateMenuCounterOptimistically( 1 );
-		}
-	} );
-
-	// Call API
-	const promises = await Promise.allSettled( items.map( ( { id } ) => apiCall( id ) ) );
-
-	const itemsUpdated = [];
-	promises.forEach( promise => {
-		if ( promise.status === 'fulfilled' && promise.value?.id ) {
-			itemsUpdated.push( promise.value );
-		}
-	} );
-
-	return {
-		itemsUpdated,
-		itemsFailed: [],
-		numberOfErrors: 0,
-	};
-};
+/**
+ * Internal dependencies
+ */
+const { processStatusChange } = await import(
+	'../../../../src/dashboard/inbox/stage/process-status-change.ts'
+);
 
 describe( 'processStatusChange menu counter', () => {
+	let editEntityRecord;
+	let updateCountsOptimistically;
+
 	beforeEach( () => {
 		jest.clearAllMocks();
+		editEntityRecord = jest.fn();
+		updateCountsOptimistically = jest.fn();
 	} );
 
 	it( 'decrements counter when moving unread publish item to spam', async () => {
@@ -188,5 +152,89 @@ describe( 'processStatusChange menu counter', () => {
 
 		expect( updateMenuCounterOptimistically ).toHaveBeenCalledTimes( 3 );
 		expect( updateMenuCounterOptimistically ).toHaveBeenCalledWith( -1 );
+	} );
+
+	it( 'reverts counter when API call fails', async () => {
+		const items = [ { id: 1, status: 'publish', is_unread: true } ];
+		const apiCall = jest.fn().mockRejectedValue( new Error( 'API Error' ) );
+
+		await processStatusChange( {
+			items,
+			newStatus: 'spam',
+			apiCall,
+			editEntityRecord,
+			updateCountsOptimistically,
+			queryParams: {},
+		} );
+
+		// Should be called twice: once to decrement, once to revert
+		expect( updateMenuCounterOptimistically ).toHaveBeenCalledTimes( 2 );
+		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 1, -1 ); // Initial optimistic update
+		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 2, 1 ); // Revert
+	} );
+
+	it( 'reverts counter when restoring from spam fails', async () => {
+		const items = [ { id: 1, status: 'spam', is_unread: true } ];
+		const apiCall = jest.fn().mockRejectedValue( new Error( 'API Error' ) );
+
+		await processStatusChange( {
+			items,
+			newStatus: 'publish',
+			apiCall,
+			editEntityRecord,
+			updateCountsOptimistically,
+			queryParams: {},
+		} );
+
+		// Should be called twice: once to increment, once to revert
+		expect( updateMenuCounterOptimistically ).toHaveBeenCalledTimes( 2 );
+		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 1, 1 ); // Initial optimistic update
+		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 2, -1 ); // Revert
+	} );
+
+	it( 'reverts only failed items in bulk operations', async () => {
+		const items = [
+			{ id: 1, status: 'publish', is_unread: true },
+			{ id: 2, status: 'publish', is_unread: true },
+			{ id: 3, status: 'publish', is_unread: true },
+		];
+		const apiCall = jest
+			.fn()
+			.mockResolvedValueOnce( { id: 1 } ) // Success
+			.mockRejectedValueOnce( new Error( 'API Error' ) ) // Fail
+			.mockResolvedValueOnce( { id: 3 } ); // Success
+
+		await processStatusChange( {
+			items,
+			newStatus: 'spam',
+			apiCall,
+			editEntityRecord,
+			updateCountsOptimistically,
+			queryParams: {},
+		} );
+
+		// Called 3 times for optimistic updates, 1 time to revert the failed item
+		expect( updateMenuCounterOptimistically ).toHaveBeenCalledTimes( 4 );
+		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 1, -1 );
+		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 2, -1 );
+		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 3, -1 );
+		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 4, 1 ); // Revert for item 2
+	} );
+
+	it( 'does not revert counter for read items when API fails', async () => {
+		const items = [ { id: 1, status: 'publish', is_unread: false } ];
+		const apiCall = jest.fn().mockRejectedValue( new Error( 'API Error' ) );
+
+		await processStatusChange( {
+			items,
+			newStatus: 'spam',
+			apiCall,
+			editEntityRecord,
+			updateCountsOptimistically,
+			queryParams: {},
+		} );
+
+		// Should not be called at all since item is read
+		expect( updateMenuCounterOptimistically ).not.toHaveBeenCalled();
 	} );
 } );
