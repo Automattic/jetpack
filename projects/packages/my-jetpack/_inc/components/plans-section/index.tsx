@@ -3,7 +3,7 @@ import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -206,14 +206,23 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 
 	let activateLicenceDescription: string;
 	if ( ! isUserConnected ) {
-		activateLicenceDescription = __(
+		activateLicenceDescription = _x(
 			'Activate a license (requires a user connection)',
+			'Activate a license button text',
 			'jetpack-my-jetpack'
 		);
 	} else if ( numberOfPurchases > 0 ) {
-		activateLicenceDescription = __( 'Activate a new license', 'jetpack-my-jetpack' );
+		activateLicenceDescription = _x(
+			'Activate a new license',
+			'Activate a new license button text',
+			'jetpack-my-jetpack'
+		);
 	} else {
-		activateLicenceDescription = __( 'Activate a license', 'jetpack-my-jetpack' );
+		activateLicenceDescription = _x(
+			'Activate a license',
+			'Activate a license button text',
+			'jetpack-my-jetpack'
+		);
 	}
 
 	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
