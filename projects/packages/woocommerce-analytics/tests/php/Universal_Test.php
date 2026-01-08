@@ -27,6 +27,7 @@ class Universal_Test extends BaseTestCase {
 
 	/**
 	 * Helper method to set up a mock session cookie with a session ID.
+	 * The cookie name matches the one used in get_js_session_id() method.
 	 *
 	 * @param string $session_id The session ID to set in the cookie.
 	 */
@@ -365,6 +366,8 @@ class Universal_Test extends BaseTestCase {
 	 * Test that mark_checkout_tracked handles null session gracefully.
 	 */
 	public function test_mark_checkout_tracked_handles_null_session(): void {
+		$this->expectNotToPerformAssertions();
+
 		$universal = new Universal();
 
 		// Use reflection to test the private mark_checkout_tracked method.
@@ -374,7 +377,6 @@ class Universal_Test extends BaseTestCase {
 
 		// Should not throw an exception with null session.
 		$method->invoke( $universal, null );
-		$this->assertTrue( true, 'mark_checkout_tracked should handle null session without throwing an exception.' );
 	}
 
 	/**
