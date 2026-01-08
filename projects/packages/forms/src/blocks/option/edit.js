@@ -4,7 +4,7 @@ import {
 	store as blockEditorStore,
 	useBlockProps,
 } from '@wordpress/block-editor';
-import { ToggleControl, PanelBody } from '@wordpress/components';
+import { ToggleControl, PanelBody, VisuallyHidden } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -181,10 +181,9 @@ const OptionEdit = ( {
 			</li>
 			{ isOther && ( isSelected || isParentSelected ) && (
 				<li className="jetpack-other-text-input-wrapper is-visible">
-					<label htmlFor={ `${ clientId }-other-text` } className="screen-reader-text">
-						{ otherPlaceholder }
-					</label>
-
+					<VisuallyHidden as="label" htmlFor={ `${ clientId }-other-text` }>
+						{ otherPlaceholder || __( 'Please specify…', 'jetpack-forms' ) }
+					</VisuallyHidden>
 					<input
 						id={ `${ clientId }-other-text` }
 						className="grunion-field jetpack-field__input"
