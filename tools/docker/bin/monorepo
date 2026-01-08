@@ -73,8 +73,12 @@ fi
 
 # Run the command in the container
 # Use -it only if we have a TTY available
-# Note: Check stdout (-t 1) instead of stdin (-t 0) because git hooks redirect stdin
-  if [[ -t 1 ]]; then
+# If stdin was redirected (e.g., by git hooks) but /dev/tty is available, reconnect to it
+  if [[ ! -t 0 ]] && [[ -c /dev/tty ]] && sh -c ': < /dev/tty' >/dev/null 2>/dev/null; then
+      exec < /dev/tty
+  fi
+
+  if [[ -t 0 ]]; then
       TTY_FLAG="-it"
   else
       TTY_FLAG=""
