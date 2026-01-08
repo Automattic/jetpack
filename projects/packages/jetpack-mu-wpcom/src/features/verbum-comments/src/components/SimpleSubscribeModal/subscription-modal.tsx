@@ -29,7 +29,8 @@ export const SubscriptionModal = ( {
 					className="verbum-verbum-simple-subscribe-modal__action-input"
 					type="email"
 					autoComplete="email"
-					spellCheck={ false }
+					// eslint-disable-next-line react/no-unknown-property -- Preact and React apparently disagree on this.
+					spellcheck={ false }
 					autoCorrect="off"
 					name="subscription-email"
 					placeholder={ translate( 'Enter your email address' ) }

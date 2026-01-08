@@ -518,6 +518,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'map_meta_cap'          => true,
 			'labels'                => $labels,
 			'hierarchical'          => false,
+			'template'              => array( array( 'jetpack/contact-form' ) ),
 			'supports'              => array(
 				'title',
 				'editor',
