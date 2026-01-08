@@ -7,7 +7,7 @@ settings:
 overrides:
   '@wordpress/is-shallow-equal': next
 
-pnpmfileChecksum: sha256-yvzyb8FoBMtuIUBFv4q3TGvtEBsegXnuZZqEmtf9cJ8=
+pnpmfileChecksum: sha256-lTGOmbm95thQ74QbFjnN4aY+VebkCrDPJutqhWdWylQ=
 
 patchedDependencies:
   '@wordpress/components@32.0.1-next.79a2f3cdd.0':
@@ -10498,8 +10498,8 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
 
-  '@wordpress/is-shallow-equal@5.36.1-next.76cff8c98.0':
-    resolution: {integrity: sha512-qnG6lFQ8RV973ZNQjOrxjpL58FldpygvScvdqL2NTBLQJJ0mr0wKVJ4Kwj8vr4NMO9vhj/2BUHLRpFpKS3KA0Q==}
+  '@wordpress/is-shallow-equal@5.37.1-next.79a2f3cdd.0':
+    resolution: {integrity: sha512-XgxyqFmX171ABRHsTclE2zQGA50ugHbIk0yLcWke2UTl6Ku4mPG7MDMhwgcvyXBYy1VeMBOjr4cz3/p9y+gVMA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/jest-console@8.37.1-next.79a2f3cdd.0':
@@ -23051,7 +23051,7 @@ snapshots:
       '@wordpress/icons': 11.4.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/image-cropper': 1.1.1-next.79a2f3cdd.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/interactivity': 6.37.1-next.79a2f3cdd.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/keyboard-shortcuts': 5.37.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/keycodes': 4.38.1-next.79a2f3cdd.0
       '@wordpress/notices': 5.37.1-next.79a2f3cdd.0(react@18.3.1)
@@ -23114,7 +23114,7 @@ snapshots:
       '@wordpress/icons': 11.4.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/image-cropper': 1.1.1-next.79a2f3cdd.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/interactivity': 6.37.1-next.79a2f3cdd.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/keyboard-shortcuts': 5.37.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/keycodes': 4.38.1-next.79a2f3cdd.0
       '@wordpress/notices': 5.37.1-next.79a2f3cdd.0(react@18.3.1)
@@ -23177,7 +23177,7 @@ snapshots:
       '@wordpress/icons': 11.4.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/image-cropper': 1.1.1-next.79a2f3cdd.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/interactivity': 6.37.1-next.79a2f3cdd.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/keyboard-shortcuts': 5.37.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/keycodes': 4.38.1-next.79a2f3cdd.0
       '@wordpress/notices': 5.37.1-next.79a2f3cdd.0(react@18.3.1)
@@ -23402,7 +23402,7 @@ snapshots:
       '@wordpress/hooks': 4.37.1-next.79a2f3cdd.0
       '@wordpress/html-entities': 4.37.1-next.79a2f3cdd.0
       '@wordpress/i18n': 6.10.1-next.79a2f3cdd.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/private-apis': 1.37.1-next.79a2f3cdd.0
       '@wordpress/rich-text': 7.37.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/shortcode': 4.37.1-next.79a2f3cdd.0
@@ -23567,7 +23567,7 @@ snapshots:
       '@wordpress/html-entities': 4.37.0
       '@wordpress/i18n': 6.10.0
       '@wordpress/icons': 11.4.0(react@18.3.1)
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/keycodes': 4.37.0
       '@wordpress/primitives': 4.37.0(react@18.3.1)
       '@wordpress/private-apis': 1.37.0
@@ -23623,7 +23623,7 @@ snapshots:
       '@wordpress/html-entities': 4.37.1-next.79a2f3cdd.0
       '@wordpress/i18n': 6.10.1-next.79a2f3cdd.0
       '@wordpress/icons': 11.4.1-next.79a2f3cdd.0(react@18.3.1)
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/keycodes': 4.38.1-next.79a2f3cdd.0
       '@wordpress/primitives': 4.37.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/private-apis': 1.37.1-next.79a2f3cdd.0
@@ -23679,7 +23679,7 @@ snapshots:
       '@wordpress/html-entities': 4.37.1-next.79a2f3cdd.0
       '@wordpress/i18n': 6.10.1-next.79a2f3cdd.0
       '@wordpress/icons': 11.4.1-next.79a2f3cdd.0(react@18.3.1)
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/keycodes': 4.38.1-next.79a2f3cdd.0
       '@wordpress/primitives': 4.37.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/private-apis': 1.37.1-next.79a2f3cdd.0
@@ -23715,7 +23715,7 @@ snapshots:
       '@wordpress/deprecated': 4.37.0
       '@wordpress/dom': 4.37.0
       '@wordpress/element': 6.37.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/keycodes': 4.37.0
       '@wordpress/priority-queue': 3.37.0
       '@wordpress/undo-manager': 1.37.0
@@ -23731,7 +23731,7 @@ snapshots:
       '@wordpress/deprecated': 4.37.1-next.79a2f3cdd.0
       '@wordpress/dom': 4.37.1-next.79a2f3cdd.0
       '@wordpress/element': 6.37.1-next.79a2f3cdd.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/keycodes': 4.38.1-next.79a2f3cdd.0
       '@wordpress/priority-queue': 3.37.1-next.79a2f3cdd.0
       '@wordpress/undo-manager': 1.37.1-next.79a2f3cdd.0
@@ -23752,7 +23752,7 @@ snapshots:
       '@wordpress/element': 6.37.1-next.79a2f3cdd.0
       '@wordpress/html-entities': 4.37.1-next.79a2f3cdd.0
       '@wordpress/i18n': 6.10.1-next.79a2f3cdd.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/private-apis': 1.37.1-next.79a2f3cdd.0
       '@wordpress/rich-text': 7.37.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/sync': 1.37.1-next.79a2f3cdd.0
@@ -23786,7 +23786,7 @@ snapshots:
       '@wordpress/element': 6.37.1-next.79a2f3cdd.0
       '@wordpress/html-entities': 4.37.1-next.79a2f3cdd.0
       '@wordpress/i18n': 6.10.1-next.79a2f3cdd.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/private-apis': 1.37.1-next.79a2f3cdd.0
       '@wordpress/rich-text': 7.37.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/sync': 1.37.1-next.79a2f3cdd.0
@@ -23820,7 +23820,7 @@ snapshots:
       '@wordpress/element': 6.37.1-next.79a2f3cdd.0
       '@wordpress/html-entities': 4.37.1-next.79a2f3cdd.0
       '@wordpress/i18n': 6.10.1-next.79a2f3cdd.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/private-apis': 1.37.1-next.79a2f3cdd.0
       '@wordpress/rich-text': 7.37.1-next.79a2f3cdd.0(react@18.3.1)
       '@wordpress/sync': 1.37.1-next.79a2f3cdd.0
@@ -23862,7 +23862,7 @@ snapshots:
       '@wordpress/compose': 7.37.0(react@18.3.1)
       '@wordpress/deprecated': 4.37.0
       '@wordpress/element': 6.37.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/priority-queue': 3.37.0
       '@wordpress/private-apis': 1.37.0
       '@wordpress/redux-routine': 5.37.0(redux@5.0.1)
@@ -23880,7 +23880,7 @@ snapshots:
       '@wordpress/compose': 7.37.1-next.79a2f3cdd.0(patch_hash=00669f857f1343b76623f32af89d130ee34251cb0d8f0669738e86e9c60f2029)(react@18.3.1)
       '@wordpress/deprecated': 4.37.1-next.79a2f3cdd.0
       '@wordpress/element': 6.37.1-next.79a2f3cdd.0
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       '@wordpress/priority-queue': 3.37.1-next.79a2f3cdd.0
       '@wordpress/private-apis': 1.37.1-next.79a2f3cdd.0
       '@wordpress/redux-routine': 5.37.1-next.79a2f3cdd.0(redux@5.0.1)
@@ -23965,6 +23965,7 @@ snapshots:
       react: 18.3.1
       remove-accents: 0.5.0
     optionalDependencies:
+      '@base-ui/react': 1.0.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@emotion/cache': 11.14.0
       '@emotion/css': 11.13.5
       '@emotion/react': 11.14.0(@types/react@18.3.26)(react@18.3.1)
@@ -24017,6 +24018,7 @@ snapshots:
       react: 18.3.1
       remove-accents: 0.5.0
     optionalDependencies:
+      '@base-ui/react': 1.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@emotion/cache': 11.14.0
       '@emotion/css': 11.13.5
       '@emotion/react': 11.14.0(react@18.3.1)
@@ -24835,7 +24837,7 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@wordpress/is-shallow-equal@5.36.1-next.76cff8c98.0': {}
+  '@wordpress/is-shallow-equal@5.37.1-next.79a2f3cdd.0': {}
 
   '@wordpress/jest-console@8.37.1-next.79a2f3cdd.0(jest@30.2.0)':
     dependencies:
@@ -25122,7 +25124,7 @@ snapshots:
       '@wordpress/element': 6.37.1-next.79a2f3cdd.0
       '@wordpress/hooks': 4.37.1-next.79a2f3cdd.0
       '@wordpress/icons': 11.4.1-next.79a2f3cdd.0(react@18.3.1)
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       memize: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -25139,7 +25141,7 @@ snapshots:
       '@wordpress/element': 6.37.1-next.79a2f3cdd.0
       '@wordpress/hooks': 4.37.1-next.79a2f3cdd.0
       '@wordpress/icons': 11.4.1-next.79a2f3cdd.0(react@18.3.1)
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
       memize: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -25488,11 +25490,11 @@ snapshots:
 
   '@wordpress/undo-manager@1.37.0':
     dependencies:
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
 
   '@wordpress/undo-manager@1.37.1-next.79a2f3cdd.0':
     dependencies:
-      '@wordpress/is-shallow-equal': 5.36.1-next.76cff8c98.0
+      '@wordpress/is-shallow-equal': 5.37.1-next.79a2f3cdd.0
 
   '@wordpress/upload-media@0.22.1-next.79a2f3cdd.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:

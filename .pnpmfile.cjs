@@ -25,6 +25,7 @@ const wpPkgs = {
 	],
 	'@wordpress/element': [ 'react-dom' ],
 	'@wordpress/data': [ 'use-memo-one' ],
+	'@wordpress/ui': [ '@base-ui/react' ],
 };
 const wpPkgFetches = {};
 
@@ -89,6 +90,11 @@ async function fixDeps( pkg ) {
 	// @see https://github.com/WordPress/gutenberg/issues/67864
 	if ( pkg.name === '@wordpress/dataviews' ) {
 		for ( const fromPkg of Object.keys( wpPkgs ) ) {
+			if ( ! pkg.dependencies[ fromPkg ] ) {
+				// Old version of dataviews lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
+				continue;
+			}
+
 			if ( ! wpPkgFetches[ fromPkg ] ) {
 				wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
 					r.json()
@@ -342,9 +348,10 @@ async function readPackage( pkg, context ) {
  *
  * @see https://pnpm.io/pnpmfile#hooksafterallresolvedlockfile-context-lockfile--promiselockfile
  * @param {object} lockfile - Lockfile data.
+ * @param {object} context  - Pnpm object of some sort.
  * @return {object} Modified lockfile.
  */
-function afterAllResolved( lockfile ) {
+function afterAllResolved( lockfile, context ) {
 	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
 	if ( Object.keys( lockfile.importers ).length === 1 ) {
 		return lockfile;
@@ -371,6 +378,14 @@ function afterAllResolved( lockfile ) {
 		if ( k.startsWith( 'webpack@' ) && ! v.optionalDependencies?.[ 'webpack-cli' ] ) {
 			throw new Error(
 				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report.\n"
+			);
+		}
+	}
+
+	for ( const fromPkg of Object.keys( wpPkgs ) ) {
+		if ( ! wpPkgFetches[ fromPkg ] ) {
+			context.log(
+				`pnpmfile hack needs updating: wpPkgs['${ fromPkg }'] was not used. Is it obsolete?`
 			);
 		}
 	}
