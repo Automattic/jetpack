@@ -657,14 +657,37 @@ jobs:
     name: Static analysis
     runs-on: ubuntu-latest
     needs: changed_files
+    # On trunk: runs on all projects
+    # On PRs: runs only if PHP files or relevant config changed
     if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
     timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
     steps:
       - uses: actions/checkout@v6
+        with:
+          # Need history to determine changed projects on PRs
+          fetch-depth: ${{ github.event_name == 'pull_request' && 0 || 1 }}
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
         run: pnpm install
+      - name: Determine projects to analyze
+        id: projects
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            # Get changed projects for PRs
+            CHANGED=$( .github/files/list-changed-projects.sh | jq -r 'keys[]' | tr '\n' ' ' )
+            if [[ -n "$CHANGED" ]]; then
+              echo "args=$CHANGED" >> "$GITHUB_OUTPUT"
+              echo "Analyzing changed projects: $CHANGED"
+            else
+              echo "args=--all" >> "$GITHUB_OUTPUT"
+              echo "No specific projects detected, analyzing all"
+            fi
+          else
+            # Run on all projects for push events
+            echo "args=--all" >> "$GITHUB_OUTPUT"
+            echo "Push event, analyzing all projects"
+          fi
       - name: Add back removed packages in case of a release branch.
         run: |
           echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
@@ -681,15 +704,18 @@ jobs:
             fi
           done
       - name: Run phan
-        run: pnpm jetpack phan --all -v --update-baseline --format github
+        env:
+          PHAN_ARGS: ${{ steps.projects.outputs.args }}
+        run: pnpm jetpack phan $PHAN_ARGS -v --update-baseline --format github
       - name: Run phan for previous WP version and old Woo
         env:
           # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
           NO_PHAN_UNUSED_SUPPRESSION: 1
+          PHAN_ARGS: ${{ steps.projects.outputs.args }}
         run: |
           composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs php-stubs/woocommerce-stubs
           # Don't re-update baselines here, only check.
-          pnpm jetpack phan --all -v --format github
+          pnpm jetpack phan $PHAN_ARGS -v --format github
       - name: Check baselines
         run: |
           # Anything changed? (with a side of printing the diff)
