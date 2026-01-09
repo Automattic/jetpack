@@ -45,7 +45,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				setError( err.message || 'Failed to load settings' );
 				setIsLoading( false );
 			} );
-	}, [ jetpackSettings ] );
+	}, [ jetpackSettings?.restApiRoot, jetpackSettings?.restApiNonce ] );
 
 	if ( isLoading ) {
 		return (
