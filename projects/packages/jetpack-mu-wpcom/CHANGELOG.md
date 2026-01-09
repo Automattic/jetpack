@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Help Center: Add menu panel for experiment in wp-admin and editor. [#45699]
 - Help Center: Check for the new menu panel experiment. [#45899]
 - Holiday Snow: Add speed and hemisphere settings. [#46139]
-- Introduces setting for controlling the Attachment pages to media options in wp-admin. Controlls the `wp_attachment_pages_enabled` option via checkbox. [#40590]
+- Introduces setting for controlling the Attachment pages to media options in wp-admin. Controls the `wp_attachment_pages_enabled` option via checkbox. [#40590]
 - Unreleased code block: Add raw transform. [#45976]
 - Unreleased code block: Add transform to syntax highlighter. [#45982]
 - Untangling: Add Marketing Tools page to wp-admin. [#45216]

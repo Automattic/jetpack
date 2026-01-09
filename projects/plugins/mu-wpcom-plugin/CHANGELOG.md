@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Holiday Snow: Add speed and hemisphere settings. [#46139]
 - IDC: Add revalidation for IDCs. [#46268]
-- Introduces Attachment pages setting in the media settings screen in wp-admin which controlls the `wp_attachment_pages_enabled` option. [#40590]
+- Introduces Attachment pages setting in the media settings screen in wp-admin which controls the `wp_attachment_pages_enabled` option. [#40590]
 - Update scssphp/scssphp dependency. [#45757]
 
 ### Changed
