@@ -1,5 +1,5 @@
 import { Badge } from '@automattic/ui';
-import { Flex, Tooltip } from '@wordpress/components';
+import { Flex } from '@wordpress/components';
 import { DataViews, Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
@@ -37,9 +37,10 @@ export function ModulesList( { modules }: ModulesListProps ) {
 				},
 				render( { item } ) {
 					return (
-						<Tooltip text={ item.description } className={ styles[ 'module-tooltip' ] }>
-							<span>{ item.name }</span>
-						</Tooltip>
+						<div className={ styles[ 'module-title-wrapper' ] }>
+							<span className={ styles[ 'module-name' ] }>{ item.name }</span>
+							<span className={ styles[ 'module-description' ] }>{ item.description }</span>
+						</div>
 					);
 				},
 			},
