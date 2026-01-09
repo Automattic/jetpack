@@ -31,12 +31,10 @@ export const defaultLayouts = {
  */
 export function useView() {
 	const [ searchParams, setSearchParams ] = useSearchParams();
-	// Normalize missing query param to empty string so we don't treat
-	// `null` (missing) and `''` (empty) as different values.
-	const urlSearch = searchParams.get( 'search' ) ?? '';
+	const urlSearch = searchParams.get( 'search' );
 	const [ view, setView ] = useState( () => ( {
 		...defaultView,
-		search: urlSearch,
+		search: urlSearch ?? '',
 	} ) );
 	// When view changes, update the URL params if needed.
 	const setViewWithUrlUpdate = useEvent( newView => {
@@ -57,7 +55,7 @@ export function useView() {
 	// without affecting any other config.
 	const onUrlSearchChange = useEvent( () => {
 		setView( previousView => {
-			const newValue = urlSearch;
+			const newValue = urlSearch ?? '';
 			if ( newValue === previousView.search ) {
 				return previousView;
 			}
