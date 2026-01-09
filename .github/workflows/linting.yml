@@ -672,9 +672,9 @@ jobs:
     timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
     steps:
       - uses: actions/checkout@v6
-        with:
-          # Need history to determine changed projects on PRs
-          fetch-depth: ${{ github.event_name == 'pull_request' && 0 || 1 }}
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
