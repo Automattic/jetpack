@@ -1390,6 +1390,14 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertEmpty( $spam_meta, 'Spam meta should be removed when transitioning from spam' );
 	}
 
+	private function mock_shutdown_recalculate() {
+		if ( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ) ) {
+			Contact_Form_Plugin::recalculate_unread_count();
+		}
+		remove_all_actions( 'shutdown' );
+		remove_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) );
+	}
+
 	/**
 	 * Test track_feedback_status_change recalculates unread count when status changes to publish
 	 */
@@ -1407,10 +1415,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$post   = get_post( $feedback_id );
 		$plugin = Contact_Form_Plugin::init();
-
 		// Transition from draft to publish
 		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
-		do_action( 'save_post_feedback', $feedback_id, $post, true );
+		$this->mock_shutdown_recalculate();
 
 		// Count should be recalculated
 		$count = get_option( 'jetpack_feedback_unread_count' );
@@ -1438,7 +1445,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Transition from publish to draft
 		$plugin->track_feedback_status_change( 'draft', 'publish', $post );
-		do_action( 'save_post_feedback', $feedback_id, $post, true );
+		$this->mock_shutdown_recalculate();
 
 		// Count should be recalculated
 		$count = get_option( 'jetpack_feedback_unread_count' );
@@ -1466,7 +1473,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Transition from draft to publish
 		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
-		do_action( 'save_post_feedback', $feedback_id, $post, true );
+		$this->mock_shutdown_recalculate();
 
 		// Count should NOT be recalculated
 		$count = get_option( 'jetpack_feedback_unread_count' );
@@ -1489,6 +1496,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Transition to spam
 		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
+		$this->mock_shutdown_recalculate();
 
 		// Spam meta should NOT be set for non-feedback posts
 		$spam_meta = get_post_meta( $post_id, '_spam_status_changed_gmt', true );

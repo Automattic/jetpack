@@ -3685,12 +3685,12 @@ class Contact_Form_Plugin {
 
 		// If the status changed from anything TO 'publish', we need to recount unread feedbacks
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-			add_action( 'save_post_feedback', array( __CLASS__, 'recalculate_unread_count' ) );
+			add_action( 'shutdown', array( __CLASS__, 'recalculate_unread_count' ) );
 			return;
 		}
 		// If the status changed from 'publish' TO anything else, we need to recount unread feedbacks
 		if ( 'publish' === $old_status && 'publish' !== $new_status ) {
-			add_action( 'save_post_feedback', array( __CLASS__, 'recalculate_unread_count' ) );
+			add_action( 'shutdown', array( __CLASS__, 'recalculate_unread_count' ) );
 			return;
 		}
 	}
