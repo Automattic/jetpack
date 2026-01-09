@@ -232,24 +232,14 @@ const runGitHook = ( monorepoRoot, hookName, hookArgs ) => {
 		throw new Error( `Unknown git hook: ${ hookName }` );
 	}
 
-	// Build environment for the hook
-	// Only set CI=true if we're actually in CI or don't have a TTY,
-	// otherwise allow interactive prompts (e.g., changelog creation)
-	// Note: Check stdout.isTTY because git hooks redirect stdin
-	const hookEnv = { ...process.env };
-	if ( ! process.stdout.isTTY && ! process.env.CI ) {
-		hookEnv.CI = 'true';
-	}
-
 	// Run the .husky hook directly through the monorepo script
-	// Note: Don't use shell: true as it interferes with TTY detection in the monorepo script
+	// TTY detection is handled by the monorepo script itself (reconnects to /dev/tty if available)
 	const result = spawnSync(
 		resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
 		[ 'sh', `.husky/${ hookName }`, ...hookArgs ],
 		{
 			stdio: 'inherit',
 			cwd: monorepoRoot,
-			env: hookEnv,
 		}
 	);
 
@@ -508,7 +498,6 @@ const main = async () => {
 		}
 
 		// Run the monorepo script with the original arguments
-		// Note: Don't use shell: true as it breaks argument quoting (e.g., changelog entries with spaces)
 		const result = spawnSync(
 			resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
 			[ 'pnpm', 'jetpack', ...args ],
