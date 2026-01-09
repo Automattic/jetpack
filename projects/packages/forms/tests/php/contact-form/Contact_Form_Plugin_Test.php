@@ -1359,7 +1359,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Transition from publish to spam
 		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
-		do_action( 'save_post_feedback', $feedback_id, $post, true );
 
 		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
 		$this->assertNotEmpty( $spam_meta, 'Spam meta should be set when transitioning to spam' );
@@ -1384,7 +1383,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Transition from spam to publish
 		$plugin->track_feedback_status_change( 'publish', 'spam', $post );
-		do_action( 'save_post_feedback', $feedback_id, $post, true );
 
 		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
 		$this->assertEmpty( $spam_meta, 'Spam meta should be removed when transitioning from spam' );

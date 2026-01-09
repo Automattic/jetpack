@@ -13,7 +13,7 @@ const updateMenuCounterOptimistically = jest.fn();
 await jest.unstable_mockModule( '../../../../src/dashboard/inbox/utils.js', () => ( {
 	updateMenuCounterOptimistically,
 	updateMenuCounter: jest.fn(),
-	getItemId: item => item?.id?.toString() ?? '',
+	withTimeout: promise => promise,
 } ) );
 
 /**
