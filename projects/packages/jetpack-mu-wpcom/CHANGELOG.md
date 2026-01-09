@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.9.0] - 2026-01-09
+### Security
+- Implemented a guard against non user objects when assigning an experiment variation [#45929]
+
+### Added
+- Initialize ExPlat Proxy in Jetpack Mu Wpcom. [#46066]
+- Add Agents Manager admin bar menu with icon support and menu panel integration. [#46343]
+- Add Agents Manager feature with REST API endpoints for managing agent state and preferences. [#46086]
+- Add block transform from core/html. [#45978]
+- Added global styles experiment group check for atomic sites. [#45797]
+- Added learn more links in the editor to a few blocks. [#46177]
+- Added query parameter to detect when Calypso navigation is coming from wpcom admin bar. [#46193]
+- Adds a new hook to get async loaded agent providers in the frontend. [#46176]
+- Add Tracks events to theme screens. [#45587]
+- Agents Manager: implement logic to toggle unified chat experience. [#46237]
+- A new variant of the Help Center specifically for CIAB admin. [#46327]
+- Code block: Fixes and improvements to the unreleased code block. [#46418]
+- Custom HTML Block: Add warning notice when using restricted HTML tags on WordPress.com Simple sites. [#45819]
+- Help Center: Add menu panel for experiment in wp-admin and editor. [#45699]
+- Help Center: Check for the new menu panel experiment. [#45899]
+- Holiday Snow: Add speed and hemisphere settings. [#46139]
+- Introduces setting for controlling the Attachment pages to media options in wp-admin. Controlls the `wp_attachment_pages_enabled` option via checkbox. [#40590]
+- Unreleased code block: Add raw transform. [#45976]
+- Unreleased code block: Add transform to syntax highlighter. [#45982]
+- Untangling: Add Marketing Tools page to wp-admin. [#45216]
+
+### Changed
+- Add icons to the new Help Center menu panel. [#45728]
+- Adds caching to the experiment checking in the help center. [#45927]
+- Atomic sites: Display site visibility in wp-admin settings based on the privacy model instead of the 'blog_public' option value. [#45510]
+- Change the unreleased code block to enhance core/code instead of being an independent block. [#45389]
+- Code Block: Ensure Core Script Modules actions are safely removed and restored. [#45357]
+- Code block: Remove active line highlight when block is unselected. [#45828]
+- Code block: Remove experimental warning. [#45827]
+- Don't translate product names. [#43961]
+- Launch Celebration: Remove direct dependency on @automattic/components. [#45716]
+- Limit persisted Help Center history stack to 50 entries. [#45564]
+- My Home Suggestions Card: Update find other domains link to /setup/domain-and-plan flow. [#45507]
+- Replace use of confusing `esc_js` with `wp_json_encode`, or with nothing where it had no effect. [#46229]
+- The Help Center search endpoint is changing, we need to update the URL. [#46046]
+- Unreleased code block: General fixes and improvements. [#45996]
+- Updated experiment key for Global Styles A/B/C experiment. [#46019]
+- Updated the experiment name. [#46001]
+- Update limited Global Styles notices with easier style resetting options. [#46257]
+- Update package dependencies. [#45652] [#45750] [#45751] [#45752] [#45755] [#45757] [#45915] [#46066] [#46082] [#46143] [#46244] [#46456] [#46491]
+- We now include the experiment variation in the global styles status response. [#46025]
+
+### Fixed
+- Agents Manager: Add caching and proxy protection for unified experience preference check to avoid remote API calls on every page load. [#46368]
+- Code block (unreleased): Improve styling and layout reliability across for different themes. [#45898]
+- Ensure proper flags are used with `json_encode()`. [#46092]
+- Fix an issue with Firefox where `getComputedStyleMap()` causes an undefined function error. [#46174]
+- Fixed the set default behavior for newly added categories. [#45840]
+- Fixed wpcom_theme_switch tracking not working on Simple sites. [#45604]
+- Global Styles: Fix exempt logic for Summer Special blog sticker. [#45919]
+- Global styles Gating: Fixes a case where GS use was not detected in the editor. [#45943]
+- Gutenberg removed the feature used to render the improved code editor. Fix it by switching to an alternate implementation. [#46127]
+- Help Center: Add `bot_slug` flag to support interaction requests. [#45619]
+- Help Center: Allow underscores in botnames. [#45700]
+- Help Center: do not download external assets on boot. [#45718]
+- Help Center: Enqueue in CIAB admin. [#45768]
+- Help Center: fix accessing stored preferences of open state'. [#46388]
+- Help Center: pass the is_test_mode along to WPCOM. [#45603]
+- LESS: Clean up various issues in legacy library. [#46057]
+- Prevent warnings when constants are already defined. [#46058]
+- Suggestion widget: make sure the domain stays aligned in any screen resolution. [#45826]
+- Unreleased code block: Ensure PRE element does not break scroll behavior. [#46014]
+- Unreleased code block: Fix an issue where content generated by the regular code block would not be rendered with the enhanced code block enabled. [#45850]
+- Unreleased code block: Restore language- prefix to language class. [#46010]
+- Uploads of heic in the block editor. [#45426]
+- wpcom-imports: Load the JS translations. [#45686]
+
 ## [6.8.1] - 2025-10-10
 ### Changed
 - Enable Global Styles limited on Atomic sites. [#45459]
@@ -711,7 +783,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - jetpack-mu-wpcom - Help Center: Consume translations directly from widgets.wp.com. [#38300]
 - Updates the WordPress.com admin bar as follows:
-  
+
   1. Repurposes the WordPress logo as a link to /sites.
   2. Adds Reader menu.
   3. Hides the updates icon.
@@ -1683,6 +1755,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[6.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.8.1...v6.9.0
 [6.8.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.8.0...v6.8.1
 [6.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.7.0...v6.8.0
 [6.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.6.0...v6.7.0

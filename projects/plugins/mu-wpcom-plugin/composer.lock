@@ -336,7 +336,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "0ae23297e14df2ee846b31f6331cf1a3f3c40363"
+                "reference": "f8f199744984370c00d7e2db7bce59c992958706"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -360,7 +360,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.1.x-dev"
+                    "dev-trunk": "3.2.x-dev"
                 }
             },
             "autoload": {
@@ -1166,7 +1166,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "a9530986a5c2821e09ddabdc22cb983dd73bc659"
+                "reference": "3334deb2d498b927888402a6cc7b198d5ae703f3"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1205,7 +1205,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "6.8.x-dev"
+                    "dev-trunk": "6.9.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
