@@ -12,20 +12,8 @@ on:
 
 jobs:
   claude:
-    if: |
-      (
-        github.event.comment.author_association == 'MEMBER' ||
-        github.event.comment.author_association == 'OWNER' ||
-        github.event.review.author_association == 'MEMBER' ||
-        github.event.review.author_association == 'OWNER' ||
-        github.event.issue.author_association == 'MEMBER' ||
-        github.event.issue.author_association == 'OWNER'
-      ) && (
-        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-        (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-        (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-        (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
-      )
+    # Security: only users with write access can trigger this action.
+    # See: https://github.com/anthropics/claude-code-action/blob/main/docs/security.md
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
