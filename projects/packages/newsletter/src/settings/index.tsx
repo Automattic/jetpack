@@ -146,6 +146,10 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	// Save subscription settings
 	const saveSubscriptionSettings = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
 		setIsSavingSubscriptions( true );
 		setError( null );
 
@@ -166,7 +170,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingSubscriptions( false );
 			} );
-	}, [ subscriptionChanges ] );
+	}, [ subscriptionChanges, data ] );
 
 	// Handle sender name changes (staged, not auto-saved)
 	const handleSenderNameChange = useCallback(
