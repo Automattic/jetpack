@@ -1361,7 +1361,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					// editor, attach the onOtherRadioChange handler and remember that
 					// we have an isOther option so we don't render the duplicate
 					// appended "Other" radio later.
-					if ( ! empty( $option['isOther'] ) && $this->get_attribute( 'allowother' ) ) {
+					if ( ! empty( $option['isOther'] ) ) {
 						$field .= "<input id='" . esc_attr( $radio_id ) . "' type='radio' name='" . esc_attr( $id ) . "' value='" . esc_attr( $radio_value ) . "' data-wp-on--change='actions.onOtherRadioChange' data-other-label='" . esc_attr( $option_label ) . "' " . $class . checked( $option_label, $value, false ) . ' ' . ( $required ? "required aria-required=\'true\'" : '' ) . '/> ';
 					} else {
 						$field .= "<input id='" . esc_attr( $radio_id ) . "' type='radio' name='" . esc_attr( $id ) . "' value='" . esc_attr( $radio_value ) . "' data-wp-on--change='actions.onFieldChange' " . $class . checked( $option_label, $value, false ) . ' ' . ( $required ? "required aria-required=\'true\'" : '' ) . '/> ';
@@ -1370,7 +1370,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
 					$field .= '</span>';
 					$field .= '</label>';
-					if ( ! empty( $option['isOther'] ) && $this->get_attribute( 'allowother' ) ) {
+					if ( ! empty( $option['isOther'] ) ) {
 						$field .= $this->render_other_input_field( $radio_id, $required, $id, $this->field_styles );
 					}
 				}
