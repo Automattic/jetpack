@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Skip if this is an initial checkout (no previous ref) or if previous ref is null
+# Skip if previous ref is null, e.g. during `git worktree add`
 if [[ -z "$1" || "$1" = "0000000000000000000000000000000000000000" ]]; then
 	exit 0
 fi
