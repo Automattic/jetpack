@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { FilteredPlans } from './filtered-plans';
 import { FilteredProducts } from './filtered-products';
 import { Filters } from './filters';
 import { ProductFiltersProvider, useProductFiltersContext } from './products-tracking-context';
 import styles from './styles.module.scss';
 import { ProductFilter } from './types';
+import { isValidFilter } from './utils';
 
 /**
  * Inner component that consumes the ProductFiltering context.
@@ -105,14 +107,28 @@ const ProductsContent = ( {
  * @return The rendered component.
  */
 export const Products = () => {
-	const [ selectedFilter, setSelectedFilter ] = useState< ProductFilter >( 'all' );
+	const [ searchParams, setSearchParams ] = useSearchParams();
+	const filterParam = searchParams.get( 'filter' );
+	const initialFilter = isValidFilter( filterParam ) ? filterParam : 'all';
+
+	const [ selectedFilter, setSelectedFilter ] = useState< ProductFilter >( initialFilter );
 	const [ search, setSearch ] = useState< string >( '' );
+
+	// Update URL when filter changes
+	const handleSetSelectedFilter = useCallback(
+		( filter: ProductFilter ) => {
+			setSelectedFilter( filter );
+			searchParams.set( 'filter', filter );
+			setSearchParams( searchParams, { replace: true } );
+		},
+		[ searchParams, setSearchParams ]
+	);
 
 	return (
 		<ProductFiltersProvider currentFilter={ selectedFilter } searchTerm={ search }>
 			<ProductsContent
 				selectedFilter={ selectedFilter }
-				setSelectedFilter={ setSelectedFilter }
+				setSelectedFilter={ handleSetSelectedFilter }
 				search={ search }
 				setSearch={ setSearch }
 			/>
