@@ -53,7 +53,7 @@
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.0",
 		"@types/jest": "30.0.0",
-		"@types/react": "18.3.26",
+		"@types/react": "18.3.27",
 		"@types/react-dom": "18.3.7",
 		"babel-jest": "30.2.0",
 		"esbuild": "0.25.9",

@@ -54,7 +54,7 @@
 		"@babel/core": "7.28.4",
 		"@babel/preset-env": "7.28.3",
 		"@babel/runtime": "7.28.4",
-		"@types/react": "18.3.26",
+		"@types/react": "18.3.27",
 		"@wordpress/browserslist-config": "6.37.1-next.ba3aee3a2.0",
 		"concurrently": "9.2.1",
 		"sass-embedded": "1.87.0",
