@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Forms: allow using the Gutenberg Core Button block as the submit control in Contact Form. The block gets the same interactivity bindings and loading spinner as the Jetpack Button, and all form variations now insert a core button by default.

@@ -1,5 +1,4 @@
 import * as connectionData from './connection-data';
-import * as pricingPageSettings from './pricing-page';
 import * as renderCount from './render-count';
 import * as scheduledSharesActions from './scheduled-shares';
 import * as servicesActions from './services';
@@ -8,6 +7,7 @@ import * as shareStatus from './share-status';
 import * as sigActions from './social-image-generator';
 import * as socialModuleSettings from './social-module-settings';
 import * as socialNoteSettings from './social-notes';
+import * as socialSettings from './social-settings';
 import * as unifiedModal from './unified-modal';
 import * as utmActions from './utm-settings';
 
@@ -19,7 +19,7 @@ const actions = {
 	...sigActions,
 	...utmActions,
 	...socialNoteSettings,
-	...pricingPageSettings,
+	...socialSettings,
 	...socialModuleSettings,
 	...servicesActions,
 	...scheduledSharesActions,

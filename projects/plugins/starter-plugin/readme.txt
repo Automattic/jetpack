@@ -4,7 +4,7 @@ Tags: jetpack, stuff
 Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 0.1.0-alpha
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,27 +33,20 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 0.8.0 - 2025-09-09
+### 0.9.0 - 2026-01-09
 #### Added
-- Added typecheck support for E2E tests.
-- My Jetpack: Added analytics for empty product search results.
+- IDC: Add revalidation for IDCs.
+- Tested up to WordPress 6.9
 
 #### Changed
-- Improve performance of WordPress.com comment likes by caching and minimizing API requests.
-- My Jetpack: Enable access to My Jetpack on WP Multisite.
-- My Jetpack: Fix multisite availability check for restricted products and modules.
-- My Jetpack: Unify the user connection flow with a unified screen.
-- My Jetpack: Update Stats card to include a chart for better analytics.
-- Remove CRM installation nudge for Complete plan users.
-- Sync: Ignore the ActivityPub Outbox CPT.
+- Update dependencies.
 - Update package dependencies.
 
 #### Fixed
-- JITM: Fix ineffective caching due to expired plugin sync transient
-- JITM: Remove jQuery dependency.
-- My Jetpack: Fix footer alignment for disconnected accounts.
-- My Jetpack: Prevent expiration alerts for products covered by active bundles.
-- My Jetpack: Restore plan purchase link.
+- Ensure proper flags are used with `json_encode()`.
+- Jetpack: remove getIconColor functions for block icons.
+- My Jetpack: Fix expiring renewal prompt to show all products.
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin.
 
 == Arbitrary section ==
 

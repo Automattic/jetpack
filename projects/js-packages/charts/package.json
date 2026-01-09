@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.53.0",
+	"version": "0.53.2",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -42,6 +42,12 @@
 			"require": "./dist/charts/conversion-funnel-chart/index.cjs"
 		},
 		"./conversion-funnel-chart/style.css": "./dist/charts/conversion-funnel-chart/index.css",
+		"./geo-chart": {
+			"jetpack:src": "./src/charts/geo-chart/index.ts",
+			"import": "./dist/charts/geo-chart/index.js",
+			"require": "./dist/charts/geo-chart/index.cjs"
+		},
+		"./geo-chart/style.css": "./dist/charts/geo-chart/index.css",
 		"./hooks": {
 			"jetpack:src": "./src/hooks/index.ts",
 			"import": "./dist/hooks/index.js",
@@ -129,11 +135,29 @@
 			".": [
 				"./dist/index.d.ts"
 			],
-			"line-chart": [
-				"./dist/charts/line-chart/index.d.ts"
-			],
 			"bar-chart": [
 				"./dist/charts/bar-chart/index.d.ts"
+			],
+			"bar-list-chart": [
+				"./dist/charts/bar-list-chart/index.d.ts"
+			],
+			"conversion-funnel-chart": [
+				"./dist/charts/conversion-funnel-chart/index.d.ts"
+			],
+			"geo-chart": [
+				"./dist/charts/geo-chart/index.d.ts"
+			],
+			"hooks": [
+				"./dist/hooks/index.d.ts"
+			],
+			"leaderboard-chart": [
+				"./dist/charts/leaderboard-chart/index.d.ts"
+			],
+			"legend": [
+				"./dist/components/legend/index.d.ts"
+			],
+			"line-chart": [
+				"./dist/charts/line-chart/index.d.ts"
 			],
 			"pie-chart": [
 				"./dist/charts/pie-chart/index.d.ts"
@@ -141,32 +165,17 @@
 			"pie-semi-circle-chart": [
 				"./dist/charts/pie-semi-circle-chart/index.d.ts"
 			],
-			"bar-list-chart": [
-				"./dist/charts/bar-list-chart/index.d.ts"
-			],
-			"leaderboard-chart": [
-				"./dist/charts/leaderboard-chart/index.d.ts"
-			],
-			"conversion-funnel-chart": [
-				"./dist/charts/conversion-funnel-chart/index.d.ts"
-			],
-			"tooltip": [
-				"./dist/components/tooltip/index.d.ts"
-			],
-			"legend": [
-				"./dist/components/legend/index.d.ts"
+			"providers": [
+				"./dist/providers/index.d.ts"
 			],
 			"sparkline": [
 				"./dist/components/sparkline/index.d.ts"
 			],
+			"tooltip": [
+				"./dist/components/tooltip/index.d.ts"
+			],
 			"trend-indicator": [
 				"./dist/components/trend-indicator/index.d.ts"
-			],
-			"hooks": [
-				"./dist/hooks/index.d.ts"
-			],
-			"providers": [
-				"./dist/providers/index.d.ts"
 			],
 			"utils": [
 				"./dist/utils/index.d.ts"
@@ -232,8 +241,8 @@
 		"@types/react": "18.3.26",
 		"@types/react-dom": "18.3.7",
 		"@visx/glyph": "3.12.0",
-		"@wordpress/components": "30.9.0",
-		"@wordpress/element": "6.36.0",
+		"@wordpress/components": "31.0.0",
+		"@wordpress/element": "6.37.0",
 		"babel-jest": "30.2.0",
 		"esbuild": "0.25.9",
 		"esbuild-sass-plugin": "^3.1.0",

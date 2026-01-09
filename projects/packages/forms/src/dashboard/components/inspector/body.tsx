@@ -28,6 +28,7 @@ import { useMarkAsSpam } from '../../hooks/use-mark-as-spam.ts';
 import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils.js';
 import { store as dashboardStore } from '../../store/index.js';
 import CopyClipboardButton from '../copy-clipboard-button/index.tsx';
+import FeedbackComments from '../feedback-comments/index.tsx';
 import Flag from '../flag/index.tsx';
 import Gravatar from '../gravatar/index.tsx';
 import FieldEmail from '../response-view/field-email/index.tsx';
@@ -139,6 +140,7 @@ const ResponseViewBody = ( {
 	const { editEntityRecord } = useDispatch( 'core' );
 
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
+	const isNotesEnabled = useConfigValue( 'isNotesEnabled' ) ?? false;
 
 	// When opening a "Mark as spam" link from the email, the ResponseViewBody component is rendered, so we use a hook here to handle it.
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } = useMarkAsSpam(
@@ -397,6 +399,9 @@ const ResponseViewBody = ( {
 					{ __( 'Are you sure you want to mark this response as spam?', 'jetpack-forms' ) }
 				</ConfirmDialog>
 			</div>
+			{ /* Comments section */ }
+
+			{ isNotesEnabled && <FeedbackComments postId={ response.id } /> }
 			{ response.status === 'spam' && (
 				<div className="jp-forms__inbox__tip-container">
 					<Tip>

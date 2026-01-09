@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Improved phone field styling to better mimic theme input styles, including focus outline and filter CSS properties

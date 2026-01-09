@@ -7,6 +7,7 @@ import { getSocialScriptData } from '../utils';
  * Hydrate the data stores
  */
 export async function hydrateStores() {
+	// @ts-expect-error TS2339 -- finishResolution is there but not declared; AFAICT, it's a base method from @wordpress/data and @wordpress/core-data only declares its custom methods.
 	const { addEntities, receiveEntityRecords, finishResolution } = dispatch( coreStore );
 
 	const socialToggleBase = getSocialScriptData()?.api_paths?.socialToggleBase;
@@ -52,17 +53,6 @@ export async function hydrateStores() {
 		);
 
 		await finishResolution( 'getEntityRecords', [ 'wpcom/v2', 'publicize/services' ] );
-	}
-
-	if ( ! wpcomEntities.some( ( { name } ) => name === 'publicize/shares-data' ) ) {
-		await addEntities( [
-			{
-				kind: 'wpcom/v2',
-				name: 'publicize/shares-data',
-				baseURL: '/wpcom/v2/publicize/shares-data',
-				label: __( 'Publicize shares data', 'jetpack-publicize-components' ),
-			},
-		] );
 	}
 
 	if ( ! wpcomEntities.some( ( { name } ) => name === 'publicize/scheduled-actions' ) ) {
