@@ -39,13 +39,6 @@ if ( ! class_exists( 'WC_Session' ) ) {
 		}
 
 		/**
-		 * Save session data (no-op in mock).
-		 */
-		public function save_data() {
-			// No-op in tests.
-		}
-
-		/**
 		 * Get all session data (for testing).
 		 *
 		 * @return array
