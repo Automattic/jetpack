@@ -145,81 +145,26 @@ export default function InboxView() {
 		totalItemsSpam,
 		totalItemsTrash,
 	} = useInboxData();
-
-	const urlStatus = searchParams.get( 'status' ) || 'inbox';
-	const normalizedUrlFolder = [ 'inbox', 'spam', 'trash' ].includes( urlStatus )
-		? urlStatus
-		: 'inbox';
-	const currentFolderValue = view.filters?.find( filter => filter.field === 'folder' )?.value;
-
-	// When central form management is enabled, ensure the Folder filter has a value
-	// so it renders as "Folder: Inbox/Spam/Trash" in the DataViews filters UI.
-	// We only seed it when missing to avoid fighting user edits.
-	useEffect( () => {
-		if ( ! isCentralFormManagementEnabled ) {
-			return;
-		}
-
-		if ( currentFolderValue !== undefined ) {
-			return;
-		}
-
-		setView( {
-			...view,
-			page: 1,
-			filters: [
-				...( view.filters || [] ).filter( f => f.field !== 'folder' ),
-				{
-					field: 'folder',
-					operator: 'is',
-					value: normalizedUrlFolder,
-				},
-			],
-		} );
-	}, [ isCentralFormManagementEnabled, currentFolderValue, normalizedUrlFolder, setView, view ] );
-
-	const onChangeView = useCallback(
-		newView => {
-			if ( isCentralFormManagementEnabled ) {
-				const getFolder = filters => {
-					const raw = filters?.find( f => f.field === 'folder' )?.value;
-					const value = Array.isArray( raw ) ? raw[ 0 ] : raw;
-					return [ 'inbox', 'spam', 'trash' ].includes( value ) ? value : 'inbox';
-				};
-
-				const prevFolder = getFolder( view.filters );
-				const nextFolder = getFolder( newView.filters );
-
-				if ( prevFolder !== nextFolder ) {
-					setSearchParams( previousSearchParams => {
-						const params = new URLSearchParams( previousSearchParams );
-						params.set( 'status', nextFolder );
-						params.delete( 'r' ); // Clear selection when changing folder.
-						return params;
-					} );
-					setSelectedResponses( [] );
-				}
-			}
-			setView( newView );
-		},
-		[ isCentralFormManagementEnabled, setSearchParams, setSelectedResponses, setView, view.filters ]
-	);
-
-	// A function that changes the status filter such as index, spam, trash
 	const onChangeStatus = useCallback(
 		newStatus => {
-			const newView = { ...view };
+			if ( ! isCentralFormManagementEnabled ) {
+				return;
+			}
 
-			newView.filters = ( newView.filters || [] ).filter( f => f.field !== 'folder' );
-			newView.filters.push( {
-				field: 'folder',
-				operator: 'is',
-				value: newStatus,
+			setSearchParams( previousSearchParams => {
+				const params = new URLSearchParams( previousSearchParams );
+				params.set( 'status', newStatus );
+				params.delete( 'r' ); // Clear selected responses when changing status.
+				return params;
 			} );
 
-			onChangeView( newView );
+			// Reset page to 1 when switching status (matches previous tab behavior).
+			setView( { ...view, page: 1 } );
+
+			// Clear selection in store.
+			setSelectedResponses( [] );
 		},
-		[ onChangeView, view ]
+		[ isCentralFormManagementEnabled, setSearchParams, setSelectedResponses, setView, view ]
 	);
 
 	const onInboxClick = useCallback( () => onChangeStatus( 'inbox' ), [ onChangeStatus ] );
@@ -605,7 +550,7 @@ export default function InboxView() {
 				data={ records || EMPTY_ARRAY }
 				isLoading={ isInboxLoading }
 				view={ view }
-				onChangeView={ isCentralFormManagementEnabled ? onChangeView : setView }
+				onChangeView={ setView }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
 				getItemId={ getItemId }
