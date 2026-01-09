@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { updateMenuCounterOptimistically } from '../utils';
+import { updateMenuCounterOptimistically, withTimeout } from '../utils';
 import type { QueryParams } from './types.tsx';
 import type { FormResponse } from '../../../types/index.ts';
 
@@ -91,7 +91,7 @@ export const processStatusChange = async ( {
 
 	// Call API with timeout
 	const promises = await Promise.allSettled(
-		items.map( ( { id } ) => apiCall( id ) as Promise< { id: number } > )
+		items.map( ( { id } ) => withTimeout( apiCall( id ) ) as Promise< { id: number } > )
 	);
 
 	// Check for both rejected promises and fulfilled promises with undefined/invalid results

@@ -13,7 +13,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { notSpam, spam } from '../../icons/index.ts';
 import { store as dashboardStore } from '../../store/index.js';
-import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils.js';
+import { updateMenuCounter, updateMenuCounterOptimistically, withTimeout } from '../utils.js';
 import { processStatusChange } from './process-status-change';
 import { defaultView } from './views.js';
 /**
@@ -130,26 +130,6 @@ const getGenericErrorMessage = ( numberOfErrors: number ): string => {
 				),
 				numberOfErrors
 		  );
-};
-
-/**
- * Wraps a promise with a timeout to ensure it rejects after a reasonable time.
- * This is useful for network requests that might hang when the network is disabled.
- *
- * @param {Promise} promise   - The promise to wrap.
- * @param {number}  timeoutMs - The timeout in milliseconds (default: 30000).
- * @return {Promise} The wrapped promise that will reject on timeout.
- */
-const withTimeout = (
-	promise: Promise< unknown >,
-	timeoutMs: number = 30000
-): Promise< unknown > => {
-	return Promise.race( [
-		promise,
-		new Promise( ( _, reject ) =>
-			setTimeout( () => reject( new Error( 'Request timeout' ) ), timeoutMs )
-		),
-	] );
 };
 
 /*
