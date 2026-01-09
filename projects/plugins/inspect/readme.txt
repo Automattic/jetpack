@@ -33,12 +33,16 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 2.0.0-a.7 - 2025-10-09
+### 2.0.0-a.9 - 2026-01-09
 #### Added
-- Add `typecheck` script to ensure that TypeScript files are type-checked.
+- IDC: Add revalidation for IDCs.
+- Tested up to WordPress 6.9
 
 #### Changed
 - Update package dependencies.
+
+#### Fixed
+- Ensure proper flags are used with `json_encode()`.
 
 == Arbitrary section ==
 
