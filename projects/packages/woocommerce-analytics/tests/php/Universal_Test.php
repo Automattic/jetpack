@@ -50,6 +50,20 @@ class Universal_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Helper method to make a reflection method accessible.
+	 * Only calls setAccessible() on PHP < 8.1 where it's required.
+	 * PHP 8.1+ makes private/protected methods accessible by default via reflection.
+	 * PHP 8.5+ deprecates setAccessible() since it's a no-op.
+	 *
+	 * @param \ReflectionMethod $method The reflection method to make accessible.
+	 */
+	private function make_method_accessible( \ReflectionMethod $method ) {
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+	}
+
+	/**
 	 * Test that order_process calls wc_get_order with an integer order ID.
 	 */
 	public function test_order_process_handles_integer_order_id(): void {
@@ -190,7 +204,7 @@ class Universal_Test extends BaseTestCase {
 		// Use reflection to test the private should_track_checkout method.
 		$reflection = new \ReflectionClass( $universal );
 		$method     = $reflection->getMethod( 'should_track_checkout' );
-		$method->setAccessible( true );
+		$this->make_method_accessible( $method );
 
 		// First checkout - should return true.
 		$result = $method->invoke( $universal, $session );
@@ -217,7 +231,7 @@ class Universal_Test extends BaseTestCase {
 		// Use reflection to test the private should_track_checkout method.
 		$reflection = new \ReflectionClass( $universal );
 		$method     = $reflection->getMethod( 'should_track_checkout' );
-		$method->setAccessible( true );
+		$this->make_method_accessible( $method );
 
 		// Duplicate checkout - should return false.
 		$result = $method->invoke( $universal, $session );
@@ -247,7 +261,7 @@ class Universal_Test extends BaseTestCase {
 		// Use reflection to test the private should_track_checkout method.
 		$reflection = new \ReflectionClass( $universal );
 		$method     = $reflection->getMethod( 'should_track_checkout' );
-		$method->setAccessible( true );
+		$this->make_method_accessible( $method );
 
 		// After cart modification - should return true.
 		$result = $method->invoke( $universal, $session );
@@ -278,7 +292,7 @@ class Universal_Test extends BaseTestCase {
 		// Use reflection to test the private should_track_checkout method.
 		$reflection = new \ReflectionClass( $universal );
 		$method     = $reflection->getMethod( 'should_track_checkout' );
-		$method->setAccessible( true );
+		$this->make_method_accessible( $method );
 
 		// With different session ID - should return true.
 		$result = $method->invoke( $universal, $session );
@@ -310,7 +324,7 @@ class Universal_Test extends BaseTestCase {
 		// Use reflection to test the private should_track_checkout method.
 		$reflection = new \ReflectionClass( $universal );
 		$method     = $reflection->getMethod( 'should_track_checkout' );
-		$method->setAccessible( true );
+		$this->make_method_accessible( $method );
 
 		// With same session ID - should return false.
 		$result = $method->invoke( $universal, $session );
@@ -340,7 +354,7 @@ class Universal_Test extends BaseTestCase {
 		// Use reflection to test the private mark_checkout_tracked method.
 		$reflection = new \ReflectionClass( $universal );
 		$method     = $reflection->getMethod( 'mark_checkout_tracked' );
-		$method->setAccessible( true );
+		$this->make_method_accessible( $method );
 
 		// Mark checkout as tracked.
 		$method->invoke( $universal, $session );
@@ -374,7 +388,7 @@ class Universal_Test extends BaseTestCase {
 		// Use reflection to test the private mark_checkout_tracked method.
 		$reflection = new \ReflectionClass( $universal );
 		$method     = $reflection->getMethod( 'mark_checkout_tracked' );
-		$method->setAccessible( true );
+		$this->make_method_accessible( $method );
 
 		// Should not throw an exception with null session.
 		$method->invoke( $universal, null );
@@ -389,7 +403,7 @@ class Universal_Test extends BaseTestCase {
 		// Use reflection to test the private should_track_checkout method.
 		$reflection = new \ReflectionClass( $universal );
 		$method     = $reflection->getMethod( 'should_track_checkout' );
-		$method->setAccessible( true );
+		$this->make_method_accessible( $method );
 
 		// With null session - should return true (safe to track).
 		$result = $method->invoke( $universal, null );
