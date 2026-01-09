@@ -610,19 +610,33 @@ class Identity_Crisis {
 				self::IDC_VALIDATION_MAX_DELAY
 			);
 			Jetpack_Options::update_option( 'sync_error_idc', $fresh_idc_data );
-			// Force cache refresh to ensure next request sees updated data.
-			wp_cache_delete( 'sync_error_idc', 'jetpack_options' );
+			self::invalidate_idc_option_cache();
 		} else {
 			// Network error, invalid JSON, or non-200 - just update last_checked without backoff.
 			$sync_error['last_checked'] = time();
 			Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
-			// Force cache refresh to ensure next request sees updated data.
-			wp_cache_delete( 'sync_error_idc', 'jetpack_options' );
+			self::invalidate_idc_option_cache();
 		}
 
 		delete_transient( $lock_key );
 		$is_validating = false;
 		return false;
+	}
+
+	/**
+	 * Invalidate the cache for the sync_error_idc option.
+	 *
+	 * This ensures that subsequent requests read fresh data from the database
+	 * rather than stale cached values, which is critical for preventing request floods.
+	 *
+	 * Note: This directly calls wp_cache_delete with the 'jetpack_options' cache group,
+	 * which couples this code to the internal caching implementation of Jetpack_Options.
+	 * If Jetpack_Options changes its caching strategy, this method will need to be updated.
+	 *
+	 * @return void
+	 */
+	private static function invalidate_idc_option_cache() {
+		wp_cache_delete( 'sync_error_idc', 'jetpack_options' );
 	}
 
 	/**
