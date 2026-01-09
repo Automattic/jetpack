@@ -226,7 +226,7 @@ class Agents_Manager {
 	 * Determine if the agents manager files should be enqueued.
 	 */
 	private function should_enqueue_script() {
-		if ( $this->should_use_unified_experience() ) {
+		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
 		}
 
