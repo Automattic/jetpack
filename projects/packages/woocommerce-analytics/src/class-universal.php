@@ -340,12 +340,11 @@ class Universal {
 		}
 
 		// Check if JS session changed (if sessionTracking is enabled).
-		// Only re-track if we have both a current and previous session ID to compare,
 		// and they differ - indicating a new session started.
 		$current_session_id = $this->get_js_session_id();
 		$last_session_id    = $session->get( self::CHECKOUT_SESSION_ID_KEY );
 
-		if ( $current_session_id && $last_session_id && $current_session_id !== $last_session_id ) {
+		if ( $current_session_id !== $last_session_id ) {
 			return true; // Session changed.
 		}
 
