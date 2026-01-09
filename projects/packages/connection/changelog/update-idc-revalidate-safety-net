@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Added transients to prevent excesive remote calls.
+Added transients to prevent excessive remote calls.

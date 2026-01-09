@@ -549,8 +549,12 @@ class Identity_Crisis {
 		// Verify the critical timing field was persisted.
 		// This protects against caching/DB issues that would cause request floods.
 		$verified_option = Jetpack_Options::get_option( 'sync_error_idc' );
-		if ( ! is_array( $verified_option ) || empty( $verified_option['last_checked'] ) ) {
-			// Option is missing or corrupted - BAIL to prevent retries.
+		if (
+			! is_array( $verified_option ) ||
+			empty( $verified_option['last_checked'] ) ||
+			(int) $verified_option['last_checked'] !== (int) $sync_error['last_checked']
+		) {
+			// Option is missing, corrupted, or has incorrect timestamp - BAIL to prevent retries.
 			delete_transient( $lock_key );
 			$is_validating = false;
 			return false;
