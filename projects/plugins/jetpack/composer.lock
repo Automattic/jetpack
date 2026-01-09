@@ -792,10 +792,11 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "245b0788ebc25d34c567b3918f2262f9dddc3b6b"
+				"reference": "f845c60c1f7aa13f5b66b488712dcdd816ad19db"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-blocks": "@dev",
 				"php": ">=7.2"
 			},
 			"require-dev": {
