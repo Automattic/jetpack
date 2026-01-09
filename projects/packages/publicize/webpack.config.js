@@ -65,15 +65,15 @@ module.exports = [
 	{
 		...socialWebpackConfig,
 		entry: {
-			'classic-editor-connections': './src/js/classic-editor-connections.js',
+			'classic-editor': './_inc/entry-points/classic-editor.js',
 		},
 	},
 	{
 		...socialWebpackConfig,
 		entry: {
-			'social-admin-page': './src/js/social-admin-page.js',
-			'editor-jetpack-sidebar': './src/js/editor-jetpack-sidebar.js',
-			'editor-social-sidebar': './src/js/editor-social-sidebar.js',
+			'social-admin-page': './_inc/entry-points/social-admin-page.tsx',
+			'editor-jetpack-sidebar': './_inc/entry-points/editor-jetpack-sidebar.tsx',
+			'editor-social-sidebar': './_inc/entry-points/editor-social-sidebar.tsx',
 		},
 	},
 ];
