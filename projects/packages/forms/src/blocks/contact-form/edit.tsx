@@ -863,7 +863,7 @@ function JetpackContactFormEdit( {
 								<TextControl
 									label={ __( 'Message heading', 'jetpack-forms' ) }
 									value={ customThankyouHeading }
-									placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
+									placeholder={ __( 'Thank you for your response.', 'jetpack-forms' ) }
 									onChange={ ( newHeading: string ) =>
 										setAttributes( { customThankyouHeading: newHeading } )
 									}
