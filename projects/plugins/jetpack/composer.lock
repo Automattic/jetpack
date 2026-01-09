@@ -614,7 +614,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blocks",
-				"reference": "0ae23297e14df2ee846b31f6331cf1a3f3c40363"
+				"reference": "f8f199744984370c00d7e2db7bce59c992958706"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -638,7 +638,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.1.x-dev"
+					"dev-trunk": "3.2.x-dev"
 				}
 			},
 			"autoload": {

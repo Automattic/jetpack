@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Help Center: pass the is_test_mode along to WPCOM
