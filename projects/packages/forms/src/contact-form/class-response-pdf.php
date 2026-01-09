@@ -173,8 +173,7 @@ class Response_PDF {
 			return '';
 		}
 
-		$header  = '<header>';
-		$header .= '';
+		$header = '<header>';
 		if ( $response->get_author() ) {
 			$header .= '<h3>' . $response->get_author() . '</h3>';
 		}
