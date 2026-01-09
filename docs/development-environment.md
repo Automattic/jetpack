@@ -160,9 +160,9 @@ tools/check-development-environment.sh
 
 Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development.
 
-If you're ready to start, you should see all green `SUCCESS` messages. If the script detect issues, you will see a red `FAILED` note and a link that will help you figure out what you need to change/fix to address the issue.
+If you're ready to start, you should see all green `ok` or `yes` messages. If the script detects issues, you will see a red message indicating whether you are missing a requirement or have a version outside of the expected range, along with a link to help you address the issue.
 
-Once you're all set here, you can continue developing. If you're setting up an local environment and want to start testing immediately, please ensure you build the projects you need.
+Once you're all set here, you can continue developing. If you're setting up a local environment and want to start testing immediately, please ensure you build the projects you need.
 
 `jetpack build` will provide prompts to determine the project you need or you can pass it a complete command, like `jetpack build plugins/jetpack --deps`
 

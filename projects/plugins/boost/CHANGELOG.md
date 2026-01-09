@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.5.5-beta] - 2026-01-07
+## [4.5.5] - 2026-01-08
 ### Added
 - Connection: Add revalidation for IDCs. [#46268]
 
@@ -880,7 +880,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[4.5.5-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.4...4.5.5-beta
+[4.5.5]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.4...4.5.5
 [4.5.4]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.3...4.5.4
 [4.5.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.2...4.5.3
 [4.5.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.1...4.5.2
