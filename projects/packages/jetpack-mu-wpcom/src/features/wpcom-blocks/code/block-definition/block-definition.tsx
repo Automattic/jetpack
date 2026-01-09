@@ -62,7 +62,7 @@ const emptyLanguageOption: LanguageOption = {
 function languageNameDisplay( language: string ): string {
 	switch ( language ) {
 		case 'Brainfuck':
-			return 'Brain****';
+			return 'Brainf***';
 	}
 
 	return language;
