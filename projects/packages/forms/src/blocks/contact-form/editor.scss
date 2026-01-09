@@ -160,11 +160,6 @@
 				}
 			}
 
-			&[data-type="jetpack/field-checkbox"],
-			&[data-type="jetpack/field-consent"] {
-				align-self: center;
-			}
-
 			&:where(.wp-block-jetpack-contact-form .wp-block-separator) {
 				max-width: var(--wp--preset--spacing--80, 100px);
 				margin-left: auto;
