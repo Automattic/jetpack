@@ -53,31 +53,20 @@ const emptyLanguageOption: LanguageOption = {
 	label: plainLanguageName,
 };
 
-interface LanguageNameRewrite {
-	/**
-	 * Language names for display.
-	 */
-	rewrites?: Map< string, string >;
-	( lang: string ): string;
-}
-const languageNameDisplay: LanguageNameRewrite = ( language: string ): string => {
-	if ( typeof languageNameDisplay.rewrites === 'undefined' ) {
-		try {
-			languageNameDisplay.rewrites = new Map(
-				Object.entries(
-					JSON.parse(
-						// @ts-expect-error -- This is OK in this try/catch block.
-						document.getElementById( 'wp-script-module-data-@a8cCodeBlock/dummy' )?.textContent
-					)?.languageNameRewrites
-				)
-			);
-		} catch {
-			languageNameDisplay.rewrites = new Map();
-		}
+/**
+ * Modify language names for display.
+ *
+ * @param language - Original language name.
+ * @return Display language name.
+ */
+function languageNameDisplay( language: string ): string {
+	switch ( language ) {
+		case 'Brainfuck':
+			return 'Brain****';
 	}
 
-	return languageNameDisplay.rewrites.get( language ) ?? language;
-};
+	return language;
+}
 
 const selectLanguageOptions: ReadonlyArray< LanguageOption > = [];
 {

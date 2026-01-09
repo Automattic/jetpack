@@ -51,13 +51,6 @@ abstract class Code_Block {
 		self::init();
 		add_action( 'init', array( __CLASS__, 'override_block_style' ) );
 		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
-		add_filter(
-			'script_module_data_' . self::MODULE_PREFIX . 'dummy',
-			function ( array $data ): array {
-				$data['languageNameRewrites'] = Code_Block::$language_name_rewrites;
-				return $data;
-			}
-		);
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
 		add_action(
 			'wp_enqueue_scripts',
