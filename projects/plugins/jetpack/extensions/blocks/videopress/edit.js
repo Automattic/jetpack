@@ -934,6 +934,12 @@ const VideoPressEdit = CoreVideoEdit =>
 				</Fragment>
 			);
 
+			// For regular videos when VideoPress is not being used, render without wrappers
+			// If there's no GUID and we're not uploading, it's a regular video that doesn't need wrappers
+			if ( renderCoreVideoAndLoadingBlocks && ! guid && ! isUploading ) {
+				return <CoreVideoEdit { ...this.props } />;
+			}
+
 			if ( renderCoreVideoAndLoadingBlocks ) {
 				return resumableUploadEnabled ? (
 					<VideoPressBlockProvider

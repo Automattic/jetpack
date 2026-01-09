@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Fix wide width alignment for core video blocks in the editor.
