@@ -266,7 +266,8 @@ class Feedback_Field {
 	private function get_render_api_value() {
 		if ( $this->is_of_type( 'file' ) ) {
 			$files = array();
-			foreach ( $this->value['files'] as &$file ) {
+			$value = $this->value;
+			foreach ( $value['files'] as $file ) {
 				if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
 					// this shouldn't happen, todo: log this
 					continue;
@@ -278,8 +279,8 @@ class Feedback_Field {
 				$file['is_previewable'] = $this->is_previewable_file( $file );
 				$files[]                = $file;
 			}
-			$this->value['files'] = $files;
-			return $this->value;
+			$value['files'] = $files;
+			return $value;
 		}
 
 		if ( $this->is_of_type( 'image-select' ) ) {
