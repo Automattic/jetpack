@@ -26,9 +26,10 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 	private $full_sync_start_config;
 	private $synced_user_ids;
 
-	private $started_sync_count  = 0;
-	private $test_posts_count    = 20;
-	private $test_comments_count = 11;
+	private $started_sync_count       = 0;
+	private $test_posts_count         = 20;
+	private $test_comments_count      = 11;
+	private $before_module_sync_count = 0;
 
 	/**
 	 * Set up.
@@ -1365,5 +1366,35 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 		);
 		$actual_events_action_names   = wp_list_pluck( $events, 'action' );
 		$this->assertEquals( $expected_events_action_names, $actual_events_action_names );
+	}
+
+	public function test_full_sync_does_not_call_sender_for_config_extra_network_options() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Test targets single-site extra module behavior (network_options is used an extra module)' );
+		}
+		$this->full_sync->start();
+		$this->full_sync->send();
+
+		$this->before_module_sync_count = 0;
+		// network_options (class-network-options.php) has already defined a before-send filter, and is not included in regular single site sync defaults so is ideal for testing here.
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_network_options', array( $this, 'count_before_module_sync_start' ) );
+
+		$status = $this->full_sync->get_status();
+
+		// Inject an extra module into config only.
+		$status['config']['network_options'] = 1;
+
+		$this->full_sync->update_status( $status );
+		$this->full_sync->send();
+
+		// We're confirming no send attempt for the extra module
+		$this->assertSame( 0, $this->before_module_sync_count, 'Extra module must not be sent when not in frozen progress.' );
+
+		$this->before_module_sync_count = 0;
+		remove_filter( 'jetpack_sync_before_send_jetpack_full_sync_network_options', array( $this, 'count_before_module_sync_start' ) );
+	}
+
+	public function count_before_module_sync_start() {
+		$this->before_module_sync_count += 1;
 	}
 }
