@@ -94,25 +94,6 @@
 		display: flex;
 		gap: 4px;
 		justify-content: center;
-
-		.wpcom-global-styles-reset-help-icon path {
-			stroke: #c3c4c7;
-		}
-
-		.wpcom-global-styles-reset-external-icon path {
-			fill: #c3c4c7;
-		}
-
-		&:hover {
-
-			.wpcom-global-styles-reset-help-icon path {
-				stroke: #72aee6;
-			}
-
-			.wpcom-global-styles-reset-external-icon path {
-				fill: #72aee6;
-			}
-		}
 	}
 
 	#wp-admin-bar-wpcom-global-styles-preview {

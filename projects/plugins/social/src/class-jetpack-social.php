@@ -151,21 +151,6 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Get the shares data, but cache it so we don't call the API
-	 * more than once per request.
-	 *
-	 * @return array The shares data.
-	 */
-	public function get_shares_info() {
-		global $publicize;
-		static $shares_info = null;
-		if ( ! $shares_info ) {
-			$shares_info = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-		}
-		return ! is_wp_error( $shares_info ) ? $shares_info : null;
-	}
-
-	/**
 	 * Returns a boolean as to whether we have a plan that supports
 	 * sharing beyond the free limit.
 	 *
@@ -235,7 +220,6 @@ class Jetpack_Social {
 	 */
 	public function do_plugin_activation_activities() {
 		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) && $this->is_connected() ) {
-			$this->calculate_scheduled_shares();
 			$this->activate_module();
 		}
 	}
@@ -261,14 +245,6 @@ class Jetpack_Social {
 	public function activate_module() {
 		delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
-	}
-
-	/**
-	 * Calls out to WPCOM to calculate the scheduled shares.
-	 */
-	public function calculate_scheduled_shares() {
-		global $publicize;
-		$publicize->calculate_scheduled_shares( Jetpack_Options::get_option( 'id' ) );
 	}
 
 	/**

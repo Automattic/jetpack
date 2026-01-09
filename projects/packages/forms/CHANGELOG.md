@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.2.0] - 2026-01-06
 ### Added
 - Add support for setting custom ID on hidden field blocks from block settings. [#46360]
-- Add a new filter that lets us control when we want to to show the powered by wording in the email. [#46158]
+- Add a new filter that lets us control when we want to show the powered by wording in the email. [#46158]
 - Add list view sidebar for easier field management. [#46403]
 - Allow using the Gutenberg Core Button block as the submit control in Contact Form. The block gets the same interactivity bindings and loading spinner as the Jetpack Button, and all form variations now insert a core button by default. [#46166]
 - Support Math and Code blocks inside forms. [#46421]
