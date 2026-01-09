@@ -88,7 +88,8 @@ export function BylinePreview( {
 				<img
 					className="byline-preview__gravatar"
 					src={ gravatar }
-					alt={ __( 'User’s Avatar', 'jetpack-newsletter' ) }
+					/* translators: %s is the display name of the author */
+					alt={ sprintf( __( 'Avatar for %s', 'jetpack-newsletter' ), displayName ) }
 				/>
 			) }
 			<span>{ byline }</span>
