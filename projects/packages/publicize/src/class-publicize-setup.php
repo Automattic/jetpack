@@ -139,7 +139,6 @@ class Publicize_Setup {
 			REST_API\Services_Controller::class,
 			REST_API\Share_Post_Controller::class,
 			REST_API\Share_Status_Controller::class,
-			REST_API\Shares_Data_Controller::class,
 			REST_API\Social_Image_Generator_Controller::class,
 			Jetpack_Social_Settings\Settings::class,
 		);
@@ -160,7 +159,6 @@ class Publicize_Setup {
 		// Things that should not happen on WPCOM.
 		if ( ! $is_wpcom_simple ) {
 			add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-			add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 		}
 	}
 
@@ -240,38 +238,5 @@ class Publicize_Setup {
 	 */
 	public static function get_blog_id() {
 		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
-	}
-
-	/**
-	 * Initialise share limits if they should be enabled.
-	 */
-	public static function init_sharing_limits() {
-		$current_screen = get_current_screen();
-
-		if ( empty( $current_screen ) || 'post' !== $current_screen->base ) {
-			return;
-		}
-
-		global $publicize;
-
-		if ( $publicize->has_paid_plan( self::$refresh_plan_info ) ) {
-			return;
-		}
-
-		$info = $publicize->get_publicize_shares_info( self::get_blog_id() );
-
-		if ( is_wp_error( $info ) ) {
-			return;
-		}
-
-		if ( empty( $info['is_share_limit_enabled'] ) ) {
-			return;
-		}
-
-		$connections      = $publicize->get_filtered_connection_data();
-		$shares_remaining = $info['shares_remaining'];
-
-		$share_limits = new Share_Limits( $connections, $shares_remaining, ! $current_screen->is_block_editor() );
-		$share_limits->enforce_share_limits();
 	}
 }

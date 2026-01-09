@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.29.2] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
 ## [5.29.1] - 2026-01-06
 ### Fixed
 - Fix false "backup failed" error for deactivated backups. [#46299]
@@ -2467,6 +2471,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.29.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.1...5.29.2
 [5.29.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.0...5.29.1
 [5.29.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.11...5.29.0
 [5.28.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.10...5.28.11

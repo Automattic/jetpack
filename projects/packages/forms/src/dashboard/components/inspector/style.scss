@@ -10,10 +10,11 @@
 .jp-forms__inbox-response {
 
 	@include mixins.flex-column;
-	min-height: 300px;
+	min-height: 50vh;
 	overflow: auto;
 	background-color: #fff;
 	position: relative;
+	flex-grow: 2;
 }
 
 .jp-forms__inbox-response-header {
