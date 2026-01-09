@@ -82,8 +82,8 @@
 
 		.components-button {
 			border-radius: 16px;
-			background-color: #e0e0e0;
-			color: #1e1e1e;
+			background-color: var(--jp-gray-5);
+			color: var(--jp-gray-40);
 		}
 
 		.components-button.is-active {
