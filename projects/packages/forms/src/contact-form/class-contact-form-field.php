@@ -1358,9 +1358,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 					$field .= "<label {$option_styles} class='{$option_classes}'>";
 					// If this option was marked as the special "Other" option in block
-					// editor, attach the onOtherRadioChange handler and remember that
-					// we have an isOther option so we don't render the duplicate
-					// appended "Other" radio later.
+					// editor, attach the onOtherRadioChange handler.
 					if ( ! empty( $option['isOther'] ) ) {
 						$field .= "<input id='" . esc_attr( $radio_id ) . "' type='radio' name='" . esc_attr( $id ) . "' value='" . esc_attr( $radio_value ) . "' data-wp-on--change='actions.onOtherRadioChange' data-other-label='" . esc_attr( $option_label ) . "' " . $class . checked( $option_label, $value, false ) . ' ' . ( $required ? "required aria-required=\'true\'" : '' ) . '/> ';
 					} else {
@@ -1371,7 +1369,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field .= '</span>';
 					$field .= '</label>';
 					if ( ! empty( $option['isOther'] ) ) {
-						$field .= $this->render_other_input_field( $radio_id, $required, $id, $this->field_styles );
+						$placeholder = ! empty( $option['otherPlaceholder'] ) ? $option['otherPlaceholder'] : '';
+						$field      .= $this->render_other_input_field( $radio_id, $required, $id, $this->field_styles, $placeholder );
 					}
 				}
 			}
@@ -1427,13 +1426,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required Whether the main field is required.
 	 * @param string $id The base ID of the main field.
 	 * @param string $field_styles The styles to apply to the text input field.
+	 * @param string $placeholder Placeholder text for the input field.
 	 *
 	 * @return string The HTML for the "Other" text input field.
 	 */
-	private function render_other_input_field( $has_option_is_other_id, $required, $id, $field_styles ) {
+	private function render_other_input_field( $has_option_is_other_id, $required, $id, $field_styles, $placeholder ) {
 			$other_text_id      = esc_attr( $has_option_is_other_id ) . '-other-text';
 			$other_label_id     = esc_attr( $has_option_is_other_id ) . '-other-label';
-			$other_label_text   = __( 'Please specify…', 'jetpack-forms' );
+			$other_label_text   = ! empty( $placeholder ) ? $placeholder : __( 'Please specify…', 'jetpack-forms' );
 			$aria_required_attr = $required ? "aria-required='true'" : '';
 
 			// Prepare styles for the text input to match other form fields
@@ -1451,14 +1451,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						type='text'
 						class='grunion-field'
 						" . $other_input_styles . "
-						placeholder='" . esc_attr( __( 'Please specify…', 'jetpack-forms' ) ) . "'
+						placeholder='" . esc_attr( $placeholder ) . "'
 						value=''
 						aria-labelledby='" . $other_label_id . "'
 						" . $aria_required_attr . "
 						data-wp-on--input='actions.onOtherTextInput'
 						data-wp-bind--disabled='!state.isOtherSelected'
 						data-wp-class--has-value='state.hasFieldValue' />";
+
 			$field .= '</div>';
+
 			return $field;
 	}
 
