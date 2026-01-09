@@ -118,11 +118,14 @@ $matrix[] = array(
 );
 
 // Add Coverage tests.
+// Coverage is experimental (non-blocking) to reduce CI wait time on PRs.
+// Coverage data is still collected and published, but failures won't block merging.
 $matrix[] = array(
-	'name'    => 'Code coverage',
-	'script'  => 'test-coverage',
-	'wp'      => 'latest',
-	'timeout' => 40, // 2025-11-06: Successful runs seem to take ~15 minutes.
+	'name'         => 'Code coverage',
+	'script'       => 'test-coverage',
+	'wp'           => 'latest',
+	'timeout'      => 40, // 2025-11-06: Successful runs seem to take ~15 minutes.
+	'experimental' => true,
 );
 
 // END matrix definitions.
