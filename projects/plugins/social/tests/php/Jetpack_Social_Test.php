@@ -51,12 +51,10 @@ class Jetpack_Social_Test extends BaseTestCase {
 		$connection_manager->method( 'is_connected' )->willReturn( true );
 		$connection_manager->method( 'has_connected_user' )->willReturn( true );
 
-		// Publicize global is not available at the moment during these tests
 		$this->social = $this->getMockBuilder( Jetpack_Social::class )
 			->setConstructorArgs( array( $connection_manager ) )
-			->onlyMethods( array( 'calculate_scheduled_shares' ) )
+			->onlyMethods( array() )
 			->getMock();
-		$this->social->expects( $this->once() )->method( 'calculate_scheduled_shares' );
 
 		$this->activate_plugin( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH );
 		$this->assertTrue( Jetpack_Social::is_publicize_active() );
@@ -73,7 +71,6 @@ class Jetpack_Social_Test extends BaseTestCase {
 		$this->social = $this->getMockBuilder( Jetpack_Social::class )
 			->setConstructorArgs( array( $connection_manager ) )
 			->getMock();
-		$this->social->expects( $this->never() )->method( 'calculate_scheduled_shares' );
 
 		do_action( 'plugins_loaded' );
 

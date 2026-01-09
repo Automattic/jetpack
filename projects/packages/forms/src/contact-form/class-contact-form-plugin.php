@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
+use Automattic\Jetpack\Forms\Editor\Form_Editor;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Form_Webhooks;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
@@ -237,29 +238,34 @@ class Contact_Form_Plugin {
 
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor_for_post_type' ), 10, 2 );
 
+		// Restrict feedback comments to logged-in users only
+		add_filter( 'comments_open', array( $this, 'restrict_feedback_comments_to_logged_in' ), 10, 2 );
+
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type(
 			'feedback',
 			array(
-				'labels'                => array(
+				'labels'                 => array(
 					'name'               => __( 'Form Responses', 'jetpack-forms' ),
 					'singular_name'      => __( 'Form Responses', 'jetpack-forms' ),
 					'search_items'       => __( 'Search Responses', 'jetpack-forms' ),
 					'not_found'          => __( 'No responses found', 'jetpack-forms' ),
 					'not_found_in_trash' => __( 'No responses found', 'jetpack-forms' ),
 				),
-				'menu_icon'             => 'dashicons-feedback',
+				'menu_icon'              => 'dashicons-feedback',
 				// when the legacy menu item is retired, we don't want to show the default post type listing
-				'show_ui'               => false,
-				'show_in_menu'          => false,
-				'show_in_admin_bar'     => false,
-				'public'                => false,
-				'rewrite'               => false,
-				'query_var'             => false,
-				'capability_type'       => 'page',
-				'show_in_rest'          => true,
-				'rest_controller_class' => '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint',
-				'capabilities'          => array(
+				'show_ui'                => false,
+				'show_in_menu'           => false,
+				'show_in_admin_bar'      => false,
+				'public'                 => false,
+				'rewrite'                => false,
+				'query_var'              => false,
+				'capability_type'        => 'page',
+				'show_in_rest'           => true,
+				'rest_controller_class'  => '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint',
+				'supports'               => array( 'comments' ),
+				'default_comment_status' => 'open',
+				'capabilities'           => array(
 					'create_posts'        => 'do_not_allow',
 					'publish_posts'       => 'publish_pages',
 					'edit_posts'          => 'edit_pages',
@@ -271,7 +277,7 @@ class Contact_Form_Plugin {
 					'delete_post'         => 'delete_page',
 					'read_post'           => 'read_page',
 				),
-				'map_meta_cap'          => true,
+				'map_meta_cap'           => true,
 			)
 		);
 		add_filter( 'wp_untrash_post_status', array( $this, 'untrash_feedback_status_handler' ), 10, 3 );
@@ -369,6 +375,7 @@ class Contact_Form_Plugin {
 
 		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
 			Contact_Form::register_post_type();
+			Form_Editor::init();
 		}
 	}
 
@@ -3499,6 +3506,29 @@ class Contact_Form_Plugin {
 	 */
 	public function use_block_editor_for_post_type( $can_edit, $post_type ) {
 		return 'feedback' === $post_type ? false : $can_edit;
+	}
+
+	/**
+	 * Restrict comments on feedback posts to logged-in users only.
+	 * Hooks into comment permissions to enforce authentication requirement.
+	 *
+	 * For feedback posts, we override the comment_status field (which we use
+	 * for read/unread tracking) and always allow comments for logged-in users.
+	 *
+	 * @param bool $open    Whether comments are open.
+	 * @param int  $post_id Post ID.
+	 * @return bool Whether comments are open for this post.
+	 */
+	public function restrict_feedback_comments_to_logged_in( $open, $post_id ) {
+		$post = get_post( $post_id );
+
+		if ( ! $post || 'feedback' !== $post->post_type ) {
+			return $open;
+		}
+
+		// For feedback posts, comments are always open for users that can read pages.
+		// regardless of comment_status (which we use for read/unread tracking).
+		return current_user_can( 'edit_pages' );
 	}
 
 	/**
