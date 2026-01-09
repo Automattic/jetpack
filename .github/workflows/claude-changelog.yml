@@ -1,0 +1,79 @@
+name: Claude Changelog Generator
+
+on:
+  workflow_run:
+    workflows: ["Linting"]
+    types:
+      - completed
+
+jobs:
+  generate-changelog:
+    # Only run if linting workflow failed and it was a PR
+    if: |
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+      actions: read
+    steps:
+      - name: Get PR number
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pulls = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:${context.payload.workflow_run.head_branch}`
+            });
+            if (pulls.data.length > 0) {
+              return pulls.data[0].number;
+            }
+            return null;
+          result-encoding: string
+
+      - name: Check if changelog job failed
+        id: check-changelog
+        if: steps.pr.outputs.result != 'null'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const jobs = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id
+            });
+            const changelogJob = jobs.data.jobs.find(job => job.name === 'Changelogger use');
+            if (changelogJob && changelogJob.conclusion === 'failure') {
+              return 'true';
+            }
+            return 'false';
+          result-encoding: string
+
+      - name: Checkout repository
+        if: steps.check-changelog.outputs.result == 'true'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Run Claude to generate changelogs
+        if: steps.check-changelog.outputs.result == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            The PR #${{ steps.pr.outputs.result }} is missing changelog entries.
+
+            Run /jetpack-changelog to create the missing entries, then commit and push.
+
+          additional_permissions: |
+            actions: read
+
+          claude_args: '--allowed-tools "Bash(git:*),Bash(vendor/bin/changelogger:*)"'
