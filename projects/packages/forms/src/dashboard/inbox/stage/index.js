@@ -221,6 +221,10 @@ export default function InboxView() {
 		},
 		[ onChangeView, view ]
 	);
+
+	const onInboxClick = useCallback( () => onChangeStatus( 'inbox' ), [ onChangeStatus ] );
+	const onSpamClick = useCallback( () => onChangeStatus( 'spam' ), [ onChangeStatus ] );
+	const onTrashClick = useCallback( () => onChangeStatus( 'trash' ), [ onChangeStatus ] );
 	const isAkismetStatusPending = useSelect(
 		select => {
 			const store = select( INTEGRATIONS_STORE );
@@ -493,7 +497,6 @@ export default function InboxView() {
 		[
 			filterOptions?.date,
 			filterOptions?.source,
-			isCentralFormManagementEnabled,
 			isMobileViewport,
 			openResponseModal,
 			dateSettings.formats.date,
@@ -623,7 +626,7 @@ export default function InboxView() {
 									size="compact"
 									variant={ 'tertiary' }
 									className={ statusFilter === 'draft,publish' ? 'is-active' : '' }
-									onClick={ () => onChangeStatus( 'inbox' ) }
+									onClick={ onInboxClick }
 								>
 									{ __( 'Status is Inbox', 'jetpack-forms' ) } ({ totalItemsInbox })
 								</Button>
@@ -632,7 +635,7 @@ export default function InboxView() {
 									size="compact"
 									variant={ 'tertiary' }
 									className={ statusFilter === 'spam' ? 'is-active' : '' }
-									onClick={ () => onChangeStatus( 'spam' ) }
+									onClick={ onSpamClick }
 								>
 									{ __( 'Status is Spam', 'jetpack-forms' ) } ({ totalItemsSpam })
 								</Button>
@@ -640,7 +643,7 @@ export default function InboxView() {
 									size="compact"
 									variant={ 'tertiary' }
 									className={ statusFilter === 'trash' ? 'is-active' : '' }
-									onClick={ () => onChangeStatus( 'trash' ) }
+									onClick={ onTrashClick }
 								>
 									{ __( 'Status is Trash', 'jetpack-forms' ) } ({ totalItemsTrash })
 								</Button>
