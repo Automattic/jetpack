@@ -12,12 +12,10 @@ on:
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
-
+    # Only run for Automattic organization members
+    if: |
+      github.event.pull_request.author_association == 'MEMBER' ||
+      github.event.pull_request.author_association == 'OWNER'
     runs-on: ubuntu-latest
     permissions:
       contents: read
