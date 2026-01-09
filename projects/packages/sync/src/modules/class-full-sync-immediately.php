@@ -398,7 +398,7 @@ class Full_Sync_Immediately extends Module {
 		foreach ( $remaining_modules as $module ) {
 			$module_name = $module->name();
 
-			if ( array_key_exists( $module_name, $progress ) && isset( $config[ $module_name ] ) ) {
+			if ( array_key_exists( $module_name, $progress ) && array_key_exists( $module_name, $config ) ) {
 				$progress[ $module_name ] = $module->send_full_sync_actions( $config[ $module_name ], $progress[ $module_name ], $send_until, $started );
 				if ( isset( $progress[ $module_name ]['error'] ) ) {
 					unset( $progress[ $module_name ]['error'] );
