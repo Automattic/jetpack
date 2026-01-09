@@ -68,15 +68,36 @@
 	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 
 	&__chips {
+		display: flex;
 		flex: 1 1 auto;
 		min-width: 0;
+		align-items: center;
+		padding: variables.$grid-unit * 1.5 0;
+		gap: 8px;
+	}
+
+	&__status-chips {
+		gap: 8px;
+		display: flex;
+
+		.components-button {
+			border-radius: 16px;
+			background-color: #e0e0e0;
+			color: #1e1e1e;
+		}
+
+		.components-button.is-active {
+			color: var(--wp-admin-theme-color);
+			background: rgba(var(--wp-admin-theme-color--rgb), 0.04);
+		}
 	}
 
 	&__controls {
 		flex: 0 0 auto;
 	}
 
-	.jp-forms-filters-container {
+	.jp-forms-filters-container,
+	.jp-forms-filters-container:not(:empty) {
 		padding: 0;
 	}
 }
@@ -88,6 +109,11 @@
 	display: flex;
 	flex-direction: column;
 	background-color: var(--wpds-color-bg-surface-neutral-strong, #fff);
+}
+
+.jp-forms-filters-container:not(:empty) {
+	padding-inline: variables.$grid-unit * 2.5;
+	padding-block: variables.$grid-unit * 1.5;
 }
 
 /*
@@ -192,26 +218,4 @@
 
 .jp-forms__inbox__unread {
 	font-weight: 600;
-}
-
-.jp-forms-filters-bar__chips {
-	display: flex;
-	align-items: center;
-	padding: variables.$grid-unit * 1.5 0;
-	gap: 8px;
-}
-
-.jp-forms-filters-bar__status-chips {
-	gap: 8px;
-	display: flex;
-
-	.components-button {
-		border-radius: 16px;
-		background-color: #e0e0e0;
-		color: #1e1e1e;
-	}
-	.components-button.is-active {
-		color: var(--wp-admin-theme-color);
-  		background: rgba(var(--wp-admin-theme-color--rgb), 0.04);
-	}
 }
