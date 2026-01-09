@@ -60,17 +60,16 @@ trustPolicyExclude:
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
 verifyDepsBeforeRun: install
-# TODO: When pnpm 10.26+ is the minimum, consider changing this to `allowBuilds`.
-ignoredBuiltDependencies:
+allowBuilds:
   # Tries to download/install stuff if optional deps weren't installed.
-  - '@swc/core'
-  - esbuild
-  - unrs-resolver
+  '@swc/core': false
+  esbuild: false
+  unrs-resolver: false
   # Attempt to show "remember to install other stuff" spam.
-  - svelte-preprocess
+  svelte-preprocess: false
   # Attempt to show "support me" spam.
-  - core-js
-  - print-this
+  core-js: false
+  print-this: false
 
 # Package compromise avoidance: Block odd protocols in subdeps
 blockExoticSubdeps: true
