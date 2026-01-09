@@ -1086,8 +1086,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 							data-wp-on--click="actions.phoneComboboxToggle"
 							data-wp-bind--aria-expanded="context.comboboxOpen">
 							<span
-								class="jetpack-combobox-selected"
-								data-wp-text="context.selectedCountry.flag"></span>
+								class="jetpack-combobox-selected wp-exclude-emoji"
+								data-wp-watch="callbacks.updateSelectedFlag">&#8203;</span>
 							<span
 								class="jetpack-combobox-trigger-arrow"
 								data-wp-class--is-open="context.comboboxOpen">
@@ -1119,7 +1119,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 										data-wp-key="context.filtered.code"
 										data-wp-class--jetpack-combobox-option-selected="context.filtered.selected"
 										data-wp-on--click="actions.phoneCountryChangeHandler">
-										<span class="jetpack-combobox-option-icon" data-wp-text="context.filtered.flag"></span>
+										<span class="jetpack-combobox-option-icon wp-exclude-emoji" data-wp-watch="callbacks.updateOptionFlag">&#8203;</span>
 										<span class="jetpack-combobox-option-value" data-wp-text="context.filtered.value"></span>
 										<span class="jetpack-combobox-option-description" data-wp-text="context.filtered.country"></span>
 									</div>

@@ -1503,6 +1503,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'pluginAssetsURL'           => Jetpack_Forms::assets_url(),
 			'siteURL'                   => ( new Status() )->get_site_suffix(),
 			'hasFeedback'               => ( new Forms_Dashboard() )->has_feedback(),
+			'isNotesEnabled'            => Forms_Dashboard::is_notes_enabled(),
 			'isIntegrationsEnabled'     => Jetpack_Forms::is_integrations_enabled(),
 			'isWebhooksEnabled'         => Jetpack_Forms::is_webhooks_enabled(),
 			'showDashboardIntegrations' => Jetpack_Forms::show_dashboard_integrations(),

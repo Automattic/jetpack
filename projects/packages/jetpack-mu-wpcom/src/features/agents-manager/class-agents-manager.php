@@ -26,9 +26,9 @@ class Agents_Manager {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'add_inline_script' ), 101 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'add_inline_script' ), 101 );
-		add_action( 'next_admin_init', array( $this, 'add_inline_script' ), 1001 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
+		add_action( 'next_admin_init', array( $this, 'enqueue_scripts' ), 1001 );
 		add_filter( 'agents_manager_use_unified_experience', array( $this, 'should_use_unified_experience' ) );
 	}
 
@@ -142,9 +142,9 @@ class Agents_Manager {
 	}
 
 	/**
-	 * Add inline script data for the Agents Manager.
+	 * Enqueue Agents Manager scripts and add inline script data.
 	 */
-	public function add_inline_script() {
+	public function enqueue_scripts() {
 		if ( $this->should_display_menu_panel() ) {
 			add_action(
 				'admin_bar_menu',
@@ -197,11 +197,20 @@ class Agents_Manager {
 		 */
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
 
-		// For now, we want this added wherever the help-center script is enqueued.
-		// This allows us to be quite blunt here because the logic for whether to inject this is currently
-		// in the help-center script.
+		if ( ! $this->should_enqueue_script() ) {
+			return;
+		}
+
+		if ( $this->is_block_editor() ) {
+			$variant = 'gutenberg';
+		} else {
+			$variant = 'wp-admin';
+		}
+
+		$this->enqueue_script( $variant );
+
 		wp_add_inline_script(
-			'help-center',
+			'agents-manager',
 			'const agentsManagerData = ' . wp_json_encode(
 				array(
 					'agentProviders'       => $agent_providers,
@@ -211,6 +220,107 @@ class Agents_Manager {
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Determine if the agents manager files should be enqueued.
+	 */
+	private function should_enqueue_script() {
+		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
+			return true;
+		}
+
+		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->has_unified_big_sky_flag() ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Enqueue Agents Manager script based on context.
+	 *
+	 * @param string $variant The variant of the asset file to get.
+	 */
+	private function enqueue_script( $variant ) {
+		$cache_key  = 'agents-manager-asset-' . $variant . '.asset.json';
+		$asset_file = get_transient( $cache_key );
+
+		if ( ! $asset_file ) {
+			$asset_file = self::get_assets_json( 'widgets.wp.com/agents-manager/agents-manager-' . $variant . '.asset.json' );
+			if ( ! $asset_file ) {
+				return;
+			}
+			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
+		}
+
+		// When the request is proxied, use a random cache buster as the version for easier debugging.
+		$version = self::is_proxied() ? wp_rand() : $asset_file['version'];
+
+		$script_dependencies = $asset_file['dependencies'] ?? array();
+
+		wp_enqueue_script(
+			'agents-manager',
+			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . '.min.js',
+			$script_dependencies,
+			$version,
+			true
+		);
+
+		wp_enqueue_style(
+			'agents-manager-style',
+			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
+			array(),
+			$version
+		);
+	}
+
+	/**
+	 * Get the asset via file-system on wpcom and via network on Atomic sites.
+	 *
+	 * @param string $filepath The URL to download the asset file from.
+	 * @return array|null The asset file data or null on failure.
+	 */
+	private static function get_assets_json( $filepath ) {
+		$accessible_directly = file_exists( ABSPATH . $filepath );
+
+		if ( $accessible_directly ) {
+			$file_contents = file_get_contents( ABSPATH . $filepath );
+
+			if ( false === $file_contents ) {
+				return null;
+			}
+
+			return json_decode( $file_contents, true );
+		}
+
+		$request = wp_remote_get( 'https://' . $filepath );
+
+		if ( is_wp_error( $request ) ) {
+			return null;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $request );
+		if ( 200 !== $response_code ) {
+			return null;
+		}
+
+		$content_type = wp_remote_retrieve_header( $request, 'content-type' );
+		if ( is_string( $content_type ) && false === strpos( $content_type, 'json' ) ) {
+			return null;
+		}
+
+		$body = wp_remote_retrieve_body( $request );
+		if ( '' === $body ) {
+			return null;
+		}
+
+		$decoded = json_decode( $body, true );
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			return null;
+		}
+
+		return $decoded;
 	}
 
 	/**
@@ -414,6 +524,37 @@ class Agents_Manager {
 		set_transient( $cache_key, $result ? 1 : 0, MINUTE_IN_SECONDS );
 
 		return $result;
+	}
+
+	/**
+	 * Returns true if the current screen is the block editor.
+	 *
+	 * @return bool True if the current screen is the block editor.
+	 */
+	private function is_block_editor() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
+		$current_screen = get_current_screen();
+		// The widgets screen has the block editor but no Gutenberg top bar.
+		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+	}
+
+	/**
+	 * Determine if the user should use unified experience for Big Sky.
+	 */
+	private function has_unified_big_sky_flag() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
+		if ( isset( $_GET['flags'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
+			$flags = explode( ',', sanitize_text_field( wp_unslash( $_GET['flags'] ) ) );
+			if ( in_array( 'unified-big-sky', $flags, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
 

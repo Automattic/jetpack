@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
 import { useModalScreen as useEditTemplateModalScreen } from './edit-template/use-modal-screen';
 import { useModalScreen as useSocialPostPreviewModalScreen } from './social-post-preview/use-modal-screen';
+import styles from './styles.module.scss';
 
 /**
  * Themed Unified Modal component.
@@ -24,7 +25,11 @@ function ThemedUnifiedModal() {
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
-			<NavigatorModal initialPath={ initialPath || '/' } onClose={ onClose }>
+			<NavigatorModal
+				className={ styles[ 'unified-modal' ] }
+				initialPath={ initialPath || '/' }
+				onClose={ onClose }
+			>
 				<NavigatorModal.Screen { ...socialPostPreviewModalScreen } />
 				<NavigatorModal.Screen { ...editTemplateModalScreen } />
 				{ /* Generate with AI screen goes here */ }

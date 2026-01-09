@@ -203,7 +203,6 @@ export function mockScriptData( data = {} ) {
 					social: { version: '1.0.0' },
 					jetpack: { version: '1.0.0' },
 				},
-				shares_data: {},
 				store_initial_state: {},
 				...data.social,
 			},

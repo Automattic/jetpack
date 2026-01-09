@@ -385,6 +385,77 @@ describe( 'Phone Field View', () => {
 	} );
 
 	describe( 'Callbacks', () => {
+		describe( 'Flag text updates', () => {
+			test( 'updateSelectedFlag sets flag by modifying existing text node data', () => {
+				// Create element with existing text node
+				const flagElement = document.createElement( 'span' );
+				flagElement.textContent = '\u200B'; // Zero-width space placeholder
+				mockGetElement.mockReturnValue( { ref: flagElement } );
+				mockContext.selectedCountry = { flag: '🇬🇧' };
+
+				storeConfig.callbacks.updateSelectedFlag();
+
+				// Should modify existing text node's data, not replace textContent
+				expect( flagElement.firstChild.nodeType ).toBe( 3 ); // TEXT_NODE
+				expect( flagElement.firstChild.data ).toBe( '🇬🇧' );
+			} );
+
+			test( 'updateSelectedFlag uses textContent when no text node exists', () => {
+				// Create element without children
+				const flagElement = document.createElement( 'span' );
+				mockGetElement.mockReturnValue( { ref: flagElement } );
+				mockContext.selectedCountry = { flag: '🇫🇷' };
+
+				storeConfig.callbacks.updateSelectedFlag();
+
+				expect( flagElement ).toHaveTextContent( '🇫🇷' );
+			} );
+
+			test( 'updateSelectedFlag handles missing flag gracefully', () => {
+				const flagElement = document.createElement( 'span' );
+				flagElement.textContent = '🇺🇸';
+				mockGetElement.mockReturnValue( { ref: flagElement } );
+				mockContext.selectedCountry = {};
+
+				storeConfig.callbacks.updateSelectedFlag();
+
+				expect( flagElement.firstChild.data ).toBe( '' );
+			} );
+
+			test( 'updateOptionFlag sets flag by modifying existing text node data', () => {
+				const flagElement = document.createElement( 'span' );
+				flagElement.textContent = '\u200B';
+				mockGetElement.mockReturnValue( { ref: flagElement } );
+				mockContext.filtered = { flag: '🇩🇪' };
+
+				storeConfig.callbacks.updateOptionFlag();
+
+				expect( flagElement.firstChild.nodeType ).toBe( 3 );
+				expect( flagElement.firstChild.data ).toBe( '🇩🇪' );
+			} );
+
+			test( 'updateOptionFlag uses textContent when no text node exists', () => {
+				const flagElement = document.createElement( 'span' );
+				mockGetElement.mockReturnValue( { ref: flagElement } );
+				mockContext.filtered = { flag: '🇯🇵' };
+
+				storeConfig.callbacks.updateOptionFlag();
+
+				expect( flagElement ).toHaveTextContent( '🇯🇵' );
+			} );
+
+			test( 'updateOptionFlag handles missing flag gracefully', () => {
+				const flagElement = document.createElement( 'span' );
+				flagElement.textContent = '🇺🇸';
+				mockGetElement.mockReturnValue( { ref: flagElement } );
+				mockContext.filtered = {};
+
+				storeConfig.callbacks.updateOptionFlag();
+
+				expect( flagElement.firstChild.data ).toBe( '' );
+			} );
+		} );
+
 		test( 'registers phone input element', () => {
 			const mockInputElement = document.querySelector( '.jetpack-field__input-element' );
 			mockGetElement.mockReturnValue( { ref: mockInputElement } );

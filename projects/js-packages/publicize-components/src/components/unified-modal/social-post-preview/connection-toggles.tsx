@@ -40,7 +40,7 @@ export function ConnectionToggles( { selectedConnection }: ConnectionTogglesProp
 	return (
 		<div role="group" aria-label={ __( 'Connection toggles', 'jetpack-publicize-components' ) }>
 			{ connections.map( connection => {
-				const isEnabled = canBeTurnedOn( connection ) && connection.enabled;
+				const isEnabled = Boolean( canBeTurnedOn( connection ) && connection.enabled );
 				const isDisabled = shouldBeDisabled( connection );
 				const isSelected = selectedConnection?.connection_id === connection.connection_id;
 

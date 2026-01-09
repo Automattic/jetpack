@@ -1,4 +1,4 @@
-import { store as coreStore } from '@wordpress/core-data';
+import { Attachment, store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -18,11 +18,33 @@ export function useSocialPreviewPostData(): PostData {
 
 	const { getEditedPostAttribute } = useSelect( editorStore, [] );
 
-	const media = useSelect(
-		select => {
-			const { getEntityRecord } = select( coreStore );
+	// Prepare a comma-separated list of media IDs to fetch.
+	const mediaIdsStr = attachedMedia
+		.map( item => item.id )
+		.filter( Boolean )
+		.join( ',' );
 
-			const items = [];
+	// Pre-fetch media items from the store.
+	const mediaItems = useSelect(
+		select => {
+			let items: Array< Attachment >;
+
+			// Avoid fetching if there are no media IDs.
+			if ( mediaIdsStr.length ) {
+				items = select( coreStore ).getEntityRecords( 'postType', 'attachment', {
+					include: mediaIdsStr,
+				} );
+			}
+
+			return items || [];
+		},
+		[ mediaIdsStr ]
+	);
+
+	const media = useMemo(
+		// This is here to avoid mangled diff.
+		() => {
+			const items: PostData[ 'media' ] = [];
 
 			for ( const item of attachedMedia ) {
 				// It can be a SIG (Social Image Generator) image allowed to be attached without an ID.
@@ -34,7 +56,7 @@ export function useSocialPreviewPostData(): PostData {
 					} );
 				} else {
 					// Otherwise, fetch the media details from the store.
-					const mediaItem = getEntityRecord( 'postType', 'attachment', item.id );
+					const mediaItem = mediaItems.find( $item => $item.id === item.id );
 
 					if ( mediaItem ) {
 						items.push( {
@@ -48,7 +70,7 @@ export function useSocialPreviewPostData(): PostData {
 
 			return items;
 		},
-		[ attachedMedia ]
+		[ attachedMedia, mediaItems ]
 	);
 
 	const image = useSelect(
