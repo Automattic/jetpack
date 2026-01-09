@@ -75,6 +75,9 @@ jobs:
       # Whether any auto-updated Phan stub files were changed.
       phanstubs: ${{ steps.filter.outputs.phanstubs == 'true' }}
 
+      # Whether any Phan configuration files were changed.
+      misc_phan: ${{ steps.filter.outputs.misc_phan == 'true' }}
+
     steps:
       - if: github.event_name == 'pull_request'
         uses: actions/checkout@v6
@@ -187,6 +190,12 @@ jobs:
             phanstubs:
               # If auto-generated Phan stub files are changed, we may want to post a warning to the PR.
               - '.phan/stubs/**'
+            misc_phan:
+              # If Phan config or plugins changed, re-run static analysis.
+              - '.phan/**'
+              - '**/phan.config.php'
+              - '**/phan-baseline.php'
+              - 'projects/packages/phan-plugins/**'
 
       - if: github.event_name == 'pull_request'
         id: filterPHP
@@ -658,8 +667,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     # On trunk: runs on all projects
-    # On PRs: runs only if PHP files or relevant config changed
-    if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
+    # On PRs: runs only if PHP files or Phan config changed (not just any misc PHP config)
+    if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
     timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
     steps:
       - uses: actions/checkout@v6
