@@ -2,20 +2,17 @@ name: Claude Code Review
 
 on:
   pull_request:
-    types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+    types: [review_requested]
 
 jobs:
   claude-review:
-    # Only run for Automattic organization members
+    # Only run when 'claude' is requested as a reviewer and requester is an org member
     if: |
-      github.event.pull_request.author_association == 'MEMBER' ||
-      github.event.pull_request.author_association == 'OWNER'
+      github.event.requested_reviewer.login == 'claude' &&
+      (
+        github.event.pull_request.author_association == 'MEMBER' ||
+        github.event.pull_request.author_association == 'OWNER'
+      )
     runs-on: ubuntu-latest
     permissions:
       contents: read
