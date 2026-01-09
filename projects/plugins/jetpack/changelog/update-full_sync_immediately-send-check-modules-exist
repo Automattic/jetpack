@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Tests: Ensure we test for scnearios where modules are added to sync mid-progress.
+Tests: Ensure we test for scenarios where modules are added to sync mid-progress.
