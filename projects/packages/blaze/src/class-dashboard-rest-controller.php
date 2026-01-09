@@ -355,11 +355,23 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
-		if ( $this->are_posts_ready() ) {
-			return $this->get_blaze_posts_from_wpcom( $req, $site_id );
+		$sync_ready = $this->are_posts_ready();
+
+		if ( $sync_ready ) {
+			$response = $this->get_blaze_posts_from_wpcom( $req, $site_id );
+		} else {
+			$response = $this->get_blaze_posts_local( $req );
 		}
 
-		return $this->get_blaze_posts_local( $req );
+		if ( is_wp_error( $response ) || $response instanceof \WP_REST_Response ) {
+			return $response;
+		}
+
+		if ( is_array( $response ) ) {
+			$response['sync_ready'] = $sync_ready;
+		}
+
+		return $response;
 	}
 
 	/**
@@ -676,8 +688,9 @@ class Dashboard_REST_Controller {
 
 		// Transform response to DSP format.
 		return array(
-			'results' => $response['posts'] ?? array(),
-			'total'   => $response['total_items'] ?? 0,
+			'results'    => $response['posts'] ?? array(),
+			'total'      => $response['total_items'] ?? 0,
+			'sync_ready' => $response['sync_ready'] ?? false,
 		);
 	}
 
