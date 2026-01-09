@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Forms: Enhanced SSRF protection by blocking private IP ranges (localhost, RFC1918 networks) in webhook URLs at validation time.

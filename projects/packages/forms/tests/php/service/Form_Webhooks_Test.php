@@ -767,154 +767,102 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 	/**
 	 * Test webhook is blocked when URL points to localhost.
-	 * SSRF protection is handled at request time by wp_safe_remote_request().
+	 * SSRF protection blocks localhost at validation time.
 	 */
 	public function test_send_webhooks_blocks_localhost_urls() {
-		$form   = $this->create_mock_form(
-			array(
-				'webhooks' => array(
-					array(
-						'webhook_id' => 'test-webhook',
-						'url'        => 'https://127.0.0.1/webhook',
-						'format'     => 'json',
-						'method'     => 'POST',
-						'enabled'    => true,
-					),
-				),
-			)
-		);
+		$form   = $this->create_mock_form( $this->create_webhook_config( 'https://127.0.0.1/webhook' ) );
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		// Prevent actual network requests - return WP_Error simulating blocked private IP
-		add_filter(
-			'pre_http_request',
-			function () {
-				return new \WP_Error( 'http_request_not_executed', 'A valid URL was not provided.' );
-			}
-		);
+		$http_request_made = false;
+		$logged_events     = array();
+		$this->setup_tracking( $http_request_made, $logged_events );
 
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// wp_safe_remote_request() blocks private IPs and returns WP_Error, which gets logged
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertNotEmpty( $error_meta, 'Error should be logged for localhost URLs' );
+		$this->assert_webhook_blocked(
+			$http_request_made,
+			$logged_events,
+			'blocked_ip',
+			'HTTP request should not be made for localhost URLs'
+		);
 	}
 
 	/**
 	 * Test webhook is blocked when URL points to private Class A network (10.x.x.x).
-	 * SSRF protection is handled at request time by wp_safe_remote_request().
+	 * SSRF protection blocks private networks at validation time.
 	 */
 	public function test_send_webhooks_blocks_private_class_a_urls() {
-		$form   = $this->create_mock_form(
-			array(
-				'webhooks' => array(
-					array(
-						'webhook_id' => 'test-webhook',
-						'url'        => 'https://10.0.0.1/webhook',
-						'format'     => 'json',
-						'method'     => 'POST',
-						'enabled'    => true,
-					),
-				),
-			)
-		);
+		$form   = $this->create_mock_form( $this->create_webhook_config( 'https://10.0.0.1/webhook' ) );
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		// Prevent actual network requests - return WP_Error simulating blocked private IP
-		add_filter(
-			'pre_http_request',
-			function () {
-				return new \WP_Error( 'http_request_not_executed', 'A valid URL was not provided.' );
-			}
-		);
+		$http_request_made = false;
+		$logged_events     = array();
+		$this->setup_tracking( $http_request_made, $logged_events );
 
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// wp_safe_remote_request() blocks private IPs and returns WP_Error, which gets logged
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertNotEmpty( $error_meta, 'Error should be logged for private Class A URLs' );
+		$this->assert_webhook_blocked(
+			$http_request_made,
+			$logged_events,
+			'blocked_ip',
+			'HTTP request should not be made for private Class A URLs'
+		);
 	}
 
 	/**
 	 * Test webhook is blocked when URL points to private Class B network (172.16-31.x.x).
-	 * SSRF protection is handled at request time by wp_safe_remote_request().
+	 * SSRF protection blocks private networks at validation time.
 	 */
 	public function test_send_webhooks_blocks_private_class_b_urls() {
-		$form   = $this->create_mock_form(
-			array(
-				'webhooks' => array(
-					array(
-						'webhook_id' => 'test-webhook',
-						'url'        => 'https://172.16.0.1/webhook',
-						'format'     => 'json',
-						'method'     => 'POST',
-						'enabled'    => true,
-					),
-				),
-			)
-		);
+		$form   = $this->create_mock_form( $this->create_webhook_config( 'https://172.16.0.1/webhook' ) );
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		// Prevent actual network requests - return WP_Error simulating blocked private IP
-		add_filter(
-			'pre_http_request',
-			function () {
-				return new \WP_Error( 'http_request_not_executed', 'A valid URL was not provided.' );
-			}
-		);
+		$http_request_made = false;
+		$logged_events     = array();
+		$this->setup_tracking( $http_request_made, $logged_events );
 
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// wp_safe_remote_request() blocks private IPs and returns WP_Error, which gets logged
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertNotEmpty( $error_meta, 'Error should be logged for private Class B URLs' );
+		$this->assert_webhook_blocked(
+			$http_request_made,
+			$logged_events,
+			'blocked_ip',
+			'HTTP request should not be made for private Class B URLs'
+		);
 	}
 
 	/**
 	 * Test webhook is blocked when URL points to private Class C network (192.168.x.x).
-	 * SSRF protection is handled at request time by wp_safe_remote_request().
+	 * SSRF protection blocks private networks at validation time.
 	 */
 	public function test_send_webhooks_blocks_private_class_c_urls() {
-		$form   = $this->create_mock_form(
-			array(
-				'webhooks' => array(
-					array(
-						'webhook_id' => 'test-webhook',
-						'url'        => 'https://192.168.1.1/webhook',
-						'format'     => 'json',
-						'method'     => 'POST',
-						'enabled'    => true,
-					),
-				),
-			)
-		);
+		$form   = $this->create_mock_form( $this->create_webhook_config( 'https://192.168.1.1/webhook' ) );
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		// Prevent actual network requests - return WP_Error simulating blocked private IP
-		add_filter(
-			'pre_http_request',
-			function () {
-				return new \WP_Error( 'http_request_not_executed', 'A valid URL was not provided.' );
-			}
-		);
+		$http_request_made = false;
+		$logged_events     = array();
+		$this->setup_tracking( $http_request_made, $logged_events );
 
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// wp_safe_remote_request() blocks private IPs and returns WP_Error, which gets logged
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertNotEmpty( $error_meta, 'Error should be logged for private Class C URLs' );
+		$this->assert_webhook_blocked(
+			$http_request_made,
+			$logged_events,
+			'blocked_ip',
+			'HTTP request should not be made for private Class C URLs'
+		);
 	}
 
 	/**
@@ -1315,63 +1263,26 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 	/**
 	 * Test webhook is blocked when URL uses localhost hostname.
-	 * SSRF protection should block localhost - either at validation (if resolves to 127.0.0.1)
-	 * or at request time via wp_safe_remote_request().
+	 * SSRF protection blocks localhost at validation time when it resolves to 127.0.0.1.
 	 */
 	public function test_send_webhooks_blocks_localhost_hostname() {
-		$form   = $this->create_mock_form(
-			array(
-				'webhooks' => array(
-					array(
-						'webhook_id' => 'test-webhook',
-						'url'        => 'https://localhost/webhook',
-						'format'     => 'json',
-						'method'     => 'POST',
-						'enabled'    => true,
-					),
-				),
-			)
-		);
+		$form   = $this->create_mock_form( $this->create_webhook_config( 'https://localhost/webhook' ) );
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		// Track if HTTP request was made
 		$http_request_made = false;
-		add_filter(
-			'pre_http_request',
-			function () use ( &$http_request_made ) {
-				$http_request_made = true;
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{}',
-					'headers'  => new CaseInsensitiveDictionary( array( 'Content-Type' => 'application/json' ) ),
-				);
-			}
-		);
-
-		$logged_events = array();
-		add_action(
-			'jetpack_forms_log',
-			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
-				$logged_events[] = array(
-					'event'  => $event,
-					'reason' => $reason,
-					'data'   => $data,
-				);
-			},
-			10,
-			3
-		);
+		$logged_events     = array();
+		$this->setup_tracking( $http_request_made, $logged_events );
 
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// localhost should be blocked - either at validation or by wp_safe_remote_request
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertTrue(
-			! $http_request_made || ! empty( $error_meta ) || ! empty( $logged_events ),
-			'localhost hostname should be blocked or fail'
+		$this->assert_webhook_blocked(
+			$http_request_made,
+			$logged_events,
+			'blocked_ip',
+			'HTTP request should not be made for localhost hostname'
 		);
 	}
 
@@ -1662,32 +1573,28 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 	/**
 	 * Test webhook is blocked when URL uses zero-padded IP notation.
-	 * Zero-padded IPs like 127.000.000.001 should resolve to 127.0.0.1.
+	 * Zero-padded IPs like 127.000.000.001 should resolve to 127.0.0.1 and be blocked at validation time.
+	 * PHP's ip2long() handles zero-padded IPs, so 127.000.000.001 becomes 127.0.0.1.
 	 */
 	public function test_send_webhooks_blocks_zero_padded_ip() {
-		$form   = $this->create_mock_form(
-			array(
-				'webhooks' => array(
-					array(
-						'webhook_id' => 'test-webhook',
-						'url'        => 'https://127.000.000.001/webhook',
-						'format'     => 'json',
-						'method'     => 'POST',
-						'enabled'    => true,
-					),
-				),
-			)
-		);
+		$form   = $this->create_mock_form( $this->create_webhook_config( 'https://127.000.000.001/webhook' ) );
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
+		$http_request_made = false;
+		$logged_events     = array();
+		$this->setup_tracking( $http_request_made, $logged_events );
+
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		// Zero-padded localhost should be blocked by wp_safe_remote_request
-		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
-		$this->assertNotEmpty( $error_meta, 'Error should be logged for zero-padded localhost URLs' );
+		$this->assert_webhook_blocked(
+			$http_request_made,
+			$logged_events,
+			'blocked_ip',
+			'HTTP request should not be made for zero-padded localhost URLs'
+		);
 	}
 
 	/**
@@ -1850,6 +1757,79 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		$this->assertTrue( $http_request_made, 'HTTP request should be made for valid public HTTPS URLs' );
+	}
+
+	/**
+	 * Helper method to create a webhook configuration for testing.
+	 *
+	 * @param string $url The webhook URL.
+	 * @param string $format Format (json or urlencoded). Default: json.
+	 * @param string $method HTTP method (POST, GET, PUT). Default: POST.
+	 * @return array Webhook configuration array.
+	 */
+	private function create_webhook_config( $url, $format = 'json', $method = 'POST' ) {
+		return array(
+			'webhooks' => array(
+				array(
+					'webhook_id' => 'test-webhook',
+					'url'        => $url,
+					'format'     => $format,
+					'method'     => $method,
+					'enabled'    => true,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Helper method to set up HTTP request and event tracking.
+	 *
+	 * @param bool  $http_request_made Reference to track if HTTP request was made.
+	 * @param array $logged_events Reference to collect logged events.
+	 */
+	private function setup_tracking( &$http_request_made, &$logged_events ) {
+		$http_request_made = false;
+		$logged_events     = array();
+
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+					'headers'  => new CaseInsensitiveDictionary( array( 'Content-Type' => 'application/json' ) ),
+				);
+			}
+		);
+
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Helper method to assert that a webhook was blocked at validation time.
+	 *
+	 * @param bool   $http_request_made Whether HTTP request was made.
+	 * @param array  $logged_events Array of logged events.
+	 * @param string $expected_reason Expected blocking reason (e.g., 'blocked_ip', 'https_required').
+	 * @param string $message Assertion failure message.
+	 */
+	private function assert_webhook_blocked( $http_request_made, $logged_events, $expected_reason, $message ) {
+		$this->assertFalse( $http_request_made, $message );
+		$this->assertNotEmpty( $logged_events, 'Webhook should be logged as skipped' );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( $expected_reason, $logged_events[0]['reason'] );
 	}
 
 	/**

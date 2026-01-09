@@ -179,12 +179,41 @@ class Form_Webhooks {
 		// Strip IPv6 zone identifier if present (e.g., fe80::1%eth0 -> fe80::1)
 		$ip = preg_replace( '/%.*$/', '', $ip );
 
-		// Check IPv4 link-local addresses (169.254.0.0/16)
-		// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
+		// Check IPv4 addresses for private/internal ranges
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 			$ip_long = ip2long( $ip );
+			if ( $ip_long === false ) {
+				return false;
+			}
+
+			// Block loopback addresses (127.0.0.0/8)
+			// 127.0.0.0/8 = 2130706432 to 2147483647
+			if ( $ip_long >= 2130706432 && $ip_long <= 2147483647 ) {
+				return true;
+			}
+
+			// Block private Class A network (10.0.0.0/8)
+			// 10.0.0.0/8 = 167772160 to 184549375
+			if ( $ip_long >= 167772160 && $ip_long <= 184549375 ) {
+				return true;
+			}
+
+			// Block private Class B network (172.16.0.0/12)
+			// 172.16.0.0/12 = 2886729728 to 2887778303
+			if ( $ip_long >= 2886729728 && $ip_long <= 2887778303 ) {
+				return true;
+			}
+
+			// Block private Class C network (192.168.0.0/16)
+			// 192.168.0.0/16 = 3232235520 to 3232301055
+			if ( $ip_long >= 3232235520 && $ip_long <= 3232301055 ) {
+				return true;
+			}
+
+			// Block IPv4 link-local addresses (169.254.0.0/16)
+			// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
 			// 169.254.0.0/16 = 2851995648 to 2852061183
-			if ( $ip_long !== false && $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
+			if ( $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
 				return true;
 			}
 
