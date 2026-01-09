@@ -5,11 +5,13 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import {
 	BaseControl,
-	Button,
-	ButtonGroup,
 	CheckboxControl,
 	SelectControl,
-	QueryControls as BasicQueryControls
+	QueryControls as BasicQueryControls,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
@@ -20,8 +22,7 @@ import { decodeEntities } from '@wordpress/html-entities';
  */
 import AutocompleteTokenField from './autocomplete-tokenfield';
 
-const getCategoryTitle = category =>
-	decodeEntities( category.name ) || __( '(no title)', 'jetpack-mu-wpcom' );
+const getCategoryTitle = category => decodeEntities( category.name ) || __( '(no title)', 'jetpack-mu-wpcom' );
 
 const getTermTitle = term => decodeEntities( term.name ) || __( '(no title)', 'jetpack-mu-wpcom' );
 
@@ -126,75 +127,69 @@ class QueryControls extends Component {
 		);
 	};
 	fetchSavedCategories = categoryIDs => {
-		return apiFetch({
-			path: addQueryArgs('/wp/v2/categories', {
+		return apiFetch( {
+			path: addQueryArgs( '/wp/v2/categories', {
 				per_page: 100,
 				_fields: 'id,name',
-				include: categoryIDs.join(','),
-			}),
-		}).then(function (categories) {
-			const allCats = categories.map(category => ({
+				include: categoryIDs.join( ',' ),
+			} ),
+		} ).then( function ( categories ) {
+			const allCats = categories.map( category => ( {
 				value: category.id,
-				label:
-					decodeEntities(category.name) ||
-					__('(no title)', 'jetpack-mu-wpcom'),
-			}));
+				label: decodeEntities( category.name ) || __( '(no title)', 'jetpack-mu-wpcom' ),
+			} ) );
 			// Look for categoryIDs that were not returned (deleted categories) and add them to the list.
-			categoryIDs.forEach(catID => {
-				if (!allCats.find(cat => cat.value === parseInt(catID))) {
-					allCats.push({
-						value: parseInt(catID),
-						label: __('Deleted category', 'jetpack-mu-wpcom'),
-					});
+			categoryIDs.forEach( catID => {
+				if ( ! allCats.find( cat => cat.value === parseInt( catID ) ) ) {
+					allCats.push( {
+						value: parseInt( catID ),
+						label: __( 'Deleted category', 'jetpack-mu-wpcom' ),
+					} );
 				}
-			});
+			} );
 			return allCats;
-		});
+		} );
 	};
 
 	fetchTagSuggestions = search => {
-		return apiFetch({
-			path: addQueryArgs('/wp/v2/tags', {
+		return apiFetch( {
+			path: addQueryArgs( '/wp/v2/tags', {
 				search,
 				per_page: 20,
 				_fields: 'id,name',
 				orderby: 'count',
 				order: 'desc',
-			}),
-		}).then(function (tags) {
-			return tags.map(tag => ({
+			} ),
+		} ).then( function ( tags ) {
+			return tags.map( tag => ( {
 				value: tag.id,
-				label:
-					decodeEntities(tag.name) ||
-					__('(no title)', 'jetpack-mu-wpcom'),
-			}));
-		});
+				label: decodeEntities( tag.name ) || __( '(no title)', 'jetpack-mu-wpcom' ),
+			} ) );
+		} );
 	};
 	fetchSavedTags = tagIDs => {
-		return apiFetch({
-			path: addQueryArgs('/wp/v2/tags', {
+		return apiFetch( {
+			path: addQueryArgs( '/wp/v2/tags', {
 				per_page: 100,
 				_fields: 'id,name',
-				include: tagIDs.join(','),
-			}),
-		}).then(function (tags) {
-			const allTags = tags.map(tag => ({
+				include: tagIDs.join( ',' ),
+			} ),
+		} ).then( function ( tags ) {
+			const allTags = tags.map( tag => ( {
 				value: tag.id,
-				label:
-					decodeEntities(tag.name) ||
-					__('(no title)', 'jetpack-mu-wpcom'),
-			}));
+				label: decodeEntities( tag.name ) || __( '(no title)', 'jetpack-mu-wpcom' ),
+			} ) );
 			// Look for tagIDs that were not returned (deleted tags) and add them to the list.
-			tagIDs.forEach(tagID => {
-				if (!allTags.find(tag => tag.value === parseInt(tagID))) {
-					allTags.push({
-						value: parseInt(tagID),
-						label: __('Deleted tag', 'jetpack-mu-wpcom'),
-					});
+			tagIDs.forEach( tagID => {
+				if ( ! allTags.find( tag => tag.value === parseInt( tagID ) ) ) {
+					allTags.push( {
+						value: parseInt( tagID ),
+						label: __( 'Deleted tag', 'jetpack-mu-wpcom' ),
+					} );
 				}
-			});
+			} );
 			return allTags;
-		});
+		} );
 	};
 
 	fetchCustomTaxonomiesSuggestions = ( taxSlug, search ) => {
@@ -284,63 +279,46 @@ class QueryControls extends Component {
 		};
 
 		return (
-            <>
-                { enableSpecific && (
-					<BaseControl
+			<>
+				{ enableSpecific && (
+					<ToggleGroupControl
 						label={ __( 'Mode', 'jetpack-mu-wpcom' ) }
-						id="newspack-block__loop-type"
-						className="newspack-block__button-group"
-						help={ specificMode ? (
-							__( 'The block will display only the specifically selected post(s).', 'jetpack-mu-wpcom' )
-						) : (
-							__(
-                                'The block will display content based on the filtering settings below.',
-                                'jetpack-mu-wpcom',
-                                0
-                            )
-						) }
+						value={ specificMode ? 'specific' : 'dynamic' }
+						onChange={ value => {
+							if ( value === 'specific' ) {
+								onSpecificModeChange();
+							} else {
+								onLoopModeChange();
+							}
+						} }
+						isBlock
+						help={
+							specificMode
+								? __( 'The block will display only the specifically selected content.', 'jetpack-mu-wpcom' )
+								: __( 'The block will display content based on the filtering settings below.', 'jetpack-mu-wpcom' )
+						}
+						__next40pxDefaultSize
 					>
-						<ButtonGroup>
-							<Button
-								variant={ ! specificMode && 'primary' }
-								aria-pressed={ ! specificMode }
-								onClick={ onLoopModeChange }
-							>
-								{ __( 'Dynamic', 'jetpack-mu-wpcom' ) }
-							</Button>
-							<Button
-								variant={ specificMode && 'primary' }
-								aria-pressed={ specificMode }
-								onClick={ onSpecificModeChange }
-							>
-								{ __( 'Static', 'jetpack-mu-wpcom' ) }
-							</Button>
-						</ButtonGroup>
-					</BaseControl>
+						<ToggleGroupControlOption label={ __( 'Dynamic', 'jetpack-mu-wpcom' ) } value="dynamic" />
+						<ToggleGroupControlOption label={ __( 'Static', 'jetpack-mu-wpcom' ) } value="specific" />
+					</ToggleGroupControl>
 				) }
-                { specificMode ? (
+				{ specificMode ? (
 					<AutocompleteTokenField
 						tokens={ specificPosts || [] }
 						onChange={ onSpecificPostsChange }
 						fetchSuggestions={ this.fetchPostSuggestions }
 						fetchSavedInfo={ this.fetchSavedPosts }
-						label={ __( 'Posts', 'jetpack-mu-wpcom' ) }
-						help={ __(
-							'Begin typing any word in a post title. Click on an autocomplete result to select it.',
-							'jetpack-mu-wpcom'
-						) }
+						label={ __( 'Content', 'jetpack-mu-wpcom' ) }
+						help={ __( 'Begin typing any word in a title. Click on an autocomplete result to select it.', 'jetpack-mu-wpcom' ) }
 					/>
 				) : (
 					<>
 						<BasicQueryControls { ...this.props } maxItems={ 30 } />
 						{ onCategoriesChange && (
-							<BaseControl
-								id="newspack-block__category-control"
-							>
+							<BaseControl id="newspack-block__category-control">
 								<div className="components-base-control__label-dropdown">
-									<BaseControl.VisualLabel>
-										{ __( 'Category', 'jetpack-mu-wpcom' ) }
-									</BaseControl.VisualLabel>
+									<BaseControl.VisualLabel>{ __( 'Category', 'jetpack-mu-wpcom' ) }</BaseControl.VisualLabel>
 									<SelectControl
 										size="small"
 										value={ categoryJoinType }
@@ -348,7 +326,7 @@ class QueryControls extends Component {
 											{ label: __( 'is one of', 'jetpack-mu-wpcom' ), value: 'or' },
 											{ label: __( 'is all of', 'jetpack-mu-wpcom' ), value: 'all' },
 										] }
-										onChange={ ( value ) => {
+										onChange={ value => {
 											if ( 'all' === value ) {
 												onIncludeSubcategoriesChange( false );
 											}
@@ -369,7 +347,7 @@ class QueryControls extends Component {
 							<CheckboxControl
 								checked={ includeSubcategories }
 								onChange={ onIncludeSubcategoriesChange }
-								label={ __( 'Include subcategories ', 'jetpack-mu-wpcom' ) }
+								label={ __( 'Include subcategories', 'jetpack-mu-wpcom' ) }
 							/>
 						) }
 						{ onTagsChange && (
@@ -396,16 +374,9 @@ class QueryControls extends Component {
 									key={ index }
 									tokens={ getTermsOfCustomTaxonomy( customTaxonomies, tax.slug ) }
 									onChange={ value => {
-										customTaxonomiesPrepareChange(
-											customTaxonomies,
-											onCustomTaxonomiesChange,
-											tax.slug,
-											value
-										);
+										customTaxonomiesPrepareChange( customTaxonomies, onCustomTaxonomiesChange, tax.slug, value );
 									} }
-									fetchSuggestions={ search =>
-										this.fetchCustomTaxonomiesSuggestions( tax.slug, search )
-									}
+									fetchSuggestions={ search => this.fetchCustomTaxonomiesSuggestions( tax.slug, search ) }
 									fetchSavedInfo={ termIds => this.fetchSavedCustomTaxonomies( tax.slug, termIds ) }
 									label={ tax.label }
 								/>
@@ -433,9 +404,7 @@ class QueryControls extends Component {
 							registeredCustomTaxonomies.map( ( { label, slug } ) => (
 								<AutocompleteTokenField
 									fetchSavedInfo={ termIds => this.fetchSavedCustomTaxonomies( slug, termIds ) }
-									fetchSuggestions={ search =>
-										this.fetchCustomTaxonomiesSuggestions( slug, search )
-									}
+									fetchSuggestions={ search => this.fetchCustomTaxonomiesSuggestions( slug, search ) }
 									key={ `${ slug }-exclusions-selector` }
 									label={ sprintf(
 										// translators: %s is the custom taxonomy label.
@@ -443,20 +412,15 @@ class QueryControls extends Component {
 										label
 									) }
 									onChange={ value =>
-										customTaxonomiesPrepareChange(
-											customTaxonomyExclusions,
-											onCustomTaxonomyExclusionsChange,
-											slug,
-											value
-										)
+										customTaxonomiesPrepareChange( customTaxonomyExclusions, onCustomTaxonomyExclusionsChange, slug, value )
 									}
 									tokens={ getTermsOfCustomTaxonomy( customTaxonomyExclusions, slug ) }
 								/>
 							) ) }
 					</>
 				) }
-            </>
-        );
+			</>
+		);
 	};
 }
 

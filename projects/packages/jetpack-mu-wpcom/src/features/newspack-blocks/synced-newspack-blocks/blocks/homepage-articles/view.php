@@ -214,6 +214,25 @@ function newspack_blocks_get_homepage_articles_css_string( $attrs ) {
 }
 
 /**
+ * Gather all Homepage Articles blocks on the page and output only the needed CSS.
+ */
+function newspack_blocks_enqueue_block_homepage_articles_styles() {
+	global $newspack_blocks_hpb_all_blocks;
+	if ( ! is_array( $newspack_blocks_hpb_all_blocks ) ) {
+		$block_name = apply_filters( 'newspack_blocks_block_name', 'newspack-blocks/homepage-articles' );
+		$newspack_blocks_hpb_all_blocks = newspack_blocks_retrieve_homepage_articles_blocks(
+			parse_blocks( get_the_content() ),
+			$block_name
+		);
+		$all_used_attrs = newspack_blocks_collect_all_attribute_values( array_column( $newspack_blocks_hpb_all_blocks, 'attrs' ) );
+		$css_string = newspack_blocks_get_homepage_articles_css_string( $all_used_attrs );
+		wp_register_style( 'newspack-blocks-homepage-articles-inline', false, [], \NEWSPACK_BLOCKS__VERSION );
+		wp_enqueue_style( 'newspack-blocks-homepage-articles-inline' );
+		wp_add_inline_style( 'newspack-blocks-homepage-articles-inline', $css_string );
+	}
+}
+
+/**
  * Renders the `newspack-blocks/homepage-posts` block on server.
  *
  * @param array $attributes The block attributes.
@@ -232,23 +251,19 @@ function newspack_blocks_render_block_homepage_articles( $attributes ) {
 		return;
 	}
 
-	// Gather all Homepage Articles blocks on the page and output only the needed CSS.
-	// This CSS will be printed along with the first found block markup.
-	global $newspack_blocks_hpb_all_blocks;
-	$inline_style_html = '';
-	if ( ! is_array( $newspack_blocks_hpb_all_blocks ) ) {
-		$newspack_blocks_hpb_all_blocks = newspack_blocks_retrieve_homepage_articles_blocks(
-			parse_blocks( get_the_content() ),
-			$block_name
-		);
-		$all_used_attrs                 = newspack_blocks_collect_all_attribute_values( array_column( $newspack_blocks_hpb_all_blocks, 'attrs' ) );
-		$css_string                     = newspack_blocks_get_homepage_articles_css_string( $all_used_attrs );
-		ob_start();
-		?>
-			<style id="newspack-blocks-inline-css" type="text/css"><?php echo esc_html( $css_string ); ?></style>
-		<?php
-		$inline_style_html = ob_get_clean();
-	}
+	// If the block is rendered in wp_kses_post() call, ensure the `time` tag is allowed.
+	\add_filter(
+		'wp_kses_allowed_html',
+		function( $tags ) {
+			$tags['time'] = [
+				'class'    => true,
+				'datetime' => true,
+			];
+			return $tags;
+		}
+	);
+
+	newspack_blocks_enqueue_block_homepage_articles_styles();
 
 	// This will let the FSE plugin know we need CSS/JS now.
 	do_action( 'newspack_blocks_render_homepage_articles' );
@@ -308,19 +323,6 @@ function newspack_blocks_render_block_homepage_articles( $attributes ) {
 		$styles = 'color: ' . $attributes['customTextColor'] . ';';
 	}
 
-	// Handle custom taxonomies.
-	if ( isset( $attributes['customTaxonomies'] ) ) {
-		$custom_taxes = $attributes['customTaxonomies'];
-		unset( $attributes['customTaxonomies'] );
-		if ( is_array( $custom_taxes ) && ! empty( $custom_taxes ) ) {
-			foreach ( $custom_taxes as $tax ) {
-				if ( ! empty( $tax['slug'] ) && ! empty( $tax['terms'] ) ) {
-					$attributes[ $tax['slug'] ] = $tax['terms'];
-				}
-			}
-		}
-	}
-
 	$articles_rest_url = add_query_arg(
 		array_merge(
 			map_deep(
@@ -362,7 +364,6 @@ function newspack_blocks_render_block_homepage_articles( $attributes ) {
 		class="<?php echo esc_attr( $classes ); ?>"
 		style="<?php echo esc_attr( $styles ); ?>"
 		>
-		<?php echo $inline_style_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		<div data-posts data-current-post-id="<?php the_ID(); ?>">
 			<?php if ( '' !== $attributes['sectionHeader'] ) : ?>
 				<h2 class="article-section-title">
