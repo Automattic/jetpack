@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-inspect",
-	"version": "2.0.0-a.7",
+	"version": "2.0.0-a.9",
 	"private": true,
 	"description": "A debugging plugin to inspect Jetpack interactions with WordPress.com.",
 	"homepage": "https://jetpack.com",

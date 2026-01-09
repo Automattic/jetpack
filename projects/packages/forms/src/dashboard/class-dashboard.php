@@ -90,7 +90,7 @@ class Dashboard {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-api-fetch', 'wp-data', 'wp-core-data', 'wp-dom-ready' ),
+				'dependencies' => array( 'wp-api-fetch', 'wp-data', 'wp-core-data', 'wp-dom-ready', 'wp-dom' ),
 			)
 		);
 
@@ -254,5 +254,22 @@ class Dashboard {
 
 		$screen = get_current_screen();
 		return $screen && $screen->id === 'jetpack_page_jetpack-forms-admin';
+	}
+
+	/**
+	 * Returns true if form notes feature is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_notes_enabled() {
+		/**
+		* Enable form notes feature in Jetpack Forms .
+		*
+		* @module contact-form
+		* @since $$next-version$$
+		*
+		* @param bool $enabled Should the form notes feature be enabled? Defaults to false.
+		*/
+		return apply_filters( 'jetpack_forms_notes_enable', false );
 	}
 }

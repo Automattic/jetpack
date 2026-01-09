@@ -1210,4 +1210,136 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		Utility::destroy_post_context( $current_post );
 	}
+
+	/**
+	 * Test that feedback post type supports comments
+	 */
+	public function test_feedback_post_type_supports_comments() {
+		$this->assertTrue( post_type_supports( 'feedback', 'comments' ), 'Feedback post type should support comments' );
+	}
+
+	/**
+	 * Test that feedback posts have default comment status 'open'
+	 */
+	public function test_feedback_default_comment_status() {
+		$post_type_object = get_post_type_object( 'feedback' );
+		$this->assertEquals( 'open', $post_type_object->default_comment_status, 'Feedback should have default comment status "open"' );
+	}
+
+	/**
+	 * Test that non-logged-in users cannot comment on feedback
+	 */
+	public function test_comments_restricted_to_logged_in_users() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type' => 'feedback',
+			)
+		);
+
+		wp_set_current_user( 0 ); // Log out
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $feedback_id );
+
+		$this->assertFalse( $comments_open, 'Comments should be closed for non-logged-in users on feedback posts' );
+	}
+
+	/**
+	 * Test that logged-in users can comment on feedback
+	 */
+	public function test_logged_in_users_can_comment() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type' => 'feedback',
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser3',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $feedback_id );
+
+		$this->assertTrue( $comments_open, 'Comments should be open for logged-in users on feedback posts' );
+	}
+
+	/**
+	 * Test that logged-in editor can comment even when comment_status is 'closed' (read posts)
+	 */
+	public function test_logged_in_editor_can_comment_on_read_feedback() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'comment_status' => 'closed', // Marked as read
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser2',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		// Pass false to simulate that comment_status is 'closed'
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( false, $feedback_id );
+
+		$this->assertTrue( $comments_open, 'Comments should be open for logged-in users even when feedback is marked as read (comment_status=closed)' );
+	}
+
+	/**
+	 * Test that logged-in subscribers cannot comment even when comment_status is 'closed' (read posts)
+	 */
+	public function test_logged_in_subscriber_cannot_comment_on_read_feedback() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'comment_status' => 'closed', // Marked as read
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser1',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		// Pass false to simulate that comment_status is 'closed'
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( false, $feedback_id );
+
+		$this->assertFalse( $comments_open, 'Comments should be closed for logged-in subscribers when feedback is marked as read (comment_status=closed)' );
+	}
+
+	/**
+	 * Test that filter doesn't affect other post types
+	 */
+	public function test_comment_filter_only_affects_feedback_posts() {
+		$regular_post_id = wp_insert_post(
+			array(
+				'post_type' => 'post',
+			)
+		);
+
+		wp_set_current_user( 0 ); // Log out
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $regular_post_id );
+
+		$this->assertTrue( $comments_open, 'Comment filter should not affect non-feedback posts' );
+	}
 }

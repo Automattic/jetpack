@@ -65,7 +65,6 @@ module.exports = [
 	{
 		...socialWebpackConfig,
 		entry: {
-			'classic-editor-share-limits': './src/js/classic-editor-share-limits.js',
 			'classic-editor-connections': './src/js/classic-editor-connections.js',
 		},
 	},
