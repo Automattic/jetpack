@@ -24,6 +24,25 @@ import type { NewsletterSettings, JetpackNewsletterSettings } from './types';
 import './style.scss';
 
 /**
+ * Normalize settings from API response
+ *
+ * @param {Record<string, unknown>} settings - Raw settings from API
+ * @return {NewsletterSettings} Normalized settings
+ */
+function normalizeSettings( settings: Record< string, unknown > ): NewsletterSettings {
+	return {
+		...( settings as NewsletterSettings ),
+		wpcom_newsletter_categories: ( ( settings.wpcom_newsletter_categories as number[] ) || [] ).map(
+			String
+		),
+		// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1')
+		wpcom_subscription_emails_use_excerpt: String(
+			Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
+		),
+	};
+}
+
+/**
  * Newsletter Settings App
  *
  * @return {JSX.Element | null} The newsletter settings component or null.
@@ -79,18 +98,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		restApi
 			.fetchSettings()
 			.then( ( settings: Record< string, unknown > ) => {
-				// Convert category IDs from numbers to strings
-				const normalizedSettings: NewsletterSettings = {
-					...( settings as NewsletterSettings ),
-					wpcom_newsletter_categories: (
-						( settings.wpcom_newsletter_categories as number[] ) || []
-					).map( String ),
-					// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1')
-					wpcom_subscription_emails_use_excerpt: String(
-						Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
-					),
-				};
-				setData( normalizedSettings );
+				setData( normalizeSettings( settings ) );
 				setIsLoading( false );
 			} )
 			.catch( ( err: Error ) => {
@@ -241,10 +249,20 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 		// Convert categories from strings to numbers for API
 		const apiUpdates: Record< string, unknown > = { ...newsletterCategoriesChanges };
-		if ( apiUpdates.wpcom_newsletter_categories ) {
-			apiUpdates.wpcom_newsletter_categories = (
-				apiUpdates.wpcom_newsletter_categories as string[]
-			 ).map( Number );
+
+		// Only include categories if they exist AND are not empty
+		if (
+			apiUpdates.wpcom_newsletter_categories &&
+			Array.isArray( apiUpdates.wpcom_newsletter_categories )
+		) {
+			if ( ( apiUpdates.wpcom_newsletter_categories as string[] ).length > 0 ) {
+				apiUpdates.wpcom_newsletter_categories = (
+					apiUpdates.wpcom_newsletter_categories as string[]
+				 ).map( Number );
+			} else {
+				// Remove empty categories from the update payload to avoid API error
+				delete apiUpdates.wpcom_newsletter_categories;
+			}
 		}
 
 		restApi
@@ -253,6 +271,20 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				setError( null );
 				setNewsletterCategoriesChanges( {} );
 				setSnackbarMessage( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
+
+				// Re-fetch settings to sync client with server
+				// (backend may not update empty categories)
+				return restApi.fetchSettings();
+			} )
+			.then( ( settings: Record< string, unknown > ) => {
+				// Update client state with server values, preserving unsaved changes in other sections
+				const serverData = normalizeSettings( settings );
+				setData( {
+					...serverData,
+					...subscriptionChanges,
+					...senderNameChanges,
+					...welcomeEmailChanges,
+				} );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -264,7 +296,13 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingNewsletterCategories( false );
 			} );
-	}, [ newsletterCategoriesChanges, data ] );
+	}, [
+		newsletterCategoriesChanges,
+		data,
+		subscriptionChanges,
+		senderNameChanges,
+		welcomeEmailChanges,
+	] );
 
 	// Handle welcome email changes (staged, not auto-saved)
 	const handleWelcomeEmailChange = useCallback(
@@ -406,7 +444,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			/>
 
 			<WelcomeEmailSection
-				data={ { ...data, ...welcomeEmailChanges } }
+				data={ data }
 				onChange={ handleWelcomeEmailChange }
 				onSave={ saveWelcomeEmail }
 				isSaving={ isSavingWelcomeEmail }
