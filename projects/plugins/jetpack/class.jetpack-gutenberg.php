@@ -79,8 +79,9 @@ class Jetpack_Gutenberg {
 	 * @var array Feature slug => minimum WordPress.com plan slug.
 	 */
 	private static $wpcom_minimum_plan_fallbacks = array(
-		'donations'       => 'value_bundle',
-		'payment-buttons' => 'value_bundle',
+		'donations'              => 'value_bundle',
+		'payment-buttons'        => 'value_bundle',
+		'paypal-payment-buttons' => 'value_bundle',
 	);
 
 	/**
