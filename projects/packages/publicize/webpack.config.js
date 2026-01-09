@@ -72,8 +72,8 @@ module.exports = [
 		...socialWebpackConfig,
 		entry: {
 			'social-admin-page': './_inc/entry-points/social-admin-page.tsx',
-			'editor-jetpack-sidebar': './_inc/entry-points/editor-jetpack-sidebar.tsx',
-			'editor-social-sidebar': './_inc/entry-points/editor-social-sidebar.tsx',
+			'block-editor-jetpack': './_inc/entry-points/block-editor-jetpack.tsx',
+			'block-editor-social': './_inc/entry-points/block-editor-social.tsx',
 		},
 	},
 ];
