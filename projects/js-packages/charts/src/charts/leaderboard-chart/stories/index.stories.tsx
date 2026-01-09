@@ -1,4 +1,3 @@
-import { color as d3Color } from '@visx/vendor/d3-color';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -13,7 +12,7 @@ import {
 	themeArgTypes,
 } from '../../../stories';
 import { legendArgTypes } from '../../../stories/legend-config';
-import { formatMetricValue } from '../../../utils';
+import { formatMetricValue, hexToRgba } from '../../../utils';
 import LeaderboardChart from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -335,7 +334,7 @@ const LeaderboardChartWithOverlayLabelImage = ( args: StoryArgs ) => {
 		overrideColor: args.primaryColor,
 	} );
 
-	const primaryColorWithAlpha = d3Color( primaryColor )?.copy( { opacity: 0.08 } ).formatRgb();
+	const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
 
 	return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
 };

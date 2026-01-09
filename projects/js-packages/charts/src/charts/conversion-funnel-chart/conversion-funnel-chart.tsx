@@ -1,6 +1,5 @@
 import { localPoint } from '@visx/event';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
-import { color as d3Color } from '@visx/vendor/d3-color';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback, useContext } from 'react';
 import { usePrefersReducedMotion } from '../../hooks';
@@ -12,7 +11,7 @@ import {
 	useGlobalChartsTheme,
 	useGlobalChartsContext,
 } from '../../providers';
-import { formatPercentage } from '../../utils';
+import { formatPercentage, hexToRgba } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
 import type { FunnelStep, ConversionFunnelChartProps } from './types';
@@ -226,9 +225,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 	// Create light background version of primary color if not set
 	const barBackgroundColor =
-		backgroundColor ||
-		d3Color( barColor )?.copy( { opacity: 0.08 } ).formatRgb() ||
-		'rgba(0, 0, 0, 0.08)';
+		backgroundColor || hexToRgba( barColor, 0.08 ) || 'rgba(0, 0, 0, 0.08)';
 
 	// Default main metric rendering function
 	const renderDefaultMainMetric = () => (

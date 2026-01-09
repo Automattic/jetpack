@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix personal data export search to handle email addresses in all storage formats (legacy, V2, V3) including unicode/emoji characters

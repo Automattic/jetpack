@@ -41,7 +41,8 @@ export function ConnectionsToggleList( {
 			aria-label={ __( 'Connection toggles', 'jetpack-publicize-components' ) }
 		>
 			{ connections.map( connection => {
-				const isSelected = canBeTurnedOn( connection ) && connection.enabled;
+				const isSelected = Boolean( canBeTurnedOn( connection ) && connection.enabled );
+
 				const isDisabled = shouldBeDisabled( connection );
 
 				const ariaLabel = getA11yLabelForConnectionToggle( connection );
@@ -60,7 +61,6 @@ export function ConnectionsToggleList( {
 							/>
 						}
 						iconPosition="right"
-						isSelected={ isSelected }
 						onClick={ onClickConnection( connection ) }
 						aria-label={ ariaLabel }
 						aria-checked={ isSelected }

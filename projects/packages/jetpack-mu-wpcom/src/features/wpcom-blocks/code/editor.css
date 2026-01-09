@@ -32,6 +32,10 @@
 			backdrop-filter: blur(1em);
 		}
 
+		.cm-activeLine {
+			background-color: oklch(from currentColor l c h / 0.06);
+		}
+
 		/* Disable active line highlight on inactive blocks. */
 		&:not(.is-selected) .cm-activeLine {
 			background-color: transparent !important;

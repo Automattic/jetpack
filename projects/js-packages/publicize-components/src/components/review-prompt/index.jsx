@@ -3,11 +3,12 @@
  * Shows in the post publish panel of the editor
  */
 
-import { Button, ThemeProvider } from '@automattic/jetpack-components';
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import styles from './styles.module.scss';
+import style from './styles.module.scss';
 
 const ReviewPrompt = ( { href, onClose } ) => {
 	const { recordEvent } = useAnalytics( {
@@ -27,14 +28,32 @@ const ReviewPrompt = ( { href, onClose } ) => {
 
 	return (
 		<ThemeProvider>
-			<div className={ styles.prompt }>
-				<h2 className={ styles.header }>
-					{ sprintf(
-						/* translators: %s is the celebration emoji */
-						__( 'Presto! %s', 'jetpack-publicize-components' ),
-						String.fromCodePoint( 0x1f389 )
-					) }
-				</h2>
+			<Notice
+				isDismissible={ false }
+				status="info"
+				className={ style.reviewPrompt }
+				actions={ [
+					{
+						variant: 'primary',
+						label: __( 'Leave a Review', 'jetpack-publicize-components' ),
+						url: href,
+						className: 'is-compact',
+						onClick: recordReviewClick,
+					},
+					{
+						variant: 'secondary',
+						label: __( 'Dismiss', 'jetpack-publicize-components' ),
+						noDefaultClasses: true,
+						className: 'is-compact',
+						onClick: handleDismiss,
+					},
+				] }
+			>
+				{ sprintf(
+					/* translators: %s is the celebration emoji */
+					__( 'Presto! %s', 'jetpack-publicize-components' ),
+					String.fromCodePoint( 0x1f389 )
+				) }
 				<p>
 					{ __(
 						'Just like that, Jetpack Social has shared your post to your connected social accounts.',
@@ -47,20 +66,7 @@ const ReviewPrompt = ( { href, onClose } ) => {
 						'jetpack-publicize-components'
 					) }
 				</p>
-				<div className={ styles.buttons }>
-					<Button
-						onClick={ recordReviewClick }
-						isExternalLink
-						href={ href }
-						className={ styles.button }
-					>
-						{ __( 'Leave a Review', 'jetpack-publicize-components' ) }
-					</Button>
-					<Button onClick={ handleDismiss } variant="link" className={ styles.button }>
-						{ __( 'Dismiss', 'jetpack-publicize-components' ) }
-					</Button>
-				</div>
-			</div>
+			</Notice>
 		</ThemeProvider>
 	);
 };

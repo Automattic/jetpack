@@ -52,7 +52,9 @@ class Util {
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-textarea /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Contact Us","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Contact us</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -65,7 +67,9 @@ class Util {
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-consent /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Subscribe","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Subscribe</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -79,7 +83,9 @@ class Util {
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-radio {"label":"Attending?","required":true,"options":["Yes","No"]} /-->
                         <!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send RSVP","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Send RSVP</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -94,7 +100,9 @@ class Util {
                         <!-- wp:jetpack/field-telephone {"label":"Phone Number"} /-->
                         <!-- wp:jetpack/field-select {"label":"How did you hear about us?","options":["Search Engine","Social Media","TV","Radio","Friend or Family"]} /-->
                         <!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Send</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -110,7 +118,9 @@ class Util {
                         <!-- wp:jetpack/field-date {"label":"Date","required":true} /-->
                         <!-- wp:jetpack/field-radio {"label":"Time","required":true,"options":["Morning","Afternoon"]} /-->
                         <!-- wp:jetpack/field-textarea {"label":"Notes"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Book Appointment","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Book Appointment</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -127,7 +137,9 @@ class Util {
 						<!-- wp:jetpack/input-rating /--></div>
 						<!-- /wp:jetpack/field-rating -->
                         <!-- wp:jetpack/field-textarea {"label":"How could we improve?"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send Feedback","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Send Feedback</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -143,7 +155,9 @@ class Util {
 						<!-- wp:jetpack/field-telephone {"label":"Phone","id":"phone"} /-->
 						<!-- wp:jetpack/field-text {"label":"Company","id":"company"} /-->
 						<!-- wp:jetpack/field-text {"label":"Job Title","id":"title"} /-->
-						<!-- wp:jetpack/button {"element":"button","text":"Submit","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Submit</button></div>
+						<!-- /wp:button -->
 					</div>
 					<!-- /wp:jetpack/contact-form -->',
 			),

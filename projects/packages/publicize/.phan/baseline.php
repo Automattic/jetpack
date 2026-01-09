@@ -9,8 +9,8 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginMixedKeyNoKey : 8 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 7 occurrences
+    // PhanPluginMixedKeyNoKey : 7 occurrences
     // PhanPluginUnreachableCode : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
@@ -42,7 +42,6 @@ return [
         'src/rest-api/class-scheduled-actions-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-services-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-share-status-controller.php' => ['PhanPluginMixedKeyNoKey'],
-        'src/rest-api/class-shares-data-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-post-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
