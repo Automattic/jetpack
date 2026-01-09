@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.9.0 - 2026-01-09
+### Added
+- IDC: Add revalidation for IDCs. [#46268]
+- Tested up to WordPress 6.9 [#45571]
+
+### Changed
+- Update dependencies. [#45179]
+- Update package dependencies. [#45173] [#45200] [#45229] [#45298] [#45299] [#45334] [#45478] [#45652] [#45676] [#45756] [#45915] [#45958] [#46143] [#46456]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46117]
+- Jetpack: remove getIconColor functions for block icons. [#45992]
+- My Jetpack: Fix expiring renewal prompt to show all products. [#45995]
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
 ## 0.8.0 - 2025-09-09
 ### Added
 - Add typecheck support for E2E tests. [#44788]
