@@ -833,7 +833,7 @@ class Sharing_Admin {
 }
 
 /**
- * Callback to get the value for the jetpack_sharing_enabled field.
+ * Callback to retrieve the effective sharing status for a post.
  *
  * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
  * When it is set to 1, we disable sharing on the post, regardless of the global setting.
