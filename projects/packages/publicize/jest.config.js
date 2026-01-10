@@ -17,4 +17,8 @@ module.exports = {
 			'jetpack-js-tools/jest/jest-extensions-asset-stub.js'
 		),
 	},
+	collectCoverageFrom: [
+		'<rootDir>/_inc/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
+		...baseConfig.collectCoverageFrom,
+	],
 };
