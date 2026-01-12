@@ -134,9 +134,9 @@ class Jetpack_Forms {
 		/**
 		 * Whether to enable webhooks for Jetpack Forms.
 		 *
-		 * @param bool false Whether webhooks should be enabled. Default false.
+		 * @param bool true Whether webhooks should be enabled. Default true.
 		 */
-		return apply_filters( 'jetpack_forms_webhooks_enabled', false );
+		return apply_filters( 'jetpack_forms_webhooks_enabled', true );
 	}
 
 	/**

@@ -3868,10 +3868,10 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test is_webhooks_enabled returns false by default.
+	 * Test is_webhooks_enabled returns true by default.
 	 */
 	public function test_is_webhooks_enabled_default() {
-		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+		$this->assertTrue( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
 	}
 
 	/**
