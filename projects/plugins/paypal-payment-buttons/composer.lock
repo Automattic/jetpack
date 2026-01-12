@@ -266,7 +266,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "f8f199744984370c00d7e2db7bce59c992958706"
+                "reference": "34625c73a31fc7c9566591dc38d4ec3ef18c78b1"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -290,7 +290,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 }
             },
             "autoload": {
@@ -526,7 +526,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/paypal-payments",
-                "reference": "f0368a2fca675efe3c32941fde51c2e09d5144c8"
+                "reference": "5af5904fb3d10552952f8e009c6d1efe6371a85d"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -549,7 +549,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-paypal-payments/compare/v${old}...v${new}"
