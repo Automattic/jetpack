@@ -41,10 +41,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						{ __( 'Forms', 'jetpack-forms' ) }
 					</div>
 				}
-				subTitle={ __(
-					'View and manage all your forms in one place.',
-					'jetpack-forms'
-				) }
+				subTitle={ __( 'View and manage all your forms in one place.', 'jetpack-forms' ) }
 				tabs={ <FormsResponsesTabs /> }
 				hasPadding={ false }
 			>
