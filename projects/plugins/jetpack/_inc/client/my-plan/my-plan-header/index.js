@@ -595,7 +595,7 @@ class MyPlanHeader extends Component {
 
 						{ 'footer' === position && (
 							<Button
-								href={ siteAdminUrl + 'admin.php?page=my-jetpack#/recommendations' }
+								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 								onClick={ this.trackRecommendationsClick }
 								primary
 								rna

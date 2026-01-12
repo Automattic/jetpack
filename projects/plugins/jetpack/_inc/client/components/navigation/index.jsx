@@ -71,7 +71,7 @@ export class Navigation extends Component {
 
 	render() {
 		let navTabs;
-		const redirectUri = `redirect_to=${ this.props.adminUrl }admin.php?page=my-jetpack`;
+		const redirectUri = `redirect_to=${ this.props.adminUrl }admin.php?page=jetpack`;
 		const purchaseToken = this.props.purchaseToken
 			? `&purchasetoken=${ this.props.purchaseToken }`
 			: '';

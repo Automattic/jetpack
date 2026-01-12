@@ -36,7 +36,7 @@ const PrimaryLink = props => {
 				href={
 					siteAdminUrl +
 					( isJetpackActive
-						? 'admin.php?page=my-jetpack#/recommendations/' +
+						? 'admin.php?page=jetpack#/recommendations/' +
 						  ( productGroup === 'jetpack_social_advanced'
 								? 'welcome-social-advanced'
 								: 'welcome-social-basic' )
@@ -64,7 +64,7 @@ const PrimaryLink = props => {
 		return (
 			<Button
 				className="jp-license-activation-screen-success-info--button"
-				href={ siteAdminUrl + 'admin.php?page=my-jetpack#/recommendations' }
+				href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 			>
 				{ __( 'Configure my site', 'jetpack-licensing' ) }
 			</Button>

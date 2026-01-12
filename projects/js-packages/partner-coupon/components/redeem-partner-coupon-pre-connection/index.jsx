@@ -55,7 +55,7 @@ const RedeemPartnerCouponPreConnection = props => {
 					__( 'Set up & redeem %s', 'jetpack-partner-coupon' ),
 					partnerCoupon.product.title
 				) }
-				redirectUri={ `admin.php?page=my-jetpack&partnerCoupon=${ partnerCoupon.coupon_code }` }
+				redirectUri={ `admin.php?page=jetpack&partnerCoupon=${ partnerCoupon.coupon_code }` }
 				connectionStatus={ connectionStatus }
 			>
 				<p>
