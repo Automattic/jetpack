@@ -42,6 +42,15 @@ class Dashboard {
 	const ADMIN_SLUG = 'jetpack-forms-admin';
 
 	/**
+	 * Slug for the wp-admin integrated Responses UI (wp-build page).
+	 *
+	 * Note: This must be a valid submenu slug (sanitize_key compatible), not a full URL.
+	 *
+	 * @var string
+	 */
+	const FORMS_WPBUILD_ADMIN_SLUG = 'jetpack-forms-responses-wp-admin';
+
+	/**
 	 * Priority for the dashboard menu.
 	 * Needs to be high enough for us to be able to unregister the default edit.php menu item.
 	 *
@@ -63,7 +72,7 @@ class Dashboard {
 		add_action( 'admin_menu', array( $this, 'add_new_admin_submenu' ), self::MENU_PRIORITY );
 
 		if ( $is_wp_build_enabled ) {
-			add_action( 'admin_menu', array( $this, 'add_forms2_submenu' ), self::MENU_PRIORITY );
+			add_action( 'admin_menu', array( $this, 'add_forms_wpbuild_submenu' ), self::MENU_PRIORITY );
 		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
@@ -167,17 +176,19 @@ class Dashboard {
 	}
 
 	/**
-	 * Register Forms2 submenu under Jetpack menu using wp-build page.
+	 * Register Forms (WP-Build) submenu under Jetpack menu using wp-build page.
 	 */
-	public function add_forms2_submenu() {
-		$url = admin_url( 'admin.php?page=jetpack-forms-responses-wp-admin&p=' . rawurlencode( '/responses/inbox' ) );
+	public function add_forms_wpbuild_submenu() {
+		$callback = function_exists( 'jetpack_forms_responses_wp_admin_render_page' )
+			? 'jetpack_forms_responses_wp_admin_render_page'
+			: array( $this, 'render_dashboard' );
 
 		Admin_Menu::add_menu(
-			'Forms2',
-			'Forms2',
+			'Jetpack Forms',
+			'Forms (WP-Build)',
 			'edit_pages',
-			$url,
-			null,
+			self::FORMS_WPBUILD_ADMIN_SLUG,
+			$callback,
 			11
 		);
 	}
@@ -266,7 +277,7 @@ class Dashboard {
 		* Enable form notes feature in Jetpack Forms .
 		*
 		* @module contact-form
-		* @since $$next-version$$
+		* @since 7.3.0
 		*
 		* @param bool $enabled Should the form notes feature be enabled? Defaults to false.
 		*/

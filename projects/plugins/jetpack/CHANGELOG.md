@@ -2,6 +2,24 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.5-a.1 - 2026-01-12
+### Enhancements
+- Forms: Add form editor. [#46444]
+- Forms: Allow merging two options together with backspace. [#46507]
+- IDC: Add revalidation of IDC. [#46268]
+
+### Bug fixes
+- AI Search: Prevent AI Search from disappearing when returning certain responses. [#46476]
+- Forms: Fix date exports. [#46445]
+- UI: Prevent social modals in editor from stretching too wide on large screens. [#46400]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Comments API: Use end-user's IP-address for JSON API requests. [#46494]
+- Gate donations block behind conditional features. [#46499]
+- Gate payment buttons block behind conditional features. [#46513]
+- Gate PayPal payment buttons block behind conditional features. [#46536]
+- Update dependencies. [#46467] [#46489] [#46456] [#46512]
+
 ## 15.4 - 2026-01-06
 ### Enhancements
 - External media: Add replace flow support. [#45841]
