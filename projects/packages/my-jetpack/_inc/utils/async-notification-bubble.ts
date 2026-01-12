@@ -16,7 +16,7 @@ apiFetch< AlertsResponse >( {
 	method: 'POST',
 } )
 	.then( alerts => {
-		const count = Object.values( alerts ).filter( a => ! a.is_silent ).length;
+		const count = Object.values( alerts || {} ).filter( a => ! a.is_silent ).length;
 		const menuItem = document.querySelector( '#toplevel_page_jetpack .wp-menu-name' );
 
 		if ( ! menuItem ) {
