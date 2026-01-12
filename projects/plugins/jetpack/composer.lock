@@ -614,7 +614,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blocks",
-				"reference": "0ae23297e14df2ee846b31f6331cf1a3f3c40363"
+				"reference": "f8f199744984370c00d7e2db7bce59c992958706"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -638,7 +638,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.1.x-dev"
+					"dev-trunk": "3.2.x-dev"
 				}
 			},
 			"autoload": {
@@ -792,10 +792,11 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "245b0788ebc25d34c567b3918f2262f9dddc3b6b"
+				"reference": "f845c60c1f7aa13f5b66b488712dcdd816ad19db"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-blocks": "@dev",
 				"php": ">=7.2"
 			},
 			"require-dev": {
@@ -1027,7 +1028,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "f2bf3fcef034009a61977b928d7f144e8a2e5551"
+				"reference": "49e680704ce5f0d9d25b596ff82e3b5a2a164ae0"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1063,7 +1064,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.19.x-dev"
+					"dev-trunk": "6.20.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1490,7 +1491,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "aa5b9a013a3d1b4f39d136e6699df930a68c011e"
+				"reference": "c0cfc2e7832c5385f49fd07141ecb47c252ef531"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1525,7 +1526,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "7.1.x-dev"
+					"dev-trunk": "7.2.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -3498,7 +3499,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/woocommerce-analytics",
-				"reference": "fb8bcf0334e3554fb4fadbfaf07cd818dc5140a7"
+				"reference": "2d860201575459f72ce71798f89572fc0e4310bf"
 			},
 			"require": {
 				"automattic/block-delimiter": "@dev",
@@ -3510,6 +3511,7 @@
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
+				"automattic/jetpack-test-environment": "@dev",
 				"automattic/phpunit-select-config": "@dev",
 				"yoast/phpunit-polyfills": "^4.0.0"
 			},

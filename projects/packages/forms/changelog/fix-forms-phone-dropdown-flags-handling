@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: change how phone combobox handles flag changes, bypassing wpemoji MutationObserver

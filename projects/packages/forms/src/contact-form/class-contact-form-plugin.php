@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
+use Automattic\Jetpack\Forms\Editor\Form_Editor;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Form_Webhooks;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
@@ -237,29 +238,34 @@ class Contact_Form_Plugin {
 
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor_for_post_type' ), 10, 2 );
 
+		// Restrict feedback comments to logged-in users only
+		add_filter( 'comments_open', array( $this, 'restrict_feedback_comments_to_logged_in' ), 10, 2 );
+
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type(
 			'feedback',
 			array(
-				'labels'                => array(
+				'labels'                 => array(
 					'name'               => __( 'Form Responses', 'jetpack-forms' ),
 					'singular_name'      => __( 'Form Responses', 'jetpack-forms' ),
 					'search_items'       => __( 'Search Responses', 'jetpack-forms' ),
 					'not_found'          => __( 'No responses found', 'jetpack-forms' ),
 					'not_found_in_trash' => __( 'No responses found', 'jetpack-forms' ),
 				),
-				'menu_icon'             => 'dashicons-feedback',
+				'menu_icon'              => 'dashicons-feedback',
 				// when the legacy menu item is retired, we don't want to show the default post type listing
-				'show_ui'               => false,
-				'show_in_menu'          => false,
-				'show_in_admin_bar'     => false,
-				'public'                => false,
-				'rewrite'               => false,
-				'query_var'             => false,
-				'capability_type'       => 'page',
-				'show_in_rest'          => true,
-				'rest_controller_class' => '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint',
-				'capabilities'          => array(
+				'show_ui'                => false,
+				'show_in_menu'           => false,
+				'show_in_admin_bar'      => false,
+				'public'                 => false,
+				'rewrite'                => false,
+				'query_var'              => false,
+				'capability_type'        => 'page',
+				'show_in_rest'           => true,
+				'rest_controller_class'  => '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint',
+				'supports'               => array( 'comments' ),
+				'default_comment_status' => 'open',
+				'capabilities'           => array(
 					'create_posts'        => 'do_not_allow',
 					'publish_posts'       => 'publish_pages',
 					'edit_posts'          => 'edit_pages',
@@ -271,7 +277,7 @@ class Contact_Form_Plugin {
 					'delete_post'         => 'delete_page',
 					'read_post'           => 'read_page',
 				),
-				'map_meta_cap'          => true,
+				'map_meta_cap'           => true,
 			)
 		);
 		add_filter( 'wp_untrash_post_status', array( $this, 'untrash_feedback_status_handler' ), 10, 3 );
@@ -369,6 +375,7 @@ class Contact_Form_Plugin {
 
 		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
 			Contact_Form::register_post_type();
+			Form_Editor::init();
 		}
 	}
 
@@ -2612,12 +2619,12 @@ class Contact_Form_Plugin {
 
 			$post_export_data[] = array(
 				'name'  => __( 'IP Address', 'jetpack-forms' ),
-				'value' => $feedback->get_ip_address(),
+				'value' => $feedback->get_ip_address() ?? '',
 			);
 
 			$post_export_data[] = array(
 				'name'  => __( 'Country code', 'jetpack-forms' ),
-				'value' => $feedback->get_country_code(),
+				'value' => $feedback->get_country_code() ?? '',
 			);
 
 			$export_data[] = array(
@@ -2742,7 +2749,7 @@ class Contact_Form_Plugin {
 		add_filter( 'posts_search', array( $this, 'personal_data_search_filter' ) );
 
 		$this->pde_last_post_id_erased = $last_post_id;
-		$this->pde_email_address       = $email;
+		$this->set_pde_email_address( $email );
 
 		$post_ids = get_posts(
 			array(
@@ -2769,6 +2776,18 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Sets the email address to filter searches by.
+	 * Helper for tests.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  string $email Email address.
+	 */
+	public function set_pde_email_address( $email ) {
+		$this->pde_email_address = $email;
+	}
+
+	/**
 	 * Filters searches by email address.
 	 *
 	 * @since 6.1.1
@@ -2781,18 +2800,51 @@ class Contact_Form_Plugin {
 		global $wpdb;
 
 		/*
-		 * Limits search to `post_content` only, and we only match the
-		 * author's email address whenever it's on a line by itself.
+		 * Searches for email addresses in feedback post_content across all storage formats:
+		 * - Legacy format: AUTHOR EMAIL on its own line
+		 * - V2/V3 format: JSON with email in field values
 		 */
 		if ( $this->pde_email_address && str_contains( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
-			$search = (string) $wpdb->prepare(
-				" AND (
-					{$wpdb->posts}.post_content LIKE %s
-					OR {$wpdb->posts}.post_content LIKE %s
-				)",
-				// `chr( 10 )` = `\n`, `chr( 13 )` = `\r` - Keeping this in case someone needs it for reference.
+			// Build search patterns for all formats
+			$patterns = array(
+				// Pattern 1 & 2: Legacy format - AUTHOR EMAIL on its own line
+				// `chr( 10 )` = `\n`, `chr( 13 )` = `\r`
 				'%' . $wpdb->esc_like( chr( 10 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 10 ) ) . '%',
-				'%' . $wpdb->esc_like( chr( 13 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 13 ) ) . '%'
+				'%' . $wpdb->esc_like( chr( 13 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 13 ) ) . '%',
+
+				// Pattern 3 & 4: V2/V3 format - JSON field value with escaped quotes
+				// Handles both storage variants:
+				// - Pattern 3: double-escaped quotes (e.g. stored as \"value\":\" in JSON-encoded content).
+				// - Pattern 4: single-escaped quotes (e.g. stored as "value":" after one level of unescaping).
+				'%\\"value\\":\\"' . $wpdb->esc_like( $this->pde_email_address ) . '%',
+				'%\"value\":\"' . $wpdb->esc_like( $this->pde_email_address ) . '%',
+			);
+
+			// V2 has a bug where emojis become malformed: 🎉 becomes ud83cudf89 instead of \ud83c\udf89.
+			// Here we deliberately reproduce that corruption so we can still match feedback saved by V2:
+			// - wp_json_encode( '🎉' ) produces the JSON string "\"\ud83c\udf89\"" (note the backslashes).
+			// - trim( ..., '"' ) removes the surrounding JSON quotes, giving "\ud83c\udf89".
+			// - stripslashes() then removes the backslashes from the escape sequence, yielding "ud83cudf89",
+			// which is exactly how V2 stored the corrupted value in post_content.
+			// If the email contains unicode, also search for the V2 corrupted version generated this way.
+			$v2_corrupted_email = stripslashes( trim( wp_json_encode( $this->pde_email_address, JSON_UNESCAPED_SLASHES ), '"' ) );
+			if ( $v2_corrupted_email !== $this->pde_email_address ) {
+				// Email contains unicode - add pattern for V2's corrupted format.
+				$patterns[] = '%\"value\":\"' . $wpdb->esc_like( $v2_corrupted_email ) . '%';
+			}
+
+			// Build SQL with all patterns
+			$placeholders = implode( ' OR ', array_fill( 0, count( $patterns ), "{$wpdb->posts}.post_content LIKE %s" ) );
+
+			// Validate that the number of placeholders matches the number of pattern values
+			$placeholder_count = substr_count( $placeholders, '%s' );
+			if ( $placeholder_count !== count( $patterns ) ) {
+				return $search;
+			}
+
+			$search = (string) $wpdb->prepare(
+				' AND ( ' . $placeholders . ' )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				...$patterns
 			);
 
 			if ( $this->pde_last_post_id_erased ) {
@@ -2980,9 +3032,10 @@ class Contact_Form_Plugin {
 		if ( ! empty( $_POST['after'] ) && ! empty( $_POST['before'] ) ) {
 			$before = strtotime( sanitize_text_field( wp_unslash( $_POST['before'] ) ) );
 			$after  = strtotime( sanitize_text_field( wp_unslash( $_POST['after'] ) ) );
-			if ( $before && $after && $before < $after ) {
-				$args['date_query']['after']  = $after;
-				$args['date_query']['before'] = $before;
+			if ( $before && $after && $after < $before ) {
+				// date_query expects date strings/arrays, not timestamps.
+				$args['date_query']['after']  = gmdate( 'Y-m-d H:i:s', $after );
+				$args['date_query']['before'] = gmdate( 'Y-m-d H:i:s', $before );
 			}
 		}
 
@@ -3453,6 +3506,29 @@ class Contact_Form_Plugin {
 	 */
 	public function use_block_editor_for_post_type( $can_edit, $post_type ) {
 		return 'feedback' === $post_type ? false : $can_edit;
+	}
+
+	/**
+	 * Restrict comments on feedback posts to logged-in users only.
+	 * Hooks into comment permissions to enforce authentication requirement.
+	 *
+	 * For feedback posts, we override the comment_status field (which we use
+	 * for read/unread tracking) and always allow comments for logged-in users.
+	 *
+	 * @param bool $open    Whether comments are open.
+	 * @param int  $post_id Post ID.
+	 * @return bool Whether comments are open for this post.
+	 */
+	public function restrict_feedback_comments_to_logged_in( $open, $post_id ) {
+		$post = get_post( $post_id );
+
+		if ( ! $post || 'feedback' !== $post->post_type ) {
+			return $open;
+		}
+
+		// For feedback posts, comments are always open for users that can read pages.
+		// regardless of comment_status (which we use for read/unread tracking).
+		return current_user_can( 'edit_pages' );
 	}
 
 	/**

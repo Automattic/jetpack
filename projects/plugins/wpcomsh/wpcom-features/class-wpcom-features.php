@@ -450,6 +450,8 @@ class WPCOM_Features {
 	public const OPENTABLE                         = 'opentable';
 	public const OPTIONS_PERMALINK                 = 'options-permalink';
 	public const PAYMENTS                          = 'payments';
+	public const PAYMENT_BUTTONS                   = 'payment-buttons';
+	public const PAYPAL_PAYMENT_BUTTONS            = 'paypal-payment-buttons';
 	public const PERFORMANCE                       = 'performance';
 	public const PERFORMANCE_HISTORY               = 'performance-history';
 	public const POLLDADDY                         = 'polldaddy';
@@ -731,7 +733,15 @@ class WPCOM_Features {
 			self::WOO_HOSTED_PLANS,
 		),
 		self::DONATIONS                         => array(
-			self::WPCOM_ALL_SITES,
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_ALL_SITES,
+			),
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			),
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
 		// ECOMMERCE_MANAGED_PLUGINS - Can install the plugin bundle that comes with eCommerce plans.
@@ -1023,6 +1033,22 @@ class WPCOM_Features {
 			),
 			self::WPCOM_STARTER_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+		),
+		self::PAYMENT_BUTTONS                   => array(
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_ALL_SITES,
+			),
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
+		),
+		self::PAYPAL_PAYMENT_BUTTONS            => array(
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_ALL_SITES,
+			),
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
 		self::PERFORMANCE                       => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,

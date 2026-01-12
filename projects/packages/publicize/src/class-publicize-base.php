@@ -275,7 +275,7 @@ abstract class Publicize_Base {
 	/**
 	 * Whether the site has the feature flag enabled.
 	 *
-	 * @deprecated $$next-version$$ Use Current_Plan::supports() directly instead.
+	 * @deprecated 0.69.1 Use Current_Plan::supports() directly instead.
 	 *
 	 * @todo Remove this method After March 2026.
 	 *
@@ -1861,24 +1861,6 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Get the Publicize shares info.
-	 *
-	 * This function is overwritten in class-publicize-wpcom.php
-	 *
-	 * @param int $blog_id The WPCOM blog_id for the current blog.
-	 * @return ?array
-	 */
-	public function get_publicize_shares_info( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$shares_info = get_transient( 'jetpack_publicize_shares_info' );
-
-		if ( ! empty( $shares_info ) ) {
-			return $shares_info;
-		}
-
-		return null;
-	}
-
-	/**
 	 * Check if enhanced publishing is enabled.
 	 *
 	 * @deprecated $$next-version use Automattic\Jetpack\Publicize\Publicize_Base\has_enhanced_publishing_feature instead.
@@ -1964,26 +1946,6 @@ abstract class Publicize_Base {
 		}
 
 		return $additional_connections;
-	}
-
-	/**
-	 * Call the WPCOM REST API to calculate the scheduled shares.
-	 *
-	 * @param string $blog_id The blog_id.
-	 */
-	public function calculate_scheduled_shares( $blog_id ) {
-		$response        = Client::wpcom_json_api_request_as_blog(
-			sprintf( 'sites/%d/jetpack-social/count-scheduled-shares', absint( $blog_id ) ),
-			'2',
-			array(
-				'headers' => array( 'content-type' => 'application/json' ),
-				'method'  => 'GET',
-			),
-			null,
-			'wpcom'
-		);
-		$rest_controller = new REST_Controller();
-		return $rest_controller->make_proper_response( $response );
 	}
 
 	/**

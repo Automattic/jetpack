@@ -69,6 +69,22 @@ class Jetpack_Gutenberg {
 	);
 
 	/**
+	 * Fallback minimum plan requirements for WordPress.com/Atomic sites.
+	 *
+	 * Used when features have conditional availability (e.g., sticker-based gating)
+	 * and don't appear in features_data['available']. This only affects the upsell
+	 * message shown to users.
+	 *
+	 * @since $$next-version$$
+	 * @var array Feature slug => minimum WordPress.com plan slug.
+	 */
+	private static $wpcom_minimum_plan_fallbacks = array(
+		'donations'              => 'value_bundle',
+		'payment-buttons'        => 'value_bundle',
+		'paypal-payment-buttons' => 'value_bundle',
+	);
+
+	/**
 	 * Storing the contents of the preset file.
 	 *
 	 * Already been json_decode.
@@ -1267,6 +1283,10 @@ class Jetpack_Gutenberg {
 
 			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
+			} elseif ( isset( self::$wpcom_minimum_plan_fallbacks[ $slug ] ) ) {
+				// Fallback for features with conditional availability (e.g., sticker-based gating)
+				// that don't appear in features_data['available'].
+				$plan = self::$wpcom_minimum_plan_fallbacks[ $slug ];
 			}
 		} else {
 			// Jetpack sites.
