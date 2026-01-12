@@ -36,7 +36,7 @@
 		"@babel/core": "7.28.4",
 		"@babel/plugin-transform-react-jsx": "7.27.1",
 		"@babel/preset-react": "7.27.1",
-		"sass-embedded": "1.87.0",
+		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
 		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"
