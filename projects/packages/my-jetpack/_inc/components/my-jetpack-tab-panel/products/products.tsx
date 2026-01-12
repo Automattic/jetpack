@@ -109,17 +109,16 @@ const ProductsContent = ( {
 export const Products = () => {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const filterParam = searchParams.get( 'filter' );
-	const initialFilter = isValidFilter( filterParam ) ? filterParam : 'all';
+	const selectedFilter: ProductFilter = isValidFilter( filterParam ) ? filterParam : 'all';
 
-	const [ selectedFilter, setSelectedFilter ] = useState< ProductFilter >( initialFilter );
 	const [ search, setSearch ] = useState< string >( '' );
 
 	// Update URL when filter changes
 	const handleSetSelectedFilter = useCallback(
 		( filter: ProductFilter ) => {
-			setSelectedFilter( filter );
-			searchParams.set( 'filter', filter );
-			setSearchParams( searchParams, { replace: true } );
+			const newSearchParams = new URLSearchParams( searchParams );
+			newSearchParams.set( 'filter', filter );
+			setSearchParams( newSearchParams, { replace: true } );
 		},
 		[ searchParams, setSearchParams ]
 	);
