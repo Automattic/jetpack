@@ -40,7 +40,7 @@ apiFetch< AlertsResponse >( {
 			bubble.remove();
 		}
 	} )
-	.catch( () => {
-		// Silent failure - red bubble notification is non-critical.
-		// Cache will be populated on next My Jetpack page visit.
+	.catch( error => {
+		// eslint-disable-next-line no-console
+		console.log( 'Red bubble notification fetch failed:', error );
 	} );
