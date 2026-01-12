@@ -5,13 +5,14 @@
 .wp-block-jetpack-contact-form-is-layout-flex {
 
 	&.is-horizontal {
-		// without vertical alignment working, we'll enforce flex-start on
-		//fields and flex-end on buttons.
-		align-items: flex-start;
+		// Ignore the wrap setting and use flex-flow to control the layout.
+		// In the end this is what we want as our form layout doesn't really
+		// follow flexbox rules.
+		flex-flow: row wrap;
 
 		.wp-block-button,
 		.wp-block-jetpack-button {
-			align-self: flex-end;
+			// align-self: flex-end;
 			// this is so button has the same style on editor and frontend.
 			flex: 0 0 auto;
 
