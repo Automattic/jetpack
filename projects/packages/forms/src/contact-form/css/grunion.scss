@@ -257,14 +257,14 @@ that needs to mimic the input element styles */
 
 	.sparkle-decoration {
 		display: inline;
-		margin-left: 4px;
+		margin-inline-start: 4px;
 	}
 }
 
 .contact-form-submission .go-back-message {
 	margin-top: 0;
 	margin-bottom: 0;
-	text-align: left;
+	text-align: start;
 }
 
 .contact-form-submission .go-back-message .link {
