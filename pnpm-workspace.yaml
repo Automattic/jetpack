@@ -76,10 +76,6 @@ blockExoticSubdeps: true
 
 # Dependencies needing patching.
 patchedDependencies:
-  '@wordpress/components@32.0.1-next.ba3aee3a2.0': .pnpm-patches/@wordpress__components@32.0.1-next.ba3aee3a2.0.patch
-  '@wordpress/compose@7.37.1-next.ba3aee3a2.0': .pnpm-patches/@wordpress__compose@7.37.1-next.ba3aee3a2.0.patch
-  '@wordpress/dataviews@11.2.1-next.ba3aee3a2.0': .pnpm-patches/@wordpress__dataviews@11.2.1-next.ba3aee3a2.0.patch
-  '@wordpress/date@5.37.2-next.ba3aee3a2.0': .pnpm-patches/@wordpress__date@5.37.2-next.ba3aee3a2.0.patch
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.
   'uuid@<11': .pnpm-patches/uuid.patch
