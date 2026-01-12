@@ -49,6 +49,7 @@ class Jetpack_Application_Password_Extras_Test extends Jetpack_REST_TestCase {
 		parent::tear_down();
 		unset( $_GET['p'] );
 		unset( $_GET['page_id'] );
+		unset( $_GET['preview'] );
 		unset( $GLOBALS['wp_current_filter'] );
 	}
 
@@ -103,7 +104,8 @@ class Jetpack_Application_Password_Extras_Test extends Jetpack_REST_TestCase {
 	 * Test that post preview requests are allowed.
 	 */
 	public function test_post_preview_request_allowed() {
-		$_GET['p'] = '123';
+		$_GET['p']       = '123';
+		$_GET['preview'] = 'true';
 
 		$result = Jetpack_Application_Password_Extras::application_password_extras( false );
 
@@ -115,6 +117,7 @@ class Jetpack_Application_Password_Extras_Test extends Jetpack_REST_TestCase {
 	 */
 	public function test_page_preview_request_allowed() {
 		$_GET['page_id'] = '456';
+		$_GET['preview'] = 'true';
 
 		$result = Jetpack_Application_Password_Extras::application_password_extras( false );
 
