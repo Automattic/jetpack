@@ -760,7 +760,7 @@ class Initializer {
 	 */
 	public static function enqueue_red_bubble_script() {
 		Assets::register_script(
-			'my_jetpack_notification_bubble',
+			'my-jetpack-notification-bubble',
 			'../build/async-notification-bubble.js',
 			__FILE__,
 			array(
