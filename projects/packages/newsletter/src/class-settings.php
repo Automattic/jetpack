@@ -17,7 +17,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.1.3';
+	const PACKAGE_VERSION = '0.1.4';
 	/**
 	 * Whether the class has been initialized
 	 *
