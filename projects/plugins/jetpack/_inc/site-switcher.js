@@ -213,6 +213,7 @@ function useSiteSwitcherCommandLoader( { search } ) {
 					domain,
 					__( 'site', 'jetpack' ),
 					__( 'switch site', 'jetpack' ),
+					__( 'switch', 'jetpack' ),
 				].filter( Boolean ),
 			};
 		} );
