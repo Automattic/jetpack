@@ -21,6 +21,7 @@ export function filterSyncedAttributes(
 	delete filtered.align;
 	delete filtered.style;
 	delete filtered.ref;
+	delete filtered.lock;
 	return filtered;
 }
 
