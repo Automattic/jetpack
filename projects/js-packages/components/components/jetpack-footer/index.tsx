@@ -2,7 +2,6 @@ import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import { getRedirectUrl } from '../../index.ts';
-import getSiteAdminUrl from '../../tools/get-site-admin-url/index.ts';
 import AutomatticBylineLogo from '../automattic-byline-logo/index.tsx';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo/index.tsx';
@@ -37,6 +36,7 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 	className,
 	moduleNameHref = 'https://jetpack.com',
 	menu,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Prop kept for backwards compatibility. Remove after consumers of this component have updated.
 	useInternalLinks,
 	onAboutClick,
 	onPrivacyClick,
@@ -46,8 +46,6 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 	const [ isSm ] = useBreakpointMatch( 'sm', '<=' );
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
-
-	const siteAdminUrl = getSiteAdminUrl();
 
 	let items: JetpackFooterMenuItem[] = [
 		{
