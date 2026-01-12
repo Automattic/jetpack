@@ -1,14 +1,5 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
-// Hide the post title for jetpack_form post type
-.post-type-jetpack_form .edit-post-visual-editor__post-title-wrapper,
-.post-type-jetpack_form .editor-post-title,
-.post-type-jetpack_form .editor-post-title__input,
-.post-type-jetpack_form .editor-visual-editor__post-title-wrapper {
-	display: none !important;
-}
-
-
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
 
@@ -247,32 +238,10 @@
 
 	.form-placeholder__footer {
 		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 16px;
+		flex-direction: row;
+		justify-content: center;
 		width: 100%;
-		margin-top: 16px;
-
-		.components-button {
-			width: 100%;
-			max-width: 200px;
-			justify-content: center;
-		}
-
-		.components-base-control {
-			width: 100%;
-			max-width: 200px;
-			margin-bottom: 0;
-
-			.components-base-control__label {
-				font-weight: 600;
-				margin-bottom: 8px;
-			}
-
-			.components-select-control__input {
-				width: 100%;
-			}
-		}
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	}
 }
 
