@@ -248,18 +248,11 @@ abstract class Jetpack_Admin_Page {
 		);
 		$args     = wp_parse_args( $args, $defaults );
 
-		// Is Jetpack not connected and not offline?
-		// True means that Jetpack is NOT connected and NOT in offline mode.
-		// If Jetpack is connected OR in offline mode, this will be false.
-		$connectable = ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode();
-
 		$jetpack_admin_url    = admin_url( 'admin.php?page=my-jetpack' );
 		$jetpack_settings_url = admin_url( 'admin.php?page=jetpack#/settings' );
 		$jetpack_about_url    = Redirect::get_url( 'jetpack-about' );
 
-		$jetpack_privacy_url = ! $connectable
-			? $jetpack_admin_url . '#/privacy'
-			: Redirect::get_url( 'a8c-privacy' );
+		$jetpack_privacy_url = Redirect::get_url( 'a8c-privacy' );
 
 		$external_link_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" class="jp-footer__menu-item__icon" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg>';
 
@@ -361,12 +354,13 @@ abstract class Jetpack_Admin_Page {
 						</span>
 					</div>
 					<div class="jp-footer__menu">
-						<a href="<?php echo esc_url( $jetpack_about_url ); ?>" title="<?php esc_attr__( 'About Jetpack', 'jetpack' ); ?>" class="jp-footer__menu-item">
+						<a href="<?php echo esc_url( $jetpack_about_url ); ?>" target="_blank" rel="noopener noreferrer" title="<?php esc_attr__( 'About Jetpack', 'jetpack' ); ?>" class="jp-footer__menu-item is-external">
 							<?php echo esc_html__( 'About', 'jetpack' ); ?>
+							<?php echo $external_link_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
-						<a href="<?php echo esc_url( $jetpack_privacy_url ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( "Automattic's Privacy Policy", 'jetpack' ); ?>" class="jp-footer__menu-item <?php echo ! $connectable ? 'is-external' : ''; ?> ?>" target="<?php echo ! $connectable ? '_blank' : '_self'; ?>">
+						<a href="<?php echo esc_url( $jetpack_privacy_url ); ?>" target="_blank" rel="noopener noreferrer" title="<?php esc_html_e( "Automattic's Privacy Policy", 'jetpack' ); ?>" class="jp-footer__menu-item is-external">
 							<?php echo esc_html_x( 'Privacy', 'Navigation item', 'jetpack' ); ?>
-							<?php echo ! $connectable ? $external_link_icon : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php echo $external_link_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
 						<a href="<?php echo esc_url( Redirect::get_url( 'wpcom-tos' ) ); ?>" target="_blank" rel="noopener noreferrer" title="<?php esc_html__( 'WordPress.com Terms of Service', 'jetpack' ); ?>" class="jp-footer__menu-item is-external">
 							<?php echo esc_html_x( 'Terms', 'Navigation item', 'jetpack' ); ?>
@@ -387,7 +381,7 @@ abstract class Jetpack_Admin_Page {
 							<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-debugger' ) ); ?>" title="<?php esc_html_e( "Test your site's compatibility with Jetpack.", 'jetpack' ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Debug', 'Navigation item', 'jetpack' ); ?></a>
 						<?php } ?>
 					</div>
-					<a class="jp-footer__a8c-logo" href="<?php echo esc_url( $jetpack_about_url ); ?>" aria-label="<?php echo esc_attr__( 'An Automattic Airline', 'jetpack' ); ?>">
+					<a class="jp-footer__a8c-logo" href="<?php echo esc_url( Redirect::get_url( 'a8c-about' ) ); ?>" target="_blank" aria-label="<?php echo esc_attr__( 'An Automattic Airline', 'jetpack' ); ?>">
 						<svg role="img" x="0" y="0" viewBox="0 0 935 38.2" enable-background="new 0 0 935 38.2" aria-labelledby="jp-automattic-byline-logo-title" height="7" class="jp-automattic-byline-logo">
 							<desc id="jp-automattic-byline-logo-title">
 								<?php echo esc_attr__( 'An Automattic Airline', 'jetpack' ); ?>
