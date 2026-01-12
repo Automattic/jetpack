@@ -50,6 +50,42 @@ export interface MediaPreviewData {
 }
 
 /**
+ * Attached media item structure
+ */
+export interface AttachedMediaItem {
+	id: number;
+	url: string;
+	type: string;
+}
+
+/**
+ * Image generator settings structure
+ */
+export interface ImageGeneratorSettings {
+	enabled: boolean;
+	custom_text?: string;
+	image_type?: string;
+	image_id?: number;
+	template?: string;
+	token?: string;
+	default_image_id?: number;
+}
+
+/**
+ * Media source value type (including 'none' for explicit no-media state)
+ */
+export type MediaSourceValue = 'featured-image' | 'sig' | 'media-library' | 'upload-video' | 'none';
+
+/**
+ * Jetpack social options for media updates
+ */
+export interface MediaOptions {
+	attached_media?: Array< AttachedMediaItem >;
+	image_generator_settings?: ImageGeneratorSettings;
+	media_source?: MediaSourceValue;
+}
+
+/**
  * Props for MediaSectionV2 component
  */
 export interface MediaSectionV2Props {
@@ -67,6 +103,28 @@ export interface MediaSectionV2Props {
 	 * Callback when the edit template action is triggered
 	 */
 	onEditTemplate?: VoidFunction;
+
+	/**
+	 * Optional attached media array. When provided along with `onMediaChange`,
+	 * the component uses these values instead of fetching from the store.
+	 */
+	attachedMedia?: Array< AttachedMediaItem >;
+
+	/**
+	 * Optional image generator settings. Used with per-connection customization.
+	 */
+	imageGeneratorSettings?: ImageGeneratorSettings;
+
+	/**
+	 * Optional media source value.
+	 */
+	mediaSource?: MediaSourceValue;
+
+	/**
+	 * Optional callback to update media-related options.
+	 * When provided, the component operates in "controlled" mode.
+	 */
+	onMediaChange?: ( updates: Partial< MediaOptions > ) => void;
 }
 
 /**
