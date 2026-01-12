@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Comments API: Use end-user's IP-address for JSON API requests.

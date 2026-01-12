@@ -1,0 +1,12 @@
+{
+	"name": "_@jetpack-forms/root-route",
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@wordpress/route": "0.2.0"
+	},
+	"route": {
+		"path": "/",
+		"page": "jetpack-forms-responses"
+	}
+}
