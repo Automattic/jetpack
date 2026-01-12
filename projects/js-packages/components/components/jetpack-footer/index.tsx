@@ -134,8 +134,8 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 					<a
 						href={ getRedirectUrl( 'a8c-about' ) }
 						target="_blank"
-						rel="noopener noreferrer"
 						aria-label={ __( 'An Automattic Airline', 'jetpack-components' ) }
+						rel="noreferrer"
 					>
 						<AutomatticBylineLogo aria-hidden="true" />
 					</a>

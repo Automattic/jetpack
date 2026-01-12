@@ -173,6 +173,8 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
         <a
           aria-label="An Automattic Airline"
           href="https://jetpack.com/redirect/?source=a8c-about"
+          rel="noreferrer"
+          target="_blank"
         >
           <svg
             aria-hidden="true"
