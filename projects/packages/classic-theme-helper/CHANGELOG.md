@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.9] - 2026-01-12
 ### Fixed
-- Add missing jetpack-blocks dependency required for Blocks::is_fse_theme() usage. [#46489]
+- Add missing jetpack-blocks dependency required for `Blocks::is_fse_theme()` usage. [#46489]
 
 ## [0.14.8] - 2026-01-09
 ### Changed
