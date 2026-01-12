@@ -205,7 +205,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'submit_button_text'     => __( 'Submit', 'jetpack-forms' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'noSummary' to disable the summary, 'message' for a custom message, 'redirect' to redirect to a new URL. Deprecated.
-			'customThankyouHeading'  => __( 'Thank you for your response.', 'jetpack-forms' ), // The text to show above customThankyouMessage.
+			'customThankyouHeading'  => self::get_translated_with_fallback( 'Thank you for your response.', 'Your message has been sent', 'jetpack-forms' ) . ' ✨', // The text to show above customThankyouMessage. Sparkle is appended outside i18n so translators don't need to handle it.
 			'customThankyouMessage'  => '', // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when confirmationType is set to 'redirect'.
 			'confirmationType'       => null, // The type of confirmation to show after submitting a form. 'text' for a text message, 'redirect' for a redirect link.
@@ -598,6 +598,36 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return $secret;
+	}
+
+	/**
+	 * Get a translated string with fallback to a previous translation.
+	 *
+	 * When copy is updated, translations may not be immediately available.
+	 * This helper falls back to the old (translated) string if the new one
+	 * hasn't been translated yet.
+	 *
+	 * @param string $new_string The new string to translate.
+	 * @param string $old_string The previous string to fall back to.
+	 * @param string $domain     Text domain.
+	 * @return string The translated string.
+	 */
+	private static function get_translated_with_fallback( $new_string, $old_string, $domain ) {
+		// English locales don't need fallback.
+		if ( str_starts_with( get_locale(), 'en' ) ) {
+			return __( $new_string, $domain ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText,WordPress.WP.I18n.NonSingularStringLiteralDomain
+		}
+
+		// Check if new string has a translation.
+		$translations = get_translations_for_domain( $domain );
+		$entry        = $translations->translate_entry( $new_string );
+
+		if ( $entry && ! empty( $entry->translations ) ) {
+			return __( $new_string, $domain ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText,WordPress.WP.I18n.NonSingularStringLiteralDomain
+		}
+
+		// Fall back to old string.
+		return __( $old_string, $domain ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText,WordPress.WP.I18n.NonSingularStringLiteralDomain
 	}
 
 	/**
@@ -1345,7 +1375,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( '← Back', 'jetpack-forms' ) . '</a> </p>';
 		}
 
-		$success_message .= '<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) . ' <span class="sparkle-decoration" aria-hidden="true">✨</span>' . "</h4>\n\n";
+		$success_message .= '<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) . "</h4>\n\n";
 
 		// Don't show the feedback details unless the nonce matches
 		if ( $is_reload_nonce_valid ) {
@@ -1443,7 +1473,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$html .=
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
-			' <span class="sparkle-decoration" aria-hidden="true">✨</span>' .
 			"</h4>\n\n";
 
 		if ( 'text' === $confirmation_type ) {
