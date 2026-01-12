@@ -253,6 +253,15 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@vitest/mocker' ] = '*';
 	}
 
+	// sass-embedded has an `unknown-all` and `all-unknown` optional dep that depends on `sass`.
+	// Let's remove these dependencies to prevent `sass` installation.
+	if (
+		( pkg.name === 'sass-embedded-unknown-all' || pkg.name === 'sass-embedded-all-unknown' ) &&
+		pkg.dependencies?.sass
+	) {
+		delete pkg.dependencies.sass;
+	}
+
 	return pkg;
 }
 

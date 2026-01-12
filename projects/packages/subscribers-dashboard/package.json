@@ -36,11 +36,11 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
-		"@wordpress/data": "10.37.1-next.ba3aee3a2.0",
-		"@wordpress/dataviews": "11.2.1-next.ba3aee3a2.0",
-		"@wordpress/element": "6.37.1-next.ba3aee3a2.0",
-		"@wordpress/i18n": "6.10.1-next.ba3aee3a2.0",
-		"@wordpress/url": "4.37.1-next.ba3aee3a2.0"
+		"@wordpress/data": "10.37.1-next.06ee73755.0",
+		"@wordpress/dataviews": "11.2.1-next.06ee73755.0",
+		"@wordpress/element": "6.37.1-next.06ee73755.0",
+		"@wordpress/i18n": "6.10.1-next.06ee73755.0",
+		"@wordpress/url": "4.37.1-next.06ee73755.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",

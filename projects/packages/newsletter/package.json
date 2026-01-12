@@ -32,9 +32,9 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@wordpress/dataviews": "11.2.1-next.ba3aee3a2.0",
-		"@wordpress/element": "6.37.1-next.ba3aee3a2.0",
-		"@wordpress/i18n": "6.10.1-next.ba3aee3a2.0",
+		"@wordpress/dataviews": "11.2.1-next.06ee73755.0",
+		"@wordpress/element": "6.37.1-next.06ee73755.0",
+		"@wordpress/i18n": "6.10.1-next.06ee73755.0",
 		"debug": "4.4.3"
 	},
 	"devDependencies": {
@@ -44,7 +44,7 @@
 		"@babel/runtime": "7.28.4",
 		"@types/react": "18.3.27",
 		"@types/react-dom": "18.3.7",
-		"@wordpress/browserslist-config": "6.37.1-next.ba3aee3a2.0",
+		"@wordpress/browserslist-config": "6.37.1-next.06ee73755.0",
 		"concurrently": "9.2.1",
 		"jest": "30.2.0",
 		"sass-embedded": "1.87.0",

@@ -20,7 +20,7 @@
 		"storybook:dev": "storybook dev -c ./storybook -p 50240"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "7.37.1-next.ba3aee3a2.0"
+		"@wordpress/api-fetch": "7.37.1-next.06ee73755.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",
@@ -38,13 +38,13 @@
 		"@storybook/test-runner": "0.24.1",
 		"@testing-library/dom": "10.4.1",
 		"@types/react": "18.3.27",
-		"@wordpress/base-styles": "6.13.2-next.ba3aee3a2.0",
-		"@wordpress/block-editor": "15.10.1-next.ba3aee3a2.0",
-		"@wordpress/block-library": "9.37.2-next.ba3aee3a2.0",
-		"@wordpress/components": "32.0.1-next.ba3aee3a2.0",
-		"@wordpress/element": "6.37.1-next.ba3aee3a2.0",
-		"@wordpress/format-library": "5.37.1-next.ba3aee3a2.0",
-		"@wordpress/postcss-plugins-preset": "5.37.1-next.ba3aee3a2.0",
+		"@wordpress/base-styles": "6.13.2-next.06ee73755.0",
+		"@wordpress/block-editor": "15.10.1-next.06ee73755.0",
+		"@wordpress/block-library": "9.37.2-next.06ee73755.0",
+		"@wordpress/components": "32.0.1-next.06ee73755.0",
+		"@wordpress/element": "6.37.1-next.06ee73755.0",
+		"@wordpress/format-library": "5.37.1-next.06ee73755.0",
+		"@wordpress/postcss-plugins-preset": "5.37.1-next.06ee73755.0",
 		"allure-playwright": "2.15.1",
 		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",

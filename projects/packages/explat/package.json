@@ -33,8 +33,8 @@
 	"dependencies": {
 		"@automattic/explat-client": "0.1.0",
 		"@automattic/explat-client-react-helpers": "0.1.1",
-		"@wordpress/api-fetch": "7.37.1-next.ba3aee3a2.0",
-		"@wordpress/url": "4.37.1-next.ba3aee3a2.0",
+		"@wordpress/api-fetch": "7.37.1-next.06ee73755.0",
+		"@wordpress/url": "4.37.1-next.06ee73755.0",
 		"cookie": "1.0.2",
 		"debug": "4.4.3",
 		"qs": "6.14.1"
