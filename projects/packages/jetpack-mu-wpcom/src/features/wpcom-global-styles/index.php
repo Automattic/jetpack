@@ -841,12 +841,8 @@ function get_global_styles_on_personal_variation() {
  * @return bool Whether the site has access to Global Styles with a Personal plan.
  */
 function is_global_styles_on_personal_plan() {
-	if ( defined( 'GLOBAL_STYLES_ON_PERSONAL_PLAN' ) && GLOBAL_STYLES_ON_PERSONAL_PLAN ) {
-		return true;
-	}
-
-	$variation = get_global_styles_on_personal_variation();
-	return $variation === 'treatment1' || $variation === 'treatment2';
+	// Global Styles on Personal enabled on all environments
+	return true;
 }
 
 /**
