@@ -27,6 +27,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
 		StatusCache::clear();
 		$this->reset_connection_status();
+		// Clear IDC validation lock to ensure test isolation.
+		delete_transient( 'jetpack_idc_validation_lock' );
 	}
 
 	/**

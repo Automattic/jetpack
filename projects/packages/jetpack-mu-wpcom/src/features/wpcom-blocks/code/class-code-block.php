@@ -22,6 +22,15 @@ abstract class Code_Block {
 	const MODULE_PREFIX = '@a8cCodeBlock/';
 
 	/**
+	 * Language names for display.
+	 *
+	 * @var array<string, string>
+	 */
+	public static $language_name_rewrites = array(
+		'Brainfuck' => 'Brainf***',
+	);
+
+	/**
 	 * Filterable check for whether the block should be available.
 	 *
 	 * @return bool
@@ -437,6 +446,7 @@ abstract class Code_Block {
 			$language_text = empty( $attributes['language'] )
 				? __( 'Plain text', 'jetpack-mu-wpcom' )
 				: $attributes['language'];
+			$language_text = self::$language_name_rewrites[ $language_text ] ?? $language_text;
 			$language_html = \sprintf(
 				'<span>%s</span>',
 				esc_html( $language_text )
