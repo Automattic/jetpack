@@ -62,6 +62,7 @@ class Settings {
 		'dedicated_sync_enabled'                 => true,
 		'custom_queue_table_enabled'             => true,
 		'wpcom_rest_api_enabled'                 => true,
+		'sync_actions_blacklist'                 => true,
 	);
 
 	/**
