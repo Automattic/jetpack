@@ -47,7 +47,7 @@ export function changelogDefine( yargs ) {
 								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 								type: 'string',
 							} )
-							.option( 'file', {
+							.option( 'filename', {
 								alias: 'f',
 								describe: 'Name of changelog file',
 								type: 'string',
@@ -311,7 +311,12 @@ async function getProjectChangeTypes( needChangelog ) {
  */
 async function changelogAdd( argv ) {
 	// If we already have all the information we need for a potentially-successful changelogger run, skip the prompts and just do it.
-	if ( argv.project && argv.s && argv.t && argv.e ) {
+	if (
+		argv.project &&
+		argv.s &&
+		argv.t &&
+		( argv.e || ( argv.e === '' && argv.s === 'patch' && argv.c !== undefined ) )
+	) {
 		await changelogArgs( argv );
 		return;
 	}
