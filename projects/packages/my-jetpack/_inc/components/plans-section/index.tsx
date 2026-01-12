@@ -196,6 +196,10 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_plans_manage_click' );
 	}, [ recordEvent ] );
 
+	const viewIncludedFeaturesClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_view_included_features_click' );
+	}, [ recordEvent ] );
+
 	const planPurchaseClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
 	}, [ recordEvent ] );
@@ -234,6 +238,18 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 					<ExternalLink onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
 						{ planManageDescription }
 					</ExternalLink>
+				</li>
+			) }
+			{ numberOfPurchases > 0 && (
+				<li className={ styles[ 'actions-list-item' ] }>
+					<Button
+						onClick={ viewIncludedFeaturesClickHandler }
+						href={ getMyJetpackUrl( '#/products?filter=included' ) }
+						variant="link"
+						weight="regular"
+					>
+						{ __( 'View included features', 'jetpack-my-jetpack' ) }
+					</Button>
 				</li>
 			) }
 			{ ! hasComplete && (
