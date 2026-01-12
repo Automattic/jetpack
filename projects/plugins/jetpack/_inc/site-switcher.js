@@ -117,6 +117,16 @@ function untrailingslashit( url ) {
 }
 
 /**
+ * Escape special regex characters in a string
+ *
+ * @param {string} str - String to escape
+ * @return {string} Escaped string safe for use in RegExp
+ */
+function escapeRegex( str ) {
+	return str.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
+}
+
+/**
  * Custom hook to load site-switching commands based on search term
  *
  * @param {Object} props        - Hook properties
@@ -156,7 +166,10 @@ function useSiteSwitcherCommandLoader( { search } ) {
 
 		let cleanedSearch = searchLower;
 		genericKeywords.forEach( keyword => {
-			cleanedSearch = cleanedSearch.replace( new RegExp( `\\b${ keyword }\\b`, 'g' ), ' ' );
+			cleanedSearch = cleanedSearch.replace(
+				new RegExp( `\\b${ escapeRegex( keyword ) }\\b`, 'g' ),
+				' '
+			);
 		} );
 		cleanedSearch = cleanedSearch.trim().replace( /\s+/g, ' ' );
 
