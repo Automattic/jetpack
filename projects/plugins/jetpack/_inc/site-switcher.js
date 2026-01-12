@@ -184,12 +184,14 @@ function useSiteSwitcherCommandLoader( { search } ) {
 					);
 			  } );
 
+		// Filter out sites with invalid URLs (can't navigate to them anyway)
+		const validSites = filteredSites.filter( site => {
+			return site.URL && getHostnameFromURL( site.URL ) !== '';
+		} );
+
 		// Exclude the current site from the list
 		const currentURL = untrailingslashit( window.location.href.toLowerCase() );
-		const otherSites = filteredSites.filter( site => {
-			if ( ! site.URL ) {
-				return true;
-			}
+		const otherSites = validSites.filter( site => {
 			// Normalize site URL for comparison
 			const siteURL = untrailingslashit( site.URL.toLowerCase() );
 			// Check if current URL starts with site URL (handles multisite subdirectory installs)
