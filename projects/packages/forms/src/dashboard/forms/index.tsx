@@ -42,7 +42,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					</div>
 				}
 				subTitle={ __(
-					'View and manage all your form submissions in one place.',
+					'View and manage all your forms in one place.',
 					'jetpack-forms'
 				) }
 				tabs={ <FormsResponsesTabs /> }
