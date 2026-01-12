@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-+cl+Y3YxOtCHlaSoNgP86ed3IpjdInfa1rdYDdnVKhA=
+pnpmfileChecksum: sha256-msRbVPZLaVzWEgmy5uR71LzOGMe9KD0vcGKmUUuD2BU=
 
 patchedDependencies:
   '@wordpress/a11y':
@@ -427,9 +427,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       storybook:
         specifier: 10.1.10
         version: 10.1.10(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -445,9 +442,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
 
   projects/js-packages/api:
     dependencies:
@@ -459,9 +453,6 @@ importers:
         version: 4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
     devDependencies:
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
 
@@ -500,9 +491,6 @@ importers:
         specifier: workspace:*
         version: link:../webpack-config
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       typescript:
@@ -653,9 +641,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       jest-extended:
         specifier: 7.0.0
         version: 7.0.0(jest@30.2.0)(typescript@5.9.3)
@@ -795,9 +780,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -826,9 +808,6 @@ importers:
   projects/js-packages/config:
     devDependencies:
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
 
@@ -905,9 +884,6 @@ importers:
         specifier: 18.3.26
         version: 18.3.26
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       react:
@@ -1280,9 +1256,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1321,9 +1294,6 @@ importers:
         specifier: 30.0.0
         version: 30.0.0
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       typescript:
@@ -1376,9 +1346,6 @@ importers:
         specifier: 10.37.0
         version: 10.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react@18.3.1)
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       jest-extended:
@@ -1506,9 +1473,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -1624,9 +1588,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       jetpack-js-tools:
         specifier: workspace:*
         version: link:../../../tools/js-tools
@@ -1732,9 +1693,6 @@ importers:
         specifier: 3.3.1
         version: 3.3.1(esbuild@0.25.9)(sass-embedded@1.97.2)
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       react:
@@ -2136,9 +2094,6 @@ importers:
         specifier: 9.2.1
         version: 9.2.1
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       sass-embedded:
@@ -2774,9 +2729,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       jquery:
         specifier: 3.7.1
         version: 3.7.1
@@ -3286,9 +3238,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0(@types/node@20.19.25)
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3500,9 +3449,6 @@ importers:
         specifier: 30.2.0
         version: 30.2.0(@babel/core@7.28.4)
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       postcss:
@@ -3741,9 +3687,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -3938,9 +3881,6 @@ importers:
         specifier: 3.38.1
         version: 3.38.1
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       postcss:
@@ -4210,9 +4150,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -4272,9 +4209,6 @@ importers:
         specifier: 6.37.0
         version: 6.37.0
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       typescript:
@@ -4428,9 +4362,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       sass-embedded:
         specifier: 1.97.2
         version: 1.97.2
@@ -4564,9 +4495,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       livereload:
         specifier: 0.10.3
         version: 0.10.3
@@ -4692,9 +4620,6 @@ importers:
         specifier: 9.2.1
         version: 9.2.1
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       sass-embedded:
@@ -4846,9 +4771,6 @@ importers:
         specifier: 0.3.1
         version: 0.3.1
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       jquery-modal:
@@ -5314,9 +5236,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       jquery:
         specifier: 3.7.1
         version: 3.7.1
@@ -5412,9 +5331,6 @@ importers:
         specifier: 9.2.1
         version: 9.2.1
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       sass-embedded:
@@ -5692,9 +5608,6 @@ importers:
         specifier: 9.2.1
         version: 9.2.1
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       sass-embedded:
@@ -6043,6 +5956,9 @@ importers:
       '@eslint/json':
         specifier: 0.14.0
         version: 0.14.0
+      '@jest/environment-jsdom-abstract':
+        specifier: 30.2.0
+        version: 30.2.0(jsdom@26.1.0)
       '@octokit/auth-token':
         specifier: 5.1.2
         version: 5.1.2
@@ -6148,9 +6064,9 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
+      jsdom:
+        specifier: 26.1.0
+        version: 26.1.0
       jsonc-eslint-parser:
         specifier: 2.4.1
         version: 2.4.1
@@ -13786,15 +13702,6 @@ packages:
   jest-each@30.2.0:
     resolution: {integrity: sha512-lpWlJlM7bCUf1mfmuqTA8+j2lNURW9eNafOy99knBM01i5CQeY5UH1vZjgT9071nDJac1M4XsbyI44oNOdhlDQ==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
-
-  jest-environment-jsdom@30.2.0:
-    resolution: {integrity: sha512-zbBTiqr2Vl78pKp/laGBREYzbZx9ZtqPjOK4++lL4BNDhxRnahg51HtoDrk9/VjIy9IthNEWdKVd7H5bqBhiWQ==}
-    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
-    peerDependencies:
-      canvas: ^3.0.0
-    peerDependenciesMeta:
-      canvas:
-        optional: true
 
   jest-environment-node@30.2.0:
     resolution: {integrity: sha512-ElU8v92QJ9UrYsKrxDIKCxu6PfNj4Hdcktcn0JX12zqNdqWHB0N+hwOnnBBXvjLd2vApZtuLUGs1QSY+MsXoNA==}
@@ -28970,18 +28877,6 @@ snapshots:
       chalk: 4.1.2
       jest-util: 30.2.0
       pretty-format: 30.2.0
-
-  jest-environment-jsdom@30.2.0:
-    dependencies:
-      '@jest/environment': 30.2.0
-      '@jest/environment-jsdom-abstract': 30.2.0(jsdom@26.1.0)
-      '@types/jsdom': 21.1.7
-      '@types/node': 20.19.25
-      jsdom: 26.1.0
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
 
   jest-environment-node@30.2.0:
     dependencies:
