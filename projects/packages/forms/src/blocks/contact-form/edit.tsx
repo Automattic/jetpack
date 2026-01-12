@@ -155,6 +155,14 @@ type JetpackContactFormAttributes = {
 	disableSummary: boolean;
 	notificationRecipients: string[];
 	webhooks: Webhook[];
+	// Layout support attributes (added by block supports)
+	layout?: {
+		type?: string;
+		orientation?: 'horizontal' | 'vertical';
+		flexWrap?: 'wrap' | 'nowrap';
+		justifyContent?: string;
+		verticalAlignment?: string;
+	};
 };
 
 type JetpackContactFormEditProps = {
@@ -193,6 +201,7 @@ function JetpackContactFormEdit( {
 		disableSummary,
 		notificationRecipients,
 		webhooks,
+		layout,
 	} = attributes;
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showWebhooks = useConfigValue( 'isWebhooksEnabled' ) && hasFeatureFlag( 'form-webhooks' );
@@ -459,6 +468,47 @@ function JetpackContactFormEdit( {
 			}
 		}
 	}, [ currentInnerBlocks, getInputFieldBlocks, updateBlockAttributes ] );
+
+	// Helper function to get all field blocks (blocks with width attribute)
+	const getFieldBlocks = useCallback( ( blocks: typeof currentInnerBlocks ) => {
+		const fieldBlocks: typeof currentInnerBlocks = [];
+
+		const findFields = ( blockList: typeof currentInnerBlocks ) => {
+			blockList.forEach( block => {
+				// Check if block is a field (has jetpack/field- prefix)
+				if ( block.name.startsWith( 'jetpack/field-' ) ) {
+					fieldBlocks.push( block );
+				}
+				// Recursively check inner blocks (for multistep forms)
+				if ( block.innerBlocks && block.innerBlocks.length > 0 ) {
+					findFields( block.innerBlocks );
+				}
+			} );
+		};
+
+		findFields( blocks );
+		return fieldBlocks;
+	}, [] );
+
+	// Track previous orientation to detect changes
+	const prevOrientationRef = useRef< string | null >( null );
+
+	// Effect to sync field widths when layout orientation changes
+	useEffect( () => {
+		const orientation = layout?.orientation ?? 'vertical';
+
+		// Skip initial render, only react to actual orientation changes
+		if ( prevOrientationRef.current !== null && prevOrientationRef.current !== orientation ) {
+			const fieldBlocks = getFieldBlocks( currentInnerBlocks );
+			const newWidth = orientation === 'vertical' ? 100 : 'auto';
+
+			fieldBlocks.forEach( field => {
+				updateBlockAttributes( field.clientId, { width: newWidth } );
+			} );
+		}
+
+		prevOrientationRef.current = orientation;
+	}, [ layout?.orientation, currentInnerBlocks, getFieldBlocks, updateBlockAttributes ] );
 
 	// Deep-scan helper – user might drop a Step block inside nested structures.
 	const containsMultistepBlock = useCallback( function hasMultistep( blocks ) {
