@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Display alpha version number when running from monorepo source to indicate development build.
 
+## 1.0.3 - 2026-01-12
+### Changed
+- Internal updates.
+
 ## 1.0.2 - 2025-09-08
 ### Changed
 - Internal updates.
