@@ -147,19 +147,27 @@ function useSiteSwitcherCommandLoader( { search } ) {
 
 		const searchLower = search ? search.toLowerCase() : '';
 
-		// Generic keywords like 'site' and 'switch site' should show all sites
-		const isGenericSearch =
-			! searchLower ||
-			searchLower === __( 'site', 'jetpack' ).toLowerCase() ||
-			searchLower === __( 'switch site', 'jetpack' ).toLowerCase();
+		// Strip generic keywords from search to allow queries like "site dean" to find sites with "dean"
+		const genericKeywords = [
+			__( 'site', 'jetpack' ).toLowerCase(),
+			__( 'switch', 'jetpack' ).toLowerCase(),
+			__( 'switch site', 'jetpack' ).toLowerCase(),
+		];
 
-		const filteredSites = isGenericSearch
+		let cleanedSearch = searchLower;
+		genericKeywords.forEach( keyword => {
+			cleanedSearch = cleanedSearch.replace( new RegExp( `\\b${ keyword }\\b`, 'g' ), ' ' );
+		} );
+		cleanedSearch = cleanedSearch.trim().replace( /\s+/g, ' ' );
+
+		// If search is empty after stripping generic keywords, show all sites
+		const filteredSites = ! cleanedSearch
 			? sites
 			: sites.filter( site => {
 					const domain = getHostnameFromURL( site.URL );
 					return (
-						( site.name && site.name.toLowerCase().includes( searchLower ) ) ||
-						domain.toLowerCase().includes( searchLower )
+						( site.name && site.name.toLowerCase().includes( cleanedSearch ) ) ||
+						domain.toLowerCase().includes( cleanedSearch )
 					);
 			  } );
 
@@ -213,7 +221,6 @@ function useSiteSwitcherCommandLoader( { search } ) {
 					domain,
 					__( 'site', 'jetpack' ),
 					__( 'switch site', 'jetpack' ),
-					__( 'switch', 'jetpack' ),
 				].filter( Boolean ),
 			};
 		} );
