@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Admin: Add experimental modern sidebar navigation (enable with ?sidebar=1 URL parameter).

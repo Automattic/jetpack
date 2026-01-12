@@ -88,6 +88,18 @@ import {
 	fetchSitePurchases as fetchSitePurchasesAction,
 } from 'state/site';
 import JetpackManageBanner from './components/jetpack-manage-banner';
+import SidebarNavigation from './components/sidebar-navigation';
+
+/**
+ * Feature flag for the modern sidebar navigation.
+ * Enable by adding ?sidebar=1 to the URL.
+ *
+ * @return {boolean} Whether the modern sidebar is enabled.
+ */
+const isModernSidebarEnabled = () => {
+	const urlParams = new URLSearchParams( window.location.search );
+	return urlParams.get( 'sidebar' ) === '1';
+};
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -818,6 +830,7 @@ class Main extends Component {
 
 	render() {
 		const jpClasses = [ 'jp-lower' ];
+		const useModernSidebar = isModernSidebarEnabled();
 
 		if ( this.isMainConnectScreen() ) {
 			jpClasses.push( 'jp-main-connect-screen' );
@@ -833,6 +846,46 @@ class Main extends Component {
 
 		const mainNav = this.renderMainNav( this.props.location.pathname );
 		const showHeader = mainNav || this.shouldShowMasthead() || this.shouldShowRewindStatus();
+
+		// Modern sidebar layout
+		if ( useModernSidebar ) {
+			// Add class to body for CSS adjustments
+			document.body.classList.add( 'jp-sidebar-navigation-active' );
+
+			return (
+				<div className="jp-admin-layout">
+					<SidebarNavigation currentRoute={ this.props.location.pathname } />
+					<div className="jp-admin-layout__content">
+						{ this.shouldShowReconnectModal() && (
+							<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
+						) }
+
+						<div className={ jpClasses.join( ' ' ) }>
+							<AdminNotices />
+							<JetpackNotices />
+							{ this.shouldConnectUser() && this.connectUser() }
+
+							{ this.renderMainContent( this.props.location.pathname ) }
+							{ this.shouldShowJetpackManageBanner() && (
+								<JetpackManageBanner
+									path={ this.props.location.pathname }
+									isAgencyAccount={ this.props.jetpackManage.isAgencyAccount }
+								/>
+							) }
+							{ this.shouldShowSupportCard() && (
+								<SupportCard path={ this.props.location.pathname } />
+							) }
+							{ this.shouldShowAppsCard() && <AppsCard /> }
+						</div>
+						{ this.shouldShowFooter() && <Footer siteAdminUrl={ this.props.siteAdminUrl } /> }
+						<Tracker analytics={ analytics } />
+					</div>
+				</div>
+			);
+		}
+
+		// Remove class if switching back to classic layout
+		document.body.classList.remove( 'jp-sidebar-navigation-active' );
 
 		return (
 			<div>

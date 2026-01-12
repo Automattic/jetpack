@@ -1,0 +1,220 @@
+/**
+ * Sidebar Navigation Styles
+ *
+ * Modern app-like navigation for Jetpack, inspired by
+ * Gutenberg Site Editor patterns.
+ */
+
+.jp-sidebar-navigation {
+	display: flex;
+	flex-direction: column;
+	width: 280px;
+	min-width: 280px;
+	height: 100vh;
+	background: #1e1e1e;
+	color: #fff;
+	overflow-y: auto;
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 100000;
+
+	@media (max-width: 782px) {
+		width: 100%;
+		min-width: 100%;
+		height: auto;
+		position: relative;
+	}
+}
+
+.jp-sidebar-navigation__header {
+	padding: 16px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.jp-sidebar-navigation__logo {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+
+	svg {
+		width: 32px;
+		height: 32px;
+	}
+}
+
+.jp-sidebar-navigation__title {
+	font-size: 16px;
+	font-weight: 600;
+	color: #fff;
+}
+
+// Navigation Screen
+.jp-sidebar-navigation-screen {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.jp-sidebar-navigation-screen__header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 16px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.jp-sidebar-navigation-screen__back {
+	color: #fff !important;
+	padding: 4px !important;
+	min-width: auto !important;
+
+	&:hover {
+		color: rgba(255, 255, 255, 0.8) !important;
+	}
+
+	svg {
+		fill: currentColor;
+	}
+}
+
+.jp-sidebar-navigation-screen__title {
+	font-size: 14px;
+	font-weight: 600;
+	color: #fff;
+	margin: 0;
+}
+
+.jp-sidebar-navigation-screen__content {
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+// Navigation Item
+.jp-sidebar-navigation-item {
+	display: flex;
+	align-items: center;
+	padding: 10px 12px !important;
+	border-radius: 4px;
+	color: rgba(255, 255, 255, 0.85);
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+	background: transparent;
+	border: none;
+	width: 100%;
+	text-align: left;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+		color: #fff;
+	}
+
+	&:focus {
+		outline: 2px solid #007cba;
+		outline-offset: -2px;
+	}
+
+	&.is-active {
+		background: rgba(255, 255, 255, 0.15);
+		color: #fff;
+
+		&::before {
+			content: "";
+			position: absolute;
+			left: 0;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 3px;
+			height: 24px;
+			background: #069e08;
+			border-radius: 0 2px 2px 0;
+		}
+	}
+
+	&.is-drilldown {
+
+		.jp-sidebar-navigation-item__chevron {
+			margin-left: auto;
+			opacity: 0.6;
+		}
+	}
+}
+
+.jp-sidebar-navigation-item__content {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+}
+
+.jp-sidebar-navigation-item__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	opacity: 0.8;
+
+	svg {
+		fill: currentColor;
+	}
+}
+
+.jp-sidebar-navigation-item__label {
+	font-size: 14px;
+	font-weight: 400;
+	flex: 1;
+}
+
+.jp-sidebar-navigation-item__chevron {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	svg {
+		fill: currentColor;
+	}
+}
+
+// Layout wrapper when sidebar is enabled
+.jp-admin-layout {
+	display: flex;
+	min-height: 100vh;
+
+	@media (max-width: 782px) {
+		flex-direction: column;
+	}
+}
+
+.jp-admin-layout__content {
+	flex: 1;
+	margin-left: 280px;
+	padding: 0;
+
+	@media (max-width: 782px) {
+		margin-left: 0;
+	}
+}
+
+// Hide the WordPress admin menu when sidebar is active
+body.jp-sidebar-navigation-active {
+
+	#adminmenumain {
+		display: none;
+	}
+
+	#wpcontent {
+		margin-left: 0;
+		padding-left: 0;
+	}
+
+	.jp-admin-layout__content {
+		margin-left: 280px;
+
+		@media (max-width: 782px) {
+			margin-left: 0;
+		}
+	}
+}
