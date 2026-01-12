@@ -179,7 +179,12 @@ abstract class Code_Block {
 	 * @return array The modified block type arguments.
 	 */
 	public static function register_block_type_args( array $args, string $block_type ): array {
-		if ( 'core/code' !== $block_type ) {
+		if (
+			'core/code' !== $block_type
+			// In some cases the block may not include the content attribute.
+			// Only perform enhancement on the _full_, expected block.
+			|| ! isset( $args['attributes']['content'] )
+		) {
 			return $args;
 		}
 

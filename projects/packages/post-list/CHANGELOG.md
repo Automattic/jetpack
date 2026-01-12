@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2026-01-12
+### Changed
+- Update package dependencies. [#46456]
+
 ## [0.9.0] - 2025-12-22
 ### Changed
 - Moved Share post action to the Publicize package for better discoverability. The `jetpack_post_list_display_share_action` filter is now handled by Publicize. [#46323]
@@ -290,6 +294,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the default columns displayed on the post and page list screens
 - Refactored thumbnail preview to function server side. All javascript removed.
 
+[0.9.1]: https://github.com/automattic/jetpack-post-list/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/automattic/jetpack-post-list/compare/v0.8.36...v0.9.0
 [0.8.36]: https://github.com/automattic/jetpack-post-list/compare/v0.8.35...v0.8.36
 [0.8.35]: https://github.com/automattic/jetpack-post-list/compare/v0.8.34...v0.8.35

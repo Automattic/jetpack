@@ -75,7 +75,7 @@ class Jetpack_Gutenberg {
 	 * and don't appear in features_data['available']. This only affects the upsell
 	 * message shown to users.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.5
 	 * @var array Feature slug => minimum WordPress.com plan slug.
 	 */
 	private static $wpcom_minimum_plan_fallbacks = array(

@@ -614,7 +614,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blocks",
-				"reference": "f8f199744984370c00d7e2db7bce59c992958706"
+				"reference": "34625c73a31fc7c9566591dc38d4ec3ef18c78b1"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -638,7 +638,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.2.x-dev"
+					"dev-trunk": "3.3.x-dev"
 				}
 			},
 			"autoload": {
@@ -1491,7 +1491,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "c0cfc2e7832c5385f49fd07141ecb47c252ef531"
+				"reference": "4a8b1a07ec3c8b4c155d5ea2c4e77c4766164fda"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1526,7 +1526,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "7.2.x-dev"
+					"dev-trunk": "7.3.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -2320,7 +2320,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/paypal-payments",
-				"reference": "f0368a2fca675efe3c32941fde51c2e09d5144c8"
+				"reference": "5af5904fb3d10552952f8e009c6d1efe6371a85d"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2343,7 +2343,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.5.x-dev"
+					"dev-trunk": "0.6.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-paypal-payments/compare/v${old}...v${new}"
@@ -2719,7 +2719,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "c4d8c63fe820a64b9c8f1b001a55d3309d78244b"
+				"reference": "9bc14749a7294396354eb2841e3797155b0fc74e"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2767,7 +2767,11 @@
 					"phpunit-select-config phpunit.#.xml.dist --colors=always"
 				],
 				"test-coverage": [
-					"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+					"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+					"pnpm run test-coverage"
+				],
+				"test-js": [
+					"pnpm run test"
 				],
 				"test-php": [
 					"@composer phpunit"

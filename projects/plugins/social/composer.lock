@@ -1515,7 +1515,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "c4d8c63fe820a64b9c8f1b001a55d3309d78244b"
+				"reference": "9bc14749a7294396354eb2841e3797155b0fc74e"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1563,7 +1563,11 @@
 					"phpunit-select-config phpunit.#.xml.dist --colors=always"
 				],
 				"test-coverage": [
-					"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+					"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+					"pnpm run test-coverage"
+				],
+				"test-js": [
+					"pnpm run test"
 				],
 				"test-php": [
 					"@composer phpunit"
