@@ -281,17 +281,20 @@ that needs to mimic the input element styles */
 
 .contact-form-submission .jetpack_forms_contact-form-success-summary {
 	padding: 24px 0;
-	border-bottom: 1px solid #e0e0e0;
+	border-bottom: 1px solid currentColor;
+	border-bottom-color: color-mix(in sRGB, currentColor 20%, transparent);
 
 	&:first-of-type {
-		border-top: 1px solid #e0e0e0;
+		border-top: 1px solid currentColor;
+		border-top-color: color-mix(in sRGB, currentColor 20%, transparent);
 	}
 }
 
 .contact-form-submission .field-name {
 	font-size: 0.875rem;
 	font-weight: 400;
-	color: #6b6b6b;
+	color: inherit;
+	opacity: 0.6;
 	margin-bottom: 8px;
 }
 
