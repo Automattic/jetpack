@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Adds a new hook to get async loaded agent providers in the frontend

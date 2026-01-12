@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-storybook",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"private": true,
 	"description": "Jetpack components storybook",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/storybook/#readme",

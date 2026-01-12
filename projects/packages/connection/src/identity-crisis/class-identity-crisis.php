@@ -473,6 +473,11 @@ class Identity_Crisis {
 	 * @return bool True if validation should be performed, false otherwise.
 	 */
 	public static function should_remote_validate_idc( $sync_error ) {
+		// If a validation is already in progress or recently completed, don't trigger another.
+		if ( get_transient( 'jetpack_idc_validation_lock' ) ) {
+			return false;
+		}
+
 		// If delay is not set or invalid, validate immediately to bring into new system.
 		if ( empty( $sync_error['next_check_delay'] ) ) {
 			return true;
@@ -518,13 +523,42 @@ class Identity_Crisis {
 		}
 
 		// Use a transient lock to prevent concurrent validations across multiple requests.
-		$lock_key = 'jetpack_idc_validation_lock';
+		// Lock for the full backoff duration to prevent retries during the delay window.
+		$lock_key      = 'jetpack_idc_validation_lock';
+		$lock_duration = $sync_error['next_check_delay'] ?? self::IDC_VALIDATION_INITIAL_DELAY;
+
 		if ( get_transient( $lock_key ) ) {
 			return false;
 		}
-		set_transient( $lock_key, true, 60 ); // 60 second lock.
+
+		// Set the lock and verify it was set successfully.
+		// If the write fails, bail immediately to prevent request floods.
+		if ( ! set_transient( $lock_key, true, $lock_duration ) ) {
+			return false; // Bail - can't prevent concurrent requests.
+		}
 
 		$is_validating = true;
+
+		// Update last_checked before making the API call.
+		// This prevents retries even if the API call hangs, times out, or response handling fails.
+		$sync_error['last_checked'] = time();
+		// Note: update_option may return false if value unchanged, which is OK.
+		// We only bail if we can't verify the option exists with correct timestamp.
+		Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+
+		// Verify the critical timing field was persisted.
+		// This protects against caching/DB issues that would cause request floods.
+		$verified_option = Jetpack_Options::get_option( 'sync_error_idc' );
+		if (
+			! is_array( $verified_option ) ||
+			empty( $verified_option['last_checked'] ) ||
+			(int) $verified_option['last_checked'] !== (int) $sync_error['last_checked']
+		) {
+			// Option is missing, corrupted, or has incorrect timestamp - BAIL to prevent retries.
+			delete_transient( $lock_key );
+			$is_validating = false;
+			return false;
+		}
 
 		// Build API path with current URLs as query params.
 		// We must explicitly include URLs because add_idc_query_args_to_url() skips
@@ -576,15 +610,33 @@ class Identity_Crisis {
 				self::IDC_VALIDATION_MAX_DELAY
 			);
 			Jetpack_Options::update_option( 'sync_error_idc', $fresh_idc_data );
+			self::invalidate_idc_option_cache();
 		} else {
 			// Network error, invalid JSON, or non-200 - just update last_checked without backoff.
 			$sync_error['last_checked'] = time();
 			Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+			self::invalidate_idc_option_cache();
 		}
 
 		delete_transient( $lock_key );
 		$is_validating = false;
 		return false;
+	}
+
+	/**
+	 * Invalidate the cache for the sync_error_idc option.
+	 *
+	 * This ensures that subsequent requests read fresh data from the database
+	 * rather than stale cached values, which is critical for preventing request floods.
+	 *
+	 * Note: This directly calls wp_cache_delete with the 'jetpack_options' cache group,
+	 * which couples this code to the internal caching implementation of Jetpack_Options.
+	 * If Jetpack_Options changes its caching strategy, this method will need to be updated.
+	 *
+	 * @return void
+	 */
+	private static function invalidate_idc_option_cache() {
+		wp_cache_delete( 'sync_error_idc', 'jetpack_options' );
 	}
 
 	/**
