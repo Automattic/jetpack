@@ -38,12 +38,11 @@ function initFormsDashboard() {
 		const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 
 		useEffect( () => {
-			if ( isCentralFormManagementEnabled === undefined ) {
-				return;
-			}
-
 			// Default landing when no hash/route is set.
-			navigate( isCentralFormManagementEnabled ? '/forms' : '/responses', { replace: true } );
+			// Treat undefined (not yet loaded / not provided) as false so we never render a blank page.
+			navigate( isCentralFormManagementEnabled === true ? '/forms' : '/responses', {
+				replace: true,
+			} );
 		}, [ isCentralFormManagementEnabled, navigate ] );
 
 		return null;
