@@ -74,6 +74,11 @@ allowBuilds:
 # Package compromise avoidance: Block odd protocols in subdeps
 blockExoticSubdeps: true
 
+# Some optional dependencies we don't actually need.
+ignoredOptionalDependencies:
+  - sass-embedded-all-unknown
+  - sass-embedded-unknown-all
+
 # Dependencies needing patching.
 patchedDependencies:
 
