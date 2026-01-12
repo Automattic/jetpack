@@ -29,10 +29,16 @@
 
 	:global(.dataviews-view-table td:last-child) {
 		padding-inline-end: 1.5rem;
+		width: auto;
+		white-space: nowrap;
 	}
 
 	:global(.dataviews-view-table td:first-child) {
 		padding-inline-start: 1.5rem;
+
+		:global(.dataviews-view-table__cell-content-wrapper) {
+			white-space: normal;
+		}
 	}
 
 	.toggle-wrap {
@@ -40,10 +46,19 @@
 	}
 }
 
-.module-tooltip {
+.module-title-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0; // Allow flex item to shrink below content size
+}
 
-	&:global(.components-tooltip) {
-		max-width: 90vw;
-		text-align: start;
-	}
+.module-name {
+	font-weight: 500;
+}
+
+.module-description {
+
+	@include gb.body-small;
+	color: #{gb.$gray-700};
 }
