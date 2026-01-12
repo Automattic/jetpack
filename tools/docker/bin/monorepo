@@ -71,6 +71,38 @@ if [[ "$SHOULD_PULL" = "1" ]]; then
     touch "$CACHE_FILE"
 fi
 
+# Check if pnpm store location has changed and needs migration
+# This handles the case where PNPM_STORE_DIR was updated to fix hard link issues
+EXPECTED_STORE_DIR="/workspace/tools/docker/data/pnpm-store"
+MODULES_YAML="$MONOREPO_ROOT/node_modules/.modules.yaml"
+
+if [[ -f "$MODULES_YAML" ]]; then
+    # Extract storeDir from .modules.yaml (format: "storeDir: /path/to/store/v10")
+    CURRENT_STORE_DIR=$(grep "^storeDir:" "$MODULES_YAML" | sed 's/^storeDir: *//' | sed 's|/v[0-9]*$||')
+
+    if [[ -n "$CURRENT_STORE_DIR" && "$CURRENT_STORE_DIR" != "$EXPECTED_STORE_DIR" ]]; then
+        echo "Detected pnpm store location change:"
+        echo "  Old: $CURRENT_STORE_DIR"
+        echo "  New: $EXPECTED_STORE_DIR"
+        echo "Cleaning up for fresh install with new store location..."
+
+        # Delete node_modules
+        if rm -rf "$MONOREPO_ROOT/node_modules"; then
+            echo "  Removed node_modules/"
+        fi
+
+        # Delete old store if it's within the workspace
+        OLD_STORE_HOST_PATH="${CURRENT_STORE_DIR/#\/workspace/$MONOREPO_ROOT}"
+        if [[ -d "$OLD_STORE_HOST_PATH" ]]; then
+            if rm -rf "$OLD_STORE_HOST_PATH"; then
+                echo "  Removed old store: $OLD_STORE_HOST_PATH"
+            fi
+        fi
+
+        echo "Migration complete. Fresh install will use new store location."
+    fi
+fi
+
 # Run the command in the container
 # Use -it only if we have a TTY available
 # If stdin was redirected (e.g., by git hooks) but /dev/tty is available, reconnect to it
@@ -104,7 +136,7 @@ fi
     -e NPM_CONFIG_USERCONFIG=/root/.npmrc \
     -e NPM_CONFIG_CACHE=/root/.npm \
     -e PNPM_HOME=/root/.local/share/pnpm \
-    -e PNPM_STORE_DIR=/root/.pnpm-store \
+    -e npm_config_store_dir=/workspace/tools/docker/data/pnpm-store \
     -e GIT_AUTHOR_NAME="${GIT_USER_NAME}" \
     -e GIT_AUTHOR_EMAIL="${GIT_USER_EMAIL}" \
     -e GIT_COMMITTER_NAME="${GIT_USER_NAME}" \
