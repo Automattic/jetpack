@@ -71,24 +71,26 @@ export interface MediaSectionV2Props {
 	onEditTemplate?: VoidFunction;
 
 	/**
-	 * Optional attached media array. When provided along with `onMediaChange`,
-	 * the component uses these values instead of fetching from the store.
+	 * Optional attached media array. In controlled mode (when `onMediaChange` is provided),
+	 * this value is used instead of fetching from the store. Falls back to empty array if not provided.
 	 */
 	attachedMedia?: Array< AttachedMedia >;
 
 	/**
-	 * Optional image generator settings. Used with per-connection customization.
+	 * Optional image generator settings. In controlled mode, this value is used instead of
+	 * fetching from the store. Falls back to `{ enabled: false }` if not provided.
 	 */
 	imageGeneratorSettings?: SIGSettings;
 
 	/**
-	 * Optional media source value.
+	 * Optional media source value. In controlled mode, this value is used instead of
+	 * fetching from the store. Falls back to store value if not provided.
 	 */
 	mediaSource?: JetpackSocialOptions[ 'media_source' ];
 
 	/**
-	 * Optional callback to update media-related options.
-	 * When provided, the component operates in "controlled" mode.
+	 * Optional callback to update media-related options. When provided, the component
+	 * operates in "controlled" mode and uses the media props above instead of fetching from the store.
 	 */
 	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
 }

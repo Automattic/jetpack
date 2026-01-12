@@ -42,18 +42,20 @@ export type SharePostFormProps = {
 	onMessageChange?: ( message: string ) => void;
 
 	/**
-	 * Optional attached media array. When provided along with `onMediaChange`,
-	 * the component uses these values instead of fetching from the store.
+	 * Optional attached media array. In controlled mode (when `onMediaChange` is provided),
+	 * this value is passed to child components instead of fetching from the store.
 	 */
 	attachedMedia?: Array< AttachedMedia >;
 
 	/**
-	 * Optional image generator settings. Used with per-connection customization.
+	 * Optional image generator settings. In controlled mode, this value is passed to
+	 * child components instead of fetching from the store.
 	 */
 	imageGeneratorSettings?: SIGSettings;
 
 	/**
-	 * Optional media source value.
+	 * Optional media source value. In controlled mode, this value is passed to
+	 * child components instead of fetching from the store.
 	 */
 	mediaSource?: JetpackSocialOptions[ 'media_source' ];
 

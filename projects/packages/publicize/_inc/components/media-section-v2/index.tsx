@@ -62,7 +62,10 @@ export default function MediaSectionV2( {
 			isControlled ? imageGeneratorSettingsProp ?? { enabled: false } : storeImageGeneratorSettings,
 		[ isControlled, imageGeneratorSettingsProp, storeImageGeneratorSettings ]
 	);
-	const mediaSource = isControlled ? mediaSourceProp : storeMediaSource;
+	const mediaSource = useMemo(
+		() => ( isControlled ? mediaSourceProp ?? storeMediaSource : storeMediaSource ),
+		[ isControlled, mediaSourceProp, storeMediaSource ]
+	);
 
 	// Unified update function that uses props callback or store
 	const updateMediaOptions = useMemo(
