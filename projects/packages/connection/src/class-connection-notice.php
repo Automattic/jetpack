@@ -81,12 +81,19 @@ class Connection_Notice {
 		$connection_owner_userdata = get_userdata( $connection_owner_id );
 
 		// Bail if we're not trying to delete connection owner.
-		$user_ids_to_delete = array();
-		if ( isset( $_REQUEST['users'] ) ) {
-			$user_ids_to_delete = array_map( 'sanitize_text_field', wp_unslash( $_REQUEST['users'] ) );
-		} elseif ( isset( $_REQUEST['user'] ) ) {
-			$user_ids_to_delete[] = sanitize_text_field( wp_unslash( $_REQUEST['user'] ) );
-		}
+		// Bail if we're not trying to delete connection owner.
+$user_ids_to_delete = array();
+
+if ( isset( $_REQUEST['users'] ) ) {
+    $raw_users = wp_unslash( $_REQUEST['users'] );
+
+    if ( is_array( $raw_users ) ) {
+        $user_ids_to_delete = array_map( 'sanitize_text_field', $raw_users );
+    }
+} elseif ( isset( $_REQUEST['user'] ) ) {
+    $user_ids_to_delete[] = sanitize_text_field( wp_unslash( $_REQUEST['user'] ) );
+}
+
 
 		// phpcs:enable
 		$user_ids_to_delete        = array_map( 'absint', $user_ids_to_delete );
