@@ -36,7 +36,8 @@ export type SharePostFormProps = {
 	message?: string;
 
 	/**
-	 * Optional callback to update the message. Required when `message` prop is provided.
+	 * Optional callback to update the message. When omitted, falls back to
+	 * updating via the internal store.
 	 */
 	onMessageChange?: ( message: string ) => void;
 
@@ -57,8 +58,8 @@ export type SharePostFormProps = {
 	mediaSource?: JetpackSocialOptions[ 'media_source' ];
 
 	/**
-	 * Optional callback to update media-related options. Required when media props are provided.
-	 * Accepts partial JetpackSocialOptions to update.
+	 * Optional callback to update media-related options. When provided, the component
+	 * operates in controlled mode and uses the media props instead of fetching from the store.
 	 */
 	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
 };
