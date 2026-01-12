@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 import { FilteredPlans } from './filtered-plans';
 import { FilteredProducts } from './filtered-products';
@@ -110,14 +110,27 @@ export const Products = () => {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const filterParam = searchParams.get( 'filter' );
 	const selectedFilter: ProductFilter = isValidFilter( filterParam ) ? filterParam : 'all';
-
-	const [ search, setSearch ] = useState< string >( '' );
+	const search = searchParams.get( 'search' ) || '';
 
 	// Update URL when filter changes
 	const handleSetSelectedFilter = useCallback(
 		( filter: ProductFilter ) => {
 			const newSearchParams = new URLSearchParams( searchParams );
 			newSearchParams.set( 'filter', filter );
+			setSearchParams( newSearchParams, { replace: true } );
+		},
+		[ searchParams, setSearchParams ]
+	);
+
+	// Update URL when search changes
+	const setSearch = useCallback(
+		( searchTerm: string ) => {
+			const newSearchParams = new URLSearchParams( searchParams );
+			if ( searchTerm ) {
+				newSearchParams.set( 'search', searchTerm );
+			} else {
+				newSearchParams.delete( 'search' );
+			}
 			setSearchParams( newSearchParams, { replace: true } );
 		},
 		[ searchParams, setSearchParams ]
