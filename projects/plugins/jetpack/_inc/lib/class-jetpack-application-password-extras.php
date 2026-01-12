@@ -18,6 +18,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jetpack_Application_Password_Extras {
 
 	/**
+	 * The AJAX action prefix for VideoPress actions.
+	 *
+	 * @var string
+	 */
+	private const VIDEOPRESS_AJAX_PREFIX = 'videopress-';
+
+	/**
 	 * Initialize the main hooks.
 	 */
 	public static function init() {
@@ -38,8 +45,8 @@ class Jetpack_Application_Password_Extras {
 			return true;
 		}
 
-		// Allow Application Password access to admin-ajax.php
-		if ( is_admin() && wp_doing_ajax() ) {
+		// Allow Application Password access to admin-ajax.php for VideoPress actions only
+		if ( is_admin() && wp_doing_ajax() && self::is_videopress_ajax_action() ) {
 			return true;
 		}
 
@@ -54,14 +61,30 @@ class Jetpack_Application_Password_Extras {
 	}
 
 	/**
+	 * Check if the current AJAX request is for a VideoPress action.
+	 *
+	 * @return bool True if the action starts with 'videopress-', false otherwise.
+	 */
+	private static function is_videopress_ajax_action() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We're only checking the action name, not processing the request.
+		$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
+
+		if ( empty( $action ) ) {
+			return false;
+		}
+
+		return str_starts_with( $action, self::VIDEOPRESS_AJAX_PREFIX );
+	}
+
+	/**
 	 * Get the abilities that this extension provides.
 	 *
 	 * @return array Array of abilities with their status.
 	 */
 	public static function get_abilities() {
 		return array(
-			'admin-ajax'    => true,
-			'post-previews' => true,
+			'admin-ajax-videopress' => true,
+			'post-previews'         => true,
 		);
 	}
 }
