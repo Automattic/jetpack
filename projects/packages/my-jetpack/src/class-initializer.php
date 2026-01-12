@@ -711,7 +711,7 @@ class Initializer {
 			return;
 		}
 
-		// Check if we're on the My Jetpack page
+		// Check if we're on the My Jetpack page.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page               = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 		$is_my_jetpack_page = $pagenow === 'admin.php' && $page === 'my-jetpack';
@@ -733,7 +733,7 @@ class Initializer {
 			$red_bubble_alerts = $cached_alerts;
 		}
 
-		// Filter out silent alerts
+		// Filter out silent alerts.
 		$red_bubble_alerts = array_filter(
 			$red_bubble_alerts,
 			function ( $alert ) {
