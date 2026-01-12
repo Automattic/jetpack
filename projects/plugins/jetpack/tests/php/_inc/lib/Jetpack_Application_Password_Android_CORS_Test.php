@@ -65,35 +65,35 @@ class Jetpack_Application_Password_Android_CORS_Test extends Jetpack_REST_TestCa
 	 * Test that CORS origin is added with authorization header.
 	 */
 	public function test_cors_origin_added_with_authorization() {
-		$_SERVER['HTTP_ORIGIN']        = 'https://appassets.androidplatform.net';
+		$_SERVER['HTTP_ORIGIN']        = 'https://android-app-assets.jetpack.com';
 		$_SERVER['HTTP_AUTHORIZATION'] = 'Basic xxxxx';
 		set_current_screen( 'admin-ajax' );
 		add_filter( 'wp_doing_ajax', '__return_true' );
 
 		$result = Jetpack_Application_Password_Extras::allow_ajax_cors_origins( array() );
 
-		$this->assertContains( 'https://appassets.androidplatform.net', $result, 'Android origin should be added when authorization is present' );
+		$this->assertContains( 'https://android-app-assets.jetpack.com', $result, 'Android origin should be added when authorization is present' );
 	}
 
 	/**
 	 * Test that CORS origin is not added without authorization.
 	 */
 	public function test_cors_origin_not_added_without_authorization() {
-		$_SERVER['HTTP_ORIGIN'] = 'https://appassets.androidplatform.net';
+		$_SERVER['HTTP_ORIGIN'] = 'https://android-app-assets.jetpack.com';
 		unset( $_SERVER['HTTP_AUTHORIZATION'] );
 		set_current_screen( 'admin-ajax' );
 		add_filter( 'wp_doing_ajax', '__return_true' );
 
 		$result = Jetpack_Application_Password_Extras::allow_ajax_cors_origins( array() );
 
-		$this->assertNotContains( 'https://appassets.androidplatform.net', $result, 'Android origin should not be added without authorization' );
+		$this->assertNotContains( 'https://android-app-assets.jetpack.com', $result, 'Android origin should not be added without authorization' );
 	}
 
 	/**
 	 * Test that CORS origin is added for preflight requests with Authorization header.
 	 */
 	public function test_cors_origin_added_for_preflight_with_auth() {
-		$_SERVER['HTTP_ORIGIN']                         = 'https://appassets.androidplatform.net';
+		$_SERVER['HTTP_ORIGIN']                         = 'https://android-app-assets.jetpack.com';
 		$_SERVER['REQUEST_METHOD']                      = 'OPTIONS';
 		$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] = 'Authorization, Content-Type';
 		unset( $_SERVER['HTTP_AUTHORIZATION'] );
@@ -102,14 +102,14 @@ class Jetpack_Application_Password_Android_CORS_Test extends Jetpack_REST_TestCa
 
 		$result = Jetpack_Application_Password_Extras::allow_ajax_cors_origins( array() );
 
-		$this->assertContains( 'https://appassets.androidplatform.net', $result, 'Android origin should be added for preflight requests with Authorization header' );
+		$this->assertContains( 'https://android-app-assets.jetpack.com', $result, 'Android origin should be added for preflight requests with Authorization header' );
 	}
 
 	/**
 	 * Test that CORS is not added for preflight requests without Authorization header.
 	 */
 	public function test_cors_not_added_for_preflight_without_auth() {
-		$_SERVER['HTTP_ORIGIN']                         = 'https://appassets.androidplatform.net';
+		$_SERVER['HTTP_ORIGIN']                         = 'https://android-app-assets.jetpack.com';
 		$_SERVER['REQUEST_METHOD']                      = 'OPTIONS';
 		$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] = 'Content-Type, X-Requested-With';
 		unset( $_SERVER['HTTP_AUTHORIZATION'] );
@@ -118,14 +118,14 @@ class Jetpack_Application_Password_Android_CORS_Test extends Jetpack_REST_TestCa
 
 		$result = Jetpack_Application_Password_Extras::allow_ajax_cors_origins( array() );
 
-		$this->assertNotContains( 'https://appassets.androidplatform.net', $result, 'Android origin should not be added for preflight without Authorization header' );
+		$this->assertNotContains( 'https://android-app-assets.jetpack.com', $result, 'Android origin should not be added for preflight without Authorization header' );
 	}
 
 	/**
 	 * Test that CORS is not added outside admin-ajax context.
 	 */
 	public function test_cors_not_added_outside_admin_ajax() {
-		$_SERVER['HTTP_ORIGIN']        = 'https://appassets.androidplatform.net';
+		$_SERVER['HTTP_ORIGIN']        = 'https://android-app-assets.jetpack.com';
 		$_SERVER['HTTP_AUTHORIZATION'] = 'Basic xxxxx';
 		// Not setting admin-ajax context
 
@@ -138,7 +138,7 @@ class Jetpack_Application_Password_Android_CORS_Test extends Jetpack_REST_TestCa
 	 * Test that CORS is not added for non-admin context even with wp_doing_ajax.
 	 */
 	public function test_cors_not_added_for_non_admin_context() {
-		$_SERVER['HTTP_ORIGIN']        = 'https://appassets.androidplatform.net';
+		$_SERVER['HTTP_ORIGIN']        = 'https://android-app-assets.jetpack.com';
 		$_SERVER['HTTP_AUTHORIZATION'] = 'Basic xxxxx';
 		add_filter( 'wp_doing_ajax', '__return_true' );
 		// Not setting admin screen
@@ -166,7 +166,7 @@ class Jetpack_Application_Password_Android_CORS_Test extends Jetpack_REST_TestCa
 	 * Test that existing allowed origins are preserved.
 	 */
 	public function test_preserves_existing_allowed_origins() {
-		$_SERVER['HTTP_ORIGIN']        = 'https://appassets.androidplatform.net';
+		$_SERVER['HTTP_ORIGIN']        = 'https://android-app-assets.jetpack.com';
 		$_SERVER['HTTP_AUTHORIZATION'] = 'Basic xxxxx';
 		set_current_screen( 'admin-ajax' );
 		add_filter( 'wp_doing_ajax', '__return_true' );
@@ -176,23 +176,23 @@ class Jetpack_Application_Password_Android_CORS_Test extends Jetpack_REST_TestCa
 
 		$this->assertContains( 'https://example.com', $result, 'Existing origins should be preserved' );
 		$this->assertContains( 'https://test.com', $result, 'Existing origins should be preserved' );
-		$this->assertContains( 'https://appassets.androidplatform.net', $result, 'Android origin should be added' );
+		$this->assertContains( 'https://android-app-assets.jetpack.com', $result, 'Android origin should be added' );
 	}
 
 	/**
 	 * Test that duplicate origins are not added.
 	 */
 	public function test_no_duplicate_origins() {
-		$_SERVER['HTTP_ORIGIN']        = 'https://appassets.androidplatform.net';
+		$_SERVER['HTTP_ORIGIN']        = 'https://android-app-assets.jetpack.com';
 		$_SERVER['HTTP_AUTHORIZATION'] = 'Basic xxxxx';
 		set_current_screen( 'admin-ajax' );
 		add_filter( 'wp_doing_ajax', '__return_true' );
 
-		$existing = array( 'https://appassets.androidplatform.net' );
+		$existing = array( 'https://android-app-assets.jetpack.com' );
 		$result   = Jetpack_Application_Password_Extras::allow_ajax_cors_origins( $existing );
 
 		$this->assertCount( 1, $result, 'Should not add duplicate origins' );
-		$this->assertEquals( array( 'https://appassets.androidplatform.net' ), $result );
+		$this->assertEquals( array( 'https://android-app-assets.jetpack.com' ), $result );
 	}
 
 	/**
