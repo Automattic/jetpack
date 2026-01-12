@@ -851,12 +851,16 @@ function JetpackContactFormEdit( {
 
 	// Show loading state when resolving synced form
 	if ( ref && isResolvingSyncedForm ) {
-		elt = <ContactFormSkeletonLoader />;
+		return (
+			<div { ...blockProps }>
+				<ContactFormSkeletonLoader />
+			</div>
+		);
 	}
 	// Show error if referenced form not found
 	else if ( ref && ! syncedForm && ! isResolvingSyncedForm ) {
 		elt = (
-			<div { ...blockProps }>
+			<div>
 				<Notice status="warning" isDismissible={ false }>
 					{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
 				</Notice>
@@ -864,16 +868,19 @@ function JetpackContactFormEdit( {
 		);
 	} else if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {
-			elt = <ContactFormSkeletonLoader />;
-		} else {
-			elt = (
-				<ContactFormPlaceholder
-					changeStatus={ changeStatus }
-					isModuleActive={ isModuleActive }
-					isLoading={ isChangingStatus }
-				/>
+			return (
+				<div { ...blockProps }>
+					<ContactFormSkeletonLoader />
+				</div>
 			);
 		}
+		elt = (
+			<ContactFormPlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
 	} else if ( ! hasAnyInnerBlocks ) {
 		elt = (
 			<VariationPicker
