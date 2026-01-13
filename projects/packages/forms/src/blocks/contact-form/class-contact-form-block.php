@@ -23,12 +23,6 @@ use Jetpack;
  */
 class Contact_Form_Block {
 	/**
-	 * The ID of the synced form being rendered, if any.
-	 *
-	 * @var int|null
-	 */
-	private $synced_form_id = null;
-	/**
 	 * Register the Contact Form block.
 	 * We are core block dependent only on whether the jetpack contact form plugin
 	 * is active or not. This is allowing us to make it more discoverable
