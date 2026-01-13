@@ -1,6 +1,57 @@
 {
-  "count": 23,
+  "count": 35,
   "issues": [
+    {
+      "number": 24196,
+      "title": "Excluding multiple categories from Related Posts disables it completely",
+      "url": "https://github.com/Automattic/jetpack/issues/24196",
+      "updated_at": "2022-05-02T16:10:13Z",
+      "days_inactive": 1351,
+      "labels": [
+        "[Status] Needs Author Reply",
+        "[Feature] Related Posts",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 25457,
+      "title": "Tracking Parameters Causes Issue for Forms",
+      "url": "https://github.com/Automattic/jetpack/issues/25457",
+      "updated_at": "2022-08-15T07:11:52Z",
+      "days_inactive": 1247,
+      "labels": [
+        "[Status] Needs Author Reply",
+        "[Plugin] Super Cache"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 25460,
+      "title": "wp supercache files being cleared when single page updated",
+      "url": "https://github.com/Automattic/jetpack/issues/25460",
+      "updated_at": "2022-08-15T07:55:09Z",
+      "days_inactive": 1246,
+      "labels": [
+        "[Status] Needs Author Reply",
+        "[Plugin] Super Cache",
+        "[Super Cache] Preload"
+      ],
+      "comments_count": 6
+    },
+    {
+      "number": 25460,
+      "title": "wp supercache files being cleared when single page updated",
+      "url": "https://github.com/Automattic/jetpack/issues/25460",
+      "updated_at": "2022-08-15T07:55:09Z",
+      "days_inactive": 1246,
+      "labels": [
+        "[Status] Needs Author Reply",
+        "[Plugin] Super Cache",
+        "[Super Cache] Preload"
+      ],
+      "comments_count": 6
+    },
     {
       "number": 27547,
       "title": "flood of debug warnings",
@@ -14,6 +65,35 @@
         "[Plugin] Jetpack"
       ],
       "comments_count": 2
+    },
+    {
+      "number": 27547,
+      "title": "flood of debug warnings",
+      "url": "https://github.com/Automattic/jetpack/issues/27547",
+      "updated_at": "2022-12-07T08:27:44Z",
+      "days_inactive": 1132,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 27019,
+      "title": "Rename Settings > Hosting Configuration to Settings > Hosting",
+      "url": "https://github.com/Automattic/jetpack/issues/27019",
+      "updated_at": "2022-12-07T08:39:37Z",
+      "days_inactive": 1132,
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] Needs Author Reply",
+        "[Feature] Masterbar",
+        "nav-unification",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 1
     },
     {
       "number": 32027,
@@ -59,6 +139,37 @@
         "[Plugin] Jetpack"
       ],
       "comments_count": 1
+    },
+    {
+      "number": 34897,
+      "title": "Stats: Headless compatibility",
+      "url": "https://github.com/Automattic/jetpack/issues/34897",
+      "updated_at": "2024-01-09T11:40:52Z",
+      "days_inactive": 734,
+      "labels": [
+        "[Feature] Stats Data",
+        "[Status] Needs Author Reply",
+        "[Type] Feature Request",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 35393,
+      "title": "\"Enable payment button\" and \"Enable donation form\" links redirect to an unexpected place",
+      "url": "https://github.com/Automattic/jetpack/issues/35393",
+      "updated_at": "2024-02-02T16:08:59Z",
+      "days_inactive": 710,
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "Earn",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "[Feature] Earn Blocks"
+      ],
+      "comments_count": 3
     },
     {
       "number": 35393,
@@ -129,6 +240,42 @@
       "comments_count": 9
     },
     {
+      "number": 34822,
+      "title": "[Mastodon] Jetpack Social Connection fails to integrate with Mozilla.social",
+      "url": "https://github.com/Automattic/jetpack/issues/34822",
+      "updated_at": "2024-06-26T07:09:15Z",
+      "days_inactive": 566,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Publicize",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "[Plugin] Jetpack",
+        "[Focus] Compatibility",
+        "[Plugin] Social",
+        "Triaged",
+        "[Status] Priority Review Triggered"
+      ],
+      "comments_count": 9
+    },
+    {
+      "number": 35588,
+      "title": "Markdown module regression in support for multiple codeblocks in same document",
+      "url": "https://github.com/Automattic/jetpack/issues/35588",
+      "updated_at": "2024-08-12T00:49:37Z",
+      "days_inactive": 519,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Feature] Markdown",
+        "[Pri] Low",
+        "[Status] Stale",
+        "[Plugin] Jetpack",
+        "Triaged"
+      ],
+      "comments_count": 5
+    },
+    {
       "number": 35588,
       "title": "Markdown module regression in support for multiple codeblocks in same document",
       "url": "https://github.com/Automattic/jetpack/issues/35588",
@@ -196,6 +343,40 @@
         "[Status] Auto-allocated"
       ],
       "comments_count": 5
+    },
+    {
+      "number": 40862,
+      "title": "Images break when there is a space in the filename",
+      "url": "https://github.com/Automattic/jetpack/issues/40862",
+      "updated_at": "2025-01-15T14:56:15Z",
+      "days_inactive": 362,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "[Feature] Search",
+        "[Plugin] Search",
+        "Triaged",
+        "[Platform] Atomic",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 5
+    },
+    {
+      "number": 41222,
+      "title": "Incongruencies in plans page",
+      "url": "https://github.com/Automattic/jetpack/issues/41222",
+      "updated_at": "2025-01-21T13:45:12Z",
+      "days_inactive": 356,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "Triaged",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 2
     },
     {
       "number": 41222,

@@ -1,0 +1,50 @@
+{
+  "categories": ["Category 4: Recently Active", "Category 5: Medium Age"],
+  "analyzed_date": "2026-01-13",
+  "total_issues": 376,
+  
+  "category_4": {
+    "name": "Recently Active (<3 months inactive)",
+    "total": 44,
+    "bugs": 15,
+    "enhancements": 13,
+    "needs_triage": 5,
+    "recommendation": {
+      "close": 0,
+      "keep_open": 44,
+      "action": "Quality check only - verify labels and milestones",
+      "rationale": "Recent activity indicates these are still relevant"
+    }
+  },
+  
+  "category_5": {
+    "name": "Medium Age (3-12 months inactive)",
+    "total": 332,
+    "bugs": 143,
+    "enhancements": 138,
+    "triaged": 150,
+    "priority_breakdown": {
+      "high": 2,
+      "normal": 126,
+      "low": 120
+    },
+    "recommendation": {
+      "close_estimate": 50,
+      "keep_open_estimate": 250,
+      "needs_verification_estimate": 32,
+      "rationale": "Mostly recent enough to be relevant. Focus on low-priority enhancements >9 months for potential closures."
+    },
+    "suggested_closures": {
+      "low_priority_enhancements_9plus_months": "~30 issues",
+      "unresponsive_needs_author_reply": "~15 issues",
+      "possible_duplicates": "~5 issues"
+    }
+  },
+  
+  "combined_impact": {
+    "total_issues": 376,
+    "estimated_closures": 50,
+    "estimated_keeps": 320,
+    "closure_rate": "13%"
+  }
+}

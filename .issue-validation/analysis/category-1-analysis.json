@@ -1,0 +1,47 @@
+{
+  "category": "Likely Stale (>1 year inactive)",
+  "total_issues": 484,
+  "analyzed_date": "2026-01-13",
+  "analysis_method": "automated_pattern_matching",
+
+  "summary": {
+    "total": 484,
+    "recommend_close_high_confidence": 249,
+    "recommend_close_medium_confidence": 50,
+    "keep_open": 111,
+    "needs_manual_review": 74,
+    "breakdown": {
+      "already_stale": 97,
+      "old_enhancements_2plus_years": 132,
+      "very_old_low_priority_3plus_years": 20,
+      "triaged_or_assigned": 111
+    }
+  },
+
+  "closure_candidates": {
+    "high_confidence": {
+      "count": 249,
+      "criteria": [
+        "Already marked [Status] Stale (97 issues)",
+        "Enhancements >2 years inactive (132 issues)",
+        "Very old (>3 years) low/no priority (20 issues)"
+      ],
+      "rationale": "Clear signals of abandonment or low value",
+      "estimated_time": "4-6 hours in batches of 50"
+    },
+    "medium_confidence": {
+      "count": 50,
+      "criteria": [
+        "Bugs >2.5 years old with low priority",
+        "Enhancements 1.5-2 years with some engagement"
+      ],
+      "estimated_time": "2-3 hours"
+    }
+  },
+
+  "projected_outcomes": {
+    "conservative": {"closures": 249, "percentage": "51%"},
+    "moderate": {"closures": 280, "percentage": "58%"},
+    "optimistic": {"closures": 320, "percentage": "66%"}
+  }
+}

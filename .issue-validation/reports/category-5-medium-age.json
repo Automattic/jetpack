@@ -1,5 +1,5 @@
 {
-  "count": 332,
+  "count": 399,
   "issues": [
     {
       "number": 40988,
@@ -9,6 +9,35 @@
       "days_inactive": 364,
       "labels": [
         "[Type] Enhancement",
+        "[Feature] Backups",
+        "[Plugin] Backup",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 40988,
+      "title": "Backup: It's not clear whether the active theme would be restored",
+      "url": "https://github.com/Automattic/jetpack/issues/40988",
+      "updated_at": "2025-01-13T11:25:36Z",
+      "days_inactive": 364,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Backups",
+        "[Plugin] Backup",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 40985,
+      "title": "Backup: Display the progress on the Backup page",
+      "url": "https://github.com/Automattic/jetpack/issues/40985",
+      "updated_at": "2025-01-13T11:26:31Z",
+      "days_inactive": 364,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Activity Log",
         "[Feature] Backups",
         "[Plugin] Backup",
         "[Experiment] AI labels added"
@@ -65,6 +94,38 @@
       "comments_count": 1
     },
     {
+      "number": 40952,
+      "title": "Instant Search: Allow multiple select on Date filter",
+      "url": "https://github.com/Automattic/jetpack/issues/40952",
+      "updated_at": "2025-01-13T11:35:51Z",
+      "days_inactive": 364,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Low",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Feature Group] Content Management",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 40964,
+      "title": "Forms: when opening block picker in context of Form, remove \"field\" suffix",
+      "url": "https://github.com/Automattic/jetpack/issues/40964",
+      "updated_at": "2025-01-13T11:38:14Z",
+      "days_inactive": 364,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Contact Form",
+        "[Pri] Low",
+        "[Block] Contact Form",
+        "[Feature] Forms Blocks"
+      ],
+      "comments_count": 1
+    },
+    {
       "number": 40964,
       "title": "Forms: when opening block picker in context of Form, remove \"field\" suffix",
       "url": "https://github.com/Automattic/jetpack/issues/40964",
@@ -91,6 +152,35 @@
         "[Pri] Normal",
         "[Block] Contact Form",
         "[Package] Forms"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 40965,
+      "title": "Forms: allow dividers in drop-down fields",
+      "url": "https://github.com/Automattic/jetpack/issues/40965",
+      "updated_at": "2025-01-13T13:14:49Z",
+      "days_inactive": 364,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Contact Form",
+        "[Pri] Normal",
+        "[Block] Contact Form",
+        "[Package] Forms"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 39853,
+      "title": "Subscriptions: use new plugin template registration API for subscription templates",
+      "url": "https://github.com/Automattic/jetpack/issues/39853",
+      "updated_at": "2025-01-13T17:57:14Z",
+      "days_inactive": 364,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Subscriptions",
+        "[Pri] Normal",
+        "[Block] Subscribe"
       ],
       "comments_count": 1
     },
@@ -157,6 +247,21 @@
       "comments_count": 0
     },
     {
+      "number": 41021,
+      "title": "Forms: MailPoet connection",
+      "url": "https://github.com/Automattic/jetpack/issues/41021",
+      "updated_at": "2025-01-14T09:11:31Z",
+      "days_inactive": 363,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Block] Contact Form",
+        "[Package] Forms",
+        "[Feature] Forms Blocks"
+      ],
+      "comments_count": 0
+    },
+    {
       "number": 38368,
       "title": "Form Block: Make It Easier To Select Parent Block",
       "url": "https://github.com/Automattic/jetpack/issues/38368",
@@ -187,10 +292,62 @@
       "comments_count": 0
     },
     {
+      "number": 41071,
+      "title": "Check title+excerpt vs seo title+meta description",
+      "url": "https://github.com/Automattic/jetpack/issues/41071",
+      "updated_at": "2025-01-15T14:41:29Z",
+      "days_inactive": 362,
+      "labels": [
+        "[Type] Task",
+        "[Pri] Normal",
+        "[Feature] AI"
+      ],
+      "comments_count": 0
+    },
+    {
       "number": 41067,
       "title": "Check for featured image and offer to generate one",
       "url": "https://github.com/Automattic/jetpack/issues/41067",
       "updated_at": "2025-01-15T14:42:17Z",
+      "days_inactive": 362,
+      "labels": [
+        "[Type] Task",
+        "[Pri] Normal",
+        "[Feature] AI"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 41067,
+      "title": "Check for featured image and offer to generate one",
+      "url": "https://github.com/Automattic/jetpack/issues/41067",
+      "updated_at": "2025-01-15T14:42:17Z",
+      "days_inactive": 362,
+      "labels": [
+        "[Type] Task",
+        "[Pri] Normal",
+        "[Feature] AI"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 41050,
+      "title": "Iterate through images to set ALT text (user input)",
+      "url": "https://github.com/Automattic/jetpack/issues/41050",
+      "updated_at": "2025-01-15T14:45:43Z",
+      "days_inactive": 362,
+      "labels": [
+        "[Type] Task",
+        "[Pri] Normal",
+        "[Feature] AI"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 41049,
+      "title": "Investigate SEO inner works",
+      "url": "https://github.com/Automattic/jetpack/issues/41049",
+      "updated_at": "2025-01-15T14:45:43Z",
       "days_inactive": 362,
       "labels": [
         "[Type] Task",
@@ -241,6 +398,21 @@
       "comments_count": 1
     },
     {
+      "number": 41062,
+      "title": "Enhancement: Social Preview in Social Notes Should Show Selected Link Type",
+      "url": "https://github.com/Automattic/jetpack/issues/41062",
+      "updated_at": "2025-01-15T14:52:31Z",
+      "days_inactive": 362,
+      "labels": [
+        "[Type] Enhancement",
+        "Customer Report [LEGACY]",
+        "[Extension] Social Previews",
+        "[Plugin] Social",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
       "number": 40862,
       "title": "Images break when there is a space in the filename",
       "url": "https://github.com/Automattic/jetpack/issues/40862",
@@ -257,6 +429,41 @@
         "[Status] Auto-allocated"
       ],
       "comments_count": 5
+    },
+    {
+      "number": 40862,
+      "title": "Images break when there is a space in the filename",
+      "url": "https://github.com/Automattic/jetpack/issues/40862",
+      "updated_at": "2025-01-15T14:56:15Z",
+      "days_inactive": 362,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "[Feature] Search",
+        "[Plugin] Search",
+        "Triaged",
+        "[Platform] Atomic",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 5
+    },
+    {
+      "number": 41088,
+      "title": "Feature Request: Track Source Page for Donation made through Donation Block",
+      "url": "https://github.com/Automattic/jetpack/issues/41088",
+      "updated_at": "2025-01-15T15:04:26Z",
+      "days_inactive": 362,
+      "labels": [
+        "[Type] Feature Request",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "Earn",
+        "[Block] Donations",
+        "[Feature Group] Customer Seller Experience",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 3
     },
     {
       "number": 41088,
@@ -293,6 +500,23 @@
       "comments_count": 1
     },
     {
+      "number": 41092,
+      "title": "Enhancement: Full sync query is slow on larger sites",
+      "url": "https://github.com/Automattic/jetpack/issues/41092",
+      "updated_at": "2025-01-15T16:47:38Z",
+      "days_inactive": 362,
+      "labels": [
+        "[Type] Enhancement",
+        "[Focus] Performance",
+        "[Plugin] Boost",
+        "[Boost Feature] Optimizations",
+        "[Feature Group] Content Management",
+        "[Boost Feature] Page Cache",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
       "number": 41090,
       "title": "Comment form requires WordPress.com login for email address even after account has been closed/purged on simple sites",
       "url": "https://github.com/Automattic/jetpack/issues/41090",
@@ -310,6 +534,43 @@
         "[Status] Auto-allocated"
       ],
       "comments_count": 2
+    },
+    {
+      "number": 41090,
+      "title": "Comment form requires WordPress.com login for email address even after account has been closed/purged on simple sites",
+      "url": "https://github.com/Automattic/jetpack/issues/41090",
+      "updated_at": "2025-01-16T10:14:49Z",
+      "days_inactive": 361,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Comments",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "[Plugin] mu wpcom",
+        "[mu wpcom Feature] Verbum Comments",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 39834,
+      "title": "Feature Request > WordPress.com Simple: Custom message after submitting the email on the Subscribe Block",
+      "url": "https://github.com/Automattic/jetpack/issues/39834",
+      "updated_at": "2025-01-17T16:27:56Z",
+      "days_inactive": 360,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Subscriptions",
+        "[Pri] Normal",
+        "[Block] Subscribe",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "[Platform] Simple"
+      ],
+      "comments_count": 5
     },
     {
       "number": 39834,
@@ -384,6 +645,21 @@
       "comments_count": 2
     },
     {
+      "number": 21787,
+      "title": "Infinite Scroll: adapt to work with block themes",
+      "url": "https://github.com/Automattic/jetpack/issues/21787",
+      "updated_at": "2025-01-20T14:47:37Z",
+      "days_inactive": 357,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Infinite Scroll",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Focus] FSE"
+      ],
+      "comments_count": 10
+    },
+    {
       "number": 32897,
       "title": "Payment Buttons block - add minimum amount option",
       "url": "https://github.com/Automattic/jetpack/issues/32897",
@@ -415,6 +691,31 @@
         "[Platform] Atomic"
       ],
       "comments_count": 1
+    },
+    {
+      "number": 19272,
+      "title": "Search API: improve highlight output",
+      "url": "https://github.com/Automattic/jetpack/issues/19272",
+      "updated_at": "2025-01-21T00:07:09Z",
+      "days_inactive": 357,
+      "labels": [
+        "[Type] Feature Request",
+        "[Feature] Search"
+      ],
+      "comments_count": 5
+    },
+    {
+      "number": 17704,
+      "title": "Jetpack Search prevents URL filtering ",
+      "url": "https://github.com/Automattic/jetpack/issues/17704",
+      "updated_at": "2025-01-21T00:08:18Z",
+      "days_inactive": 357,
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Normal",
+        "[Feature] Search"
+      ],
+      "comments_count": 5
     },
     {
       "number": 38444,
@@ -452,6 +753,41 @@
       "comments_count": 4
     },
     {
+      "number": 40681,
+      "title": "Auto-Resize Lazy Images (Beta) enabled sets \"like\" on posts to \"loading\"",
+      "url": "https://github.com/Automattic/jetpack/issues/40681",
+      "updated_at": "2025-01-21T10:20:40Z",
+      "days_inactive": 356,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Photon",
+        "[Pri] Low",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Package] Image CDN",
+        "[Boost Feature] Image CDN",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 41222,
+      "title": "Incongruencies in plans page",
+      "url": "https://github.com/Automattic/jetpack/issues/41222",
+      "updated_at": "2025-01-21T13:45:12Z",
+      "days_inactive": 356,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "Triaged",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 2
+    },
+    {
       "number": 41222,
       "title": "Incongruencies in plans page",
       "url": "https://github.com/Automattic/jetpack/issues/41222",
@@ -481,10 +817,49 @@
       "comments_count": 0
     },
     {
+      "number": 41214,
+      "title": "Track Built-in AI API errors",
+      "url": "https://github.com/Automattic/jetpack/issues/41214",
+      "updated_at": "2025-01-21T17:11:14Z",
+      "days_inactive": 356,
+      "labels": [
+        "[Type] Task",
+        "[Pri] Normal",
+        "[Feature] AI"
+      ],
+      "comments_count": 0
+    },
+    {
       "number": 41215,
       "title": "Early Preview Program registration",
       "url": "https://github.com/Automattic/jetpack/issues/41215",
       "updated_at": "2025-01-21T17:11:15Z",
+      "days_inactive": 356,
+      "labels": [
+        "[Type] Task",
+        "[Pri] Normal",
+        "[Feature] AI"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 41215,
+      "title": "Early Preview Program registration",
+      "url": "https://github.com/Automattic/jetpack/issues/41215",
+      "updated_at": "2025-01-21T17:11:15Z",
+      "days_inactive": 356,
+      "labels": [
+        "[Type] Task",
+        "[Pri] Normal",
+        "[Feature] AI"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 41216,
+      "title": "Internal release and CFT",
+      "url": "https://github.com/Automattic/jetpack/issues/41216",
+      "updated_at": "2025-01-21T17:11:16Z",
       "days_inactive": 356,
       "labels": [
         "[Type] Task",
@@ -525,6 +900,72 @@
       "comments_count": 1
     },
     {
+      "number": 41232,
+      "title": "Enhancement: Image Optimizer is too aggressive for some images",
+      "url": "https://github.com/Automattic/jetpack/issues/41232",
+      "updated_at": "2025-01-22T10:08:26Z",
+      "days_inactive": 355,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Photon",
+        "[Pri] Normal",
+        "[Plugin] Jetpack",
+        "[Plugin] Boost",
+        "[Feature Group] Content Management",
+        "[Boost Feature] Image CDN",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 19324,
+      "title": "List Block: add justify support",
+      "url": "https://github.com/Automattic/jetpack/issues/19324",
+      "updated_at": "2025-01-22T10:14:07Z",
+      "days_inactive": 355,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Feature] WordPress.com Block Editor",
+        "[Plugin] mu wpcom"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 25021,
+      "title": "Forms: add country code dropdown select option to phone number field",
+      "url": "https://github.com/Automattic/jetpack/issues/25021",
+      "updated_at": "2025-01-22T11:36:48Z",
+      "days_inactive": 355,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Contact Form",
+        "[Type] Feature Request",
+        "[Pri] Low",
+        "[Block] Contact Form",
+        "Triaged"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 41243,
+      "title": "Forms: None of the text field have length restriction setting in any of the forms",
+      "url": "https://github.com/Automattic/jetpack/issues/41243",
+      "updated_at": "2025-01-22T11:43:28Z",
+      "days_inactive": 355,
+      "labels": [
+        "[Type] Enhancement",
+        "[Type] Feature Request",
+        "Customer Report [LEGACY]",
+        "OSS Citizen",
+        "[Block] Contact Form",
+        "[Package] Forms",
+        "[Feature] Forms Blocks"
+      ],
+      "comments_count": 2
+    },
+    {
       "number": 37892,
       "title": "Jetpack connection is broken after importing a site with All-in-one Migration",
       "url": "https://github.com/Automattic/jetpack/issues/37892",
@@ -555,6 +996,19 @@
       "comments_count": 2
     },
     {
+      "number": 41255,
+      "title": "Allow custom domain and padding in yScale in LineChart",
+      "url": "https://github.com/Automattic/jetpack/issues/41255",
+      "updated_at": "2025-01-23T14:46:39Z",
+      "days_inactive": 354,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[JS Package] Charts"
+      ],
+      "comments_count": 2
+    },
+    {
       "number": 41253,
       "title": "Allow specifying `curve` and other props on LineSeries in LineChart component",
       "url": "https://github.com/Automattic/jetpack/issues/41253",
@@ -567,6 +1021,33 @@
         "[JS Package] Charts"
       ],
       "comments_count": 2
+    },
+    {
+      "number": 41253,
+      "title": "Allow specifying `curve` and other props on LineSeries in LineChart component",
+      "url": "https://github.com/Automattic/jetpack/issues/41253",
+      "updated_at": "2025-01-23T14:47:29Z",
+      "days_inactive": 354,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Experiment] AI labels added",
+        "[JS Package] Charts"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 41211,
+      "title": "Add A/B test scaffolding",
+      "url": "https://github.com/Automattic/jetpack/issues/41211",
+      "updated_at": "2025-01-23T21:09:58Z",
+      "days_inactive": 354,
+      "labels": [
+        "[Type] Task",
+        "[Pri] Normal",
+        "[Feature] AI"
+      ],
+      "comments_count": 1
     },
     {
       "number": 41211,
@@ -614,6 +1095,104 @@
       "comments_count": 1
     },
     {
+      "number": 40824,
+      "title": "Forms: switch namespace from `jetpack/contact-form` to `jetpack/form`",
+      "url": "https://github.com/Automattic/jetpack/issues/40824",
+      "updated_at": "2025-01-24T08:25:09Z",
+      "days_inactive": 353,
+      "labels": [
+        "[Feature] Contact Form",
+        "[Type] Task",
+        "[Block] Contact Form",
+        "[Feature] Forms Blocks"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 30439,
+      "title": "[Bug]: Purchasing Jetpack Search is still possible on jetpack.com even if the site already has a Search subscription",
+      "url": "https://github.com/Automattic/jetpack/issues/30439",
+      "updated_at": "2025-01-24T14:19:04Z",
+      "days_inactive": 353,
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Normal",
+        "[Feature] Search",
+        "Plans",
+        "[Plugin] Search",
+        "Triaged",
+        "Jetpack.com",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 40658,
+      "title": "Premium Content Block: Shows Up Even Without Stripe Connection",
+      "url": "https://github.com/Automattic/jetpack/issues/40658",
+      "updated_at": "2025-01-24T21:44:11Z",
+      "days_inactive": 353,
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "Earn",
+        "[Block] Paid Content",
+        "Triaged",
+        "[Feature] Earn Blocks",
+        "[Block] Premium Content",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 18480,
+      "title": "Search: correctly match against SKU for product variations",
+      "url": "https://github.com/Automattic/jetpack/issues/18480",
+      "updated_at": "2025-01-27T17:25:26Z",
+      "days_inactive": 350,
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Normal",
+        "[Feature] Search",
+        "[Status] Search Index Change",
+        "Customer Report [LEGACY]",
+        "Triaged",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 25029,
+      "title": "Donations block: Button wording carries over to all three payment types once edited",
+      "url": "https://github.com/Automattic/jetpack/issues/25029",
+      "updated_at": "2025-01-28T12:15:11Z",
+      "days_inactive": 349,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Low",
+        "Earn",
+        "[Block] Donations",
+        "Triaged"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 17039,
+      "title": "Search: Can not remove filters from existing search widget",
+      "url": "https://github.com/Automattic/jetpack/issues/17039",
+      "updated_at": "2025-01-28T12:20:12Z",
+      "days_inactive": 349,
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Low",
+        "[Feature] Search",
+        "Triaged",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 0
+    },
+    {
       "number": 40216,
       "title": "Subscribe Block: use the theme style for the input",
       "url": "https://github.com/Automattic/jetpack/issues/40216",
@@ -627,6 +1206,103 @@
         "Triaged"
       ],
       "comments_count": 1
+    },
+    {
+      "number": 40216,
+      "title": "Subscribe Block: use the theme style for the input",
+      "url": "https://github.com/Automattic/jetpack/issues/40216",
+      "updated_at": "2025-01-28T12:21:33Z",
+      "days_inactive": 349,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Subscriptions",
+        "[Pri] Normal",
+        "[Block] Subscribe",
+        "Triaged"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 18581,
+      "title": "Instant Search: wait until text edit is complete before spawning overlay",
+      "url": "https://github.com/Automattic/jetpack/issues/18581",
+      "updated_at": "2025-01-28T12:25:50Z",
+      "days_inactive": 349,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Low",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "Triaged",
+        "Instant Search"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 18397,
+      "title": "Search: enable search analytics tracking for wpcom sites",
+      "url": "https://github.com/Automattic/jetpack/issues/18397",
+      "updated_at": "2025-01-28T12:26:19Z",
+      "days_inactive": 349,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Low",
+        "[Feature] Search",
+        "[Platform] Simple"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17992,
+      "title": "Sticky Posts reappearing after Infinite Scroll is triggered",
+      "url": "https://github.com/Automattic/jetpack/issues/17992",
+      "updated_at": "2025-01-28T12:39:07Z",
+      "days_inactive": 349,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Infinite Scroll",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "Triaged"
+      ],
+      "comments_count": 6
+    },
+    {
+      "number": 17865,
+      "title": "Jetpack Search: Convert monthly plan into annual",
+      "url": "https://github.com/Automattic/jetpack/issues/17865",
+      "updated_at": "2025-01-28T12:49:52Z",
+      "days_inactive": 349,
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Low",
+        "[Feature] Search",
+        "Plans",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "Triaged",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 41265,
+      "title": "Forms: stack form fields and submit button by default",
+      "url": "https://github.com/Automattic/jetpack/issues/41265",
+      "updated_at": "2025-01-29T02:04:33Z",
+      "days_inactive": 349,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Contact Form",
+        "[Plugin] Jetpack",
+        "[Block] Contact Form",
+        "[Package] Forms",
+        "[Feature] Forms Blocks"
+      ],
+      "comments_count": 4
     },
     {
       "number": 41265,
@@ -663,6 +1339,24 @@
       "comments_count": 2
     },
     {
+      "number": 41351,
+      "title": "Custom CSS: Non-int RGB values added in the Additional CSS section cause fatal errors.",
+      "url": "https://github.com/Automattic/jetpack/issues/41351",
+      "updated_at": "2025-01-29T16:05:16Z",
+      "days_inactive": 348,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Custom CSS",
+        "[Pri] Low",
+        "[Feature] CSSTidy",
+        "[Feature Group] Other Infrastructure",
+        "[mu wpcom Feature] Custom Css",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 2
+    },
+    {
       "number": 41396,
       "title": "Tiled Gallery block: Difficult to select images when within a column block with multiple columns",
       "url": "https://github.com/Automattic/jetpack/issues/41396",
@@ -679,6 +1373,45 @@
         "[Status] Auto-allocated",
         "[Experiment] AI labels added",
         "[Feature] Images"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 41396,
+      "title": "Tiled Gallery block: Difficult to select images when within a column block with multiple columns",
+      "url": "https://github.com/Automattic/jetpack/issues/41396",
+      "updated_at": "2025-01-29T18:21:21Z",
+      "days_inactive": 348,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Tiled Gallery",
+        "[Pri] Low",
+        "[Block] Tiled Gallery",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "[Feature Group] Editor Experience",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added",
+        "[Feature] Images"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 41419,
+      "title": "Forms: Multi-Line Text Field width options don't work as expected after the input has been resized using the drag handle",
+      "url": "https://github.com/Automattic/jetpack/issues/41419",
+      "updated_at": "2025-01-30T08:33:42Z",
+      "days_inactive": 347,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Contact Form",
+        "[Pri] Low",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "[Feature] Forms Blocks",
+        "[Feature Group] Editor Experience",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
       ],
       "comments_count": 1
     },
@@ -727,6 +1460,20 @@
         "[Pri] Low",
         "[Status] Stale",
         "[Plugin] Super Cache"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 41446,
+      "title": "Search: add enterprise discount nudges to our pricing pages.",
+      "url": "https://github.com/Automattic/jetpack/issues/41446",
+      "updated_at": "2025-01-31T17:57:32Z",
+      "days_inactive": 346,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Feature] Search",
+        "[Plugin] Jetpack"
       ],
       "comments_count": 1
     },
@@ -822,6 +1569,23 @@
       "comments_count": 1
     },
     {
+      "number": 41526,
+      "title": "Forms: Improve consistancy in html for consent and checkbox fields",
+      "url": "https://github.com/Automattic/jetpack/issues/41526",
+      "updated_at": "2025-02-04T12:07:04Z",
+      "days_inactive": 342,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Contact Form",
+        "[Pri] Low",
+        "[Plugin] Jetpack",
+        "[Block] Contact Form",
+        "Triaged",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 1
+    },
+    {
       "number": 41080,
       "title": "Forms: multi step Forms",
       "url": "https://github.com/Automattic/jetpack/issues/41080",
@@ -833,6 +1597,34 @@
         "[Block] Contact Form",
         "[Package] Forms",
         "[Feature] Forms Blocks"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 41080,
+      "title": "Forms: multi step Forms",
+      "url": "https://github.com/Automattic/jetpack/issues/41080",
+      "updated_at": "2025-02-04T12:37:33Z",
+      "days_inactive": 342,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Block] Contact Form",
+        "[Package] Forms",
+        "[Feature] Forms Blocks"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 41548,
+      "title": "Query AI for keywords",
+      "url": "https://github.com/Automattic/jetpack/issues/41548",
+      "updated_at": "2025-02-04T15:59:45Z",
+      "days_inactive": 342,
+      "labels": [
+        "[Type] Task",
+        "[Pri] Normal",
+        "[Feature] AI"
       ],
       "comments_count": 0
     },
@@ -881,6 +1673,40 @@
         "[Block] Contact Form",
         "Triaged",
         "[Status] Auto-allocated"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 41518,
+      "title": "Forms: Improve compatibility with dark themes and outline styles",
+      "url": "https://github.com/Automattic/jetpack/issues/41518",
+      "updated_at": "2025-02-05T00:18:45Z",
+      "days_inactive": 342,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Contact Form",
+        "[Pri] Low",
+        "[Plugin] Jetpack",
+        "[Block] Contact Form",
+        "Triaged",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 41521,
+      "title": "Forms: Only load the styles that are revelant for the specific form",
+      "url": "https://github.com/Automattic/jetpack/issues/41521",
+      "updated_at": "2025-02-05T00:23:01Z",
+      "days_inactive": 342,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Contact Form",
+        "[Focus] Performance",
+        "[Pri] Normal",
+        "[Plugin] Jetpack",
+        "[Block] Contact Form",
+        "Triaged"
       ],
       "comments_count": 3
     },
@@ -936,6 +1762,35 @@
         "[Experiment] AI labels added"
       ],
       "comments_count": 1
+    },
+    {
+      "number": 41559,
+      "title": "Super Cache hanging until max execution time during garbage collection",
+      "url": "https://github.com/Automattic/jetpack/issues/41559",
+      "updated_at": "2025-02-05T08:59:37Z",
+      "days_inactive": 341,
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Low",
+        "Triaged",
+        "[Plugin] Super Cache",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 41574,
+      "title": "Design QA: auto select option",
+      "url": "https://github.com/Automattic/jetpack/issues/41574",
+      "updated_at": "2025-02-05T17:37:21Z",
+      "days_inactive": 341,
+      "labels": [
+        "[Pri] Normal",
+        "[Type] Question",
+        "[Feature] AI"
+      ],
+      "comments_count": 0
     },
     {
       "number": 41574,
@@ -999,6 +1854,41 @@
       "comments_count": 2
     },
     {
+      "number": 41594,
+      "title": "Border styling for contact form fields not applying in the Quadrat theme.",
+      "url": "https://github.com/Automattic/jetpack/issues/41594",
+      "updated_at": "2025-02-06T13:40:50Z",
+      "days_inactive": 340,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Contact Form",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "Triaged",
+        "[Feature Group] Content Management",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 41525,
+      "title": "Forms: Save the timestamp for date based input fields",
+      "url": "https://github.com/Automattic/jetpack/issues/41525",
+      "updated_at": "2025-02-06T13:59:34Z",
+      "days_inactive": 340,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Contact Form",
+        "[Pri] Normal",
+        "[Plugin] Jetpack",
+        "[Block] Contact Form",
+        "Triaged",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 4
+    },
+    {
       "number": 41525,
       "title": "Forms: Save the timestamp for date based input fields",
       "url": "https://github.com/Automattic/jetpack/issues/41525",
@@ -1034,6 +1924,37 @@
       "comments_count": 1
     },
     {
+      "number": 41500,
+      "title": "Forms: variations with radio option field have empty default values",
+      "url": "https://github.com/Automattic/jetpack/issues/41500",
+      "updated_at": "2025-02-06T20:07:06Z",
+      "days_inactive": 340,
+      "labels": [
+        "[Type] Bug",
+        "[Status] In Progress",
+        "[Pri] Normal",
+        "[Block] Contact Form",
+        "Triaged",
+        "[Package] Forms",
+        "[Feature] Forms Blocks",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 39946,
+      "title": "Boost: Update critical css message to include partial regeneration info",
+      "url": "https://github.com/Automattic/jetpack/issues/39946",
+      "updated_at": "2025-02-07T12:29:14Z",
+      "days_inactive": 339,
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost",
+        "[Boost Feature] Cloud CSS"
+      ],
+      "comments_count": 0
+    },
+    {
       "number": 39946,
       "title": "Boost: Update critical css message to include partial regeneration info",
       "url": "https://github.com/Automattic/jetpack/issues/39946",
@@ -1062,6 +1983,21 @@
       "comments_count": 1
     },
     {
+      "number": 40958,
+      "title": "Forms: add text size control to concent block",
+      "url": "https://github.com/Automattic/jetpack/issues/40958",
+      "updated_at": "2025-02-07T12:29:17Z",
+      "days_inactive": 339,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Contact Form",
+        "[Block] Contact Form",
+        "[Package] Forms",
+        "[Feature] Forms Blocks"
+      ],
+      "comments_count": 1
+    },
+    {
       "number": 39938,
       "title": "Subscribe Block: Improve \"pending\" subscription flow",
       "url": "https://github.com/Automattic/jetpack/issues/39938",
@@ -1071,6 +2007,36 @@
         "[Type] Enhancement",
         "[Feature] Subscriptions",
         "Customer Report [LEGACY]"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 39938,
+      "title": "Subscribe Block: Improve \"pending\" subscription flow",
+      "url": "https://github.com/Automattic/jetpack/issues/39938",
+      "updated_at": "2025-02-07T12:29:26Z",
+      "days_inactive": 339,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Subscriptions",
+        "Customer Report [LEGACY]"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 41607,
+      "title": "Feature Request: Slideshow Block, More Customization Controls",
+      "url": "https://github.com/Automattic/jetpack/issues/41607",
+      "updated_at": "2025-02-07T13:32:53Z",
+      "days_inactive": 339,
+      "labels": [
+        "[Type] Enhancement",
+        "[Focus] Blocks",
+        "[Block] Slideshow",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "[Feature] Misc Blocks",
+        "[Status] Auto-allocated"
       ],
       "comments_count": 1
     },
@@ -1119,6 +2085,22 @@
         "Customer Report [LEGACY]"
       ],
       "comments_count": 3
+    },
+    {
+      "number": 40957,
+      "title": "Forms: make consent block lowercase",
+      "url": "https://github.com/Automattic/jetpack/issues/40957",
+      "updated_at": "2025-02-10T19:04:13Z",
+      "days_inactive": 336,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Contact Form",
+        "[Pri] Normal",
+        "[Block] Contact Form",
+        "[Package] Forms",
+        "[Feature] Forms Blocks"
+      ],
+      "comments_count": 2
     },
     {
       "number": 40957,
@@ -1193,6 +2175,37 @@
       "comments_count": 0
     },
     {
+      "number": 41735,
+      "title": "Search: examples of searches to improve.",
+      "url": "https://github.com/Automattic/jetpack/issues/41735",
+      "updated_at": "2025-02-11T23:40:18Z",
+      "days_inactive": 335,
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Feature] Search",
+        "[Status] Search Index Change",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 41668,
+      "title": "Post and comment likes: make them fully block-based",
+      "url": "https://github.com/Automattic/jetpack/issues/41668",
+      "updated_at": "2025-02-12T17:56:48Z",
+      "days_inactive": 334,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Likes",
+        "[Feature] Comment Likes",
+        "[Plugin] Jetpack",
+        "[Feature Group] User Interaction & Engagement",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 5
+    },
+    {
       "number": 41668,
       "title": "Post and comment likes: make them fully block-based",
       "url": "https://github.com/Automattic/jetpack/issues/41668",
@@ -1241,6 +2254,41 @@
         "[Status] Auto-allocated",
         "[Experiment] AI labels added",
         "[Feature] External Media"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 41706,
+      "title": "Feature Request: in Jetpack Social, add option to select VideoPress for attached media",
+      "url": "https://github.com/Automattic/jetpack/issues/41706",
+      "updated_at": "2025-02-12T18:10:54Z",
+      "days_inactive": 334,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Publicize",
+        "[Feature] VideoPress",
+        "Customer Report [LEGACY]",
+        "[Plugin] Social",
+        "Triaged",
+        "[Feature Group] Content Management",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added",
+        "[Feature] External Media"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 41678,
+      "title": "Forms: file upload field — allow customize file type identifiers",
+      "url": "https://github.com/Automattic/jetpack/issues/41678",
+      "updated_at": "2025-02-12T18:30:44Z",
+      "days_inactive": 334,
+      "labels": [
+        "[Feature] Contact Form",
+        "[Type] Task",
+        "[Pri] Normal",
+        "[Block] Contact Form",
+        "[Feature] Forms Blocks"
       ],
       "comments_count": 2
     },
@@ -2883,7 +3931,7 @@
       "title": "Forms: Add the possibility to add a link to the checkbox's label",
       "url": "https://github.com/Automattic/jetpack/issues/41014",
       "updated_at": "2025-03-19T07:43:09Z",
-      "days_inactive": 299,
+      "days_inactive": 300,
       "labels": [
         "[Feature] Contact Form",
         "[Type] Feature Request",
@@ -2903,7 +3951,7 @@
       "title": "Forms: Space between the radio and checkbox input and the label is not click able",
       "url": "https://github.com/Automattic/jetpack/issues/41522",
       "updated_at": "2025-03-19T07:44:15Z",
-      "days_inactive": 299,
+      "days_inactive": 300,
       "labels": [
         "[Type] Bug",
         "[Feature] Contact Form",
@@ -3473,7 +4521,7 @@
       "title": "Footnotes removed when copying a post",
       "url": "https://github.com/Automattic/jetpack/issues/39603",
       "updated_at": "2025-04-07T07:35:16Z",
-      "days_inactive": 280,
+      "days_inactive": 281,
       "labels": [
         "[Type] Bug",
         "[Pri] Low",
