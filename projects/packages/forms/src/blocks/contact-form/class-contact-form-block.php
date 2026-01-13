@@ -764,9 +764,8 @@ class Contact_Form_Block {
 			return '';
 		}
 
-		// Only render published and draft post statuses.
-		// Note: Only 'publish' and 'draft' forms are treated as active; disabling forms via a separate status is not currently supported.
-		if ( ! in_array( $synced_form->post_status, array( 'publish', 'draft' ), true ) ) {
+		// Only render published forms statuses.
+		if ( ! in_array( $synced_form->post_status, array( 'publish' ), true ) ) {
 			return '';
 		}
 
