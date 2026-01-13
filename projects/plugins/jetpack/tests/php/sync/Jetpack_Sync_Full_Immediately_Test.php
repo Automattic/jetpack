@@ -1368,7 +1368,7 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( $expected_events_action_names, $actual_events_action_names );
 	}
 
-	public function test_full_sync_does_not_call_sender_for_config_extra_network_options() {
+	public function test_full_sync_ignores_modules_added_after_start() {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Test targets single-site extra module behavior (network_options is used an extra module)' );
 		}
@@ -1397,7 +1397,6 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 		$end_events = $this->server_event_storage->get_all_events( 'jetpack_full_sync_end' );
 		$this->assertNotEmpty( $end_events, 'Full sync end event should be emitted.' );
 
-		$this->before_module_sync_count = 0;
 		remove_filter( 'jetpack_sync_before_send_jetpack_full_sync_network_options', array( $this, 'count_before_module_sync_start' ) );
 	}
 
