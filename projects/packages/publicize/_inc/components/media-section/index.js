@@ -1,7 +1,7 @@
 import { ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Disabled, ExternalLink, Notice, BaseControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Fragment } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
@@ -18,6 +18,8 @@ const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack-publicize-pkg' );
  * @param {string}                    [props.disabledNoticeMessage=''] - An optional notice that's displayed when the section is disabled.
  * @param {import('react').ReactNode} [props.CustomNotice=null]        - An optional custom notice that's displayed.
  * @param {object}                    [props.analyticsData]            - Data for tracking analytics.
+ * @param {Array}                     [props.attachedMedia]            - Optional attached media array for controlled mode.
+ * @param {Function}                  [props.onMediaChange]            - Optional callback to update media options in controlled mode.
  * @return {object} The media section.
  */
 export default function MediaSection( {
@@ -25,9 +27,25 @@ export default function MediaSection( {
 	disabledNoticeMessage = '',
 	CustomNotice = null,
 	analyticsData,
+	attachedMedia: attachedMediaProp,
+	onMediaChange,
 } ) {
-	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
+	const { attachedMedia: storeAttachedMedia, updateAttachedMedia: storeUpdateAttachedMedia } =
+		useAttachedMedia();
 	const { recordEvent } = useAnalytics();
+
+	// Check if we're in "controlled" mode (props provided)
+	const isControlled = onMediaChange !== undefined;
+
+	// Use props if in controlled mode, otherwise fall back to store values
+	const attachedMedia = isControlled ? attachedMediaProp ?? [] : storeAttachedMedia;
+
+	// Unified update function that uses props callback or store
+	const updateAttachedMedia = useMemo(
+		() =>
+			isControlled ? media => onMediaChange( { attached_media: media } ) : storeUpdateAttachedMedia,
+		[ isControlled, onMediaChange, storeUpdateAttachedMedia ]
+	);
 
 	const [ mediaDetails ] = useMediaDetails( attachedMedia[ 0 ]?.id );
 

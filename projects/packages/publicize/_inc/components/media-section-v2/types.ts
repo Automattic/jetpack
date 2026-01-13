@@ -2,6 +2,8 @@
  * Types for the unified media section component
  */
 
+import type { AttachedMedia, JetpackSocialOptions, SIGSettings } from '../../utils/types';
+
 /**
  * Media source types
  */
@@ -67,6 +69,30 @@ export interface MediaSectionV2Props {
 	 * Callback when the edit template action is triggered
 	 */
 	onEditTemplate?: VoidFunction;
+
+	/**
+	 * Optional attached media array. In controlled mode (when `onMediaChange` is provided),
+	 * this value is used instead of fetching from the store. Falls back to empty array if not provided.
+	 */
+	attachedMedia?: Array< AttachedMedia >;
+
+	/**
+	 * Optional image generator settings. In controlled mode, this value is used instead of
+	 * fetching from the store. Falls back to `{ enabled: false }` if not provided.
+	 */
+	imageGeneratorSettings?: SIGSettings;
+
+	/**
+	 * Optional media source value. In controlled mode, this value is used instead of
+	 * fetching from the store. Falls back to store value if not provided.
+	 */
+	mediaSource?: JetpackSocialOptions[ 'media_source' ];
+
+	/**
+	 * Optional callback to update media-related options. When provided, the component
+	 * operates in "controlled" mode and uses the media props above instead of fetching from the store.
+	 */
+	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
 }
 
 /**
