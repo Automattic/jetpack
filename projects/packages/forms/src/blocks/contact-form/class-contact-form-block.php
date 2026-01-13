@@ -773,7 +773,7 @@ class Contact_Form_Block {
 		// Mark as seen for circular reference prevention.
 		$seen_refs[ $ref_id ] = true;
 		Contact_Form::set_ref_id( $ref_id );
-
+		$output = '';
 		try {
 			// Parse and render blocks from post_content.
 			$blocks = parse_blocks( $synced_form->post_content );
