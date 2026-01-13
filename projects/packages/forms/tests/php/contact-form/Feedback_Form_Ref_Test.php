@@ -143,7 +143,7 @@ class Feedback_Form_Ref_Test extends BaseTestCase {
 			)
 		);
 
-		$form = new Contact_Form( array( 'ref' => $form_id ), null );
+		$form = new Contact_Form( array( 'ref' => $form_id ), '' );
 		$form->validate_ref( $form_id );
 		$this->assertTrue( $form->has_errors() );
 	}
@@ -162,7 +162,7 @@ class Feedback_Form_Ref_Test extends BaseTestCase {
 			)
 		);
 
-		$form = new Contact_Form( array( 'ref' => $form_id ), null );
+		$form = new Contact_Form( array( 'ref' => $form_id ), '' );
 		$form->validate_ref( $form_id );
 		$this->assertFalse( $form->has_errors() );
 	}
