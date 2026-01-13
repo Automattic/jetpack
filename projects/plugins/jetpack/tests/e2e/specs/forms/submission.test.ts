@@ -73,7 +73,7 @@ test.describe( 'Forms: Submission', () => {
 			await submissionPromise;
 
 			await expect(
-				previewPage.getByRole( 'heading', { name: 'Your message has been sent' } )
+				previewPage.getByRole( 'heading', { name: 'Thank you for your response.' } )
 			).toBeVisible();
 
 			// The form should disappear after submission.
@@ -155,7 +155,7 @@ test.describe( 'Forms: Submission', () => {
 			// Check the correct form was submitted.
 			const submittedFormWrapper = previewPage.locator( `#${ formId }` );
 			await expect(
-				submittedFormWrapper.getByRole( 'heading', { name: 'Your message has been sent' } )
+				submittedFormWrapper.getByRole( 'heading', { name: 'Thank you for your response.' } )
 			).toBeVisible();
 
 			const submittedForm = submittedFormWrapper.getByRole( 'form', { name: 'Submit this form' } );

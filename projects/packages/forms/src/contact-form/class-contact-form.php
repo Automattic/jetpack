@@ -205,7 +205,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'submit_button_text'     => __( 'Submit', 'jetpack-forms' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'noSummary' to disable the summary, 'message' for a custom message, 'redirect' to redirect to a new URL. Deprecated.
-			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack-forms' ), // The text to show above customThankyouMessage.
+			'customThankyouHeading'  => self::get_default_thank_you_heading(), // The text to show above customThankyouMessage.
 			'customThankyouMessage'  => '', // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when confirmationType is set to 'redirect'.
 			'confirmationType'       => null, // The type of confirmation to show after submitting a form. 'text' for a text message, 'redirect' for a redirect link.
@@ -598,6 +598,35 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return $secret;
+	}
+
+	/**
+	 * Get the default thank you heading with conditional sparkle.
+	 *
+	 * Returns the new copy with sparkle emoji if translated, otherwise
+	 * falls back to the old copy without sparkle.
+	 *
+	 * TEMPORARY: This method can be removed once the new copy has been translated.
+	 * Replace the call with: __( 'Thank you for your response.', 'jetpack-forms' ) . ' ✨'
+	 *
+	 * @return string The translated heading.
+	 */
+	private static function get_default_thank_you_heading() {
+		// English locales always get the new copy with sparkle.
+		if ( str_starts_with( get_locale(), 'en' ) ) {
+			return __( 'Thank you for your response.', 'jetpack-forms' ) . ' ✨';
+		}
+
+		// Check if new string has a translation by comparing with the original.
+		$original   = 'Thank you for your response.';
+		$translated = __( 'Thank you for your response.', 'jetpack-forms' );
+
+		if ( $translated !== $original ) {
+			return $translated . ' ✨';
+		}
+
+		// Fall back to old string without sparkle.
+		return __( 'Your message has been sent', 'jetpack-forms' );
 	}
 
 	/**
@@ -1342,7 +1371,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$success_message = '';
 
 		if ( ! $disable_go_back ) {
-			$success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+			$success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( '← Back', 'jetpack-forms' ) . '</a> </p>';
 		}
 
 		$success_message .= '<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) . "</h4>\n\n";
@@ -1437,7 +1466,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( ! $disable_go_back ) {
 			$html .= '<p class="go-back-message">';
-			$html .= '<a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a>';
+			$html .= '<a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( '← Back', 'jetpack-forms' ) . '</a>';
 			$html .= '</p>';
 		}
 

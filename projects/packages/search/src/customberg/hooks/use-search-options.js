@@ -44,6 +44,11 @@ export default function useSearchOptions() {
 		'site',
 		'jetpack_search_show_post_date'
 	);
+	const [ productPrice, setProductPrice ] = useEntityProp(
+		'root',
+		'site',
+		'jetpack_search_show_product_price'
+	);
 	const [ excludedPostTypesCsv, setExcludedPostTypesCsv ] = useEntityProp(
 		'root',
 		'site',
@@ -93,5 +98,7 @@ export default function useSearchOptions() {
 		trigger,
 		postDate,
 		setPostDate,
+		productPrice,
+		setProductPrice,
 	};
 }
