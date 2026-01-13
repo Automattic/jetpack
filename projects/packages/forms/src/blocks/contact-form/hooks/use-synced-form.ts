@@ -10,7 +10,7 @@ import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 // Infer the block type from the parse function's return type
 type ParsedBlock = ReturnType< typeof parse >[ number ];
 interface JetpackForm {
-	content?: { raw?: string };
+	content?: { raw: string } | undefined;
 }
 
 interface UseSyncedFormResult {
