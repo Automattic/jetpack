@@ -72,11 +72,22 @@ export function useSyncedFormLoader( {
 		replaceInnerBlocks( clientId, syncedFormBlocks, false );
 
 		// Reset syncing flag after a short delay
-		setTimeout( () => {
+		const timeoutId = setTimeout( () => {
 			isSyncingRef.current = false;
 		}, 100 );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ ref, syncedFormBlocks, syncedFormAttributes, clientId ] );
+
+		return () => {
+			clearTimeout( timeoutId );
+		};
+	}, [
+		ref,
+		syncedFormBlocks,
+		syncedFormAttributes,
+		clientId,
+		__unstableMarkNextChangeAsNotPersistent,
+		replaceInnerBlocks,
+		setAttributes,
+	] );
 
 	return { isSyncingRef };
 }

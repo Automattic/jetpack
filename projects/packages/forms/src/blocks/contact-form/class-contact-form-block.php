@@ -23,12 +23,6 @@ use Jetpack;
  */
 class Contact_Form_Block {
 	/**
-	 * The ID of the synced form being rendered, if any.
-	 *
-	 * @var int|null
-	 */
-	private $synced_form_id = null;
-	/**
 	 * Register the Contact Form block.
 	 * We are core block dependent only on whether the jetpack contact form plugin
 	 * is active or not. This is allowing us to make it more discoverable
@@ -795,10 +789,8 @@ class Contact_Form_Block {
 		static $seen_refs = array();
 
 		if ( isset( $seen_refs[ $ref_id ] ) ) {
-			return sprintf(
-				'<div class="wp-block-jetpack-contact-form">%s</div>',
-				esc_html__( 'Circular reference detected in form.', 'jetpack-forms' )
-			);
+			// Return empty string to match other error cases and unit test expectations.
+			return '';
 		}
 
 		// Load the jetpack-form post.
@@ -809,26 +801,26 @@ class Contact_Form_Block {
 			return '';
 		}
 
-		// Only render published and draft post statuses.
-		// todo: add a "active" status so that we can disable forms without deleting them.
-		if ( ! in_array( $synced_form->post_status, array( 'publish', 'draft' ), true ) ) {
+		// Only render published forms statuses.
+		if ( ! in_array( $synced_form->post_status, array( 'publish' ), true ) ) {
 			return '';
 		}
 
 		// Mark as seen for circular reference prevention.
 		$seen_refs[ $ref_id ] = true;
 		Contact_Form::set_ref_id( $ref_id );
-		// Parse and render blocks from post_content.
-		$blocks = parse_blocks( $synced_form->post_content );
 		$output = '';
-
-		foreach ( $blocks as $block ) {
-			$output .= render_block( $block );
+		try {
+			// Parse and render blocks from post_content.
+			$blocks = parse_blocks( $synced_form->post_content );
+			foreach ( $blocks as $block ) {
+				$output .= render_block( $block );
+			}
+		} finally {
+			// Clean up.
+			unset( $seen_refs[ $ref_id ] );
+			Contact_Form::clear_ref_id();
 		}
-
-		// Clean up.
-		unset( $seen_refs[ $ref_id ] );
-		Contact_Form::clear_ref_id();
 		return $output;
 	}
 
