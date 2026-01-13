@@ -945,12 +945,12 @@ class Dashboard_REST_Controller {
 	/**
 	 * Queries the WordPress.com REST API with a user token.
 	 *
-	 * @param String $path The API endpoint relative path.
-	 * @param String $version The API version.
-	 * @param array  $args Request arguments.
-	 * @param String $body Request body.
-	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
-	 * @param bool   $use_cache (optional) default to true.
+	 * @param String            $path The API endpoint relative path.
+	 * @param String            $version The API version.
+	 * @param array             $args Request arguments.
+	 * @param null|String|array $body Request body.
+	 * @param String            $base_api_path (optional) the API base path override, defaults to 'rest'.
+	 * @param bool              $use_cache (optional) default to true.
 	 * @return array|string|WP_Error|\WP_REST_Response $response Data.
 	 */
 	protected function request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom', $use_cache = false ) {
@@ -1079,7 +1079,7 @@ class Dashboard_REST_Controller {
 	 *
 	 * @param int $post_id The post ID.
 	 *
-	 * @return array {
+	 * @return null|array {
 	 *     Featured image data, or null if no featured image exists.
 	 *
 	 *     @type int    $ID        The attachment ID.
