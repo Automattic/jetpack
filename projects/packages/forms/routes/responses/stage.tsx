@@ -875,6 +875,7 @@ function Stage() {
 					label: __( 'Trash', 'jetpack-forms' ),
 					supportsBulk: true,
 					isDestructive: true,
+					isPrimary: true,
 					callback: handleMoveToTrash,
 				},
 			];
