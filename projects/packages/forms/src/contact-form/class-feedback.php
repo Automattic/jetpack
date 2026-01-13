@@ -242,8 +242,16 @@ class Feedback {
 			}
 		}
 
-		// Always use source_id from parsed content as the source of truth
-		$source_id = $parsed_content['source_id'] ?? ( $feedback_post->post_parent && ! $this->form_id ? (int) $feedback_post->post_parent : 0 );
+		// Determine the source ID for this feedback.
+		// Prefer the explicit source_id from parsed content when available,
+		// otherwise fall back to the legacy behavior where post_parent was
+		// used as the source post ID, but only when no explicit form_id exists.
+		$source_id = 0;
+		if ( isset( $parsed_content['source_id'] ) && null !== $parsed_content['source_id'] ) {
+			$source_id = (int) $parsed_content['source_id'];
+		} elseif ( $feedback_post->post_parent && ! $this->form_id ) {
+			$source_id = (int) $feedback_post->post_parent;
+		}
 
 		$this->source = new Feedback_Source(
 			$source_id,
