@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+Comment: Remove unused dependency on `jest-environment-jsdom`
+
