@@ -114,4 +114,7 @@ export const settings = {
 	category: 'contact-form',
 	transforms,
 	deprecated,
+	__experimentalLabel: ( { ref } ) => {
+		return ref ? __( 'Form', 'jetpack-forms' ) + ' (Synced)' : __( 'Form', 'jetpack-forms' );
+	},
 };
