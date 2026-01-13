@@ -85,21 +85,38 @@ if [[ -f "$MODULES_YAML" ]]; then
         echo "  Old: $CURRENT_STORE_DIR"
         echo "  New: $EXPECTED_STORE_DIR"
         echo "Cleaning up for fresh install with new store location..."
+        echo "This will delete and reinstall node_modules..."
+        echo "Yes, it'll take a bit. It should be a one-time operation."
 
         # Delete node_modules
         if rm -rf "$MONOREPO_ROOT/node_modules"; then
             echo "  Removed node_modules/"
         fi
 
-        # Delete old store if it's within the workspace
+        # Delete old store in background (if it exists within the workspace)
         OLD_STORE_HOST_PATH="${CURRENT_STORE_DIR/#\/workspace/$MONOREPO_ROOT}"
         if [[ -d "$OLD_STORE_HOST_PATH" ]]; then
-            if rm -rf "$OLD_STORE_HOST_PATH"; then
-                echo "  Removed old store: $OLD_STORE_HOST_PATH"
-            fi
+            rm -rf "$OLD_STORE_HOST_PATH" &
+            OLD_STORE_RM_PID=$!
+            echo "  Removing old store in background: $OLD_STORE_HOST_PATH"
         fi
 
-        echo "Migration complete. Fresh install will use new store location."
+        # Install root workspace only (for git hooks) - runs in parallel with old store deletion
+        docker run --rm \
+            -v "$MONOREPO_ROOT:/workspace" \
+            -w /workspace \
+            -e npm_config_store_dir=/workspace/tools/docker/data/pnpm-store \
+            jetpack-monorepo:latest \
+            pnpm install --filter .
+
+        # Wait for background old store removal to finish
+        if [[ -n "${OLD_STORE_RM_PID:-}" ]]; then
+            echo "New store primed. Waiting for old store deletion to complete..."
+            wait $OLD_STORE_RM_PID
+            echo "  Old store cleanup complete."
+        fi
+
+        echo "Migration complete. Now using the new store location."
     fi
 fi
 
