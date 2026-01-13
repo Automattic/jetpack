@@ -79,8 +79,15 @@ export function useSyncedFormLoader( {
 		return () => {
 			clearTimeout( timeoutId );
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ ref, syncedFormBlocks, syncedFormAttributes, clientId ] );
+	}, [
+		ref,
+		syncedFormBlocks,
+		syncedFormAttributes,
+		clientId,
+		__unstableMarkNextChangeAsNotPersistent,
+		replaceInnerBlocks,
+		setAttributes,
+	] );
 
 	return { isSyncingRef };
 }
