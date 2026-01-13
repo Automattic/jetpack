@@ -777,8 +777,6 @@ class Contact_Form_Block {
 		try {
 			// Parse and render blocks from post_content.
 			$blocks = parse_blocks( $synced_form->post_content );
-			$output = '';
-
 			foreach ( $blocks as $block ) {
 				$output .= render_block( $block );
 			}
