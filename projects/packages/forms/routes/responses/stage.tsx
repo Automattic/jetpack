@@ -810,7 +810,7 @@ function Stage() {
 		const baseActions = [
 			{
 				id: 'view-details',
-				label: __( 'View details', 'jetpack-forms' ),
+				label: __( 'View', 'jetpack-forms' ),
 				isPrimary: true,
 				callback: items => {
 					const ids = items.map( item => getItemId( item ) );
@@ -835,25 +835,27 @@ function Stage() {
 					callback: handleMarkAsRead,
 				},
 				{
+					id: 'mark-as-spam',
+					label: __( 'Spam', 'jetpack-forms' ),
+					supportsBulk: true,
+					isDestructive: true,
+					isPrimary: true,
+					callback: handleMarkAsSpam,
+				},
+				{
+					id: 'move-to-trash',
+					label: __( 'Trash', 'jetpack-forms' ),
+					supportsBulk: true,
+					isDestructive: true,
+					isPrimary: true,
+					callback: handleMoveToTrash,
+				},
+				{
 					id: 'mark-as-unread',
 					label: __( 'Mark as unread', 'jetpack-forms' ),
 					supportsBulk: true,
 					isEligible: item => ! item.is_unread,
 					callback: handleMarkAsUnread,
-				},
-				{
-					id: 'mark-as-spam',
-					label: __( 'Mark as spam', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					callback: handleMarkAsSpam,
-				},
-				{
-					id: 'move-to-trash',
-					label: __( 'Move to trash', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					callback: handleMoveToTrash,
 				},
 			];
 		}
@@ -865,11 +867,12 @@ function Stage() {
 					id: 'not-spam',
 					label: __( 'Not spam', 'jetpack-forms' ),
 					supportsBulk: true,
+					isPrimary: true,
 					callback: handleMarkAsNotSpam,
 				},
 				{
 					id: 'move-to-trash',
-					label: __( 'Move to trash', 'jetpack-forms' ),
+					label: __( 'Trash', 'jetpack-forms' ),
 					supportsBulk: true,
 					isDestructive: true,
 					callback: handleMoveToTrash,
@@ -884,13 +887,15 @@ function Stage() {
 					id: 'restore',
 					label: __( 'Restore', 'jetpack-forms' ),
 					supportsBulk: true,
+					isPrimary: true,
 					callback: handleRestore,
 				},
 				{
 					id: 'delete-permanently',
-					label: __( 'Delete permanently', 'jetpack-forms' ),
+					label: __( 'Delete', 'jetpack-forms' ),
 					supportsBulk: true,
 					isDestructive: true,
+					isPrimary: true,
 					callback: handleDelete,
 				},
 			];
