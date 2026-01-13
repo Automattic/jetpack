@@ -175,9 +175,9 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that draft forms are rendered.
+	 * Test that draft forms are NOT rendered.
 	 */
-	public function test_render_synced_form_renders_draft_form() {
+	public function test_render_synced_form_does_not_render_draft_form() {
 		$form_id = wp_insert_post(
 			array(
 				'post_type'    => 'jetpack_form',
@@ -195,9 +195,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 		);
 
 		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
-
-		$this->assertNotEmpty( $output, 'Draft form should be rendered' );
-		$this->assertStringContainsString( 'text', $output, 'Draft form output should contain text field' );
+		$this->assertEmpty( $output, 'Draft form should NOT be rendered' );
 	}
 
 	/**
