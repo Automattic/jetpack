@@ -123,10 +123,34 @@ class Connections_Post_Field {
 				$deprecated_fields,
 				$connection_fields,
 				array(
-					'enabled' => array(
+					'enabled'           => array(
 						'description' => __( 'Whether to share to this connection.', 'jetpack-publicize-pkg' ),
 						'type'        => 'boolean',
 						'context'     => array( 'edit' ),
+					),
+					'override_settings' => array(
+						'description' => __( 'Whether to use per-connection settings instead of global settings.', 'jetpack-publicize-pkg' ),
+						'type'        => 'boolean',
+						'context'     => array( 'edit' ),
+						'default'     => false,
+					),
+					'message'           => array(
+						'description' => __( 'Custom message to use for this connection instead of the global message.', 'jetpack-publicize-pkg' ),
+						'type'        => 'string',
+						'context'     => array( 'edit' ),
+					),
+					'attached_media'    => array(
+						'description' => __( 'Custom media to attach for this connection instead of the global media.', 'jetpack-publicize-pkg' ),
+						'type'        => 'array',
+						'context'     => array( 'edit' ),
+						'items'       => array(
+							'type'       => 'object',
+							'properties' => array(
+								'id'   => array( 'type' => 'number' ),
+								'url'  => array( 'type' => 'string' ),
+								'type' => array( 'type' => 'string' ),
+							),
+						),
 					),
 				)
 			),
@@ -188,12 +212,33 @@ class Connections_Post_Field {
 		$properties  = array_keys( $schema['properties'] );
 		$connections = $publicize->get_filtered_connection_data( $post_id );
 
+		// Get per-connection overrides from post meta.
+		$connection_overrides = get_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_CONNECTION_OVERRIDES, true );
+		if ( ! is_array( $connection_overrides ) ) {
+			$connection_overrides = array();
+		}
+
 		$output_connections = array();
 		foreach ( $connections as $connection ) {
 			$output_connection = array();
 			foreach ( $properties as $property ) {
 				if ( isset( $connection[ $property ] ) ) {
 					$output_connection[ $property ] = $connection[ $property ];
+				}
+			}
+
+			// Merge per-connection overrides if they exist.
+			$connection_id = $connection['connection_id'] ?? '';
+			if ( ! empty( $connection_id ) && isset( $connection_overrides[ $connection_id ] ) ) {
+				$override = $connection_overrides[ $connection_id ];
+				if ( ! empty( $override['override_settings'] ) ) {
+					$output_connection['override_settings'] = true;
+					if ( isset( $override['message'] ) ) {
+						$output_connection['message'] = $override['message'];
+					}
+					if ( isset( $override['attached_media'] ) ) {
+						$output_connection['attached_media'] = $override['attached_media'];
+					}
 				}
 			}
 
@@ -378,7 +423,58 @@ class Connections_Post_Field {
 				update_post_meta( $post->ID, $meta_key, $meta_value );
 			}
 		}
+
+		// Save per-connection overrides.
+		$this->save_connection_overrides( $requested_connections, $post->ID );
+
 		$this->meta_saved[ $post->ID ] = true;
+	}
+
+	/**
+	 * Save per-connection customization overrides.
+	 *
+	 * Extracts message and attached_media from each connection that has
+	 * override_settings enabled and persists them to post meta.
+	 *
+	 * @param array $requested_connections Array of connection data from the request.
+	 * @param int   $post_id               Post ID.
+	 */
+	private function save_connection_overrides( $requested_connections, $post_id ) {
+		$overrides = array();
+
+		foreach ( $requested_connections as $connection ) {
+			// Only process if connection has a connection_id.
+			if ( empty( $connection['connection_id'] ) ) {
+				continue;
+			}
+
+			// Only save if override_settings is explicitly true.
+			if ( empty( $connection['override_settings'] ) ) {
+				continue;
+			}
+
+			$connection_id               = $connection['connection_id'];
+			$overrides[ $connection_id ] = array(
+				'override_settings' => true,
+			);
+
+			// Save message (can be empty to use empty message).
+			if ( isset( $connection['message'] ) ) {
+				$overrides[ $connection_id ]['message'] = sanitize_textarea_field( $connection['message'] );
+			}
+
+			// Save attached_media (can be empty array to clear media).
+			if ( isset( $connection['attached_media'] ) && is_array( $connection['attached_media'] ) ) {
+				$overrides[ $connection_id ]['attached_media'] = $connection['attached_media'];
+			}
+		}
+
+		// Only save if there are overrides, otherwise delete the meta.
+		if ( ! empty( $overrides ) ) {
+			update_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_CONNECTION_OVERRIDES, $overrides );
+		} else {
+			delete_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_CONNECTION_OVERRIDES );
+		}
 	}
 
 	/**

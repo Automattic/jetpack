@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add per-connection customization post meta schema for message and media overrides.
