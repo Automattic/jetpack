@@ -129,7 +129,7 @@ class Feedback_Form_Ref_Test extends BaseTestCase {
 		$this->assertEquals( \get_edit_post_link( $form_id, 'url' ), $feedback->get_edit_form_url(), 'Feedback form edit link should match the form edit link' );
 	}
 
-	public function test_validate_ref_draft() {
+	public function test_validate_ref_draft_form_has_errors() {
 		// Create a jetpack_form post
 		$form_id = wp_insert_post(
 			array(
@@ -148,7 +148,7 @@ class Feedback_Form_Ref_Test extends BaseTestCase {
 		$this->assertTrue( $form->has_errors() );
 	}
 
-	public function test_validate_ref_publish() {
+	public function test_validate_ref_published_form_has_no_errors() {
 		// Create a jetpack_form post
 		$form_id = wp_insert_post(
 			array(
