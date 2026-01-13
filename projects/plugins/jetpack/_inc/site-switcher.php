@@ -38,7 +38,7 @@ function jetpack_site_switcher_enqueue_scripts() {
 	// Load asset file for dependencies and version
 	$asset_file = JETPACK__PLUGIN_DIR . '_inc/build/site-switcher.min.asset.php';
 	$asset      = file_exists( $asset_file ) ? require $asset_file : array(
-		'dependencies' => array( 'wp-api-fetch', 'wp-commands', 'wp-element', 'wp-i18n' ),
+		'dependencies' => array( 'wp-api-fetch', 'wp-commands', 'wp-element', 'wp-i18n', 'wp-icons' ),
 		'version'      => JETPACK__VERSION,
 	);
 
