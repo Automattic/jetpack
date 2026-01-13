@@ -34,11 +34,13 @@ class Dashboard_View_Switch_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that deprecated init method has been removed
+	 * Test that deprecated init method still works
 	 */
-	public function test_deprecated_init_method_removed() {
-		// The init method has been removed as part of deprecation
-		$this->assertFalse( method_exists( $this->dashboard_view_switch, 'init' ) );
+	public function test_deprecated_init_method_still_works() {
+		// Test that the method doesn't fatal error when called
+		// Note: We can't test for deprecation warnings with WorDBless
+		$this->dashboard_view_switch->init();
+		$this->assertTrue( true ); // If we reach here, no fatal error occurred
 	}
 
 	/**
@@ -90,15 +92,11 @@ class Dashboard_View_Switch_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that class constants have been removed
+	 * Test class constants are still accessible
 	 */
-	public function test_class_constants_removed() {
-		$reflection = new \ReflectionClass( Dashboard_View_Switch::class );
-		$constants  = $reflection->getConstants();
-
-		// CLASSIC_VIEW and MODERN_VIEW constants should be removed
-		$this->assertArrayNotHasKey( 'CLASSIC_VIEW', $constants );
-		$this->assertArrayNotHasKey( 'MODERN_VIEW', $constants );
+	public function test_class_constants() {
+		$this->assertEquals( 'classic', Dashboard_View_Switch::CLASSIC_VIEW );
+		$this->assertEquals( 'modern', Dashboard_View_Switch::MODERN_VIEW );
 	}
 
 	/**
