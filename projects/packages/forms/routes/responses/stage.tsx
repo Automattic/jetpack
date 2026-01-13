@@ -24,6 +24,7 @@ import * as React from 'react';
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
+import Gravatar from '../../src/dashboard/components/gravatar/index.tsx';
 import Page, { Stack } from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
@@ -264,6 +265,7 @@ function Stage() {
 					const displayName =
 						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous';
 					const showEmail = item.author_email && item.author_name !== item.author_email;
+					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
 					return (
 						<span style={ { display: 'flex', alignItems: 'center', gap: '12px' } }>
 							{ item.is_unread && (
@@ -278,19 +280,14 @@ function Stage() {
 									aria-label={ __( 'Unread', 'jetpack-forms' ) }
 								/>
 							) }
-							{ item.author_avatar && (
-								<img
-									src={ item.author_avatar }
-									alt={ displayName }
-									style={ {
-										width: 40,
-										height: 40,
-										borderRadius: '50%',
-										flexShrink: 0,
-										backgroundColor: '#f0f0f0',
-									} }
-								/>
-							) }
+							<Gravatar
+								email={ item.author_email || item.ip } // With IP we still return placeholder image
+								defaultImage={ defaultImage }
+								displayName={ decodeEntities( displayName ) }
+								key={ item.id }
+								size={ 40 }
+								useHovercard={ false }
+							/>
 							<span style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
 								<span style={ { fontWeight: item.is_unread ? 600 : 400 } }>{ displayName }</span>
 								{ showEmail && (
