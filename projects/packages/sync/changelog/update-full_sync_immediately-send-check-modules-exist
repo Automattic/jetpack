@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Jetpack Sync: Ensure we are not checking for modules to sync that we are not ready to sync.
+Jetpack Sync:  Preventing attempting to sync modules that we are not ready to sync.
