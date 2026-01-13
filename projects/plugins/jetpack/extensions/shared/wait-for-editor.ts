@@ -1,25 +1,35 @@
 import { select, subscribe } from '@wordpress/data';
 
+const EDITOR_READY_TIMEOUT: number = 7000;
+
 /**
  * Waits for the block editor to be initialized.
  *
  * @return Promise that resolves when the editor is initialized.
  */
-export const waitForEditor = (): Promise< void > =>
-	new Promise( resolve => {
+export function waitForEditor(): Promise< void > {
+	return new Promise( ( resolve, reject ) => {
 		if ( isEditorReady() ) {
 			resolve();
 			return;
 		}
 
+		/** Checks periodically if the editor is ready and resolves the promise when it is. */
 		const unsubscribe = subscribe( (): void => {
 			if ( isEditorReady() ) {
+				clearTimeout( timeout );
 				unsubscribe();
 				resolve();
 			}
 		} );
-	} );
 
+		/** Sets a timeout to reject the promise if the editor is not ready within the specified time. */
+		const timeout = setTimeout( (): void => {
+			unsubscribe();
+			reject( new Error( 'Timeout: Waiting for the editor to be ready is timed out.' ) );
+		}, EDITOR_READY_TIMEOUT );
+	} );
+}
 /**
  * Checks if the block editor has been initialized.
  *
