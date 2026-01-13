@@ -1412,6 +1412,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$consent_message               = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
 		$label_class                   = 'grunion-field-label consent consent-' . esc_attr( $consent_type );
 		$label_class                  .= $this->option_classes ? ' ' . $this->option_classes : '';
+		$label_class                  .= $this->is_error() ? ' form-error' : '';
 		$has_inner_block_option_styles = ! empty( $this->get_attribute( 'optionstyles' ) );
 
 		$field = "<label class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
@@ -1419,12 +1420,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( 'implicit' === $consent_type ) {
 			$field .= "\t\t<input type='hidden' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' /> \n";
 		} else {
-			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . "/> \n";
+			$field .= "\t\t<input type='checkbox' data-wp-on--change='actions.onFieldChange' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . "/> \n";
 		}
 		$field .= "\t\t" . wp_kses_post( $consent_message );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
-		return $field;
+		return $field . $this->get_error_div( $id, 'checkbox' );
 	}
 
 	/**

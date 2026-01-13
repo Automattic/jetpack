@@ -123,7 +123,7 @@
 		"redux-thunk": "2.3.0",
 		"refx": "3.1.1",
 		"resize-observer-polyfill": "1.5.1",
-		"sass-embedded": "1.87.0",
+		"sass-embedded": "1.97.2",
 		"social-logos": "workspace:*",
 		"swiper": "11.2.10",
 		"tus-js-client": "4.2.3",
