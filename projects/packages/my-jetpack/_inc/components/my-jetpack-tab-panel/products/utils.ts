@@ -60,6 +60,16 @@ export function getSectionTitle( section: string ) {
 }
 
 /**
+ * Check if a string is a valid ProductFilter.
+ *
+ * @param {string | null} value - The value to check.
+ * @return True if the value is a valid ProductFilter.
+ */
+export function isValidFilter( value: string | null ): value is ProductFilter {
+	return getProductsFilterChoices().some( item => item.value === value );
+}
+
+/**
  * Filter sections based on the search term by matching the card and module data with the search term.
  *
  * @param {Array<ProductSection>} sections - The sections to filter.
