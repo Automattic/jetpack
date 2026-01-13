@@ -69,6 +69,8 @@ class Dashboard {
 			self::load_wp_build();
 		}
 
+		Forms_Endpoint::init();
+
 		add_action( 'admin_menu', array( $this, 'add_new_admin_submenu' ), self::MENU_PRIORITY );
 
 		if ( $is_wp_build_enabled ) {
@@ -131,6 +133,13 @@ class Dashboard {
 		);
 		$filters_path                  = '/wp/v2/feedback/filters';
 		$filters_locale_path           = \add_query_arg( array( '_locale' => 'user' ), $filters_path );
+		$initial_forms_path            = \add_query_arg(
+			array(
+				'page'     => 1,
+				'per_page' => 20,
+			),
+			'/jetpack-forms/v1/forms'
+		);
 		$preload_paths                 = array(
 			'/wp/v2/types?context=view',
 			'/wp/v2/feedback/config',
@@ -140,6 +149,7 @@ class Dashboard {
 			$filters_locale_path,
 			$initial_responses_path,
 			$initial_responses_locale_path,
+			$initial_forms_path,
 		);
 		$preload_data_raw              = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 

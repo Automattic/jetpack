@@ -66,13 +66,13 @@
 	flex-wrap: wrap;
 	gap: variables.$grid-unit * 1.25;
 	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+	padding: 12px 16px;
 
 	&__chips {
 		display: flex;
 		flex: 1 1 auto;
 		min-width: 0;
 		align-items: center;
-		padding: variables.$grid-unit * 1.5 0;
 		gap: 8px;
 	}
 
