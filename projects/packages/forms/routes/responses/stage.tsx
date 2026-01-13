@@ -284,7 +284,6 @@ function Stage() {
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
 								displayName={ decodeEntities( displayName ) }
-								key={ item.id }
 								size={ 40 }
 								useHovercard={ false }
 							/>
