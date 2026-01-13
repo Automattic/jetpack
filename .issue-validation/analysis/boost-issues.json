@@ -1,0 +1,1064 @@
+{
+  "total": 74,
+  "issues": [
+    {
+      "number": 45479,
+      "title": "Feature Request: Custom Page Cache Storage Location",
+      "url": "https://github.com/Automattic/jetpack/issues/45479",
+      "created_at": "2025-10-13T01:41:56Z",
+      "updated_at": "2025-10-13T15:16:22Z",
+      "labels": [
+        "[Type] Feature Request",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 44855,
+      "title": "Enhancement: Prompt Cloudflare Users to Read Jetpack Integration Documents on Plugin Activation",
+      "url": "https://github.com/Automattic/jetpack/issues/44855",
+      "created_at": "2025-08-19T23:29:22Z",
+      "updated_at": "2025-08-19T23:30:17Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 43186,
+      "title": "Boost CDN conflict with Featured Image from URL plugin",
+      "url": "https://github.com/Automattic/jetpack/issues/43186",
+      "created_at": "2025-04-22T09:21:47Z",
+      "updated_at": "2025-04-22T13:16:16Z",
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Photon",
+        "[Pri] Low",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Feature Group] Content Management",
+        "[Boost Feature] Image CDN",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 42321,
+      "title": "Boost: Inline SVGs stripped out of Critical CSS",
+      "url": "https://github.com/Automattic/jetpack/issues/42321",
+      "created_at": "2025-03-10T12:21:45Z",
+      "updated_at": "2025-12-01T12:12:44Z",
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Normal",
+        "[Plugin] Boost",
+        "[Boost Feature] Critical CSS",
+        "Triaged",
+        "[Boost Feature] Performance History",
+        "[Feature Group] Content Management",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 42029,
+      "title": "Boost: C.CSS served via CDN is not used in generation",
+      "url": "https://github.com/Automattic/jetpack/issues/42029",
+      "created_at": "2025-02-25T15:21:35Z",
+      "updated_at": "2025-03-04T12:36:26Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Low",
+        "[Plugin] Boost",
+        "[Boost Feature] Critical CSS",
+        "[Boost Feature] Cloud CSS",
+        "[JS Package] Critical Css Gen",
+        "[Feature Group] Other Infrastructure",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 41983,
+      "title": "Boost: if there are too many files in the boost-cache directory, uninstall \"fails\"",
+      "url": "https://github.com/Automattic/jetpack/issues/41983",
+      "created_at": "2025-02-24T10:08:30Z",
+      "updated_at": "2025-04-11T16:23:00Z",
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Boost Feature] Optimizations",
+        "[Boost Feature] Page Cache",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 41982,
+      "title": "Fix cache garbage collection",
+      "url": "https://github.com/Automattic/jetpack/issues/41982",
+      "created_at": "2025-02-24T10:02:06Z",
+      "updated_at": "2025-03-28T13:00:34Z",
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Normal",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Boost Feature] Optimizations",
+        "[Boost Feature] Page Cache",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 41868,
+      "title": "Boost: mod_security may stop ISA running correctly",
+      "url": "https://github.com/Automattic/jetpack/issues/41868",
+      "created_at": "2025-02-18T12:45:30Z",
+      "updated_at": "2025-02-18T16:05:40Z",
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Low",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Boost Feature] Image Size Analysis",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 41275,
+      "title": "Boost: It's possible to create multiple cache files using a script",
+      "url": "https://github.com/Automattic/jetpack/issues/41275",
+      "created_at": "2025-01-23T08:31:06Z",
+      "updated_at": "2025-12-01T12:08:51Z",
+      "labels": [
+        "[Pri] Normal",
+        "[Plugin] Boost",
+        "[Boost Feature] Optimizations",
+        "[Feature Group] Other Infrastructure",
+        "[Boost Feature] Page Cache",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 41232,
+      "title": "Enhancement: Image Optimizer is too aggressive for some images",
+      "url": "https://github.com/Automattic/jetpack/issues/41232",
+      "created_at": "2025-01-21T21:11:56Z",
+      "updated_at": "2025-01-22T10:08:26Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Photon",
+        "[Pri] Normal",
+        "[Plugin] Jetpack",
+        "[Plugin] Boost",
+        "[Feature Group] Content Management",
+        "[Boost Feature] Image CDN",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 41092,
+      "title": "Enhancement: Full sync query is slow on larger sites",
+      "url": "https://github.com/Automattic/jetpack/issues/41092",
+      "created_at": "2025-01-15T16:44:40Z",
+      "updated_at": "2025-01-15T16:47:38Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Focus] Performance",
+        "[Plugin] Boost",
+        "[Boost Feature] Optimizations",
+        "[Feature Group] Content Management",
+        "[Boost Feature] Page Cache",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 40681,
+      "title": "Auto-Resize Lazy Images (Beta) enabled sets \"like\" on posts to \"loading\"",
+      "url": "https://github.com/Automattic/jetpack/issues/40681",
+      "created_at": "2024-12-19T09:30:24Z",
+      "updated_at": "2025-01-21T10:20:40Z",
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Photon",
+        "[Pri] Low",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Package] Image CDN",
+        "[Boost Feature] Image CDN",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 40543,
+      "title": "Enhancement: Improve WP_CACHE Constant Language in Jetpack Boost Cache Settings",
+      "url": "https://github.com/Automattic/jetpack/issues/40543",
+      "created_at": "2024-12-10T14:05:11Z",
+      "updated_at": "2024-12-10T15:10:51Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "[Plugin] Boost",
+        "[Boost Feature] Page Cache",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 40391,
+      "title": "Boost: Should C.CSS generation continue if an important provider fails",
+      "url": "https://github.com/Automattic/jetpack/issues/40391",
+      "created_at": "2024-11-29T10:58:52Z",
+      "updated_at": "2024-12-20T15:15:43Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Plugin] Boost",
+        "[Boost Feature] Critical CSS",
+        "[Boost Feature] Cloud CSS",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 40387,
+      "title": "Boost: Conflict detection for the same features in other plugins",
+      "url": "https://github.com/Automattic/jetpack/issues/40387",
+      "created_at": "2024-11-29T09:12:31Z",
+      "updated_at": "2024-12-18T13:56:14Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Focus] Compatibility",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 40091,
+      "title": "Boost: add rudimentary plugin system to cache system",
+      "url": "https://github.com/Automattic/jetpack/issues/40091",
+      "created_at": "2024-11-07T14:31:45Z",
+      "updated_at": "2024-11-07T14:32:09Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost",
+        "[Boost Feature] Page Cache"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 39947,
+      "title": "Boost: Update Performance History to account for cornerstone pages",
+      "url": "https://github.com/Automattic/jetpack/issues/39947",
+      "created_at": "2024-10-29T14:43:36Z",
+      "updated_at": "2025-05-29T00:50:25Z",
+      "labels": [
+        "[Status] Stale",
+        "[Plugin] Boost",
+        "[Boost Feature] Performance History"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 39946,
+      "title": "Boost: Update critical css message to include partial regeneration info",
+      "url": "https://github.com/Automattic/jetpack/issues/39946",
+      "created_at": "2024-10-29T14:40:50Z",
+      "updated_at": "2025-02-07T12:29:14Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost",
+        "[Boost Feature] Cloud CSS"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 39918,
+      "title": "Boost: Create a way to disable page verification for critical CSS.",
+      "url": "https://github.com/Automattic/jetpack/issues/39918",
+      "created_at": "2024-10-28T06:51:57Z",
+      "updated_at": "2025-04-28T00:50:23Z",
+      "labels": [
+        "[Status] Stale",
+        "[Plugin] Boost",
+        "[Boost Feature] Critical CSS"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 39798,
+      "title": "Boost & WPSC: \"advanced-cache.php\" may be hidden by host",
+      "url": "https://github.com/Automattic/jetpack/issues/39798",
+      "created_at": "2024-10-17T06:57:09Z",
+      "updated_at": "2025-04-16T00:50:20Z",
+      "labels": [
+        "Docs",
+        "[Status] Stale",
+        "[Plugin] Boost",
+        "[Plugin] Super Cache"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 38217,
+      "title": "Boost: Improve critical CSS error handling",
+      "url": "https://github.com/Automattic/jetpack/issues/38217",
+      "created_at": "2024-07-05T08:43:48Z",
+      "updated_at": "2025-02-25T10:58:11Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Plugin] Boost",
+        "[Boost Feature] Critical CSS"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 37486,
+      "title": "Boost: Shorten Cache notice descriptions",
+      "url": "https://github.com/Automattic/jetpack/issues/37486",
+      "created_at": "2024-05-22T09:02:28Z",
+      "updated_at": "2024-11-19T00:50:05Z",
+      "labels": [
+        "Admin Page",
+        "[Status] Stale",
+        "[Plugin] Boost",
+        "[Plugin] Super Cache"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 36997,
+      "title": "Jetpack Boost: \"Failed to generate Critical CSS\" error with a 403 error code",
+      "url": "https://github.com/Automattic/jetpack/issues/36997",
+      "created_at": "2024-04-21T12:13:42Z",
+      "updated_at": "2025-02-17T17:23:22Z",
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Platform] Atomic",
+        "[Status] Priority Review Triggered"
+      ],
+      "comments_count": 6
+    },
+    {
+      "number": 36937,
+      "title": "Image Guide remains paused after disable/re-enable feature in Boost Settings",
+      "url": "https://github.com/Automattic/jetpack/issues/36937",
+      "created_at": "2024-04-17T10:50:04Z",
+      "updated_at": "2024-04-29T14:03:06Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Plugin] Boost",
+        "Triaged"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 36417,
+      "title": "Boost: Add excludes to defer JS",
+      "url": "https://github.com/Automattic/jetpack/issues/36417",
+      "created_at": "2024-03-15T15:49:56Z",
+      "updated_at": "2025-10-24T15:57:20Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Status] Stale",
+        "Customer Report [LEGACY]",
+        "[Plugin] Boost",
+        "[Boost Feature] Defer JS"
+      ],
+      "comments_count": 6
+    },
+    {
+      "number": 36407,
+      "title": "Boost: Performance history requests should be cached",
+      "url": "https://github.com/Automattic/jetpack/issues/36407",
+      "created_at": "2024-03-15T13:37:48Z",
+      "updated_at": "2024-11-10T00:50:03Z",
+      "labels": [
+        "[Status] Stale",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 35979,
+      "title": "[Boost] Add an API using WordPress actions so other plugins can interact with the cache.",
+      "url": "https://github.com/Automattic/jetpack/issues/35979",
+      "created_at": "2024-02-27T10:51:28Z",
+      "updated_at": "2024-11-18T00:50:10Z",
+      "labels": [
+        "[Status] Stale",
+        "[Plugin] Boost",
+        "[Boost Feature] Page Cache"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 35952,
+      "title": "[Boost] Cache log viewer should have filters",
+      "url": "https://github.com/Automattic/jetpack/issues/35952",
+      "created_at": "2024-02-26T15:16:21Z",
+      "updated_at": "2024-05-06T15:48:35Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost",
+        "[Boost Feature] Page Cache"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 35937,
+      "title": "[Boost] When caching, support content types other than text/html",
+      "url": "https://github.com/Automattic/jetpack/issues/35937",
+      "created_at": "2024-02-26T08:03:51Z",
+      "updated_at": "2025-03-13T17:09:45Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] Stale",
+        "[Plugin] Boost",
+        "[Boost Feature] Page Cache"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 35705,
+      "title": "[Boost] Write documentation for Boost Cache",
+      "url": "https://github.com/Automattic/jetpack/issues/35705",
+      "created_at": "2024-02-15T03:04:06Z",
+      "updated_at": "2025-04-07T10:21:22Z",
+      "labels": [
+        "[Type] Enhancement",
+        "Docs",
+        "[Status] Stale",
+        "[Plugin] Boost",
+        "[Boost Feature] Page Cache"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 35676,
+      "title": "[RNA] Update Notice component to match designs",
+      "url": "https://github.com/Automattic/jetpack/issues/35676",
+      "created_at": "2024-02-14T12:25:32Z",
+      "updated_at": "2025-04-07T10:21:06Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] Stale",
+        "RNA",
+        "[JS Package] Components",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 35600,
+      "title": "[Boost] Serve cached pages from a CDN to speed up delivery",
+      "url": "https://github.com/Automattic/jetpack/issues/35600",
+      "created_at": "2024-02-12T14:11:32Z",
+      "updated_at": "2024-11-18T00:50:17Z",
+      "labels": [
+        "[Status] Stale",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 35461,
+      "title": "Boost: Include a tooltip on how to ignore JS files from defer",
+      "url": "https://github.com/Automattic/jetpack/issues/35461",
+      "created_at": "2024-02-06T11:58:57Z",
+      "updated_at": "2025-04-07T10:22:03Z",
+      "labels": [
+        "[Type] Enhancement",
+        "Admin Page",
+        "[Pri] Low",
+        "[Status] Stale",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 35432,
+      "title": "Enhancement: avif support for Photon",
+      "url": "https://github.com/Automattic/jetpack/issues/35432",
+      "created_at": "2024-02-03T20:12:25Z",
+      "updated_at": "2025-07-14T16:57:14Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Photon",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "[Plugin] Boost",
+        "Triaged"
+      ],
+      "comments_count": 20
+    },
+    {
+      "number": 35300,
+      "title": "[Boost] Contact the site owner if Cache cleanup fails to delete all files.",
+      "url": "https://github.com/Automattic/jetpack/issues/35300",
+      "created_at": "2024-01-29T13:25:53Z",
+      "updated_at": "2025-04-07T10:25:34Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] Stale",
+        "[Plugin] Boost",
+        "[Boost Feature] Page Cache"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 35012,
+      "title": "[Boost] Document DataSync",
+      "url": "https://github.com/Automattic/jetpack/issues/35012",
+      "created_at": "2024-01-14T22:48:59Z",
+      "updated_at": "2024-07-13T00:49:28Z",
+      "labels": [
+        "[Status] Stale",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 34199,
+      "title": "Image Size Analysis: Exclude External Images",
+      "url": "https://github.com/Automattic/jetpack/issues/34199",
+      "created_at": "2023-11-18T14:50:13Z",
+      "updated_at": "2024-08-25T00:50:00Z",
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Normal",
+        "[Status] Stale",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Boost Feature] Image Size Analysis"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 34166,
+      "title": "Refresh the UI for better information architecture",
+      "url": "https://github.com/Automattic/jetpack/issues/34166",
+      "created_at": "2023-11-16T11:50:04Z",
+      "updated_at": "2024-11-11T11:35:42Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 33399,
+      "title": "Boost: Improve Boost in My Jetpack",
+      "url": "https://github.com/Automattic/jetpack/issues/33399",
+      "created_at": "2023-09-29T07:47:07Z",
+      "updated_at": "2024-01-24T06:32:28Z",
+      "labels": [
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 32368,
+      "title": "Feature Request: Delay JavaScript execution",
+      "url": "https://github.com/Automattic/jetpack/issues/32368",
+      "created_at": "2023-08-09T15:52:44Z",
+      "updated_at": "2023-08-16T08:47:42Z",
+      "labels": [
+        "[Type] Feature Request",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 32009,
+      "title": "Enhancement: Boost - urls should use Jetpack Redirect service",
+      "url": "https://github.com/Automattic/jetpack/issues/32009",
+      "created_at": "2023-07-21T09:39:50Z",
+      "updated_at": "2024-12-12T12:38:52Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 31682,
+      "title": "Enhancement: Debug Boost concatenate excludes via GET params",
+      "url": "https://github.com/Automattic/jetpack/issues/31682",
+      "created_at": "2023-07-04T13:38:39Z",
+      "updated_at": "2023-07-04T13:40:00Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost",
+        "[Boost Feature] Optimizations"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 31309,
+      "title": "Enhancement: Improve Boost UX when working with exclude CSS/JS UI",
+      "url": "https://github.com/Automattic/jetpack/issues/31309",
+      "created_at": "2023-06-12T07:49:22Z",
+      "updated_at": "2023-11-27T12:42:34Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost",
+        "[Boost Feature] Optimizations"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 30263,
+      "title": "Jetpack Boost: DataSync Auto-cleanup",
+      "url": "https://github.com/Automattic/jetpack/issues/30263",
+      "created_at": "2023-04-24T15:15:22Z",
+      "updated_at": "2023-04-24T15:19:10Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 30080,
+      "title": "Boost: Minify codebase improvements",
+      "url": "https://github.com/Automattic/jetpack/issues/30080",
+      "created_at": "2023-04-13T08:35:57Z",
+      "updated_at": "2023-10-16T19:42:11Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Low",
+        "[Plugin] Boost",
+        "[Platform] Simple"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 30012,
+      "title": "[Boost] HTML Block with JavaScript Loads After Footer when Defer JS Enabled",
+      "url": "https://github.com/Automattic/jetpack/issues/30012",
+      "created_at": "2023-04-10T15:28:13Z",
+      "updated_at": "2025-01-17T19:12:37Z",
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "[Plugin] Boost",
+        "[Boost Feature] Defer JS",
+        "Triaged"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 29472,
+      "title": "Stop Sending the Boost Ads with Automated Performance Scores",
+      "url": "https://github.com/Automattic/jetpack/issues/29472",
+      "created_at": "2023-03-15T03:51:52Z",
+      "updated_at": "2023-05-02T10:38:40Z",
+      "labels": [
+        "[Type] Feature Request",
+        "[Plugin] Jetpack",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 27680,
+      "title": "Update the Boost onboarding dialog to use the new plugin's pricing table screen",
+      "url": "https://github.com/Automattic/jetpack/issues/27680",
+      "created_at": "2022-11-30T16:29:59Z",
+      "updated_at": "2022-11-30T16:29:59Z",
+      "labels": [
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 27672,
+      "title": "Jetpack-boost: Don't use _n() to distinguish between singular and plural",
+      "url": "https://github.com/Automattic/jetpack/issues/27672",
+      "created_at": "2022-11-30T11:07:05Z",
+      "updated_at": "2023-04-27T13:24:28Z",
+      "labels": [
+        "[Type] Bug",
+        "[Focus] i18n",
+        "[Pri] Low",
+        "[Plugin] Boost",
+        "Triaged"
+      ],
+      "comments_count": 18
+    },
+    {
+      "number": 41232,
+      "title": "Enhancement: Image Optimizer is too aggressive for some images",
+      "url": "https://github.com/Automattic/jetpack/issues/41232",
+      "created_at": "2025-01-21T21:11:56Z",
+      "updated_at": "2025-01-22T10:08:26Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Photon",
+        "[Pri] Normal",
+        "[Plugin] Jetpack",
+        "[Plugin] Boost",
+        "[Feature Group] Content Management",
+        "[Boost Feature] Image CDN",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 41092,
+      "title": "Enhancement: Full sync query is slow on larger sites",
+      "url": "https://github.com/Automattic/jetpack/issues/41092",
+      "created_at": "2025-01-15T16:44:40Z",
+      "updated_at": "2025-01-15T16:47:38Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Focus] Performance",
+        "[Plugin] Boost",
+        "[Boost Feature] Optimizations",
+        "[Feature Group] Content Management",
+        "[Boost Feature] Page Cache",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 40681,
+      "title": "Auto-Resize Lazy Images (Beta) enabled sets \"like\" on posts to \"loading\"",
+      "url": "https://github.com/Automattic/jetpack/issues/40681",
+      "created_at": "2024-12-19T09:30:24Z",
+      "updated_at": "2025-01-21T10:20:40Z",
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Photon",
+        "[Pri] Low",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Package] Image CDN",
+        "[Boost Feature] Image CDN",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 40543,
+      "title": "Enhancement: Improve WP_CACHE Constant Language in Jetpack Boost Cache Settings",
+      "url": "https://github.com/Automattic/jetpack/issues/40543",
+      "created_at": "2024-12-10T14:05:11Z",
+      "updated_at": "2024-12-10T15:10:51Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "[Plugin] Boost",
+        "[Boost Feature] Page Cache",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 40391,
+      "title": "Boost: Should C.CSS generation continue if an important provider fails",
+      "url": "https://github.com/Automattic/jetpack/issues/40391",
+      "created_at": "2024-11-29T10:58:52Z",
+      "updated_at": "2024-12-20T15:15:43Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Plugin] Boost",
+        "[Boost Feature] Critical CSS",
+        "[Boost Feature] Cloud CSS",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 40387,
+      "title": "Boost: Conflict detection for the same features in other plugins",
+      "url": "https://github.com/Automattic/jetpack/issues/40387",
+      "created_at": "2024-11-29T09:12:31Z",
+      "updated_at": "2024-12-18T13:56:14Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "[Focus] Compatibility",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 40091,
+      "title": "Boost: add rudimentary plugin system to cache system",
+      "url": "https://github.com/Automattic/jetpack/issues/40091",
+      "created_at": "2024-11-07T14:31:45Z",
+      "updated_at": "2024-11-07T14:32:09Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost",
+        "[Boost Feature] Page Cache"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 39946,
+      "title": "Boost: Update critical css message to include partial regeneration info",
+      "url": "https://github.com/Automattic/jetpack/issues/39946",
+      "created_at": "2024-10-29T14:40:50Z",
+      "updated_at": "2025-02-07T12:29:14Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost",
+        "[Boost Feature] Cloud CSS"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 35012,
+      "title": "[Boost] Document DataSync",
+      "url": "https://github.com/Automattic/jetpack/issues/35012",
+      "created_at": "2024-01-14T22:48:59Z",
+      "updated_at": "2024-07-13T00:49:28Z",
+      "labels": [
+        "[Status] Stale",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 34199,
+      "title": "Image Size Analysis: Exclude External Images",
+      "url": "https://github.com/Automattic/jetpack/issues/34199",
+      "created_at": "2023-11-18T14:50:13Z",
+      "updated_at": "2024-08-25T00:50:00Z",
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Normal",
+        "[Status] Stale",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Boost Feature] Image Size Analysis"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 33399,
+      "title": "Boost: Improve Boost in My Jetpack",
+      "url": "https://github.com/Automattic/jetpack/issues/33399",
+      "created_at": "2023-09-29T07:47:07Z",
+      "updated_at": "2024-01-24T06:32:28Z",
+      "labels": [
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 22019,
+      "title": "Boost: Create non core E2E tests",
+      "url": "https://github.com/Automattic/jetpack/issues/22019",
+      "created_at": "2021-12-07T03:39:30Z",
+      "updated_at": "2021-12-24T11:00:14Z",
+      "labels": [
+        "E2E Tests",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 20772,
+      "title": "Boost: Enable / disable features independently on mobile and desktop",
+      "url": "https://github.com/Automattic/jetpack/issues/20772",
+      "created_at": "2021-08-20T05:34:01Z",
+      "updated_at": "2023-04-27T01:46:05Z",
+      "labels": [
+        "[Type] Feature Request",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 27680,
+      "title": "Update the Boost onboarding dialog to use the new plugin's pricing table screen",
+      "url": "https://github.com/Automattic/jetpack/issues/27680",
+      "created_at": "2022-11-30T16:29:59Z",
+      "updated_at": "2022-11-30T16:29:59Z",
+      "labels": [
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 27672,
+      "title": "Jetpack-boost: Don't use _n() to distinguish between singular and plural",
+      "url": "https://github.com/Automattic/jetpack/issues/27672",
+      "created_at": "2022-11-30T11:07:05Z",
+      "updated_at": "2023-04-27T13:24:28Z",
+      "labels": [
+        "[Type] Bug",
+        "[Focus] i18n",
+        "[Pri] Low",
+        "[Plugin] Boost",
+        "Triaged"
+      ],
+      "comments_count": 18
+    },
+    {
+      "number": 25416,
+      "title": "Performance: consider implementing resource preloading",
+      "url": "https://github.com/Automattic/jetpack/issues/25416",
+      "created_at": "2022-08-09T10:24:26Z",
+      "updated_at": "2024-10-22T23:58:02Z",
+      "labels": [
+        "[Focus] Performance",
+        "[Type] Feature Request",
+        "[Pri] Normal",
+        "[Plugin] Jetpack",
+        "[Plugin] Backup",
+        "[Plugin] Boost",
+        "[Plugin] Search"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 24405,
+      "title": "[Boost] Use WordPress heartbeat API for slow polling",
+      "url": "https://github.com/Automattic/jetpack/issues/24405",
+      "created_at": "2022-05-18T05:53:57Z",
+      "updated_at": "2022-05-18T05:53:57Z",
+      "labels": [
+        "[Plugin] Boost",
+        "[Boost Feature] Cloud CSS"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23530,
+      "title": "Feature Request: Reduce Unused CSS in Jetpack Boost",
+      "url": "https://github.com/Automattic/jetpack/issues/23530",
+      "created_at": "2022-03-21T20:05:06Z",
+      "updated_at": "2022-03-21T20:06:55Z",
+      "labels": [
+        "[Type] Feature Request",
+        "[Pri] Low",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 22019,
+      "title": "Boost: Create non core E2E tests",
+      "url": "https://github.com/Automattic/jetpack/issues/22019",
+      "created_at": "2021-12-07T03:39:30Z",
+      "updated_at": "2021-12-24T11:00:14Z",
+      "labels": [
+        "E2E Tests",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 20903,
+      "title": "Feature Request: Enable result boosting in Jetpack Search",
+      "url": "https://github.com/Automattic/jetpack/issues/20903",
+      "created_at": "2021-09-01T01:04:59Z",
+      "updated_at": "2023-11-28T12:54:33Z",
+      "labels": [
+        "[Type] Feature Request",
+        "[Feature] Search",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 20772,
+      "title": "Boost: Enable / disable features independently on mobile and desktop",
+      "url": "https://github.com/Automattic/jetpack/issues/20772",
+      "created_at": "2021-08-20T05:34:01Z",
+      "updated_at": "2023-04-27T01:46:05Z",
+      "labels": [
+        "[Type] Feature Request",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 20566,
+      "title": "Boost: Preload fonts",
+      "url": "https://github.com/Automattic/jetpack/issues/20566",
+      "created_at": "2021-08-05T10:39:19Z",
+      "updated_at": "2024-10-22T23:55:09Z",
+      "labels": [
+        "[Type] Feature Request",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 20565,
+      "title": "Boost: Respect Save-Data header and tweak feature behavior",
+      "url": "https://github.com/Automattic/jetpack/issues/20565",
+      "created_at": "2021-08-05T10:33:45Z",
+      "updated_at": "2021-08-05T10:33:57Z",
+      "labels": [
+        "[Type] Feature Request",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 20562,
+      "title": "Boost: Clean up Viewport classes and configuration",
+      "url": "https://github.com/Automattic/jetpack/issues/20562",
+      "created_at": "2021-08-05T10:21:40Z",
+      "updated_at": "2021-12-14T00:12:05Z",
+      "labels": [
+        "[Type] Janitorial",
+        "[Plugin] Boost",
+        "[Boost Feature] Critical CSS"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 20554,
+      "title": "Boost: Better links for feature descriptions",
+      "url": "https://github.com/Automattic/jetpack/issues/20554",
+      "created_at": "2021-08-05T07:48:17Z",
+      "updated_at": "2022-07-26T11:17:35Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 3
+    }
+  ]
+}
