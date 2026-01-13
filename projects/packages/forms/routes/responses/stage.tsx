@@ -374,8 +374,13 @@ function Stage() {
 				],
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
-				render: ( { item } ) =>
-					item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ),
+				render: ( { item } ) => {
+					return (
+						<Badge intent="default">
+							{ item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ) }
+						</Badge>
+					);
+				},
 			},
 			{
 				id: 'ip',
