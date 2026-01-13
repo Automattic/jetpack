@@ -26,7 +26,7 @@ export function waitForEditor(): Promise< void > {
 		/** Sets a timeout to reject the promise if the editor is not ready within the specified time. */
 		const timeout = setTimeout( (): void => {
 			unsubscribe();
-			reject( new Error( 'Timeout: Waiting for the editor to be ready is timed out.' ) );
+			reject( new Error( 'Timeout: Waiting for the editor to be ready has timed out.' ) );
 		}, EDITOR_READY_TIMEOUT );
 	} );
 }
@@ -45,7 +45,7 @@ function isEditorReady(): boolean {
 
 	return (
 		editorStore.isCleanNewPost() ||
-		blockEditorStore.getBlocks().length > 0 ||
-		editorStore.getCurrentPostId()
+		editorStore.getCurrentPostId() ||
+		blockEditorStore.getBlocks().length > 0
 	);
 }
