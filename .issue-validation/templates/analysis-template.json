@@ -1,0 +1,40 @@
+{
+  "issue_number": 0,
+  "title": "",
+  "url": "",
+  "classification": {
+    "type": "bug|enhancement|question|documentation",
+    "confidence": "high|medium|low"
+  },
+  "bug_analysis": {
+    "verification_method": "code_review|reproduction|user_report|automated_test",
+    "verification_attempted": true,
+    "verification_result": "confirmed|cannot_reproduce|likely_fixed|needs_info",
+    "affected_component": "",
+    "business_impact": {
+      "severity": "critical|high|medium|low",
+      "user_impact": "Description of user impact",
+      "affected_users": "all|subset|edge_case",
+      "workaround_available": true
+    }
+  },
+  "enhancement_analysis": {
+    "value_proposition": "",
+    "effort_estimate": "small|medium|large",
+    "priority_rationale": ""
+  },
+  "recommendation": {
+    "action": "keep_open|needs_info|close",
+    "priority": "critical|high|medium|low|backlog",
+    "reason": "",
+    "suggested_comment": ""
+  },
+  "metadata": {
+    "days_inactive": 0,
+    "last_updated": "",
+    "comments_count": 0,
+    "labels": [],
+    "analyzed_at": "",
+    "analyzed_by": "claude"
+  }
+}

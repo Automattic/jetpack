@@ -1,0 +1,427 @@
+{
+  "category": "Needs Author Reply (>3 months)",
+  "total_issues": 23,
+  "analyzed_date": "2026-01-13",
+  "summary": {
+    "bugs": 17,
+    "enhancements": 6,
+    "recommend_close": 7,
+    "recommend_needs_info": 3,
+    "recommend_keep_open": 13
+  },
+  "issues": [
+    {
+      "number": 27547,
+      "title": "flood of debug warnings",
+      "type": "bug",
+      "days_inactive": 1132,
+      "verification_status": "cannot_reproduce",
+      "business_impact": {
+        "severity": "low",
+        "user_impact": "Debug warnings in development mode",
+        "affected_users": "edge_case",
+        "workaround_available": true
+      },
+      "recommendation": {
+        "action": "close",
+        "priority": "n/a",
+        "reason": "Cannot reproduce after 1132 days with no author response. Issue may have been fixed or is environment-specific.",
+        "suggested_comment": "Closing due to inability to reproduce and no response from author for over 3 years. If this is still occurring, please open a new issue with updated reproduction steps and environment details."
+      }
+    },
+    {
+      "number": 32027,
+      "title": "Feature Request: SMTP",
+      "type": "enhancement",
+      "days_inactive": 902,
+      "business_impact": {
+        "priority_rationale": "Not on roadmap, author uncertain about need"
+      },
+      "recommendation": {
+        "action": "close",
+        "priority": "n/a",
+        "reason": "Feature not on roadmap, author expressed uncertainty about necessity, 902 days no response",
+        "suggested_comment": "Closing as this feature is not currently on the roadmap and the original request was reconsidered by the author. Jetpack Forms already handle email needs through Jetpack Cloud. If you have a specific use case requiring custom SMTP, please open a new issue with detailed requirements."
+      }
+    },
+    {
+      "number": 28607,
+      "title": "Bug: Videopress Fullscreen Toggle Not Working Correctly",
+      "type": "bug",
+      "days_inactive": 898,
+      "verification_status": "cannot_reproduce",
+      "business_impact": {
+        "severity": "low",
+        "user_impact": "Fullscreen not available on embedded videos",
+        "affected_users": "edge_case",
+        "workaround_available": false
+      },
+      "recommendation": {
+        "action": "close",
+        "priority": "n/a",
+        "reason": "Cannot reproduce, likely plugin conflict (Complianz), no response for 898 days",
+        "suggested_comment": "Closing due to inability to reproduce and no response to diagnostic questions for over 2 years. This appeared to be related to plugin conflicts. If still experiencing this issue, please open a new issue with current VideoPress version and detailed environment info."
+      }
+    },
+    {
+      "number": 34897,
+      "title": "Stats: Headless compatibility",
+      "type": "enhancement",
+      "days_inactive": 734,
+      "business_impact": {
+        "priority_rationale": "Workaround provided, no feedback on whether it works"
+      },
+      "recommendation": {
+        "action": "close",
+        "priority": "n/a",
+        "reason": "Workaround provided, no feedback for 734 days on whether suggested approach works",
+        "suggested_comment": "Closing due to no response on whether the suggested code-based integration approach works. The Tracking_Pixel class and build_view_data methods were provided as a workaround. If you need official headless support, please open a new issue with details on what was attempted and what's blocking manual integration."
+      }
+    },
+    {
+      "number": 35393,
+      "title": "Enable payment button and Enable donation form links redirect to an unexpected place",
+      "type": "enhancement",
+      "days_inactive": 710,
+      "business_impact": {
+        "priority_rationale": "UX improvement, needs clarification on desired destination"
+      },
+      "recommendation": {
+        "action": "close",
+        "priority": "n/a",
+        "reason": "Needs clarification on desired redirect destination, no response for 710 days",
+        "suggested_comment": "Closing due to no response for almost 2 years. The team requested clarification on preferred redirect destinations. If this is still an issue, please open a new issue specifying exactly where each link should direct users."
+      }
+    },
+    {
+      "number": 36937,
+      "title": "Image Guide remains paused after disable/re-enable feature in Boost Settings",
+      "type": "bug",
+      "days_inactive": 623,
+      "verification_status": "needs_clarification",
+      "business_impact": {
+        "severity": "low",
+        "user_impact": "Minor UX issue with state persistence",
+        "affected_users": "subset",
+        "workaround_available": true
+      },
+      "recommendation": {
+        "action": "close",
+        "priority": "n/a",
+        "reason": "Low priority, needs clarification on toolbar scenario, no response for 623 days",
+        "suggested_comment": "Closing due to no response for over 1.5 years. The team requested clarification on the toolbar accessibility scenario. If this is still occurring, please open a new issue with updated reproduction steps."
+      }
+    },
+    {
+      "number": 40648,
+      "title": "Stats: Show subscriber name > email instead of username",
+      "type": "enhancement",
+      "days_inactive": 312,
+      "business_impact": {
+        "priority_rationale": "Team believes may already be fixed in production"
+      },
+      "recommendation": {
+        "action": "close",
+        "priority": "n/a",
+        "reason": "Team believes this may already be solved in production, needs confirmation",
+        "suggested_comment": "A team member indicated this seems already solved in production as of March 2025. Can you confirm whether this is still an issue? If resolved, we'll close this. If not, please provide screenshots showing the current behavior."
+      }
+    },
+    {
+      "number": 38110,
+      "title": "Block Editor: TypeError: Cannot read properties of undefined (reading 'domReady')",
+      "type": "bug",
+      "days_inactive": 224,
+      "verification_status": "needs_info",
+      "business_impact": {
+        "severity": "medium",
+        "user_impact": "JavaScript error in block editor with custom templates",
+        "affected_users": "subset",
+        "workaround_available": false
+      },
+      "recommendation": {
+        "action": "needs_info",
+        "priority": "medium",
+        "reason": "Legitimate script loading issue but needs more details to reproduce. Related to wp-calypso issue.",
+        "suggested_comment": "This appears to be a script dependency loading issue. To help us investigate, please provide: 1) The specific custom template causing the error, 2) Steps to reproduce, 3) Browser console logs. This may be related to wp-calypso#76936."
+      }
+    },
+    {
+      "number": 40470,
+      "title": "VideoPress: Videos not playing in Instagram in-app browser on Android",
+      "type": "bug",
+      "days_inactive": 215,
+      "verification_status": "needs_verification",
+      "business_impact": {
+        "severity": "low",
+        "user_impact": "Videos don't play in specific browser (Instagram Android)",
+        "affected_users": "subset",
+        "workaround_available": true
+      },
+      "recommendation": {
+        "action": "needs_info",
+        "priority": "low",
+        "reason": "Platform-specific issue, low priority, needs recent verification if still occurring",
+        "suggested_comment": "Is this still occurring with the latest VideoPress version? Instagram's Android in-app browser may have specific requirements. Please test with the current version and report back."
+      }
+    },
+    {
+      "number": 35588,
+      "title": "Markdown module regression in support for multiple codeblocks in same document",
+      "type": "bug",
+      "days_inactive": 519,
+      "verification_status": "confirmed",
+      "business_impact": {
+        "severity": "medium",
+        "user_impact": "Multiple code blocks merge incorrectly, platform unusable for affected users",
+        "affected_users": "subset",
+        "workaround_available": false
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "medium",
+        "reason": "Confirmed bug, user reports platform unusable. Team member reproduced it. Needs investigation despite low priority label.",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 37298,
+      "title": "wp_is_stream() causing strpos(): Passing null to parameter",
+      "type": "bug",
+      "days_inactive": 433,
+      "verification_status": "confirmed",
+      "business_impact": {
+        "severity": "medium",
+        "user_impact": "PHP 8.1+ deprecation warnings in WP CLI",
+        "affected_users": "subset",
+        "workaround_available": false
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "medium",
+        "reason": "Valid PHP 8.1+ compatibility issue in autoloader. Triaged and has good technical details.",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 34822,
+      "title": "[Mastodon] Jetpack Social Connection fails to integrate with Mozilla.social",
+      "type": "bug",
+      "days_inactive": 566,
+      "verification_status": "blocked",
+      "business_impact": {
+        "severity": "medium",
+        "user_impact": "Cannot connect to Mozilla.social instance",
+        "affected_users": "subset",
+        "workaround_available": false
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "medium",
+        "reason": "Legitimate third-party integration issue. Needs Mozilla.social invite code to debug. Priority review triggered.",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 40862,
+      "title": "Images break when there is a space in the filename",
+      "type": "bug",
+      "days_inactive": 362,
+      "verification_status": "needs_info",
+      "business_impact": {
+        "severity": "low",
+        "user_impact": "Images with spaces in filenames don't display in search results",
+        "affected_users": "edge_case",
+        "workaround_available": true
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "low",
+        "reason": "Triaged, has workaround (enable Photon), but needs author clarification on upload method",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 41222,
+      "title": "Incongruencies in plans page",
+      "type": "bug",
+      "days_inactive": 356,
+      "verification_status": "needs_info",
+      "business_impact": {
+        "severity": "medium",
+        "user_impact": "Confusing plan information display",
+        "affected_users": "subset",
+        "workaround_available": false
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "medium",
+        "reason": "Plan display inconsistencies affect user experience. Team requested reconnection attempt.",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 41285,
+      "title": "Donation Block Missing After Downgrading from Atomic to Simple",
+      "type": "bug",
+      "days_inactive": 329,
+      "verification_status": "confirmed",
+      "business_impact": {
+        "severity": "high",
+        "user_impact": "Monetization feature breaks after plan downgrade",
+        "affected_users": "subset",
+        "workaround_available": true
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "high",
+        "reason": "Critical monetization bug. Escalated to Product Ambassadors. Block visible in editor but not on frontend after downgrade.",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 42226,
+      "title": "Scheduled posts not counting towards daily streak",
+      "type": "bug",
+      "days_inactive": 306,
+      "verification_status": "needs_info",
+      "business_impact": {
+        "severity": "low",
+        "user_impact": "Streak notifications not working for scheduled posts",
+        "affected_users": "subset",
+        "workaround_available": true
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "low",
+        "reason": "Triaged, awaiting timezone and specific examples to reproduce",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 39936,
+      "title": "Taxonomy search terms Tags and Categories not working",
+      "type": "bug",
+      "days_inactive": 259,
+      "verification_status": "needs_info",
+      "business_impact": {
+        "severity": "medium",
+        "user_impact": "Search doesn't include tags/categories despite configuration",
+        "affected_users": "subset",
+        "workaround_available": false
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "medium",
+        "reason": "Triaged customer report. Needs configuration details to investigate.",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 40259,
+      "title": "Mailchimp Block: no audience groups being displayed",
+      "type": "bug",
+      "days_inactive": 238,
+      "verification_status": "confirmed",
+      "business_impact": {
+        "severity": "high",
+        "user_impact": "Cannot configure Mailchimp groups in block editor",
+        "affected_users": "subset",
+        "workaround_available": false
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "high",
+        "reason": "Escalated to Product Ambassadors. Core functionality broken for Mailchimp integration.",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 28534,
+      "title": "VideoPress: Video block v6 does not work in the mobile app",
+      "type": "bug",
+      "days_inactive": 334,
+      "verification_status": "confirmed",
+      "business_impact": {
+        "severity": "medium",
+        "user_impact": "VideoPress v6 block doesn't work in mobile app",
+        "affected_users": "subset",
+        "workaround_available": true
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "medium",
+        "reason": "Confirmed issue with v6 block in mobile. Assigned to developer.",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 39662,
+      "title": "Video block not showing poster in the emails",
+      "type": "bug",
+      "days_inactive": 314,
+      "verification_status": "needs_info",
+      "business_impact": {
+        "severity": "low",
+        "user_impact": "Video poster images missing in emails",
+        "affected_users": "subset",
+        "workaround_available": false
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "low",
+        "reason": "Legitimate bug, needs reproduction steps and configuration details",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 42810,
+      "title": "Instagram Business Connection Issues",
+      "type": "bug",
+      "days_inactive": 148,
+      "verification_status": "confirmed",
+      "business_impact": {
+        "severity": "medium",
+        "user_impact": "Cannot reconnect Instagram after selecting wrong Facebook account",
+        "affected_users": "subset",
+        "workaround_available": true
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "medium",
+        "reason": "Active discussion with 20 comments. Clear bug with documented impact. Has workaround but needs fix.",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 38817,
+      "title": "Tracking user requests for Twitter (X) connection reinstatement",
+      "type": "enhancement",
+      "days_inactive": 508,
+      "business_impact": {
+        "priority_rationale": "Tracking issue for feature request demand"
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "backlog",
+        "reason": "Intentional tracking issue for user demand. Keep open to collect feedback.",
+        "suggested_comment": null
+      }
+    },
+    {
+      "number": 36889,
+      "title": "Your site URL is a known local development environment URL",
+      "type": "enhancement",
+      "days_inactive": 616,
+      "business_impact": {
+        "priority_rationale": "UX improvement for developers, better messaging needed"
+      },
+      "recommendation": {
+        "action": "keep_open",
+        "priority": "low",
+        "reason": "Valid UX enhancement. Triaged, active discussion on improving developer experience.",
+        "suggested_comment": null
+      }
+    }
+  ]
+}
