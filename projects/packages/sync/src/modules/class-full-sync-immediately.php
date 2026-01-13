@@ -397,7 +397,6 @@ class Full_Sync_Immediately extends Module {
 
 		foreach ( $remaining_modules as $module ) {
 			$module_name = $module->name();
-
 			if ( array_key_exists( $module_name, $progress ) && array_key_exists( $module_name, $config ) ) {
 				$progress[ $module_name ] = $module->send_full_sync_actions( $config[ $module_name ], $progress[ $module_name ], $send_until, $started );
 				if ( isset( $progress[ $module_name ]['error'] ) ) {
@@ -416,11 +415,11 @@ class Full_Sync_Immediately extends Module {
 			}
 		}
 
-		// Only end if everything is finished. If not, persist and try again next time.
-		// We may end up in this state if get_remaining_modules_to_send returns more modules than we initially stored in $progress or $config.
+		// Check that all remaining modules in progress are actually finished.
+		// If a module was skipped in the main loop (due to being unfinished), but still exists in progress, we shouldn't mark the sync as complete.
 		foreach ( $remaining_modules as $module ) {
 			$name = $module->name();
-			if ( isset( $progress[ $name ] ) && empty( $progress[ $name ]['finished'] ) ) {
+			if ( array_key_exists( $name, $progress ) && empty( $progress[ $name ]['finished'] ) ) {
 				$this->update_status( array( 'progress' => $progress ) );
 				return true;
 			}
