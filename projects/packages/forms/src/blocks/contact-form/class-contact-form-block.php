@@ -758,10 +758,8 @@ class Contact_Form_Block {
 		static $seen_refs = array();
 
 		if ( isset( $seen_refs[ $ref_id ] ) ) {
-			return sprintf(
-				'<div class="wp-block-jetpack-contact-form">%s</div>',
-				esc_html__( 'Circular reference detected in form.', 'jetpack-forms' )
-			);
+			// Return empty string to match other error cases and unit test expectations.
+			return '';
 		}
 
 		// Load the jetpack-form post.
