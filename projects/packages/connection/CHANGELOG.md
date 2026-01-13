@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.20.1] - 2026-01-12
+### Changed
+- Add transients to prevent excessive remote calls. [#46503]
+
 ## [6.20.0] - 2026-01-07
 ### Added
-- IDC: add revalidation for IDCs. [#46268]
+- IDC: Add revalidation for IDCs. [#46268]
 
 ### Changed
 - Update package dependencies. [#46456]
@@ -1679,6 +1683,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.20.1]: https://github.com/Automattic/jetpack-connection/compare/v6.20.0...v6.20.1
 [6.20.0]: https://github.com/Automattic/jetpack-connection/compare/v6.19.13...v6.20.0
 [6.19.13]: https://github.com/Automattic/jetpack-connection/compare/v6.19.12...v6.19.13
 [6.19.12]: https://github.com/Automattic/jetpack-connection/compare/v6.19.11...v6.19.12

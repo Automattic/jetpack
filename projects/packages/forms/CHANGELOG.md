@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.3.0] - 2026-01-12
+### Security
+- Add SSRF protection for webhook URLs to prevent requests to internal networks and cloud metadata endpoints. [#46424]
+
+### Added
+- Add feedback comments. [#46309]
+- Add form editor under a feature flag. [#46444]
+- Allow merging two options together with backspace. [#46507]
+
+### Changed
+- Change how phone combobox handles flag changes, bypassing wpemoji MutationObserver. [#46492]
+- Update package dependencies. [#46456] [#46512]
+
+### Fixed
+- Fix personal data export search to handle email addresses in all storage formats (legacy, V2, V3) including unicode/emoji characters. [#46429]
+- Fix date exports. [#46445]
+- Fix wp-build dashboard with updated @wordpress/build package. [#46509]
+- Prevent get_render_api_value from mutating internal state when called multiple times on cached feedback objects. [#46524]
+- Use consistent checkbox and radio styles in the editor to match frontend rendering. [#46441]
+
 ## [7.2.0] - 2026-01-06
 ### Added
 - Add support for setting custom ID on hidden field blocks from block settings. [#46360]
@@ -2023,6 +2043,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.3.0]: https://github.com/automattic/jetpack-forms/compare/v7.2.0...v7.3.0
 [7.2.0]: https://github.com/automattic/jetpack-forms/compare/v7.1.0...v7.2.0
 [7.1.0]: https://github.com/automattic/jetpack-forms/compare/v7.0.0...v7.1.0
 [7.0.0]: https://github.com/automattic/jetpack-forms/compare/v6.22.0...v7.0.0
