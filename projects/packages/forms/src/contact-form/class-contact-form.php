@@ -617,12 +617,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return __( 'Thank you for your response.', 'jetpack-forms' ) . ' ✨';
 		}
 
-		// Check if new string has a translation.
-		$translations = get_translations_for_domain( 'jetpack-forms' );
-		$entry        = $translations->translate_entry( 'Thank you for your response.' );
+		// Check if new string has a translation by comparing with the original.
+		$original   = 'Thank you for your response.';
+		$translated = __( 'Thank you for your response.', 'jetpack-forms' );
 
-		if ( $entry && ! empty( $entry->translations ) ) {
-			return __( 'Thank you for your response.', 'jetpack-forms' ) . ' ✨';
+		if ( $translated !== $original ) {
+			return $translated . ' ✨';
 		}
 
 		// Fall back to old string without sparkle.
