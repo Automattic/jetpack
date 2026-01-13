@@ -1,0 +1,414 @@
+{
+  "count": 23,
+  "issues": [
+    {
+      "number": 27547,
+      "title": "flood of debug warnings",
+      "url": "https://github.com/Automattic/jetpack/issues/27547",
+      "updated_at": "2022-12-07T08:27:44Z",
+      "days_inactive": 1132,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 32027,
+      "title": "Feature Request: SMTP",
+      "url": "https://github.com/Automattic/jetpack/issues/32027",
+      "updated_at": "2023-07-25T16:30:46Z",
+      "days_inactive": 902,
+      "labels": [
+        "[Status] Needs Author Reply",
+        "[Type] Feature Request",
+        "[Pri] Low",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 28607,
+      "title": "Bug: Videopress Fullscreen Toggle Not Working Correctly",
+      "url": "https://github.com/Automattic/jetpack/issues/28607",
+      "updated_at": "2023-07-30T00:49:40Z",
+      "days_inactive": 898,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] VideoPress",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "[Status] Stale",
+        "[Plugin] Jetpack",
+        "[Plugin] VideoPress"
+      ],
+      "comments_count": 5
+    },
+    {
+      "number": 34897,
+      "title": "Stats: Headless compatibility",
+      "url": "https://github.com/Automattic/jetpack/issues/34897",
+      "updated_at": "2024-01-09T11:40:52Z",
+      "days_inactive": 734,
+      "labels": [
+        "[Feature] Stats Data",
+        "[Status] Needs Author Reply",
+        "[Type] Feature Request",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 35393,
+      "title": "\"Enable payment button\" and \"Enable donation form\" links redirect to an unexpected place",
+      "url": "https://github.com/Automattic/jetpack/issues/35393",
+      "updated_at": "2024-02-02T16:08:59Z",
+      "days_inactive": 710,
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "Earn",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "[Feature] Earn Blocks"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 36937,
+      "title": "Image Guide remains paused after disable/re-enable feature in Boost Settings",
+      "url": "https://github.com/Automattic/jetpack/issues/36937",
+      "updated_at": "2024-04-29T14:03:06Z",
+      "days_inactive": 623,
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Plugin] Boost",
+        "Triaged"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 36889,
+      "title": "Your site URL is a known local development environment URL",
+      "url": "https://github.com/Automattic/jetpack/issues/36889",
+      "updated_at": "2024-05-06T09:45:33Z",
+      "days_inactive": 616,
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] Needs Author Reply",
+        "[Feature] Offline Mode",
+        "[Pri] Normal",
+        "[Plugin] Jetpack",
+        "Triaged"
+      ],
+      "comments_count": 9
+    },
+    {
+      "number": 34822,
+      "title": "[Mastodon] Jetpack Social Connection fails to integrate with Mozilla.social",
+      "url": "https://github.com/Automattic/jetpack/issues/34822",
+      "updated_at": "2024-06-26T07:09:15Z",
+      "days_inactive": 566,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Publicize",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "[Plugin] Jetpack",
+        "[Focus] Compatibility",
+        "[Plugin] Social",
+        "Triaged",
+        "[Status] Priority Review Triggered"
+      ],
+      "comments_count": 9
+    },
+    {
+      "number": 35588,
+      "title": "Markdown module regression in support for multiple codeblocks in same document",
+      "url": "https://github.com/Automattic/jetpack/issues/35588",
+      "updated_at": "2024-08-12T00:49:37Z",
+      "days_inactive": 519,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Feature] Markdown",
+        "[Pri] Low",
+        "[Status] Stale",
+        "[Plugin] Jetpack",
+        "Triaged"
+      ],
+      "comments_count": 5
+    },
+    {
+      "number": 38817,
+      "title": "Tracking user requests for Twitter (X) connection reinstatement",
+      "url": "https://github.com/Automattic/jetpack/issues/38817",
+      "updated_at": "2024-08-23T06:37:11Z",
+      "days_inactive": 508,
+      "labels": [
+        "[Feature] Publicize",
+        "[Status] Needs Author Reply",
+        "[Type] Feature Request",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "[Plugin] Social"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 37298,
+      "title": " wp_is_stream() causing strpos(): Passing null to parameter #1 ($haystack) of type string is deprecated",
+      "url": "https://github.com/Automattic/jetpack/issues/37298",
+      "updated_at": "2024-11-06T00:49:51Z",
+      "days_inactive": 433,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "[Status] Stale",
+        "[Package] Autoloader",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "[Status] Priority Review Triggered"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 40862,
+      "title": "Images break when there is a space in the filename",
+      "url": "https://github.com/Automattic/jetpack/issues/40862",
+      "updated_at": "2025-01-15T14:56:15Z",
+      "days_inactive": 362,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "[Feature] Search",
+        "[Plugin] Search",
+        "Triaged",
+        "[Platform] Atomic",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 5
+    },
+    {
+      "number": 41222,
+      "title": "Incongruencies in plans page",
+      "url": "https://github.com/Automattic/jetpack/issues/41222",
+      "updated_at": "2025-01-21T13:45:12Z",
+      "days_inactive": 356,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "Triaged",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 28534,
+      "title": "VideoPress: Video block v6 does not work in the mobile app",
+      "url": "https://github.com/Automattic/jetpack/issues/28534",
+      "updated_at": "2025-02-12T20:52:30Z",
+      "days_inactive": 334,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] VideoPress",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "[Status] Stale",
+        "[Plugin] Jetpack",
+        "[Block] VideoPress",
+        "[Plugin] VideoPress"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 41285,
+      "title": "Donation Block Missing After Downgrading from Atomic to Simple",
+      "url": "https://github.com/Automattic/jetpack/issues/41285",
+      "updated_at": "2025-02-17T17:24:41Z",
+      "days_inactive": 329,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "Earn",
+        "[Plugin] Jetpack",
+        "[Block] Payments",
+        "[Block] Donations",
+        "Triaged",
+        "[Platform] Simple",
+        "[Status] Priority Review Triggered",
+        "[Feature] Earn Blocks",
+        "[Status] Auto-allocated",
+        "[Status] Escalated to Product Ambassadors"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 39662,
+      "title": "Video block not showing poster in the emails",
+      "url": "https://github.com/Automattic/jetpack/issues/39662",
+      "updated_at": "2025-03-04T16:39:30Z",
+      "days_inactive": 314,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Subscriptions",
+        "[Feature] VideoPress",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "[Plugin] Jetpack",
+        "[Block] VideoPress",
+        "[Plugin] VideoPress",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 40648,
+      "title": "Stats: Show subscriber name > email instead of username",
+      "url": "https://github.com/Automattic/jetpack/issues/40648",
+      "updated_at": "2025-03-06T18:35:44Z",
+      "days_inactive": 312,
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Stats Data",
+        "[Feature] Subscriptions",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 42226,
+      "title": "Scheduled posts not counting towards daily streak",
+      "url": "https://github.com/Automattic/jetpack/issues/42226",
+      "updated_at": "2025-03-12T16:48:50Z",
+      "days_inactive": 306,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Notifications",
+        "[Status] Needs Author Reply",
+        "[Package] Sync",
+        "[Pri] Low",
+        "Triaged",
+        "[Feature Group] Content Management",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 39936,
+      "title": "Taxonomy search terms Tags and Categories not working",
+      "url": "https://github.com/Automattic/jetpack/issues/39936",
+      "updated_at": "2025-04-29T00:50:27Z",
+      "days_inactive": 259,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "[Feature] Search",
+        "[Status] Stale",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "Triaged",
+        "Instant Search"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 40259,
+      "title": "Mailchimp Block: no audience groups being displayed under the \"Mailchimp Groups\" heading in the sidebar",
+      "url": "https://github.com/Automattic/jetpack/issues/40259",
+      "updated_at": "2025-05-20T00:50:23Z",
+      "days_inactive": 238,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Normal",
+        "[Status] Stale",
+        "[Block] Mailchimp",
+        "[Plugin] Jetpack",
+        "[Feature] Mailchimp",
+        "Triaged",
+        "[Platform] Simple",
+        "[Status] Priority Review Triggered",
+        "[Feature] Forms Blocks",
+        "[Feature Group] A8C Marketing & Sales",
+        "[Status] Auto-allocated",
+        "[Status] Escalated to Product Ambassadors",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 38110,
+      "title": "Block Editor: TypeError: Cannot read properties of undefined (reading 'domReady')",
+      "url": "https://github.com/Automattic/jetpack/issues/38110",
+      "updated_at": "2025-06-02T14:33:56Z",
+      "days_inactive": 224,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Subscriptions",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "[Focus] Blocks",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "[Status] Priority Review Triggered"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 40470,
+      "title": "VideoPress: Videos not playing in Instagram in-app browser on Android",
+      "url": "https://github.com/Automattic/jetpack/issues/40470",
+      "updated_at": "2025-06-12T00:50:21Z",
+      "days_inactive": 215,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] VideoPress",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "[Status] Stale",
+        "Customer Report [LEGACY]",
+        "[Block] VideoPress",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 42810,
+      "title": "Instagram Business Connection Issues",
+      "url": "https://github.com/Automattic/jetpack/issues/42810",
+      "updated_at": "2025-08-17T14:14:41Z",
+      "days_inactive": 148,
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Publicize",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "[Plugin] Social",
+        "Triaged",
+        "[Feature] Social Media Integration",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 20
+    }
+  ]
+}

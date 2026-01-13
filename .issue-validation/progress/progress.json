@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "started_at": null,
+    "last_updated": null,
+    "total_issues": 0,
+    "validated_count": 0,
+    "remaining_count": 0
+  },
+  "statistics": {
+    "valid": 0,
+    "invalid": 0,
+    "needs_info": 0,
+    "needs_triage": 0,
+    "pending": 0
+  },
+  "batches_completed": [],
+  "current_batch": null,
+  "notes": []
+}
