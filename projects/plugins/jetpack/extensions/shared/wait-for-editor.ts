@@ -39,6 +39,10 @@ function isEditorReady(): boolean {
 	const editorStore = select( 'core/editor' );
 	const blockEditorStore = select( 'core/block-editor' );
 
+	if ( ! editorStore || ! blockEditorStore ) {
+		return false;
+	}
+
 	return (
 		editorStore.isCleanNewPost() ||
 		blockEditorStore.getBlocks().length > 0 ||
