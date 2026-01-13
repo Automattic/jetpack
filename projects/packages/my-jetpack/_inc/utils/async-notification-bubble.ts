@@ -42,5 +42,5 @@ apiFetch< AlertsResponse >( {
 	} )
 	.catch( error => {
 		// eslint-disable-next-line no-console
-		console.log( 'Red bubble notification fetch failed:', error );
+		console.log( '[Jetpack] Red bubble notification fetch failed:', error );
 	} );
