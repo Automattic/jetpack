@@ -418,21 +418,15 @@ class Full_Sync_Immediately extends Module {
 
 		// Only end if everything is finished. If not, persist and try again next time.
 		// We may end up in this state if get_remaining_modules_to_send returns more modules than we initially stored in $progress or $config.
-		$has_unfinished = false;
 		foreach ( $remaining_modules as $module ) {
 			$name = $module->name();
 			if ( isset( $progress[ $name ] ) && empty( $progress[ $name ]['finished'] ) ) {
-				$has_unfinished = true;
-				break;
+				$this->update_status( array( 'progress' => $progress ) );
+				return true;
 			}
 		}
 
-		if ( ! $has_unfinished ) {
-			$this->send_full_sync_end();
-			$this->update_status( array( 'progress' => $progress ) );
-			return true;
-		}
-
+		$this->send_full_sync_end();
 		$this->update_status( array( 'progress' => $progress ) );
 		return true;
 	}
