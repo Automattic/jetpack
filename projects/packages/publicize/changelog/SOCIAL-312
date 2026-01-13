@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Decouple SharePostForm component from the store by adding optional props for controlled mode.

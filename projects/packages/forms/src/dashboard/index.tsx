@@ -2,13 +2,15 @@
  * External dependencies
  */
 import { SlotFillProvider } from '@wordpress/components';
-import { createRoot } from '@wordpress/element';
-import { createHashRouter } from 'react-router';
+import { createRoot, useEffect } from '@wordpress/element';
+import { createHashRouter, useNavigate } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 /**
  * Internal dependencies
  */
+import useConfigValue from '../hooks/use-config-value.ts';
 import Layout from './components/layout/index.tsx';
+import FormsDashboardForms from './forms/index.tsx';
 import Inbox from './inbox/index.js';
 import DashboardNotices from './notices-list.tsx';
 import './style.scss';
@@ -31,6 +33,21 @@ function initFormsDashboard() {
 
 	container.dataset.formsInitialized = 'true';
 
+	const DashboardIndexRedirect = () => {
+		const navigate = useNavigate();
+		const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
+
+		useEffect( () => {
+			// Default landing when no hash/route is set.
+			// Treat undefined (not yet loaded / not provided) as false so we never render a blank page.
+			navigate( isCentralFormManagementEnabled === true ? '/forms' : '/responses', {
+				replace: true,
+			} );
+		}, [ isCentralFormManagementEnabled, navigate ] );
+
+		return null;
+	};
+
 	const router = createHashRouter( [
 		{
 			path: '/',
@@ -38,7 +55,11 @@ function initFormsDashboard() {
 			children: [
 				{
 					index: true,
-					element: <Inbox />,
+					element: <DashboardIndexRedirect />,
+				},
+				{
+					path: 'forms',
+					element: <FormsDashboardForms />,
 				},
 				{
 					path: 'responses',

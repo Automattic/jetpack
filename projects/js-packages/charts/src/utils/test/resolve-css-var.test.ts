@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { resolveCssVariable } from '../resolve-css-var';
 
 describe( 'resolveCssVariable', () => {

@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-+cl+Y3YxOtCHlaSoNgP86ed3IpjdInfa1rdYDdnVKhA=
+pnpmfileChecksum: sha256-TZxAG0rr1UG56NcWInmV1AyetBumZNFJVtyrRITSxjQ=
 
 patchedDependencies:
   '@wordpress/a11y':
@@ -427,9 +427,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       storybook:
         specifier: 10.1.10
         version: 10.1.10(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -445,9 +442,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
 
   projects/js-packages/api:
     dependencies:
@@ -459,9 +453,6 @@ importers:
         version: 4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
     devDependencies:
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
 
@@ -500,9 +491,6 @@ importers:
         specifier: workspace:*
         version: link:../webpack-config
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       typescript:
@@ -649,11 +637,8 @@ importers:
         version: 0.25.9
       esbuild-sass-plugin:
         specifier: ^3.1.0
-        version: 3.3.1(esbuild@0.25.9)(sass-embedded@1.87.0)
+        version: 3.3.1(esbuild@0.25.9)(sass-embedded@1.97.2)
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       jest-extended:
@@ -672,8 +657,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       storybook:
         specifier: 10.1.10
         version: 10.1.10(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -795,9 +780,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -826,9 +808,6 @@ importers:
   projects/js-packages/config:
     devDependencies:
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
 
@@ -905,9 +884,6 @@ importers:
         specifier: 18.3.26
         version: 18.3.26
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       react:
@@ -1190,14 +1166,14 @@ importers:
         specifier: 7.2.2
         version: 7.2.2(rollup@3.29.5)(svelte@4.2.19)
       sass:
-        specifier: npm:sass-embedded@1.87.0
-        version: sass-embedded@1.87.0
+        specifier: npm:sass-embedded@^1.97.2
+        version: sass-embedded@1.97.2
       svelte:
         specifier: 4.2.19
         version: 4.2.19
       svelte-preprocess:
         specifier: 6.0.2
-        version: 6.0.2(@babel/core@7.28.4)(postcss@8.5.6)(sass-embedded@1.87.0)(svelte@4.2.19)(typescript@5.9.3)
+        version: 6.0.2(@babel/core@7.28.4)(postcss@8.5.6)(sass-embedded@1.97.2)(svelte@4.2.19)(typescript@5.9.3)
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -1280,9 +1256,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1321,9 +1294,6 @@ importers:
         specifier: 30.0.0
         version: 30.0.0
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       typescript:
@@ -1376,9 +1346,6 @@ importers:
         specifier: 10.37.0
         version: 10.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react@18.3.1)
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       jest-extended:
@@ -1506,9 +1473,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -1624,9 +1588,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       jetpack-js-tools:
         specifier: workspace:*
         version: link:../../../tools/js-tools
@@ -1730,11 +1691,8 @@ importers:
         version: 0.25.9
       esbuild-sass-plugin:
         specifier: 3.3.1
-        version: 3.3.1(esbuild@0.25.9)(sass-embedded@1.87.0)
+        version: 3.3.1(esbuild@0.25.9)(sass-embedded@1.97.2)
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       react:
@@ -1744,8 +1702,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       sass:
-        specifier: npm:sass-embedded@1.87.0
-        version: sass-embedded@1.87.0
+        specifier: npm:sass-embedded@^1.97.2
+        version: sass-embedded@1.97.2
       tsup:
         specifier: 8.5.0
         version: 8.5.0(typescript@5.9.3)
@@ -1865,11 +1823,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       storybook:
         specifier: 10.1.10
         version: 10.1.10(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2138,15 +2096,12 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       storybook:
         specifier: 10.1.10
         version: 10.1.10(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2224,11 +2179,11 @@ importers:
         specifier: 6.37.0
         version: 6.37.0
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -2272,11 +2227,11 @@ importers:
         specifier: 8.2.0
         version: 8.2.0(postcss@8.5.6)(webpack@5.101.3)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -2324,11 +2279,11 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -2425,11 +2380,11 @@ importers:
         specifier: 7.27.1
         version: 7.27.1(@babel/core@7.28.4)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -2528,11 +2483,11 @@ importers:
         specifier: workspace:*
         version: link:../../../tools/js-tools
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -2675,8 +2630,8 @@ importers:
         specifier: 0.11.1
         version: 0.11.1
       libphonenumber-js:
-        specifier: 1.12.31
-        version: 1.12.31
+        specifier: 1.12.34
+        version: 1.12.34
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -2755,7 +2710,7 @@ importers:
         version: 6.37.0
       '@wordpress/build':
         specifier: 0.5.1-next.79a2f3cdd.0
-        version: 0.5.1-next.79a2f3cdd.0(@babel/core@7.28.4)(@wordpress/boot@0.3.0(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.24.5)(sass-embedded@1.87.0)
+        version: 0.5.1-next.79a2f3cdd.0(@babel/core@7.28.4)(@wordpress/boot@0.3.0(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.24.5)(sass-embedded@1.97.2)
       '@wordpress/date':
         specifier: 5.37.0
         version: 5.37.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)
@@ -2774,9 +2729,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       jquery:
         specifier: 3.7.1
         version: 3.7.1
@@ -2790,11 +2742,11 @@ importers:
         specifier: ^6.0.0
         version: 6.0.1(postcss@8.5.6)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -3051,11 +3003,11 @@ importers:
         specifier: ^8.1.0
         version: 8.1.0
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -3085,11 +3037,11 @@ importers:
         specifier: 6.37.0
         version: 6.37.0
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -3139,11 +3091,11 @@ importers:
         specifier: 8.2.0
         version: 8.2.0(postcss@8.5.6)(webpack@5.101.3)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -3286,9 +3238,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0(@types/node@20.19.25)
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3299,11 +3248,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       storybook:
         specifier: 10.1.10
         version: 10.1.10(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3360,11 +3309,11 @@ importers:
         specifier: 30.2.0
         version: 30.2.0
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -3502,9 +3451,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -3512,11 +3458,11 @@ importers:
         specifier: 8.2.0
         version: 8.2.0(postcss@8.5.6)(webpack@5.101.3)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
 
   projects/packages/plans: {}
 
@@ -3526,11 +3472,11 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -3741,9 +3687,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -3760,11 +3703,11 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       storybook:
         specifier: 10.1.10
         version: 10.1.10(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3940,9 +3883,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -3953,11 +3893,11 @@ importers:
         specifier: 8.2.0
         version: 8.2.0(postcss@8.5.6)(webpack@5.101.3)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       size-limit:
         specifier: 11.2.0
         version: 11.2.0(@size-limit/preset-app@11.2.0)
@@ -4025,11 +3965,11 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -4210,9 +4150,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -4226,11 +4163,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       storybook:
         specifier: 10.1.10
         version: 10.1.10(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4272,9 +4209,6 @@ importers:
         specifier: 6.37.0
         version: 6.37.0
       jest:
-        specifier: 30.2.0
-        version: 30.2.0
-      jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
       typescript:
@@ -4347,11 +4281,11 @@ importers:
         specifier: 6.37.0
         version: 6.37.0
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -4428,15 +4362,12 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -4564,9 +4495,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       livereload:
         specifier: 0.10.3
         version: 0.10.3
@@ -4586,11 +4514,11 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       storybook:
         specifier: 10.1.10
         version: 10.1.10(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4694,15 +4622,12 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -4848,9 +4773,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       jquery-modal:
         specifier: 0.9.2
         version: 0.9.2
@@ -4864,11 +4786,11 @@ importers:
         specifier: 1.0.12
         version: 1.0.12
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       semantic-ui-css:
         specifier: 2.5.0
         version: 2.5.0
@@ -4927,14 +4849,14 @@ importers:
         specifier: 7.2.2
         version: 7.2.2(rollup@3.29.5)(svelte@4.2.19)
       sass:
-        specifier: npm:sass-embedded@1.87.0
-        version: sass-embedded@1.87.0
+        specifier: npm:sass-embedded@^1.97.2
+        version: sass-embedded@1.97.2
       svelte:
         specifier: 4.2.19
         version: 4.2.19
       svelte-preprocess:
         specifier: 6.0.2
-        version: 6.0.2(@babel/core@7.28.4)(postcss@8.5.6)(sass-embedded@1.87.0)(svelte@4.2.19)(typescript@5.9.3)
+        version: 6.0.2(@babel/core@7.28.4)(postcss@8.5.6)(sass-embedded@1.97.2)(svelte@4.2.19)(typescript@5.9.3)
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -5194,8 +5116,8 @@ importers:
         specifier: 1.5.1
         version: 1.5.1
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       social-logos:
         specifier: workspace:*
         version: link:../../js-packages/social-logos
@@ -5314,9 +5236,6 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       jquery:
         specifier: 3.7.1
         version: 3.7.1
@@ -5334,7 +5253,7 @@ importers:
         version: 0.13.9
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5414,15 +5333,12 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -5539,11 +5455,11 @@ importers:
         specifier: 9.2.1
         version: 9.2.1
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5694,15 +5610,12 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -5824,11 +5737,11 @@ importers:
         specifier: 9.2.1
         version: 9.2.1
       sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
+        specifier: 1.97.2
+        version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
       webpack:
         specifier: 5.101.3
         version: 5.101.3(webpack-cli@6.0.1)
@@ -6043,6 +5956,9 @@ importers:
       '@eslint/json':
         specifier: 0.14.0
         version: 0.14.0
+      '@jest/environment-jsdom-abstract':
+        specifier: 30.2.0
+        version: 30.2.0(jsdom@26.1.0)
       '@octokit/auth-token':
         specifier: 5.1.2
         version: 5.1.2
@@ -6148,9 +6064,9 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      jest-environment-jsdom:
-        specifier: 30.2.0
-        version: 30.2.0
+      jsdom:
+        specifier: 26.1.0
+        version: 26.1.0
       jsonc-eslint-parser:
         specifier: 2.4.1
         version: 2.4.1
@@ -13787,15 +13703,6 @@ packages:
     resolution: {integrity: sha512-lpWlJlM7bCUf1mfmuqTA8+j2lNURW9eNafOy99knBM01i5CQeY5UH1vZjgT9071nDJac1M4XsbyI44oNOdhlDQ==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
-  jest-environment-jsdom@30.2.0:
-    resolution: {integrity: sha512-zbBTiqr2Vl78pKp/laGBREYzbZx9ZtqPjOK4++lL4BNDhxRnahg51HtoDrk9/VjIy9IthNEWdKVd7H5bqBhiWQ==}
-    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
-    peerDependencies:
-      canvas: ^3.0.0
-    peerDependenciesMeta:
-      canvas:
-        optional: true
-
   jest-environment-node@30.2.0:
     resolution: {integrity: sha512-ElU8v92QJ9UrYsKrxDIKCxu6PfNj4Hdcktcn0JX12zqNdqWHB0N+hwOnnBBXvjLd2vApZtuLUGs1QSY+MsXoNA==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
@@ -14087,8 +13994,8 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  libphonenumber-js@1.12.31:
-    resolution: {integrity: sha512-Z3IhgVgrqO1S5xPYM3K5XwbkDasU67/Vys4heW+lfSBALcUZjeIIzI8zCLifY+OCzSq+fpDdywMDa7z+4srJPQ==}
+  libphonenumber-js@1.12.34:
+    resolution: {integrity: sha512-v/Ip8k8eYdp7bINpzqDh46V/PaQ8sK+qi97nMQgjZzFlb166YFqlR/HVI+MzsI9JqcyyVWCOipmmretiaSyQyw==}
 
   libsodium-wrappers@0.7.10:
     resolution: {integrity: sha512-pO3F1Q9NPLB/MWIhehim42b/Fwb30JNScCNh8TcQ/kIc+qGLQch8ag8wb0keK3EP5kbGakk1H8Wwo7v+36rNQg==}
@@ -16092,128 +15999,112 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  sass-embedded-android-arm64@1.87.0:
-    resolution: {integrity: sha512-uqeZoBuXm3W2KhxolScAAfWOLHL21e50g7AxlLmG0he7WZsWw6e9kSnmq301iLIFp4kvmXYXbXbNKAeu9ItRYA==}
+  sass-embedded-android-arm64@1.97.2:
+    resolution: {integrity: sha512-pF6I+R5uThrscd3lo9B3DyNTPyGFsopycdx0tDAESN6s+dBbiRgNgE4Zlpv50GsLocj/lDLCZaabeTpL3ubhYA==}
     engines: {node: '>=14.0.0'}
     cpu: [arm64]
     os: [android]
 
-  sass-embedded-android-arm@1.87.0:
-    resolution: {integrity: sha512-Z20u/Y1kFDpMbgiloR5YPLxNuMVeKQRC8e/n68oAAxf3u7rDSmNn2msi7USqgT1f2zdBBNawn/ifbFEla6JiHw==}
+  sass-embedded-android-arm@1.97.2:
+    resolution: {integrity: sha512-BPT9m19ttY0QVHYYXRa6bmqmS3Fa2EHByNUEtSVcbm5PkIk1ntmYkG9fn5SJpIMbNmFDGwHx+pfcZMmkldhnRg==}
     engines: {node: '>=14.0.0'}
     cpu: [arm]
     os: [android]
 
-  sass-embedded-android-ia32@1.87.0:
-    resolution: {integrity: sha512-hSWTqo2Igdig528cUb1W1+emw9d1J4+nqOoR4tERS04zcwRRFNDiuBT0o5meV7nkEwE982F+h57YdcRXj8gTtg==}
-    engines: {node: '>=14.0.0'}
-    cpu: [ia32]
-    os: [android]
-
-  sass-embedded-android-riscv64@1.87.0:
-    resolution: {integrity: sha512-kBAPSjiTBLy5ua/0LRNAJwOAARhzFU7gP35fYORJcdBuz1lkIVPVnid1lh9qQ6Ce9MOJcr7VKFtGnTuqVeig5A==}
+  sass-embedded-android-riscv64@1.97.2:
+    resolution: {integrity: sha512-fprI8ZTJdz+STgARhg8zReI2QhhGIT9G8nS7H21kc3IkqPRzhfaemSxEtCqZyvDbXPcgYiDLV7AGIReHCuATog==}
     engines: {node: '>=14.0.0'}
     cpu: [riscv64]
     os: [android]
 
-  sass-embedded-android-x64@1.87.0:
-    resolution: {integrity: sha512-ZHMrNdtdMSpJUYco2MesnlPwDTZftD3pqkkOMI2pbqarPoFUKJtP5k80nwCM0sJGtqfNE+O16w9yPght0CMiJg==}
+  sass-embedded-android-x64@1.97.2:
+    resolution: {integrity: sha512-RswwSjURZxupsukEmNt2t6RGvuvIw3IAD5sDq1Pc65JFvWFY3eHqCmH0lG0oXqMg6KJcF0eOxHOp2RfmIm2+4w==}
     engines: {node: '>=14.0.0'}
     cpu: [x64]
     os: [android]
 
-  sass-embedded-darwin-arm64@1.87.0:
-    resolution: {integrity: sha512-7TK1JWJdCIRSdZv5CJv/HpDz/wIfwUy2FoPz9sVOEj1pDTH0N+VfJd5VutCddIdoQN9jr0ap8vwkc65FbAxV2A==}
+  sass-embedded-darwin-arm64@1.97.2:
+    resolution: {integrity: sha512-xcsZNnU1XZh21RE/71OOwNqPVcGBU0qT9A4k4QirdA34+ts9cDIaR6W6lgHOBR/Bnnu6w6hXJR4Xth7oFrefPA==}
     engines: {node: '>=14.0.0'}
     cpu: [arm64]
     os: [darwin]
 
-  sass-embedded-darwin-x64@1.87.0:
-    resolution: {integrity: sha512-2JiQzt7FmgUC4MYT2QvbeH/Bi3e76WEhaYoc5P3WyTW8unsHksyTdMuTuYe0Qf9usIyt6bmm5no/4BBw7c8Cig==}
+  sass-embedded-darwin-x64@1.97.2:
+    resolution: {integrity: sha512-T/9DTMpychm6+H4slHCAsYJRJ6eM+9H9idKlBPliPrP4T8JdC2Cs+ZOsYqrObj6eOtAD0fGf+KgyNhnW3xVafA==}
     engines: {node: '>=14.0.0'}
     cpu: [x64]
     os: [darwin]
 
-  sass-embedded-linux-arm64@1.87.0:
-    resolution: {integrity: sha512-5z+mwJCbGZcg+q+MwdEVSh0ogFK7OSAe175Gsozzr/Izw34Q+RGUw9O82jsV2c4YNuTAQvzEHgIO5cvNvt3Quw==}
+  sass-embedded-linux-arm64@1.97.2:
+    resolution: {integrity: sha512-Wh+nQaFer9tyE5xBPv5murSUZE/+kIcg8MyL5uqww6be9Iq+UmZpcJM7LUk+q8klQ9LfTmoDSNFA74uBqxD6IA==}
     engines: {node: '>=14.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: glibc
 
-  sass-embedded-linux-arm@1.87.0:
-    resolution: {integrity: sha512-z5P6INMsGXiUcq1sRRbksyQUhalFFYjTEexuxfSYdK3U2YQMADHubQh8pGzkWvFRPOpnh83RiGuwvpaARYHnsw==}
+  sass-embedded-linux-arm@1.97.2:
+    resolution: {integrity: sha512-yDRe1yifGHl6kibkDlRIJ2ZzAU03KJ1AIvsAh4dsIDgK5jx83bxZLV1ZDUv7a8KK/iV/80LZnxnu/92zp99cXQ==}
     engines: {node: '>=14.0.0'}
     cpu: [arm]
     os: [linux]
+    libc: glibc
 
-  sass-embedded-linux-ia32@1.87.0:
-    resolution: {integrity: sha512-Xzcp+YPp0iakGL148Jl57CO+MxLuj2jsry3M+rc1cSnDlvkjNVs6TMxaL70GFeV5HdU2V60voYcgE7adDUtJjw==}
-    engines: {node: '>=14.0.0'}
-    cpu: [ia32]
-    os: [linux]
-
-  sass-embedded-linux-musl-arm64@1.87.0:
-    resolution: {integrity: sha512-HWE5eTRCoKzFZWsxOjDMTF5m4DDTQ0n7NJxSYiUXPBDydr9viPXbGOMYG7WVJLjiF7upr7DYo/mfp/SNTMlZyg==}
+  sass-embedded-linux-musl-arm64@1.97.2:
+    resolution: {integrity: sha512-NfUqZSjHwnHvpSa7nyNxbWfL5obDjNBqhHUYmqbHUcmqBpFfHIQsUPgXME9DKn1yBlBc3mWnzMxRoucdYTzd2Q==}
     engines: {node: '>=14.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: musl
 
-  sass-embedded-linux-musl-arm@1.87.0:
-    resolution: {integrity: sha512-4PyqOWhRzyu06RRmpCCBOJdF4BOv7s446wrV6yODtEyyfSIDx3MJabo3KT0oJ1lTWSI/aU3R89bKx0JFXcIHHw==}
+  sass-embedded-linux-musl-arm@1.97.2:
+    resolution: {integrity: sha512-GIO6xfAtahJAWItvsXZ3MD1HM6s8cKtV1/HL088aUpKJaw/2XjTCveiOO2AdgMpLNztmq9DZ1lx5X5JjqhS45g==}
     engines: {node: '>=14.0.0'}
     cpu: [arm]
     os: [linux]
+    libc: musl
 
-  sass-embedded-linux-musl-ia32@1.87.0:
-    resolution: {integrity: sha512-aQaPvlRn3kh93PLQvl6BcFKu8Ji92+42blFEkg6nMVvmugD5ZwH2TGFrX25ibx4CYxRpMS4ssF7a0i7vy5HB1Q==}
-    engines: {node: '>=14.0.0'}
-    cpu: [ia32]
-    os: [linux]
-
-  sass-embedded-linux-musl-riscv64@1.87.0:
-    resolution: {integrity: sha512-o5DxcqiFzET3KRWo+futHr/lhAMBP3tJGGx8YIgpHQYfvDMbsvE0hiFC+nZ/GF9dbcGd+ceIQwfvE5mcc7Gsjw==}
+  sass-embedded-linux-musl-riscv64@1.97.2:
+    resolution: {integrity: sha512-qtM4dJ5gLfvyTZ3QencfNbsTEShIWImSEpkThz+Y2nsCMbcMP7/jYOA03UWgPfEOKSehQQ7EIau7ncbFNoDNPQ==}
     engines: {node: '>=14.0.0'}
     cpu: [riscv64]
     os: [linux]
+    libc: musl
 
-  sass-embedded-linux-musl-x64@1.87.0:
-    resolution: {integrity: sha512-dKxWsu9Wu/CyfzQmHdeiGqrRSzJ85VUjbSx+aP1/7ttmps3SSg+YW95PuqnCOa7GSuSreC3dKKpXHTywUxMLQA==}
+  sass-embedded-linux-musl-x64@1.97.2:
+    resolution: {integrity: sha512-ZAxYOdmexcnxGnzdsDjYmNe3jGj+XW3/pF/n7e7r8y+5c6D2CQRrCUdapLgaqPt1edOPQIlQEZF8q5j6ng21yw==}
     engines: {node: '>=14.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: musl
 
-  sass-embedded-linux-riscv64@1.87.0:
-    resolution: {integrity: sha512-Sy3ESZ4FwBiijvmTA9n+0p0w3MNCue1AgINVPzpAY27EFi0h49eqQm9SWfOkFqmkFS2zFRYowdQOr5Bbr2gOXA==}
+  sass-embedded-linux-riscv64@1.97.2:
+    resolution: {integrity: sha512-reVwa9ZFEAOChXpDyNB3nNHHyAkPMD+FTctQKECqKiVJnIzv2EaFF6/t0wzyvPgBKeatA8jszAIeOkkOzbYVkQ==}
     engines: {node: '>=14.0.0'}
     cpu: [riscv64]
     os: [linux]
+    libc: glibc
 
-  sass-embedded-linux-x64@1.87.0:
-    resolution: {integrity: sha512-+UfjakOcHHKTnEqB3EZ+KqzezQOe1emvy4Rs+eQhLyfekpYuNze/qlRvYxfKTmrtvDiUrIto8MXsyZfMLzkuMA==}
+  sass-embedded-linux-x64@1.97.2:
+    resolution: {integrity: sha512-bvAdZQsX3jDBv6m4emaU2OMTpN0KndzTAMgJZZrKUgiC0qxBmBqbJG06Oj/lOCoXGCxAvUOheVYpezRTF+Feog==}
     engines: {node: '>=14.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: glibc
 
-  sass-embedded-win32-arm64@1.87.0:
-    resolution: {integrity: sha512-m1DS6FYUE0/fv+vt38uQB/kxR4UjnyD+2zcSc298pFmA0aYh/XZIPWw7RxG1HL3KLE1ZrGyu3254MPoxRhs3ig==}
+  sass-embedded-win32-arm64@1.97.2:
+    resolution: {integrity: sha512-Cv28q8qNjAjZfqfzTrQvKf4JjsZ6EOQ5FxyHUQQeNzm73R86nd/8ozDa1Vmn79Hq0kwM15OCM9epanDuTG1ksA==}
     engines: {node: '>=14.0.0'}
     cpu: [arm64]
     os: [win32]
 
-  sass-embedded-win32-ia32@1.87.0:
-    resolution: {integrity: sha512-JztXLo59GMe2E6g+kCsyiERYhtZgkcyDYx6CrXoSTE5WaE+RbxRiCCCv8/1+hf406f08pUxJ8G0Ody7M5urtBA==}
-    engines: {node: '>=14.0.0'}
-    cpu: [ia32]
-    os: [win32]
-
-  sass-embedded-win32-x64@1.87.0:
-    resolution: {integrity: sha512-4nQErpauvhgSo+7ClumGdjdf9sGx+U9yBgvhI0+zUw+D5YvraVgvA0Lk8Wuwntx2PqnvKUk8YDr/vxHJostv4Q==}
+  sass-embedded-win32-x64@1.97.2:
+    resolution: {integrity: sha512-DVxLxkeDCGIYeyHLAvWW3yy9sy5Ruk5p472QWiyfyyG1G1ASAR8fgfIY5pT0vE6Rv+VAKVLwF3WTspUYu7S1/Q==}
     engines: {node: '>=14.0.0'}
     cpu: [x64]
     os: [win32]
 
-  sass-embedded@1.87.0:
-    resolution: {integrity: sha512-1IA3iTJNh4BkkA/nidKiVwbmkxr9o6LsPegycHMX/JYs255zpocN5GdLF1+onohQCJxbs5ldr8osKV7qNaNBjg==}
+  sass-embedded@1.97.2:
+    resolution: {integrity: sha512-lKJcskySwAtJ4QRirKrikrWMFa2niAuaGenY2ElHjd55IwHUiur5IdKu6R1hEmGYMs4Qm+6rlRW0RvuAkmcryg==}
     engines: {node: '>=16.0.0'}
     hasBin: true
 
@@ -17761,6 +17652,10 @@ packages:
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
+
+ignoredOptionalDependencies:
+  - sass-embedded-all-unknown
+  - sass-embedded-unknown-all
 
 snapshots:
 
@@ -23367,7 +23262,7 @@ snapshots:
 
   '@wordpress/browserslist-config@6.37.0': {}
 
-  '@wordpress/build@0.5.1-next.79a2f3cdd.0(@babel/core@7.28.4)(@wordpress/boot@0.3.0(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.24.5)(sass-embedded@1.87.0)':
+  '@wordpress/build@0.5.1-next.79a2f3cdd.0(@babel/core@7.28.4)(@wordpress/boot@0.3.0(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/route@0.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.24.5)(sass-embedded@1.97.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       autoprefixer: 10.4.21(postcss@8.5.6)
@@ -23377,7 +23272,7 @@ snapshots:
       cssnano: 7.1.2(postcss@8.5.6)
       esbuild: 0.25.10
       esbuild-plugin-babel: 0.2.3(@babel/core@7.28.4)
-      esbuild-sass-plugin: 3.3.1(esbuild@0.25.10)(sass-embedded@1.87.0)
+      esbuild-sass-plugin: 3.3.1(esbuild@0.25.10)(sass-embedded@1.97.2)
       fast-glob: 3.3.3
       postcss: 8.5.6
       postcss-modules: 6.0.1(postcss@8.5.6)
@@ -27198,19 +27093,19 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.4
 
-  esbuild-sass-plugin@3.3.1(esbuild@0.25.10)(sass-embedded@1.87.0):
+  esbuild-sass-plugin@3.3.1(esbuild@0.25.10)(sass-embedded@1.97.2):
     dependencies:
       esbuild: 0.25.10
       resolve: 1.22.11
       safe-identifier: 0.4.2
-      sass-embedded: 1.87.0
+      sass-embedded: 1.97.2
 
-  esbuild-sass-plugin@3.3.1(esbuild@0.25.9)(sass-embedded@1.87.0):
+  esbuild-sass-plugin@3.3.1(esbuild@0.25.9)(sass-embedded@1.97.2):
     dependencies:
       esbuild: 0.25.9
       resolve: 1.22.11
       safe-identifier: 0.4.2
-      sass-embedded: 1.87.0
+      sass-embedded: 1.97.2
 
   esbuild@0.25.10:
     optionalDependencies:
@@ -28983,18 +28878,6 @@ snapshots:
       jest-util: 30.2.0
       pretty-format: 30.2.0
 
-  jest-environment-jsdom@30.2.0:
-    dependencies:
-      '@jest/environment': 30.2.0
-      '@jest/environment-jsdom-abstract': 30.2.0(jsdom@26.1.0)
-      '@types/jsdom': 21.1.7
-      '@types/node': 20.19.25
-      jsdom: 26.1.0
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-
   jest-environment-node@30.2.0:
     dependencies:
       '@jest/environment': 30.2.0
@@ -29438,7 +29321,7 @@ snapshots:
     dependencies:
       isomorphic.js: 0.2.5
 
-  libphonenumber-js@1.12.31: {}
+  libphonenumber-js@1.12.34: {}
 
   libsodium-wrappers@0.7.10:
     dependencies:
@@ -31813,67 +31696,55 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sass-embedded-android-arm64@1.87.0:
+  sass-embedded-android-arm64@1.97.2:
     optional: true
 
-  sass-embedded-android-arm@1.87.0:
+  sass-embedded-android-arm@1.97.2:
     optional: true
 
-  sass-embedded-android-ia32@1.87.0:
+  sass-embedded-android-riscv64@1.97.2:
     optional: true
 
-  sass-embedded-android-riscv64@1.87.0:
+  sass-embedded-android-x64@1.97.2:
     optional: true
 
-  sass-embedded-android-x64@1.87.0:
+  sass-embedded-darwin-arm64@1.97.2:
     optional: true
 
-  sass-embedded-darwin-arm64@1.87.0:
+  sass-embedded-darwin-x64@1.97.2:
     optional: true
 
-  sass-embedded-darwin-x64@1.87.0:
+  sass-embedded-linux-arm64@1.97.2:
     optional: true
 
-  sass-embedded-linux-arm64@1.87.0:
+  sass-embedded-linux-arm@1.97.2:
     optional: true
 
-  sass-embedded-linux-arm@1.87.0:
+  sass-embedded-linux-musl-arm64@1.97.2:
     optional: true
 
-  sass-embedded-linux-ia32@1.87.0:
+  sass-embedded-linux-musl-arm@1.97.2:
     optional: true
 
-  sass-embedded-linux-musl-arm64@1.87.0:
+  sass-embedded-linux-musl-riscv64@1.97.2:
     optional: true
 
-  sass-embedded-linux-musl-arm@1.87.0:
+  sass-embedded-linux-musl-x64@1.97.2:
     optional: true
 
-  sass-embedded-linux-musl-ia32@1.87.0:
+  sass-embedded-linux-riscv64@1.97.2:
     optional: true
 
-  sass-embedded-linux-musl-riscv64@1.87.0:
+  sass-embedded-linux-x64@1.97.2:
     optional: true
 
-  sass-embedded-linux-musl-x64@1.87.0:
+  sass-embedded-win32-arm64@1.97.2:
     optional: true
 
-  sass-embedded-linux-riscv64@1.87.0:
+  sass-embedded-win32-x64@1.97.2:
     optional: true
 
-  sass-embedded-linux-x64@1.87.0:
-    optional: true
-
-  sass-embedded-win32-arm64@1.87.0:
-    optional: true
-
-  sass-embedded-win32-ia32@1.87.0:
-    optional: true
-
-  sass-embedded-win32-x64@1.87.0:
-    optional: true
-
-  sass-embedded@1.87.0:
+  sass-embedded@1.97.2:
     dependencies:
       '@bufbuild/protobuf': 2.10.1
       buffer-builder: 0.2.0
@@ -31884,32 +31755,28 @@ snapshots:
       sync-child-process: 1.0.2
       varint: 6.0.0
     optionalDependencies:
-      sass-embedded-android-arm: 1.87.0
-      sass-embedded-android-arm64: 1.87.0
-      sass-embedded-android-ia32: 1.87.0
-      sass-embedded-android-riscv64: 1.87.0
-      sass-embedded-android-x64: 1.87.0
-      sass-embedded-darwin-arm64: 1.87.0
-      sass-embedded-darwin-x64: 1.87.0
-      sass-embedded-linux-arm: 1.87.0
-      sass-embedded-linux-arm64: 1.87.0
-      sass-embedded-linux-ia32: 1.87.0
-      sass-embedded-linux-musl-arm: 1.87.0
-      sass-embedded-linux-musl-arm64: 1.87.0
-      sass-embedded-linux-musl-ia32: 1.87.0
-      sass-embedded-linux-musl-riscv64: 1.87.0
-      sass-embedded-linux-musl-x64: 1.87.0
-      sass-embedded-linux-riscv64: 1.87.0
-      sass-embedded-linux-x64: 1.87.0
-      sass-embedded-win32-arm64: 1.87.0
-      sass-embedded-win32-ia32: 1.87.0
-      sass-embedded-win32-x64: 1.87.0
+      sass-embedded-android-arm: 1.97.2
+      sass-embedded-android-arm64: 1.97.2
+      sass-embedded-android-riscv64: 1.97.2
+      sass-embedded-android-x64: 1.97.2
+      sass-embedded-darwin-arm64: 1.97.2
+      sass-embedded-darwin-x64: 1.97.2
+      sass-embedded-linux-arm: 1.97.2
+      sass-embedded-linux-arm64: 1.97.2
+      sass-embedded-linux-musl-arm: 1.97.2
+      sass-embedded-linux-musl-arm64: 1.97.2
+      sass-embedded-linux-musl-riscv64: 1.97.2
+      sass-embedded-linux-musl-x64: 1.97.2
+      sass-embedded-linux-riscv64: 1.97.2
+      sass-embedded-linux-x64: 1.97.2
+      sass-embedded-win32-arm64: 1.97.2
+      sass-embedded-win32-x64: 1.97.2
 
-  sass-loader@16.0.5(sass-embedded@1.87.0)(webpack@5.101.3):
+  sass-loader@16.0.5(sass-embedded@1.97.2)(webpack@5.101.3):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
-      sass-embedded: 1.87.0
+      sass-embedded: 1.97.2
       webpack: 5.101.3(webpack-cli@6.0.1)
 
   sax@1.4.3: {}
@@ -32633,13 +32500,13 @@ snapshots:
     optionalDependencies:
       svelte: 4.2.19
 
-  svelte-preprocess@6.0.2(@babel/core@7.28.4)(postcss@8.5.6)(sass-embedded@1.87.0)(svelte@4.2.19)(typescript@5.9.3):
+  svelte-preprocess@6.0.2(@babel/core@7.28.4)(postcss@8.5.6)(sass-embedded@1.97.2)(svelte@4.2.19)(typescript@5.9.3):
     dependencies:
       svelte: 4.2.19
     optionalDependencies:
       '@babel/core': 7.28.4
       postcss: 8.5.6
-      sass: sass-embedded@1.87.0
+      sass: sass-embedded@1.97.2
       typescript: 5.9.3
 
   svelte@4.2.19:
