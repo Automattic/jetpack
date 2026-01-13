@@ -110,7 +110,12 @@ const isInputWithRequiredField = ( fullName?: string ): boolean => {
 	// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
 	const hasRequired = field && field?.settings?.attributes?.required !== undefined;
 	const isHidden = field?.name === 'field-hidden';
-	return hasRequired && ! isHidden;
+	const isImplicitConsent =
+		field?.name === 'field-consent' &&
+		// @ts-expect-error: childBlocks are defined in JS without explicit types.
+		// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
+		field?.settings?.attributes?.consentType !== 'explicit';
+	return hasRequired && ! isHidden && ! isImplicitConsent;
 };
 
 type CustomThankyouType =
@@ -863,7 +868,7 @@ function JetpackContactFormEdit( {
 								<TextControl
 									label={ __( 'Message heading', 'jetpack-forms' ) }
 									value={ customThankyouHeading }
-									placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
+									placeholder={ __( 'Thank you for your response.', 'jetpack-forms' ) }
 									onChange={ ( newHeading: string ) =>
 										setAttributes( { customThankyouHeading: newHeading } )
 									}
