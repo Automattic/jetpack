@@ -65,16 +65,15 @@ module.exports = [
 	{
 		...socialWebpackConfig,
 		entry: {
-			'classic-editor-share-limits': './src/js/classic-editor-share-limits.js',
-			'classic-editor-connections': './src/js/classic-editor-connections.js',
+			'classic-editor': './_inc/entry-points/classic-editor.js',
 		},
 	},
 	{
 		...socialWebpackConfig,
 		entry: {
-			'social-admin-page': './src/js/social-admin-page.js',
-			'editor-jetpack-sidebar': './src/js/editor-jetpack-sidebar.js',
-			'editor-social-sidebar': './src/js/editor-social-sidebar.js',
+			'social-admin-page': './_inc/entry-points/social-admin-page.tsx',
+			'block-editor-jetpack': './_inc/entry-points/block-editor-jetpack.tsx',
+			'block-editor-social': './_inc/entry-points/block-editor-social.tsx',
 		},
 	},
 ];

@@ -110,7 +110,12 @@ const isInputWithRequiredField = ( fullName?: string ): boolean => {
 	// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
 	const hasRequired = field && field?.settings?.attributes?.required !== undefined;
 	const isHidden = field?.name === 'field-hidden';
-	return hasRequired && ! isHidden;
+	const isImplicitConsent =
+		field?.name === 'field-consent' &&
+		// @ts-expect-error: childBlocks are defined in JS without explicit types.
+		// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
+		field?.settings?.attributes?.consentType !== 'explicit';
+	return hasRequired && ! isHidden && ! isImplicitConsent;
 };
 
 type CustomThankyouType =
@@ -211,10 +216,12 @@ function JetpackContactFormEdit( {
 		[ clientId, steps ]
 	);
 
-	const submitButton = useFindBlockRecursively(
-		clientId,
-		block => block.name === 'jetpack/button'
+	const findButtonsBlock = useCallback(
+		block => block.name === 'core/button' || block.name === 'jetpack/button',
+		[]
 	);
+
+	const submitButton = useFindBlockRecursively( clientId, findButtonsBlock );
 
 	const { postTitle, hasAnyInnerBlocks, postAuthorEmail, selectedBlockClientId, onlySubmitBlock } =
 		useSelect(
@@ -236,6 +243,11 @@ function JetpackContactFormEdit( {
 				const { getUser } = select( coreStore );
 				const innerBlocksData = getBlocks( clientId );
 
+				const isSingleButtonBlock =
+					innerBlocksData.length === 1 &&
+					( innerBlocksData[ 0 ].name === 'core/button' ||
+						innerBlocksData[ 0 ].name === 'jetpack/button' );
+
 				const title = getEditedPostAttribute( 'title' );
 				const authorId = getEditedPostAttribute( 'author' );
 				const authorEmail = authorId && getUser( authorId )?.email;
@@ -245,8 +257,7 @@ function JetpackContactFormEdit( {
 					hasAnyInnerBlocks: innerBlocksData.length > 0,
 					postAuthorEmail: authorEmail,
 					selectedBlockClientId: selectedStepBlockId,
-					onlySubmitBlock:
-						innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
+					onlySubmitBlock: isSingleButtonBlock,
 				};
 			},
 			[ clientId ]
@@ -344,7 +355,7 @@ function JetpackContactFormEdit( {
 			// Find the submit button
 			const submitButtonIndex = currentInnerBlocks.findIndex(
 				block =>
-					block.name === 'jetpack/button' &&
+					( block.name === 'core/button' || block.name === 'jetpack/button' ) &&
 					( block.attributes?.customVariant === 'submit' || block.attributes?.element === 'button' )
 			);
 
@@ -479,7 +490,9 @@ function JetpackContactFormEdit( {
 
 		// Helper functions
 		const findButtonBlock = () => {
-			const buttonIndex = currentInnerBlocks.findIndex( block => block.name === 'jetpack/button' );
+			const buttonIndex = currentInnerBlocks.findIndex(
+				block => block.name === 'core/button' || block.name === 'jetpack/button'
+			);
 			return buttonIndex !== -1
 				? {
 						block: currentInnerBlocks[ buttonIndex ],
@@ -720,9 +733,10 @@ function JetpackContactFormEdit( {
 		// Ensure we have a submit button at the end of the form.
 		if ( ! finalSubmitButton ) {
 			// Create a fresh submit button if none was found.
-			finalSubmitButton = createBlock( 'jetpack/button', {
-				element: 'button',
+			finalSubmitButton = createBlock( 'core/button', {
 				text: __( 'Submit', 'jetpack-forms' ),
+				type: 'submit',
+				tagName: 'button',
 			} );
 		}
 
@@ -854,7 +868,7 @@ function JetpackContactFormEdit( {
 								<TextControl
 									label={ __( 'Message heading', 'jetpack-forms' ) }
 									value={ customThankyouHeading }
-									placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
+									placeholder={ __( 'Thank you for your response.', 'jetpack-forms' ) }
 									onChange={ ( newHeading: string ) =>
 										setAttributes( { customThankyouHeading: newHeading } )
 									}

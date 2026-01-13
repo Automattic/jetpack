@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
-import { isUserConnected } from '../../../../../lib/connection';
+import { isSiteConnected } from '../../../../../lib/connection';
 import {
 	buildVideoPressURL,
 	buildVideoPressVideoByFileName,
@@ -42,7 +42,7 @@ const VideoPressUploader = ( {
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
 
-	const hasUserConnection = isUserConnected();
+	const hasSiteConnection = isSiteConnected();
 
 	/*
 	 * When the file to upload is set, start the upload process
@@ -346,7 +346,7 @@ const VideoPressUploader = ( {
 
 		return (
 			<PlaceholderWrapper disableInstructions className="disabled">
-				<span>{ ! hasUserConnection ? needsConnectionText : needsActivationText }</span>
+				<span>{ ! hasSiteConnection ? needsConnectionText : needsActivationText }</span>
 			</PlaceholderWrapper>
 		);
 	}

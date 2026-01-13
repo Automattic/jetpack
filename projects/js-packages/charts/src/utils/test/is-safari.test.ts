@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { isSafari } from '../is-safari';
 
 describe( 'isSafari', () => {

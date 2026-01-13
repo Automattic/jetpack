@@ -1188,6 +1188,13 @@ class Defaults {
 	public static $default_comment_meta_whitelist = array();
 
 	/**
+	 * Default for sync actions blacklist.
+	 *
+	 * @var array Empty array.
+	 */
+	public static $default_sync_actions_blacklist = array();
+
+	/**
 	 * Default for disabling sync across the site.
 	 *
 	 * @var int Bool-ish. Default to 0.

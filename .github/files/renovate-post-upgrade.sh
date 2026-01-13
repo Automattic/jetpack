@@ -44,10 +44,13 @@ fi
 
 # Do the pnpm install. Turn off some strictness settings to make it more likely this will work.
 cd "$BASE"
-echo 'strict-peer-dependencies = false' >> .npmrc
-echo 'strict-dep-builds = false' >> .npmrc
-pnpm install
-git restore .npmrc
+TMP=$(< pnpm-workspace.yaml )
+pnpm config set --location project strict-peer-dependencies false
+pnpm config set --location project strict-dep-builds false
+EXIT=0
+pnpm install || EXIT=$?
+echo "$TMP" > pnpm-workspace.yaml
+[[ $EXIT == 0 ]] || exit $EXIT
 
 # Install changelogger too.
 cd "$BASE/projects/packages/changelogger"

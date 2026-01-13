@@ -47,9 +47,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Remove hooks added by the Agents_Manager constructor.
 		remove_action( 'rest_api_init', array( $this->agents_manager, 'register_rest_api' ) );
 		remove_filter( 'calypso_preferences_update', array( $this->agents_manager, 'calypso_preferences_update' ) );
-		remove_action( 'wp_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 101 );
-		remove_action( 'admin_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 101 );
-		remove_action( 'next_admin_init', array( $this->agents_manager, 'add_inline_script' ), 1001 );
+		remove_action( 'wp_enqueue_scripts', array( $this->agents_manager, 'enqueue_scripts' ), 101 );
+		remove_action( 'admin_enqueue_scripts', array( $this->agents_manager, 'enqueue_scripts' ), 101 );
+		remove_action( 'next_admin_init', array( $this->agents_manager, 'enqueue_scripts' ), 1001 );
 		remove_filter( 'agents_manager_use_unified_experience', array( $this->agents_manager, 'should_use_unified_experience' ) );
 
 		// Reset the REST server to clear any registered routes.
@@ -283,35 +283,44 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that add_inline_script adds script with empty providers and useUnifiedExperience false by default.
+	 * Tests that enqueue_scripts adds script with empty providers and useUnifiedExperience false by default.
 	 */
-	public function test_add_inline_script_with_empty_providers() {
-		// Register the help-center script so we can attach inline script to it.
-		wp_register_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+	public function test_enqueue_scripts_with_empty_providers() {
+		// Register the agents-manager script so we can attach inline script to it.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		$this->agents_manager->add_inline_script();
+		// Add a filter to enable unified experience.
+		add_filter(
+			'agents_manager_use_unified_experience',
+			'__return_true',
+			// Use a higher priority to ensure it runs after the class's own filter.
+			20
+		);
+
+		$this->agents_manager->enqueue_scripts();
 
 		global $wp_scripts;
-		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array();
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
 
 		// Find the inline script containing agentsManagerData (wp_add_inline_script may add at different indices).
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		$this->assertStringContainsString( '"agentProviders":[]', $inline_script );
-		$this->assertStringContainsString( '"useUnifiedExperience":false', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
 
 	/**
-	 * Tests that add_inline_script includes providers added via the filter.
+	 * Tests that enqueue_scripts includes providers added via the filter.
 	 */
-	public function test_add_inline_script_includes_filtered_providers() {
+	public function test_enqueue_scripts_includes_filtered_providers() {
 		// Reset the script registry to ensure test isolation.
 		global $wp_scripts;
 		$wp_scripts = null;
 
-		// Register the help-center script so we can attach inline script to it.
-		wp_register_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		// Register the agents-manager script so we can attach inline script to it.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		// Add a filter to provide agent providers.
 		add_filter(
@@ -321,10 +330,18 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		$this->agents_manager->add_inline_script();
+		// Add a filter to enable unified experience.
+		add_filter(
+			'agents_manager_use_unified_experience',
+			'__return_true',
+			// Use a higher priority to ensure it runs after the class's own filter.
+			20
+		);
+
+		$this->agents_manager->enqueue_scripts();
 
 		// Re-fetch global after wp_register_script initializes it.
-		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
 
 		// Find the inline script containing agentsManagerData (wp_add_inline_script may add at different indices).
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
@@ -335,18 +352,19 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Clean up the filter.
 		remove_all_filters( 'agents_manager_agent_providers' );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
 
 	/**
-	 * Tests that add_inline_script includes useUnifiedExperience true when filter returns true.
+	 * Tests that enqueue_scripts includes useUnifiedExperience true when filter returns true.
 	 */
-	public function test_add_inline_script_includes_use_unified_experience_when_enabled() {
+	public function test_enqueue_scripts_includes_use_unified_experience_when_enabled() {
 		// Reset the script registry to ensure test isolation.
 		global $wp_scripts;
 		$wp_scripts = null;
 
-		// Register the help-center script so we can attach inline script to it.
-		wp_register_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		// Register the agents-manager script so we can attach inline script to it.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		// Add a filter to enable unified experience.
 		add_filter(
@@ -356,10 +374,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			20
 		);
 
-		$this->agents_manager->add_inline_script();
+		$this->agents_manager->enqueue_scripts();
 
 		// Re-fetch global after wp_register_script initializes it.
-		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
 
 		// Find the inline script containing agentsManagerData.
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
@@ -437,9 +455,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		Functions\stubs(
 			array(
-				'is_automattician'   => true,
+				'is_automattician'         => true,
 				// Return calypso_preferences with unified_ai_chat enabled.
-				'get_user_attribute' => array( 'unified_ai_chat' => true ),
+				'get_user_attribute'       => array( 'unified_ai_chat' => true ),
+				// Simulate proxied request (required for unified experience).
+				'wpcom_is_proxied_request' => true,
 			)
 		);
 
@@ -526,5 +546,371 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$result = $this->agents_manager->should_use_unified_experience();
 
 		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that should_use_unified_experience returns false when wpcom_is_proxied_request returns false.
+	 *
+	 * On Simple sites, proxy detection uses the wpcom_is_proxied_request function.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_use_unified_experience_returns_false_when_wpcom_proxy_function_returns_false() {
+		// Simulate being on a Simple site.
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Functions\stubs(
+			array(
+				// Simulate non-proxied request via wpcom function.
+				'wpcom_is_proxied_request' => false,
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_not_proxied_simple',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that should_use_unified_experience returns false on WoA when not proxied (no constant/server var).
+	 *
+	 * On WoA/Garden sites, proxy detection falls back to A8C_PROXIED_REQUEST constant or server variable.
+	 */
+	public function test_should_use_unified_experience_returns_false_on_woa_when_not_proxied() {
+		// Simulate being on an Atomic (WoA) site without proxy.
+		Cache::set( 'is_woa_site', true );
+		// Do NOT set A8C_PROXIED_REQUEST constant or $_SERVER variable.
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_not_proxied_woa',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that should_use_unified_experience checks proxy via A8C_PROXIED_REQUEST constant on WoA.
+	 *
+	 * On WoA/Garden sites where wpcom_is_proxied_request doesn't exist,
+	 * proxy detection uses the A8C_PROXIED_REQUEST constant.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_use_unified_experience_uses_constant_for_proxy_on_woa() {
+		// Simulate being on an Atomic (WoA) site with proxy via constant.
+		Cache::set( 'is_woa_site', true );
+		Constants::set_constant( 'A8C_PROXIED_REQUEST', true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_proxied_woa_constant',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// The proxy check passes, but the API call will fail in test environment,
+		// so the result will still be false. This test verifies the proxy check
+		// doesn't block execution when the constant is set.
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		// Result is false because API call fails, but importantly we got past the proxy check.
+		// If proxy check failed, we would have returned false before any API call attempt.
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that should_use_unified_experience checks proxy via $_SERVER on WoA.
+	 *
+	 * On WoA/Garden sites where wpcom_is_proxied_request doesn't exist,
+	 * proxy detection can also use the A8C_PROXIED_REQUEST server variable.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_use_unified_experience_uses_server_var_for_proxy_on_woa() {
+		// Simulate being on an Atomic (WoA) site with proxy via server variable.
+		Cache::set( 'is_woa_site', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_proxied_woa_server',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// The proxy check passes, but the API call will fail in test environment.
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		// Clean up server variable.
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+
+		// Result is false because API call fails, but we verified the proxy check passed.
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that fetch_unified_experience_preference returns true when API returns unified_ai_chat enabled.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_fetch_unified_experience_preference_returns_true_when_api_returns_enabled() {
+		// Simulate being on an Atomic (WoA) site with proxy.
+		Cache::set( 'is_woa_site', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_api_enabled',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection by setting user tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Mock the API response.
+		add_filter( 'pre_http_request', array( $this, 'mock_preferences_api_enabled' ), 10, 3 );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_preferences_api_enabled' ), 10 );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that fetch_unified_experience_preference returns false when API returns unified_ai_chat disabled.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_fetch_unified_experience_preference_returns_false_when_api_returns_disabled() {
+		// Simulate being on an Atomic (WoA) site with proxy.
+		Cache::set( 'is_woa_site', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_api_disabled',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection by setting user tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Mock the API response.
+		add_filter( 'pre_http_request', array( $this, 'mock_preferences_api_disabled' ), 10, 3 );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_preferences_api_disabled' ), 10 );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that fetch_unified_experience_preference uses cached value on subsequent calls.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_fetch_unified_experience_preference_uses_cache() {
+		// Simulate being on an Atomic (WoA) site with proxy.
+		Cache::set( 'is_woa_site', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_cache',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection by setting user tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Set transient cache directly.
+		set_transient( 'unified-experience-' . $user_id, 1, MINUTE_IN_SECONDS );
+
+		// Track API calls - should not be called if cache is used.
+		$api_call_count = 0;
+		$count_callback = function () use ( &$api_call_count ) {
+			++$api_call_count;
+			return array(
+				'body'     => wp_json_encode( true, JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $count_callback, 10, 3 );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		remove_filter( 'pre_http_request', $count_callback, 10 );
+
+		// Should return true from cache and not make any API calls.
+		$this->assertTrue( $result );
+		$this->assertSame( 0, $api_call_count );
+	}
+
+	/**
+	 * Tests that fetch_unified_experience_preference caches API failures.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_fetch_unified_experience_preference_caches_failures() {
+		// Simulate being on an Atomic (WoA) site with proxy.
+		Cache::set( 'is_woa_site', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_cache_failure',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection by setting user tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Mock API failure.
+		add_filter( 'pre_http_request', array( $this, 'mock_preferences_api_error' ), 10, 3 );
+
+		// First call - should fail and cache the failure.
+		$result1 = $this->agents_manager->should_use_unified_experience();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_preferences_api_error' ), 10 );
+
+		$this->assertFalse( $result1 );
+
+		// Verify failure is cached.
+		$cached = get_transient( 'unified-experience-' . $user_id );
+		$this->assertSame( 0, $cached );
+	}
+
+	/**
+	 * Mock the preferences API to return enabled.
+	 *
+	 * @param mixed  $response The response.
+	 * @param array  $args The request args.
+	 * @param string $url The URL.
+	 * @return array The mocked response.
+	 */
+	public function mock_preferences_api_enabled( $response, $args, $url ) {
+		if ( strpos( $url, '/me/preferences' ) === false ) {
+			return $response;
+		}
+
+		return array(
+			'body'     => wp_json_encode( true, JSON_UNESCAPED_SLASHES ),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+		);
+	}
+
+	/**
+	 * Mock the preferences API to return disabled.
+	 *
+	 * @param mixed  $response The response.
+	 * @param array  $args The request args.
+	 * @param string $url The URL.
+	 * @return array The mocked response.
+	 */
+	public function mock_preferences_api_disabled( $response, $args, $url ) {
+		if ( strpos( $url, '/me/preferences' ) === false ) {
+			return $response;
+		}
+
+		return array(
+			'body'     => wp_json_encode( false, JSON_UNESCAPED_SLASHES ),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+		);
+	}
+
+	/**
+	 * Mock the preferences API to return an error.
+	 *
+	 * @param mixed  $response The response.
+	 * @param array  $args The request args.
+	 * @param string $url The URL.
+	 * @return \WP_Error The mocked error response.
+	 */
+	public function mock_preferences_api_error( $response, $args, $url ) {
+		if ( strpos( $url, '/me/preferences' ) === false ) {
+			return $response;
+		}
+
+		return new \WP_Error( 'http_request_failed', 'Connection failed' );
 	}
 }

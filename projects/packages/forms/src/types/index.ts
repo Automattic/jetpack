@@ -121,6 +121,44 @@ export interface FormResponse {
 }
 
 /**
+ * Comment on a feedback post.
+ * Based on WordPress wp/v2/comments REST API response.
+ */
+export interface FeedbackComment {
+	/** The unique identifier for the comment. */
+	id: number;
+	/** The ID of the associated post. */
+	post: number;
+	/** The ID of the parent comment (0 for top-level comments). */
+	parent: number;
+	/** Display name of the comment author. */
+	author_name: string;
+	/** URL of the comment author. */
+	author_url: string;
+	/** The date the comment was published. */
+	date: string;
+	/** The date the comment was published, in GMT. */
+	date_gmt: string;
+	/** The content of the comment. */
+	content: {
+		/** The rendered HTML content. */
+		rendered: string;
+		/** The raw content. */
+		raw?: string;
+	};
+	/** Status of the comment (e.g., 'approved', 'hold', 'spam'). */
+	status: string;
+	/** Type of comment (usually 'comment'). */
+	type: string;
+	/** Avatar URLs for the comment author. */
+	author_avatar_urls?: {
+		24?: string;
+		48?: string;
+		96?: string;
+	};
+}
+
+/**
  * Default URLs for Jetpack Forms blocks, such as responses and spam responses.
  */
 export interface JPFormsBlocksDefaults {
@@ -232,6 +270,8 @@ export type BlockEditorStoreSelect = {
  * Forms script data exposed via JetpackScriptData.forms
  */
 export interface FormsConfigData {
+	/** Whether the central form management feature is enabled (feature-flagged). */
+	isCentralFormManagementEnabled?: boolean;
 	/** Whether MailPoet integration is enabled across contexts. */
 	isMailPoetEnabled?: boolean;
 	/** Whether Hostinger Reach integration is enabled across contexts. */
@@ -252,6 +292,8 @@ export interface FormsConfigData {
 	canActivatePlugins?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
+	/** Whether form notes are enabled. */
+	isNotesEnabled?: boolean;
 	/** The URL of the Forms responses list in wp-admin. */
 	formsResponsesUrl?: string;
 	/** Current site blog ID. */

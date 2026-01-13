@@ -21,6 +21,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles the Jetpack Forms dashboard.
  */
 class Dashboard {
+
+	/**
+	 * Load wp-build generated files if available.
+	 * This is for the new DataViews-based responses list.
+	 */
+	public static function load_wp_build() {
+		$wp_build_index = dirname( __DIR__, 2 ) . '/build/index.php';
+		if ( file_exists( $wp_build_index ) ) {
+			require_once $wp_build_index;
+		}
+	}
 	/**
 	 * Script handle for the JS file we enqueue in the Feedback admin page.
 	 *
@@ -29,6 +40,15 @@ class Dashboard {
 	const SCRIPT_HANDLE = 'jp-forms-dashboard';
 
 	const ADMIN_SLUG = 'jetpack-forms-admin';
+
+	/**
+	 * Slug for the wp-admin integrated Responses UI (wp-build page).
+	 *
+	 * Note: This must be a valid submenu slug (sanitize_key compatible), not a full URL.
+	 *
+	 * @var string
+	 */
+	const FORMS_WPBUILD_ADMIN_SLUG = 'jetpack-forms-responses-wp-admin';
 
 	/**
 	 * Priority for the dashboard menu.
@@ -42,7 +62,18 @@ class Dashboard {
 	 * Initialize the dashboard.
 	 */
 	public function init() {
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
+
+		if ( $is_wp_build_enabled ) {
+			// Load wp-build generated files for the new DataViews-based UI.
+			self::load_wp_build();
+		}
+
 		add_action( 'admin_menu', array( $this, 'add_new_admin_submenu' ), self::MENU_PRIORITY );
+
+		if ( $is_wp_build_enabled ) {
+			add_action( 'admin_menu', array( $this, 'add_forms_wpbuild_submenu' ), self::MENU_PRIORITY );
+		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
 
@@ -68,7 +99,7 @@ class Dashboard {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-api-fetch', 'wp-data', 'wp-core-data', 'wp-dom-ready' ),
+				'dependencies' => array( 'wp-api-fetch', 'wp-data', 'wp-core-data', 'wp-dom-ready', 'wp-dom' ),
 			)
 		);
 
@@ -145,6 +176,24 @@ class Dashboard {
 	}
 
 	/**
+	 * Register Forms (WP-Build) submenu under Jetpack menu using wp-build page.
+	 */
+	public function add_forms_wpbuild_submenu() {
+		$callback = function_exists( 'jetpack_forms_responses_wp_admin_render_page' )
+			? 'jetpack_forms_responses_wp_admin_render_page'
+			: array( $this, 'render_dashboard' );
+
+		Admin_Menu::add_menu(
+			'Jetpack Forms',
+			'Forms (WP-Build)',
+			'edit_pages',
+			self::FORMS_WPBUILD_ADMIN_SLUG,
+			$callback,
+			11
+		);
+	}
+
+	/**
 	 * Render the dashboard.
 	 */
 	public function render_dashboard() {
@@ -216,5 +265,22 @@ class Dashboard {
 
 		$screen = get_current_screen();
 		return $screen && $screen->id === 'jetpack_page_jetpack-forms-admin';
+	}
+
+	/**
+	 * Returns true if form notes feature is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_notes_enabled() {
+		/**
+		* Enable form notes feature in Jetpack Forms .
+		*
+		* @module contact-form
+		* @since 7.3.0
+		*
+		* @param bool $enabled Should the form notes feature be enabled? Defaults to false.
+		*/
+		return apply_filters( 'jetpack_forms_notes_enable', false );
 	}
 }

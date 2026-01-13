@@ -89,4 +89,12 @@ export interface SparklineProps {
 		bottom?: number;
 		left?: number;
 	};
+
+	/**
+	 * Enable entry animation on initial render
+	 * Creates a rising effect where the line scales up from the bottom.
+	 * Automatically respects user's prefers-reduced-motion system setting.
+	 * @default false
+	 */
+	animation?: boolean;
 }

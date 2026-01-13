@@ -66,7 +66,7 @@ Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart th
 
 The wizard accepts a few arguments to speed things up:
 
-* `[project type]` - Accepted values: `package`, `plugin`, `github-action`
+* `[project type]` - Accepted values: `package`, `js-package`, `plugin`, `github-action`
 * `--name`, `--n` - The name of your project (no spaces)
 
 Example: `jetpack generate plugin --name my_cool_plugin` will generate plugin files for a plugin called `my_cool_plugin` under `../jetpack/projects/plugins`

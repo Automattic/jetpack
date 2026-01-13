@@ -2,35 +2,66 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.4-a.3 - 2025-12-15
+## 15.5-a.1 - 2026-01-12
+### Enhancements
+- Forms: Add form editor. [#46444]
+- Forms: Allow merging two options together with backspace. [#46507]
+- IDC: Add revalidation of IDC. [#46268]
+
+### Bug fixes
+- AI Search: Prevent AI Search from disappearing when returning certain responses. [#46476]
+- Forms: Fix date exports. [#46445]
+- UI: Prevent social modals in editor from stretching too wide on large screens. [#46400]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Comments API: Use end-user's IP-address for JSON API requests. [#46494]
+- Gate donations block behind conditional features. [#46499]
+- Gate payment buttons block behind conditional features. [#46513]
+- Gate PayPal payment buttons block behind conditional features. [#46536]
+- Update dependencies. [#46467] [#46489] [#46456] [#46512]
+
+## 15.4 - 2026-01-06
 ### Enhancements
 - External media: Add replace flow support. [#45841]
+- Forms: Add filter to hide integration icons. [#46188]
+- Forms: Add integrations display filters. [#46156]
+- Forms: add list view sidebar for easier field management. [#46403]
+- Forms: support Math and Code blocks inside forms. [#46421]
 - Forms: Use entire button area for selecting multi-select options. [#46263]
+- Social: Improve social preview for LinkedIn and Tumblr. [#46364]
 - Social: Reuse AI image generation in media section. [#46147]
 
 ### Bug fixes
+- AI Assistant: disabled Write Brief functionality for non-English sites. [#46390]
+- AI Assistant: Fix product page URL for Simple sites to use jetpack.com instead of My Jetpack. [#46358]
 - Forms: Ensure submission summary is contained within 100% width. [#46264]
 - Forms: Fix validation accessibility. [#46275]
 - Forms: Remove the classic Admin initialization call. [#46254]
+- Forms: Strip HTML from styled labels in error summary. [#46319]
+- Jetpack settings: Avoid deprecation notices when loading Settings screen or Debugger screen. [#46283]
+- Scan: Replace inline onclick handler with target="_blank" for CSP compliance in admin bar notice. [#46340]
+- Social: Fix connections management modal not opening from pre-publish panel. [#46316]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Development Mode: Remove references to previously removed code. [#46231]
-- General: Replace uses of confusing `esc_js()` function with clearer code. [#46229]
-- Update package dependencies. [#46244]
-
-## 15.4-a.1 - 2025-12-08
-### Enhancements
-- Forms: Add filter to hide integration icons. [#46188]
-- Forms: Add integrations display filters. [#46156]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add or remove features to plans for a future experiment. [#46285]
 - Add the new media selection UI for Social. [#46085]
+- Allow uploads without VideoPress enabled [#46425]
+- Clean up the logic for admin page access for Social as the settings page is now widely available. [#46386]
+- Development Mode: Remove references to previously removed code. [#46231]
 - Ensure proper flags are used with `json_encode()`. [#46117]
+- General: Replace uses of confusing `esc_js()` function with clearer code. [#46229]
+- Hides some SEO features for WPCOM users without the correct plan [#46357]
 - Janitorial: emptied out to-test.md. [#46221]
+- JSON API: Add an error check in taxonomy update endpoint. [#46359]
 - OG tags: use media-only Jetpack_Media_Summary::get [#46094]
 - Tests: Check the publish post action exists, but is not necessarily the last action. [#46105]
+- Tests: Update sync tests to allow for actions occurring after post publish. [#46236]
+- Update package dependencies. [#46244]
+- Update the @automattic/social-previews dependency source to the monorepo. [#46313]
+- Update the URL for Instagram support article. [#46405]
 
 ## 15.3.1 - 2025-12-04
+
 - Forms: Use the correct case on cipher names. [#46189]
 
 ## 15.3 - 2025-12-03

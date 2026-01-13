@@ -376,21 +376,21 @@ if ( wpcomsh_is_managed_plugin( 'gutenberg/gutenberg.php' ) ) {
  * @return bool
  */
 function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) {
+	/*
+	 * Don't interfere with Jetpack XMLRPC API requests (e.g., plugin installation from Calypso).
+	 *
+	 * The Jetpack API endpoint handles auto_update_plugins updates via update_site_option().
+	 * If this filter modifies the value, it can interfere with WordPress's old vs new value
+	 * comparison, causing the update to be skipped and breaking Jetpack sync.
+	 *
+	 * By returning early, we let Jetpack handle XMLRPC requests without interference.
+	 */
+	if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+		return $pre_auto_update_plugins;
+	}
+
 	// Listing plugins is a costly operation, so we only want to do this under certain circumstances.
 	$look_for_new_plugins = false;
-
-	/*
-	 * Does this look like a Jetpack plugin update attempt?
-	 *
-	 * @see https://github.com/WordPress/wordpress-develop/blob/18ebf26bc3787e8ccc03438bd8375e4828030ca9/src/wp-admin/includes/class-wp-upgrader.php#L904
-	 * @see https://github.com/Automattic/jetpack/blob/82d102a231c34585150056329879e0745c954974/projects/plugins/jetpack/json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php#L331
-	 */
-	if (
-		defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST &&
-		HOUR_IN_SECONDS < ( time() - (int) get_option( 'auto_updater.lock', 0 ) )
-	) {
-		$look_for_new_plugins = true;
-	}
 
 	// We'd like admin operations via WP-CLI to have the latest auto-updated plugins list.
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {

@@ -1,0 +1,32 @@
+{
+	"name": "_@jetpack-forms/responses-route",
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@automattic/color-studio": "4.1.0",
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/ui": "1.0.2",
+		"@tanstack/react-router": ">=1.120.5 <1.121.0",
+		"@types/react": "18.3.26",
+		"@wordpress/admin-ui": "1.5.0",
+		"@wordpress/api-fetch": "7.37.0",
+		"@wordpress/block-editor": "15.10.0",
+		"@wordpress/blocks": "15.10.0",
+		"@wordpress/components": "31.0.1-next.8fd3f8831.0",
+		"@wordpress/core-data": "7.37.0",
+		"@wordpress/data": "10.37.0",
+		"@wordpress/dataviews": "11.1.1-next.6deb34194.0",
+		"@wordpress/date": "5.37.0",
+		"@wordpress/element": "6.37.0",
+		"@wordpress/html-entities": "4.37.0",
+		"@wordpress/i18n": "6.10.0",
+		"@wordpress/icons": "11.4.0",
+		"@wordpress/notices": "5.37.0",
+		"@wordpress/route": "0.2.0"
+	},
+	"route": {
+		"path": "/responses/$view",
+		"page": "jetpack-forms-responses"
+	}
+}

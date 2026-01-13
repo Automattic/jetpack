@@ -846,6 +846,18 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the email does not contain "Powered by".
+	 */
+	public function test_jetpack_forms_email_powered_by_html_filter() {
+
+		$this->assertStringContainsString( 'Powered by', Contact_Form::wrap_message_in_html_tags( '$title', '$message', '$footer', '$actions' ) );
+
+		add_filter( 'jetpack_forms_email_powered_by_html', '__return_empty_string' );
+		$this->assertStringNotContainsString( 'Powered by', Contact_Form::wrap_message_in_html_tags( '$title', '$message', '$footer', '$actions' ) );
+		remove_filter( 'jetpack_forms_email_powered_by_html', '__return_empty_string' );
+	}
+
+	/**
 	 * This method is hooked to the wp-mail filter.
 	 *
 	 * @param array $args A compacted array of wp_mail() arguments, including the "to" email,
@@ -3856,10 +3868,10 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test is_webhooks_enabled returns false by default.
+	 * Test is_webhooks_enabled returns true by default.
 	 */
 	public function test_is_webhooks_enabled_default() {
-		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+		$this->assertTrue( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
 	}
 
 	/**

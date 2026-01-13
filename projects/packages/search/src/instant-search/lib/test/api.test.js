@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { buildFilterAggregations, generateDateRangeFilter, setDocumentCountsToZero } from '../api';
 
 describe( 'buildFilterAggregations', () => {

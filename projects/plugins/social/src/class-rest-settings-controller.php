@@ -27,18 +27,6 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	 * @static
 	 */
 	public function register_rest_routes() {
-		register_rest_route(
-			'jetpack/v4',
-			'/social/review-dismiss',
-			array(
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_review_dismissed' ),
-					'permission_callback' => array( $this, 'require_publish_posts_permission_callback' ),
-					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
-				),
-			)
-		);
 
 		if ( Publicize_Utils::should_use_jetpack_module_endpoint() ) {
 			return;
@@ -141,27 +129,6 @@ class REST_Settings_Controller extends WP_REST_Controller {
 		}
 
 		return $this->get_item( $request );
-	}
-
-	/**
-	 * Updates the boolean value that dismisses the request to review the plugin
-	 *
-	 * @param WP_REST_Request $request - REST Request.
-	 * @return WP_Error|\WP_HTTP_Response|\WP_REST_Response
-	 */
-	public function update_review_dismissed( $request ) {
-		$params    = $request->get_params();
-		$dismissed = $params['dismissed'];
-
-		if ( ! update_option( Jetpack_Social::JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION, (bool) $dismissed ) ) {
-			return new WP_Error(
-				'rest_cannot_edit',
-				__( 'Failed to update the review_request_dismiss', 'jetpack-social' ),
-				array( 'status' => 500 )
-			);
-		}
-
-		return rest_ensure_response( true );
 	}
 
 	/**

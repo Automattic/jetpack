@@ -20,7 +20,8 @@ Instructions:
      --type={type} \
      --entry="{description}"
    ```
-5. Stage the generated changelog file with `git add`
+5. Navigate back to root repo directory
+6. Stage the generated changelog file with `git add`
 
 Project types reference:
 - Jetpack Plugin (projects/plugins/jetpack): major, enhancement, compat, bugfix, other

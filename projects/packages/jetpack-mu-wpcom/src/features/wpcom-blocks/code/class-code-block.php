@@ -22,6 +22,15 @@ abstract class Code_Block {
 	const MODULE_PREFIX = '@a8cCodeBlock/';
 
 	/**
+	 * Language names for display.
+	 *
+	 * @var array<string, string>
+	 */
+	public static $language_name_rewrites = array(
+		'Brainfuck' => 'Brainf***',
+	);
+
+	/**
 	 * Filterable check for whether the block should be available.
 	 *
 	 * @return bool
@@ -170,7 +179,12 @@ abstract class Code_Block {
 	 * @return array The modified block type arguments.
 	 */
 	public static function register_block_type_args( array $args, string $block_type ): array {
-		if ( 'core/code' !== $block_type ) {
+		if (
+			'core/code' !== $block_type
+			// In some cases the block may not include the content attribute.
+			// Only perform enhancement on the _full_, expected block.
+			|| ! isset( $args['attributes']['content'] )
+		) {
 			return $args;
 		}
 
@@ -258,10 +272,6 @@ abstract class Code_Block {
 				'default' => 'unknown',
 			),
 			'triggerCodeUpdate'       => array(
-				'type'    => 'boolean',
-				'default' => false,
-			),
-			'showFileName'            => array(
 				'type'    => 'boolean',
 				'default' => false,
 			),
@@ -423,7 +433,7 @@ abstract class Code_Block {
 
 		$attrs = get_block_wrapper_attributes( $extra_attrs );
 
-		$filename_html = ( ( $attributes['showFileName'] ?? false ) && ! empty( $attributes['filename'] ) )
+		$filename_html = ( ! empty( $attributes['filename'] ) )
 			? \sprintf( '<span class="a8c/code__filename">%s</span>', esc_html( $attributes['filename'] ) )
 			: '';
 
@@ -436,9 +446,17 @@ abstract class Code_Block {
 			)
 			: '';
 
-		$language_html = ( ( $attributes['showLanguageName'] ?? false ) && ! empty( $attributes['language'] ) )
-			? \sprintf( '<span>%s</span>', esc_html( $attributes['language'] ) )
-			: '';
+		$language_html = '';
+		if ( $attributes['showLanguageName'] ?? false ) {
+			$language_text = empty( $attributes['language'] )
+				? __( 'Plain text', 'jetpack-mu-wpcom' )
+				: $attributes['language'];
+			$language_text = self::$language_name_rewrites[ $language_text ] ?? $language_text;
+			$language_html = \sprintf(
+				'<span>%s</span>',
+				esc_html( $language_text )
+			);
+		}
 
 		$header_right_html = ( $copy_html || $language_html )
 			? "<div class=\"a8c/code__header-right\">{$copy_html}{$language_html}</div>"
