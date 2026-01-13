@@ -773,7 +773,7 @@ class Contact_Form_Block {
 		}
 
 		// Only render published and draft post statuses.
-		// todo: add a "active" status so that we can disable forms without deleting them.
+		// Note: Only 'publish' and 'draft' forms are treated as active; disabling forms via a separate status is not currently supported.
 		if ( ! in_array( $synced_form->post_status, array( 'publish', 'draft' ), true ) ) {
 			return '';
 		}

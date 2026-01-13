@@ -860,11 +860,9 @@ function JetpackContactFormEdit( {
 	// Show error if referenced form not found
 	else if ( ref && ! syncedForm && ! isResolvingSyncedForm ) {
 		elt = (
-			<div>
-				<Notice status="warning" isDismissible={ false }>
-					{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
-				</Notice>
-			</div>
+			<Notice status="warning" isDismissible={ false }>
+				{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
+			</Notice>
 		);
 	} else if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {
