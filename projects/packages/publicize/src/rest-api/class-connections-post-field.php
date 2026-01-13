@@ -465,7 +465,7 @@ class Connections_Post_Field {
 
 			// Save attached_media (can be empty array to clear media).
 			if ( isset( $connection['attached_media'] ) && is_array( $connection['attached_media'] ) ) {
-				$overrides[ $connection_id ]['attached_media'] = $connection['attached_media'];
+				$overrides[ $connection_id ]['attached_media'] = $this->sanitize_attached_media( $connection['attached_media'] );
 			}
 		}
 
@@ -475,6 +475,46 @@ class Connections_Post_Field {
 		} else {
 			delete_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_CONNECTION_OVERRIDES );
 		}
+	}
+
+	/**
+	 * Sanitize attached media array.
+	 *
+	 * @param array $attached_media Array of media items.
+	 * @return array Sanitized array of media items.
+	 */
+	private function sanitize_attached_media( $attached_media ) {
+		if ( empty( $attached_media ) ) {
+			return array();
+		}
+
+		$sanitized = array();
+
+		foreach ( $attached_media as $media_item ) {
+			if ( ! is_array( $media_item ) ) {
+				continue;
+			}
+
+			$sanitized_item = array();
+
+			if ( isset( $media_item['id'] ) ) {
+				$sanitized_item['id'] = absint( $media_item['id'] );
+			}
+
+			if ( isset( $media_item['url'] ) ) {
+				$sanitized_item['url'] = esc_url_raw( $media_item['url'] );
+			}
+
+			if ( isset( $media_item['type'] ) ) {
+				$sanitized_item['type'] = sanitize_text_field( $media_item['type'] );
+			}
+
+			if ( ! empty( $sanitized_item ) ) {
+				$sanitized[] = $sanitized_item;
+			}
+		}
+
+		return $sanitized;
 	}
 
 	/**
