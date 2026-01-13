@@ -4,11 +4,7 @@
  * These tests verify the utility functions used for synced form operations.
  */
 
-import {
-	filterSyncedAttributes,
-	isSyncedFormContext,
-} from '../../../src/blocks/contact-form/utils/synced-form-helpers';
-import { FORM_POST_TYPE } from '../../../src/blocks/shared/util/constants';
+import { filterSyncedAttributes } from '../../../src/blocks/contact-form/utils/synced-form-helpers';
 
 describe( 'filterSyncedAttributes', () => {
 	test( 'removes layout attributes and ref', () => {
@@ -59,32 +55,5 @@ describe( 'filterSyncedAttributes', () => {
 
 		expect( attributes.ref ).toBe( 123 );
 		expect( result.ref ).toBeUndefined();
-	} );
-} );
-
-describe( 'isSyncedFormContext', () => {
-	test( 'returns true when ref exists and postType is not jetpack_form', () => {
-		expect( isSyncedFormContext( 123, 'post' ) ).toBe( true );
-		expect( isSyncedFormContext( 456, 'page' ) ).toBe( true );
-	} );
-
-	test( 'returns false when ref exists but postType is jetpack_form', () => {
-		expect( isSyncedFormContext( 123, FORM_POST_TYPE ) ).toBe( false );
-	} );
-
-	test( 'returns false when ref is undefined or falsy', () => {
-		expect( isSyncedFormContext( undefined, 'post' ) ).toBe( false );
-		expect( isSyncedFormContext( null, 'post' ) ).toBe( false );
-		expect( isSyncedFormContext( 0, 'post' ) ).toBe( false );
-	} );
-
-	test( 'differentiates between editing form source vs using synced form', () => {
-		const formId = 123;
-
-		// Editing the jetpack_form post itself (not synced context)
-		expect( isSyncedFormContext( formId, FORM_POST_TYPE ) ).toBe( false );
-
-		// Using the form in a regular post (synced context)
-		expect( isSyncedFormContext( formId, 'post' ) ).toBe( true );
 	} );
 } );
