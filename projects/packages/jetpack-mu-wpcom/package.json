@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-mu-wpcom",
-	"version": "6.8.1",
+	"version": "6.9.0",
 	"private": true,
 	"description": "Enhances your site with features powered by WordPress.com",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/jetpack-mu-wpcom/#readme",
@@ -109,7 +109,7 @@
 		"@types/react-dom": "18.3.7",
 		"babel-plugin-transform-rename-properties": "0.1.0",
 		"package-directory": "^8.1.0",
-		"sass-embedded": "1.87.0",
+		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
 		"typescript": "5.9.3",
 		"wait-for-expect": "3.0.2",
