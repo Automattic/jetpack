@@ -1,3 +1,4 @@
+import { Flex } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { Connection } from '../../../../social-store/types';
 import { PostPreview } from '../../../social-post-modal/post-preview';
@@ -19,8 +20,18 @@ export function PreviewSection( { connection }: PreviewSectionProps ) {
 			aria-label={ __( 'Post Preview', 'jetpack-publicize-pkg' ) }
 			className={ styles[ 'preview-section' ] }
 		>
-			<h2>{ _x( 'Preview', 'Noun: Post preview section heading', 'jetpack-publicize-pkg' ) }</h2>
-			<PostPreview connection={ connection } />
+			{ connection.enabled ? (
+				<>
+					<h2>
+						{ _x( 'Preview', 'Noun: Post preview section heading', 'jetpack-publicize-pkg' ) }
+					</h2>
+					<PostPreview connection={ connection } />
+				</>
+			) : (
+				<Flex className={ styles[ 'inactive-preview' ] } align="center" justify="center">
+					<p>{ __( 'Enable this account to see the preview.', 'jetpack-publicize-pkg' ) }</p>
+				</Flex>
+			) }
 		</section>
 	);
 }

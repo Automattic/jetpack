@@ -9,4 +9,9 @@
 		@include gb.body-medium();
 		margin-top: 0;
 	}
+
+	.inactive-preview {
+		color: gb.$gray-600;
+		height: 100%;
+	}
 }
