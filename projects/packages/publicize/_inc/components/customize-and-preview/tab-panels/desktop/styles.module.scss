@@ -12,6 +12,10 @@
 		border-inline-end: 1px solid gb.$gray-200;
 	}
 
+	[role="tabpanel"] {
+		width: 100%;
+	}
+
 	@include mixins.tab-item-overrides();
 }
 
