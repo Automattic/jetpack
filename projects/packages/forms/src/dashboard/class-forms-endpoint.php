@@ -83,7 +83,8 @@ class Forms_Endpoint {
 
 		$args = array(
 			'post_type'      => Contact_Form::POST_TYPE,
-			'post_status'    => array( 'publish', 'draft' ),
+			// Include all "normal" statuses but exclude trash (handled in a future PR).
+			'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private' ),
 			'posts_per_page' => $per_page,
 			'paged'          => $page,
 			'orderby'        => 'modified',

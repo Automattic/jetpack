@@ -51,6 +51,12 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				return __( 'Published', 'jetpack-forms' );
 			case 'draft':
 				return __( 'Draft', 'jetpack-forms' );
+			case 'pending':
+				return __( 'Pending review', 'jetpack-forms' );
+			case 'future':
+				return __( 'Scheduled', 'jetpack-forms' );
+			case 'private':
+				return __( 'Private', 'jetpack-forms' );
 			default:
 				return status;
 		}
