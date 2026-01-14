@@ -103,7 +103,7 @@ You can just quickly install WordPress and activate Jetpack via command line. En
 jetpack docker install
 ```
 
-This will give you a single site with user `jp_docker_acct` and password `jp_docker_pass` (unless you changed these in `./tools/docker/.env`). You will still have to connect Jetpack to WordPress.com manually.
+This will give you a single site with user `jp_docker_acct` and password `jp_docker_pass` (unless you changed these in `tools/docker/.env`). You will still have to connect Jetpack to WordPress.com manually.
 
 To convert installed single site into a multisite, run:
 
