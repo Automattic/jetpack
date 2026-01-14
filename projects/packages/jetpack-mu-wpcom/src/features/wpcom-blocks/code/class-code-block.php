@@ -373,6 +373,12 @@ abstract class Code_Block {
 	 * Enqueue plugin assets necessary for the block editor.
 	 */
 	public static function enqueue_editor_assets() {
+		static $done = false;
+		if ( $done ) {
+			return;
+		}
+		$done = true;
+
 		/*
 		 * The code block registration script depends on some script modules.
 		 * This "dummy" module ensures those dependencies are available.
