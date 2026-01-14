@@ -104,20 +104,7 @@ class Public_Abilities {
 			return \Automattic\Jetpack\Device_Detection\User_Agent_Info::is_automated_client();
 		}
 
-		// Fallback if device-detection package not available.
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			return false;
-		}
-
-		$user_agent = strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
-		$patterns   = array( 'curl', 'wget', 'python', 'axios', 'node-fetch', 'chatgpt', 'claude', 'gptbot' );
-
-		foreach ( $patterns as $pattern ) {
-			if ( str_contains( $user_agent, $pattern ) ) {
-				return true;
-			}
-		}
-
+		// Fallback: return false if device-detection package not available.
 		return false;
 	}
 

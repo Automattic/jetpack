@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Forms: Add experimental API endpoints for programmatic form discovery and submission.
+Add experimental API endpoints for programmatic form discovery and submission.

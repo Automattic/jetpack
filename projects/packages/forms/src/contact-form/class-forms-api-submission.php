@@ -175,7 +175,7 @@ class Forms_API_Submission {
 
 			// Check inner blocks recursively.
 			if ( ! empty( $block['innerBlocks'] ) ) {
-				array_push( $forms, ...self::find_forms_in_blocks( $block['innerBlocks'], $post ) );
+				$forms = array_merge( $forms, self::find_forms_in_blocks( $block['innerBlocks'], $post ) );
 			}
 		}
 
@@ -322,7 +322,7 @@ class Forms_API_Submission {
 		);
 
 		foreach ( $fields as $key => $value ) {
-			$post_data[ $key ] = is_array( $value ) ? $value : sanitize_textarea_field( $value );
+			$post_data[ $key ] = is_array( $value ) ? map_deep( $value, 'sanitize_textarea_field' ) : sanitize_textarea_field( $value );
 		}
 
 		return $post_data;
