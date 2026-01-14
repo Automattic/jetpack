@@ -64,8 +64,8 @@ abstract class Code_Block {
 		}
 		$registered = true;
 
-		$block_definition_asset_file      = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php';
-		$jetpack_wpcom_modules_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
+		$block_definition_asset_file  = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php';
+		$jetpack_wpcom_modules_assets = self::get_module_assets();
 
 		// The block definition must contain the script dependencies that the edit function script module requires.
 		// Append static dependency list here. Some duplicates may appear, that should be harmless.
@@ -94,8 +94,8 @@ abstract class Code_Block {
 		wp_register_script_module(
 			self::MODULE_PREFIX . 'block-edit-function',
 			plugins_url( 'build-module/wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js', Jetpack_Mu_Wpcom::BASE_FILE ),
-			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['dependencies'],
-			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['version']
+			$jetpack_wpcom_modules_assets['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['dependencies'],
+			$jetpack_wpcom_modules_assets['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['version']
 		);
 
 		$editor_style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php';
@@ -107,7 +107,7 @@ abstract class Code_Block {
 		);
 
 		$block_worker_url     = plugins_url( 'build-module/wpcom-blocks-code-worker/wpcom-blocks-code-worker.js', Jetpack_Mu_Wpcom::BASE_FILE );
-		$block_worker_version = $jetpack_wpcom_modules_asset_file['wpcom-blocks-code-worker/wpcom-blocks-code-worker.js']['version'];
+		$block_worker_version = $jetpack_wpcom_modules_assets['wpcom-blocks-code-worker/wpcom-blocks-code-worker.js']['version'];
 		add_filter(
 			'script_module_data_' . self::MODULE_PREFIX . 'block-edit-function',
 			function ( array $data ) use ( $block_worker_url, $block_worker_version ): array {
@@ -122,14 +122,21 @@ abstract class Code_Block {
 	 * Enqueue view script module.
 	 */
 	private static function enqueue_view_assets() {
-		$jetpack_wpcom_modules_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
-
+		$jetpack_wpcom_modules_assets = self::get_module_assets();
 		wp_enqueue_script_module(
 			self::MODULE_PREFIX . 'block-front',
 			plugins_url( 'build-module/wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js', Jetpack_Mu_Wpcom::BASE_FILE ),
-			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['dependencies'],
-			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['version']
+			$jetpack_wpcom_modules_assets['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['dependencies'],
+			$jetpack_wpcom_modules_assets['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['version']
 		);
+	}
+
+	/**
+	 * Get module assets file.
+	 */
+	private static function get_module_assets() {
+		static $jetpack_wpcom_modules_assets = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
+		return $jetpack_wpcom_modules_assets;
 	}
 
 	/**
