@@ -13,12 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show module descriptions beneath titles instead of in tooltips for improved discoverability. [#46518]
 - Update package dependencies. [#46552]
 
-### Removed
-- Remove the obsolete share limits logic. [#46516]
-
-### Fixed
-- UI: Prevent the modals in editor from stretching too wide on large screens. [#46516]
-
 ## [5.29.3] - 2026-01-12
 ### Changed
 - Plans section: Update 'Activate a license' text to 'Activate a new license' when user already has active licenses, and add visual separation before actions list. [#46501]

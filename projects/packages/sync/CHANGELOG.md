@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.25.0] - 2026-01-14
 ### Added
 - Instant Search: Add 'guest' custom taxonomy for Sync. [#46562]
-- Jetpack Sync: Introduce Sync actions blacklist. [#46496]
+- Introduce Sync actions blacklist. [#46496]
 
 ### Fixed
-- Jetpack Sync:  Preventing attempting to sync modules that we are not ready to sync. [#46475]
+- Prevent attempting to sync modules that we are not ready to sync. [#46475]
 
 ## [4.24.2] - 2025-12-22
 ### Changed
