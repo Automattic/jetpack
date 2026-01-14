@@ -3,19 +3,21 @@
  */
 
 import { parse } from '@wordpress/blocks';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useEntityRecord } from '@wordpress/core-data';
 import { useMemo } from '@wordpress/element';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 
 // Infer the block type from the parse function's return type
 type ParsedBlock = ReturnType< typeof parse >[ number ];
+interface JetpackForm {
+	content?: { raw: string } | undefined;
+}
 
 interface UseSyncedFormResult {
 	isLoading: boolean;
 	syncedAttributes: Record< string, unknown > | null;
 	syncedInnerBlocks: ParsedBlock[] | null;
-	syncedForm: { content?: { raw?: string } } | null;
+	syncedForm: JetpackForm | null;
 }
 
 /**
@@ -27,33 +29,15 @@ interface UseSyncedFormResult {
  * @return {UseSyncedFormResult} Object containing loading state and parsed block data
  */
 export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
-	// Load the jetpack_form post using WordPress core-data
-	const { syncedForm, isResolvingSyncedForm } = useSelect(
-		select => {
-			if ( ! ref ) {
-				return { syncedForm: null, isResolvingSyncedForm: false };
-			}
-
-			const { getEntityRecord, isResolving } = select( coreStore );
-
-			const form = getEntityRecord( 'postType', FORM_POST_TYPE, ref );
-			const resolving = isResolving( 'getEntityRecord', [ 'postType', FORM_POST_TYPE, ref ] );
-
-			return {
-				syncedForm: form,
-				isResolvingSyncedForm: resolving,
-			};
-		},
-		[ ref ]
-	);
+	const { record, isResolving } = useEntityRecord< JetpackForm >( 'postType', FORM_POST_TYPE, ref );
 
 	// Parse the block content when the post is loaded
 	const { syncedAttributes, syncedInnerBlocks } = useMemo( () => {
-		if ( ! syncedForm?.content?.raw ) {
+		if ( ! record?.content?.raw ) {
 			return { syncedAttributes: null, syncedInnerBlocks: null };
 		}
 
-		const parsedBlocks = parse( syncedForm.content.raw );
+		const parsedBlocks = parse( record.content.raw );
 
 		if ( ! parsedBlocks || parsedBlocks.length === 0 ) {
 			return { syncedAttributes: null, syncedInnerBlocks: null };
@@ -70,12 +54,21 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 			syncedAttributes: formBlock.attributes || {},
 			syncedInnerBlocks: formBlock.innerBlocks || [],
 		};
-	}, [ syncedForm ] );
+	}, [ record ] );
+
+	if ( ! ref ) {
+		return {
+			isLoading: false,
+			syncedAttributes: null,
+			syncedInnerBlocks: null,
+			syncedForm: null,
+		};
+	}
 
 	return {
-		isLoading: isResolvingSyncedForm,
+		isLoading: isResolving,
 		syncedAttributes,
 		syncedInnerBlocks,
-		syncedForm,
+		syncedForm: record,
 	};
 }

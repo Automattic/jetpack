@@ -3,7 +3,6 @@
  */
 
 import { createBlock, serialize } from '@wordpress/blocks';
-import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 
 /**
  * Filter out attributes that shouldn't be synced from source
@@ -21,6 +20,7 @@ export function filterSyncedAttributes(
 	delete filtered.align;
 	delete filtered.style;
 	delete filtered.ref;
+	delete filtered.lock;
 	return filtered;
 }
 
@@ -42,16 +42,4 @@ export function serializeSyncedForm(
 	const formBlock = createBlock( 'jetpack/contact-form', attributesToSave, innerBlocks );
 
 	return serialize( formBlock );
-}
-
-/**
- * Check if we're in a synced form context
- * Returns true if we have a ref and we're NOT editing the form post itself
- *
- * @param {number | undefined} ref      - Form reference ID
- * @param {string}             postType - Current post type being edited
- * @return {boolean} True if in synced form context
- */
-export function isSyncedFormContext( ref: number | undefined, postType: string ): boolean {
-	return !! ref && postType !== FORM_POST_TYPE;
 }
