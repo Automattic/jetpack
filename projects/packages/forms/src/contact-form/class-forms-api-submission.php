@@ -67,7 +67,7 @@ class Forms_API_Submission {
 						'required'          => false,
 						'type'              => 'string',
 						'description'       => __( 'Page URL containing the form', 'jetpack-forms' ),
-						'sanitize_callback' => 'sanitize_text_field',
+						'sanitize_callback' => 'esc_url_raw',
 					),
 					'post_id' => array(
 						'required'          => false,
@@ -122,6 +122,15 @@ class Forms_API_Submission {
 				'not_found',
 				__( 'Post not found', 'jetpack-forms' ),
 				array( 'status' => 404 )
+			);
+		}
+
+		// Only expose forms from published, publicly accessible posts.
+		if ( $post->post_status !== 'publish' || ! empty( $post->post_password ) ) {
+			return new WP_Error(
+				'not_accessible',
+				__( 'This content is not publicly accessible', 'jetpack-forms' ),
+				array( 'status' => 403 )
 			);
 		}
 

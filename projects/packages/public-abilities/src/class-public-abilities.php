@@ -40,7 +40,7 @@ class Public_Abilities {
 	 * @param string $name The ability name.
 	 * @return array Modified arguments.
 	 */
-	public static function maybe_open_permissions( $args, $name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function maybe_open_permissions( $args, $name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $name required by wp_register_ability_args filter signature
 		if ( self::has_public_flag( $args['meta'] ?? array() ) ) {
 			$args['permission_callback'] = '__return_true';
 		}
@@ -180,6 +180,9 @@ class Public_Abilities {
 
 	/**
 	 * Register .well-known/abilities.json rewrite.
+	 *
+	 * Note: After enabling this feature, users may need to visit Settings > Permalinks
+	 * to flush rewrite rules for the .well-known route to work.
 	 */
 	public static function register_well_known_route() {
 		if ( ! self::is_enabled() ) {
@@ -236,7 +239,7 @@ class Public_Abilities {
 	 * @param WP_REST_Request $request The request.
 	 * @return WP_REST_Response
 	 */
-	public static function list_abilities( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function list_abilities( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $request required by REST API callback signature
 		$data = array(
 			'site'      => array(
 				'name'        => get_bloginfo( 'name' ),
