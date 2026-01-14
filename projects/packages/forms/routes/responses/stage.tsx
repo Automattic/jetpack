@@ -8,7 +8,13 @@ import '@automattic/ui/style.css';
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button } from '@wordpress/components';
+import {
+	Button,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack,
+} from '@wordpress/components';
 import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -87,12 +93,12 @@ function useFilterOptions() {
  */
 function getTabLabel( label: string, count: number ): JSX.Element {
 	return (
-		<span style={ { display: 'flex', gap: '4px', alignItems: 'center' } }>
+		<HStack as="span" spacing={ 1 } alignment="center">
 			{ label }
 			<Badge intent="default" style={ { backgroundColor: '#f0f0f0' } }>
 				{ count.toString() }
 			</Badge>
-		</span>
+		</HStack>
 	);
 }
 
@@ -267,7 +273,7 @@ function Stage() {
 					const showEmail = item.author_email && item.author_name !== item.author_email;
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
 					return (
-						<span style={ { display: 'flex', alignItems: 'center', gap: '12px' } }>
+						<HStack spacing={ 3 } alignment="center">
 							{ item.is_unread && (
 								<span
 									style={ {
@@ -287,15 +293,15 @@ function Stage() {
 								size={ 40 }
 								useHovercard={ false }
 							/>
-							<span style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
+							<VStack spacing={ 0.5 }>
 								<span style={ { fontWeight: item.is_unread ? 600 : 400 } }>{ displayName }</span>
 								{ showEmail && (
 									<span style={ { fontSize: '12px', color: '#757575' } }>
 										{ item.author_email }
 									</span>
 								) }
-							</span>
-						</span>
+							</VStack>
+						</HStack>
 					);
 				},
 				getValue: ( { item } ) =>
@@ -386,10 +392,10 @@ function Stage() {
 						return '-';
 					}
 					return (
-						<span style={ { display: 'inline-flex', alignItems: 'center', gap: '4px' } }>
+						<HStack spacing={ 1 } alignment="center">
 							<span aria-hidden="true">🌐</span>
 							{ item.ip }
-						</span>
+						</HStack>
 					);
 				},
 				enableSorting: false,
@@ -1025,10 +1031,10 @@ function Stage() {
 		<Page
 			showSidebarToggle={ false }
 			title={
-				<span style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
+				<HStack as="span" spacing={ 2 } alignment="center">
 					<JetpackLogo showText={ false } width={ 20 } />
 					{ __( 'Forms', 'jetpack-forms' ) }
-				</span>
+				</HStack>
 			}
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
 			actions={ headerActions }
