@@ -623,6 +623,15 @@ class Help_Center {
 		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
 		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
 
+		/**
+		 * Allow filtering whether the help center should be enqueued.
+		 */
+		$should_show_help_center = apply_filters( 'jetpack_should_enqueue_help_center', true );
+
+		if ( ! $should_show_help_center ) {
+			return;
+		}
+
 		// We will show the help center icon in the admin bar when;
 		// 1. On wp-admin
 		// 2. On the front end of the site if the current user can edit posts
