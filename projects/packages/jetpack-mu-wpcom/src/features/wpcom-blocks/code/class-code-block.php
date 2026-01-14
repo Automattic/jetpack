@@ -48,10 +48,8 @@ abstract class Code_Block {
 			return;
 		}
 
-		// Entry point filter - other hooks are registered conditionally when the block is overridden.
-		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
-		// Optimization hook - runs before init, can't be conditional.
 		add_action( 'after_setup_theme', array( __CLASS__, 'after_setup_theme' ), 100 );
+		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
 	}
 
 	/**
@@ -203,7 +201,7 @@ abstract class Code_Block {
 				 */
 				if (
 					function_exists( 'wp_should_load_block_assets_on_demand' )
-					&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
+					&& ! wp_should_load_block_assets_on_demand()
 					&& has_block( 'core/code' )
 				) {
 					self::enqueue_view_assets();
