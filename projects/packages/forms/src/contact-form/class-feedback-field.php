@@ -203,6 +203,16 @@ class Feedback_Field {
 			return $this->get_phone_value_with_flag();
 		}
 
+		// For URL fields, return a structured array with the URL for proper link rendering.
+		if ( $this->is_of_type( 'url' ) ) {
+			if ( ! empty( $this->value ) ) {
+				return array(
+					'type' => 'url',
+					'url'  => $this->value,
+				);
+			}
+		}
+
 		return $this->get_render_default_value();
 	}
 
