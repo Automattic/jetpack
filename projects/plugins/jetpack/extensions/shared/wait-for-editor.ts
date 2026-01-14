@@ -1,5 +1,11 @@
 import { select, subscribe } from '@wordpress/data';
 
+/**
+ * Maximum time to wait for the block editor to initialize, in milliseconds.
+ *
+ * The editor is normally ready within few seconds. If initialization takes longer than
+ * this timeout will reject with an error to avoid waiting indefinitely.
+ */
 const EDITOR_READY_TIMEOUT: number = 7000;
 
 /**
@@ -34,7 +40,7 @@ export function waitForEditor(): Promise< void > {
 /**
  * Checks if the block editor has been initialized.
  *
- * @return {boolean} True if the block editor has been initialized.
+ * @return True if the block editor has been initialized.
  */
 function isEditorReady(): boolean {
 	const editorStore = select( 'core/editor' );
