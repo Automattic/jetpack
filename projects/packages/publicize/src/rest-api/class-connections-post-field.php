@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
+use Automattic\Jetpack\Publicize\Publicize_Base;
 use WP_Error;
 use WP_Post;
 use WP_REST_Request;
@@ -207,10 +208,10 @@ class Connections_Post_Field {
 		$connections = $publicize->get_filtered_connection_data( $post_id );
 
 		// Check if per-network customization is enabled.
-		$customize_per_network = get_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+		$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
 
 		// Get per-connection overrides from post meta.
-		$connection_overrides = get_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_CONNECTION_OVERRIDES, true );
+		$connection_overrides = get_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES, true );
 		if ( ! is_array( $connection_overrides ) ) {
 			$connection_overrides = array();
 		}
@@ -456,16 +457,16 @@ class Connections_Post_Field {
 			}
 
 			// Save attached_media (can be empty array to clear media).
-			if ( isset( $connection['attached_media'] ) && is_array( $connection['attached_media'] ) ) {
+			if ( isset( $connection['attached_media'] ) ) {
 				$overrides[ $connection_id ]['attached_media'] = $this->sanitize_attached_media( $connection['attached_media'] );
 			}
 		}
 
 		// Only save if there are overrides, otherwise delete the meta.
 		if ( ! empty( $overrides ) ) {
-			update_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_CONNECTION_OVERRIDES, $overrides );
+			update_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES, $overrides );
 		} else {
-			delete_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_CONNECTION_OVERRIDES );
+			delete_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES );
 		}
 	}
 
