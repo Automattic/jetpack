@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure shared URLs use HTTPS for WPCOM platform sites.

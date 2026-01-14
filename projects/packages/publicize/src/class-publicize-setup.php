@@ -72,7 +72,14 @@ class Publicize_Setup {
 			return;
 		}
 
-		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
+		$is_wpcom_platform = ( new Host() )->is_wpcom_platform();
+		$is_wpcom_simple   = ( new Host() )->is_wpcom_simple();
+
+		// Ensure shared URLs use HTTPS for WPCOM platform sites (simple and atomic),
+		// which all support HTTPS.
+		if ( $is_wpcom_platform ) {
+			add_filter( 'sharing_permalink', array( self::class, 'enforce_https_scheme' ) );
+		}
 
 		/**
 		 * Assets are to be loaded in all cases.
@@ -238,5 +245,18 @@ class Publicize_Setup {
 	 */
 	public static function get_blog_id() {
 		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
+	}
+
+	/**
+	 * Ensure shared URLs use HTTPS for WPCOM platform sites.
+	 *
+	 * All WPCOM platform sites (simple and atomic) support HTTPS, so we can
+	 * safely convert HTTP URLs to HTTPS when sharing to social networks.
+	 *
+	 * @param string $url The URL to share.
+	 * @return string The URL with HTTPS scheme.
+	 */
+	public static function enforce_https_scheme( $url ) {
+		return set_url_scheme( $url, 'https' );
 	}
 }
