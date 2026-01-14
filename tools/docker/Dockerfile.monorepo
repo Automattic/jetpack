@@ -87,4 +87,8 @@ RUN locale-gen en_US.UTF-8 \
     && find /var/ -name '*-old' -delete \
     && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
+# Mark /workspace as a safe directory for git to avoid "dubious ownership" warnings
+# when the monorepo is mounted from the host with different ownership.
+RUN git config --system --add safe.directory /workspace
+
 CMD ["bash"]
