@@ -119,9 +119,7 @@ abstract class Code_Block {
 	}
 
 	/**
-	 * Enqueue view/frontend script module.
-	 *
-	 * Uses wp_enqueue_script_module() which registers and enqueues in one call.
+	 * Enqueue view script module.
 	 */
 	private static function enqueue_view_assets() {
 		$jetpack_wpcom_modules_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
