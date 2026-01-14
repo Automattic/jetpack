@@ -123,23 +123,17 @@ class Connections_Post_Field {
 				$deprecated_fields,
 				$connection_fields,
 				array(
-					'enabled'           => array(
+					'enabled'        => array(
 						'description' => __( 'Whether to share to this connection.', 'jetpack-publicize-pkg' ),
 						'type'        => 'boolean',
 						'context'     => array( 'edit' ),
 					),
-					'override_settings' => array(
-						'description' => __( 'Whether to use per-connection settings instead of global settings.', 'jetpack-publicize-pkg' ),
-						'type'        => 'boolean',
-						'context'     => array( 'edit' ),
-						'default'     => false,
-					),
-					'message'           => array(
+					'message'        => array(
 						'description' => __( 'Custom message to use for this connection instead of the global message.', 'jetpack-publicize-pkg' ),
 						'type'        => 'string',
 						'context'     => array( 'edit' ),
 					),
-					'attached_media'    => array(
+					'attached_media' => array(
 						'description' => __( 'Custom media to attach for this connection instead of the global media.', 'jetpack-publicize-pkg' ),
 						'type'        => 'array',
 						'context'     => array( 'edit' ),
@@ -212,6 +206,9 @@ class Connections_Post_Field {
 		$properties  = array_keys( $schema['properties'] );
 		$connections = $publicize->get_filtered_connection_data( $post_id );
 
+		// Check if per-network customization is enabled.
+		$customize_per_network = get_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+
 		// Get per-connection overrides from post meta.
 		$connection_overrides = get_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize_Base::POST_CONNECTION_OVERRIDES, true );
 		if ( ! is_array( $connection_overrides ) ) {
@@ -227,18 +224,15 @@ class Connections_Post_Field {
 				}
 			}
 
-			// Merge per-connection overrides if they exist.
+			// Merge per-connection overrides if global flag is enabled.
 			$connection_id = $connection['connection_id'] ?? '';
-			if ( ! empty( $connection_id ) && isset( $connection_overrides[ $connection_id ] ) ) {
+			if ( $customize_per_network && ! empty( $connection_id ) && isset( $connection_overrides[ $connection_id ] ) ) {
 				$override = $connection_overrides[ $connection_id ];
-				if ( ! empty( $override['override_settings'] ) ) {
-					$output_connection['override_settings'] = true;
-					if ( isset( $override['message'] ) ) {
-						$output_connection['message'] = $override['message'];
-					}
-					if ( isset( $override['attached_media'] ) ) {
-						$output_connection['attached_media'] = $override['attached_media'];
-					}
+				if ( isset( $override['message'] ) ) {
+					$output_connection['message'] = $override['message'];
+				}
+				if ( isset( $override['attached_media'] ) ) {
+					$output_connection['attached_media'] = $override['attached_media'];
 				}
 			}
 
@@ -448,15 +442,13 @@ class Connections_Post_Field {
 				continue;
 			}
 
-			// Only save if override_settings is explicitly true.
-			if ( empty( $connection['override_settings'] ) ) {
+			// Only save if connection has custom message or attached_media.
+			if ( ! isset( $connection['message'] ) && ! isset( $connection['attached_media'] ) ) {
 				continue;
 			}
 
 			$connection_id               = $connection['connection_id'];
-			$overrides[ $connection_id ] = array(
-				'override_settings' => true,
-			);
+			$overrides[ $connection_id ] = array();
 
 			// Save message (can be empty to use empty message).
 			if ( isset( $connection['message'] ) ) {

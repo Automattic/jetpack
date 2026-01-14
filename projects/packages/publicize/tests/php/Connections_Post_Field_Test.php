@@ -420,11 +420,10 @@ class Connections_Post_Field_Test extends TestCase {
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'connection_id'     => '4560',
-						'enabled'           => true,
-						'override_settings' => true,
-						'message'           => 'Custom message for this connection',
-						'attached_media'    => array(
+						'connection_id'  => '4560',
+						'enabled'        => true,
+						'message'        => 'Custom message for this connection',
+						'attached_media' => array(
 							array(
 								'id'   => 123,
 								'url'  => 'https://example.com/image.jpg',
@@ -441,7 +440,6 @@ class Connections_Post_Field_Test extends TestCase {
 
 		$this->assertIsArray( $overrides );
 		$this->assertArrayHasKey( '4560', $overrides );
-		$this->assertTrue( $overrides['4560']['override_settings'] );
 		$this->assertSame( 'Custom message for this connection', $overrides['4560']['message'] );
 		$this->assertCount( 1, $overrides['4560']['attached_media'] );
 		$this->assertSame( 123, $overrides['4560']['attached_media'][0]['id'] );
@@ -454,9 +452,8 @@ class Connections_Post_Field_Test extends TestCase {
 		// Set up override data directly in post meta.
 		$override_data = array(
 			'4560' => array(
-				'override_settings' => true,
-				'message'           => 'Test override message',
-				'attached_media'    => array(
+				'message'        => 'Test override message',
+				'attached_media' => array(
 					array(
 						'id'   => 100,
 						'url'  => 'https://example.com/test.jpg',
@@ -477,14 +474,13 @@ class Connections_Post_Field_Test extends TestCase {
 
 		$this->assertIsArray( $retrieved );
 		$this->assertArrayHasKey( '4560', $retrieved );
-		$this->assertTrue( $retrieved['4560']['override_settings'] );
 		$this->assertSame( 'Test override message', $retrieved['4560']['message'] );
 		$this->assertCount( 1, $retrieved['4560']['attached_media'] );
 		$this->assertSame( 100, $retrieved['4560']['attached_media'][0]['id'] );
 	}
 
 	/**
-	 * Test that connection overrides are cleared when override_settings is false.
+	 * Test that connection overrides are cleared when no message or media is provided.
 	 */
 	public function test_clear_connection_overrides() {
 		// First, set up some override data.
@@ -493,22 +489,20 @@ class Connections_Post_Field_Test extends TestCase {
 			Publicize_Base::POST_CONNECTION_OVERRIDES,
 			array(
 				'4560' => array(
-					'override_settings' => true,
-					'message'           => 'Should be cleared',
-					'attached_media'    => array(),
+					'message'        => 'Should be cleared',
+					'attached_media' => array(),
 				),
 			)
 		);
 
-		// Now update without override_settings.
+		// Now update without message or attached_media.
 		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'connection_id'     => '4560',
-						'enabled'           => true,
-						'override_settings' => false,
+						'connection_id' => '4560',
+						'enabled'       => true,
 					),
 				),
 			)
@@ -530,11 +524,10 @@ class Connections_Post_Field_Test extends TestCase {
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'connection_id'     => '4560',
-						'enabled'           => true,
-						'override_settings' => true,
-						'message'           => 'Test',
-						'attached_media'    => array(
+						'connection_id'  => '4560',
+						'enabled'        => true,
+						'message'        => 'Test',
+						'attached_media' => array(
 							array(
 								'id'   => '456',  // String should become int.
 								'url'  => 'javascript:alert(1)', // Invalid URL should be sanitized.

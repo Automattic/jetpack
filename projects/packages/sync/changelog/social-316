@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Add _wpas_connection_overrides to post meta whitelist for Jetpack Social.
+Add _wpas_connection_overrides and _wpas_customize_per_network to post meta whitelist for Jetpack Social.

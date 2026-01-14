@@ -73,6 +73,13 @@ abstract class Publicize_Base {
 	 */
 	const POST_CONNECTION_OVERRIDES = '_wpas_connection_overrides';
 
+	/**
+	 * Post meta key for enabling per-network customization.
+	 *
+	 * @var string
+	 */
+	const POST_CUSTOMIZE_PER_NETWORK = '_wpas_customize_per_network';
+
 	// Skip meta keys. We used to rely on _wpas_skip_ appended with the token_id to skip posts. But to support
 	// multiple connections for the same token, we are going to use the _wpas_skip_publicize_ which
 	// will be appended with the connection_id.
@@ -1254,17 +1261,23 @@ abstract class Publicize_Base {
 					'additionalProperties' => array(
 						'type'       => 'object',
 						'properties' => array(
-							'override_settings' => array(
-								'type' => 'boolean',
-							),
-							'message'           => array(
+							'message'        => array(
 								'type' => 'string',
 							),
-							'attached_media'    => $attached_media_schema,
+							'attached_media' => $attached_media_schema,
 						),
 					),
 				),
 			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
+		$customize_per_network_args = array(
+			'type'          => 'boolean',
+			'description'   => __( 'Whether to enable per-network customization.', 'jetpack-publicize-pkg' ),
+			'single'        => true,
+			'default'       => false,
+			'show_in_rest'  => true,
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
@@ -1278,12 +1291,14 @@ abstract class Publicize_Base {
 			$already_shared_flag_args['object_subtype']      = $post_type;
 			$jetpack_social_options_args['object_subtype']   = $post_type;
 			$connection_overrides_args['object_subtype']     = $post_type;
+			$customize_per_network_args['object_subtype']    = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
 			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
 			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
 			register_meta( 'post', self::POST_CONNECTION_OVERRIDES, $connection_overrides_args );
+			register_meta( 'post', self::POST_CUSTOMIZE_PER_NETWORK, $customize_per_network_args );
 		}
 	}
 
