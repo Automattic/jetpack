@@ -842,7 +842,7 @@ function get_global_styles_on_personal_variation() {
  */
 function is_global_styles_on_personal_plan() {
 	// Global Styles on Personal enabled on all environments
-	return false;
+	return true;
 }
 
 /**
