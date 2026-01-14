@@ -29,7 +29,7 @@ class Public_Abilities {
 		add_action( 'init', array( self::class, 'register_well_known_route' ) );
 
 		// Add discovery hints for automated clients.
-		add_action( 'send_headers', array( self::class, 'add_abilities_header' ) );
+		add_filter( 'wp_headers', array( self::class, 'add_abilities_header' ) );
 		add_action( 'wp_footer', array( self::class, 'add_abilities_footer_hint' ) );
 	}
 
@@ -50,18 +50,22 @@ class Public_Abilities {
 
 	/**
 	 * Add HTTP header advertising abilities endpoint.
+	 *
+	 * @param array $headers The HTTP headers array.
+	 * @return array Modified headers array.
 	 */
-	public static function add_abilities_header() {
+	public static function add_abilities_header( $headers ) {
 		if ( ! self::is_enabled() ) {
-			return;
+			return $headers;
 		}
 
 		// Only add if there are public abilities.
 		if ( empty( self::get_public_abilities() ) ) {
-			return;
+			return $headers;
 		}
 
-		header( 'X-Abilities-Endpoint: ' . rest_url( 'jetpack/v1/abilities' ) );
+		$headers['X-Abilities-Endpoint'] = rest_url( 'jetpack/v1/abilities' );
+		return $headers;
 	}
 
 	/**
