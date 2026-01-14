@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Form block: Use fallback in all email rendering contexts.
+Use fallback in all email rendering contexts.

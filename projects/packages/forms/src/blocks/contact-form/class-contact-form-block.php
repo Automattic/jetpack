@@ -723,11 +723,21 @@ class Contact_Form_Block {
 	/**
 	 * Render the contact form block for email contexts.
 	 *
-	 * @param string $block_content     The original block HTML content.
-	 * @param array  $parsed_block      The parsed block data including attributes.
-	 * @param object $rendering_context Email rendering context.
+	 * This method is called by WordPress/WooCommerce email rendering system when a form block
+	 * appears in email content. Forms are not interactive in email contexts, so we always return
+	 * a fallback link that directs recipients to the form on the website.
 	 *
-	 * @return string
+	 * Note: The $block_content and $rendering_context parameters are required by the
+	 * render_email_callback signature but are intentionally unused here. We only need the
+	 * block attributes from $parsed_block to generate the fallback HTML, and we don't need
+	 * to process the block content or use email-specific rendering context since we're
+	 * always returning a simple fallback.
+	 *
+	 * @param string $block_content     The original block HTML content. Unused - we always return a fallback.
+	 * @param array  $parsed_block      The parsed block data including attributes.
+	 * @param object $rendering_context Email rendering context. Unused - not needed for fallback rendering.
+	 *
+	 * @return string HTML fallback with link to submit the form on the website.
 	 */
 	public static function render_email( $block_content, array $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$atts = $parsed_block['attrs'] ?? array();
