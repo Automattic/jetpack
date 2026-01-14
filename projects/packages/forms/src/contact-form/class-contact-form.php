@@ -561,7 +561,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		register_post_type( self::POST_TYPE, $args );
 
-		// Register post meta for tracking the parent post that created this form.
+		// Register post meta for tracking the source post that created this form.
 		register_post_meta(
 			self::POST_TYPE,
 			self::SOURCE_META_KEY,

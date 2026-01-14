@@ -7,13 +7,12 @@ import { serialize } from '@wordpress/blocks';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { FORM_POST_TYPE, FORM_BLOCK_NAME } from '../../shared/util/constants.js';
+import {
+	FORM_POST_TYPE,
+	FORM_BLOCK_NAME,
+	FORM_SOURCE_META_KEY,
+} from '../../shared/util/constants.js';
 import type { Block } from '@wordpress/blocks';
-
-export interface BlockData {
-	attributes: Record< string, unknown >;
-	innerBlocks: unknown[];
-}
 
 export interface JetpackFormPost {
 	id: number;
@@ -47,7 +46,7 @@ export async function createSyncedForm(
 		content: blockMarkup,
 		status: 'publish',
 		meta: {
-			_jetpack_forms_source_post_id: currentPostId,
+			[ FORM_SOURCE_META_KEY ]: currentPostId,
 		},
 	} ) ) as JetpackFormPost;
 

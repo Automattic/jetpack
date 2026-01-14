@@ -29,7 +29,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 			currentPostId: editedPostId,
 			isLocked: savingLocked,
 		};
-	} );
+	}, [] );
 
 	const { onNavigateToEntityRecord } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
@@ -94,10 +94,12 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 			// Update attributes using updateBlockAttributes which properly clears them
 			updateBlockAttributes( clientId, clearedAttributes );
 
-			onNavigateToEntityRecord( {
-				postId: formId as number,
-				postType: FORM_POST_TYPE,
-			} );
+			if ( onNavigateToEntityRecord ) {
+				onNavigateToEntityRecord( {
+					postId: formId,
+					postType: FORM_POST_TYPE,
+				} );
+			}
 		} catch {
 			createErrorNotice( __( 'Failed to create a form. Please try again.', 'jetpack-forms' ), {
 				type: 'snackbar',
