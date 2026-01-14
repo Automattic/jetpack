@@ -7,6 +7,7 @@
 
 namespace Automattic\JetpackBeta;
 
+use Automattic\Jetpack\Assets\Logo;
 use Jetpack;
 use Language_Pack_Upgrader;
 use Plugin_Upgrader;
@@ -354,7 +355,7 @@ class Hooks {
 		// Add the main menu.
 		$args = array(
 			'id'     => 'jetpack-beta_admin_bar',
-			'title'  => 'Jetpack Beta',
+			'title'  => '<span class="jpbeta-logo">' . ( new Logo() )->get_jp_emblem() . '</span><span class="screen-reader-text">Jetpack </span>Beta',
 			'parent' => 'top-secondary',
 			'href'   => current_user_can( 'update_plugins' ) ? Utils::admin_url() : '',
 		);
@@ -429,6 +430,9 @@ class Hooks {
 				$wp_admin_bar->add_node( $args );
 			}
 		}
+
+		// Output styles for the logo in the admin bar.
+		echo '<style>#wpadminbar .jpbeta-logo svg { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; position: relative; top: -1px; }</style>';
 
 		// Highlight the menu if you are running the BETA Versions..
 		if ( $any_dev ) {

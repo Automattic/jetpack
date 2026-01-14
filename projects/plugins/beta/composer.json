@@ -10,6 +10,7 @@
 	"require": {
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-logo": "@dev",
 		"composer/semver": "3.4.3",
 		"erusev/parsedown": "1.7.4"
 	},
