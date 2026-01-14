@@ -1250,6 +1250,7 @@ class Search extends Module {
 		'group',
 		'group-documents-category',
 		'groups',
+		'guest',
 		'hashtags',
 		'hotel_facility',
 		'ia_invited_groups',
