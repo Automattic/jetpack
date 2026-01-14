@@ -157,7 +157,7 @@ class Public_Abilities {
 					'name'  => array(
 						'required'          => true,
 						'type'              => 'string',
-						'description'       => __( 'The ability name/slug', 'jetpack-public-abilities' ),
+						'description'       => __( 'The ability name in the format "namespace/ability-name".', 'jetpack-public-abilities' ),
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'input' => array(
