@@ -250,7 +250,6 @@ class VideoPress_Edit_Attachment {
 		$meta = wp_get_attachment_metadata( $post_id );
 		$info = (object) $meta['videopress'];
 
-		// If the video is private, we need a metadata token to view the poster, which we don't have access to from here.
 		$is_public = VIDEOPRESS_PRIVACY::IS_PUBLIC === $info->privacy_setting || ( VIDEOPRESS_PRIVACY::SITE_DEFAULT === $info->privacy_setting && ! ( new Status() )->is_private_site() );
 		/* Translators: %s is the video title */
 		$alt_text = sprintf( __( 'Poster image for video: %s', 'jetpack' ), get_the_title( $post_id ) );
@@ -266,16 +265,59 @@ class VideoPress_Edit_Attachment {
 		</p>
 		<?php printf( '<a href="%1$s">%1$s</a>', esc_url( videopress_build_url( $guid ) ) ); ?>
 
-		<?php if ( $is_public ) : ?>
-			<p class="post-attributes-label-wrapper">
-				<label class="post-attributes-label"><?php esc_html_e( 'Poster', 'jetpack' ); ?></label>
-			</p>
-			<?php if ( ! empty( $info->poster ) ) : ?>
+		<p class="post-attributes-label-wrapper">
+			<label class="post-attributes-label"><?php esc_html_e( 'Poster', 'jetpack' ); ?></label>
+		</p>
+		<?php if ( ! empty( $info->poster ) ) : ?>
+			<?php if ( $is_public ) : ?>
 				<img src="<?php echo esc_url( $info->poster ); ?>" width="100%" alt="<?php echo esc_attr( $alt_text ); ?>" />
 			<?php else : ?>
-				<em><?php esc_html_e( 'Processing…', 'jetpack' ); ?></em>
-				<?php
-			endif;
+				<img
+					id="videopress-poster-<?php echo esc_attr( $guid ); ?>"
+					data-poster="<?php echo esc_url( $info->poster ); ?>"
+					data-guid="<?php echo esc_attr( $guid ); ?>"
+					width="100%"
+					alt="<?php echo esc_attr( $alt_text ); ?>"
+					style="display:none;"
+					src=""
+				/>
+				<em class="videopress-poster-loading" data-error="<?php esc_attr_e( 'Poster unavailable.', 'jetpack' ); ?>"><?php esc_html_e( 'Loading…', 'jetpack' ); ?></em>
+				<script>
+				( function() {
+					var img = document.getElementById( 'videopress-poster-<?php echo esc_attr( $guid ); ?>' );
+					var loading = img ? img.nextElementSibling : null;
+					if ( ! img || ! loading || ! window.videopressAjax ) {
+						return;
+					}
+
+					fetch( window.videopressAjax.ajaxUrl, {
+						method: 'POST',
+						credentials: 'same-origin',
+						body: new URLSearchParams( {
+							action: 'videopress-get-playback-jwt',
+							guid: img.dataset.guid,
+							post_id: window.videopressAjax.post_id || 0
+						} )
+					} )
+					.then( function( response ) { return response.json(); } )
+					.then( function( data ) {
+						if ( data.success && data.data.jwt ) {
+							img.src = img.dataset.poster + '?metadata_token=' + data.data.jwt;
+							img.style.display = '';
+							loading.style.display = 'none';
+						} else {
+							loading.textContent = loading.dataset.error;
+						}
+					} )
+					.catch( function() {
+						loading.textContent = loading.dataset.error;
+					} );
+				} )();
+				</script>
+			<?php endif; ?>
+		<?php else : ?>
+			<em><?php esc_html_e( 'Processing…', 'jetpack' ); ?></em>
+			<?php
 		endif;
 	}
 
