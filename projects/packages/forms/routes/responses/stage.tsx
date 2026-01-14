@@ -24,6 +24,7 @@ import * as React from 'react';
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
+import Gravatar from '../../src/dashboard/components/gravatar/index.tsx';
 import Page, { Stack } from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
@@ -264,6 +265,7 @@ function Stage() {
 					const displayName =
 						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous';
 					const showEmail = item.author_email && item.author_name !== item.author_email;
+					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
 					return (
 						<span style={ { display: 'flex', alignItems: 'center', gap: '12px' } }>
 							{ item.is_unread && (
@@ -278,19 +280,13 @@ function Stage() {
 									aria-label={ __( 'Unread', 'jetpack-forms' ) }
 								/>
 							) }
-							{ item.author_avatar && (
-								<img
-									src={ item.author_avatar }
-									alt={ displayName }
-									style={ {
-										width: 40,
-										height: 40,
-										borderRadius: '50%',
-										flexShrink: 0,
-										backgroundColor: '#f0f0f0',
-									} }
-								/>
-							) }
+							<Gravatar
+								email={ item.author_email || item.ip } // With IP we still return placeholder image
+								defaultImage={ defaultImage }
+								displayName={ decodeEntities( displayName ) }
+								size={ 40 }
+								useHovercard={ false }
+							/>
 							<span style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
 								<span style={ { fontWeight: item.is_unread ? 600 : 400 } }>{ displayName }</span>
 								{ showEmail && (
@@ -374,8 +370,13 @@ function Stage() {
 				],
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
-				render: ( { item } ) =>
-					item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ),
+				render: ( { item } ) => {
+					return (
+						<Badge intent="default">
+							{ item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ) }
+						</Badge>
+					);
+				},
 			},
 			{
 				id: 'ip',
@@ -810,7 +811,7 @@ function Stage() {
 		const baseActions = [
 			{
 				id: 'view-details',
-				label: __( 'View details', 'jetpack-forms' ),
+				label: __( 'View', 'jetpack-forms' ),
 				isPrimary: true,
 				callback: items => {
 					const ids = items.map( item => getItemId( item ) );
@@ -835,25 +836,27 @@ function Stage() {
 					callback: handleMarkAsRead,
 				},
 				{
+					id: 'mark-as-spam',
+					label: __( 'Spam', 'jetpack-forms' ),
+					supportsBulk: true,
+					isDestructive: true,
+					isPrimary: true,
+					callback: handleMarkAsSpam,
+				},
+				{
+					id: 'move-to-trash',
+					label: __( 'Trash', 'jetpack-forms' ),
+					supportsBulk: true,
+					isDestructive: true,
+					isPrimary: true,
+					callback: handleMoveToTrash,
+				},
+				{
 					id: 'mark-as-unread',
 					label: __( 'Mark as unread', 'jetpack-forms' ),
 					supportsBulk: true,
 					isEligible: item => ! item.is_unread,
 					callback: handleMarkAsUnread,
-				},
-				{
-					id: 'mark-as-spam',
-					label: __( 'Mark as spam', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					callback: handleMarkAsSpam,
-				},
-				{
-					id: 'move-to-trash',
-					label: __( 'Move to trash', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					callback: handleMoveToTrash,
 				},
 			];
 		}
@@ -865,13 +868,15 @@ function Stage() {
 					id: 'not-spam',
 					label: __( 'Not spam', 'jetpack-forms' ),
 					supportsBulk: true,
+					isPrimary: true,
 					callback: handleMarkAsNotSpam,
 				},
 				{
 					id: 'move-to-trash',
-					label: __( 'Move to trash', 'jetpack-forms' ),
+					label: __( 'Trash', 'jetpack-forms' ),
 					supportsBulk: true,
 					isDestructive: true,
+					isPrimary: true,
 					callback: handleMoveToTrash,
 				},
 			];
@@ -884,13 +889,15 @@ function Stage() {
 					id: 'restore',
 					label: __( 'Restore', 'jetpack-forms' ),
 					supportsBulk: true,
+					isPrimary: true,
 					callback: handleRestore,
 				},
 				{
 					id: 'delete-permanently',
-					label: __( 'Delete permanently', 'jetpack-forms' ),
+					label: __( 'Delete', 'jetpack-forms' ),
 					supportsBulk: true,
 					isDestructive: true,
+					isPrimary: true,
 					callback: handleDelete,
 				},
 			];

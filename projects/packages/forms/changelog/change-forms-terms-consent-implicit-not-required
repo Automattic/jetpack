@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Consent block: automatically set required to false when consent type is implicit

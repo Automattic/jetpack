@@ -4,7 +4,6 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 module.exports = {
 	...baseConfig,
 	rootDir: path.join( __dirname, '..' ),
-	testEnvironment: 'jsdom',
 	setupFilesAfterEnv: [
 		...baseConfig.setupFilesAfterEnv,
 		'@testing-library/jest-dom',

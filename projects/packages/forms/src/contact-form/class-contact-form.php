@@ -139,6 +139,29 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private $source;
 
 	/**
+	 * The reference ID for the contact form.
+	 *
+	 * @var int|null
+	 */
+	private static $ref_id = null;
+
+	/**
+	 * Set the reference ID for the contact form.
+	 *
+	 * @param int $ref_id The reference ID.
+	 */
+	public static function set_ref_id( $ref_id ) {
+		self::$ref_id = $ref_id;
+	}
+
+	/**
+	 * Clear the reference ID for the contact form.
+	 */
+	public static function clear_ref_id() {
+		self::$ref_id = null;
+	}
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -202,10 +225,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'block_template'         => null, // Not exposed to the user. Works with template_loader
 			'block_template_part'    => null, // Not exposed to the user. Works with Contact_Form::parse()
 			'id'                     => null, // Not exposed to the user. Set above.
+			'ref'                    => null, // Not exposed to the user. Set above if applicable.
 			'submit_button_text'     => __( 'Submit', 'jetpack-forms' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'noSummary' to disable the summary, 'message' for a custom message, 'redirect' to redirect to a new URL. Deprecated.
-			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack-forms' ), // The text to show above customThankyouMessage.
+			'customThankyouHeading'  => self::get_default_thank_you_heading(), // The text to show above customThankyouMessage.
 			'customThankyouMessage'  => '', // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when confirmationType is set to 'redirect'.
 			'confirmationType'       => null, // The type of confirmation to show after submitting a form. 'text' for a text message, 'redirect' for a redirect link.
@@ -601,6 +625,35 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the default thank you heading with conditional sparkle.
+	 *
+	 * Returns the new copy with sparkle emoji if translated, otherwise
+	 * falls back to the old copy without sparkle.
+	 *
+	 * TEMPORARY: This method can be removed once the new copy has been translated.
+	 * Replace the call with: __( 'Thank you for your response.', 'jetpack-forms' ) . ' ✨'
+	 *
+	 * @return string The translated heading.
+	 */
+	private static function get_default_thank_you_heading() {
+		// English locales always get the new copy with sparkle.
+		if ( str_starts_with( get_locale(), 'en' ) ) {
+			return __( 'Thank you for your response.', 'jetpack-forms' ) . ' ✨';
+		}
+
+		// Check if new string has a translation by comparing with the original.
+		$original   = 'Thank you for your response.';
+		$translated = __( 'Thank you for your response.', 'jetpack-forms' );
+
+		if ( $translated !== $original ) {
+			return $translated . ' ✨';
+		}
+
+		// Fall back to old string without sparkle.
+		return __( 'Your message has been sent', 'jetpack-forms' );
+	}
+
+	/**
 	 * Helper function to get the attributes of the contact form.
 	 *
 	 * @return array The attributes of the contact form.
@@ -947,6 +1000,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$plugin               = Contact_Form_Plugin::init();
 		$attributes['widget'] = $plugin->get_current_widget_context();
 		// Create a new Contact_Form object (this class)
+		if ( self::$ref_id ) {
+			$attributes['ref'] = self::$ref_id;
+		}
+
 		$form = new Contact_Form( $attributes, $content );
 		Contact_Form_Plugin::reset_step();
 
@@ -1342,7 +1399,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$success_message = '';
 
 		if ( ! $disable_go_back ) {
-			$success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+			$success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( '← Back', 'jetpack-forms' ) . '</a> </p>';
 		}
 
 		$success_message .= '<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) . "</h4>\n\n";
@@ -1437,7 +1494,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( ! $disable_go_back ) {
 			$html .= '<p class="go-back-message">';
-			$html .= '<a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a>';
+			$html .= '<a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( '← Back', 'jetpack-forms' ) . '</a>';
 			$html .= '</p>';
 		}
 
@@ -3230,6 +3287,28 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( ! $has_value && ! $this->has_errors() ) {
 			$this->add_error( 'empty', __( 'Please fill out at least one field.', 'jetpack-forms' ) );
+		}
+
+		$ref_id = $this->get_attribute( 'ref' );
+		if ( ! empty( $ref_id ) ) {
+			$this->validate_ref( $ref_id );
+		}
+	}
+
+	/**
+	 * Validate the form reference.
+	 *
+	 * @param int $ref The form reference ID.
+	 */
+	public function validate_ref( $ref ) {
+		$form_post = get_post( $ref );
+		if ( ! $form_post || self::POST_TYPE !== $form_post->post_type ) {
+			$this->add_error( 'invalid_ref', __( 'Invalid form reference.', 'jetpack-forms' ) );
+			return;
+		}
+		if ( $form_post->post_status !== 'publish' ) {
+			$this->add_error( 'unpublished_form', __( 'Invalid form reference.', 'jetpack-forms' ) );
+			return;
 		}
 	}
 

@@ -15,8 +15,9 @@ import MessageBoxControl from '../message-box-control';
 import SocialImageGeneratorPanel from '../social-image-generator/panel';
 import styles from './styles.module.scss';
 import { UpgradeNotice } from './upgrade-notice';
+import type { AttachedMedia, JetpackSocialOptions, SIGSettings } from '../../utils/types';
 
-type SharePostFormProps = {
+export type SharePostFormProps = {
 	/** Data for tracking analytics */
 	analyticsData?: {
 		/** The location of the analytics event */
@@ -27,6 +28,42 @@ type SharePostFormProps = {
 	 * This enables navigation for certain components within the form.
 	 */
 	isInsideNavigatorModal?: boolean;
+
+	/**
+	 * Optional message value. When provided, the component uses this value
+	 * instead of fetching from the store.
+	 */
+	message?: string;
+
+	/**
+	 * Optional callback to update the message. When omitted, falls back to
+	 * updating via the internal store.
+	 */
+	onMessageChange?: ( message: string ) => void;
+
+	/**
+	 * Optional attached media array. In controlled mode (when `onMediaChange` is provided),
+	 * this value is passed to child components instead of fetching from the store.
+	 */
+	attachedMedia?: Array< AttachedMedia >;
+
+	/**
+	 * Optional image generator settings. In controlled mode, this value is passed to
+	 * child components instead of fetching from the store.
+	 */
+	imageGeneratorSettings?: SIGSettings;
+
+	/**
+	 * Optional media source value. In controlled mode, this value is passed to
+	 * child components instead of fetching from the store.
+	 */
+	mediaSource?: JetpackSocialOptions[ 'media_source' ];
+
+	/**
+	 * Optional callback to update media-related options. When provided, the component
+	 * operates in controlled mode and uses the media props instead of fetching from the store.
+	 */
+	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
 };
 
 /**
@@ -38,10 +75,27 @@ type SharePostFormProps = {
 export const SharePostForm: FC< SharePostFormProps > = ( {
 	analyticsData = null,
 	isInsideNavigatorModal,
+	message: messageProp,
+	onMessageChange,
+	attachedMedia,
+	imageGeneratorSettings,
+	mediaSource,
+	onMediaChange,
 } ) => {
-	const { message, updateMessage, maxLength } = useSocialMediaMessage();
+	const {
+		message: storeMessage,
+		updateMessage: storeUpdateMessage,
+		maxLength,
+	} = useSocialMediaMessage();
 	const isSocialNote = useIsSocialNote();
 	const postCanUseSig = usePostCanUseSig();
+
+	// Use props if provided, otherwise fall back to store values
+	const message = messageProp !== undefined ? messageProp : storeMessage;
+	const updateMessage = onMessageChange ?? storeUpdateMessage;
+
+	// Check if we're in "controlled" mode for media (props provided)
+	const isMediaControlled = onMediaChange !== undefined;
 
 	const { openUnifiedModal } = useDispatch( socialStore );
 
@@ -73,14 +127,29 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 					{ ! hasSocialPaidFeatures() ? (
 						<UpgradeNotice />
 					) : (
-						<MediaSectionV2 analyticsData={ analyticsData } onEditTemplate={ onEditTemplate } />
+						<MediaSectionV2
+							analyticsData={ analyticsData }
+							onEditTemplate={ onEditTemplate }
+							{ ...( isMediaControlled && {
+								attachedMedia,
+								imageGeneratorSettings,
+								mediaSource,
+								onMediaChange,
+							} ) }
+						/>
 					) }
 				</div>
 			) : (
 				<>
 					{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
 						<div className={ styles[ 'share-post-form__media-section' ] }>
-							<MediaSection analyticsData={ analyticsData } />
+							<MediaSection
+								analyticsData={ analyticsData }
+								{ ...( isMediaControlled && {
+									attachedMedia,
+									onMediaChange,
+								} ) }
+							/>
 						</div>
 					) }
 					{ /* Social Image Generator panel - only shown when not using unified UI */ }
