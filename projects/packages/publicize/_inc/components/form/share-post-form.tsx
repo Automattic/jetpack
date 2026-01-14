@@ -112,7 +112,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 	}, [ openUnifiedModal, isInsideNavigatorModal, navigator ] );
 
 	return (
-		<>
+		<div className={ styles[ 'share-post-form' ] }>
 			{ ! isSocialNote && (
 				<MessageBoxControl
 					label={ __( 'Message', 'jetpack-publicize-pkg' ) }
@@ -156,6 +156,6 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 					{ postCanUseSig && <SocialImageGeneratorPanel /> }
 				</>
 			) }
-		</>
+		</div>
 	);
 };

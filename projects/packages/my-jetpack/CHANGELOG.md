@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.30.0] - 2026-01-14
+### Added
+- Add 'View included features' link to Plans section for quick access to plan features. [#46520]
+
+### Changed
+- Show module descriptions beneath titles instead of in tooltips for improved discoverability. [#46518]
+- Update package dependencies. [#46552]
+
 ## [5.29.3] - 2026-01-12
 ### Changed
 - Plans section: Update 'Activate a license' text to 'Activate a new license' when user already has active licenses, and add visual separation before actions list. [#46501]
@@ -2476,6 +2484,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.30.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.3...5.30.0
 [5.29.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.2...5.29.3
 [5.29.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.1...5.29.2
 [5.29.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.0...5.29.1

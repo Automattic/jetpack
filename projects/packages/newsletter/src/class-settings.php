@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Status\Host;
 
@@ -52,6 +53,15 @@ class Settings {
 	}
 
 	/**
+	 * Check if the subscriptions module is active.
+	 *
+	 * @return bool
+	 */
+	private function is_subscriptions_active() {
+		return ( new Modules() )->is_active( 'subscriptions' );
+	}
+
+	/**
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
@@ -75,17 +85,23 @@ class Settings {
 	 * Add the newsletter settings menu to the Jetpack menu.
 	 */
 	public function add_wp_admin_menu() {
-		if ( ( new Host() )->is_wpcom_platform() ) {
-			$page_suffix = add_submenu_page(
-				'jetpack',
-				/** "Newsletter" is a product name, do not translate. */
-				'Newsletter',
-				'Newsletter',
-				'manage_options',
-				'jetpack-newsletter',
-				array( $this, 'render' )
-			);
+		$is_module_active = $this->is_subscriptions_active();
+		$host             = new Host();
+
+		// Determine parent slug and menu registration method.
+		// - wpcom simple: Always show in Jetpack menu (module always active).
+		// - wpcom atomic: Show in Jetpack menu if active, hidden page if inactive.
+		// - Jetpack: Show in Jetpack menu if active, hidden page if inactive.
+		if ( $host->is_wpcom_platform() ) {
+			$parent_slug      = ( $host->is_wpcom_simple() || $is_module_active ) ? 'jetpack' : '';
+			$use_jetpack_menu = false; // Use add_submenu_page for all wpcom sites.
 		} else {
+			$parent_slug      = $is_module_active ? 'jetpack' : '';
+			$use_jetpack_menu = $is_module_active;
+		}
+
+		// Register menu item.
+		if ( $use_jetpack_menu ) {
 			$page_suffix = Admin_Menu::add_menu(
 				/** "Newsletter" is a product name, do not translate. */
 				'Newsletter',
@@ -94,6 +110,16 @@ class Settings {
 				'jetpack-newsletter',
 				array( $this, 'render' ),
 				10
+			);
+		} else {
+			$page_suffix = add_submenu_page(
+				$parent_slug,
+				/** "Newsletter" is a product name, do not translate. */
+				'Newsletter',
+				'Newsletter',
+				'manage_options',
+				'jetpack-newsletter',
+				array( $this, 'render' )
 			);
 		}
 
@@ -122,6 +148,53 @@ class Settings {
 				'textdomain' => 'jetpack-newsletter',
 				'enqueue'    => true,
 			)
+		);
+
+		wp_add_inline_script(
+			'jetpack-newsletter',
+			'window.jetpackNewsletterSettings = ' . wp_json_encode( $this->get_settings_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'before'
+		);
+	}
+
+	/**
+	 * Get the data to be passed to the newsletter settings page.
+	 *
+	 * @return array
+	 */
+	private function get_settings_data() {
+		$current_user = wp_get_current_user();
+		$theme        = wp_get_theme();
+
+		$site_url     = get_site_url();
+		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
+
+		$host                   = new Host();
+		$blog_id                = (int) $host->get_wpcom_site_id();
+		$is_wpcom               = $host->is_wpcom_platform();
+		$is_wpcom_simple        = $host->is_wpcom_simple();
+		$base_url               = $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/';
+		$setup_payment_plan_url = $base_url . rawurlencode( $site_raw_url );
+
+		return array(
+			'isBlockTheme'                       => wp_is_block_theme(),
+			'siteAdminUrl'                       => admin_url(),
+			'themeStylesheet'                    => $theme->get_stylesheet(),
+			'blogID'                             => $blog_id,
+			'siteRawUrl'                         => $site_raw_url,
+			'email'                              => $current_user->user_email,
+			'gravatar'                           => get_avatar_url( $current_user->ID ),
+			'displayName'                        => $current_user->display_name,
+			'dateExample'                        => gmdate( get_option( 'date_format' ), time() ),
+			'wpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wpcom_subscriber_management_enabled', false ),
+			'isSubscriptionSiteEditSupported'    => wp_is_block_theme(),
+			'setupPaymentPlansUrl'               => $setup_payment_plan_url,
+			'isSitePublic'                       => (int) get_option( 'blog_public' ) === 1,
+			'isWpcomPlatform'                    => $is_wpcom,
+			'isWpcomSimple'                      => $is_wpcom_simple,
+			'isSubscriptionsActive'              => $this->is_subscriptions_active(),
+			'restApiRoot'                        => esc_url_raw( rest_url() ),
+			'restApiNonce'                       => wp_create_nonce( 'wp_rest' ),
 		);
 	}
 
