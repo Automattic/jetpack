@@ -564,7 +564,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Register post meta for tracking the parent post that created this form.
 		register_post_meta(
 			self::POST_TYPE,
-			'_jetpack_forms_source_post_id',
+			self::SOURCE_META_KEY,
 			array(
 				'type'              => 'integer',
 				'single'            => true,
