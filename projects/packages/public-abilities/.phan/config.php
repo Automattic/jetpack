@@ -17,5 +17,9 @@ return make_phan_config(
 			// Reference file for optional device-detection dependency (used via class_exists check).
 			__DIR__ . '/../../device-detection/src/class-user-agent-info.php',
 		),
+		'file_list'       => array(
+			// Stubs for WordPress Ability API functions (proposed feature).
+			__DIR__ . '/stubs.php',
+		),
 	)
 );
