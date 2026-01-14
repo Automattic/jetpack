@@ -1,5 +1,6 @@
 import { TabPanel } from '@wordpress/components';
 import { useCallback } from 'react';
+import { usePerNetworkCustomization } from '../../customization-toggle/use-per-network-customization';
 import { ConnectionTab } from '../types';
 import { useConnectionTabs } from '../use-connection-tabs';
 import styles from './styles.module.scss';
@@ -12,10 +13,14 @@ import { TabContent } from './tab-content';
  */
 export function TabPanelDesktop() {
 	const tabs = useConnectionTabs();
+	const { isEnabled: perNetwork } = usePerNetworkCustomization();
 
-	const tabRenderer = useCallback( ( tab: ConnectionTab ) => {
-		return <TabContent connectionId={ tab.connectionId } />;
-	}, [] );
+	const tabRenderer = useCallback(
+		( tab: ConnectionTab ) => {
+			return <TabContent connectionId={ tab.connectionId } perNetwork={ perNetwork } />;
+		},
+		[ perNetwork ]
+	);
 
 	return (
 		<TabPanel
