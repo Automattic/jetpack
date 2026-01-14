@@ -121,20 +121,14 @@ abstract class Code_Block {
 	}
 
 	/**
-	 * Registration of view/frontend script modules.
+	 * Enqueue view/frontend script module.
 	 *
-	 * Called lazily when view assets are needed (when rendering or on-demand loading is disabled).
+	 * Uses wp_enqueue_script_module() which registers and enqueues in one call.
 	 */
-	private static function register_view_assets() {
-		static $registered = false;
-		if ( $registered ) {
-			return;
-		}
-		$registered = true;
-
+	private static function enqueue_view_assets() {
 		$jetpack_wpcom_modules_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
 
-		wp_register_script_module(
+		wp_enqueue_script_module(
 			self::MODULE_PREFIX . 'block-front',
 			plugins_url( 'build-module/wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js', Jetpack_Mu_Wpcom::BASE_FILE ),
 			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['dependencies'],
@@ -212,8 +206,7 @@ abstract class Code_Block {
 					&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
 					&& has_block( 'core/code' )
 				) {
-					self::register_view_assets();
-					wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' );
+					self::enqueue_view_assets();
 				}
 			}
 		);
@@ -406,8 +399,7 @@ abstract class Code_Block {
 		$style_properties = array();
 
 		if ( isset( $attributes['showCopyButton'] ) ) {
-			self::register_view_assets();
-			wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' );
+			self::enqueue_view_assets();
 		}
 
 		$show_line_numbers = $attributes['showLineNumbers'] ?? false;
