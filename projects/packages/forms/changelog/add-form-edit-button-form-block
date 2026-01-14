@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add source post ID tracking when creating synced forms via WordPress Core Data.
