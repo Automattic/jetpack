@@ -272,7 +272,7 @@ class Connections_Post_Field {
 		if ( isset( $post->ID ) ) {
 			// Set the meta before we mark the post as published so that publicize works as expected.
 			// If this is not the case post end up on social media when they are marked as skipped.
-			$this->update( $request_connections, $post );
+			$this->update( $request_connections, $post, $request );
 		}
 
 		return $post;
@@ -403,11 +403,12 @@ class Connections_Post_Field {
 	/**
 	 * Update the connections slated to be shared to.
 	 *
-	 * @param array   $requested_connections Publicize connections to update.
+	 * @param array           $requested_connections Publicize connections to update.
 	 *              Items are either `{ id: (string) }` or `{ service_name: (string) }`.
-	 * @param WP_Post $post    Post data.
+	 * @param WP_Post         $post    Post data.
+	 * @param WP_REST_Request $request API request.
 	 */
-	public function update( $requested_connections, $post ) {
+	public function update( $requested_connections, $post, $request = null ) {
 		if ( isset( $this->meta_saved[ $post->ID ] ) ) { // Make sure we only save it once - per request.
 			return;
 		}
@@ -420,7 +421,7 @@ class Connections_Post_Field {
 		}
 
 		// Save per-connection overrides.
-		$this->save_connection_overrides( $requested_connections, $post->ID );
+		$this->save_connection_overrides( $requested_connections, $post->ID, $request );
 
 		$this->meta_saved[ $post->ID ] = true;
 	}
@@ -431,12 +432,19 @@ class Connections_Post_Field {
 	 * Extracts message and attached_media from each connection and persists
 	 * them to post meta when per-network customization is enabled.
 	 *
-	 * @param array $requested_connections Array of connection data from the request.
-	 * @param int   $post_id               Post ID.
+	 * @param array           $requested_connections Array of connection data from the request.
+	 * @param int             $post_id               Post ID.
+	 * @param WP_REST_Request $request               API request.
 	 */
-	private function save_connection_overrides( $requested_connections, $post_id ) {
-		// If per-network customization is not enabled, delete any existing overrides.
-		$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+	private function save_connection_overrides( $requested_connections, $post_id, $request = null ) {
+		// Check if per-network customization is enabled - prefer request value over database.
+		$customize_per_network = null;
+		if ( $request && isset( $request['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ] ) ) {
+			$customize_per_network = $request['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ];
+		}
+		if ( $customize_per_network === null ) {
+			$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+		}
 		if ( ! $customize_per_network ) {
 			delete_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES );
 			return;
