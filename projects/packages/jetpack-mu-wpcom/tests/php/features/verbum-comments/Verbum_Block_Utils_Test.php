@@ -21,6 +21,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	 * Ensure string comments are not modified when 'render_verbum_blocks' is applied
 	 */
 	public function test_comment_text_string_comment() {
+		Functions\expect( 'wpcom_get_site_purchases' )->andReturn( array() );
 		$comment_content  = 'This is a test comment';
 		$filtered_content = Verbum_Block_Utils::render_verbum_blocks( $comment_content );
 		$this->assertEquals( $comment_content, $filtered_content );
@@ -30,6 +31,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	 * Ensure blocks are filtered when 'render_verbum_blocks' is applied
 	 */
 	public function test_comment_text_block_sanitization() {
+		Functions\expect( 'wpcom_get_site_purchases' )->andReturn( array() );
 		$comment_content  = '<!-- wp:paragraph -->Testing<!-- /wp:paragraph --><!-- wp:latest-posts -->';
 		$filtered_content = Verbum_Block_Utils::render_verbum_blocks( $comment_content );
 		$this->assertEquals( 'Testing', $filtered_content );
@@ -40,6 +42,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_comment_text_block_sanitization_sanity_check() {
 		Functions\expect( 'wpcom_site_has_feature' )->andReturn( false );
+		Functions\expect( 'wpcom_get_site_purchases' )->andReturn( array() );
 		$comment_content  = '<!-- wp:paragraph --><p>test</p><!-- /wp:paragraph --><!-- wp:list --><ul><!-- wp:list-item --><li>1</li><!-- /wp:list-item --><!-- wp:list-item --><li>2</li><!-- /wp:list-item --><!-- wp:list-item --><li>3</li><!-- /wp:list-item --></ul><!-- /wp:list --><!-- wp:quote --><blockquote class="wp-block-quote"><!-- wp:paragraph --><p>something</p><!-- /wp:paragraph --><cite>someone</cite></blockquote><!-- /wp:quote -->';
 		$filtered_content = preg_replace( '/\R+/', '', Verbum_Block_Utils::render_verbum_blocks( $comment_content ) );
 
@@ -51,6 +54,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	 * Ensure innerBlocks are filtered when 'render_verbum_blocks' is applied
 	 */
 	public function test_comment_text_block_sanitization_inner_blocks() {
+		Functions\expect( 'wpcom_get_site_purchases' )->andReturn( array() );
 		$comment_content  = '<!-- wp:paragraph {} --><!-- wp:latest-posts --><!-- /wp:paragraph -->';
 		$filtered_content = Verbum_Block_Utils::render_verbum_blocks( $comment_content );
 		$this->assertSame( '', $filtered_content );
