@@ -2698,6 +2698,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$expected_attributes['disableSummary']         = '';
 		$expected_attributes['confirmationType']       = '';
 		$expected_attributes['hostingerReach']         = '';
+		$expected_attributes['ref']                    = '';
 		$expected_attributes['formTitle']              = 'Test Form';
 		$form = new Contact_Form(
 			$attributes,
@@ -3868,10 +3869,10 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test is_webhooks_enabled returns false by default.
+	 * Test is_webhooks_enabled returns true by default.
 	 */
 	public function test_is_webhooks_enabled_default() {
-		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+		$this->assertTrue( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
 	}
 
 	/**

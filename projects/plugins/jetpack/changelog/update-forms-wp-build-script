@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Added a package to the e2e test build script as it is a dependency for forms
+
+

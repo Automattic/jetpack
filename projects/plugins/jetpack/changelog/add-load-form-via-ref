@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: add ref attribute support for the form block.
