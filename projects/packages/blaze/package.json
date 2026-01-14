@@ -47,7 +47,7 @@
 		"@babel/preset-env": "7.28.3",
 		"@babel/runtime": "7.28.4",
 		"@wordpress/browserslist-config": "6.37.1-next.06ee73755.0",
-		"sass-embedded": "1.87.0",
+		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
 		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"

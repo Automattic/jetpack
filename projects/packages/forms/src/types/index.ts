@@ -270,6 +270,8 @@ export type BlockEditorStoreSelect = {
  * Forms script data exposed via JetpackScriptData.forms
  */
 export interface FormsConfigData {
+	/** Whether the central form management feature is enabled (feature-flagged). */
+	isCentralFormManagementEnabled?: boolean;
 	/** Whether MailPoet integration is enabled across contexts. */
 	isMailPoetEnabled?: boolean;
 	/** Whether Hostinger Reach integration is enabled across contexts. */
