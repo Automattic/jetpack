@@ -46,6 +46,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	const POST_TYPE = 'jetpack_form';
 
 	/**
+	 * Meta key for the source post ID.
+	 *
+	 * @var string
+	 */
+	const SOURCE_META_KEY = '_jetpack_forms_source_post_id';
+
+	/**
 	 *
 	 * Stores form submission errors.
 	 *
@@ -548,10 +555,26 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'editor',
 				'revisions',
 				'author',
+				'custom-fields',
 			),
 		);
 
 		register_post_type( self::POST_TYPE, $args );
+
+		// Register post meta for tracking the parent post that created this form.
+		register_post_meta(
+			self::POST_TYPE,
+			'_jetpack_forms_source_post_id',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => function () {
+					return current_user_can( 'edit_posts' );
+				},
+			)
+		);
 	}
 
 	/**

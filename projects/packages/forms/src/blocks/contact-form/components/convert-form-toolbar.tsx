@@ -22,10 +22,12 @@ interface ConvertFormToolbarProps {
 export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbarProps ) {
 	const [ isConverting, setIsConverting ] = useState( false );
 
-	const { postTitle } = useSelect( select => {
+	const { postTitle, currentPostId } = useSelect( select => {
 		const editedPost = select( editorStore ).getEditedPostAttribute( 'title' );
+		const editedPostId = select( editorStore ).getEditedPostAttribute( 'id' );
 		return {
 			postTitle: editedPost || 'Untitled',
+			currentPostId: editedPostId,
 		};
 	} );
 
@@ -64,12 +66,13 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 			const { ref, ...cleanAttributes } = attributes;
 
 			// Create the synced form post with all attributes and innerBlocks
-			const postId = await createSyncedForm(
+			const formId = await createSyncedForm(
 				{
 					attributes: cleanAttributes,
 					innerBlocks: block.innerBlocks || [],
 				},
-				postTitle
+				postTitle,
+				currentPostId
 			);
 
 			// Clear innerBlocks first
@@ -85,29 +88,26 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 			} );
 
 			// Then set only the ref
-			clearedAttributes.ref = postId;
+			clearedAttributes.ref = formId;
 
 			// Update attributes using updateBlockAttributes which properly clears them
 			updateBlockAttributes( clientId, clearedAttributes );
 
 			onNavigateToEntityRecord( {
-				postId: postId as number,
+				postId: formId as number,
 				postType: FORM_POST_TYPE,
 			} );
 
-			createSuccessNotice( __( 'Form converted successfully', 'jetpack-forms' ), {
+			createSuccessNotice( __( 'Form created successfully', 'jetpack-forms' ), {
 				type: 'snackbar',
 				isDismissible: true,
 			} );
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch ( error ) {
-			createErrorNotice(
-				__( 'Failed to convert form to synced form. Please try again.', 'jetpack-forms' ),
-				{
-					type: 'snackbar',
-					isDismissible: true,
-				}
-			);
+			createErrorNotice( __( 'Failed to create a form. Please try again.', 'jetpack-forms' ), {
+				type: 'snackbar',
+				isDismissible: true,
+			} );
 		} finally {
 			setIsConverting( false );
 		}
