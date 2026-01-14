@@ -658,13 +658,17 @@ class Dashboard_REST_Controller {
 		$parsed_urn = $this->get_data_from_urn( $urn );
 		$site_id    = $this->get_site_id();
 
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
 		if ( ! $parsed_urn['site_id'] || $parsed_urn['site_id'] !== $site_id ) {
 			return $this->get_forbidden_error();
 		}
 
 		$post = get_post( $parsed_urn['post_id'] );
 		if ( ! $post ) {
-			return new WP_Error( 'post_not_found', 'Post not found', array( 'status' => 404 ) );
+			return new WP_Error( 'post_not_found', esc_html__( 'Post not found', 'jetpack-blaze' ), array( 'status' => 404 ) );
 		}
 
 		// Generates the attachments object
@@ -700,9 +704,7 @@ class Dashboard_REST_Controller {
 		$response = $this->request_as_user(
 			sprintf( '/sites/%d/wordads/dsp/api/v1/templates/article/%s', $site_id, $urn ),
 			'v2',
-			array_merge(
-				array( 'method' => 'POST' )
-			),
+			array( 'method' => 'POST' ),
 			$body
 		);
 
@@ -714,7 +716,7 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Redirect GET requests to WordAds DSP Search endpoint for the site.
+	 * Redirect GET requests to the WordAds DSP Templates endpoint for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
