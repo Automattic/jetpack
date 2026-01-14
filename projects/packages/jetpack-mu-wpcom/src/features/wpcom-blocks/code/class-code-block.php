@@ -199,7 +199,7 @@ abstract class Code_Block {
 				 */
 				if (
 					function_exists( 'wp_should_load_block_assets_on_demand' )
-					&& ! wp_should_load_block_assets_on_demand()
+					&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
 					&& has_block( 'core/code' )
 				) {
 					self::enqueue_view_assets();
