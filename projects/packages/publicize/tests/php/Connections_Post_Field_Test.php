@@ -415,6 +415,9 @@ class Connections_Post_Field_Test extends TestCase {
 	 * Test saving connection overrides via REST API.
 	 */
 	public function test_save_connection_overrides() {
+		// Enable per-network customization.
+		update_post_meta( $this->draft_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+
 		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
@@ -519,6 +522,9 @@ class Connections_Post_Field_Test extends TestCase {
 	 * Test that attached_media is properly sanitized.
 	 */
 	public function test_sanitize_attached_media() {
+		// Enable per-network customization.
+		update_post_meta( $this->draft_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+
 		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(

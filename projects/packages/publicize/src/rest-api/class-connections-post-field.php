@@ -428,13 +428,20 @@ class Connections_Post_Field {
 	/**
 	 * Save per-connection customization overrides.
 	 *
-	 * Extracts message and attached_media from each connection that has
-	 * override_settings enabled and persists them to post meta.
+	 * Extracts message and attached_media from each connection and persists
+	 * them to post meta when per-network customization is enabled.
 	 *
 	 * @param array $requested_connections Array of connection data from the request.
 	 * @param int   $post_id               Post ID.
 	 */
 	private function save_connection_overrides( $requested_connections, $post_id ) {
+		// If per-network customization is not enabled, delete any existing overrides.
+		$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+		if ( ! $customize_per_network ) {
+			delete_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES );
+			return;
+		}
+
 		$overrides = array();
 
 		foreach ( $requested_connections as $connection ) {
