@@ -394,7 +394,7 @@ abstract class Code_Block {
 		$extra_attrs      = array();
 		$style_properties = array();
 
-		if ( isset( $attributes['showCopyButton'] ) ) {
+		if ( $attributes['showCopyButton'] ?? false ) {
 			self::enqueue_view_assets();
 		}
 
