@@ -3070,6 +3070,18 @@ importers:
 
   projects/packages/newsletter:
     dependencies:
+      '@automattic/jetpack-api':
+        specifier: workspace:*
+        version: link:../../js-packages/api
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../../js-packages/shared-extension-utils
+      '@wordpress/components':
+        specifier: 32.0.1-next.v.0
+        version: 32.0.1-next.v.0(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/dataviews':
         specifier: 11.2.1-next.v.0
         version: 11.2.1-next.v.0(@types/react@18.3.27)(react@18.3.1)(stylelint@16.26.1)
@@ -3079,6 +3091,12 @@ importers:
       '@wordpress/i18n':
         specifier: 6.10.1-next.v.0
         version: 6.10.1-next.v.0
+      '@wordpress/notices':
+        specifier: 5.38.1-next.v.0
+        version: 5.38.1-next.v.0(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.37.1-next.v.0
+        version: 4.37.1-next.v.0
       debug:
         specifier: 4.4.3
         version: 4.4.3

@@ -329,9 +329,8 @@ class Queue {
 			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			while ( ( $current_item = array_shift( $current_items ) ) !== null ) {
 				// @codingStandardsIgnoreStart
-				$current_item->value = unserialize( $current_item->value );
+				$current_item->value = @unserialize( $current_item->value );
 				// @codingStandardsIgnoreEnd
-
 				$items[] = $current_item;
 			}
 		}

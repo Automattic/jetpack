@@ -32,9 +32,15 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@wordpress/components": "32.0.1-next.v.0",
 		"@wordpress/dataviews": "11.2.1-next.v.0",
 		"@wordpress/element": "6.37.1-next.v.0",
 		"@wordpress/i18n": "6.10.1-next.v.0",
+		"@wordpress/notices": "5.38.1-next.v.0",
+		"@wordpress/url": "4.37.1-next.v.0",
 		"debug": "4.4.3"
 	},
 	"devDependencies": {
