@@ -7,7 +7,7 @@ import { Connection } from '../../../social-store/types';
 import { useConnectionState } from '../../form/use-connection-state';
 
 export type ConnectionToggleProps = {
-	connection?: Connection;
+	connection: Connection;
 };
 
 /**
