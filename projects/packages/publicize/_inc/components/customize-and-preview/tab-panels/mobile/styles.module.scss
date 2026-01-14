@@ -1,0 +1,39 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../mixins.scss" as mixins;
+
+.tab-panel-mobile-wrapper-border {
+	border-top: 1px solid gb.$gray-200;
+}
+
+.tab-panel-mobile {
+
+	[role="tablist"] {
+
+		@include mixins.tab-list-overrides();
+		border-block: 1px solid gb.$gray-200;
+	}
+
+	@include mixins.tab-item-overrides();
+}
+
+.tab-content {
+	display: grid;
+	grid-template-columns: 1fr;
+}
+
+.customization-section {
+
+	@include mixins.customization-section();
+}
+
+.customization-toggle-wrapper {
+	padding: 1rem;
+
+	:global(.components-base-control__label) {
+		display: none;
+	}
+}
+
+.connection-toggle-wrapper {
+	padding: 1rem;
+}
