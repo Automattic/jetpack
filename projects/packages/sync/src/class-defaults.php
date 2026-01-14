@@ -774,9 +774,9 @@ class Defaults {
 		'_wp_old_date',
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
+		'_wpas_feature_enabled',
 		'_wpas_connection_overrides',
 		'_wpas_customize_per_network',
-		'_wpas_feature_enabled',
 		'_wpas_mess',
 		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
