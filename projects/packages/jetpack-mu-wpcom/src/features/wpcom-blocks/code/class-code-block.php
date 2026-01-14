@@ -141,7 +141,10 @@ abstract class Code_Block {
 	 * Get module assets file.
 	 */
 	private static function get_module_assets() {
-		static $jetpack_wpcom_modules_assets = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
+		static $jetpack_wpcom_modules_assets = null;
+		if ( null === $jetpack_wpcom_modules_assets ) {
+			$jetpack_wpcom_modules_assets = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
+		}
 		return $jetpack_wpcom_modules_assets;
 	}
 
