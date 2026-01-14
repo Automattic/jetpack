@@ -1,0 +1,38 @@
+{
+	"name": "automattic/jetpack-public-abilities",
+	"description": "Expose WordPress abilities publicly without authentication",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.4"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^4.2.7",
+		"yoast/phpunit-polyfills": "^1.1.1"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		]
+	},
+	"extra": {
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-public-abilities/compare/v${old}...v${new}"
+		},
+		"textdomain": "jetpack-public-abilities"
+	},
+	"config": {
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true
+		}
+	}
+}

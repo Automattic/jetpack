@@ -8,7 +8,9 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
+use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
 use Jetpack_Tracks_Event;
@@ -675,8 +677,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$jwt_signing_key = hash_hkdf( 'sha256', $secret, 32, 'jetpack-forms-jwt-hmac-v2' );
 		$encryption_key  = hash_hkdf( 'sha256', $secret, 32, 'jetpack-forms-aes-gcm-v2' );
 
-		$attributes   = $this->attributes;
-		$this->source = Feedback_Source::get_current( $attributes );
+		$attributes = $this->attributes;
+		// Only get current source if not already set (allows discovery endpoint to provide source).
+		if ( ! $this->source ) {
+			$this->source = Feedback_Source::get_current( $attributes );
+		}
 
 		// Only encrypt the attributes field as it contains sensitive information
 		// Content, hash, and source are not sensitive and can remain unencrypted
@@ -1208,10 +1213,24 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 			$post_title           = $post->post_title ?? '';
 			$form_accessible_name = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
-			$form_aria_label      = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
+			$form_aria_label      = ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
 
 			if ( $has_submit_button_block ) {
 				$form_classes .= ' wp-block-jetpack-contact-form';
+			}
+
+			$api_forms_attr = '';
+			if ( Jetpack_Forms::is_ai_forms_enabled() && User_Agent_Info::is_automated_client() ) {
+				$api_info       = array(
+					'discover' => '/wp-json/jetpack/v1/forms/discover',
+					'submit'   => '/wp-json/jetpack/v1/forms/submit',
+				);
+				$api_forms_attr = "data-jetpack-form-api='" . esc_attr( wp_json_encode( $api_info, JSON_HEX_TAG | JSON_HEX_AMP ) ) . "'";
+				$discover_url   = home_url( '/wp-json/jetpack/v1/forms/discover?url=' . rawurlencode( $url ) );
+				$r             .= sprintf(
+					'<p class="jetpack-form-api-hint">This form supports programmatic submission. GET %s for the submission token and field details, then POST to /wp-json/jetpack/v1/forms/submit with {"token":"...","fields":{"field-id":"value"}}.</p>',
+					esc_url( $discover_url )
+				);
 			}
 
 			$r .= "<form action='" . esc_url( $url ) . "'
@@ -1224,6 +1243,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
 				data-wp-class--is-ajax-form=\"context.useAjax\"
+				$api_forms_attr
 				novalidate >\n";
 
 			if ( $is_multistep ) { // This makes the "enter" key work in multi-step forms as expected.
@@ -3035,6 +3055,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$value->{$key} = $this->addslashes_deep( $data );
 			}
 			return (array) $value;
+		} elseif ( $value === null ) {
+			return '';
 		}
 
 		return addslashes( $value );

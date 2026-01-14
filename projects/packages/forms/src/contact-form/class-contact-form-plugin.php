@@ -30,6 +30,9 @@ use WP_Post;
 // Load the Form_Submission_Error class.
 require_once __DIR__ . '/class-form-submission-error.php';
 
+// Load the Forms_API_Submission class.
+require_once __DIR__ . '/class-forms-api-submission.php';
+
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  */
@@ -371,6 +374,11 @@ class Contact_Form_Plugin {
 				16,
 				4
 			);
+		}
+
+		// Register AI Forms API submission endpoint.
+		if ( Jetpack_Forms::is_ai_forms_enabled() ) {
+			Forms_API_Submission::init();
 		}
 
 		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {

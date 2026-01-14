@@ -1,0 +1,10 @@
+# Files not needed to be distributed in the package.
+.gitattributes    export-ignore
+.github/          export-ignore
+
+# Files to exclude from the mirror repo, but included in the monorepo.
+.gitignore        production-exclude
+.phpcs.dir.xml    production-exclude
+.phpcsignore      production-exclude
+changelog/**      production-exclude
+tests/**          production-exclude

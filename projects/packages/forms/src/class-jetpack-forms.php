@@ -140,6 +140,23 @@ class Jetpack_Forms {
 	}
 
 	/**
+	 * Returns true if AI Forms API submission is enabled.
+	 *
+	 * When enabled, forms will include a data attribute signaling API availability,
+	 * and a REST endpoint will be registered for programmatic form submissions.
+	 *
+	 * @return boolean
+	 */
+	public static function is_ai_forms_enabled() {
+		/**
+		 * Whether to enable AI Forms API submission.
+		 *
+		 * @param bool false Whether AI Forms API should be enabled. Default false.
+		 */
+		return apply_filters( 'jetpack_ai_forms_enabled', false );
+	}
+
+	/**
 	 * Returns true if the Integrations UI should be shown in the Forms dashboard.
 	 *
 	 * @since 6.22.0

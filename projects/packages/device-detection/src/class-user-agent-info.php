@@ -2287,4 +2287,61 @@ class User_Agent_Info {
 
 		return false;
 	}
+
+	/**
+	 * Is the current request from an automated client?
+	 *
+	 * Detects bots, crawlers, AI assistants, and HTTP libraries.
+	 * Useful for showing machine-readable hints or alternative content to non-browser clients.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
+	 * @return bool True if the request appears to be automated.
+	 */
+	public static function is_automated_client( $user_agent = null ) {
+		// Check for bots (AI agents, crawlers, etc.)
+		if ( self::is_bot( $user_agent ) ) {
+			return true;
+		}
+
+		// Get user agent for HTTP library check.
+		if ( null === $user_agent ) {
+			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				return false;
+			}
+			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		}
+
+		$ua = strtolower( $user_agent );
+
+		// HTTP libraries and tools (not bots, but programmatic clients).
+		$http_clients = array(
+			'axios',
+			'node-fetch',
+			'python-requests',
+			'httpie',
+			'postman',
+			'insomnia',
+			'curl/',        // curl/X.X.X format
+			'wget/',        // wget/X.X.X format
+			'libwww-perl',
+			'java/',        // Java HTTP clients
+			'okhttp',
+			'go-http-client',
+		);
+
+		foreach ( $http_clients as $client ) {
+			if ( false !== strpos( $ua, $client ) ) {
+				return true;
+			}
+		}
+
+		/**
+		 * Filter to customize automated client detection.
+		 *
+		 * @param bool   $is_automated Whether the request is automated.
+		 * @param string $user_agent   The user agent string.
+		 */
+		return apply_filters( 'jetpack_is_automated_client', false, $user_agent );
+	}
 }
