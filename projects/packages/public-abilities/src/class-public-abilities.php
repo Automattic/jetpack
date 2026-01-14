@@ -230,7 +230,7 @@ class Public_Abilities {
 			'abilities'      => array_map( array( self::class, 'format_ability_data' ), self::get_public_abilities() ),
 		);
 
-		wp_send_json( $response, null, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+		wp_send_json( $response, 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
