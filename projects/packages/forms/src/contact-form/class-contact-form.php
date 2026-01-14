@@ -2222,6 +2222,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Stores feedback.  Sends email.
 	 */
 	public function process_submission() {
+
 		$response = Feedback::from_submission( $_POST, $this ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
 		$response->set_source( $this->get_source() );
 		$plugin = Contact_Form_Plugin::init();
