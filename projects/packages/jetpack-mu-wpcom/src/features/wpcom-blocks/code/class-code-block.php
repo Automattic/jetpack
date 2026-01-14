@@ -19,8 +19,7 @@ use WP_Theme_JSON;
  * Contains necessary functionality for the Code Block.
  */
 abstract class Code_Block {
-	const MODULE_PREFIX                     = '@a8cCodeBlock/';
-	const REGISTER_BLOCK_TYPE_ARGS_PRIORITY = 150;
+	const MODULE_PREFIX = '@a8cCodeBlock/';
 
 	/**
 	 * Language names for display.
@@ -50,7 +49,7 @@ abstract class Code_Block {
 		}
 
 		add_action( 'after_setup_theme', array( __CLASS__, 'after_setup_theme' ), 100 );
-		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), self::REGISTER_BLOCK_TYPE_ARGS_PRIORITY, 2 );
+		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
 	}
 
 	/**
@@ -189,13 +188,16 @@ abstract class Code_Block {
 	public static function register_block_type_args( array $args, string $block_type ): array {
 		if (
 			'core/code' !== $block_type
+
 			// In some cases the block may not include the content attribute.
 			// Only perform enhancement on the _full_, expected block.
 			|| ! isset( $args['attributes']['content'] )
+
+			// Skip if the block is correctly processed.
+			|| $args['render_callback'] === array( __CLASS__, 'render_block' )
 		) {
 			return $args;
 		}
-		remove_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), self::REGISTER_BLOCK_TYPE_ARGS_PRIORITY );
 
 		// Register assets and hooks only when overriding the block.
 		self::register_editor_assets();
