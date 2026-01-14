@@ -632,7 +632,7 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Redirect GET requests to WordAds DSP Search endpoint for the site.
+	 * Redirect GET requests to the WordAds DSP Templates Article endpoint for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
