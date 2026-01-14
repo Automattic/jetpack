@@ -133,13 +133,6 @@ class Dashboard {
 		);
 		$filters_path                  = '/wp/v2/feedback/filters';
 		$filters_locale_path           = \add_query_arg( array( '_locale' => 'user' ), $filters_path );
-		$initial_forms_path            = \add_query_arg(
-			array(
-				'page'     => 1,
-				'per_page' => 20,
-			),
-			'/jetpack-forms/v1/forms'
-		);
 		$preload_paths                 = array(
 			'/wp/v2/types?context=view',
 			'/wp/v2/feedback/config',
@@ -149,9 +142,20 @@ class Dashboard {
 			$filters_locale_path,
 			$initial_responses_path,
 			$initial_responses_locale_path,
-			$initial_forms_path,
 		);
-		$preload_data_raw              = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
+
+		// Only preload the Forms list endpoint when centralized form management is enabled.
+		if ( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
+			$initial_forms_path = \add_query_arg(
+				array(
+					'page'     => 1,
+					'per_page' => 20,
+				),
+				'/jetpack-forms/v1/forms'
+			);
+			$preload_paths[]    = $initial_forms_path;
+		}
+		$preload_data_raw = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 
 		// Normalize keys to match what apiFetch will request (without domain).
 		$preload_data = array();
