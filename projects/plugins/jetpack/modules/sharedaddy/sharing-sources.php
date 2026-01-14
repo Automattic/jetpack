@@ -3501,7 +3501,7 @@ class Share_Bluesky extends Sharing_Source {
 	}
 
 	/**
-	 * Get a post's permalink to use for sharing, ensuring HTTPS.
+	 * Get a post's permalink to use for sharing, ensuring HTTPS if the site supports it.
 	 *
 	 * @param int $post_id Post ID.
 	 *
@@ -3509,7 +3509,11 @@ class Share_Bluesky extends Sharing_Source {
 	 */
 	public function get_share_url( $post_id ) {
 		$url = parent::get_share_url( $post_id );
-		return set_url_scheme( $url, 'https' );
+		// Only force HTTPS if the site's home URL is HTTPS
+		if ( 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ) ) {
+			$url = set_url_scheme( $url, 'https' );
+		}
+		return $url;
 	}
 
 	/**
