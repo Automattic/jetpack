@@ -68,6 +68,17 @@ export default {
 			// Transpile JavaScript and TypeScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
+				babelOpts: {
+					configFile: false,
+					plugins: [
+						[
+							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+							{
+								textdomain: 'jetpack-newsletter',
+							},
+						],
+					],
+				},
 			} ),
 
 			// Transpile @automattic/* in node_modules too.

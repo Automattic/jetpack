@@ -382,13 +382,13 @@ class WPCOM_Features {
 	public const AKISMET                           = 'akismet';
 	public const ANTISPAM                          = 'antispam';
 	public const ARCHIVE_CONTENT                   = 'archive-content';
-	public const ARTIFICIAL_50GB_STORAGE_LIMIT     = 'artificial-50gb-storage-limit';
 	public const ATOMIC                            = 'atomic';
 	public const BACKUPS                           = 'backups';
 	public const BACKUPS_DAILY                     = 'backups-daily';
 	public const BACKUPS_RESTORE                   = 'restore';
 	public const BACKUP_ONE_TIME                   = 'backup-one-time';
 	public const BIG_SKY                           = 'big-sky';
+	public const BLAZE_CREDITS_VOUCHER             = 'blaze-credits-voucher';
 	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
 	public const CALENDLY                          = 'calendly';
 	public const CDN                               = 'cdn';
@@ -588,13 +588,6 @@ class WPCOM_Features {
 			self::WPCOM_HUNDRED_YEAR_BUNDLE,
 		),
 
-		/*
-		 * Temporary limit until the Pro plan storage is ready to be fully
-		 * implemented.
-		 */
-		self::ARTIFICIAL_50GB_STORAGE_LIMIT     => array(
-			self::WPCOM_PRO_PLANS,
-		),
 		self::ATOMIC                            => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -644,6 +637,19 @@ class WPCOM_Features {
 			self::WPCOM_PERSONAL_PLANS,
 			self::WPCOM_BUSINESS_PLANS,
 			self::WPCOM_PREMIUM_PLANS,
+    ),
+		self::BLAZE_CREDITS_VOUCHER             => array(
+			array(
+				'required_sticker' => 'gating-business-q1',
+				// Business (Excluding Monthly).
+				self::BUSINESS_BUNDLE,
+				self::BUSINESS_BUNDLE_2Y,
+				self::BUSINESS_BUNDLE_3Y,
+				// Ecommerce (Excluding Monthly).
+				self::ECOMMERCE_BUNDLE,
+				self::ECOMMERCE_BUNDLE_2Y,
+				self::ECOMMERCE_BUNDLE_3Y,
+			),
 		),
 		// BLOG_DOMAIN_ONLY - Users on Blogger plan can only purchase .blog domains.
 		self::BLOG_DOMAIN_ONLY                  => array(

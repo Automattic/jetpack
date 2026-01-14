@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: Fixed checkbox field value not being properly output in the classic editor form builder.
