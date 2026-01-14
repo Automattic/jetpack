@@ -1439,10 +1439,34 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'label'  => self::maybe_add_colon_to_label( $field_data['label'] ),
 				'value'  => self::maybe_transform_value( $field_data['value'] ),
 				'images' => self::get_images( $field_data['value'] ),
+				'url'    => self::get_url( $field_data['value'] ),
 			);
 		}
 
 		return $formatted_submission_data;
+	}
+
+	/**
+	 * Get the URL from a URL field value if present.
+	 *
+	 * @param mixed $value The field value.
+	 *
+	 * @return string|null The URL if this is a URL field, null otherwise.
+	 */
+	private static function get_url( $value ) {
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' && ! empty( $value['url'] ) ) {
+			$url = $value['url'];
+
+			// Prepend https:// if no protocol is specified.
+			if ( ! preg_match( '#^https?://#i', $url ) ) {
+				$url = 'https://' . $url;
+			}
+
+			// Validate URL - only http and https protocols are allowed for safety.
+			$url = esc_url( $url, array( 'http', 'https' ) );
+			return ! empty( $url ) ? $url : null;
+		}
+		return null;
 	}
 
 	/**
@@ -1531,7 +1555,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
 					<div class="jetpack_forms_contact-form-success-summary">
 						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
-						<div class="field-value" data-wp-text="context.submission.value"></div>
+						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.url"></div>
+						<a class="field-url" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.url" target="_blank" rel="noopener noreferrer"></a>
 						<div class="field-images" data-wp-bind--hidden="!context.submission.images">
 							<template data-wp-each--image="context.submission.images">
 								<figure class="field-image" data-wp-class--is-empty="!context.image">
@@ -1545,10 +1570,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 				// For each entry in the submission data array, render a div with the label and value.
 				foreach ( $formatted_submission_data as $submission ) {
-					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">
-						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . $submission['label'] . '</div>
-						<div class="field-value" data-wp-text="context.submission.value">' . $submission['value'] . '</div>
-						<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
+					$has_url = ! empty( $submission['url'] );
+					$html   .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">
+						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
+
+					if ( $has_url ) {
+						$html .= '<a class="field-url" href="' . esc_attr( $submission['url'] ) . '" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" target="_blank" rel="noopener noreferrer">' . esc_html( $submission['value'] ) . '</a>';
+					} else {
+						$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.url">' . esc_html( $submission['value'] ) . '</div>';
+					}
+
+					$html .= '<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
 
 					if ( ! empty( $submission['images'] ) ) {
 						foreach ( $submission['images'] as $image ) {
@@ -2190,7 +2222,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Stores feedback.  Sends email.
 	 */
 	public function process_submission() {
-
 		$response = Feedback::from_submission( $_POST, $this ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
 		$response->set_source( $this->get_source() );
 		$plugin = Contact_Form_Plugin::init();
@@ -3146,6 +3177,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$value['choices']
 				)
 			);
+		}
+
+		// For URL fields, extract the URL text value.
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' ) {
+			return isset( $value['url'] ) ? $value['url'] : '';
 		}
 
 		// For file upload fields, we want to show the file name and size
