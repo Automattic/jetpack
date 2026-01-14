@@ -30,6 +30,7 @@ export function waitForEditor(): Promise< void > {
 		}, EDITOR_READY_TIMEOUT );
 	} );
 }
+
 /**
  * Checks if the block editor has been initialized.
  *

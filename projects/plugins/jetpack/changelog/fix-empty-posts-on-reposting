@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Reader: Update waitForEditor function to detect real editor initialization and remove timeout-based logic
+Reader: Fix post embed previews not displaying correctly when reposting from Reader.

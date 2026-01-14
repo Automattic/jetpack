@@ -13,6 +13,23 @@ describe( 'waitForEditor', (): void => {
 		jest.clearAllMocks();
 	} );
 
+	it( 'should reject the promise if core editor or block-editor store is not available', async () => {
+		jest.useFakeTimers();
+
+		mockSubscribe.mockReturnValue( mockUnsubscribe );
+		mockSelect.mockImplementation( () => null ); // Simulate store not available.
+
+		const waitForEditorPromise = waitForEditor();
+		jest.advanceTimersByTime( 7000 );
+
+		expect( mockUnsubscribe ).toHaveBeenCalled();
+		await expect( waitForEditorPromise ).rejects.toThrow(
+			'Timeout: Waiting for the editor to be ready has timed out.'
+		);
+
+		jest.useRealTimers();
+	} );
+
 	it( 'should resolve the promise immediately if the post is a clean new post', async () => {
 		mockSelect.mockImplementation( ( store: string ) => {
 			if ( store === 'core/editor' ) {
