@@ -16,7 +16,7 @@ import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { download, plus } from '@wordpress/icons';
+import { download, plus, Icon, globe } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import * as React from 'react';
@@ -24,7 +24,8 @@ import * as React from 'react';
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
-import Gravatar from '../../src/dashboard/components/gravatar/index.tsx';
+import Flag from '../../src/dashboard/components/flag';
+import Gravatar from '../../src/dashboard/components/gravatar';
 import Page, { Stack } from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
@@ -386,10 +387,13 @@ function Stage() {
 						return '-';
 					}
 					return (
-						<span style={ { display: 'inline-flex', alignItems: 'center', gap: '4px' } }>
-							<span aria-hidden="true">🌐</span>
-							{ item.ip }
-						</span>
+						<>
+							<span className="jp-forms__inbox-response-country-flag">
+								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
+								{ item.country_code && <Flag countryCode={ item.country_code } /> }
+							</span>
+							{ item.ip || '' }
+						</>
 					);
 				},
 				enableSorting: false,
