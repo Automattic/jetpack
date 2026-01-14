@@ -34,7 +34,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@wordpress/date": "5.37.2-next.06ee73755.0",
+		"@wordpress/date": "5.37.2-next.v.0",
 		"debug": "^4.4.0",
 		"tslib": "^2.5.0"
 	},

@@ -20,6 +20,6 @@
 		"build-production-js": "echo 'Not implemented.'"
 	},
 	"devDependencies": {
-		"@wordpress/base-styles": "6.13.2-next.06ee73755.0"
+		"@wordpress/base-styles": "6.13.2-next.v.0"
 	}
 }

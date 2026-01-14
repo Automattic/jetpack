@@ -100,7 +100,7 @@ async function fixDeps( pkg ) {
 					r.json()
 				);
 			}
-			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' );
+			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
 			const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
 			for ( const dep of wpPkgs[ fromPkg ] ) {
 				if ( deps[ dep ] === undefined ) {

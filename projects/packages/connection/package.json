@@ -27,15 +27,15 @@
 	"dependencies": {
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-idc": "workspace:*",
-		"@wordpress/data": "10.37.1-next.06ee73755.0",
-		"@wordpress/element": "6.37.1-next.06ee73755.0"
+		"@wordpress/data": "10.37.1-next.v.0",
+		"@wordpress/element": "6.37.1-next.v.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.28.4",
 		"@babel/preset-env": "7.28.3",
 		"@babel/runtime": "7.28.4",
-		"@wordpress/browserslist-config": "6.37.1-next.06ee73755.0",
+		"@wordpress/browserslist-config": "6.37.1-next.v.0",
 		"glob": "11.1.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
