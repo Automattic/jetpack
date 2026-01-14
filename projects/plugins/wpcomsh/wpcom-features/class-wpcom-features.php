@@ -637,7 +637,7 @@ class WPCOM_Features {
 			self::WPCOM_PERSONAL_PLANS,
 			self::WPCOM_BUSINESS_PLANS,
 			self::WPCOM_PREMIUM_PLANS,
-    ),
+		),
 		self::BLAZE_CREDITS_VOUCHER             => array(
 			array(
 				'required_sticker' => 'gating-business-q1',
