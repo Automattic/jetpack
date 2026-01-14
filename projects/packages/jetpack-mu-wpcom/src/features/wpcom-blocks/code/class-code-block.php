@@ -212,6 +212,9 @@ abstract class Code_Block {
 			return $args;
 		}
 
+		// Register editor assets when the block is being overridden.
+		self::register_editor_assets();
+
 		$args['render_callback']       = array( __CLASS__, 'render_block' );
 		$args['editor_script_handles'] = array_merge( array( self::MODULE_PREFIX . 'block-definition' ), $args['editor_script_handles'] ?? array() );
 
@@ -362,9 +365,6 @@ abstract class Code_Block {
 	 * Enqueue plugin assets necessary for the block editor.
 	 */
 	public static function enqueue_editor_assets() {
-		// Register editor assets lazily when needed.
-		self::register_editor_assets();
-
 		/*
 		 * The code block registration script depends on some script modules.
 		 * This "dummy" module ensures those dependencies are available.
