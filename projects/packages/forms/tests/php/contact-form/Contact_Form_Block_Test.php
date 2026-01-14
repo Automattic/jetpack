@@ -373,4 +373,107 @@ class Contact_Form_Block_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_contact_form_can_manage_block', '__return_false' );
 	}
+
+	/**
+	 * Test render_email with valid attributes.
+	 */
+	public function test_render_email_with_valid_attributes() {
+		// Create a test post to get a valid permalink
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
+		$parsed_block = array(
+			'attrs' => array(
+				'className' => 'test-class',
+			),
+		);
+
+		$mock_context = (object) array();
+
+		$result = Contact_Form_Block::render_email( '', $parsed_block, $mock_context );
+
+		// Should return HTML content
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( '<div', $result );
+		$this->assertStringContainsString( '<a', $result );
+		$this->assertStringContainsString( 'target="_blank"', $result );
+		$this->assertStringContainsString( 'rel="noopener noreferrer"', $result );
+
+		// Should contain the fallback text
+		$this->assertStringContainsString( 'Submit a form.', $result );
+
+		// Should contain the permalink
+		$this->assertStringContainsString( get_permalink( $post_id ), $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Test render_email with missing attrs.
+	 */
+	public function test_render_email_with_missing_attrs() {
+		// Create a test post to get a valid permalink
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
+		$mock_context = (object) array();
+
+		// Test with missing attrs key
+		$parsed_block = array();
+		$result       = Contact_Form_Block::render_email( '', $parsed_block, $mock_context );
+
+		// Should still return HTML (uses empty array as default)
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( 'Submit a form.', $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Test render_email with empty attrs.
+	 */
+	public function test_render_email_with_empty_attrs() {
+		// Create a test post to get a valid permalink
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
+		$parsed_block = array(
+			'attrs' => array(),
+		);
+
+		$mock_context = (object) array();
+
+		$result = Contact_Form_Block::render_email( '', $parsed_block, $mock_context );
+
+		// Should return HTML content even with empty attrs
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( 'Submit a form.', $result );
+		$this->assertStringContainsString( get_permalink( $post_id ), $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
+	}
 }
