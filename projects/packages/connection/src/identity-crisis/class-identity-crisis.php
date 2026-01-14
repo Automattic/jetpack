@@ -473,6 +473,12 @@ class Identity_Crisis {
 	 * @return bool True if validation should be performed, false otherwise.
 	 */
 	public static function should_remote_validate_idc( $sync_error ) {
+		// Respect the user's decision to stay in safe mode.
+		// If safe mode is confirmed, don't attempt validation.
+		if ( self::safe_mode_is_confirmed() ) {
+			return false;
+		}
+
 		// If a validation is already in progress or recently completed, don't trigger another.
 		if ( get_transient( 'jetpack_idc_validation_lock' ) ) {
 			return false;

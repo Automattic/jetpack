@@ -253,24 +253,14 @@ async function getStatusChecks( payload, octokit ) {
 	const isFromContributor = head.repo.full_name === base.repo.full_name;
 
 	const prLabels = await getLabels( octokit, ownerLogin, repo, number );
-	const { hasStatusLabels, hasTypeLabels } = prLabels.reduce(
-		( acc, label ) => {
-			// We're only interested in status labels, but not the "Needs Reply" label since it can be added by the action.
-			if ( label.match( /^\[Status\].*(?<!Author Reply)$/ ) ) {
-				acc.hasStatusLabels = true;
-			}
-			if ( label.match( /^\[Type\]/ ) ) {
-				acc.hasTypeLabels = true;
-			}
-			return acc;
-		},
-		{ hasStatusLabels: false, hasTypeLabels: false }
+	// We're only interested in status labels, but not the "Needs Reply" label since it can be added by the action.
+	const hasStatusLabels = prLabels.some( label =>
+		label.match( /^\[Status\].*(?<!Author Reply)$/ )
 	);
 
 	return {
 		hasLongDescription,
 		hasStatusLabels,
-		hasTypeLabels,
 		hasTesting,
 		hasPrivacy,
 		projectsWithoutChangelog,
@@ -299,16 +289,6 @@ function renderStatusChecks( statusChecks ) {
 		checks += statusEntry(
 			! statusChecks.hasStatusLabels,
 			'Add a "[Status]" label (In Progress, Needs Review, ...).'
-		);
-	}
-
-	// Add a [Type] label please.
-	// Only check this for PRs created by a12s. External contributors cannot add labels.
-	if ( statusChecks.isFromContributor ) {
-		debug( `check-description: this PR has a Type label: ${ statusChecks.hasTypeLabels }` );
-		checks += statusEntry(
-			! statusChecks.hasTypeLabels,
-			'Add a "[Type]" label (Bug, Enhancement, Janitorial, Task).'
 		);
 	}
 
