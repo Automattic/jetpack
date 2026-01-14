@@ -209,7 +209,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Templates routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/templates/article/(?P<urn>[a-zA-Z0-9-_\/:]*)(\?.*)?', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/templates/article/(?P<urn>[a-zA-Z0-9-_:]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_templates_article' ),
@@ -676,14 +676,20 @@ class Dashboard_REST_Controller {
 		$attachments      = array();
 
 		foreach ( $post_attachments as $attachment ) {
-			$metadata = wp_get_attachment_metadata( $attachment->ID );
+			$attachment_url = wp_get_attachment_url( $attachment->ID );
+			$metadata       = wp_get_attachment_metadata( $attachment->ID );
+
+			// Skip attachment if some of the required data is missing
+			if ( ! $attachment_url || ! $metadata || ! isset( $metadata['width'] ) || ! isset( $metadata['height'] ) ) {
+				continue;
+			}
 
 			$attachments[ $attachment->ID ] = array(
 				'ID'        => $attachment->ID,
-				'URL'       => wp_get_attachment_url( $attachment->ID ),
+				'URL'       => $attachment_url,
 				'mime_type' => $attachment->post_mime_type,
-				'width'     => $metadata['width'] ?? null,
-				'height'    => $metadata['height'] ?? null,
+				'width'     => $metadata['width'],
+				'height'    => $metadata['height'],
 			);
 		}
 
@@ -1126,16 +1132,23 @@ class Dashboard_REST_Controller {
 	 * }
 	 */
 	private function get_data_from_urn( $urn ) {
+		$default = array(
+			'site_id' => 0,
+			'post_id' => 0,
+		);
+
 		if ( empty( $urn ) ) {
-			return array(
-				'site_id' => 0,
-				'post_id' => 0,
-			);
+			return $default;
 		}
 
 		$urn_parts = explode( ':', $urn );
-		$site_id   = isset( $urn_parts[3] ) ? (int) $urn_parts[3] : 0;
-		$post_id   = isset( $urn_parts[4] ) ? (int) $urn_parts[4] : 0;
+
+		if ( count( $urn_parts ) < 5 ) {
+			return $default;
+		}
+
+		$site_id = (int) $urn_parts[3];
+		$post_id = (int) $urn_parts[4];
 
 		return array(
 			'site_id' => $site_id,
