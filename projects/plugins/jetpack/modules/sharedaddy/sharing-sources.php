@@ -3501,6 +3501,18 @@ class Share_Bluesky extends Sharing_Source {
 	}
 
 	/**
+	 * Get a post's permalink to use for sharing, ensuring HTTPS.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return string
+	 */
+	public function get_share_url( $post_id ) {
+		$url = parent::get_share_url( $post_id );
+		return set_url_scheme( $url, 'https' );
+	}
+
+	/**
 	 * Process sharing request. Add actions that need to happen when sharing here.
 	 *
 	 * @param WP_Post $post Post object.
