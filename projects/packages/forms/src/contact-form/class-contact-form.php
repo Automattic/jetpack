@@ -1222,14 +1222,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$api_forms_attr = '';
 			if ( Jetpack_Forms::is_ai_forms_enabled() && User_Agent_Info::is_automated_client() ) {
 				$api_info       = array(
-					'discover' => '/wp-json/jetpack/v1/forms/discover',
-					'submit'   => '/wp-json/jetpack/v1/forms/submit',
+					'discover' => rest_url( 'jetpack/v1/forms/discover' ),
+					'submit'   => rest_url( 'jetpack/v1/forms/submit' ),
 				);
 				$api_forms_attr = "data-jetpack-form-api='" . esc_attr( wp_json_encode( $api_info, JSON_HEX_TAG | JSON_HEX_AMP ) ) . "'";
-				$discover_url   = home_url( '/wp-json/jetpack/v1/forms/discover?url=' . rawurlencode( $url ) );
+				$discover_url   = rest_url( 'jetpack/v1/forms/discover' ) . '?url=' . rawurlencode( $url );
 				$r             .= sprintf(
-					'<p class="jetpack-form-api-hint">This form supports programmatic submission. GET %s for the submission token and field details, then POST to /wp-json/jetpack/v1/forms/submit with {"token":"...","fields":{"field-id":"value"}}.</p>',
-					esc_url( $discover_url )
+					'<p class="jetpack-form-api-hint">This form supports programmatic submission. GET %s for the submission token and field details, then POST to %s with {"token":"...","fields":{"field-id":"value"}}.</p>',
+					esc_url( $discover_url ),
+					esc_url( rest_url( 'jetpack/v1/forms/submit' ) )
 				);
 			}
 

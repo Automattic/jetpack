@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-User_Agent_Info: Add is_automated_client() method for detecting bots, AI assistants, and HTTP libraries.
+Add is_automated_client() method for detecting bots, AI assistants, and HTTP libraries.
