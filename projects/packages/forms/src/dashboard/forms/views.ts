@@ -9,7 +9,7 @@ export const defaultView = {
 	filters: [],
 	page: 1,
 	perPage: 20,
-	fields: [ 'title', 'entries', 'status', 'modified', 'actions' ],
+	fields: [ 'title', 'entries', 'status', 'modified' ],
 };
 
 export const defaultLayouts = {

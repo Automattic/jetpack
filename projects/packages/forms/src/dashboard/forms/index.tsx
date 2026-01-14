@@ -2,10 +2,12 @@
  * External dependencies
  */
 import { JetpackLogo } from '@automattic/jetpack-components';
+import { Icon } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { backup } from '@wordpress/icons';
 import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
@@ -86,25 +88,32 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					dateI18n( dateSettings.formats.datetime, item.modified ),
 				enableSorting: false,
 			},
+		],
+		[ dateSettings.formats.datetime, statusLabel ]
+	);
+
+	const actions = useMemo(
+		() => [
 			{
-				id: 'actions',
-				label: __( 'Actions', 'jetpack-forms' ),
-				enableSorting: false,
-				render: ( { item }: { item: FormListItem } ) => {
+				id: 'edit-form',
+				isPrimary: false,
+				icon: <Icon icon={ backup } />,
+				label: __( 'Edit form', 'jetpack-forms' ),
+				supportsBulk: false,
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				async callback( items: any[] ) {
+					const [ item ] = items as FormListItem[];
+					if ( ! item ) {
+						return;
+					}
 					const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
 					const editUrl = item.editUrl || fallbackEditUrl;
-
-					return (
-						<div className="jp-forms-forms-actions">
-							<a href={ editUrl } className="jp-forms-forms-actions__link">
-								{ __( 'Edit form', 'jetpack-forms' ) }
-							</a>
-						</div>
-					);
+					const url = new URL( editUrl, window.location.origin );
+					window.location.href = url.toString();
 				},
 			},
 		],
-		[ dateSettings.formats.datetime, statusLabel ]
+		[]
 	);
 
 	const paginationInfo = useMemo(
@@ -143,6 +152,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				<DataViews
 					paginationInfo={ paginationInfo }
 					fields={ fields }
+					actions={ actions }
 					data={ records || [] }
 					isLoading={ isLoading }
 					empty={
