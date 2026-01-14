@@ -25,7 +25,7 @@ export interface JetpackFormPost {
 /**
  * Creates a new synced form in the jetpack_form post type
  *
- * @param {object} blockData     - Block data containing attributes and innerBlocks
+ * @param {Block}  blockData     - Block data containing attributes and innerBlocks
  * @param {string} pageTitle     - Title for the form post
  * @param {number} currentPostId - Current post ID to remember the source of the form.
  * @return {Promise<number>} Created post ID
