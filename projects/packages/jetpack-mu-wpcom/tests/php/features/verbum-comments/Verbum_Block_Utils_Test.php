@@ -39,7 +39,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	 * Ensure blocks are rendered properly
 	 */
 	public function test_comment_text_block_sanitization_sanity_check() {
-		Functions\expect( 'wpcom_site_has_feature' )->andReturn( false );
+		Functions\expect( 'wpcom_site_has_feature' )->andReturn( true );
 		$comment_content  = '<!-- wp:paragraph --><p>test</p><!-- /wp:paragraph --><!-- wp:list --><ul><!-- wp:list-item --><li>1</li><!-- /wp:list-item --><!-- wp:list-item --><li>2</li><!-- /wp:list-item --><!-- wp:list-item --><li>3</li><!-- /wp:list-item --></ul><!-- /wp:list --><!-- wp:quote --><blockquote class="wp-block-quote"><!-- wp:paragraph --><p>something</p><!-- /wp:paragraph --><cite>someone</cite></blockquote><!-- /wp:quote -->';
 		$filtered_content = preg_replace( '/\R+/', '', Verbum_Block_Utils::render_verbum_blocks( $comment_content ) );
 
