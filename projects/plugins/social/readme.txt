@@ -4,7 +4,7 @@ Tags: social media automation, social media scheduling, auto share, social shari
 Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 7.3.0
+Stable tag: 7.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
