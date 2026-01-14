@@ -382,7 +382,6 @@ class WPCOM_Features {
 	public const AKISMET                           = 'akismet';
 	public const ANTISPAM                          = 'antispam';
 	public const ARCHIVE_CONTENT                   = 'archive-content';
-	public const ARTIFICIAL_50GB_STORAGE_LIMIT     = 'artificial-50gb-storage-limit';
 	public const ATOMIC                            = 'atomic';
 	public const BACKUPS                           = 'backups';
 	public const BACKUPS_DAILY                     = 'backups-daily';
@@ -588,13 +587,6 @@ class WPCOM_Features {
 			self::WPCOM_HUNDRED_YEAR_BUNDLE,
 		),
 
-		/*
-		 * Temporary limit until the Pro plan storage is ready to be fully
-		 * implemented.
-		 */
-		self::ARTIFICIAL_50GB_STORAGE_LIMIT     => array(
-			self::WPCOM_PRO_PLANS,
-		),
 		self::ATOMIC                            => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
