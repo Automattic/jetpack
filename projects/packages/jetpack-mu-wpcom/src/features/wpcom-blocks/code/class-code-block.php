@@ -48,32 +48,9 @@ abstract class Code_Block {
 			return;
 		}
 
-		add_action( 'init', array( __CLASS__, 'override_block_style' ) );
+		// Entry point filter - other hooks are registered conditionally when the block is overridden.
 		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
-		add_action(
-			'wp_enqueue_scripts',
-			function () {
-				if ( wp_should_load_block_editor_scripts_and_styles() ) {
-					self::enqueue_editor_assets();
-				}
-
-				/*
-				 * Core should handle this, but Script Module assets are not currently handled.
-				 *
-				 * `wp_should_load_block_assets_on_demand()` was added in WordPress 6.8. The
-				 * `function_exists()` can be removed when 6.8+ is required.
-				 */
-				if (
-					function_exists( 'wp_should_load_block_assets_on_demand' )
-					&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
-					&& has_block( 'core/code' )
-				) {
-					self::register_view_assets();
-					wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' );
-				}
-			}
-		);
+		// Optimization hook - runs before init, can't be conditional.
 		add_action( 'after_setup_theme', array( __CLASS__, 'after_setup_theme' ), 100 );
 	}
 
@@ -212,8 +189,34 @@ abstract class Code_Block {
 			return $args;
 		}
 
-		// Register editor assets when the block is being overridden.
+		// Register assets and hooks only when overriding the block.
 		self::register_editor_assets();
+		self::override_block_style();
+
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
+		add_action(
+			'wp_enqueue_scripts',
+			function () {
+				if ( wp_should_load_block_editor_scripts_and_styles() ) {
+					self::enqueue_editor_assets();
+				}
+
+				/*
+				 * Core should handle this, but Script Module assets are not currently handled.
+				 *
+				 * `wp_should_load_block_assets_on_demand()` was added in WordPress 6.8. The
+				 * `function_exists()` can be removed when 6.8+ is required.
+				 */
+				if (
+					function_exists( 'wp_should_load_block_assets_on_demand' )
+					&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
+					&& has_block( 'core/code' )
+				) {
+					self::register_view_assets();
+					wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' );
+				}
+			}
+		);
 
 		$args['render_callback']       = array( __CLASS__, 'render_block' );
 		$args['editor_script_handles'] = array_merge( array( self::MODULE_PREFIX . 'block-definition' ), $args['editor_script_handles'] ?? array() );
