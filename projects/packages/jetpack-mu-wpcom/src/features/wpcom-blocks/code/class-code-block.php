@@ -58,11 +58,11 @@ abstract class Code_Block {
 	 * Called lazily when editor assets are needed, not on every request.
 	 */
 	private static function register_editor_assets() {
-		static $registered = false;
-		if ( $registered ) {
+		static $done = false;
+		if ( $done ) {
 			return;
 		}
-		$registered = true;
+		$done = true;
 
 		$block_definition_asset_file  = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php';
 		$jetpack_wpcom_modules_assets = self::get_module_assets();
@@ -122,6 +122,12 @@ abstract class Code_Block {
 	 * Enqueue view script module.
 	 */
 	private static function enqueue_view_assets() {
+		static $done = false;
+		if ( $done ) {
+			return;
+		}
+		$done = true;
+
 		$jetpack_wpcom_modules_assets = self::get_module_assets();
 		wp_enqueue_script_module(
 			self::MODULE_PREFIX . 'block-front',
