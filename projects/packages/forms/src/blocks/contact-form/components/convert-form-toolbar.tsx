@@ -7,11 +7,12 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedForm } from '../utils/form-sync-manager';
+
+const FORM_CONVERSION_LOCK = 'jetpack-form-conversion';
 
 interface ConvertFormToolbarProps {
 	clientId: string;
@@ -20,14 +21,14 @@ interface ConvertFormToolbarProps {
 }
 
 export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbarProps ) {
-	const [ isConverting, setIsConverting ] = useState( false );
-
-	const { postTitle, currentPostId } = useSelect( select => {
+	const { postTitle, currentPostId, isLocked } = useSelect( select => {
 		const editedPost = select( editorStore ).getEditedPostAttribute( 'title' );
 		const editedPostId = select( editorStore ).getEditedPostAttribute( 'id' );
+		const savingLocked = select( editorStore ).isPostSavingLocked();
 		return {
 			postTitle: editedPost || 'Untitled',
 			currentPostId: editedPostId,
+			isLocked: savingLocked,
 		};
 	} );
 
@@ -46,6 +47,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 
 	// Get functions to manipulate blocks
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
+	const { lockPostSaving, unlockPostSaving } = useDispatch( editorStore );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const hasRef = !! attributes.ref;
@@ -54,11 +56,11 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 	 * Convert inline form to synced form
 	 */
 	const convertToSynced = async () => {
-		if ( ! block || isConverting ) {
+		if ( ! block || isLocked ) {
 			return;
 		}
 
-		setIsConverting( true );
+		lockPostSaving( FORM_CONVERSION_LOCK );
 
 		try {
 			// Remove ref from attributes if it exists (shouldn't, but safety check)
@@ -109,7 +111,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 				isDismissible: true,
 			} );
 		} finally {
-			setIsConverting( false );
+			unlockPostSaving( FORM_CONVERSION_LOCK );
 		}
 	};
 
@@ -140,7 +142,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 			{ showConvertButton && (
 				<ToolbarButton
 					onClick={ convertToSynced }
-					disabled={ isConverting }
+					disabled={ isLocked }
 					label={ __( 'Convert to synced form', 'jetpack-forms' ) }
 				>
 					{ __( 'Edit Form', 'jetpack-forms' ) }
