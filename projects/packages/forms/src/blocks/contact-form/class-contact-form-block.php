@@ -730,7 +730,7 @@ class Contact_Form_Block {
 	 * @return string
 	 */
 	public static function render_email( $block_content, array $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$atts = isset( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
+		$atts = $parsed_block['attrs'] ?? array();
 
 		return self::render_fallback( $atts );
 	}
