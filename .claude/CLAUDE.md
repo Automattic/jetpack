@@ -38,6 +38,8 @@ For plugins, you can choose the "Starter plugin" template which includes a worki
 
 Every PR touching `/projects` needs a changelog file in the project's `changelog/` directory.
 
+**Note:** Changes outside `/projects` (e.g., `tools/`, `docs/`, `.github/`, `.claude/`) do NOT need changelog entries.
+
 ### Interactive Mode
 Run `jp changelog add` and follow the prompts.
 
