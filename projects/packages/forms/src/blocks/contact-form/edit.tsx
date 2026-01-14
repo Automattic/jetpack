@@ -194,9 +194,8 @@ function JetpackContactFormEdit( {
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showWebhooks = useConfigValue( 'isWebhooksEnabled' ) && hasFeatureFlag( 'form-webhooks' );
 	const showBlockIntegrations = useConfigValue( 'showBlockIntegrations' );
-	const instanceId = useInstanceId( JetpackContactFormEdit );
-
 	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
+	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	// Load synced form data from the jetpack_form post type
 	const {
@@ -244,8 +243,8 @@ function JetpackContactFormEdit( {
 		hasAnyInnerBlocks,
 		postAuthorEmail,
 		selectedBlockClientId,
-		isJetpackFormEditor,
 		onlySubmitBlock,
+		isJetpackFormEditor,
 	} = useSelect(
 		select => {
 			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
@@ -861,16 +860,18 @@ function JetpackContactFormEdit( {
 
 	// Show loading state when resolving synced form
 	if ( ref && isResolvingSyncedForm ) {
-		elt = <ContactFormSkeletonLoader />;
+		return (
+			<div { ...blockProps }>
+				<ContactFormSkeletonLoader />
+			</div>
+		);
 	}
 	// Show error if referenced form not found
 	else if ( ref && ! syncedForm && ! isResolvingSyncedForm ) {
 		elt = (
-			<div { ...blockProps }>
-				<Notice status="warning" isDismissible={ false }>
-					{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
-				</Notice>
-			</div>
+			<Notice status="warning" isDismissible={ false }>
+				{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
+			</Notice>
 		);
 	} else if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {
@@ -880,6 +881,13 @@ function JetpackContactFormEdit( {
 				</div>
 			);
 		}
+		elt = (
+			<ContactFormPlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
 	} else if ( ! hasAnyInnerBlocks ) {
 		elt = (
 			<VariationPicker
@@ -902,7 +910,6 @@ function JetpackContactFormEdit( {
 		elt = (
 			<>
 				<BlockControls>
-					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 					{ isCentralFormManagementEnabled && ! isJetpackFormEditor && (
 						<ConvertFormToolbar
 							clientId={ clientId }
@@ -910,6 +917,7 @@ function JetpackContactFormEdit( {
 							setAttributes={ setAttributes }
 						/>
 					) }
+					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody

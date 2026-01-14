@@ -22,7 +22,6 @@ interface ConvertFormToolbarProps {
 export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbarProps ) {
 	const [ isConverting, setIsConverting ] = useState( false );
 
-	// Get the current page/post title and navigation function from settings
 	const { postTitle } = useSelect( select => {
 		const editedPost = select( editorStore ).getEditedPostAttribute( 'title' );
 		return {
@@ -30,7 +29,6 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 		};
 	} );
 
-	// Get the current page/post title and navigation function from settings
 	const { onNavigateToEntityRecord } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
 		return {
