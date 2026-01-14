@@ -8,7 +8,12 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
+		"automattic/phpunit-select-config": "@dev",
 		"yoast/phpunit-polyfills": "^1.1.1"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package.",
+		"automattic/jetpack-device-detection": "Enable automated client detection for targeted API hints."
 	},
 	"autoload": {
 		"classmap": [
@@ -20,6 +25,17 @@
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		]
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {

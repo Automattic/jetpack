@@ -158,8 +158,10 @@ class Forms_API_Submission {
 	/**
 	 * Recursively find forms in blocks.
 	 *
-	 * @param array   $blocks The blocks to search.
-	 * @param WP_Post $post   The post object.
+	 * TODO: Replace with centralized forms management API once available.
+	 *
+	 * @param array    $blocks The blocks to search.
+	 * @param \WP_Post $post   The post object.
 	 * @return array Array of form data.
 	 */
 	private static function find_forms_in_blocks( $blocks, $post ) {
@@ -185,8 +187,8 @@ class Forms_API_Submission {
 	/**
 	 * Extract form data from a contact form block.
 	 *
-	 * @param array   $block The block data.
-	 * @param WP_Post $post  The post object.
+	 * @param array    $block The block data.
+	 * @param \WP_Post $post  The post object.
 	 * @return array|null Form data or null if extraction fails.
 	 */
 	private static function extract_form_data( $block, $post ) {

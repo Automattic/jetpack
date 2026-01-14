@@ -1257,7 +1257,7 @@ class Feedback {
 	/**
 	 * Save the feedback entry to the database.
 	 *
-	 * @return int
+	 * @return \WP_Post|int The saved post object, or 0 on failure.
 	 */
 	public function save() {
 		$post_id = wp_insert_post(

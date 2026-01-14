@@ -92,7 +92,7 @@ class Public_Abilities {
 
 		printf(
 			'<p class="jetpack-abilities-hint">This site exposes %d public %s. GET %s for available actions and their endpoints.</p>',
-			(int) $count,
+			absint( $count ),
 			$count === 1 ? 'ability' : 'abilities',
 			esc_url( $endpoint )
 		);
