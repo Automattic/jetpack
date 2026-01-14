@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add source post ID tracking when creating synced forms via WordPress Core Data.
+Add an "Edit Form" button that ltakes you to edit the form via the form editor.

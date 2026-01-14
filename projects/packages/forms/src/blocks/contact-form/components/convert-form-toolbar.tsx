@@ -17,7 +17,6 @@ const FORM_CONVERSION_LOCK = 'jetpack-form-conversion';
 interface ConvertFormToolbarProps {
 	clientId: string;
 	attributes: Record< string, unknown >;
-	setAttributes: ( attrs: Record< string, unknown > ) => void;
 }
 
 export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbarProps ) {
@@ -48,7 +47,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 	// Get functions to manipulate blocks
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
 	const { lockPostSaving, unlockPostSaving } = useDispatch( editorStore );
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const hasRef = !! attributes.ref;
 
@@ -99,13 +98,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 				postId: formId as number,
 				postType: FORM_POST_TYPE,
 			} );
-
-			createSuccessNotice( __( 'Form created successfully', 'jetpack-forms' ), {
-				type: 'snackbar',
-				isDismissible: true,
-			} );
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		} catch ( error ) {
+		} catch {
 			createErrorNotice( __( 'Failed to create a form. Please try again.', 'jetpack-forms' ), {
 				type: 'snackbar',
 				isDismissible: true,
@@ -135,16 +128,12 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 	return (
 		<ToolbarGroup>
 			{ showEditButton && (
-				<ToolbarButton onClick={ handleEditOriginal } label={ __( 'Edit form', 'jetpack-forms' ) }>
+				<ToolbarButton onClick={ handleEditOriginal }>
 					{ __( 'Edit Form', 'jetpack-forms' ) }
 				</ToolbarButton>
 			) }
 			{ showConvertButton && (
-				<ToolbarButton
-					onClick={ convertToSynced }
-					disabled={ isLocked }
-					label={ __( 'Convert to synced form', 'jetpack-forms' ) }
-				>
+				<ToolbarButton onClick={ convertToSynced } disabled={ isLocked }>
 					{ __( 'Edit Form', 'jetpack-forms' ) }
 				</ToolbarButton>
 			) }
