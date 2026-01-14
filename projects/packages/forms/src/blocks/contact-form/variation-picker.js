@@ -1,3 +1,4 @@
+import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import {
 	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -30,6 +31,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 	const { replaceInnerBlocks, selectBlock } = useDispatch( blockEditorStore );
 	const { saveEntityRecord } = useDispatch( coreStore );
 	const { createSuccessNotice } = useDispatch( noticesStore );
+	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
 	const { blockType, defaultVariation, variations, currentPostType, jetpackForms } = useSelect(
 		select => {
 			const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( blocksStore );
@@ -94,7 +96,11 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				onSelect={ async ( nextVariation = defaultVariation ) => {
 					// If we're editing a jetpack-form post directly, use the old behavior
 					// (just set attributes and inner blocks, don't create another ref)
-					if ( isEditingJetpackFormPost || nextVariation.name === 'regular-form' ) {
+					if (
+						isEditingJetpackFormPost ||
+						isCentralFormManagementEnabled ||
+						nextVariation.name === 'regular-form'
+					) {
 						registry.batch( () => {
 							if ( nextVariation.attributes ) {
 								setAttributes( nextVariation.attributes );
@@ -165,7 +171,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				<Button variant="secondary" onClick={ () => setIsPatternsModalOpen( true ) }>
 					{ __( 'Browse form patterns', 'jetpack-forms' ) }
 				</Button>
-				{ ! isEditingJetpackFormPost && (
+				{ ! isEditingJetpackFormPost && isCentralFormManagementEnabled && (
 					<SelectControl
 						label={ __( 'Or select an existing form', 'jetpack-forms' ) }
 						value=""
