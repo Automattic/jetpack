@@ -383,4 +383,42 @@ class Feedback_Author_Metadata_Test extends BaseTestCase {
 		$this->assertSame( 'Jane', $response->get_author_first_name(), 'First name getter should return raw first name' );
 		$this->assertSame( 'Doe', $response->get_author_last_name(), 'Last name getter should return raw last name' );
 	}
+
+	/**
+	 * Test that form_fill_duration is included in serialized response and persists after save/load.
+	 */
+	public function test_form_fill_duration_persists_after_save() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission with form_fill_duration
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'               => 'John Doe',
+				'email'              => 'john@example.com',
+				'message'            => 'Test message',
+				'form_fill_duration' => '45', // 45 seconds
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Create a contact form response
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// The form_fill_duration should be present and match the test value.
+		$this->assertNotEmpty( $response->get_form_fill_duration(), 'Form fill duration should not be empty' );
+		$this->assertNotEmpty( $saved_response->get_form_fill_duration(), 'Form fill duration should not be empty after save/load' );
+		$this->assertEquals( $response->get_form_fill_duration(), $saved_response->get_form_fill_duration(), 'Form fill duration should match after save/load' );
+		$this->assertEquals( 45, $saved_response->get_form_fill_duration(), 'Form fill duration should be 45 seconds' );
+		$this->assertIsInt( $saved_response->get_form_fill_duration(), 'Form fill duration should be an integer' );
+	}
 }
