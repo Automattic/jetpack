@@ -577,6 +577,15 @@ class Help_Center {
 	 * Enqueue Help Center assets for the customizer.
 	 */
 	public function enqueue_customizer_scripts() {
+		/**
+		 * Allow filtering whether the help center should be enqueued.
+		 */
+		$should_show_help_center = apply_filters( 'jetpack_should_enqueue_help_center', true );
+
+		if ( ! $should_show_help_center ) {
+			return;
+		}
+
 		if ( $this->is_jetpack_disconnected() ) {
 			$variant = 'wp-admin-disconnected';
 		} else {
@@ -613,6 +622,15 @@ class Help_Center {
 	 * Add icon to WP-ADMIN admin bar.
 	 */
 	public function enqueue_wp_admin_scripts() {
+		/**
+		 * Allow filtering whether the help center should be enqueued.
+		 */
+		$should_show_help_center = apply_filters( 'jetpack_should_enqueue_help_center', true );
+
+		if ( ! $should_show_help_center ) {
+			return;
+		}
+
 		if ( $this->is_wc_admin_home_page() ) {
 			return;
 		}
@@ -622,15 +640,6 @@ class Help_Center {
 
 		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
 		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
-
-		/**
-		 * Allow filtering whether the help center should be enqueued.
-		 */
-		$should_show_help_center = apply_filters( 'jetpack_should_enqueue_help_center', true );
-
-		if ( ! $should_show_help_center ) {
-			return;
-		}
 
 		// We will show the help center icon in the admin bar when;
 		// 1. On wp-admin
