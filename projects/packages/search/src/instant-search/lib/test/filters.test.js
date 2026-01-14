@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import {
 	FILTER_KEYS,
 	getFilterKeys,

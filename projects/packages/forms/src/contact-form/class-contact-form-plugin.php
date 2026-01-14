@@ -1426,7 +1426,9 @@ class Contact_Form_Plugin {
 	public function admin_menu() {
 		$slug = 'feedback';
 
-		if ( is_plugin_active( 'polldaddy/polldaddy.php' ) ) {
+		// Do we still need to create the Feedback menu item for polldaddy?
+		// WPCOM already handles this. Self hosted will depend on us until we produce a new release for polldaddy.
+		if ( is_plugin_active( 'polldaddy/polldaddy.php' ) || ! Jetpack_Forms::is_legacy_menu_item_retired() ) {
 			add_menu_page(
 				__( 'Feedback', 'jetpack-forms' ),
 				__( 'Feedback', 'jetpack-forms' ),
@@ -1516,22 +1518,6 @@ class Contact_Form_Plugin {
 				}
 			}
 			return;
-		}
-
-		if ( isset( $submenu['feedback'] ) && is_array( $submenu['feedback'] ) && ! empty( $submenu['feedback'] ) ) {
-			foreach ( $submenu['feedback'] as $index => $menu_item ) {
-				if ( 'edit.php?post_type=feedback' === $menu_item[2] ) {
-					$unread = self::get_unread_count();
-
-					if ( $unread > 0 ) {
-						$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread jp-feedback-unread-counter count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
-
-						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-						$submenu['feedback'][ $index ][0] .= $unread_count;
-					}
-					break;
-				}
-			}
 		}
 	}
 
@@ -3018,15 +3004,6 @@ class Contact_Form_Plugin {
 
 		if ( ! empty( $_POST['search'] ) ) {
 			$args['s'] = sanitize_text_field( wp_unslash( $_POST['search'] ) );
-		}
-
-		// TODO: We can remove this when the wp-admin UI is removed.
-		if ( ! empty( $_POST['year'] ) && intval( $_POST['year'] ) > 0 ) {
-			$args['date_query']['year'] = intval( $_POST['year'] );
-		}
-		// TODO: We can remove this when the wp-admin UI is removed.
-		if ( ! empty( $_POST['month'] ) && intval( $_POST['month'] ) > 0 ) {
-			$args['date_query']['month'] = intval( $_POST['month'] );
 		}
 
 		if ( ! empty( $_POST['after'] ) && ! empty( $_POST['before'] ) ) {

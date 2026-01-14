@@ -1279,6 +1279,27 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test should_remote_validate_idc() returns false when safe mode is confirmed.
+	 */
+	public function test_should_remote_validate_idc_returns_false_when_safe_mode_confirmed() {
+		// Set up safe mode as confirmed.
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+
+		$sync_error = array(
+			'last_checked'     => time() - 7200, // 2 hours ago.
+			'next_check_delay' => 3600, // 1 hour delay - validation would normally occur.
+		);
+
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
+
+		// Clean up.
+		Jetpack_Options::delete_option( 'safe_mode_confirmed' );
+
+		// Should return false because safe mode is confirmed, even though enough time has passed.
+		$this->assertFalse( $result );
+	}
+
+	/**
 	 * Test remote_validate_idc() clears IDC when site is not registered.
 	 */
 	public function test_remote_validate_idc_clears_idc_when_not_registered() {

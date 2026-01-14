@@ -728,7 +728,63 @@ class Contact_Form_Block {
 
 		self::load_view_scripts();
 
+		// Handle ref attribute - load form from jetpack-form post
+		if ( isset( $atts['ref'] ) ) {
+			$ref_id = absint( $atts['ref'] );
+			if ( $ref_id > 0 ) {
+				return self::render_synced_form( $ref_id );
+			} else {
+				return ''; // Invalid ref ID.
+			}
+		}
+
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
+	}
+
+	/**
+	 * Render a synced form by reference ID.
+	 *
+	 * @param int $ref_id The jetpack_form post ID.
+	 * @return string Rendered form HTML.
+	 */
+	private static function render_synced_form( $ref_id ) {
+		// Circular reference prevention.
+		static $seen_refs = array();
+
+		if ( isset( $seen_refs[ $ref_id ] ) ) {
+			// Return empty string to match other error cases and unit test expectations.
+			return '';
+		}
+
+		// Load the jetpack-form post.
+		$synced_form = get_post( $ref_id );
+
+		// Validate post.
+		if ( ! $synced_form || 'jetpack_form' !== $synced_form->post_type ) {
+			return '';
+		}
+
+		// Only render published forms statuses.
+		if ( ! in_array( $synced_form->post_status, array( 'publish' ), true ) ) {
+			return '';
+		}
+
+		// Mark as seen for circular reference prevention.
+		$seen_refs[ $ref_id ] = true;
+		Contact_Form::set_ref_id( $ref_id );
+		$output = '';
+		try {
+			// Parse and render blocks from post_content.
+			$blocks = parse_blocks( $synced_form->post_content );
+			foreach ( $blocks as $block ) {
+				$output .= render_block( $block );
+			}
+		} finally {
+			// Clean up.
+			unset( $seen_refs[ $ref_id ] );
+			Contact_Form::clear_ref_id();
+		}
+		return $output;
 	}
 
 	/**
