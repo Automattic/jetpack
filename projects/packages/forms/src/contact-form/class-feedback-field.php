@@ -190,7 +190,7 @@ class Feedback_Field {
 	/**
 	 * Get the value of the field for rendering the post-submission page.
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	private function get_render_web_value() {
 		if ( $this->is_of_type( 'image-select' ) ) {
