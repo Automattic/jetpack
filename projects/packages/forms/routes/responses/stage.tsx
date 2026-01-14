@@ -417,7 +417,7 @@ function Stage() {
 				label: __( 'IP Address', 'jetpack-forms' ),
 				render: ( { item } ) => {
 					if ( ! item.ip ) {
-						return '-';
+						return styleUnreadValue( '-', item.is_unread );
 					}
 					return (
 						<>
@@ -425,7 +425,7 @@ function Stage() {
 								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
 								{ item.country_code && <Flag countryCode={ item.country_code } /> }
 							</span>
-							{ item.ip || '' }
+							{ styleUnreadValue( item.ip, item.is_unread ) }
 						</>
 					);
 				},
