@@ -65,7 +65,7 @@ abstract class Code_Block {
 		$done = true;
 
 		$block_definition_asset_file  = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php';
-		$jetpack_wpcom_modules_assets = self::get_module_assets();
+		$jetpack_wpcom_modules_assets = self::get_module_asset_data();
 
 		// The block definition must contain the script dependencies that the edit function script module requires.
 		// Append static dependency list here. Some duplicates may appear, that should be harmless.
@@ -128,7 +128,7 @@ abstract class Code_Block {
 		}
 		$done = true;
 
-		$jetpack_wpcom_modules_assets = self::get_module_assets();
+		$jetpack_wpcom_modules_assets = self::get_module_asset_data();
 		wp_enqueue_script_module(
 			self::MODULE_PREFIX . 'block-front',
 			plugins_url( 'build-module/wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js', Jetpack_Mu_Wpcom::BASE_FILE ),
@@ -138,9 +138,9 @@ abstract class Code_Block {
 	}
 
 	/**
-	 * Get module assets file.
+	 * Get the module asset data.
 	 */
-	private static function get_module_assets() {
+	private static function get_module_asset_data() {
 		static $jetpack_wpcom_modules_assets = null;
 		if ( null === $jetpack_wpcom_modules_assets ) {
 			$jetpack_wpcom_modules_assets = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
