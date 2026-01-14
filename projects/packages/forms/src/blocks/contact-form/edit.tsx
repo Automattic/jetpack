@@ -911,11 +911,7 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ isCentralFormManagementEnabled && ! isJetpackFormEditor && (
-						<ConvertFormToolbar
-							clientId={ clientId }
-							attributes={ attributes }
-							setAttributes={ setAttributes }
-						/>
+						<ConvertFormToolbar clientId={ clientId } attributes={ attributes } />
 					) }
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
