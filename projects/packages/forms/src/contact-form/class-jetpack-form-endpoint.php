@@ -14,7 +14,7 @@ use WP_REST_Request;
  */
 class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
-	 * Cached map of form_id => entriesCount for the current request.
+	 * Cached map of form_id => entries count for the current request.
 	 *
 	 * @var array<int,int>|null
 	 */
@@ -68,31 +68,30 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 			return $response;
 		}
 
-		$data = $response->get_data();
-		if ( ! is_array( $data ) || empty( $data ) ) {
+		$forms = $response->get_data();
+		if ( ! is_array( $forms ) || empty( $forms ) ) {
 			return $response;
 		}
 
 		$form_ids = array();
-		foreach ( $data as $item ) {
-			if ( isset( $item['id'] ) ) {
-				$form_ids[] = (int) $item['id'];
+		foreach ( $forms as $form ) {
+			if ( isset( $form['id'] ) ) {
+				$form_ids[] = (int) $form['id'];
 			}
 		}
 		$form_ids = array_values( array_unique( array_filter( $form_ids ) ) );
 
 		$this->entries_count_by_form_id = $this->get_entries_count_by_form_id( $form_ids );
 
-		foreach ( $data as &$item ) {
-			$form_id              = isset( $item['id'] ) ? (int) $item['id'] : 0;
-			$item['entriesCount'] = (int) ( $this->entries_count_by_form_id[ $form_id ] ?? 0 );
+		foreach ( $forms as &$form ) {
+			$form_id               = isset( $form['id'] ) ? (int) $form['id'] : 0;
+			$form['entries_count'] = (int) ( $this->entries_count_by_form_id[ $form_id ] ?? 0 );
 			if ( $form_id ) {
-				$item['editUrl'] = get_edit_post_link( $form_id, 'raw' );
+				$form['edit_url'] = get_edit_post_link( $form_id, 'raw' );
 			}
 		}
-		unset( $item );
 
-		$response->set_data( $data );
+		$response->set_data( $forms );
 		return $response;
 	}
 
@@ -110,8 +109,7 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 			return array();
 		}
 
-		// Match dashboard behavior: count feedback statuses we display/manage.
-		$statuses = array( 'publish', 'draft', 'spam', 'trash' );
+		$statuses = array( 'publish', 'draft' );
 
 		$args = array_merge( array( Feedback::POST_TYPE ), $form_ids, $statuses );
 

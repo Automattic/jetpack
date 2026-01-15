@@ -16,8 +16,8 @@ type JetpackFormRestItem = {
 	title?: { rendered?: string };
 	status: string;
 	modified: string;
-	entriesCount?: number;
-	editUrl?: string;
+	entries_count?: number;
+	edit_url?: string;
 };
 
 type UseFormsDataReturn = {
@@ -100,8 +100,8 @@ export default function useFormsData(
 						title: decodeEntities( item.title?.rendered || '' ),
 						status: item.status,
 						modified: item.modified,
-						entriesCount: item.entriesCount ?? 0,
-						editUrl: item.editUrl,
+						entriesCount: item.entries_count ?? 0,
+						editUrl: item.edit_url,
 					} ) )
 				);
 				setTotalItems( wpTotalItems );
