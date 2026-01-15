@@ -130,8 +130,9 @@ class Initializer {
 		XMLRPC::init();
 		Block_Editor_Content::init();
 		self::register_oembed_providers();
+		self::register_videopress_embed_handler();
 
-		// Enqueuethe VideoPress Iframe API script in the front-end.
+		// Enqueue the VideoPress Iframe API script in the front-end.
 		add_filter( 'embed_oembed_html', array( __CLASS__, 'enqueue_videopress_iframe_api_script' ), 10, 4 );
 
 		if ( self::should_initialize_admin_ui() ) {
@@ -155,6 +156,77 @@ class Initializer {
 		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/?for=' . $host, true ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 
 		add_filter( 'embed_oembed_html', array( __CLASS__, 'video_enqueue_bridge_when_oembed_present' ), 10, 4 );
+	}
+
+	/**
+	 * Register VideoPress embed handler as a fallback for when oEmbed fails
+	 *
+	 * This provides a fallback mechanism for environments where HTTP requests
+	 * to public-api.wordpress.com are blocked (e.g., WordPress.com atomic sites).
+	 * The embed handler generates the iframe HTML directly from the GUID,
+	 * bypassing the need for an external API call.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_embed_handler() {
+		// Register handler for videopress.com/v/ URLs
+		wp_embed_register_handler(
+			'videopress',
+			'#^https?://videopress\.com/v/([a-zA-Z0-9]+)#i',
+			array( __CLASS__, 'videopress_embed_handler_callback' ),
+			10
+		);
+
+		// Register handler for video.wordpress.com/v/ URLs
+		wp_embed_register_handler(
+			'video-wordpress-com',
+			'#^https?://video\.wordpress\.com/v/([a-zA-Z0-9]+)#i', // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+			array( __CLASS__, 'videopress_embed_handler_callback' ),
+			10
+		);
+	}
+
+	/**
+	 * Callback for VideoPress embed handler
+	 *
+	 * Generates iframe HTML directly from the video GUID, providing a fallback
+	 * when the oEmbed API request fails.
+	 *
+	 * @param array  $matches  The regex matches from the URL pattern.
+	 * @param array  $attr     Embed attributes.
+	 * @param string $url      The original URL.
+	 * @param array  $rawattr  Raw attributes.
+	 *
+	 * @return string The embed iframe HTML.
+	 */
+	public static function videopress_embed_handler_callback( $matches, $attr, $url, $rawattr ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$guid = $matches[1];
+
+		// Build the embed URL with default parameters
+		$embed_url = add_query_arg(
+			array(
+				'cover' => '1',
+				'hd'    => '0',
+			),
+			'https://videopress.com/embed/' . $guid
+		);
+
+		// Enqueue the JWT token bridge for private video support
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
+
+		// Enqueue the VideoPress iframe script
+		wp_enqueue_script(
+			'videopress-iframe',
+			'https://v0.wordpress.com/js/next/videopress-iframe.js',
+			array(),
+			gmdate( 'YW' ),
+			false
+		);
+
+		return sprintf(
+			'<iframe title="VideoPress Video Player" aria-label="VideoPress Video Player" width="640" height="360" src="%s" frameborder="0" allowfullscreen allow="clipboard-write"></iframe>',
+			esc_url( $embed_url )
+		);
 	}
 
 	/**
