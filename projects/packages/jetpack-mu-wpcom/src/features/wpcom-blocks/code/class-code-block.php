@@ -157,13 +157,22 @@ abstract class Code_Block {
 	 * Instead of using a different style handle, replace the registered style for `wp-block-code`.
 	 *
 	 * @see https://core.trac.wordpress.org/browser/tags/6.8.3/src/wp-includes/global-styles-and-settings.php#L322
+	 *
+	 * @global \WP_Styles $wp_styles
 	 */
 	public static function override_block_style() {
+		global $wp_styles;
+
+		$src = plugins_url( 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css', Jetpack_Mu_Wpcom::BASE_FILE );
+		// Skip work if style is registered as desired.
+		if ( isset( $wp_styles->registered['wp-block-code'] ) && $wp_styles->registered['wp-block-code']->src === $src ) {
+			return;
+		}
+
 		$was_enqueued = wp_style_is( 'wp-block-code', 'enqueued' );
 		wp_deregister_style( 'wp-block-code' );
 
 		$style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php';
-		$src              = plugins_url( 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css', Jetpack_Mu_Wpcom::BASE_FILE );
 		$version          = $style_asset_file['version'];
 
 		wp_register_style(
