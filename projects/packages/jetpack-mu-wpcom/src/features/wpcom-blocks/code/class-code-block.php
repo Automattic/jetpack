@@ -202,7 +202,7 @@ abstract class Code_Block {
 			// Only perform enhancement on the _full_, expected block.
 			|| ! isset( $args['attributes']['content'] )
 
-			// Skip if the block is correctly processed.
+			// Skip if the block is already processed.
 			|| $args['render_callback'] === array( __CLASS__, 'render_block' )
 		) {
 			return $args;
@@ -212,29 +212,33 @@ abstract class Code_Block {
 		self::register_editor_assets();
 		self::override_block_style();
 
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
-		add_action(
-			'wp_enqueue_scripts',
-			function () {
-				if ( wp_should_load_block_editor_scripts_and_styles() ) {
-					self::enqueue_editor_assets();
-				}
+		static $hooks_registered = false;
+		if ( ! $hooks_registered ) {
+			$hooks_registered = true;
+			add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
+			add_action(
+				'wp_enqueue_scripts',
+				function () {
+					if ( wp_should_load_block_editor_scripts_and_styles() ) {
+						self::enqueue_editor_assets();
+					}
 
-				/*
-				 * Core should handle this, but Script Module assets are not currently handled.
-				 *
-				 * `wp_should_load_block_assets_on_demand()` was added in WordPress 6.8. The
-				 * `function_exists()` can be removed when 6.8+ is required.
-				 */
-				if (
-					function_exists( 'wp_should_load_block_assets_on_demand' )
-					&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
-					&& has_block( 'core/code' )
-				) {
-					self::enqueue_view_assets();
+					/*
+					 * Core should handle this, but Script Module assets are not currently handled.
+					 *
+					 * `wp_should_load_block_assets_on_demand()` was added in WordPress 6.8. The
+					 * `function_exists()` can be removed when 6.8+ is required.
+					 */
+					if (
+						function_exists( 'wp_should_load_block_assets_on_demand' )
+						&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
+						&& has_block( 'core/code' )
+					) {
+						self::enqueue_view_assets();
+					}
 				}
-			}
-		);
+			);
+		}
 
 		$args['render_callback']       = array( __CLASS__, 'render_block' );
 		$args['editor_script_handles'] = array_merge( array( self::MODULE_PREFIX . 'block-definition' ), $args['editor_script_handles'] ?? array() );
