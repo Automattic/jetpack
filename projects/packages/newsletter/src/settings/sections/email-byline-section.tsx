@@ -42,7 +42,7 @@ export function EmailBylineSection( {
 							data={ fieldData as Record< string, unknown > }
 							field={ field as Field< Record< string, unknown > > }
 							onChange={ fieldOnChange }
-							url={ `https://gravatar.com/${ jetpackSettings.email }` }
+							url="https://gravatar.com/profile/avatars"
 							linkText={ __( 'Update your Gravatar', 'jetpack-newsletter' ) }
 						/>
 				  )
