@@ -154,6 +154,16 @@ function filterBlockRegistration( settings: any ) {
 		settings.transforms.to = [ ...transforms.to, ...settings.transforms.to ];
 	}
 
+	// Disable the contrast checker warning for the enhanced Code block.
+	// The block uses custom syntax highlighting colors that may trigger false positive warnings.
+	if ( ! settings.supports ) {
+		settings.supports = {};
+	}
+	if ( ! settings.supports.color ) {
+		settings.supports.color = {};
+	}
+	settings.supports.color.contrastChecker = false;
+
 	return settings;
 }
 
