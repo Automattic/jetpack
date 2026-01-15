@@ -10,5 +10,5 @@ import { TabPanelMobile } from './tab-panels/mobile';
 export function CustomizeAndPreview() {
 	const isSmallScreen = useBreakpoint( '<782px' );
 
-	return <div>{ isSmallScreen ? <TabPanelMobile /> : <TabPanelDesktop /> }</div>;
+	return isSmallScreen ? <TabPanelMobile /> : <TabPanelDesktop />;
 }
