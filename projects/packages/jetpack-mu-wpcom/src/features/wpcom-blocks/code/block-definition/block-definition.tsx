@@ -19,7 +19,7 @@ import {
 import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
 import * as React from 'react';
-const { useState } = React;
+const { useMemo, useState } = React;
 import {
 	type Attributes,
 	BLOCK_NAME,
@@ -209,10 +209,19 @@ const blockEdit = withColors(
 )( ( props: EditBlockProps ) => {
 	const { setAttributes, attributes } = props;
 
-	// State for filtering ComboboxControl options
-	const [ filteredLanguageOptions, setFilteredLanguageOptions ] = useState< LanguageOption[] >( [
-		...comboboxLanguageOptions,
-	] );
+	// State for filter input value
+	const [ filterValue, setFilterValue ] = useState< string >( '' );
+
+	// Memoize filtered language options based on filter input
+	const filteredLanguageOptions = useMemo( () => {
+		if ( ! filterValue ) {
+			return [ ...comboboxLanguageOptions ];
+		}
+		const lowerFilter = filterValue.toLowerCase();
+		return comboboxLanguageOptions.filter( option =>
+			option.label.toLowerCase().includes( lowerFilter )
+		);
+	}, [ filterValue ] );
 
 	const placeholderExtension =
 		extensionToLang.find(
@@ -288,13 +297,7 @@ const blockEdit = withColors(
 							} );
 						} }
 						options={ filteredLanguageOptions }
-						onFilterValueChange={ ( inputValue: string ) => {
-							setFilteredLanguageOptions(
-								comboboxLanguageOptions.filter( option =>
-									option.label.toLowerCase().includes( inputValue.toLowerCase() )
-								)
-							);
-						} }
+						onFilterValueChange={ setFilterValue }
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 					/>
