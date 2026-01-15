@@ -216,6 +216,15 @@ class Dashboard_REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/templates/advise/campaign/(?P<urn>[a-zA-Z0-9-_:]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_templates_advise_campaign' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
 
 		register_rest_route(
 			static::$namespace,
@@ -223,6 +232,26 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_templates' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		// WordAds DSP API Advise routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/advise/campaign/(?P<urn>[a-zA-Z0-9-_:]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_advise_campaign' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/advise(?P<sub_path>[a-zA-Z0-9-_\/:]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_advise' ),
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
@@ -722,6 +751,71 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
+	 * Redirect GET requests to the WordAds DSP Templates Advise Campaign endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_templates_advise_campaign( $req ) {
+		$urn = $req->get_param( 'urn' ) ?? '';
+
+		return $this->are_posts_ready() ?
+			$this->get_dsp_generic( 'v1/templates/advise/campaign/' . $urn, $req ) :
+			$this->get_get_dsp_advise_campaign_local( $urn );
+	}
+
+	/**
+	 * Get the advise campaign information to be used in the Blaze create campaign flow.
+	 *
+	 * If Jetpack Sync still is running, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
+	 *
+	 * @param string $urn The request urn.
+	 * @return array|WP_Error
+	 */
+	public function get_get_dsp_advise_campaign_local( $urn ) {
+		$parsed_urn = $this->get_data_from_urn( $urn );
+		$site_id    = $this->get_site_id();
+
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
+		if ( ! $parsed_urn['site_id'] || $parsed_urn['site_id'] !== $site_id ) {
+			return $this->get_forbidden_error();
+		}
+
+		$post = get_post( $parsed_urn['post_id'] );
+		if ( ! $post ) {
+			return new WP_Error( 'post_not_found', esc_html__( 'Post not found', 'jetpack-blaze' ), array( 'status' => 404 ) );
+		}
+
+		$rendered_content = apply_filters( 'the_content', $post->post_content );
+
+		$body = array(
+			'wp_post' => array(
+				'ID'      => $post->ID,
+				'title'   => $post->post_title,
+				'URL'     => get_permalink( $post ),
+				'type'    => $post->post_type,
+				'content' => $rendered_content,
+			),
+		);
+
+		$response = $this->request_as_user(
+			sprintf( '/sites/%d/wordads/dsp/api/v1/advise/campaign/%s', $site_id, $urn ),
+			'v2',
+			array( 'method' => 'POST' ),
+			$body
+		);
+
+		if ( is_array( $response ) ) {
+			$response['sync_ready'] = $this->are_posts_ready();
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Redirect GET requests to the WordAds DSP Templates endpoint for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
@@ -729,6 +823,30 @@ class Dashboard_REST_Controller {
 	 */
 	public function get_dsp_templates( $req ) {
 		return $this->get_dsp_generic( 'v1/templates', $req );
+	}
+
+	/**
+	 * Redirect GET requests to the WordAds DSP Advise Campaign endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_advise_campaign( $req ) {
+		$urn = $req->get_param( 'urn' ) ?? '';
+
+		return $this->are_posts_ready() ?
+			$this->get_dsp_generic( 'v1/advise/campaign/' . $urn, $req ) :
+			$this->get_get_dsp_advise_campaign_local( $urn );
+	}
+
+	/**
+	 * Redirect GET requests to the WordAds DSP Advise endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_advise( $req ) {
+		return $this->get_dsp_generic( 'v1/advise', $req );
 	}
 
 	/**
