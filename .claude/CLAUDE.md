@@ -89,7 +89,7 @@ Comment: Update internal documentation, no user-facing changes.
 PR descriptions must follow the template in @.github/PULL_REQUEST_TEMPLATE.md - CI checks expect the metadata format defined there.
 
 ```bash
-gh pr create --title "Title" --body-file pr-body.md --label "[Status] Needs Review" --label "[Type] Enhancement" --assignee @me
+gh pr create --title "Title" --body-file pr-body.md --label "[Status] Needs Review" --label "Enhancement" --assignee @me
 ```
 
 ## Project Structure
