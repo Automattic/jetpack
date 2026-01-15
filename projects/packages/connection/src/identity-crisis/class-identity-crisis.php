@@ -333,16 +333,59 @@ class Identity_Crisis {
 			);
 
 			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
-				Jetpack_Options::update_option(
-					'sync_error_idc',
-					self::get_sync_error_idc_option( $response )
-				);
+				// Get existing IDC option to check if this is the same error.
+				$existing_idc = Jetpack_Options::get_option( 'sync_error_idc' );
+
+				// Get the new error data with fresh timing values.
+				$new_idc_data = self::get_sync_error_idc_option( $response );
+
+				// If an existing IDC exists, check if the wpcom URLs are the same.
+				if ( is_array( $existing_idc ) && self::has_same_wpcom_urls( $existing_idc, $new_idc_data ) ) {
+					// Same wpcom URLs - update last_checked but preserve the backoff delay.
+					$new_idc_data['last_checked'] = time();
+					if ( isset( $existing_idc['next_check_delay'] ) ) {
+						$new_idc_data['next_check_delay'] = $existing_idc['next_check_delay'];
+					}
+				}
+				// else: Different wpcom URLs or first time - use fresh timing from get_sync_error_idc_option().
+
+				Jetpack_Options::update_option( 'sync_error_idc', $new_idc_data );
 			}
 
 			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Determines if two IDC error arrays have the same wpcom URLs.
+	 *
+	 * The wpcom URLs are stored in reversed form in the database, but the jetpack_options
+	 * filter un-reverses them when retrieved. This method normalizes both sets of URLs
+	 * to reversed form before comparing.
+	 *
+	 * @param array $idc1 First IDC error data (from get_option, may be un-reversed).
+	 * @param array $idc2 Second IDC error data (from get_sync_error_idc_option, reversed).
+	 *
+	 * @return bool True if they have the same wpcom URLs.
+	 */
+	private static function has_same_wpcom_urls( $idc1, $idc2 ) {
+		// Both must have wpcom_home and wpcom_siteurl to be comparable.
+		if ( ! isset( $idc1['wpcom_home'] ) || ! isset( $idc1['wpcom_siteurl'] ) || ! isset( $idc2['wpcom_home'] ) || ! isset( $idc2['wpcom_siteurl'] ) ) {
+			return false;
+		}
+
+		// The existing IDC data has been un-reversed by the jetpack_options filter when
+		// retrieved via Jetpack_Options::get_option(), so the wpcom URLs are in normal format.
+		// The new data from get_sync_error_idc_option() has reversed URLs.
+		// Reverse the existing URLs to match the format of the new data for comparison.
+		$existing_wpcom_home    = strrev( $idc1['wpcom_home'] );
+		$existing_wpcom_siteurl = strrev( $idc1['wpcom_siteurl'] );
+
+		// Compare the reversed URLs.
+		return $existing_wpcom_home === $idc2['wpcom_home']
+			&& $existing_wpcom_siteurl === $idc2['wpcom_siteurl'];
 	}
 
 	/**
