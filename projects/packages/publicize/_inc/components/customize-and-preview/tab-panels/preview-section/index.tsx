@@ -29,7 +29,9 @@ export function PreviewSection( { connection }: PreviewSectionProps ) {
 				</>
 			) : (
 				<Flex className={ styles[ 'inactive-preview' ] } align="center" justify="center">
-					<p>{ __( 'Enable this account to see the preview.', 'jetpack-publicize-pkg' ) }</p>
+					<p>
+						{ __( 'Enable sharing to this account to see the preview.', 'jetpack-publicize-pkg' ) }
+					</p>
 				</Flex>
 			) }
 		</section>

@@ -1,4 +1,4 @@
-import { Disabled, Flex } from '@wordpress/components';
+import { Flex } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Connection } from '../../../../social-store/types';
 import { SharePostForm } from '../../../form/share-post-form';
@@ -33,13 +33,12 @@ function PerNetworkCustomization( { connection }: CustomizationSectionProps ) {
 	return (
 		<Flex direction="column" gap={ 8 }>
 			<ConnectionToggle connection={ connection } />
-			<Disabled isDisabled={ ! connection.enabled }>
-				<SharePostForm
-					// TODO Wire up per-network customization state to the form.
-					analyticsData={ { location: 'preview-modal' } }
-					isInsideNavigatorModal
-				/>
-			</Disabled>
+			<SharePostForm
+				// TODO Wire up per-network customization state to the form.
+				analyticsData={ { location: 'preview-modal' } }
+				isInsideNavigatorModal
+				disabled={ ! connection.enabled }
+			/>
 		</Flex>
 	);
 }

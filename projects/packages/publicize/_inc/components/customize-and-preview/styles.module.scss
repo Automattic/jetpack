@@ -1,9 +1,0 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
-
-.customize-and-preview {
-
-	:global(.components-disabled) {
-		opacity: 0.5;
-		pointer-events: none;
-	}
-}
