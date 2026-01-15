@@ -2,18 +2,17 @@
  * External dependencies
  */
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { Icon } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { backup } from '@wordpress/icons';
 import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
 import useConfigValue from '../../hooks/use-config-value.ts';
 import CreateFormButton from '../components/create-form-button/index.tsx';
+import { EmptyWrapper } from '../components/empty-responses/index.tsx';
 import FormsResponsesTabs from '../components/forms-responses-tabs/index.tsx';
 import Page from '../components/page/index.tsx';
 import useFormsData from '../hooks/use-forms-data.ts';
@@ -103,12 +102,10 @@ export default function FormsDashboardForms(): JSX.Element | null {
 			{
 				id: 'edit-form',
 				isPrimary: false,
-				icon: <Icon icon={ backup } />,
-				label: __( 'Edit form', 'jetpack-forms' ),
+				label: __( 'Edit', 'jetpack-forms' ),
 				supportsBulk: false,
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				async callback( items: any[] ) {
-					const [ item ] = items as FormListItem[];
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
 					if ( ! item ) {
 						return;
 					}
@@ -127,11 +124,9 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		[ totalItems, totalPages ]
 	);
 
-	const onChangeView = useCallback(
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		( newView: any ) => setView( newView ),
-		[ setView ]
-	);
+	type DataViewsView = Parameters< typeof DataViews >[ 0 ][ 'view' ];
+
+	const onChangeView = useCallback( ( newView: DataViewsView ) => setView( newView ), [ setView ] );
 
 	const headerActions = useMemo( () => [ <CreateFormButton key="create" /> ], [] );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
@@ -162,18 +157,21 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					data={ records || [] }
 					isLoading={ isLoading }
 					empty={
-						<div style={ { padding: '24px', textAlign: 'center' } }>
-							<p style={ { marginBottom: '12px' } }>
-								{ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
-							</p>
-							<CreateFormButton
-								label={ __( 'Create a new form', 'jetpack-forms' ) }
-								variant="primary"
-							/>
-						</div>
+						<EmptyWrapper
+							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
+							body={ __(
+								'Create a shared form pattern to manage and reuse it across your site.',
+								'jetpack-forms'
+							) }
+							actions={
+								<CreateFormButton
+									label={ __( 'Create a new form', 'jetpack-forms' ) }
+									variant="primary"
+								/>
+							}
+						/>
 					}
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					view={ view as any }
+					view={ view as unknown as DataViewsView }
 					onChangeView={ onChangeView }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
@@ -182,10 +180,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						<div className="jp-forms-filters-bar__chips">
 							<DataViews.FiltersToggled className="jp-forms-filters-container" />
 						</div>
-						<div
-							className="jp-forms-filters-bar__controls"
-							style={ { display: 'flex', gap: '8px', justifyContent: 'flex-end' } }
-						>
+						<div className="jp-forms-filters-bar__controls">
 							<DataViews.Search />
 							<DataViews.FiltersToggle />
 							<DataViews.ViewConfig />

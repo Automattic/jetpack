@@ -3,7 +3,6 @@
 
 .jp-forms-filters-bar {
 	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
-	padding-inline: variables.$grid-unit * 2.5;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -11,5 +10,11 @@
 	gap: variables.$grid-unit * 1.25;
 	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 	padding: 12px 16px;
+}
+
+.jp-forms-filters-bar__controls {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
 }
 
