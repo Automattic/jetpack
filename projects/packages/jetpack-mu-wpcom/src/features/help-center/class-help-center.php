@@ -632,7 +632,7 @@ class Help_Center {
 			return;
 		}
 
-		// Only support sites support logged out users. And only supports sites that have the Odie answers feature enabled.
+		// Support sites support logged-out users only when the Odie answers feature is enabled.
 		if ( ! is_user_logged_in() && $this->is_support_site && ! get_option( 'dotcom_support_enable_odie_answers', false ) ) {
 			return;
 		}
