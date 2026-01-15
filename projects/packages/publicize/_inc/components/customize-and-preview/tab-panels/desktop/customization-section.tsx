@@ -25,7 +25,7 @@ export function CustomizationSection( { connection, perNetwork }: CustomizationS
 		>
 			<CustomizationToggle />
 			<ConnectionToggle connection={ connection } />
-			<Disabled isDisabled={ perNetwork && ! connection.enabled }>
+			<Disabled isDisabled={ perNetwork && ! connection?.enabled }>
 				<SharePostForm
 					// TODO Wire up per-network customization state to the form.
 					analyticsData={ { location: 'preview-modal' } }
