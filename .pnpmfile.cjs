@@ -247,6 +247,15 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@vitest/mocker' ] = '*';
 	}
 
+	// CVE-2026-22036
+	// https://github.com/actions/toolkit/issues/2242
+	if (
+		( pkg.name === '@actions/http-client' || pkg.name === '@actions/github' ) &&
+		pkg.dependencies?.undici?.startsWith( '^5.' )
+	) {
+		pkg.dependencies.undici = '^6.23.0';
+	}
+
 	return pkg;
 }
 
