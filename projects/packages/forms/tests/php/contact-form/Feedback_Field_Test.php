@@ -384,4 +384,105 @@ class Feedback_Field_Test extends BaseTestCase {
 	public function return_url() {
 		return 'https://example.com/file1.jpg';
 	}
+
+	/**
+	 * Test phone field with UK number displays flag.
+	 */
+	public function test_phone_field_with_uk_number_displays_flag() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+44 7911 123456', 'phone' );
+		$this->assertEquals( '🇬🇧 +44 7911 123456', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with US number displays flag.
+	 */
+	public function test_phone_field_with_us_number_displays_flag() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+1 555 123 4567', 'phone' );
+		$this->assertEquals( '🇺🇸 +1 555 123 4567', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with German number displays flag.
+	 */
+	public function test_phone_field_with_german_number_displays_flag() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+49 30 12345678', 'phone' );
+		$this->assertEquals( '🇩🇪 +49 30 12345678', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with 4-digit prefix (Anguilla) displays correct flag.
+	 */
+	public function test_phone_field_with_4_digit_prefix_displays_correct_flag() {
+		// Anguilla has +1264 prefix, should not be confused with US +1.
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+1264 123 4567', 'phone' );
+		$this->assertEquals( '🇦🇮 +1264 123 4567', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with Kazakhstan number (ambiguous +7 prefix) displays correct flag.
+	 */
+	public function test_phone_field_with_kazakhstan_number_displays_correct_flag() {
+		// Kazakhstan has +77 prefix, should not be confused with Russia +7.
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+77 123 456 7890', 'phone' );
+		$this->assertEquals( '🇰🇿 +77 123 456 7890', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with Russia number displays flag.
+	 */
+	public function test_phone_field_with_russia_number_displays_flag() {
+		// Russia has +7 prefix (but not +77).
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+7 495 123 4567', 'phone' );
+		$this->assertEquals( '🇷🇺 +7 495 123 4567', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field without country code returns number as-is.
+	 */
+	public function test_phone_field_without_country_code_returns_number_as_is() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '07911 123456', 'phone' );
+		$this->assertSame( '07911 123456', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with empty value returns empty string.
+	 */
+	public function test_phone_field_with_empty_value_returns_empty() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '', 'phone' );
+		$this->assertSame( '', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with telephone type also displays flag.
+	 */
+	public function test_telephone_field_type_displays_flag() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+33 1 23 45 67 89', 'telephone' );
+		$this->assertEquals( '🇫🇷 +33 1 23 45 67 89', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with array value (multiple numbers).
+	 */
+	public function test_phone_field_with_array_value() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', array( '+44 123', '+44 456' ), 'phone' );
+		// Array values are joined with comma, flag is based on first number in joined string.
+		$this->assertEquals( '🇬🇧 +44 123, +44 456', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with invalid prefix returns number without flag.
+	 */
+	public function test_phone_field_with_invalid_prefix_returns_number_without_flag() {
+		// +999 is not a valid country prefix.
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+999 123 456', 'phone' );
+		$this->assertEquals( '+999 123 456', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test non-phone field type does not get flag treatment.
+	 */
+	public function test_non_phone_field_does_not_get_flag() {
+		$field = new Feedback_Field( 'text_key', 'Text', '+44 7911 123456', 'text' );
+		$this->assertEquals( '+44 7911 123456', $field->get_render_value( 'web' ) );
+	}
 }
