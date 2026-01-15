@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { render, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import DisconnectedCard from '../disconnected-card';
