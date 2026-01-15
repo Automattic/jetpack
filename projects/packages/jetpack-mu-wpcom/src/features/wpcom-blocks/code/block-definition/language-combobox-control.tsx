@@ -3,8 +3,15 @@ import { extensionToLang } from '@@codemirrorLanguageData@@';
 import { ComboboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import * as React from 'react';
-import type { LanguageOption } from './types.ts';
 const { useMemo, useState } = React;
+
+/**
+ * Represents a language option for the code block language selector.
+ */
+export interface LanguageOption {
+	readonly value: string;
+	readonly label: string;
+}
 
 const plainLanguageName = __( 'Plain text', 'jetpack-mu-wpcom' ) as string;
 

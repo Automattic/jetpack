@@ -25,9 +25,8 @@ import {
 	type SaveBlockProps,
 } from '../common/block.ts';
 import { ColorTools } from './color-tools.tsx';
-import { LanguageComboboxControl } from './language-combobox-control.tsx';
+import { LanguageComboboxControl, type LanguageOption } from './language-combobox-control.tsx';
 import { transforms } from './transforms.ts';
-import type { LanguageOption } from './types.ts';
 
 const {
 	__experimentalGetElementClassName,
