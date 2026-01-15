@@ -24,7 +24,6 @@ class Jetpack_Plugin_Compatibility {
 		'advanced-database-cleaner/advanced-db-cleaner.php' => '"advanced-database-cleaner" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'advanced-reset-wp/advanced-reset-wp.php'         => '"advanced-reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'advanced-wp-reset/advanced-wp-reset.php'         => '"advanced-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'backup/backup.php'                               => '"backup" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'better-wp-security/better-wp-security.php'       => '"better-wp-security" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'database-browser/database-browser.php'           => '"database-browser" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'extended-wp-reset/extended-wp-reset.php'         => '"extended-wp-reset" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
@@ -59,7 +58,6 @@ class Jetpack_Plugin_Compatibility {
 		'wp-downgrade/wp-downgrade.php'                   => '"wp-downgrade" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 
 		// Backup.
-		'backup-wd/backup-wd.php'                         => '"backup-wd" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'backwpup/backwpup.php'                           => '"backwpup" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'backwpup-pro/backwpup.php'                       => '"backwpup-pro" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'duplicator/duplicator.php'                       => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
