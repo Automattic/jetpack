@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: tests: line-chart-annotation-label-popover: `getByRole()` considers the popover to be hidden now.
+
+

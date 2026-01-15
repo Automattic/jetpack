@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: tests: chart-context: Remove some do-nothing code in SSR test that now fails because `globalThis.window` is no longer writable.
+
+
