@@ -341,8 +341,9 @@ class Identity_Crisis {
 
 				// If an existing IDC exists, check if the wpcom URLs are the same.
 				if ( is_array( $existing_idc ) && self::has_same_wpcom_urls( $existing_idc, $new_idc_data ) ) {
-					// Same wpcom URLs - update last_checked but preserve the backoff delay.
-					$new_idc_data['last_checked'] = time();
+					// Same wpcom URLs - preserve the backoff delay.
+					// Note: last_checked is already set to time() by get_sync_error_idc_option(),
+					// which is correct - we want to record that we just saw this error again.
 					if ( isset( $existing_idc['next_check_delay'] ) ) {
 						$new_idc_data['next_check_delay'] = $existing_idc['next_check_delay'];
 					}

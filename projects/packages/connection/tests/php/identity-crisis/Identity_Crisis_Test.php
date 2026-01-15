@@ -743,7 +743,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that check_response_for_idc preserves delay when wpcom_siteurl differs but wpcom_home is same.
+	 * Test that check_response_for_idc resets timing when wpcom_siteurl differs but wpcom_home is same.
 	 */
 	public function test_check_response_for_idc_resets_when_only_wpcom_siteurl_differs() {
 		// Set up initial IDC.
