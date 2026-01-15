@@ -84,9 +84,5 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 			);
 		}
 	}
-
-	// Use class_alias to create the namespaced class
-	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Gallery' ) ) {
-		class_alias( 'Mock_WooCommerce_Gallery_Renderer', '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Gallery' );
-	}
+	class_alias( 'Mock_WooCommerce_Gallery_Renderer', '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Gallery' );
 }

@@ -129,12 +129,12 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	}
 
 	// Build block content HTML for gallery caption extraction (if needed)
+	// The renderer uses $block_content parameter to extract gallery-level captions
 	$block_content_html = '<figure class="wp-block-gallery has-nested-images columns-default is-cropped"><ul class="blocks-gallery-grid"></ul></figure>';
 
 	// Create a mock parsed block that WooCommerce's gallery renderer can handle
 	// The renderer uses columns from attrs (defaults to 3, but 2 works better for email)
 	$mock_parsed_block = array(
-		'innerHTML'   => $block_content_html,
 		'innerBlocks' => $inner_blocks,
 		'attrs'       => array(
 			'columns' => 2,
