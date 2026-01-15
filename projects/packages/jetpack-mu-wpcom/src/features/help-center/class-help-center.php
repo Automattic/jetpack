@@ -218,7 +218,7 @@ class Help_Center {
 				12
 			);
 
-			if ( $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
+			if ( is_user_logged_in() && $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
 				// Initialize the help center menu panel
 				require_once __DIR__ . '/class-help-center-menu-panel.php';
 				Help_Center_Menu_Panel::init();
@@ -275,9 +275,9 @@ class Help_Center {
 
 			$user_id            = get_current_user_id();
 			$user_data          = get_userdata( $user_id );
-			$username           = $user_data->user_login;
-			$user_email         = $user_data->user_email;
-			$display_name       = $user_data->display_name;
+			$username           = $user_data->user_login ?? null;
+			$user_email         = $user_data->user_email ?? null;
+			$display_name       = $user_data->display_name ?? null;
 			$avatar_url         = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
 			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
 
@@ -629,6 +629,11 @@ class Help_Center {
 		// 3. On the front end of the site and the theme is not P2
 		// 4. If it is the frontend we show the disconnected version of the help center.
 		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site ) {
+			return;
+		}
+
+		// Only support sites support logged out users. And only supports sites that have the Odie answers feature enabled.
+		if ( ! is_user_logged_in() && $this->is_support_site && ! get_option( 'dotcom_support_enable_odie_answers', false ) ) {
 			return;
 		}
 
