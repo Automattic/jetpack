@@ -1,4 +1,5 @@
 import { registerFormCategories, unregisterFormCategories, type Category } from '../category-utils';
+import { getFormCategorySlug } from '../form-categories';
 
 describe( 'category-utils', () => {
 	const mockCategories: Category[] = [
@@ -76,6 +77,15 @@ describe( 'category-utils', () => {
 			const unregistered = unregisterFormCategories( registered );
 
 			expect( unregistered ).toEqual( mockCategories );
+		} );
+	} );
+
+	describe( 'getFormCategorySlug works', () => {
+		it( 'returns the expected slug', () => {
+			const inputSlug = getFormCategorySlug( 'input' );
+			const undefinedSlug = getFormCategorySlug( 'non-existent' );
+			expect( inputSlug ).toBe( 'form-input' );
+			expect( undefinedSlug ).toBeUndefined();
 		} );
 	} );
 } );
