@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+IDC: preserve re-validation parameters when new idc error is created.
