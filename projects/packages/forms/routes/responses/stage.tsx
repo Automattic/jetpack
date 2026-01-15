@@ -140,6 +140,35 @@ function getItemId( item ) {
 }
 
 /**
+ * Styles an element with bold font weight when it represents an unread item.
+ * If the element is a string, it will be wrapped in a span tag with the appropriate styling.
+ *
+ * @param {React.ReactNode} element  - The element to style. Can be a string, React element, or other React node.
+ * @param {boolean}         isUnread - Whether the item is unread. If true, applies fontWeight: 600 styling.
+ * @return {React.ReactNode} The styled element. Returns the element as-is if not unread, or wraps/clones it with fontWeight: 600 if unread.
+ */
+function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.ReactNode {
+	if ( ! isUnread ) {
+		return element;
+	}
+
+	// If element is a string, wrap it in a span tag with fontWeight style
+	if ( typeof element === 'string' ) {
+		return <span style={ { fontWeight: 600 } }>{ element }</span>;
+	}
+
+	// If element is already a React element, clone it and add the fontWeight style
+	if ( React.isValidElement( element ) ) {
+		return React.cloneElement( element, {
+			style: { ...( element.props.style || {} ), fontWeight: 600 },
+		} as React.HTMLAttributes< HTMLElement > );
+	}
+
+	// Fallback: wrap in span for other types
+	return <span style={ { fontWeight: 600 } }>{ element }</span>;
+}
+
+/**
  * Stage component for the form responses DataViews.
  *
  * @return The stage component.
@@ -288,14 +317,17 @@ function Stage() {
 								size={ 40 }
 								useHovercard={ false }
 							/>
-							<span style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
-								<span style={ { fontWeight: item.is_unread ? 600 : 400 } }>{ displayName }</span>
-								{ showEmail && (
-									<span style={ { fontSize: '12px', color: '#757575' } }>
-										{ item.author_email }
-									</span>
-								) }
-							</span>
+							{ styleUnreadValue(
+								<span style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
+									{ displayName }
+									{ showEmail && (
+										<span style={ { fontSize: '12px', color: '#757575' } }>
+											{ item.author_email }
+										</span>
+									) }
+								</span>,
+								item.is_unread
+							) }
 						</span>
 					);
 				},
@@ -313,7 +345,7 @@ function Stage() {
 						month: 'long',
 						day: 'numeric',
 					} );
-					return <span style={ { fontWeight: item.is_unread ? 600 : 400 } }>{ dateStr }</span>;
+					return styleUnreadValue( dateStr, item.is_unread );
 				},
 				elements: ( filterOptions?.date || [] ).map( filter => {
 					const date = new Date();
@@ -334,13 +366,12 @@ function Stage() {
 				render: ( { item } ) => {
 					const source = item.entry_title || __( 'Unknown', 'jetpack-forms' );
 					if ( item.entry_permalink ) {
-						return (
+						const link = (
 							<a
 								href={ item.entry_permalink }
 								target="_blank"
 								rel="noopener noreferrer"
 								style={ {
-									fontWeight: item.is_unread ? 600 : 400,
 									color: 'var(--wp-admin-theme-color, #3858e9)',
 									textDecoration: 'none',
 									display: 'inline-flex',
@@ -352,8 +383,10 @@ function Stage() {
 								<span aria-hidden="true">↗</span>
 							</a>
 						);
+
+						return styleUnreadValue( link, item.is_unread );
 					}
-					return <span style={ { fontWeight: item.is_unread ? 600 : 400 } }>{ source }</span>;
+					return styleUnreadValue( source, item.is_unread );
 				},
 				elements: ( filterOptions?.source || [] ).map( source => ( {
 					value: source.id.toString(),
@@ -384,7 +417,7 @@ function Stage() {
 				label: __( 'IP Address', 'jetpack-forms' ),
 				render: ( { item } ) => {
 					if ( ! item.ip ) {
-						return '-';
+						return styleUnreadValue( '-', item.is_unread );
 					}
 					return (
 						<>
@@ -392,7 +425,7 @@ function Stage() {
 								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
 								{ item.country_code && <Flag countryCode={ item.country_code } /> }
 							</span>
-							{ item.ip || '' }
+							{ styleUnreadValue( item.ip, item.is_unread ) }
 						</>
 					);
 				},
