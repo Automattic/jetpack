@@ -109,6 +109,8 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 			return array();
 		}
 
+		// Count only "inbox-visible" feedback statuses.
+		// Note: This is about feedback (response) statuses, not form post statuses (publish/draft/pending/future/private).
 		$statuses = array( 'publish', 'draft' );
 
 		$args = array_merge( array( Feedback::POST_TYPE ), $form_ids, $statuses );

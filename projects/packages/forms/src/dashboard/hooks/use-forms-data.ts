@@ -47,9 +47,9 @@ const toSortedSearchParams = ( queryParams: FormsQueryParams ): URLSearchParams 
 /**
  * Fetch Forms list records for the Forms dashboard table.
  *
- * @param {number} page    - Current page number.
- * @param {number} perPage - Items per page.
- * @param {string} search  - Search term.
+ * @param  page    - Current page number.
+ * @param  perPage - Items per page.
+ * @param  search  - Search term.
  *
  * @return {UseFormsDataReturn} Forms list data for the current query.
  */

@@ -19,7 +19,7 @@ export const defaultLayouts = {
 /**
  * Manage the DataViews view state for the Forms list and keep `search` in sync with the URL.
  *
- * @return {[Object, Function]} The current DataViews view and a setter that updates the URL.
+ * @return {[typeof defaultView, (newView: typeof defaultView) => void]} The current DataViews view and a setter that updates the URL.
  */
 export function useView() {
 	const [ searchParams, setSearchParams ] = useSearchParams();
