@@ -461,15 +461,6 @@ class Feedback_Field_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test phone field with array value (multiple numbers).
-	 */
-	public function test_phone_field_with_array_value() {
-		$field = new Feedback_Field( 'phone_key', 'Phone', array( '+44 123', '+44 456' ), 'phone' );
-		// Array values are joined with comma, flag is based on first number in joined string.
-		$this->assertEquals( '🇬🇧 +44 123, +44 456', $field->get_render_value( 'web' ) );
-	}
-
-	/**
 	 * Test phone field with invalid prefix returns number without flag.
 	 */
 	public function test_phone_field_with_invalid_prefix_returns_number_without_flag() {

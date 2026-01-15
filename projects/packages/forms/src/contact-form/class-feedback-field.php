@@ -212,23 +212,21 @@ class Feedback_Field {
 	 * @return string Phone number with country flag prefix.
 	 */
 	private function get_phone_value_with_flag() {
-		$phone_value = is_array( $this->value ) ? implode( ', ', $this->value ) : $this->value;
-
-		if ( empty( $phone_value ) ) {
-			return $phone_value;
+		if ( empty( $this->value ) ) {
+			return $this->value;
 		}
 
 		// Try to extract country code from phone number prefix.
-		$country_code = $this->get_country_code_from_phone( $phone_value );
+		$country_code = $this->get_country_code_from_phone( $this->value );
 
 		if ( ! empty( $country_code ) ) {
 			$flag = self::country_code_to_emoji_flag( $country_code );
 			if ( ! empty( $flag ) ) {
-				return $flag . ' ' . $phone_value;
+				return $flag . ' ' . $this->value;
 			}
 		}
 
-		return $phone_value;
+		return $this->value;
 	}
 
 	/**
