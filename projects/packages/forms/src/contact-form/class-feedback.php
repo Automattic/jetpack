@@ -16,6 +16,7 @@ use WP_Post;
  * Feedback objects are there to help us interact with the form response data.
  */
 class Feedback {
+	use Country_Flag;
 
 	const POST_TYPE = 'feedback';
 
@@ -867,41 +868,6 @@ class Feedback {
 	 */
 	public function get_country_flag() {
 		return self::country_code_to_emoji_flag( $this->country_code );
-	}
-
-	/**
-	 * Convert a country code to an emoji flag.
-	 *
-	 * Country codes should already be uppercase as they're stored that way by get_country_code_from_ip().
-	 *
-	 * @param string $country_code - the two-letter country code (e.g., 'US', 'GB', 'DE').
-	 *
-	 * @return string The emoji flag for the country code, or empty string if invalid.
-	 */
-	private static function country_code_to_emoji_flag( $country_code ) {
-		if ( empty( $country_code ) || strlen( $country_code ) !== 2 ) {
-			return '';
-		}
-
-		// Convert each letter to a regional indicator symbol
-		// Regional indicator symbols start at Unicode code point 127462 (🇦)
-		// and correspond to A-Z (ASCII 65-90)
-		$flag = '';
-		for ( $i = 0; $i < 2; $i++ ) {
-			$char = $country_code[ $i ];
-
-			// Check if the character is a valid uppercase letter (A-Z)
-			if ( ord( $char ) < 65 || ord( $char ) > 90 ) {
-				return '';
-			}
-
-			$code_point = 127462 + ( ord( $char ) - 65 );
-
-			// Convert code point to UTF-8 encoded character
-			$flag .= mb_chr( $code_point, 'UTF-8' );
-		}
-
-		return $flag;
 	}
 
 	/**
