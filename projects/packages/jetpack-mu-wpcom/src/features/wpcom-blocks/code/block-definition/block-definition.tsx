@@ -27,6 +27,7 @@ import {
 import { ColorTools } from './color-tools.tsx';
 import { LanguageComboboxControl } from './language-combobox-control.tsx';
 import { transforms } from './transforms.ts';
+import type { LanguageOption } from './types.ts';
 
 const {
 	__experimentalGetElementClassName,
@@ -44,10 +45,6 @@ const LINE_NUMBER_START_MAX = 10_000;
 type Props = EditBlockProps | SaveBlockProps;
 const plainLanguageName = __( 'Plain text', 'jetpack-mu-wpcom' ) as string;
 
-interface LanguageOption {
-	readonly value: string;
-	readonly label: string;
-}
 const emptyLanguageOption: LanguageOption = {
 	value: '',
 	label: plainLanguageName,

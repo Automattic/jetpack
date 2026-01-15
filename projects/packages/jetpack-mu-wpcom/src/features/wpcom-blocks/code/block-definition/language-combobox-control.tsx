@@ -1,12 +1,8 @@
 import { ComboboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import * as React from 'react';
+import type { LanguageOption } from './types.ts';
 const { useMemo, useState } = React;
-
-interface LanguageOption {
-	readonly value: string;
-	readonly label: string;
-}
 
 interface LanguageComboboxControlProps {
 	/**
