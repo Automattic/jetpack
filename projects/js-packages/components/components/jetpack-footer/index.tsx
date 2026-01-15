@@ -2,7 +2,6 @@ import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import { getRedirectUrl } from '../../index.ts';
-import getSiteAdminUrl from '../../tools/get-site-admin-url/index.ts';
 import AutomatticBylineLogo from '../automattic-byline-logo/index.tsx';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo/index.tsx';
@@ -37,6 +36,7 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 	className,
 	moduleNameHref = 'https://jetpack.com',
 	menu,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Prop kept for backwards compatibility. Remove after consumers of this component have updated.
 	useInternalLinks,
 	onAboutClick,
 	onPrivacyClick,
@@ -47,25 +47,19 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
 
-	const siteAdminUrl = getSiteAdminUrl();
-
 	let items: JetpackFooterMenuItem[] = [
 		{
 			label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack-components' ),
 			title: __( 'About Jetpack', 'jetpack-components' ),
-			href: useInternalLinks
-				? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
-				: getRedirectUrl( 'jetpack-about' ),
-			target: useInternalLinks ? '_self' : '_blank',
+			href: getRedirectUrl( 'jetpack-about' ),
+			target: '_blank',
 			onClick: onAboutClick,
 		},
 		{
 			label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack-components' ),
 			title: __( "Automattic's Privacy Policy", 'jetpack-components' ),
-			href: useInternalLinks
-				? new URL( 'admin.php?page=jetpack#/privacy', siteAdminUrl ).href
-				: getRedirectUrl( 'a8c-privacy' ),
-			target: useInternalLinks ? '_self' : '_blank',
+			href: getRedirectUrl( 'a8c-privacy' ),
+			target: '_blank',
 			onClick: onPrivacyClick,
 		},
 		{
@@ -138,12 +132,10 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 				} ) }
 				<li className="jp-dashboard-footer__a8c-item">
 					<a
-						href={
-							useInternalLinks
-								? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
-								: getRedirectUrl( 'a8c-about' )
-						}
+						href={ getRedirectUrl( 'a8c-about' ) }
+						target="_blank"
 						aria-label={ __( 'An Automattic Airline', 'jetpack-components' ) }
+						rel="noreferrer"
 					>
 						<AutomatticBylineLogo aria-hidden="true" />
 					</a>
