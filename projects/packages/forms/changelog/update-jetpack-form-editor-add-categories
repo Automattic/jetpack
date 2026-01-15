@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added granular block categories (Input, Contact, Choice, Other) for better organization of form fields in the block inserter on the Form Editor.
