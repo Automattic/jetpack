@@ -83,7 +83,7 @@ export function EmailSenderSettingsSection( {
 							sprintf(
 								/* translators: %1$s is the sender name that will appear in subscriber inboxes */
 								__(
-									'Preview: <strong>%1$s</strong> <comment-reply@wordpress.com>',
+									'Preview: <strong>%1$s</strong> <author-name@example.com>',
 									'jetpack-newsletter'
 								),
 								senderName || jetpackSettings?.siteName || __( 'Your Name', 'jetpack-newsletter' )
