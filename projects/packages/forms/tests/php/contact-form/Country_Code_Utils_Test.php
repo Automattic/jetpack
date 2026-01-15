@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit Tests for Automattic\Jetpack\Forms\ContactForm\Country_Flag trait.
+ * Unit Tests for Automattic\Jetpack\Forms\ContactForm\Country_Code_Utils trait.
  *
  * @package automattic/jetpack-forms
  */
@@ -11,13 +11,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 /**
- * Test class for Country_Flag trait.
+ * Test class for Country_Code_Utils trait.
  *
- * @covers \Automattic\Jetpack\Forms\ContactForm\Country_Flag
+ * @covers \Automattic\Jetpack\Forms\ContactForm\Country_Code_Utils
  */
-#[CoversClass( Country_Flag::class )]
-class Country_Flag_Test extends BaseTestCase {
-	use Country_Flag {
+#[CoversClass( Country_Code_Utils::class )]
+class Country_Code_Utils_Test extends BaseTestCase {
+	use Country_Code_Utils {
 		country_code_to_emoji_flag as public;
 	}
 

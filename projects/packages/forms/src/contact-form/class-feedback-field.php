@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
  * Represents the submitted form data of an individual field.
  */
 class Feedback_Field {
-	use Country_Flag;
+	use Country_Code_Utils;
 
 	/**
 	 * The key of the field.

@@ -1,6 +1,6 @@
 <?php
 /**
- * Country_Flag trait.
+ * Country_Code_Utils trait.
  *
  * @package automattic/jetpack-forms
  */
@@ -14,7 +14,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
  * - Converting two-letter ISO country codes (e.g., 'US', 'GB', 'DE') into emoji flags
  * - Mapping international phone prefixes to country codes
  */
-trait Country_Flag {
+trait Country_Code_Utils {
 
 	/**
 	 * Convert a country code to an emoji flag.

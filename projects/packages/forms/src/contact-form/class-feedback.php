@@ -16,7 +16,7 @@ use WP_Post;
  * Feedback objects are there to help us interact with the form response data.
  */
 class Feedback {
-	use Country_Flag;
+	use Country_Code_Utils;
 
 	const POST_TYPE = 'feedback';
 
