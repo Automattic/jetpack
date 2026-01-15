@@ -195,6 +195,7 @@ class Settings {
 			'isSubscriptionsActive'              => $this->is_subscriptions_active(),
 			'restApiRoot'                        => esc_url_raw( rest_url() ),
 			'restApiNonce'                       => wp_create_nonce( 'wp_rest' ),
+			'siteName'                           => get_bloginfo( 'name' ),
 		);
 	}
 

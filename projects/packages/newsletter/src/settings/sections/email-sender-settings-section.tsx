@@ -46,6 +46,7 @@ export function EmailSenderSettingsSection( {
 			id: 'jetpack_subscriptions_from_name',
 			label: __( 'Sender name', 'jetpack-newsletter' ),
 			type: 'text' as const,
+			placeholder: jetpackSettings?.siteName,
 			description: __(
 				"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
 				'jetpack-newsletter'
@@ -85,9 +86,7 @@ export function EmailSenderSettingsSection( {
 									'Preview: <strong>%1$s</strong> <comment-reply@wordpress.com>',
 									'jetpack-newsletter'
 								),
-								senderName ||
-									jetpackSettings?.displayName ||
-									__( 'Your Name', 'jetpack-newsletter' )
+								senderName || jetpackSettings?.siteName || __( 'Your Name', 'jetpack-newsletter' )
 							),
 							{
 								strong: <strong />,

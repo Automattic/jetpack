@@ -54,6 +54,7 @@ export interface JetpackNewsletterSettings {
 	isSubscriptionsActive: boolean;
 	restApiRoot: string;
 	restApiNonce: string;
+	siteName: string;
 }
 
 /**
