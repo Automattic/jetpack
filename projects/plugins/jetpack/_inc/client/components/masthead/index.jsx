@@ -8,7 +8,6 @@ import {
 	getSandboxDomain,
 	fetchSiteConnectionTest,
 } from 'state/connection';
-import { getSiteAdminUrl } from 'state/initial-state';
 import { HeaderNav } from './header-nav';
 
 export class Masthead extends Component {
@@ -24,7 +23,7 @@ export class Masthead extends Component {
 	};
 
 	render() {
-		const { sandboxDomain, siteAdminUrl, siteConnectionStatus } = this.props;
+		const { sandboxDomain, siteConnectionStatus } = this.props;
 
 		const offlineNotice = siteConnectionStatus === 'offline' ? <code>Offline Mode</code> : '',
 			sandboxedBadge = sandboxDomain ? (
@@ -47,11 +46,7 @@ export class Masthead extends Component {
 			<div className="jp-masthead">
 				<div className="jp-masthead__inside-container">
 					<div className="jp-masthead__logo-container">
-						<a
-							onClick={ this.trackLogoClick }
-							className="jp-masthead__logo-link"
-							href={ siteAdminUrl + 'admin.php?page=my-jetpack' }
-						>
+						<a onClick={ this.trackLogoClick } className="jp-masthead__logo-link" href="#dashboard">
 							<JetpackLogo className="jetpack-logo__masthead" height={ 40 } />
 						</a>
 						{ offlineNotice }
@@ -68,7 +63,6 @@ export default connect(
 	state => {
 		return {
 			sandboxDomain: getSandboxDomain( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 		};
 	},
