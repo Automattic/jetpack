@@ -139,6 +139,8 @@ abstract class Code_Block {
 
 	/**
 	 * Get the module asset data.
+	 *
+	 * @return array
 	 */
 	private static function get_module_asset_data() {
 		static $jetpack_wpcom_modules_assets = null;
