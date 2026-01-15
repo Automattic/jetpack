@@ -1500,7 +1500,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$html .=
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
-			' <span class="sparkle-decoration" aria-hidden="true">✨</span>' .
 			"</h4>\n\n";
 
 		if ( 'text' === $confirmation_type ) {
