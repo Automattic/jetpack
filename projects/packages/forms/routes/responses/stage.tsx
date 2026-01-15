@@ -8,7 +8,7 @@ import '@automattic/ui/style.css';
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -30,6 +30,7 @@ import Page, { Stack } from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
+import { getPath } from '../../src/dashboard/inbox/utils';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
@@ -364,27 +365,12 @@ function Stage() {
 				id: 'source',
 				label: __( 'Source', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					const source = item.entry_title || __( 'Unknown', 'jetpack-forms' );
+					const source = item.entry_title || getPath( item ) || __( '(no title)', 'jetpack-forms' );
 					if ( item.entry_permalink ) {
-						const link = (
-							<a
-								href={ item.entry_permalink }
-								target="_blank"
-								rel="noopener noreferrer"
-								style={ {
-									color: 'var(--wp-admin-theme-color, #3858e9)',
-									textDecoration: 'none',
-									display: 'inline-flex',
-									alignItems: 'center',
-									gap: '4px',
-								} }
-							>
-								{ source }
-								<span aria-hidden="true">↗</span>
-							</a>
+						return styleUnreadValue(
+							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+							item.is_unread
 						);
-
-						return styleUnreadValue( link, item.is_unread );
 					}
 					return styleUnreadValue( source, item.is_unread );
 				},
