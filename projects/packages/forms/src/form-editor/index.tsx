@@ -34,7 +34,7 @@ import './style.scss';
  * Set up form editor categories and block category overrides.
  *
  * This function:
- * 1. Registers granular form categories (text, contact, choice, other)
+ * 1. Registers granular form categories (input, contact, choice, other)
  * 2. Activates block category overrides to move blocks to the new categories
  * 3. Moves the contact-form category to the front (as a fallback for non-field blocks)
  *

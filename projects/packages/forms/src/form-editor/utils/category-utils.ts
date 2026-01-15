@@ -78,7 +78,7 @@ export function moveContactFormCategoryToBack( categories: Category[] ): Categor
 /**
  * Registers the granular form categories at the beginning of the categories array.
  *
- * This adds the form-specific categories (text, contact, choice, other) at the
+ * This adds the form-specific categories (input, contact, choice, other) at the
  * beginning of the block inserter, making them prominent in the form editor.
  *
  * @param categories - Array of block categories
