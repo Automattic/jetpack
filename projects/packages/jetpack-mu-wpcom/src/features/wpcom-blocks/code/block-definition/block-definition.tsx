@@ -6,12 +6,12 @@ import * as wpBlockEditor from '@wordpress/block-editor';
 import * as wpBlocks from '@wordpress/blocks';
 import {
 	Button,
+	ComboboxControl,
 	Dropdown,
 	MenuGroup,
 	MenuItem,
 	NavigableMenu,
 	PanelBody,
-	SelectControl,
 	TextControl,
 	ToggleControl,
 	ToolbarGroup,
@@ -19,6 +19,7 @@ import {
 import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
 import * as React from 'react';
+const { useState } = React;
 import {
 	type Attributes,
 	BLOCK_NAME,
@@ -106,6 +107,37 @@ const selectPopularLanguageOptions: ReadonlyArray< LanguageOption > = [];
 }
 
 /**
+ * Build a combined, de-duplicated option list for ComboboxControl.
+ * Returns Plain text first, then popular languages, then all other languages.
+ *
+ * @return Combined option list.
+ */
+function buildComboboxOptions(): ReadonlyArray< LanguageOption > {
+	const options: LanguageOption[] = [ emptyLanguageOption ];
+	const addedValues = new Set< string >( [ '' ] );
+
+	// Add popular languages first
+	for ( const opt of selectPopularLanguageOptions ) {
+		if ( ! addedValues.has( opt.value ) ) {
+			options.push( opt );
+			addedValues.add( opt.value );
+		}
+	}
+
+	// Add all other languages
+	for ( const opt of selectLanguageOptions ) {
+		if ( ! addedValues.has( opt.value ) ) {
+			options.push( opt );
+			addedValues.add( opt.value );
+		}
+	}
+
+	return options;
+}
+
+const comboboxLanguageOptions = buildComboboxOptions();
+
+/**
  * Filter to enhance the core code block.
  *
  * @param settings - Block settings
@@ -177,6 +209,11 @@ const blockEdit = withColors(
 )( ( props: EditBlockProps ) => {
 	const { setAttributes, attributes } = props;
 
+	// State for filtering ComboboxControl options
+	const [ filteredLanguageOptions, setFilteredLanguageOptions ] = useState< LanguageOption[] >( [
+		...comboboxLanguageOptions,
+	] );
+
 	const placeholderExtension =
 		extensionToLang.find(
 			( [ , languageName ] ) => props.attributes.language === languageName
@@ -241,34 +278,26 @@ const blockEdit = withColors(
 			</InspectorControls>
 			<InspectorControls>
 				<PanelBody title="Settings">
-					<SelectControl
+					<ComboboxControl
 						label={ __( 'Language', 'jetpack-mu-wpcom' ) }
 						value={ attributes.language }
-						onChange={ ( newLanguage: string ) => {
+						onChange={ ( newLanguage: string | null | undefined ) => {
 							setAttributes( {
-								language: newLanguage,
+								language: newLanguage || '',
 								languageConfidence: 'certain',
 							} );
 						} }
+						options={ filteredLanguageOptions }
+						onFilterValueChange={ ( inputValue: string ) => {
+							setFilteredLanguageOptions(
+								comboboxLanguageOptions.filter( option =>
+									option.label.toLowerCase().includes( inputValue.toLowerCase() )
+								)
+							);
+						} }
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
-					>
-						<option value="">{ languageNameDisplay( plainLanguageName ) }</option>
-						<optgroup label={ __( 'Popular Languages', 'jetpack-mu-wpcom' ) }>
-							{ selectPopularLanguageOptions.map( option => (
-								<option key={ option.value } value={ option.value }>
-									{ option.label }
-								</option>
-							) ) }
-						</optgroup>
-						<optgroup label={ __( 'All Languages', 'jetpack-mu-wpcom' ) }>
-							{ selectLanguageOptions.map( option => (
-								<option key={ option.value } value={ option.value }>
-									{ option.label }
-								</option>
-							) ) }
-						</optgroup>
-					</SelectControl>
+					/>
 					<TextControl
 						label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
 						defaultValue={ attributes.filename }
