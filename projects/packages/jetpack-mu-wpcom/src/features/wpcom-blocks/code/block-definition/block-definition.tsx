@@ -6,7 +6,6 @@ import * as wpBlockEditor from '@wordpress/block-editor';
 import * as wpBlocks from '@wordpress/blocks';
 import {
 	Button,
-	ComboboxControl,
 	Dropdown,
 	MenuGroup,
 	MenuItem,
@@ -19,7 +18,6 @@ import {
 import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
 import * as React from 'react';
-const { useMemo, useState } = React;
 import {
 	type Attributes,
 	BLOCK_NAME,
@@ -27,6 +25,7 @@ import {
 	type SaveBlockProps,
 } from '../common/block.ts';
 import { ColorTools } from './color-tools.tsx';
+import { LanguageComboboxControl } from './language-combobox-control.tsx';
 import { transforms } from './transforms.ts';
 
 const {
@@ -209,20 +208,6 @@ const blockEdit = withColors(
 )( ( props: EditBlockProps ) => {
 	const { setAttributes, attributes } = props;
 
-	// State for filter input value
-	const [ filterValue, setFilterValue ] = useState< string >( '' );
-
-	// Memoize filtered language options based on filter input
-	const filteredLanguageOptions = useMemo( () => {
-		if ( ! filterValue ) {
-			return comboboxLanguageOptions;
-		}
-		const lowerFilter = filterValue.toLowerCase();
-		return comboboxLanguageOptions.filter( option =>
-			option.label.toLowerCase().includes( lowerFilter )
-		);
-	}, [ filterValue ] );
-
 	const placeholderExtension =
 		extensionToLang.find(
 			( [ , languageName ] ) => props.attributes.language === languageName
@@ -287,8 +272,7 @@ const blockEdit = withColors(
 			</InspectorControls>
 			<InspectorControls>
 				<PanelBody title="Settings">
-					<ComboboxControl
-						label={ __( 'Language', 'jetpack-mu-wpcom' ) }
+					<LanguageComboboxControl
 						value={ attributes.language }
 						onChange={ ( newLanguage: string | null | undefined ) => {
 							setAttributes( {
@@ -296,10 +280,7 @@ const blockEdit = withColors(
 								languageConfidence: 'certain',
 							} );
 						} }
-						options={ filteredLanguageOptions }
-						onFilterValueChange={ setFilterValue }
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
+						options={ comboboxLanguageOptions }
 					/>
 					<TextControl
 						label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
