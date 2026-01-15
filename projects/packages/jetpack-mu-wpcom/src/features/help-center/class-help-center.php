@@ -278,7 +278,7 @@ class Help_Center {
 			$username           = $user_data ? $user_data->user_login : null;
 			$user_email         = $user_data ? $user_data->user_email : null;
 			$display_name       = $user_data ? $user_data->display_name : null;
-			$avatar_url         = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
+			$avatar_url         = $user_id ? ( function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id ) ) : null;
 			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
 
 			wp_add_inline_script(
