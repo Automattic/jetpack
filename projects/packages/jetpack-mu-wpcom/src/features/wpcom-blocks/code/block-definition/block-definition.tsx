@@ -81,58 +81,6 @@ const selectLanguageOptions: ReadonlyArray< LanguageOption > = [];
 	);
 }
 
-const selectPopularLanguageOptions: ReadonlyArray< LanguageOption > = [];
-{
-	const popularLanguages = new Set< string >( [
-		'JavaScript',
-		'HTML',
-		'CSS',
-		'SQL',
-		'Python',
-		'Java',
-		'C++',
-		'PHP',
-		'TypeScript',
-		'Bash',
-	] );
-	for ( const opt of selectLanguageOptions ) {
-		if ( popularLanguages.has( opt.value ) ) {
-			( selectPopularLanguageOptions as LanguageOption[] ).push( opt );
-		}
-	}
-}
-
-/**
- * Build a combined, de-duplicated option list for ComboboxControl.
- * Returns Plain text first, then popular languages, then all other languages.
- *
- * @return Combined option list.
- */
-function buildComboboxOptions(): ReadonlyArray< LanguageOption > {
-	const options: LanguageOption[] = [ emptyLanguageOption ];
-	const addedValues = new Set< string >( [ '' ] );
-
-	// Add popular languages first
-	for ( const opt of selectPopularLanguageOptions ) {
-		if ( ! addedValues.has( opt.value ) ) {
-			options.push( opt );
-			addedValues.add( opt.value );
-		}
-	}
-
-	// Add all other languages
-	for ( const opt of selectLanguageOptions ) {
-		if ( ! addedValues.has( opt.value ) ) {
-			options.push( opt );
-			addedValues.add( opt.value );
-		}
-	}
-
-	return options;
-}
-
-const comboboxLanguageOptions = buildComboboxOptions();
-
 /**
  * Filter to enhance the core code block.
  *
@@ -277,7 +225,6 @@ const blockEdit = withColors(
 								languageConfidence: 'certain',
 							} );
 						} }
-						options={ comboboxLanguageOptions }
 					/>
 					<TextControl
 						label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
