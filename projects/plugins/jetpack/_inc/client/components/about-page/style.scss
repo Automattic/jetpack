@@ -239,8 +239,11 @@ $color__back-link: #787c82;
 		}
 
 		.plugin-icon {
+			position: absolute;
 			top: 24px;
 			left: 24px;
+			width: 128px;
+			height: 128px;
 		}
 	}
 
