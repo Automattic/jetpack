@@ -6,7 +6,7 @@ import styles from './styles.module.scss';
 
 export type TabContentProps = {
 	connectionId: string;
-	perNetwork?: boolean;
+	usingPerNetworkCustomization: boolean;
 };
 
 /**
@@ -16,7 +16,7 @@ export type TabContentProps = {
  *
  * @return The rendered component
  */
-export function TabContent( { connectionId, perNetwork }: TabContentProps ) {
+export function TabContent( { connectionId, usingPerNetworkCustomization }: TabContentProps ) {
 	const connection = useSelect(
 		select => select( socialStore ).getConnectionById( connectionId ),
 		[ connectionId ]
@@ -24,7 +24,10 @@ export function TabContent( { connectionId, perNetwork }: TabContentProps ) {
 
 	return (
 		<div className={ styles[ 'tab-content' ] }>
-			<CustomizationSection connection={ connection } perNetwork={ perNetwork } />
+			<CustomizationSection
+				connection={ connection }
+				usingPerNetworkCustomization={ usingPerNetworkCustomization }
+			/>
 			<PreviewSection connection={ connection } />
 		</div>
 	);

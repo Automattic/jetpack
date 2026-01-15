@@ -7,7 +7,7 @@ import styles from './styles.module.scss';
 
 type CustomizationSectionProps = {
 	connection?: Connection;
-	perNetwork?: boolean;
+	usingPerNetworkCustomization: boolean;
 };
 
 /**
@@ -16,7 +16,10 @@ type CustomizationSectionProps = {
  * @param {CustomizationSectionProps} props - The component props.
  * @return - Customization Section component.
  */
-export function CustomizationSection( { connection, perNetwork }: CustomizationSectionProps ) {
+export function CustomizationSection( {
+	connection,
+	usingPerNetworkCustomization,
+}: CustomizationSectionProps ) {
 	return (
 		<section
 			aria-label={ __( 'Customization form', 'jetpack-publicize-pkg' ) }
@@ -28,7 +31,7 @@ export function CustomizationSection( { connection, perNetwork }: CustomizationS
 				// TODO Wire up per-network customization state to the form.
 				analyticsData={ { location: 'preview-modal' } }
 				isInsideNavigatorModal
-				disabled={ perNetwork && ! connection?.enabled }
+				disabled={ usingPerNetworkCustomization && ! connection?.enabled }
 			/>
 		</section>
 	);

@@ -13,13 +13,18 @@ import { TabContent } from './tab-content';
  */
 export function TabPanelDesktop() {
 	const tabs = useConnectionTabs();
-	const { isEnabled: perNetwork } = usePerNetworkCustomization();
+	const { isEnabled: usingPerNetworkCustomization } = usePerNetworkCustomization();
 
 	const tabRenderer = useCallback(
 		( tab: ConnectionTab ) => {
-			return <TabContent connectionId={ tab.connectionId } perNetwork={ perNetwork } />;
+			return (
+				<TabContent
+					connectionId={ tab.connectionId }
+					usingPerNetworkCustomization={ usingPerNetworkCustomization }
+				/>
+			);
 		},
-		[ perNetwork ]
+		[ usingPerNetworkCustomization ]
 	);
 
 	return (
