@@ -215,7 +215,7 @@ const blockEdit = withColors(
 	// Memoize filtered language options based on filter input
 	const filteredLanguageOptions = useMemo( () => {
 		if ( ! filterValue ) {
-			return [ ...comboboxLanguageOptions ];
+			return comboboxLanguageOptions;
 		}
 		const lowerFilter = filterValue.toLowerCase();
 		return comboboxLanguageOptions.filter( option =>
