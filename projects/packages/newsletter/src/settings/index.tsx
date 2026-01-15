@@ -57,7 +57,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		restApi
 			.fetchSettings()
 			.then( ( settings: Record< string, unknown > ) => {
-				// Convert category IDs from numbers to strings
+				// Normalize settings types for frontend use
 				const normalizedSettings: NewsletterSettings = {
 					...( settings as NewsletterSettings ),
 					// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1')
