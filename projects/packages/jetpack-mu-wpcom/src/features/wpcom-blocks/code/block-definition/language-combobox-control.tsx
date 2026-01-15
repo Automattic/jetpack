@@ -4,7 +4,7 @@ import * as React from 'react';
 import type { LanguageOption } from './types.ts';
 const { useMemo, useState } = React;
 
-interface LanguageComboboxControlProps {
+interface Props {
 	/**
 	 * The current language value.
 	 */
@@ -26,7 +26,7 @@ interface LanguageComboboxControlProps {
  * @param props - Component props.
  * @return Language combobox control component.
  */
-export function LanguageComboboxControl( props: LanguageComboboxControlProps ): React.JSX.Element {
+export function LanguageComboboxControl( props: Props ): React.JSX.Element {
 	const { value, onChange, options } = props;
 
 	// State for filter input value
