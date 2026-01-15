@@ -215,6 +215,7 @@ class Agents_Manager {
 				array(
 					'agentProviders'       => $agent_providers,
 					'useUnifiedExperience' => $use_unified_experience,
+					'isDevMode'            => self::is_dev_mode(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -254,8 +255,8 @@ class Agents_Manager {
 			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
 		}
 
-		// When the request is proxied, use a random cache buster as the version for easier debugging.
-		$version = self::is_proxied() ? wp_rand() : $asset_file['version'];
+		// When the request is dev mode, use a random cache buster as the version for easier debugging.
+		$version = self::is_dev_mode() ? wp_rand() : $asset_file['version'];
 
 		$script_dependencies = $asset_file['dependencies'] ?? array();
 
@@ -400,6 +401,39 @@ class Agents_Manager {
 	}
 
 	/**
+	 * Enables "Development" features that should be accessible only for admins.
+	 */
+	private static function is_dev_mode() {
+		// Known local environments.
+		$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		if (
+			$domain === 'localhost' ||
+			'.jurassic.tube' === stristr( $domain, '.jurassic.tube' ) ||
+			'.jurassic.ninja' === stristr( $domain, '.jurassic.ninja' )
+		) {
+			return true;
+		}
+
+		// A8C development.
+		if ( self::is_proxied() ) {
+			return true;
+		}
+
+		if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
+			switch ( ATOMIC_CLIENT_ID ) {
+				case 1:
+				case 2:
+				case 3: // Pressable
+				case 32:
+				case 118: // Commerce garden client (ciab)
+					return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Register the Agents Manager endpoints.
 	 */
 	public function register_rest_api() {
@@ -414,9 +448,9 @@ class Agents_Manager {
 	 * @return bool
 	 */
 	public function should_use_unified_experience() {
-		// Early return for non-proxied requests.
+		// Early return for non-proxied/dev mode requests.
 		// This feature is currently only available to Automattic employees testing via proxy.
-		if ( ! self::is_proxied() ) {
+		if ( ! self::is_dev_mode() ) {
 			return false;
 		}
 
