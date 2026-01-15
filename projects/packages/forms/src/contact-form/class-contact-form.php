@@ -1402,7 +1402,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( '← Back', 'jetpack-forms' ) . '</a> </p>';
 		}
 
-		$success_message .= '<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) . ' <span class="sparkle-decoration" aria-hidden="true">✨</span>' . "</h4>\n\n";
+		$success_message .= '<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) . "</h4>\n\n";
 
 		// Don't show the feedback details unless the nonce matches
 		if ( $is_reload_nonce_valid ) {
