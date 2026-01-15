@@ -104,19 +104,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	);
 
 	// Handle sender name changes (staged, not auto-saved)
-	const handleSenderNameChange = useCallback(
-		( updates: Partial< NewsletterSettings > ) => {
-			if ( ! data ) {
-				return;
-			}
-
-			// Update local state immediately (like auto-save)
-			setData( { ...data, ...updates } );
-			// Track changes for save button state
-			setSenderNameChanges( { ...senderNameChanges, ...updates } );
-		},
-		[ data, senderNameChanges ]
-	);
+	const handleSenderNameChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
+		// Update local state immediately (like auto-save)
+		setData( prev => ( { ...prev, ...updates } ) );
+		// Track changes for save button state
+		setSenderNameChanges( prev => ( { ...prev, ...updates } ) );
+	}, [] );
 
 	// Save sender name
 	const saveSenderName = useCallback( () => {
