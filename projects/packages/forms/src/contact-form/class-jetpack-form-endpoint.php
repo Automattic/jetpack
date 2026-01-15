@@ -7,15 +7,132 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use WP_REST_Request;
+
 /**
  * REST endpoint for the jetpack_form custom post type.
  */
 class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
+	 * Cached map of form_id => entriesCount for the current request.
+	 *
+	 * @var array<int,int>|null
+	 */
+	private $entries_count_by_form_id = null;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		parent::__construct( Contact_Form::POST_TYPE );
+	}
+
+	/**
+	 * Add opt-in dashboard fields.
+	 *
+	 * @return array
+	 */
+	public function get_collection_params() {
+		$params = parent::get_collection_params();
+
+		// Note: We do not use the built-in WP REST "context" param for this, because it's validated
+		// against core values (view/embed/edit). This param is for Jetpack Forms dashboard usage only.
+		$params['jetpack_forms_context'] = array(
+			'description'       => __( 'Request context for Jetpack Forms. Use "dashboard" to include dashboard-only fields.', 'jetpack-forms' ),
+			'type'              => 'string',
+			'default'           => '',
+			'enum'              => array( '', 'dashboard' ),
+			'sanitize_callback' => 'sanitize_key',
+		);
+
+		return $params;
+	}
+
+	/**
+	 * Return a collection of forms.
+	 *
+	 * We override this to compute dashboard aggregate fields in a single pass.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_items( $request ) {
+		$response = parent::get_items( $request );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$forms_context = (string) $request->get_param( 'jetpack_forms_context' );
+		if ( 'dashboard' !== $forms_context ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+		if ( ! is_array( $data ) || empty( $data ) ) {
+			return $response;
+		}
+
+		$form_ids = array();
+		foreach ( $data as $item ) {
+			if ( isset( $item['id'] ) ) {
+				$form_ids[] = (int) $item['id'];
+			}
+		}
+		$form_ids = array_values( array_unique( array_filter( $form_ids ) ) );
+
+		$this->entries_count_by_form_id = $this->get_entries_count_by_form_id( $form_ids );
+
+		foreach ( $data as &$item ) {
+			$form_id              = isset( $item['id'] ) ? (int) $item['id'] : 0;
+			$item['entriesCount'] = (int) ( $this->entries_count_by_form_id[ $form_id ] ?? 0 );
+			if ( $form_id ) {
+				$item['editUrl'] = get_edit_post_link( $form_id, 'raw' );
+			}
+		}
+		unset( $item );
+
+		$response->set_data( $data );
+		return $response;
+	}
+
+	/**
+	 * Batch compute feedback counts for a list of form IDs.
+	 *
+	 * @param int[] $form_ids Form IDs to count entries for.
+	 * @return array<int,int> Map of form_id => count
+	 */
+	private function get_entries_count_by_form_id( array $form_ids ): array {
+		global $wpdb;
+
+		$form_ids = array_values( array_unique( array_map( 'absint', $form_ids ) ) );
+		if ( empty( $form_ids ) ) {
+			return array();
+		}
+
+		// Match dashboard behavior: count feedback statuses we display/manage.
+		$statuses = array( 'publish', 'draft', 'spam', 'trash' );
+
+		$args = array_merge( array( Feedback::POST_TYPE ), $form_ids, $statuses );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows              = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT post_parent, COUNT(1) AS entry_count
+				FROM {$wpdb->posts}
+				WHERE post_type = %s
+				  AND post_parent IN (" . implode( ',', array_fill( 0, count( $form_ids ), '%d' ) ) . ')
+				  AND post_status IN (' . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ')
+				GROUP BY post_parent',
+				$args
+			)
+		);
+		$counts_by_form_id = array();
+		foreach ( (array) $rows as $row ) {
+			$counts_by_form_id[ (int) $row->post_parent ] = (int) $row->entry_count;
+		}
+
+		return $counts_by_form_id;
 	}
 
 	/**

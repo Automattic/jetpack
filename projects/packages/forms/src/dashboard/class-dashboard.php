@@ -69,8 +69,6 @@ class Dashboard {
 			self::load_wp_build();
 		}
 
-		Forms_Endpoint::init();
-
 		add_action( 'admin_menu', array( $this, 'add_new_admin_submenu' ), self::MENU_PRIORITY );
 
 		if ( $is_wp_build_enabled ) {
@@ -146,14 +144,17 @@ class Dashboard {
 
 		// Only preload the Forms list endpoint when centralized form management is enabled.
 		if ( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
-			$initial_forms_path = \add_query_arg(
-				array(
-					'page'     => 1,
-					'per_page' => 20,
-				),
-				'/jetpack-forms/v1/forms'
+			$forms_preload_params = array(
+				'context'               => 'edit',
+				'page'                  => 1,
+				'jetpack_forms_context' => 'dashboard',
+				'order'                 => 'desc',
+				'orderby'               => 'modified',
+				'per_page'              => 20,
+				'status'                => 'publish,draft,pending,future,private',
 			);
-			$preload_paths[]    = $initial_forms_path;
+			ksort( $forms_preload_params );
+			$preload_paths[] = add_query_arg( $forms_preload_params, '/wp/v2/jetpack-forms' );
 		}
 		$preload_data_raw = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 
