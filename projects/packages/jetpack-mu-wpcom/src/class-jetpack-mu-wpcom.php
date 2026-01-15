@@ -322,7 +322,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
 			return;
 		}
-		
 		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
 			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
 		}
