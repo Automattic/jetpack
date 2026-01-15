@@ -9,6 +9,7 @@ import save from './save.js';
 const name = 'field-textarea';
 const settings = {
 	...defaultSettings,
+	formEditorCategory: 'input',
 	title: __( 'Multi-line text field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Textarea', 'jetpack-forms' ),

@@ -9,6 +9,7 @@ import save from './save.js';
 const name = 'field-checkbox-multiple';
 const settings = {
 	...defaultSettings,
+	formEditorCategory: 'choice',
 	title: __( 'Multiple choice (checkbox)', 'jetpack-forms' ),
 	keywords: [ __( 'Choose multiple', 'jetpack-forms' ), __( 'Option', 'jetpack-forms' ) ],
 	description: __(

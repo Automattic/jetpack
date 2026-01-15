@@ -67,7 +67,11 @@ class Form_Editor {
 			'jetpack/field-rating',
 			'jetpack/field-text',
 			'jetpack/field-number',
-			'jetpack/field-file-upload',
+			'jetpack/field-hidden',
+			'jetpack/field-file',
+			'jetpack/field-time',
+			'jetpack/field-slider',
+			'jetpack/field-image-select',
 
 			// Supporting blocks.
 			'jetpack/button',
@@ -76,6 +80,11 @@ class Form_Editor {
 			'jetpack/options',
 			'jetpack/option',
 			'jetpack/phone-input',
+			'jetpack/dropzone',
+			'jetpack/input-range',
+			'jetpack/input-rating',
+			'jetpack/fieldset-image-options',
+			'jetpack/input-image-option',
 
 			// Multistep blocks.
 			'jetpack/form-step',

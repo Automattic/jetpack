@@ -9,6 +9,7 @@ import save from './save.js';
 const name = 'field-telephone';
 export const settings = {
 	...defaultSettings,
+	formEditorCategory: 'contact',
 	title: __( 'Phone number field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Phone', 'jetpack-forms' ),

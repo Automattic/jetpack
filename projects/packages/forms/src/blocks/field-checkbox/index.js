@@ -9,6 +9,7 @@ import save from './save.js';
 const name = 'field-checkbox';
 const settings = {
 	...defaultSettings,
+	formEditorCategory: 'choice',
 	title: __( 'Checkbox', 'jetpack-forms' ),
 	keywords: [ __( 'Confirm', 'jetpack-forms' ), __( 'Accept', 'jetpack-forms' ) ],
 	description: __( 'Confirm or select information with a single checkbox.', 'jetpack-forms' ),

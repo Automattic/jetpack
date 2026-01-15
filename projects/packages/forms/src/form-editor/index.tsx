@@ -11,6 +11,10 @@ import { subscribe, select, dispatch } from '@wordpress/data';
 import { unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 import {
+	activateBlockCategoryOverrides,
+	deactivateBlockCategoryOverrides,
+} from './utils/block-category-override';
+import {
 	BlockLock,
 	findFormBlock,
 	getInsertionIndex,
@@ -20,43 +24,73 @@ import {
 import {
 	moveContactFormCategoryToFront as moveCategoryToFront,
 	moveContactFormCategoryToBack as moveCategoryToBack,
+	registerFormCategories,
+	unregisterFormCategories,
 } from './utils/category-utils';
 
 import './style.scss';
 
 /**
- * Move the Jetpack contact form block category to the front in the editor.
- * @return {unknown[]} previous categories array
+ * Set up form editor categories and block category overrides.
+ *
+ * This function:
+ * 1. Registers granular form categories (text, contact, choice, other)
+ * 2. Activates block category overrides to move blocks to the new categories
+ * 3. Moves the contact-form category to the front (as a fallback for non-field blocks)
+ *
+ * @return {unknown[]} previous categories array for restoration
  */
-const moveFormsCategoryToFront = () => {
+const setupFormEditorCategories = () => {
 	const { getCategories } = select( 'core/blocks' );
 	const { setCategories } = dispatch( 'core/blocks' ) as {
 		setCategories: ( categories: unknown[] ) => void;
 	};
 
-	const categories = getCategories();
-	const newCategories = moveCategoryToFront( categories );
-	setCategories( newCategories );
-	return categories;
+	// Store original categories for later restoration
+	const originalCategories = getCategories();
+
+	// Activate block category overrides first (moves blocks to new categories)
+	activateBlockCategoryOverrides();
+
+	// Register form categories and move contact-form to front
+	let categories = getCategories();
+	categories = registerFormCategories( categories );
+	categories = moveCategoryToFront( categories );
+	setCategories( categories );
+
+	return originalCategories;
 };
 
 /**
- * Move the Jetpack contact form block category back to its original position.
+ * Restore categories to their original state when leaving the form editor.
+ *
+ * This function:
+ * 1. Deactivates block category overrides (restores blocks to contact-form category)
+ * 2. Removes form categories from the category list
+ * 3. Restores the original category order
+ *
  * @param previousCategories - The previous categories array to restore
  */
-const moveFormsCategoryBackToOriginalOrder = ( previousCategories: unknown[] ) => {
+const restoreOriginalCategories = ( previousCategories: unknown[] ) => {
 	const { setCategories } = dispatch( 'core/blocks' ) as {
 		setCategories: ( categories: unknown[] ) => void;
 	};
+
+	// Deactivate block category overrides first
+	deactivateBlockCategoryOverrides();
+
+	// If we have stored categories, restore them directly
 	if ( previousCategories.length !== 0 ) {
 		setCategories( previousCategories );
 		return;
 	}
 
+	// Otherwise, remove form categories and restore order
 	const { getCategories } = select( 'core/blocks' );
-	const categories = getCategories();
-	const newCategories = moveCategoryToBack( categories );
-	setCategories( newCategories );
+	let categories = getCategories();
+	categories = unregisterFormCategories( categories );
+	categories = moveCategoryToBack( categories );
+	setCategories( categories );
 };
 
 let formBlockClientId: string | null = null;
@@ -228,7 +262,7 @@ const setupFormEditorSubscription = () => {
 
 			if ( ! categoriesFiltered ) {
 				categoriesFiltered = true;
-				previousCategories = moveFormsCategoryToFront();
+				previousCategories = setupFormEditorCategories();
 				try {
 					unregisterPlugin( 'block-directory' );
 				} catch {
@@ -237,7 +271,7 @@ const setupFormEditorSubscription = () => {
 			}
 		} else if ( categoriesFiltered ) {
 			categoriesFiltered = false;
-			moveFormsCategoryBackToOriginalOrder( previousCategories || [] );
+			restoreOriginalCategories( previousCategories || [] );
 		}
 
 		if ( isCurrentPostTypeJetpackForm === isJetpackFormEditor ) {

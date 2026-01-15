@@ -9,6 +9,7 @@ import variations from './variations.js';
 const name = 'field-rating';
 const settings = {
 	...defaultSettings,
+	formEditorCategory: 'choice',
 	title: __( 'Rating field', 'jetpack-forms' ),
 	description: __( 'Allow visitors to select a rating.', 'jetpack-forms' ),
 	icon: {

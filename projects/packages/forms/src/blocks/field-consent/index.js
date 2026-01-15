@@ -9,6 +9,7 @@ import save from './save.js';
 const name = 'field-consent';
 const settings = {
 	...defaultSettings,
+	formEditorCategory: 'choice',
 	title: __( 'Terms consent', 'jetpack-forms' ),
 	keywords: [ __( 'Consent', 'jetpack-forms' ) ],
 	description: __(

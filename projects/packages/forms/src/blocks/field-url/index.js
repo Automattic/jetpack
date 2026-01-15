@@ -9,6 +9,7 @@ import save from './save.js';
 const name = 'field-url';
 const settings = {
 	...defaultSettings,
+	formEditorCategory: 'contact',
 	title: __( 'Website field', 'jetpack-forms' ),
 	keywords: [
 		__( 'url', 'jetpack-forms' ),

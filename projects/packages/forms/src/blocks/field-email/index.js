@@ -9,6 +9,7 @@ import save from './save.js';
 const name = 'field-email';
 const settings = {
 	...defaultSettings,
+	formEditorCategory: 'contact',
 	title: __( 'Email field', 'jetpack-forms' ),
 	keywords: [ __( 'e-mail', 'jetpack-forms' ), __( 'mail', 'jetpack-forms' ), 'email' ],
 	description: __( 'Collect email addresses from your visitors.', 'jetpack-forms' ),

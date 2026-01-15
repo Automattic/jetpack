@@ -9,6 +9,7 @@ import save from './save.js';
 const name = 'field-radio';
 const settings = {
 	...defaultSettings,
+	formEditorCategory: 'choice',
 	title: __( 'Single choice (radio)', 'jetpack-forms' ),
 	keywords: [
 		__( 'Choose', 'jetpack-forms' ),

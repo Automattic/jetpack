@@ -17,6 +17,7 @@ const transforms = {
 
 const settings = {
 	...defaultSettings,
+	formEditorCategory: 'contact',
 	attributes: {
 		...defaultSettings.attributes,
 		fieldVariant: {
