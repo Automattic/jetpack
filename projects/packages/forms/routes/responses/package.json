@@ -6,7 +6,6 @@
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
-		"@automattic/number-formatters": "workspace:*",
 		"@automattic/ui": "1.0.2",
 		"@tanstack/react-router": ">=1.120.5 <1.121.0",
 		"@types/react": "18.3.26",
