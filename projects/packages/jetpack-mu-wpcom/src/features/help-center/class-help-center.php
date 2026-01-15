@@ -640,7 +640,11 @@ class Help_Center {
 		if ( $is_next_admin ) {
 			$variant = 'ciab-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} elseif ( $this->is_support_site ) {
-			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			if ( ! is_user_logged_in() ) {
+				$variant = 'logged-out';
+			} else {
+				$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			}
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
 		} elseif ( $this->is_block_editor() ) {
