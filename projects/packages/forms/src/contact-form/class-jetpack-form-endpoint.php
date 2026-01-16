@@ -117,7 +117,6 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 		sort( $form_ids );
 		$cache_key   = 'feedback_counts_' . md5( implode( ',', $form_ids ) . '|' . implode( ',', $statuses ) );
 		$cache_group = 'jetpack_forms';
-		$cache_ttl   = 15;
 		$cached      = wp_cache_get( $cache_key, $cache_group );
 		if ( false !== $cached && is_array( $cached ) ) {
 			return $cached;
@@ -142,7 +141,7 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$counts_by_form_id[ (int) $row->post_parent ] = (int) $row->entry_count;
 		}
 
-		wp_cache_set( $cache_key, $counts_by_form_id, $cache_group, $cache_ttl );
+		wp_cache_set( $cache_key, $counts_by_form_id, $cache_group, 15 ); // 15 seconds.
 		return $counts_by_form_id;
 	}
 

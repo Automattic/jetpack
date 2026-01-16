@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { useSearchParams } from 'react-router';
+import type { View } from '@wordpress/dataviews/wp';
 
 const LAYOUT_TABLE = 'table';
 
-export const defaultView = {
+export const defaultView: View = {
 	type: LAYOUT_TABLE,
 	search: '',
 	filters: [],

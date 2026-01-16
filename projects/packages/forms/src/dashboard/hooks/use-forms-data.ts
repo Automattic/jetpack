@@ -66,19 +66,17 @@ export default function useFormsData(
 		totalPages,
 	} = useEntityRecords( 'postType', 'jetpack_form', query );
 
-	const records = useMemo( () => {
-		return ( rawRecords || [] ).map( item => {
-			const typedItem = item as JetpackFormRestItem;
-			return {
-				id: typedItem.id,
-				title: decodeEntities( typedItem.title?.rendered || '' ),
-				status: typedItem.status,
-				modified: typedItem.modified,
-				entriesCount: typedItem.entries_count ?? 0,
-				editUrl: typedItem.edit_url,
-			};
-		} );
-	}, [ rawRecords ] );
+	const records = ( rawRecords || [] ).map( item => {
+		const typedItem = item as JetpackFormRestItem;
+		return {
+			id: typedItem.id,
+			title: decodeEntities( typedItem.title?.rendered || '' ),
+			status: typedItem.status,
+			modified: typedItem.modified,
+			entriesCount: typedItem.entries_count ?? 0,
+			editUrl: typedItem.edit_url,
+		};
+	} );
 
 	return {
 		records,

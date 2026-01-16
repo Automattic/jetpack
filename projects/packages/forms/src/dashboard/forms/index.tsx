@@ -89,6 +89,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 			{
 				id: 'modified',
 				label: __( 'Last updated', 'jetpack-forms' ),
+				type: 'date' as const,
 				render: ( { item }: { item: FormListItem } ) =>
 					dateI18n( dateSettings.formats.datetime, item.modified ),
 				enableSorting: false,
@@ -127,9 +128,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		[ totalItems, totalPages ]
 	);
 
-	type DataViewsView = Parameters< typeof DataViews >[ 0 ][ 'view' ];
-
-	const onChangeView = useCallback( ( newView: DataViewsView ) => setView( newView ), [ setView ] );
+	const onChangeView = useCallback( newView => setView( newView ), [ setView ] );
 
 	const headerActions = useMemo( () => [ <CreateFormButton key="create" /> ], [] );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
@@ -174,7 +173,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 							}
 						/>
 					}
-					view={ view as unknown as DataViewsView }
+					view={ view }
 					onChangeView={ onChangeView }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
