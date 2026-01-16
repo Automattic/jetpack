@@ -258,6 +258,11 @@ class Agents_Manager {
 			return true;
 		}
 
+		// Support Image Studio on Media Library when unified-big-sky flag is present.
+		if ( $this->is_image_studio_screen() && class_exists( 'Big_Sky' ) && $this->has_unified_big_sky_flag() ) {
+			return true;
+		}
+
 		return false;
 	}
 
@@ -596,6 +601,32 @@ class Agents_Manager {
 		$current_screen = get_current_screen();
 		// The widgets screen has the block editor but no Gutenberg top bar.
 		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+	}
+
+	/**
+	 * Returns true if the current screen supports Image Studio.
+	 *
+	 * Image Studio is available on Media Library (upload.php) and Post Editor screens.
+	 * This allows Agents Manager to load on these screens when unified-big-sky flag is present.
+	 *
+	 * @return bool True if the current screen supports Image Studio.
+	 */
+	private function is_image_studio_screen() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
+		$current_screen = get_current_screen();
+		if ( ! $current_screen ) {
+			return false;
+		}
+
+		// Media Library (upload.php)
+		if ( 'upload' === $current_screen->base ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
