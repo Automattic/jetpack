@@ -666,7 +666,7 @@ that needs to mimic the input element styles */
 	box-sizing: border-box;
 	position: relative;
 	flex: 1 1 100%;
-	width: 100%; // ????? check this
+	width: 100%;
 
 	:where(:not(.is-single-input-form) > .grunion-field-wrap) {
 		display: flex;
