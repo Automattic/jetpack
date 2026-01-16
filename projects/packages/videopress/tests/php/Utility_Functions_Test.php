@@ -10,8 +10,88 @@ namespace Automattic\Jetpack;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
+use WP_Error;
 
 class Utility_Functions_Test extends BaseTestCase {
+
+	/**
+	 * Returns mock video data for testing create_local_media_library_for_videopress_guid.
+	 *
+	 * @param array $overrides Optional overrides for the mock data.
+	 * @return object Mock video data object.
+	 */
+	public function get_mock_video_data( $overrides = array() ) {
+		$defaults = array(
+			'guid'            => 'abc12345',
+			'title'           => 'Test Video Title',
+			'description'     => 'Test video description',
+			'upload_date'     => '2024-01-15 10:30:00',
+			'width'           => 1920,
+			'height'          => 1080,
+			'original'        => 'https://videos.files.wordpress.com/abc12345/test.mp4',
+			'rating'          => 'G',
+			'allow_download'  => true,
+			'display_embed'   => true,
+			'privacy_setting' => 0,
+		);
+
+		return (object) array_merge( $defaults, $overrides );
+	}
+
+	/**
+	 * Set up mock video data in the transient cache.
+	 *
+	 * The videopress_get_video_details filter is applied AFTER the API call,
+	 * so we need to populate the transient cache directly to avoid API calls.
+	 *
+	 * @param string $guid      The video GUID.
+	 * @param object $mock_data The mock video data.
+	 */
+	public function set_mock_video_transient( $guid, $mock_data ) {
+		$cache_key = 'jetpack_videopress_' . $guid;
+		set_transient( $cache_key, $mock_data, HOUR_IN_SECONDS );
+	}
+
+	/**
+	 * Delete mock video data from the transient cache.
+	 *
+	 * @param string $guid The video GUID.
+	 */
+	public function delete_mock_video_transient( $guid ) {
+		$cache_key = 'jetpack_videopress_' . $guid;
+		delete_transient( $cache_key );
+	}
+
+	/**
+	 * Whether a poster download was attempted.
+	 *
+	 * @var bool
+	 */
+	protected $poster_download_attempted = false;
+
+	/**
+	 * Filter callback to track poster download attempts.
+	 *
+	 * @param mixed  $response    The response to filter.
+	 * @param array  $parsed_args Request arguments.
+	 * @param string $url         The request URL.
+	 * @return mixed The unmodified response.
+	 */
+	public function filter_track_poster_download( $response, $parsed_args, $url ) {
+		if ( strpos( $url, 'poster.jpg' ) !== false ) {
+			$this->poster_download_attempted = true;
+		}
+		return $response;
+	}
+
+	/**
+	 * Filter callback to return WP_Error for invalid GUID.
+	 *
+	 * @return WP_Error Error object.
+	 */
+	public function filter_return_wp_error() {
+		return new WP_Error( 'bad-guid-format', 'Invalid Video GUID!' );
+	}
 
 	/**
 	 * Sets up the test environment before the class tests begin.
@@ -127,5 +207,146 @@ class Utility_Functions_Test extends BaseTestCase {
 		$this->assertSame( 1, $video_info->allow_download );
 		$this->assertSame( 1, $video_info->display_embed );
 		$this->assertSame( 1, $video_info->privacy_setting ); // 1 = Private
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid sets post fields correctly.
+	 */
+	public function test_create_local_media_library_sets_post_fields() {
+		$guid      = 'abc12345';
+		$mock_data = $this->get_mock_video_data();
+
+		$this->set_mock_video_transient( $guid, $mock_data );
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid );
+		$this->delete_mock_video_transient( $guid );
+
+		$this->assertIsInt( $attachment_id );
+
+		$post = get_post( $attachment_id );
+
+		$this->assertSame( 'Test Video Title', $post->post_title );
+		$this->assertSame( 'Test video description', $post->post_content );
+		$this->assertSame( 'video/videopress', $post->post_mime_type );
+		$this->assertSame( 'https://videopress.com/v/abc12345', $post->guid );
+		$this->assertSame( '2024-01-15 10:30:00', $post->post_date );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid sets post meta correctly.
+	 */
+	public function test_create_local_media_library_sets_post_meta() {
+		$guid      = 'abc12345';
+		$mock_data = $this->get_mock_video_data();
+
+		$this->set_mock_video_transient( $guid, $mock_data );
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid );
+		$this->delete_mock_video_transient( $guid );
+
+		$this->assertSame( $guid, get_post_meta( $attachment_id, 'videopress_guid', true ) );
+		$this->assertSame( 'complete', get_post_meta( $attachment_id, 'videopress_status', true ) );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid sets attachment metadata correctly.
+	 */
+	public function test_create_local_media_library_sets_attachment_metadata() {
+		$guid      = 'abc12345';
+		$mock_data = $this->get_mock_video_data();
+
+		$this->set_mock_video_transient( $guid, $mock_data );
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid );
+		$this->delete_mock_video_transient( $guid );
+
+		$metadata = wp_get_attachment_metadata( $attachment_id );
+
+		$this->assertSame( 1920, $metadata['width'] );
+		$this->assertSame( 1080, $metadata['height'] );
+		$this->assertArrayHasKey( 'videopress', $metadata );
+		$this->assertSame( 'abc12345', $metadata['videopress']['guid'] );
+		$this->assertSame( 'Test Video Title', $metadata['videopress']['title'] );
+		$this->assertArrayHasKey( 'original', $metadata );
+		$this->assertSame( 'https://videos.files.wordpress.com/abc12345/test.mp4', $metadata['original']['url'] );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid attempts to download poster when provided.
+	 *
+	 * Note: Full end-to-end poster download testing requires integration tests
+	 * because download_url() streams directly to a temp file, bypassing the
+	 * pre_http_request filter body. This test verifies the download is attempted.
+	 */
+	public function test_create_local_media_library_with_poster() {
+		$guid      = 'abc12345';
+		$mock_data = $this->get_mock_video_data(
+			array(
+				'poster' => 'https://videos.files.wordpress.com/abc12345/poster.jpg',
+			)
+		);
+
+		$this->set_mock_video_transient( $guid, $mock_data );
+		$this->poster_download_attempted = false;
+
+		add_filter( 'pre_http_request', array( $this, 'filter_track_poster_download' ), 10, 3 );
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_track_poster_download' ), 10 );
+		$this->delete_mock_video_transient( $guid );
+
+		// Verify the video attachment was created.
+		$this->assertIsInt( $attachment_id );
+		$this->assertGreaterThan( 0, $attachment_id );
+
+		// Verify poster download was attempted.
+		$this->assertTrue( $this->poster_download_attempted, 'Poster download should be attempted when poster URL is provided' );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid without poster.
+	 */
+	public function test_create_local_media_library_without_poster() {
+		$guid      = 'abc12345';
+		$mock_data = $this->get_mock_video_data(); // No poster in defaults.
+
+		$this->set_mock_video_transient( $guid, $mock_data );
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid );
+		$this->delete_mock_video_transient( $guid );
+
+		$thumbnail_id = get_post_meta( $attachment_id, '_thumbnail_id', true );
+
+		$this->assertEmpty( $thumbnail_id );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid with invalid GUID returns WP_Error.
+	 */
+	public function test_create_local_media_library_with_invalid_guid() {
+		$result = create_local_media_library_for_videopress_guid( 'invalid!guid' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'bad-guid-format', $result->get_error_code() );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid with parent_id sets post_parent.
+	 */
+	public function test_create_local_media_library_with_parent_id() {
+		$guid      = 'abc12345';
+		$mock_data = $this->get_mock_video_data();
+
+		// Create a parent post.
+		$parent_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_title'  => 'Parent Post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$this->set_mock_video_transient( $guid, $mock_data );
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid, $parent_id );
+		$this->delete_mock_video_transient( $guid );
+
+		$post = get_post( $attachment_id );
+
+		$this->assertSame( $parent_id, $post->post_parent );
 	}
 }

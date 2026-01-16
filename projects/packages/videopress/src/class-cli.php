@@ -41,6 +41,10 @@ class CLI extends WP_CLI_Command {
 	 * @param array $assoc_args Associative arguments.
 	 */
 	public function import( $args, $assoc_args ) {
+		if ( empty( $args[0] ) ) {
+			WP_CLI::error( __( 'You must provide a VideoPress GUID.', 'jetpack-videopress-pkg' ) );
+		}
+
 		$guid             = $args[0];
 		$force            = get_flag_value( $assoc_args, 'force', false );
 		$existing_post_id = videopress_get_post_id_by_guid( $guid );
