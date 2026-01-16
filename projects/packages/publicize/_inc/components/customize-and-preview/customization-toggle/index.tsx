@@ -22,6 +22,7 @@ export function CustomizationToggle() {
 			label={ _x( 'Customize', 'Verb: Customize the social preview', 'jetpack-publicize-pkg' ) }
 			onChange={ toggle }
 			value={ isEnabled ? 'each' : 'all' }
+			hideLabelFromVision
 		>
 			<ToggleGroupControlOption
 				label={ _x(
