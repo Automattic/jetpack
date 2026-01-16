@@ -77,6 +77,13 @@ function videopress_get_video_details( $guid ) {
 
 		$data = json_decode( wp_remote_retrieve_body( $result ) );
 
+		if ( null === $data ) {
+			return new WP_Error(
+				'videopress-invalid-json',
+				__( 'Received an invalid response from the VideoPress API.', 'jetpack-videopress-pkg' )
+			);
+		}
+
 		// Cache the response for an hour.
 		set_transient( $cache_key, $data, HOUR_IN_SECONDS );
 	}

@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Added `import` CLI command to the package. The command creates a local media library attachment for a VideoPress video by GUID.
+Add `import` CLI command to the package. The command creates a local media library attachment for a VideoPress video by GUID.

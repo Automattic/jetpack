@@ -61,7 +61,18 @@ class CLI extends WP_CLI_Command {
 				return;
 			}
 
-			wp_delete_attachment( $existing_post_id, true );
+			$deleted = wp_delete_attachment( $existing_post_id, true );
+			if ( ! $deleted ) {
+				WP_CLI::error(
+					sprintf(
+						/* translators: %d: attachment id */
+						__( 'Failed to delete existing Attachment ID %d.', 'jetpack-videopress-pkg' ),
+						$existing_post_id
+					)
+				);
+			}
+
+			delete_transient( 'videopress_get_post_id_by_guid_' . $guid );
 			WP_CLI::log(
 				sprintf(
 					/* translators: %d: attachment id */
