@@ -155,6 +155,13 @@ class Dashboard {
 			);
 			ksort( $forms_preload_params );
 			$preload_paths[] = add_query_arg( $forms_preload_params, '/wp/v2/jetpack-forms' );
+			$preload_paths[] = add_query_arg(
+				array_merge(
+					$forms_preload_params,
+					array( '_locale' => 'user' )
+				),
+				'/wp/v2/jetpack-forms'
+			);
 		}
 		$preload_data_raw = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 
