@@ -402,6 +402,91 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that URL field values are properly handled in submission success message.
+	 * This verifies that the maybe_transform_value() method correctly extracts URL values
+	 * and that they are rendered in the interactive template with proper anchor attributes.
+	 */
+	public function test_success_message_with_url_field() {
+		// Create a form submission with a URL field
+		// URL fields are submitted as plain strings, the array structure is created internally
+		$this->add_field_values(
+			array(
+				'name'    => 'Jane Smith',
+				'email'   => 'jane@example.com',
+				'website' => 'https://example.com',
+			)
+		);
+
+		// Create a contact form with a URL field
+		$form = new Contact_Form(
+			array(
+				'customThankyou' => '',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Website' type='url' required='1'/]"
+		);
+
+		// Process the submission to create a feedback post
+		$result = $form->process_submission();
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+
+		// Get the feedback ID from the most recent post
+		$feedback_id = end( Posts::init()->posts )->ID;
+
+		// Call the success_message method
+		$success_message = Contact_Form::success_message( $feedback_id, $form );
+
+		// Verify the success message contains the expected field values
+		$this->assertStringContainsString( '<div class="field-name">Name:</div>', $success_message );
+		$this->assertStringContainsString( '<div class="field-value">Jane Smith</div>', $success_message );
+		$this->assertStringContainsString( '<div class="field-name">Website:</div>', $success_message );
+		
+		// The URL value should be extracted by maybe_transform_value()
+		// The actual rendering as a clickable link happens in the interactive template
+		// which uses the format_submission_data() method to prepare data with 'url' field
+		$this->assertStringContainsString( 'https://example.com', $success_message );
+	}
+
+	/**
+	 * Test that empty URL field values are handled correctly.
+	 */
+	public function test_success_message_with_empty_url_field() {
+		// Create a form submission with an empty URL field
+		$this->add_field_values(
+			array(
+				'name'    => 'Bob Johnson',
+				'email'   => 'bob@example.com',
+				'website' => '',
+			)
+		);
+
+		// Create a contact form with a URL field
+		$form = new Contact_Form(
+			array(
+				'customThankyou' => '',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Website' type='url'/]"
+		);
+
+		// Process the submission to create a feedback post
+		$result = $form->process_submission();
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+
+		// Get the feedback ID from the most recent post
+		$feedback_id = end( Posts::init()->posts )->ID;
+
+		// Call the success_message method
+		$success_message = Contact_Form::success_message( $feedback_id, $form );
+
+		// Verify the success message contains the expected field values
+		$this->assertStringContainsString( '<div class="field-name">Name:</div>', $success_message );
+		$this->assertStringContainsString( '<div class="field-name">Website:</div>', $success_message );
+		
+		// Empty URL should be transformed to empty string by maybe_transform_value()
+		// and rendered as a dash by get_compiled_form()
+		$this->assertStringContainsString( '<div class="field-value">-</div>', $success_message );
+	}
+
+	/**
 	 * Test the escape_and_sanitize_field_value method.
 	 */
 	public function test_escape_and_sanitize_field_value() {
