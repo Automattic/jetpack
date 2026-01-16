@@ -37,6 +37,7 @@ function PerNetworkCustomization( { connection }: CustomizationSectionProps ) {
 				// TODO Wire up per-network customization state to the form.
 				analyticsData={ { location: 'preview-modal' } }
 				isInsideNavigatorModal
+				disabled={ ! connection.enabled }
 			/>
 		</Flex>
 	);
