@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { JetpackLogo } from '@automattic/jetpack-components';
+import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
@@ -15,6 +16,7 @@ import CreateFormButton from '../components/create-form-button/index.tsx';
 import { EmptyWrapper } from '../components/empty-responses/index.tsx';
 import FormsResponsesTabs from '../components/forms-responses-tabs/index.tsx';
 import Page from '../components/page/index.tsx';
+import useDeleteForm from '../hooks/use-delete-form.ts';
 import useFormsData from '../hooks/use-forms-data.ts';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
@@ -37,6 +39,17 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		view.perPage,
 		view.search
 	);
+	const {
+		isDeleteConfirmDialogOpen,
+		isDeleting,
+		openDeleteConfirmDialog,
+		closeDeleteConfirmDialog,
+		onConfirmDelete,
+	} = useDeleteForm( {
+		view,
+		setView,
+		recordsLength: records?.length ?? 0,
+	} );
 
 	useEffect( () => {
 		if ( isCentralFormManagementDisabled ) {
@@ -116,8 +129,24 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					window.location.href = url.toString();
 				},
 			},
+			{
+				id: 'delete-form',
+				isPrimary: false,
+				label: __( 'Trash', 'jetpack-forms' ),
+				supportsBulk: false,
+				callback( items: FormListItem[] ) {
+					if ( isDeleting ) {
+						return;
+					}
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+					openDeleteConfirmDialog( item );
+				},
+			},
 		],
-		[]
+		[ isDeleting, openDeleteConfirmDialog ]
 	);
 
 	const paginationInfo = useMemo(
@@ -178,6 +207,20 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 				>
+					<ConfirmDialog
+						onCancel={ closeDeleteConfirmDialog }
+						onConfirm={ onConfirmDelete }
+						isOpen={ isDeleteConfirmDialogOpen }
+						confirmButtonText={ __( 'Move to Trash', 'jetpack-forms' ) }
+					>
+						<h3>{ __( 'Move to Trash', 'jetpack-forms' ) }</h3>
+						<p>
+							{ __(
+								'This will move the form to Trash. It will no longer appear in your forms list.',
+								'jetpack-forms'
+							) }
+						</p>
+					</ConfirmDialog>
 					<div className="jp-forms-filters-bar">
 						<div className="jp-forms-filters-bar__chips">
 							<DataViews.FiltersToggled className="jp-forms-filters-container" />
