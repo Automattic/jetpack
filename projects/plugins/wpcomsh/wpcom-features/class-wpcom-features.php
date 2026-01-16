@@ -499,6 +499,7 @@ class WPCOM_Features {
 	public const SUBSCRIBER_UNLIMITED_IMPORTS      = 'subscriber-unlimited-imports';
 	public const SUBSCRIPTION_GIFTING              = 'subscription-gifting';
 	public const SUPPORT                           = 'support';
+	public const TITAN_MAIL_1YEAR_TRIAL            = 'titan_mail_1year_trial';
 	public const UPGRADED_UPLOAD_FILETYPES         = 'upgraded_upload_filetypes';
 	public const UPLOAD_AUDIO_FILES                = 'upload-audio-files';
 	public const UPLOAD_PLUGINS                    = 'upload-plugins';
@@ -1444,6 +1445,13 @@ class WPCOM_Features {
 			self::WPCOM_ALL_SITES,
 			self::JETPACK_PERSONAL_AND_HIGHER,
 			self::JETPACK_GOLDEN_TOKEN,
+		),
+		self::TITAN_MAIL_1YEAR_TRIAL            => array(
+			array(
+				'required_sticker' => 'gating-business-q1',
+				self::WPCOM_BUSINESS_PLANS,
+				self::WPCOM_ECOMMERCE_PLANS,
+			),
 		),
 		self::UPGRADED_UPLOAD_FILETYPES         => array(
 			self::SPACE_1GB,
