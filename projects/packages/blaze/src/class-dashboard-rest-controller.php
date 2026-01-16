@@ -142,6 +142,17 @@ class Dashboard_REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
+
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/campaigns', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_dsp_campaigns' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
@@ -824,6 +835,84 @@ class Dashboard_REST_Controller {
 	 */
 	public function edit_wpcom_checkout( $req ) {
 		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 60 ) );
+	}
+
+	/**
+	 * Redirect POST request to WordAds DSP Create Campaign endpoint for the site.
+	 *
+	 * If Jetpack Sync still is running, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function create_dsp_campaigns( $req ) {
+		$response = $this->are_posts_ready() ?
+			$this->edit_dsp_generic( 'v1.1/campaigns', $req, array( 'timeout' => 60 ) ) :
+			$this->create_dsp_campaigns_local( $req );
+
+		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
+			$response['sync_ready'] = $this->are_posts_ready();
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Sends a create campaign request to the WordAds DSP Create Campaign endpoint.
+	 * Includes additional Post information to the original request.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function create_dsp_campaigns_local( $req ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
+		$request_body = $req->get_json_params();
+		if ( ! is_array( $request_body ) ) {
+			return new WP_Error( 'invalid_json', esc_html__( 'Invalid JSON Body', 'jetpack-blaze' ), array( 'status' => 400 ) );
+		}
+
+		$urn        = $request_body['target_urn'];
+		$parsed_urn = $this->get_data_from_urn( $urn );
+
+		if ( ! $parsed_urn['site_id'] || $parsed_urn['site_id'] !== $site_id ) {
+			return $this->get_forbidden_error();
+		}
+
+		$post = get_post( $parsed_urn['post_id'] );
+		if ( ! $post ) {
+			return new WP_Error( 'post_not_found', esc_html__( 'Post not found', 'jetpack-blaze' ), array( 'status' => 404 ) );
+		}
+
+		$featured_image = $this->get_post_featured_image( $post->ID ) ?? array();
+
+		$body = array_merge(
+			$request_body,
+			array(
+				'wp_post' => array(
+					'ID'             => $post->ID,
+					'title'          => $post->post_title,
+					'URL'            => get_permalink( $post ),
+					'type'           => $post->post_type,
+					'content'        => $post->post_content,
+					'featured_image' => $featured_image['URL'] ?? '',
+					'modified'       => $post->post_modified,
+				),
+			)
+		);
+
+		return $this->request_as_user(
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/campaigns', $site_id ),
+			'v2',
+			array(
+				'method'  => 'POST',
+				'timeout' => 60,
+			),
+			$body
+		);
 	}
 
 	/**
