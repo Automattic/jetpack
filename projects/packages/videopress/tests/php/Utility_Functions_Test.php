@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
 /**
  * Tests for functions defined in utility-functions.php.
  *
@@ -12,7 +12,21 @@ use WorDBless\BaseTestCase;
 use WorDBless\Posts;
 use WP_Error;
 
+/**
+ * Tests for functions defined in utility-functions.php.
+ */
 class Utility_Functions_Test extends BaseTestCase {
+
+	/**
+	 * Sets up the test environment before the class tests begin.
+	 *
+	 * @beforeClass
+	 */
+	#[BeforeClass]
+	public static function set_up_class() {
+		require_once __DIR__ . '/../../src/utility-functions.php';
+		Posts::init();
+	}
 
 	/**
 	 * Returns mock video data for testing create_local_media_library_for_videopress_guid.
@@ -33,6 +47,15 @@ class Utility_Functions_Test extends BaseTestCase {
 			'allow_download'  => true,
 			'display_embed'   => true,
 			'privacy_setting' => 0,
+			// Nested objects like the real API returns from json_decode().
+			'files'           => (object) array(
+				'dvd' => (object) array(
+					'original_img' => 'test-thumbnail.jpg',
+				),
+			),
+			'file_url_base'   => (object) array(
+				'https' => 'https://videos.files.wordpress.com/abc12345/',
+			),
 		);
 
 		return (object) array_merge( $defaults, $overrides );
@@ -94,17 +117,6 @@ class Utility_Functions_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Sets up the test environment before the class tests begin.
-	 *
-	 * @beforeClass
-	 */
-	#[BeforeClass]
-	public static function set_up_class() {
-		require_once __DIR__ . '/../../src/utility-functions.php';
-		Posts::init();
-	}
-
-	/**
 	 * Test video_get_info_by_blogpostid when $post_id is invalid.
 	 */
 	public function test_video_get_info_by_blogpostid_invalid_post_id() {
@@ -113,7 +125,7 @@ class Utility_Functions_Test extends BaseTestCase {
 
 		$video_info = video_get_info_by_blogpostid( $blog_id, $post_id );
 
-		// Check that the returned object has default values
+		// Check that the returned object has default values.
 		$this->assertInstanceOf( 'stdClass', $video_info );
 		$this->assertSame( 0, $video_info->post_id );
 		$this->assertSame( '', $video_info->description );
@@ -144,7 +156,7 @@ class Utility_Functions_Test extends BaseTestCase {
 
 		$video_info = video_get_info_by_blogpostid( $blog_id, $post_id );
 
-		// Check that the returned object has basic post data but no VideoPress specific data
+		// Check that the returned object has basic post data but no VideoPress specific data.
 		$this->assertInstanceOf( 'stdClass', $video_info );
 		$this->assertSame( $post_id, $video_info->post_id );
 		$this->assertSame( $blog_id, $video_info->blog_id );
@@ -164,7 +176,7 @@ class Utility_Functions_Test extends BaseTestCase {
 		$blog_id = 1;
 		$guid    = 'abc123xyz';
 
-		// Create a VideoPress post
+		// Create a VideoPress post.
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => 'attachment',
@@ -175,12 +187,12 @@ class Utility_Functions_Test extends BaseTestCase {
 			)
 		);
 
-		// Add GUID meta
+		// Add GUID meta.
 		add_post_meta( $post_id, 'videopress_guid', $guid );
 
 		$finish_time = time();
 
-		// Add attachment metadata
+		// Add attachment metadata.
 		$metadata = array(
 			'videopress' => array(
 				'rating'          => 'G',
@@ -194,7 +206,7 @@ class Utility_Functions_Test extends BaseTestCase {
 
 		$video_info = video_get_info_by_blogpostid( $blog_id, $post_id );
 
-		// Check VideoPress data
+		// Check VideoPress data.
 		$this->assertInstanceOf( 'stdClass', $video_info );
 		$this->assertSame( $post_id, $video_info->post_id );
 		$this->assertSame( $blog_id, $video_info->blog_id );
@@ -266,6 +278,12 @@ class Utility_Functions_Test extends BaseTestCase {
 		$this->assertSame( 'Test Video Title', $metadata['videopress']['title'] );
 		$this->assertArrayHasKey( 'original', $metadata );
 		$this->assertSame( 'https://videos.files.wordpress.com/abc12345/test.mp4', $metadata['original']['url'] );
+
+		// Verify nested structures are stored as arrays, not stdClass objects.
+		// This is required for compatibility with class-data.php which uses array access.
+		$this->assertIsArray( $metadata['videopress']['files'] );
+		$this->assertIsArray( $metadata['videopress']['files']['dvd'] );
+		$this->assertSame( 'test-thumbnail.jpg', $metadata['videopress']['files']['dvd']['original_img'] );
 	}
 
 	/**

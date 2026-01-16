@@ -78,6 +78,15 @@ class CLI_Test extends BaseTestCase {
 			'allow_download'  => true,
 			'display_embed'   => true,
 			'privacy_setting' => 0,
+			// Nested objects like the real API returns from json_decode().
+			'files'           => (object) array(
+				'dvd' => (object) array(
+					'original_img' => 'test-thumbnail.jpg',
+				),
+			),
+			'file_url_base'   => (object) array(
+				'https' => 'https://videos.files.wordpress.com/abc12345/',
+			),
 		);
 
 		return (object) array_merge( $defaults, $overrides );

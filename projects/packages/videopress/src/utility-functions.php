@@ -167,7 +167,7 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
 		$meta = array(
 			'width'      => $vp_data->width ?? 0,
 			'height'     => $vp_data->height ?? 0,
-			'videopress' => (array) $vp_data,
+			'videopress' => json_decode( wp_json_encode( $vp_data, JSON_HEX_TAG | JSON_HEX_AMP ), true ), // Convert stdClass to array.
 		);
 
 		if ( ! empty( $vp_data->original ) ) {
