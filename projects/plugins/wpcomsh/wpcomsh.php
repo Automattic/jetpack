@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WordPress.com Site Helper
+ * Plugin Name: WordPress.com Site Helper!
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
  * Version: 8.0.0
  * Author: Automattic
