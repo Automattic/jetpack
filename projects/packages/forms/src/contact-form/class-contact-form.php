@@ -3180,9 +3180,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 
-		// For URL fields, extract the URL text value.
+		// For URL fields, extract the display text value (original user input without auto-added protocol).
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' ) {
-			return isset( $value['url'] ) ? $value['url'] : '';
+			// Prefer displayValue (raw input) over url (which may have https:// prepended).
+			return isset( $value['displayValue'] ) ? $value['displayValue'] : ( isset( $value['url'] ) ? $value['url'] : '' );
 		}
 
 		// For file upload fields, we want to show the file name and size

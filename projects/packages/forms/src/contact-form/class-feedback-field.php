@@ -204,11 +204,14 @@ class Feedback_Field {
 		}
 
 		// For URL fields, return a structured array with the URL for proper link rendering.
+		// 'displayValue' preserves the original user input for display text.
+		// 'url' is used for the href and may have https:// prepended.
 		if ( $this->is_of_type( 'url' ) ) {
 			if ( ! empty( $this->value ) ) {
 				return array(
-					'type' => 'url',
-					'url'  => $this->value,
+					'type'         => 'url',
+					'url'          => $this->value,
+					'displayValue' => $this->value,
 				);
 			}
 		}
