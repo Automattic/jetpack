@@ -324,6 +324,15 @@ function fixPeerDeps( pkg ) {
 		delete pkg.dependencies.sass;
 	}
 
+	// 0.x versions treat `^` like `~`. Replace with `>=`.
+	if ( pkg.name === '@wordpress/build' && pkg.peerDependencies ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
+			if ( ver.startsWith( '^0.' ) ) {
+				pkg.peerDependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
+	}
+
 	return pkg;
 }
 
