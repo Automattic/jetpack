@@ -640,9 +640,15 @@ class Dashboard_REST_Controller {
 	public function get_dsp_templates_article( $req ) {
 		$urn = $req->get_param( 'urn' ) ?? '';
 
-		return $this->are_posts_ready() ?
+		$response = $this->are_posts_ready() ?
 			$this->get_dsp_generic( 'v1/templates/article/' . $urn, $req ) :
 			$this->get_dsp_templates_article_local( $urn, $req );
+
+		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
+			$response['sync_ready'] = $this->are_posts_ready();
+		}
+
+		return $response;
 	}
 
 	/**
@@ -707,18 +713,12 @@ class Dashboard_REST_Controller {
 			),
 		);
 
-		$response = $this->request_as_user(
+		return $this->request_as_user(
 			sprintf( '/sites/%d/wordads/dsp/api/v1/templates/article/%s', $site_id, $urn ),
 			'v2',
 			array( 'method' => 'POST' ),
 			$body
 		);
-
-		if ( is_array( $response ) ) {
-			$response['sync_ready'] = $this->are_posts_ready();
-		}
-
-		return $response;
 	}
 
 	/**
