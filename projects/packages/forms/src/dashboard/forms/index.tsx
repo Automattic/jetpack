@@ -120,7 +120,10 @@ export default function FormsDashboardForms(): JSX.Element | null {
 	);
 
 	const paginationInfo = useMemo(
-		() => ( { totalItems, totalPages } ),
+		() => ( {
+			totalItems: totalItems ?? 0,
+			totalPages: totalPages ?? 0,
+		} ),
 		[ totalItems, totalPages ]
 	);
 
