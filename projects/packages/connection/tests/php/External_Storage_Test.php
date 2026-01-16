@@ -45,19 +45,28 @@ class External_Storage_Test extends TestCase {
 	}
 
 	/**
-	 * Reset provider after each test.
+	 * Reset provider and static caches after each test.
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
 
-		// Reset the provider using reflection
 		$reflection = new \ReflectionClass( External_Storage::class );
-		$property   = $reflection->getProperty( 'provider' );
+
+		// Reset the provider
+		$provider_property = $reflection->getProperty( 'provider' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
+			$provider_property->setAccessible( true );
 		}
-		$property->setValue( null, null );
+		$provider_property->setValue( null, null );
+
+		// Reset the static logged_events cache
+		$logged_events_property = $reflection->getProperty( 'logged_events' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$logged_events_property->setAccessible( true );
+		}
+		$logged_events_property->setValue( null, array() );
 	}
 
 	/**
@@ -168,12 +177,21 @@ class External_Storage_Test extends TestCase {
 	 * Note: We use reflection to test the rate limiting logic without triggering debug logging.
 	 */
 	public function test_rate_limiting_logic() {
-		// Clear any existing transients
+		// Clear any existing transients and static cache
 		delete_transient( 'jetpack_ext_storage_rate_limit_test_key' );
 
-		// Use reflection to access the private should_log_event method
 		$reflection = new \ReflectionClass( External_Storage::class );
-		$method     = $reflection->getMethod( 'should_log_event' );
+
+		// Reset static cache before test
+		$logged_events_property = $reflection->getProperty( 'logged_events' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$logged_events_property->setAccessible( true );
+		}
+		$logged_events_property->setValue( null, array() );
+
+		// Use reflection to access the private should_log_event method
+		$method = $reflection->getMethod( 'should_log_event' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
@@ -186,7 +204,7 @@ class External_Storage_Test extends TestCase {
 		// Verify rate limit transient was set
 		$this->assertNotFalse( get_transient( 'jetpack_ext_storage_rate_limit_test_key' ) );
 
-		// Second immediate call should return false (rate limited)
+		// Second immediate call should return false (rate limited by static cache)
 		$result2 = $method->invoke( null, 'test_key' );
 		$this->assertFalse( $result2 );
 
@@ -195,34 +213,46 @@ class External_Storage_Test extends TestCase {
 	}
 
 	/**
-	 * Test empty state delay logic by directly testing the private method.
-	 *
-	 * Note: We use reflection to test the delay logic without triggering debug logging.
+	 * Test static cache prevents duplicate logs in same request.
 	 */
-	public function test_empty_state_delay_logic() {
-		// Clear any existing transients
-		delete_transient( 'jetpack_external_storage_empty_delay_test_key' );
+	public function test_static_cache_prevents_duplicate_logs() {
+		// Clear any existing transients and static cache
+		delete_transient( 'jetpack_ext_storage_rate_limit_static_test' );
 
-		// Use reflection to access the private should_report_empty_state method
 		$reflection = new \ReflectionClass( External_Storage::class );
-		$method     = $reflection->getMethod( 'should_report_empty_state' );
+
+		// Reset static cache before test
+		$logged_events_property = $reflection->getProperty( 'logged_events' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$logged_events_property->setAccessible( true );
+		}
+		$logged_events_property->setValue( null, array() );
+
+		$method = $reflection->getMethod( 'should_log_event' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 
-		// First call should return false (sets delay, doesn't report yet)
-		$result1 = $method->invoke( null, 'test_key' );
-		$this->assertFalse( $result1 );
+		// First call should return true
+		$result1 = $method->invoke( null, 'static_test' );
+		$this->assertTrue( $result1 );
 
-		// Verify delay transient was set
-		$this->assertNotFalse( get_transient( 'jetpack_external_storage_empty_delay_test_key' ) );
+		// Verify static cache was set
+		$logged_events = $logged_events_property->getValue( null );
+		$this->assertArrayHasKey( 'static_test', $logged_events );
 
-		// Second immediate call should still return false (within delay period)
-		$result2 = $method->invoke( null, 'test_key' );
+		// Second call should return false (blocked by static cache, not transient)
+		$result2 = $method->invoke( null, 'static_test' );
 		$this->assertFalse( $result2 );
 
+		// Different key should still work
+		$result3 = $method->invoke( null, 'different_key' );
+		$this->assertTrue( $result3 );
+
 		// Clean up
-		delete_transient( 'jetpack_external_storage_empty_delay_test_key' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_static_test' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_different_key' );
 	}
 }

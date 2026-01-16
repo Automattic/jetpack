@@ -50,6 +50,15 @@ class External_Storage {
 	private static $provider = null;
 
 	/**
+	 * Static cache to prevent logging same event multiple times in single request.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var array
+	 */
+	private static $logged_events = array();
+
+	/**
 	 * Register a storage provider for external storage.
 	 *
 	 * @since 6.18.0
@@ -80,8 +89,7 @@ class External_Storage {
 			return null; // No provider registered, use database
 		}
 
-		// Get environment ID from provider
-		$environment = method_exists( $provider, 'get_environment_id' ) ? $provider->get_environment_id() : 'unknown';
+		$environment = $provider->get_environment_id();
 
 		// Check if provider is available in current environment
 		if ( ! $provider->is_available() ) {
@@ -117,8 +125,10 @@ class External_Storage {
 
 	/**
 	 * Log events if WP_DEBUG is enabled.
-	 * Report external storage events through Jetpack Connection Error_Handler.
 	 * Includes rate limiting to prevent log spam from noisy events.
+	 *
+	 * Note: Error_Handler integration has been deprecated. Storage providers should
+	 * implement their own error reporting via the optional handle_error_event() method.
 	 *
 	 * @since 6.18.0
 	 *
@@ -127,7 +137,7 @@ class External_Storage {
 	 * @param string $details     Additional details about the event.
 	 * @param string $environment The environment identifier (atomic, vip, etc.).
 	 */
-	public static function log_event( $event_type, $key, $details = '', $environment = 'unknown' ) {
+	public static function log_event( $event_type, $key, $details, $environment ) {
 		// Apply rate limiting to prevent log spam
 		if ( ! self::should_log_event( $key ) ) {
 			return;
@@ -145,57 +155,52 @@ class External_Storage {
 			);
 		}
 
-		// Only report 'error' and 'empty' events to WordPress.com
+		// Only process 'error' and 'empty' events for remote reporting
 		if ( 'error' !== $event_type && 'empty' !== $event_type ) {
 			return;
 		}
 
+		/*
+		 * Error_Handler integration for External_Storage has been deprecated.
+		 * Storage providers should implement handle_error_event() method for error reporting.
+		 *
+		 * The Error_Handler integration is disabled. The deprecated methods below are kept for
+		 * backwards compatibility but no longer report to WordPress.com through Error_Handler.
+		 *
+		 * @deprecated $$next-version$$
+		 */
 		$should_report_remote = false;
 
 		if ( 'error' === $event_type ) {
-			// Report external storage errors for supported environments
 			$should_report_remote = self::should_report_for_environment( $key );
 		} elseif ( 'empty' === $event_type ) {
-			// Use delay mechanism to distinguish disconnection from a delay
 			$should_report_remote = self::should_report_for_environment( $key ) && self::should_report_empty_state( $key );
 		}
 
-		if ( ! $should_report_remote || ! class_exists( 'Automattic\Jetpack\Connection\Error_Handler' ) ) {
-			return;
+		// Trigger deprecation notice if any code is still trying to use Error_Handler integration
+		if ( $should_report_remote ) {
+			_deprecated_function(
+				'External_Storage Error_Handler integration',
+				'jetpack-connection-$$next-version$$',
+				'Implement handle_error_event() method in your Storage Provider instead'
+			);
+			// Error_Handler reporting is now disabled - providers should implement handle_error_event()
 		}
-
-		// Create and report error
-		$error_code    = 'external_storage_' . $event_type;
-		$error_message = sprintf(
-			'External storage %s for key "%s"%s',
-			str_replace( '_', ' ', $event_type ),
-			$key,
-			$details ? ': ' . $details : ''
-		);
-
-		$error_data = array(
-			'key'         => $key,
-			'event_type'  => $event_type,
-			'details'     => $details,
-			'environment' => $environment,
-			'timestamp'   => time(),
-			'site_url'    => home_url(),
-		);
-
-		$error = new \WP_Error( $error_code, $error_message, $error_data );
-		Error_Handler::get_instance()->report_error( $error, false, true );
 	}
 
 	/**
 	 * Determine if the current environment should report external storage errors to WordPress.com.
-	 * Allows providers to control remote error reporting per-option via optional should_report_errors_for() method.
 	 *
 	 * @since 6.18.0
+	 * @deprecated $$next-version$$ Error_Handler integration has been deprecated.
+	 *             Implement handle_error_event() method in your Storage Provider instead.
 	 *
 	 * @param string $key The option key being accessed.
 	 * @return bool True if this environment should report external storage errors to WordPress.com.
 	 */
 	private static function should_report_for_environment( $key = '' ) {
+		_deprecated_function( __METHOD__, 'jetpack-connection-$$next-version$$', 'Implement handle_error_event() method in your Storage Provider instead' );
+
 		$provider = self::$provider;
 
 		// Check if provider implements per-option reporting (optional method not defined in interface).
@@ -203,19 +208,6 @@ class External_Storage {
 		if ( null !== $provider && method_exists( $provider, 'should_report_errors_for' ) && ! empty( $key ) ) {
 			// @phan-suppress-next-line PhanUndeclaredMethodInCallable - Optional method, checked via method_exists()
 			return call_user_func( array( $provider, 'should_report_errors_for' ), $key );
-		}
-
-		// Deprecated: JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED constant
-		// @deprecated 6.18.13 Use should_report_errors_for() method in your Storage Provider instead.
-		if ( defined( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' ) ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-				trigger_error(
-					'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED constant is deprecated. Implement should_report_errors_for() method in your Storage Provider instead.',
-					E_USER_DEPRECATED
-				);
-			}
-			return (bool) constant( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' );
 		}
 
 		return false;
@@ -228,11 +220,15 @@ class External_Storage {
 	 * after 10 minutes, allows reporting (indicating likely disconnection, not sync delay).
 	 *
 	 * @since 6.18.0
+	 * @deprecated $$next-version$$ Error_Handler integration has been deprecated.
+	 *             This method will be repurposed to support provider-based error reporting.
 	 *
 	 * @param string $key The key that was empty.
 	 * @return bool True if we should report this empty state, false otherwise.
 	 */
 	private static function should_report_empty_state( $key ) {
+		_deprecated_function( __METHOD__, 'jetpack-connection-$$next-version$$', 'Provider-based error reporting via handle_error_event()' );
+
 		$delay_key        = 'jetpack_external_storage_empty_delay_' . $key;
 		$first_empty_time = get_transient( $delay_key );
 
@@ -257,14 +253,20 @@ class External_Storage {
 	 * Determine if an event should be logged based on rate limiting rules.
 	 *
 	 * This prevents log spam from noisy events by applying a simple one-hour
-	 * rate limit per key, regardless of event type.
+	 * rate limit per key, regardless of event type. Also uses a static cache
+	 * to prevent duplicate logs within the same request.
 	 *
 	 * @since 6.18.0
 	 *
-	 * @param string $key        The key that triggered the event.
+	 * @param string $key The key that triggered the event.
 	 * @return bool True if the event should be logged, false if rate limited.
 	 */
 	private static function should_log_event( $key ) {
+		// Check static cache first (prevents multiple logs in same request)
+		if ( isset( self::$logged_events[ $key ] ) ) {
+			return false;
+		}
+
 		$rate_limit_key = 'jetpack_ext_storage_rate_limit_' . $key;
 
 		// Check if we're still within the rate limit period
@@ -272,6 +274,8 @@ class External_Storage {
 			return false;
 		}
 
+		// Mark as logged in both caches
+		self::$logged_events[ $key ] = true;
 		set_transient( $rate_limit_key, true, HOUR_IN_SECONDS );
 
 		return true;
