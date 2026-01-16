@@ -27,9 +27,11 @@ class Dashboard {
 	 * This is for the new DataViews-based responses list.
 	 */
 	public static function load_wp_build() {
-		$wp_build_index = dirname( __DIR__, 2 ) . '/build/index.php';
-		if ( file_exists( $wp_build_index ) ) {
-			require_once $wp_build_index;
+		if ( isset( $_GET['page'] ) && $_GET['page'] === self::FORMS_WPBUILD_ADMIN_SLUG ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$wp_build_index = dirname( __DIR__, 2 ) . '/build/index.php';
+			if ( file_exists( $wp_build_index ) ) {
+				require_once $wp_build_index;
+			}
 		}
 	}
 	/**
