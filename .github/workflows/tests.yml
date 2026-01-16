@@ -102,6 +102,12 @@ jobs:
             CHANGED=$( jq -c 'with_entries( select( .key == "plugins/jetpack" ) )' <<<"$CHANGED" )
           fi
 
+          # Ensure certain plugins are tested if WITH_WPCOMSH and wpcomsh is changed.
+          if [[ "$WITH_WPCOMSH" == true ]] && jq -e '.["plugins/wpcomsh"] // false' <<<"$CHANGED" > /dev/null; then
+            echo "Testing with wpcomsh, making sure projects that have wpcomsh-specific tests are also tested."
+            CHANGED=$( jq -c '. += { "plugins/jetpack": true }' <<<"$CHANGED" )
+          fi
+
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
