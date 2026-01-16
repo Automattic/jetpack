@@ -5,6 +5,7 @@ module.exports = [
 	{
 		entry: {
 			index: './_inc/admin.jsx',
+			'async-notification-bubble': './_inc/utils/async-notification-bubble.ts',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

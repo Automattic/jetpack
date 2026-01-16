@@ -1,7 +1,7 @@
 name: Enhancement Request
 description: Suggest a change to a feature you like!
 title: "Enhancement:"
-labels: ["[Type] Enhancement"]
+labels: ["Enhancement"]
 type: 'Enhancement'
 body:
   - type: dropdown
