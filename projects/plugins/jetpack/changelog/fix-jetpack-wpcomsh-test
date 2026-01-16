@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix test after #46632 changed behavior.
+
+
