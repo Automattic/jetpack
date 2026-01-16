@@ -30,11 +30,11 @@ type UseFormsDataReturn = {
 /**
  * Fetch Forms list records for the Forms dashboard table.
  *
- * @param  page    - Current page number.
- * @param  perPage - Items per page.
- * @param  search  - Search term.
+ * @param page    - Current page number.
+ * @param perPage - Items per page.
+ * @param search  - Search term.
  *
- * @return {UseFormsDataReturn} Forms list data for the current query.
+ * @return Forms list data for the current query.
  */
 export default function useFormsData(
 	page: number,
@@ -81,7 +81,7 @@ export default function useFormsData(
 	return {
 		records,
 		isLoading: ! hasResolved,
-		totalItems,
-		totalPages,
+		totalItems: totalItems ?? 0,
+		totalPages: totalPages ?? 0,
 	};
 }
