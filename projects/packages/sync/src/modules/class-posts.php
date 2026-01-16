@@ -441,7 +441,7 @@ class Posts extends Module {
 	 * Add filtered post content.
 	 *
 	 * @param array $args Hook arguments.
-	 * @return array Hook arguments.
+	 * @return array|false Hook arguments, or false if the arguments are invalid.
 	 */
 	public function filter_jetpack_sync_before_enqueue_jetpack_published_post( $args ) {
 		if ( ! is_array( $args ) ) {
