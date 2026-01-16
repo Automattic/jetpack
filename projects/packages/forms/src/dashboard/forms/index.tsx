@@ -102,7 +102,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		() => [
 			{
 				id: 'edit-form',
-				isPrimary: true,
+				isPrimary: false,
 				label: __( 'Edit', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
