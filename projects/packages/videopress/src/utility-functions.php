@@ -48,31 +48,37 @@ function videopress_is_valid_preload( $value ) {
  * Get details about a specific video by GUID:
  *
  * @param string $guid Video GUID.
- * @return object
+ * @return object|WP_Error
  */
 function videopress_get_video_details( $guid ) {
 	if ( ! videopress_is_valid_guid( $guid ) ) {
 		return new WP_Error( 'bad-guid-format', __( 'Invalid Video GUID!', 'jetpack-videopress-pkg' ) );
 	}
 
-	$version   = '1.1';
-	$endpoint  = sprintf( '/videos/%1$s', $guid );
-	$query_url = sprintf(
-		'https://public-api.wordpress.com/rest/v%1$s%2$s',
-		$version,
-		$endpoint
-	);
+	$cache_key = 'jetpack_videopress_' . $guid;
+	$data      = get_transient( $cache_key );
 
-	// Look for data in our transient. If nothing, let's make a new query.
-	$data_from_cache = get_transient( 'jetpack_videopress_' . $guid );
-	if ( false === $data_from_cache ) {
-		$response = wp_remote_get( esc_url_raw( $query_url ) );
-		$data     = json_decode( wp_remote_retrieve_body( $response ) );
+	// If not cached, fetch from API.
+	if ( false === $data ) {
+		$result = Client::wpcom_json_api_request_as_blog( 'videos/' . $guid );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $result );
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'video-not-found',
+				__( 'The specified video was not found.', 'jetpack-videopress-pkg' ),
+				array( 'status' => $response_code )
+			);
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $result ) );
 
 		// Cache the response for an hour.
-		set_transient( 'jetpack_videopress_' . $guid, $data, HOUR_IN_SECONDS );
-	} else {
-		$data = $data_from_cache;
+		set_transient( $cache_key, $data, HOUR_IN_SECONDS );
 	}
 
 	/**
@@ -129,7 +135,7 @@ function videopress_download_poster_image( $url, $attachment_id ) {
  * @param string $guid Video GUID.
  * @param int    $parent_id Parent post ID.
  *
- * @return int|object
+ * @return int|WP_Error
  */
 function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 ) {
 	$vp_data = videopress_get_video_details( $guid );
@@ -138,27 +144,40 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
 	}
 
 	$args = array(
-		'post_date'      => $vp_data->upload_date,
-		'post_title'     => wp_kses( $vp_data->title, array() ),
-		'post_content'   => wp_kses( $vp_data->description, array() ),
+		'post_date'      => $vp_data->upload_date ?? '',
+		'post_title'     => wp_kses( $vp_data->title ?? '', array() ),
+		'post_content'   => wp_kses( $vp_data->description ?? '', array() ),
 		'post_mime_type' => 'video/videopress',
-		'guid'           => sprintf( 'https://videopress.com/v/%s', $guid ),
+		'guid'           => videopress_build_url( $guid ),
 	);
 
 	$attachment_id = wp_insert_attachment( $args, null, $parent_id );
 
 	if ( ! is_wp_error( $attachment_id ) ) {
 		update_post_meta( $attachment_id, 'videopress_guid', $guid );
-		wp_update_attachment_metadata(
-			$attachment_id,
-			array(
-				'width'  => $vp_data->width,
-				'height' => $vp_data->height,
-			)
+
+		// Store metadata in the same structure as XMLRPC::update_videopress_media_item().
+		$meta = array(
+			'width'      => $vp_data->width ?? 0,
+			'height'     => $vp_data->height ?? 0,
+			'videopress' => (array) $vp_data,
 		);
 
-		$thumbnail_id = videopress_download_poster_image( $vp_data->poster, $attachment_id );
-		update_post_meta( $attachment_id, '_thumbnail_id', $thumbnail_id );
+		if ( ! empty( $vp_data->original ) ) {
+			$meta['original'] = array( 'url' => $vp_data->original );
+		}
+
+		wp_update_attachment_metadata( $attachment_id, $meta );
+
+		// Mark as complete since we're importing a fully processed video.
+		update_post_meta( $attachment_id, 'videopress_status', 'complete' );
+
+		if ( ! empty( $vp_data->poster ) ) {
+			$thumbnail_id = videopress_download_poster_image( $vp_data->poster, $attachment_id );
+			if ( is_int( $thumbnail_id ) ) {
+				update_post_meta( $attachment_id, '_thumbnail_id', $thumbnail_id );
+			}
+		}
 	}
 
 	return $attachment_id;

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Updated `videopress_get_video_details()` to use the authenticated API, enabling support for importing private videos owned by the site.

@@ -1,6 +1,10 @@
 <?php // phpcs:ignore WordPress.Files.FileName
 /**
- * VideoPress CLI
+ * VideoPress CLI - Cron and cleanup commands.
+ *
+ * Note: The `import` command has been moved to the VideoPress package.
+ * This file contains cron-related commands that depend on VideoPress_Scheduler,
+ * and the cleanup command.
  *
  * @package automattic/jetpack
  */
@@ -15,29 +19,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	 * VideoPress command line utilities.
 	 */
 	class VideoPress_CLI extends WP_CLI_Command {
-		/**
-		 * Import a VideoPress Video
-		 *
-		 * ## OPTIONS
-		 *
-		 * <guid>: Import the video with the specified guid
-		 *
-		 * ## EXAMPLES
-		 *
-		 * wp videopress import kUJmAcSf
-		 *
-		 * @param array $args CLI arguments.
-		 */
-		public function import( $args ) {
-			$guid          = $args[0];
-			$attachment_id = create_local_media_library_for_videopress_guid( $guid );
-			if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
-				/* translators: %d: attachment id */
-				WP_CLI::success( sprintf( __( 'The video has been imported as Attachment ID %d', 'jetpack' ), $attachment_id ) );
-			} else {
-				WP_CLI::error( __( 'An error has been encountered.', 'jetpack' ) );
-			}
-		}
 
 		/**
 		 * Manually runs the job to cleanup videos from the media library that failed during the upload process.

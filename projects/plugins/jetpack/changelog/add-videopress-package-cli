@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+VideoPress: Moved `import` CLI command to the VideoPress package.

@@ -17,7 +17,7 @@ class Initializer {
 	const JETPACK_VIDEOPRESS_IFRAME_API_HANDLER = 'jetpack-videopress-iframe-api';
 
 	/**
-	 * Initialization optinos
+	 * Initialization options
 	 *
 	 * @var array
 	 */
@@ -83,6 +83,11 @@ class Initializer {
 			require_once __DIR__ . '/utility-functions.php';
 		}
 
+		// Register CLI commands.
+		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
+			\WP_CLI::add_command( 'videopress', __NAMESPACE__ . '\CLI' );
+		}
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
@@ -131,7 +136,7 @@ class Initializer {
 		Block_Editor_Content::init();
 		self::register_oembed_providers();
 
-		// Enqueuethe VideoPress Iframe API script in the front-end.
+		// Enqueue the VideoPress Iframe API script in the front-end.
 		add_filter( 'embed_oembed_html', array( __CLASS__, 'enqueue_videopress_iframe_api_script' ), 10, 4 );
 
 		if ( self::should_initialize_admin_ui() ) {
