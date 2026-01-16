@@ -42,6 +42,7 @@ import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-
 import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
+import { getActions } from './actions';
 import './style.scss';
 /**
  * Types
@@ -49,7 +50,7 @@ import './style.scss';
 import type { SelectActions, DispatchActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
 import type { StoreDescriptor } from '@wordpress/data';
-import type { View, Field } from '@wordpress/dataviews';
+import type { View, Field, Action } from '@wordpress/dataviews';
 
 type FeedbackFilterDate = {
 	month: number;
@@ -844,115 +845,34 @@ function Stage() {
 		[ editEntityRecord, createSuccessNotice, createErrorNotice, invalidateCache ]
 	);
 
-	const actions = useMemo( () => {
-		const baseActions = [
-			{
-				id: 'view-details',
-				label: __( 'View', 'jetpack-forms' ),
-				isPrimary: true,
-				callback: items => {
-					const ids = items.map( item => getItemId( item ) );
-					navigate( {
-						search: {
-							...searchParams,
-							responseIds: ids,
-						},
-					} );
-				},
-			},
-		];
-
-		if ( params.view === 'inbox' || ! params.view ) {
-			return [
-				...baseActions,
-				{
-					id: 'mark-as-read',
-					label: __( 'Mark as read', 'jetpack-forms' ),
-					supportsBulk: true,
-					isEligible: item => item.is_unread,
-					callback: handleMarkAsRead,
-				},
-				{
-					id: 'mark-as-spam',
-					label: __( 'Spam', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					isPrimary: true,
-					callback: handleMarkAsSpam,
-				},
-				{
-					id: 'move-to-trash',
-					label: __( 'Trash', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					isPrimary: true,
-					callback: handleMoveToTrash,
-				},
-				{
-					id: 'mark-as-unread',
-					label: __( 'Mark as unread', 'jetpack-forms' ),
-					supportsBulk: true,
-					isEligible: item => ! item.is_unread,
-					callback: handleMarkAsUnread,
-				},
-			];
-		}
-
-		if ( params.view === 'spam' ) {
-			return [
-				...baseActions,
-				{
-					id: 'not-spam',
-					label: __( 'Not spam', 'jetpack-forms' ),
-					supportsBulk: true,
-					isPrimary: true,
-					callback: handleMarkAsNotSpam,
-				},
-				{
-					id: 'move-to-trash',
-					label: __( 'Trash', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					isPrimary: true,
-					callback: handleMoveToTrash,
-				},
-			];
-		}
-
-		if ( params.view === 'trash' ) {
-			return [
-				...baseActions,
-				{
-					id: 'restore',
-					label: __( 'Restore', 'jetpack-forms' ),
-					supportsBulk: true,
-					isPrimary: true,
-					callback: handleRestore,
-				},
-				{
-					id: 'delete-permanently',
-					label: __( 'Delete', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					isPrimary: true,
-					callback: handleDelete,
-				},
-			];
-		}
-
-		return baseActions;
-	}, [
-		navigate,
-		searchParams,
-		params.view,
-		handleMarkAsRead,
-		handleMarkAsUnread,
-		handleMarkAsSpam,
-		handleMarkAsNotSpam,
-		handleMoveToTrash,
-		handleRestore,
-		handleDelete,
-	] );
+	const actions = useMemo(
+		() =>
+			getActions( {
+				navigate,
+				searchParams,
+				view: params.view,
+				getItemId,
+				handleMarkAsRead,
+				handleMarkAsUnread,
+				handleMarkAsSpam,
+				handleMarkAsNotSpam,
+				handleMoveToTrash,
+				handleRestore,
+				handleDelete,
+			} ),
+		[
+			navigate,
+			searchParams,
+			params.view,
+			handleMarkAsRead,
+			handleMarkAsUnread,
+			handleMarkAsSpam,
+			handleMarkAsNotSpam,
+			handleMoveToTrash,
+			handleRestore,
+			handleDelete,
+		]
+	);
 
 	const paginationInfo = useMemo(
 		() => ( {
@@ -1101,7 +1021,7 @@ function Stage() {
 					selection={ selection }
 					onChangeSelection={ onChangeSelection }
 					onClickItem={ onClickItem }
-					actions={ actions }
+					actions={ actions as Action< FormResponse >[] }
 				>
 					<Stack
 						align="center"
