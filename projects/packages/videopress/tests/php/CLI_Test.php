@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\Group;
 use WorDBless\BaseTestCase;
@@ -57,6 +60,11 @@ class CLI_Test extends BaseTestCase {
 		if ( ! self::$wp_cli_available ) {
 			$this->markTestSkipped( 'WP-CLI is not available.' );
 		}
+
+		// Simulate a connected site so Client::wpcom_json_api_request_as_blog() proceeds to HTTP request.
+		( new Tokens() )->update_blog_token( 'test.test' );
+		Jetpack_Options::update_option( 'id', 12345 );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 	}
 
 	/**
@@ -93,24 +101,44 @@ class CLI_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Set up mock video data in the transient cache.
+	 * Mock video data for the current test.
 	 *
-	 * @param string $guid      The video GUID.
-	 * @param object $mock_data The mock video data.
+	 * @var object|null
 	 */
-	public function set_mock_video_transient( $guid, $mock_data ) {
-		$cache_key = 'jetpack_videopress_' . $guid;
-		set_transient( $cache_key, $mock_data, HOUR_IN_SECONDS );
+	protected $mock_video_data = null;
+
+	/**
+	 * Filter callback to mock the VideoPress API response.
+	 *
+	 * @param false|array|\WP_Error $preempt A preemptive return value.
+	 * @param array                 $args    Request arguments.
+	 * @param string                $url     The request URL.
+	 * @return array|false Mock response or false to proceed with the request.
+	 */
+	public function filter_mock_videopress_api( $preempt, $args, $url ) {
+		// Only intercept VideoPress API calls.
+		if ( strpos( $url, 'videos/' ) === false ) {
+			return $preempt;
+		}
+
+		if ( null === $this->mock_video_data ) {
+			return $preempt;
+		}
+
+		return array(
+			'response' => array( 'code' => 200 ),
+			'body'     => wp_json_encode( $this->mock_video_data, JSON_HEX_TAG | JSON_HEX_AMP ),
+		);
 	}
 
 	/**
-	 * Delete mock video data from the transient cache.
+	 * Clear the VideoPress transient cache for a GUID.
 	 *
 	 * @param string $guid The video GUID.
 	 */
-	public function delete_mock_video_transient( $guid ) {
-		$cache_key = 'jetpack_videopress_' . $guid;
-		delete_transient( $cache_key );
+	public function clear_video_cache( $guid ) {
+		delete_transient( 'jetpack_videopress_' . $guid );
+		delete_transient( 'videopress_get_post_id_by_guid_' . $guid );
 	}
 
 	/**
@@ -149,15 +177,14 @@ class CLI_Test extends BaseTestCase {
 	 * Test import command creates attachment successfully.
 	 */
 	public function test_import_creates_attachment() {
-		$guid      = 'abc12345';
-		$mock_data = $this->get_mock_video_data();
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data();
 
-		$this->set_mock_video_transient( $guid, $mock_data );
-
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
 		$cli = new CLI();
 		$cli->import( array( $guid ), array() );
-
-		$this->delete_mock_video_transient( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
 
 		// Verify the attachment was created.
 		$post_id = videopress_get_post_id_by_guid( $guid );
@@ -168,10 +195,11 @@ class CLI_Test extends BaseTestCase {
 	 * Test import command returns early when video already exists without --force.
 	 */
 	public function test_import_returns_early_when_video_exists() {
-		$guid      = 'abc12345';
-		$mock_data = $this->get_mock_video_data();
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data();
 
-		$this->set_mock_video_transient( $guid, $mock_data );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
 
 		// First import.
 		$cli = new CLI();
@@ -182,7 +210,7 @@ class CLI_Test extends BaseTestCase {
 		// Second import without --force - should return early.
 		$cli->import( array( $guid ), array() );
 
-		$this->delete_mock_video_transient( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
 
 		// Verify the same attachment still exists (wasn't deleted/recreated).
 		$second_post_id = videopress_get_post_id_by_guid( $guid );
@@ -193,10 +221,11 @@ class CLI_Test extends BaseTestCase {
 	 * Test import command with --force flag deletes and recreates attachment.
 	 */
 	public function test_import_with_force_recreates_attachment() {
-		$guid      = 'abc12345';
-		$mock_data = $this->get_mock_video_data();
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data();
 
-		$this->set_mock_video_transient( $guid, $mock_data );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
 
 		// First import.
 		$cli = new CLI();
@@ -207,7 +236,7 @@ class CLI_Test extends BaseTestCase {
 		// Second import with --force.
 		$cli->import( array( $guid ), array( 'force' => true ) );
 
-		$this->delete_mock_video_transient( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
 
 		$second_post_id = videopress_get_post_id_by_guid( $guid );
 
