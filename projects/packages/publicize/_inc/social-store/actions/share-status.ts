@@ -5,6 +5,7 @@ import {
 	POLLING_FOR_POST_SHARE_STATUS,
 	RECEIVE_POST_SHARE_STATUS,
 	TOGGLE_SHARE_STATUS_MODAL,
+	TOGGLE_SHARING_ACTIVITY_MODAL,
 } from './constants';
 
 /**
@@ -168,4 +169,36 @@ export function pollForPostShareStatus( {
 
 		dispatch( pollingForPostShareStatus( postId, false ) );
 	};
+}
+
+/**
+ * Toggles the sharing activity modal.
+ *
+ * @param {boolean} isOpen - Whether the modal is open.
+ *
+ * @return {object} - An action object.
+ */
+export function toggleSharingActivityModal( isOpen: boolean ) {
+	return {
+		type: TOGGLE_SHARING_ACTIVITY_MODAL,
+		isOpen,
+	};
+}
+
+/**
+ * Opens the sharing activity modal.
+ *
+ * @return {object} - An action object.
+ */
+export function openSharingActivityModal() {
+	return toggleSharingActivityModal( true );
+}
+
+/**
+ * Closes the sharing activity modal.
+ *
+ * @return {object} - An action object.
+ */
+export function closeSharingActivityModal() {
+	return toggleSharingActivityModal( false );
 }

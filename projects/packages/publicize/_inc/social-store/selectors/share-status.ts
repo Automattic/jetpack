@@ -26,3 +26,14 @@ export const getPostShareStatus = createRegistrySelector(
 export function isShareStatusModalOpen( state: SocialStoreState ) {
 	return state.shareStatus?.isModalOpen ?? false;
 }
+
+/**
+ * Whether the sharing activity modal is open.
+ *
+ * @param {SocialStoreState} state - State object.
+ *
+ * @return {boolean} Whether the sharing activity modal is open.
+ */
+export function isSharingActivityModalOpen( state: SocialStoreState ) {
+	return state.shareStatus?.isSharingActivityModalOpen ?? false;
+}
