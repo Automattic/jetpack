@@ -1,7 +1,8 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
-import { useNavigator } from '@wordpress/components';
+import { Disabled, useNavigator } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, type FC } from 'react';
 import { usePostCanUseSig } from '../../hooks/use-post-can-use-sig';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
@@ -64,6 +65,11 @@ export type SharePostFormProps = {
 	 * operates in controlled mode and uses the media props instead of fetching from the store.
 	 */
 	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
+
+	/**
+	 * Whether the form is disabled.
+	 */
+	disabled?: boolean;
 };
 
 /**
@@ -81,6 +87,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 	imageGeneratorSettings,
 	mediaSource,
 	onMediaChange,
+	disabled = false,
 } ) => {
 	const {
 		message: storeMessage,
@@ -112,50 +119,57 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 	}, [ openUnifiedModal, isInsideNavigatorModal, navigator ] );
 
 	return (
-		<div className={ styles[ 'share-post-form' ] }>
-			{ ! isSocialNote && (
-				<MessageBoxControl
-					label={ __( 'Message', 'jetpack-publicize-pkg' ) }
-					maxLength={ maxLength }
-					onChange={ updateMessage }
-					message={ message }
-					analyticsData={ analyticsData }
-				/>
-			) }
-			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
-				<div className={ styles[ 'share-post-form__media-section' ] }>
-					{ ! hasSocialPaidFeatures() ? (
-						<UpgradeNotice />
-					) : (
-						<MediaSectionV2
-							analyticsData={ analyticsData }
-							onEditTemplate={ onEditTemplate }
-							{ ...( isMediaControlled && {
-								attachedMedia,
-								imageGeneratorSettings,
-								mediaSource,
-								onMediaChange,
-							} ) }
-						/>
-					) }
-				</div>
-			) : (
-				<>
-					{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
-						<div className={ styles[ 'share-post-form__media-section' ] }>
-							<MediaSection
+		<Disabled isDisabled={ disabled }>
+			<div className={ styles[ 'share-post-form' ] }>
+				{ ! isSocialNote && (
+					<MessageBoxControl
+						label={ __( 'Message', 'jetpack-publicize-pkg' ) }
+						maxLength={ maxLength }
+						onChange={ updateMessage }
+						message={ message }
+						analyticsData={ analyticsData }
+						disabled={ disabled }
+					/>
+				) }
+				{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
+					<div
+						className={ clsx( {
+							[ styles[ 'share-post-form-disabled' ] ]: disabled,
+						} ) }
+					>
+						{ ! hasSocialPaidFeatures() ? (
+							<UpgradeNotice />
+						) : (
+							<MediaSectionV2
 								analyticsData={ analyticsData }
+								onEditTemplate={ onEditTemplate }
 								{ ...( isMediaControlled && {
 									attachedMedia,
+									imageGeneratorSettings,
+									mediaSource,
 									onMediaChange,
 								} ) }
 							/>
-						</div>
-					) }
-					{ /* Social Image Generator panel - only shown when not using unified UI */ }
-					{ postCanUseSig && <SocialImageGeneratorPanel /> }
-				</>
-			) }
-		</div>
+						) }
+					</div>
+				) : (
+					<>
+						{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
+							<div>
+								<MediaSection
+									analyticsData={ analyticsData }
+									{ ...( isMediaControlled && {
+										attachedMedia,
+										onMediaChange,
+									} ) }
+								/>
+							</div>
+						) }
+						{ /* Social Image Generator panel - only shown when not using unified UI */ }
+						{ postCanUseSig && <SocialImageGeneratorPanel /> }
+					</>
+				) }
+			</div>
+		</Disabled>
 	);
 };

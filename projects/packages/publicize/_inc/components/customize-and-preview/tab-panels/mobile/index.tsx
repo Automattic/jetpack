@@ -17,13 +17,18 @@ import { TabContent } from './tab-content';
 export function TabPanelMobile() {
 	const tabs = useConnectionTabs();
 
-	const { isEnabled: perNetwork } = usePerNetworkCustomization();
+	const { isEnabled: usingPerNetworkCustomization } = usePerNetworkCustomization();
 
 	const tabRenderer = useCallback(
 		( tab: ConnectionTab ) => {
-			return <TabContent connectionId={ tab.connectionId } perNetwork={ perNetwork } />;
+			return (
+				<TabContent
+					connectionId={ tab.connectionId }
+					usingPerNetworkCustomization={ usingPerNetworkCustomization }
+				/>
+			);
 		},
-		[ perNetwork ]
+		[ usingPerNetworkCustomization ]
 	);
 
 	return (
@@ -31,8 +36,12 @@ export function TabPanelMobile() {
 			<div className={ styles[ 'customization-toggle-wrapper' ] }>
 				<CustomizationToggle />
 			</div>
-			<div className={ clsx( { [ styles[ 'tab-panel-mobile-wrapper-border' ] ]: ! perNetwork } ) }>
-				{ ! perNetwork && <CustomizationSection /> }
+			<div
+				className={ clsx( {
+					[ styles[ 'tab-panel-mobile-wrapper-border' ] ]: ! usingPerNetworkCustomization,
+				} ) }
+			>
+				{ ! usingPerNetworkCustomization && <CustomizationSection /> }
 				<TabPanel
 					className={ styles[ 'tab-panel-mobile' ] }
 					tabs={ tabs }
