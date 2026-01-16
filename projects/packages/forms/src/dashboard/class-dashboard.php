@@ -28,7 +28,7 @@ class Dashboard {
 	 */
 	public static function load_wp_build() {
 		if ( self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG ) {
-			$wp_build_index = dirname( __DIR__, 2 ) . '/build/index.php';
+			$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
 			if ( file_exists( $wp_build_index ) ) {
 				require_once $wp_build_index;
 			}
@@ -211,8 +211,8 @@ class Dashboard {
 	 * Register Forms (WP-Build) submenu under Jetpack menu using wp-build page.
 	 */
 	public function add_forms_wpbuild_submenu() {
-		$callback = function_exists( 'jetpack_forms_responses_wp_admin_render_page' )
-			? 'jetpack_forms_responses_wp_admin_render_page'
+		$callback = function_exists( 'gutenberg_jetpack_forms_responses_wp_admin_render_page' )
+			? 'gutenberg_jetpack_forms_responses_wp_admin_render_page'
 			: array( $this, 'render_dashboard' );
 
 		Admin_Menu::add_menu(
