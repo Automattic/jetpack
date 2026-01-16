@@ -417,18 +417,12 @@ class Posts extends Module {
 			return $args;
 		}
 
-		$args = array_values( $args );
-
-		// Only $post_id and $post are required
-		if ( count( $args ) < 2 ) {
-			return false;
+		// Require post_id and WP_Post to transform; otherwise pass through.
+		if ( ! array_key_exists( 0, $args ) || ! array_key_exists( 1, $args ) || ! ( $args[1] instanceof \WP_Post ) ) {
+			return $args;
 		}
 
 		list( $post_id, $post, $update, $previous_state ) = array_pad( $args, 4, null );
-
-		if ( ! is_numeric( $post_id ) || ! ( $post instanceof \WP_Post ) ) {
-			return false;
-		}
 
 		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
 			return false;
@@ -447,20 +441,13 @@ class Posts extends Module {
 		if ( ! is_array( $args ) ) {
 			return $args;
 		}
-		$args = array_values( $args );
-		if ( count( $args ) < 3 ) {
-			return false;
+		if ( ! array_key_exists( 0, $args ) || ! array_key_exists( 2, $args ) || ! ( $args[2] instanceof \WP_Post ) ) {
+			return $args;
 		}
 
 		list( $post_id, $flags, $post ) = array_pad( $args, 3, null );
 
-		if ( ! is_numeric( $post_id ) || ! ( $post instanceof \WP_Post ) ) {
-			return false;
-		}
-
-		if ( ! is_array( $flags ) ) {
-			$flags = array();
-		}
+		$flags = is_array( $flags ) ? $flags : array();
 		return array( $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
