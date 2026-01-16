@@ -2,23 +2,26 @@
  * Block category override utilities
  *
  * Provides functions to dynamically override block categories in the
- * Jetpack Form editor. When activated, blocks with a `formEditorCategory`
- * setting will have their category changed to the corresponding form category.
+ * Jetpack Form editor using WordPress filters and the reapplyBlockTypeFilters
+ * dispatch action.
  *
  * @package
  */
 
-import { select } from '@wordpress/data';
+import { dispatch } from '@wordpress/data';
 import { addFilter, removeFilter } from '@wordpress/hooks';
 import { getFormCategorySlug } from './form-categories';
 
 const FILTER_NAMESPACE = 'jetpack/forms/override-block-category';
 
-// Store original categories to restore later
-const originalBlockCategories: Map< string, string > = new Map();
+/**
+ * Flag to track whether the form editor category overrides are active.
+ * This is used by the filter to conditionally apply category changes.
+ */
+let isFormEditorActive = false;
 
-interface BlockType {
-	name: string;
+interface BlockSettings {
+	name?: string;
 	category?: string;
 	formEditorCategory?: string;
 	[ key: string ]: unknown;
@@ -28,13 +31,17 @@ interface BlockType {
  * Filter callback that overrides block categories for form field blocks.
  *
  * This reads the `formEditorCategory` property from the block settings
- * and maps it to the full form category slug.
+ * and maps it to the full form category slug when the form editor is active.
  *
  * @param settings - The block settings object
- * @param name     - The block name
  * @return Modified settings with updated category, or original settings
  */
-function overrideBlockCategory( settings: BlockType, name: string ): BlockType {
+function overrideBlockCategory( settings: BlockSettings ): BlockSettings {
+	// Only apply overrides when form editor is active
+	if ( ! isFormEditorActive ) {
+		return settings;
+	}
+
 	const { formEditorCategory, category } = settings;
 
 	if ( ! formEditorCategory || ! category ) {
@@ -47,11 +54,6 @@ function overrideBlockCategory( settings: BlockType, name: string ): BlockType {
 		return settings;
 	}
 
-	// Store original category if not already stored
-	if ( ! originalBlockCategories.has( name ) ) {
-		originalBlockCategories.set( name, category );
-	}
-
 	return {
 		...settings,
 		category: formCategorySlug,
@@ -61,62 +63,47 @@ function overrideBlockCategory( settings: BlockType, name: string ): BlockType {
 /**
  * Activates block category overrides for the form editor.
  *
- * Uses the 'blocks.registerBlockType' filter to change categories
- * for blocks that have a `formEditorCategory` setting.
- *
- * Note: This filter runs at registration time, so for already-registered
- * blocks we need to re-process them using the data store.
+ * This adds a filter on `blocks.registerBlockType` and then calls
+ * `reapplyBlockTypeFilters` to re-process all registered blocks
+ * with the new filter active.
  */
 export function activateBlockCategoryOverrides(): void {
-	// Add filter for future block registrations
+	if ( isFormEditorActive ) {
+		return;
+	}
+
+	isFormEditorActive = true;
+
+	// Add filter for block type registration
 	addFilter( 'blocks.registerBlockType', FILTER_NAMESPACE, overrideBlockCategory );
 
-	// For already-registered blocks, we need to update them via the data store
-	const { getBlockTypes } = select( 'core/blocks' ) as {
-		getBlockTypes: () => BlockType[];
+	// Reapply filters to all already-registered blocks
+	const { reapplyBlockTypeFilters } = dispatch( 'core/blocks' ) as {
+		reapplyBlockTypeFilters: () => void;
 	};
-
-	const blockTypes = getBlockTypes();
-
-	for ( const blockType of blockTypes ) {
-		if ( blockType.formEditorCategory && blockType.category ) {
-			const formCategorySlug = getFormCategorySlug( blockType.formEditorCategory );
-			if ( formCategorySlug && blockType.category !== formCategorySlug ) {
-				// Store original category
-				if ( ! originalBlockCategories.has( blockType.name ) ) {
-					originalBlockCategories.set( blockType.name, blockType.category );
-				}
-				// Update the block type's category
-				blockType.category = formCategorySlug;
-			}
-		}
-	}
+	reapplyBlockTypeFilters();
 }
 
 /**
  * Deactivates block category overrides and restores original categories.
  *
- * This should be called when leaving the form editor to restore
- * blocks to their original 'contact-form' category.
+ * This removes the filter and calls `reapplyBlockTypeFilters` to
+ * re-process all blocks without the override, restoring them to
+ * their original categories.
  */
 export function deactivateBlockCategoryOverrides(): void {
+	if ( ! isFormEditorActive ) {
+		return;
+	}
+
+	isFormEditorActive = false;
+
 	// Remove the filter
 	removeFilter( 'blocks.registerBlockType', FILTER_NAMESPACE );
 
-	// Restore original categories for all affected blocks
-	const { getBlockTypes } = select( 'core/blocks' ) as {
-		getBlockTypes: () => BlockType[];
+	// Reapply filters to restore original categories
+	const { reapplyBlockTypeFilters } = dispatch( 'core/blocks' ) as {
+		reapplyBlockTypeFilters: () => void;
 	};
-
-	const blockTypes = getBlockTypes();
-
-	for ( const blockType of blockTypes ) {
-		const originalCategory = originalBlockCategories.get( blockType.name );
-		if ( originalCategory ) {
-			blockType.category = originalCategory;
-		}
-	}
-
-	// Clear stored categories
-	originalBlockCategories.clear();
+	reapplyBlockTypeFilters();
 }
