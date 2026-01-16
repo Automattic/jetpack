@@ -313,7 +313,7 @@ class Utility_Functions_Test extends BaseTestCase {
 		$this->assertSame( 'https://videos.files.wordpress.com/abc12345/test.mp4', $metadata['original']['url'] );
 
 		// Verify nested structures are stored as arrays, not stdClass objects.
-		// This is required for compatibility with class-data.php which uses array access.
+		// This is required for compatibility with Automattic\Jetpack\VideoPress\Data which uses array access.
 		$this->assertIsArray( $metadata['videopress']['files'] );
 		$this->assertIsArray( $metadata['videopress']['files']['dvd'] );
 		$this->assertSame( 'test-thumbnail.jpg', $metadata['videopress']['files']['dvd']['original_img'] );
