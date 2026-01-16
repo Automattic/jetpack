@@ -416,7 +416,7 @@ class Posts extends Module {
 		if ( ! is_array( $args ) ) {
 			return $args;
 		}
-		// Normalize to 0-based numeric keys.
+
 		$args = array_values( $args );
 
 		// Only $post_id and $post are required
@@ -447,7 +447,7 @@ class Posts extends Module {
 		if ( ! is_array( $args ) ) {
 			return $args;
 		}
-		$args = array_values( $args ); // normalize to 0,1,2
+		$args = array_values( $args );
 		if ( count( $args ) < 3 ) {
 			return false;
 		}
