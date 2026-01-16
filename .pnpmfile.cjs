@@ -258,7 +258,10 @@ async function fixDeps( pkg ) {
 
 	// GHSA-73rr-hh4g-fpgx
 	// https://github.com/WordPress/gutenberg/issues/74669
-	if ( pkg.name === '@wordpress/block-editor' && pkg.dependencies?.diff?.startsWith( '^4.' ) ) {
+	if (
+		( pkg.name === '@wordpress/block-editor' || pkg.name === '@wordpress/sync' ) &&
+		( pkg.dependencies?.diff?.startsWith( '^4.' ) || pkg.dependencies?.diff?.startsWith( '4.' ) )
+	) {
 		pkg.dependencies.diff = '^8.0.3';
 	}
 
