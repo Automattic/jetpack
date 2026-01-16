@@ -116,9 +116,9 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 			'photon-cdn' => 'active',
 		);
 
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-
-			// Atomic does not override either.
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && ! ( function_exists( 'is_global_styles_on_personal_plan' ) && is_global_styles_on_personal_plan() ) ) {
+			// Atomic only registers an override if is_global_styles_on_personal_plan() is missing or returns false.
+			// See `projects/plugins/wpcomsh/feature-plugins/additional-css.php`.
 			$expected = array();
 		}
 		$this->assertSame( $expected, $this->instance->get_overrides() );
