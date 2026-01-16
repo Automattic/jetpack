@@ -413,7 +413,22 @@ class Posts extends Module {
 	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
 	 */
 	public function filter_jetpack_sync_before_enqueue_jetpack_sync_save_post( $args ) {
-		list( $post_id, $post, $update, $previous_state ) = $args;
+		if ( ! is_array( $args ) ) {
+			return $args;
+		}
+		// Normalize to 0-based numeric keys.
+		$args = array_values( $args );
+
+		// Only $post_id and $post are required
+		if ( count( $args ) < 2 ) {
+			return false;
+		}
+
+		list( $post_id, $post, $update, $previous_state ) = array_pad( $args, 4, null );
+
+		if ( ! is_numeric( $post_id ) || ! ( $post instanceof \WP_Post ) ) {
+			return false;
+		}
 
 		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
 			return false;
@@ -429,8 +444,23 @@ class Posts extends Module {
 	 * @return array Hook arguments.
 	 */
 	public function filter_jetpack_sync_before_enqueue_jetpack_published_post( $args ) {
-		list( $post_id, $flags, $post ) = $args;
+		if ( ! is_array( $args ) ) {
+			return $args;
+		}
+		$args = array_values( $args ); // normalize to 0,1,2
+		if ( count( $args ) < 3 ) {
+			return false;
+		}
 
+		list( $post_id, $flags, $post ) = array_pad( $args, 3, null );
+
+		if ( ! is_numeric( $post_id ) || ! ( $post instanceof \WP_Post ) ) {
+			return false;
+		}
+
+		if ( ! is_array( $flags ) ) {
+			$flags = array();
+		}
 		return array( $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
@@ -441,7 +471,9 @@ class Posts extends Module {
 	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
 	 */
 	public function filter_blacklisted_post_types_deleted( $args ) {
-
+		if ( ! is_array( $args ) || ! array_key_exists( 0, $args ) || ! is_numeric( $args[0] ) ) {
+			return false;
+		}
 		// deleted_post is called after the SQL delete but before cache cleanup.
 		// There is the potential we can't detect post_type at this point.
 		if ( ! $this->is_post_type_allowed( $args[0] ) ) {
@@ -475,8 +507,10 @@ class Posts extends Module {
 	 * @return boolean Whether the post meta key is whitelisted.
 	 */
 	public function is_whitelisted_post_meta( $meta_key ) {
-		// The _wpas_skip_ meta key is used by Publicize.
-		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || str_starts_with( $meta_key, '_wpas_skip_' );
+		if ( ! is_string( $meta_key ) ) {
+			return false;
+		}
+		return str_starts_with( $meta_key, '_wpas_skip_' ) || in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true );
 	}
 
 	/**
