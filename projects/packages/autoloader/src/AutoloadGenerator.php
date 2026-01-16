@@ -112,15 +112,43 @@ class AutoloadGenerator {
 		$classmap = $this->parseAutoloadsType( array_reverse( $sortedPackageMap ), 'classmap', $mainPackage );
 		$files    = $this->parseAutoloadsType( $sortedPackageMap, 'files', $mainPackage );
 
+		// Extract exclude-from-classmap from the root package (Composer only uses root package exclusions).
+		$excludeFromClassmap = $this->parseExcludeFromClassmap( $mainPackage );
+
 		krsort( $psr0 );
 		krsort( $psr4 );
 
 		return array(
-			'psr-0'    => $psr0,
-			'psr-4'    => $psr4,
-			'classmap' => $classmap,
-			'files'    => $files,
+			'psr-0'               => $psr0,
+			'psr-4'               => $psr4,
+			'classmap'            => $classmap,
+			'files'               => $files,
+			'exclude-from-classmap' => $excludeFromClassmap,
 		);
+	}
+
+	/**
+	 * Extracts exclude-from-classmap patterns from the root package.
+	 *
+	 * @param PackageInterface $mainPackage Main package instance.
+	 *
+	 * @return array The list of exclusion patterns.
+	 */
+	protected function parseExcludeFromClassmap( PackageInterface $mainPackage ) {
+		$autoload    = $mainPackage->getAutoload();
+		$devAutoload = $mainPackage->getDevAutoload();
+
+		$excludeFromClassmap = array();
+
+		if ( ! empty( $autoload['exclude-from-classmap'] ) ) {
+			$excludeFromClassmap = array_merge( $excludeFromClassmap, (array) $autoload['exclude-from-classmap'] );
+		}
+
+		if ( ! empty( $devAutoload['exclude-from-classmap'] ) ) {
+			$excludeFromClassmap = array_merge( $excludeFromClassmap, (array) $devAutoload['exclude-from-classmap'] );
+		}
+
+		return array_unique( $excludeFromClassmap );
 	}
 
 	/**
