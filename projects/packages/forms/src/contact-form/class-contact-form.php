@@ -1122,7 +1122,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$is_flex_layout       = isset( $attributes['layout']['type'] ) && $attributes['layout']['type'] === 'flex';
 		$is_nowrap_layout     = isset( $attributes['layout']['flexWrap'] ) && $attributes['layout']['flexWrap'] === 'nowrap';
 		$is_forced_horizontal = $is_flex_layout && $is_nowrap_layout
-			&& ( ! isset( $attributes['layout']['orientation'] ) || isset( $attributes['layout']['orientation'] ) && $attributes['layout']['orientation'] === 'horizontal' );
+			&& ( ! isset( $attributes['layout']['orientation'] ) || $attributes['layout']['orientation'] === 'horizontal' );
 
 		$extra_container_classes = array();
 		if ( $is_forced_horizontal ) {
