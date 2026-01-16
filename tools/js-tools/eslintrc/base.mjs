@@ -178,10 +178,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 						// Replacement for throttle is not as straightforward as you-dont-need-lodash-underscore claims.
 						'you-dont-need-lodash-underscore/throttle': 'off',
 
-						'@wordpress/components-no-missing-40px-size-prop': [
-							'error',
-							{ checkLocalImports: true },
-						],
+						'@wordpress/components-no-missing-40px-size-prop': 'error',
 					},
 				},
 				tanstackEslintPluginQuery.configs[ 'flat/recommended' ],
