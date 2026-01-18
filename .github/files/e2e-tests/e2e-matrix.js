@@ -213,3 +213,4 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 }
 
 console.log( JSON.stringify( matrix ) );
+console.log("Demo: I can change what the workflow runs.");
