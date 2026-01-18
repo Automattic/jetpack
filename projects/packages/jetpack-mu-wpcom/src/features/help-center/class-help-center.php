@@ -633,7 +633,7 @@ class Help_Center {
 		}
 
 		// Support sites only support logged-out users when the Odie answers feature is enabled.
-		if ( ! is_user_logged_in() && $this->is_support_site && ! get_option( 'dotcom_support_enable_odie_answers', false ) ) {
+		if ( ! is_user_logged_in() && ! self::is_proxied() && ! get_option( 'dotcom_support_enable_odie_answers', false ) ) {
 			return;
 		}
 
