@@ -60,7 +60,13 @@ function videopress_get_video_details( $guid ) {
 
 	// If not cached, fetch from API.
 	if ( false === $data ) {
+		// Try authenticated request first (required for private videos).
 		$result = Client::wpcom_json_api_request_as_blog( 'videos/' . $guid );
+
+		// Fallback to unauthenticated request for unconnected sites (public videos only).
+		if ( is_wp_error( $result ) && in_array( $result->get_error_code(), array( 'missing_token', 'unknown_token', 'site_not_registered' ), true ) ) {
+			$result = wp_remote_get( esc_url_raw( 'https://public-api.wordpress.com/rest/v1.1/videos/' . $guid ) );
+		}
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
