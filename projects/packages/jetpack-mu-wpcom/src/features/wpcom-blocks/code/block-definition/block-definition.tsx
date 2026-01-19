@@ -162,7 +162,7 @@ function filterBlockRegistration( settings: any ) {
 	if ( ! settings.supports.color ) {
 		settings.supports.color = {};
 	}
-	settings.supports.color.contrastChecker = false;
+	settings.supports.color.enableContrastChecker = false;
 
 	return settings;
 }
