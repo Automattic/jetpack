@@ -23,7 +23,7 @@ interface TruncatedTickComponentProps extends TickRendererProps {
  * Minimum width in pixels for tick labels when scale bandwidth is very small.
  * Prevents labels from collapsing to unreadable widths on dense charts.
  */
-const MINI_TICK_LABEL_LENGTH = 20;
+const MIN_TICK_LABEL_WIDTH = 20;
 
 /**
  * A tick component that renders labels with text truncation (ellipsis) when they exceed
@@ -57,7 +57,7 @@ export const TruncatedTickComponent: FC< TruncatedTickComponentProps > = ( {
 	const { xScale, yScale } = useContext( DataContext ) || {};
 	const scale = axis === 'x' ? xScale : yScale;
 	const bandwidth = getScaleBandwidth( scale );
-	const maxWidth = Math.max( bandwidth, MINI_TICK_LABEL_LENGTH );
+	const maxWidth = Math.max( bandwidth, MIN_TICK_LABEL_WIDTH );
 
 	// Map SVG textAnchor to CSS textAlign
 	let textAlign: 'left' | 'right' | 'center' = 'center';
