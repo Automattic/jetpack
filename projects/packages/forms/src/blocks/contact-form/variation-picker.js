@@ -14,8 +14,8 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import clsx from 'clsx';
 import { FORM_POST_TYPE } from '../shared/util/constants.js';
-
 import './util/form-styles.js';
+import applyVariationToFormBlock from './util/apply-variation.js';
 
 const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 	const blocks = innerBlocksTemplate.map( ( [ blockName, attr, innerBlocks = [] ] ) =>
@@ -76,11 +76,6 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 			setAttributes( { ref: parseInt( formId, 10 ) } );
 			selectBlock( clientId );
 		} );
-
-		createSuccessNotice( __( 'Form selected.', 'jetpack-forms' ), {
-			type: 'snackbar',
-			isDismissible: true,
-		} );
 	};
 
 	return (
@@ -101,17 +96,14 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 						isCentralFormManagementEnabled ||
 						nextVariation.name === 'regular-form'
 					) {
-						registry.batch( () => {
-							if ( nextVariation.attributes ) {
-								setAttributes( nextVariation.attributes );
-							}
-							if ( nextVariation.innerBlocks ) {
-								replaceInnerBlocks(
-									clientId,
-									createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks )
-								);
-							}
-							selectBlock( clientId );
+						applyVariationToFormBlock( {
+							batch: registry.batch,
+							setAttributes,
+							replaceInnerBlocks,
+							selectBlock,
+							clientId,
+							variation: nextVariation,
+							createBlocksFromTemplate: createBlocksFromInnerBlocksTemplate,
 						} );
 					} else {
 						// We're editing a regular post/page - create a synced form with ref
@@ -150,18 +142,15 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 						} catch ( error ) {
 							// eslint-disable-next-line no-console
 							console.error( 'Failed to create synced form:', error );
-							// Fallback to old behavior
-							registry.batch( () => {
-								if ( nextVariation.attributes ) {
-									setAttributes( nextVariation.attributes );
-								}
-								if ( nextVariation.innerBlocks ) {
-									replaceInnerBlocks(
-										clientId,
-										createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks )
-									);
-								}
-								selectBlock( clientId );
+							// Fallback to applying variation locally
+							applyVariationToFormBlock( {
+								batch: registry.batch,
+								setAttributes,
+								replaceInnerBlocks,
+								selectBlock,
+								clientId,
+								variation: nextVariation,
+								createBlocksFromTemplate: createBlocksFromInnerBlocksTemplate,
 							} );
 						}
 					}
