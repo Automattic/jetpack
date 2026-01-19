@@ -763,9 +763,9 @@ class Dashboard_REST_Controller {
 
 		$sync_ready = $this->are_posts_ready();
 
-		$response = $this->are_posts_ready() ?
+		$response = $sync_ready ?
 			$this->get_dsp_generic( 'v1/templates/advise/campaign/' . $urn, $req ) :
-			$this->get_get_dsp_advise_campaign_local( $urn );
+			$this->get_dsp_advise_campaign_local( $urn );
 
 		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
 			$response['sync_ready'] = $sync_ready;
@@ -782,7 +782,7 @@ class Dashboard_REST_Controller {
 	 * @param string $urn The request urn.
 	 * @return array|WP_Error
 	 */
-	public function get_get_dsp_advise_campaign_local( $urn ) {
+	public function get_dsp_advise_campaign_local( $urn ) {
 		$parsed_urn = $this->get_data_from_urn( $urn );
 		$site_id    = $this->get_site_id();
 
@@ -842,7 +842,7 @@ class Dashboard_REST_Controller {
 
 		$response = $this->are_posts_ready() ?
 			$this->get_dsp_generic( 'v1/advise/campaign/' . $urn, $req ) :
-			$this->get_get_dsp_advise_campaign_local( $urn );
+			$this->get_dsp_advise_campaign_local( $urn );
 
 		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
 			$response['sync_ready'] = $sync_ready;
