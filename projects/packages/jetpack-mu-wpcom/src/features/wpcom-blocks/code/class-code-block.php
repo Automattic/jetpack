@@ -36,7 +36,7 @@ abstract class Code_Block {
 	 * @return bool
 	 */
 	private static function should_load_block(): bool {
-		$filtered_value = apply_filters( 'jetpack_mu_wpcom_should_load_code_block', false );
+		$filtered_value = apply_filters( 'jetpack_mu_wpcom_should_load_code_block', true );
 		return \is_bool( $filtered_value ) ? $filtered_value : false;
 	}
 
