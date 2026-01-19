@@ -1,5 +1,5 @@
 Significance: patch
 Type: fixed
-Comment: Fixes a previously documented change.
+Comment: Correctly disable the contrast checker warning for the enhanced Code block using the proper property name.
 
 
