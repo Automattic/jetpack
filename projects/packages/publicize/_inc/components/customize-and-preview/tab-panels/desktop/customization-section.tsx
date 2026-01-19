@@ -1,7 +1,9 @@
+import { Flex } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Connection } from '../../../../social-store/types';
-import { SharePostForm } from '../../../form/share-post-form';
 import { ConnectionToggle } from '../../connection-toggle';
+import { GlobalCustomizationForm } from '../../customization-forms/global';
+import { PerNetworkCustomizationForm } from '../../customization-forms/per-network';
 import styles from './styles.module.scss';
 
 type CustomizationSectionProps = {
@@ -24,13 +26,14 @@ export function CustomizationSection( {
 			aria-label={ __( 'Customization form', 'jetpack-publicize-pkg' ) }
 			className={ styles[ 'customization-section' ] }
 		>
-			<ConnectionToggle connection={ connection } />
-			<SharePostForm
-				// TODO Wire up per-network customization state to the form.
-				analyticsData={ { location: 'preview-modal' } }
-				isInsideNavigatorModal
-				disabled={ usingPerNetworkCustomization && ! connection?.enabled }
-			/>
+			{ usingPerNetworkCustomization ? (
+				<PerNetworkCustomizationForm connection={ connection } />
+			) : (
+				<Flex direction="column" gap={ 8 }>
+					<ConnectionToggle connection={ connection } />
+					<GlobalCustomizationForm />
+				</Flex>
+			) }
 		</section>
 	);
 }

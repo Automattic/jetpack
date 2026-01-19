@@ -1,47 +1,12 @@
-import { Flex } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Connection } from '../../../../social-store/types';
-import { SharePostForm } from '../../../form/share-post-form';
-import { ConnectionToggle } from '../../connection-toggle';
+import { GlobalCustomizationForm } from '../../customization-forms/global';
+import { PerNetworkCustomizationForm } from '../../customization-forms/per-network';
 import styles from './styles.module.scss';
 
 type CustomizationSectionProps = {
 	connection?: Connection;
 };
-
-/**
- * Global Customization Form component.
- *
- * @return - Global Customization Form component.
- */
-function GlobalCustomization() {
-	return (
-		<div>
-			<SharePostForm analyticsData={ { location: 'preview-modal' } } isInsideNavigatorModal />
-		</div>
-	);
-}
-
-/**
- * Per-Network Customization Form component.
- *
- * @param {CustomizationSectionProps} props - The component props.
- *
- * @return - Per-Network Customization Form component.
- */
-function PerNetworkCustomization( { connection }: CustomizationSectionProps ) {
-	return (
-		<Flex direction="column" gap={ 8 }>
-			<ConnectionToggle connection={ connection } />
-			<SharePostForm
-				// TODO Wire up per-network customization state to the form.
-				analyticsData={ { location: 'preview-modal' } }
-				isInsideNavigatorModal
-				disabled={ ! connection.enabled }
-			/>
-		</Flex>
-	);
-}
 
 /**
  * Customization Section component.
@@ -56,9 +21,9 @@ export function CustomizationSection( { connection }: CustomizationSectionProps 
 			className={ styles[ 'customization-section' ] }
 		>
 			{ connection ? (
-				<PerNetworkCustomization connection={ connection } />
+				<PerNetworkCustomizationForm connection={ connection } />
 			) : (
-				<GlobalCustomization />
+				<GlobalCustomizationForm />
 			) }
 		</section>
 	);
