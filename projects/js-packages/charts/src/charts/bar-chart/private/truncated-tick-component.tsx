@@ -101,8 +101,14 @@ export const TruncatedTickComponent: FC< TruncatedTickComponentProps > = ( {
 	};
 
 	const textStyles: CSSProperties = {
+		/**
+		 * SVG <text> elements are vertically aligned to the baseline by default, but HTML <div> elements inside <foreignObject>
+		 * are positioned relative to the top-left corner. To visually align the tick label like SVG text,
+		 * we shift the div up by 100% of its height and adjust by twice the SVG dy value (from visx) to approximate original placement.
+		 */
+		transform: `translateY(calc(-100% + ${ dy ?? '0' } * 2))`,
+		position: 'fixed',
 		// Offset y to convert from baseline to top-left positioning because svg text is positioned by baseline, but html div is positioned by top-left.
-		transform: 'translateY(-100%)',
 		// Apply compatible SVG text styles
 		fontSize,
 		fontFamily,
@@ -124,15 +130,7 @@ export const TruncatedTickComponent: FC< TruncatedTickComponentProps > = ( {
 	};
 
 	return (
-		<foreignObject
-			x={ x + xOffset }
-			y={ y }
-			width={ maxWidth }
-			overflow="visible"
-			// dy * 2: The div's translateY(-100%) and visx's pre-calculated y offset
-			// create a compound effect that requires doubling dy to match original text position.
-			style={ { transform: `translateY(calc(${ dy ?? '0' } * 2))` } }
-		>
+		<foreignObject x={ x + xOffset } y={ y } width={ maxWidth } overflow="visible">
 			<div
 				style={ textStyles }
 				title={ formattedValue || undefined }
