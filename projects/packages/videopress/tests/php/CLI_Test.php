@@ -76,6 +76,7 @@ class CLI_Test extends BaseTestCase {
 	public function get_mock_video_data( $overrides = array() ) {
 		$defaults = array(
 			'guid'            => 'abc12345',
+			'blog_id'         => 12345, // Must match Jetpack_Options 'id' set in set_up().
 			'title'           => 'Test Video Title',
 			'description'     => 'Test video description',
 			'upload_date'     => '2024-01-15 10:30:00',

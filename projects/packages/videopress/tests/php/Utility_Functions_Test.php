@@ -51,6 +51,7 @@ class Utility_Functions_Test extends BaseTestCase {
 	public function get_mock_video_data( $overrides = array() ) {
 		$defaults = array(
 			'guid'            => 'abc12345',
+			'blog_id'         => 12345, // Must match Jetpack_Options 'id' set in set_up().
 			'title'           => 'Test Video Title',
 			'description'     => 'Test video description',
 			'upload_date'     => '2024-01-15 10:30:00',
@@ -375,6 +376,24 @@ class Utility_Functions_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'bad-guid-format', $result->get_error_code() );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid with video from different blog returns WP_Error.
+	 */
+	public function test_create_local_media_library_with_wrong_blog() {
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+
+		// Set a different blog_id than the one configured in set_up() (12345).
+		$this->mock_video_data = $this->get_mock_video_data( array( 'blog_id' => 99999 ) );
+
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		$result = create_local_media_library_for_videopress_guid( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'wrong_blog', $result->get_error_code() );
 	}
 
 	/**
