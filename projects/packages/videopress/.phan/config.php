@@ -13,8 +13,12 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs'          => array( 'wpcom' ),
-		'parse_file_list' => array(
+		'+stubs'            => array( 'wpcom' ),
+		'exclude_file_list' => array(
+			// Mock file redefines WP-CLI classes for testing, conflicts with wp-cli-stubs.
+			'tests/php/fixtures/wp-cli-mock.php',
+		),
+		'parse_file_list'   => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
 			//

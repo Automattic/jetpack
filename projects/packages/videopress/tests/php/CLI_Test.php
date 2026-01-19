@@ -30,9 +30,7 @@ class CLI_Test extends BaseTestCase {
 	 */
 	#[BeforeClass]
 	public static function set_up_class() {
-		if ( ! class_exists( 'WP_CLI' ) ) {
-			require_once __DIR__ . '/fixtures/wp-cli-mock.php';
-		}
+		require_once __DIR__ . '/fixtures/wp-cli-mock.php';
 		require_once __DIR__ . '/../../src/utility-functions.php';
 
 		Posts::init();
