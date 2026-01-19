@@ -103,6 +103,9 @@ export function useBarChartOptions(
 			? options.axis?.y?.tickFormat
 			: options.axis?.x?.tickFormat;
 
+		const { labelOverflow: xLabelOverflow, ...xAxisOptions } = options.axis?.x || {};
+		const { labelOverflow: yLabelOverflow, ...yAxisOptions } = options.axis?.y || {};
+
 		return {
 			gridVisibility,
 			xScale,
@@ -116,19 +119,19 @@ export function useBarChartOptions(
 					orientation: 'bottom' as const,
 					numTicks: 4,
 					tickFormat: xTickFormat,
-					...( options.axis?.x || {} ),
-					...( options.axis?.x?.labelOverflow === 'ellipsis'
+					...( xLabelOverflow === 'ellipsis'
 						? { tickComponent: createTruncatedTickComponent( 'x' ) }
 						: {} ),
+					...xAxisOptions,
 				},
 				y: {
 					orientation: 'left' as const,
 					numTicks: 4,
 					tickFormat: yTickFormat,
-					...( options.axis?.y || {} ),
-					...( options.axis?.y?.labelOverflow === 'ellipsis'
+					...( yLabelOverflow === 'ellipsis'
 						? { tickComponent: createTruncatedTickComponent( 'y' ) }
 						: {} ),
+					...yAxisOptions,
 				},
 			},
 			barGroup: {
