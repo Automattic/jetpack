@@ -181,11 +181,7 @@ class External_Storage {
 
 		// Trigger deprecation notice if any code is still trying to use Error_Handler integration
 		if ( $should_report_remote ) {
-			_deprecated_function(
-				'External_Storage Error_Handler integration',
-				'jetpack-connection-$$next-version$$',
-				'Implement handle_error_event() method in your Storage Provider instead'
-			);
+			_deprecated_function( 'External_Storage Error_Handler integration', 'jetpack-connection-$$next-version$$', 'Implement handle_error_event() method in your Storage Provider instead' );
 			// Error_Handler reporting is now disabled - providers should implement handle_error_event()
 		}
 	}
