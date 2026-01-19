@@ -3,14 +3,12 @@ import {
 	POLLING_FOR_POST_SHARE_STATUS,
 	RECEIVE_POST_SHARE_STATUS,
 	TOGGLE_SHARE_STATUS_MODAL,
-	TOGGLE_SHARING_ACTIVITY_MODAL,
 } from '../actions/constants';
 import {
 	fetchPostShareStatus,
 	pollingForPostShareStatus,
 	receivePostShareStaus,
 	toggleShareStatusModal,
-	toggleSharingActivityModal,
 } from '../actions/share-status';
 import { SocialStoreState } from '../types';
 
@@ -19,7 +17,6 @@ type Action =
 			| typeof fetchPostShareStatus
 			| typeof receivePostShareStaus
 			| typeof toggleShareStatusModal
-			| typeof toggleSharingActivityModal
 			| typeof pollingForPostShareStatus
 	  >
 	| { type: 'default' };
@@ -68,11 +65,6 @@ export function shareStatus(
 			return {
 				...state,
 				isModalOpen: action.isOpen,
-			};
-		case TOGGLE_SHARING_ACTIVITY_MODAL:
-			return {
-				...state,
-				isSharingActivityModalOpen: action.isOpen,
 			};
 	}
 
