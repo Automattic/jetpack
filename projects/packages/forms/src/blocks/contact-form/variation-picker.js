@@ -16,7 +16,7 @@ import clsx from 'clsx';
 import { FORM_POST_TYPE } from '../shared/util/constants.js';
 import './util/form-styles.js';
 import applyVariationToFormBlock from './util/apply-variation.js';
-import { createSyncedForm } from './utils/form-sync-manager';
+import { createSyncedForm } from './utils/form-sync-manager.ts';
 
 const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 	const blocks = innerBlocksTemplate.map( ( [ blockName, attr, innerBlocks = [] ] ) =>
