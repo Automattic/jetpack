@@ -143,11 +143,11 @@ figure.wp-block-image {
 				justify-content: center;
 				align-self: baseline;
 				padding: var(--jetpack-input-image-option-label-top-padding) calc(2 * var(--jetpack-input-image-option-label-top-padding));
-				background-color: #fff;
+				background-color: var(--jetpack--contact-form--input-background, field);
 				border-radius: 2px;
-				border: 1px solid #ccc;
+				border: 1px solid var(--jetpack--contact-form--border-color, currentColor);
 				line-height: 1;
-				color: #333;
+				color: var(--jetpack--contact-form--text-color, FieldText);
 			}
 		}
 	}
@@ -159,7 +159,7 @@ div:where(.jetpack-input-image-option__outer) {
 
 div:where(.jetpack-input-image-option) {
 	border: 1px solid var(--jetpack--contact-form--primary-color);
-	border-radius: 4px;
+	border-radius: var(--jetpack--contact-form--border-radius, 4px);
 	padding: 8px;
 	margin: 0;
 }
