@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { applyVariationToFormBlock } from '../src/blocks/contact-form/util/apply-variation.js';
 
 describe( 'applyVariationToFormBlock', () => {
