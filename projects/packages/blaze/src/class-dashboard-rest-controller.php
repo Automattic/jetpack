@@ -761,9 +761,17 @@ class Dashboard_REST_Controller {
 	public function get_dsp_templates_advise_campaign( $req ) {
 		$urn = $req->get_param( 'urn' ) ?? '';
 
-		return $this->are_posts_ready() ?
+		$sync_ready = $this->are_posts_ready();
+
+		$response = $this->are_posts_ready() ?
 			$this->get_dsp_generic( 'v1/templates/advise/campaign/' . $urn, $req ) :
 			$this->get_get_dsp_advise_campaign_local( $urn );
+
+		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
+			$response['sync_ready'] = $sync_ready;
+		}
+
+		return $response;
 	}
 
 	/**
@@ -803,18 +811,12 @@ class Dashboard_REST_Controller {
 			),
 		);
 
-		$response = $this->request_as_user(
+		return $this->request_as_user(
 			sprintf( '/sites/%d/wordads/dsp/api/v1/advise/campaign/%s', $site_id, $urn ),
 			'v2',
 			array( 'method' => 'POST' ),
 			$body
 		);
-
-		if ( is_array( $response ) ) {
-			$response['sync_ready'] = $this->are_posts_ready();
-		}
-
-		return $response;
 	}
 
 	/**
@@ -836,9 +838,17 @@ class Dashboard_REST_Controller {
 	public function get_dsp_advise_campaign( $req ) {
 		$urn = $req->get_param( 'urn' ) ?? '';
 
-		return $this->are_posts_ready() ?
+		$sync_ready = $this->are_posts_ready();
+
+		$response = $this->are_posts_ready() ?
 			$this->get_dsp_generic( 'v1/advise/campaign/' . $urn, $req ) :
 			$this->get_get_dsp_advise_campaign_local( $urn );
+
+		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
+			$response['sync_ready'] = $sync_ready;
+		}
+
+		return $response;
 	}
 
 	/**
