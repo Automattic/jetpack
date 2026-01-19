@@ -137,7 +137,7 @@ class External_Storage {
 	 * @param string $details     Additional details about the event.
 	 * @param string $environment The environment identifier (atomic, vip, etc.).
 	 */
-	public static function log_event( $event_type, $key, $details, $environment ) {
+	public static function log_event( $event_type, $key, $details = '', $environment = 'unknown' ) {
 		// Apply rate limiting to prevent log spam
 		if ( ! self::should_log_event( $key ) ) {
 			return;
