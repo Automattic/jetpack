@@ -4,7 +4,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { _x } from '@wordpress/i18n';
-import { usePerNetworkCustomization } from './use-per-network-customization';
+import { usePerNetworkCustomization } from '../../../hooks/use-per-network-customization';
 
 /**
  * Customization Toggle component for the social preview modal.

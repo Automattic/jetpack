@@ -1,7 +1,7 @@
 import { TabPanel } from '@wordpress/components';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { usePerNetworkCustomization } from '../../customization-toggle/use-per-network-customization';
+import { usePerNetworkCustomization } from '../../../../hooks/use-per-network-customization';
 import { ConnectionTab } from '../types';
 import { useConnectionTabs } from '../use-connection-tabs';
 import { CustomizationSection } from './customization-section';

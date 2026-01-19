@@ -2,7 +2,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
 
-const KEY = '_wpas_customize_per_network';
+const TOGGLE_KEY = '_wpas_customize_per_network';
 
 /**
  * Hook to manage per network customization toggle state.
@@ -15,14 +15,14 @@ export function usePerNetworkCustomization() {
 	const isEnabled = useSelect( select => {
 		const postMeta = select( editorStore ).getEditedPostAttribute( 'meta' );
 
-		return Boolean( postMeta?.[ KEY ] );
+		return Boolean( postMeta?.[ TOGGLE_KEY ] );
 	}, [] );
 
 	const toggle = useCallback( () => {
 		// Update post metadata.
 		editPost( {
 			meta: {
-				[ KEY ]: ! isEnabled,
+				[ TOGGLE_KEY ]: ! isEnabled,
 			},
 		} );
 	}, [ editPost, isEnabled ] );
