@@ -44,7 +44,6 @@
 			"versioning": "wordpress"
 		},
 		"release-branch-prefix": "videopress",
-		"beta-plugin-slug": "jetpack-videopress",
 		"wp-plugin-slug": "jetpack-videopress",
 		"wp-svn-autopublish": true
 	},

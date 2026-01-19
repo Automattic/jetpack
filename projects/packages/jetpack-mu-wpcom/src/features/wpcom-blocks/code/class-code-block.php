@@ -22,6 +22,15 @@ abstract class Code_Block {
 	const MODULE_PREFIX = '@a8cCodeBlock/';
 
 	/**
+	 * Language names for display.
+	 *
+	 * @var array<string, string>
+	 */
+	public static $language_name_rewrites = array(
+		'Brainfuck' => 'Brainf***',
+	);
+
+	/**
 	 * Filterable check for whether the block should be available.
 	 *
 	 * @return bool
@@ -39,40 +48,24 @@ abstract class Code_Block {
 			return;
 		}
 
-		self::init();
-		add_action( 'init', array( __CLASS__, 'override_block_style' ) );
-		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
-		add_action(
-			'wp_enqueue_scripts',
-			function () {
-				if ( wp_should_load_block_editor_scripts_and_styles() ) {
-					self::enqueue_editor_assets();
-				}
-
-				/*
-				 * Core should handle this, but Script Module assets are not currently handled.
-				 *
-				 * `wp_should_load_block_assets_on_demand()` was added in WordPress 6.8. The
-				 * `function_exists()` can be removed when 6.8+ is required.
-				 */
-				if (
-					function_exists( 'wp_should_load_block_assets_on_demand' )
-					&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
-				) {
-						wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' );
-				}
-			}
-		);
 		add_action( 'after_setup_theme', array( __CLASS__, 'after_setup_theme' ), 100 );
+		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
 	}
 
 	/**
-	 * Registration of scripts and styles.
+	 * Registration of editor scripts, styles, and modules.
+	 *
+	 * Called lazily when editor assets are needed, not on every request.
 	 */
-	private static function init() {
-		$block_definition_asset_file      = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php';
-		$jetpack_wpcom_modules_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
+	private static function register_editor_assets() {
+		static $done = false;
+		if ( $done ) {
+			return;
+		}
+		$done = true;
+
+		$block_definition_asset_file  = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php';
+		$jetpack_wpcom_modules_assets = self::get_module_asset_data();
 
 		// The block definition must contain the script dependencies that the edit function script module requires.
 		// Append static dependency list here. Some duplicates may appear, that should be harmless.
@@ -101,8 +94,8 @@ abstract class Code_Block {
 		wp_register_script_module(
 			self::MODULE_PREFIX . 'block-edit-function',
 			plugins_url( 'build-module/wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js', Jetpack_Mu_Wpcom::BASE_FILE ),
-			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['dependencies'],
-			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['version']
+			$jetpack_wpcom_modules_assets['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['dependencies'],
+			$jetpack_wpcom_modules_assets['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['version']
 		);
 
 		$editor_style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php';
@@ -113,15 +106,8 @@ abstract class Code_Block {
 			$editor_style_asset_file['version']
 		);
 
-		wp_register_script_module(
-			self::MODULE_PREFIX . 'block-front',
-			plugins_url( 'build-module/wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js', Jetpack_Mu_Wpcom::BASE_FILE ),
-			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['dependencies'],
-			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['version']
-		);
-
 		$block_worker_url     = plugins_url( 'build-module/wpcom-blocks-code-worker/wpcom-blocks-code-worker.js', Jetpack_Mu_Wpcom::BASE_FILE );
-		$block_worker_version = $jetpack_wpcom_modules_asset_file['wpcom-blocks-code-worker/wpcom-blocks-code-worker.js']['version'];
+		$block_worker_version = $jetpack_wpcom_modules_assets['wpcom-blocks-code-worker/wpcom-blocks-code-worker.js']['version'];
 		add_filter(
 			'script_module_data_' . self::MODULE_PREFIX . 'block-edit-function',
 			function ( array $data ) use ( $block_worker_url, $block_worker_version ): array {
@@ -133,6 +119,38 @@ abstract class Code_Block {
 	}
 
 	/**
+	 * Enqueue view script module.
+	 */
+	private static function enqueue_view_assets() {
+		static $done = false;
+		if ( $done ) {
+			return;
+		}
+		$done = true;
+
+		$jetpack_wpcom_modules_assets = self::get_module_asset_data();
+		wp_enqueue_script_module(
+			self::MODULE_PREFIX . 'block-front',
+			plugins_url( 'build-module/wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+			$jetpack_wpcom_modules_assets['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['dependencies'],
+			$jetpack_wpcom_modules_assets['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['version']
+		);
+	}
+
+	/**
+	 * Get the module asset data.
+	 *
+	 * @return array
+	 */
+	private static function get_module_asset_data() {
+		static $jetpack_wpcom_modules_assets = null;
+		if ( null === $jetpack_wpcom_modules_assets ) {
+			$jetpack_wpcom_modules_assets = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
+		}
+		return $jetpack_wpcom_modules_assets;
+	}
+
+	/**
 	 * Set up the block view styles.
 	 *
 	 * Core's `wp-block-code` handle must be used in order to work with the global styles system.
@@ -141,13 +159,22 @@ abstract class Code_Block {
 	 * Instead of using a different style handle, replace the registered style for `wp-block-code`.
 	 *
 	 * @see https://core.trac.wordpress.org/browser/tags/6.8.3/src/wp-includes/global-styles-and-settings.php#L322
+	 *
+	 * @global \WP_Styles $wp_styles
 	 */
 	public static function override_block_style() {
+		global $wp_styles;
+
+		$src = plugins_url( 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css', Jetpack_Mu_Wpcom::BASE_FILE );
+		// Skip work if style is registered as desired.
+		if ( isset( $wp_styles->registered['wp-block-code'] ) && $wp_styles->registered['wp-block-code']->src === $src ) {
+			return;
+		}
+
 		$was_enqueued = wp_style_is( 'wp-block-code', 'enqueued' );
 		wp_deregister_style( 'wp-block-code' );
 
 		$style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php';
-		$src              = plugins_url( 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css', Jetpack_Mu_Wpcom::BASE_FILE );
 		$version          = $style_asset_file['version'];
 
 		wp_register_style(
@@ -170,8 +197,49 @@ abstract class Code_Block {
 	 * @return array The modified block type arguments.
 	 */
 	public static function register_block_type_args( array $args, string $block_type ): array {
-		if ( 'core/code' !== $block_type ) {
+		if (
+			'core/code' !== $block_type
+
+			// In some cases the block may not include the content attribute.
+			// Only perform enhancement on the _full_, expected block.
+			|| ! isset( $args['attributes']['content'] )
+
+			// Skip if the block is already processed.
+			|| $args['render_callback'] === array( __CLASS__, 'render_block' )
+		) {
 			return $args;
+		}
+
+		// Register assets and hooks only when overriding the block.
+		self::register_editor_assets();
+		self::override_block_style();
+
+		static $hooks_registered = false;
+		if ( ! $hooks_registered ) {
+			$hooks_registered = true;
+			add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
+			add_action(
+				'wp_enqueue_scripts',
+				function () {
+					if ( wp_should_load_block_editor_scripts_and_styles() ) {
+						self::enqueue_editor_assets();
+					}
+
+					/*
+					 * Core should handle this, but Script Module assets are not currently handled.
+					 *
+					 * `wp_should_load_block_assets_on_demand()` was added in WordPress 6.8. The
+					 * `function_exists()` can be removed when 6.8+ is required.
+					 */
+					if (
+						function_exists( 'wp_should_load_block_assets_on_demand' )
+						&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
+						&& has_block( 'core/code' )
+					) {
+						self::enqueue_view_assets();
+					}
+				}
+			);
 		}
 
 		$args['render_callback']       = array( __CLASS__, 'render_block' );
@@ -324,6 +392,12 @@ abstract class Code_Block {
 	 * Enqueue plugin assets necessary for the block editor.
 	 */
 	public static function enqueue_editor_assets() {
+		static $done = false;
+		if ( $done ) {
+			return;
+		}
+		$done = true;
+
 		/*
 		 * The code block registration script depends on some script modules.
 		 * This "dummy" module ensures those dependencies are available.
@@ -361,8 +435,8 @@ abstract class Code_Block {
 		$extra_attrs      = array();
 		$style_properties = array();
 
-		if ( isset( $attributes['showCopyButton'] ) ) {
-			wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' );
+		if ( $attributes['showCopyButton'] ?? false ) {
+			self::enqueue_view_assets();
 		}
 
 		$show_line_numbers = $attributes['showLineNumbers'] ?? false;
@@ -437,6 +511,7 @@ abstract class Code_Block {
 			$language_text = empty( $attributes['language'] )
 				? __( 'Plain text', 'jetpack-mu-wpcom' )
 				: $attributes['language'];
+			$language_text = self::$language_name_rewrites[ $language_text ] ?? $language_text;
 			$language_html = \sprintf(
 				'<span>%s</span>',
 				esc_html( $language_text )

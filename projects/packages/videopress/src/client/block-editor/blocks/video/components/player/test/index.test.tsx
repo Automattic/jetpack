@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { render, screen } from '@testing-library/react';
 import { VideoBlockAttributes } from '../../../types';
 import Player from '../index';

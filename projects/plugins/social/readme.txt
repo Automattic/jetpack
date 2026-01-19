@@ -4,7 +4,7 @@ Tags: social media automation, social media scheduling, auto share, social shari
 Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 7.3.0
+Stable tag: 7.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,21 +104,25 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 7.3.0 - 2025-11-21
+### 7.4.0 - 2026-01-14
 #### Added
-- Tested up to WordPress 6.9.
+- Add the new media selection UI for Social.
+- IDC: Add revalidation for IDCs.
+- Reuse AI image generation in media section.
 
 #### Changed
-- Don't translate product names.
-- Improve auto-share UI in the editor by streamlining the notices and descriptions.
-- Update package dependencies.
-- Update the connections list in the editor to a vertical toggle list with labels and icons.
+- Improve the sidebar by making titles more descriptive and combining sections.
+- Unified social provider preview.
+- Update composer lock following Publicize changes.
+
+#### Removed
+- Remove the obsolete share limits logic.
+- Remove the unused dismiss review endpoint.
 
 #### Fixed
-- Fix connection icon not reflecting the change when profile picture is updated.
-- Jetpack: Remove getIconColor functions for block icons.
-- My Jetpack: Fix expiring renewal prompt to show all products
-- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin.
+- Fix connections management modal not opening from pre-publish panel.
+- Fix e2e tests for link preview in the editor sidebar.
+- UI: Prevent the modals in editor from stretching too wide on large screens.
 
 == Upgrade Notice ==
 

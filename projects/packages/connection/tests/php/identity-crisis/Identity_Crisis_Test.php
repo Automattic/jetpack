@@ -27,6 +27,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
 		StatusCache::clear();
 		$this->reset_connection_status();
+		// Clear IDC validation lock to ensure test isolation.
+		delete_transient( 'jetpack_idc_validation_lock' );
 	}
 
 	/**
@@ -290,18 +292,19 @@ class Identity_Crisis_Test extends BaseTestCase {
 		update_option( 'home', 'http://www.coolsite.com' );
 		update_option( 'siteurl', 'http://www.coolsite.com/wp' );
 
-		$expected = array(
-			'home'    => 'coolsite.com/',
-			'siteurl' => 'coolsite.com/wp/',
-		);
-
+		$before = time();
 		$result = Identity_Crisis::get_sync_error_idc_option();
+		$after  = time();
 
 		// Cleanup.
 		update_option( 'home', $original_home );
 		update_option( 'siteurl', $original_siteurl );
 
-		$this->assertSame( $expected, $result );
+		$this->assertSame( 'coolsite.com/', $result['home'] );
+		$this->assertSame( 'coolsite.com/wp/', $result['siteurl'] );
+		$this->assertGreaterThanOrEqual( $before, $result['last_checked'] );
+		$this->assertLessThanOrEqual( $after, $result['last_checked'] );
+		$this->assertSame( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $result['next_check_delay'] );
 	}
 
 	/**
@@ -315,18 +318,19 @@ class Identity_Crisis_Test extends BaseTestCase {
 		update_option( 'home', 'http://72.182.131.109/~wordpress' );
 		update_option( 'siteurl', 'http://72.182.131.109/~wordpress/wp' );
 
-		$expected = array(
-			'home'    => '72.182.131.109/~wordpress/',
-			'siteurl' => '72.182.131.109/~wordpress/wp/',
-		);
-
+		$before = time();
 		$result = Identity_Crisis::get_sync_error_idc_option();
+		$after  = time();
 
 		// Cleanup.
 		update_option( 'home', $original_home );
 		update_option( 'siteurl', $original_siteurl );
 
-		$this->assertSame( $expected, $result );
+		$this->assertSame( '72.182.131.109/~wordpress/', $result['home'] );
+		$this->assertSame( '72.182.131.109/~wordpress/wp/', $result['siteurl'] );
+		$this->assertGreaterThanOrEqual( $before, $result['last_checked'] );
+		$this->assertLessThanOrEqual( $after, $result['last_checked'] );
+		$this->assertSame( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $result['next_check_delay'] );
 	}
 
 	/**
@@ -558,26 +562,27 @@ class Identity_Crisis_Test extends BaseTestCase {
 		// Delete option before each test.
 		Jetpack_Options::delete_option( 'sync_error_idc' );
 
-		if ( $option_updated ) {
-			$expected_option = array_merge(
-				// WorDBless sets the siteurl and home options to example.org.
-				array(
-					'home'    => 'example.org/',
-					'siteurl' => 'example.org/',
-				),
-				$input
-			);
-			// Add reversed_url key
-			$expected_option['reversed_url'] = true;
-		} else {
-			$expected_option = false;
-		}
-
+		$before = time();
 		$result = Identity_Crisis::init()->check_response_for_idc( $input );
+		$after  = time();
 		$option = Jetpack_Options::get_option( 'sync_error_idc' );
 
 		$this->assertTrue( $result );
-		$this->assertSame( $expected_option, $option );
+
+		if ( $option_updated ) {
+			$this->assertIsArray( $option );
+			// WorDBless sets the siteurl and home options to example.org.
+			$this->assertSame( 'example.org/', $option['home'] );
+			$this->assertSame( 'example.org/', $option['siteurl'] );
+			$this->assertSame( $input['error_code'], $option['error_code'] );
+			$this->assertTrue( $option['reversed_url'] );
+			// last_checked is set to current time, so check it's within range.
+			$this->assertGreaterThanOrEqual( $before, $option['last_checked'] );
+			$this->assertLessThanOrEqual( $after, $option['last_checked'] );
+			$this->assertSame( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $option['next_check_delay'] );
+		} else {
+			$this->assertFalse( $option );
+		}
 	}
 
 	/**
@@ -1158,5 +1163,453 @@ class Identity_Crisis_Test extends BaseTestCase {
 		foreach ( $result3 as $ip ) {
 			$this->assertNotContains( $expected_ip3, $ip );
 		}
+	}
+
+	/**
+	 * Test that get_sync_error_idc_option() adds timing fields for new IDC options.
+	 */
+	public function test_get_sync_error_idc_option_adds_timing_fields() {
+		$before = time();
+		$option = Identity_Crisis::get_sync_error_idc_option();
+		$after  = time();
+
+		$this->assertArrayHasKey( 'last_checked', $option );
+		$this->assertArrayHasKey( 'next_check_delay', $option );
+		// last_checked should be set to current time to prevent immediate validation.
+		$this->assertGreaterThanOrEqual( $before, $option['last_checked'] );
+		$this->assertLessThanOrEqual( $after, $option['last_checked'] );
+		$this->assertEquals( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $option['next_check_delay'] );
+	}
+
+	/**
+	 * Test backward compatibility: validate_sync_error_idc_option() adds timing fields to existing IDC options.
+	 */
+	public function test_validate_sync_error_idc_option_adds_timing_fields_for_backward_compatibility() {
+		// Clean up any state from previous tests.
+		delete_transient( 'jetpack_idc_validation_lock' );
+
+		// Set blog_id so the "clear IDC on missing blog_id" path is avoided.
+		// The API call will fail due to missing blog_token, but that's handled gracefully.
+		Jetpack_Options::update_option( 'id', 12345 );
+
+		add_filter( 'jetpack_should_handle_idc', '__return_true' );
+
+		// Create an IDC option without timing fields (simulating an old option).
+		$option = Identity_Crisis::get_sync_error_idc_option();
+		unset( $option['last_checked'] );
+		unset( $option['next_check_delay'] );
+		Jetpack_Options::update_option( 'sync_error_idc', $option );
+
+		// Validate it - this should add timing fields and trigger remote validation.
+		// The API call will fail, but failures are handled gracefully (IDC persists).
+		$result = Identity_Crisis::validate_sync_error_idc_option();
+
+		// Clean up.
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		Jetpack_Options::delete_option( 'id' );
+		delete_transient( 'jetpack_idc_validation_lock' );
+		remove_filter( 'jetpack_should_handle_idc', '__return_true' );
+
+		// Should still be valid (IDC persists because API failure doesn't clear it).
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test that constants are defined with expected values.
+	 */
+	public function test_idc_validation_constants() {
+		$this->assertEquals( 3600, Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY );
+		$this->assertEquals( 2592000, Identity_Crisis::IDC_VALIDATION_MAX_DELAY );
+	}
+
+	/**
+	 * Test should_remote_validate_idc() returns false when max delay reached.
+	 */
+	public function test_should_remote_validate_idc_returns_false_when_max_delay_reached() {
+		$sync_error = array(
+			'last_checked'     => time() - 3600,
+			'next_check_delay' => Identity_Crisis::IDC_VALIDATION_MAX_DELAY,
+		);
+
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test should_remote_validate_idc() returns false when not enough time has passed.
+	 */
+	public function test_should_remote_validate_idc_returns_false_when_not_enough_time_passed() {
+		$sync_error = array(
+			'last_checked'     => time() - 1800, // 30 minutes ago.
+			'next_check_delay' => 3600, // 1 hour delay.
+		);
+
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test should_remote_validate_idc() returns true when enough time has passed.
+	 */
+	public function test_should_remote_validate_idc_returns_true_when_enough_time_passed() {
+		$sync_error = array(
+			'last_checked'     => time() - 7200, // 2 hours ago.
+			'next_check_delay' => 3600, // 1 hour delay.
+		);
+
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test should_remote_validate_idc() returns true when last_checked is 0 (never checked).
+	 */
+	public function test_should_remote_validate_idc_returns_true_when_never_checked() {
+		$sync_error = array(
+			'last_checked'     => 0,
+			'next_check_delay' => 3600,
+		);
+
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test should_remote_validate_idc() returns false when safe mode is confirmed.
+	 */
+	public function test_should_remote_validate_idc_returns_false_when_safe_mode_confirmed() {
+		// Set up safe mode as confirmed.
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+
+		$sync_error = array(
+			'last_checked'     => time() - 7200, // 2 hours ago.
+			'next_check_delay' => 3600, // 1 hour delay - validation would normally occur.
+		);
+
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
+
+		// Clean up.
+		Jetpack_Options::delete_option( 'safe_mode_confirmed' );
+
+		// Should return false because safe mode is confirmed, even though enough time has passed.
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test remote_validate_idc() clears IDC when site is not registered.
+	 */
+	public function test_remote_validate_idc_clears_idc_when_not_registered() {
+		// Clean up any state from previous tests.
+		delete_transient( 'jetpack_idc_validation_lock' );
+
+		Jetpack_Options::delete_option( 'id' );
+
+		$initial_sync_error = Identity_Crisis::get_sync_error_idc_option();
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
+
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Clean up.
+		delete_transient( 'jetpack_idc_validation_lock' );
+
+		// Should return true (IDC was cleared) because IDC is invalid without a blog_id.
+		$this->assertTrue( $result );
+		// Option should be deleted.
+		$this->assertFalse( $stored_option );
+	}
+
+	/**
+	 * Test remote_validate_idc() returns false and updates timing on network error.
+	 */
+	public function test_remote_validate_idc_handles_network_error_gracefully() {
+		// Clean up any state from previous tests.
+		delete_transient( 'jetpack_idc_validation_lock' );
+
+		// Set up constants required for API call URL construction.
+		$api_base_original = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		// Set up connection options required for API call.
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'blog_token', 'test.token' );
+		$initial_sync_error                 = Identity_Crisis::get_sync_error_idc_option();
+		$initial_sync_error['last_checked'] = time() - 10; // Set to past so updated time is greater.
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		// Mock a network error response.
+		$mock_callback = function () {
+			return new \WP_Error( 'http_request_failed', 'Network error' );
+		};
+		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
+
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
+
+		remove_filter( 'pre_http_request', $mock_callback );
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Clean up.
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'blog_token' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		delete_transient( 'jetpack_idc_validation_lock' );
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $api_base_original;
+
+		$this->assertFalse( $result );
+		// last_checked should be updated to prevent hammering on errors.
+		$this->assertGreaterThan( $initial_sync_error['last_checked'], $stored_option['last_checked'] );
+		// Delay should remain unchanged on errors (no exponential backoff).
+		$this->assertEquals( $initial_sync_error['next_check_delay'], $stored_option['next_check_delay'] );
+	}
+
+	/**
+	 * Test remote_validate_idc() returns false and updates timing on non-200 response.
+	 */
+	public function test_remote_validate_idc_handles_non_200_response() {
+		// Clean up any state from previous tests.
+		delete_transient( 'jetpack_idc_validation_lock' );
+
+		// Set up constants required for API call URL construction.
+		$api_base_original = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		// Set up connection options required for API call.
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'blog_token', 'test.token' );
+		$initial_sync_error                 = Identity_Crisis::get_sync_error_idc_option();
+		$initial_sync_error['last_checked'] = time() - 10; // Set to past so updated time is greater.
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		// Mock a 500 error response.
+		$mock_callback = function () {
+			return array(
+				'headers'  => array(),
+				'body'     => 'Internal server error',
+				'response' => array(
+					'code'    => 500,
+					'message' => 'Internal Server Error',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
+
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
+
+		remove_filter( 'pre_http_request', $mock_callback );
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Clean up.
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'blog_token' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		delete_transient( 'jetpack_idc_validation_lock' );
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $api_base_original;
+
+		$this->assertFalse( $result );
+		// last_checked should be updated to prevent hammering on errors.
+		$this->assertGreaterThan( $initial_sync_error['last_checked'], $stored_option['last_checked'] );
+		// Delay should remain unchanged on errors (no exponential backoff).
+		$this->assertEquals( $initial_sync_error['next_check_delay'], $stored_option['next_check_delay'] );
+	}
+
+	/**
+	 * Test remote_validate_idc() uses transient lock to prevent concurrent validations.
+	 */
+	public function test_remote_validate_idc_uses_transient_lock() {
+		Jetpack_Options::update_option( 'id', 12345 );
+		$sync_error = Identity_Crisis::get_sync_error_idc_option();
+		Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+
+		// Set the lock transient to simulate another validation in progress.
+		set_transient( 'jetpack_idc_validation_lock', true, 60 );
+
+		$result = Identity_Crisis::remote_validate_idc( $sync_error );
+
+		// Clean up.
+		delete_transient( 'jetpack_idc_validation_lock' );
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+
+		// Should return false because lock is held.
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test remote_validate_idc() updates timing on invalid JSON response.
+	 */
+	public function test_remote_validate_idc_handles_invalid_json_gracefully() {
+		// Clean up any state from previous tests.
+		delete_transient( 'jetpack_idc_validation_lock' );
+
+		// Set up constants required for API call URL construction.
+		$api_base_original = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		// Set up connection options required for API call.
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'blog_token', 'test.token' );
+		$initial_sync_error                 = Identity_Crisis::get_sync_error_idc_option();
+		$initial_sync_error['last_checked'] = time() - 10; // Set to past so updated time is greater.
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		// Mock a 200 response with invalid JSON.
+		$mock_callback = function () {
+			return array(
+				'headers'  => array(),
+				'body'     => 'not valid json {{{',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
+
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
+
+		remove_filter( 'pre_http_request', $mock_callback );
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Clean up.
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'blog_token' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		delete_transient( 'jetpack_idc_validation_lock' );
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $api_base_original;
+
+		$this->assertFalse( $result );
+		// last_checked should be updated to prevent hammering on errors.
+		$this->assertGreaterThan( $initial_sync_error['last_checked'], $stored_option['last_checked'] );
+		// Delay should remain unchanged on errors (no exponential backoff).
+		$this->assertEquals( $initial_sync_error['next_check_delay'], $stored_option['next_check_delay'] );
+	}
+
+	/**
+	 * Test remote_validate_idc() clears IDC when WordPress.com returns no idc_detected.
+	 */
+	public function test_remote_validate_idc_clears_idc_when_resolved() {
+		// Clean up any state from previous tests.
+		delete_transient( 'jetpack_idc_validation_lock' );
+
+		// Set up constants required for API call URL construction.
+		$api_base_original = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		// Set up connection options required for API call.
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'blog_token', 'test.token' );
+		$initial_sync_error = Identity_Crisis::get_sync_error_idc_option();
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		// Mock a successful response with NO idc_detected (IDC resolved).
+		$mock_callback = function () {
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode(
+					array(
+						'is_healthy' => true,
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
+
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
+
+		remove_filter( 'pre_http_request', $mock_callback );
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Clean up.
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'blog_token' );
+		delete_transient( 'jetpack_idc_validation_lock' );
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $api_base_original;
+
+		// Should return true (IDC was cleared).
+		$this->assertTrue( $result );
+		// Option should be deleted.
+		$this->assertFalse( $stored_option );
+	}
+
+	/**
+	 * Test remote_validate_idc() updates timing with backoff when IDC still exists.
+	 */
+	public function test_remote_validate_idc_updates_timing_when_idc_persists() {
+		// Clean up any state from previous tests.
+		delete_transient( 'jetpack_idc_validation_lock' );
+
+		// Set up constants required for API call URL construction.
+		$api_base_original = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		// Set up connection options required for API call.
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'blog_token', 'test.token' );
+		$initial_sync_error                     = Identity_Crisis::get_sync_error_idc_option();
+		$initial_sync_error['next_check_delay'] = 3600; // 1 hour.
+		$initial_sync_error['last_checked']     = time() - 7200; // 2 hours ago.
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		// Mock a response with idc_detected (IDC still exists).
+		$mock_callback = function () {
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode(
+					array(
+						'ID'           => 12345,
+						'idc_detected' => array(
+							'error_code'    => 'jetpack_url_mismatch',
+							'wpcom_home'    => 'https://example.com',
+							'wpcom_siteurl' => 'https://example.com',
+						),
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
+
+		$result = Identity_Crisis::remote_validate_idc( $initial_sync_error );
+
+		remove_filter( 'pre_http_request', $mock_callback );
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Clean up.
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'blog_token' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		delete_transient( 'jetpack_idc_validation_lock' );
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $api_base_original;
+
+		// Should return false (IDC still exists).
+		$this->assertFalse( $result );
+		// Option should still exist.
+		$this->assertIsArray( $stored_option );
+		// last_checked should be updated.
+		$this->assertGreaterThan( $initial_sync_error['last_checked'], $stored_option['last_checked'] );
+		// next_check_delay should be doubled (exponential backoff).
+		$this->assertEquals( 7200, $stored_option['next_check_delay'] );
 	}
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Implemented a guard against non user objects when assigning an experiment variation

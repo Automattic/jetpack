@@ -153,15 +153,13 @@ export default function QuestionAnswer( {
 			<div>
 				<div className="jetpack-ai-chat-answer-container">
 					{ submittedQuestion && <h2>{ submittedQuestion }</h2> }
-					{ isLoading && waitStrings[ Math.floor( Math.random() * 3 ) ] }
+					{ isLoading && <span>{ waitStrings[ Math.floor( Math.random() * 3 ) ] }</span> }
 					{ ! isLoading && (
-						<>
-							<ShowLittleByLittle
-								showAnimation={ ! animationDone }
-								onAnimationDone={ handleSetAnimationDone }
-								html={ answer }
-							/>
-						</>
+						<ShowLittleByLittle
+							showAnimation={ ! animationDone }
+							onAnimationDone={ handleSetAnimationDone }
+							html={ answer }
+						/>
 					) }
 				</div>
 				{ askError && ! isLoading && <DisplayError error={ askError } /> }

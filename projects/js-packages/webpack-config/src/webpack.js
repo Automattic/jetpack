@@ -34,8 +34,8 @@ let loadTextDomainFromComposerJson = () => {
 					ret = cfg.extra.textdomain;
 				} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
 					ret = cfg.extra[ 'wp-plugin-slug' ];
-				} else if ( cfg.extra[ 'wp-theme-slug' ] ) {
-					ret = cfg.extra[ 'wp-theme-slug' ];
+				} else if ( cfg.extra[ 'beta-plugin-slug' ] ) {
+					ret = cfg.extra[ 'beta-plugin-slug' ];
 				}
 			}
 			break;

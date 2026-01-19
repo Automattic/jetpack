@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a bug where we were overwriting the default wp modules.

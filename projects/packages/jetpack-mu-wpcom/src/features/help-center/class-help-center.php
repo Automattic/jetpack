@@ -218,7 +218,7 @@ class Help_Center {
 				12
 			);
 
-			if ( $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
+			if ( is_user_logged_in() && $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
 				// Initialize the help center menu panel
 				require_once __DIR__ . '/class-help-center-menu-panel.php';
 				Help_Center_Menu_Panel::init();
@@ -275,10 +275,10 @@ class Help_Center {
 
 			$user_id            = get_current_user_id();
 			$user_data          = get_userdata( $user_id );
-			$username           = $user_data->user_login;
-			$user_email         = $user_data->user_email;
-			$display_name       = $user_data->display_name;
-			$avatar_url         = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
+			$username           = $user_data ? $user_data->user_login : null;
+			$user_email         = $user_data ? $user_data->user_email : null;
+			$display_name       = $user_data ? $user_data->display_name : null;
+			$avatar_url         = $user_data ? ( function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id ) ) : null;
 			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
 
 			wp_add_inline_script(
@@ -332,7 +332,7 @@ class Help_Center {
 	 * @return boolean True if the menu panel experiment variation is enabled, false otherwise.
 	 */
 	private function is_menu_panel_enabled() {
-		$experiment_name      = 'calypso_help_center_menu_popover_v2';
+		$experiment_name      = 'calypso_help_center_menu_popover_increase_exposure';
 		$experiment_variation = 'menu_popover';
 		$user_id              = get_current_user_id();
 		$cache_key            = 'help-center-menu-panel-enabled-' . $user_id . '-' . $experiment_name;
@@ -632,10 +632,19 @@ class Help_Center {
 			return;
 		}
 
+		// Support sites only support logged-out users when the Odie answers feature is enabled.
+		if ( ! is_user_logged_in() && ! self::is_proxied() && ! get_option( 'dotcom_support_enable_odie_answers', false ) ) {
+			return;
+		}
+
 		if ( $is_next_admin ) {
 			$variant = 'ciab-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} elseif ( $this->is_support_site ) {
-			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			if ( ! is_user_logged_in() ) {
+				$variant = 'logged-out';
+			} else {
+				$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			}
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
 		} elseif ( $this->is_block_editor() ) {

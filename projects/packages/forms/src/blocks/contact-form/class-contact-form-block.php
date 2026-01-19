@@ -41,7 +41,8 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
-				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
+				'render_email_callback' => array( __CLASS__, 'render_email' ),
 			)
 		);
 
@@ -704,6 +705,47 @@ class Contact_Form_Block {
 	}
 
 	/**
+	 * Render fallback for non-interactive contexts (email, feed, API, etc.).
+	 *
+	 * @param array $atts - the block attributes.
+	 *
+	 * @return string
+	 */
+	private static function render_fallback( $atts ) {
+		return sprintf(
+			'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
+			esc_attr( Blocks::classes( 'contact-form', $atts ) ),
+			esc_url( get_the_permalink() ),
+			esc_html__( 'Submit a form.', 'jetpack-forms' )
+		);
+	}
+
+	/**
+	 * Render the contact form block for email contexts.
+	 *
+	 * This method is called by WordPress/WooCommerce email rendering system when a form block
+	 * appears in email content. Forms are not interactive in email contexts, so we always return
+	 * a fallback link that directs recipients to the form on the website.
+	 *
+	 * Note: The $block_content and $rendering_context parameters are required by the
+	 * render_email_callback signature but are intentionally unused here. We only need the
+	 * block attributes from $parsed_block to generate the fallback HTML, and we don't need
+	 * to process the block content or use email-specific rendering context since we're
+	 * always returning a simple fallback.
+	 *
+	 * @param string $block_content     The original block HTML content. Unused - we always return a fallback.
+	 * @param array  $parsed_block      The parsed block data including attributes.
+	 * @param object $rendering_context Email rendering context. Unused - not needed for fallback rendering.
+	 *
+	 * @return string HTML fallback with link to submit the form on the website.
+	 */
+	public static function render_email( $block_content, array $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$atts = $parsed_block['attrs'] ?? array();
+
+		return self::render_fallback( $atts );
+	}
+
+	/**
 	 * Render the gutenblock form.
 	 *
 	 * @param array  $atts - the block attributes.
@@ -718,17 +760,68 @@ class Contact_Form_Block {
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
 		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			return sprintf(
-				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
-				esc_attr( Blocks::classes( 'contact-form', $atts ) ),
-				esc_url( get_the_permalink() ),
-				esc_html__( 'Submit a form.', 'jetpack-forms' )
-			);
+			return self::render_fallback( $atts );
 		}
 
 		self::load_view_scripts();
 
+		// Handle ref attribute - load form from jetpack-form post
+		if ( isset( $atts['ref'] ) ) {
+			$ref_id = absint( $atts['ref'] );
+			if ( $ref_id > 0 ) {
+				return self::render_synced_form( $ref_id );
+			} else {
+				return ''; // Invalid ref ID.
+			}
+		}
+
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
+	}
+
+	/**
+	 * Render a synced form by reference ID.
+	 *
+	 * @param int $ref_id The jetpack_form post ID.
+	 * @return string Rendered form HTML.
+	 */
+	private static function render_synced_form( $ref_id ) {
+		// Circular reference prevention.
+		static $seen_refs = array();
+
+		if ( isset( $seen_refs[ $ref_id ] ) ) {
+			// Return empty string to match other error cases and unit test expectations.
+			return '';
+		}
+
+		// Load the jetpack-form post.
+		$synced_form = get_post( $ref_id );
+
+		// Validate post.
+		if ( ! $synced_form || 'jetpack_form' !== $synced_form->post_type ) {
+			return '';
+		}
+
+		// Only render published forms statuses.
+		if ( ! in_array( $synced_form->post_status, array( 'publish' ), true ) ) {
+			return '';
+		}
+
+		// Mark as seen for circular reference prevention.
+		$seen_refs[ $ref_id ] = true;
+		Contact_Form::set_ref_id( $ref_id );
+		$output = '';
+		try {
+			// Parse and render blocks from post_content.
+			$blocks = parse_blocks( $synced_form->post_content );
+			foreach ( $blocks as $block ) {
+				$output .= render_block( $block );
+			}
+		} finally {
+			// Clean up.
+			unset( $seen_refs[ $ref_id ] );
+			Contact_Form::clear_ref_id();
+		}
+		return $output;
 	}
 
 	/**

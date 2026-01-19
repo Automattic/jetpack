@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-react-data-sync-client",
-	"version": "0.1.26",
+	"version": "0.1.27",
 	"private": true,
 	"description": "DataSync client for React",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/react-data-sync-client/#readme",

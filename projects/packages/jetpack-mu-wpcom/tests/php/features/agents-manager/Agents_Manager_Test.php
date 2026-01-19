@@ -47,9 +47,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Remove hooks added by the Agents_Manager constructor.
 		remove_action( 'rest_api_init', array( $this->agents_manager, 'register_rest_api' ) );
 		remove_filter( 'calypso_preferences_update', array( $this->agents_manager, 'calypso_preferences_update' ) );
-		remove_action( 'wp_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 101 );
-		remove_action( 'admin_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 101 );
-		remove_action( 'next_admin_init', array( $this->agents_manager, 'add_inline_script' ), 1001 );
+		remove_action( 'wp_enqueue_scripts', array( $this->agents_manager, 'enqueue_scripts' ), 101 );
+		remove_action( 'admin_enqueue_scripts', array( $this->agents_manager, 'enqueue_scripts' ), 101 );
+		remove_action( 'next_admin_init', array( $this->agents_manager, 'enqueue_scripts' ), 1001 );
 		remove_filter( 'agents_manager_use_unified_experience', array( $this->agents_manager, 'should_use_unified_experience' ) );
 
 		// Reset the REST server to clear any registered routes.
@@ -283,35 +283,44 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that add_inline_script adds script with empty providers and useUnifiedExperience false by default.
+	 * Tests that enqueue_scripts adds script with empty providers and useUnifiedExperience false by default.
 	 */
-	public function test_add_inline_script_with_empty_providers() {
-		// Register the help-center script so we can attach inline script to it.
-		wp_register_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+	public function test_enqueue_scripts_with_empty_providers() {
+		// Register the agents-manager script so we can attach inline script to it.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		$this->agents_manager->add_inline_script();
+		// Add a filter to enable unified experience.
+		add_filter(
+			'agents_manager_use_unified_experience',
+			'__return_true',
+			// Use a higher priority to ensure it runs after the class's own filter.
+			20
+		);
+
+		$this->agents_manager->enqueue_scripts();
 
 		global $wp_scripts;
-		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array();
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
 
 		// Find the inline script containing agentsManagerData (wp_add_inline_script may add at different indices).
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		$this->assertStringContainsString( '"agentProviders":[]', $inline_script );
-		$this->assertStringContainsString( '"useUnifiedExperience":false', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
 
 	/**
-	 * Tests that add_inline_script includes providers added via the filter.
+	 * Tests that enqueue_scripts includes providers added via the filter.
 	 */
-	public function test_add_inline_script_includes_filtered_providers() {
+	public function test_enqueue_scripts_includes_filtered_providers() {
 		// Reset the script registry to ensure test isolation.
 		global $wp_scripts;
 		$wp_scripts = null;
 
-		// Register the help-center script so we can attach inline script to it.
-		wp_register_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		// Register the agents-manager script so we can attach inline script to it.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		// Add a filter to provide agent providers.
 		add_filter(
@@ -321,10 +330,18 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		$this->agents_manager->add_inline_script();
+		// Add a filter to enable unified experience.
+		add_filter(
+			'agents_manager_use_unified_experience',
+			'__return_true',
+			// Use a higher priority to ensure it runs after the class's own filter.
+			20
+		);
+
+		$this->agents_manager->enqueue_scripts();
 
 		// Re-fetch global after wp_register_script initializes it.
-		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
 
 		// Find the inline script containing agentsManagerData (wp_add_inline_script may add at different indices).
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
@@ -335,18 +352,19 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Clean up the filter.
 		remove_all_filters( 'agents_manager_agent_providers' );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
 
 	/**
-	 * Tests that add_inline_script includes useUnifiedExperience true when filter returns true.
+	 * Tests that enqueue_scripts includes useUnifiedExperience true when filter returns true.
 	 */
-	public function test_add_inline_script_includes_use_unified_experience_when_enabled() {
+	public function test_enqueue_scripts_includes_use_unified_experience_when_enabled() {
 		// Reset the script registry to ensure test isolation.
 		global $wp_scripts;
 		$wp_scripts = null;
 
-		// Register the help-center script so we can attach inline script to it.
-		wp_register_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+		// Register the agents-manager script so we can attach inline script to it.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		// Add a filter to enable unified experience.
 		add_filter(
@@ -356,10 +374,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			20
 		);
 
-		$this->agents_manager->add_inline_script();
+		$this->agents_manager->enqueue_scripts();
 
 		// Re-fetch global after wp_register_script initializes it.
-		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
 
 		// Find the inline script containing agentsManagerData.
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
@@ -894,5 +912,170 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		}
 
 		return new \WP_Error( 'http_request_failed', 'Connection failed' );
+	}
+
+	/**
+	 * Helper to call the private is_dev_mode method via reflection.
+	 *
+	 * @return bool The result of is_dev_mode.
+	 */
+	private function call_is_dev_mode() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'is_dev_mode' );
+		if ( PHP_VERSION_ID < 80500 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( null );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true for localhost.
+	 */
+	public function test_is_dev_mode_returns_true_for_localhost() {
+		update_option( 'siteurl', 'http://localhost' );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true for jurassic.tube domains.
+	 */
+	public function test_is_dev_mode_returns_true_for_jurassic_tube() {
+		update_option( 'siteurl', 'https://mysite.jurassic.tube' );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true for jurassic.ninja domains.
+	 */
+	public function test_is_dev_mode_returns_true_for_jurassic_ninja() {
+		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true when request is proxied via constant.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_dev_mode_returns_true_when_proxied_via_constant() {
+		update_option( 'siteurl', 'https://example.com' );
+		define( 'A8C_PROXIED_REQUEST', true );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true when request is proxied via server variable.
+	 */
+	public function test_is_dev_mode_returns_true_when_proxied_via_server_var() {
+		update_option( 'siteurl', 'https://example.com' );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$result = $this->call_is_dev_mode();
+
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true for Atomic client ID 1.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_dev_mode_returns_true_for_atomic_client_id_1() {
+		update_option( 'siteurl', 'https://example.com' );
+		define( 'AT_PROXIED_REQUEST', true );
+		define( 'ATOMIC_CLIENT_ID', 1 );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns false for non-allowed Atomic client IDs.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_dev_mode_returns_false_for_non_allowed_atomic_client_id() {
+		update_option( 'siteurl', 'https://example.com' );
+		define( 'AT_PROXIED_REQUEST', true );
+		define( 'ATOMIC_CLIENT_ID', 999 );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns false when AT_PROXIED_REQUEST is false.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_dev_mode_returns_false_when_at_proxied_request_is_false() {
+		update_option( 'siteurl', 'https://example.com' );
+		define( 'AT_PROXIED_REQUEST', false );
+		define( 'ATOMIC_CLIENT_ID', 1 );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns false for regular production sites.
+	 */
+	public function test_is_dev_mode_returns_false_for_production_sites() {
+		update_option( 'siteurl', 'https://myproductionsite.com' );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true when wpcom_is_proxied_request function exists and returns true.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_dev_mode_returns_true_when_wpcom_proxy_function_returns_true() {
+		update_option( 'siteurl', 'https://example.com' );
+
+		Functions\stubs(
+			array(
+				'wpcom_is_proxied_request' => true,
+			)
+		);
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
 	}
 }

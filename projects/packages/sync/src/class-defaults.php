@@ -775,6 +775,8 @@ class Defaults {
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
 		'_wpas_feature_enabled',
+		'_wpas_connection_overrides',
+		'_wpas_customize_per_network',
 		'_wpas_mess',
 		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
@@ -1186,6 +1188,13 @@ class Defaults {
 	 * @var array Empty array.
 	 */
 	public static $default_comment_meta_whitelist = array();
+
+	/**
+	 * Default for sync actions blacklist.
+	 *
+	 * @var array Empty array.
+	 */
+	public static $default_sync_actions_blacklist = array();
 
 	/**
 	 * Default for disabling sync across the site.

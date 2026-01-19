@@ -2,12 +2,65 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.4-a.5 - 2025-12-22
+## 15.5-a.3 - 2026-01-19
 ### Enhancements
-- Social: Improve social preview for LinkedIn and Tumblr. [#46364]
+- Command Palette: Add site switcher command to quickly switch between WordPress.com connected sites. [#46342]
+- Forms: Add ref attribute support for the form block. [#46555]
+- Forms: Make form webhooks generally available. [#46422]
+- Instant Search: Show WooCommerce product filters in filter widget. [#46373]
+- My Jetpack: Check red bubble notifications async when cache is not available. [#46396]
+- Sharing: Improve accessibility of sharing button texts by removing "Click to" prefix. [#46583]
 
 ### Bug fixes
+- About Page: Fix plugin icon positioning and sizing. [#46610]
+- Contact Form: Fix checkbox field value not being properly output in the classic editor form builder. [#46354]
+- Shortcode: Fix broken YouTube URL on the classic editor. [#46433]
+- Slideshow: Ensure slideshows do not stretch to parent container width on mobile if no list height is set. [#46450]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- E2E: pre-build number-formatter package in E2E run. [#46586]
+- Forms: Update E2E test to match new form submission confirmation heading. [#46521]
+- Newsletter: Work on new UI, not available yet. [#46470]
+- Reader: Fix post embed previews not displaying correctly when reposting from Reader. [#46522]
+- Tests: Add coverage for modules added to sync configuration mid-progress. [#46475]
+- Update composer lock following Publicize changes. [#46516]
+- Update package dependencies. [#46647]
+
+## 15.5-a.1 - 2026-01-12
+### Enhancements
+- Forms: Add form editor. [#46444]
+- Forms: Allow merging two options together with backspace. [#46507]
+- IDC: Add revalidation of IDC. [#46268]
+
+### Bug fixes
+- AI Search: Prevent AI Search from disappearing when returning certain responses. [#46476]
+- Forms: Fix date exports. [#46445]
+- UI: Prevent social modals in editor from stretching too wide on large screens. [#46400]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Comments API: Use end-user's IP-address for JSON API requests. [#46494]
+- Gate donations block behind conditional features. [#46499]
+- Gate payment buttons block behind conditional features. [#46513]
+- Gate PayPal payment buttons block behind conditional features. [#46536]
+- Update dependencies. [#46467] [#46489] [#46456] [#46512]
+
+## 15.4 - 2026-01-06
+### Enhancements
+- External media: Add replace flow support. [#45841]
+- Forms: Add filter to hide integration icons. [#46188]
+- Forms: Add integrations display filters. [#46156]
+- Forms: add list view sidebar for easier field management. [#46403]
+- Forms: support Math and Code blocks inside forms. [#46421]
+- Forms: Use entire button area for selecting multi-select options. [#46263]
+- Social: Improve social preview for LinkedIn and Tumblr. [#46364]
+- Social: Reuse AI image generation in media section. [#46147]
+
+### Bug fixes
+- AI Assistant: disabled Write Brief functionality for non-English sites. [#46390]
 - AI Assistant: Fix product page URL for Simple sites to use jetpack.com instead of My Jetpack. [#46358]
+- Forms: Ensure submission summary is contained within 100% width. [#46264]
+- Forms: Fix validation accessibility. [#46275]
+- Forms: Remove the classic Admin initialization call. [#46254]
 - Forms: Strip HTML from styled labels in error summary. [#46319]
 - Jetpack settings: Avoid deprecation notices when loading Settings screen or Debugger screen. [#46283]
 - Scan: Replace inline onclick handler with target="_blank" for CSP compliance in admin bar notice. [#46340]
@@ -15,37 +68,21 @@
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add or remove features to plans for a future experiment. [#46285]
-- JSON API: Add an error check in taxonomy update endpoint. [#46359]
-- Tests: Update sync tests to allow for actions occurring after post publish. [#46236]
-- Update the @automattic/social-previews dependency source to the monorepo. [#46313]
-
-## 15.4-a.3 - 2025-12-15
-### Enhancements
-- External media: Add replace flow support. [#45841]
-- Forms: Use entire button area for selecting multi-select options. [#46263]
-- Social: Reuse AI image generation in media section. [#46147]
-
-### Bug fixes
-- Forms: Ensure submission summary is contained within 100% width. [#46264]
-- Forms: Fix validation accessibility. [#46275]
-- Forms: Remove the classic Admin initialization call. [#46254]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Development Mode: Remove references to previously removed code. [#46231]
-- General: Replace uses of confusing `esc_js()` function with clearer code. [#46229]
-- Update package dependencies. [#46244]
-
-## 15.4-a.1 - 2025-12-08
-### Enhancements
-- Forms: Add filter to hide integration icons. [#46188]
-- Forms: Add integrations display filters. [#46156]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add the new media selection UI for Social. [#46085]
+- Allow uploads without VideoPress enabled [#46425]
+- Clean up the logic for admin page access for Social as the settings page is now widely available. [#46386]
+- Development Mode: Remove references to previously removed code. [#46231]
 - Ensure proper flags are used with `json_encode()`. [#46117]
+- General: Replace uses of confusing `esc_js()` function with clearer code. [#46229]
+- Hides some SEO features for WPCOM users without the correct plan [#46357]
 - Janitorial: emptied out to-test.md. [#46221]
+- JSON API: Add an error check in taxonomy update endpoint. [#46359]
 - OG tags: use media-only Jetpack_Media_Summary::get [#46094]
 - Tests: Check the publish post action exists, but is not necessarily the last action. [#46105]
+- Tests: Update sync tests to allow for actions occurring after post publish. [#46236]
+- Update package dependencies. [#46244]
+- Update the @automattic/social-previews dependency source to the monorepo. [#46313]
+- Update the URL for Instagram support article. [#46405]
 
 ## 15.3.1 - 2025-12-04
 

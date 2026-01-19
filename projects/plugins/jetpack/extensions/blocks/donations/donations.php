@@ -31,6 +31,7 @@ function register_block() {
 			__DIR__,
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
+				'plan_check'      => true,
 			)
 		);
 	}

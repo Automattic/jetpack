@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-storybook",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"private": true,
 	"description": "Jetpack components storybook",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/storybook/#readme",
@@ -20,7 +20,7 @@
 		"storybook:dev": "storybook dev -c ./storybook -p 50240"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "7.36.0"
+		"@wordpress/api-fetch": "7.38.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",
@@ -38,13 +38,13 @@
 		"@storybook/test-runner": "0.24.1",
 		"@testing-library/dom": "10.4.1",
 		"@types/react": "18.3.26",
-		"@wordpress/base-styles": "6.12.0",
-		"@wordpress/block-editor": "15.9.0",
-		"@wordpress/block-library": "9.36.0",
-		"@wordpress/components": "30.9.0",
-		"@wordpress/element": "6.36.0",
-		"@wordpress/format-library": "5.36.0",
-		"@wordpress/postcss-plugins-preset": "5.36.0",
+		"@wordpress/base-styles": "6.14.0",
+		"@wordpress/block-editor": "15.11.0",
+		"@wordpress/block-library": "9.38.0",
+		"@wordpress/components": "32.0.0",
+		"@wordpress/element": "6.38.0",
+		"@wordpress/format-library": "5.38.0",
+		"@wordpress/postcss-plugins-preset": "5.38.0",
 		"allure-playwright": "2.15.1",
 		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",
@@ -58,7 +58,7 @@
 		"react-dom": "18.3.1",
 		"remark-gfm": "4.0.0",
 		"require-from-string": "2.0.2",
-		"sass-embedded": "1.87.0",
+		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
 		"storybook": "10.1.10",
 		"style-loader": "2.0.0",

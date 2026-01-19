@@ -315,7 +315,6 @@ export const markAsSpamAction: Action = {
 	isEligible: item => item.status !== 'spam',
 	supportsBulk: true,
 	async callback( items, { registry }, { isUndo = false } = {} ) {
-		let undoTriggered = false;
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-spam',
 			multiple: items.length > 1,
@@ -367,28 +366,12 @@ export const markAsSpamAction: Action = {
 
 			// If there is at least one successful update, invalidate the cache and navigate if needed
 			if ( itemsUpdated.length ) {
-				waitForRecordsPromise = new Promise( resolve => {
-					setTimeout( () => {
-						if ( undoTriggered ) {
-							resolve();
-							return;
-						}
-
-						let status = 'inbox';
-						if ( items[ 0 ]?.status === 'trash' ) {
-							status = 'trash';
-						}
-
-						invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
-
-						if ( undoTriggered ) {
-							resolve();
-							return;
-						}
-
-						waitForEntityRecordsResolution( registry, getCurrentQuery() ).finally( resolve );
-					}, 0 );
-				} );
+				let status = 'inbox';
+				if ( items[ 0 ]?.status === 'trash' ) {
+					status = 'trash';
+				}
+				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
+				waitForRecordsPromise = waitForEntityRecordsResolution( registry, getCurrentQuery() );
 				// Store promise so undo can wait for it
 				pendingRefetches.set( actionId, waitForRecordsPromise );
 			}
@@ -417,8 +400,6 @@ export const markAsSpamAction: Action = {
 							{
 								label: __( 'Undo', 'jetpack-forms' ),
 								onClick: async () => {
-									undoTriggered = true;
-
 									// Wait for the original action's refetch to complete before undoing
 									const originalRefetch = pendingRefetches.get( actionId );
 									if ( originalRefetch ) {
@@ -448,7 +429,7 @@ export const markAsSpamAction: Action = {
 
 			// Make the REST request which performs the `contact_form_akismet` `spam` action.
 			if ( itemsUpdated.length ) {
-				registry.dispatch( dashboardStore ).doBulkAction(
+				await registry.dispatch( dashboardStore ).doBulkAction(
 					itemsUpdated.map( item => item.id.toString() ),
 					BULK_ACTIONS.markAsSpam
 				);
@@ -473,7 +454,6 @@ export const markAsNotSpamAction: Action = {
 	isEligible: item => item.status === 'spam',
 	supportsBulk: true,
 	async callback( items, { registry }, { isUndo = false } = {} ) {
-		let undoTriggered = false;
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-not-spam',
 			multiple: items.length > 1,
@@ -525,23 +505,8 @@ export const markAsNotSpamAction: Action = {
 
 			// If there is at least one successful update, invalidate the cache and navigate if needed
 			if ( itemsUpdated.length ) {
-				waitForRecordsPromise = new Promise( resolve => {
-					setTimeout( () => {
-						if ( undoTriggered ) {
-							resolve();
-							return;
-						}
-
-						invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'spam' );
-
-						if ( undoTriggered ) {
-							resolve();
-							return;
-						}
-
-						waitForEntityRecordsResolution( registry, getCurrentQuery() ).finally( resolve );
-					}, 0 );
-				} );
+				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'spam' );
+				waitForRecordsPromise = waitForEntityRecordsResolution( registry, getCurrentQuery() );
 				// Store promise so undo can wait for it
 				pendingRefetches.set( actionId, waitForRecordsPromise );
 			}
@@ -570,8 +535,6 @@ export const markAsNotSpamAction: Action = {
 							{
 								label: __( 'Undo', 'jetpack-forms' ),
 								onClick: async () => {
-									undoTriggered = true;
-
 									// Wait for the original action's refetch to complete before undoing
 									const originalRefetch = pendingRefetches.get( actionId );
 									if ( originalRefetch ) {
@@ -598,7 +561,7 @@ export const markAsNotSpamAction: Action = {
 			}
 			// Make the REST request which performs the `contact_form_akismet` `ham` action.
 			if ( itemsUpdated.length ) {
-				registry.dispatch( dashboardStore ).doBulkAction(
+				await registry.dispatch( dashboardStore ).doBulkAction(
 					itemsUpdated.map( item => item.id.toString() ),
 					BULK_ACTIONS.markAsNotSpam
 				);
