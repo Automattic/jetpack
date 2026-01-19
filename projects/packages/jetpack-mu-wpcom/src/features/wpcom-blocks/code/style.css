@@ -144,7 +144,7 @@
 
 /* prevent empty lines from collapsing vertically in rendered views */
 .wp-block-code .cm-line:empty::after {
-	content: " ";
+	content: "\A0";
 }
 
 /* Match the editor */
