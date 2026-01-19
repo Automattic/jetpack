@@ -17,6 +17,7 @@ import { FORM_POST_TYPE } from '../shared/util/constants.js';
 import './util/form-styles.js';
 import applyVariationToFormBlock from './util/apply-variation.js';
 import { createSyncedForm } from './util/create-synced-form.ts';
+import { handleFormSelection } from './util/handle-form-selection.js';
 
 const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 	const blocks = innerBlocksTemplate.map( ( [ blockName, attr, innerBlocks = [] ] ) =>
@@ -73,14 +74,13 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	const handleFormSelection = formId => {
-		if ( ! formId ) {
-			return;
-		}
-
-		registry.batch( () => {
-			setAttributes( { ref: parseInt( formId, 10 ) } );
-			selectBlock( clientId );
+	const onFormSelect = formId => {
+		handleFormSelection( {
+			formId,
+			batch: registry.batch,
+			setAttributes,
+			selectBlock,
+			clientId,
 		} );
 	};
 
@@ -180,7 +180,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 									value: form.id.toString(),
 								} ) ),
 							] }
-							onChange={ handleFormSelection }
+							onChange={ onFormSelect }
 						/>
 					) }
 			</div>
