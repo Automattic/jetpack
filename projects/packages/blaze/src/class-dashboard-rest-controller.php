@@ -667,7 +667,7 @@ class Dashboard_REST_Controller {
 	/**
 	 * Get the article information to be used in the Blaze create campaign flow.
 	 *
-	 * If Jetpack Sync still is running, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
+	 * If Jetpack Sync is not yet complete and posts are not fully synced, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
 	 *
 	 * @param string          $urn The request urn.
 	 * @param WP_REST_Request $req The request object.
@@ -842,7 +842,7 @@ class Dashboard_REST_Controller {
 	/**
 	 * Redirect POST request to WordAds DSP Create Campaign endpoint for the site.
 	 *
-	 * If Jetpack Sync still is running, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
+	 * If Jetpack Sync is not yet complete and posts are not fully synced, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
@@ -879,6 +879,10 @@ class Dashboard_REST_Controller {
 			return new WP_Error( 'invalid_json', esc_html__( 'Invalid JSON Body', 'jetpack-blaze' ), array( 'status' => 400 ) );
 		}
 
+		if ( ! isset( $request_body['target_urn'] ) ) {
+			return new WP_Error( 'missing_target_urn', esc_html__( 'Missing target_urn in request body', 'jetpack-blaze' ), array( 'status' => 400 ) );
+		}
+
 		$urn        = $request_body['target_urn'];
 		$parsed_urn = $this->get_data_from_urn( $urn );
 
@@ -891,7 +895,7 @@ class Dashboard_REST_Controller {
 			return new WP_Error( 'post_not_found', esc_html__( 'Post not found', 'jetpack-blaze' ), array( 'status' => 404 ) );
 		}
 
-		$featured_image = $this->get_post_featured_image( $post->ID ) ?? array();
+		$featured_image = $this->get_post_featured_image( $post->ID );
 
 		$body = array_merge(
 			$request_body,
