@@ -1560,11 +1560,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.images"></div>
 						<div class="field-images" data-wp-bind--hidden="!context.submission.images">
 							<template data-wp-each--image="context.submission.images">
-								<figure class="field-image" data-wp-class--is-empty="!context.image.src">
-									<img data-wp-bind--src="context.image.src" data-wp-bind--hidden="!context.image.src" />
-									<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src" />
-									<figcaption data-wp-text="context.image.caption"></figcaption>
-								</figure>
+								<div class="field-image-option" data-wp-class--is-empty="!context.image.src">
+									<figure class="field-image-option__image" data-wp-class--is-empty="!context.image.src">
+										<img data-wp-bind--src="context.image.src" data-wp-bind--hidden="!context.image.src" />
+										<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src" />
+									</figure>
+									<div class="field-image-option__label-wrapper">
+										<span class="field-image-option__label-code" data-wp-text="context.image.letterCode"></span>
+										<span class="field-image-option__label" data-wp-text="context.image.label" data-wp-bind--hidden="!context.image.label"></span>
+									</div>
+								</div>
 							</template>
 						</div>
 					</div>
@@ -1599,14 +1604,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 					if ( $has_images ) {
 						foreach ( $submission['images'] as $image ) {
-							$image_src     = $image['src'] ?? '';
-							$image_caption = $image['caption'] ?? '';
+							$image_src         = $image['src'] ?? '';
+							$image_letter_code = $image['letterCode'] ?? '';
+							$image_label       = $image['label'] ?? '';
 
-							$html .= '<figure data-wp-each-child class="field-image ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
+							$html .= '<div data-wp-each-child class="field-image-option ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
+							$html .= '<figure class="field-image-option__image ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
 							$html .= '<img data-wp-bind--src="context.image.src" src="' . esc_attr( $image_src ) . '" data-wp-bind--hidden="!context.image.src"' . ( empty( $image_src ) ? ' hidden' : '' ) . '/>';
 							$html .= '<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src"' . ( empty( $image_src ) ? '' : ' hidden' ) . '/>';
-							$html .= '<figcaption data-wp-text="context.image.caption">' . esc_html( $image_caption ) . '</figcaption>';
 							$html .= '</figure>';
+							$html .= '<div class="field-image-option__label-wrapper">';
+							$html .= '<span class="field-image-option__label-code" data-wp-text="context.image.letterCode">' . esc_html( $image_letter_code ) . '</span>';
+							$html .= '<span class="field-image-option__label" data-wp-text="context.image.label" data-wp-bind--hidden="!context.image.label"' . ( empty( $image_label ) ? ' hidden' : '' ) . '>' . esc_html( $image_label ) . '</span>';
+							$html .= '</div>';
+							$html .= '</div>';
 						}
 					} else {
 						$html .= '<template data-wp-each--image="context.submission.images"></template>';
@@ -3229,15 +3240,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'image-select' ) {
 			return array_map(
 				function ( $choice ) {
-					$caption = $choice['perceived'] ?? '';
+					$letter_code = $choice['perceived'] ?? '';
+					$label       = '';
 
 					if ( ! empty( $choice['showLabels'] ) && ! empty( $choice['label'] ) ) {
-						$caption .= ' | ' . $choice['label'];
+						$label = $choice['label'];
 					}
 
 					return array(
-						'src'     => $choice['image']['src'] ?? '',
-						'caption' => $caption,
+						'src'        => $choice['image']['src'] ?? '',
+						'letterCode' => $letter_code,
+						'label'      => $label,
 					);
 				},
 				$value['choices']
