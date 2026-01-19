@@ -22,6 +22,15 @@ interface TruncatedTickComponentProps extends TickRendererProps {
 /**
  * Minimum width in pixels for tick labels when scale bandwidth is very small.
  * Prevents labels from collapsing to unreadable widths on dense charts.
+ *
+ * Trade-off: When bandwidth is less than this minimum (e.g., many bars in a narrow chart),
+ * adjacent labels may overlap since each label uses this minimum width regardless of
+ * available space. This prioritizes label readability over preventing overlap.
+ *
+ * For very dense charts where overlap occurs, consider:
+ * - Using `numTicks` option to reduce the number of displayed labels
+ * - Using `tickFormat` to abbreviate label text
+ * - Increasing chart width or reducing data points
  */
 const MIN_TICK_LABEL_WIDTH = 20;
 
@@ -31,6 +40,10 @@ const MIN_TICK_LABEL_WIDTH = 20;
  *
  * Uses foreignObject to embed HTML within SVG, enabling CSS text-overflow: ellipsis.
  * Inherits text styles from tickLabelProps passed by visx Axis component.
+ *
+ * Note: A minimum label width (MIN_TICK_LABEL_WIDTH) is enforced to keep labels readable.
+ * On very dense charts where bandwidth < 20px, this may cause label overlap.
+ * See MIN_TICK_LABEL_WIDTH documentation for mitigation strategies.
  *
  * @param props                - The props for the truncated tick component
  * @param props.x              - The x position of the tick
