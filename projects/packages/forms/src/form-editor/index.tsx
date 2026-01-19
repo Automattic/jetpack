@@ -38,9 +38,9 @@ import './style.scss';
  * 2. Activates block category overrides to move blocks to the new categories
  * 3. Moves the contact-form category to the front (as a fallback for non-field blocks)
  *
- * @return {unknown[]} previous categories array for restoration
+ * @return Previous categories array for restoration.
  */
-const setupFormEditorCategories = () => {
+const setupFormEditorCategories = (): unknown[] => {
 	const { getCategories } = select( 'core/blocks' );
 	const { setCategories } = dispatch( 'core/blocks' ) as {
 		setCategories: ( categories: unknown[] ) => void;
