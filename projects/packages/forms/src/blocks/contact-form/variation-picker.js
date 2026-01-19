@@ -4,7 +4,7 @@ import {
 	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
-import { createBlock, serialize, store as blocksStore } from '@wordpress/blocks';
+import { createBlock, store as blocksStore } from '@wordpress/blocks';
 import { Button, Modal, SelectControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
@@ -16,6 +16,7 @@ import clsx from 'clsx';
 import { FORM_POST_TYPE } from '../shared/util/constants.js';
 import './util/form-styles.js';
 import applyVariationToFormBlock from './util/apply-variation.js';
+import { createSyncedForm } from './utils/form-sync-manager';
 
 const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 	const blocks = innerBlocksTemplate.map( ( [ blockName, attr, innerBlocks = [] ] ) =>
@@ -29,30 +30,32 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 	const registry = useRegistry();
 	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 	const { replaceInnerBlocks, selectBlock } = useDispatch( blockEditorStore );
-	const { saveEntityRecord } = useDispatch( coreStore );
 	const { createSuccessNotice } = useDispatch( noticesStore );
 	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
-	const { blockType, defaultVariation, variations, currentPostType, jetpackForms } = useSelect(
-		select => {
-			const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( blocksStore );
-			const { getCurrentPostType } = select( editorStore );
-			const { getEntityRecords } = select( coreStore );
+	const { blockType, defaultVariation, variations, currentPostType, currentPostId, jetpackForms } =
+		useSelect(
+			select => {
+				const { getBlockType, getBlockVariations, getDefaultBlockVariation } =
+					select( blocksStore );
+				const { getCurrentPostType, getCurrentPostId } = select( editorStore );
+				const { getEntityRecords } = select( coreStore );
 
-			return {
-				blockType: getBlockType( blockName ),
-				defaultVariation: getDefaultBlockVariation( blockName, 'block' ),
-				variations: getBlockVariations( blockName, 'block' ),
-				currentPostType: getCurrentPostType(),
-				jetpackForms:
-					getEntityRecords( 'postType', FORM_POST_TYPE, {
-						per_page: 100,
-						status: 'publish',
-						orderBy: 'modified',
-					} ) || [],
-			};
-		},
-		[ blockName ]
-	);
+				return {
+					blockType: getBlockType( blockName ),
+					defaultVariation: getDefaultBlockVariation( blockName, 'block' ),
+					variations: getBlockVariations( blockName, 'block' ),
+					currentPostType: getCurrentPostType(),
+					currentPostId: getCurrentPostId(),
+					jetpackForms:
+						getEntityRecords( 'postType', FORM_POST_TYPE, {
+							per_page: 100,
+							status: 'publish',
+							orderBy: 'modified',
+						} ) || [],
+				};
+			},
+			[ blockName ]
+		);
 
 	// Check if we're editing a jetpack-form post directly
 	const isEditingJetpackFormPost = currentPostType === FORM_POST_TYPE;
@@ -118,19 +121,16 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 								innerBlocks
 							);
 
-							// Serialize the entire form block to block markup
-							const serialized = serialize( formBlock );
-
-							// Create jetpack-form post
-							const post = await saveEntityRecord( 'postType', FORM_POST_TYPE, {
-								title: nextVariation.title || 'Form',
-								content: serialized,
-								status: 'publish',
-							} );
+							// Create synced form post and get its ID
+							const postId = await createSyncedForm(
+								formBlock,
+								nextVariation.title || 'Form',
+								currentPostId
+							);
 
 							// Set ONLY ref attribute
 							registry.batch( () => {
-								setAttributes( { ref: post.id } );
+								setAttributes( { ref: postId } );
 								selectBlock( clientId );
 							} );
 
