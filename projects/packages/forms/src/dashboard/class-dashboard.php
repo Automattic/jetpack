@@ -141,7 +141,29 @@ class Dashboard {
 			$initial_responses_path,
 			$initial_responses_locale_path,
 		);
-		$preload_data_raw              = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
+
+		// Only preload the Forms list endpoint when centralized form management is enabled.
+		if ( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
+			$forms_preload_params = array(
+				'context'               => 'edit',
+				'page'                  => 1,
+				'jetpack_forms_context' => 'dashboard',
+				'order'                 => 'desc',
+				'orderby'               => 'modified',
+				'per_page'              => 20,
+				'status'                => 'publish,draft,pending,future,private',
+			);
+			ksort( $forms_preload_params );
+			$preload_paths[] = add_query_arg( $forms_preload_params, '/wp/v2/jetpack-forms' );
+			$preload_paths[] = add_query_arg(
+				array_merge(
+					$forms_preload_params,
+					array( '_locale' => 'user' )
+				),
+				'/wp/v2/jetpack-forms'
+			);
+		}
+		$preload_data_raw = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 
 		// Normalize keys to match what apiFetch will request (without domain).
 		$preload_data = array();

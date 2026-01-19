@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove `wp-plugin-slug` in favor of `beta-plugin-slug`, as the plugin isn't on wporg. If it gets added there someday, we can always change that.
+
+

@@ -24,6 +24,7 @@ import * as React from 'react';
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
+import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
 import Page, { Stack } from '../../src/dashboard/components/page';
@@ -1044,6 +1045,9 @@ function Stage() {
 		showDashboardIntegrations,
 	] );
 
+	// Check if read_status filter is applied
+	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
+
 	return (
 		<Page
 			showSidebarToggle={ false }
@@ -1058,6 +1062,13 @@ function Stage() {
 			hasPadding={ false }
 		>
 			<DataViews
+				empty={
+					<EmptyResponses
+						status={ params.view }
+						isSearch={ !! view.search }
+						readStatusFilter={ readStatusFilter }
+					/>
+				}
 				data={ records || EMPTY_ARRAY }
 				fields={ fields as Field< unknown >[] }
 				view={ view }

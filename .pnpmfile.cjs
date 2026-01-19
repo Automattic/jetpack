@@ -149,6 +149,15 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Outdated dependency
+	if ( pkg.name === '@wordpress/jest-console' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( 'jest-' ) && ver.startsWith( '^29.' ) ) {
+				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
+	}
+
 	// Update localtunnel axios dep to avoid CVE
 	// https://github.com/localtunnel/localtunnel/issues/632
 	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {
@@ -247,6 +256,24 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@vitest/mocker' ] = '*';
 	}
 
+	// CVE-2026-22036
+	// https://github.com/actions/toolkit/issues/2242
+	if (
+		( pkg.name === '@actions/http-client' || pkg.name === '@actions/github' ) &&
+		pkg.dependencies?.undici?.startsWith( '^5.' )
+	) {
+		pkg.dependencies.undici = '^6.23.0';
+	}
+
+	// GHSA-73rr-hh4g-fpgx
+	// https://github.com/WordPress/gutenberg/issues/74669
+	if (
+		( pkg.name === '@wordpress/block-editor' || pkg.name === '@wordpress/sync' ) &&
+		( pkg.dependencies?.diff?.startsWith( '^4.' ) || pkg.dependencies?.diff?.startsWith( '4.' ) )
+	) {
+		pkg.dependencies.diff = '^8.0.3';
+	}
+
 	return pkg;
 }
 
@@ -307,6 +334,15 @@ function fixPeerDeps( pkg ) {
 	// Since it already has a (non-optional 🙄) peer dep on sass-embedded, we can just delete the sass dep.
 	if ( pkg.name === 'esbuild-sass-plugin' && pkg.dependencies.sass ) {
 		delete pkg.dependencies.sass;
+	}
+
+	// 0.x versions treat `^` like `~`. Replace with `>=`.
+	if ( pkg.name === '@wordpress/build' && pkg.peerDependencies ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
+			if ( ver.startsWith( '^0.' ) ) {
+				pkg.peerDependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
 	}
 
 	return pkg;

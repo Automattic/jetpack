@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use `beta-plugin-slug` as a fallback for plugin textdomains if `wp-plugin-slug` isn't set.

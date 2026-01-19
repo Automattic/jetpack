@@ -31,7 +31,7 @@
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "6.10.0",
+		"@wordpress/i18n": "6.11.0",
 		"zod": "3.25.76"
 	},
 	"devDependencies": {

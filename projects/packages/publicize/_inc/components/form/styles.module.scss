@@ -92,3 +92,8 @@
 	flex-direction: column;
 	gap: 1.5rem;
 }
+
+.share-post-form-disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
