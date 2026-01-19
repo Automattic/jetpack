@@ -9,7 +9,12 @@ import save from './save.js';
 const name = 'field-text';
 const settings = {
 	...defaultSettings,
-	formEditorCategory: 'input',
+	supports: {
+		...defaultSettings.supports,
+		jetpack_form: {
+			category: 'basic',
+		},
+	},
 	title: __( 'Text input field', 'jetpack-forms' ),
 	description: __( 'Collect short text responses from site visitors.', 'jetpack-forms' ),
 	icon: {

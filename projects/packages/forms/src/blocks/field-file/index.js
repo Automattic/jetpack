@@ -8,7 +8,12 @@ import save from './save.js';
 const name = 'field-file';
 const settings = {
 	...defaultSettings,
-	formEditorCategory: 'other',
+	supports: {
+		...defaultSettings.supports,
+		jetpack_form: {
+			category: 'advanced',
+		},
+	},
 	title: __( 'File upload field', 'jetpack-forms' ),
 	keywords: [
 		__( 'File', 'jetpack-forms' ),

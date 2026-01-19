@@ -17,7 +17,12 @@ const transforms = {
 
 const settings = {
 	...defaultSettings,
-	formEditorCategory: 'contact',
+	supports: {
+		...defaultSettings.supports,
+		jetpack_form: {
+			category: 'contact-info',
+		},
+	},
 	attributes: {
 		...defaultSettings.attributes,
 		fieldVariant: {

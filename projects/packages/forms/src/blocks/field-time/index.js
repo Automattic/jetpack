@@ -8,7 +8,12 @@ import save from './save.js';
 const name = 'field-time';
 const settings = {
 	...defaultSettings,
-	formEditorCategory: 'other',
+	supports: {
+		...defaultSettings.supports,
+		jetpack_form: {
+			category: 'basic',
+		},
+	},
 	title: __( 'Time input field', 'jetpack-forms' ),
 	description: __( 'Capture time information with a time picker.', 'jetpack-forms' ),
 	icon: renderMaterialIcon(

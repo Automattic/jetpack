@@ -23,15 +23,20 @@ let isFormEditorActive = false;
 interface BlockSettings {
 	name?: string;
 	category?: string;
-	formEditorCategory?: string;
+	supports?: {
+		jetpack_form?: {
+			category?: string;
+		};
+		[ key: string ]: unknown;
+	};
 	[ key: string ]: unknown;
 }
 
 /**
  * Filter callback that overrides block categories for form field blocks.
  *
- * This reads the `formEditorCategory` property from the block settings
- * and maps it to the full form category slug when the form editor is active.
+ * This reads the category from supports.jetpack_form.category and maps
+ * it to the full form category slug when the form editor is active.
  *
  * @param settings - The block settings object
  * @return Modified settings with updated category, or original settings
@@ -42,13 +47,13 @@ function overrideBlockCategory( settings: BlockSettings ): BlockSettings {
 		return settings;
 	}
 
-	const { formEditorCategory, category } = settings;
+	const shortCategory = settings.supports?.jetpack_form?.category;
 
-	if ( ! formEditorCategory || ! category ) {
+	if ( ! shortCategory ) {
 		return settings;
 	}
 
-	const formCategorySlug = getFormCategorySlug( formEditorCategory );
+	const formCategorySlug = getFormCategorySlug( shortCategory );
 
 	if ( ! formCategorySlug ) {
 		return settings;

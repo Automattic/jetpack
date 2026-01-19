@@ -9,7 +9,12 @@ import save from './save.js';
 const name = 'field-date';
 const settings = {
 	...defaultSettings,
-	formEditorCategory: 'other',
+	supports: {
+		...defaultSettings.supports,
+		jetpack_form: {
+			category: 'basic',
+		},
+	},
 	title: __( 'Date picker', 'jetpack-forms' ),
 	keywords: [
 		__( 'Calendar', 'jetpack-forms' ),

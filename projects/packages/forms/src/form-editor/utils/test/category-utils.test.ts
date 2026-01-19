@@ -12,10 +12,10 @@ describe( 'category-utils', () => {
 		it( 'should add form categories at the beginning of the array', () => {
 			const result = registerFormCategories( mockCategories );
 
-			expect( result[ 0 ].slug ).toBe( 'form-input' );
-			expect( result[ 1 ].slug ).toBe( 'form-contact' );
+			expect( result[ 0 ].slug ).toBe( 'form-basic' );
+			expect( result[ 1 ].slug ).toBe( 'form-contact-info' );
 			expect( result[ 2 ].slug ).toBe( 'form-choice' );
-			expect( result[ 3 ].slug ).toBe( 'form-other' );
+			expect( result[ 3 ].slug ).toBe( 'form-advanced' );
 			expect( result[ 4 ].slug ).toBe( 'text' );
 		} );
 
@@ -30,17 +30,17 @@ describe( 'category-utils', () => {
 			const result = registerFormCategories( [] );
 
 			expect( result ).toHaveLength( 4 );
-			expect( result[ 0 ].slug ).toBe( 'form-input' );
+			expect( result[ 0 ].slug ).toBe( 'form-basic' );
 		} );
 	} );
 
 	describe( 'unregisterFormCategories', () => {
 		it( 'should remove form categories from the array', () => {
 			const categoriesWithForm: Category[] = [
-				{ slug: 'form-input', title: 'Input' },
-				{ slug: 'form-contact', title: 'Contact' },
+				{ slug: 'form-basic', title: 'Basic' },
+				{ slug: 'form-contact-info', title: 'Contact info' },
 				{ slug: 'form-choice', title: 'Choice' },
-				{ slug: 'form-other', title: 'Other' },
+				{ slug: 'form-advanced', title: 'Advanced' },
 				{ slug: 'text', title: 'Text' },
 				{ slug: 'media', title: 'Media' },
 			];
@@ -54,7 +54,7 @@ describe( 'category-utils', () => {
 
 		it( 'should not mutate the original array', () => {
 			const categoriesWithForm: Category[] = [
-				{ slug: 'form-input', title: 'Input' },
+				{ slug: 'form-basic', title: 'Basic' },
 				{ slug: 'text', title: 'Text' },
 			];
 			const original = [ ...categoriesWithForm ];
@@ -80,12 +80,17 @@ describe( 'category-utils', () => {
 		} );
 	} );
 
-	describe( 'getFormCategorySlug works', () => {
-		it( 'returns the expected slug', () => {
-			const inputSlug = getFormCategorySlug( 'input' );
-			const undefinedSlug = getFormCategorySlug( 'non-existent' );
-			expect( inputSlug ).toBe( 'form-input' );
-			expect( undefinedSlug ).toBeUndefined();
+	describe( 'getFormCategorySlug', () => {
+		it( 'returns the full slug for known short category names', () => {
+			expect( getFormCategorySlug( 'basic' ) ).toBe( 'form-basic' );
+			expect( getFormCategorySlug( 'contact-info' ) ).toBe( 'form-contact-info' );
+			expect( getFormCategorySlug( 'choice' ) ).toBe( 'form-choice' );
+			expect( getFormCategorySlug( 'advanced' ) ).toBe( 'form-advanced' );
+		} );
+
+		it( 'returns undefined for unknown category names', () => {
+			expect( getFormCategorySlug( 'unknown' ) ).toBeUndefined();
+			expect( getFormCategorySlug( 'other' ) ).toBeUndefined();
 		} );
 	} );
 } );

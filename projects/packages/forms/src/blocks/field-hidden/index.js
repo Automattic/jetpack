@@ -7,7 +7,12 @@ import save from './save.js';
 const name = 'field-hidden';
 const settings = {
 	...defaultSettings,
-	formEditorCategory: 'input',
+	supports: {
+		...defaultSettings.supports,
+		jetpack_form: {
+			category: 'advanced',
+		},
+	},
 	title: __( 'Hidden field', 'jetpack-forms' ),
 	description: __(
 		'Invisible to site visitors. Allows you to store extra values with each form submission.',

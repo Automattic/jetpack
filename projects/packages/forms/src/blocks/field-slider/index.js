@@ -7,7 +7,6 @@ import save from './save.js';
 const name = 'field-slider';
 const settings = {
 	...defaultSettings,
-	formEditorCategory: 'other',
 	title: __( 'Slider field', 'jetpack-forms' ),
 	description: __( 'Collect a value from site visitors using a slider field.', 'jetpack-forms' ),
 	icon: {
@@ -45,6 +44,9 @@ const settings = {
 	supports: {
 		...defaultSettings.supports,
 		interactivity: true,
+		jetpack_form: {
+			category: 'advanced',
+		},
 	},
 	providesContext: {
 		...defaultSettings.providesContext,

@@ -34,7 +34,7 @@ import './style.scss';
  * Set up form editor categories and block category overrides.
  *
  * This function:
- * 1. Registers granular form categories (input, contact, choice, other)
+ * 1. Registers granular form categories (basic, contact-info, choice, advanced)
  * 2. Activates block category overrides to move blocks to the new categories
  * 3. Moves the contact-form category to the front (as a fallback for non-field blocks)
  *
@@ -49,14 +49,14 @@ const setupFormEditorCategories = () => {
 	// Store original categories for later restoration
 	const originalCategories = getCategories();
 
-	// Activate block category overrides first (moves blocks to new categories)
-	activateBlockCategoryOverrides();
-
-	// Register form categories and move contact-form to front
+	// Register form categories first so they exist when blocks are reassigned
 	let categories = getCategories();
 	categories = registerFormCategories( categories );
 	categories = moveCategoryToFront( categories );
 	setCategories( categories );
+
+	// Now activate block category overrides (moves blocks to the new categories)
+	activateBlockCategoryOverrides();
 
 	return originalCategories;
 };

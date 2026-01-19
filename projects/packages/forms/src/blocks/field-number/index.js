@@ -9,7 +9,12 @@ import save from './save.js';
 const name = 'field-number';
 const settings = {
 	...defaultSettings,
-	formEditorCategory: 'input',
+	supports: {
+		...defaultSettings.supports,
+		jetpack_form: {
+			category: 'basic',
+		},
+	},
 	title: __( 'Number input field', 'jetpack-forms' ),
 	description: __( 'Collect numbers from site visitors.', 'jetpack-forms' ),
 	icon: renderMaterialIcon(

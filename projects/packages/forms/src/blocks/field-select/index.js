@@ -9,7 +9,12 @@ import save from './save.js';
 const name = 'field-select';
 const settings = {
 	...defaultSettings,
-	formEditorCategory: 'choice',
+	supports: {
+		...defaultSettings.supports,
+		jetpack_form: {
+			category: 'choice',
+		},
+	},
 	title: __( 'Dropdown field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Choose', 'jetpack-forms' ),
