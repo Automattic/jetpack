@@ -427,7 +427,7 @@ class Posts extends Module {
 			return false;
 		}
 
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
 	/**
