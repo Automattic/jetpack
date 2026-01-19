@@ -19,6 +19,10 @@ interface TruncatedTickComponentProps extends TickRendererProps {
 	axis: 'x' | 'y';
 }
 
+/**
+ * Minimum width in pixels for tick labels when scale bandwidth is very small.
+ * Prevents labels from collapsing to unreadable widths on dense charts.
+ */
 const MINI_TICK_LABEL_LENGTH = 20;
 
 /**
@@ -55,21 +59,44 @@ export const TruncatedTickComponent: FC< TruncatedTickComponentProps > = ( {
 	const bandwidth = getScaleBandwidth( scale );
 	const maxWidth = Math.max( bandwidth, MINI_TICK_LABEL_LENGTH );
 
-	// Offset to center the text on the tick position
-	const xOffset = -maxWidth / 2;
-
-	// Map textAnchor to CSS textAlign
-	let textAlign: 'left' | 'right' | 'center' = 'left';
+	// Map SVG textAnchor to CSS textAlign
+	let textAlign: 'left' | 'right' | 'center' = 'center';
 	if ( textAnchor === 'start' ) {
 		textAlign = 'left';
 	} else if ( textAnchor === 'end' ) {
 		textAlign = 'right';
+	} else if ( textAnchor === 'middle' ) {
+		textAlign = 'center';
 	}
+
+	// Calculate x offset based on text alignment
+	let xOffset = 0;
+	if ( textAlign === 'center' ) {
+		xOffset = -maxWidth / 2;
+	} else if ( textAlign === 'right' ) {
+		xOffset = -maxWidth;
+	}
+
+	// Extract compatible style properties from SVG text props
+	const { fontSize, fontFamily, fontWeight, fontStyle, letterSpacing, opacity } = textProps as {
+		fontSize?: CSSProperties[ 'fontSize' ];
+		fontFamily?: CSSProperties[ 'fontFamily' ];
+		fontWeight?: CSSProperties[ 'fontWeight' ];
+		fontStyle?: CSSProperties[ 'fontStyle' ];
+		letterSpacing?: CSSProperties[ 'letterSpacing' ];
+		opacity?: CSSProperties[ 'opacity' ];
+	};
 
 	const textStyles: CSSProperties = {
 		// Offset y to convert from baseline to top-left positioning because svg text is positioned by baseline, but html div is positioned by top-left.
 		transform: 'translateY(-100%)',
-		...( textProps as unknown as CSSProperties ),
+		// Apply compatible SVG text styles
+		fontSize,
+		fontFamily,
+		fontWeight,
+		fontStyle,
+		letterSpacing,
+		opacity,
 		// Convert svg text styles to CSS styles for the div
 		color: fill ?? 'inherit',
 		textAlign,
@@ -93,7 +120,11 @@ export const TruncatedTickComponent: FC< TruncatedTickComponentProps > = ( {
 			// create a compound effect that requires doubling dy to match original text position.
 			style={ { transform: `translateY(calc(${ dy ?? '0' } * 2))` } }
 		>
-			<div style={ textStyles } title={ formattedValue || '' }>
+			<div
+				style={ textStyles }
+				title={ formattedValue || undefined }
+				aria-label={ formattedValue || undefined }
+			>
 				{ formattedValue }
 			</div>
 		</foreignObject>
