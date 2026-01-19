@@ -26,6 +26,9 @@ const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 	return blocks;
 };
 
+// Stable empty array to avoid useSelect reference changes
+const EMPTY_FORMS_ARRAY = [];
+
 export default function VariationPicker( { blockName, setAttributes, clientId, classNames } ) {
 	const registry = useRegistry();
 	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
@@ -51,7 +54,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 							per_page: 100,
 							status: 'publish',
 							orderBy: 'modified',
-						} ) || [],
+						} ) ?? EMPTY_FORMS_ARRAY,
 				};
 			},
 			[ blockName ]
@@ -96,7 +99,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 					// (just set attributes and inner blocks, don't create another ref)
 					if (
 						isEditingJetpackFormPost ||
-						isCentralFormManagementEnabled ||
+						! isCentralFormManagementEnabled ||
 						nextVariation.name === 'regular-form'
 					) {
 						applyVariationToFormBlock( {
@@ -162,6 +165,8 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				</Button>
 				{ ! isEditingJetpackFormPost && isCentralFormManagementEnabled && (
 					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={ __( 'Or select an existing form', 'jetpack-forms' ) }
 						value=""
 						options={ [
