@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: fix z-index stacking order for animated labels and combobox dropdown.

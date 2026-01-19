@@ -651,12 +651,14 @@ class Dashboard_REST_Controller {
 	public function get_dsp_templates_article( $req ) {
 		$urn = $req->get_param( 'urn' ) ?? '';
 
-		$response = $this->are_posts_ready() ?
+		$sync_ready = $this->are_posts_ready();
+
+		$response = $sync_ready ?
 			$this->get_dsp_generic( 'v1/templates/article/' . $urn, $req ) :
 			$this->get_dsp_templates_article_local( $urn, $req );
 
 		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
-			$response['sync_ready'] = $this->are_posts_ready();
+			$response['sync_ready'] = $sync_ready;
 		}
 
 		return $response;
