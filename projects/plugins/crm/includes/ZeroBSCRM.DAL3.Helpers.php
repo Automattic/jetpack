@@ -1,4 +1,5 @@
-<?php 
+<?php
+// phpcs:ignoreFile -- Legacy file pending gradual refactoring.
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
