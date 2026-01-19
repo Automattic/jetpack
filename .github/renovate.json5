@@ -106,6 +106,17 @@
 			],
 		},
 
+		// Separate Build from 'monorepo:wordpress' as build is still heavily developed, to manually test changes.
+		{
+			groupName: '@wordpress/build',
+			matchPackageNames: [ '@wordpress/build' ],
+			separateMajorMinor: false,
+			// Teams using Build in their projects
+			additionalReviewers: [
+				'team:zap', // Forms
+			],
+		},
+
 		// 🤷
 		{
 			groupName: 'Instant Search Dependency Updates',
