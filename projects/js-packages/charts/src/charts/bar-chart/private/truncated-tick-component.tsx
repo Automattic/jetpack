@@ -135,7 +135,6 @@ export const TruncatedTickComponent: FC< TruncatedTickComponentProps > = ( {
 			<div
 				style={ textStyles }
 				title={ formattedValue || undefined }
-				aria-label={ formattedValue || undefined }
 			>
 				{ formattedValue }
 			</div>
