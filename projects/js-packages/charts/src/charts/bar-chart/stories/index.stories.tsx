@@ -476,7 +476,7 @@ export const LabelOverflowEllipsis: StoryObj< typeof BarChart > = {
 		docs: {
 			description: {
 				story:
-					'Demonstrates the `labelOverflow: "ellipsis"` option that truncates long axis labels to fit the available bandwidth. The full label text is shown on hover via a native tooltip. This is useful for narrow widget contexts where space is limited.',
+					"Demonstrates the `labelOverflow: 'ellipsis'` option that truncates long axis labels to fit the available bandwidth. The full label text is shown on hover via a native tooltip. This is useful for narrow widget contexts where space is limited.",
 			},
 		},
 	},
