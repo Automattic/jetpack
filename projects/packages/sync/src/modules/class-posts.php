@@ -413,12 +413,11 @@ class Posts extends Module {
 	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
 	 */
 	public function filter_jetpack_sync_before_enqueue_jetpack_sync_save_post( $args ) {
-		if ( ! is_array( $args ) ) {
-			return false;
-		}
-
-		// Require post_id and WP_Post to transform; otherwise pass through.
-		if ( ! array_key_exists( 0, $args ) || ! array_key_exists( 1, $args ) || ! ( $args[1] instanceof \WP_Post ) ) {
+		if (
+			! is_array( $args )
+			|| ! array_key_exists( 0, $args ) || ! is_numeric( $args[0] )
+			|| ! array_key_exists( 1, $args ) || ! ( $args[1] instanceof \WP_Post )
+		) {
 			return false;
 		}
 
@@ -438,17 +437,17 @@ class Posts extends Module {
 	 * @return array|false Hook arguments, or false if the arguments are invalid.
 	 */
 	public function filter_jetpack_sync_before_enqueue_jetpack_published_post( $args ) {
-		if ( ! is_array( $args ) ) {
-			return false;
-		}
-		if ( ! array_key_exists( 0, $args ) || ! array_key_exists( 2, $args ) || ! ( $args[2] instanceof \WP_Post ) ) {
+		if (
+			! is_array( $args )
+			|| ! array_key_exists( 0, $args ) || ! is_numeric( $args[0] )
+			|| ! array_key_exists( 1, $args ) || ! is_array( $args[1] )
+			|| ! array_key_exists( 2, $args ) || ! ( $args[2] instanceof \WP_Post )
+		) {
 			return false;
 		}
 
-		list( $post_id, $flags, $post ) = array_pad( $args, 3, null );
-
-		$flags = is_array( $flags ) ? $flags : array();
-		return array( $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
+		list( $post_id, $flags, $post ) = $args;
+		return array( (int) $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
 	/**
@@ -478,6 +477,9 @@ class Posts extends Module {
 	 */
 	public function filter_meta( $args ) {
 		if ( ! is_array( $args ) || count( $args ) < 3 ) {
+			return false;
+		}
+		if ( ! is_numeric( $args[1] ) || ! is_string( $args[2] ) ) {
 			return false;
 		}
 		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
@@ -737,7 +739,7 @@ class Posts extends Module {
 	 * @param boolean  $update  Whether this is an existing post being updated or not.
 	 */
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
-		if ( ! is_numeric( $post_ID ) || $post === null ) {
+		if ( ! is_numeric( $post_ID ) || $post === null || ! $post instanceof \WP_Post ) {
 			return;
 		}
 
@@ -781,7 +783,7 @@ class Posts extends Module {
 	 * @param \WP_Post $post    Post object.
 	 **/
 	public function wp_after_insert_post( $post_ID, $post ) {
-		if ( ! is_numeric( $post_ID ) || $post === null ) {
+		if ( ! is_numeric( $post_ID ) || $post === null || ! $post instanceof \WP_Post ) {
 			return;
 		}
 
