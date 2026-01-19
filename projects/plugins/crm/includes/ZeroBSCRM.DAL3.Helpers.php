@@ -5783,13 +5783,16 @@ function jpcrm_get_total_value_from_contact_or_company( $entity ) {
 
 		global $zbs;
 
-		$contactWithVals = $zbs->DAL->contacts->getContact($contactID,array(
+		$contact_with_vals = $zbs->DAL->contacts->getContact( $contactID, array(
 			'withCustomFields' => false,
-			'withValues' => true));
+			'withValues' => true
+		) );
 
 		// throwaway obj apart from totals
 		// later could optimise, but better to optimise 1 level up and not even use this func
-		if (isset($contactWithVals['quotes_total'])) return $contactWithVals['quotes_total'];
+		if ( isset( $contact_with_vals['quotes_total'] ) ) {
+			return $contact_with_vals['quotes_total'];
+		}
 
 		return 0;
 
@@ -5802,13 +5805,16 @@ function jpcrm_get_total_value_from_contact_or_company( $entity ) {
 
 		global $zbs;
 
-		$contactWithVals = $zbs->DAL->contacts->getContact($contactID,array(
+		$contact_with_vals = $zbs->DAL->contacts->getContact( $contactID, array(
 			'withCustomFields' => false,
-			'withValues' => true));
+			'withValues' => true
+		) );
 
 		// throwaway obj apart from totals
 		// later could optimise, but better to optimise 1 level up and not even use this func
-		if (isset($contactWithVals['invoices_total'])) return $contactWithVals['invoices_total'];
+		if ( isset( $contact_with_vals['invoices_total'] ) ) {
+			return $contact_with_vals['invoices_total'];
+		}
 
 		return 0;		
 	}
