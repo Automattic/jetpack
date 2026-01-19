@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.4.0] - 2026-01-19
+### Added
+- Add ref attribute support for the form block. [#46555]
+- Add centralized dashboard tabs. [#46506]
+- Add country flag emoji to phone field values in form submission confirmation page. [#46611]
+- Add reusable forms list to dashboard. [#46580]
+- Display URL field values as clickable links in form submission confirmation page. [#46593]
+- Make form webhooks generally available. [#46422]
+
+### Changed
+- Update "Create Form" if CFM flag is on. [#46598]
+- Update dataviews actions to match between old and new dashboard. [#46564]
+- Update form submission confirmation page with new design. [#46521]
+- Implement IP flag in new WP Build dashboard. [#46595]
+- Replace escape function in checkbox input value. [#46354]
+- Split wp-build dashboard Inspector into multiple files. [#46616]
+- Update read/unread status column style to match old dashboard. [#46566]
+- Update source link to use `ExternalLink` component in new dashboard. [#46586]
+- Use empty state component for new dashboard. [#46638]
+- Use Gravatar component in new dashboard inbox. [#46567]
+- Use wrapper function to mark unread rows in new dashboard. [#46591]
+- Update package dependencies. [#46552] [#46568] [#46647]
+
+### Removed
+- Clean up all dashboard migration code (filters, methods and wrapped up code). [#43825]
+
+### Fixed
+- Consent block: Automatically set required to false when consent type is implicit. [#46443]
+- Fix z-index stacking order for animated labels and combobox dropdown. [#46634]
+- Fix dashboard routing on wpcom. [#46554]
+- Use fallback in all email rendering contexts. [#46581]
+
 ## [7.3.0] - 2026-01-12
 ### Security
 - Add SSRF protection for webhook URLs to prevent requests to internal networks and cloud metadata endpoints. [#46424]
@@ -2043,6 +2075,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.4.0]: https://github.com/automattic/jetpack-forms/compare/v7.3.0...v7.4.0
 [7.3.0]: https://github.com/automattic/jetpack-forms/compare/v7.2.0...v7.3.0
 [7.2.0]: https://github.com/automattic/jetpack-forms/compare/v7.1.0...v7.2.0
 [7.1.0]: https://github.com/automattic/jetpack-forms/compare/v7.0.0...v7.1.0

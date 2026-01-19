@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.5-a.3 - 2026-01-19
+### Enhancements
+- Command Palette: Add site switcher command to quickly switch between WordPress.com connected sites. [#46342]
+- Forms: Add ref attribute support for the form block. [#46555]
+- Forms: Make form webhooks generally available. [#46422]
+- Instant Search: Show WooCommerce product filters in filter widget. [#46373]
+- My Jetpack: Check red bubble notifications async when cache is not available. [#46396]
+- Sharing: Improve accessibility of sharing button texts by removing "Click to" prefix. [#46583]
+
+### Bug fixes
+- About Page: Fix plugin icon positioning and sizing. [#46610]
+- Contact Form: Fix checkbox field value not being properly output in the classic editor form builder. [#46354]
+- Shortcode: Fix broken YouTube URL on the classic editor. [#46433]
+- Slideshow: Ensure slideshows do not stretch to parent container width on mobile if no list height is set. [#46450]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- E2E: pre-build number-formatter package in E2E run. [#46586]
+- Forms: Update E2E test to match new form submission confirmation heading. [#46521]
+- Newsletter: Work on new UI, not available yet. [#46470]
+- Reader: Fix post embed previews not displaying correctly when reposting from Reader. [#46522]
+- Tests: Add coverage for modules added to sync configuration mid-progress. [#46475]
+- Update composer lock following Publicize changes. [#46516]
+- Update package dependencies. [#46647]
+
 ## 15.5-a.1 - 2026-01-12
 ### Enhancements
 - Forms: Add form editor. [#46444]
