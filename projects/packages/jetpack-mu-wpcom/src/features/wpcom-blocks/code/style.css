@@ -181,7 +181,7 @@
 }
 
 .wp-block-code.is-style-solarized-light,
- .wp-block-code.is-style-solarized-dark {
+.wp-block-code.is-style-solarized-dark {
 	--styledColorKeyword: lab(55 -10 -45);
 
 	/* blue */
@@ -257,18 +257,18 @@
 }
 
 .wp-block-code.is-style-solarized-light .a8c\/code__btn-copy,
- .wp-block-code.is-style-solarized-dark .a8c\/code__btn-copy {
+.wp-block-code.is-style-solarized-dark .a8c\/code__btn-copy {
 	color: var(--colorBackground);
 	background-color: var(--colorText);
 }
 
 .wp-block-code.is-style-solarized-light .a8c\/code__btn-copy:hover,
- .wp-block-code.is-style-solarized-dark .a8c\/code__btn-copy:hover {
+.wp-block-code.is-style-solarized-dark .a8c\/code__btn-copy:hover {
 	background-color: color-mix(in sRGB, var(--colorText) 85%, #000);
 }
 
 .wp-block-code.is-style-solarized-light .a8c\/code__btn-copy:focus,
- .wp-block-code.is-style-solarized-dark .a8c\/code__btn-copy:focus {
+.wp-block-code.is-style-solarized-dark .a8c\/code__btn-copy:focus {
 	outline: 2px solid var(--colorText);
 }
 
