@@ -1,4 +1,4 @@
 Significance: major
-Type: deprecated
+Type: updated
 
-Remove and deprecate error handling methods for external storage.
+Remove error handling methods for external storage and add host agnostic error reporting.
