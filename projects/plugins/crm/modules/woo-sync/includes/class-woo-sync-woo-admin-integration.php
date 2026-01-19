@@ -261,31 +261,42 @@ class Woo_Sync_Woo_Admin_Integration {
 	 * Get CRM contact ID from WooCommerce order.
 	 *
 	 * This method attempts to identify the CRM contact associated with a WooCommerce order.
-	 * It first checks by billing email, and if not found, it falls back to checking
-	 * if the order belongs to a WordPress user who is linked to a CRM contact.
 	 *
-	 * This addresses the issue where a logged-in customer uses a different email
-	 * for their order than their main CRM contact email.
+	 * Priority order:
+	 * 1. If order has a customer (WordPress user), use that to find CRM contact
+	 * 2. If order is from a guest (no WordPress user), use billing email
+	 *
+	 * This ensures that logged-in customers are always identified by their account,
+	 * even if they use a different billing email on the order.
 	 *
 	 * @param \WC_Order $order WooCommerce order object.
 	 * @return int CRM contact ID, or 0 if not found.
 	 */
 	public function get_contact_id_from_order( $order ) {
-		// First, try to find contact by billing email.
-		$email = $order->get_billing_email();
-		if ( ! empty( $email ) ) {
-			$contact_id = zeroBS_getCustomerIDWithEmail( $email );
+		// First, check if the order has a customer (WordPress user).
+		// If so, use their account to find the CRM contact.
+		$customer_id = $order->get_customer_id();
+		if ( $customer_id > 0 ) {
+			// Try to find CRM contact linked to this WordPress user.
+			$contact_id = zeroBS_getCustomerIDFromWPID( $customer_id );
 			if ( $contact_id > 0 ) {
 				return $contact_id;
 			}
+
+			// If no CRM contact is linked to WP user, try the WP user's email.
+			$wp_user = get_user_by( 'id', $customer_id );
+			if ( $wp_user && ! empty( $wp_user->user_email ) ) {
+				$contact_id = zeroBS_getCustomerIDWithEmail( $wp_user->user_email );
+				if ( $contact_id > 0 ) {
+					return $contact_id;
+				}
+			}
 		}
 
-		// Fallback: Check if the order has a customer ID (WordPress user ID).
-		// This handles cases where the customer used a different email for their order
-		// but was logged in to their WordPress account.
-		$customer_id = $order->get_customer_id();
-		if ( $customer_id > 0 ) {
-			$contact_id = zeroBS_getCustomerIDFromWPID( $customer_id );
+		// Fallback for guest orders: use billing email.
+		$billing_email = $order->get_billing_email();
+		if ( ! empty( $billing_email ) ) {
+			$contact_id = zeroBS_getCustomerIDWithEmail( $billing_email );
 			if ( $contact_id > 0 ) {
 				return $contact_id;
 			}
