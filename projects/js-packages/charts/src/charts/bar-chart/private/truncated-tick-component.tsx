@@ -107,6 +107,7 @@ export const TruncatedTickComponent: FC< TruncatedTickComponentProps > = ( {
 		 * we shift the div up by 100% of its height and adjust by twice the SVG dy value (from visx) to approximate original placement.
 		 */
 		transform: `translateY(calc(-100% + ${ dy ?? '0' } * 2))`,
+		// Safari doesn't work well with foreignObject, this is a workaround to position the div correctly.
 		position: 'fixed',
 		// Offset y to convert from baseline to top-left positioning because svg text is positioned by baseline, but html div is positioned by top-left.
 		// Apply compatible SVG text styles
