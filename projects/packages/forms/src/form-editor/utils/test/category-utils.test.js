@@ -1,8 +1,8 @@
-import { registerFormCategories, unregisterFormCategories, type Category } from '../category-utils';
+import { registerFormCategories, unregisterFormCategories } from '../category-utils';
 import { getFormCategorySlug } from '../form-categories';
 
 describe( 'category-utils', () => {
-	const mockCategories: Category[] = [
+	const mockCategories = [
 		{ slug: 'text', title: 'Text' },
 		{ slug: 'media', title: 'Media' },
 		{ slug: 'design', title: 'Design' },
@@ -36,7 +36,7 @@ describe( 'category-utils', () => {
 
 	describe( 'unregisterFormCategories', () => {
 		it( 'should remove form categories from the array', () => {
-			const categoriesWithForm: Category[] = [
+			const categoriesWithForm = [
 				{ slug: 'form-basic', title: 'Basic' },
 				{ slug: 'form-contact-info', title: 'Contact info' },
 				{ slug: 'form-choice', title: 'Choice' },
@@ -53,7 +53,7 @@ describe( 'category-utils', () => {
 		} );
 
 		it( 'should not mutate the original array', () => {
-			const categoriesWithForm: Category[] = [
+			const categoriesWithForm = [
 				{ slug: 'form-basic', title: 'Basic' },
 				{ slug: 'text', title: 'Text' },
 			];
