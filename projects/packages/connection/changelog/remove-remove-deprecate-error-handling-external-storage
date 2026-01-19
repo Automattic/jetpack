@@ -1,4 +1,4 @@
 Significance: major
 Type: deprecated
 
-Removing and deprecationg error handling methods for external storage.
+Remove and deprecate error handling methods for external storage.
