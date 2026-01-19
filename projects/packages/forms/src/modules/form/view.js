@@ -142,7 +142,18 @@ const maybeTransformValue = value => {
 
 const getImages = value => {
 	if ( value?.type === 'image-select' ) {
-		return value.choices.map( choice => choice.image?.src );
+		return value.choices.map( choice => {
+			let caption = choice.perceived ?? '';
+
+			if ( choice.showLabels && choice.label != null && choice.label !== '' ) {
+				caption += ' | ' + choice.label;
+			}
+
+			return {
+				src: choice.image?.src ?? '',
+				caption,
+			};
+		} );
 	}
 
 	return null;
