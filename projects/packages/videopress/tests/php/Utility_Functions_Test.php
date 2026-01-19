@@ -421,4 +421,52 @@ class Utility_Functions_Test extends BaseTestCase {
 
 		$this->assertSame( $parent_id, $post->post_parent );
 	}
+
+	/**
+	 * Filter callback to mock the unauthenticated VideoPress API response.
+	 * Only intercepts requests to the public API endpoint (v1.1).
+	 *
+	 * @param false|array|\WP_Error $preempt A preemptive return value.
+	 * @param array                 $args    Request arguments.
+	 * @param string                $url     The request URL.
+	 * @return array|false Mock response or false to proceed with the request.
+	 */
+	public function filter_mock_unauthenticated_api( $preempt, $args, $url ) {
+		// Only intercept the public API (v1.1) endpoint, not the authenticated one.
+		if ( strpos( $url, 'rest/v1.1/videos/' ) === false ) {
+			return $preempt;
+		}
+
+		if ( null === $this->mock_video_data ) {
+			return $preempt;
+		}
+
+		return array(
+			'response' => array( 'code' => 200 ),
+			'body'     => wp_json_encode( $this->mock_video_data, JSON_HEX_TAG | JSON_HEX_AMP ),
+		);
+	}
+
+	/**
+	 * Test videopress_get_video_details falls back to unauthenticated API for unconnected sites.
+	 */
+	public function test_get_video_details_fallback_for_unconnected_sites() {
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+
+		// Clear the connection to simulate an unconnected site.
+		Jetpack_Options::delete_option( 'blog_token' );
+		Jetpack_Options::delete_option( 'id' );
+
+		$this->mock_video_data = $this->get_mock_video_data();
+
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_unauthenticated_api' ), 10, 3 );
+		$result = videopress_get_video_details( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_unauthenticated_api' ), 10 );
+
+		// Verify the fallback returned valid data.
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+		$this->assertSame( $guid, $result->guid );
+		$this->assertSame( 'Test Video Title', $result->title );
+	}
 }
