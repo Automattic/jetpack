@@ -840,7 +840,7 @@ class Dashboard_REST_Controller {
 
 		$sync_ready = $this->are_posts_ready();
 
-		$response = $this->are_posts_ready() ?
+		$response = $sync_ready ?
 			$this->get_dsp_generic( 'v1/advise/campaign/' . $urn, $req ) :
 			$this->get_dsp_advise_campaign_local( $urn );
 
