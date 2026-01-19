@@ -54,7 +54,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 						getEntityRecords( 'postType', FORM_POST_TYPE, {
 							per_page: 100,
 							status: 'publish',
-							orderBy: 'modified',
+							orderby: 'modified',
 						} ) ?? EMPTY_FORMS_ARRAY,
 				};
 			},
@@ -95,8 +95,11 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				) }
 				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
 				onSelect={ async ( nextVariation = defaultVariation ) => {
-					// If we're editing a jetpack-form post directly, use the old behavior
-					// (just set attributes and inner blocks, don't create another ref)
+					// If we're editing a jetpack-form post directly, or central form management
+					// is disabled, use the "old" behavior: apply the variation directly to this
+					// block by setting attributes and inner blocks, without creating a synced
+					// form post (i.e., without creating or updating a ref). This avoids relying
+					// on central form management when it is not available or not appropriate.
 					if (
 						isEditingJetpackFormPost ||
 						! isCentralFormManagementEnabled ||
@@ -172,7 +175,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Or select an existing form', 'jetpack-forms' ) }
-							value=""
+
 							options={ [
 								{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
 								...jetpackForms.map( form => ( {
