@@ -165,22 +165,24 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				</Button>
 			</div>
 			<div className="form-placeholder__footer">
-				{ ! isEditingJetpackFormPost && isCentralFormManagementEnabled && (
-					<SelectControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={ __( 'Or select an existing form', 'jetpack-forms' ) }
-						value=""
-						options={ [
-							{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
-							...jetpackForms.map( form => ( {
-								label: form.title?.rendered || __( '(Untitled)', 'jetpack-forms' ),
-								value: form.id.toString(),
-							} ) ),
-						] }
-						onChange={ handleFormSelection }
-					/>
-				) }
+				{ ! isEditingJetpackFormPost &&
+					isCentralFormManagementEnabled &&
+					jetpackForms.length > 0 && (
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Or select an existing form', 'jetpack-forms' ) }
+							value=""
+							options={ [
+								{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
+								...jetpackForms.map( form => ( {
+									label: form.title?.rendered || __( '(Untitled)', 'jetpack-forms' ),
+									value: form.id.toString(),
+								} ) ),
+							] }
+							onChange={ handleFormSelection }
+						/>
+					) }
 			</div>
 			{ isPatternsModalOpen && (
 				<Modal
