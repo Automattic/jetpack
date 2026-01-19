@@ -191,7 +191,7 @@ class Feedback_Field {
 	/**
 	 * Get the value of the field for rendering the post-submission page.
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	private function get_render_web_value() {
 		if ( $this->is_of_type( 'image-select' ) ) {
@@ -201,6 +201,19 @@ class Feedback_Field {
 		// For phone fields, add country flag before the number.
 		if ( $this->is_of_type( 'phone' ) || $this->is_of_type( 'telephone' ) ) {
 			return $this->get_phone_value_with_flag();
+		}
+
+		// For URL fields, return a structured array with the URL for proper link rendering.
+		// 'displayValue' preserves the original user input for display text.
+		// 'url' is used for the href and may have https:// prepended.
+		if ( $this->is_of_type( 'url' ) ) {
+			if ( ! empty( $this->value ) ) {
+				return array(
+					'type'         => 'url',
+					'url'          => $this->value,
+					'displayValue' => $this->value,
+				);
+			}
 		}
 
 		return $this->get_render_default_value();
