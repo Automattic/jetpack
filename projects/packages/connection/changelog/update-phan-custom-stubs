@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: PHPUnit tests: Remove deprecated `$this->any()` calls
+
+
