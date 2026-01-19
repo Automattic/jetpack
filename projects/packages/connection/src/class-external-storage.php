@@ -124,11 +124,11 @@ class External_Storage {
 	}
 
 	/**
-	 * Log events if WP_DEBUG is enabled.
+	 * Log events if WP_DEBUG is enabled and delegate to provider for error reporting.
 	 * Includes rate limiting to prevent log spam from noisy events.
 	 *
-	 * Note: Error_Handler integration has been deprecated. Storage providers should
-	 * implement their own error reporting via the optional handle_error_event() method.
+	 * Storage providers can optionally implement handle_error_event() method to receive
+	 * notifications about storage errors and empty states for their own error reporting.
 	 *
 	 * @since 6.18.0
 	 *
@@ -155,78 +155,38 @@ class External_Storage {
 			);
 		}
 
-		// Only process 'error' and 'empty' events for remote reporting
+		// Only process 'error' and 'empty' events for provider error reporting
 		if ( 'error' !== $event_type && 'empty' !== $event_type ) {
 			return;
 		}
 
-		/*
-		 * Error_Handler integration for External_Storage has been deprecated.
-		 * Storage providers should implement handle_error_event() method for error reporting.
-		 *
-		 * The Error_Handler integration is disabled. The deprecated methods below are kept for
-		 * backwards compatibility but no longer report to WordPress.com through Error_Handler.
-		 *
-		 * @deprecated $$next-version$$
-		 */
-		$should_report_remote = false;
-
-		if ( 'error' === $event_type ) {
-			// @phan-suppress-next-line PhanDeprecatedFunction -- Intentionally calling deprecated method during deprecation period.
-			$should_report_remote = self::should_report_for_environment( $key );
-		} elseif ( 'empty' === $event_type ) {
-			// @phan-suppress-next-line PhanDeprecatedFunction -- Intentionally calling deprecated methods during deprecation period.
-			$should_report_remote = self::should_report_for_environment( $key ) && self::should_report_empty_state( $key );
+		// For 'empty' events, check delay mechanism to avoid false positives during sync between external storage and the database.
+		if ( 'empty' === $event_type && ! self::should_report_empty_state( $key ) ) {
+			return;
 		}
 
-		// Trigger deprecation notice if any code is still trying to use Error_Handler integration
-		if ( $should_report_remote ) {
-			_deprecated_function( 'External_Storage Error_Handler integration', 'jetpack-connection-$$next-version$$', 'Implement handle_error_event() method in your Storage Provider instead' );
-			// Error_Handler reporting is now disabled - providers should implement handle_error_event()
+		// Delegate to provider if it implements error handling
+		if ( null !== self::$provider && method_exists( self::$provider, 'handle_error_event' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Optional method, checked via method_exists()
+			self::$provider->handle_error_event( $event_type, $key, $details, $environment );
 		}
-	}
-
-	/**
-	 * Determine if the current environment should report external storage errors to WordPress.com.
-	 *
-	 * @since 6.18.0
-	 * @deprecated $$next-version$$ Error_Handler integration has been deprecated.
-	 *             Implement handle_error_event() method in your Storage Provider instead.
-	 *
-	 * @param string $key The option key being accessed.
-	 * @return bool True if this environment should report external storage errors to WordPress.com.
-	 */
-	private static function should_report_for_environment( $key = '' ) {
-		_deprecated_function( __METHOD__, 'jetpack-connection-$$next-version$$', 'Implement handle_error_event() method in your Storage Provider instead' );
-
-		$provider = self::$provider;
-
-		// Check if provider implements per-option reporting (optional method not defined in interface).
-		// Providers can optionally implement: public function should_report_errors_for( $option_name )
-		if ( null !== $provider && method_exists( $provider, 'should_report_errors_for' ) && ! empty( $key ) ) {
-			// @phan-suppress-next-line PhanUndeclaredMethodInCallable - Optional method, checked via method_exists()
-			return call_user_func( array( $provider, 'should_report_errors_for' ), $key );
-		}
-
-		return false;
 	}
 
 	/**
 	 * Determine if we should report an empty state based on delay mechanism.
-	 * We need this due to delays in writing in external storage vs writing into the database.
-	 * On first encounter of empty state, sets a transient. On subsequent encounters
-	 * after 10 minutes, allows reporting (indicating likely disconnection, not sync delay).
+	 *
+	 * This prevents false positives during storage sync delays. On first encounter
+	 * of empty state, sets a transient. On subsequent encounters after the delay
+	 * threshold, allows reporting (indicating likely disconnection, not sync delay).
+	 *
+	 * Providers can customize the delay threshold by implementing get_empty_state_delay_threshold().
 	 *
 	 * @since 6.18.0
-	 * @deprecated $$next-version$$ Error_Handler integration has been deprecated.
-	 *             This method will be repurposed to support provider-based error reporting.
 	 *
 	 * @param string $key The key that was empty.
 	 * @return bool True if we should report this empty state, false otherwise.
 	 */
 	private static function should_report_empty_state( $key ) {
-		_deprecated_function( __METHOD__, 'jetpack-connection-$$next-version$$', 'Provider-based error reporting via handle_error_event()' );
-
 		$delay_key        = 'jetpack_external_storage_empty_delay_' . $key;
 		$first_empty_time = get_transient( $delay_key );
 
@@ -236,10 +196,21 @@ class External_Storage {
 			return false;
 		}
 
-		// Check if 10 minutes have passed since first empty encounter
-		$delay_threshold = 10 * MINUTE_IN_SECONDS;
+		// Default delay threshold (5 minutes)
+		$delay_threshold = 5 * MINUTE_IN_SECONDS;
+
+		// Allow provider to customize delay threshold
+		// A threshold of 0 is valid for providers where external storage is written first
+		if ( null !== self::$provider && method_exists( self::$provider, 'get_empty_state_delay_threshold' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Optional method, checked via method_exists()
+			$custom_threshold = self::$provider->get_empty_state_delay_threshold();
+			if ( is_int( $custom_threshold ) && $custom_threshold >= 0 ) {
+				$delay_threshold = $custom_threshold;
+			}
+		}
+
 		if ( ( time() - $first_empty_time ) >= $delay_threshold ) {
-			// 10+ minutes of empty state - likely disconnection, report it
+			// Delay threshold passed - likely disconnection, report it
 			delete_transient( $delay_key );
 			return true;
 		}
