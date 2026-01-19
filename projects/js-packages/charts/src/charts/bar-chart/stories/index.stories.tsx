@@ -450,9 +450,9 @@ export const LabelOverflowEllipsis: StoryObj< typeof BarChart > = {
 			</div>
 
 			<div>
-				<h3>With labelOverflow: &apos;ellipsis&apos; (Labels Truncated)</h3>
+				<h3>With labelOverflow: 'ellipsis' (Labels Truncated)</h3>
 				<p style={ { marginBottom: '20px', color: '#666' } }>
-					With <code>labelOverflow: &apos;ellipsis&apos;</code>, labels are truncated to fit the
+					With <code>labelOverflow: 'ellipsis'</code>, labels are truncated to fit the
 					available bandwidth. <strong>Hover over a label to see the full text.</strong>
 				</p>
 				<div style={ { width: '350px', height: '250px', border: '1px solid #e0e0e0' } }>
