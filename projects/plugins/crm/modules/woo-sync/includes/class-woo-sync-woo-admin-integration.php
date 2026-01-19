@@ -113,13 +113,8 @@ class Woo_Sync_Woo_Admin_Integration {
 					$order = wc_get_order( $order_or_post_id );
 				}
 
-				$email = $order->get_billing_email();
-
-				if ( empty( $email ) ) {
-					return;
-				}
-
-				$contact_id = zeroBS_getCustomerIDWithEmail( $email );
+				// Use the helper method to find contact by email or WordPress user ID.
+				$contact_id = $this->get_contact_id_from_order( $order );
 
 				if ( $contact_id > 0 ) {
 					$url   = jpcrm_esc_link( 'view', $contact_id, 'zerobs_customer' );
@@ -185,10 +180,10 @@ class Woo_Sync_Woo_Admin_Integration {
 		$this->render_metabox_styles();
 
 		// the customer information pane
-		$email = $order->get_billing_email();
+		$billing_email = $order->get_billing_email();
 
 		// No billing email found, so render message and return.
-		if ( empty( $email ) ) {
+		if ( empty( $billing_email ) ) {
 			?>
 			<div class="jpcrm-contact-metabox">
 				<div class="no-crm-contact">
@@ -201,11 +196,23 @@ class Woo_Sync_Woo_Admin_Integration {
 			return;
 		}
 
-		// retrieve contact id
-		$contact_id = zeroBS_getCustomerIDWithEmail( $email );
+		// Use the helper method to find contact by email or WordPress user ID.
+		$contact_id = $this->get_contact_id_from_order( $order );
 
-		// Can't find a contact under that email, so return.
+		// Can't find a contact, show "Add Contact" button.
 		if ( $contact_id <= 0 ) {
+			?>
+			<div class="jpcrm-contact-metabox">
+				<div class="no-crm-contact">
+					<p style="margin-top:20px;">
+					<?php esc_html_e( 'No CRM contact found for this order.', 'zero-bs-crm' ); ?>
+					</p>
+					<div class="panel-edit-contact">
+						<a class="view-contact-link button button-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->modules->woosync->slugs['hub'] ) ); ?>"><?php echo esc_html__( 'Add Contact', 'zero-bs-crm' ); ?></a>
+					</div>
+				</div>
+			</div>
+			<?php
 			return;
 		}
 
@@ -213,6 +220,9 @@ class Woo_Sync_Woo_Admin_Integration {
 		$crm_contact               = $zbs->DAL->contacts->getContact( $contact_id );
 		$contact_name              = $zbs->DAL->contacts->getContactFullNameEtc( $contact_id, $crm_contact, array( false, false ) );
 		$contact_transaction_count = $zbs->DAL->specific_obj_type_count_for_assignee( $contact_id, ZBS_TYPE_TRANSACTION, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		// Use contact email from CRM if available, otherwise fallback to billing email.
+		$display_email = ! empty( $crm_contact['email'] ) ? $crm_contact['email'] : $billing_email;
 
 		// check avatar mode
 		$avatar      = '';
@@ -236,7 +246,7 @@ class Woo_Sync_Woo_Admin_Integration {
 			</div>
 
 			<div class="panel-left-info cust-email">
-				<i class="ui icon envelope outline"></i> <span class="panel-customer-email"><?php echo esc_html( $email ); ?></span>
+				<i class="ui icon envelope outline"></i> <span class="panel-customer-email"><?php echo esc_html( $display_email ); ?></span>
 			</div>
 
 			<div class="panel-edit-contact">
@@ -245,6 +255,43 @@ class Woo_Sync_Woo_Admin_Integration {
 		</div>
 		<?php
 		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
+
+	/**
+	 * Get CRM contact ID from WooCommerce order.
+	 *
+	 * This method attempts to identify the CRM contact associated with a WooCommerce order.
+	 * It first checks by billing email, and if not found, it falls back to checking
+	 * if the order belongs to a WordPress user who is linked to a CRM contact.
+	 *
+	 * This addresses the issue where a logged-in customer uses a different email
+	 * for their order than their main CRM contact email.
+	 *
+	 * @param \WC_Order $order WooCommerce order object.
+	 * @return int CRM contact ID, or 0 if not found.
+	 */
+	public function get_contact_id_from_order( $order ) {
+		// First, try to find contact by billing email.
+		$email = $order->get_billing_email();
+		if ( ! empty( $email ) ) {
+			$contact_id = zeroBS_getCustomerIDWithEmail( $email );
+			if ( $contact_id > 0 ) {
+				return $contact_id;
+			}
+		}
+
+		// Fallback: Check if the order has a customer ID (WordPress user ID).
+		// This handles cases where the customer used a different email for their order
+		// but was logged in to their WordPress account.
+		$customer_id = $order->get_customer_id();
+		if ( $customer_id > 0 ) {
+			$contact_id = zeroBS_getCustomerIDFromWPID( $customer_id );
+			if ( $contact_id > 0 ) {
+				return $contact_id;
+			}
+		}
+
+		return 0;
 	}
 
 	/**

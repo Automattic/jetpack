@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooSync: Fix CRM contact identification on orders where customer used a different email address while logged in. Now correctly falls back to WordPress user ID lookup.
