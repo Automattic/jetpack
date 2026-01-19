@@ -150,8 +150,8 @@ const createTruncatedTickComponent = ( axis: 'x' | 'y' ) => ( props: TickRendere
 
 /**
  * Pre-created tick components for x and y axes.
- * These are memoized at module level to prevent component recreation on every render,
- * which would cause unnecessary DOM operations and potential state loss.
+ * These functions are created once at module initialization and reused,
+ * avoiding repeated factory calls when configuring axes.
  */
 export const TruncatedXTickComponent = createTruncatedTickComponent( 'x' );
 export const TruncatedYTickComponent = createTruncatedTickComponent( 'y' );
