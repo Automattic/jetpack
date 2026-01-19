@@ -848,12 +848,14 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function create_dsp_campaigns( $req ) {
-		$response = $this->are_posts_ready() ?
+		$sync_ready = $this->are_posts_ready();
+
+		$response = $sync_ready ?
 			$this->edit_dsp_generic( 'v1.1/campaigns', $req, array( 'timeout' => 60 ) ) :
 			$this->create_dsp_campaigns_local( $req );
 
 		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
-			$response['sync_ready'] = $this->are_posts_ready();
+			$response['sync_ready'] = $sync_ready;
 		}
 
 		return $response;
