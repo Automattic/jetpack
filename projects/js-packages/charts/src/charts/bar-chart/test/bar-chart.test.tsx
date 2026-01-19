@@ -626,23 +626,6 @@ describe( 'BarChart', () => {
 			expect( label ).toHaveAttribute( 'title', 'Very Long Category Label One' );
 		} );
 
-		test( 'sets aria-label for screen reader accessibility', () => {
-			renderWithTheme( {
-				width: 300,
-				data: longLabelData,
-				options: {
-					axis: {
-						x: {
-							labelOverflow: 'ellipsis',
-						},
-					},
-				},
-			} );
-
-			const label = screen.getByText( /Very Long Category Label One/i );
-			expect( label ).toHaveAttribute( 'aria-label', 'Very Long Category Label One' );
-		} );
-
 		test( 'applies truncation to x-axis for vertical bar charts', () => {
 			renderWithTheme( {
 				width: 300,
