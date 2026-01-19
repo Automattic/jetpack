@@ -27,9 +27,11 @@ class Dashboard {
 	 * This is for the new DataViews-based responses list.
 	 */
 	public static function load_wp_build() {
-		$wp_build_index = dirname( __DIR__, 2 ) . '/build/index.php';
-		if ( file_exists( $wp_build_index ) ) {
-			require_once $wp_build_index;
+		if ( self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG ) {
+			$wp_build_index = dirname( __DIR__, 2 ) . '/build/index.php';
+			if ( file_exists( $wp_build_index ) ) {
+				require_once $wp_build_index;
+			}
 		}
 	}
 	/**
@@ -78,9 +80,18 @@ class Dashboard {
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
 
 		// Removed all admin notices on the Jetpack Forms admin page.
-		if ( isset( $_GET['page'] ) && $_GET['page'] === self::ADMIN_SLUG ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( self::get_admin_query_page() === self::ADMIN_SLUG ) {
 			remove_all_actions( 'admin_notices' );
 		}
+	}
+	/**
+	 * Get the current query 'page' parameter.
+	 *
+	 * @return string
+	 */
+	private static function get_admin_query_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 	}
 
 	/**
