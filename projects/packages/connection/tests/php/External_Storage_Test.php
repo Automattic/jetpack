@@ -240,7 +240,7 @@ class External_Storage_Test extends TestCase {
 		$this->assertTrue( $result1 );
 
 		// Verify static cache was set
-		$logged_events = $logged_events_property->getValue( null );
+		$logged_events = $logged_events_property->getValue();
 		$this->assertArrayHasKey( 'static_test', $logged_events );
 
 		// Second call should return false (blocked by static cache, not transient)

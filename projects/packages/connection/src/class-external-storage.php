@@ -172,8 +172,10 @@ class External_Storage {
 		$should_report_remote = false;
 
 		if ( 'error' === $event_type ) {
+			// @phan-suppress-next-line PhanDeprecatedFunction -- Intentionally calling deprecated method during deprecation period.
 			$should_report_remote = self::should_report_for_environment( $key );
 		} elseif ( 'empty' === $event_type ) {
+			// @phan-suppress-next-line PhanDeprecatedFunction -- Intentionally calling deprecated methods during deprecation period.
 			$should_report_remote = self::should_report_for_environment( $key ) && self::should_report_empty_state( $key );
 		}
 
