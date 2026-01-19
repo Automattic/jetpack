@@ -828,6 +828,15 @@ class Contact_Form_Block {
 	}
 
 	/**
+	 * Load editor styles for the block.
+	 *
+	 * @deprecated $$next-version$$ This function is deprecated and will be removed in a future version.
+	 */
+	public static function load_editor_styles() {
+		_deprecated_function( __METHOD__, 'jetpack-15.5', null );
+	}
+
+	/**
 	 * Loads scripts
 	 */
 	public static function load_editor_scripts() {
