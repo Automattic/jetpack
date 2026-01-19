@@ -338,6 +338,10 @@ that needs to mimic the input element styles */
 			aspect-ratio: 1/1;
 			object-fit: cover;
 			display: block;
+
+			&[hidden] {
+				display: none;
+			}
 		}
 	}
 
