@@ -15,7 +15,7 @@ type PerNetworkCustomizationFormProps = {
  */
 export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomizationFormProps ) {
 	return (
-		<Flex direction="column" gap={ 8 }>
+		<Flex direction="column" gap={ 8 } justify="start">
 			<ConnectionToggle connection={ connection } />
 			<SharePostForm
 				// TODO Wire up per-network customization state to the form.

@@ -2,9 +2,9 @@ import { TabPanel } from '@wordpress/components';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { usePerNetworkCustomization } from '../../../../hooks/use-per-network-customization';
+import { CustomizationSection } from '../../customization-section';
 import { ConnectionTab } from '../types';
 import { useConnectionTabs } from '../use-connection-tabs';
-import { CustomizationSection } from './customization-section';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
 
@@ -36,7 +36,9 @@ export function TabPanelMobile() {
 				[ styles[ 'tab-panel-mobile-wrapper-border' ] ]: ! usingPerNetworkCustomization,
 			} ) }
 		>
-			{ ! usingPerNetworkCustomization && <CustomizationSection /> }
+			{ ! usingPerNetworkCustomization && (
+				<CustomizationSection usingPerNetworkCustomization={ false } />
+			) }
 			<TabPanel className={ styles[ 'tab-panel-mobile' ] } tabs={ tabs } children={ tabRenderer } />
 		</div>
 	);

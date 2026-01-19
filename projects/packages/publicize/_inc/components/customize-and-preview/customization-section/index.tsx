@@ -1,9 +1,9 @@
 import { Flex } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Connection } from '../../../../social-store/types';
-import { ConnectionToggle } from '../../connection-toggle';
-import { GlobalCustomizationForm } from '../../customization-forms/global';
-import { PerNetworkCustomizationForm } from '../../customization-forms/per-network';
+import { Connection } from '../../../social-store/types';
+import { ConnectionToggle } from '../connection-toggle';
+import { GlobalCustomizationForm } from '../customization-forms/global';
+import { PerNetworkCustomizationForm } from '../customization-forms/per-network';
 import styles from './styles.module.scss';
 
 type CustomizationSectionProps = {
@@ -29,8 +29,8 @@ export function CustomizationSection( {
 			{ usingPerNetworkCustomization ? (
 				<PerNetworkCustomizationForm connection={ connection } />
 			) : (
-				<Flex direction="column" gap={ 8 }>
-					<ConnectionToggle connection={ connection } />
+				<Flex direction="column" gap={ 8 } justify="start">
+					{ connection ? <ConnectionToggle connection={ connection } /> : null }
 					<GlobalCustomizationForm />
 				</Flex>
 			) }

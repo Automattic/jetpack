@@ -23,8 +23,3 @@
 	display: grid;
 	grid-template-columns: clamp(200px, 33.33%, 350px) 1fr;
 }
-
-.customization-section {
-
-	@include mixins.customization-section();
-}
