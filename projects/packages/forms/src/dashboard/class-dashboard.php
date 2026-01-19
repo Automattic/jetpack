@@ -211,8 +211,8 @@ class Dashboard {
 	 * Register Forms (WP-Build) submenu under Jetpack menu using wp-build page.
 	 */
 	public function add_forms_wpbuild_submenu() {
-		$callback = function_exists( 'gutenberg_jetpack_forms_responses_wp_admin_render_page' )
-			? 'gutenberg_jetpack_forms_responses_wp_admin_render_page'
+		$callback = function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' )
+			? 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page'
 			: array( $this, 'render_dashboard' );
 
 		Admin_Menu::add_menu(
