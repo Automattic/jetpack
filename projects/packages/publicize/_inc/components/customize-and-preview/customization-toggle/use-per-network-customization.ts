@@ -1,27 +1,31 @@
 import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
-import { store as preferencesStore } from '@wordpress/preferences';
 
-const NAMESPACE = 'jetpack/social';
-
-const KEY = 'temp_social_per_network_customization';
+const KEY = '_wpas_customize_per_network';
 
 /**
- * TEMPORARY hook to manage per network customization toggle state.
+ * Hook to manage per network customization toggle state.
  *
- * TODO: Replace this with a persistent solution once available.
- *
- * @return User preferences.
+ * @return - An object containing isEnabled boolean and toggle function.
  */
 export function usePerNetworkCustomization() {
-	const preferences = useDispatch( preferencesStore );
+	const { editPost } = useDispatch( editorStore );
 
-	const isEnabled = useSelect(
-		select => Boolean( select( preferencesStore ).get( NAMESPACE, KEY ) ),
-		[]
-	);
+	const isEnabled = useSelect( select => {
+		const postMeta = select( editorStore ).getEditedPostAttribute( 'meta' );
 
-	const toggle = useCallback( () => preferences.toggle( NAMESPACE, KEY ), [ preferences ] );
+		return Boolean( postMeta?.[ KEY ] );
+	}, [] );
+
+	const toggle = useCallback( () => {
+		// Update post metadata.
+		editPost( {
+			meta: {
+				[ KEY ]: ! isEnabled,
+			},
+		} );
+	}, [ editPost, isEnabled ] );
 
 	return useMemo(
 		() => ( {
