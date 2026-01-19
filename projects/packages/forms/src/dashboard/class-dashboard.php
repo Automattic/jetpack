@@ -96,10 +96,9 @@ class Dashboard {
 			'../../dist/dashboard/jetpack-forms-dashboard.js',
 			__FILE__,
 			array(
-				'in_footer'    => true,
-				'textdomain'   => 'jetpack-forms',
-				'enqueue'      => true,
-				'dependencies' => array( 'wp-api-fetch', 'wp-data', 'wp-core-data', 'wp-dom-ready', 'wp-dom' ),
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-forms',
+				'enqueue'    => true,
 			)
 		);
 
