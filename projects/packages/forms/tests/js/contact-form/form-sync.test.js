@@ -4,7 +4,7 @@
  * These tests verify the utility functions used for synced form operations.
  */
 
-import { filterSyncedAttributes } from '../../../src/blocks/contact-form/utils/synced-form-helpers';
+import { filterSyncedAttributes } from '../../../src/blocks/contact-form/util/form-sync';
 
 describe( 'filterSyncedAttributes', () => {
 	test( 'removes layout attributes and ref', () => {

@@ -16,7 +16,7 @@ import clsx from 'clsx';
 import { FORM_POST_TYPE } from '../shared/util/constants.js';
 import './util/form-styles.js';
 import applyVariationToFormBlock from './util/apply-variation.js';
-import { createSyncedForm } from './utils/form-sync-manager.ts';
+import { createSyncedForm } from './util/create-synced-form.ts';
 
 const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 	const blocks = innerBlocksTemplate.map( ( [ blockName, attr, innerBlocks = [] ] ) =>
@@ -122,7 +122,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 							);
 
 							// Create synced form post and get its ID
-							const postId = await createSyncedForm(
+							const formId = await createSyncedForm(
 								formBlock,
 								nextVariation.title || 'Form',
 								currentPostId
@@ -130,7 +130,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 
 							// Set ONLY ref attribute
 							registry.batch( () => {
-								setAttributes( { ref: postId } );
+								setAttributes( { ref: formId } );
 								selectBlock( clientId );
 							} );
 
