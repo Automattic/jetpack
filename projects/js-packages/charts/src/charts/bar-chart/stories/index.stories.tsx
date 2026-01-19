@@ -419,3 +419,65 @@ export const ZeroValueComparison: StoryObj< typeof BarChart > = {
 		},
 	},
 };
+
+// Data with long categorical labels to demonstrate overlapping issue
+const longLabelData = [
+	{
+		group: 'sales',
+		label: 'Sales by Channel',
+		data: [
+			{ label: 'Organic Search Traffic', value: 12500 },
+			{ label: 'Paid Advertising Campaign', value: 8750 },
+			{ label: 'Social Media Marketing', value: 6250 },
+			{ label: 'Email Newsletter Subscribers', value: 4375 },
+			{ label: 'Direct Website Visitors', value: 3125 },
+			{ label: 'Affiliate Partner Referrals', value: 2500 },
+		],
+	},
+];
+
+export const LabelOverflowEllipsis: StoryObj< typeof BarChart > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '40px' } }>
+			<div>
+				<h3>Without labelOverflow (Default - Labels Overlap)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Default behavior: long labels overlap and become unreadable at narrow widths.
+				</p>
+				<div style={ { width: '350px', height: '250px', border: '1px solid #e0e0e0' } }>
+					<BarChart data={ longLabelData } withTooltips={ true } gridVisibility="x" />
+				</div>
+			</div>
+
+			<div>
+				<h3>With labelOverflow: &apos;ellipsis&apos; (Labels Truncated)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					With <code>labelOverflow: &apos;ellipsis&apos;</code>, labels are truncated to fit the
+					available bandwidth. <strong>Hover over a label to see the full text.</strong>
+				</p>
+				<div style={ { width: '350px', height: '250px', border: '1px solid #e0e0e0' } }>
+					<BarChart
+						data={ longLabelData }
+						withTooltips={ true }
+						gridVisibility="x"
+						options={ {
+							axis: {
+								x: {
+									labelOverflow: 'ellipsis',
+								},
+							},
+						} }
+					/>
+				</div>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates the `labelOverflow: "ellipsis"` option that truncates long axis labels to fit the available bandwidth. The full label text is shown on hover via a native tooltip. This is useful for narrow widget contexts where space is limited.',
+			},
+		},
+	},
+};
