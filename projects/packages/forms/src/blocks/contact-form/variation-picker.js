@@ -27,8 +27,13 @@ const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 	return blocks;
 };
 
-// Stable empty array to avoid useSelect reference changes
+// Stable references to avoid useSelect re-fetching on every render
 const EMPTY_FORMS_ARRAY = [];
+const FORMS_QUERY = {
+	per_page: 100,
+	status: 'publish',
+	orderby: 'modified',
+};
 
 export default function VariationPicker( { blockName, setAttributes, clientId, classNames } ) {
 	const registry = useRegistry();
@@ -51,11 +56,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 					currentPostType: getCurrentPostType(),
 					currentPostId: getCurrentPostId(),
 					jetpackForms:
-						getEntityRecords( 'postType', FORM_POST_TYPE, {
-							per_page: 100,
-							status: 'publish',
-							orderby: 'modified',
-						} ) ?? EMPTY_FORMS_ARRAY,
+						getEntityRecords( 'postType', FORM_POST_TYPE, FORMS_QUERY ) ?? EMPTY_FORMS_ARRAY,
 				};
 			},
 			[ blockName ]
@@ -175,7 +176,6 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Or select an existing form', 'jetpack-forms' ) }
-
 							options={ [
 								{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
 								...jetpackForms.map( form => ( {
