@@ -1,6 +1,6 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { useMemo } from 'react';
-import { createTruncatedTickComponent } from './truncated-tick-component';
+import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type { DataPointDate, BaseChartProps, SeriesData } from '../../../types';
 import type { TickFormatter } from '@visx/axis';
@@ -119,18 +119,14 @@ export function useBarChartOptions(
 					orientation: 'bottom' as const,
 					numTicks: 4,
 					tickFormat: xTickFormat,
-					...( xLabelOverflow === 'ellipsis'
-						? { tickComponent: createTruncatedTickComponent( 'x' ) }
-						: {} ),
+					...( xLabelOverflow === 'ellipsis' ? { tickComponent: TruncatedXTickComponent } : {} ),
 					...xAxisOptions,
 				},
 				y: {
 					orientation: 'left' as const,
 					numTicks: 4,
 					tickFormat: yTickFormat,
-					...( yLabelOverflow === 'ellipsis'
-						? { tickComponent: createTruncatedTickComponent( 'y' ) }
-						: {} ),
+					...( yLabelOverflow === 'ellipsis' ? { tickComponent: TruncatedYTickComponent } : {} ),
 					...yAxisOptions,
 				},
 			},

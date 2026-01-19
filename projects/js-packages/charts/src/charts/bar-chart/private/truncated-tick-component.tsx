@@ -1,5 +1,6 @@
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
+import { isSafari } from '../../../utils';
 import type { AxisScale, TickRendererProps } from '@visx/axis';
 import type { FC, CSSProperties } from 'react';
 
@@ -105,9 +106,9 @@ export const TruncatedTickComponent: FC< TruncatedTickComponentProps > = ( {
 		 * we shift the div up by 100% of its height and adjust by twice the SVG dy value (from visx) to approximate original placement.
 		 */
 		transform: `translateY(calc(-100% + ${ dy ?? '0' } * 2))`,
-		// Safari doesn't work well with foreignObject, this is a workaround to position the div correctly.
-		position: 'fixed',
-		// Apply SVG-like font properties from visx text props to the HTML div.
+		// Safari doesn't work well with foreignObject positioning. Use position: fixed as a workaround.
+		...( isSafari() ? { position: 'fixed' as const } : {} ),
+		// Apply compatible SVG text styles
 		fontSize,
 		fontFamily,
 		fontWeight,
@@ -128,17 +129,29 @@ export const TruncatedTickComponent: FC< TruncatedTickComponentProps > = ( {
 	};
 
 	return (
-		<foreignObject x={ x + xOffset } y={ y } width={ maxWidth } overflow="visible">
-			<div
-				style={ textStyles }
-				title={ formattedValue || undefined }
-			>
+		<foreignObject x={ x + xOffset } y={ y } width={ maxWidth } height={ 0 } overflow="visible">
+			<div style={ textStyles } title={ formattedValue || undefined }>
 				{ formattedValue }
 			</div>
 		</foreignObject>
 	);
 };
 
-export const createTruncatedTickComponent = ( axis: 'x' | 'y' ) => ( props: TickRendererProps ) => {
+/**
+ * Factory function to create a truncated tick component for a specific axis.
+ * Returns a component that can be passed to visx's tickComponent prop.
+ *
+ * @param axis - The axis this tick component is for ('x' or 'y')
+ * @return A tick component function compatible with visx's TickRendererProps
+ */
+const createTruncatedTickComponent = ( axis: 'x' | 'y' ) => ( props: TickRendererProps ) => {
 	return <TruncatedTickComponent { ...props } axis={ axis } />;
 };
+
+/**
+ * Pre-created tick components for x and y axes.
+ * These are memoized at module level to prevent component recreation on every render,
+ * which would cause unnecessary DOM operations and potential state loss.
+ */
+export const TruncatedXTickComponent = createTruncatedTickComponent( 'x' );
+export const TruncatedYTickComponent = createTruncatedTickComponent( 'y' );
