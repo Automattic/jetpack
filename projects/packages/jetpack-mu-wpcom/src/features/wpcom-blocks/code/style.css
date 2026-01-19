@@ -78,7 +78,7 @@
 .wp-block-code.show-line-numbers code .cm-line::before {
 	content: counter(code-line-number);
 	padding: 0 0.5ch 0 0.25ch;
-	color: oklch( from currentColor l c h / 0.6 );
+	color: oklch(from currentColor l c h / 0.6);
 	counter-increment: code-line-number;
 	text-align: right;
 	white-space: nowrap;
@@ -175,64 +175,32 @@
 
 .wp-block-code.is-style-solarized-light,
 .wp-block-code.is-style-solarized-dark {
-	--styledColorKeyword: lab(55 -10 -45);
-
-	/* blue */
-	--styledColorBoolean: lab(50 65 -5);
-
-	/* magenta */
-	--styledColorLiteral: lab(60 -20 65);
-
-	/* green */
-	--styledColorString: lab(60 10 65);
-
-	/* yellow */
-	--styledColorSpecialString: lab(50 65 45);
-
-	/* red */
-	--styledColorMacroName: lab(50 50 55);
-
-	/* orange */
-	--styledColorVariableDefinition: lab(60 -35 -5);
-
-	/* cyan */
-	--styledColorTypeName: lab(50 15 -45);
-
-	/* violet */
-	--styledColorClassName: lab(60 -20 65);
-
-	/* green */
-	--styledColorInvalid: lab(50 65 45);
-
-	/* red */
+	--styledColorKeyword: lab(55 -10 -45); /* blue */
+	--styledColorBoolean: lab(50 65 -5); /* magenta */
+	--styledColorLiteral: lab(60 -20 65); /* green */
+	--styledColorString: lab(60 10 65); /* yellow */
+	--styledColorSpecialString: lab(50 65 45); /* red */
+	--styledColorMacroName: lab(50 50 55); /* orange */
+	--styledColorVariableDefinition: lab(60 -35 -5); /* cyan */
+	--styledColorTypeName: lab(50 15 -45); /* violet */
+	--styledColorClassName: lab(60 -20 65); /* green */
+	--styledColorInvalid: lab(50 65 45); /* red */
 }
 
 .wp-block-code.is-style-solarized-light {
-	--colorBackground: lab(97 00 10);
-
-	/* base3 */
-	--colorText: lab(50 -7 -7);
-
-	/* base00 */
+	--colorBackground: lab(97 00 10); /* base3 */
+	--colorText: lab(50 -7 -7); /* base00 */
 	background-color: var(--colorBackground);
 	color: var(--colorText);
-	--styledColorComment: lab(65 -5 -2);
-
-	/* base1 */
+	--styledColorComment: lab(65 -5 -2); /* base1 */
 }
 
 .wp-block-code.is-style-solarized-dark {
-	--colorBackground: lab(15 -12 -12);
-
-	/* base03 */
-	--colorText: lab(60 -6 -3);
-
-	/* base0 */
+	--colorBackground: lab(15 -12 -12); /* base03 */
+	--colorText: lab(60 -6 -3); /* base0 */
 	background-color: var(--colorBackground);
 	color: var(--colorText);
-	--styledColorComment: lab(45 -7 -7);
-
-	/* base01 */
+	--styledColorComment: lab(45 -7 -7); /* base01 */
 }
 
 .wp-block-code.is-style-no-highlight {
