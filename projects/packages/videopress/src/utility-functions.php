@@ -157,10 +157,18 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
 	}
 
 	// Verify the video belongs to this site.
-	$current_blog_id = (int) \Jetpack_Options::get_option( 'id' );
-	$video_blog_id   = (int) ( $vp_data->blog_id ?? 0 );
+	$current_blog_id = \Jetpack_Options::get_option( 'id' );
 
-	if ( $current_blog_id !== $video_blog_id ) {
+	if ( ! $current_blog_id ) {
+		return new \WP_Error(
+			'not_connected',
+			__( 'Jetpack connection is required to import videos. Please connect your site from the Jetpack menu.', 'jetpack-videopress-pkg' )
+		);
+	}
+
+	$video_blog_id = (int) ( $vp_data->blog_id ?? 0 );
+
+	if ( (int) $current_blog_id !== $video_blog_id ) {
 		return new \WP_Error(
 			'wrong_blog',
 			__( 'This video belongs to a different site. You can only import videos uploaded to this site.', 'jetpack-videopress-pkg' )

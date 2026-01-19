@@ -379,6 +379,26 @@ class Utility_Functions_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test create_local_media_library_for_videopress_guid without Jetpack connection returns WP_Error.
+	 */
+	public function test_create_local_media_library_without_connection() {
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+
+		// Clear the connection to simulate an unconnected site.
+		Jetpack_Options::delete_option( 'id' );
+
+		$this->mock_video_data = $this->get_mock_video_data();
+
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		$result = create_local_media_library_for_videopress_guid( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'not_connected', $result->get_error_code() );
+	}
+
+	/**
 	 * Test create_local_media_library_for_videopress_guid with video from different blog returns WP_Error.
 	 */
 	public function test_create_local_media_library_with_wrong_blog() {
