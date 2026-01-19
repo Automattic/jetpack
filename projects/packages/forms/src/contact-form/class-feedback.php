@@ -1795,7 +1795,14 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$meta           = array();
+			$meta = array();
+			// For rating fields, store the icon style in meta data.
+			if ( $type === 'rating' ) {
+				$icon_style        = $field->get_attribute( 'iconstyle' );
+				$max               = $field->get_attribute( 'max' );
+				$meta['iconStyle'] = ! empty( $icon_style ) ? $icon_style : 'stars';
+				$meta['maxRating'] = is_numeric( $max ) && (int) $max > 0 ? (int) $max : 5;
+			}
 			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, $field_id );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;

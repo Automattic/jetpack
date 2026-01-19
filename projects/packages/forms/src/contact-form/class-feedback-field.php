@@ -239,6 +239,11 @@ class Feedback_Field {
 			);
 		}
 
+		// For rating fields, return a structured array with rating data for star/heart display.
+		if ( $this->is_of_type( 'rating' ) ) {
+			return $this->get_rating_value();
+		}
+
 		return $this->get_render_default_value();
 	}
 
@@ -290,6 +295,48 @@ class Feedback_Field {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Get rating value as a structured array for web rendering.
+	 *
+	 * Parses the rating value (format: "rating/max" e.g., "3/5") and returns
+	 * a structured array with the rating, max, and iconStyle for star/heart display.
+	 *
+	 * @return array|string Structured rating data or original value if parsing fails.
+	 */
+	private function get_rating_value() {
+		if ( empty( $this->value ) ) {
+			return $this->value;
+		}
+
+		// Parse the rating value format: "rating/max" (e.g., "3/5").
+		$parts = explode( '/', $this->value );
+		if ( count( $parts ) !== 2 ) {
+			return $this->value;
+		}
+
+		$rating = (int) $parts[0];
+		$max    = (int) $parts[1];
+
+		// Validate parsed values.
+		if ( $rating < 0 || $max <= 0 ) {
+			return $this->value;
+		}
+
+		// Get icon style from meta data (defaults to 'stars').
+		$icon_style = $this->get_meta_key_value( 'iconStyle' );
+		if ( empty( $icon_style ) ) {
+			$icon_style = 'stars';
+		}
+
+		return array(
+			'type'         => 'rating',
+			'rating'       => $rating,
+			'maxRating'    => $max,
+			'iconStyle'    => $icon_style,
+			'displayValue' => $this->value,
+		);
 	}
 
 	/**
