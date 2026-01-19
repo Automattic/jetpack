@@ -87,12 +87,6 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_admin_url with valid 'edit-feedback' screen ID.
-	 */
-	public function test_get_admin_url_with_feedback_screen() {
-	}
-
-	/**
 	 * Test get_admin_url with invalid screen ID returns null.
 	 */
 	public function test_get_admin_url_with_invalid_screen() {
