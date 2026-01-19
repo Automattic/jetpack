@@ -237,32 +237,10 @@
 	}
 
 	.form-placeholder__footer {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 16px;
-		width: 100%;
-		margin-top: 16px;
+		text-align: center;
 
-		.components-button {
-			width: 100%;
-			max-width: 200px;
-			justify-content: center;
-		}
-
-		.components-base-control {
-			width: 100%;
-			max-width: 200px;
-			margin-bottom: 0;
-
-			.components-base-control__label {
-				font-weight: 600;
-				margin-bottom: 8px;
-			}
-
-			.components-select-control__input {
-				width: 100%;
-			}
+		.components-select-control {
+			text-align: left;
 		}
 	}
 }
