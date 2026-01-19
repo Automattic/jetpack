@@ -130,7 +130,7 @@ export const TruncatedTickComponent: FC< TruncatedTickComponentProps > = ( {
 
 	return (
 		<foreignObject x={ x + xOffset } y={ y } width={ maxWidth } height={ 0 } overflow="visible">
-			<div style={ textStyles } title={ formattedValue || undefined }>
+			<div style={ textStyles } title={ formattedValue }>
 				{ formattedValue }
 			</div>
 		</foreignObject>
