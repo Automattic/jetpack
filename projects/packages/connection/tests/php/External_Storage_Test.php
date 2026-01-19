@@ -199,8 +199,8 @@ class External_Storage_Test extends TestCase {
 			$method->setAccessible( true );
 		}
 
-		// First call sets transient
-		$method->invoke( null, 'immediate_test' );
+		// First call sets transient and should return false
+		$this->assertFalse( $method->invoke( null, 'immediate_test' ) );
 
 		// Second call returns true immediately (threshold is 0)
 		$this->assertTrue( $method->invoke( null, 'immediate_test' ) );

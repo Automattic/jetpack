@@ -138,10 +138,35 @@ class External_Storage {
 	 * @param string $environment The environment identifier (atomic, vip, etc.).
 	 */
 	public static function log_event( $event_type, $key, $details = '', $environment = 'unknown' ) {
-		// Apply rate limiting to prevent log spam
+		// Only process 'error' and 'empty' events for provider error reporting
+		if ( 'error' !== $event_type && 'empty' !== $event_type ) {
+			// For non-reportable events, just do debug logging with rate limiting
+			if ( self::should_log_event( $key ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					sprintf(
+						'Jetpack External Storage %s: %s in %s%s',
+						$event_type,
+						$key,
+						$environment,
+						$details ? ' - ' . $details : ''
+					)
+				);
+			}
+			return;
+		}
+
+		// For 'empty' events, check delay mechanism first to avoid false positives
+		// during sync between external storage and the database.
+		// This is checked BEFORE rate limiting so we don't block legitimate reports.
+		if ( 'empty' === $event_type && ! self::should_report_empty_state( $key ) ) {
+			return;
+		}
+
+		// Apply rate limiting only for events that will trigger provider notification
 		if ( ! self::should_log_event( $key ) ) {
 			return;
 		}
+
 		// Local debug logging (only when WP_DEBUG is enabled)
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -153,16 +178,6 @@ class External_Storage {
 					$details ? ' - ' . $details : ''
 				)
 			);
-		}
-
-		// Only process 'error' and 'empty' events for provider error reporting
-		if ( 'error' !== $event_type && 'empty' !== $event_type ) {
-			return;
-		}
-
-		// For 'empty' events, check delay mechanism to avoid false positives during sync between external storage and the database.
-		if ( 'empty' === $event_type && ! self::should_report_empty_state( $key ) ) {
-			return;
 		}
 
 		// Delegate to provider if it implements error handling

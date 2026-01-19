@@ -41,13 +41,24 @@ namespace Automattic\Jetpack\Connection;
  *
  *     public function handle_error_event( $event_type, $key, $details, $environment ) {
  *         // Report to your monitoring system
- *         wp_remote_post( 'https://your-api/errors', array( 'body' => compact( 'event_type', 'key' ) ) );
+ *         wp_remote_post(
+ *             'https://your-api/errors',
+ *             array(
+ *                 'body' => array(
+ *                     'event_type'  => $event_type,
+ *                     'key'         => $key,
+ *                     'details'     => $details,
+ *                     'environment' => $environment,
+ *                 ),
+ *             )
+ *         );
  *     }
  *
  * ### get_empty_state_delay_threshold()
  *
  * Customize the delay before reporting empty states. Returns delay in seconds.
- * Default is 5 minutes. Use this if your storage system has different sync times.
+ * Default (when not implemented) is 5 minutes (300 seconds). Use this if your
+ * storage system has different sync times.
  *
  * - Return `0` if external storage is the source of truth (written first)
  * - Return higher values for slower sync systems
