@@ -980,6 +980,45 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
 	}
 
+	public function test_personal_data_search_filter_v2_unicode_search() {
+
+		$email_with_emoji = 'test🎉@example.com';
+
+		// Test the conversion function
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->set_pde_email_address( $email_with_emoji );
+
+		$search = '..PDE..AUTHOR EMAIL:..PDE..';
+		$result = $plugin->personal_data_search_filter( $search );
+
+		// Should search for both original AND V2 corrupted version
+		$this->assertStringContainsString( $email_with_emoji, $result, 'Should search for original email' );
+		$this->assertStringContainsString( 'testud83cudf89@example.com', $result, 'Should ALSO search for V2 corrupted version' );
+	}
+
+	public function test_personal_data_search_filter_includes_v2_v3_json_patterns() {
+		// Test that the filter generates the correct SQL pattern for V2/V3 JSON formats
+		$test_email = 'user+test@example.com'; // Email with + sign
+		$plugin     = Contact_Form_Plugin::init();
+		$plugin->set_pde_email_address( $test_email );
+
+		// Call the filter with a mock search string
+		$search = '..PDE..AUTHOR EMAIL:..PDE..';
+		$result = $plugin->personal_data_search_filter( $search );
+
+		// Verify JSON format pattern: \"value\":\"email
+		// The pattern should contain the escaped quotes and the email
+		$this->assertStringContainsString( $test_email, $result, 'Should include email address in pattern' );
+
+		// Verify it contains multiple OR conditions (for legacy + JSON patterns)
+		$or_count = substr_count( $result, ' OR ' );
+		$this->assertGreaterThanOrEqual( 3, $or_count, 'Should have at least 3 OR clauses (legacy LF, legacy CR, JSON escaped, JSON unescaped)' );
+		$this->assertStringContainsString( 'AND (', $result, 'Should start with AND (' );
+		$this->assertStringContainsString( 'post_content LIKE', $result, 'Should include LIKE clause' );
+		$this->assertStringContainsString( '\"value\":\"' . $test_email, $result, 'Should include JSON value pattern with single-escaped quotes' );
+		$this->assertStringContainsString( '\\"value\\":\\"' . $test_email, $result, 'Should include JSON value pattern' );
+	}
+
 	public function test_get_unread_count_zero() {
 		delete_option( 'jetpack_feedback_unread_count' );
 		$this->assertIsInt( Contact_Form_Plugin::get_unread_count() );
@@ -1170,5 +1209,137 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertSame( '', $result['Question (3)'][1], 'Second feedback should have empty Question (3)' );
 
 		Utility::destroy_post_context( $current_post );
+	}
+
+	/**
+	 * Test that feedback post type supports comments
+	 */
+	public function test_feedback_post_type_supports_comments() {
+		$this->assertTrue( post_type_supports( 'feedback', 'comments' ), 'Feedback post type should support comments' );
+	}
+
+	/**
+	 * Test that feedback posts have default comment status 'open'
+	 */
+	public function test_feedback_default_comment_status() {
+		$post_type_object = get_post_type_object( 'feedback' );
+		$this->assertEquals( 'open', $post_type_object->default_comment_status, 'Feedback should have default comment status "open"' );
+	}
+
+	/**
+	 * Test that non-logged-in users cannot comment on feedback
+	 */
+	public function test_comments_restricted_to_logged_in_users() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type' => 'feedback',
+			)
+		);
+
+		wp_set_current_user( 0 ); // Log out
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $feedback_id );
+
+		$this->assertFalse( $comments_open, 'Comments should be closed for non-logged-in users on feedback posts' );
+	}
+
+	/**
+	 * Test that logged-in users can comment on feedback
+	 */
+	public function test_logged_in_users_can_comment() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type' => 'feedback',
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser3',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $feedback_id );
+
+		$this->assertTrue( $comments_open, 'Comments should be open for logged-in users on feedback posts' );
+	}
+
+	/**
+	 * Test that logged-in editor can comment even when comment_status is 'closed' (read posts)
+	 */
+	public function test_logged_in_editor_can_comment_on_read_feedback() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'comment_status' => 'closed', // Marked as read
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser2',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		// Pass false to simulate that comment_status is 'closed'
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( false, $feedback_id );
+
+		$this->assertTrue( $comments_open, 'Comments should be open for logged-in users even when feedback is marked as read (comment_status=closed)' );
+	}
+
+	/**
+	 * Test that logged-in subscribers cannot comment even when comment_status is 'closed' (read posts)
+	 */
+	public function test_logged_in_subscriber_cannot_comment_on_read_feedback() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'comment_status' => 'closed', // Marked as read
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser1',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		// Pass false to simulate that comment_status is 'closed'
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( false, $feedback_id );
+
+		$this->assertFalse( $comments_open, 'Comments should be closed for logged-in subscribers when feedback is marked as read (comment_status=closed)' );
+	}
+
+	/**
+	 * Test that filter doesn't affect other post types
+	 */
+	public function test_comment_filter_only_affects_feedback_posts() {
+		$regular_post_id = wp_insert_post(
+			array(
+				'post_type' => 'post',
+			)
+		);
+
+		wp_set_current_user( 0 ); // Log out
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $regular_post_id );
+
+		$this->assertTrue( $comments_open, 'Comment filter should not affect non-feedback posts' );
 	}
 }

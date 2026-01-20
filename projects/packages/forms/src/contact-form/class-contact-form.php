@@ -46,6 +46,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	const POST_TYPE = 'jetpack_form';
 
 	/**
+	 * Meta key for the source post ID.
+	 *
+	 * @var string
+	 */
+	const SOURCE_META_KEY = '_jetpack_forms_source_post_id';
+
+	/**
 	 *
 	 * Stores form submission errors.
 	 *
@@ -139,6 +146,29 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private $source;
 
 	/**
+	 * The reference ID for the contact form.
+	 *
+	 * @var int|null
+	 */
+	private static $ref_id = null;
+
+	/**
+	 * Set the reference ID for the contact form.
+	 *
+	 * @param int $ref_id The reference ID.
+	 */
+	public static function set_ref_id( $ref_id ) {
+		self::$ref_id = $ref_id;
+	}
+
+	/**
+	 * Clear the reference ID for the contact form.
+	 */
+	public static function clear_ref_id() {
+		self::$ref_id = null;
+	}
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -202,10 +232,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'block_template'         => null, // Not exposed to the user. Works with template_loader
 			'block_template_part'    => null, // Not exposed to the user. Works with Contact_Form::parse()
 			'id'                     => null, // Not exposed to the user. Set above.
+			'ref'                    => null, // Not exposed to the user. Set above if applicable.
 			'submit_button_text'     => __( 'Submit', 'jetpack-forms' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'noSummary' to disable the summary, 'message' for a custom message, 'redirect' to redirect to a new URL. Deprecated.
-			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack-forms' ), // The text to show above customThankyouMessage.
+			'customThankyouHeading'  => self::get_default_thank_you_heading(), // The text to show above customThankyouMessage.
 			'customThankyouMessage'  => '', // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when confirmationType is set to 'redirect'.
 			'confirmationType'       => null, // The type of confirmation to show after submitting a form. 'text' for a text message, 'redirect' for a redirect link.
@@ -518,15 +549,32 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'map_meta_cap'          => true,
 			'labels'                => $labels,
 			'hierarchical'          => false,
+			'template'              => array( array( 'jetpack/contact-form' ) ),
 			'supports'              => array(
 				'title',
 				'editor',
 				'revisions',
 				'author',
+				'custom-fields',
 			),
 		);
 
 		register_post_type( self::POST_TYPE, $args );
+
+		// Register post meta for tracking the source post that created this form.
+		register_post_meta(
+			self::POST_TYPE,
+			self::SOURCE_META_KEY,
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => function () {
+					return current_user_can( 'edit_posts' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -597,6 +645,35 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return $secret;
+	}
+
+	/**
+	 * Get the default thank you heading with conditional sparkle.
+	 *
+	 * Returns the new copy with sparkle emoji if translated, otherwise
+	 * falls back to the old copy without sparkle.
+	 *
+	 * TEMPORARY: This method can be removed once the new copy has been translated.
+	 * Replace the call with: __( 'Thank you for your response.', 'jetpack-forms' ) . ' ✨'
+	 *
+	 * @return string The translated heading.
+	 */
+	private static function get_default_thank_you_heading() {
+		// English locales always get the new copy with sparkle.
+		if ( str_starts_with( get_locale(), 'en' ) ) {
+			return __( 'Thank you for your response.', 'jetpack-forms' ) . ' ✨';
+		}
+
+		// Check if new string has a translation by comparing with the original.
+		$original   = 'Thank you for your response.';
+		$translated = __( 'Thank you for your response.', 'jetpack-forms' );
+
+		if ( $translated !== $original ) {
+			return $translated . ' ✨';
+		}
+
+		// Fall back to old string without sparkle.
+		return __( 'Your message has been sent', 'jetpack-forms' );
 	}
 
 	/**
@@ -946,6 +1023,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$plugin               = Contact_Form_Plugin::init();
 		$attributes['widget'] = $plugin->get_current_widget_context();
 		// Create a new Contact_Form object (this class)
+		if ( self::$ref_id ) {
+			$attributes['ref'] = self::$ref_id;
+		}
+
 		$form = new Contact_Form( $attributes, $content );
 		Contact_Form_Plugin::reset_step();
 
@@ -1341,7 +1422,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$success_message = '';
 
 		if ( ! $disable_go_back ) {
-			$success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+			$success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( '← Back', 'jetpack-forms' ) . '</a> </p>';
 		}
 
 		$success_message .= '<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) . "</h4>\n\n";
@@ -1381,10 +1462,34 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'label'  => self::maybe_add_colon_to_label( $field_data['label'] ),
 				'value'  => self::maybe_transform_value( $field_data['value'] ),
 				'images' => self::get_images( $field_data['value'] ),
+				'url'    => self::get_url( $field_data['value'] ),
 			);
 		}
 
 		return $formatted_submission_data;
+	}
+
+	/**
+	 * Get the URL from a URL field value if present.
+	 *
+	 * @param mixed $value The field value.
+	 *
+	 * @return string|null The URL if this is a URL field, null otherwise.
+	 */
+	private static function get_url( $value ) {
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' && ! empty( $value['url'] ) ) {
+			$url = $value['url'];
+
+			// Prepend https:// if no protocol is specified.
+			if ( ! preg_match( '#^https?://#i', $url ) ) {
+				$url = 'https://' . $url;
+			}
+
+			// Validate URL - only http and https protocols are allowed for safety.
+			$url = esc_url( $url, array( 'http', 'https' ) );
+			return ! empty( $url ) ? $url : null;
+		}
+		return null;
 	}
 
 	/**
@@ -1436,7 +1541,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( ! $disable_go_back ) {
 			$html .= '<p class="go-back-message">';
-			$html .= '<a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a>';
+			$html .= '<a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( '← Back', 'jetpack-forms' ) . '</a>';
 			$html .= '</p>';
 		}
 
@@ -1473,7 +1578,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
 					<div class="jetpack_forms_contact-form-success-summary">
 						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
-						<div class="field-value" data-wp-text="context.submission.value"></div>
+						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.url"></div>
+						<a class="field-url" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.url" target="_blank" rel="noopener noreferrer"></a>
 						<div class="field-images" data-wp-bind--hidden="!context.submission.images">
 							<template data-wp-each--image="context.submission.images">
 								<figure class="field-image" data-wp-class--is-empty="!context.image">
@@ -1487,10 +1593,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 				// For each entry in the submission data array, render a div with the label and value.
 				foreach ( $formatted_submission_data as $submission ) {
-					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">
-						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . $submission['label'] . '</div>
-						<div class="field-value" data-wp-text="context.submission.value">' . $submission['value'] . '</div>
-						<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
+					$has_url = ! empty( $submission['url'] );
+					$html   .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">
+						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
+
+					if ( $has_url ) {
+						$html .= '<a class="field-url" href="' . esc_attr( $submission['url'] ) . '" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" target="_blank" rel="noopener noreferrer">' . esc_html( $submission['value'] ) . '</a>';
+					} else {
+						$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.url">' . esc_html( $submission['value'] ) . '</div>';
+					}
+
+					$html .= '<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
 
 					if ( ! empty( $submission['images'] ) ) {
 						foreach ( $submission['images'] as $image ) {
@@ -2889,7 +3002,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 7.2.0
 		 *
 		 * @param string $powered_by_html The HTML for the powered by section in the email.
 		 */
@@ -3090,6 +3203,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 
+		// For URL fields, extract the display text value (original user input without auto-added protocol).
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' ) {
+			// Prefer displayValue (raw input) over url (which may have https:// prepended).
+			return isset( $value['displayValue'] ) ? $value['displayValue'] : ( isset( $value['url'] ) ? $value['url'] : '' );
+		}
+
 		// For file upload fields, we want to show the file name and size
 		if ( is_array( $value ) && isset( $value['name'] ) && isset( $value['size'] ) ) {
 			$file_name = $value['name'];
@@ -3229,6 +3348,28 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( ! $has_value && ! $this->has_errors() ) {
 			$this->add_error( 'empty', __( 'Please fill out at least one field.', 'jetpack-forms' ) );
+		}
+
+		$ref_id = $this->get_attribute( 'ref' );
+		if ( ! empty( $ref_id ) ) {
+			$this->validate_ref( $ref_id );
+		}
+	}
+
+	/**
+	 * Validate the form reference.
+	 *
+	 * @param int $ref The form reference ID.
+	 */
+	public function validate_ref( $ref ) {
+		$form_post = get_post( $ref );
+		if ( ! $form_post || self::POST_TYPE !== $form_post->post_type ) {
+			$this->add_error( 'invalid_ref', __( 'Invalid form reference.', 'jetpack-forms' ) );
+			return;
+		}
+		if ( $form_post->post_status !== 'publish' ) {
+			$this->add_error( 'unpublished_form', __( 'Invalid form reference.', 'jetpack-forms' ) );
+			return;
 		}
 	}
 

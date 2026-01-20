@@ -66,7 +66,7 @@ Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart th
 
 The wizard accepts a few arguments to speed things up:
 
-* `[project type]` - Accepted values: `package`, `plugin`, `github-action`
+* `[project type]` - Accepted values: `package`, `js-package`, `plugin`, `github-action`
 * `--name`, `--n` - The name of your project (no spaces)
 
 Example: `jetpack generate plugin --name my_cool_plugin` will generate plugin files for a plugin called `my_cool_plugin` under `../jetpack/projects/plugins`
@@ -404,10 +404,10 @@ If `.extra.autorelease` is set to a truthy value in the project's `composer.json
 
 The body of the created release will be the entry from CHANGELOG.md for the tagged version. A zip file will be added to the release as an artifact. The zip file contains a single directory, which holds the output from `git archive`.
 
-If `.extra.autotagger` is set to an object, the following are recognized:
+If `.extra.autorelease` is set to an object, the following are recognized:
 
-* `.extra.autotagger.slug`: Base name for the zip file, and the name of the base directory inside. If this is omitted, `.extra.wp-plugin-slug` will be used. If that is also not set, the portion of `.name` after the `/` will be used.
-* `.extra.autotagger.titlefmt`: Format for the release title. Must contain a single `%s`, which will be replaced with the version tagged. If omitted, the release title will simply be the version number.
+* `.extra.autorelease.slug`: Base name for the zip file, and the name of the base directory inside. If this is omitted, `.extra.wp-plugin-slug` or `.extra.beta-plugin-slug` will be used. If that is also not set, the portion of `.name` after the `/` will be used.
+* `.extra.autorelease.titlefmt`: Format for the release title. Must contain a single `%s`, which will be replaced with the version tagged. If omitted, the release title will simply be the version number.
 
 Note the following will also be done by the build process:
 

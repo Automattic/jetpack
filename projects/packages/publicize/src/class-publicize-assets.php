@@ -56,7 +56,7 @@ class Publicize_Assets {
 			return;
 		}
 
-		$script_to_load = class_exists( 'Jetpack' ) ? 'editor-jetpack-sidebar' : 'editor-social-sidebar';
+		$script_to_load = class_exists( 'Jetpack' ) ? 'block-editor-jetpack' : 'block-editor-social';
 
 		// Dequeue the old Social assets.
 		wp_dequeue_script( 'jetpack-social-editor' );

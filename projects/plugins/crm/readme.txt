@@ -362,29 +362,7 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.7.0 - 2025-11-20
-#### Added
-- Add `typecheck` placeholder script (to be implemented).
-- Tested up to WordPress 6.9.
-
-#### Changed
-- Client Portal: Allow admins and CRM quote managers to accept a quote from the frontend.
-- My Jetpack: Unify the user connection flow with a unified screen.
-- Send JSON with built-in WordPress functions.
-- Tests: Disable tests on PHP 8.5 due to dependency constraints.
-- Update dependencies.
-- Update package dependencies.
-- Use wp_rand() instead of rand() and mt_rand().
-
-#### Fixed
-- API: Prevent PHP error when updating companies through undocumented endpoint.
-- Code: Clean up legacy PHPCS config files.
-- Code: Resolve PhanImpossibleCondition violations.
-- Create the notifications table on activation.
-- Invoices: Ensure object owner is properly set.
-- Settings: Ensure notice appears when settings are saved.
-- Tax rates: Disallow duplicate tax rates.
-- Team: Account for longer WP user IDs.
-- Team: Fix search button.
-- WooSync: Improve invalid URL detection.
+### 6.7.1 - 2026-01-20
+#### Security
+- Security: Various security updates in settings page navigation.
 

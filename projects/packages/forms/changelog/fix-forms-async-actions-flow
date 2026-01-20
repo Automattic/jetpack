@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms Dashboard: Fix race conditions in spam/not-spam actions when triggered in quick succession.

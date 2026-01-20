@@ -520,7 +520,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "f2bf3fcef034009a61977b928d7f144e8a2e5551"
+				"reference": "49e680704ce5f0d9d25b596ff82e3b5a2a164ae0"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -556,7 +556,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.19.x-dev"
+					"dev-trunk": "6.20.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1038,7 +1038,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "c9f802c6ba485fdf3f0d9c1c17d03749f27e268c"
+				"reference": "df44d78c36d9a11270b30e2cbb089bb589d74811"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1077,7 +1077,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "5.29.x-dev"
+					"dev-trunk": "5.30.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1515,7 +1515,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "c4d8c63fe820a64b9c8f1b001a55d3309d78244b"
+				"reference": "a64234465a7ef9f803ea5ad27cf0d24e7832bac7"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1546,7 +1546,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.69.x-dev"
+					"dev-trunk": "0.71.x-dev"
 				}
 			},
 			"autoload": {
@@ -1563,7 +1563,11 @@
 					"phpunit-select-config phpunit.#.xml.dist --colors=always"
 				],
 				"test-coverage": [
-					"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+					"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+					"pnpm run test-coverage"
+				],
+				"test-js": [
+					"pnpm run test"
 				],
 				"test-php": [
 					"@composer phpunit"
@@ -1769,7 +1773,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "bc86475df0704106b3ac500e1a70207c57b46908"
+				"reference": "bd1c96ab8c4f09f4dcfddae31dc4d3ca3414ce8c"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1803,7 +1807,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.24.x-dev"
+					"dev-trunk": "4.25.x-dev"
 				},
 				"dependencies": {
 					"test-only": [

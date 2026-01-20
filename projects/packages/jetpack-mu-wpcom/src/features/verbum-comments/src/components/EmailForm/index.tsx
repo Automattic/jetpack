@@ -178,7 +178,8 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 									'invalid-form-data': isValidEmail.value === false && isEmailTouched.value,
 								} ) }
 								type="email"
-								spellCheck={ false }
+								// eslint-disable-next-line react/no-unknown-property -- Preact and React apparently disagree on this.
+								spellcheck={ false }
 								autoCorrect="off"
 								autoComplete="email"
 								required={ authRequired }
@@ -203,7 +204,8 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 									'invalid-form-data': isValidAuthor.value === false && isNameTouched.value,
 								} ) }
 								type="text"
-								spellCheck={ false }
+								// eslint-disable-next-line react/no-unknown-property -- Preact and React apparently disagree on this.
+								spellcheck={ false }
 								autoCorrect="off"
 								autoComplete="name"
 								required={ authRequired }
@@ -223,7 +225,8 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 								id="verbum-email-form-website"
 								className="verbum-form__website"
 								type="text"
-								spellCheck={ false }
+								// eslint-disable-next-line react/no-unknown-property -- Preact and React apparently disagree on this.
+								spellcheck={ false }
 								autoCorrect="off"
 								name="url"
 								onInput={ setFormData }

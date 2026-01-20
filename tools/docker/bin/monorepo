@@ -17,9 +17,40 @@ source "$MONOREPO_ROOT/.github/versions.sh"
 # Export variables needed by docker-compose
 export HOST_CWD="$MONOREPO_ROOT"
 
-# Build the image if it doesn't exist
+# Check if we should pull the latest image
+CACHE_FILE="$MONOREPO_ROOT/tools/docker/data/.monorepo-image-check"
+SHOULD_PULL=0
+
+# Always pull if image doesn't exist
 if ! docker image inspect jetpack-monorepo:latest >/dev/null 2>&1; then
-    if [ "${BUILD_LOCAL:-}" = "1" ]; then
+    SHOULD_PULL=1
+# Force pull if FORCE_PULL environment variable is set
+elif [[ "${FORCE_PULL:-}" = "1" ]]; then
+    SHOULD_PULL=1
+    echo "Forcing image update due to FORCE_PULL environment variable..."
+# Pull if cache file doesn't exist or is older than 24 hours (86400 seconds)
+elif [[ ! -f "$CACHE_FILE" ]]; then
+    SHOULD_PULL=1
+else
+    # Check if file is older than 24 hours
+    if [[ "$(uname)" = "Darwin" ]]; then
+        # macOS date command
+        FILE_TIME=$(stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)
+    else
+        # Linux date command
+        FILE_TIME=$(stat -c %Y "$CACHE_FILE" 2>/dev/null || echo 0)
+    fi
+    CURRENT_TIME=$(date +%s)
+    TIME_DIFF=$((CURRENT_TIME - FILE_TIME))
+
+    if [[ "$TIME_DIFF" -gt 86400 ]]; then
+        SHOULD_PULL=1
+    fi
+fi
+
+# Pull or build the image if needed
+if [[ "$SHOULD_PULL" = "1" ]]; then
+    if [[ "${BUILD_LOCAL:-}" = "1" ]]; then
         echo "Building monorepo image locally..."
         docker build \
             --build-arg PHP_VERSION="$PHP_VERSION" \
@@ -30,20 +61,43 @@ if ! docker image inspect jetpack-monorepo:latest >/dev/null 2>&1; then
             -f "$MONOREPO_ROOT/tools/docker/Dockerfile.monorepo" \
             "$MONOREPO_ROOT/tools/docker"
     else
-        echo "Pulling monorepo image..."
+        echo "Checking for latest monorepo image..."
         docker pull automattic/jetpack-monorepo:latest
         docker tag automattic/jetpack-monorepo:latest jetpack-monorepo:latest
     fi
+
+    # Update the timestamp file
+    mkdir -p "$(dirname "$CACHE_FILE")"
+    touch "$CACHE_FILE"
 fi
 
 # Run the command in the container
-docker run --rm -it \
+# Use -it only if we have a TTY available
+# If stdin was redirected (e.g., by git hooks) but /dev/tty is available, reconnect to it
+  if [[ ! -t 0 && -c /dev/tty ]] && sh -c ': < /dev/tty' >/dev/null 2>/dev/null; then
+      exec < /dev/tty
+  fi
+
+  if [[ -t 0 ]]; then
+      TTY_FLAG="-it"
+  else
+      TTY_FLAG=""
+  fi
+
+  # Get git user config from host to use for commits inside container
+  GIT_USER_NAME=$(git config user.name 2>/dev/null || echo "")
+  GIT_USER_EMAIL=$(git config user.email 2>/dev/null || echo "")
+
+  docker run --rm $TTY_FLAG \
     -v "$MONOREPO_ROOT:/workspace" \
     -v "$MONOREPO_ROOT/tools/docker/data/monorepo:/root" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -w /workspace \
     -e TERM=$TERM \
     -e COLORTERM=$COLORTERM \
+    -e JETPACK_MONOREPO_ENV=1 \
+    -e HUSKY=0 \
+    -e CI="${CI:-}" \
     -e DOCKER_ROOT="$MONOREPO_ROOT/tools/docker" \
     -e HOST_CWD="$MONOREPO_ROOT" \
     -e WORKSPACE_PATH="$MONOREPO_ROOT" \
@@ -51,5 +105,9 @@ docker run --rm -it \
     -e NPM_CONFIG_CACHE=/root/.npm \
     -e PNPM_HOME=/root/.local/share/pnpm \
     -e PNPM_STORE_DIR=/root/.pnpm-store \
+    -e GIT_AUTHOR_NAME="${GIT_USER_NAME}" \
+    -e GIT_AUTHOR_EMAIL="${GIT_USER_EMAIL}" \
+    -e GIT_COMMITTER_NAME="${GIT_USER_NAME}" \
+    -e GIT_COMMITTER_EMAIL="${GIT_USER_EMAIL}" \
     jetpack-monorepo:latest \
     "$@"

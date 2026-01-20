@@ -9,8 +9,8 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 8 occurrences
+    // PhanUndeclaredClassMethod : 8 occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 6 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanUndeclaredClassReference : 4 occurrences
@@ -26,8 +26,8 @@ return [
         'src/class-social-links.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredTypeProperty'],
         'src/content-options/featured-images-fallback.php' => ['PhanTypePossiblyInvalidDimOffset'],
         'src/custom-content-types.php' => ['PhanUndeclaredClassMethod'],
-        'src/custom-post-types/class-jetpack-portfolio.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredClassMethod'],
-        'src/custom-post-types/class-jetpack-testimonial.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
+        'src/custom-post-types/class-jetpack-portfolio.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
+        'src/custom-post-types/class-jetpack-testimonial.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/custom-post-types/class-nova-restaurant.php' => ['PhanTypeSuspiciousNonTraversableForeach'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

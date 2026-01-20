@@ -27,6 +27,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
 		StatusCache::clear();
 		$this->reset_connection_status();
+		// Clear IDC validation lock to ensure test isolation.
+		delete_transient( 'jetpack_idc_validation_lock' );
 	}
 
 	/**
@@ -1274,6 +1276,27 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
 
 		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test should_remote_validate_idc() returns false when safe mode is confirmed.
+	 */
+	public function test_should_remote_validate_idc_returns_false_when_safe_mode_confirmed() {
+		// Set up safe mode as confirmed.
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+
+		$sync_error = array(
+			'last_checked'     => time() - 7200, // 2 hours ago.
+			'next_check_delay' => 3600, // 1 hour delay - validation would normally occur.
+		);
+
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
+
+		// Clean up.
+		Jetpack_Options::delete_option( 'safe_mode_confirmed' );
+
+		// Should return false because safe mode is confirmed, even though enough time has passed.
+		$this->assertFalse( $result );
 	}
 
 	/**

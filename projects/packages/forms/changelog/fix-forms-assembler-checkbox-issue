@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed checkbox-multiple styling by removing incorrect button style selector

@@ -37,6 +37,10 @@ const settings = {
 			},
 		},
 	},
+	merge: ( attributes, { label = '' } ) => ( {
+		...attributes,
+		label: ( attributes.label || '' ) + label,
+	} ),
 	attributes: {
 		placeholder: {
 			type: 'string',

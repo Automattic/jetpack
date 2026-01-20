@@ -55,4 +55,43 @@ class Dashboard_Test extends BaseTestCase {
 		// When get_current_screen doesn't exist, should return false
 		$this->assertFalse( Dashboard::is_jetpack_forms_admin_page() );
 	}
+
+	/**
+	 * Test is_notes_enabled returns false by default
+	 */
+	public function test_is_notes_enabled_default() {
+		$this->assertFalse( Dashboard::is_notes_enabled() );
+	}
+
+	/**
+	 * Test is_notes_enabled returns true when filter is applied
+	 */
+	public function test_is_notes_enabled_with_filter() {
+		add_filter( 'jetpack_forms_notes_enable', '__return_true' );
+		$this->assertTrue( Dashboard::is_notes_enabled() );
+		remove_filter( 'jetpack_forms_notes_enable', '__return_true' );
+	}
+
+	/**
+	 * Test get_admin_url with valid screen IDS
+	 */
+	public function test_get_admin_url_with_valid_screen_ids() {
+		$url_form = Dashboard::get_admin_url( 'edit-jetpack_form' );
+		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url_form );
+		$this->assertStringContainsString( '#/forms', $url_form );
+
+		$url_feedback = Dashboard::get_admin_url( 'edit-feedback' );
+		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url_feedback );
+		$this->assertStringContainsString( '#/responses', $url_feedback );
+	}
+
+	/**
+	 * Test get_admin_url with invalid screen ID returns null.
+	 */
+	public function test_get_admin_url_with_invalid_screen() {
+		$url = Dashboard::get_admin_url( 'invalid-screen' );
+		$this->assertNull( $url );
+		$url = Dashboard::get_admin_url( '' );
+		$this->assertNull( $url );
+	}
 }

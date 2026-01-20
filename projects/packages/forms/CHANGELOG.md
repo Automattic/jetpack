@@ -5,6 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.4.0] - 2026-01-19
+### Added
+- Add ref attribute support for the form block. [#46555]
+- Add centralized dashboard tabs. [#46506]
+- Add country flag emoji to phone field values in form submission confirmation page. [#46611]
+- Add reusable forms list to dashboard. [#46580]
+- Display URL field values as clickable links in form submission confirmation page. [#46593]
+- Make form webhooks generally available. [#46422]
+
+### Changed
+- Update "Create Form" if CFM flag is on. [#46598]
+- Update dataviews actions to match between old and new dashboard. [#46564]
+- Update form submission confirmation page with new design. [#46521]
+- Implement IP flag in new WP Build dashboard. [#46595]
+- Replace escape function in checkbox input value. [#46354]
+- Split wp-build dashboard Inspector into multiple files. [#46616]
+- Update read/unread status column style to match old dashboard. [#46566]
+- Update source link to use `ExternalLink` component in new dashboard. [#46586]
+- Use empty state component for new dashboard. [#46638]
+- Use Gravatar component in new dashboard inbox. [#46567]
+- Use wrapper function to mark unread rows in new dashboard. [#46591]
+- Update package dependencies. [#46552] [#46568] [#46647]
+
+### Removed
+- Clean up all dashboard migration code (filters, methods and wrapped up code). [#43825]
+
+### Fixed
+- Consent block: Automatically set required to false when consent type is implicit. [#46443]
+- Fix z-index stacking order for animated labels and combobox dropdown. [#46634]
+- Fix dashboard routing on wpcom. [#46554]
+- Use fallback in all email rendering contexts. [#46581]
+
+## [7.3.0] - 2026-01-12
+### Security
+- Add SSRF protection for webhook URLs to prevent requests to internal networks and cloud metadata endpoints. [#46424]
+
+### Added
+- Add feedback comments. [#46309]
+- Add form editor under a feature flag. [#46444]
+- Allow merging two options together with backspace. [#46507]
+
+### Changed
+- Change how phone combobox handles flag changes, bypassing wpemoji MutationObserver. [#46492]
+- Update package dependencies. [#46456] [#46512]
+
+### Fixed
+- Fix personal data export search to handle email addresses in all storage formats (legacy, V2, V3) including unicode/emoji characters. [#46429]
+- Fix date exports. [#46445]
+- Fix wp-build dashboard with updated @wordpress/build package. [#46509]
+- Prevent get_render_api_value from mutating internal state when called multiple times on cached feedback objects. [#46524]
+- Use consistent checkbox and radio styles in the editor to match frontend rendering. [#46441]
+
+## [7.2.0] - 2026-01-06
+### Added
+- Add support for setting custom ID on hidden field blocks from block settings. [#46360]
+- Add a new filter that lets us control when we want to show the powered by wording in the email. [#46158]
+- Add list view sidebar for easier field management. [#46403]
+- Allow using the Gutenberg Core Button block as the submit control in Contact Form. The block gets the same interactivity bindings and loading spinner as the Jetpack Button, and all form variations now insert a core button by default. [#46166]
+- Support Math and Code blocks inside forms. [#46421]
+
+### Changed
+- Use core/button instead of jetpack/button. [#46166]
+- Refactor Feedback_Test.php into 8 focused test classes for better organization and maintainability. [#46394]
+- Update radio button styling to use ::before pseudo-element approach for consistency with checkboxes. [#46392]
+
+### Fixed
+- Fix combobox dropdown styling overrides for phone input field. [#46408]
+- Fix checkbox-multiple styling by removing incorrect button style selector. [#46412]
+- Fix combobox dropdown occlusion by adding z-index when open. [#46401]
+- Fix React console error on checkbox/radio option inputs by providing an onChange handler. [#46439]
+- Don't allow ::after pseudo element manipulation on Jetpack Forms radio and checkbox input elements. [#46393]
+- Fixing form checkboxes and radio styles for dark background themes. [#46411]
+- Update 'Learn more' link in form notification settings. [#46385]
+- Improve phone field styling to better mimic theme input styles, including focus outline and filter CSS properties. [#46432]
+
 ## [7.1.0] - 2025-12-22
 ### Added
 - Add wp-build based form responses route for DataViews integration. [#46206]
@@ -2000,6 +2075,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.4.0]: https://github.com/automattic/jetpack-forms/compare/v7.3.0...v7.4.0
+[7.3.0]: https://github.com/automattic/jetpack-forms/compare/v7.2.0...v7.3.0
+[7.2.0]: https://github.com/automattic/jetpack-forms/compare/v7.1.0...v7.2.0
 [7.1.0]: https://github.com/automattic/jetpack-forms/compare/v7.0.0...v7.1.0
 [7.0.0]: https://github.com/automattic/jetpack-forms/compare/v6.22.0...v7.0.0
 [6.22.0]: https://github.com/automattic/jetpack-forms/compare/v6.21.2...v6.22.0

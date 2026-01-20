@@ -14,6 +14,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
@@ -56,7 +57,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.13.x-dev"
+			"dev-trunk": "0.14.x-dev"
 		},
 		"textdomain": "woocommerce-analytics",
 		"version-constants": {

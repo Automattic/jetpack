@@ -52,6 +52,22 @@ const emptyLanguageOption: LanguageOption = {
 	value: '',
 	label: plainLanguageName,
 };
+
+/**
+ * Modify language names for display.
+ *
+ * @param language - Original language name.
+ * @return Display language name.
+ */
+function languageNameDisplay( language: string ): string {
+	switch ( language ) {
+		case 'Brainfuck':
+			return 'Brainf***';
+	}
+
+	return language;
+}
+
 const selectLanguageOptions: ReadonlyArray< LanguageOption > = [];
 {
 	const langNames = new Set< string >();
@@ -63,7 +79,7 @@ const selectLanguageOptions: ReadonlyArray< LanguageOption > = [];
 	sortedLangNames.forEach( lang =>
 		( selectLanguageOptions as LanguageOption[] ).push( {
 			value: lang,
-			label: lang,
+			label: languageNameDisplay( lang ),
 		} )
 	);
 }
@@ -138,6 +154,16 @@ function filterBlockRegistration( settings: any ) {
 		settings.transforms.to = [ ...transforms.to, ...settings.transforms.to ];
 	}
 
+	// Disable the contrast checker warning for the enhanced Code block.
+	// The block uses custom syntax highlighting colors that may trigger false positive warnings.
+	if ( ! settings.supports ) {
+		settings.supports = {};
+	}
+	if ( ! settings.supports.color ) {
+		settings.supports.color = {};
+	}
+	settings.supports.color.enableContrastChecker = false;
+
 	return settings;
 }
 
@@ -178,7 +204,7 @@ const blockEdit = withColors(
 						} }
 						renderToggle={ ( { isOpen, onToggle }: { isOpen: boolean; onToggle: () => void } ) => (
 							<Button onClick={ onToggle } aria-expanded={ isOpen } aria-haspopup="true">
-								{ props.attributes.language || emptyLanguageOption.label }
+								{ languageNameDisplay( props.attributes.language || emptyLanguageOption.label ) }
 							</Button>
 						) }
 						renderContent={ ( { onClose }: { onClose: () => void } ) => (
@@ -237,7 +263,7 @@ const blockEdit = withColors(
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 					>
-						<option value="">{ plainLanguageName }</option>
+						<option value="">{ languageNameDisplay( plainLanguageName ) }</option>
 						<optgroup label={ __( 'Popular Languages', 'jetpack-mu-wpcom' ) }>
 							{ selectPopularLanguageOptions.map( option => (
 								<option key={ option.value } value={ option.value }>
@@ -430,7 +456,7 @@ const BlockHeader = ( props: Props ) => {
 						</button>
 					) }
 					{ props.attributes.showLanguageName ? (
-						<span>{ props.attributes.language || plainLanguageName }</span>
+						<span>{ languageNameDisplay( props.attributes.language || plainLanguageName ) }</span>
 					) : null }
 				</div>
 			) }

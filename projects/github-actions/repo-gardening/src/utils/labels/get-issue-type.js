@@ -1,11 +1,17 @@
 const getLabels = require( './get-labels' );
+const { TYPE_LABELS_WITHOUT_PREFIX } = require( './type-labels' );
 
 /* global GitHub */
 
 /**
- * Extract the type of the issue, based of the the "[Type]" labels found in that issue.
- * If multiple Type labels can be found in the issue, we cannot extract a specific type.
- * We will consequently return an empty string.
+ * Extract the type of the issue.
+ * Issues can use 2 different types of labels to indicate type:
+ * 1. Labels with a "[Type]" prefix.
+ * 2. An exact set of labels without a "[Type]" prefix.
+ *
+ * When multiple Type labels are found, we favor labels from the hardcoded list (without prefix).
+ * If multiple Type labels from the hardcoded list are found, or if no clear type can be determined,
+ * we will return an empty string.
  *
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
@@ -16,18 +22,34 @@ const getLabels = require( './get-labels' );
 async function getIssueType( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
 
-	// Extract type labels, and return them all in a new array, but without the [Type] prefix.
-	const typeLabels = labels
-		.filter( label => label.startsWith( '[Type]' ) )
-		.map( label => label.replace( '[Type] ', '' ) );
+	// Extract type labels without prefix.
+	const typeLabelsWithoutPrefix = labels.filter( label =>
+		TYPE_LABELS_WITHOUT_PREFIX.includes( label )
+	);
 
-	// If there are multiple types defined in the issue, we cannot extract a specific type.
-	// We will consequently return an empty string.
-	if ( typeLabels.length !== 1 ) {
+	// Favor labels from the hardcoded list (without prefix).
+	// If there's exactly one label from the hardcoded list, return it.
+	if ( typeLabelsWithoutPrefix.length === 1 ) {
+		return typeLabelsWithoutPrefix[ 0 ];
+	}
+
+	// If there are multiple labels from the hardcoded list, we cannot extract a specific type.
+	if ( typeLabelsWithoutPrefix.length > 1 ) {
 		return '';
 	}
 
-	return typeLabels[ 0 ];
+	// Fall back to [Type] prefixed labels if no hardcoded labels are found.
+	// Extract type labels with [Type] prefix, and return them without the prefix.
+	const typeLabelsWithPrefix = labels
+		.filter( label => label.startsWith( '[Type]' ) )
+		.map( label => label.replace( '[Type] ', '' ) );
+
+	if ( typeLabelsWithPrefix.length === 1 ) {
+		return typeLabelsWithPrefix[ 0 ];
+	}
+
+	// If there are multiple [Type] prefixed labels or no type labels at all, return empty string.
+	return '';
 }
 
 module.exports = getIssueType;

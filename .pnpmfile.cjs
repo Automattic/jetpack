@@ -74,10 +74,10 @@ async function fixDeps( pkg ) {
 	}
 
 	// Missing dep or peer dep on react.
-	// Once we can drop @wordpress/icons v10 (see above), looks like this can go away.
-	// https://github.com/WordPress/gutenberg/issues/73257
+	// https://github.com/WordPress/gutenberg/issues/73257 (fixed in @wordpress/icons v11, but see above)
+	// https://github.com/WordPress/gutenberg/issues/74394
 	if (
-		pkg.name === '@wordpress/icons' &&
+		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/image-cropper' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -146,6 +146,15 @@ async function fixDeps( pkg ) {
 		}
 		if ( pkg.dependencies.cssnano === '^6.0.1' ) {
 			pkg.dependencies.cssnano = '^6 || ^7';
+		}
+	}
+
+	// Outdated dependency
+	if ( pkg.name === '@wordpress/jest-console' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( 'jest-' ) && ver.startsWith( '^29.' ) ) {
+				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
 		}
 	}
 
@@ -247,6 +256,24 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@vitest/mocker' ] = '*';
 	}
 
+	// CVE-2026-22036
+	// https://github.com/actions/toolkit/issues/2242
+	if (
+		( pkg.name === '@actions/http-client' || pkg.name === '@actions/github' ) &&
+		pkg.dependencies?.undici?.startsWith( '^5.' )
+	) {
+		pkg.dependencies.undici = '^6.23.0';
+	}
+
+	// GHSA-73rr-hh4g-fpgx
+	// https://github.com/WordPress/gutenberg/issues/74669
+	if (
+		( pkg.name === '@wordpress/block-editor' || pkg.name === '@wordpress/sync' ) &&
+		( pkg.dependencies?.diff?.startsWith( '^4.' ) || pkg.dependencies?.diff?.startsWith( '4.' ) )
+	) {
+		pkg.dependencies.diff = '^8.0.3';
+	}
+
 	return pkg;
 }
 
@@ -309,6 +336,15 @@ function fixPeerDeps( pkg ) {
 		delete pkg.dependencies.sass;
 	}
 
+	// 0.x versions treat `^` like `~`. Replace with `>=`.
+	if ( pkg.name === '@wordpress/build' && pkg.peerDependencies ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
+			if ( ver.startsWith( '^0.' ) ) {
+				pkg.peerDependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
+	}
+
 	return pkg;
 }
 
@@ -354,6 +390,14 @@ function afterAllResolved( lockfile ) {
 			throw new Error(
 				// prettier-ignore
 				`Please use \`sass-embedded\` rather than \`${ k.replace( /@.*/, '' ) }\`. We've standardized on the former.`
+			);
+		}
+
+		// We want to use `@jest/environment-jsdom-abstract` instead to allow for using newer `jsdom`.
+		if ( k.startsWith( 'jest-environment-jsdom@' ) ) {
+			throw new Error(
+				// prettier-ignore
+				`You don't need \`jest-environment-jsdom\`. Our base config in \`tools/js-tools/jest/config.base.js\` already sets up a JSDOM environment from \`tools/js-tools/jest/fix-environment-jsdom.mjs\`, use that instead. pdWQjU-1vl-p2`
 			);
 		}
 

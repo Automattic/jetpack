@@ -813,6 +813,17 @@ class Jetpack_Subscriptions {
 	 * @param string     $approved Comment status.
 	 */
 	public function comment_subscribe_submit( $comment_id, $approved ) {
+		/**
+		 * Filters whether to skip comment subscription processing.
+		 *
+		 * @since 15.5
+		 *
+		 * @param bool $skip Whether to skip comment subscription. Default false.
+		 */
+		if ( apply_filters( 'jetpack_subscription_comment_subscribe_skip', false ) ) {
+			return;
+		}
+
 		if ( 'spam' === $approved ) {
 			return;
 		}

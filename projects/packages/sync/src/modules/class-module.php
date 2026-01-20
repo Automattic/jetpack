@@ -407,10 +407,10 @@ abstract class Module {
 	 *
 	 * @access protected
 	 *
-	 * @param string $config Full sync configuration for this module.
-	 * @param array  $status the current module full sync status.
-	 * @param float  $send_until timestamp until we want this request to send full sync events.
-	 * @param int    $started The timestamp when the full sync started.
+	 * @param array $config Full sync configuration for this module.
+	 * @param array $status the current module full sync status.
+	 * @param float $send_until timestamp until we want this request to send full sync events.
+	 * @param int   $started The timestamp when the full sync started.
 	 *
 	 * @return array Status, the module full sync status updated.
 	 */
