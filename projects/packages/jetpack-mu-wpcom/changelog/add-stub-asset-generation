@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add script to generate stub asset files for testing.
