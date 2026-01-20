@@ -1397,4 +1397,85 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$data = $response->get_data();
 		$this->assertFalse( $data['sync_ready'] );
 	}
+
+	/**
+	 * Test the create_dsp_campaigns redirection to WPCOM when status is synced.
+	 */
+	public function test_create_dsp_campaigns_redirection() {
+		Health::update_status( Health::STATUS_IN_SYNC );
+
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1.1/campaigns', $captured_request );
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/campaigns', $this->site_id ) );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'target_urn' => sprintf( 'urn:wpcom:post:%d:123', $this->site_id ),
+					'budget'     => 100,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+		$this->assertSame( 'POST', $captured_request['method'] );
+		$this->assertStringContainsString( '/wordads/dsp/api/v1.1/campaigns', $captured_request['url'] );
+	}
+
+	/**
+	 * Test the create_dsp_campaigns local processing of data (before redirection).
+	 */
+	public function test_create_dsp_campaigns_processed_it_locally() {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		$attachment_id = $this->create_image_attachment( $this->post_id, 'image/jpeg', 800, 600 );
+		set_post_thumbnail( $this->post_id, $attachment_id );
+
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1.1/campaigns', $captured_request );
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/campaigns', $this->site_id ) );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'target_urn' => sprintf( 'urn:wpcom:post:%d:%d', $this->site_id, $this->post_id ),
+					'budget'     => 100,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+		$this->assertSame( 'POST', $captured_request['method'] );
+		$this->assertStringContainsString( '/wordads/dsp/api/v1.1/campaigns', $captured_request['url'] );
+
+		$body = json_decode( $captured_request['body'], true );
+		$this->assertIsArray( $body );
+
+		// Check that original request body params are preserved.
+		$this->assertSame( sprintf( 'urn:wpcom:post:%d:%d', $this->site_id, $this->post_id ), $body['target_urn'] );
+		$this->assertSame( 100, $body['budget'] );
+
+		// Check wp_post data.
+		$this->assertArrayHasKey( 'wp_post', $body );
+		$this->assertSame( $this->post_id, $body['wp_post']['ID'] );
+		$this->assertSame( 'Test Post for Blaze', $body['wp_post']['title'] );
+		$this->assertSame( 'post', $body['wp_post']['type'] );
+		$this->assertSame( get_permalink( $this->post_id ), $body['wp_post']['URL'] );
+		$this->assertArrayHasKey( 'content', $body['wp_post'] );
+		$this->assertArrayHasKey( 'modified', $body['wp_post'] );
+		$this->assertArrayHasKey( 'featured_image', $body['wp_post'] );
+		$this->assertNotEmpty( $body['wp_post']['featured_image'] );
+
+		// Check that sync_ready is correctly set to false.
+		$data = $response->get_data();
+		$this->assertFalse( $data['sync_ready'] );
+	}
 }
