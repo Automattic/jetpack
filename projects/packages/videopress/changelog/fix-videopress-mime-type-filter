@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Video Library: fix video query to only return VideoPress videos instead of all video types.
