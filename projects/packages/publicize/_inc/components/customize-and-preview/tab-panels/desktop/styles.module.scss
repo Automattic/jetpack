@@ -1,0 +1,30 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../mixins.scss" as mixins;
+
+.tab-panel-desktop {
+
+	display: flex;
+	flex-direction: row;
+
+	[role="tablist"] {
+
+		@include mixins.tab-list-overrides();
+		border-inline-end: 1px solid gb.$gray-200;
+	}
+
+	[role="tabpanel"] {
+		width: 100%;
+	}
+
+	@include mixins.tab-item-overrides();
+}
+
+.tab-content {
+	display: grid;
+	grid-template-columns: clamp(200px, 33.33%, 350px) 1fr;
+}
+
+.customization-section {
+
+	@include mixins.customization-section();
+}

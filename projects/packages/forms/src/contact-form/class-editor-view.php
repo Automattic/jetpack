@@ -179,7 +179,7 @@ class Editor_View {
 <script type="text/html" id="tmpl-grunion-field-checkbox">
 	<div>
 		<label class='grunion-field-label checkbox'>
-			<input type='checkbox' name='{{ data.id }}' value='<?php esc_attr__( 'Yes', 'jetpack-forms' ); ?>' class="{{ data.class }}" <# if ( data.value ) print( 'checked="checked"' ) #> />
+			<input type='checkbox' name='{{ data.id }}' value='<?php esc_attr_e( 'Yes', 'jetpack-forms' ); ?>' class="{{ data.class }}" <# if ( data.value ) print( 'checked="checked"' ) #> />
 				<span>{{ data.label }}</span><# if ( data.required ) print( " <span>" + data.required + "</span>" ) #>
 		</label>
 		<div class='clear-form'></div>

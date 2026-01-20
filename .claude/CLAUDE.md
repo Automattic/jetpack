@@ -38,6 +38,8 @@ For plugins, you can choose the "Starter plugin" template which includes a worki
 
 Every PR touching `/projects` needs a changelog file in the project's `changelog/` directory.
 
+**Note:** Changes outside `/projects` (e.g., `tools/`, `docs/`, `.github/`, `.claude/`) do NOT need changelog entries.
+
 ### Interactive Mode
 Run `jp changelog add` and follow the prompts.
 
@@ -87,7 +89,7 @@ Comment: Update internal documentation, no user-facing changes.
 PR descriptions must follow the template in @.github/PULL_REQUEST_TEMPLATE.md - CI checks expect the metadata format defined there.
 
 ```bash
-gh pr create --title "Title" --body-file pr-body.md --label "[Status] Needs Review" --label "[Type] Enhancement" --assignee @me
+gh pr create --title "Title" --body-file pr-body.md --label "[Status] Needs Review" --label "Enhancement" --assignee @me
 ```
 
 ## Project Structure
@@ -122,3 +124,13 @@ PHP tests use PHPUnit with `yoast/phpunit-polyfills`. JS tests use Jest with `@t
 - `FORCE_PULL=1` - Force pull latest Docker image
 - `BUILD_LOCAL=1` - Build Docker image locally
 - `DEBUG=1` - Enable debug output
+
+## Git Merge Conflicts
+
+After resolving merge conflicts, always use `--no-verify` when completing the merge commit:
+
+```bash
+git commit --no-edit --no-verify
+```
+
+Pre-commit hooks run linting and formatting that can make unintended changes to files included in the merge. Using `--no-verify` ensures the merge commit contains only the resolved conflicts without additional modifications.

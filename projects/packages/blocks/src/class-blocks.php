@@ -76,9 +76,17 @@ class Blocks {
 			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 			if ( ! empty( $args['plan_check'] ) ) {
 				$existing_attributes = array();
-				if ( 'jetpack/donations' === $slug && is_string( $block_type ) && file_exists( $block_type ) ) {
+				$gated_blocks        = array(
+					'jetpack/donations',
+					'jetpack/payment-buttons',
+					'jetpack/paypal-payment-buttons',
+				);
+				if ( in_array( $slug, $gated_blocks, true ) &&
+					is_string( $block_type ) &&
+					file_exists( $block_type )
+				) {
 					$metadata            = self::get_block_metadata( $block_type );
-					$existing_attributes = isset( $metadata['attributes'] ) ? $metadata['attributes'] : array();
+					$existing_attributes = $metadata['attributes'] ?? array();
 				}
 
 				// Set up attributes.

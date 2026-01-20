@@ -151,7 +151,7 @@ const useInstallAkismet = (): UseInstallAkismetReturn => {
 	};
 };
 
-const EmptyWrapper = ( { heading = '', body = '', actions = null }: EmptyWrapperProps ) => (
+export const EmptyWrapper = ( { heading = '', body = '', actions = null }: EmptyWrapperProps ) => (
 	<VStack alignment="center" spacing="2">
 		{ heading && (
 			<Text as="h3" weight="500" size="15">

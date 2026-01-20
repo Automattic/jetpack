@@ -5,7 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { Badge } from '@automattic/ui';
-import { ExternalLink, Modal } from '@wordpress/components';
+import { ExternalLink, Modal, Button, Composite } from '@wordpress/components';
 import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
@@ -28,6 +28,7 @@ import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
 import ExportResponsesButton from '../../components/export-responses/button.tsx';
 import Flag from '../../components/flag/index.tsx';
+import FormsResponsesTabs from '../../components/forms-responses-tabs/index.tsx';
 import Gravatar from '../../components/gravatar/index.tsx';
 import InboxStatusToggle from '../../components/inbox-status-toggle/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
@@ -129,6 +130,7 @@ export default function InboxView() {
 
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
+	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 
 	const {
 		setCurrentQuery,
@@ -139,7 +141,35 @@ export default function InboxView() {
 		isLoadingData,
 		totalItems,
 		totalPages,
+		totalItemsInbox,
+		totalItemsSpam,
+		totalItemsTrash,
 	} = useInboxData();
+	const onChangeStatus = useCallback(
+		newStatus => {
+			if ( ! isCentralFormManagementEnabled ) {
+				return;
+			}
+
+			setSearchParams( previousSearchParams => {
+				const params = new URLSearchParams( previousSearchParams );
+				params.set( 'status', newStatus );
+				params.delete( 'r' ); // Clear selected responses when changing status.
+				return params;
+			} );
+
+			// Reset page to 1 when switching status (matches previous tab behavior).
+			setView( { ...view, page: 1 } );
+
+			// Clear selection in store.
+			setSelectedResponses( [] );
+		},
+		[ isCentralFormManagementEnabled, setSearchParams, setSelectedResponses, setView, view ]
+	);
+
+	const onInboxClick = useCallback( () => onChangeStatus( 'inbox' ), [ onChangeStatus ] );
+	const onSpamClick = useCallback( () => onChangeStatus( 'spam' ), [ onChangeStatus ] );
+	const onTrashClick = useCallback( () => onChangeStatus( 'trash' ), [ onChangeStatus ] );
 	const isAkismetStatusPending = useSelect(
 		select => {
 			const store = select( INTEGRATIONS_STORE );
@@ -510,6 +540,7 @@ export default function InboxView() {
 			}
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
 			actions={ headerActions }
+			tabs={ isCentralFormManagementEnabled ? <FormsResponsesTabs /> : undefined }
 			hasPadding={ false }
 		>
 			<DataViews
@@ -532,23 +563,72 @@ export default function InboxView() {
 					/>
 				}
 			>
-				<div className="jp-forms-view-actions">
-					<div>
-						<InboxStatusToggle onChange={ resetPage } />
+				{ isCentralFormManagementEnabled ? (
+					<div className="jp-forms-filters-bar">
+						<div className="jp-forms-filters-bar__chips">
+							<Composite className="jp-forms-filters-bar__status-chips">
+								<Button
+									size="compact"
+									variant={ 'tertiary' }
+									className={ statusFilter === 'draft,publish' ? 'is-active' : '' }
+									onClick={ onInboxClick }
+								>
+									{ __( 'Status is Inbox', 'jetpack-forms' ) } ({ totalItemsInbox })
+								</Button>
+
+								<Button
+									size="compact"
+									variant={ 'tertiary' }
+									className={ statusFilter === 'spam' ? 'is-active' : '' }
+									onClick={ onSpamClick }
+								>
+									{ __( 'Status is Spam', 'jetpack-forms' ) } ({ totalItemsSpam })
+								</Button>
+								<Button
+									size="compact"
+									variant={ 'tertiary' }
+									className={ statusFilter === 'trash' ? 'is-active' : '' }
+									onClick={ onTrashClick }
+								>
+									{ __( 'Status is Trash', 'jetpack-forms' ) } ({ totalItemsTrash })
+								</Button>
+							</Composite>
+							<DataViews.FiltersToggled className="jp-forms-filters-container" />
+						</div>
+						<div
+							className="jp-forms-filters-bar__controls"
+							style={ {
+								display: 'flex',
+								gap: '8px',
+								justifyContent: containerWidth < 600 ? 'unset' : 'flex-end',
+							} }
+						>
+							<DataViews.Search />
+							<DataViews.FiltersToggle />
+							<DataViews.ViewConfig />
+						</div>
 					</div>
-					<div
-						style={ {
-							display: 'flex',
-							gap: '8px',
-							justifyContent: containerWidth < 600 ? 'unset' : 'flex-end',
-						} }
-					>
-						<DataViews.Search />
-						<DataViews.FiltersToggle />
-						<DataViews.ViewConfig />
-					</div>
-				</div>
-				<DataViews.FiltersToggled className="jp-forms-filters-container" />
+				) : (
+					<>
+						<div className="jp-forms-view-actions">
+							<div>
+								<InboxStatusToggle onChange={ resetPage } />
+							</div>
+							<div
+								style={ {
+									display: 'flex',
+									gap: '8px',
+									justifyContent: containerWidth < 600 ? 'unset' : 'flex-end',
+								} }
+							>
+								<DataViews.Search />
+								<DataViews.FiltersToggle />
+								<DataViews.ViewConfig />
+							</div>
+						</div>
+						<DataViews.FiltersToggled className="jp-forms-filters-container" />
+					</>
+				) }
 				<div className="jp-forms-dataviews-layout-container">
 					<DataViews.Layout />
 					<DataViews.Footer />

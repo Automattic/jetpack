@@ -382,12 +382,12 @@ class WPCOM_Features {
 	public const AKISMET                           = 'akismet';
 	public const ANTISPAM                          = 'antispam';
 	public const ARCHIVE_CONTENT                   = 'archive-content';
-	public const ARTIFICIAL_50GB_STORAGE_LIMIT     = 'artificial-50gb-storage-limit';
 	public const ATOMIC                            = 'atomic';
 	public const BACKUPS                           = 'backups';
 	public const BACKUPS_DAILY                     = 'backups-daily';
 	public const BACKUPS_RESTORE                   = 'restore';
 	public const BACKUP_ONE_TIME                   = 'backup-one-time';
+	public const BLAZE_CREDITS_VOUCHER             = 'blaze-credits-voucher';
 	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
 	public const CALENDLY                          = 'calendly';
 	public const CDN                               = 'cdn';
@@ -450,6 +450,8 @@ class WPCOM_Features {
 	public const OPENTABLE                         = 'opentable';
 	public const OPTIONS_PERMALINK                 = 'options-permalink';
 	public const PAYMENTS                          = 'payments';
+	public const PAYMENT_BUTTONS                   = 'payment-buttons';
+	public const PAYPAL_PAYMENT_BUTTONS            = 'paypal-payment-buttons';
 	public const PERFORMANCE                       = 'performance';
 	public const PERFORMANCE_HISTORY               = 'performance-history';
 	public const POLLDADDY                         = 'polldaddy';
@@ -497,6 +499,7 @@ class WPCOM_Features {
 	public const SUBSCRIBER_UNLIMITED_IMPORTS      = 'subscriber-unlimited-imports';
 	public const SUBSCRIPTION_GIFTING              = 'subscription-gifting';
 	public const SUPPORT                           = 'support';
+	public const TITAN_MAIL_1YEAR_TRIAL            = 'titan_mail_1year_trial';
 	public const UPGRADED_UPLOAD_FILETYPES         = 'upgraded_upload_filetypes';
 	public const UPLOAD_AUDIO_FILES                = 'upload-audio-files';
 	public const UPLOAD_PLUGINS                    = 'upload-plugins';
@@ -585,13 +588,6 @@ class WPCOM_Features {
 			self::WPCOM_HUNDRED_YEAR_BUNDLE,
 		),
 
-		/*
-		 * Temporary limit until the Pro plan storage is ready to be fully
-		 * implemented.
-		 */
-		self::ARTIFICIAL_50GB_STORAGE_LIMIT     => array(
-			self::WPCOM_PRO_PLANS,
-		),
 		self::ATOMIC                            => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -636,6 +632,19 @@ class WPCOM_Features {
 		 */
 		self::BACKUP_ONE_TIME                   => array(
 			self::JETPACK_BACKUP_ONE_TIME,
+		),
+		self::BLAZE_CREDITS_VOUCHER             => array(
+			array(
+				'required_sticker' => 'gating-business-q1',
+				// Business (Excluding Monthly).
+				self::BUSINESS_BUNDLE,
+				self::BUSINESS_BUNDLE_2Y,
+				self::BUSINESS_BUNDLE_3Y,
+				// Ecommerce (Excluding Monthly).
+				self::ECOMMERCE_BUNDLE,
+				self::ECOMMERCE_BUNDLE_2Y,
+				self::ECOMMERCE_BUNDLE_3Y,
+			),
 		),
 		// BLOG_DOMAIN_ONLY - Users on Blogger plan can only purchase .blog domains.
 		self::BLOG_DOMAIN_ONLY                  => array(
@@ -1032,6 +1041,22 @@ class WPCOM_Features {
 			self::WPCOM_STARTER_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
+		self::PAYMENT_BUTTONS                   => array(
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_ALL_SITES,
+			),
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
+		),
+		self::PAYPAL_PAYMENT_BUTTONS            => array(
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_ALL_SITES,
+			),
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
+		),
 		self::PERFORMANCE                       => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
@@ -1420,6 +1445,13 @@ class WPCOM_Features {
 			self::WPCOM_ALL_SITES,
 			self::JETPACK_PERSONAL_AND_HIGHER,
 			self::JETPACK_GOLDEN_TOKEN,
+		),
+		self::TITAN_MAIL_1YEAR_TRIAL            => array(
+			array(
+				'required_sticker' => 'gating-business-q1',
+				self::WPCOM_BUSINESS_PLANS,
+				self::WPCOM_ECOMMERCE_PLANS,
+			),
 		),
 		self::UPGRADED_UPLOAD_FILETYPES         => array(
 			self::SPACE_1GB,

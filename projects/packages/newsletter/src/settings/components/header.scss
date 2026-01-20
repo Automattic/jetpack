@@ -1,0 +1,17 @@
+.newsletter-settings__header {
+	margin-bottom: 2em;
+
+	&-top {
+		display: flex;
+		align-items: center;
+		gap: 1em;
+	}
+}
+
+.newsletter-settings__title {
+	margin: 0;
+}
+
+.newsletter-settings__tagline {
+	margin: 8px 0 0;
+}

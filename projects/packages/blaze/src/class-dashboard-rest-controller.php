@@ -209,6 +209,16 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Templates routes
 		register_rest_route(
 			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/templates/article/(?P<urn>[a-zA-Z0-9-_:]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_templates_article' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		register_rest_route(
+			static::$namespace,
 			sprintf( '/sites/%d/wordads/dsp/api/v1/templates(?P<sub_path>[a-zA-Z0-9-_\/:]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -868,7 +878,99 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Redirect GET requests to WordAds DSP Search endpoint for the site.
+	 * Redirect GET requests to the WordAds DSP Templates Article endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_templates_article( $req ) {
+		$urn = $req->get_param( 'urn' ) ?? '';
+
+		$sync_ready = $this->are_posts_ready();
+
+		$response = $sync_ready ?
+			$this->get_dsp_generic( 'v1/templates/article/' . $urn, $req ) :
+			$this->get_dsp_templates_article_local( $urn, $req );
+
+		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
+			$response['sync_ready'] = $sync_ready;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Get the article information to be used in the Blaze create campaign flow.
+	 *
+	 * If Jetpack Sync still is running, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
+	 *
+	 * @param string          $urn The request urn.
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_templates_article_local( $urn, $req ) {
+		$parsed_urn = $this->get_data_from_urn( $urn );
+		$site_id    = $this->get_site_id();
+
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
+		if ( ! $parsed_urn['site_id'] || $parsed_urn['site_id'] !== $site_id ) {
+			return $this->get_forbidden_error();
+		}
+
+		$post = get_post( $parsed_urn['post_id'] );
+		if ( ! $post ) {
+			return new WP_Error( 'post_not_found', esc_html__( 'Post not found', 'jetpack-blaze' ), array( 'status' => 404 ) );
+		}
+
+		// Generates the attachments object
+		$post_attachments = get_attached_media( 'image', $post->ID );
+		$attachments      = array();
+
+		foreach ( $post_attachments as $attachment ) {
+			$attachment_url = wp_get_attachment_url( $attachment->ID );
+			$metadata       = wp_get_attachment_metadata( $attachment->ID );
+
+			// Skip attachment if some of the required data is missing
+			if ( ! $attachment_url || ! $metadata || ! isset( $metadata['width'] ) || ! isset( $metadata['height'] ) ) {
+				continue;
+			}
+
+			$attachments[ $attachment->ID ] = array(
+				'ID'        => $attachment->ID,
+				'URL'       => $attachment_url,
+				'mime_type' => $attachment->post_mime_type,
+				'width'     => $metadata['width'],
+				'height'    => $metadata['height'],
+			);
+		}
+
+		$body = array(
+			'widget_origin' => $req->get_param( 'widget_origin' ),
+			'wp_post'       => array(
+				'ID'             => $post->ID,
+				'title'          => $post->post_title,
+				'excerpt'        => $post->post_excerpt,
+				'URL'            => get_permalink( $post ),
+				'type'           => $post->post_type,
+				'content'        => $post->post_content,
+				'post_thumbnail' => $this->get_post_featured_image( $post->ID ),
+				'attachments'    => (object) $attachments,
+			),
+		);
+
+		return $this->request_as_user(
+			sprintf( '/sites/%d/wordads/dsp/api/v1/templates/article/%s', $site_id, $urn ),
+			'v2',
+			array( 'method' => 'POST' ),
+			$body
+		);
+	}
+
+	/**
+	 * Redirect GET requests to the WordAds DSP Templates endpoint for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
@@ -1099,12 +1201,12 @@ class Dashboard_REST_Controller {
 	/**
 	 * Queries the WordPress.com REST API with a user token.
 	 *
-	 * @param String $path The API endpoint relative path.
-	 * @param String $version The API version.
-	 * @param array  $args Request arguments.
-	 * @param String $body Request body.
-	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
-	 * @param bool   $use_cache (optional) default to true.
+	 * @param String            $path The API endpoint relative path.
+	 * @param String            $version The API version.
+	 * @param array             $args Request arguments.
+	 * @param null|String|array $body Request body.
+	 * @param String            $base_api_path (optional) the API base path override, defaults to 'rest'.
+	 * @param bool              $use_cache (optional) default to true.
 	 * @return array|string|WP_Error|\WP_REST_Response $response Data.
 	 */
 	protected function request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom', $use_cache = false ) {
@@ -1226,5 +1328,79 @@ class Dashboard_REST_Controller {
 		}
 
 		return Health::STATUS_IN_SYNC === Health::get_status();
+	}
+
+	/**
+	 * Get the featured image data for a post.
+	 *
+	 * @param int $post_id The post ID.
+	 *
+	 * @return null|array {
+	 *     Featured image data, or null if no featured image exists.
+	 *
+	 *     @type int    $ID        The attachment ID.
+	 *     @type string $URL       The image URL.
+	 *     @type int    $width     The image width in pixels.
+	 *     @type int    $height    The image height in pixels.
+	 *     @type string $mime_type The image mime type (e.g., 'image/jpeg').
+	 * }
+	 */
+	private function get_post_featured_image( $post_id ) {
+		$thumbnail_id = get_post_thumbnail_id( $post_id );
+		if ( ! $thumbnail_id ) {
+			return null;
+		}
+
+		$image_src = wp_get_attachment_image_src( $thumbnail_id, 'full' );
+		if ( ! $image_src ) {
+			return null;
+		}
+
+		return array(
+			'ID'        => $thumbnail_id,
+			'URL'       => $image_src[0],
+			'width'     => $image_src[1],
+			'height'    => $image_src[2],
+			'mime_type' => get_post_mime_type( $thumbnail_id ),
+		);
+	}
+
+	/**
+	 * Extract site ID and post ID from a WordPress.com URN.
+	 *
+	 * Parses a URN in the format "urn:wpcom:post:SITE_ID:POST_ID" and returns
+	 * an associative array containing the site ID and post ID components.
+	 *
+	 * @param string $urn The URN string to parse (e.g., "urn:wpcom:post:12345:67890").
+	 * @return array {
+	 *     Associative array containing the parsed URN components.
+	 *
+	 *     @type int $site_id The WordPress.com site ID.
+	 *     @type int $post_id The post ID.
+	 * }
+	 */
+	private function get_data_from_urn( $urn ) {
+		$default = array(
+			'site_id' => 0,
+			'post_id' => 0,
+		);
+
+		if ( empty( $urn ) ) {
+			return $default;
+		}
+
+		$urn_parts = explode( ':', $urn );
+
+		if ( count( $urn_parts ) < 5 ) {
+			return $default;
+		}
+
+		$site_id = (int) $urn_parts[3];
+		$post_id = (int) $urn_parts[4];
+
+		return array(
+			'site_id' => $site_id,
+			'post_id' => $post_id,
+		);
 	}
 }
