@@ -16,7 +16,7 @@ import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { plus, Icon, globe } from '@wordpress/icons';
+import { download, plus, Icon, globe } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
@@ -28,7 +28,6 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
 import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
-import ExportResponsesButton from '../../src/dashboard/components/export-responses/button';
 import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
 import Page from '../../src/dashboard/components/page';
@@ -1023,7 +1022,14 @@ function Stage() {
 		}
 
 		actionsArray.push(
-			<ExportResponsesButton key="export" isPrimary={ params.view === 'inbox' } />
+			<Button
+				key="export"
+				variant={ params.view === 'inbox' ? 'primary' : 'secondary' }
+				size="compact"
+				icon={ download }
+			>
+				{ __( 'Export', 'jetpack-forms' ) }
+			</Button>
 		);
 
 		if ( params.view === 'trash' ) {
