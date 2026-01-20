@@ -19,7 +19,10 @@
 function generate_asset_file( $path, $dependencies = array(), $version = '1.0.0-test' ) {
 	$dir = dirname( $path );
 	if ( ! is_dir( $dir ) ) {
-		mkdir( $dir, 0755, true );
+		if ( ! mkdir( $dir, 0755, true ) ) {
+			fwrite( STDERR, "Error: Failed to create directory: $dir\n" );
+			exit( 1 );
+		}
 	}
 
 	$content = "<?php\n";
@@ -29,7 +32,10 @@ function generate_asset_file( $path, $dependencies = array(), $version = '1.0.0-
 	$content .= "\t'version' => " . var_export( $version, true ) . ",\n";
 	$content .= ");\n";
 
-	file_put_contents( $path, $content );
+	if ( false === file_put_contents( $path, $content ) ) {
+		fwrite( STDERR, "Error: Failed to write file: $path\n" );
+		exit( 1 );
+	}
 	echo "Generated: $path\n";
 }
 
@@ -41,7 +47,10 @@ function generate_asset_file( $path, $dependencies = array(), $version = '1.0.0-
 function generate_module_assets_file( $path ) {
 	$dir = dirname( $path );
 	if ( ! is_dir( $dir ) ) {
-		mkdir( $dir, 0755, true );
+		if ( ! mkdir( $dir, 0755, true ) ) {
+			fwrite( STDERR, "Error: Failed to create directory: $dir\n" );
+			exit( 1 );
+		}
 	}
 
 	$content = "<?php\n";
@@ -61,7 +70,10 @@ function generate_module_assets_file( $path ) {
 	$content .= "\t),\n";
 	$content .= ");\n";
 
-	file_put_contents( $path, $content );
+	if ( false === file_put_contents( $path, $content ) ) {
+		fwrite( STDERR, "Error: Failed to write file: $path\n" );
+		exit( 1 );
+	}
 	echo "Generated: $path\n";
 }
 
