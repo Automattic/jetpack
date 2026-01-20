@@ -128,6 +128,14 @@ class LCP_Optimize_Bg_Image {
 			return array();
 		}
 
+		// Check optimizations object from cloud.
+		// If cssOverride is false, skip all background-image optimizations (preload, !important CSS, resize URLs).
+		// This handles responsive backgrounds and custom focal points - the cloud determines what's safe.
+		// If no optimizations object exists (old cloud response), default to applying all optimizations.
+		if ( isset( $lcp_data['optimizations'] ) && empty( $lcp_data['optimizations']['cssOverride'] ) ) {
+			return array();
+		}
+
 		$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
 		$image_url     = $lcp_optimizer->get_lcp_image_url();
 
