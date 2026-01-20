@@ -95,6 +95,7 @@ class Form_Editor {
 
 			// Core blocks for rich content.
 			'core/audio',
+			'core/button',
 			'core/columns',
 			'core/column',
 			'core/group',
