@@ -775,6 +775,50 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that check_response_for_idc resets delay when corrupted (invalid values).
+	 */
+	public function test_check_response_for_idc_resets_corrupted_delay() {
+		$test_cases = array(
+			'too_small'   => 100,       // Below minimum.
+			'too_large'   => 99999999,  // Above maximum.
+			'not_numeric' => 'invalid', // String.
+			'negative'    => -1000,     // Negative number.
+		);
+
+		foreach ( $test_cases as $case_name => $invalid_delay ) {
+			// Set up IDC with corrupted delay value.
+			$existing_idc = array(
+				'home'             => 'example.org/',
+				'siteurl'          => 'example.org/',
+				'error_code'       => 'jetpack_url_mismatch',
+				'wpcom_siteurl'    => '/moc.elpmaxe',
+				'wpcom_home'       => '/moc.elpmaxe',
+				'reversed_url'     => true,
+				'last_checked'     => time() - 7200,
+				'next_check_delay' => $invalid_delay,
+			);
+			Jetpack_Options::update_option( 'sync_error_idc', $existing_idc );
+
+			// Simulate a new response with the same wpcom URLs.
+			$response = array(
+				'error_code'    => 'jetpack_url_mismatch',
+				'wpcom_siteurl' => 'example.com/',
+				'wpcom_home'    => 'example.com/',
+			);
+
+			Identity_Crisis::init()->check_response_for_idc( $response );
+			$updated_idc = Jetpack_Options::get_option( 'sync_error_idc' );
+
+			// Should reset to initial delay when corrupted value is detected.
+			$this->assertSame(
+				Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY,
+				$updated_idc['next_check_delay'],
+				"Failed for case: {$case_name}"
+			);
+		}
+	}
+
+	/**
 	 * Test the check_http_response_for_idc_detected method with invalid inputs. These inputs should
 	 * cause the method to return false.
 	 *

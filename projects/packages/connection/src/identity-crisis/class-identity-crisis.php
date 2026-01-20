@@ -333,23 +333,8 @@ class Identity_Crisis {
 			);
 
 			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
-				// Get existing IDC option to check if this is the same error.
-				$existing_idc = Jetpack_Options::get_option( 'sync_error_idc' );
-
-				// Get the new error data with fresh timing values.
-				$new_idc_data = self::get_sync_error_idc_option( $response );
-
-				// If an existing IDC exists, check if the wpcom URLs are the same.
-				if ( is_array( $existing_idc ) && self::has_same_wpcom_urls( $existing_idc, $new_idc_data ) ) {
-					// Same wpcom URLs - preserve the backoff delay.
-					// Note: last_checked is already set to time() by get_sync_error_idc_option(),
-					// which is correct - we want to record that we just saw this error again.
-					if ( isset( $existing_idc['next_check_delay'] ) ) {
-						$new_idc_data['next_check_delay'] = $existing_idc['next_check_delay'];
-					}
-				}
-				// else: Different wpcom URLs or first time - use fresh timing from get_sync_error_idc_option().
-
+				// This is a defensive fallback.
+				$new_idc_data = self::get_idc_option_with_preserved_timing( $response );
 				Jetpack_Options::update_option( 'sync_error_idc', $new_idc_data );
 			}
 
@@ -357,6 +342,67 @@ class Identity_Crisis {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets IDC option data with timing preserved from existing option if appropriate.
+	 *
+	 * This is a defensive fallback for edge cases where IDC errors are repeatedly detected
+	 * even though the site should be in IDC mode. However, edge cases can cause the option
+	 * to be deleted, triggering new IDC detections. For example, dynamic URLs, race conditions,
+	 * or external storage synchronization issues can cause the option to be deleted, triggering
+	 * new IDC detections.
+	 *
+	 * @param array $response The IDC error response from WordPress.com.
+	 *
+	 * @return array The IDC option data, with timing preserved if the wpcom URLs match.
+	 */
+	private static function get_idc_option_with_preserved_timing( $response ) {
+		// Get existing IDC option to check if this is the same error.
+		$existing_idc = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Get the new error data with fresh timing values.
+		$new_idc_data = self::get_sync_error_idc_option( $response );
+
+		// If an existing IDC exists and the wpcom URLs match, preserve the backoff delay.
+		if ( is_array( $existing_idc ) && self::has_same_wpcom_urls( $existing_idc, $new_idc_data ) ) {
+			// Same wpcom URLs - preserve the backoff delay.
+			// Note: last_checked is already set to time() by get_sync_error_idc_option(),
+			// which is correct - we want to record that we just saw this error again.
+			$preserved_delay = self::get_valid_delay_from_existing_idc( $existing_idc );
+			if ( $preserved_delay !== null ) {
+				$new_idc_data['next_check_delay'] = $preserved_delay;
+			}
+		}
+		// else: Different wpcom URLs or first time - use fresh timing from get_sync_error_idc_option().
+
+		return $new_idc_data;
+	}
+
+	/**
+	 * Extracts and validates the next_check_delay from an existing IDC option.
+	 *
+	 * @param array $existing_idc The existing IDC option data.
+	 *
+	 * @return int|null The validated delay in seconds, or null if invalid.
+	 */
+	private static function get_valid_delay_from_existing_idc( $existing_idc ) {
+		if ( ! isset( $existing_idc['next_check_delay'] ) ) {
+			return null;
+		}
+
+		$delay = $existing_idc['next_check_delay'];
+
+		// Validate the delay is numeric and within acceptable bounds.
+		if (
+			! is_numeric( $delay ) ||
+			$delay < self::IDC_VALIDATION_INITIAL_DELAY ||
+			$delay > self::IDC_VALIDATION_MAX_DELAY
+		) {
+			return null;
+		}
+
+		return (int) $delay;
 	}
 
 	/**
