@@ -1082,7 +1082,12 @@ function Stage() {
 				onChangeSelection={ onChangeSelection }
 				actions={ actions }
 			>
-				<Stack justify="space-between" align="center" gap="sm">
+				<Stack
+					align="center"
+					className="jp-forms-dataviews__view-actions"
+					gap="sm"
+					justify="space-between"
+				>
 					<Stack align="center" gap="sm">
 						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
 							<Tabs.List density="compact">
