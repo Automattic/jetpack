@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Blaze;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Sync\Health;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
@@ -55,6 +56,13 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	private $site_id = 999;
 
 	/**
+	 * Post ID for testing.
+	 *
+	 * @var int
+	 */
+	private $post_id;
+
+	/**
 	 * Dashboard REST Controller instance.
 	 *
 	 * @var Dashboard_REST_Controller
@@ -91,12 +99,24 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 			)
 		);
 		wp_set_current_user( 0 );
+
+		$this->post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post for Blaze',
+				'post_content' => 'Some awesome content to promote',
+				'post_status'  => 'publish',
+				'post_author'  => $this->admin_id,
+			),
+			true
+		);
 	}
 
 	/**
 	 * Tear down after each test.
 	 */
 	public function tearDown(): void {
+		parent::tearDown();
+
 		unset( $_SERVER['REQUEST_METHOD'] );
 		wp_set_current_user( 0 );
 
@@ -105,8 +125,6 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		if ( $this->controller ) {
 			remove_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
 		}
-
-		parent::tearDown();
 	}
 
 	/**
@@ -714,6 +732,56 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Helper method to create an image attachment for a post.
+	 *
+	 * Note: WorDBless doesn't persist attachments to the database, so get_attached_media()
+	 * won't find them. This method creates the attachment for get_post() and metadata,
+	 * then uses a filter to make get_attached_media() return it.
+	 *
+	 * @param int    $parent_post_id The parent post ID.
+	 * @param string $mime_type      The MIME type (default: 'image/png').
+	 * @param int    $width          The image width (default: 1024).
+	 * @param int    $height         The image height (default: 768).
+	 * @return int The attachment ID.
+	 */
+	private function create_image_attachment( $parent_post_id, $mime_type = 'image/png', $width = 1024, $height = 768 ) {
+		$extension  = 'image/png' === $mime_type ? 'png' : 'jpg';
+		$attachment = array(
+			'post_title'     => 'Test Attachment Image',
+			'post_content'   => '',
+			'post_type'      => 'attachment',
+			'post_parent'    => $parent_post_id,
+			'post_mime_type' => $mime_type,
+			'guid'           => 'http://example.org/wp-content/uploads/test-attachment.' . $extension,
+		);
+
+		$attachment_id = wp_insert_attachment( $attachment, 'test-attachment.' . $extension, $parent_post_id );
+		wp_update_attachment_metadata(
+			$attachment_id,
+			array(
+				'width'  => $width,
+				'height' => $height,
+				'file'   => 'test-attachment.' . $extension,
+			)
+		);
+
+		// Mock get_attached_media to return our attachment since WorDBless doesn't support DB queries.
+		add_filter(
+			'get_attached_media',
+			function ( $children, $type, $post ) use ( $attachment_id, $parent_post_id ) {
+				if ( 'image' === $type && $post->ID === $parent_post_id ) {
+					$children[ $attachment_id ] = get_post( $attachment_id );
+				}
+				return $children;
+			},
+			10,
+			3
+		);
+
+		return $attachment_id;
+	}
+
+	/**
 	 * Helper method to set up controller and capture redirected requests.
 	 *
 	 * @param string $url_pattern Pattern to match in the WPCOM URL.
@@ -735,6 +803,10 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 						'url'    => $url,
 						'method' => $args['method'],
 					);
+
+					if ( $args['method'] === 'POST' ) {
+						$captured_request['body'] = $args['body'];
+					}
 
 					return array(
 						'response' => array(
@@ -924,6 +996,21 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	/**
 	 * Test get_dsp_templates redirects to WPCOM.
 	 */
+	public function test_get_dsp_advise_redirects_to_wpcom() {
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1/advise', $captured_request );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/advise', $this->site_id ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+		$this->assertSame( 'GET', $captured_request['method'] );
+	}
+
+	/**
+	 * Test get_dsp_templates redirects to WPCOM.
+	 */
 	public function test_get_dsp_templates_redirects_to_wpcom() {
 		$captured_request = null;
 		$this->setup_redirect_test( '/wordads/dsp/api/v1/templates', $captured_request );
@@ -1088,5 +1175,226 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
 		$this->assertSame( 'POST', $captured_request['method'] );
+	}
+
+	/**
+	 * Test the get_dsp_templates_article redirection To WPCOM when status is synced.
+	 */
+	public function test_get_dsp_templates_article_redirection() {
+		Health::update_status( Health::STATUS_IN_SYNC );
+
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1/templates/article', $captured_request );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/templates/article/urn:wpcom:post:%d:123', $this->site_id, $this->site_id ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+		$this->assertSame( 'GET', $captured_request['method'] );
+		$this->assertStringContainsString( sprintf( '/wordads/dsp/api/v1/templates/article/urn:wpcom:post:%d:123', $this->site_id ), $captured_request['url'] );
+	}
+
+	/**
+	 * Test the get_dsp_templates_article local processing of data (before redirection)
+	 */
+	public function test_get_dsp_templates_article_processed_it_locally() {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		$attachment_id = $this->create_image_attachment( $this->post_id );
+
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1/templates/article', $captured_request );
+
+		$request = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/templates/article/urn:wpcom:post:%d:%d', $this->site_id, $this->site_id, $this->post_id ) );
+		$request->set_param( 'widget_origin', 'jetpack' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+		$this->assertSame( 'POST', $captured_request['method'] );
+		$this->assertStringContainsString( sprintf( '/wordads/dsp/api/v1/templates/article/urn:wpcom:post:%d:%d', $this->site_id, $this->post_id ), $captured_request['url'] );
+
+		$body = json_decode( $captured_request['body'], true );
+		$this->assertIsArray( $body );
+		$this->assertSame( 'jetpack', $body['widget_origin'] );
+
+		$this->assertArrayHasKey( 'wp_post', $body );
+		$this->assertSame( $this->post_id, $body['wp_post']['ID'] );
+		$this->assertSame( 'Test Post for Blaze', $body['wp_post']['title'] );
+		$this->assertSame( 'Some awesome content to promote', $body['wp_post']['content'] );
+		$this->assertSame( 'post', $body['wp_post']['type'] );
+		$this->assertSame( get_permalink( $this->post_id ), $body['wp_post']['URL'] );
+
+		// Check attachments (JSON decoding converts numeric keys to strings).
+		$this->assertArrayHasKey( 'attachments', $body['wp_post'] );
+		$attachments = $body['wp_post']['attachments'];
+		$this->assertArrayHasKey( $attachment_id, $attachments );
+		$this->assertSame( $attachment_id, $attachments[ $attachment_id ]['ID'] );
+		$this->assertSame( 'image/png', $attachments[ $attachment_id ]['mime_type'] );
+		$this->assertSame( 1024, $attachments[ $attachment_id ]['width'] );
+		$this->assertSame( 768, $attachments[ $attachment_id ]['height'] );
+		$this->assertArrayHasKey( 'URL', $attachments[ $attachment_id ] );
+
+		// Check that the new prop sync_ready is correctly set to false.
+		$data = $response->get_data();
+		$this->assertFalse( $data['sync_ready'] );
+
+		// Clean up.
+		wp_delete_attachment( $attachment_id, true );
+	}
+
+	/**
+	 * Test that get_post_featured_image returns null when post has no featured image.
+	 */
+	public function test_get_post_featured_image_returns_null_when_no_image() {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1/templates/article', $captured_request );
+
+		$request = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/templates/article/urn:wpcom:post:%d:%d', $this->site_id, $this->site_id, $this->post_id ) );
+		$request->set_param( 'widget_origin', 'jetpack' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+
+		$body = json_decode( $captured_request['body'], true );
+		$this->assertIsArray( $body );
+		$this->assertArrayHasKey( 'wp_post', $body );
+		$this->assertNull( $body['wp_post']['post_thumbnail'] );
+	}
+
+	/**
+	 * Test that get_post_featured_image returns image data when post has a featured image.
+	 */
+	public function test_get_post_featured_image_returns_image_data() {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		$attachment_id = $this->create_image_attachment( $this->post_id, 'image/jpeg', 800, 600 );
+		set_post_thumbnail( $this->post_id, $attachment_id );
+
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1/templates/article', $captured_request );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/templates/article/urn:wpcom:post:%d:%d', $this->site_id, $this->site_id, $this->post_id ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+
+		$body = json_decode( $captured_request['body'], true );
+		$this->assertIsArray( $body );
+		$this->assertArrayHasKey( 'wp_post', $body );
+
+		$post_thumbnail = $body['wp_post']['post_thumbnail'];
+		$this->assertIsArray( $post_thumbnail );
+		$this->assertSame( $attachment_id, $post_thumbnail['ID'] );
+		$this->assertArrayHasKey( 'URL', $post_thumbnail );
+		$this->assertArrayHasKey( 'width', $post_thumbnail );
+		$this->assertArrayHasKey( 'height', $post_thumbnail );
+		$this->assertArrayHasKey( 'mime_type', $post_thumbnail );
+		$this->assertSame( 'image/jpeg', $post_thumbnail['mime_type'] );
+	}
+
+	/**
+	 * Test the get_dsp_advise_campaign redirection to WPCOM when status is synced.
+	 */
+	public function test_get_dsp_advise_campaign_redirection() {
+		Health::update_status( Health::STATUS_IN_SYNC );
+
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1/advise/campaign', $captured_request );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/advise/campaign/urn:wpcom:post:%d:123', $this->site_id, $this->site_id ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+		$this->assertSame( 'GET', $captured_request['method'] );
+		$this->assertStringContainsString( sprintf( '/wordads/dsp/api/v1/advise/campaign/urn:wpcom:post:%d:123', $this->site_id ), $captured_request['url'] );
+	}
+
+	/**
+	 * Test the get_dsp_advise_campaign local processing of data (before redirection).
+	 */
+	public function test_get_dsp_advise_campaign_processed_it_locally() {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1/advise/campaign', $captured_request );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/advise/campaign/urn:wpcom:post:%d:%d', $this->site_id, $this->site_id, $this->post_id ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+		$this->assertSame( 'POST', $captured_request['method'] );
+		$this->assertStringContainsString( sprintf( '/wordads/dsp/api/v1/advise/campaign/urn:wpcom:post:%d:%d', $this->site_id, $this->post_id ), $captured_request['url'] );
+
+		$body = json_decode( $captured_request['body'], true );
+		$this->assertIsArray( $body );
+
+		$this->assertArrayHasKey( 'wp_post', $body );
+		$this->assertSame( $this->post_id, $body['wp_post']['ID'] );
+		$this->assertSame( 'Test Post for Blaze', $body['wp_post']['title'] );
+		$this->assertSame( 'post', $body['wp_post']['type'] );
+		$this->assertSame( get_permalink( $this->post_id ), $body['wp_post']['URL'] );
+		$this->assertArrayHasKey( 'content', $body['wp_post'] );
+
+		// Check that sync_ready is correctly set to false.
+		$data = $response->get_data();
+		$this->assertFalse( $data['sync_ready'] );
+	}
+
+	/**
+	 * Test the get_dsp_templates_advise_campaign redirection to WPCOM when status is synced.
+	 */
+	public function test_get_dsp_templates_advise_campaign_redirection() {
+		Health::update_status( Health::STATUS_IN_SYNC );
+
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1/templates/advise/campaign', $captured_request );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/templates/advise/campaign/urn:wpcom:post:%d:123', $this->site_id, $this->site_id ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+		$this->assertSame( 'GET', $captured_request['method'] );
+		$this->assertStringContainsString( sprintf( '/wordads/dsp/api/v1/templates/advise/campaign/urn:wpcom:post:%d:123', $this->site_id ), $captured_request['url'] );
+	}
+
+	/**
+	 * Test the get_dsp_templates_advise_campaign local processing of data (before redirection).
+	 */
+	public function test_get_dsp_templates_advise_campaign_processed_it_locally() {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		$captured_request = null;
+		$this->setup_redirect_test( '/wordads/dsp/api/v1/advise/campaign', $captured_request );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/templates/advise/campaign/urn:wpcom:post:%d:%d', $this->site_id, $this->site_id, $this->post_id ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
+		$this->assertSame( 'POST', $captured_request['method'] );
+		$this->assertStringContainsString( sprintf( '/wordads/dsp/api/v1/advise/campaign/urn:wpcom:post:%d:%d', $this->site_id, $this->post_id ), $captured_request['url'] );
+
+		$body = json_decode( $captured_request['body'], true );
+		$this->assertIsArray( $body );
+
+		$this->assertArrayHasKey( 'wp_post', $body );
+		$this->assertSame( $this->post_id, $body['wp_post']['ID'] );
+		$this->assertSame( 'Test Post for Blaze', $body['wp_post']['title'] );
+		$this->assertSame( 'post', $body['wp_post']['type'] );
+		$this->assertSame( get_permalink( $this->post_id ), $body['wp_post']['URL'] );
+		$this->assertArrayHasKey( 'content', $body['wp_post'] );
+
+		// Check that sync_ready is correctly set to false.
+		$data = $response->get_data();
+		$this->assertFalse( $data['sync_ready'] );
 	}
 }
