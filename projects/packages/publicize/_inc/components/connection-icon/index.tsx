@@ -1,6 +1,7 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { useCallback, useState } from '@wordpress/element';
 import clsx from 'clsx';
+import defaultAvatar from './default-avatar.svg';
 import styles from './styles.module.scss';
 
 export type ConnectionIconProps = {
@@ -25,7 +26,7 @@ export function ConnectionIcon( {
 
 	const onError = useCallback( () => setImageErrorFor( profilePicture ), [ profilePicture ] );
 
-	const hasDisplayPicture = !! profilePicture && imageErrorFor !== profilePicture;
+	const usDdefaultAvatar = ! profilePicture || imageErrorFor === profilePicture;
 
 	const service_name = (
 		'instagram-business' === serviceName ? 'instagram' : serviceName
@@ -34,11 +35,14 @@ export function ConnectionIcon( {
 	return (
 		<div
 			className={ clsx( styles.wrapper, {
-				[ styles[ 'has-picture' ] ]: hasDisplayPicture,
 				[ styles.disabled ]: disabled,
 			} ) }
 		>
-			{ hasDisplayPicture && <img src={ profilePicture } alt={ label } onError={ onError } /> }
+			<img
+				src={ usDdefaultAvatar ? defaultAvatar : profilePicture }
+				alt={ label }
+				onError={ onError }
+			/>
 			<SocialServiceIcon serviceName={ service_name } className={ styles[ 'social-icon' ] } />
 		</div>
 	);
