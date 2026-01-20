@@ -22,13 +22,13 @@ class LCP_Optimize_Bg_Image_Test extends MockeryTestCase {
 
 	/**
 	 * LCP type constant for background images.
-	 * Mirrors self::TYPE_BACKGROUND_IMAGE to avoid autoloading the full LCP class.
+	 * Mirrors LCP::TYPE_BACKGROUND_IMAGE to avoid autoloading the full LCP class.
 	 */
 	const TYPE_BACKGROUND_IMAGE = 'background-image';
 
 	/**
 	 * LCP type constant for standard images.
-	 * Mirrors self::TYPE_IMAGE to avoid autoloading the full LCP class.
+	 * Mirrors LCP::TYPE_IMAGE to avoid autoloading the full LCP class.
 	 */
 	const TYPE_IMAGE = 'img';
 
@@ -42,11 +42,8 @@ class LCP_Optimize_Bg_Image_Test extends MockeryTestCase {
 		// Reset Mockery container at the start of each test
 		Mockery::getContainer()->mockery_close();
 
-		// Define LCP class stub if it doesn't exist (for type constants)
-		if ( ! class_exists( 'Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP' ) ) {
-			// phpcs:ignore
-			eval( 'namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp; class LCP { const TYPE_IMAGE = "img"; const TYPE_BACKGROUND_IMAGE = "background-image"; }' );
-		}
+		// Load mock LCP class to provide type constants
+		require_once __DIR__ . '/class-mock-lcp.php';
 
 		// Mock WordPress functions used in LCP optimization
 		Functions\when( 'wp_http_validate_url' )->justReturn( true );
@@ -76,6 +73,9 @@ class LCP_Optimize_Bg_Image_Test extends MockeryTestCase {
 					return $url . '?resize=' . implode( ',', $args['resize'] );
 				}
 				$parsed = parse_url( $url );
+				if ( ! is_array( $parsed ) || ! isset( $parsed['host'] ) ) {
+					return $url;
+				}
 				return 'https://i0.wp.com/' . ltrim( $parsed['host'] . ( $parsed['path'] ?? '' ), '/' );
 			}
 		);

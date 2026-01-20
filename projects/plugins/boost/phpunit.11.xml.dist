@@ -26,8 +26,8 @@
 			<exclude>tests/php/modules/optimizations/lcp/LCP_Optimize_Img_Tag_Test.php</exclude>
 		</testsuite>
 		<testsuite name="with-wordpress">
-			<file>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</file>
 			<file>tests/php/Jetpack_Boost_Test.php</file>
+			<file>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</file>
 			<file>tests/php/modules/optimizations/lcp/LCP_Optimize_Img_Tag_Test.php</file>
 		</testsuite>
 	</testsuites>

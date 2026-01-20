@@ -7,8 +7,9 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Lcp;
 
-use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_Optimize_Img_Tag;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
 
 /**
@@ -16,8 +17,36 @@ use WorDBless\BaseTestCase;
  *
  * Tests the optimizations object functionality in LCP_Optimize_Img_Tag.
  * This test runs with WordPress (WorDBless) because it requires WP_HTML_Tag_Processor.
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
+
+	/**
+	 * LCP type constant for standard images.
+	 * Mirrors LCP::TYPE_IMAGE to avoid autoloading issues.
+	 */
+	const TYPE_IMAGE = 'img';
+
+	/**
+	 * LCP type constant for background images.
+	 * Mirrors LCP::TYPE_BACKGROUND_IMAGE to avoid autoloading issues.
+	 */
+	const TYPE_BACKGROUND_IMAGE = 'background-image';
+
+	/**
+	 * Set up before any tests run.
+	 * Defines the LCP class stub before autoloading kicks in.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		// Load mock LCP class before autoloading kicks in
+		require_once __DIR__ . '/class-mock-lcp.php';
+	}
 
 	/**
 	 * Set up test environment
@@ -47,7 +76,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	private function create_lcp_data( $optimizations = null ) {
 		$data = array(
 			'success'     => true,
-			'type'        => LCP::TYPE_IMAGE,
+			'type'        => self::TYPE_IMAGE,
 			'selector'    => 'img.wp-post-image',
 			'html'        => '<img class="wp-post-image" id="test-img" src="https://example.com/image.jpg">',
 			'url'         => 'https://example.com/image.jpg',
@@ -279,7 +308,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	public function test_optimize_buffer_returns_original_when_lcp_data_invalid() {
 		$lcp_data = array(
 			'success' => false,
-			'type'    => LCP::TYPE_IMAGE,
+			'type'    => self::TYPE_IMAGE,
 		);
 
 		$optimizer = new LCP_Optimize_Img_Tag( $lcp_data );
@@ -295,7 +324,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	 */
 	public function test_optimize_buffer_returns_original_when_type_is_not_image() {
 		$lcp_data         = $this->create_lcp_data( $this->get_default_optimizations() );
-		$lcp_data['type'] = LCP::TYPE_BACKGROUND_IMAGE;
+		$lcp_data['type'] = self::TYPE_BACKGROUND_IMAGE;
 
 		$optimizer = new LCP_Optimize_Img_Tag( $lcp_data );
 		$buffer    = $this->get_test_buffer();
