@@ -3236,10 +3236,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * Returns an array of image choice objects, each containing:
 	 * - src: The image URL
-	 * - caption: The letter prefix and label (e.g., "A | Shoes")
+	 * - letterCode: The letter code (e.g., 'A', 'B', 'C')
+	 * - label: The choice label text (empty string if showLabels is false)
 	 *
 	 * @param array $value The value to get the images from.
-	 * @return array|null The images with captions, or null if not an image-select field.
+	 * @return array|null The images with metadata, or null if not an image-select field.
 	 */
 	private static function get_images( $value ) {
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'image-select' ) {
