@@ -1627,8 +1627,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 						$html .= '<template data-wp-each--image="context.submission.images"></template>';
 					}
 
-					$html .= '</div>'; // Close field-images.
-					$html .= '</div>'; // Close summary.
+					$html .= '</div></div>'; // Close field-images and summary.
 				}
 			}
 		}
