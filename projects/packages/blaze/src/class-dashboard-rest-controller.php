@@ -511,7 +511,7 @@ class Dashboard_REST_Controller {
 		return array(
 			'posts'         => $formatted_posts,
 			'total_items'   => $query->found_posts,
-			'post_title'    => addslashes( $title ),
+			'post_title'    => $title,
 			'page'          => $page,
 			'total_pages'   => $total_pages,
 			'stats_enabled' => $this->is_jetpack_module_active( 'stats' ),
