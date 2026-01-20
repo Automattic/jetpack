@@ -317,4 +317,20 @@ class Dashboard {
 		*/
 		return apply_filters( 'jetpack_forms_notes_enable', false );
 	}
+
+	/**
+	 * Get admin URL for given screen ID.
+	 *
+	 * @param string $screen_id Screen ID.
+	 * @return string|null Admin URL or null if not found.
+	 */
+	public static function get_admin_url( $screen_id ) {
+		switch ( $screen_id ) {
+			case 'edit-jetpack_form':
+				return admin_url( 'admin.php?page=' . self::ADMIN_SLUG . '#/forms' );
+			case 'edit-feedback':
+				return admin_url( 'admin.php?page=' . self::ADMIN_SLUG . '#/responses' );
+		}
+		return null;
+	}
 }

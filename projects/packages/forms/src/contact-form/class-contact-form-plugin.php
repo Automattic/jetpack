@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use Automattic\Jetpack\Forms\Editor\Form_Editor;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Form_Webhooks;
@@ -3765,17 +3766,15 @@ class Contact_Form_Plugin {
 
 		$screen = get_current_screen();
 
-		// Check if this is the edit-feedback screen
-		if ( ! $screen || $screen->id !== 'edit-feedback' ) {
+		if ( ! $screen || ! isset( $screen->id ) ) {
 			return;
 		}
 
-		// Perform the redirect to the Jetpack Forms admin page
-		$redirect_url = admin_url( 'admin.php?page=jetpack-forms-admin' );
-
-		// Use wp_safe_redirect to ensure we're redirecting to a safe location
-		wp_safe_redirect( $redirect_url );
-		exit;
+		$redirect = Dashboard::get_admin_url( $screen->id );
+		if ( $redirect ) {
+			wp_safe_redirect( $redirect );
+			exit;
+		}
 	}
 
 	/**
