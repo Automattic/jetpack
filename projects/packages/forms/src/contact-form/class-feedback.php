@@ -674,6 +674,16 @@ class Feedback {
 				case 'id-value':
 					$compiled_fields[ $field->get_form_field_id() ] = $field->get_render_value( $context );
 					break;
+				case 'collection':
+					$compiled_fields[] = array(
+						'label' => $label,
+						'value' => $field->get_render_value( $context ),
+						'type'  => $field->get_type(),
+						'id'    => $field->get_form_field_id(),
+						'key'   => $field->get_key(),
+						'meta'  => $field->get_meta(),
+					);
+					break;
 			}
 		}
 
