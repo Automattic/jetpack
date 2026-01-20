@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Build jetpack-mu-wpcom on test to fix an asset error.
