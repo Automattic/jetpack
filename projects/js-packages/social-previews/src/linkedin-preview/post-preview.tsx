@@ -1,9 +1,8 @@
 import { __, sprintf } from '@wordpress/i18n';
+import { AvatarWithFallback } from '../avatar-with-fallback';
 import { baseDomain, getTitleFromDescription, preparePreviewText } from '../helpers';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
-import { DefaultAvatar } from './icons/default-avatar';
 import { LinkedInPreviewProps } from './types';
-
 import './style.scss';
 
 /**
@@ -31,7 +30,7 @@ export function LinkedInPostPreview( {
 			<section className={ `linkedin-preview__container ${ hasMedia ? 'has-media' : '' }` }>
 				<div className="linkedin-preview__header">
 					<div className="linkedin-preview__header--avatar">
-						{ profileImage ? <img src={ profileImage } alt="" /> : <DefaultAvatar /> }
+						<AvatarWithFallback src={ profileImage } />
 					</div>
 					<div className="linkedin-preview__header--profile">
 						<div className="linkedin-preview__header--profile-info">
