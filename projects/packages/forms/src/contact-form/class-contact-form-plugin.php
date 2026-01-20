@@ -685,6 +685,9 @@ class Contact_Form_Plugin {
 							if ( ! empty( $option['attrs']['isOther'] ) ) {
 								$option_data['isOther'] = true;
 							}
+							if ( ! empty( $option['attrs']['otherPlaceholder'] ) ) {
+								$option_data['otherPlaceholder'] = $option['attrs']['otherPlaceholder'];
+							}
 
 							if ( isset( $option_attrs['class'] ) ) {
 								$option_data['class'] = $option_attrs['class'] . ' wp-block-jetpack-option';

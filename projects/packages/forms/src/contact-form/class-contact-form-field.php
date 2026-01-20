@@ -119,6 +119,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'optionsdata'                  => array(),
 				'allowother'                   => null,
 				'isother'                      => null,
+				'otherplaceholder'             => null,
 				'id'                           => null,
 				'style'                        => null,
 				'fieldbackgroundcolor'         => null,
