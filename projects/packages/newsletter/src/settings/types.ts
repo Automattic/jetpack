@@ -45,7 +45,7 @@ export interface JetpackNewsletterSettings {
 	gravatar: string;
 	displayName: string;
 	dateExample: string;
-	wpAdminSubscriberManagementEnabled: boolean;
+	subscriberManagementUrl: string;
 	isSubscriptionSiteEditSupported: boolean;
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;

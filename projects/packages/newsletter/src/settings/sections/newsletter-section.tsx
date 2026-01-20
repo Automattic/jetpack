@@ -7,7 +7,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getManageSubscribersUrl } from '../utils';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface NewsletterSectionProps {
@@ -57,9 +56,9 @@ export function NewsletterSection( {
 					} }
 					onChange={ onChange }
 				/>
-				{ data.subscriptions && (
+				{ data.subscriptions && jetpackSettings && (
 					<div className="newsletter-settings__link">
-						<ExternalLink href={ getManageSubscribersUrl( jetpackSettings ) }>
+						<ExternalLink href={ jetpackSettings.subscriberManagementUrl }>
 							{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
 						</ExternalLink>
 					</div>
