@@ -19,6 +19,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { download, plus, Icon, globe } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
+import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -27,7 +28,7 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
-import Page, { Stack } from '../../src/dashboard/components/page';
+import Page from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
@@ -1086,8 +1087,9 @@ function Stage() {
 					direction="row"
 					justify="space-between"
 					align="center"
+					gap="sm"
 				>
-					<Stack direction="row" align="center" gap={ 2 }>
+					<Stack direction="row" align="center" gap="sm">
 						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
 							<Tabs.List density="compact">
 								{ statusTabs.map( tab => (
@@ -1098,7 +1100,7 @@ function Stage() {
 							</Tabs.List>
 						</Tabs.Root>
 					</Stack>
-					<Stack direction="row" align="center" gap={ 2 }>
+					<Stack direction="row" align="center" gap="sm">
 						<DataViews.Search />
 						<DataViews.FiltersToggle />
 						<DataViews.ViewConfig />
