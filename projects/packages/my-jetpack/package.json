@@ -25,6 +25,7 @@
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "pnpm webpack --config webpack.config.js",
 		"clean": "rm -rf build/",
+		"dev": "pnpm run clean && webpack serve",
 		"test": "jest --config=tests/jest.config.js",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
@@ -85,6 +86,7 @@
 		"storybook": "10.1.10",
 		"typescript": "5.9.3",
 		"webpack": "5.101.3",
-		"webpack-cli": "6.0.1"
+		"webpack-cli": "6.0.1",
+		"webpack-dev-server": "5.2.0"
 	}
 }

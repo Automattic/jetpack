@@ -20,6 +20,7 @@
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build-php'",
 		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf build/",
+		"dev": "pnpm run clean && webpack serve",
 		"test": "TZ=UTC jest",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
@@ -100,6 +101,7 @@
 		"storybook": "10.1.10",
 		"typescript": "5.9.3",
 		"webpack": "5.101.3",
-		"webpack-cli": "6.0.1"
+		"webpack-cli": "6.0.1",
+		"webpack-dev-server": "5.2.0"
 	}
 }
