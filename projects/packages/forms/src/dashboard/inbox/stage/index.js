@@ -13,7 +13,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { Icon, globe } from '@wordpress/icons';
+import { download, Icon, globe } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
@@ -26,7 +26,6 @@ import CreateFormButton from '../../components/create-form-button/index.tsx';
 import EmptyResponses from '../../components/empty-responses/index.tsx';
 import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
-import ExportResponsesButton from '../../components/export-responses/button.tsx';
 import Flag from '../../components/flag/index.tsx';
 import FormsResponsesTabs from '../../components/forms-responses-tabs/index.tsx';
 import Gravatar from '../../components/gravatar/index.tsx';
@@ -512,7 +511,14 @@ export default function InboxView() {
 	const headerActions = useMemo( () => {
 		const exportIsPrimary = statusFilter !== 'trash' && statusFilter !== 'spam';
 		const headerActionsArray = [
-			<ExportResponsesButton key="export" isPrimary={ exportIsPrimary } />,
+			<Button
+				key="export"
+				variant={ exportIsPrimary ? 'primary' : 'secondary' }
+				size="compact"
+				icon={ download }
+			>
+				{ __( 'Export', 'jetpack-forms' ) }
+			</Button>,
 		];
 
 		if ( statusFilter === 'trash' ) {
