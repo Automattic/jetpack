@@ -13,10 +13,8 @@
  * Generate a standard asset.php file.
  *
  * @param string $path The path where the file should be created.
- * @param array  $dependencies Optional array of dependencies.
- * @param string $version Optional version string.
  */
-function generate_asset_file( $path, $dependencies = array(), $version = '1.0.0-test' ) {
+function generate_asset_file( $path ) {
 	if ( file_exists( $path ) ) {
 		echo "Skipped (already exists): $path\n";
 		return;
@@ -31,8 +29,8 @@ function generate_asset_file( $path, $dependencies = array(), $version = '1.0.0-
 	}
 
 	$arr     = array(
-		'dependencies' => $dependencies,
-		'version'      => $version,
+		'dependencies' => array(),
+		'version'      => 'stub',
 	);
 	$content = '<?php return ' . var_export( $arr, true ) . ';';
 
@@ -65,15 +63,15 @@ function generate_module_assets_file( $path ) {
 	$arr     = array(
 		'wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js' => array(
 			'dependencies' => array(),
-			'version'      => '1.0.0-test',
+			'version'      => 'stub',
 		),
 		'wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js'     => array(
 			'dependencies' => array(),
-			'version'      => '1.0.0-test',
+			'version'      => 'stub',
 		),
 		'wpcom-blocks-code-worker/wpcom-blocks-code-worker.js'                => array(
 			'dependencies' => array(),
-			'version'      => '1.0.0-test',
+			'version'      => 'stub',
 		),
 	);
 	$content = '<?php return ' . var_export( $arr, true ) . ';';
@@ -90,21 +88,15 @@ $base_dir = dirname( __DIR__ );
 
 // Generate the asset files
 generate_asset_file(
-	$base_dir . '/build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php',
-	array(),
-	'1.0.0-test'
+	$base_dir . '/build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php'
 );
 
 generate_asset_file(
-	$base_dir . '/build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php',
-	array(),
-	'1.0.0-test'
+	$base_dir . '/build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php'
 );
 
 generate_asset_file(
-	$base_dir . '/build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php',
-	array(),
-	'1.0.0-test'
+	$base_dir . '/build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php'
 );
 
 generate_module_assets_file(
