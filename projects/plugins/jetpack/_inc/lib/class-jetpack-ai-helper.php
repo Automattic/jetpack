@@ -61,6 +61,27 @@ class Jetpack_AI_Helper {
 	private static $ai_assistant_failed_request = null;
 
 	/**
+	 * Error message for AI image generation requiring WordPress.com connection.
+	 *
+	 * @var string
+	 */
+	const ERROR_MSG_WPCOM_CONNECTION_REQUIRED_FOR_AI_IMAGES = 'Your account must be connected to WordPress.com to generate AI images. Please connect your account from the Jetpack settings screen to proceed.';
+
+	/**
+	 * Error message for AI content generation requiring WordPress.com connection.
+	 *
+	 * @var string
+	 */
+	const ERROR_MSG_WPCOM_CONNECTION_REQUIRED_FOR_AI_CONTENT = 'Your account must be connected to WordPress.com to generate AI content. Please connect your account from the Jetpack settings screen to proceed.';
+
+	/**
+	 * Error message for AI assistance requiring WordPress.com connection.
+	 *
+	 * @var string
+	 */
+	const ERROR_MSG_WPCOM_CONNECTION_REQUIRED_FOR_AI_ASSISTANCE = 'Your account must be connected to WordPress.com to use AI assistance. Please connect your account from the Jetpack settings screen to proceed.';
+
+	/**
 	 * Checks if a given request is allowed to get AI data from WordPress.com.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -210,7 +231,7 @@ class Jetpack_AI_Helper {
 			if ( 'unavailable_site_id' === $site_id->get_error_code() ) {
 				return new WP_Error(
 					'unavailable_site_id',
-					__( 'Your account must be connected to WordPress.com to generate AI content. Please connect your account from the Jetpack settings screen to proceed.', 'jetpack' ),
+					__( self::ERROR_MSG_WPCOM_CONNECTION_REQUIRED_FOR_AI_CONTENT, 'jetpack' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -283,7 +304,7 @@ class Jetpack_AI_Helper {
 			if ( 'missing_token' === $response->get_error_code() ) {
 				return new WP_Error(
 					'missing_token',
-					__( 'Your account must be connected to WordPress.com to use AI assistance. Please connect your account from the Jetpack settings screen to proceed.', 'jetpack' ),
+					__( self::ERROR_MSG_WPCOM_CONNECTION_REQUIRED_FOR_AI_ASSISTANCE, 'jetpack' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -332,7 +353,7 @@ class Jetpack_AI_Helper {
 			if ( 'unavailable_site_id' === $site_id->get_error_code() ) {
 				return new WP_Error(
 					'unavailable_site_id',
-					__( 'Your account must be connected to WordPress.com to generate AI images. Please connect your account from the Jetpack settings screen to proceed.', 'jetpack' ),
+					__( self::ERROR_MSG_WPCOM_CONNECTION_REQUIRED_FOR_AI_IMAGES, 'jetpack' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -374,7 +395,7 @@ class Jetpack_AI_Helper {
 			if ( 'missing_token' === $response->get_error_code() ) {
 				return new WP_Error(
 					'missing_token',
-					__( 'Your account must be connected to WordPress.com to generate AI images. Please connect your account from the Jetpack settings screen to proceed.', 'jetpack' ),
+					__( self::ERROR_MSG_WPCOM_CONNECTION_REQUIRED_FOR_AI_IMAGES, 'jetpack' ),
 					array( 'status' => 403 )
 				);
 			}
