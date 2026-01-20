@@ -1046,6 +1046,10 @@ class WPCOM_Features {
 				'sticker_not_present' => 'gating-business-q1',
 				self::WPCOM_ALL_SITES,
 			),
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			),
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
@@ -1053,6 +1057,10 @@ class WPCOM_Features {
 			array(
 				'sticker_not_present' => 'gating-business-q1',
 				self::WPCOM_ALL_SITES,
+			),
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			),
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
