@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
@@ -39,13 +38,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		view.perPage,
 		view.search
 	);
-	const {
-		isDeleteConfirmDialogOpen,
-		isDeleting,
-		openDeleteConfirmDialog,
-		closeDeleteConfirmDialog,
-		onConfirmDelete,
-	} = useDeleteForm( {
+	const { isDeleting, trashForm } = useDeleteForm( {
 		view,
 		setView,
 		recordsLength: records?.length ?? 0,
@@ -142,11 +135,11 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					if ( ! item ) {
 						return;
 					}
-					openDeleteConfirmDialog( item );
+					trashForm( item );
 				},
 			},
 		],
-		[ isDeleting, openDeleteConfirmDialog ]
+		[ isDeleting, trashForm ]
 	);
 
 	const paginationInfo = useMemo(
@@ -207,20 +200,6 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 				>
-					<ConfirmDialog
-						onCancel={ closeDeleteConfirmDialog }
-						onConfirm={ onConfirmDelete }
-						isOpen={ isDeleteConfirmDialogOpen }
-						confirmButtonText={ __( 'Move to Trash', 'jetpack-forms' ) }
-					>
-						<h3>{ __( 'Move to Trash', 'jetpack-forms' ) }</h3>
-						<p>
-							{ __(
-								'This will move the form to Trash. It will no longer appear in your forms list.',
-								'jetpack-forms'
-							) }
-						</p>
-					</ConfirmDialog>
 					<div className="jp-forms-filters-bar">
 						<div className="jp-forms-filters-bar__chips">
 							<DataViews.FiltersToggled className="jp-forms-filters-container" />

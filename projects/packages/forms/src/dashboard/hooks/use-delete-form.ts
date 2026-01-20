@@ -10,6 +10,12 @@ import type { FormListItem } from './use-forms-data.ts';
 import type { View } from '@wordpress/dataviews/wp';
 
 type CoreDispatch = {
+	saveEntityRecord: (
+		kind: string,
+		name: string,
+		record: Record< string, unknown >,
+		options?: { throwOnError?: boolean }
+	) => Promise< unknown >;
 	deleteEntityRecord: (
 		kind: string,
 		name: string,
@@ -27,33 +33,30 @@ type UseDeleteFormArgs = {
 };
 
 type UseDeleteFormReturn = {
-	isDeleteConfirmDialogOpen: boolean;
 	isDeleting: boolean;
-	openDeleteConfirmDialog: ( item: FormListItem ) => void;
-	closeDeleteConfirmDialog: () => void;
-	onConfirmDelete: () => Promise< void >;
+	trashForm: ( item: FormListItem ) => Promise< void >;
 };
 
 /**
- * Manage the "move form to trash" flow for the Forms list (confirmation state, REST delete, notices, cache invalidation).
+ * Manage the "move form to trash" flow for the Forms list (REST delete, notices, cache invalidation).
  *
  * @param args               - Hook arguments.
  * @param args.view          - Current DataViews view (for page/perPage/search).
  * @param args.setView       - View setter (used to navigate to previous page when needed).
  * @param args.recordsLength - Number of records currently displayed (used for pagination edge case).
  *
- * @return State + handlers for opening/closing the confirm dialog and executing the trash operation.
+ * @return State + handler for executing the trash operation.
  */
 export default function useDeleteForm( {
 	view,
 	setView,
 	recordsLength,
 }: UseDeleteFormArgs ): UseDeleteFormReturn {
-	const [ formPendingDelete, setFormPendingDelete ] = useState< FormListItem | null >( null );
-	const [ isDeleteConfirmDialogOpen, setIsDeleteConfirmDialogOpen ] = useState( false );
 	const [ isDeleting, setIsDeleting ] = useState( false );
 
-	const { deleteEntityRecord, invalidateResolution } = useDispatch( 'core' ) as CoreDispatch;
+	const { saveEntityRecord, deleteEntityRecord, invalidateResolution } = useDispatch(
+		'core'
+	) as CoreDispatch;
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const page = view.page ?? 1;
@@ -65,79 +68,104 @@ export default function useDeleteForm( {
 		[ page, perPage, search ]
 	);
 
-	const openDeleteConfirmDialog = useCallback( ( item: FormListItem ) => {
-		setFormPendingDelete( item );
-		setIsDeleteConfirmDialogOpen( true );
-	}, [] );
-
-	const closeDeleteConfirmDialog = useCallback( () => {
-		setIsDeleteConfirmDialogOpen( false );
-		setFormPendingDelete( null );
-	}, [] );
-
-	const onConfirmDelete = useCallback( async () => {
-		if ( ! formPendingDelete || isDeleting ) {
-			return;
-		}
-
-		setIsDeleteConfirmDialogOpen( false );
-		setIsDeleting( true );
-
-		const shouldNavigateToPreviousPage = page > 1 && recordsLength === 1;
-
-		try {
-			await deleteEntityRecord(
-				'postType',
-				'jetpack_form',
-				formPendingDelete.id,
-				{ force: false },
-				{ throwOnError: true }
-			);
-
-			createSuccessNotice( __( 'Form moved to trash.', 'jetpack-forms' ), {
-				type: 'snackbar',
-				id: 'delete-form',
-			} );
-
-			if ( shouldNavigateToPreviousPage ) {
-				setView( { ...view, page: page - 1 } );
+	const undoTrashForm = useCallback(
+		async ( id: number, previousStatus: string ) => {
+			try {
+				await saveEntityRecord(
+					'postType',
+					'jetpack_form',
+					{ id, status: previousStatus },
+					{ throwOnError: true }
+				);
+				createSuccessNotice( __( 'Form restored.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					id: `restore-form-${ id }`,
+				} );
+			} catch {
+				createErrorNotice( __( 'Could not restore form.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					id: `restore-form-error-${ id }`,
+				} );
+			} finally {
+				invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', currentQuery ] );
+				invalidateResolution( 'getEntityRecords', [
+					'postType',
+					'jetpack_form',
+					{ ...currentQuery, per_page: 1, _fields: 'id' },
+				] );
 			}
-		} catch {
-			createErrorNotice( __( 'Could not move form to trash.', 'jetpack-forms' ), {
-				type: 'snackbar',
-				id: 'delete-form-error',
-			} );
-		} finally {
-			setIsDeleting( false );
-			setFormPendingDelete( null );
+		},
+		[ createErrorNotice, createSuccessNotice, currentQuery, invalidateResolution, saveEntityRecord ]
+	);
 
-			// Invalidate the list query so the trashed form disappears from the table and totals refresh.
-			invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', currentQuery ] );
-			invalidateResolution( 'getEntityRecords', [
-				'postType',
-				'jetpack_form',
-				{ ...currentQuery, per_page: 1, _fields: 'id' },
-			] );
-		}
-	}, [
-		createErrorNotice,
-		createSuccessNotice,
-		currentQuery,
-		deleteEntityRecord,
-		formPendingDelete,
-		invalidateResolution,
-		isDeleting,
-		page,
-		recordsLength,
-		setView,
-		view,
-	] );
+	const trashForm = useCallback(
+		async ( item: FormListItem ) => {
+			if ( ! item || isDeleting ) {
+				return;
+			}
+
+			const previousStatus = item.status;
+			setIsDeleting( true );
+
+			const shouldNavigateToPreviousPage = page > 1 && recordsLength === 1;
+
+			try {
+				await deleteEntityRecord(
+					'postType',
+					'jetpack_form',
+					item.id,
+					{ force: false },
+					{ throwOnError: true }
+				);
+
+				createSuccessNotice( __( 'Form moved to trash.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					id: `trash-form-${ item.id }`,
+					actions: [
+						{
+							label: __( 'Undo', 'jetpack-forms' ),
+							onClick: () => void undoTrashForm( item.id, previousStatus ),
+						},
+					],
+				} );
+
+				if ( shouldNavigateToPreviousPage ) {
+					setView( { ...view, page: page - 1 } );
+				}
+			} catch {
+				createErrorNotice( __( 'Could not move form to trash.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					id: 'delete-form-error',
+				} );
+			} finally {
+				setIsDeleting( false );
+
+				// Invalidate the list query so the trashed form disappears from the table and totals refresh.
+				invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', currentQuery ] );
+				invalidateResolution( 'getEntityRecords', [
+					'postType',
+					'jetpack_form',
+					{ ...currentQuery, per_page: 1, _fields: 'id' },
+				] );
+			}
+		},
+		[
+			createErrorNotice,
+			createSuccessNotice,
+			currentQuery,
+			deleteEntityRecord,
+			invalidateResolution,
+			isDeleting,
+			undoTrashForm,
+			page,
+			recordsLength,
+			setView,
+			view,
+		]
+	);
 
 	return {
-		isDeleteConfirmDialogOpen,
 		isDeleting,
-		openDeleteConfirmDialog,
-		closeDeleteConfirmDialog,
-		onConfirmDelete,
+		trashForm,
 	};
 }
