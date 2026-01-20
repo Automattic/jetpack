@@ -30,12 +30,11 @@ function generate_asset_file( $path, $dependencies = array(), $version = '1.0.0-
 		}
 	}
 
-	$content = "<?php\n";
-	$content .= "// This file is auto-generated for testing purposes.\n";
-	$content .= "return array(\n";
-	$content .= "\t'dependencies' => " . var_export( $dependencies, true ) . ",\n";
-	$content .= "\t'version' => " . var_export( $version, true ) . ",\n";
-	$content .= ");\n";
+	$arr     = array(
+		'dependencies' => $dependencies,
+		'version'      => $version,
+	);
+	$content = '<?php return ' . var_export( $arr, true ) . ';';
 
 	if ( false === file_put_contents( $path, $content ) ) {
 		fwrite( STDERR, "Error: Failed to write file: $path\n" );
@@ -63,22 +62,21 @@ function generate_module_assets_file( $path ) {
 		}
 	}
 
-	$content = "<?php\n";
-	$content .= "// This file is auto-generated for testing purposes.\n";
-	$content .= "return array(\n";
-	$content .= "\t'wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js' => array(\n";
-	$content .= "\t\t'dependencies' => array(),\n";
-	$content .= "\t\t'version' => '1.0.0-test',\n";
-	$content .= "\t),\n";
-	$content .= "\t'wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js' => array(\n";
-	$content .= "\t\t'dependencies' => array(),\n";
-	$content .= "\t\t'version' => '1.0.0-test',\n";
-	$content .= "\t),\n";
-	$content .= "\t'wpcom-blocks-code-worker/wpcom-blocks-code-worker.js' => array(\n";
-	$content .= "\t\t'dependencies' => array(),\n";
-	$content .= "\t\t'version' => '1.0.0-test',\n";
-	$content .= "\t),\n";
-	$content .= ");\n";
+	$arr     = array(
+		'wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js' => array(
+			'dependencies' => array(),
+			'version'      => '1.0.0-test',
+		),
+		'wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js'     => array(
+			'dependencies' => array(),
+			'version'      => '1.0.0-test',
+		),
+		'wpcom-blocks-code-worker/wpcom-blocks-code-worker.js'                => array(
+			'dependencies' => array(),
+			'version'      => '1.0.0-test',
+		),
+	);
+	$content = '<?php return ' . var_export( $arr, true ) . ';';
 
 	if ( false === file_put_contents( $path, $content ) ) {
 		fwrite( STDERR, "Error: Failed to write file: $path\n" );
