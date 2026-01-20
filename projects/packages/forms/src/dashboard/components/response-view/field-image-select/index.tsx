@@ -1,3 +1,5 @@
+import { isWoASite } from '@automattic/jetpack-script-data';
+import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	Button,
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -5,6 +7,28 @@ import {
 import { image as imageIcon } from '@wordpress/icons';
 import photon from 'photon';
 import './style.scss';
+
+/**
+ * Clean the query string from the URL.
+ * @param url - The URL to clean.
+ * @return The URL with the query string removed.
+ */
+function photonSafeUrl( url: string = '' ): string | null {
+	if ( ! url ) {
+		return null;
+	}
+	// Do not Photonize images that are still uploading, are from localhost, or are private + atomic
+	if (
+		url.startsWith( 'blob:' ) ||
+		/^https?:\/\/localhost/.test( url ) ||
+		/^https?:\/\/.*\.local\//.test( url ) ||
+		( isWoASite() && isPrivateSite() )
+	) {
+		return url;
+	}
+
+	return photon( url.split( '?', 1 )[ 0 ], { width: 120, height: 120 } );
+}
 
 const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 	return (
@@ -37,7 +61,8 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 										<img
 											alt={ choice.selected }
 											loading="lazy"
-											src={ photon( choice.image.src, { width: 120, height: 120 } ) }
+											src={ photonSafeUrl( choice.image.src ) }
+											style={ { objectFit: 'cover' } }
 										/>
 									) : (
 										imageIcon
