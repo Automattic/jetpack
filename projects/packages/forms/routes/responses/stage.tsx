@@ -16,7 +16,7 @@ import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { download, plus, Icon, globe } from '@wordpress/icons';
+import { plus, Icon, globe } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import * as React from 'react';
@@ -25,6 +25,9 @@ import * as React from 'react';
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
+import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
+import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
+import ExportResponsesButton from '../../src/dashboard/components/export-responses/button';
 import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
 import Page, { Stack } from '../../src/dashboard/components/page';
@@ -1015,25 +1018,15 @@ function Stage() {
 		}
 
 		actionsArray.push(
-			<Button key="export" variant="primary" size="compact" icon={ download }>
-				{ __( 'Export', 'jetpack-forms' ) }
-			</Button>
+			<ExportResponsesButton key="export" isPrimary={ params.view === 'inbox' } />
 		);
 
 		if ( params.view === 'trash' ) {
-			actionsArray.push(
-				<Button key="empty-trash" variant="secondary" isDestructive size="compact">
-					{ __( 'Empty Trash', 'jetpack-forms' ) }
-				</Button>
-			);
+			actionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		}
 
 		if ( params.view === 'spam' ) {
-			actionsArray.push(
-				<Button key="empty-spam" variant="secondary" isDestructive size="compact">
-					{ __( 'Empty Spam', 'jetpack-forms' ) }
-				</Button>
-			);
+			actionsArray.push( <EmptySpamButton key="empty-spam" /> );
 		}
 
 		return actionsArray;
