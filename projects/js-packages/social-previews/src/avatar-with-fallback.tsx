@@ -20,6 +20,7 @@ export function DefaultAvatar( props: Pick< AvatarWithFallbackProps, 'className'
 			viewBox="0 0 340 340"
 			width="36"
 			height="36"
+			aria-hidden="true"
 			{ ...props }
 		>
 			<path
