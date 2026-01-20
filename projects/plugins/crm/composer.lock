@@ -242,16 +242,16 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "v6.1.1",
+            "version": "v6.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-status.git",
-                "reference": "100acd2ad87f05b0782deac3905d52f9765725ce"
+                "reference": "1ccaefabcf9f609b2b55e07729ffcca1a749f485"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/100acd2ad87f05b0782deac3905d52f9765725ce",
-                "reference": "100acd2ad87f05b0782deac3905d52f9765725ce",
+                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/1ccaefabcf9f609b2b55e07729ffcca1a749f485",
+                "reference": "1ccaefabcf9f609b2b55e07729ffcca1a749f485",
                 "shasum": ""
             },
             "require": {
@@ -259,7 +259,7 @@
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^6.0.7",
+                "automattic/jetpack-changelogger": "^6.0.12",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-ip": "^0.4.10",
                 "automattic/jetpack-plans": "@dev",
@@ -298,9 +298,9 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-status/tree/v6.1.1"
+                "source": "https://github.com/Automattic/jetpack-status/tree/v6.1.2"
             },
-            "time": "2025-11-03T08:47:38+00:00"
+            "time": "2025-12-15T11:22:14+00:00"
         },
         {
             "name": "automattic/woocommerce",
