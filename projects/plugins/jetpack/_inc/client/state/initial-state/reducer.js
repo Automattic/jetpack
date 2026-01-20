@@ -601,6 +601,17 @@ export function isMultisite( state ) {
 }
 
 /**
+ * Check if the site is an Atomic site.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if the site is Atomic, false otherwise.
+ */
+export function isAtomicSite( state ) {
+	return state.jetpack.initialState.siteData?.isAtomicSite ?? false;
+}
+
+/**
  * Get the site's date format, in format accepted by DateTimeInterface::format().
  *
  * @param {object} state - Global state tree

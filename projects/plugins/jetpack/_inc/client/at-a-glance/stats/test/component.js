@@ -79,6 +79,26 @@ describe( 'Dashboard Stats', () => {
 			expect( screen.getByRole( 'link', { name: 'View detailed stats' } ) ).toBeInTheDocument();
 		} );
 
+		it( 'hides the detailed stats link on Atomic sites', () => {
+			const atomicInitialState = {
+				...initialState,
+				jetpack: {
+					...initialState.jetpack,
+					initialState: {
+						...initialState.jetpack.initialState,
+						siteData: {
+							isAtomicSite: true,
+						},
+					},
+				},
+			};
+
+			render( <DashStats { ...testProps } />, { initialState: atomicInitialState } );
+			expect(
+				screen.queryByRole( 'link', { name: 'View detailed stats' } )
+			).not.toBeInTheDocument();
+		} );
+
 		it( 'does not render date range tabs', () => {
 			render( <DashStats { ...testProps } />, { initialState } );
 			expect( screen.queryByRole( 'link', { name: 'Days' } ) ).not.toBeInTheDocument();

@@ -10,7 +10,7 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
-import { isOdysseyStatsEnabled } from 'state/initial-state';
+import { isAtomicSite, isOdysseyStatsEnabled } from 'state/initial-state';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -96,7 +96,7 @@ class DashStatsBottom extends Component {
 				<div className="jp-at-a-glance__stats-cta">
 					<div className="jp-at-a-glance__stats-cta-description" />
 					<div className="jp-at-a-glance__stats-ctas">
-						{
+						{ ! this.props.isAtomicSite &&
 							// Only show link for non-atomic Jetpack sites.
 							createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
 								button: (
@@ -106,8 +106,7 @@ class DashStatsBottom extends Component {
 										primary
 									/>
 								),
-							} )
-						}
+							} ) }
 						{ this.props.isLinked &&
 							! this.props.isOdysseyStatsEnabled && // Only show if Odyssey Stats is disabled
 							createInterpolateElement(
@@ -155,5 +154,6 @@ DashStatsBottom.defaultProps = {
 export default connect( state => {
 	return {
 		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
+		isAtomicSite: isAtomicSite( state ),
 	};
 } )( DashStatsBottom );

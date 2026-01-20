@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: hide the wp-admin stats CTA on Atomic sites and open WordPress.com stats in the same tab.

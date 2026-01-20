@@ -190,6 +190,7 @@ class Jetpack_Redux_State_Helper {
 				/** This filter is documented in my-jetpack/src/class-initializer.php */
 				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
 				'isMultisite'                => is_multisite(),
+				'isAtomicSite'               => ( new Host() )->is_woa_site(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'latestBoostSpeedScores'     => $speed_score_history->latest(),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )

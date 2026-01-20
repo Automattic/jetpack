@@ -21,6 +21,7 @@ import {
 	isOdysseyStatsEnabled,
 	getInitialStateStatsData,
 	getDateFormat,
+	isAtomicSite,
 } from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
@@ -49,8 +50,9 @@ export class DashStats extends Component {
 	barClick = bar => {
 		if ( bar.data.link ) {
 			analytics.tracks.recordJetpackClick( 'stats_bar' );
-			// Open the link in the same tab if the user has Odyssey enabled or is on at Atomic site.
-			window.open( bar.data.link, this.props.isOdysseyStatsEnabled ? '_self' : '_blank' );
+			// Open the link in the same tab if Odyssey is enabled or on Atomic sites.
+			const shouldOpenInSameTab = this.props.isOdysseyStatsEnabled || this.props.isAtomicSite;
+			window.open( bar.data.link, shouldOpenInSameTab ? '_self' : '_blank' );
 		}
 	};
 
@@ -399,6 +401,7 @@ export default connect(
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
+		isAtomicSite: isAtomicSite( state ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),
