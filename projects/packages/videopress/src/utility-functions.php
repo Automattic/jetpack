@@ -162,7 +162,7 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
 	if ( ! $current_blog_id ) {
 		return new \WP_Error(
 			'not_connected',
-			__( 'Jetpack connection is required to import videos. Please connect your site from the Jetpack menu.', 'jetpack-videopress-pkg' )
+			__( 'A connection to WordPress.com is required to import videos. Please connect your site from your WordPress dashboard.', 'jetpack-videopress-pkg' )
 		);
 	}
 
