@@ -3896,4 +3896,130 @@ class Contact_Form_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
 	}
+
+	/**
+	 * Test format_submission_data sets showPlainValue to true for plain text fields.
+	 */
+	public function test_format_submission_data_show_plain_value_for_text_field() {
+		$data = array(
+			array(
+				'label' => 'Name',
+				'value' => 'John Doe',
+			),
+		);
+
+		$method = new \ReflectionMethod( Contact_Form::class, 'format_submission_data' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( null, $data );
+
+		$this->assertCount( 1, $result );
+		$this->assertTrue( $result[0]['showPlainValue'], 'showPlainValue should be true for plain text fields' );
+		$this->assertNull( $result[0]['url'], 'url should be null for plain text fields' );
+		$this->assertEmpty( $result[0]['images'], 'images should be empty for plain text fields' );
+	}
+
+	/**
+	 * Test format_submission_data sets showPlainValue to false for URL fields.
+	 */
+	public function test_format_submission_data_show_plain_value_false_for_url_field() {
+		$data = array(
+			array(
+				'label' => 'Website',
+				'value' => array(
+					'type' => 'url',
+					'url'  => 'https://example.com',
+				),
+			),
+		);
+
+		$method = new \ReflectionMethod( Contact_Form::class, 'format_submission_data' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( null, $data );
+
+		$this->assertCount( 1, $result );
+		$this->assertFalse( $result[0]['showPlainValue'], 'showPlainValue should be false for URL fields' );
+		$this->assertEquals( 'https://example.com', $result[0]['url'], 'url should be set for URL fields' );
+	}
+
+	/**
+	 * Test format_submission_data sets showPlainValue to false for image-select fields.
+	 */
+	public function test_format_submission_data_show_plain_value_false_for_image_select_field() {
+		$data = array(
+			array(
+				'label' => 'Choose Product',
+				'value' => array(
+					'type'    => 'image-select',
+					'choices' => array(
+						array(
+							'perceived'  => 'A',
+							'label'      => 'Shoes',
+							'image'      => 'https://example.com/shoes.jpg',
+							'showLabels' => true,
+						),
+					),
+				),
+			),
+		);
+
+		$method = new \ReflectionMethod( Contact_Form::class, 'format_submission_data' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( null, $data );
+
+		$this->assertCount( 1, $result );
+		$this->assertFalse( $result[0]['showPlainValue'], 'showPlainValue should be false for image-select fields' );
+		$this->assertNotEmpty( $result[0]['images'], 'images should be populated for image-select fields' );
+	}
+
+	/**
+	 * Test format_submission_data handles mixed field types correctly.
+	 */
+	public function test_format_submission_data_mixed_field_types() {
+		$data = array(
+			array(
+				'label' => 'Name',
+				'value' => 'John Doe',
+			),
+			array(
+				'label' => 'Website',
+				'value' => array(
+					'type' => 'url',
+					'url'  => 'https://example.com',
+				),
+			),
+			array(
+				'label' => 'Choose Product',
+				'value' => array(
+					'type'    => 'image-select',
+					'choices' => array(
+						array(
+							'perceived'  => 'A',
+							'label'      => 'Shoes',
+							'image'      => 'https://example.com/shoes.jpg',
+							'showLabels' => true,
+						),
+					),
+				),
+			),
+		);
+
+		$method = new \ReflectionMethod( Contact_Form::class, 'format_submission_data' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( null, $data );
+
+		$this->assertCount( 3, $result );
+
+		// Plain text field
+		$this->assertTrue( $result[0]['showPlainValue'], 'First field (text) should have showPlainValue true' );
+
+		// URL field
+		$this->assertFalse( $result[1]['showPlainValue'], 'Second field (URL) should have showPlainValue false' );
+
+		// Image-select field
+		$this->assertFalse( $result[2]['showPlainValue'], 'Third field (image-select) should have showPlainValue false' );
+	}
 }
