@@ -34,6 +34,7 @@ class Dashboard {
 			}
 		}
 	}
+
 	/**
 	 * Script handle for the JS file we enqueue in the Feedback admin page.
 	 *
@@ -84,6 +85,7 @@ class Dashboard {
 			remove_all_actions( 'admin_notices' );
 		}
 	}
+
 	/**
 	 * Get the current query 'page' parameter.
 	 *
