@@ -11,7 +11,7 @@ const settings = {
 	supports: {
 		...defaultSettings.supports,
 		jetpack_form: {
-			category: 'basic',
+			category: 'advanced',
 		},
 	},
 	title: __( 'Time input field', 'jetpack-forms' ),
