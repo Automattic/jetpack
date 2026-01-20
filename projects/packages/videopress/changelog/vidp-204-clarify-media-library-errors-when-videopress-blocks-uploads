@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Only retry upload on transient HTTP errors to show plan limit errors immediately.
+Retry uploads only on transient HTTP errors to show plan limit errors immediately.
