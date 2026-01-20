@@ -1640,7 +1640,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
 						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.showPlainValue"></div>
 						<a class="field-url" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.url" target="_blank" rel="noopener noreferrer"></a>
-						<div class="field-rating" data-wp-bind--hidden="!context.submission.rating" data-wp-html="callbacks.renderRatingIcons"></div>
+						<div class="field-rating" data-wp-bind--hidden="!context.submission.rating" data-wp-watch="callbacks.watchRatingIcons"></div>
 						<div class="field-images" data-wp-bind--hidden="!context.submission.images">
 							<template data-wp-each--image="context.submission.images">
 								<div class="field-image-option" data-wp-class--is-empty="!context.image.src">
@@ -1695,7 +1695,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$html .= '>' . ( $has_url ? esc_html( $submission['value'] ) : '' ) . '</a>';
 
 					// field-rating: always present, hidden when no rating.
-					$html .= '<div class="field-rating" data-wp-bind--hidden="!context.submission.rating" data-wp-html="callbacks.renderRatingIcons"';
+					$html .= '<div class="field-rating" data-wp-bind--hidden="!context.submission.rating" data-wp-watch="callbacks.watchRatingIcons"';
 					$html .= $has_rating ? '' : ' hidden';
 					$html .= '>' . ( $has_rating ? self::render_rating_icons( $submission['rating'] ) : '' ) . '</div>';
 

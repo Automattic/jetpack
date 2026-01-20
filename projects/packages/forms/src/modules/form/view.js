@@ -761,12 +761,34 @@ const { state, actions } = store( NAMESPACE, {
 			);
 		},
 
-		renderRatingIcons() {
+		watchSubmissionValueVisibility() {
+			const context = getContext();
+
+			// If context.submission is not available (hydration), preserve server-rendered state.
+			if ( ! context.submission ) {
+				return;
+			}
+
+			// For AJAX submissions, show/hide based on whether url or rating is present.
+			const { ref } = getElement();
+			const shouldHide = !! ( context.submission.url || context.submission.rating );
+			ref.hidden = shouldHide;
+		},
+
+		watchRatingIcons() {
+			const { ref } = getElement();
 			const context = getContext();
 			const rating = context.submission?.rating;
 
+			// If the element already has SVG content (server-rendered), preserve it.
+			// This prevents the callback from clearing server-rendered icons during hydration.
+			if ( ref?.innerHTML?.includes( '<svg' ) ) {
+				return;
+			}
+
+			// If no rating data is available, don't modify the element.
 			if ( ! rating ) {
-				return '';
+				return;
 			}
 
 			const { rating: ratingValue, maxRating, iconStyle } = rating;
@@ -784,7 +806,8 @@ const { state, actions } = store( NAMESPACE, {
 				iconsHtml += `<svg class="field-rating__icon ${ filledClass }" viewBox="0 0 24 24" aria-hidden="true"><path d="${ iconPath }"></path></svg>`;
 			}
 
-			return iconsHtml;
+			// Manually set innerHTML for AJAX submissions.
+			ref.innerHTML = iconsHtml;
 		},
 	},
 } );
