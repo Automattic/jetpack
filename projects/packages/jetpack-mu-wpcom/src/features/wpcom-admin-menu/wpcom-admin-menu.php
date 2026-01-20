@@ -231,7 +231,7 @@ function wpcom_add_jetpack_submenu() {
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	// @codeCoverageIgnoreStart
-	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
+	// Customize certain Jetpack submenus for Atomic sites on Personal or Premium plans.
 	$is_personal_or_premium = false;
 	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
 		$current_plan           = \Automattic\Jetpack\Current_Plan::get();
@@ -240,23 +240,8 @@ function wpcom_add_jetpack_submenu() {
 	}
 
 	if ( ! $is_simple_site && $is_personal_or_premium ) {
-		// Jetpack > My Jetpack.
-		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
-
 		// Jetpack > Settings.
 		wpcom_hide_submenu_page( 'jetpack', admin_url( 'admin.php?page=jetpack#/settings' ) );
-
-		// Redirect My Jetpack page to Stats for Atomic sites on Personal or Premium plans.
-		add_action(
-			'admin_init',
-			function () {
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No action taken, just checking page.
-				if ( isset( $_GET['page'] ) && 'my-jetpack' === $_GET['page'] ) {
-					wp_safe_redirect( admin_url( 'admin.php?page=stats' ) );
-					exit;
-				}
-			}
-		);
 
 		// Jetpack > Traffic (Calypso).
 		add_submenu_page(
