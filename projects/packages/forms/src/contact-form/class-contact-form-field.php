@@ -1406,7 +1406,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option ) . '</span>';
 					$field .= '</label>';
 					$field .= '</p>';
-					if ( ! empty( $option['isOther'] ) && $this->get_attribute( 'allowother' ) ) {
+					if ( ! empty( $option['isOther'] ) ) {
 						$field .= $this->render_other_input_field( $radio_id, $required, $id, $this->field_styles );
 					}
 				}
@@ -1423,7 +1423,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Render the "Other" text input field for radio and checkbox fields.
 	 *
-	 * @param string $has_option_is_other_id The ID of the "Other" option.
+	 * @param string $option_id The ID of the "Other" option.
 	 * @param bool   $required Whether the main field is required.
 	 * @param string $id The base ID of the main field.
 	 * @param string $field_styles The styles to apply to the text input field.
@@ -1431,17 +1431,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @return string The HTML for the "Other" text input field.
 	 */
-	private function render_other_input_field( $has_option_is_other_id, $required, $id, $field_styles, $placeholder ) {
-			$other_text_id      = esc_attr( $has_option_is_other_id ) . '-other-text';
-			$other_label_id     = esc_attr( $has_option_is_other_id ) . '-other-label';
+	private function render_other_input_field( $option_id, $required, $id, $field_styles, $placeholder ) {
+			$other_text_id      = esc_attr( $option_id ) . '-other-text';
+			$other_label_id     = esc_attr( $option_id ) . '-other-label';
 			$other_label_text   = ! empty( $placeholder ) ? $placeholder : __( 'Please specify…', 'jetpack-forms' );
 			$aria_required_attr = $required ? "aria-required='true'" : '';
 
 			// Prepare styles for the text input to match other form fields
 			$other_input_styles = ! empty( $field_styles ) ? " style='" . esc_attr( $field_styles ) . "' " : '';
 
-			// Render text input wrapper with aria-live for screen reader announcements
-			$field = "<div class='jetpack-other-text-input-wrapper' data-wp-class--is-visible='state.isOtherSelected' role='region' aria-live='polite'>";
+			$field = "<div class='jetpack-other-text-input-wrapper' data-wp-class--is-visible='state.isOtherSelected' role='region'>";
 
 			// Add a visually-hidden label for screen readers
 			$field .= "<label id='" . $other_label_id . "' for='" . $other_text_id . "' class='screen-reader-text'>" . esc_html( $other_label_text ) . '</label>';
