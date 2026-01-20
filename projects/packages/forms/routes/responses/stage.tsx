@@ -91,12 +91,12 @@ function useFilterOptions() {
  */
 function getTabLabel( label: string, count: number ): JSX.Element {
 	return (
-		<span style={ { display: 'flex', gap: '4px', alignItems: 'center' } }>
+		<Stack align="center" gap="xs">
 			{ label }
 			<Badge intent="default" style={ { backgroundColor: '#f0f0f0' } }>
 				{ count.toString() }
 			</Badge>
-		</span>
+		</Stack>
 	);
 }
 
@@ -1053,10 +1053,10 @@ function Stage() {
 		<Page
 			showSidebarToggle={ false }
 			title={
-				<span style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
+				<Stack align="center" gap="xs">
 					<JetpackLogo showText={ false } width={ 20 } />
 					{ __( 'Forms', 'jetpack-forms' ) }
-				</span>
+				</Stack>
 			}
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
 			actions={ headerActions }
