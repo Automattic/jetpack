@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 /**
  * Tests for the showPlainValue logic in form submission data formatting.
  *
  * These tests verify that the showPlainValue property is correctly computed
- * based on the presence of URL and image data, matching the logic in
+ * based on the presence of URL, image, and rating data, matching the logic in
  * src/modules/form/view.js setSubmissionData function.
  */
 describe( 'Form View - showPlainValue computation', () => {
@@ -19,13 +19,15 @@ describe( 'Form View - showPlainValue computation', () => {
 		return data.map( item => {
 			const images = getImages( item.value );
 			const url = getUrl( item.value );
+			const rating = getRating( item.value );
 
 			return {
 				label: maybeAddColonToLabel( item.label ),
 				value: maybeTransformValue( item.value ),
 				images,
 				url,
-				showPlainValue: ! url && ( ! images || images.length === 0 ),
+				rating,
+				showPlainValue: ! url && ! rating && ( ! images || images.length === 0 ),
 			};
 		} );
 	};
@@ -43,6 +45,7 @@ describe( 'Form View - showPlainValue computation', () => {
 		expect( result[ 0 ].showPlainValue ).toBe( true );
 		expect( result[ 0 ].url ).toBeNull();
 		expect( result[ 0 ].images ).toBeNull();
+		expect( result[ 0 ].rating ).toBeNull();
 	} );
 
 	test( 'sets showPlainValue to false for URL fields', () => {
@@ -86,6 +89,26 @@ describe( 'Form View - showPlainValue computation', () => {
 		expect( result[ 0 ].images ).toHaveLength( 1 );
 	} );
 
+	test( 'sets showPlainValue to false for rating fields', () => {
+		const testData = [
+			{
+				label: 'Rating',
+				value: {
+					type: 'rating',
+					rating: 4,
+					maxRating: 5,
+					iconStyle: 'stars',
+				},
+			},
+		];
+
+		const result = formatSubmissionData( testData );
+
+		expect( result[ 0 ].showPlainValue ).toBe( false );
+		expect( result[ 0 ].rating ).not.toBeNull();
+		expect( result[ 0 ].rating.rating ).toBe( 4 );
+	} );
+
 	test( 'handles mixed field types correctly', () => {
 		const testData = [
 			{ label: 'Name', value: 'John Doe' },
@@ -104,6 +127,10 @@ describe( 'Form View - showPlainValue computation', () => {
 					],
 				},
 			},
+			{
+				label: 'Rating',
+				value: { type: 'rating', rating: 5, maxRating: 5, iconStyle: 'stars' },
+			},
 		];
 
 		const result = formatSubmissionData( testData );
@@ -116,6 +143,9 @@ describe( 'Form View - showPlainValue computation', () => {
 
 		// Image-select field
 		expect( result[ 2 ].showPlainValue ).toBe( false );
+
+		// Rating field
+		expect( result[ 3 ].showPlainValue ).toBe( false );
 	} );
 
 	test( 'prepends https:// to URLs without protocol', () => {
@@ -525,6 +555,63 @@ describe( 'Form View - getUrl helper', () => {
 	} );
 } );
 
+/**
+ * Tests for the getRating helper function.
+ */
+describe( 'Form View - getRating helper', () => {
+	test( 'returns null for plain text value', () => {
+		const result = getRating( 'plain text' );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'returns null for URL field', () => {
+		const result = getRating( { type: 'url', url: 'https://example.com' } );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'returns null for image-select field', () => {
+		const result = getRating( {
+			type: 'image-select',
+			choices: [ { perceived: 'A' } ],
+		} );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'extracts rating data for rating field', () => {
+		const result = getRating( {
+			type: 'rating',
+			rating: 4,
+			maxRating: 5,
+			iconStyle: 'stars',
+		} );
+
+		expect( result ).not.toBeNull();
+		expect( result.rating ).toBe( 4 );
+		expect( result.maxRating ).toBe( 5 );
+		expect( result.iconStyle ).toBe( 'stars' );
+	} );
+
+	test( 'uses default values for missing properties', () => {
+		const result = getRating( { type: 'rating' } );
+
+		expect( result ).not.toBeNull();
+		expect( result.rating ).toBe( 0 );
+		expect( result.maxRating ).toBe( 5 );
+		expect( result.iconStyle ).toBe( 'stars' );
+	} );
+
+	test( 'handles hearts icon style', () => {
+		const result = getRating( {
+			type: 'rating',
+			rating: 3,
+			maxRating: 5,
+			iconStyle: 'hearts',
+		} );
+
+		expect( result.iconStyle ).toBe( 'hearts' );
+	} );
+} );
+
 // Helper functions replicated from view.js for testing
 const maybeAddColonToLabel = label => {
 	const formattedLabel = label ? label : null;
@@ -590,3 +677,256 @@ const getUrl = value => {
 
 	return null;
 };
+
+const getRating = value => {
+	if ( value?.type === 'rating' ) {
+		return {
+			rating: value.rating ?? 0,
+			maxRating: value.maxRating ?? 5,
+			iconStyle: value.iconStyle ?? 'stars',
+		};
+	}
+
+	return null;
+};
+
+// Mock WordPress Interactivity API for rating display tests
+const mockStore = jest.fn();
+const mockGetContext = jest.fn();
+const mockGetConfig = jest.fn();
+const mockGetElement = jest.fn();
+const mockWithSyncEvent = jest.fn( callback => callback );
+
+await jest.unstable_mockModule( '@wordpress/interactivity', () => ( {
+	store: mockStore,
+	getContext: mockGetContext,
+	getConfig: mockGetConfig,
+	getElement: mockGetElement,
+	withSyncEvent: mockWithSyncEvent,
+} ) );
+
+// Mock validate helper
+const mockValidateField = jest.fn();
+const mockIsEmptyValue = jest.fn();
+await jest.unstable_mockModule( '../../../../src/contact-form/js/validate-helper', () => ( {
+	validateField: mockValidateField,
+	isEmptyValue: mockIsEmptyValue,
+} ) );
+
+// Mock shared functions
+const mockFocusNextInput = jest.fn();
+const mockSubmitForm = jest.fn();
+await jest.unstable_mockModule( '../../../../src/modules/form/shared', () => ( {
+	focusNextInput: mockFocusNextInput,
+	submitForm: mockSubmitForm,
+} ) );
+
+describe( 'Form View - Rating Display', () => {
+	let mockContext;
+	let mockElement;
+	let storeConfig;
+
+	beforeEach( async () => {
+		jest.clearAllMocks();
+
+		// Setup mock context
+		mockContext = {
+			fields: {},
+			showErrors: false,
+			submissionSuccess: false,
+			formattedSubmissionData: [],
+		};
+
+		// Setup mock element
+		mockElement = {
+			ref: document.createElement( 'div' ),
+		};
+
+		mockGetContext.mockReturnValue( mockContext );
+		mockGetElement.mockReturnValue( mockElement );
+		mockGetConfig.mockReturnValue( {} );
+
+		// Capture the store configuration when store() is called
+		mockStore.mockImplementation( ( namespace, config ) => {
+			storeConfig = config;
+			return config;
+		} );
+
+		// Import the view module (this triggers the store registration)
+		await import( '../../../../src/modules/form/view.js' );
+	} );
+
+	describe( 'watchRatingIcons callback', () => {
+		test( 'renders star icons for rating from context', () => {
+			mockContext.submission = {
+				rating: {
+					rating: 3,
+					maxRating: 5,
+					iconStyle: 'stars',
+				},
+			};
+
+			storeConfig.callbacks.watchRatingIcons();
+
+			// Check that SVGs were rendered
+			const svgs = mockElement.ref.querySelectorAll( 'svg' );
+			expect( svgs.length ).toBe( 5 );
+		} );
+
+		test( 'renders heart icons when iconStyle is hearts', () => {
+			mockContext.submission = {
+				rating: {
+					rating: 2,
+					maxRating: 5,
+					iconStyle: 'hearts',
+				},
+			};
+
+			storeConfig.callbacks.watchRatingIcons();
+
+			// Check that SVGs were rendered with heart paths
+			const svgs = mockElement.ref.querySelectorAll( 'svg' );
+			expect( svgs.length ).toBe( 5 );
+		} );
+
+		test( 'handles zero rating', () => {
+			mockContext.submission = {
+				rating: {
+					rating: 0,
+					maxRating: 5,
+					iconStyle: 'stars',
+				},
+			};
+
+			storeConfig.callbacks.watchRatingIcons();
+
+			// Should still render 5 empty stars
+			const svgs = mockElement.ref.querySelectorAll( 'svg' );
+			expect( svgs.length ).toBe( 5 );
+		} );
+
+		test( 'handles maximum rating', () => {
+			mockContext.submission = {
+				rating: {
+					rating: 5,
+					maxRating: 5,
+					iconStyle: 'stars',
+				},
+			};
+
+			storeConfig.callbacks.watchRatingIcons();
+
+			// Should render 5 filled stars
+			const svgs = mockElement.ref.querySelectorAll( 'svg' );
+			expect( svgs.length ).toBe( 5 );
+		} );
+
+		test( 'reads rating data from data attribute when not in context', () => {
+			mockContext.submission = {};
+
+			// Set rating data on the element via data attribute
+			mockElement.ref.dataset.rating = JSON.stringify( {
+				rating: 4,
+				maxRating: 5,
+				iconStyle: 'stars',
+			} );
+
+			storeConfig.callbacks.watchRatingIcons();
+
+			// Should render 5 stars
+			const svgs = mockElement.ref.querySelectorAll( 'svg' );
+			expect( svgs.length ).toBe( 5 );
+		} );
+
+		test( 'does not render icons when no rating data available', () => {
+			mockContext.submission = {};
+			mockElement.ref.innerHTML = 'initial content';
+
+			storeConfig.callbacks.watchRatingIcons();
+
+			// Content should remain unchanged
+			expect( mockElement.ref.innerHTML ).toBe( 'initial content' );
+		} );
+
+		test( 'handles invalid JSON in data attribute gracefully', () => {
+			mockContext.submission = {};
+			mockElement.ref.dataset.rating = 'invalid json';
+			mockElement.ref.innerHTML = 'initial content';
+
+			// Should not throw
+			expect( () => storeConfig.callbacks.watchRatingIcons() ).not.toThrow();
+
+			// Content should remain unchanged
+			expect( mockElement.ref.innerHTML ).toBe( 'initial content' );
+		} );
+
+		test( 'handles different maxRating values', () => {
+			mockContext.submission = {
+				rating: {
+					rating: 7,
+					maxRating: 10,
+					iconStyle: 'stars',
+				},
+			};
+
+			storeConfig.callbacks.watchRatingIcons();
+
+			// Should render 10 stars
+			const svgs = mockElement.ref.querySelectorAll( 'svg' );
+			expect( svgs.length ).toBe( 10 );
+		} );
+	} );
+
+	describe( 'watchSubmissionValueVisibility callback', () => {
+		test( 'hides value element when URL is present', () => {
+			const valueElement = document.createElement( 'div' );
+			valueElement.hidden = false;
+
+			mockGetElement.mockReturnValue( { ref: valueElement } );
+
+			// Context with URL
+			mockContext.submission = {
+				url: 'https://example.com',
+			};
+
+			storeConfig.callbacks.watchSubmissionValueVisibility();
+
+			// Should be hidden
+			expect( valueElement.hidden ).toBe( true );
+		} );
+
+		test( 'hides value element when rating is present', () => {
+			const valueElement = document.createElement( 'div' );
+			valueElement.hidden = false;
+
+			mockGetElement.mockReturnValue( { ref: valueElement } );
+
+			// Context with rating
+			mockContext.submission = {
+				rating: { rating: 4, maxRating: 5, iconStyle: 'stars' },
+			};
+
+			storeConfig.callbacks.watchSubmissionValueVisibility();
+
+			// Should be hidden
+			expect( valueElement.hidden ).toBe( true );
+		} );
+
+		test( 'shows value element when neither URL nor rating is present', () => {
+			const valueElement = document.createElement( 'div' );
+			valueElement.hidden = true;
+
+			mockGetElement.mockReturnValue( { ref: valueElement } );
+
+			// Context with plain text value
+			mockContext.submission = {
+				value: 'Plain text value',
+			};
+
+			storeConfig.callbacks.watchSubmissionValueVisibility();
+
+			// Should be visible
+			expect( valueElement.hidden ).toBe( false );
+		} );
+	} );
+} );
