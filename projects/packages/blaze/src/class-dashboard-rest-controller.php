@@ -430,10 +430,12 @@ class Dashboard_REST_Controller {
 	 * @return array
 	 */
 	private function get_blaze_posts_local( $req ) {
+		// Default and maximum posts per page for this function.
+		$default_posts_per_page = 20;
 
 		// Parse request parameters.
 		$page           = absint( $req->get_param( 'page' ) ?? 1 );
-		$posts_per_page = absint( $req->get_param( 'posts_per_page' ) ?? 20 );
+		$posts_per_page = absint( $req->get_param( 'posts_per_page' ) ?? $default_posts_per_page );
 		$order          = $req->get_param( 'order' ) ?? 'DESC';
 		$order_by       = $req->get_param( 'order_by' ) ?? 'date';
 		$post_types     = $req->get_param( 'filter_post_type' ) ?? implode( ',', $this->get_blazable_post_types() );
@@ -448,8 +450,8 @@ class Dashboard_REST_Controller {
 		}
 
 		// Validate post per page parameter (use default value if invalid)
-		if ( $posts_per_page <= 0 || $posts_per_page > 20 ) {
-			$posts_per_page = 20;
+		if ( $posts_per_page <= 0 || $posts_per_page > $default_posts_per_page ) {
+			$posts_per_page = $default_posts_per_page;
 		}
 
 		// Validate order.
@@ -525,24 +527,11 @@ class Dashboard_REST_Controller {
 	 * @return array Formatted post data.
 	 */
 	protected function format_post_for_blaze( $post ) {
-		// Get featured image - try Jetpack_PostImages first, fall back to thumbnail.
-		$featured_image = null;
-		if ( class_exists( '\Jetpack_PostImages' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Class is checked with class_exists() above.
-			$post_images    = \Jetpack_PostImages::get_image( $post->ID );
-			$featured_image = is_array( $post_images ) ? ( $post_images['src'] ?? null ) : null;
-		}
-		if ( $featured_image === null ) {
-			$thumbnail_url  = get_the_post_thumbnail_url( $post->ID );
-			$featured_image = $thumbnail_url ? $thumbnail_url : null;
-		}
+		$featured_image_data = $this->get_post_featured_image( $post->ID );
+		$featured_image      = $featured_image_data['URL'] ?? null;
 
 		// Get SKU for WooCommerce products.
 		$sku = get_post_meta( $post->ID, '_sku', true );
-
-		// Get permalink based on permalink structure.
-		$permalink_structure = get_option( 'permalink_structure' );
-		$post_url            = $permalink_structure === '' ? $post->guid : get_permalink( $post->ID );
 
 		return array(
 			'ID'                 => $post->ID,
@@ -555,7 +544,7 @@ class Dashboard_REST_Controller {
 			'featured_image'     => $featured_image,
 			'author'             => $post->post_author,
 			'sku'                => $sku,
-			'post_url'           => $post_url,
+			'post_url'           => get_permalink( $post->ID ),
 			'monthly_view_count' => -1, // Stats not available locally.
 		);
 	}
