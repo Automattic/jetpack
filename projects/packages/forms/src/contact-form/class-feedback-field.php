@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
  * Represents the submitted form data of an individual field.
  */
 class Feedback_Field {
+	use Country_Code_Utils;
 
 	/**
 	 * The key of the field.
@@ -190,14 +191,82 @@ class Feedback_Field {
 	/**
 	 * Get the value of the field for rendering the post-submission page.
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	private function get_render_web_value() {
 		if ( $this->is_of_type( 'image-select' ) ) {
 			return $this->value;
 		}
 
+		// For phone fields, add country flag before the number.
+		if ( $this->is_of_type( 'phone' ) || $this->is_of_type( 'telephone' ) ) {
+			return $this->get_phone_value_with_flag();
+		}
+
+		// For URL fields, return a structured array with the URL for proper link rendering.
+		// 'displayValue' preserves the original user input for display text.
+		// 'url' is used for the href and may have https:// prepended.
+		if ( $this->is_of_type( 'url' ) ) {
+			if ( ! empty( $this->value ) ) {
+				return array(
+					'type'         => 'url',
+					'url'          => $this->value,
+					'displayValue' => $this->value,
+				);
+			}
+		}
+
 		return $this->get_render_default_value();
+	}
+
+	/**
+	 * Get phone value with country flag emoji.
+	 *
+	 * @return string Phone number with country flag prefix.
+	 */
+	private function get_phone_value_with_flag() {
+		if ( empty( $this->value ) ) {
+			return $this->value;
+		}
+
+		// Try to extract country code from phone number prefix.
+		$country_code = $this->get_country_code_from_phone( $this->value );
+
+		if ( ! empty( $country_code ) ) {
+			$flag = self::country_code_to_emoji_flag( $country_code );
+			if ( ! empty( $flag ) ) {
+				return $flag . ' ' . $this->value;
+			}
+		}
+
+		return $this->value;
+	}
+
+	/**
+	 * Extract country code from phone number based on its prefix.
+	 *
+	 * @param string $phone_number The phone number with country prefix (e.g., "+49 123456789").
+	 *
+	 * @return string|null The ISO country code (e.g., "DE") or null if not found.
+	 */
+	private function get_country_code_from_phone( $phone_number ) {
+		// Remove spaces and normalize the phone number.
+		$normalized = preg_replace( '/\s+/', '', $phone_number );
+
+		// Must start with + for international format.
+		if ( strpos( $normalized, '+' ) !== 0 ) {
+			return null;
+		}
+
+		$prefix_to_country = self::get_phone_prefix_to_country_map();
+
+		foreach ( $prefix_to_country as $prefix => $country ) {
+			if ( strpos( $normalized, $prefix ) === 0 ) {
+				return $country;
+			}
+		}
+
+		return null;
 	}
 
 	/**

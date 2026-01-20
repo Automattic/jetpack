@@ -53,6 +53,7 @@ const setSubmissionData = ( data = [] ) => {
 		label: maybeAddColonToLabel( item.label ),
 		value: maybeTransformValue( item.value ),
 		images: getImages( item.value ),
+		url: getUrl( item.value ),
 	} ) );
 };
 
@@ -126,6 +127,11 @@ const maybeTransformValue = value => {
 			.join( ', ' );
 	}
 
+	// For URL fields, extract the URL text value.
+	if ( value?.type === 'url' && value?.url ) {
+		return value.url;
+	}
+
 	// For file upload fields, we want to show the file name and size
 	if ( value?.name && value?.size ) {
 		return value.name + ' (' + value.size + ')';
@@ -137,6 +143,21 @@ const maybeTransformValue = value => {
 const getImages = value => {
 	if ( value?.type === 'image-select' ) {
 		return value.choices.map( choice => choice.image?.src );
+	}
+
+	return null;
+};
+
+const getUrl = value => {
+	if ( value?.type === 'url' && value?.url ) {
+		let url = value.url;
+
+		// Prepend https:// if no protocol is specified.
+		if ( ! /^https?:\/\//i.test( url ) ) {
+			url = 'https://' + url;
+		}
+
+		return url;
 	}
 
 	return null;

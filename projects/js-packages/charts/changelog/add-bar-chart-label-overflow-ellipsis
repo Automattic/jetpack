@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add labelOverflow ellipsis option to truncate long axis labels for bar chart.
