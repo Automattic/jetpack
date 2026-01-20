@@ -142,6 +142,17 @@ class Dashboard_REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
+
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/campaigns', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_dsp_campaigns' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
@@ -216,6 +227,15 @@ class Dashboard_REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/templates/advise/campaign/(?P<urn>[a-zA-Z0-9-_:]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_templates_advise_campaign' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
 
 		register_rest_route(
 			static::$namespace,
@@ -223,6 +243,26 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_templates' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		// WordAds DSP API Advise routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/advise/campaign/(?P<urn>[a-zA-Z0-9-_:]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_advise_campaign' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/advise(?P<sub_path>[a-zA-Z0-9-_\/:]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_advise' ),
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
@@ -891,7 +931,7 @@ class Dashboard_REST_Controller {
 	/**
 	 * Get the article information to be used in the Blaze create campaign flow.
 	 *
-	 * If Jetpack Sync still is running, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
+	 * If Jetpack Sync is not yet complete and posts are not fully synced, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
 	 *
 	 * @param string          $urn The request urn.
 	 * @param WP_REST_Request $req The request object.
@@ -959,6 +999,73 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
+	 * Redirect GET requests to the WordAds DSP Templates Advise Campaign endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_templates_advise_campaign( $req ) {
+		$urn = $req->get_param( 'urn' ) ?? '';
+
+		$sync_ready = $this->are_posts_ready();
+
+		$response = $sync_ready ?
+			$this->get_dsp_generic( 'v1/templates/advise/campaign/' . $urn, $req ) :
+			$this->get_dsp_advise_campaign_local( $urn );
+
+		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
+			$response['sync_ready'] = $sync_ready;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Get the advise campaign information to be used in the Blaze create campaign flow.
+	 *
+	 * If Jetpack Sync still is running, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
+	 *
+	 * @param string $urn The request urn.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_advise_campaign_local( $urn ) {
+		$parsed_urn = $this->get_data_from_urn( $urn );
+		$site_id    = $this->get_site_id();
+
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
+		if ( ! $parsed_urn['site_id'] || $parsed_urn['site_id'] !== $site_id ) {
+			return $this->get_forbidden_error();
+		}
+
+		$post = get_post( $parsed_urn['post_id'] );
+		if ( ! $post ) {
+			return new WP_Error( 'post_not_found', esc_html__( 'Post not found', 'jetpack-blaze' ), array( 'status' => 404 ) );
+		}
+
+		$rendered_content = apply_filters( 'the_content', $post->post_content );
+
+		$body = array(
+			'wp_post' => array(
+				'ID'      => $post->ID,
+				'title'   => $post->post_title,
+				'URL'     => get_permalink( $post ),
+				'type'    => $post->post_type,
+				'content' => $rendered_content,
+			),
+		);
+
+		return $this->request_as_user(
+			sprintf( '/sites/%d/wordads/dsp/api/v1/advise/campaign/%s', $site_id, $urn ),
+			'v2',
+			array( 'method' => 'POST' ),
+			$body
+		);
+	}
+
+	/**
 	 * Redirect GET requests to the WordAds DSP Templates endpoint for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
@@ -966,6 +1073,38 @@ class Dashboard_REST_Controller {
 	 */
 	public function get_dsp_templates( $req ) {
 		return $this->get_dsp_generic( 'v1/templates', $req );
+	}
+
+	/**
+	 * Redirect GET requests to the WordAds DSP Advise Campaign endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_advise_campaign( $req ) {
+		$urn = $req->get_param( 'urn' ) ?? '';
+
+		$sync_ready = $this->are_posts_ready();
+
+		$response = $sync_ready ?
+			$this->get_dsp_generic( 'v1/advise/campaign/' . $urn, $req ) :
+			$this->get_dsp_advise_campaign_local( $urn );
+
+		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
+			$response['sync_ready'] = $sync_ready;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Redirect GET requests to the WordAds DSP Advise endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_advise( $req ) {
+		return $this->get_dsp_generic( 'v1/advise', $req );
 	}
 
 	/**
@@ -1061,6 +1200,90 @@ class Dashboard_REST_Controller {
 	 */
 	public function edit_wpcom_checkout( $req ) {
 		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 60 ) );
+	}
+
+	/**
+	 * Redirect POST request to WordAds DSP Create Campaign endpoint for the site.
+	 *
+	 * If Jetpack Sync is not yet complete and posts are not fully synced, this endpoint will read local DB data and provide additional information to the WPCOM endpoint.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function create_dsp_campaigns( $req ) {
+		$sync_ready = $this->are_posts_ready();
+
+		$response = $sync_ready ?
+			$this->edit_dsp_generic( 'v1.1/campaigns', $req, array( 'timeout' => 60 ) ) :
+			$this->create_dsp_campaigns_local( $req );
+
+		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
+			$response['sync_ready'] = $sync_ready;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Sends a create campaign request to the WordAds DSP Create Campaign endpoint.
+	 * Includes additional Post information to the original request.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function create_dsp_campaigns_local( $req ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
+		$request_body = $req->get_json_params();
+		if ( ! is_array( $request_body ) ) {
+			return new WP_Error( 'invalid_json', esc_html__( 'Invalid JSON Body', 'jetpack-blaze' ), array( 'status' => 400 ) );
+		}
+
+		if ( ! isset( $request_body['target_urn'] ) ) {
+			return new WP_Error( 'missing_target_urn', esc_html__( 'Missing target_urn in request body', 'jetpack-blaze' ), array( 'status' => 400 ) );
+		}
+
+		$urn        = $request_body['target_urn'];
+		$parsed_urn = $this->get_data_from_urn( $urn );
+
+		if ( ! $parsed_urn['site_id'] || $parsed_urn['site_id'] !== $site_id ) {
+			return $this->get_forbidden_error();
+		}
+
+		$post = get_post( $parsed_urn['post_id'] );
+		if ( ! $post ) {
+			return new WP_Error( 'post_not_found', esc_html__( 'Post not found', 'jetpack-blaze' ), array( 'status' => 404 ) );
+		}
+
+		$featured_image = $this->get_post_featured_image( $post->ID );
+
+		$body = array_merge(
+			$request_body,
+			array(
+				'wp_post' => array(
+					'ID'             => $post->ID,
+					'title'          => $post->post_title,
+					'URL'            => get_permalink( $post ),
+					'type'           => $post->post_type,
+					'content'        => $post->post_content,
+					'featured_image' => $featured_image['URL'] ?? '',
+					'modified'       => $post->post_modified,
+				),
+			)
+		);
+
+		return $this->request_as_user(
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/campaigns', $site_id ),
+			'v2',
+			array(
+				'method'  => 'POST',
+				'timeout' => 60,
+			),
+			$body
+		);
 	}
 
 	/**

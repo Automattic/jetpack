@@ -1,8 +1,7 @@
 import { TabPanel } from '@wordpress/components';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { CustomizationToggle } from '../../customization-toggle';
-import { usePerNetworkCustomization } from '../../customization-toggle/use-per-network-customization';
+import { usePerNetworkCustomization } from '../../../../hooks/use-per-network-customization';
 import { ConnectionTab } from '../types';
 import { useConnectionTabs } from '../use-connection-tabs';
 import { CustomizationSection } from './customization-section';
@@ -32,22 +31,13 @@ export function TabPanelMobile() {
 	);
 
 	return (
-		<div>
-			<div className={ styles[ 'customization-toggle-wrapper' ] }>
-				<CustomizationToggle />
-			</div>
-			<div
-				className={ clsx( {
-					[ styles[ 'tab-panel-mobile-wrapper-border' ] ]: ! usingPerNetworkCustomization,
-				} ) }
-			>
-				{ ! usingPerNetworkCustomization && <CustomizationSection /> }
-				<TabPanel
-					className={ styles[ 'tab-panel-mobile' ] }
-					tabs={ tabs }
-					children={ tabRenderer }
-				/>
-			</div>
+		<div
+			className={ clsx( {
+				[ styles[ 'tab-panel-mobile-wrapper-border' ] ]: ! usingPerNetworkCustomization,
+			} ) }
+		>
+			{ ! usingPerNetworkCustomization && <CustomizationSection /> }
+			<TabPanel className={ styles[ 'tab-panel-mobile' ] } tabs={ tabs } children={ tabRenderer } />
 		</div>
 	);
 }

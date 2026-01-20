@@ -1,0 +1,17 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.customize-and-preview {
+
+	.customization-toggle-wrapper {
+		padding: 1rem;
+
+		@include gb.break-medium() {
+			border-bottom: 1px solid #ddd;
+		}
+
+		:global(.components-base-control) {
+			max-width: 400px;
+			margin: 0 auto;
+		}
+	}
+}
