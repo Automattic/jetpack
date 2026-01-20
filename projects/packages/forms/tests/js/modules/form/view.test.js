@@ -153,6 +153,206 @@ describe( 'Form View - showPlainValue computation', () => {
 	} );
 } );
 
+/**
+ * Tests for the getImages helper function.
+ */
+describe( 'Form View - getImages helper', () => {
+	test( 'returns null for plain text value', () => {
+		const result = getImages( 'plain text' );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'returns null for URL field value', () => {
+		const result = getImages( { type: 'url', url: 'https://example.com' } );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'extracts image data with labels when showLabels is true', () => {
+		const result = getImages( {
+			type: 'image-select',
+			choices: [
+				{
+					perceived: 'A',
+					label: 'Shoes',
+					image: { src: 'https://example.com/shoes.jpg' },
+					showLabels: true,
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].letterCode ).toBe( 'A' );
+		expect( result[ 0 ].label ).toBe( 'Shoes' );
+		expect( result[ 0 ].src ).toBe( 'https://example.com/shoes.jpg' );
+	} );
+
+	test( 'returns empty label when showLabels is false', () => {
+		const result = getImages( {
+			type: 'image-select',
+			choices: [
+				{
+					perceived: 'A',
+					label: 'Shoes',
+					image: { src: 'https://example.com/shoes.jpg' },
+					showLabels: false,
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].label ).toBe( '' );
+	} );
+
+	test( 'returns empty label when label is empty string', () => {
+		const result = getImages( {
+			type: 'image-select',
+			choices: [
+				{
+					perceived: 'A',
+					label: '',
+					image: { src: 'https://example.com/shoes.jpg' },
+					showLabels: true,
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].label ).toBe( '' );
+	} );
+
+	test( 'returns empty label when label is null', () => {
+		const result = getImages( {
+			type: 'image-select',
+			choices: [
+				{
+					perceived: 'A',
+					label: null,
+					image: { src: 'https://example.com/shoes.jpg' },
+					showLabels: true,
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].label ).toBe( '' );
+	} );
+
+	test( 'handles missing image src gracefully', () => {
+		const result = getImages( {
+			type: 'image-select',
+			choices: [
+				{
+					perceived: 'A',
+					label: 'No Image',
+					showLabels: true,
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].src ).toBe( '' );
+	} );
+
+	test( 'handles missing perceived value', () => {
+		const result = getImages( {
+			type: 'image-select',
+			choices: [
+				{
+					label: 'No Letter',
+					image: { src: 'https://example.com/image.jpg' },
+					showLabels: true,
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].letterCode ).toBe( '' );
+	} );
+
+	test( 'handles multiple choices with mixed showLabels', () => {
+		const result = getImages( {
+			type: 'image-select',
+			choices: [
+				{
+					perceived: 'A',
+					label: 'Shoes',
+					image: { src: 'https://example.com/shoes.jpg' },
+					showLabels: true,
+				},
+				{
+					perceived: 'B',
+					label: 'Bags',
+					image: { src: 'https://example.com/bags.jpg' },
+					showLabels: true,
+				},
+				{
+					perceived: 'C',
+					label: 'Hats',
+					image: { src: 'https://example.com/hats.jpg' },
+					showLabels: false,
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 3 );
+
+		// First choice - showLabels true
+		expect( result[ 0 ].letterCode ).toBe( 'A' );
+		expect( result[ 0 ].label ).toBe( 'Shoes' );
+
+		// Second choice - showLabels true
+		expect( result[ 1 ].letterCode ).toBe( 'B' );
+		expect( result[ 1 ].label ).toBe( 'Bags' );
+
+		// Third choice - showLabels false
+		expect( result[ 2 ].letterCode ).toBe( 'C' );
+		expect( result[ 2 ].label ).toBe( '' );
+	} );
+} );
+
+/**
+ * Tests for the getUrl helper function.
+ */
+describe( 'Form View - getUrl helper', () => {
+	test( 'returns null for plain text value', () => {
+		const result = getUrl( 'plain text' );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'returns null for image-select field', () => {
+		const result = getUrl( {
+			type: 'image-select',
+			choices: [ { perceived: 'A' } ],
+		} );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'returns URL for URL field with https protocol', () => {
+		const result = getUrl( { type: 'url', url: 'https://example.com' } );
+		expect( result ).toBe( 'https://example.com' );
+	} );
+
+	test( 'returns URL for URL field with http protocol', () => {
+		const result = getUrl( { type: 'url', url: 'http://example.com' } );
+		expect( result ).toBe( 'http://example.com' );
+	} );
+
+	test( 'prepends https:// when no protocol specified', () => {
+		const result = getUrl( { type: 'url', url: 'example.com' } );
+		expect( result ).toBe( 'https://example.com' );
+	} );
+
+	test( 'returns null when URL is empty', () => {
+		const result = getUrl( { type: 'url', url: '' } );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'returns null when URL is missing', () => {
+		const result = getUrl( { type: 'url' } );
+		expect( result ).toBeNull();
+	} );
+} );
+
 // Helper functions replicated from view.js for testing
 const maybeAddColonToLabel = label => {
 	const formattedLabel = label ? label : null;

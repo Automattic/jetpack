@@ -4022,4 +4022,214 @@ class Contact_Form_Test extends BaseTestCase {
 		// Image-select field
 		$this->assertFalse( $result[2]['showPlainValue'], 'Third field (image-select) should have showPlainValue false' );
 	}
+
+	/**
+	 * Test get_images returns null for non-image-select values.
+	 */
+	public function test_get_images_returns_null_for_plain_text() {
+		$method = new \ReflectionMethod( Contact_Form::class, 'get_images' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke( null, 'plain text value' );
+
+		$this->assertNull( $result, 'get_images should return null for plain text' );
+	}
+
+	/**
+	 * Test get_images returns null for URL field values.
+	 */
+	public function test_get_images_returns_null_for_url_field() {
+		$method = new \ReflectionMethod( Contact_Form::class, 'get_images' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke(
+			null,
+			array(
+				'type' => 'url',
+				'url'  => 'https://example.com',
+			)
+		);
+
+		$this->assertNull( $result, 'get_images should return null for URL field' );
+	}
+
+	/**
+	 * Test get_images extracts image data correctly with showLabels true.
+	 */
+	public function test_get_images_extracts_data_with_labels() {
+		$method = new \ReflectionMethod( Contact_Form::class, 'get_images' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke(
+			null,
+			array(
+				'type'    => 'image-select',
+				'choices' => array(
+					array(
+						'perceived'  => 'A',
+						'label'      => 'Shoes',
+						'image'      => array( 'src' => 'https://example.com/shoes.jpg' ),
+						'showLabels' => true,
+					),
+				),
+			)
+		);
+
+		$this->assertCount( 1, $result );
+		$this->assertEquals( 'A', $result[0]['letterCode'] );
+		$this->assertEquals( 'Shoes', $result[0]['label'] );
+		$this->assertEquals( 'https://example.com/shoes.jpg', $result[0]['src'] );
+	}
+
+	/**
+	 * Test get_images returns empty label when showLabels is false.
+	 */
+	public function test_get_images_empty_label_when_show_labels_false() {
+		$method = new \ReflectionMethod( Contact_Form::class, 'get_images' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke(
+			null,
+			array(
+				'type'    => 'image-select',
+				'choices' => array(
+					array(
+						'perceived'  => 'A',
+						'label'      => 'Shoes',
+						'image'      => array( 'src' => 'https://example.com/shoes.jpg' ),
+						'showLabels' => false,
+					),
+				),
+			)
+		);
+
+		$this->assertCount( 1, $result );
+		$this->assertEquals( 'A', $result[0]['letterCode'] );
+		$this->assertSame( '', $result[0]['label'], 'Label should be empty when showLabels is false' );
+	}
+
+	/**
+	 * Test get_images returns empty label when label is empty even with showLabels true.
+	 */
+	public function test_get_images_empty_label_when_label_is_empty() {
+		$method = new \ReflectionMethod( Contact_Form::class, 'get_images' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke(
+			null,
+			array(
+				'type'    => 'image-select',
+				'choices' => array(
+					array(
+						'perceived'  => 'A',
+						'label'      => '',
+						'image'      => array( 'src' => 'https://example.com/shoes.jpg' ),
+						'showLabels' => true,
+					),
+				),
+			)
+		);
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( '', $result[0]['label'], 'Label should be empty when label value is empty' );
+	}
+
+	/**
+	 * Test get_images handles missing image src gracefully.
+	 */
+	public function test_get_images_handles_missing_image_src() {
+		$method = new \ReflectionMethod( Contact_Form::class, 'get_images' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke(
+			null,
+			array(
+				'type'    => 'image-select',
+				'choices' => array(
+					array(
+						'perceived'  => 'A',
+						'label'      => 'No Image',
+						'showLabels' => true,
+					),
+				),
+			)
+		);
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( '', $result[0]['src'], 'src should be empty string when image is missing' );
+	}
+
+	/**
+	 * Test get_images handles multiple choices.
+	 */
+	public function test_get_images_handles_multiple_choices() {
+		$method = new \ReflectionMethod( Contact_Form::class, 'get_images' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke(
+			null,
+			array(
+				'type'    => 'image-select',
+				'choices' => array(
+					array(
+						'perceived'  => 'A',
+						'label'      => 'Shoes',
+						'image'      => array( 'src' => 'https://example.com/shoes.jpg' ),
+						'showLabels' => true,
+					),
+					array(
+						'perceived'  => 'B',
+						'label'      => 'Bags',
+						'image'      => array( 'src' => 'https://example.com/bags.jpg' ),
+						'showLabels' => true,
+					),
+					array(
+						'perceived'  => 'C',
+						'label'      => 'Hats',
+						'image'      => array( 'src' => 'https://example.com/hats.jpg' ),
+						'showLabels' => false,
+					),
+				),
+			)
+		);
+
+		$this->assertCount( 3, $result );
+
+		// First choice
+		$this->assertEquals( 'A', $result[0]['letterCode'] );
+		$this->assertEquals( 'Shoes', $result[0]['label'] );
+
+		// Second choice
+		$this->assertEquals( 'B', $result[1]['letterCode'] );
+		$this->assertEquals( 'Bags', $result[1]['label'] );
+
+		// Third choice - showLabels false
+		$this->assertEquals( 'C', $result[2]['letterCode'] );
+		$this->assertSame( '', $result[2]['label'], 'Third choice should have empty label due to showLabels false' );
+	}
+
+	/**
+	 * Test get_images handles missing perceived value.
+	 */
+	public function test_get_images_handles_missing_perceived() {
+		$method = new \ReflectionMethod( Contact_Form::class, 'get_images' );
+		$method->setAccessible( true );
+
+		$result = $method->invoke(
+			null,
+			array(
+				'type'    => 'image-select',
+				'choices' => array(
+					array(
+						'label'      => 'No Letter',
+						'image'      => array( 'src' => 'https://example.com/image.jpg' ),
+						'showLabels' => true,
+					),
+				),
+			)
+		);
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( '', $result[0]['letterCode'], 'letterCode should be empty when perceived is missing' );
+	}
 }
