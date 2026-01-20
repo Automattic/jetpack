@@ -10,6 +10,7 @@
 
 import { dispatch } from '@wordpress/data';
 import { addFilter, removeFilter } from '@wordpress/hooks';
+import { childBlocks } from '../../blocks/contact-form/child-blocks.js';
 import { getFormCategorySlug } from './form-categories';
 
 const FILTER_NAMESPACE = 'jetpack/forms/override-block-category';
@@ -32,6 +33,8 @@ interface BlockSettings {
 	[ key: string ]: unknown;
 }
 
+let formEditorChildBlockCategoriesMapping;
+
 /**
  * Filter callback that overrides block categories for form field blocks.
  *
@@ -39,29 +42,34 @@ interface BlockSettings {
  * it to the full form category slug when the form editor is active.
  *
  * @param settings - The block settings object
+ * @param name     - The block name
  * @return Modified settings with updated category, or original settings
  */
-function overrideBlockCategory( settings: BlockSettings ): BlockSettings {
+function overrideBlockCategory( settings: BlockSettings, name: string ): BlockSettings {
 	// Only apply overrides when form editor is active
 	if ( ! isFormEditorActive ) {
 		return settings;
 	}
 
-	const shortCategory = settings.supports?.jetpack_form?.category;
+	if ( ! formEditorChildBlockCategoriesMapping ) {
+		formEditorChildBlockCategoriesMapping = {};
+		for ( const childBlock of childBlocks ) {
+			if ( childBlock?.form_editor?.category ) {
+				formEditorChildBlockCategoriesMapping[ `jetpack/${ childBlock.name }` ] =
+					getFormCategorySlug( childBlock.form_editor.category );
+			}
+		}
+	}
+
+	const shortCategory = formEditorChildBlockCategoriesMapping?.[ name ];
 
 	if ( ! shortCategory ) {
 		return settings;
 	}
 
-	const formCategorySlug = getFormCategorySlug( shortCategory );
-
-	if ( ! formCategorySlug ) {
-		return settings;
-	}
-
 	return {
 		...settings,
-		category: formCategorySlug,
+		category: shortCategory,
 	};
 }
 

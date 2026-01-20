@@ -4,14 +4,16 @@ import defaultSettings from '../shared/settings/index.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-hidden';
-const settings = {
+export const name = 'field-hidden';
+
+export const form_editor = {
+	category: 'advanced',
+};
+
+export const settings = {
 	...defaultSettings,
 	supports: {
 		...defaultSettings.supports,
-		jetpack_form: {
-			category: 'advanced',
-		},
 	},
 	title: __( 'Hidden field', 'jetpack-forms' ),
 	description: __(
@@ -39,4 +41,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

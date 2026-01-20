@@ -5,6 +5,10 @@ import save from './save.js';
 
 export const name = 'form-step-container';
 
+export const form_editor = {
+	category: 'multistep',
+};
+
 export const settings = {
 	apiVersion: 3,
 	title: __( 'Steps', 'jetpack-forms' ),
@@ -37,9 +41,6 @@ export const settings = {
 			style: true,
 			width: true,
 		},
-		jetpack_form: {
-			category: 'multistep',
-		},
 	},
 	attributes: {},
 	template: [ [ 'jetpack/form-step', {} ] ],
@@ -51,4 +52,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

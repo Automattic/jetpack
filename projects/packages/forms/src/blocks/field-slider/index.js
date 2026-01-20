@@ -4,8 +4,13 @@ import defaultSettings from '../shared/settings/index.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-slider';
-const settings = {
+export const name = 'field-slider';
+
+export const form_editor = {
+	category: 'advanced',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Slider field', 'jetpack-forms' ),
 	description: __( 'Collect a value from site visitors using a slider field.', 'jetpack-forms' ),
@@ -44,9 +49,6 @@ const settings = {
 	supports: {
 		...defaultSettings.supports,
 		interactivity: true,
-		jetpack_form: {
-			category: 'advanced',
-		},
 	},
 	providesContext: {
 		...defaultSettings.providesContext,
@@ -82,4 +84,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

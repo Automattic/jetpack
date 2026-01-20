@@ -6,14 +6,16 @@ import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-select';
-const settings = {
+export const name = 'field-select';
+
+export const form_editor = {
+	category: 'choice',
+};
+
+export const settings = {
 	...defaultSettings,
 	supports: {
 		...defaultSettings.supports,
-		jetpack_form: {
-			category: 'choice',
-		},
 	},
 	title: __( 'Dropdown field', 'jetpack-forms' ),
 	keywords: [
@@ -67,4 +69,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

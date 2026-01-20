@@ -6,14 +6,16 @@ import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-radio';
-const settings = {
+export const name = 'field-radio';
+
+export const form_editor = {
+	category: 'choice',
+};
+
+export const settings = {
 	...defaultSettings,
 	supports: {
 		...defaultSettings.supports,
-		jetpack_form: {
-			category: 'choice',
-		},
 	},
 	title: __( 'Single choice (radio)', 'jetpack-forms' ),
 	keywords: [
@@ -73,4 +75,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

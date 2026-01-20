@@ -5,6 +5,10 @@ import edit from './edit.js';
 
 export const name = 'form-progress-indicator';
 
+export const form_editor = {
+	category: 'multistep',
+};
+
 export const settings = {
 	apiVersion: 3,
 	category: 'contact-form',
@@ -22,9 +26,6 @@ export const settings = {
 			__experimentalDefaultControls: {
 				text: true,
 			},
-		},
-		jetpack_form: {
-			category: 'multistep',
 		},
 	},
 	title: __( 'Progress indicator', 'jetpack-forms' ),
@@ -175,4 +176,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

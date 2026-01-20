@@ -5,6 +5,10 @@ import save from './save.js';
 
 export const name = 'form-step-navigation';
 
+export const form_editor = {
+	category: 'multistep',
+};
+
 export const settings = {
 	apiVersion: 3,
 	category: 'contact-form',
@@ -23,9 +27,6 @@ export const settings = {
 				justifyContent: 'right',
 			},
 		},
-		jetpack_form: {
-			category: 'multistep',
-		},
 	},
 	title: __( 'Step navigation', 'jetpack-forms' ),
 	description: __( 'Responsible for the navigation between steps.', 'jetpack-forms' ),
@@ -41,4 +42,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

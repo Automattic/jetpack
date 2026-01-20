@@ -5,6 +5,10 @@ import edit from './edit.js';
 
 export const name = 'form-step-divider';
 
+export const form_editor = {
+	category: 'multistep',
+};
+
 export const settings = {
 	apiVersion: 3,
 	title: __( 'Step Divider', 'jetpack-forms' ),
@@ -17,9 +21,6 @@ export const settings = {
 	supports: {
 		html: false,
 		reusable: false,
-		jetpack_form: {
-			category: 'multistep',
-		},
 	},
 	edit: edit,
 	save: () => null,
@@ -28,4 +29,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

@@ -6,15 +6,17 @@ import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-telephone';
+export const name = 'field-telephone';
+
+export const form_editor = {
+	category: 'contact-info',
+};
+
 export const settings = {
 	...defaultSettings,
 	supports: {
 		...defaultSettings.supports,
 		interactivity: true,
-		jetpack_form: {
-			category: 'contact-info',
-		},
 	},
 	title: __( 'Phone number field', 'jetpack-forms' ),
 	keywords: [
@@ -71,4 +73,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

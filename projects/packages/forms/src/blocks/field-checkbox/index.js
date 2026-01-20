@@ -6,14 +6,16 @@ import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-checkbox';
-const settings = {
+export const name = 'field-checkbox';
+
+export const form_editor = {
+	category: 'choice',
+};
+
+export const settings = {
 	...defaultSettings,
 	supports: {
 		...defaultSettings.supports,
-		jetpack_form: {
-			category: 'choice',
-		},
 	},
 	title: __( 'Checkbox', 'jetpack-forms' ),
 	keywords: [ __( 'Confirm', 'jetpack-forms' ), __( 'Accept', 'jetpack-forms' ) ],
@@ -57,4 +59,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };
