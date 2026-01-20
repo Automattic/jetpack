@@ -1619,8 +1619,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 							$html .= '<div class="field-image-option__label-wrapper">';
 							$html .= '<span class="field-image-option__label-code" data-wp-text="context.image.letterCode">' . esc_html( $image_letter_code ) . '</span>';
 							$html .= '<span class="field-image-option__label" data-wp-text="context.image.label" data-wp-bind--hidden="!context.image.label"' . ( empty( $image_label ) ? ' hidden' : '' ) . '>' . esc_html( $image_label ) . '</span>';
-							$html .= '</div>';
-							$html .= '</div>';
+							$html .= '</div></div>';
 						}
 					} else {
 						// Empty template for hydration when no images.
