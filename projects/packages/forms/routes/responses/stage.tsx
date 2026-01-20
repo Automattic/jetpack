@@ -91,7 +91,7 @@ function useFilterOptions() {
  */
 function getTabLabel( label: string, count: number ): JSX.Element {
 	return (
-		<Stack align="center" gap="xs">
+		<Stack align="center" gap="2xs">
 			{ label }
 			<Badge intent="default" style={ { backgroundColor: '#f0f0f0' } }>
 				{ count.toString() }
@@ -300,7 +300,7 @@ function Stage() {
 					const showEmail = item.author_email && item.author_name !== item.author_email;
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
 					return (
-						<span style={ { display: 'flex', alignItems: 'center', gap: '12px' } }>
+						<Stack align="center" gap="sm">
 							{ item.is_unread && (
 								<span
 									style={ {
@@ -321,17 +321,17 @@ function Stage() {
 								useHovercard={ false }
 							/>
 							{ styleUnreadValue(
-								<span style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
+								<Stack direction="column" gap="2xs">
 									{ displayName }
 									{ showEmail && (
 										<span style={ { fontSize: '12px', color: '#757575' } }>
 											{ item.author_email }
 										</span>
 									) }
-								</span>,
+								</Stack>,
 								item.is_unread
 							) }
-						</span>
+						</Stack>
 					);
 				},
 				getValue: ( { item } ) =>
