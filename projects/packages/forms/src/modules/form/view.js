@@ -12,6 +12,7 @@ import {
  * Internal dependencies
  */
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
+import { renderRatingIconsHtml } from '../../shared/rating-icons.js';
 import { focusNextInput, submitForm } from './shared.ts';
 
 const withSyncEvent =
@@ -778,36 +779,28 @@ const { state, actions } = store( NAMESPACE, {
 		watchRatingIcons() {
 			const { ref } = getElement();
 			const context = getContext();
-			const rating = context.submission?.rating;
 
-			// If the element already has SVG content (server-rendered), preserve it.
-			// This prevents the callback from clearing server-rendered icons during hydration.
-			if ( ref?.innerHTML?.includes( '<svg' ) ) {
-				return;
+			// Try to get rating data from context (AJAX submissions) or data attribute (server-rendered).
+			let rating = context.submission?.rating;
+
+			// For server-rendered content, read rating data from data attribute.
+			if ( ! rating && ref?.dataset?.rating ) {
+				try {
+					rating = JSON.parse( ref.dataset.rating );
+				} catch {
+					// Invalid JSON, ignore.
+				}
 			}
 
-			// If no rating data is available, don't modify the element.
+			// If no rating data is available, don't render icons.
 			if ( ! rating ) {
 				return;
 			}
 
 			const { rating: ratingValue, maxRating, iconStyle } = rating;
 
-			// SVG paths for star and heart icons.
-			const starPath =
-				'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z';
-			const heartPath =
-				'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
-			const iconPath = iconStyle === 'hearts' ? heartPath : starPath;
-
-			let iconsHtml = '';
-			for ( let i = 1; i <= maxRating; i++ ) {
-				const filledClass = i <= ratingValue ? 'is-filled' : '';
-				iconsHtml += `<svg class="field-rating__icon ${ filledClass }" viewBox="0 0 24 24" aria-hidden="true"><path d="${ iconPath }"></path></svg>`;
-			}
-
-			// Manually set innerHTML for AJAX submissions.
-			ref.innerHTML = iconsHtml;
+			// Render icons using the shared function.
+			ref.innerHTML = renderRatingIconsHtml( ratingValue, maxRating, iconStyle );
 		},
 	},
 } );
