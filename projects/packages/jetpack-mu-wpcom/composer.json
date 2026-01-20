@@ -48,6 +48,7 @@
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
+			"php bin/generate-asset-files.php",
 			"@composer phpunit"
 		],
 		"build-production": "pnpm run build-production-js",

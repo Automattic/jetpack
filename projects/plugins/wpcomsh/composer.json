@@ -58,7 +58,7 @@
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
-			"pnpm jetpack build packages/jetpack-mu-wpcom",
+			"php ../../packages/jetpack-mu-wpcom/bin/generate-asset-files.php",
 			"@composer phpunit"
 		]
 	},
