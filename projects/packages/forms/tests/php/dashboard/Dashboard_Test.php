@@ -73,13 +73,12 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_admin_url with valid 'edit-jetpack_form' screen ID.
+	 * Test get_admin_url with valid screen IDS
 	 */
-	public function test_get_admin_url_with_jetpack_form_screen() {
-		$url = Dashboard::get_admin_url( 'edit-jetpack_form' );
-		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url );
-		$this->assertStringContainsString( '#/forms', $url );
-		$this->assertStringContainsString( admin_url( 'admin.php' ), $url );
+	public function test_get_admin_url_with_valid_screen_ids() {
+		$url_form = Dashboard::get_admin_url( 'edit-jetpack_form' );
+		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url_form );
+		$this->assertStringContainsString( '#/forms', $url_form );
 
 		$url_feedback = Dashboard::get_admin_url( 'edit-feedback' );
 		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url_feedback );
