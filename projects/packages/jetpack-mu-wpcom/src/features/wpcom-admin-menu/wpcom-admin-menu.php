@@ -230,57 +230,6 @@ function wpcom_add_jetpack_submenu() {
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
-	// @codeCoverageIgnoreStart
-	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
-	$is_personal_or_premium = false;
-	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
-		$current_plan           = \Automattic\Jetpack\Current_Plan::get();
-		$plan_class             = $current_plan['class'] ?? '';
-		$is_personal_or_premium = in_array( $plan_class, array( 'personal', 'premium' ), true );
-	}
-
-	if ( ! $is_simple_site && $is_personal_or_premium ) {
-		// Jetpack > My Jetpack.
-		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
-
-		// Jetpack > Settings.
-		wpcom_hide_submenu_page( 'jetpack', admin_url( 'admin.php?page=jetpack#/settings' ) );
-
-		// Redirect My Jetpack page to Stats for Atomic sites on Personal or Premium plans.
-		add_action(
-			'admin_init',
-			function () {
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No action taken, just checking page.
-				if ( isset( $_GET['page'] ) && 'my-jetpack' === $_GET['page'] ) {
-					wp_safe_redirect( admin_url( 'admin.php?page=stats' ) );
-					exit;
-				}
-			}
-		);
-
-		// Jetpack > Traffic (Calypso).
-		add_submenu_page(
-			'jetpack',
-			esc_attr__( 'Traffic', 'jetpack-mu-wpcom' ),
-			__( 'Traffic', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/marketing/traffic/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
-
-		// Jetpack > Newsletter (Calypso).
-		// Force Calypso for atomic Personal/Premium sites since local Jetpack newsletter page exposes broken pages.
-		add_submenu_page(
-			'jetpack',
-			esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/settings/newsletter/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
-	}
-	// @codeCoverageIgnoreEnd
-
 	// Jetpack > Scan.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
