@@ -17,6 +17,11 @@
  * @param string $version Optional version string.
  */
 function generate_asset_file( $path, $dependencies = array(), $version = '1.0.0-test' ) {
+	if ( file_exists( $path ) ) {
+		echo "Skipped (already exists): $path\n";
+		return;
+	}
+
 	$dir = dirname( $path );
 	if ( ! is_dir( $dir ) ) {
 		if ( ! mkdir( $dir, 0755, true ) ) {
@@ -45,6 +50,11 @@ function generate_asset_file( $path, $dependencies = array(), $version = '1.0.0-
  * @param string $path The path where the file should be created.
  */
 function generate_module_assets_file( $path ) {
+	if ( file_exists( $path ) ) {
+		echo "Skipped (already exists): $path\n";
+		return;
+	}
+
 	$dir = dirname( $path );
 	if ( ! is_dir( $dir ) ) {
 		if ( ! mkdir( $dir, 0755, true ) ) {
