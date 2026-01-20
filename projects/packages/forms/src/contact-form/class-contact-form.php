@@ -1435,11 +1435,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$formatted_submission_data = array();
 
 		foreach ( $data as $field_data ) {
+			$url    = self::get_url( $field_data['value'] );
+			$images = self::get_images( $field_data['value'] );
+
 			$formatted_submission_data[] = array(
-				'label'  => self::maybe_add_colon_to_label( $field_data['label'] ),
-				'value'  => self::maybe_transform_value( $field_data['value'] ),
-				'images' => self::get_images( $field_data['value'] ),
-				'url'    => self::get_url( $field_data['value'] ),
+				'label'          => self::maybe_add_colon_to_label( $field_data['label'] ),
+				'value'          => self::maybe_transform_value( $field_data['value'] ),
+				'images'         => $images,
+				'url'            => $url,
+				'showPlainValue' => empty( $url ) && empty( $images ),
 			);
 		}
 
@@ -1555,9 +1559,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
 					<div class="jetpack_forms_contact-form-success-summary">
 						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
-						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.url"></div>
+						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.showPlainValue"></div>
 						<a class="field-url" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.url" target="_blank" rel="noopener noreferrer"></a>
-						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.images"></div>
 						<div class="field-images" data-wp-bind--hidden="!context.submission.images">
 							<template data-wp-each--image="context.submission.images">
 								<div class="field-image-option" data-wp-class--is-empty="!context.image.src">
@@ -1576,31 +1579,31 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</template>';
 
 				// For each entry in the submission data array, render a div with the label and value.
+				// Structure must match the template above for proper hydration.
 				foreach ( $formatted_submission_data as $submission ) {
-					$has_url = ! empty( $submission['url'] );
-					$html   .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">
-						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
+					$has_url        = ! empty( $submission['url'] );
+					$has_images     = ! empty( $submission['images'] );
+					$show_plain_val = ! $has_url && ! $has_images;
 
-					if ( $has_url ) {
-						$html .= '<a class="field-url" href="' . esc_attr( $submission['url'] ) . '" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" target="_blank" rel="noopener noreferrer">' . esc_html( $submission['value'] ) . '</a>';
-					} else {
-						$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.url">' . esc_html( $submission['value'] ) . '</div>';
-					}
+					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">';
 
-					$html .= '<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
-					$has_images = ! empty( $submission['images'] );
+					// field-name: always present.
+					$html .= '<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
 
-					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">
-						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
+					// field-value: always present, hidden when URL or images exist.
+					$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.showPlainValue"';
+					$html .= $show_plain_val ? '' : ' hidden';
+					$html .= '>' . ( $show_plain_val ? esc_html( $submission['value'] ) : '' ) . '</div>';
 
-					// Hide the text value for image-select fields since captions are shown with images.
-					if ( $has_images ) {
-						$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.images" hidden></div>';
-					} else {
-						$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.images">' . esc_html( $submission['value'] ) . '</div>';
-					}
+					// field-url: always present, hidden when no URL.
+					$html .= '<a class="field-url" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.url" target="_blank" rel="noopener noreferrer"';
+					$html .= $has_url ? ' href="' . esc_attr( $submission['url'] ) . '"' : ' hidden';
+					$html .= '>' . ( $has_url ? esc_html( $submission['value'] ) : '' ) . '</a>';
 
-					$html .= '<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
+					// field-images: always present, hidden when no images.
+					$html .= '<div class="field-images" data-wp-bind--hidden="!context.submission.images"';
+					$html .= $has_images ? '' : ' hidden';
+					$html .= '>';
 
 					if ( $has_images ) {
 						foreach ( $submission['images'] as $image ) {
@@ -1620,10 +1623,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 							$html .= '</div>';
 						}
 					} else {
+						// Empty template for hydration when no images.
 						$html .= '<template data-wp-each--image="context.submission.images"></template>';
 					}
 
-					$html .= '</div></div>';
+					$html .= '</div>'; // Close field-images.
+					$html .= '</div>'; // Close summary.
 				}
 			}
 		}
