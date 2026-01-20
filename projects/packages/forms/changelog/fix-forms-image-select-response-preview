@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Image Select Response: use native img attributes instead of photon for image previews.
