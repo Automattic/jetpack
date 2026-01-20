@@ -349,9 +349,7 @@ class Identity_Crisis {
 	 *
 	 * This is a defensive fallback for edge cases where IDC errors are repeatedly detected
 	 * even though the site should be in IDC mode. However, edge cases can cause the option
-	 * to be deleted, triggering new IDC detections. For example, dynamic URLs, race conditions,
-	 * or external storage synchronization issues can cause the option to be deleted, triggering
-	 * new IDC detections.
+	 * to be deleted, triggering new IDC detections.
 	 *
 	 * @param array $response The IDC error response from WordPress.com.
 	 *
@@ -419,7 +417,14 @@ class Identity_Crisis {
 	 */
 	private static function has_same_wpcom_urls( $idc1, $idc2 ) {
 		// Both must have wpcom_home and wpcom_siteurl to be comparable.
-		if ( ! isset( $idc1['wpcom_home'] ) || ! isset( $idc1['wpcom_siteurl'] ) || ! isset( $idc2['wpcom_home'] ) || ! isset( $idc2['wpcom_siteurl'] ) ) {
+		if (
+			! isset( $idc1['wpcom_home'] ) ||
+			! isset( $idc1['wpcom_siteurl'] ) ||
+			! isset( $idc2['wpcom_home'] ) ||
+			! isset( $idc2['wpcom_siteurl'] ) ||
+			! isset( $idc1['reversed_url'] ) ||
+			! isset( $idc2['reversed_url'] )
+		) {
 			return false;
 		}
 
