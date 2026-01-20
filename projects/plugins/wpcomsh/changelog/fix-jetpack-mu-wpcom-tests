@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Build jetpack-mu-wpcom on test to fix an asset error.
+Build jetpack-mu-wpcom before tests to fix an asset error.
