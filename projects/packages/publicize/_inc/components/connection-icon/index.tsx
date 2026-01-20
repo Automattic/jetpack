@@ -5,10 +5,11 @@ import defaultAvatar from './default-avatar.svg';
 import styles from './styles.module.scss';
 
 export type ConnectionIconProps = {
-	serviceName: string;
+	serviceName?: string;
 	label: string;
 	profilePicture: string;
 	disabled?: boolean;
+	className?: string;
 };
 
 /**
@@ -21,6 +22,7 @@ export function ConnectionIcon( {
 	serviceName,
 	profilePicture,
 	disabled,
+	className,
 }: ConnectionIconProps ) {
 	const [ imageErrorFor, setImageErrorFor ] = useState( null );
 
@@ -34,16 +36,22 @@ export function ConnectionIcon( {
 
 	return (
 		<div
-			className={ clsx( styles.wrapper, {
-				[ styles.disabled ]: disabled,
-			} ) }
+			className={ clsx(
+				styles.wrapper,
+				{
+					[ styles.disabled ]: disabled,
+				},
+				className
+			) }
 		>
 			<img
 				src={ usDdefaultAvatar ? defaultAvatar : profilePicture }
 				alt={ label }
 				onError={ onError }
 			/>
-			<SocialServiceIcon serviceName={ service_name } className={ styles[ 'social-icon' ] } />
+			{ service_name ? (
+				<SocialServiceIcon serviceName={ service_name } className={ styles[ 'social-icon' ] } />
+			) : null }
 		</div>
 	);
 }
