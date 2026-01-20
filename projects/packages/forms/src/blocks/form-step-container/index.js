@@ -37,6 +37,9 @@ export const settings = {
 			style: true,
 			width: true,
 		},
+		jetpack_form: {
+			category: 'multistep',
+		},
 	},
 	attributes: {},
 	template: [ [ 'jetpack/form-step', {} ] ],

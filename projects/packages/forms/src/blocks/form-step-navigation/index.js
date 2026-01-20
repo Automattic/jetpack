@@ -23,6 +23,9 @@ export const settings = {
 				justifyContent: 'right',
 			},
 		},
+		jetpack_form: {
+			category: 'multistep',
+		},
 	},
 	title: __( 'Step navigation', 'jetpack-forms' ),
 	description: __( 'Responsible for the navigation between steps.', 'jetpack-forms' ),

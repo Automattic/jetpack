@@ -23,6 +23,9 @@ export const settings = {
 				text: true,
 			},
 		},
+		jetpack_form: {
+			category: 'multistep',
+		},
 	},
 	title: __( 'Progress indicator', 'jetpack-forms' ),
 	description: __(

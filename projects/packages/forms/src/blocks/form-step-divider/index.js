@@ -17,6 +17,9 @@ export const settings = {
 	supports: {
 		html: false,
 		reusable: false,
+		jetpack_form: {
+			category: 'multistep',
+		},
 	},
 	edit: edit,
 	save: () => null,

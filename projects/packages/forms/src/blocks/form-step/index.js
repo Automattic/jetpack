@@ -27,6 +27,9 @@ export const settings = {
 			padding: true,
 			margin: true,
 		},
+		jetpack_form: {
+			category: 'multistep',
+		},
 	},
 	attributes: {
 		align: {

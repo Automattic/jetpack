@@ -36,6 +36,10 @@ export const FORM_CATEGORIES: FormCategory[] = [
 		slug: 'form-advanced',
 		title: __( 'Advanced', 'jetpack-forms' ),
 	},
+	{
+		slug: 'form-multistep',
+		title: __( 'Multi-step', 'jetpack-forms' ),
+	},
 ];
 
 /**
@@ -49,6 +53,7 @@ export const CATEGORY_SLUG_MAP: Record< string, string > = {
 	'contact-info': 'form-contact-info',
 	choice: 'form-choice',
 	advanced: 'form-advanced',
+	multistep: 'form-multistep',
 };
 
 /**
