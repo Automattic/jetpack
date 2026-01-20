@@ -9,9 +9,9 @@ import photon from 'photon';
 import './style.scss';
 
 /**
- * Clean the query string from the URL.
- * @param url - The URL to clean.
- * @return The URL with the query string removed.
+ * Returns a Photon-optimized image URL or the original URL if Photon should not be used.
+ * @param url - The image URL to process.
+ * @return A Photon-optimized image URL, the original URL if Photon is skipped, or null if the input is empty.
  */
 function photonSafeUrl( url: string = '' ): string | null {
 	if ( ! url ) {
