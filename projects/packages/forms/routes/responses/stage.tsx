@@ -1082,14 +1082,8 @@ function Stage() {
 				onChangeSelection={ onChangeSelection }
 				actions={ actions }
 			>
-				<Stack
-					className="jp-forms-dataviews__view-actions"
-					direction="row"
-					justify="space-between"
-					align="center"
-					gap="sm"
-				>
-					<Stack direction="row" align="center" gap="sm">
+				<Stack justify="space-between" align="center" gap="sm">
+					<Stack align="center" gap="sm">
 						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
 							<Tabs.List density="compact">
 								{ statusTabs.map( tab => (
@@ -1100,7 +1094,7 @@ function Stage() {
 							</Tabs.List>
 						</Tabs.Root>
 					</Stack>
-					<Stack direction="row" align="center" gap="sm">
+					<Stack align="center" gap="sm">
 						<DataViews.Search />
 						<DataViews.FiltersToggle />
 						<DataViews.ViewConfig />
