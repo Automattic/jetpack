@@ -28,12 +28,15 @@ function cleanContent( content ) {
 	// Replace bare URLs with [link].
 	content = content.replace( /https?:\/\/\S+/g, '[link]' );
 
-	// Remove HTML comments, applying repeatedly to avoid incomplete multi-character sanitization.
+	// Remove complete HTML comments, applying repeatedly to avoid incomplete multi-character sanitization.
 	let previousContent;
 	do {
 		previousContent = content;
 		content = content.replace( /<!--[\s\S]*?-->/g, '' );
 	} while ( content !== previousContent );
+
+	// Remove incomplete HTML comments (opening tag without closing).
+	content = content.replace( /<!--[\s\S]*/g, '' );
 
 	return content;
 }
@@ -54,9 +57,12 @@ function sanitizeForPrompt( content ) {
 	// This is the critical fix: triple backticks would prematurely close the code block.
 	content = content.replace( /```+/g, '[code-fence]' );
 
-	// Escape remaining single backticks to prevent them from being interpreted as
-	// template literal delimiters in the JavaScript code. In the output string,
-	// these will become literal backticks which are safe inside markdown code blocks.
+	// Escape backslashes first, then backticks.
+	// Order matters: if we escape backticks first, then a `\` followed by `` ` ``
+	// would become `\\`` which is ambiguous. By escaping backslashes first,
+	// we ensure proper encoding of both characters.
+	content = content.replace( /\\/g, '\\\\' );
+
 	return content.replace( /`/g, '\\`' );
 }
 
