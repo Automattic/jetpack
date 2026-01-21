@@ -24,10 +24,11 @@ import {
 /**
  * Internal dependencies
  */
+// Field block definitions - used to get consistent icons
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
 import FieldImageSelect from '../field-image-select/index.tsx';
-import type { ResponseField } from '../../../../types/index.ts';
+import type { ResponseField, FieldType, FileItem } from '../../../../types/index.ts';
 import './style.scss';
 
 const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -83,34 +84,7 @@ const NumberIcon = () => (
 	</SVG>
 );
 
-type FieldType =
-	| 'name'
-	| 'email'
-	| 'phone'
-	| 'telephone'
-	| 'url'
-	| 'file'
-	| 'image-select'
-	| 'date'
-	| 'select'
-	| 'checkbox'
-	| 'checkbox-multiple'
-	| 'radio'
-	| 'textarea'
-	| 'text'
-	| 'number'
-	| 'slider'
-	| 'range'
-	| 'rating'
-	| 'consent';
 
-type FileItem = {
-	file_id: number;
-	name: string;
-	url: string;
-	size: string;
-	type?: string;
-	is_previewable?: boolean;
 };
 
 /**

@@ -341,3 +341,33 @@ export interface FormsConfigData {
 	/** Number of days before WordPress permanently deletes trash. See https://developer.wordpress.org/advanced-administration/wordpress/wp-config/#empty-trash */
 	emptyTrashDays?: number;
 }
+
+export type FieldType =
+	| 'name'
+	| 'email'
+	| 'phone'
+	| 'telephone'
+	| 'url'
+	| 'file'
+	| 'image-select'
+	| 'date'
+	| 'select'
+	| 'checkbox'
+	| 'checkbox-multiple'
+	| 'radio'
+	| 'textarea'
+	| 'text'
+	| 'number'
+	| 'slider'
+	| 'range'
+	| 'rating'
+	| 'consent';
+
+export type FileItem = {
+	file_id: number;
+	name: string;
+	url: string;
+	size: string;
+	type?: string;
+	is_previewable?: boolean;
+};
