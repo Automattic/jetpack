@@ -317,7 +317,7 @@ export default function MediaSectionV2( {
 								source={ currentSource }
 								checked={ isShareAsAttachment }
 								onChange={ handleAttachmentToggle }
-								disabled={ forceAsAttachment ?? disabled }
+								disabled={ forceAsAttachment || disabled }
 							/>
 						</>
 					) }
