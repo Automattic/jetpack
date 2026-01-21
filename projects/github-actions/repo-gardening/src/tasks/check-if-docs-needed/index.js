@@ -171,21 +171,14 @@ async function checkIfDocsNeeded( payload, octokit ) {
 		return;
 	}
 
-	// Validate the parsed response shape before using it.
-	if (
-		! result ||
-		typeof result !== 'object' ||
-		typeof result.is_user_facing !== 'boolean' ||
-		typeof result.confidence !== 'string' ||
-		! [ 'low', 'medium', 'high' ].includes( result.confidence ) ||
-		typeof result.reason !== 'string'
-	) {
-		debug(
-			`check-if-docs-needed: OpenAI response for PR #${ number } has an unexpected format: ${ response }`
-		);
-		return;
-	}
-	const { is_user_facing: isUserFacing, confidence, reason } = result;
+	const isUserFacing = typeof result?.is_user_facing === 'boolean' ? result.is_user_facing : false;
+	const confidence =
+		result?.confidence &&
+		typeof result.confidence === 'string' &&
+		[ 'low', 'medium', 'high' ].includes( result.confidence.trim().toLowerCase() )
+			? result.confidence.trim().toLowerCase()
+			: 'low';
+	const reason = result?.reason && typeof result.reason === 'string' ? result.reason.trim() : '';
 
 	// Apply UI Changes label if user-facing with medium or high confidence.
 	if ( isUserFacing && ( confidence === 'high' || confidence === 'medium' ) ) {
