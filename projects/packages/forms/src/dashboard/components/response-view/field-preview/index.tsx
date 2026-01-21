@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	ExternalLink,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
@@ -144,7 +145,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	const icon = getFieldIcon( fieldType );
 
 	const renderFieldValue = () => {
-		if ( field.type === 'image-select' ) {
+		if ( fieldType === 'image-select' ) {
 			return (
 				<FieldImageSelect
 					choices={ ( value as { choices: unknown[] } ).choices }
@@ -154,7 +155,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		}
 
 		// File uploads
-		if ( field.type === 'file' ) {
+		if ( fieldType === 'file' ) {
 			return (
 				<FieldFile
 					files={ ( value as { files: FileItem[] } )?.files }
@@ -181,13 +182,17 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		const stringValue = String( value );
 
 		// Emails
-		if ( EMAIL_REGEX.test( stringValue ) ) {
+		if ( fieldType === 'email' && EMAIL_REGEX.test( stringValue ) ) {
 			return <FieldEmail email={ stringValue } />;
 		}
 
 		// Phone numbers
 		if ( field.type === 'phone' || field.type === 'telephone' ) {
 			return <a href={ `tel:${ stringValue }` }>{ stringValue }</a>;
+		}
+
+		if ( fieldType === 'url' ) {
+			return <ExternalLink href={ stringValue }>{ stringValue }</ExternalLink>;
 		}
 
 		return stringValue;
