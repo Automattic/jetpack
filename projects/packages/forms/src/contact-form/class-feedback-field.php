@@ -325,7 +325,7 @@ class Feedback_Field {
 		}
 
 		// Get icon style from meta data (defaults to 'stars').
-		$icon_style = $this->get_meta_key_value( 'iconStyle' );
+		$icon_style = $this->get_meta_key_value( 'icon' );
 		if ( empty( $icon_style ) ) {
 			$icon_style = 'stars';
 		}
