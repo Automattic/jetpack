@@ -14,10 +14,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-		interactivity: true,
-	},
 	title: __( 'Phone number field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Phone', 'jetpack-forms' ),
@@ -41,6 +37,10 @@ export const settings = {
 			type: 'string',
 			default: '',
 		},
+	},
+	supports: {
+		...defaultSettings.supports,
+		interactivity: true,
 	},
 	providesContext: {
 		...defaultSettings.providesContext,
