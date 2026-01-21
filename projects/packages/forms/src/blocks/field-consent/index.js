@@ -6,8 +6,13 @@ import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-consent';
-const settings = {
+export const name = 'field-consent';
+
+export const form_editor = {
+	category: 'advanced',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Terms consent', 'jetpack-forms' ),
 	keywords: [ __( 'Consent', 'jetpack-forms' ) ],
@@ -72,4 +77,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

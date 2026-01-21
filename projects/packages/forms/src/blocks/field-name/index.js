@@ -8,14 +8,18 @@ import edit from './edit.js';
 import save from './save.js';
 import variations from './variations.js';
 
-const name = 'field-name';
+export const name = 'field-name';
+
+export const form_editor = {
+	category: 'contact-info',
+};
 
 const transforms = {
 	...transformsSource,
 	to: transformsSource.to.filter( transform => ! transform.blocks.includes( 'jetpack/' + name ) ),
 };
 
-const settings = {
+export const settings = {
 	...defaultSettings,
 	attributes: {
 		...defaultSettings.attributes,
@@ -57,4 +61,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

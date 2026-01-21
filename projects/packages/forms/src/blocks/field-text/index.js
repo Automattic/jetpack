@@ -6,8 +6,13 @@ import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-text';
-const settings = {
+export const name = 'field-text';
+
+export const form_editor = {
+	category: 'basic',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Text input field', 'jetpack-forms' ),
 	description: __( 'Collect short text responses from site visitors.', 'jetpack-forms' ),
@@ -40,4 +45,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };
