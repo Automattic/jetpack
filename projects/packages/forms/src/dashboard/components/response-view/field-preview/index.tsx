@@ -15,6 +15,7 @@ import ConsentFieldBlock from '../../../../blocks/field-consent/index.js';
 import DateFieldBlock from '../../../../blocks/field-date/index.js';
 import EmailFieldBlock from '../../../../blocks/field-email/index.js';
 import FileFieldBlock from '../../../../blocks/field-file/index.js';
+import HiddenFieldBlock from '../../../../blocks/field-hidden/index.js';
 import ImageSelectFieldBlock from '../../../../blocks/field-image-select/index.tsx';
 import MultipleChoiceFieldBlock from '../../../../blocks/field-multiple-choice/index.js';
 import NameFieldBlock from '../../../../blocks/field-name/index.js';
@@ -26,6 +27,7 @@ import SliderFieldBlock from '../../../../blocks/field-slider/index.js';
 import TelephoneFieldBlock from '../../../../blocks/field-telephone/index.js';
 import TextFieldBlock from '../../../../blocks/field-text/index.js';
 import TextareaFieldBlock from '../../../../blocks/field-textarea/index.js';
+import TimeFieldBlock from '../../../../blocks/field-time/index.js';
 import UrlFieldBlock from '../../../../blocks/field-url/index.js';
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
@@ -90,6 +92,10 @@ const getFieldIcon = ( fieldType: FieldType ): React.ReactNode => {
 			return getBlockIcon( ImageSelectFieldBlock );
 		case 'date':
 			return getBlockIcon( DateFieldBlock );
+		case 'time':
+			return getBlockIcon( TimeFieldBlock );
+		case 'hidden':
+			return getBlockIcon( HiddenFieldBlock );
 		case 'select':
 			return getBlockIcon( SelectFieldBlock );
 		case 'checkbox':
