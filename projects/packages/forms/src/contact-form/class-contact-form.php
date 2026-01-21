@@ -1550,7 +1550,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$html .=
-			'<h4 id="contact-form-success-header-' . esc_attr( $form->hash ) . '" tabindex="-1">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
+			'<h4 id="contact-form-success-header-' . esc_attr( $form->hash ) . '" tabindex="-1" role="alert">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
 
 		if ( 'text' === $confirmation_type ) {
