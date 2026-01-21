@@ -3,6 +3,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	TextControl,
+	BaseControl,
 } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -166,7 +167,7 @@ export default function SliderFieldEdit( props ) {
 					{
 						index: 1,
 						element: (
-							<>
+							<BaseControl __nextHasNoMarginBottom={ true } key="sliderFieldControls">
 								<HStack alignment="top" className="jp-field-slider-inspector-row">
 									<NumberControl
 										__next40pxDefaultSize
@@ -234,7 +235,7 @@ export default function SliderFieldEdit( props ) {
 										spinControls="custom"
 									/>
 								</HStack>
-							</>
+							</BaseControl>
 						),
 					},
 				] }
