@@ -190,7 +190,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 			return <a href={ `tel:${ stringValue }` }>{ stringValue }</a>;
 		}
 
-		if ( fieldType === 'url' ) {
+		if ( fieldType === 'url' && /^https?:\/\//.test( stringValue ) ) {
 			return <ExternalLink href={ stringValue }>{ stringValue }</ExternalLink>;
 		}
 
