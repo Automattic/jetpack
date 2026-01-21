@@ -11,8 +11,8 @@ import {
 /*
  * Internal dependencies
  */
-import { renderRatingIconsHtml } from '../../blocks/field-rating/rating-icons.js';
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
+import { getRating, getRatingDisplayValue } from '../field-rating/view.js';
 import { focusNextInput, submitForm } from './shared.ts';
 
 const withSyncEvent =
@@ -148,8 +148,9 @@ const maybeTransformValue = value => {
 	}
 
 	// For rating fields, return the displayValue (e.g., "3/5") for text fallback.
-	if ( value?.type === 'rating' && value?.displayValue ) {
-		return value.displayValue;
+	const ratingDisplayValue = getRatingDisplayValue( value );
+	if ( ratingDisplayValue ) {
+		return ratingDisplayValue;
 	}
 
 	// For file upload fields, we want to show the file name and size
@@ -173,18 +174,6 @@ const getImages = value => {
 				label,
 			};
 		} );
-	}
-
-	return null;
-};
-
-const getRating = value => {
-	if ( value?.type === 'rating' ) {
-		return {
-			rating: value.rating ?? 0,
-			maxRating: value.maxRating ?? 5,
-			iconStyle: value.iconStyle ?? 'stars',
-		};
 	}
 
 	return null;
@@ -774,33 +763,6 @@ const { state, actions } = store( NAMESPACE, {
 			const { ref } = getElement();
 			const shouldHide = !! ( context.submission.url || context.submission.rating );
 			ref.hidden = shouldHide;
-		},
-
-		watchRatingIcons() {
-			const { ref } = getElement();
-			const context = getContext();
-
-			// Try to get rating data from context (AJAX submissions) or data attribute (server-rendered).
-			let rating = context.submission?.rating;
-
-			// For server-rendered content, read rating data from data attribute.
-			if ( ! rating && ref?.dataset?.rating ) {
-				try {
-					rating = JSON.parse( ref.dataset.rating );
-				} catch {
-					// Invalid JSON, ignore.
-				}
-			}
-
-			// If no rating data is available, don't render icons.
-			if ( ! rating ) {
-				return;
-			}
-
-			const { rating: ratingValue, maxRating, iconStyle } = rating;
-
-			// Render icons using the shared function.
-			ref.innerHTML = renderRatingIconsHtml( ratingValue, maxRating, iconStyle );
 		},
 	},
 } );
