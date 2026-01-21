@@ -79,7 +79,6 @@ export default function ProtectProductPage() {
 		navigateToUpgrade();
 	}, [ recordEvent, navigateToUpgrade ] );
 
-	const learnMoreUrl = getRedirectUrl( 'jetpack-protect-learn-more' );
 	const cloudScanUrl = getRedirectUrl( 'my-jetpack-manage-scan' );
 	const scanVsProtectUrl =
 		'https://jetpack.com/support/jetpack-protect/#jetpack-protect-jetpack-scan-and-wpscan-understand-the-difference';
@@ -134,7 +133,7 @@ export default function ProtectProductPage() {
 									onClick={ handleUpgradeClick }
 									className={ styles[ 'product-interstitial__hero-cta' ] }
 								>
-									{ __( 'Upgrade for full protection', 'jetpack-my-jetpack' ) }
+									{ __( 'Upgrade to Scan', 'jetpack-my-jetpack' ) }
 								</Button>
 							) }
 							{ hasPaidPlan && (
@@ -263,11 +262,11 @@ export default function ProtectProductPage() {
 				<Col className={ styles[ 'product-interstitial__section' ] }>
 					<div className={ styles[ 'product-interstitial__section-wrapper' ] }>
 						<h2 className={ styles[ 'product-interstitial__section-heading' ] }>
-							{ __( 'Understanding "Partial" scan status', 'jetpack-my-jetpack' ) }
+							{ __( 'Upgrade for full protection', 'jetpack-my-jetpack' ) }
 						</h2>
 						<p className={ styles[ 'product-interstitial__section-sub-heading' ] }>
 							{ __(
-								'You may notice your scan shows as "Partial" on the Protect card. Here\'s what that means:',
+								'Jetpack Scan is a paid upgrade that provides real-time malware scanning and an enhanced web application firewall (WAF) while also enabling auto-fixes (where available) for security threats.',
 								'jetpack-my-jetpack'
 							) }
 						</p>
@@ -292,7 +291,7 @@ export default function ProtectProductPage() {
 									) }
 								</p>
 								<Button variant="primary" onClick={ handleUpgradeClick }>
-									{ __( 'Upgrade for full protection', 'jetpack-my-jetpack' ) }
+									{ __( 'Upgrade to Scan', 'jetpack-my-jetpack' ) }
 								</Button>
 							</div>
 						</div>
@@ -317,16 +316,16 @@ export default function ProtectProductPage() {
 							</h2>
 							<p className={ styles[ 'product-interstitial__section-sub-heading' ] }>
 								{ __(
-									'Upgrade to Jetpack Scan for real-time malware detection, automatic threat fixes, and enhanced firewall protection with automatic rule updates.',
+									'Jetpack Security provides easy-to-use, comprehensive WordPress site security, including real-time backups, a web application firewall, malware scanning, and spam protection.',
 									'jetpack-my-jetpack'
 								) }
 							</p>
 							<div className={ styles[ 'product-interstitial__cta-buttons' ] }>
 								<Button variant="primary" onClick={ handleUpgradeClick }>
-									{ __( 'Upgrade to Scan', 'jetpack-my-jetpack' ) }
+									{ __( 'Secure your site', 'jetpack-my-jetpack' ) }
 								</Button>
-								<ExternalLink href={ learnMoreUrl }>
-									{ __( 'Learn more about Jetpack security', 'jetpack-my-jetpack' ) }
+								<ExternalLink href="https://jetpack.com/features/security/">
+									{ __( 'Learn more about Jetpack Security', 'jetpack-my-jetpack' ) }
 								</ExternalLink>
 							</div>
 						</div>
