@@ -70,6 +70,20 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	private $controller;
 
 	/**
+	 * Whether the site is connected (used by dynamic mock).
+	 *
+	 * @var bool
+	 */
+	private $is_connected = true;
+
+	/**
+	 * Whether the user is connected (used by dynamic mock).
+	 *
+	 * @var bool
+	 */
+	private $is_user_connected = true;
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
@@ -80,7 +94,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
 
-		// Mock the site ID for route registration
+		// Mock the site ID for route registration.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 
 		$this->admin_id = wp_insert_user(
@@ -109,6 +123,21 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 			),
 			true
 		);
+
+		// Reset connection state to defaults (connected).
+		$this->is_connected      = true;
+		$this->is_user_connected = true;
+
+		// Initialize the controller with a mocked connection manager.
+		// The mock uses callbacks so connection state can be changed per-test.
+		$connection_manager = $this->get_mocked_connection_manager();
+		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
+
+		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
+		do_action( 'rest_api_init' );
+
+		// Set default sync status to IN_SYNC.
+		Health::update_status( Health::STATUS_IN_SYNC );
 	}
 
 	/**
@@ -121,6 +150,12 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+
+		// Clean up HTTP request mocks to prevent interference between tests.
+		remove_all_filters( 'pre_http_request' );
+
+		// Clean up attachment media filter.
+		remove_all_filters( 'get_attached_media' );
 
 		if ( $this->controller ) {
 			remove_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
@@ -155,29 +190,35 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	/**
 	 * Create a stubbed Connection_Manager instance.
 	 *
-	 * @param bool $is_connected       Whether the site is connected. Default true.
-	 * @param bool $is_user_connected  Whether the user is connected. Default true.
+	 * The mock uses callbacks that reference $this->is_connected and $this->is_user_connected,
+	 * allowing tests to change connection state without re-creating the controller.
+	 *
 	 * @return Connection_Manager PHPUnit stub object.
 	 */
-	private function get_mocked_connection_manager( $is_connected = true, $is_user_connected = true ) {
+	private function get_mocked_connection_manager() {
 		$connection_manager = $this->createStub( Connection_Manager::class );
-		$connection_manager->method( 'is_connected' )->willReturn( $is_connected );
-		$connection_manager->method( 'is_user_connected' )->willReturn( $is_user_connected );
+		$connection_manager->method( 'is_connected' )->willReturnCallback(
+			function () {
+				return $this->is_connected;
+			}
+		);
+		$connection_manager->method( 'is_user_connected' )->willReturnCallback(
+			function () {
+				return $this->is_user_connected;
+			}
+		);
 		$connection_manager->method( 'get_site_id' )->willReturn( $this->site_id );
 
 		return $connection_manager;
 	}
 
 	/**
-	 * Test the function can_user_view_dsp_callback checks for authentication
+	 * Test the function can_user_view_dsp_callback checks for authentication.
 	 */
 	public function test_endpoints_requires_authentication() {
-		// Create a controller with mocked connection that returns false for both checks
-		$connection_manager = $this->get_mocked_connection_manager( false, false );
-		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
-
-		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
+		// Set connection state to disconnected - the mock callbacks will read these values.
+		$this->is_connected      = false;
+		$this->is_user_connected = false;
 
 		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/blaze/posts', $this->site_id ) );
 		$response = $this->server->dispatch( $request );
@@ -189,12 +230,6 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	 * Test the function can_user_view_dsp_callback with editor user (should fail)
 	 */
 	public function test_endpoints_requires_admin_permission() {
-		// Create a controller with mocked connection that returns true for connection checks
-		$connection_manager = $this->get_mocked_connection_manager();
-		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
-		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
-
 		// Set current user to editor (not admin)
 		wp_set_current_user( $this->editor_id );
 
@@ -209,13 +244,6 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	 * Test GET sites/%d/blaze/posts endpoint with successful request
 	 */
 	public function test_blaze_posts_returns_posts_successfully() {
-		// Create a controller with mocked connection that returns true for connection checks
-		$connection_manager = $this->get_mocked_connection_manager();
-		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
-		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
-
-		// Set current user to admin
 		wp_set_current_user( $this->admin_id );
 
 		// Capture HTTP request for verification
@@ -293,13 +321,6 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	 * Test GET sites/%d/blaze/posts endpoint with query parameters
 	 */
 	public function test_blaze_posts_forwards_query_parameters() {
-		// Create a controller with mocked connection that returns true for connection checks
-		$connection_manager = $this->get_mocked_connection_manager();
-		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
-		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
-
-		// Set current user to admin
 		wp_set_current_user( $this->admin_id );
 
 		// Capture HTTP request for verification
@@ -365,13 +386,6 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	 * Test GET sites/%d/blaze/posts endpoint returns error from WPCOM
 	 */
 	public function test_blaze_posts_handles_wpcom_error() {
-		// Create a controller with mocked connection that returns true for connection checks
-		$connection_manager = $this->get_mocked_connection_manager();
-		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
-		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
-
-		// Set current user to admin
 		wp_set_current_user( $this->admin_id );
 
 		// Mock error response from WPCOM
@@ -496,13 +510,6 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	 * This test uses the WooCommerce mocks loaded via bootstrap.php.
 	 */
 	public function test_add_prices_in_posts_with_woocommerce_products() {
-		// Create a controller with mocked connection
-		$connection_manager = $this->get_mocked_connection_manager();
-		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
-		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
-
-		// Set current user to admin
 		wp_set_current_user( $this->admin_id );
 
 		// Mock HTTP response with product posts
@@ -567,13 +574,6 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	 * Test that add_prices_in_posts handles posts without ID gracefully.
 	 */
 	public function test_add_prices_in_posts_handles_missing_id() {
-		// Create a controller with mocked connection
-		$connection_manager = $this->get_mocked_connection_manager();
-		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
-		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
-
-		// Set current user to admin
 		wp_set_current_user( $this->admin_id );
 
 		// Mock HTTP response with a post missing ID
@@ -629,11 +629,6 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	 * use edit_dsp_generic or get_dsp_generic.
 	 */
 	public function test_edit_dsp_generic_redirects_to_wpcom() {
-		$connection_manager = $this->get_mocked_connection_manager();
-		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
-		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
-
 		wp_set_current_user( $this->admin_id );
 
 		// Capture the redirected request
@@ -684,11 +679,6 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	 * URL and method. Use this as a template for testing other endpoints.
 	 */
 	public function test_get_dsp_generic_redirects_to_wpcom() {
-		$connection_manager = $this->get_mocked_connection_manager();
-		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
-		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
-
 		wp_set_current_user( $this->admin_id );
 
 		// Capture the redirected request
@@ -782,17 +772,12 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Helper method to set up controller and capture redirected requests.
+	 * Helper method to set up HTTP mock filter and capture redirected requests.
 	 *
 	 * @param string     $url_pattern Pattern to match in the WPCOM URL.
 	 * @param array|null $captured_request Reference to store captured request data.
 	 */
 	private function setup_redirect_test( $url_pattern, &$captured_request ) {
-		$connection_manager = $this->get_mocked_connection_manager();
-		$this->controller   = new Dashboard_REST_Controller( $connection_manager );
-		add_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
-
 		wp_set_current_user( $this->admin_id );
 
 		add_filter(
