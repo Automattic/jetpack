@@ -14,9 +14,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'Single choice (radio)', 'jetpack-forms' ),
 	keywords: [
 		__( 'Choose', 'jetpack-forms' ),

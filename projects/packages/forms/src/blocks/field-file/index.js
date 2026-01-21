@@ -13,9 +13,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'File upload field', 'jetpack-forms' ),
 	keywords: [
 		__( 'File', 'jetpack-forms' ),

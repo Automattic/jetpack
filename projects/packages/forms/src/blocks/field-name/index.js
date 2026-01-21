@@ -21,9 +21,6 @@ const transforms = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	attributes: {
 		...defaultSettings.attributes,
 		fieldVariant: {

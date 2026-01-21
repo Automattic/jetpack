@@ -14,9 +14,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'Website field', 'jetpack-forms' ),
 	keywords: [
 		__( 'url', 'jetpack-forms' ),

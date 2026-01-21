@@ -13,9 +13,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'Time input field', 'jetpack-forms' ),
 	description: __( 'Capture time information with a time picker.', 'jetpack-forms' ),
 	icon: renderMaterialIcon(

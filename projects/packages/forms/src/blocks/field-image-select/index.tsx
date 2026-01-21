@@ -18,9 +18,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'Image Select Field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Image', 'jetpack-forms' ),

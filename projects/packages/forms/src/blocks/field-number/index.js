@@ -14,9 +14,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'Number input field', 'jetpack-forms' ),
 	description: __( 'Collect numbers from site visitors.', 'jetpack-forms' ),
 	icon: renderMaterialIcon(

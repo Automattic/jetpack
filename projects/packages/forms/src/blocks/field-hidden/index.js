@@ -12,9 +12,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'Hidden field', 'jetpack-forms' ),
 	description: __(
 		'Invisible to site visitors. Allows you to store extra values with each form submission.',

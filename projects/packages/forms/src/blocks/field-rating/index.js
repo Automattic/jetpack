@@ -53,9 +53,6 @@ export const settings = {
 		'jetpack/field-rating-default': 'default',
 		'jetpack/field-rating-iconStyle': 'iconStyle',
 	},
-	supports: {
-		...defaultSettings.supports,
-	},
 	variations,
 	allowedBlocks: [ 'jetpack/label', 'jetpack/input-rating' ],
 	edit,

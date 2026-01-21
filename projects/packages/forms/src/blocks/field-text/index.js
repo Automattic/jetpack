@@ -14,9 +14,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'Text input field', 'jetpack-forms' ),
 	description: __( 'Collect short text responses from site visitors.', 'jetpack-forms' ),
 	icon: {
