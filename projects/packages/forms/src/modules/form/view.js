@@ -49,12 +49,18 @@ const setSubmissionData = ( data = [] ) => {
 	context.submissionData = data;
 
 	// This cannot be a derived state because it needs to be defined on the backend for first render to avoid hydration errors.
-	context.formattedSubmissionData = data.map( item => ( {
-		label: maybeAddColonToLabel( item.label ),
-		value: maybeTransformValue( item.value ),
-		images: getImages( item.value ),
-		url: getUrl( item.value ),
-	} ) );
+	context.formattedSubmissionData = data.map( item => {
+		const images = getImages( item.value );
+		const url = getUrl( item.value );
+
+		return {
+			label: maybeAddColonToLabel( item.label ),
+			value: maybeTransformValue( item.value ),
+			images,
+			url,
+			showPlainValue: ! url && ( ! images || images.length === 0 ),
+		};
+	} );
 };
 
 const registerField = (
@@ -142,7 +148,17 @@ const maybeTransformValue = value => {
 
 const getImages = value => {
 	if ( value?.type === 'image-select' ) {
-		return value.choices.map( choice => choice.image?.src );
+		return value.choices.map( choice => {
+			const letterCode = choice.perceived ?? '';
+			const label =
+				choice.showLabels && choice.label != null && choice.label !== '' ? choice.label : '';
+
+			return {
+				src: choice.image?.src ?? '',
+				letterCode,
+				label,
+			};
+		} );
 	}
 
 	return null;
