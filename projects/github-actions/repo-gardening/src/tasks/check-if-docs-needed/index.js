@@ -149,11 +149,12 @@ async function checkIfDocsNeeded( payload, octokit ) {
 	debug( `check-if-docs-needed: Sending PR #${ number } to OpenAI for analysis.` );
 
 	// Call OpenAI.
-	let response;
-	try {
-		response = await sendOpenAiRequest( prompt, 'json_object' );
-	} catch ( error ) {
-		debug( `check-if-docs-needed: OpenAI request failed for PR #${ number }: ${ error }` );
+	const response = await sendOpenAiRequest( prompt, 'json_object' );
+
+	if ( ! response ) {
+		debug(
+			`check-if-docs-needed: OpenAI request returned no response for PR #${ number }. Skipping docs check.`
+		);
 		return;
 	}
 
