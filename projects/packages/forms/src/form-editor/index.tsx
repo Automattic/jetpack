@@ -278,7 +278,6 @@ const setupFormEditorSubscription = () => {
 				filterFormEditorBlocks();
 			}
 		} else {
-			console.log( 'Not in jetpack_form editor' );
 			// We are not in the form editor anymore.
 			if ( categoriesFiltered ) {
 				categoriesFiltered = false;
