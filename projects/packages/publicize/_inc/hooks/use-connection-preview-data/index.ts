@@ -72,7 +72,7 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 		return {
 			...postData,
-			message: globalMessage.trim(),
+			message: connection.message?.trim(),
 			media,
 		};
 	}, [
