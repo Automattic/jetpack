@@ -365,7 +365,9 @@ export type FieldType =
 	| 'slider'
 	| 'range'
 	| 'rating'
-	| 'consent';
+	| 'consent'
+	| 'time'
+	| 'hidden';
 
 export type FileItem = {
 	file_id: number;
