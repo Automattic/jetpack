@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Remove blocks from the form editor that are not supposed to be there when switching to it.
