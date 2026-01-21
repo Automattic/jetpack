@@ -240,16 +240,16 @@ async function checkIfDocsNeeded( payload, octokit ) {
 			labels: [ uiChangesLabel ],
 		} );
 
-		// Send Slack notification if quality channel is configured.
-		const slackQualityChannel = getInput( 'slack_quality_channel' );
+		// Send Slack notification if product ambassadors channel is configured.
+		const slackProductAmbassadorsChannel = getInput( 'slack_product_ambassadors_channel' );
 		const slackToken = getInput( 'slack_token' );
 
-		if ( slackQualityChannel && slackToken ) {
+		if ( slackProductAmbassadorsChannel && slackToken ) {
 			debug( `check-if-docs-needed: Sending Slack notification for PR #${ number }.` );
 			try {
 				await sendSlackMessage(
 					`This PR was flagged as containing user-facing changes. Please review and update documentation if needed.\n\n*AI reasoning:* ${ reason }`,
-					slackQualityChannel,
+					slackProductAmbassadorsChannel,
 					payload
 				);
 			} catch ( error ) {
@@ -257,9 +257,9 @@ async function checkIfDocsNeeded( payload, octokit ) {
 					`check-if-docs-needed: Failed to send Slack notification for PR #${ number }: ${ error }`
 				);
 			}
-		} else if ( slackQualityChannel && ! slackToken ) {
+		} else if ( slackProductAmbassadorsChannel && ! slackToken ) {
 			debug(
-				`check-if-docs-needed: Slack quality channel is configured but slack_token is missing. Skipping Slack notification for PR #${ number }.`
+				`check-if-docs-needed: Slack product ambassadors channel is configured but slack_token is missing. Skipping Slack notification for PR #${ number }.`
 			);
 		}
 	} else {

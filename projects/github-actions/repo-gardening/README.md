@@ -82,6 +82,7 @@ The action relies on the following parameters.
 - (Optional) `slack_team_channel` is the Slack public channel ID where general notifications about your repo should be posted. Again, the value should be stored in a variable.
 - (Optional) `slack_he_triage_channel` is the Slack public channel ID where messages for the HE Triage team will be posted. The value should be stored in a variable.
 - (Optional) `slack_quality_channel` is the Slack public channel ID where issues needing extra triage / escalation will be sent. The value should be stored in a variable.
+- (Optional) `slack_product_ambassadors_channel` is the Slack public channel ID where messages about PRs needing docs review will be sent. The value should be stored in a variable.
 - (Optional) `reply_to_customers_threshold`. It is optional, and defaults to 10. It is the minimum number of support references needed to trigger an alert that we need to reply to customers.
 - (Optional) `triage_projects_token` is a [personal access token](https://github.com/settings/tokens/new) with `repo` and `project` scopes. The token should be stored in a secret. This is required if you want to use the `triageIssues` task.
 - (Optional) `project_board_url` is the URL of a GitHub Project Board. We'll automate some of the work on that board in the `triageIssues` task.

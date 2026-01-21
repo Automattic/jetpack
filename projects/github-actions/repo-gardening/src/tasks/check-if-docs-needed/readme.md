@@ -8,7 +8,7 @@ Uses AI to analyze PR diffs and descriptions to determine if changes are user-fa
 2. Sends content to OpenAI for analysis
 3. If changes are determined to be user-facing (with medium or high confidence):
    - Adds the `[Status] UI Changes` label
-   - Sends a Slack notification (if `slack_quality_channel` is configured)
+   - Sends a Slack notification (if `slack_product_ambassadors_channel` is configured)
 
 ## Bailout conditions
 
