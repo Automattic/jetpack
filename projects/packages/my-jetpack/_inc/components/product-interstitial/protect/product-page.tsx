@@ -18,6 +18,7 @@ import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import { MyJetpackRoutes } from '../../../constants';
 import { QUERY_GET_PROTECT_DATA_KEY, REST_API_GET_PROTECT_DATA } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
@@ -39,11 +40,11 @@ import styles from './style.module.scss';
  * @return {object} React component for the product page
  */
 export default function ProtectProductPage() {
-	const { onClickGoBack } = useGoBack( 'protect' );
+	const { onClickGoBack } = useGoBack( { slug: 'protect' } );
 	const { detail, isLoading: isLoadingProduct } = useProduct( 'protect' );
 	const { isSiteConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
-	const navigateToUpgrade = useMyJetpackNavigate( '/add-protect' );
+	const navigateToUpgrade = useMyJetpackNavigate( MyJetpackRoutes.AddProtect );
 
 	const { data: protectData, isLoading: isLoadingProtectData } = useSimpleQuery< ProtectData >( {
 		name: QUERY_GET_PROTECT_DATA_KEY,
