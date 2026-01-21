@@ -193,7 +193,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		}
 
 		// Phone numbers
-		if ( field.type === 'phone' || field.type === 'telephone' ) {
+		if ( fieldType === 'phone' || fieldType === 'telephone' ) {
 			return <a href={ `tel:${ stringValue }` }>{ stringValue }</a>;
 		}
 
