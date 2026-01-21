@@ -3,7 +3,7 @@
  */
 import { useEvent } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
-import { useSearchParams } from 'react-router';
+import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 
 const LAYOUT_TABLE = 'table';
 
@@ -30,7 +30,7 @@ export const defaultLayouts = {
  * @return {Array} The [ state, setState ] tuple.
  */
 export function useView() {
-	const [ searchParams, setSearchParams ] = useSearchParams();
+	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
 	// Normalize missing query param to empty string so we don't treat
 	// `null` (missing) and `''` (empty) as different values.
 	const urlSearch = searchParams.get( 'search' ) ?? '';

@@ -35,6 +35,7 @@ import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 import { getPath } from '../../src/dashboard/inbox/utils';
+import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
@@ -187,7 +188,7 @@ function Stage() {
 		[]
 	);
 	const { updateCountsOptimistically, invalidateCounts } = useDispatch(
-		dashboardStore
+		( dashboardStore as unknown as { name: string } ).name
 	) as DispatchActions;
 	const filterOptions = useFilterOptions();
 	let status = 'publish';
@@ -1049,75 +1050,80 @@ function Stage() {
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
 	return (
-		<Page
-			showSidebarToggle={ false }
-			title={
-				<Stack align="center" gap="xs">
-					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
-				</Stack>
-			}
-			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
-			actions={ headerActions }
-			hasPadding={ false }
-		>
-			<DataViews
-				empty={
-					<EmptyResponses
-						status={ params.view }
-						isSearch={ !! view.search }
-						readStatusFilter={ readStatusFilter }
-					/>
+		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
+			<Page
+				showSidebarToggle={ false }
+				title={
+					<Stack align="center" gap="xs">
+						<JetpackLogo showText={ false } width={ 20 } />
+						{ __( 'Forms', 'jetpack-forms' ) }
+					</Stack>
 				}
-				data={ records || EMPTY_ARRAY }
-				fields={ fields as Field< unknown >[] }
-				view={ view }
-				onChangeView={ onChangeView }
-				paginationInfo={ paginationInfo }
-				isLoading={ isResolving }
-				getItemId={ getItemId }
-				defaultLayouts={ defaultLayouts }
-				selection={ selection }
-				onChangeSelection={ onChangeSelection }
-				actions={ actions }
+				subTitle={ __(
+					'View and manage all your form submissions in one place.',
+					'jetpack-forms'
+				) }
+				actions={ headerActions }
+				hasPadding={ false }
 			>
-				<Stack
-					align="center"
-					className="jp-forms-dataviews__view-actions"
-					gap="sm"
-					justify="space-between"
+				<DataViews
+					empty={
+						<EmptyResponses
+							status={ params.view }
+							isSearch={ !! view.search }
+							readStatusFilter={ readStatusFilter }
+						/>
+					}
+					data={ records || EMPTY_ARRAY }
+					fields={ fields as Field< unknown >[] }
+					view={ view }
+					onChangeView={ onChangeView }
+					paginationInfo={ paginationInfo }
+					isLoading={ isResolving }
+					getItemId={ getItemId }
+					defaultLayouts={ defaultLayouts }
+					selection={ selection }
+					onChangeSelection={ onChangeSelection }
+					actions={ actions }
 				>
-					<Stack align="center" gap="sm">
-						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
-							<Tabs.List density="compact">
-								{ statusTabs.map( tab => (
-									<Tabs.Tab value={ tab.slug } key={ tab.slug }>
-										{ tab.label }
-									</Tabs.Tab>
-								) ) }
-							</Tabs.List>
-						</Tabs.Root>
+					<Stack
+						align="center"
+						className="jp-forms-dataviews__view-actions"
+						gap="sm"
+						justify="space-between"
+					>
+						<Stack align="center" gap="sm">
+							<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
+								<Tabs.List density="compact">
+									{ statusTabs.map( tab => (
+										<Tabs.Tab value={ tab.slug } key={ tab.slug }>
+											{ tab.label }
+										</Tabs.Tab>
+									) ) }
+								</Tabs.List>
+							</Tabs.Root>
+						</Stack>
+						<Stack align="center" gap="sm">
+							<DataViews.Search />
+							<DataViews.FiltersToggle />
+							<DataViews.ViewConfig />
+						</Stack>
 					</Stack>
-					<Stack align="center" gap="sm">
-						<DataViews.Search />
-						<DataViews.FiltersToggle />
-						<DataViews.ViewConfig />
-					</Stack>
-				</Stack>
-				<DataViews.Filters className="dataviews-filters__container" />
-				<DataViews.Layout />
-				<DataViews.Footer />
-			</DataViews>
-			<IntegrationsModal
-				isOpen={ isIntegrationsModalOpen }
-				onClose={ closeIntegrationsModal }
-				attributes={ undefined }
-				setAttributes={ undefined }
-				integrationsData={ integrations }
-				refreshIntegrations={ refreshIntegrations }
-				context="dashboard"
-			/>
-		</Page>
+					<DataViews.Filters className="dataviews-filters__container" />
+					<DataViews.Layout />
+					<DataViews.Footer />
+				</DataViews>
+				<IntegrationsModal
+					isOpen={ isIntegrationsModalOpen }
+					onClose={ closeIntegrationsModal }
+					attributes={ undefined }
+					setAttributes={ undefined }
+					integrationsData={ integrations }
+					refreshIntegrations={ refreshIntegrations }
+					context="dashboard"
+				/>
+			</Page>
+		</WpRouteDashboardSearchParamsProvider>
 	);
 }
 

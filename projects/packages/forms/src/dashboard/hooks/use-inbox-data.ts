@@ -6,10 +6,10 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useRef, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { isEmpty } from 'lodash';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import { useDashboardSearchParams } from '../router/dashboard-search-params-context.tsx';
 import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
@@ -73,7 +73,7 @@ interface UseInboxDataReturn {
  * @return {UseInboxDataReturn} The inbox related data.
  */
 export default function useInboxData(): UseInboxDataReturn {
-	const [ searchParams ] = useSearchParams();
+	const [ searchParams ] = useDashboardSearchParams();
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
