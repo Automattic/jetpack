@@ -913,4 +913,169 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		return new \WP_Error( 'http_request_failed', 'Connection failed' );
 	}
+
+	/**
+	 * Helper to call the private is_dev_mode method via reflection.
+	 *
+	 * @return bool The result of is_dev_mode.
+	 */
+	private function call_is_dev_mode() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'is_dev_mode' );
+		if ( PHP_VERSION_ID < 80500 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( null );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true for localhost.
+	 */
+	public function test_is_dev_mode_returns_true_for_localhost() {
+		update_option( 'siteurl', 'http://localhost' );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true for jurassic.tube domains.
+	 */
+	public function test_is_dev_mode_returns_true_for_jurassic_tube() {
+		update_option( 'siteurl', 'https://mysite.jurassic.tube' );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true for jurassic.ninja domains.
+	 */
+	public function test_is_dev_mode_returns_true_for_jurassic_ninja() {
+		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true when request is proxied via constant.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_dev_mode_returns_true_when_proxied_via_constant() {
+		update_option( 'siteurl', 'https://example.com' );
+		define( 'A8C_PROXIED_REQUEST', true );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true when request is proxied via server variable.
+	 */
+	public function test_is_dev_mode_returns_true_when_proxied_via_server_var() {
+		update_option( 'siteurl', 'https://example.com' );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$result = $this->call_is_dev_mode();
+
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true for Atomic client ID 1.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_dev_mode_returns_true_for_atomic_client_id_1() {
+		update_option( 'siteurl', 'https://example.com' );
+		define( 'AT_PROXIED_REQUEST', true );
+		define( 'ATOMIC_CLIENT_ID', 1 );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns false for non-allowed Atomic client IDs.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_dev_mode_returns_false_for_non_allowed_atomic_client_id() {
+		update_option( 'siteurl', 'https://example.com' );
+		define( 'AT_PROXIED_REQUEST', true );
+		define( 'ATOMIC_CLIENT_ID', 999 );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns false when AT_PROXIED_REQUEST is false.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_dev_mode_returns_false_when_at_proxied_request_is_false() {
+		update_option( 'siteurl', 'https://example.com' );
+		define( 'AT_PROXIED_REQUEST', false );
+		define( 'ATOMIC_CLIENT_ID', 1 );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns false for regular production sites.
+	 */
+	public function test_is_dev_mode_returns_false_for_production_sites() {
+		update_option( 'siteurl', 'https://myproductionsite.com' );
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_dev_mode returns true when wpcom_is_proxied_request function exists and returns true.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_dev_mode_returns_true_when_wpcom_proxy_function_returns_true() {
+		update_option( 'siteurl', 'https://example.com' );
+
+		Functions\stubs(
+			array(
+				'wpcom_is_proxied_request' => true,
+			)
+		);
+
+		$result = $this->call_is_dev_mode();
+
+		$this->assertTrue( $result );
+	}
 }

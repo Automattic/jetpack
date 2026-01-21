@@ -30,16 +30,21 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
  */
 function jpcrm_load_admin_page( $page_name, $alt_path = ZEROBSCRM_PATH ) {
 
-	$target_file = $alt_path . "admin/$page_name.page.php";
+	$base_dir = realpath( $alt_path . 'admin' );
 
-	if ( file_exists( $target_file ) ) {
+	if ( $base_dir === false ) {
+		echo wp_kses_post( zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'Could not load the requested page.', 'zero-bs-crm' ) ) );
+		return;
+	}
 
+	$base_dir    = rtrim( $base_dir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
+	$target_file = realpath( "{$base_dir}{$page_name}.page.php" );
+
+	// Check if resolved path exists and stays within allowed base directory.
+	if ( $target_file !== false && strpos( $target_file, $base_dir ) === 0 ) {
 		require_once $target_file;
-
 	} else {
-
-		echo zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'Could not load the requested page.', 'zero-bs-crm' ) );
-
+		echo wp_kses_post( zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'Could not load the requested page.', 'zero-bs-crm' ) ) );
 	}
 }
 

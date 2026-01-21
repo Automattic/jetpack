@@ -1,10 +1,10 @@
 import { __ } from '@wordpress/i18n';
+import { AvatarWithFallback } from '../avatar-with-fallback';
 import { preparePreviewText } from '../helpers';
 import { tumblrTitle, tumblrDescription } from './helpers';
 import TumblrPostActions from './post/actions';
 import TumblrPostHeader from './post/header';
 import type { TumblrPreviewProps } from './types';
-
 import './styles.scss';
 
 export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
@@ -22,7 +22,7 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 
 	return (
 		<div className="tumblr-preview__post">
-			{ avatarUrl && <img className="tumblr-preview__avatar" src={ avatarUrl } alt="" /> }
+			<AvatarWithFallback className="tumblr-preview__avatar" src={ avatarUrl } />
 			<div className="tumblr-preview__card">
 				<TumblrPostHeader user={ user } />
 				<div className="tumblr-preview__body">

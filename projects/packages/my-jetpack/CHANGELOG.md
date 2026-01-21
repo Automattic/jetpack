@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.30.1] - 2026-01-19
+### Changed
+- Check red bubble notifications async when cache is not available. [#46396]
+- Update package dependencies. [#46647]
+
 ## [5.30.0] - 2026-01-14
 ### Added
 - Add 'View included features' link to Plans section for quick access to plan features. [#46520]
@@ -2484,6 +2489,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.30.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.0...5.30.1
 [5.30.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.3...5.30.0
 [5.29.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.2...5.29.3
 [5.29.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.1...5.29.2

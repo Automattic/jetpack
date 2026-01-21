@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: Prevent warnings when unexpected data is passed into filters or added meta consumed by Sync.

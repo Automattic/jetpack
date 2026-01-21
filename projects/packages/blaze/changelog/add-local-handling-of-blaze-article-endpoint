@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Improve post promotion speed by handling the Blaze “get article” endpoint locally, reducing the initial sync delay.

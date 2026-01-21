@@ -19,14 +19,16 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { download, plus, Icon, globe } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
+import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
+import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
-import Page, { Stack } from '../../src/dashboard/components/page';
+import Page from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
@@ -89,12 +91,12 @@ function useFilterOptions() {
  */
 function getTabLabel( label: string, count: number ): JSX.Element {
 	return (
-		<span style={ { display: 'flex', gap: '4px', alignItems: 'center' } }>
+		<Stack align="center" gap="2xs">
 			{ label }
 			<Badge intent="default" style={ { backgroundColor: '#f0f0f0' } }>
 				{ count.toString() }
 			</Badge>
-		</span>
+		</Stack>
 	);
 }
 
@@ -298,7 +300,7 @@ function Stage() {
 					const showEmail = item.author_email && item.author_name !== item.author_email;
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
 					return (
-						<span style={ { display: 'flex', alignItems: 'center', gap: '12px' } }>
+						<Stack align="center" gap="sm">
 							{ item.is_unread && (
 								<span
 									style={ {
@@ -319,17 +321,17 @@ function Stage() {
 								useHovercard={ false }
 							/>
 							{ styleUnreadValue(
-								<span style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
+								<Stack direction="column" gap="2xs">
 									{ displayName }
 									{ showEmail && (
 										<span style={ { fontSize: '12px', color: '#757575' } }>
 											{ item.author_email }
 										</span>
 									) }
-								</span>,
+								</Stack>,
 								item.is_unread
 							) }
-						</span>
+						</Stack>
 					);
 				},
 				getValue: ( { item } ) =>
@@ -1044,20 +1046,30 @@ function Stage() {
 		showDashboardIntegrations,
 	] );
 
+	// Check if read_status filter is applied
+	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
+
 	return (
 		<Page
 			showSidebarToggle={ false }
 			title={
-				<span style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
+				<Stack align="center" gap="xs">
 					<JetpackLogo showText={ false } width={ 20 } />
 					{ __( 'Forms', 'jetpack-forms' ) }
-				</span>
+				</Stack>
 			}
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
 			actions={ headerActions }
 			hasPadding={ false }
 		>
 			<DataViews
+				empty={
+					<EmptyResponses
+						status={ params.view }
+						isSearch={ !! view.search }
+						readStatusFilter={ readStatusFilter }
+					/>
+				}
 				data={ records || EMPTY_ARRAY }
 				fields={ fields as Field< unknown >[] }
 				view={ view }
@@ -1071,12 +1083,12 @@ function Stage() {
 				actions={ actions }
 			>
 				<Stack
-					className="jp-forms-dataviews__view-actions"
-					direction="row"
-					justify="space-between"
 					align="center"
+					className="jp-forms-dataviews__view-actions"
+					gap="sm"
+					justify="space-between"
 				>
-					<Stack direction="row" align="center" gap={ 2 }>
+					<Stack align="center" gap="sm">
 						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
 							<Tabs.List density="compact">
 								{ statusTabs.map( tab => (
@@ -1087,7 +1099,7 @@ function Stage() {
 							</Tabs.List>
 						</Tabs.Root>
 					</Stack>
-					<Stack direction="row" align="center" gap={ 2 }>
+					<Stack align="center" gap="sm">
 						<DataViews.Search />
 						<DataViews.FiltersToggle />
 						<DataViews.ViewConfig />

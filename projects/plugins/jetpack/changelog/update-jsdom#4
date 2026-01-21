@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: test-gui: Remove jquery, apparently no longer needed.
+
+

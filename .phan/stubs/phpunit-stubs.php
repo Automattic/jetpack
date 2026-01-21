@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.4
+ * Stubs automatically generated from PHPUnit 12.5.5
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -803,7 +803,7 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface Emitter
 {
@@ -1038,7 +1038,7 @@ interface Event
     public function asString(): string;
 }
 /**
- * @template-implements \IteratorAggregate<int, Event>
+ * @template-implements \IteratorAggregate<non-negative-int, Event>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
@@ -1067,7 +1067,7 @@ final class EventCollection implements \Countable, \IteratorAggregate
     }
 }
 /**
- * @template-implements \Iterator<int, Event>
+ * @template-implements \Iterator<non-negative-int, Event>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
@@ -1082,6 +1082,9 @@ final class EventCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -1466,7 +1469,7 @@ abstract readonly class Test
     abstract public function name(): string;
 }
 /**
- * @template-implements \IteratorAggregate<int, Test>
+ * @template-implements \IteratorAggregate<non-negative-int, Test>
  *
  * @immutable
  *
@@ -1494,7 +1497,7 @@ final readonly class TestCollection implements \Countable, \IteratorAggregate
     }
 }
 /**
- * @template-implements \Iterator<int, Test>
+ * @template-implements \Iterator<non-negative-int, Test>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
@@ -1509,6 +1512,9 @@ final class TestCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -4628,7 +4634,7 @@ abstract readonly class TestData
     }
 }
 /**
- * @template-implements \IteratorAggregate<int, TestData>
+ * @template-implements \IteratorAggregate<non-negative-int, TestData>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
@@ -4666,7 +4672,7 @@ final readonly class TestDataCollection implements \Countable, \IteratorAggregat
     }
 }
 /**
- * @template-implements \Iterator<int, TestData>
+ * @template-implements \Iterator<non-negative-int, TestData>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
@@ -4681,6 +4687,9 @@ final class TestDataCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -9918,6 +9927,8 @@ function callback(callable $callback): \PHPUnit\Framework\Constraint\Callback
 /**
  * Returns a matcher that matches when the method is executed
  * zero or more times.
+ *
+ * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6461
  */
 function any(): \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount
 {
@@ -10056,7 +10067,7 @@ final class ErrorLogNotWritableException extends \PHPUnit\Framework\Exception
 class Exception extends \RuntimeException implements \PHPUnit\Exception
 {
     /**
-     * @var list<array{file: string, line: int, function: string}>
+     * @var list<array{file?: string, line?: int, function: string}>
      */
     protected array $serializableTrace;
     public function __construct(string $message = '', int|string $code = 0, ?\Throwable $previous = null)
@@ -10068,7 +10079,7 @@ class Exception extends \RuntimeException implements \PHPUnit\Exception
     /**
      * Returns the serializable trace (without 'args').
      *
-     * @return list<array{file: string, line: int, function: string}>
+     * @return list<array{file?: string, line?: int, function: string}>
      */
     public function getSerializableTrace(): array
     {
@@ -10106,7 +10117,7 @@ final class GeneratorNotSupportedException extends \PHPUnit\Framework\InvalidArg
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface IncompleteTest extends \Throwable
 {
@@ -10265,7 +10276,7 @@ final class ProcessIsolationException extends \PHPUnit\Framework\Exception
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface SkippedTest extends \Throwable
 {
@@ -10381,7 +10392,7 @@ final class ExecutionOrderDependency implements \Stringable
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface Reorderable
 {
@@ -10715,15 +10726,17 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     {
     }
     /**
+     * @param non-negative-int $count
+     *
      * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     final public function addToAssertionCount(int $count): void
     {
     }
     /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     * @return non-negative-int
      *
-     * @return 0|positive-int
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     final public function numberOfAssertionsPerformed(): int
     {
@@ -10805,6 +10818,8 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     /**
      * Returns a matcher that matches when the method is executed
      * zero or more times.
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6461
      */
     final protected function any(): \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount
     {
@@ -11124,7 +11139,7 @@ final class TestRunner
     }
 }
 /**
- * @template-implements \IteratorAggregate<int, Test>
+ * @template-implements \IteratorAggregate<non-negative-int, Test>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -11291,7 +11306,7 @@ class TestSuite implements \IteratorAggregate, \PHPUnit\Framework\Reorderable, \
     }
 }
 /**
- * @template-implements \RecursiveIterator<int, Test>
+ * @template-implements \RecursiveIterator<non-negative-int, Test>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -11308,6 +11323,9 @@ final class TestSuiteIterator implements \RecursiveIterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -13922,9 +13940,9 @@ final class CannotUseOnlyMethodsException extends \PHPUnit\Framework\Exception i
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
-interface Exception extends \Throwable
+interface Exception extends \PHPUnit\Exception
 {
 }
 /**
@@ -15036,7 +15054,7 @@ final readonly class HookedProperty
     /**
      * @param non-empty-string $name
      */
-    public function __construct(string $name, \SebastianBergmann\Type\Type $type, bool $getHook, bool $setHook)
+    public function __construct(string $name, \SebastianBergmann\Type\Type $type, bool $getHook, bool $setHook, ?\SebastianBergmann\Type\Type $setterType)
     {
     }
     public function name(): string
@@ -15049,6 +15067,9 @@ final readonly class HookedProperty
     {
     }
     public function hasSetHook(): bool
+    {
+    }
+    public function setterType(): \SebastianBergmann\Type\Type
     {
     }
 }
@@ -15511,7 +15532,7 @@ final readonly class ReturnValueMap implements \PHPUnit\Framework\MockObject\Stu
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface Stub
 {
@@ -17132,7 +17153,7 @@ final readonly class TestResult
     }
 }
 /**
- * @template-implements \IteratorAggregate<int, TestResult>
+ * @template-implements \IteratorAggregate<non-negative-int, TestResult>
  *
  * @immutable
  *
@@ -17159,7 +17180,7 @@ final readonly class TestResultCollection implements \IteratorAggregate
     }
 }
 /**
- * @template-implements \Iterator<int, TestResult>
+ * @template-implements \Iterator<non-negative-int, TestResult>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -17176,6 +17197,9 @@ final class TestResultCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -17456,7 +17480,7 @@ final readonly class CoversNamespace extends \PHPUnit\Metadata\Metadata
     {
     }
     /**
-     * @return class-string
+     * @return non-empty-string
      */
     public function namespace(): string
     {
@@ -18466,7 +18490,7 @@ abstract readonly class Metadata
     }
 }
 /**
- * @template-implements \IteratorAggregate<int, Metadata>
+ * @template-implements \IteratorAggregate<non-negative-int, Metadata>
  *
  * @immutable
  *
@@ -18688,7 +18712,7 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
     }
 }
 /**
- * @template-implements \Iterator<int, Metadata>
+ * @template-implements \Iterator<non-negative-int, Metadata>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
@@ -18703,6 +18727,9 @@ final class MetadataCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -18762,9 +18789,6 @@ final readonly class PreserveGlobalState extends \PHPUnit\Metadata\Metadata
  */
 final readonly class RequiresEnvironmentVariable extends \PHPUnit\Metadata\Metadata
 {
-    public function __construct(int $level, string $environmentVariableName, null|string $value)
-    {
-    }
     public function isRequiresEnvironmentVariable(): true
     {
     }
@@ -18822,13 +18846,6 @@ final readonly class RequiresMethod extends \PHPUnit\Metadata\Metadata
  */
 final readonly class RequiresOperatingSystem extends \PHPUnit\Metadata\Metadata
 {
-    /**
-     * @param int<0, 1>        $level
-     * @param non-empty-string $operatingSystem
-     */
-    public function __construct(int $level, string $operatingSystem)
-    {
-    }
     public function isRequiresOperatingSystem(): true
     {
     }
@@ -18920,12 +18937,6 @@ final readonly class RequiresPhpunit extends \PHPUnit\Metadata\Metadata
  */
 final readonly class RequiresPhpunitExtension extends \PHPUnit\Metadata\Metadata
 {
-    /**
-     * @param class-string<\PHPUnit\Runner\Extension\Extension> $extensionClass
-     */
-    public function __construct(int $level, string $extensionClass)
-    {
-    }
     public function isRequiresPhpunitExtension(): true
     {
     }
@@ -19127,13 +19138,6 @@ final readonly class UsesClassesThatImplementInterface extends \PHPUnit\Metadata
  */
 final readonly class UsesFunction extends \PHPUnit\Metadata\Metadata
 {
-    /**
-     * @param int<0, 1>        $level
-     * @param non-empty-string $functionName
-     */
-    public function __construct(int $level, string $functionName)
-    {
-    }
     public function isUsesFunction(): true
     {
     }
@@ -19208,12 +19212,6 @@ final readonly class UsesTrait extends \PHPUnit\Metadata\Metadata
  */
 final readonly class WithEnvironmentVariable extends \PHPUnit\Metadata\Metadata
 {
-    /**
-     * @param non-empty-string $environmentVariableName
-     */
-    public function __construct(int $level, string $environmentVariableName, null|string $value)
-    {
-    }
     public function isWithEnvironmentVariable(): true
     {
     }
@@ -19451,7 +19449,7 @@ final class CachingParser implements \PHPUnit\Metadata\Parser\Parser
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface Parser
 {
@@ -19703,7 +19701,7 @@ final class ErrorException extends \Error implements \PHPUnit\Runner\Exception
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface Exception extends \PHPUnit\Exception
 {
@@ -20856,7 +20854,7 @@ final readonly class NullResultCache implements \PHPUnit\Runner\ResultCache\Resu
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface ResultCache
 {
@@ -23569,7 +23567,7 @@ namespace PHPUnit\TextUI\Command;
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface Command
 {
@@ -24883,7 +24881,7 @@ final readonly class Constant
  *
  * @immutable
  *
- * @template-implements \IteratorAggregate<int, Constant>
+ * @template-implements \IteratorAggregate<non-negative-int, Constant>
  */
 final readonly class ConstantCollection implements \Countable, \IteratorAggregate
 {
@@ -24909,7 +24907,7 @@ final readonly class ConstantCollection implements \Countable, \IteratorAggregat
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, Constant>
+ * @template-implements \Iterator<non-negative-int, Constant>
  */
 final class ConstantCollectionIterator implements \Iterator
 {
@@ -24922,6 +24920,9 @@ final class ConstantCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -24951,7 +24952,7 @@ final readonly class Directory
  *
  * @immutable
  *
- * @template-implements \IteratorAggregate<int, Directory>
+ * @template-implements \IteratorAggregate<non-negative-int, Directory>
  */
 final readonly class DirectoryCollection implements \Countable, \IteratorAggregate
 {
@@ -24980,7 +24981,7 @@ final readonly class DirectoryCollection implements \Countable, \IteratorAggrega
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, Directory>
+ * @template-implements \Iterator<non-negative-int, Directory>
  */
 final class DirectoryCollectionIterator implements \Iterator
 {
@@ -24993,6 +24994,9 @@ final class DirectoryCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -25031,7 +25035,7 @@ final readonly class ExtensionBootstrap
     }
 }
 /**
- * @template-implements \IteratorAggregate<int, ExtensionBootstrap>
+ * @template-implements \IteratorAggregate<non-negative-int, ExtensionBootstrap>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -25058,7 +25062,7 @@ final readonly class ExtensionBootstrapCollection implements \IteratorAggregate
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, ExtensionBootstrap>
+ * @template-implements \Iterator<non-negative-int, ExtensionBootstrap>
  */
 final class ExtensionBootstrapCollectionIterator implements \Iterator
 {
@@ -25071,6 +25075,9 @@ final class ExtensionBootstrapCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -25106,7 +25113,7 @@ final readonly class File
  *
  * @immutable
  *
- * @template-implements \IteratorAggregate<int, File>
+ * @template-implements \IteratorAggregate<non-negative-int, File>
  */
 final readonly class FileCollection implements \Countable, \IteratorAggregate
 {
@@ -25135,7 +25142,7 @@ final readonly class FileCollection implements \Countable, \IteratorAggregate
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, File>
+ * @template-implements \Iterator<non-negative-int, File>
  */
 final class FileCollectionIterator implements \Iterator
 {
@@ -25148,6 +25155,9 @@ final class FileCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -25189,7 +25199,7 @@ final readonly class FilterDirectory
  *
  * @immutable
  *
- * @template-implements \IteratorAggregate<int, FilterDirectory>
+ * @template-implements \IteratorAggregate<non-negative-int, FilterDirectory>
  */
 final readonly class FilterDirectoryCollection implements \Countable, \IteratorAggregate
 {
@@ -25218,7 +25228,7 @@ final readonly class FilterDirectoryCollection implements \Countable, \IteratorA
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, FilterDirectory>
+ * @template-implements \Iterator<non-negative-int, FilterDirectory>
  */
 final class FilterDirectoryCollectionIterator implements \Iterator
 {
@@ -25231,6 +25241,9 @@ final class FilterDirectoryCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -25260,7 +25273,7 @@ final readonly class Group
  *
  * @immutable
  *
- * @template-implements \IteratorAggregate<int, Group>
+ * @template-implements \IteratorAggregate<non-negative-int, Group>
  */
 final readonly class GroupCollection implements \IteratorAggregate
 {
@@ -25292,7 +25305,7 @@ final readonly class GroupCollection implements \IteratorAggregate
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, Group>
+ * @template-implements \Iterator<non-negative-int, Group>
  */
 final class GroupCollectionIterator implements \Iterator
 {
@@ -25305,6 +25318,9 @@ final class GroupCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -25337,7 +25353,7 @@ final readonly class IniSetting
  *
  * @immutable
  *
- * @template-implements \IteratorAggregate<int, IniSetting>
+ * @template-implements \IteratorAggregate<non-negative-int, IniSetting>
  */
 final readonly class IniSettingCollection implements \Countable, \IteratorAggregate
 {
@@ -25363,7 +25379,7 @@ final readonly class IniSettingCollection implements \Countable, \IteratorAggreg
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, IniSetting>
+ * @template-implements \Iterator<non-negative-int, IniSetting>
  */
 final class IniSettingCollectionIterator implements \Iterator
 {
@@ -25376,6 +25392,9 @@ final class IniSettingCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -25566,7 +25585,7 @@ final readonly class TestDirectory
  *
  * @immutable
  *
- * @template-implements \IteratorAggregate<int, TestDirectory>
+ * @template-implements \IteratorAggregate<non-negative-int, TestDirectory>
  */
 final readonly class TestDirectoryCollection implements \Countable, \IteratorAggregate
 {
@@ -25595,7 +25614,7 @@ final readonly class TestDirectoryCollection implements \Countable, \IteratorAgg
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, TestDirectory>
+ * @template-implements \Iterator<non-negative-int, TestDirectory>
  */
 final class TestDirectoryCollectionIterator implements \Iterator
 {
@@ -25608,6 +25627,9 @@ final class TestDirectoryCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -25656,7 +25678,7 @@ final readonly class TestFile
  *
  * @immutable
  *
- * @template-implements \IteratorAggregate<int, TestFile>
+ * @template-implements \IteratorAggregate<non-negative-int, TestFile>
  */
 final readonly class TestFileCollection implements \Countable, \IteratorAggregate
 {
@@ -25685,7 +25707,7 @@ final readonly class TestFileCollection implements \Countable, \IteratorAggregat
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, TestFile>
+ * @template-implements \Iterator<non-negative-int, TestFile>
  */
 final class TestFileCollectionIterator implements \Iterator
 {
@@ -25698,6 +25720,9 @@ final class TestFileCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -25742,7 +25767,7 @@ final readonly class TestSuite
  *
  * @immutable
  *
- * @template-implements \IteratorAggregate<int, TestSuite>
+ * @template-implements \IteratorAggregate<non-negative-int, TestSuite>
  */
 final readonly class TestSuiteCollection implements \Countable, \IteratorAggregate
 {
@@ -25771,7 +25796,7 @@ final readonly class TestSuiteCollection implements \Countable, \IteratorAggrega
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, TestSuite>
+ * @template-implements \Iterator<non-negative-int, TestSuite>
  */
 final class TestSuiteCollectionIterator implements \Iterator
 {
@@ -25784,6 +25809,9 @@ final class TestSuiteCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -25819,7 +25847,7 @@ final readonly class Variable
  *
  * @immutable
  *
- * @template-implements \IteratorAggregate<int, Variable>
+ * @template-implements \IteratorAggregate<non-negative-int, Variable>
  */
 final readonly class VariableCollection implements \Countable, \IteratorAggregate
 {
@@ -25845,7 +25873,7 @@ final readonly class VariableCollection implements \Countable, \IteratorAggregat
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements \Iterator<int, Variable>
+ * @template-implements \Iterator<non-negative-int, Variable>
  */
 final class VariableCollectionIterator implements \Iterator
 {
@@ -25858,6 +25886,9 @@ final class VariableCollectionIterator implements \Iterator
     public function valid(): bool
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
     }
@@ -26617,7 +26648,7 @@ abstract readonly class LogToReportMigration implements \PHPUnit\TextUI\XmlConfi
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface Migration
 {
@@ -28115,7 +28146,7 @@ namespace PHPUnit\Util\Http;
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
 interface Downloader
 {
