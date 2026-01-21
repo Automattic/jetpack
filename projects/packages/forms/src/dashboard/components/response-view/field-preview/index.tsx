@@ -121,33 +121,14 @@ const getFieldIcon = ( fieldType: FieldType ): React.ReactNode => {
 	}
 };
 
-/**
- * Determines the effective field type, using the API type if available,
- * otherwise inferring from value or label.
- *
- * @param {ResponseField} field - The field object.
- * @return {FieldType} The determined field type.
- */
-const getEffectiveFieldType = ( field: ResponseField ): FieldType => {
-	const { type } = field;
-
-	// Use the API-provided type if it's specific enough
-	if ( type && type !== 'basic' ) {
-		return type as FieldType;
-	}
-
-	// Default to text
-	return 'text';
-};
-
 type FieldPreviewProps = {
 	field: ResponseField;
 	onFilePreview: ( file: FileItem ) => () => void;
 };
 
 const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
-	const { label, value } = field;
-	const fieldType = getEffectiveFieldType( field );
+	const { label, value, type } = field;
+	const fieldType = ( type as FieldType ) || 'text';
 	const icon = getFieldIcon( fieldType );
 
 	const renderFieldValue = () => {
