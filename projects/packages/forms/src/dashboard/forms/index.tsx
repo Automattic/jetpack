@@ -20,7 +20,7 @@ import useFormsData from '../hooks/use-forms-data.ts';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
-import type { Operator } from '@wordpress/dataviews/wp';
+import type { Action, Operator } from '@wordpress/dataviews/wp';
 
 /**
  * Forms dashboard "Forms" route.
@@ -52,13 +52,18 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		return statusFilterValue;
 	}, [ view.filters ] );
 
+	const isViewingTrash = useMemo( () => {
+		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
+		return statusFilterValue === 'trash';
+	}, [ view.filters ] );
+
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page,
 		view.perPage,
 		view.search,
 		statusQuery
 	);
-	const { isDeleting, trashForm } = useDeleteForm( {
+	const { isDeleting, trashForm, restoreForm } = useDeleteForm( {
 		view,
 		setView,
 		recordsLength: records?.length ?? 0,
@@ -137,8 +142,8 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		[ dateSettings.formats.datetime, statusLabel ]
 	);
 
-	const actions = useMemo(
-		() => [
+	const actions = useMemo( () => {
+		const actionsList: Action< FormListItem >[] = [
 			{
 				id: 'edit-form',
 				isPrimary: false,
@@ -155,12 +160,15 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					window.location.href = url.toString();
 				},
 			},
-			{
-				id: 'delete-form',
+		];
+
+		if ( isViewingTrash ) {
+			actionsList.push( {
+				id: 'restore-form',
 				isPrimary: false,
-				label: __( 'Trash', 'jetpack-forms' ),
+				label: __( 'Restore', 'jetpack-forms' ),
 				supportsBulk: false,
-				callback( items: FormListItem[] ) {
+				async callback( items: FormListItem[] ) {
 					if ( isDeleting ) {
 						return;
 					}
@@ -168,12 +176,31 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					if ( ! item ) {
 						return;
 					}
-					trashForm( item );
+					await restoreForm( item );
 				},
+			} );
+			return actionsList;
+		}
+
+		actionsList.push( {
+			id: 'trash-form',
+			isPrimary: false,
+			label: __( 'Trash', 'jetpack-forms' ),
+			supportsBulk: false,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting ) {
+					return;
+				}
+				const [ item ] = items;
+				if ( ! item ) {
+					return;
+				}
+				await trashForm( item );
 			},
-		],
-		[ isDeleting, trashForm ]
-	);
+		} );
+
+		return actionsList;
+	}, [ isDeleting, isViewingTrash, restoreForm, trashForm ] );
 
 	const paginationInfo = useMemo(
 		() => ( {

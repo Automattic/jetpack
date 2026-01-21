@@ -36,6 +36,7 @@ type UseDeleteFormArgs = {
 type UseDeleteFormReturn = {
 	isDeleting: boolean;
 	trashForm: ( item: FormListItem ) => Promise< void >;
+	restoreForm: ( item: FormListItem ) => Promise< void >;
 };
 
 /**
@@ -99,6 +100,50 @@ export default function useDeleteForm( {
 			}
 		},
 		[ createErrorNotice, createSuccessNotice, currentQuery, invalidateResolution, saveEntityRecord ]
+	);
+
+	const restoreForm = useCallback(
+		async ( item: FormListItem ) => {
+			if ( ! item || isDeleting ) {
+				return;
+			}
+
+			setIsDeleting( true );
+
+			try {
+				await saveEntityRecord(
+					'postType',
+					'jetpack_form',
+					{ id: item.id, status: 'publish' },
+					{ throwOnError: true }
+				);
+				createSuccessNotice( __( 'Form restored.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					id: `restore-form-${ item.id }`,
+				} );
+			} catch {
+				createErrorNotice( __( 'Could not restore form.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					id: `restore-form-error-${ item.id }`,
+				} );
+			} finally {
+				setIsDeleting( false );
+				invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', currentQuery ] );
+				invalidateResolution( 'getEntityRecords', [
+					'postType',
+					'jetpack_form',
+					{ ...currentQuery, per_page: 1, _fields: 'id' },
+				] );
+			}
+		},
+		[
+			createErrorNotice,
+			createSuccessNotice,
+			currentQuery,
+			invalidateResolution,
+			isDeleting,
+			saveEntityRecord,
+		]
 	);
 
 	const trashForm = useCallback(
@@ -170,5 +215,6 @@ export default function useDeleteForm( {
 	return {
 		isDeleting,
 		trashForm,
+		restoreForm,
 	};
 }
