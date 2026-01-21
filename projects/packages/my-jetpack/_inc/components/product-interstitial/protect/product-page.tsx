@@ -128,20 +128,12 @@ export default function ProtectProductPage() {
 							</div>
 
 							{ ! hasPaidPlan && (
-								<Button
-									variant="primary"
-									onClick={ handleUpgradeClick }
-									className={ styles[ 'product-interstitial__hero-cta' ] }
-								>
+								<Button variant="primary" onClick={ handleUpgradeClick }>
 									{ __( 'Upgrade to Scan', 'jetpack-my-jetpack' ) }
 								</Button>
 							) }
 							{ hasPaidPlan && (
-								<Button
-									variant="primary"
-									href={ cloudScanUrl }
-									className={ styles[ 'product-interstitial__hero-cta' ] }
-								>
+								<Button variant="primary" href={ cloudScanUrl }>
 									{ __( 'View scan results on Jetpack Cloud', 'jetpack-my-jetpack' ) }
 								</Button>
 							) }
