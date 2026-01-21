@@ -14,7 +14,12 @@ export function handleFormSelection( { formId, batch, setAttributes, selectBlock
 	}
 
 	batch( () => {
-		setAttributes( { ref: parseInt( formId, 10 ) } );
+		const numericFormId = parseInt( formId, 10 );
+
+		if ( Number.isNaN( numericFormId ) ) {
+			return;
+		}
+		setAttributes( { ref: parseInt( numericFormId, 10 ) } );
 		selectBlock( clientId );
 	} );
 }
