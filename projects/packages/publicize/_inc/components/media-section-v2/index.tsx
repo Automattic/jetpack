@@ -28,7 +28,7 @@ import { getMediaSourceDescription } from './utils/media-source-options';
  * MediaSectionV2 component
  *
  * @param {MediaSectionV2Props} props - Component props
- * @return {JSX.Element} MediaSectionV2 component
+ * @return MediaSectionV2 component
  */
 export default function MediaSectionV2( {
 	analyticsData = {},
@@ -38,6 +38,7 @@ export default function MediaSectionV2( {
 	imageGeneratorSettings: imageGeneratorSettingsProp,
 	mediaSource: mediaSourceProp,
 	onMediaChange,
+	forceAsAttachment,
 }: MediaSectionV2Props ) {
 	const { recordEvent } = useAnalytics();
 	const featuredImageId = useFeaturedImage();
@@ -74,7 +75,9 @@ export default function MediaSectionV2( {
 	);
 
 	// Get SIG preview URL when SIG is enabled
-	const { url: sigPreviewUrl, isLoading: sigIsLoading } = useSigPreview( sigEnabled );
+	const { url: sigPreviewUrl, isLoading: sigIsLoading } = useSigPreview(
+		sigEnabled || mediaSource === 'sig'
+	);
 
 	// Ref to store the MediaUpload open function
 	const openMediaLibraryRef = useRef< () => void >( () => {} );
@@ -93,7 +96,7 @@ export default function MediaSectionV2( {
 	}, [ mediaSource, attachedMedia, featuredImageId, sigEnabled ] );
 
 	// Attachment mode: check if attached_media has items (matches backend is_social_post())
-	const isShareAsAttachment = attachedMedia?.length > 0;
+	const isShareAsAttachment = forceAsAttachment || attachedMedia?.length > 0;
 
 	// Get media ID for preview
 	const mediaId = useMemo( () => {
@@ -314,7 +317,7 @@ export default function MediaSectionV2( {
 								source={ currentSource }
 								checked={ isShareAsAttachment }
 								onChange={ handleAttachmentToggle }
-								disabled={ disabled }
+								disabled={ forceAsAttachment ?? disabled }
 							/>
 						</>
 					) }
