@@ -165,7 +165,7 @@ export default function SliderFieldEdit( props ) {
 				width={ width }
 				extraFieldSettings={ [
 					{
-						index: 1,
+						index: 2,
 						element: (
 							<BaseControl __nextHasNoMarginBottom={ true } key="sliderFieldControls">
 								<HStack alignment="top" className="jp-field-slider-inspector-row">
