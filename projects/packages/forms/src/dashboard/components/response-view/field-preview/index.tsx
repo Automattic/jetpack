@@ -27,131 +27,10 @@ import {
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
 import FieldImageSelect from '../field-image-select/index.tsx';
-import type { ResponseField, ResponseFields } from '../../../../types/index.ts';
+import type { ResponseField } from '../../../../types/index.ts';
 import './style.scss';
 
-/**
- * Check if a value is a collection format field object (has label and value properties).
- *
- * @param {unknown} item - The item to check.
- * @return {boolean} Whether the item is a collection format field.
- */
-const isCollectionFormatField = ( item: unknown ): item is ResponseField => {
-	return (
-		item !== null && typeof item === 'object' && 'label' in item && 'value' in item && 'key' in item
-	);
-};
-
-/**
- * Check if the fields are in the new collection format.
- * Handles both true arrays and objects with numeric keys (from PHP JSON encoding).
- *
- * @param {ResponseFields} fields - The fields from the API response.
- * @return {boolean} Whether the fields are in the collection format.
- */
-export const isCollectionFormat = ( fields: ResponseFields ): boolean => {
-	// True array format
-	if ( Array.isArray( fields ) ) {
-		return fields.length > 0 && isCollectionFormatField( fields[ 0 ] );
-	}
-
-	// Object with numeric keys (PHP JSON encoding of arrays)
-	// Check if the first value has the collection format structure
-	const values = Object.values( fields );
-	return values.length > 0 && isCollectionFormatField( values[ 0 ] );
-};
-
-/**
- * Normalizes fields from either format into an array of ResponseField objects.
- * Handles:
- * - New collection format (array): [{label, value, type, ...}, ...]
- * - New collection format (object with numeric keys): {"0": {label, value, ...}, ...}
- * - Legacy format: {"Field Label": "field value", ...}
- *
- * @param {ResponseFields} fields - The fields from the API response.
- * @return {ResponseField[]} Normalized array of ResponseField objects.
- */
-export const normalizeFields = ( fields: ResponseFields ): ResponseField[] => {
-	// Check if it's collection format (either array or object with numeric keys)
-	if ( isCollectionFormat( fields ) ) {
-		// True array - return as is
-		if ( Array.isArray( fields ) ) {
-			return fields;
-		}
-		// Object with numeric keys - extract values as ResponseField array
-		return Object.values( fields ) as ResponseField[];
-	}
-
-	// Legacy format - convert { [label]: value } to ResponseField[]
-	return Object.entries( fields ).map( ( [ label, value ] ) => ( {
-		label,
-		value,
-		key: label, // Use label as key for legacy format
-		type: undefined, // Will be inferred from value/label
-	} ) );
-};
-
 const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-
-/**
- * Check if the value represents a file upload field.
- *
- * @param {unknown} value - The field value.
- * @return {boolean} Whether the value is a file upload field.
- */
-const isFileUploadValue = ( value: unknown ): boolean => {
-	return value !== null && typeof value === 'object' && 'files' in value;
-};
-
-/**
- * Check if the value represents an image select field.
- *
- * @param {unknown} value - The field value.
- * @return {boolean} Whether the value is an image select field.
- */
-const isImageSelectValue = ( value: unknown ): boolean => {
-	return (
-		value !== null && typeof value === 'object' && 'type' in value && value.type === 'image-select'
-	);
-};
-
-/**
- * Check if the value is likely a phone number.
- *
- * @param {unknown} value - The field value.
- * @return {boolean} Whether the value is likely a phone number.
- */
-const isLikelyPhoneNumber = ( value: unknown ): boolean => {
-	// Only operate on strings to avoid coercing numbers (e.g., 2024) into strings that could match
-	if ( typeof value !== 'string' ) {
-		return false;
-	}
-
-	const normalizedValue = value.trim();
-
-	// Allow only digits, spaces, parentheses, hyphens, dots, plus
-	if ( ! /^[\d+\-\s().]+$/.test( normalizedValue ) ) {
-		return false;
-	}
-
-	// Exclude common date formats to avoid false positives
-	// - ISO-like: 2025-11-01 or 2025/11/01
-	if ( /^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test( normalizedValue ) ) {
-		return false;
-	}
-	// - Locale-like: 01/11/2025, 1/11/25, 11-01-2025
-	if ( /^\d{1,2}[-/]\d{1,2}[-/]\d{2,4}$/.test( normalizedValue ) ) {
-		return false;
-	}
-
-	// Strip non-digits and validate digit count within a typical global range
-	const digits = normalizedValue.replace( /\D/g, '' );
-	if ( digits.length < 7 || digits.length > 15 ) {
-		return false;
-	}
-
-	return true;
-};
 
 // Custom icons matching the block editor field icons
 const NameIcon = () => (
@@ -223,8 +102,7 @@ type FieldType =
 	| 'slider'
 	| 'range'
 	| 'rating'
-	| 'consent'
-	| 'basic';
+	| 'consent';
 
 type FileItem = {
 	file_id: number;
@@ -278,48 +156,9 @@ const getFieldIcon = ( fieldType: FieldType ): React.ReactNode => {
 		case 'consent':
 			return <ConsentIcon />;
 		case 'text':
-		case 'basic':
 		default:
 			return <TextIcon />;
 	}
-};
-
-/**
- * Infers the field type from value when not provided by the API.
- *
- * @param {unknown} value - The field value.
- * @return {FieldType | null} The inferred field type, or null if not determinable.
- */
-const inferFieldTypeFromValue = ( value: unknown ): FieldType | null => {
-	if ( isImageSelectValue( value ) ) {
-		return 'image-select';
-	}
-
-	if ( isFileUploadValue( value ) ) {
-		return 'file';
-	}
-
-	if ( typeof value === 'string' ) {
-		if ( EMAIL_REGEX.test( value ) ) {
-			return 'email';
-		}
-
-		if ( isLikelyPhoneNumber( value ) ) {
-			return 'phone';
-		}
-
-		// Check for URL values
-		try {
-			const url = new URL( value );
-			if ( url.protocol === 'http:' || url.protocol === 'https:' ) {
-				return 'url';
-			}
-		} catch {
-			// Not a valid URL
-		}
-	}
-
-	return null;
 };
 
 /**
@@ -330,52 +169,11 @@ const inferFieldTypeFromValue = ( value: unknown ): FieldType | null => {
  * @return {FieldType} The determined field type.
  */
 const getEffectiveFieldType = ( field: ResponseField ): FieldType => {
-	const { type, value, label } = field;
+	const { type } = field;
 
 	// Use the API-provided type if it's specific enough
 	if ( type && type !== 'basic' ) {
 		return type as FieldType;
-	}
-
-	// Try to infer from value
-	const inferredType = inferFieldTypeFromValue( value );
-	if ( inferredType ) {
-		return inferredType;
-	}
-
-	// Fall back to label-based detection for basic fields
-	const lowerLabel = label.toLowerCase();
-
-	if ( lowerLabel.includes( 'name' ) && ! lowerLabel.includes( 'file' ) ) {
-		return 'name';
-	}
-
-	if ( lowerLabel.includes( 'email' ) || lowerLabel.includes( 'e-mail' ) ) {
-		return 'email';
-	}
-
-	if (
-		lowerLabel.includes( 'phone' ) ||
-		lowerLabel.includes( 'tel' ) ||
-		lowerLabel.includes( 'mobile' )
-	) {
-		return 'phone';
-	}
-
-	if (
-		lowerLabel.includes( 'website' ) ||
-		lowerLabel.includes( 'url' ) ||
-		lowerLabel.includes( 'link' )
-	) {
-		return 'url';
-	}
-
-	if ( lowerLabel.includes( 'date' ) || lowerLabel.includes( 'when' ) ) {
-		return 'date';
-	}
-
-	if ( lowerLabel.includes( 'message' ) || lowerLabel.includes( 'comment' ) ) {
-		return 'textarea';
 	}
 
 	// Default to text
@@ -393,7 +191,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	const icon = getFieldIcon( fieldType );
 
 	const renderFieldValue = () => {
-		if ( isImageSelectValue( value ) ) {
+		if ( field.type === 'image-select' ) {
 			return (
 				<FieldImageSelect
 					choices={ ( value as { choices: unknown[] } ).choices }
@@ -403,7 +201,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		}
 
 		// File uploads
-		if ( isFileUploadValue( value ) ) {
+		if ( field.type === 'file' ) {
 			return (
 				<FieldFile
 					files={ ( value as { files: FileItem[] } )?.files }
@@ -435,7 +233,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		}
 
 		// Phone numbers
-		if ( isLikelyPhoneNumber( stringValue ) ) {
+		if ( field.type === 'phone' || field.type === 'telephone' ) {
 			return <a href={ `tel:${ stringValue }` }>{ stringValue }</a>;
 		}
 
