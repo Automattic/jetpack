@@ -43,7 +43,7 @@ let formEditorChildBlockCategoriesMapping;
 /**
  * Filter callback that overrides block categories for form field blocks.
  *
- * This reads the category from supports.jetpack_form.category and maps
+ * This reads the category from each child block's `form_editor.category` field and maps
  * it to the full form category slug when the form editor is active.
  *
  * @param settings - The block settings object
