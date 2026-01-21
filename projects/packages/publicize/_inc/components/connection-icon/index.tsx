@@ -28,7 +28,7 @@ export function ConnectionIcon( {
 
 	const onError = useCallback( () => setImageErrorFor( profilePicture ), [ profilePicture ] );
 
-	const usedefaultAvatar = ! profilePicture || imageErrorFor === profilePicture;
+	const useDefaultAvatar = ! profilePicture || imageErrorFor === profilePicture;
 
 	const service_name = (
 		'instagram-business' === serviceName ? 'instagram' : serviceName
@@ -45,7 +45,7 @@ export function ConnectionIcon( {
 			) }
 		>
 			<img
-				src={ usedefaultAvatar ? defaultAvatar : profilePicture }
+				src={ useDefaultAvatar ? defaultAvatar : profilePicture }
 				alt={ label }
 				onError={ onError }
 			/>
