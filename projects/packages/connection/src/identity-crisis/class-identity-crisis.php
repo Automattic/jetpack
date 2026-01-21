@@ -668,7 +668,7 @@ class Identity_Crisis {
 		// We use the jetpack-token-health/blog endpoint which performs IDC detection
 		// and returns idc_detected in the response when URLs don't match.
 		$api_path = sprintf(
-			'sites/%d/jetpack-token-health/blog?home=%s&siteurl=%s&idc=1',
+			'sites/%d/jetpack-token-health/blog?home=%s&siteurl=%s&idc=1&idc_validation=1',
 			$blog_id,
 			rawurlencode( Urls::home_url() ),
 			rawurlencode( Urls::site_url() )
