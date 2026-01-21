@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: tests: `background-image` was formerly being stripped from wordads block in the test snapshot. Apparently not anymore.
+
+

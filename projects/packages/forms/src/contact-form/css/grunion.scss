@@ -303,28 +303,79 @@ that needs to mimic the input element styles */
 		display: none;
 	}
 
-	.field-image {
+	.field-image-option {
 		width: 196px;
-		height: 196px;
+		box-sizing: border-box;
+		border: 1px solid var(--jetpack--contact-form--primary-color);
+		border-radius: var(--jetpack--contact-form--border-radius, 4px);
+		padding: 8px;
 
 		&.is-empty {
-			position: relative;
 
-			&::before {
+			.field-image-option__image {
+				position: relative;
+				height: 180px;
 
-				@extend %empty-image-option-background;
-			}
+				&::before {
 
-			&::after {
+					@extend %empty-image-option-background;
+				}
 
-				@extend %empty-image-option-icon;
+				&::after {
+
+					@extend %empty-image-option-icon;
+				}
 			}
 		}
+	}
+
+	.field-image-option__image {
+		margin: 0;
+		overflow: hidden;
 
 		img {
 			width: 100%;
 			aspect-ratio: 1/1;
 			object-fit: cover;
+			display: block;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+	}
+
+	.field-image-option__label-wrapper {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+		padding-top: 8px;
+	}
+
+	.field-image-option__label-code {
+		display: flex;
+		justify-content: center;
+		align-self: baseline;
+		padding: 3px 6px;
+		background-color: var(--jetpack--contact-form--input-background, field);
+		border-radius: 2px;
+		border: 1px solid var(--jetpack--contact-form--border-color, currentColor);
+		line-height: 1;
+		color: var(--jetpack--contact-form--text-color, FieldText);
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+
+	.field-image-option__label {
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: inherit;
+		opacity: 0.8;
+		min-width: 1px;
+		overflow-wrap: break-word;
+
+		&[hidden] {
+			display: none;
 		}
 	}
 }

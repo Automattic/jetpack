@@ -3,30 +3,28 @@
 	width: 28px;
 	height: 28px;
 	display: flex;
-	justify-content: flex-start;
+	justify-content: center;
 	align-items: center;
 
 	&.disabled {
 		opacity: 0.4;
 	}
 
-	&.has-picture {
+	img {
+		border-radius: 50%;
+		border: 2px solid #fff;
+		background-color: #fff;
+		width: 24px;
+		height: 24px;
+	}
 
-		img {
-			border-radius: 50%;
-			border: 1px solid #fff;
-			width: 24px;
-			height: 24px;
-		}
-
-		.social-icon {
-			position: absolute;
-			inset-block-end: 0;
-			inset-inline-end: 0;
-			width: 14px;
-			height: 14px;
-			border-radius: 2px;
-			background-color: #fff;
-		}
+	.social-icon {
+		position: absolute;
+		inset-block-end: 0;
+		inset-inline-end: 0;
+		width: 14px;
+		height: 14px;
+		border-radius: 2px;
+		background-color: #fff;
 	}
 }

@@ -21,11 +21,6 @@
 	grid-template-columns: 1fr;
 }
 
-.customization-section {
-
-	@include mixins.customization-section();
-}
-
 .customization-toggle-wrapper {
 	padding: 1rem;
 
