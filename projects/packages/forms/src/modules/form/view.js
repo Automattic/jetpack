@@ -616,7 +616,30 @@ const { state, actions } = store( NAMESPACE, {
 			if ( context.submissionSuccess || context.hasClickedBack ) {
 				const wrapperElement = document.getElementById( `contact-form-${ context.formId }` );
 				wrapperElement?.scrollIntoView( { behavior: 'smooth' } );
+
+				// Move focus to the success heading for screen reader announcement.
+				if ( context.submissionSuccess && ! context.hasClickedBack ) {
+					const successHeading = document.getElementById(
+						`contact-form-success-header-${ context.formHash }`
+					);
+					successHeading?.focus();
+				}
+
 				context.hasClickedBack = false;
+			}
+		},
+
+		focusOnValidationError() {
+			if ( state.showFormErrors ) {
+				const { ref } = getElement();
+				ref?.focus();
+			}
+		},
+
+		focusOnSubmissionError() {
+			if ( state.showSubmissionError ) {
+				const { ref } = getElement();
+				ref?.focus();
 			}
 		},
 
