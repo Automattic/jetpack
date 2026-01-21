@@ -5,7 +5,6 @@ import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useRef, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { isEmpty } from 'lodash';
 /**
  * Internal dependencies
  */
@@ -37,6 +36,10 @@ const formatFieldName = fieldName => {
 	}
 	return fieldName;
 };
+
+// https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore?tab=readme-ov-file#_isempty
+const isEmpty = obj =>
+	[ Object, Array ].includes( ( obj || {} ).constructor ) && ! Object.entries( obj || {} ).length;
 
 const formatFieldValue = fieldValue => {
 	if ( isEmpty( fieldValue ) ) {
