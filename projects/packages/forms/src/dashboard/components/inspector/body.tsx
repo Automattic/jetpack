@@ -15,7 +15,7 @@ import {
 } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -34,7 +34,8 @@ import Gravatar from '../gravatar/index.tsx';
 import FieldEmail from '../response-view/field-email/index.tsx';
 import FieldFile from '../response-view/field-file/index.tsx';
 import FieldImageSelect from '../response-view/field-image-select/index.tsx';
-import type { FormResponse } from '../../../types/index.ts';
+import FieldPreview from '../response-view/field-preview/index.tsx';
+import type { FormResponse, ResponseField } from '../../../types/index.ts';
 import './style.scss';
 
 const getDisplayName = response => {
@@ -80,6 +81,17 @@ const isLikelyPhoneNumber = value => {
 	}
 
 	return true;
+};
+
+/**
+ * Check if a field object is in the new collection format (has label, value, and key properties).
+ * @param {unknown} item - The item to check.
+ * @return {boolean} Whether the item is a collection format field.
+ */
+const isCollectionFormatField = ( item: unknown ): item is ResponseField => {
+	return (
+		item !== null && typeof item === 'object' && 'label' in item && 'value' in item && 'key' in item
+	);
 };
 
 const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
@@ -200,6 +212,17 @@ const ResponseViewBody = ( {
 
 		return value;
 	};
+
+	// Determine format synchronously to avoid render timing issues.
+	// Handles both true arrays and objects with numeric keys (from PHP JSON encoding).
+	const fieldsAreNewFormat = useMemo( () => {
+		if ( Array.isArray( response.fields ) ) {
+			return response.fields.length > 0 && isCollectionFormatField( response.fields[ 0 ] );
+		}
+		// Object with numeric keys - check first value
+		const values = Object.values( response.fields );
+		return values.length > 0 && isCollectionFormatField( values[ 0 ] );
+	}, [ response.fields ] );
 
 	useEffect( () => {
 		if ( ! ref.current ) {
@@ -367,16 +390,24 @@ const ResponseViewBody = ( {
 				</div>
 
 				<div className="jp-forms__inbox-response-data">
-					{ Object.entries( response.fields ).map( ( [ key, value ] ) => (
-						<div key={ key } className="jp-forms__inbox-response-item">
-							<div className="jp-forms__inbox-response-data-label">
-								{ key.endsWith( '?' ) ? key : `${ key }:` }
+					{ ! fieldsAreNewFormat &&
+						Object.entries( response.fields ).map( ( [ key, value ] ) => (
+							<div key={ key } className="jp-forms__inbox-response-item">
+								<div className="jp-forms__inbox-response-data-label">
+									{ key.endsWith( '?' ) ? key : `${ key }:` }
+								</div>
+								<div className="jp-forms__inbox-response-data-value">
+									{ renderFieldValue( value ) }
+								</div>
 							</div>
-							<div className="jp-forms__inbox-response-data-value">
-								{ renderFieldValue( value ) }
-							</div>
-						</div>
-					) ) }
+						) ) }
+					{ fieldsAreNewFormat &&
+						( Array.isArray( response.fields )
+							? response.fields
+							: ( Object.values( response.fields ) as ResponseField[] )
+						).map( field => (
+							<FieldPreview key={ field.key } field={ field } onFilePreview={ handleFilePreview } />
+						) ) }
 				</div>
 				{ isPreviewModalOpen && previewFile && onModalStateChange && (
 					<Modal
