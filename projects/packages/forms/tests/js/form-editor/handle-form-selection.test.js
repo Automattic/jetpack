@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { handleFormSelection } from '../src/blocks/contact-form/util/handle-form-selection.js';
+import { handleFormSelection } from '../../../src/blocks/contact-form/util/handle-form-selection.js';
 
 describe( 'handleFormSelection', () => {
 	let setAttributes, selectBlock, batch;
