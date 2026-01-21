@@ -11,10 +11,17 @@ const defaultHost = process.env.JETPACK_WEBPACK_DEV_SERVER_HOST || 'localhost';
 /**
  * Creates a dev server configuration object.
  *
+ * Returns undefined when not running `webpack serve` (i.e., when WEBPACK_SERVE !== 'true'),
+ * allowing simple usage like `devServer: jetpackWebpackConfig.DevServer()` without manual checks.
+ *
  * @param {import('webpack-dev-server').Configuration} options - Configuration options.
- * @return {import('webpack-dev-server').Configuration} Webpack devServer configuration object.
+ * @return {import('webpack-dev-server').Configuration|undefined} Webpack devServer configuration object, or undefined if not serving.
  */
 const DevServer = ( options = {} ) => {
+	if ( process.env.WEBPACK_SERVE !== 'true' ) {
+		return undefined;
+	}
+
 	const port = options.port ?? defaultPort;
 	const host = options.host ?? defaultHost;
 	const hot = options.hot ?? true;

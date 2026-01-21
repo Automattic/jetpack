@@ -143,7 +143,7 @@ This is an object suitable for spreading some defaults into Webpack's `resolve` 
 
 #### `DevServer( options )`
 
-Creates a webpack `devServer` configuration for Hot Module Replacement (HMR). Requires `webpack-dev-server` as a dev dependency in the consuming package.
+Creates a webpack `devServer` configuration for Hot Module Replacement (HMR). Returns `undefined` when not running `webpack serve`, so you can use it directly without conditional checks. Requires `webpack-dev-server` as a dev dependency.
 
 ```js
 // webpack.config.js
@@ -163,7 +163,7 @@ Options (with defaults):
 - `liveReload`: false
 - `writeToDisk`: true (for PHP compatibility)
 
-For multi-config arrays, only apply `devServer` to one config to avoid port conflicts.
+For multi-config arrays, only add `devServer` to one config to avoid port conflicts.
 
 #### Plugins
 

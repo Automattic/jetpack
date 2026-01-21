@@ -1,8 +1,6 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
-const isServe = process.env.WEBPACK_SERVE === 'true';
-
 module.exports = [
 	{
 		entry: {
@@ -74,10 +72,8 @@ module.exports = [
 				consumer_slug: 'my_jetpack',
 			} ),
 		},
-		...( isServe && {
-			devServer: jetpackWebpackConfig.DevServer( {
-				static: { directory: path.resolve( './build' ) },
-			} ),
+		devServer: jetpackWebpackConfig.DevServer( {
+			static: { directory: path.resolve( './build' ) },
 		} ),
 	},
 ];

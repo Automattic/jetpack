@@ -1,8 +1,6 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
-const isServe = process.env.WEBPACK_SERVE === 'true';
-
 const socialWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
@@ -56,13 +54,6 @@ const socialWebpackConfig = {
 	},
 };
 
-// Dev server config - only applied to one configuration to avoid port conflicts
-const devServerConfig = jetpackWebpackConfig.DevServer( {
-	static: {
-		directory: path.resolve( './build' ),
-	},
-} );
-
 module.exports = [
 	{
 		...socialWebpackConfig,
@@ -77,7 +68,8 @@ module.exports = [
 			'block-editor-jetpack': './_inc/entry-points/block-editor-jetpack.tsx',
 			'block-editor-social': './_inc/entry-points/block-editor-social.tsx',
 		},
-		// Only add devServer to one config to avoid port conflicts
-		...( isServe && { devServer: devServerConfig } ),
+		devServer: jetpackWebpackConfig.DevServer( {
+			static: { directory: path.resolve( './build' ) },
+		} ),
 	},
 ];
