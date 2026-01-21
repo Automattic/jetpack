@@ -168,13 +168,12 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 					{ __( 'Browse form patterns', 'jetpack-forms' ) }
 				</Button>
 			</div>
-			<div className="form-placeholder__footer">
+			<div className="form-placeholder__shell">
 				{ ! isEditingJetpackFormPost &&
 					isCentralFormManagementEnabled &&
 					jetpackForms.length > 0 && (
 						<SelectControl
 							__next40pxDefaultSize
-							__nextHasNoMarginBottom
 							label={ __( 'Or select an existing form', 'jetpack-forms' ) }
 							options={ [
 								{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
