@@ -227,10 +227,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	public function mock_wp_query_posts( $posts, $query ) {
 		$post_types = (array) $query->get( 'post_type' );
 
-		if ( in_array( 'post', $post_types, true ) ||
-		in_array( 'page', $post_types, true ) ||
-		in_array( 'any', $post_types, true ) ) {
-
+		if ( in_array( 'post', $post_types, true ) || in_array( 'page', $post_types, true ) || in_array( 'any', $post_types, true ) ) {
 			$query->found_posts   = 1;
 			$query->max_num_pages = 1;
 
@@ -455,39 +452,6 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$data = $response->get_data();
 		$this->assertArrayHasKey( 'code', $data );
 		$this->assertArrayHasKey( 'errorMessage', $data );
-	}
-
-	/**
-	 * Mock HTTP error response for Blaze posts endpoint.
-	 *
-	 * This simulates an error response from the WPCOM API to test error handling.
-	 *
-	 * @param false|array $response    HTTP response.
-	 * @param array       $parsed_args HTTP request arguments.
-	 * @param string      $url         The request URL.
-	 * @return array|false
-	 */
-	public function mock_blaze_posts_error_response( $response, $parsed_args, $url ) {
-		if ( strpos( $url, sprintf( '/sites/%d/blaze/posts', $this->site_id ) ) !== false ) {
-			// Return mock error response
-			return array(
-				'response' => array(
-					'code'    => 500,
-					'message' => 'Internal Server Error',
-				),
-				'headers'  => array(
-					'content-type' => 'application/json',
-				),
-				'body'     => wp_json_encode(
-					array(
-						'error'        => 'internal_error',
-						'errorMessage' => 'An error occurred while fetching posts',
-					),
-					JSON_UNESCAPED_SLASHES
-				),
-			);
-		}
-		return $response;
 	}
 
 	/**
@@ -816,7 +780,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test the get_dsp_templates_article local processing of data (before redirection)
+	 * Test the get_dsp_blaze_posts local processing of data (before redirection)
 	 */
 	public function test_get_dsp_blaze_posts_processed_it_locally() {
 		Health::update_status( Health::STATUS_OUT_OF_SYNC );
