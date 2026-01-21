@@ -186,12 +186,18 @@ async function checkIfDocsNeeded( payload, octokit ) {
 
 		// Send Slack notification if quality channel is configured.
 		const slackQualityChannel = getInput( 'slack_quality_channel' );
-		if ( slackQualityChannel ) {
+		const slackToken = getInput( 'slack_token' );
+
+		if ( slackQualityChannel && slackToken ) {
 			debug( `check-if-docs-needed: Sending Slack notification for PR #${ number }.` );
 			await sendSlackMessage(
 				`This PR was flagged as containing user-facing changes. Please review and update documentation if needed.\n\n*AI reasoning:* ${ reason }`,
 				slackQualityChannel,
 				payload
+			);
+		} else if ( slackQualityChannel && ! slackToken ) {
+			debug(
+				`check-if-docs-needed: Slack quality channel is configured but slack_token is missing. Skipping Slack notification for PR #${ number }.`
 			);
 		}
 	} else {
