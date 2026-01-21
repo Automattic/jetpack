@@ -1,7 +1,4 @@
 /**
- * @jest-environment jsdom
- */
-/**
  * External dependencies
  */
 import { describe, expect, it, beforeEach } from '@jest/globals';
