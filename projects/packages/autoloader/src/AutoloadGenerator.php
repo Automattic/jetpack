@@ -111,44 +111,19 @@ class AutoloadGenerator {
 		$psr4     = $this->parseAutoloadsType( $packageMap, 'psr-4', $mainPackage );
 		$classmap = $this->parseAutoloadsType( array_reverse( $sortedPackageMap ), 'classmap', $mainPackage );
 		$files    = $this->parseAutoloadsType( $sortedPackageMap, 'files', $mainPackage );
-
-		// Extract exclude-from-classmap from the root package (Composer only uses root package exclusions).
-		$excludeFromClassmap = $this->parseExcludeFromClassmap( $mainPackage );
+		// Composer only uses exclude-from-classmap from the root package.
+		$exclude  = $this->parseAutoloadsType( $sortedPackageMap, 'exclude-from-classmap', $mainPackage );
 
 		krsort( $psr0 );
 		krsort( $psr4 );
 
 		return array(
-			'psr-0'               => $psr0,
-			'psr-4'               => $psr4,
-			'classmap'            => $classmap,
-			'files'               => $files,
-			'exclude-from-classmap' => $excludeFromClassmap,
+			'psr-0'                 => $psr0,
+			'psr-4'                 => $psr4,
+			'classmap'              => $classmap,
+			'files'                 => $files,
+			'exclude-from-classmap' => $exclude,
 		);
-	}
-
-	/**
-	 * Extracts exclude-from-classmap patterns from the root package.
-	 *
-	 * @param PackageInterface $mainPackage Main package instance.
-	 *
-	 * @return array The list of exclusion patterns.
-	 */
-	protected function parseExcludeFromClassmap( PackageInterface $mainPackage ) {
-		$autoload    = $mainPackage->getAutoload();
-		$devAutoload = $mainPackage->getDevAutoload();
-
-		$excludeFromClassmap = array();
-
-		if ( ! empty( $autoload['exclude-from-classmap'] ) ) {
-			$excludeFromClassmap = array_merge( $excludeFromClassmap, (array) $autoload['exclude-from-classmap'] );
-		}
-
-		if ( ! empty( $devAutoload['exclude-from-classmap'] ) ) {
-			$excludeFromClassmap = array_merge( $excludeFromClassmap, (array) $devAutoload['exclude-from-classmap'] );
-		}
-
-		return array_unique( $excludeFromClassmap );
 	}
 
 	/**
@@ -237,7 +212,7 @@ class AutoloadGenerator {
 	 * This function differs from the composer parseAutoloadsType in that beside returning the path.
 	 * It also return the path and the version of a package.
 	 *
-	 * Supports PSR-4, PSR-0, and classmap parsing.
+	 * Supports PSR-4, PSR-0, classmap, files, and exclude-from-classmap parsing.
 	 *
 	 * @param array            $packageMap Map of all the packages.
 	 * @param string           $type Type of autoloader to use.
@@ -301,6 +276,41 @@ class AutoloadGenerator {
 							'version' => $version,
 						);
 					}
+				}
+			}
+			if ( 'exclude-from-classmap' === $type && isset( $autoload['exclude-from-classmap'] ) && is_array( $autoload['exclude-from-classmap'] ) ) {
+				foreach ( $autoload['exclude-from-classmap'] as $path ) {
+					// First escape user input, normalize slashes, and trim.
+					$path = preg_replace( '{/+}', '/', preg_quote( trim( strtr( $path, '\\', '/' ), '/' ) ) );
+
+					// Add support for wildcards * and **.
+					$path = strtr( $path, array( '\\*\\*' => '.+?', '\\*' => '[^/]+?' ) );
+
+					// Handle up-level relative paths (e.g., ../).
+					$updir = null;
+					$path  = preg_replace_callback(
+						'{^((?:(?:\\\\\\.){1,2}+/)+)}',
+						function ( $matches ) use ( &$updir ) {
+							// Undo preg_quote for the matched string.
+							$updir = str_replace( '\\.', '.', $matches[1] );
+							return '';
+						},
+						$path
+					);
+
+					// Determine the base path for resolution.
+					$basePath = $installPath;
+					if ( empty( $basePath ) ) {
+						$basePath = $this->filesystem->normalizePath( getcwd() );
+					}
+
+					// Resolve the full path.
+					$resolvedPath = realpath( $basePath . '/' . $updir );
+					if ( false === $resolvedPath ) {
+						continue;
+					}
+
+					$autoloads[] = preg_quote( strtr( $resolvedPath, '\\', '/' ) ) . '/' . $path . '($|/)';
 				}
 			}
 		}
