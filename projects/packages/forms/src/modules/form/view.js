@@ -52,13 +52,16 @@ const setSubmissionData = ( data = [] ) => {
 	context.formattedSubmissionData = data.map( item => {
 		const images = getImages( item.value );
 		const url = getUrl( item.value );
+		const files = getFiles( item.value );
 
 		return {
 			label: maybeAddColonToLabel( item.label ),
 			value: maybeTransformValue( item.value ),
 			images,
 			url,
-			showPlainValue: ! url && ( ! images || images.length === 0 ),
+			files,
+			showPlainValue:
+				! url && ( ! images || images.length === 0 ) && ( ! files || files.length === 0 ),
 		};
 	} );
 };
@@ -174,6 +177,18 @@ const getUrl = value => {
 		}
 
 		return url;
+	}
+
+	return null;
+};
+
+const getFiles = value => {
+	if ( value?.type === 'file' && value?.files ) {
+		return value.files.map( file => ( {
+			name: file.name ?? '',
+			size: file.size ?? '',
+			url: file.url ?? '',
+		} ) );
 	}
 
 	return null;
