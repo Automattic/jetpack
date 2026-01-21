@@ -69,6 +69,7 @@ module.exports = [
 			'block-editor-social': './_inc/entry-points/block-editor-social.tsx',
 		},
 		devServer: jetpackWebpackConfig.DevServer( {
+			port: 8002,
 			static: { directory: path.resolve( './build' ) },
 		} ),
 	},

@@ -1,9 +1,4 @@
 /**
- * Default port for the dev server. Can be overridden via JETPACK_WEBPACK_DEV_SERVER_PORT env var.
- */
-const defaultPort = parseInt( process.env.JETPACK_WEBPACK_DEV_SERVER_PORT, 10 ) || 8887;
-
-/**
  * Default host for the dev server. Can be overridden via JETPACK_WEBPACK_DEV_SERVER_HOST env var.
  */
 const defaultHost = process.env.JETPACK_WEBPACK_DEV_SERVER_HOST || 'localhost';
@@ -22,7 +17,15 @@ const DevServer = ( options = {} ) => {
 		return undefined;
 	}
 
-	const port = options.port ?? defaultPort;
+	if ( ! options.port ) {
+		// Enforce specifying a port to avoid confusion
+		// when multiple configs run dev servers simultaneously.
+		throw new Error(
+			'DevServer configuration requires a port to be specified. Please ensure the port is not used by any other package/plugin.'
+		);
+	}
+
+	const port = options.port;
 	const host = options.host ?? defaultHost;
 	const hot = options.hot ?? true;
 	const liveReload = options.liveReload ?? false;
@@ -55,8 +58,5 @@ const DevServer = ( options = {} ) => {
 		...options,
 	};
 };
-
-// Export default configuration for backward compatibility
-DevServer.defaults = DevServer();
 
 module.exports = DevServer;

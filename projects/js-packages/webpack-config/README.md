@@ -149,6 +149,7 @@ Creates a webpack `devServer` configuration for Hot Module Replacement (HMR). Re
 // webpack.config.js
 module.exports = {
 	devServer: jetpackWebpackConfig.DevServer( {
+		port: 8001, // Required: use a unique port for each package
 		static: { directory: path.resolve( './build' ) },
 	} ),
 };
@@ -156,8 +157,8 @@ module.exports = {
 // package.json: add "dev": "webpack serve" script
 ```
 
-Options (with defaults):
-- `port`: 8887 (or `JETPACK_WEBPACK_DEV_SERVER_PORT` env var)
+Options:
+- `port`: **Required**. Use a unique port for each package to avoid conflicts when running multiple dev servers.
 - `host`: 'localhost' (or `JETPACK_WEBPACK_DEV_SERVER_HOST` env var)
 - `hot`: true
 - `liveReload`: false
