@@ -45,7 +45,7 @@ export const FORM_CATEGORIES: FormCategory[] = [
 /**
  * Map of short category names to full category slugs.
  *
- * Blocks define their category in supports.jetpack_form.category using the short name
+ * Blocks define their category in form_editor.category using the short name
  * (e.g., 'basic'), and this maps it to the full slug (e.g., 'form-basic').
  */
 export const CATEGORY_SLUG_MAP: Record< string, string > = {
