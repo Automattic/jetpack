@@ -30,13 +30,13 @@ if ( ! function_exists( 'wc_get_product' ) ) {
 	 * Returns mock product objects for specific IDs used in tests.
 	 *
 	 * @param int $product_id Product ID.
-	 * @return Mock_WC_Product|false Mock product object or false if not found.
+	 * @return WC_Product|false Mock product object or false if not found.
 	 */
 	function wc_get_product( $product_id ) {
 		global $wc_mock_products;
 
 		if ( isset( $wc_mock_products[ $product_id ] ) ) {
-			return new Mock_WC_Product( $wc_mock_products[ $product_id ] );
+			return new WC_Product( $wc_mock_products[ $product_id ] );
 		}
 
 		return false;

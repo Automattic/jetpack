@@ -1,6 +1,6 @@
 <?php
 /**
- * This file contains PHPUnit tests for the Blaze class.
+ * This file contains PHPUnit tests for the Dashboard_REST_Controller class.
  * To run the package unit tests, run jetpack test php packages/blaze
  *
  * @package automattic/jetpack-blaze
@@ -784,8 +784,8 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	/**
 	 * Helper method to set up controller and capture redirected requests.
 	 *
-	 * @param string $url_pattern Pattern to match in the WPCOM URL.
-	 * @param array  $captured_request Reference to store captured request data.
+	 * @param string     $url_pattern Pattern to match in the WPCOM URL.
+	 * @param array|null $captured_request Reference to store captured request data.
 	 */
 	private function setup_redirect_test( $url_pattern, &$captured_request ) {
 		$connection_manager = $this->get_mocked_connection_manager();
@@ -1215,7 +1215,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'POST', $captured_request['method'] );
 		$this->assertStringContainsString( sprintf( '/wordads/dsp/api/v1/templates/article/urn:wpcom:post:%d:%d', $this->site_id, $this->post_id ), $captured_request['url'] );
 
-		$body = json_decode( $captured_request['body'], true );
+		$body = json_decode( $captured_request['body'] ?? '', true );
 		$this->assertIsArray( $body );
 		$this->assertSame( 'jetpack', $body['widget_origin'] );
 
@@ -1260,7 +1260,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
 
-		$body = json_decode( $captured_request['body'], true );
+		$body = json_decode( $captured_request['body'] ?? '', true );
 		$this->assertIsArray( $body );
 		$this->assertArrayHasKey( 'wp_post', $body );
 		$this->assertNull( $body['wp_post']['post_thumbnail'] );
@@ -1284,7 +1284,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
 
-		$body = json_decode( $captured_request['body'], true );
+		$body = json_decode( $captured_request['body'] ?? '', true );
 		$this->assertIsArray( $body );
 		$this->assertArrayHasKey( 'wp_post', $body );
 
@@ -1333,7 +1333,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'POST', $captured_request['method'] );
 		$this->assertStringContainsString( sprintf( '/wordads/dsp/api/v1/advise/campaign/urn:wpcom:post:%d:%d', $this->site_id, $this->post_id ), $captured_request['url'] );
 
-		$body = json_decode( $captured_request['body'], true );
+		$body = json_decode( $captured_request['body'] ?? '', true );
 		$this->assertIsArray( $body );
 
 		$this->assertArrayHasKey( 'wp_post', $body );
@@ -1383,7 +1383,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'POST', $captured_request['method'] );
 		$this->assertStringContainsString( sprintf( '/wordads/dsp/api/v1/advise/campaign/urn:wpcom:post:%d:%d', $this->site_id, $this->post_id ), $captured_request['url'] );
 
-		$body = json_decode( $captured_request['body'], true );
+		$body = json_decode( $captured_request['body'] ?? '', true );
 		$this->assertIsArray( $body );
 
 		$this->assertArrayHasKey( 'wp_post', $body );
@@ -1456,7 +1456,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'POST', $captured_request['method'] );
 		$this->assertStringContainsString( '/wordads/dsp/api/v1.1/campaigns', $captured_request['url'] );
 
-		$body = json_decode( $captured_request['body'], true );
+		$body = json_decode( $captured_request['body'] ?? '', true );
 		$this->assertIsArray( $body );
 
 		// Check that original request body params are preserved.

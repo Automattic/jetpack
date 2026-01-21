@@ -32,14 +32,14 @@ class Dashboard_REST_Controller {
 	/**
 	 * Connection manager object.
 	 *
-	 * @var Object
+	 * @var \Automattic\Jetpack\Connection\Manager
 	 */
 	private $connection;
 
 	/**
 	 * Creates the Dashboard_REST_Controller object.
 	 *
-	 * @param \Automattic\Jetpack\Connection\Manager $connection   the connection manager object.
+	 * @param \Automattic\Jetpack\Connection\Manager $connection   The connection manager object.
 	 */
 	public function __construct( $connection = null ) {
 		$this->connection = $connection ?? new Connection_Manager();
