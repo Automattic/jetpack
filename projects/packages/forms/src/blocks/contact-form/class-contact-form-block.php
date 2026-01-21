@@ -833,7 +833,7 @@ class Contact_Form_Block {
 	 * @deprecated $$next-version$$ This function is deprecated and will be removed in a future version.
 	 */
 	public static function load_editor_styles() {
-		_deprecated_function( __METHOD__, 'jetpack-15.5', null );
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 	}
 
 	/**
