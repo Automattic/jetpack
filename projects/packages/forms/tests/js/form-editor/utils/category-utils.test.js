@@ -15,11 +15,11 @@ describe( 'category-utils', () => {
 		it( 'should add form categories at the beginning of the array', () => {
 			const result = registerFormCategories( mockCategories );
 
-			expect( result[ 0 ].slug ).toBe( 'form-basic' );
-			expect( result[ 1 ].slug ).toBe( 'form-contact-info' );
-			expect( result[ 2 ].slug ).toBe( 'form-choice' );
-			expect( result[ 3 ].slug ).toBe( 'form-advanced' );
-			expect( result[ 4 ].slug ).toBe( 'form-multistep' );
+			expect( result[ 0 ].slug ).toBe( 'jetpack-form-basic' );
+			expect( result[ 1 ].slug ).toBe( 'jetpack-form-contact-info' );
+			expect( result[ 2 ].slug ).toBe( 'jetpack-form-choice' );
+			expect( result[ 3 ].slug ).toBe( 'jetpack-form-advanced' );
+			expect( result[ 4 ].slug ).toBe( 'jetpack-form-multistep' );
 			expect( result[ 5 ].slug ).toBe( 'text' );
 		} );
 
@@ -34,17 +34,17 @@ describe( 'category-utils', () => {
 			const result = registerFormCategories( [] );
 
 			expect( result ).toHaveLength( 5 );
-			expect( result[ 0 ].slug ).toBe( 'form-basic' );
+			expect( result[ 0 ].slug ).toBe( 'jetpack-form-basic' );
 		} );
 	} );
 
 	describe( 'unregisterFormCategories', () => {
 		it( 'should remove form categories from the array', () => {
 			const categoriesWithForm = [
-				{ slug: 'form-basic', title: 'Basic' },
-				{ slug: 'form-contact-info', title: 'Contact info' },
-				{ slug: 'form-choice', title: 'Choice' },
-				{ slug: 'form-advanced', title: 'Advanced' },
+				{ slug: 'jetpack-form-basic', title: 'Basic' },
+				{ slug: 'jetpack-form-contact-info', title: 'Contact info' },
+				{ slug: 'jetpack-form-choice', title: 'Choice' },
+				{ slug: 'jetpack-form-advanced', title: 'Advanced' },
 				{ slug: 'text', title: 'Text' },
 				{ slug: 'media', title: 'Media' },
 			];
@@ -58,7 +58,7 @@ describe( 'category-utils', () => {
 
 		it( 'should not mutate the original array', () => {
 			const categoriesWithForm = [
-				{ slug: 'form-basic', title: 'Basic' },
+				{ slug: 'jetpack-form-basic', title: 'Basic' },
 				{ slug: 'text', title: 'Text' },
 			];
 			const original = [ ...categoriesWithForm ];
@@ -86,10 +86,11 @@ describe( 'category-utils', () => {
 
 	describe( 'getFormCategorySlug', () => {
 		it( 'returns the full slug for known short category names', () => {
-			expect( getFormCategorySlug( 'basic' ) ).toBe( 'form-basic' );
-			expect( getFormCategorySlug( 'contact-info' ) ).toBe( 'form-contact-info' );
-			expect( getFormCategorySlug( 'choice' ) ).toBe( 'form-choice' );
-			expect( getFormCategorySlug( 'advanced' ) ).toBe( 'form-advanced' );
+			expect( getFormCategorySlug( 'basic' ) ).toBe( 'jetpack-form-basic' );
+			expect( getFormCategorySlug( 'contact-info' ) ).toBe( 'jetpack-form-contact-info' );
+			expect( getFormCategorySlug( 'choice' ) ).toBe( 'jetpack-form-choice' );
+			expect( getFormCategorySlug( 'advanced' ) ).toBe( 'jetpack-form-advanced' );
+			expect( getFormCategorySlug( 'multistep' ) ).toBe( 'jetpack-form-multistep' );
 		} );
 
 		it( 'returns undefined for unknown category names', () => {
