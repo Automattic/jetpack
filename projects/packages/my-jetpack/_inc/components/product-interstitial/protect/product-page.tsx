@@ -81,8 +81,9 @@ export default function ProtectProductPage() {
 	}, [ recordEvent, navigateToUpgrade ] );
 
 	const cloudScanUrl = getRedirectUrl( 'my-jetpack-manage-scan' );
-	const scanVsProtectUrl =
-		'https://jetpack.com/support/jetpack-protect/#jetpack-protect-jetpack-scan-and-wpscan-understand-the-difference';
+	const scanVsProtectUrl = getRedirectUrl( 'jetpack-protect-support', {
+		anchor: 'jetpack-protect-jetpack-scan-and-wpscan-understand-the-difference',
+	} );
 
 	return (
 		<AdminPage
@@ -94,7 +95,7 @@ export default function ProtectProductPage() {
 				{ /* Header Section */ }
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
-						<GoBackLink onClick={ onClickGoBack } />
+						<GoBackLink onClick={ onClickGoBack } reload={ false } />
 					</div>
 					<div
 						className={ clsx(
