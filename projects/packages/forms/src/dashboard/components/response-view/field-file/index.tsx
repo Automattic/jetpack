@@ -1,14 +1,6 @@
 import File from './file.tsx';
+import type { FileItem } from '../../../../types/index.ts';
 import './style.scss';
-
-type FileItem = {
-	file_id: number;
-	name: string;
-	url: string;
-	size: string;
-	type?: string;
-	is_previewable?: boolean;
-};
 
 type FieldFileProps = {
 	files?: FileItem[];
