@@ -30,6 +30,7 @@ type UseDeleteFormArgs = {
 	view: View;
 	setView: ( newView: View ) => void;
 	recordsLength: number;
+	statusQuery: string;
 };
 
 type UseDeleteFormReturn = {
@@ -45,12 +46,14 @@ type UseDeleteFormReturn = {
  * @param args.setView       - View setter (used to navigate to previous page when needed).
  * @param args.recordsLength - Number of records currently displayed (used for pagination edge case).
  *
+ * @param args.statusQuery   - REST `status` query param for the current list view (used for cache invalidation).
  * @return State + handler for executing the trash operation.
  */
 export default function useDeleteForm( {
 	view,
 	setView,
 	recordsLength,
+	statusQuery,
 }: UseDeleteFormArgs ): UseDeleteFormReturn {
 	const [ isDeleting, setIsDeleting ] = useState( false );
 
@@ -64,8 +67,8 @@ export default function useDeleteForm( {
 	const search = view.search ?? '';
 
 	const currentQuery = useMemo(
-		() => getFormsListQuery( page, perPage, search ),
-		[ page, perPage, search ]
+		() => getFormsListQuery( page, perPage, search, statusQuery ),
+		[ page, perPage, search, statusQuery ]
 	);
 
 	const undoTrashForm = useCallback(

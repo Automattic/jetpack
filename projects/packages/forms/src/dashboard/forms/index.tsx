@@ -20,6 +20,7 @@ import useFormsData from '../hooks/use-forms-data.ts';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
+import type { Operator } from '@wordpress/dataviews/wp';
 
 /**
  * Forms dashboard "Forms" route.
@@ -33,15 +34,35 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 	const dateSettings = getDateSettings();
 	const [ view, setView ] = useView();
+
+	const statusQuery = useMemo( () => {
+		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
+
+		// Default: show Published forms and keep Trash out unless explicitly requested.
+		const nonTrashStatuses = 'publish,draft,pending,future,private';
+
+		if ( ! statusFilterValue ) {
+			return 'publish';
+		}
+
+		if ( statusFilterValue === 'all' ) {
+			return `${ nonTrashStatuses },trash`;
+		}
+
+		return statusFilterValue;
+	}, [ view.filters ] );
+
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page,
 		view.perPage,
-		view.search
+		view.search,
+		statusQuery
 	);
 	const { isDeleting, trashForm } = useDeleteForm( {
 		view,
 		setView,
 		recordsLength: records?.length ?? 0,
+		statusQuery,
 	} );
 
 	useEffect( () => {
@@ -90,6 +111,18 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				label: __( 'Status', 'jetpack-forms' ),
 				getValue: ( { item }: { item: FormListItem } ) => item.status,
 				render: ( { item }: { item: FormListItem } ) => statusLabel( item.status ),
+				elements: [
+					{ label: __( 'All', 'jetpack-forms' ), value: 'all' },
+					{ label: __( 'Published', 'jetpack-forms' ), value: 'publish' },
+					{ label: __( 'Draft', 'jetpack-forms' ), value: 'draft' },
+					{ label: __( 'Pending review', 'jetpack-forms' ), value: 'pending' },
+					{ label: __( 'Scheduled', 'jetpack-forms' ), value: 'future' },
+					{ label: __( 'Private', 'jetpack-forms' ), value: 'private' },
+					{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
+				],
+				// Mark as primary so the filter UI (and its pill) is visible by default on load.
+				// DataViews expects `operators` to be typed as a known operator union; keep this narrowly typed.
+				filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
 				enableSorting: false,
 			},
 			{
