@@ -1491,7 +1491,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "4a8b1a07ec3c8b4c155d5ea2c4e77c4766164fda"
+				"reference": "0244b4039a794debb10f7f576af7dc538ea78800"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1526,7 +1526,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "7.3.x-dev"
+					"dev-trunk": "7.4.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -2189,11 +2189,13 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/newsletter",
-				"reference": "70c4fd8f9ebed459812e69b15a21152a4a8e9a0d"
+				"reference": "c8acefd8afccfe14f61a3749fbfe2280fc411dc4"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
 				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-redirect": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"php": ">=7.2"
 			},
@@ -2211,7 +2213,7 @@
 				"autotagger": true,
 				"mirror-repo": "Automattic/jetpack-newsletter",
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				},
 				"textdomain": "jetpack-newsletter",
 				"version-constants": {
@@ -2719,7 +2721,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "70763243ebfb0aecd6e6f4cce2e4e660e2811e29"
+				"reference": "a64234465a7ef9f803ea5ad27cf0d24e7832bac7"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2750,7 +2752,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.70.x-dev"
+					"dev-trunk": "0.71.x-dev"
 				}
 			},
 			"autoload": {
@@ -2912,7 +2914,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/search",
-				"reference": "fc7fd9c5a4b0b76751f492f4f45704086e1c6f12"
+				"reference": "624f4d0a331bb8e7d88ad61790bc71b907b128a4"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2942,7 +2944,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.54.x-dev"
+					"dev-trunk": "0.55.x-dev"
 				},
 				"version-constants": {
 					"::VERSION": "src/class-package.php"
@@ -3503,7 +3505,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/woocommerce-analytics",
-				"reference": "2d860201575459f72ce71798f89572fc0e4310bf"
+				"reference": "5c69cb69dce4d7cc9416e4e52743c5ca0cc653e1"
 			},
 			"require": {
 				"automattic/block-delimiter": "@dev",
@@ -3530,7 +3532,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.13.x-dev"
+					"dev-trunk": "0.14.x-dev"
 				},
 				"textdomain": "woocommerce-analytics",
 				"version-constants": {

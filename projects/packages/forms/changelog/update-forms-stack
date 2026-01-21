@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Use Stack component from WP-UI package in new wp-build dashboard.

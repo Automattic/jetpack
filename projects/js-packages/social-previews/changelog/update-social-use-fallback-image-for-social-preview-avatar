@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use fallback image when social preview profile picture fails.

@@ -11,6 +11,33 @@ export type FormListItem = {
 	editUrl?: string;
 };
 
+/**
+ * Build the query object for fetching Forms list records from core-data.
+ *
+ * @param page    - Current page number.
+ * @param perPage - Items per page.
+ * @param search  - Search term.
+ *
+ * @return Query params for useEntityRecords / core-data.
+ */
+export function getFormsListQuery( page: number, perPage: number, search: string ) {
+	const queryParams: Record< string, unknown > = {
+		context: 'edit',
+		jetpack_forms_context: 'dashboard',
+		order: 'desc',
+		orderby: 'modified',
+		page,
+		per_page: perPage,
+		status: 'publish,draft,pending,future,private',
+	};
+
+	if ( search ) {
+		queryParams.search = search;
+	}
+
+	return queryParams;
+}
+
 type JetpackFormRestItem = {
 	id: number;
 	title?: { rendered?: string };
@@ -42,21 +69,7 @@ export default function useFormsData(
 	search: string
 ): UseFormsDataReturn {
 	const query = useMemo( () => {
-		const queryParams: Record< string, unknown > = {
-			context: 'edit',
-			jetpack_forms_context: 'dashboard',
-			order: 'desc',
-			orderby: 'modified',
-			page,
-			per_page: perPage,
-			status: 'publish,draft,pending,future,private',
-		};
-
-		if ( search ) {
-			queryParams.search = search;
-		}
-
-		return queryParams;
+		return getFormsListQuery( page, perPage, search );
 	}, [ page, perPage, search ] );
 
 	const {

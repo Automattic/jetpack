@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: tests: Make mocked JetpackScriptData be configurable so it can be deleted.
+
+

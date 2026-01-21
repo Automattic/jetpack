@@ -70,7 +70,7 @@ export type DispatchActions = {
 		count: number,
 		queryParams?: QueryParams
 	) => void;
-	doBulkAction: ( ids: string[], action: string ) => void;
+	doBulkAction: ( ids: string[], action: string ) => Promise< void >;
 	invalidateFilters: () => void;
 	invalidateCounts: () => void;
 	markRecordsAsInvalid: ( ids: number[] ) => void;
