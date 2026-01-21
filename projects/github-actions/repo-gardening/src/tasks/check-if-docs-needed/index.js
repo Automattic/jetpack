@@ -22,8 +22,8 @@ function cleanContent( content ) {
 	// Remove markdown links [text](url), but keep the text.
 	content = content.replace( /\[([^\]]*)\]\([^)]+\)/g, '$1' );
 
-	// Remove HTML links <a href="url">text</a>, but keep the text.
-	content = content.replace( /<a\s+href="[^"]*"[^>]*>([^<]*)<\/a>/gi, '$1' );
+	// Remove HTML links <a ...>text</a>, but keep the text.
+	content = content.replace( /<a\b[^>]*>(.*?)<\/a>/gi, '$1' );
 
 	// Replace bare URLs with [link].
 	content = content.replace( /https?:\/\/\S+/g, '[link]' );
