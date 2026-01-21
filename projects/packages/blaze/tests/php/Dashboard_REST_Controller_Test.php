@@ -253,7 +253,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/blaze/posts', $this->site_id ) );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertEquals( 401, $response->get_status() );
+		$this->assertSame( 401, $response->get_status() );
 	}
 
 	/**
@@ -267,7 +267,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$response = $this->server->dispatch( $request );
 
 		// Should fail because editor doesn't have manage_options capability
-		$this->assertEquals( 403, $response->get_status() );
+		$this->assertSame( 403, $response->get_status() );
 	}
 
 	/**
@@ -329,7 +329,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/blaze/posts', $this->site_id ) );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 200, $response->get_status() );
 
 		$data = $response->get_data();
 		$this->assertIsArray( $data );
@@ -338,13 +338,13 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 
 		// Verify first post structure
 		$first_post = $data['posts'][0];
-		$this->assertEquals( 123, $first_post['ID'] );
-		$this->assertEquals( 'Test Post 1', $first_post['title'] );
-		$this->assertEquals( 'post', $first_post['type'] );
+		$this->assertSame( 123, $first_post['ID'] );
+		$this->assertSame( 'Test Post 1', $first_post['title'] );
+		$this->assertSame( 'post', $first_post['type'] );
 
 		// Verify the HTTP request was made with correct method
 		$this->assertNotNull( $captured_request, 'HTTP request should be made' );
-		$this->assertEquals( 'GET', $captured_request['args']['method'] );
+		$this->assertSame( 'GET', $captured_request['args']['method'] );
 	}
 
 	/**
@@ -404,7 +404,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		);
 		$response = $this->server->dispatch( $request );
 
-		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 200, $response->get_status() );
 
 		// Verify query parameters are present in the URL
 		$this->assertNotNull( $captured_request, 'HTTP request should be made' );
@@ -450,55 +450,11 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/blaze/posts', $this->site_id ) );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertEquals( 500, $response->get_status() );
+		$this->assertSame( 500, $response->get_status() );
 
 		$data = $response->get_data();
 		$this->assertArrayHasKey( 'code', $data );
 		$this->assertArrayHasKey( 'errorMessage', $data );
-	}
-
-	/**
-	 * Mock HTTP response for Blaze posts endpoint with query parameters.
-	 *
-	 * This verifies that query parameters are correctly forwarded to the WPCOM API.
-	 *
-	 * @param false|array $response    HTTP response.
-	 * @param array       $parsed_args HTTP request arguments.
-	 * @param string      $url         The request URL.
-	 * @return array|false
-	 */
-	public function mock_blaze_posts_http_response_with_params( $response, $parsed_args, $url ) {
-		if ( strpos( $url, sprintf( '/sites/%d/blaze/posts', $this->site_id ) ) !== false ) {
-			// Verify query parameters are present in the URL
-			$this->assertStringContainsString( 'search=test', $url );
-			$this->assertStringContainsString( 'number=10', $url );
-
-			// Return mock response
-			return array(
-				'response' => array(
-					'code'    => 200,
-					'message' => 'OK',
-				),
-				'headers'  => array(
-					'content-type' => 'application/json',
-				),
-				'body'     => wp_json_encode(
-					array(
-						'posts' => array(
-							array(
-								'ID'      => 123,
-								'title'   => 'Test Post 1',
-								'type'    => 'post',
-								'excerpt' => 'This is a test post',
-								'URL'     => 'https://example.com/test-post-1',
-							),
-						),
-					),
-					JSON_UNESCAPED_SLASHES
-				),
-			);
-		}
-		return $response;
 	}
 
 	/**
