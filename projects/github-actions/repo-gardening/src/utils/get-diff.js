@@ -37,6 +37,10 @@ async function getDiff( octokit, owner, repo, number, maxSize = 50000 ) {
 
 	let diff = response.data;
 
+	if ( typeof diff !== 'string' ) {
+		debug( `get-diff: Expected diff to be a string but received ${ typeof diff }. Returning empty diff.` );
+		diff = '';
+	}
 	// Filter out lines longer than 500 characters (likely minified code).
 	diff = diff
 		.split( '\n' )
