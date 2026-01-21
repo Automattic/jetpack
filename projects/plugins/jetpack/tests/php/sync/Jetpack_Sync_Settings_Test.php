@@ -126,9 +126,18 @@ class Jetpack_Sync_Settings_Test extends Jetpack_Sync_TestBase {
 		$this->assertTrue( $this->dedicated_sync_test_request_spawned );
 		$this->assertFalse( Settings::is_dedicated_sync_enabled() );
 
-		// syncing sends no data
+		// Ensure 'updated_option' events related to 'jetpack_sync_settings_dedicated_sync_enabled' have been removed from
+		// the queue.
 		$this->sender->do_sync();
-		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'updated_option' ) );
+		$event = $this->server_event_storage->get_most_recent_event(
+			'updated_option',
+			null,
+			function ( $event ) {
+				return isset( $event->args[0] ) && 'jetpack_sync_settings_dedicated_sync_enabled' === $event->args[0];
+			}
+		);
+
+		$this->assertFalse( $event );
 	}
 
 	public function test_enabling_dedicated_sync_setting_with_successful_sync_spawn_test_request() {

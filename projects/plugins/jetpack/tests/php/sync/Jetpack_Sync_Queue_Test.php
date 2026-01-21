@@ -66,7 +66,7 @@ class Jetpack_Sync_Queue_Test extends WP_UnitTestCase {
 		$this->assertSame( 2, $this->queue->size() );
 	}
 
-	public function test_pop_latest_items() {
+	public function test_pop_newest_items() {
 		$this->queue->add( 'foo' );
 		$this->queue->add( 'bar' );
 		$this->queue->add( 'baz' );

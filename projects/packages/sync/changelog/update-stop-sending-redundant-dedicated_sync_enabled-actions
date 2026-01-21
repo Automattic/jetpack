@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Sync: Stop sending redundant actions when Dedicated Sync fails to enable
+Sync: Stop sending redundant actions when Dedicated Sync fails to enable.
