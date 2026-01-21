@@ -30,11 +30,13 @@ type UseDeleteFormArgs = {
 	view: View;
 	setView: ( newView: View ) => void;
 	recordsLength: number;
+	statusQuery: string;
 };
 
 type UseDeleteFormReturn = {
 	isDeleting: boolean;
 	trashForm: ( item: FormListItem ) => Promise< void >;
+	restoreForm: ( item: FormListItem ) => Promise< void >;
 };
 
 /**
@@ -44,13 +46,14 @@ type UseDeleteFormReturn = {
  * @param args.view          - Current DataViews view (for page/perPage/search).
  * @param args.setView       - View setter (used to navigate to previous page when needed).
  * @param args.recordsLength - Number of records currently displayed (used for pagination edge case).
- *
+ * @param args.statusQuery   - REST `status` query param for the current list view (used for cache invalidation).
  * @return State + handler for executing the trash operation.
  */
 export default function useDeleteForm( {
 	view,
 	setView,
 	recordsLength,
+	statusQuery,
 }: UseDeleteFormArgs ): UseDeleteFormReturn {
 	const [ isDeleting, setIsDeleting ] = useState( false );
 
@@ -64,8 +67,8 @@ export default function useDeleteForm( {
 	const search = view.search ?? '';
 
 	const currentQuery = useMemo(
-		() => getFormsListQuery( page, perPage, search ),
-		[ page, perPage, search ]
+		() => getFormsListQuery( page, perPage, search, statusQuery ),
+		[ page, perPage, search, statusQuery ]
 	);
 
 	const undoTrashForm = useCallback(
@@ -96,6 +99,50 @@ export default function useDeleteForm( {
 			}
 		},
 		[ createErrorNotice, createSuccessNotice, currentQuery, invalidateResolution, saveEntityRecord ]
+	);
+
+	const restoreForm = useCallback(
+		async ( item: FormListItem ) => {
+			if ( ! item || isDeleting ) {
+				return;
+			}
+
+			setIsDeleting( true );
+
+			try {
+				await saveEntityRecord(
+					'postType',
+					'jetpack_form',
+					{ id: item.id, status: 'publish' },
+					{ throwOnError: true }
+				);
+				createSuccessNotice( __( 'Form restored.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					id: `restore-form-${ item.id }`,
+				} );
+			} catch {
+				createErrorNotice( __( 'Could not restore form.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					id: `restore-form-error-${ item.id }`,
+				} );
+			} finally {
+				setIsDeleting( false );
+				invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', currentQuery ] );
+				invalidateResolution( 'getEntityRecords', [
+					'postType',
+					'jetpack_form',
+					{ ...currentQuery, per_page: 1, _fields: 'id' },
+				] );
+			}
+		},
+		[
+			createErrorNotice,
+			createSuccessNotice,
+			currentQuery,
+			invalidateResolution,
+			isDeleting,
+			saveEntityRecord,
+		]
 	);
 
 	const trashForm = useCallback(
@@ -167,5 +214,6 @@ export default function useDeleteForm( {
 	return {
 		isDeleting,
 		trashForm,
+		restoreForm,
 	};
 }

@@ -20,6 +20,7 @@ import useFormsData from '../hooks/use-forms-data.ts';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
+import type { Action, Operator } from '@wordpress/dataviews/wp';
 
 /**
  * Forms dashboard "Forms" route.
@@ -33,15 +34,40 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 	const dateSettings = getDateSettings();
 	const [ view, setView ] = useView();
+
+	const statusQuery = useMemo( () => {
+		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
+
+		// Default: show all non-trash forms (matches WP core list behavior).
+		const nonTrashStatuses = 'publish,draft,pending,future,private';
+
+		if ( ! statusFilterValue ) {
+			return nonTrashStatuses;
+		}
+
+		if ( statusFilterValue === 'all' ) {
+			return nonTrashStatuses;
+		}
+
+		return statusFilterValue;
+	}, [ view.filters ] );
+
+	const isViewingTrash = useMemo( () => {
+		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
+		return statusFilterValue === 'trash';
+	}, [ view.filters ] );
+
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page,
 		view.perPage,
-		view.search
+		view.search,
+		statusQuery
 	);
-	const { isDeleting, trashForm } = useDeleteForm( {
+	const { isDeleting, trashForm, restoreForm } = useDeleteForm( {
 		view,
 		setView,
 		recordsLength: records?.length ?? 0,
+		statusQuery,
 	} );
 
 	useEffect( () => {
@@ -90,6 +116,18 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				label: __( 'Status', 'jetpack-forms' ),
 				getValue: ( { item }: { item: FormListItem } ) => item.status,
 				render: ( { item }: { item: FormListItem } ) => statusLabel( item.status ),
+				elements: [
+					{ label: __( 'All', 'jetpack-forms' ), value: 'all' },
+					{ label: __( 'Published', 'jetpack-forms' ), value: 'publish' },
+					{ label: __( 'Draft', 'jetpack-forms' ), value: 'draft' },
+					{ label: __( 'Pending review', 'jetpack-forms' ), value: 'pending' },
+					{ label: __( 'Scheduled', 'jetpack-forms' ), value: 'future' },
+					{ label: __( 'Private', 'jetpack-forms' ), value: 'private' },
+					{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
+				],
+				// Mark as primary so the filter UI (and its pill) is visible by default on load.
+				// DataViews expects `operators` to be typed as a known operator union; keep this narrowly typed.
+				filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
 				enableSorting: false,
 			},
 			{
@@ -104,8 +142,8 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		[ dateSettings.formats.datetime, statusLabel ]
 	);
 
-	const actions = useMemo(
-		() => [
+	const actions = useMemo( () => {
+		const actionsList: Action< FormListItem >[] = [
 			{
 				id: 'edit-form',
 				isPrimary: false,
@@ -122,12 +160,15 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					window.location.href = url.toString();
 				},
 			},
-			{
-				id: 'delete-form',
+		];
+
+		if ( isViewingTrash ) {
+			actionsList.push( {
+				id: 'restore-form',
 				isPrimary: false,
-				label: __( 'Trash', 'jetpack-forms' ),
+				label: __( 'Restore', 'jetpack-forms' ),
 				supportsBulk: false,
-				callback( items: FormListItem[] ) {
+				async callback( items: FormListItem[] ) {
 					if ( isDeleting ) {
 						return;
 					}
@@ -135,12 +176,31 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					if ( ! item ) {
 						return;
 					}
-					trashForm( item );
+					await restoreForm( item );
 				},
+			} );
+			return actionsList;
+		}
+
+		actionsList.push( {
+			id: 'trash-form',
+			isPrimary: false,
+			label: __( 'Trash', 'jetpack-forms' ),
+			supportsBulk: false,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting ) {
+					return;
+				}
+				const [ item ] = items;
+				if ( ! item ) {
+					return;
+				}
+				await trashForm( item );
 			},
-		],
-		[ isDeleting, trashForm ]
-	);
+		} );
+
+		return actionsList;
+	}, [ isDeleting, isViewingTrash, restoreForm, trashForm ] );
 
 	const paginationInfo = useMemo(
 		() => ( {
