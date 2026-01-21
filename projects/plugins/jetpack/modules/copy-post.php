@@ -94,8 +94,6 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		add_filter( 'jetpack_copy_post_data', array( $this, 'copy_footnotes' ), 10, 3 );
-
 		$update_results = array(
 			'update_content'         => $this->update_content( $source_post, $target_post_id ),
 			'update_featured_image'  => $this->update_featured_image( $source_post, $target_post_id ),
@@ -156,6 +154,9 @@ class Jetpack_Copy_Post {
 			'post_password'  => $source_post->post_password,
 			'tags_input'     => $source_post->tags_input,
 		);
+
+		// Copy footnotes with regenerated IDs.
+		$data = $this->copy_footnotes( $data, $source_post, $target_post_id );
 
 		/**
 		 * Fires just before the target post is updated with its new data.
