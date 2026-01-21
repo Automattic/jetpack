@@ -7,12 +7,15 @@ const cache = {};
 /**
  * Get the diff for a PR.
  *
+ * Filters out lines longer than 500 characters (likely minified code)
+ * and truncates the result to maxSize characters.
+ *
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
  * @param {number} maxSize - Maximum size of diff to return (default 50000 characters).
- * @return {Promise<string>} Promise resolving to the PR diff as a string.
+ * @return {Promise<string>} Promise resolving to the PR diff as a string, truncated to maxSize.
  */
 async function getDiff( octokit, owner, repo, number, maxSize = 50000 ) {
 	const cacheKey = `${ owner }/${ repo } #${ number }`;

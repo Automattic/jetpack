@@ -17,6 +17,7 @@ Here is the current list of tasks handled by this action:
 - Triage Issues (`triageIssues`): Adds labels to issues based on issue content, and send Slack notifications depending on Priority.
 - Gather support references (`gatherSupportReferences`): Adds a new comment with a list of all support references on the issue, and escalates that issue via a Slack message if needed.
 - Reply to customers Reminder ( `replyToCustomersReminder` ): sends a Slack message about closed issues to remind Automatticians to update customers.
+- Check If Docs Needed (`checkIfDocsNeeded`): Uses AI to analyze PR changes and flag user-facing PRs with the `[Status] UI Changes` label. Sends a Slack notification to the quality channel when configured.
 
 Some of the tasks are may not satisfy your needs. If that's the case, you can use the `tasks` option to limit the action to the list of tasks you need in your repo. See the example below to find out more.
 

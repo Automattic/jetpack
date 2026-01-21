@@ -3,6 +3,7 @@ const debug = require( '../../utils/debug' );
 const getDiff = require( '../../utils/get-diff' );
 const getLabels = require( '../../utils/labels/get-labels' );
 const sendOpenAiRequest = require( '../../utils/openai/send-request' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -178,6 +179,17 @@ async function checkIfDocsNeeded( payload, octokit ) {
 			issue_number: number,
 			labels: [ uiChangesLabel ],
 		} );
+
+		// Send Slack notification if quality channel is configured.
+		const slackQualityChannel = getInput( 'slack_quality_channel' );
+		if ( slackQualityChannel ) {
+			debug( `check-if-docs-needed: Sending Slack notification for PR #${ number }.` );
+			await sendSlackMessage(
+				`This PR was flagged as containing user-facing changes. Please review and update documentation if needed.\n\n*AI reasoning:* ${ reason }`,
+				slackQualityChannel,
+				payload
+			);
+		}
 	} else {
 		debug(
 			`check-if-docs-needed: PR #${ number } is not user-facing or low confidence. Not adding label. Reason: ${ reason }`
