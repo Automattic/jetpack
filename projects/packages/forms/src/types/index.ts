@@ -345,3 +345,33 @@ export interface FormsConfigData {
 	/** The admin-ajax.php URL for the site. */
 	ajaxUrl?: string;
 }
+
+export type FieldType =
+	| 'name'
+	| 'email'
+	| 'phone'
+	| 'telephone'
+	| 'url'
+	| 'file'
+	| 'image-select'
+	| 'date'
+	| 'select'
+	| 'checkbox'
+	| 'checkbox-multiple'
+	| 'radio'
+	| 'textarea'
+	| 'text'
+	| 'number'
+	| 'slider'
+	| 'range'
+	| 'rating'
+	| 'consent';
+
+export type FileItem = {
+	file_id: number;
+	name: string;
+	url: string;
+	size: string;
+	type?: string;
+	is_previewable?: boolean;
+};
