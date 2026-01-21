@@ -37,6 +37,10 @@ type UseDeleteFormReturn = {
 	isDeleting: boolean;
 	trashForm: ( item: FormListItem ) => Promise< void >;
 	restoreForm: ( item: FormListItem ) => Promise< void >;
+	isPermanentDeleteConfirmOpen: boolean;
+	openPermanentDeleteConfirm: ( item: FormListItem ) => void;
+	closePermanentDeleteConfirm: () => void;
+	confirmPermanentDelete: () => Promise< void >;
 };
 
 /**
@@ -56,6 +60,8 @@ export default function useDeleteForm( {
 	statusQuery,
 }: UseDeleteFormArgs ): UseDeleteFormReturn {
 	const [ isDeleting, setIsDeleting ] = useState( false );
+	const [ isPermanentDeleteConfirmOpen, setIsPermanentDeleteConfirmOpen ] = useState( false );
+	const [ permanentDeleteItem, setPermanentDeleteItem ] = useState< FormListItem | null >( null );
 
 	const { saveEntityRecord, deleteEntityRecord, invalidateResolution } = useDispatch(
 		'core'
@@ -211,9 +217,71 @@ export default function useDeleteForm( {
 		]
 	);
 
+	const openPermanentDeleteConfirm = useCallback( ( item: FormListItem ) => {
+		setPermanentDeleteItem( item );
+		setIsPermanentDeleteConfirmOpen( true );
+	}, [] );
+
+	const closePermanentDeleteConfirm = useCallback( () => {
+		setIsPermanentDeleteConfirmOpen( false );
+		setPermanentDeleteItem( null );
+	}, [] );
+
+	const confirmPermanentDelete = useCallback( async () => {
+		if ( ! permanentDeleteItem || isDeleting ) {
+			return;
+		}
+
+		setIsPermanentDeleteConfirmOpen( false );
+		setIsDeleting( true );
+
+		try {
+			await deleteEntityRecord(
+				'postType',
+				'jetpack_form',
+				permanentDeleteItem.id,
+				{ force: true },
+				{ throwOnError: true }
+			);
+
+			createSuccessNotice( __( 'Form deleted permanently.', 'jetpack-forms' ), {
+				type: 'snackbar',
+				id: `delete-form-permanently-${ permanentDeleteItem.id }`,
+			} );
+		} catch {
+			createErrorNotice( __( 'Could not delete form permanently.', 'jetpack-forms' ), {
+				type: 'snackbar',
+				id: `delete-form-permanently-error-${ permanentDeleteItem.id }`,
+			} );
+		} finally {
+			setIsDeleting( false );
+			setPermanentDeleteItem( null );
+
+			// Invalidate the list query so the deleted form disappears from the table and totals refresh.
+			invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', currentQuery ] );
+			invalidateResolution( 'getEntityRecords', [
+				'postType',
+				'jetpack_form',
+				{ ...currentQuery, per_page: 1, _fields: 'id' },
+			] );
+		}
+	}, [
+		createErrorNotice,
+		createSuccessNotice,
+		currentQuery,
+		deleteEntityRecord,
+		invalidateResolution,
+		isDeleting,
+		permanentDeleteItem,
+	] );
+
 	return {
 		isDeleting,
 		trashForm,
 		restoreForm,
+		isPermanentDeleteConfirmOpen,
+		openPermanentDeleteConfirm,
+		closePermanentDeleteConfirm,
+		confirmPermanentDelete,
 	};
 }
