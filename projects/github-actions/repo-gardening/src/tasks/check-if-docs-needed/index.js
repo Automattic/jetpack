@@ -28,8 +28,12 @@ function cleanContent( content ) {
 	// Replace bare URLs with [link].
 	content = content.replace( /https?:\/\/\S+/g, '[link]' );
 
-	// Remove HTML comments.
-	content = content.replace( /<!--[\s\S]*?-->/g, '' );
+	// Remove HTML comments, applying repeatedly to avoid incomplete multi-character sanitization.
+	let previousContent;
+	do {
+		previousContent = content;
+		content = content.replace( /<!--[\s\S]*?-->/g, '' );
+	} while ( content !== previousContent );
 
 	return content;
 }
