@@ -254,6 +254,10 @@ class Queue {
 	public function pop( $limit ) {
 		$items = $this->fetch_items( $limit );
 
+		if ( ! $items ) {
+			return;
+		}
+
 		$ids = $this->get_ids( $items );
 
 		$this->delete( $ids );
@@ -270,6 +274,10 @@ class Queue {
 	 */
 	public function pop_newest( $limit ) {
 		$items = $this->fetch_items( $limit, 'DESC' );
+
+		if ( ! $items ) {
+			return;
+		}
 
 		$ids = $this->get_ids( $items );
 
