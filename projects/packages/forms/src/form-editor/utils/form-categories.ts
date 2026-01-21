@@ -21,23 +21,23 @@ export interface FormCategory {
  */
 export const FORM_CATEGORIES: FormCategory[] = [
 	{
-		slug: 'form-basic',
+		slug: 'jetpack-form-basic',
 		title: __( 'Basic', 'jetpack-forms' ),
 	},
 	{
-		slug: 'form-contact-info',
+		slug: 'jetpack-form-contact-info',
 		title: __( 'Contact info', 'jetpack-forms' ),
 	},
 	{
-		slug: 'form-choice',
+		slug: 'jetpack-form-choice',
 		title: __( 'Choice', 'jetpack-forms' ),
 	},
 	{
-		slug: 'form-advanced',
+		slug: 'jetpack-form-advanced',
 		title: __( 'Advanced', 'jetpack-forms' ),
 	},
 	{
-		slug: 'form-multistep',
+		slug: 'jetpack-form-multistep',
 		title: __( 'Multi-step', 'jetpack-forms' ),
 	},
 ];
@@ -49,11 +49,11 @@ export const FORM_CATEGORIES: FormCategory[] = [
  * (e.g., 'basic'), and this maps it to the full slug (e.g., 'form-basic').
  */
 export const CATEGORY_SLUG_MAP: Record< string, string > = {
-	basic: 'form-basic',
-	'contact-info': 'form-contact-info',
-	choice: 'form-choice',
-	advanced: 'form-advanced',
-	multistep: 'form-multistep',
+	basic: 'jetpack-form-basic',
+	'contact-info': 'jetpack-form-contact-info',
+	choice: 'jetpack-form-choice',
+	advanced: 'jetpack-form-advanced',
+	multistep: 'jetpack-form-multistep',
 };
 
 /**
