@@ -216,6 +216,29 @@ class Feedback_Field {
 			}
 		}
 
+		// For file fields, return a structured array with file metadata for proper rendering.
+		if ( $this->is_of_type( 'file' ) ) {
+			$files = array();
+			if ( isset( $this->value['files'] ) && is_array( $this->value['files'] ) ) {
+				foreach ( $this->value['files'] as $file ) {
+					if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
+						continue;
+					}
+					$file_id = absint( $file['file_id'] );
+					$files[] = array(
+						'file_id' => $file_id,
+						'name'    => $file['name'] ?? __( 'Attached file', 'jetpack-forms' ),
+						'size'    => size_format( $file['size'] ),
+						'url'     => apply_filters( 'jetpack_unauth_file_download_url', '', $file_id ),
+					);
+				}
+			}
+			return array(
+				'type'  => 'file',
+				'files' => $files,
+			);
+		}
+
 		return $this->get_render_default_value();
 	}
 

@@ -380,6 +380,46 @@ that needs to mimic the input element styles */
 	}
 }
 
+.contact-form-submission .field-files {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 8px;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.contact-form-submission .field-file {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.contact-form-submission .field-file__icon {
+	flex-shrink: 0;
+	color: inherit;
+	opacity: 0.6;
+}
+
+.contact-form-submission .field-file__name {
+	color: inherit;
+	text-decoration: underline;
+	font-weight: 600;
+	font-size: 1rem;
+
+	&:hover {
+		text-decoration: none;
+	}
+}
+
+.contact-form-submission .field-file__size {
+	color: inherit;
+	opacity: 0.6;
+	font-size: 0.875rem;
+}
+
 .contact-form-submission .field-value {
 	margin-bottom: 0;
 	font-size: 1rem;

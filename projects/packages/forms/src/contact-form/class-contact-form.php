@@ -1460,13 +1460,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		foreach ( $data as $field_data ) {
 			$url    = self::get_url( $field_data['value'] );
 			$images = self::get_images( $field_data['value'] );
+			$files  = self::get_files( $field_data['value'] );
 
 			$formatted_submission_data[] = array(
 				'label'          => self::maybe_add_colon_to_label( $field_data['label'] ),
 				'value'          => self::maybe_transform_value( $field_data['value'] ),
 				'images'         => $images,
 				'url'            => $url,
-				'showPlainValue' => empty( $url ) && empty( $images ),
+				'files'          => $files,
+				'showPlainValue' => empty( $url ) && empty( $images ) && empty( $files ),
 			);
 		}
 
@@ -1598,6 +1600,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 								</div>
 							</template>
 						</div>
+						<div class="field-files" data-wp-bind--hidden="!context.submission.files">
+							<template data-wp-each--file="context.submission.files">
+								<div class="field-file">
+									<svg class="field-file__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>
+									</svg>
+									<a class="field-file__name" data-wp-bind--href="context.file.url" data-wp-text="context.file.name" target="_blank" rel="noopener noreferrer"></a>
+									<span class="field-file__size" data-wp-text="context.file.size"></span>
+								</div>
+							</template>
+						</div>
 					</div>
 				</template>';
 
@@ -1606,14 +1619,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 				foreach ( $formatted_submission_data as $submission ) {
 					$has_url        = ! empty( $submission['url'] );
 					$has_images     = ! empty( $submission['images'] );
-					$show_plain_val = ! $has_url && ! $has_images;
+					$has_files      = ! empty( $submission['files'] );
+					$show_plain_val = ! $has_url && ! $has_images && ! $has_files;
 
 					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">';
 
 					// field-name: always present.
 					$html .= '<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
 
-					// field-value: always present, hidden when URL or images exist.
+					// field-value: always present, hidden when URL, images, or files exist.
 					$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.showPlainValue"';
 					$html .= $show_plain_val ? '' : ' hidden';
 					$html .= '>' . ( $show_plain_val ? esc_html( $submission['value'] ) : '' ) . '</div>';
@@ -1649,7 +1663,35 @@ class Contact_Form extends Contact_Form_Shortcode {
 						$html .= '<template data-wp-each--image="context.submission.images"></template>';
 					}
 
-					$html .= '</div></div>'; // Close field-images and summary.
+					$html .= '</div>'; // Close field-images.
+
+					// field-files: always present, hidden when no files.
+					$html .= '<div class="field-files" data-wp-bind--hidden="!context.submission.files"';
+					$html .= $has_files ? '' : ' hidden';
+					$html .= '>';
+
+					if ( $has_files ) {
+						foreach ( $submission['files'] as $file ) {
+							$file_name = $file['name'] ?? '';
+							$file_size = $file['size'] ?? '';
+							$file_url  = $file['url'] ?? '';
+
+							$html .= '<div data-wp-each-child class="field-file">';
+							$html .= '<svg class="field-file__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">';
+							$html .= '<path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>';
+							$html .= '</svg>';
+							$html .= '<a class="field-file__name" data-wp-bind--href="context.file.url" data-wp-text="context.file.name" target="_blank" rel="noopener noreferrer"';
+							$html .= ! empty( $file_url ) ? ' href="' . esc_attr( $file_url ) . '"' : '';
+							$html .= '>' . esc_html( $file_name ) . '</a>';
+							$html .= '<span class="field-file__size" data-wp-text="context.file.size">' . esc_html( $file_size ) . '</span>';
+							$html .= '</div>';
+						}
+					} else {
+						// Empty template for hydration when no files.
+						$html .= '<template data-wp-each--file="context.submission.files"></template>';
+					}
+
+					$html .= '</div></div>'; // Close field-files and summary.
 				}
 			}
 		}
@@ -3281,6 +3323,30 @@ class Contact_Form extends Contact_Form_Shortcode {
 					);
 				},
 				$value['choices']
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get files from a file field value if present.
+	 *
+	 * @param mixed $value The field value.
+	 *
+	 * @return array|null Array of file data if this is a file field, null otherwise.
+	 */
+	private static function get_files( $value ) {
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'file' && ! empty( $value['files'] ) ) {
+			return array_map(
+				function ( $file ) {
+					return array(
+						'name' => $file['name'] ?? __( 'Attached file', 'jetpack-forms' ),
+						'size' => $file['size'] ?? '',
+						'url'  => $file['url'] ?? '',
+					);
+				},
+				$value['files']
 			);
 		}
 
