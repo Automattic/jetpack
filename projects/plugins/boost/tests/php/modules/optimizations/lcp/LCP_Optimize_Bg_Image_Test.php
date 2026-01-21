@@ -101,7 +101,9 @@ class LCP_Optimize_Bg_Image_Test extends BaseTestCase {
 	private function get_private_method( $instance, $method_name ) {
 		$reflection = new \ReflectionClass( $instance );
 		$method     = $reflection->getMethod( $method_name );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method;
 	}
 
