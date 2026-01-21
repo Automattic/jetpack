@@ -151,23 +151,16 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	const icon = getFieldIcon( fieldType );
 
 	const renderFieldValue = () => {
+		// Image select fields
 		if ( fieldType === 'image-select' ) {
-			return (
-				<FieldImageSelect
-					choices={ ( value as { choices: unknown[] } ).choices }
-					handleFilePreview={ onFilePreview }
-				/>
-			);
+			const choices = ( value as { choices?: unknown[] } )?.choices;
+			return <FieldImageSelect choices={ choices } handleFilePreview={ onFilePreview } />;
 		}
 
 		// File uploads
 		if ( fieldType === 'file' ) {
-			return (
-				<FieldFile
-					files={ ( value as { files: FileItem[] } )?.files }
-					handleFilePreview={ onFilePreview }
-				/>
-			);
+			const files = ( value as { files?: FileItem[] } )?.files;
+			return <FieldFile files={ files } handleFilePreview={ onFilePreview } />;
 		}
 
 		// Handle null/undefined
