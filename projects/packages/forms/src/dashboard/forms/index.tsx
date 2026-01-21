@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { JetpackLogo } from '@automattic/jetpack-components';
+import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
@@ -63,7 +64,15 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		view.search,
 		statusQuery
 	);
-	const { isDeleting, trashForm, restoreForm } = useDeleteForm( {
+	const {
+		isDeleting,
+		trashForm,
+		restoreForm,
+		isPermanentDeleteConfirmOpen,
+		openPermanentDeleteConfirm,
+		closePermanentDeleteConfirm,
+		confirmPermanentDelete,
+	} = useDeleteForm( {
 		view,
 		setView,
 		recordsLength: records?.length ?? 0,
@@ -179,6 +188,22 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					await restoreForm( item );
 				},
 			} );
+			actionsList.push( {
+				id: 'delete-form-permanently',
+				isPrimary: false,
+				label: __( 'Delete permanently', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					if ( isDeleting ) {
+						return;
+					}
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+					openPermanentDeleteConfirm( item );
+				},
+			} );
 			return actionsList;
 		}
 
@@ -200,7 +225,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		} );
 
 		return actionsList;
-	}, [ isDeleting, isViewingTrash, restoreForm, trashForm ] );
+	}, [ isDeleting, isViewingTrash, openPermanentDeleteConfirm, restoreForm, trashForm ] );
 
 	const paginationInfo = useMemo(
 		() => ( {
@@ -260,6 +285,20 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 				>
+					<ConfirmDialog
+						onCancel={ closePermanentDeleteConfirm }
+						onConfirm={ confirmPermanentDelete }
+						isOpen={ isPermanentDeleteConfirmOpen }
+						confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
+					>
+						<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
+						<p>
+							{ __(
+								'This will permanently delete the form. This action cannot be undone.',
+								'jetpack-forms'
+							) }
+						</p>
+					</ConfirmDialog>
 					<div className="jp-forms-filters-bar">
 						<div className="jp-forms-filters-bar__chips">
 							<DataViews.FiltersToggled className="jp-forms-filters-container" />
