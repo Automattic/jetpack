@@ -27,6 +27,7 @@ import {
 	registerFormCategories,
 	unregisterFormCategories,
 } from './utils/category-utils';
+import { filterFormEditorBlocks, restoreAllBlocks } from './utils/form-editor-blocks';
 
 import './style.scss';
 
@@ -206,6 +207,7 @@ const enforceBlockNesting = () => {
 
 let isJetpackFormEditor: boolean | null = null;
 let categoriesFiltered: boolean = false;
+let blocksFiltered: boolean = false;
 
 let lastRootBlockIds: string = '';
 let lastSelectedBlockId: string | null | undefined = null;
@@ -224,6 +226,7 @@ const setupFormEditorSubscription = () => {
 	unsubscribe = subscribe( () => {
 		const { getCurrentPostType } = select( 'core/editor' );
 		const isCurrentPostTypeJetpackForm = getCurrentPostType() === FORM_POST_TYPE;
+
 		if ( isCurrentPostTypeJetpackForm ) {
 			// Check if root blocks changed by comparing their IDs
 			// This detects when blocks are added, removed, or reordered at the root level
@@ -269,9 +272,23 @@ const setupFormEditorSubscription = () => {
 					// Plugin may not be registered, ignore.
 				}
 			}
-		} else if ( categoriesFiltered ) {
-			categoriesFiltered = false;
-			restoreOriginalCategories( previousCategories || [] );
+
+			if ( ! blocksFiltered ) {
+				blocksFiltered = true;
+				filterFormEditorBlocks();
+			}
+		} else {
+			console.log( 'Not in jetpack_form editor' );
+			// We are not in the form editor anymore.
+			if ( categoriesFiltered ) {
+				categoriesFiltered = false;
+				restoreOriginalCategories( previousCategories || [] );
+			}
+
+			if ( blocksFiltered ) {
+				blocksFiltered = false;
+				restoreAllBlocks();
+			}
 		}
 
 		if ( isCurrentPostTypeJetpackForm === isJetpackFormEditor ) {
