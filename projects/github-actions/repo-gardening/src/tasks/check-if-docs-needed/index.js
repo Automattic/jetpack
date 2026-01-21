@@ -35,8 +35,11 @@ function cleanContent( content ) {
 		content = content.replace( /<!--[\s\S]*?-->/g, '' );
 	} while ( content !== previousContent );
 
-	// Remove incomplete HTML comments (opening tag without closing).
-	content = content.replace( /<!--[\s\S]*/g, '' );
+	// Remove incomplete HTML comments (opening tag without closing) by truncating at the first `<!--`.
+	const incompleteCommentIndex = content.indexOf( '<!--' );
+	if ( incompleteCommentIndex !== -1 ) {
+		content = content.slice( 0, incompleteCommentIndex );
+	}
 
 	return content;
 }
