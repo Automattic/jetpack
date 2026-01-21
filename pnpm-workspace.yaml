@@ -72,6 +72,7 @@ allowBuilds:
   svelte-preprocess: false
   # Attempt to show "support me" spam.
   core-js: false
+  core-js-pure: false
   print-this: false
 
 # Package compromise avoidance: Block odd protocols in subdeps
