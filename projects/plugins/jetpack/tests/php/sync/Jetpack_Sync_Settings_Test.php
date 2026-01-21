@@ -131,7 +131,7 @@ class Jetpack_Sync_Settings_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event(
 			'updated_option',
-			null,
+			get_current_blog_id(),
 			function ( $event ) {
 				return isset( $event->args[0] ) && 'jetpack_sync_settings_dedicated_sync_enabled' === $event->args[0];
 			}
