@@ -64,7 +64,8 @@ class Copy_Post_Test extends WP_UnitTestCase {
 
 		// Assert new ID is a valid UUID and different from old.
 		$decoded = json_decode( $target_footnotes, true );
-		$new_id  = $decoded[0]['id'];
+		$this->assertIsArray( $decoded );
+		$new_id = $decoded[0]['id'];
 		$this->assertNotEquals( $old_id, $new_id );
 		$this->assertMatchesRegularExpression(
 			'/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i',
@@ -201,8 +202,9 @@ class Copy_Post_Test extends WP_UnitTestCase {
 
 		// Get the new IDs from meta.
 		$target_footnotes = json_decode( get_post_meta( $target_post_id, 'footnotes', true ), true );
-		$new_id_1         = $target_footnotes[0]['id'];
-		$new_id_2         = $target_footnotes[1]['id'];
+		$this->assertIsArray( $target_footnotes );
+		$new_id_1 = $target_footnotes[0]['id'];
+		$new_id_2 = $target_footnotes[1]['id'];
 
 		// Assert both IDs are unique and different from originals.
 		$this->assertNotEquals( $old_id_1, $new_id_1 );
@@ -252,6 +254,7 @@ class Copy_Post_Test extends WP_UnitTestCase {
 
 		// Assert footnote content is preserved.
 		$target_footnotes = json_decode( get_post_meta( $target_post_id, 'footnotes', true ), true );
+		$this->assertIsArray( $target_footnotes );
 		$this->assertEquals( $footnote_content, $target_footnotes[0]['content'] );
 	}
 }
