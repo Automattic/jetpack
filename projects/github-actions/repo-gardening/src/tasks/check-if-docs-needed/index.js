@@ -39,6 +39,28 @@ function cleanContent( content ) {
 }
 
 /**
+ * Sanitize content.
+ *
+ * @param {string} content - Content to sanitize.
+ * @return {string} Sanitized content.
+ */
+function sanitizeForPrompt( content ) {
+	if ( ! content ) {
+		return '';
+	}
+
+	// Replace sequences of three or more backticks (which could break markdown code blocks)
+	// with a safe placeholder. This prevents prompt injection via code block delimiters.
+	// This is the critical fix: triple backticks would prematurely close the code block.
+	content = content.replace( /```+/g, '[code-fence]' );
+
+	// Escape remaining single backticks to prevent them from being interpreted as
+	// template literal delimiters in the JavaScript code. In the output string,
+	// these will become literal backticks which are safe inside markdown code blocks.
+	return content.replace( /`/g, '\\`' );
+}
+
+/**
  * Build the prompt for the AI to analyze the PR.
  *
  * @param {string} title - PR title.
@@ -47,6 +69,10 @@ function cleanContent( content ) {
  * @return {string} The prompt for the AI.
  */
 function buildPrompt( title, body, diff ) {
+	const sanitizedTitle = sanitizeForPrompt( title || '' );
+	const sanitizedBody = sanitizeForPrompt( body || '' );
+	const sanitizedDiff = sanitizeForPrompt( diff || '' );
+
 	return `You are analyzing a GitHub Pull Request to determine if the changes are "user-facing".
 
 User-facing changes include:
@@ -65,14 +91,14 @@ NOT user-facing changes include:
 - CI/CD configuration changes
 
 Here is the PR title:
-${ title }
+${ sanitizedTitle }
 
 Here is the PR description:
-${ body || '(No description provided)' }
+${ sanitizedBody || '(No description provided)' }
 
 Here is the code diff:
 \`\`\`
-${ diff }
+${ sanitizedDiff }
 \`\`\`
 
 Analyze this PR and determine if the changes are user-facing.
