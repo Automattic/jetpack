@@ -9,16 +9,6 @@ export const RATING_ICONS = {
 };
 
 /**
- * Get the SVG path for a rating icon style.
- *
- * @param {string} iconStyle - The icon style ('stars' or 'hearts').
- * @return {string} The SVG path for the icon.
- */
-export function getRatingIconPath( iconStyle ) {
-	return RATING_ICONS[ iconStyle ] || RATING_ICONS.stars;
-}
-
-/**
  * Render rating icons as HTML string.
  *
  * @param {number} rating    - The current rating value.
@@ -27,7 +17,7 @@ export function getRatingIconPath( iconStyle ) {
  * @return {string} HTML string containing SVG icons.
  */
 export function renderRatingIconsHtml( rating, maxRating, iconStyle ) {
-	const iconPath = getRatingIconPath( iconStyle );
+	const iconPath = RATING_ICONS[ iconStyle ] || RATING_ICONS.stars;
 
 	let iconsHtml = '';
 	for ( let i = 1; i <= maxRating; i++ ) {
