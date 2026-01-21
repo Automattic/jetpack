@@ -67,15 +67,15 @@ function overrideBlockCategory( settings: BlockSettings, name: string ): BlockSe
 		}
 	}
 
-	const shortCategory = formEditorChildBlockCategoriesMapping?.[ name ];
+	const categorySlug = formEditorChildBlockCategoriesMapping?.[ name ];
 
-	if ( ! shortCategory ) {
+	if ( ! categorySlug ) {
 		return settings;
 	}
 
 	return {
 		...settings,
-		category: shortCategory,
+		category: categorySlug,
 	};
 }
 
