@@ -15,6 +15,7 @@ import CreateFormButton from '../components/create-form-button/index.tsx';
 import { EmptyWrapper } from '../components/empty-responses/index.tsx';
 import FormsResponsesTabs from '../components/forms-responses-tabs/index.tsx';
 import Page from '../components/page/index.tsx';
+import useDeleteForm from '../hooks/use-delete-form.ts';
 import useFormsData from '../hooks/use-forms-data.ts';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
@@ -37,6 +38,11 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		view.perPage,
 		view.search
 	);
+	const { isDeleting, trashForm } = useDeleteForm( {
+		view,
+		setView,
+		recordsLength: records?.length ?? 0,
+	} );
 
 	useEffect( () => {
 		if ( isCentralFormManagementDisabled ) {
@@ -116,8 +122,24 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					window.location.href = url.toString();
 				},
 			},
+			{
+				id: 'delete-form',
+				isPrimary: false,
+				label: __( 'Trash', 'jetpack-forms' ),
+				supportsBulk: false,
+				callback( items: FormListItem[] ) {
+					if ( isDeleting ) {
+						return;
+					}
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+					trashForm( item );
+				},
+			},
 		],
-		[]
+		[ isDeleting, trashForm ]
 	);
 
 	const paginationInfo = useMemo(

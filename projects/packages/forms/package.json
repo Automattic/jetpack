@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-forms",
-	"version": "7.3.0",
+	"version": "7.4.0",
 	"private": true,
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
@@ -73,6 +73,7 @@
 		"@wordpress/primitives": "4.38.0",
 		"@wordpress/route": "0.4.0",
 		"@wordpress/theme": "0.5.0",
+		"@wordpress/ui": "0.5.0",
 		"@wordpress/url": "4.38.0",
 		"clsx": "2.1.1",
 		"copy-webpack-plugin": "13.0.1",
@@ -128,6 +129,7 @@
 		"react-dom": "18.3.1"
 	},
 	"wpPlugin": {
+		"name": "jetpack_forms",
 		"scriptGlobal": "jetpackForms",
 		"packageNamespace": "jetpack-forms",
 		"handlePrefix": "jetpack-forms",

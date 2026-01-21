@@ -193,7 +193,7 @@ class Connections_Post_Field {
 	 *
 	 * @return mixed
 	 */
-	public function get( $post_array, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get( $post_array, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable, Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		global $publicize;
 
 		$post_id          = $post_array['id'] ?? 0;
@@ -413,7 +413,7 @@ class Connections_Post_Field {
 			return;
 		}
 		foreach ( $this->get_meta_to_update( $requested_connections, $post->ID ) as $meta_key => $meta_value ) {
-			if ( $meta_value === null ) {
+			if ( null === $meta_value ) {
 				delete_post_meta( $post->ID, $meta_key );
 			} else {
 				update_post_meta( $post->ID, $meta_key, $meta_value );
@@ -442,7 +442,7 @@ class Connections_Post_Field {
 		if ( $request && isset( $request['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ] ) ) {
 			$customize_per_network = $request['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ];
 		}
-		if ( $customize_per_network === null ) {
+		if ( null === $customize_per_network ) {
 			$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
 		}
 		if ( ! $customize_per_network ) {

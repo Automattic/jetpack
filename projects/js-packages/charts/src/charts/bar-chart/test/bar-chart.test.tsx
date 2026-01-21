@@ -560,6 +560,147 @@ describe( 'BarChart', () => {
 
 	/* eslint-enable testing-library/no-node-access */
 
+	describe( 'Label Overflow Ellipsis', () => {
+		const longLabelData = [
+			{
+				label: 'Series A',
+				data: [
+					{ label: 'Very Long Category Label One', value: 100 },
+					{ label: 'Very Long Category Label Two', value: 200 },
+					{ label: 'Very Long Category Label Three', value: 150 },
+				],
+				options: {},
+			},
+		];
+
+		test( 'renders chart with labelOverflow ellipsis option', () => {
+			renderWithTheme( {
+				data: longLabelData,
+				options: {
+					axis: {
+						x: {
+							labelOverflow: 'ellipsis',
+						},
+					},
+				},
+			} );
+
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+		} );
+
+		test( 'truncates labels with CSS text-overflow ellipsis', () => {
+			renderWithTheme( {
+				width: 300, // Narrow width to force truncation
+				data: longLabelData,
+				options: {
+					axis: {
+						x: {
+							labelOverflow: 'ellipsis',
+						},
+					},
+				},
+			} );
+
+			// Labels should be rendered with truncation styles
+			const label = screen.getByText( /Very Long Category Label One/i );
+			expect( label ).toHaveStyle( { textOverflow: 'ellipsis' } );
+			expect( label ).toHaveStyle( { overflow: 'hidden' } );
+			expect( label ).toHaveStyle( { whiteSpace: 'nowrap' } );
+		} );
+
+		test( 'sets title attribute for hover tooltips on truncated labels', () => {
+			renderWithTheme( {
+				width: 300,
+				data: longLabelData,
+				options: {
+					axis: {
+						x: {
+							labelOverflow: 'ellipsis',
+						},
+					},
+				},
+			} );
+
+			// Title attribute should show full text on hover
+			const label = screen.getByText( /Very Long Category Label One/i );
+			expect( label ).toHaveAttribute( 'title', 'Very Long Category Label One' );
+		} );
+
+		test( 'applies truncation to x-axis for vertical bar charts', () => {
+			renderWithTheme( {
+				width: 300,
+				data: longLabelData,
+				orientation: 'vertical',
+				options: {
+					axis: {
+						x: {
+							labelOverflow: 'ellipsis',
+						},
+					},
+				},
+			} );
+
+			// X-axis labels should have truncation
+			const label = screen.getByText( /Very Long Category Label One/i );
+			expect( label ).toHaveStyle( { textOverflow: 'ellipsis' } );
+		} );
+
+		test( 'applies truncation to y-axis for horizontal bar charts', () => {
+			renderWithTheme( {
+				width: 300,
+				data: longLabelData,
+				orientation: 'horizontal',
+				options: {
+					axis: {
+						y: {
+							labelOverflow: 'ellipsis',
+						},
+					},
+				},
+			} );
+
+			// Y-axis labels should have truncation in horizontal mode
+			const label = screen.getByText( /Very Long Category Label One/i );
+			expect( label ).toHaveStyle( { textOverflow: 'ellipsis' } );
+		} );
+
+		test( 'handles very small chart widths gracefully', () => {
+			renderWithTheme( {
+				width: 100, // Very small width
+				data: longLabelData,
+				options: {
+					axis: {
+						x: {
+							labelOverflow: 'ellipsis',
+						},
+					},
+				},
+			} );
+
+			// Chart should still render without errors
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+
+			// Labels should still be present and have minimum width applied
+			const label = screen.getByText( /Very Long Category Label One/i );
+			expect( label ).toBeInTheDocument();
+		} );
+
+		test( 'does not apply truncation styles when labelOverflow is not set', () => {
+			renderWithTheme( {
+				width: 300,
+				data: longLabelData,
+			} );
+
+			// Without labelOverflow, labels should use default SVG text rendering
+			// which doesn't have CSS text-overflow
+			const labels = screen.getAllByText( /Very Long Category Label/i );
+			labels.forEach( label => {
+				// SVG text elements don't have textOverflow style
+				expect( label.tagName.toLowerCase() ).not.toBe( 'div' );
+			} );
+		} );
+	} );
+
 	describe( 'Interactive Legend', () => {
 		it( 'filters series when interactive legend is enabled and series is toggled', async () => {
 			const user = userEvent.setup();

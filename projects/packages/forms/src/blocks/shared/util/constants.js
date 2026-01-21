@@ -67,3 +67,9 @@ export const FORM_STYLE = {
  * Matches Contact_Form::POST_TYPE in PHP.
  */
 export const FORM_POST_TYPE = 'jetpack_form';
+
+/**
+ * Meta key for tracking the source post ID.
+ * Matches Contact_Form::SOURCE_META_KEY in PHP.
+ */
+export const FORM_SOURCE_META_KEY = '_jetpack_forms_source_post_id';

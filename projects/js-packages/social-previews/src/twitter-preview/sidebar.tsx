@@ -1,16 +1,11 @@
-import { __ } from '@wordpress/i18n';
-import { DefaultAvatar } from './icons/default-avatar';
+import { AvatarWithFallback } from '../avatar-with-fallback';
 import { SidebarProps } from './types';
 
 export const Sidebar: React.FC< SidebarProps > = ( { profileImage, showThreadConnector } ) => {
 	return (
 		<div className="twitter-preview__sidebar">
 			<div className="twitter-preview__profile-image">
-				{ profileImage ? (
-					<img alt={ __( 'Twitter profile image', 'social-previews' ) } src={ profileImage } />
-				) : (
-					<DefaultAvatar />
-				) }
+				<AvatarWithFallback src={ profileImage } />
 			</div>
 			{ showThreadConnector && <div className="twitter-preview__connector" /> }
 		</div>

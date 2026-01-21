@@ -155,7 +155,10 @@ jobs:
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/eslint-excludelist.json'
             misc_css:
-              # If Stylelint config changed, there may be new checks.
+              # If package or stylelint config changed, there may be new checks.
+              - 'package.json'
+              - 'tools/js-tools/package.json'
+              - 'pnpm-lock.yaml'
               - .stylelintignore
               - stylelint.config.mjs
               - '**/stylelint.config.{js,mjs,cjs}'
