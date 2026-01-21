@@ -10,7 +10,11 @@
 import { getBlockTypes } from '@wordpress/blocks';
 import { select, dispatch } from '@wordpress/data';
 import { childBlocks } from '../../blocks/contact-form/child-blocks.js';
-import { CORE_BLOCKS } from '../../blocks/shared/util/constants.js';
+import { CORE_BLOCKS, FORM_BLOCK_NAME } from '../../blocks/shared/util/constants.js';
+import { getValidFormFieldBlocks, getBlocksToHide, type ChildBlock } from './block-filter-utils';
+
+// Re-export pure functions for testing
+export { getValidFormFieldBlocks, getBlocksToHide } from './block-filter-utils';
 
 /**
  * Storage for hidden block names to restore them later.
@@ -24,19 +28,8 @@ let shownBlockTypes: string[] = [];
  * @return Array of allowed block names
  */
 function getAllowedFormEditorBlocks(): string[] {
-	const validFields = childBlocks.filter( childBlock => {
-		const settings = childBlock.settings as typeof childBlock.settings & {
-			parent?: string | string[];
-		};
-
-		return (
-			! settings.parent ||
-			settings.parent === 'jetpack/contact-form' ||
-			( Array.isArray( settings.parent ) && settings.parent.includes( 'jetpack/contact-form' ) )
-		);
-	} );
-
-	return [ ...validFields.map( block => `jetpack/${ block.name }` ) ].concat( CORE_BLOCKS );
+	const validFields = getValidFormFieldBlocks( childBlocks as ChildBlock[], FORM_BLOCK_NAME );
+	return validFields.concat( CORE_BLOCKS );
 }
 
 /**
@@ -48,18 +41,16 @@ function getAllowedFormEditorBlocks(): string[] {
 export function filterFormEditorBlocks(): void {
 	const allowedBlocks = new Set( getAllowedFormEditorBlocks() );
 	const allBlockTypes = getBlockTypes();
+	const allBlockNames = allBlockTypes.map( block => block.name );
 
 	// Find blocks that need to be hidden (not in allowed list)
-	const blocksToHide = allBlockTypes
-		.map( block => block.name )
-		.filter( blockName => ! allowedBlocks.has( blockName ) );
+	const blocksToHide = getBlocksToHide( allBlockNames, allowedBlocks );
 
-	// Verify the change
+	// Store the current hidden blocks preference for later restoration
 	const { getPreference } = select( 'core/edit-post' ) as {
 		getPreference: ( preference: string ) => unknown;
 	};
-	// Store for later restoration
-	hiddenBlockTypes = getPreference( 'hiddenBlockTypes' ) as string[];
+	hiddenBlockTypes = ( getPreference( 'hiddenBlockTypes' ) as string[] ) || [];
 	shownBlockTypes = blocksToHide;
 
 	const { hideBlockTypes } = dispatch( 'core/edit-post' ) as {
