@@ -1,8 +1,8 @@
 import { useSelect } from '@wordpress/data';
 import { store as socialStore } from '../../../../social-store';
 import { ConnectionToggle } from '../../connection-toggle';
+import { CustomizationSection } from '../../customization-section';
 import { PreviewSection } from '../preview-section';
-import { CustomizationSection } from './customization-section';
 import styles from './styles.module.scss';
 
 export type TabContentProps = {
@@ -26,7 +26,7 @@ export function TabContent( { connectionId, usingPerNetworkCustomization }: TabC
 	return (
 		<div className={ styles[ 'tab-content' ] }>
 			{ usingPerNetworkCustomization ? (
-				<CustomizationSection connection={ connection } />
+				<CustomizationSection connection={ connection } usingPerNetworkCustomization />
 			) : (
 				<div className={ styles[ 'connection-toggle-wrapper' ] }>
 					<ConnectionToggle connection={ connection } />
