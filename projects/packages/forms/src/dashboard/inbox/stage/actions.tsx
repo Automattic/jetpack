@@ -156,8 +156,6 @@ const waitForEntityRecordsResolution = async (
 	}
 };
 
-// processStatusChange is now imported from './process-status-change'
-
 export const BULK_ACTIONS = {
 	markAsSpam: 'mark_as_spam',
 	markAsNotSpam: 'mark_as_not_spam',
