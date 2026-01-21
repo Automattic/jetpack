@@ -138,6 +138,9 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 
 		// Set default sync status to IN_SYNC.
 		Health::update_status( Health::STATUS_IN_SYNC );
+
+		// Hook into WP_Query to return our mock post
+		add_filter( 'the_posts', array( $this, 'mock_wp_query_posts' ), 10, 2 );
 	}
 
 	/**
@@ -160,6 +163,8 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		if ( $this->controller ) {
 			remove_action( 'rest_api_init', array( $this->controller, 'register_rest_routes' ) );
 		}
+
+		remove_filter( 'the_posts', array( $this, 'mock_wp_query_posts' ), 10 );
 	}
 
 	/**
@@ -210,6 +215,31 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$connection_manager->method( 'get_site_id' )->willReturn( $this->site_id );
 
 		return $connection_manager;
+	}
+
+	/**
+	 * Mock WP_Query to return our test post.
+	 *
+	 * @param array|null $posts The posts array (null by default).
+	 * @param \WP_Query  $query The WP_Query instance.
+	 * @return array|null
+	 */
+	public function mock_wp_query_posts( $posts, $query ) {
+		$post_types = (array) $query->get( 'post_type' );
+
+		if ( in_array( 'post', $post_types, true ) ||
+		in_array( 'page', $post_types, true ) ||
+		in_array( 'any', $post_types, true ) ) {
+
+			$query->found_posts   = 1;
+			$query->max_num_pages = 1;
+
+			$post = get_post( $this->post_id );
+
+			return array( $post );
+		}
+
+		return $posts;
 	}
 
 	/**
@@ -815,15 +845,49 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	 * Test get_dsp_blaze_posts redirects to WPCOM.
 	 */
 	public function test_get_dsp_blaze_posts_redirects_to_wpcom() {
-		$captured_request = null;
-		$this->setup_redirect_test( '/wordads/dsp/api/v1/wpcom/sites/', $captured_request );
+		Health::update_status( Health::STATUS_IN_SYNC );
 
-		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%1$d/wordads/dsp/api/v1/wpcom/sites/%1$d/blaze/posts', $this->site_id ) );
+		$captured_request = null;
+		$this->setup_redirect_test( sprintf( '/sites/%d/blaze/posts', $this->site_id ), $captured_request );
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/wpcom/sites/%d/blaze/posts', $this->site_id, $this->site_id ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertNotNull( $captured_request, 'Request should be redirected to WPCOM' );
 		$this->assertSame( 'GET', $captured_request['method'] );
+		$this->assertStringContainsString( sprintf( '/wpcom/v2/sites/%d/blaze/posts', $this->site_id ), $captured_request['url'] );
+	}
+
+	/**
+	 * Test the get_dsp_templates_article local processing of data (before redirection)
+	 */
+	public function test_get_dsp_blaze_posts_processed_it_locally() {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		$captured_request = null;
+		$this->setup_redirect_test( sprintf( '/sites/%d/blaze/posts', $this->site_id ), $captured_request );
+
+		$request = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/wpcom/sites/%d/blaze/posts', $this->site_id, $this->site_id ) );
+		$request->set_param( 'page', '1' );
+		$request->set_param( 'filter_post_type', 'post' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNull( $captured_request, 'Request should not be redirected to WPCOM' );
+
+		// Check that the new prop sync_ready is correctly set to false.
+		$data = $response->get_data();
+		$this->assertFalse( $data['sync_ready'] );
+
+		$this->assertSame( 1, $data['total'] );
+		$this->assertArrayHasKey( 'results', $data );
+
+		$first_post = $data['results'][0];
+		$this->assertSame( $this->post_id, $first_post['ID'] );
+		$this->assertSame( 'Test Post for Blaze', $first_post['title'] );
+		$this->assertSame( 'post', $first_post['type'] );
+		$this->assertSame( get_permalink( $this->post_id ), $first_post['post_url'] );
 	}
 
 	/**
@@ -833,7 +897,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$captured_request = null;
 		$this->setup_redirect_test( '/wordads/dsp/api/v1/wpcom/sites/', $captured_request );
 
-		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%1$d/wordads/dsp/api/v1/wpcom/sites/%1$d/media', $this->site_id ) );
+		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/wpcom/sites/%d/media', $this->site_id, $this->site_id ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -909,7 +973,7 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 		$captured_request = null;
 		$this->setup_redirect_test( sprintf( '/wordads/dsp/api/v1/sites/%d/campaigns', $this->site_id ), $captured_request );
 
-		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%1$d/wordads/dsp/api/v1/sites/%1$d/campaigns', $this->site_id ) );
+		$request  = new WP_REST_Request( 'GET', sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/sites/%d/campaigns', $this->site_id, $this->site_id ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
