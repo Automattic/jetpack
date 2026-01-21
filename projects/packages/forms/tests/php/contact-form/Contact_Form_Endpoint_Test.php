@@ -781,12 +781,24 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 
-		// Verify file field data in response
+		// Verify file field data in response (collection format returns array of field objects)
 		$this->assertArrayHasKey( 'fields', $data );
-		$this->assertArrayHasKey( 'file', $data['fields'] );
-		$this->assertArrayHasKey( 'files', $data['fields']['file'] );
+		$this->assertIsArray( $data['fields'] );
 
-		$file = $data['fields']['file']['files'][0];
+		// Find the file field in the collection array
+		$file_field = null;
+		foreach ( $data['fields'] as $field ) {
+			if ( isset( $field['type'] ) && $field['type'] === 'file' ) {
+				$file_field = $field;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $file_field, 'File field should exist in fields collection' );
+		$this->assertArrayHasKey( 'value', $file_field );
+		$this->assertArrayHasKey( 'files', $file_field['value'] );
+
+		$file = $file_field['value']['files'][0];
 		$this->assertEquals( 123, $file['file_id'] );
 		$this->assertEquals( 'test.jpg', $file['name'] );
 		$this->assertEquals( '1 KB', $file['size'] );
