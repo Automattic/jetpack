@@ -1512,7 +1512,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</ul>';
 		$html .= '</div>';
 
-		$html .= '<div class="contact-form__error contact-form__submission-error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError" tabindex="-1" role="alert" data-wp-watch="callbacks.focusOnSubmissionError"></div>';
+		$html .= '<div class="contact-form__error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError" tabindex="-1" role="alert" data-wp-watch="callbacks.focusOnSubmissionError"></div>';
 		return $html;
 	}
 
