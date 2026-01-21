@@ -84,7 +84,18 @@ function generate_module_assets_file( $path ) {
 }
 
 // Determine the base directory
-$base_dir = dirname( __DIR__ );
+// Accept optional path argument, otherwise use script's parent directory
+$base_dir = isset( $argv[1] ) ? $argv[1] : dirname( __DIR__ );
+
+// If it's a relative path, resolve it relative to current working directory
+if ( ! preg_match( '#^[/\\\\]|^[a-zA-Z]:#', $base_dir ) ) {
+	$base_dir = getcwd() . '/' . $base_dir;
+}
+
+// Ensure base_dir is a directory (create parent dirs if needed when we write files)
+$base_dir = rtrim( $base_dir, '/' );
+
+echo "Generating stub asset files in: $base_dir\n";
 
 // Generate the asset files
 generate_asset_file(
