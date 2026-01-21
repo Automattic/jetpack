@@ -2189,11 +2189,13 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/newsletter",
-				"reference": "ffcc88fb0c0eb9d409593cbf04b0c71252805afc"
+				"reference": "c8acefd8afccfe14f61a3749fbfe2280fc411dc4"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
 				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-redirect": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"php": ">=7.2"
 			},

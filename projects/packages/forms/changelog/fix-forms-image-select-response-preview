@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Image Select Response: fix image previews by handling edge cases where Photon should not be used (localhost, blob URLs, local domains, private atomic sites).

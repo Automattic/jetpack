@@ -107,7 +107,7 @@
 		"gridicons": "3.4.2",
 		"jmpress": "0.4.5",
 		"jquery-cycle": "3.0.3",
-		"jsdom": "^26.0.0",
+		"jsdom": "^27.0.0",
 		"katex": "0.16.22",
 		"mapbox-gl": "1.13.3",
 		"markdown-it": "14.1.0",

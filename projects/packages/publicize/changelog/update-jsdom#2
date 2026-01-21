@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: tests: Remove `matchMedia` override. `tools/js-tools/jest/setup-globals.js` already provides one.
+
+

@@ -207,6 +207,8 @@ export function mockScriptData( data = {} ) {
 				...data.social,
 			},
 		},
+		configurable: true,
+		enumerable: true,
 		writable: true,
 	} );
 }
