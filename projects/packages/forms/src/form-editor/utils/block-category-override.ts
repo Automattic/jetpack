@@ -25,12 +25,17 @@ interface BlockSettings {
 	name?: string;
 	category?: string;
 	supports?: {
-		jetpack_form?: {
-			category?: string;
-		};
 		[ key: string ]: unknown;
 	};
 	[ key: string ]: unknown;
+}
+
+interface ChildBlock {
+	name: string;
+	setting: BlockSettings;
+	form_editor?: {
+		category: string;
+	};
 }
 
 let formEditorChildBlockCategoriesMapping;
@@ -54,9 +59,10 @@ function overrideBlockCategory( settings: BlockSettings, name: string ): BlockSe
 	if ( ! formEditorChildBlockCategoriesMapping ) {
 		formEditorChildBlockCategoriesMapping = {};
 		for ( const childBlock of childBlocks ) {
-			if ( childBlock?.form_editor?.category ) {
-				formEditorChildBlockCategoriesMapping[ `jetpack/${ childBlock.name }` ] =
-					getFormCategorySlug( childBlock.form_editor.category );
+			const childBlockWithEditor = childBlock as unknown as ChildBlock;
+			if ( childBlockWithEditor?.form_editor?.category ) {
+				formEditorChildBlockCategoriesMapping[ `jetpack/${ childBlockWithEditor.name }` ] =
+					getFormCategorySlug( childBlockWithEditor.form_editor.category );
 			}
 		}
 	}
