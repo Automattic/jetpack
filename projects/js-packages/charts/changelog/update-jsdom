@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: tests: resolve-css-var: Split SSR tests to a separate file with `@jest-environment node`, as `globalThis.window` is no longer writable.
-
-
