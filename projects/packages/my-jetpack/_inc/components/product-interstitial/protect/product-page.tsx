@@ -281,9 +281,6 @@ export default function ProtectProductPage() {
 										'jetpack-my-jetpack'
 									) }
 								</p>
-								<span className={ styles[ 'status-active' ] }>
-									{ __( 'You have this', 'jetpack-my-jetpack' ) }
-								</span>
 							</div>
 
 							<div className={ styles[ 'product-interstitial__comparison-item' ] }>
@@ -294,9 +291,9 @@ export default function ProtectProductPage() {
 										'jetpack-my-jetpack'
 									) }
 								</p>
-								<span className={ styles[ 'status-upgrade' ] }>
-									{ __( 'Available with upgrade', 'jetpack-my-jetpack' ) }
-								</span>
+								<Button variant="primary" onClick={ handleUpgradeClick }>
+									{ __( 'Upgrade for full protection', 'jetpack-my-jetpack' ) }
+								</Button>
 							</div>
 						</div>
 
@@ -315,7 +312,6 @@ export default function ProtectProductPage() {
 				{ ! hasPaidPlan && (
 					<Col className={ styles[ 'product-interstitial__section' ] }>
 						<div className={ styles[ 'product-interstitial__section-wrapper' ] }>
-							<div className={ styles[ 'product-interstitial__section-emoji' ] }>🛡️</div>
 							<h2 className={ styles[ 'product-interstitial__section-heading' ] }>
 								{ __( 'Want comprehensive protection?', 'jetpack-my-jetpack' ) }
 							</h2>
