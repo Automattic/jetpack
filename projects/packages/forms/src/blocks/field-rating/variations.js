@@ -1,7 +1,7 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { RATING_ICONS } from '../../shared/rating-icons.js';
 import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import { RATING_ICONS } from './rating-icons.js';
 
 const variations = [
 	{

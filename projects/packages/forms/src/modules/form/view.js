@@ -11,8 +11,8 @@ import {
 /*
  * Internal dependencies
  */
+import { renderRatingIconsHtml } from '../../blocks/field-rating/rating-icons.js';
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
-import { renderRatingIconsHtml } from '../../shared/rating-icons.js';
 import { focusNextInput, submitForm } from './shared.ts';
 
 const withSyncEvent =

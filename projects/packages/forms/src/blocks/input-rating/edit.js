@@ -1,6 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { SVG, Path } from '@wordpress/components';
-import { RATING_ICONS } from '../../shared/rating-icons.js';
+import { RATING_ICONS } from '../field-rating/rating-icons.js';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
 
 export default function RatingInputEdit( { context, clientId } ) {
