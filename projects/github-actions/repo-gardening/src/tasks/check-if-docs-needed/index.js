@@ -82,22 +82,29 @@ function buildPrompt( title, body, diff ) {
 	const sanitizedBody = sanitizeForPrompt( body || '' );
 	const sanitizedDiff = sanitizeForPrompt( diff || '' );
 
-	return `You are analyzing a GitHub Pull Request to determine if the changes are "user-facing".
+	return `You are analyzing a GitHub Pull Request to determine if users will experience something DIFFERENT after this change is deployed.
 
-User-facing changes include:
-- UI changes (new buttons, layouts, styling, text changes visible to users)
-- Feature changes (new functionality, modified behavior that users interact with)
-- User-visible behavior changes (error messages, notifications, validation messages)
-- Changes to user documentation, help text, or tooltips
-- Changes to public APIs that external developers use
+The key question is: "Will users notice any difference in behavior, appearance, or functionality?"
 
-NOT user-facing changes include:
-- Refactoring or code cleanup with no behavior change
-- Test-only changes (adding or modifying tests)
-- Internal tooling or build configuration changes
-- Internal documentation (code comments, developer docs)
-- Dependency updates that don't change behavior
+Changes that ARE user-facing (flag these):
+- New UI elements (buttons, forms, layouts, modals)
+- Modified UI appearance (styling, layout, visual changes)
+- Changed text that users read (labels, messages, help text, error messages)
+- New or modified features users interact with
+- Changed behavior in response to user actions
+- Changes to public APIs that external developers consume
+
+Changes that are NOT user-facing (do NOT flag these):
+- Refactoring code without changing behavior (moving code to new files, renaming internal variables, restructuring classes)
+- Code cleanup that preserves identical functionality
+- Test-only changes (adding, modifying, or removing tests)
+- Internal tooling or build configuration
+- Developer documentation and code comments
+- Dependency updates with no behavior change
 - CI/CD configuration changes
+- Performance optimizations with no visible behavior change
+
+IMPORTANT: If a PR moves, reorganizes, or refactors code that relates to user-visible features but does NOT change what users see or experience, it is NOT user-facing. The question is not "does this code touch something users see?" but "will users see something DIFFERENT?"
 
 Here is the PR title:
 ${ sanitizedTitle }
@@ -110,7 +117,7 @@ Here is the code diff:
 ${ sanitizedDiff }
 \`\`\`
 
-Analyze this PR and determine if the changes are user-facing.
+Analyze this PR and determine if users will experience something different after this change.
 
 Respond with a JSON object in this exact format:
 {
