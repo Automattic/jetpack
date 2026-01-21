@@ -304,6 +304,10 @@ class Settings {
 			if ( 'dedicated_sync_enabled' === $setting && $updated && (bool) $value ) {
 				if ( ! Dedicated_Sender::can_spawn_dedicated_sync_request() ) {
 					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
+					$listener = Listener::get_instance();
+					// Remove the last two actions from the queue since we failed to enable Dedicated Sync.
+					// Those would be `updated_option` with dedicated_sync_enabled set to 1 and then 0 again.
+					$listener->get_sync_queue()->pop_newest( 2 );
 				}
 			}
 		}

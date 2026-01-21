@@ -245,14 +245,31 @@ class Queue {
 	}
 
 	/**
-	 * Pop elements from the queue.
+	 * Remove the oldest items from the queue.
 	 *
-	 * @param int $limit Number of items to pop from the queue.
+	 * @param int $limit Number of items to remove from the queue.
 	 *
 	 * @return array|object|null
 	 */
 	public function pop( $limit ) {
 		$items = $this->fetch_items( $limit );
+
+		$ids = $this->get_ids( $items );
+
+		$this->delete( $ids );
+
+		return $items;
+	}
+
+	/**
+	 * Remove the newest items from the queue.
+	 *
+	 * @param int $limit Number of items to remove from the queue.
+	 *
+	 * @return array|object|null
+	 */
+	public function pop_newest( $limit ) {
+		$items = $this->fetch_items( $limit, 'DESC' );
 
 		$ids = $this->get_ids( $items );
 
@@ -609,11 +626,15 @@ class Queue {
 	 * Return the items in the queue.
 	 *
 	 * @param null|int $limit Limit to the number of items we fetch at once.
+	 * @param string   $order      Sort direction for the items. Accepts 'ASC' or 'DESC'.
+	 *                             Any other value will be treated as 'ASC'.
 	 *
 	 * @return array|object|null
 	 */
-	private function fetch_items( $limit = null ) {
-		$items = $this->queue_storage->fetch_items( $limit );
+	private function fetch_items( $limit = null, $order = 'ASC' ) {
+		$order = 'DESC' === $order ? 'DESC' : 'ASC';
+
+		$items = $this->queue_storage->fetch_items( $limit, $order );
 
 		return $this->unserialize_values( $items );
 	}
