@@ -1418,7 +1418,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		</style>';
 
-		$message        .= '<div class="contact-form-submission">';
+		$message        .= '<div class="contact-form-submission" aria-live="polite">';
 		$success_message = '';
 
 		if ( ! $disable_go_back ) {
