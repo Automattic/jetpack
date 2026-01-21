@@ -120,12 +120,18 @@ Respond with a JSON object in this exact format:
  */
 async function checkIfDocsNeeded( payload, octokit ) {
 	const {
-		pull_request: { number, body, title },
+		pull_request: { number, body, title, merged },
 		repository: {
 			owner: { login: ownerLogin },
 			name,
 		},
 	} = payload;
+
+	// Skip if the PR was closed without being merged.
+	if ( ! merged ) {
+		debug( `check-if-docs-needed: PR #${ number } was closed without being merged. Skipping.` );
+		return;
+	}
 
 	const uiChangesLabel = '[Status] UI Changes';
 
