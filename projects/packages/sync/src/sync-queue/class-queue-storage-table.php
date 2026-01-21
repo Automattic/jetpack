@@ -228,7 +228,7 @@ class Queue_Storage_Table {
 	 * Fetch items from the queue.
 	 *
 	 * @param int|null $item_count How many items to fetch from the queue.
-	 *                             Null/0 for no limit.
+	 *                             Null for no limit.
 	 * @param string   $order      Sort direction for the items. Accepts 'ASC' or 'DESC'.
 	 *                             Any other value will be treated as 'ASC'.
 	 *
