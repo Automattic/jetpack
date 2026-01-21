@@ -10,6 +10,9 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+// Generate stub asset files for testing before loading the package
+require_once __DIR__ . '/../../bin/generate-asset-files.php';
+
 // Initialize WordPress test environment
 \Automattic\Jetpack\Test_Environment::init();
 

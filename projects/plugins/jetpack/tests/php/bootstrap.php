@@ -171,6 +171,15 @@ function _manually_load_muplugin() {
 		define( 'JETPACK_WPCOMSH_INSTALL_DIR', __DIR__ . '/../../../wpcomsh' );
 	}
 
+	// Generate stub asset files for jetpack-mu-wpcom before loading wpcomsh
+	$asset_gen_script = JETPACK_WPCOMSH_INSTALL_DIR . '/jetpack_vendor/automattic/jetpack-mu-wpcom/bin/generate-asset-files.php';
+	if ( file_exists( $asset_gen_script ) ) {
+		$_saved_cwd = getcwd();
+		chdir( JETPACK_WPCOMSH_INSTALL_DIR );
+		require_once $asset_gen_script;
+		chdir( $_saved_cwd );
+	}
+
 	require_once JETPACK_WPCOMSH_INSTALL_DIR . '/wpcomsh.php';
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom::init();
 

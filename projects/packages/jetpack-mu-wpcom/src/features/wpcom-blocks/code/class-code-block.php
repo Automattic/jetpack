@@ -41,39 +41,6 @@ abstract class Code_Block {
 	}
 
 	/**
-	 * Generate a stub asset file if it doesn't exist.
-	 * This is needed for testing environments where build artifacts aren't available.
-	 *
-	 * @param string $path Path to the asset file.
-	 * @param array  $default_data Default data to use if generating the file.
-	 * @return array The asset data.
-	 */
-	private static function ensure_asset_file( $path, $default_data = array() ) {
-		if ( file_exists( $path ) ) {
-			return include $path;
-		}
-
-		// If file doesn't exist and we're not in a test environment, return default.
-		// In test environments (PHPUnit), generate the stub file.
-		if ( ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) && ! defined( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
-			return $default_data;
-		}
-
-		// Generate stub file for tests
-		$dir = dirname( $path );
-		if ( ! is_dir( $dir ) ) {
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			@mkdir( $dir, 0755, true );
-		}
-
-		$content = '<?php return ' . var_export( $default_data, true ) . ';'; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		@file_put_contents( $path, $content );
-
-		return $default_data;
-	}
-
-	/**
 	 * Set up the block.
 	 */
 	public static function setup() {
@@ -97,13 +64,7 @@ abstract class Code_Block {
 		}
 		$done = true;
 
-		$block_definition_asset_file  = self::ensure_asset_file(
-			Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php',
-			array(
-				'dependencies' => array(),
-				'version'      => 'stub',
-			)
-		);
+		$block_definition_asset_file  = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php';
 		$jetpack_wpcom_modules_assets = self::get_module_asset_data();
 
 		// The block definition must contain the script dependencies that the edit function script module requires.
@@ -137,13 +98,7 @@ abstract class Code_Block {
 			$jetpack_wpcom_modules_assets['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['version']
 		);
 
-		$editor_style_asset_file = self::ensure_asset_file(
-			Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php',
-			array(
-				'dependencies' => array(),
-				'version'      => 'stub',
-			)
-		);
+		$editor_style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php';
 		wp_register_style(
 			self::MODULE_PREFIX . 'editor',
 			plugins_url( 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.css', Jetpack_Mu_Wpcom::BASE_FILE ),
@@ -190,23 +145,7 @@ abstract class Code_Block {
 	private static function get_module_asset_data() {
 		static $jetpack_wpcom_modules_assets = null;
 		if ( null === $jetpack_wpcom_modules_assets ) {
-			$jetpack_wpcom_modules_assets = self::ensure_asset_file(
-				Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php',
-				array(
-					'wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js' => array(
-						'dependencies' => array(),
-						'version'      => 'stub',
-					),
-					'wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js'     => array(
-						'dependencies' => array(),
-						'version'      => 'stub',
-					),
-					'wpcom-blocks-code-worker/wpcom-blocks-code-worker.js'                => array(
-						'dependencies' => array(),
-						'version'      => 'stub',
-					),
-				)
-			);
+			$jetpack_wpcom_modules_assets = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
 		}
 		return $jetpack_wpcom_modules_assets;
 	}
@@ -235,13 +174,7 @@ abstract class Code_Block {
 		$was_enqueued = wp_style_is( 'wp-block-code', 'enqueued' );
 		wp_deregister_style( 'wp-block-code' );
 
-		$style_asset_file = self::ensure_asset_file(
-			Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php',
-			array(
-				'dependencies' => array(),
-				'version'      => 'stub',
-			)
-		);
+		$style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php';
 		$version          = $style_asset_file['version'];
 
 		wp_register_style(

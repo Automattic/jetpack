@@ -40,6 +40,15 @@ foreach ( new RegexIterator( $lib, '/^.*\.php$/', RegexIterator::GET_MATCH ) as 
 	require_once $file[0];
 }
 
+// Generate stub asset files for jetpack-mu-wpcom before loading WordPress
+$asset_gen_script = __DIR__ . '/../jetpack_vendor/automattic/jetpack-mu-wpcom/bin/generate-asset-files.php';
+if ( file_exists( $asset_gen_script ) ) {
+	$_saved_cwd = getcwd();
+	chdir( __DIR__ . '/..' );
+	require_once $asset_gen_script;
+	chdir( $_saved_cwd );
+}
+
 // Give access to tests_add_filter() function.
 require_once $_tests_dir . '/includes/functions.php';
 
