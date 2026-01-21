@@ -163,8 +163,12 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 					}
 				} }
 			/>
-			<div className="form-placeholder__footer">
-				<Button variant="secondary" onClick={ () => setIsPatternsModalOpen( true ) }>
+			<div className="form-placeholder__shell">
+				<Button
+					__next40pxDefaultSize
+					variant="secondary"
+					onClick={ () => setIsPatternsModalOpen( true ) }
+				>
 					{ __( 'Browse form patterns', 'jetpack-forms' ) }
 				</Button>
 			</div>
