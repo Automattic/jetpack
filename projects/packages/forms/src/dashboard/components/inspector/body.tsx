@@ -217,9 +217,19 @@ const ResponseViewBody = ( {
 	// Handles both true arrays and objects with numeric keys (from PHP JSON encoding).
 	const fieldsAreNewFormat = useMemo( () => {
 		if ( Array.isArray( response.fields ) ) {
-			return response.fields.length > 0 && isCollectionFormatField( response.fields[ 0 ] );
+			// Any array value represents the new format, even when empty.
+			if ( response.fields.length === 0 ) {
+				return true;
+			}
+			return isCollectionFormatField( response.fields[ 0 ] );
 		}
-		// Object with numeric keys - check first value
+
+		// Guard against null/undefined and non-object values before using Object.values.
+		if ( ! response.fields || typeof response.fields !== 'object' ) {
+			return false;
+		}
+
+		// Object with numeric keys - check first value.
 		const values = Object.values( response.fields );
 		return values.length > 0 && isCollectionFormatField( values[ 0 ] );
 	}, [ response.fields ] );
