@@ -36,6 +36,7 @@ trustPolicyExclude:
   - chokidar@4.0.3
 
   # memfs 4.x has trust downgrade but is widely used and required by webpack-dev-server
+  # https://github.com/streamich/memfs/issues/1235
   - memfs@4.56.2
 
   # Don't know why 5.1.0 had provenance but 5.1.1 doesn't. But both are over a year old and there's nothing suspicious in the diff. 🤷
