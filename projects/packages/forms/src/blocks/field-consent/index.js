@@ -14,9 +14,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'Terms consent', 'jetpack-forms' ),
 	keywords: [ __( 'Consent', 'jetpack-forms' ) ],
 	description: __(

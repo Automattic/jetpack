@@ -14,9 +14,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'Email field', 'jetpack-forms' ),
 	keywords: [ __( 'e-mail', 'jetpack-forms' ), __( 'mail', 'jetpack-forms' ), 'email' ],
 	description: __( 'Collect email addresses from your visitors.', 'jetpack-forms' ),

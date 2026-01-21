@@ -14,9 +14,6 @@ export const form_editor = {
 
 export const settings = {
 	...defaultSettings,
-	supports: {
-		...defaultSettings.supports,
-	},
 	title: __( 'Date picker', 'jetpack-forms' ),
 	keywords: [
 		__( 'Calendar', 'jetpack-forms' ),
