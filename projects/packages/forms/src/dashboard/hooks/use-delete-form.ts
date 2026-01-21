@@ -46,7 +46,6 @@ type UseDeleteFormReturn = {
  * @param args.view          - Current DataViews view (for page/perPage/search).
  * @param args.setView       - View setter (used to navigate to previous page when needed).
  * @param args.recordsLength - Number of records currently displayed (used for pagination edge case).
- *
  * @param args.statusQuery   - REST `status` query param for the current list view (used for cache invalidation).
  * @return State + handler for executing the trash operation.
  */

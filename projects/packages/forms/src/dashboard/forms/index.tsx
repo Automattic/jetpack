@@ -38,15 +38,15 @@ export default function FormsDashboardForms(): JSX.Element | null {
 	const statusQuery = useMemo( () => {
 		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
 
-		// Default: show Published forms and keep Trash out unless explicitly requested.
+		// Default: show all non-trash forms (matches WP core list behavior).
 		const nonTrashStatuses = 'publish,draft,pending,future,private';
 
 		if ( ! statusFilterValue ) {
-			return 'publish';
+			return nonTrashStatuses;
 		}
 
 		if ( statusFilterValue === 'all' ) {
-			return `${ nonTrashStatuses },trash`;
+			return nonTrashStatuses;
 		}
 
 		return statusFilterValue;

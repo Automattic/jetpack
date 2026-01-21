@@ -7,8 +7,7 @@ const LAYOUT_TABLE = 'table';
 export const defaultView: View = {
 	type: LAYOUT_TABLE,
 	search: '',
-	// Default to showing Published forms.
-	filters: [ { field: 'status', operator: 'is', value: 'publish' } ],
+	filters: [ { field: 'status', operator: 'is', value: 'all' } ],
 	page: 1,
 	perPage: 20,
 	fields: [ 'title', 'entries', 'status', 'modified' ],
