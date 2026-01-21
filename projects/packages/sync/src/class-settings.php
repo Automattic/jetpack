@@ -306,8 +306,19 @@ class Settings {
 					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
 					$listener = Listener::get_instance();
 					// Remove the last two actions from the queue since we failed to enable Dedicated Sync.
-					// Those would be `updated_option` with dedicated_sync_enabled set to 1 and then 0 again.
-					$listener->get_sync_queue()->pop_newest( 2 );
+					// Those would be `updated_option` with `jetpack_sync_settings_dedicated_sync_enabled` set to 1 and then 0 again.
+					$queue = $listener->get_sync_queue();
+					$items = $queue->peek_newest( 2 );
+					$key   = 'jetpack_sync_settings_dedicated_sync_enabled';
+
+					if (
+						isset( $items[0][1][0] )
+						&& isset( $items[1][1][0] )
+						&& $items[0][1][0] === $key
+						&& $items[1][1][0] === $key
+					) {
+						$queue->pop_newest( 2 );
+					}
 				}
 			}
 		}

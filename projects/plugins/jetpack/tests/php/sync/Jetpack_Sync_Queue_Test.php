@@ -47,6 +47,15 @@ class Jetpack_Sync_Queue_Test extends WP_UnitTestCase {
 		$this->assertEquals( array( 'foo', 'bar' ), $this->queue->peek( 2 ) );
 	}
 
+	public function test_peek_newest_items() {
+		$this->queue->add( 'foo' );
+		$this->queue->add( 'bar' );
+		$this->queue->add( 'baz' );
+
+		$this->assertEquals( array( 'baz' ), $this->queue->peek_newest( 1 ) );
+		$this->assertEquals( array( 'baz', 'bar' ), $this->queue->peek_newest( 2 ) );
+	}
+
 	public function test_items_exist() {
 		$this->assertFalse( $this->queue->has_any_items() );
 

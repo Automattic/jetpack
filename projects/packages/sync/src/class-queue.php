@@ -137,6 +137,22 @@ class Queue {
 	}
 
 	/**
+	 * Get the last-added item on the queue without checking it out.
+	 *
+	 * @param int $count Number of items to return when looking at the items.
+	 *
+	 * @return array
+	 */
+	public function peek_newest( $count = 1 ) {
+		$items = $this->fetch_items( $count, 'DESC' );
+		if ( $items ) {
+			return Utils::get_item_values( $items );
+		}
+
+		return array();
+	}
+
+	/**
 	 * Gets items with particular IDs.
 	 *
 	 * @param array $item_ids Array of item IDs to retrieve.
