@@ -64,16 +64,14 @@ class LCP_Optimize_Img_Tag {
 	private function optimize_image( $buffer_processor ) {
 		// Check optimizations object for fetchpriority.
 		// If no optimizations object exists (old cloud response), default to applying.
-		$apply_fetchpriority = ! isset( $this->lcp_data['optimizations'] )
-			|| ! empty( $this->lcp_data['optimizations']['fetchpriority'] );
+		$apply_fetchpriority = LCP_Optimization_Util::should_apply_optimization( $this->lcp_data, 'fetchpriority' );
 
 		if ( $apply_fetchpriority ) {
 			$buffer_processor->set_attribute( 'fetchpriority', 'high' );
 		}
 
 		// Check optimizations object for loading.
-		$apply_loading = ! isset( $this->lcp_data['optimizations'] )
-			|| ! empty( $this->lcp_data['optimizations']['loading'] );
+		$apply_loading = LCP_Optimization_Util::should_apply_optimization( $this->lcp_data, 'loading' );
 
 		if ( $apply_loading ) {
 			$buffer_processor->set_attribute( 'loading', 'eager' );
@@ -103,8 +101,7 @@ class LCP_Optimize_Img_Tag {
 		}
 
 		// Check optimizations object for cdnUrl.
-		$apply_cdn = ! isset( $this->lcp_data['optimizations'] )
-			|| ! empty( $this->lcp_data['optimizations']['cdnUrl'] );
+		$apply_cdn = LCP_Optimization_Util::should_apply_optimization( $this->lcp_data, 'cdnUrl' );
 
 		if ( $apply_cdn ) {
 			$buffer_processor->set_attribute( 'src', Image_CDN_Core::cdn_url( $image_url ) );
@@ -113,10 +110,10 @@ class LCP_Optimize_Img_Tag {
 		// Check optimizations object for srcset.
 		// The cloud sets srcset to false when custom focal points are detected
 		// (resize would use center-crop, losing the author's object-position).
-		$apply_srcset = ! isset( $this->lcp_data['optimizations'] )
-			|| ! empty( $this->lcp_data['optimizations']['srcset'] );
+		$apply_srcset = LCP_Optimization_Util::should_apply_optimization( $this->lcp_data, 'srcset' );
 
-		if ( $apply_srcset ) {
+		// srcset uses CDN URLs internally (via Image_CDN_Core::cdn_url), so skip if CDN is disabled.
+		if ( $apply_srcset && $apply_cdn ) {
 			$this->add_responsive_image_attributes( $buffer_processor, $image_url );
 		}
 
