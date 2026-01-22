@@ -71,7 +71,7 @@ class Queue_Storage_Options {
 	 * @param string   $order      Sort direction for the items. Accepts 'ASC' or 'DESC'.
 	 *                             Any other value will be treated as 'ASC'.
 	 *
-	 * @return object[]|null Array of result objects on success, or null on failure.
+	 * @return array|object|null Array of result objects on success, or null on failure.
 	 */
 	public function fetch_items( $item_count, $order = 'ASC' ) {
 		global $wpdb;
