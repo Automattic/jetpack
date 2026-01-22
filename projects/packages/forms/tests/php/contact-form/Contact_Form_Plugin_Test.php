@@ -1387,7 +1387,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
 		$this->assertEmpty( $spam_meta, 'Spam meta should be removed when transitioning from spam' );
 	}
-
+	/**
+	 * Helper that calls shutdown actions to simulate end of request.
+	 */
 	private function mock_shutdown_recalculate() {
 		if ( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ) ) {
 			Contact_Form_Plugin::recalculate_unread_count();
@@ -1415,6 +1417,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin = Contact_Form_Plugin::init();
 		// Transition from draft to publish
 		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
+		$this->assertEquals( 10, has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
 		$this->mock_shutdown_recalculate();
 
 		// Count should be recalculated
@@ -1443,6 +1446,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Transition from publish to draft
 		$plugin->track_feedback_status_change( 'draft', 'publish', $post );
+		$this->assertEquals( 10, has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
 		$this->mock_shutdown_recalculate();
 
 		// Count should be recalculated
@@ -1471,6 +1475,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Transition from draft to publish
 		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
+		$this->assertFalse( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
 		$this->mock_shutdown_recalculate();
 
 		// Count should NOT be recalculated
@@ -1494,6 +1499,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Transition to spam
 		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
+		$this->assertFalse( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should NOT be scheduled on shutdown' );
 		$this->mock_shutdown_recalculate();
 
 		// Spam meta should NOT be set for non-feedback posts
