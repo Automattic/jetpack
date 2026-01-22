@@ -848,8 +848,6 @@ class Contact_Form_Block {
 
 		$handle = 'jp-forms-blocks';
 
-		wp_enqueue_style( 'jp-forms-blocks' );
-
 		Assets::register_script(
 			$handle,
 			'../../../dist/blocks/editor.js',
