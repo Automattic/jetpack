@@ -43,7 +43,7 @@
 		"copy-webpack-plugin": "13.0.1",
 		"email-validator": "2.0.4",
 		"gridicons": "3.4.2",
-		"lodash": "4.17.21",
+		"lodash": "4.17.23",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"webpack": "5.101.3",
