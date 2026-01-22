@@ -1509,10 +1509,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	private static function get_rating( $value ) {
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
+			$rating     = isset( $value['rating'] ) ? (int) $value['rating'] : 0;
+			$max_rating = isset( $value['maxRating'] ) ? (int) $value['maxRating'] : 5;
+			$icon_style = isset( $value['iconStyle'] ) ? $value['iconStyle'] : 'stars';
+
+			// Generate translated screen reader text.
+			$icon_label = 'hearts' === $icon_style
+				? _n( 'heart', 'hearts', $max_rating, 'jetpack-forms' )
+				: _n( 'star', 'stars', $max_rating, 'jetpack-forms' );
+
 			return array(
-				'rating'    => isset( $value['rating'] ) ? (int) $value['rating'] : 0,
-				'maxRating' => isset( $value['maxRating'] ) ? (int) $value['maxRating'] : 5,
-				'iconStyle' => isset( $value['iconStyle'] ) ? $value['iconStyle'] : 'stars',
+				'rating'           => $rating,
+				'maxRating'        => $max_rating,
+				'iconStyle'        => $icon_style,
+				/* translators: 1: rating value, 2: maximum rating, 3: icon type (stars or hearts) */
+				'screenReaderText' => sprintf( __( 'Rating: %1$d out of %2$d %3$s', 'jetpack-forms' ), $rating, $max_rating, $icon_label ),
 			);
 		}
 		return null;
@@ -1960,6 +1971,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			return implode( '<br>', $file_links );
+		}
+
+		// Handle rating field - return displayValue (e.g., "3/5") as text fallback.
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
+			return isset( $value['displayValue'] ) ? esc_html( $value['displayValue'] ) : '';
+		}
+
+		// Handle URL field - return displayValue or url.
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' ) {
+			return isset( $value['displayValue'] ) ? esc_html( $value['displayValue'] ) : ( isset( $value['url'] ) ? esc_html( $value['url'] ) : '' );
 		}
 
 		if ( is_array( $value ) ) {

@@ -67,10 +67,10 @@ store( NAMESPACE, {
 				return;
 			}
 
-			const { rating: ratingValue, maxRating, iconStyle } = rating;
+			const { rating: ratingValue, maxRating, iconStyle, screenReaderText } = rating;
 
 			// Render icons using the shared function.
-			ref.innerHTML = renderRatingIconsHtml( ratingValue, maxRating, iconStyle );
+			ref.innerHTML = renderRatingIconsHtml( ratingValue, maxRating, iconStyle, screenReaderText );
 		},
 	},
 } );

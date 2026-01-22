@@ -11,15 +11,20 @@ export const RATING_ICONS = {
 /**
  * Render rating icons as HTML string.
  *
- * @param {number} rating    - The current rating value.
- * @param {number} maxRating - The maximum rating value.
- * @param {string} iconStyle - The icon style ('stars' or 'hearts').
+ * @param {number} rating           - The current rating value.
+ * @param {number} maxRating        - The maximum rating value.
+ * @param {string} iconStyle        - The icon style ('stars' or 'hearts').
+ * @param {string} screenReaderText - Optional text for screen readers.
  * @return {string} HTML string containing SVG icons.
  */
-export function renderRatingIconsHtml( rating, maxRating, iconStyle ) {
+export function renderRatingIconsHtml( rating, maxRating, iconStyle, screenReaderText = '' ) {
 	const iconPath = RATING_ICONS[ iconStyle ] || RATING_ICONS.stars;
 
-	let iconsHtml = '';
+	// Add screen reader text if provided.
+	let iconsHtml = screenReaderText
+		? `<span class="screen-reader-text">${ screenReaderText }</span>`
+		: '';
+
 	for ( let i = 1; i <= maxRating; i++ ) {
 		const filledClass = i <= rating ? 'is-filled' : '';
 		iconsHtml += `<svg class="field-rating__icon ${ filledClass }" viewBox="0 0 24 24" aria-hidden="true"><path d="${ iconPath }"></path></svg>`;
