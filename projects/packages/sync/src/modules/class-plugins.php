@@ -204,6 +204,8 @@ class Plugins extends Module {
 				if ( ! has_action( 'shutdown', array( $this, 'sync_plugins_installed' ) ) ) {
 					add_action( 'shutdown', array( $this, 'sync_plugins_installed' ), 9 );
 				}
+
+				break;
 		}
 	}
 
