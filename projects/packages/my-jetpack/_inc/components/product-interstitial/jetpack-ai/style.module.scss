@@ -20,7 +20,6 @@
 	@include mixins.product-header;
 
 	.product-interstitial__product-header-name {
-		// AI-specific: extra bottom padding
 		padding-bottom: calc(var(--spacing-base) / 3);
 	}
 }
@@ -33,7 +32,6 @@
 
 		@include mixins.hero-content;
 
-		// AI-specific: extra flex layout for centering CTA
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
