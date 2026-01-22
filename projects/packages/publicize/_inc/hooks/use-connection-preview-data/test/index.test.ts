@@ -191,8 +191,9 @@ describe( 'useConnectionPreviewData', () => {
 	it( 'should return empty media when media_source is featured-image but no featured image exists', () => {
 		mockSiteHasFeature.mockReturnValue( true );
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
-		// When no featured image is set, useMediaDetails returns [ null ] or a falsy first element
-		mockUseMediaDetails.mockReturnValue( [ null ] );
+		// When no featured image is set, useMediaDetails returns [ {} ] with no mediaData.sourceUrl
+		// The hook checks featuredImageDetails?.mediaData?.sourceUrl to handle this edge case
+		mockUseMediaDetails.mockReturnValue( [ {} ] as ReturnType< typeof useMediaDetails > );
 
 		const connection = createMockConnection( { media_source: 'featured-image' } );
 
