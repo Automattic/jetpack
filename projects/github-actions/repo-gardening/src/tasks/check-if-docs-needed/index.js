@@ -82,7 +82,6 @@ function buildPrompt( title, body, diff ) {
 The key question is: "Would support documentation need to be updated to reflect these changes?"
 
 Changes that WOULD require documentation updates (flag these):
-- New UI elements that users need to learn about (buttons, forms, layouts, modals)
 - Changed UI workflows or interactions users need to understand
 - New features or settings that need to be documented
 - Changed text that appears in documentation screenshots or examples
