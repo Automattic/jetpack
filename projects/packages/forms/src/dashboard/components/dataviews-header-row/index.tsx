@@ -12,14 +12,13 @@ import InboxStatusToggle from '../inbox-status-toggle/index.tsx';
 import './style.scss';
 
 /**
- * Proposed shared header row for DataViews-based screens.
+ * Shared header row for DataViews-based screens.
  *
- * Hardcoded structure for now:
+ * Structure:
  * - Left: Forms / Responses tabs
+ * - Special case: on the Responses screen with CFM disabled, show Inbox/Spam/Trash toggle instead
  * - Right: DataViews Search / Filters toggle / View config
  * - Below (only when there are active filters): DataViews.FiltersToggled
- *
- * Note: This component is not wired into any screen yet.
  *
  * @param {object}                   props                        - Component props.
  * @param {(status: string) => void} [props.onLegacyStatusChange] - Optional callback invoked when the legacy Inbox status changes.
