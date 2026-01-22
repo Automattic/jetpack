@@ -1,6 +1,6 @@
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
@@ -35,10 +35,11 @@ type UseDeleteFormArgs = {
 
 type UseDeleteFormReturn = {
 	isDeleting: boolean;
-	trashForm: ( item: FormListItem ) => Promise< void >;
-	restoreForm: ( item: FormListItem ) => Promise< void >;
+	trashForms: ( items: FormListItem[] ) => Promise< void >;
+	restoreForms: ( items: FormListItem[] ) => Promise< void >;
 	isPermanentDeleteConfirmOpen: boolean;
-	openPermanentDeleteConfirm: ( item: FormListItem ) => void;
+	permanentDeleteItemsCount: number;
+	openPermanentDeleteConfirm: ( items: FormListItem[] ) => void;
 	closePermanentDeleteConfirm: () => void;
 	confirmPermanentDelete: () => Promise< void >;
 };
@@ -61,7 +62,7 @@ export default function useDeleteForm( {
 }: UseDeleteFormArgs ): UseDeleteFormReturn {
 	const [ isDeleting, setIsDeleting ] = useState( false );
 	const [ isPermanentDeleteConfirmOpen, setIsPermanentDeleteConfirmOpen ] = useState( false );
-	const [ permanentDeleteItem, setPermanentDeleteItem ] = useState< FormListItem | null >( null );
+	const [ permanentDeleteItems, setPermanentDeleteItems ] = useState< FormListItem[] >( [] );
 
 	const { saveEntityRecord, deleteEntityRecord, invalidateResolution } = useDispatch(
 		'core'
@@ -77,129 +78,264 @@ export default function useDeleteForm( {
 		[ page, perPage, search, statusQuery ]
 	);
 
-	const undoTrashForm = useCallback(
-		async ( id: number, previousStatus: string ) => {
-			try {
-				await saveEntityRecord(
-					'postType',
-					'jetpack_form',
-					{ id, status: previousStatus },
-					{ throwOnError: true }
-				);
-				createSuccessNotice( __( 'Form restored.', 'jetpack-forms' ), {
-					type: 'snackbar',
-					id: `restore-form-${ id }`,
-				} );
-			} catch {
-				createErrorNotice( __( 'Could not restore form.', 'jetpack-forms' ), {
-					type: 'snackbar',
-					id: `restore-form-error-${ id }`,
-				} );
-			} finally {
-				invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', currentQuery ] );
-				invalidateResolution( 'getEntityRecords', [
-					'postType',
-					'jetpack_form',
-					{ ...currentQuery, per_page: 1, _fields: 'id' },
-				] );
-			}
+	const invalidateListQueries = useCallback(
+		( query: Record< string, unknown > ) => {
+			invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', query ] );
+			invalidateResolution( 'getEntityRecords', [
+				'postType',
+				'jetpack_form',
+				{ ...query, per_page: 1, _fields: 'id' },
+			] );
 		},
-		[ createErrorNotice, createSuccessNotice, currentQuery, invalidateResolution, saveEntityRecord ]
+		[ invalidateResolution ]
 	);
 
-	const restoreForm = useCallback(
-		async ( item: FormListItem ) => {
-			if ( ! item || isDeleting ) {
+	const restoreForms = useCallback(
+		async ( items: FormListItem[] ) => {
+			if ( isDeleting || ! items?.length ) {
 				return;
 			}
 
 			setIsDeleting( true );
 
+			const shouldNavigateToPreviousPage = page > 1 && items.length >= recordsLength;
+			const currentQuerySnapshot = currentQuery;
+
 			try {
-				await saveEntityRecord(
-					'postType',
-					'jetpack_form',
-					{ id: item.id, status: 'publish' },
-					{ throwOnError: true }
+				const promises = await Promise.allSettled(
+					items.map( item =>
+						saveEntityRecord(
+							'postType',
+							'jetpack_form',
+							{ id: item.id, status: 'publish' },
+							{ throwOnError: true }
+						)
+					)
 				);
-				createSuccessNotice( __( 'Form restored.', 'jetpack-forms' ), {
-					type: 'snackbar',
-					id: `restore-form-${ item.id }`,
-				} );
-			} catch {
-				createErrorNotice( __( 'Could not restore form.', 'jetpack-forms' ), {
-					type: 'snackbar',
-					id: `restore-form-error-${ item.id }`,
-				} );
+
+				const restoredCount = promises.filter( p => p.status === 'fulfilled' ).length;
+				const failedCount = promises.length - restoredCount;
+
+				if ( restoredCount ) {
+					const successMessage =
+						restoredCount === 1
+							? __( 'Form restored.', 'jetpack-forms' )
+							: sprintf(
+									/* translators: %d: number of forms. */
+									_n( '%d form restored.', '%d forms restored.', restoredCount, 'jetpack-forms' ),
+									restoredCount
+							  );
+
+					createSuccessNotice( successMessage, {
+						type: 'snackbar',
+						id: `restore-forms-${ Date.now() }`,
+					} );
+
+					if ( shouldNavigateToPreviousPage ) {
+						setView( { ...view, page: page - 1 } );
+					}
+				}
+
+				if ( failedCount ) {
+					createErrorNotice(
+						sprintf(
+							/* translators: %d: number of forms. */
+							_n(
+								'Could not restore %d form.',
+								'Could not restore %d forms.',
+								failedCount,
+								'jetpack-forms'
+							),
+							failedCount
+						),
+						{ type: 'snackbar', id: `restore-forms-error-${ Date.now() }` }
+					);
+				}
 			} finally {
 				setIsDeleting( false );
-				invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', currentQuery ] );
-				invalidateResolution( 'getEntityRecords', [
-					'postType',
-					'jetpack_form',
-					{ ...currentQuery, per_page: 1, _fields: 'id' },
-				] );
+
+				// Invalidate the list query so restored forms disappear from the trash view and totals refresh.
+				invalidateListQueries( currentQuerySnapshot );
+				if ( shouldNavigateToPreviousPage ) {
+					invalidateListQueries(
+						getFormsListQuery( page - 1, perPage, search, statusQuery ) as Record< string, unknown >
+					);
+				}
 			}
 		},
 		[
 			createErrorNotice,
 			createSuccessNotice,
 			currentQuery,
-			invalidateResolution,
+			invalidateListQueries,
+			isDeleting,
+			page,
+			perPage,
+			recordsLength,
+			saveEntityRecord,
+			search,
+			setView,
+			statusQuery,
+			view,
+		]
+	);
+
+	const undoTrashForms = useCallback(
+		async ( items: FormListItem[] ) => {
+			if ( isDeleting || ! items?.length ) {
+				return;
+			}
+
+			setIsDeleting( true );
+			const currentQuerySnapshot = currentQuery;
+
+			try {
+				const promises = await Promise.allSettled(
+					items.map( item =>
+						saveEntityRecord(
+							'postType',
+							'jetpack_form',
+							{ id: item.id, status: 'publish' },
+							{ throwOnError: true }
+						)
+					)
+				);
+
+				const restoredCount = promises.filter( p => p.status === 'fulfilled' ).length;
+				const failedCount = promises.length - restoredCount;
+
+				if ( restoredCount ) {
+					const successMessage =
+						restoredCount === 1
+							? __( 'Form restored.', 'jetpack-forms' )
+							: sprintf(
+									/* translators: %d: number of forms. */
+									_n( '%d form restored.', '%d forms restored.', restoredCount, 'jetpack-forms' ),
+									restoredCount
+							  );
+
+					createSuccessNotice( successMessage, {
+						type: 'snackbar',
+						id: `undo-trash-forms-${ Date.now() }`,
+					} );
+				}
+
+				if ( failedCount ) {
+					createErrorNotice(
+						sprintf(
+							/* translators: %d: number of forms. */
+							_n(
+								'Could not restore %d form.',
+								'Could not restore %d forms.',
+								failedCount,
+								'jetpack-forms'
+							),
+							failedCount
+						),
+						{ type: 'snackbar', id: `undo-trash-forms-error-${ Date.now() }` }
+					);
+				}
+			} finally {
+				setIsDeleting( false );
+				invalidateListQueries( currentQuerySnapshot );
+			}
+		},
+		[
+			createErrorNotice,
+			createSuccessNotice,
+			currentQuery,
+			invalidateListQueries,
 			isDeleting,
 			saveEntityRecord,
 		]
 	);
 
-	const trashForm = useCallback(
-		async ( item: FormListItem ) => {
-			if ( ! item || isDeleting ) {
+	const trashForms = useCallback(
+		async ( items: FormListItem[] ) => {
+			if ( isDeleting || ! items?.length ) {
 				return;
 			}
 
-			const previousStatus = item.status;
 			setIsDeleting( true );
 
-			const shouldNavigateToPreviousPage = page > 1 && recordsLength === 1;
+			const shouldNavigateToPreviousPage = page > 1 && items.length >= recordsLength;
+			const currentQuerySnapshot = currentQuery;
 
 			try {
-				await deleteEntityRecord(
-					'postType',
-					'jetpack_form',
-					item.id,
-					{ force: false },
-					{ throwOnError: true }
+				const promises = await Promise.allSettled(
+					items.map( item =>
+						deleteEntityRecord(
+							'postType',
+							'jetpack_form',
+							item.id,
+							{ force: false },
+							{ throwOnError: true }
+						)
+					)
 				);
 
-				createSuccessNotice( __( 'Form moved to trash.', 'jetpack-forms' ), {
-					type: 'snackbar',
-					id: `trash-form-${ item.id }`,
-					actions: [
-						{
-							label: __( 'Undo', 'jetpack-forms' ),
-							onClick: () => void undoTrashForm( item.id, previousStatus ),
-						},
-					],
-				} );
+				const trashedItems = items.filter(
+					( _, index ) => promises[ index ]?.status === 'fulfilled'
+				);
+				const trashedCount = trashedItems.length;
+				const failedCount = items.length - trashedCount;
 
-				if ( shouldNavigateToPreviousPage ) {
-					setView( { ...view, page: page - 1 } );
+				if ( trashedCount ) {
+					const successMessage =
+						trashedCount === 1
+							? __( 'Form moved to trash.', 'jetpack-forms' )
+							: sprintf(
+									/* translators: %d: number of forms. */
+									_n(
+										'%d form moved to trash.',
+										'%d forms moved to trash.',
+										trashedCount,
+										'jetpack-forms'
+									),
+									trashedCount
+							  );
+
+					createSuccessNotice( successMessage, {
+						type: 'snackbar',
+						id: `trash-forms-${ Date.now() }`,
+						actions: [
+							{
+								label: __( 'Undo', 'jetpack-forms' ),
+								onClick: () => void undoTrashForms( trashedItems ),
+							},
+						],
+					} );
+
+					if ( shouldNavigateToPreviousPage ) {
+						setView( { ...view, page: page - 1 } );
+					}
 				}
-			} catch {
-				createErrorNotice( __( 'Could not move form to trash.', 'jetpack-forms' ), {
-					type: 'snackbar',
-					id: 'delete-form-error',
-				} );
+
+				if ( failedCount ) {
+					createErrorNotice(
+						sprintf(
+							/* translators: %d: number of forms. */
+							_n(
+								'Could not move %d form to trash.',
+								'Could not move %d forms to trash.',
+								failedCount,
+								'jetpack-forms'
+							),
+							failedCount
+						),
+						{ type: 'snackbar', id: `trash-forms-error-${ Date.now() }` }
+					);
+				}
 			} finally {
 				setIsDeleting( false );
 
-				// Invalidate the list query so the trashed form disappears from the table and totals refresh.
-				invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', currentQuery ] );
-				invalidateResolution( 'getEntityRecords', [
-					'postType',
-					'jetpack_form',
-					{ ...currentQuery, per_page: 1, _fields: 'id' },
-				] );
+				// Invalidate the list query so trashed forms disappear from the table and totals refresh.
+				invalidateListQueries( currentQuerySnapshot );
+				if ( shouldNavigateToPreviousPage ) {
+					invalidateListQueries(
+						getFormsListQuery( page - 1, perPage, search, statusQuery ) as Record< string, unknown >
+					);
+				}
 			}
 		},
 		[
@@ -207,79 +343,127 @@ export default function useDeleteForm( {
 			createSuccessNotice,
 			currentQuery,
 			deleteEntityRecord,
-			invalidateResolution,
+			invalidateListQueries,
 			isDeleting,
-			undoTrashForm,
 			page,
+			perPage,
 			recordsLength,
+			search,
 			setView,
+			statusQuery,
+			undoTrashForms,
 			view,
 		]
 	);
 
-	const openPermanentDeleteConfirm = useCallback( ( item: FormListItem ) => {
-		setPermanentDeleteItem( item );
+	const openPermanentDeleteConfirm = useCallback( ( items: FormListItem[] ) => {
+		setPermanentDeleteItems( items || [] );
 		setIsPermanentDeleteConfirmOpen( true );
 	}, [] );
 
 	const closePermanentDeleteConfirm = useCallback( () => {
 		setIsPermanentDeleteConfirmOpen( false );
-		setPermanentDeleteItem( null );
+		setPermanentDeleteItems( [] );
 	}, [] );
 
 	const confirmPermanentDelete = useCallback( async () => {
-		if ( ! permanentDeleteItem || isDeleting ) {
+		if ( ! permanentDeleteItems.length || isDeleting ) {
 			return;
 		}
 
 		setIsPermanentDeleteConfirmOpen( false );
 		setIsDeleting( true );
+		const currentQuerySnapshot = currentQuery;
 
 		try {
-			await deleteEntityRecord(
-				'postType',
-				'jetpack_form',
-				permanentDeleteItem.id,
-				{ force: true },
-				{ throwOnError: true }
+			const promises = await Promise.allSettled(
+				permanentDeleteItems.map( item =>
+					deleteEntityRecord(
+						'postType',
+						'jetpack_form',
+						item.id,
+						{ force: true },
+						{ throwOnError: true }
+					)
+				)
 			);
 
-			createSuccessNotice( __( 'Form deleted permanently.', 'jetpack-forms' ), {
-				type: 'snackbar',
-				id: `delete-form-permanently-${ permanentDeleteItem.id }`,
-			} );
+			const deletedCount = promises.filter( p => p.status === 'fulfilled' ).length;
+			const failedCount = promises.length - deletedCount;
+
+			if ( deletedCount ) {
+				const successMessage =
+					deletedCount === 1
+						? __( 'Form deleted permanently.', 'jetpack-forms' )
+						: sprintf(
+								/* translators: %d: number of forms. */
+								_n(
+									'%d form deleted permanently.',
+									'%d forms deleted permanently.',
+									deletedCount,
+									'jetpack-forms'
+								),
+								deletedCount
+						  );
+
+				createSuccessNotice( successMessage, {
+					type: 'snackbar',
+					id: `delete-forms-permanently-${ Date.now() }`,
+				} );
+
+				const shouldNavigateToPreviousPage = page > 1 && deletedCount >= recordsLength;
+				if ( shouldNavigateToPreviousPage ) {
+					setView( { ...view, page: page - 1 } );
+				}
+			}
+
+			if ( failedCount ) {
+				createErrorNotice(
+					sprintf(
+						/* translators: %d: number of forms. */
+						_n(
+							'Could not permanently delete %d form.',
+							'Could not permanently delete %d forms.',
+							failedCount,
+							'jetpack-forms'
+						),
+						failedCount
+					),
+					{ type: 'snackbar', id: `delete-forms-permanently-error-${ Date.now() }` }
+				);
+			}
 		} catch {
-			createErrorNotice( __( 'Could not delete form permanently.', 'jetpack-forms' ), {
+			createErrorNotice( __( 'Could not delete forms permanently.', 'jetpack-forms' ), {
 				type: 'snackbar',
-				id: `delete-form-permanently-error-${ permanentDeleteItem.id }`,
+				id: `delete-forms-permanently-error-${ Date.now() }`,
 			} );
 		} finally {
 			setIsDeleting( false );
-			setPermanentDeleteItem( null );
+			setPermanentDeleteItems( [] );
 
 			// Invalidate the list query so the deleted form disappears from the table and totals refresh.
-			invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', currentQuery ] );
-			invalidateResolution( 'getEntityRecords', [
-				'postType',
-				'jetpack_form',
-				{ ...currentQuery, per_page: 1, _fields: 'id' },
-			] );
+			invalidateListQueries( currentQuerySnapshot );
 		}
 	}, [
 		createErrorNotice,
 		createSuccessNotice,
 		currentQuery,
 		deleteEntityRecord,
-		invalidateResolution,
+		invalidateListQueries,
 		isDeleting,
-		permanentDeleteItem,
+		page,
+		permanentDeleteItems,
+		recordsLength,
+		setView,
+		view,
 	] );
 
 	return {
 		isDeleting,
-		trashForm,
-		restoreForm,
+		trashForms,
+		restoreForms,
 		isPermanentDeleteConfirmOpen,
+		permanentDeleteItemsCount: permanentDeleteItems.length,
 		openPermanentDeleteConfirm,
 		closePermanentDeleteConfirm,
 		confirmPermanentDelete,
