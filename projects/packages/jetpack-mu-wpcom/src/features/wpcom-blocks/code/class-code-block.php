@@ -51,6 +51,21 @@ abstract class Code_Block {
 			$result =
 				is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php' ) &&
 				is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php' );
+
+			if ( ! $result && \defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+				$data = array(
+					'blog_id' => get_current_blog_id(),
+				);
+
+				log2logstash(
+					array(
+						'feature' => 'jetpack-enhanced-code-block',
+						'message' => 'Code Block assets are missing.',
+						'extra'   => wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
+					)
+				);
+			}
 		}
 		return $result;
 	}
