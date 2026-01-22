@@ -45,11 +45,11 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 		switch ( connection.media_source ) {
 			case 'featured-image':
-				media = featuredImageDetails
+				media = featuredImageDetails?.mediaData?.sourceUrl
 					? [
 							{
-								url: featuredImageDetails.mediaData?.sourceUrl,
-								type: featuredImageDetails.metaData?.mime ?? 'image/jpeg',
+								url: featuredImageDetails.mediaData.sourceUrl,
+								type: featuredImageDetails.metaData.mime ?? 'image/jpeg',
 							},
 					  ]
 					: [];
