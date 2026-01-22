@@ -105,10 +105,14 @@ Changes that would NOT require documentation updates (do NOT flag these):
 IMPORTANT: The question is not "does this change something users see?" but "would a technical writer need to update the support documentation?"
 
 Here is the PR title:
+\`\`\`\`
 ${ sanitizedTitle }
+\`\`\`\`
 
 Here is the PR description:
+\`\`\`\`
 ${ sanitizedBody || '(No description provided)' }
+\`\`\`\`
 
 Here is the code diff:
 \`\`\`\`
