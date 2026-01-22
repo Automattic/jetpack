@@ -3683,15 +3683,10 @@ class Contact_Form_Plugin {
 			return;
 		}
 
-		// If the status changed from anything TO 'publish', we need to recount unread feedbacks
-		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
+		// If the status changed to or from 'publish', we need to recount unread feedbacks.
+		if ( ( 'publish' === $new_status && 'publish' !== $old_status ) ||
+			( 'publish' === $old_status && 'publish' !== $new_status ) ) {
 			add_action( 'shutdown', array( __CLASS__, 'recalculate_unread_count' ) );
-			return;
-		}
-		// If the status changed from 'publish' TO anything else, we need to recount unread feedbacks
-		if ( 'publish' === $old_status && 'publish' !== $new_status ) {
-			add_action( 'shutdown', array( __CLASS__, 'recalculate_unread_count' ) );
-			return;
 		}
 	}
 
