@@ -6,8 +6,13 @@ import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-checkbox-multiple';
-const settings = {
+export const name = 'field-checkbox-multiple';
+
+export const form_editor = {
+	category: 'choice',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Multiple choice (checkbox)', 'jetpack-forms' ),
 	keywords: [ __( 'Choose multiple', 'jetpack-forms' ), __( 'Option', 'jetpack-forms' ) ],
@@ -69,4 +74,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

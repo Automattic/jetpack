@@ -147,6 +147,16 @@ class Connections_Post_Field {
 							),
 						),
 					),
+					'media_source'   => array(
+						'type' => 'string',
+						'enum' => array(
+							'featured-image',
+							'sig',
+							'media-library',
+							'upload-video',
+							'none',
+						),
+					),
 				)
 			),
 		);
@@ -234,6 +244,9 @@ class Connections_Post_Field {
 				}
 				if ( isset( $override['attached_media'] ) ) {
 					$output_connection['attached_media'] = $override['attached_media'];
+				}
+				if ( isset( $override['media_source'] ) ) {
+					$output_connection['media_source'] = $override['media_source'];
 				}
 			}
 
@@ -450,6 +463,11 @@ class Connections_Post_Field {
 			return;
 		}
 
+		// If the request does not have connections, skip.
+		if ( ! isset( $request[ self::FIELD_NAME ] ) ) {
+			return;
+		}
+
 		$overrides = array();
 
 		foreach ( $requested_connections as $connection ) {
@@ -459,7 +477,7 @@ class Connections_Post_Field {
 			}
 
 			// Only save if connection has custom message or attached_media.
-			if ( ! isset( $connection['message'] ) && ! isset( $connection['attached_media'] ) ) {
+			if ( ! isset( $connection['message'] ) && ! isset( $connection['attached_media'] ) && ! isset( $connection['media_source'] ) ) {
 				continue;
 			}
 
@@ -474,6 +492,11 @@ class Connections_Post_Field {
 			// Save attached_media (can be empty array to clear media).
 			if ( isset( $connection['attached_media'] ) ) {
 				$overrides[ $connection_id ]['attached_media'] = $this->sanitize_attached_media( $connection['attached_media'] );
+			}
+
+			// Save media_source (can be empty to use default).
+			if ( isset( $connection['media_source'] ) ) {
+				$overrides[ $connection_id ]['media_source'] = sanitize_text_field( $connection['media_source'] );
 			}
 		}
 

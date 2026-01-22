@@ -5,6 +5,10 @@ import save from './save.js';
 
 export const name = 'form-step';
 
+export const form_editor = {
+	category: 'multistep',
+};
+
 export const settings = {
 	apiVersion: 3,
 	title: __( 'Step', 'jetpack-forms' ),
@@ -56,4 +60,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };
