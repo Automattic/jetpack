@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Heartbeat;
-use Automattic\Jetpack\Sync\Sender;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -47,9 +46,7 @@ class Stats extends Module {
 	 */
 	public function sync_site_stats() {
 
-		$sender = Sender::get_instance();
-
-		$sender->send_action( 'jetpack_sync_heartbeat_stats', $this->add_stats() );
+		$this->send_action( 'jetpack_sync_heartbeat_stats', $this->add_stats() );
 	}
 
 	/**
