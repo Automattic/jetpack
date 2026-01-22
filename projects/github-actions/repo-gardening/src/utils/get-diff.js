@@ -126,11 +126,43 @@ async function getDiff( octokit, owner, repo, number, maxSize = 50000 ) {
 	// Remove unwanted file blocks (e.g., lockfiles) before further processing/truncation.
 	diff = filterDiff( diff );
 
-	// Filter out lines longer than 500 characters (likely minified code).
+	// Filter out very long content lines (likely minified code) while preserving diff structure.
+	// We keep diff header lines (diff --, +++, ---, @@, etc.) regardless of length to avoid
+	// breaking the diff format. Only actual content lines (starting with +, -, or space) are filtered.
+	// Note: This may also filter legitimate long lines like inline SVG or long markdown paragraphs,
+	// but such lines are typically not useful for AI analysis of user-facing changes.
+	const maxLineLength = 500;
+	let filteredLineCount = 0;
 	diff = diff
 		.split( '\n' )
-		.filter( line => line.length <= 500 )
+		.filter( line => {
+			// Always keep diff header lines to preserve structure
+			if (
+				line.startsWith( 'diff --git' ) ||
+				line.startsWith( '---' ) ||
+				line.startsWith( '+++' ) ||
+				line.startsWith( '@@' ) ||
+				line.startsWith( 'index ' ) ||
+				line.startsWith( 'new file' ) ||
+				line.startsWith( 'deleted file' ) ||
+				line.startsWith( 'Binary files' )
+			) {
+				return true;
+			}
+			// Filter long content lines
+			if ( line.length > maxLineLength ) {
+				filteredLineCount++;
+				return false;
+			}
+			return true;
+		} )
 		.join( '\n' );
+
+	if ( filteredLineCount > 0 ) {
+		debug(
+			`get-diff: Filtered ${ filteredLineCount } lines longer than ${ maxLineLength } characters.`
+		);
+	}
 
 	// Truncate if too large.
 	if ( diff.length > maxSize ) {
