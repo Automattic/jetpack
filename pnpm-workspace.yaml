@@ -30,6 +30,8 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
+  # Renovate security update: lodash@^4.17.15
+  - lodash@4.17.23 || 4.17.23 || 4.17.23 || 4.17.23 || 4.17.23 || ^4.17.15
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
