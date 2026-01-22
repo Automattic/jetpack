@@ -770,7 +770,7 @@ describe( 'Form View - Rating Display', () => {
 
 			// Check that SVGs were rendered
 			const svgs = mockElement.ref.querySelectorAll( 'svg' );
-			expect( svgs.length ).toBe( 5 );
+			expect( svgs ).toHaveLength( 5 );
 		} );
 
 		test( 'renders heart icons when iconStyle is hearts', () => {
@@ -786,7 +786,7 @@ describe( 'Form View - Rating Display', () => {
 
 			// Check that SVGs were rendered with heart paths
 			const svgs = mockElement.ref.querySelectorAll( 'svg' );
-			expect( svgs.length ).toBe( 5 );
+			expect( svgs ).toHaveLength( 5 );
 		} );
 
 		test( 'handles zero rating', () => {
@@ -802,7 +802,7 @@ describe( 'Form View - Rating Display', () => {
 
 			// Should still render 5 empty stars
 			const svgs = mockElement.ref.querySelectorAll( 'svg' );
-			expect( svgs.length ).toBe( 5 );
+			expect( svgs ).toHaveLength( 5 );
 		} );
 
 		test( 'handles maximum rating', () => {
@@ -818,7 +818,7 @@ describe( 'Form View - Rating Display', () => {
 
 			// Should render 5 filled stars
 			const svgs = mockElement.ref.querySelectorAll( 'svg' );
-			expect( svgs.length ).toBe( 5 );
+			expect( svgs ).toHaveLength( 5 );
 		} );
 
 		test( 'reads rating data from data attribute when not in context', () => {
@@ -835,7 +835,7 @@ describe( 'Form View - Rating Display', () => {
 
 			// Should render 5 stars
 			const svgs = mockElement.ref.querySelectorAll( 'svg' );
-			expect( svgs.length ).toBe( 5 );
+			expect( svgs ).toHaveLength( 5 );
 		} );
 
 		test( 'does not render icons when no rating data available', () => {
@@ -873,7 +873,7 @@ describe( 'Form View - Rating Display', () => {
 
 			// Should render 10 stars
 			const svgs = mockElement.ref.querySelectorAll( 'svg' );
-			expect( svgs.length ).toBe( 10 );
+			expect( svgs ).toHaveLength( 10 );
 		} );
 	} );
 
