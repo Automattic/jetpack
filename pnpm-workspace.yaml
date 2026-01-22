@@ -80,13 +80,6 @@ ignoredOptionalDependencies:
   - sass-embedded-all-unknown
   - sass-embedded-unknown-all
 
-# Override broken dependency versions.
-overrides:
-  # memfs 4.x has trust downgrade issues.
-  # https://github.com/streamich/memfs/issues/1235
-  # also has a missing dependency (@jsonjoy.com/fs-snapshot)
-  memfs: "4.54.0"
-
 # Dependencies needing patching.
 patchedDependencies:
 

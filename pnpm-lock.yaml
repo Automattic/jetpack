@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-overrides:
-  memfs: 4.54.0
-
 pnpmfileChecksum: sha256-np3K6xe1qSILLQ+2XbdIZugZDZN+upIXmOCbm4Zyst8=
 
 patchedDependencies:
@@ -12984,6 +12981,9 @@ packages:
     resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
     engines: {node: '>=12'}
 
+  fs-monkey@1.1.0:
+    resolution: {integrity: sha512-QMUezzXWII9EV5aTFXW1UBVUO77wYPpjqIF8/AviUCThNeSYZykpoTixUeaNNBwmCev0AMDWMAni+f8Hxb1IFw==}
+
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
@@ -14475,6 +14475,10 @@ packages:
   media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
+
+  memfs@3.5.3:
+    resolution: {integrity: sha512-UERzLsxzllchadvbPs5aolHh65ISpKpM+ccLbOJ8/vvpBKmAWf+la7dXFy7Mr0ySHbdHrFv5kGFCUHHe6GFEmw==}
+    engines: {node: '>= 4.0.0'}
 
   memfs@4.54.0:
     resolution: {integrity: sha512-wiJ9YYUj2bVcpdJgIv6y1KrStknSdNhfM4+4+ttt0cHHMxVLZ3aOBoER8krt9lGY5HkR2ustUXiihhNPeNxXaQ==}
@@ -27852,7 +27856,7 @@ snapshots:
 
   compressible@2.0.18:
     dependencies:
-      mime-db: 1.52.0
+      mime-db: 1.54.0
 
   compression@1.8.1:
     dependencies:
@@ -29512,7 +29516,7 @@ snapshots:
       cosmiconfig: 8.3.6(typescript@5.9.3)
       deepmerge: 4.3.1
       fs-extra: 10.1.0
-      memfs: 4.54.0
+      memfs: 3.5.3
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
@@ -29529,7 +29533,7 @@ snapshots:
       cosmiconfig: 8.3.6(typescript@5.9.3)
       deepmerge: 4.3.1
       fs-extra: 10.1.0
-      memfs: 4.54.0
+      memfs: 3.5.3
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
@@ -29572,6 +29576,8 @@ snapshots:
       graceful-fs: 4.2.11
       jsonfile: 6.2.0
       universalify: 2.0.1
+
+  fs-monkey@1.1.0: {}
 
   fs.realpath@1.0.0: {}
 
@@ -31521,6 +31527,10 @@ snapshots:
   mdurl@2.0.0: {}
 
   media-typer@0.3.0: {}
+
+  memfs@3.5.3:
+    dependencies:
+      fs-monkey: 1.1.0
 
   memfs@4.54.0:
     dependencies:
@@ -35184,7 +35194,7 @@ snapshots:
   webpack-dev-middleware@6.1.3(webpack@5.101.3):
     dependencies:
       colorette: 2.0.20
-      memfs: 4.54.0
+      memfs: 3.5.3
       mime-types: 2.1.35
       range-parser: 1.2.1
       schema-utils: 4.3.3
