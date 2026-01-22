@@ -18,7 +18,7 @@
 	font-size: 22px;
 
 	.product-interstitial__product-header-name {
-		padding-left: var(--spacing-base);
+		padding-inline-start: var(--spacing-base);
 	}
 }
 
@@ -34,8 +34,7 @@
 	gap: calc(var(--spacing-base) * 6);
 
 	@media only screen and (max-width: 1366px) {
-		padding-left: calc(var(--spacing-base) * 3);
-		padding-right: calc(var(--spacing-base) * 3);
+		padding-inline: calc(var(--spacing-base) * 3);
 	}
 }
 
@@ -159,8 +158,7 @@
 	margin: 0 auto;
 
 	@media only screen and (max-width: 1366px) {
-		padding-left: calc(var(--spacing-base) * 3);
-		padding-right: calc(var(--spacing-base) * 3);
+		padding-inline: calc(var(--spacing-base) * 3);
 	}
 }
 
@@ -172,8 +170,7 @@
 	margin: 0 auto;
 
 	@media only screen and (max-width: 1366px) {
-		padding-left: calc(var(--spacing-base) * 3);
-		padding-right: calc(var(--spacing-base) * 3);
+		padding-inline: calc(var(--spacing-base) * 3);
 	}
 }
 
