@@ -149,22 +149,20 @@ Creates a webpack `devServer` configuration for Hot Module Replacement (HMR). Re
 // webpack.config.js
 module.exports = {
 	devServer: jetpackWebpackConfig.DevServer( {
-		port: 8001, // Required: use a unique port for each package
 		static: { directory: path.resolve( './build' ) },
 	} ),
 };
-
-// package.json: add "dev": "webpack serve" script
 ```
 
 Options:
-- `port`: **Required**. Use a unique port for each package to avoid conflicts when running multiple dev servers.
-- `host`: 'localhost' (or `JETPACK_WEBPACK_DEV_SERVER_HOST` env var)
 - `hot`: true
 - `liveReload`: false
 - `writeToDisk`: true (for PHP compatibility)
 
-For multi-config arrays, only add `devServer` to one config to avoid port conflicts.
+The following environment variables may be set to configure the dev server at runtime:
+- `JETPACK_WEBPACK_DEV_SERVER_HOST`: Host to listen on. Default 'localhost'.
+- `JETPACK_WEBPACK_DEV_SERVER_PORT`: Port to listen on. Default is 'auto', which will have webpack-dev-server select a free port.
+- `JETPACK_WEBPACK_DEV_SERVER_CLIENT_URL`: String for [`devServer.client.webSocketURL`](https://webpack.js.org/configuration/dev-server/#websocketurl), in case you are proxying the dev server.
 
 #### Plugins
 

@@ -1,9 +1,4 @@
 /**
- * Default host for the dev server. Can be overridden via JETPACK_WEBPACK_DEV_SERVER_HOST env var.
- */
-const defaultHost = process.env.JETPACK_WEBPACK_DEV_SERVER_HOST || 'localhost';
-
-/**
  * Creates a dev server configuration object.
  *
  * Returns undefined when not running `webpack serve` (i.e., when WEBPACK_SERVE !== 'true'),
@@ -17,23 +12,13 @@ const DevServer = ( options = {} ) => {
 		return undefined;
 	}
 
-	if ( ! options.port ) {
-		// Enforce specifying a port to avoid confusion
-		// when multiple configs run dev servers simultaneously.
-		throw new Error(
-			'DevServer configuration requires a port to be specified. Please ensure the port is not used by any other package/plugin.'
-		);
-	}
-
-	const port = options.port;
-	const host = options.host ?? defaultHost;
 	const hot = options.hot ?? true;
 	const liveReload = options.liveReload ?? false;
 	const writeToDisk = options.writeToDisk ?? true;
 
 	return {
-		port,
-		host,
+		host: process.env.JETPACK_WEBPACK_DEV_SERVER_HOST || 'localhost',
+		port: process.env.JETPACK_WEBPACK_DEV_SERVER_PORT || 'auto',
 		hot,
 		liveReload,
 		allowedHosts: 'all',
@@ -47,8 +32,7 @@ const DevServer = ( options = {} ) => {
 			writeToDisk,
 		},
 		client: {
-			// Explicit WebSocket URL so HMR works when WordPress runs on a different host
-			webSocketURL: `ws://${ host }:${ port }/ws`,
+			webSocketURL: process.env.JETPACK_WEBPACK_DEV_SERVER_CLIENT_URL,
 			overlay: {
 				errors: true,
 				warnings: false,

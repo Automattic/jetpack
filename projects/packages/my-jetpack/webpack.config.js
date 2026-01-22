@@ -73,7 +73,6 @@ module.exports = [
 			} ),
 		},
 		devServer: jetpackWebpackConfig.DevServer( {
-			port: 8001,
 			static: { directory: path.resolve( './build' ) },
 		} ),
 	},
