@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
+import BlockThemeNotice from 'components/block-theme-notice';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -11,6 +12,9 @@ export const Likes = withModuleSettingsFormHelpers(
 		render() {
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'likes' );
 			const isActive = this.props.getOptionValue( 'likes' );
+			const isBlockTheme = this.props.isBlockTheme;
+			const hasLikeBlock = this.props.hasLikeBlock;
+			const shouldShowLikeBlock = isBlockTheme && hasLikeBlock;
 
 			return (
 				<SettingsCard
@@ -47,6 +51,9 @@ export const Likes = withModuleSettingsFormHelpers(
 								{ __( 'Add Like buttons to your posts and pages', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
+						{ shouldShowLikeBlock && (
+							<BlockThemeNotice isModuleActive={ isActive } supportLink="jetpack-support-likes" />
+						) }
 					</SettingsGroup>
 				</SettingsCard>
 			);
