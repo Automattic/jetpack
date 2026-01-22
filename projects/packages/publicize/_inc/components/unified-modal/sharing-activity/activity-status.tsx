@@ -31,6 +31,7 @@ export function ActivityStatus( { item }: ActivityStatusProps ) {
 				icon={ info }
 				label={ __( 'Details', 'jetpack-publicize-pkg' ) }
 				showTooltip={ false }
+				isDestructive
 				variant="tertiary"
 			/>
 		),
