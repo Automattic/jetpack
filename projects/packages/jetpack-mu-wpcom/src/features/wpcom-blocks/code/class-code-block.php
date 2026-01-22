@@ -41,10 +41,28 @@ abstract class Code_Block {
 	}
 
 	/**
+	 * Check if the build assets required for the code block are available.
+	 *
+	 * @return bool
+	 */
+	private static function assets_available(): bool {
+		static $result = null;
+		if ( null === $result ) {
+			$result =
+				is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php' ) &&
+				is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php' );
+		}
+		return $result;
+	}
+
+	/**
 	 * Set up the block.
 	 */
 	public static function setup() {
-		if ( ! self::should_load_block() ) {
+		if (
+			! self::should_load_block() ||
+			! self::assets_available()
+		) {
 			return;
 		}
 
