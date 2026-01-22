@@ -11,6 +11,7 @@ import {
 	type DashboardSearchParamsTuple,
 	type SetDashboardSearchParams,
 } from './dashboard-search-params-context';
+import { isExternalAdminContext, DASHBOARD_URL_CHANGE_EVENT } from './utils';
 /**
  * Types
  */
@@ -25,16 +26,6 @@ type Props = PropsWithChildren< {
 	 */
 	from: string;
 } >;
-
-/**
- * Check if we're in an external admin context (e.g., params embedded in ?p= parameter).
- *
- * @return True if in external admin context.
- */
-function isExternalAdminContext(): boolean {
-	const url = new URL( window.location.href );
-	return url.searchParams.has( 'p' );
-}
 
 /**
  * Parse search params from the URL for external admin contexts.
@@ -185,8 +176,13 @@ function ExternalAdminSearchParamsProvider( {
 			setSearchParamsState( parseExternalAdminSearchParams() );
 		}
 
+		// Listen for both browser navigation and custom dashboard URL changes
 		window.addEventListener( 'popstate', handleUrlChange );
-		return () => window.removeEventListener( 'popstate', handleUrlChange );
+		window.addEventListener( DASHBOARD_URL_CHANGE_EVENT, handleUrlChange );
+		return () => {
+			window.removeEventListener( 'popstate', handleUrlChange );
+			window.removeEventListener( DASHBOARD_URL_CHANGE_EVENT, handleUrlChange );
+		};
 	}, [] );
 
 	const setSearchParams: SetDashboardSearchParams = useCallback(
@@ -219,8 +215,8 @@ function ExternalAdminSearchParamsProvider( {
 
 			window.history.pushState( {}, '', url.toString() );
 			setSearchParamsState( resolved );
-			// Dispatch popstate event so other provider instances can update
-			window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+			// Dispatch custom event so other provider instances can update
+			window.dispatchEvent( new CustomEvent( DASHBOARD_URL_CHANGE_EVENT ) );
 		},
 		[ searchParams ]
 	);

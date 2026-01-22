@@ -35,6 +35,7 @@ import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 import { getPath } from '../../src/dashboard/inbox/utils';
 import { useDashboardSearchParams } from '../../src/dashboard/router/dashboard-search-params-context';
+import { isExternalAdminContext, getViewFromUrl } from '../../src/dashboard/router/utils';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
@@ -46,42 +47,6 @@ import type { SelectActions, DispatchActions } from '../../src/dashboard/inbox/s
 import type { FormResponse } from '../../src/types/index.ts';
 import type { StoreDescriptor } from '@wordpress/data';
 import type { View, Field } from '@wordpress/dataviews';
-
-/**
- * Pattern to extract view from URL pathname.
- */
-const VIEW_PATTERN = /(?:\/responses\/|\/marketing\/forms\/|\/forms\/)([^/?#]+)/;
-
-/**
- * Get effective pathname, checking for external admin ?p= parameter.
- *
- * @return The effective pathname.
- */
-function getEffectivePathname(): string {
-	const url = new URL( window.location.href );
-	return url.searchParams.get( 'p' ) || url.pathname;
-}
-
-/**
- * Extract view parameter from URL pathname.
- *
- * @return The view parameter (inbox, spam, or trash).
- */
-function getViewFromUrl(): string {
-	const pathname = getEffectivePathname();
-	const match = pathname.match( VIEW_PATTERN );
-	return match?.[ 1 ] || 'inbox';
-}
-
-/**
- * Check if we're in an external admin context.
- *
- * @return True if in external admin context.
- */
-function isExternalAdminContext(): boolean {
-	const url = new URL( window.location.href );
-	return url.searchParams.has( 'p' );
-}
 
 type FeedbackFilterDate = {
 	month: number;
@@ -175,11 +140,12 @@ const DEFAULT_VIEW: View = {
 /**
  * Get item ID as string.
  *
- * @param {object} item - The item object.
- * @return {string} The item ID as a string.
+ * @param item    - The item object.
+ * @param item.id - The item ID.
+ * @return The item ID as a string.
  */
-function getItemId( item: unknown ): string {
-	return ( item as { id: number | string } )?.id?.toString() ?? '';
+function getItemId( item: { id: number | string } ): string {
+	return item.id.toString();
 }
 
 /**
@@ -258,12 +224,16 @@ function StageContent() {
 
 	const selection = searchParams.getAll( 'responseIds' );
 
+	// Sync search param from URL to view state when URL changes.
+	// Intentionally excludes view.search to prevent infinite loop:
+	// URL changes -> update view.search -> triggers effect -> would update URL
 	useEffect( () => {
 		const urlSearch = searchParams.get( 'search' ) || '';
 		if ( urlSearch !== view.search ) {
 			setView( prev => ( { ...prev, search: urlSearch } ) );
 		}
-	}, [ searchParams ] ); // eslint-disable-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- view.search excluded to prevent sync loop
+	}, [ searchParams ] );
 
 	const onChangeView = useCallback(
 		( newView: View ) => {
