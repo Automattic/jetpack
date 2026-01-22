@@ -176,6 +176,10 @@ class Agents_Manager {
 			add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
 		}
 
+		if ( ! $this->should_enqueue_script() ) {
+			return;
+		}
+
 		/**
 		 * Filter to register agent provider modules for the Agents Manager.
 		 *
@@ -196,10 +200,6 @@ class Agents_Manager {
 		 * @param bool $use_unified_experience Whether to use unified experience. Default false.
 		 */
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
-
-		if ( ! $this->should_enqueue_script() ) {
-			return;
-		}
 
 		if ( $this->is_block_editor() ) {
 			$variant = 'gutenberg';
