@@ -1,13 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
+import BlockThemeNotice from 'components/block-theme-notice';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
-import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
@@ -30,7 +28,6 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 
 			const shouldShowSharingBlock = isBlockTheme && hasSharingBlock;
 
-			const sharingBlockSupporUrl = getRedirectUrl( 'jetpack-support-sharing-block' );
 			const sharingModuleSupportUrl = getRedirectUrl( 'jetpack-support-sharing' );
 
 			/**
@@ -87,38 +84,15 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 					return toggle;
 				}
 
-				const featureDescription = isActive
-					? createInterpolateElement(
-							__(
-								'You are using a block-based theme. We recommend that you disable the legacy sharing feature above and add a sharing button block to your themes’s template instead. <a>Discover how</a>.',
-								'jetpack'
-							),
-							{
-								a: <ExternalLink href={ sharingBlockSupporUrl } />,
-							}
-					  )
-					: createInterpolateElement(
-							__(
-								'You are using a block-based theme. Instead of enabling Jetpack’s legacy sharing buttons above, we would recommend that you add a sharing button block to your themes’s template in the site editor instead. <a>Discover how</a>.',
-								'jetpack'
-							),
-							{
-								a: <ExternalLink href={ sharingBlockSupporUrl } />,
-							}
-					  );
-
 				// If the sharing block is available,
 				// Let's suggest the sharing block as an alternative.
 				return (
 					<>
 						{ toggle }
-						<SimpleNotice
-							showDismiss={ false }
-							status={ 'is-info' }
-							className="jp-settings-sharing__block-theme-description"
-						>
-							{ featureDescription }
-						</SimpleNotice>
+						<BlockThemeNotice
+							isModuleActive={ isActive }
+							supportLink="jetpack-support-sharing-block"
+						/>
 					</>
 				);
 			};
@@ -138,7 +112,9 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 								'You can customize the sharing buttons and choose which services to display.',
 								'jetpack'
 							),
-							link: shouldShowSharingBlock ? sharingBlockSupporUrl : sharingModuleSupportUrl,
+							link: shouldShowSharingBlock
+								? getRedirectUrl( 'jetpack-support-sharing-block' )
+								: sharingModuleSupportUrl,
 						} }
 					>
 						<p>
