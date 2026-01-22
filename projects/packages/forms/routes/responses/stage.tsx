@@ -18,7 +18,6 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { download, plus, Icon, globe } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
@@ -35,7 +34,8 @@ import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 import { getPath } from '../../src/dashboard/inbox/utils';
-import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
+import { useDashboardSearchParams } from '../../src/dashboard/router/dashboard-search-params-context';
+import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
@@ -46,6 +46,42 @@ import type { SelectActions, DispatchActions } from '../../src/dashboard/inbox/s
 import type { FormResponse } from '../../src/types/index.ts';
 import type { StoreDescriptor } from '@wordpress/data';
 import type { View, Field } from '@wordpress/dataviews';
+
+/**
+ * Pattern to extract view from URL pathname.
+ */
+const VIEW_PATTERN = /(?:\/responses\/|\/marketing\/forms\/|\/forms\/)([^/?#]+)/;
+
+/**
+ * Get effective pathname, checking for external admin ?p= parameter.
+ *
+ * @return The effective pathname.
+ */
+function getEffectivePathname(): string {
+	const url = new URL( window.location.href );
+	return url.searchParams.get( 'p' ) || url.pathname;
+}
+
+/**
+ * Extract view parameter from URL pathname.
+ *
+ * @return The view parameter (inbox, spam, or trash).
+ */
+function getViewFromUrl(): string {
+	const pathname = getEffectivePathname();
+	const match = pathname.match( VIEW_PATTERN );
+	return match?.[ 1 ] || 'inbox';
+}
+
+/**
+ * Check if we're in an external admin context.
+ *
+ * @return True if in external admin context.
+ */
+function isExternalAdminContext(): boolean {
+	const url = new URL( window.location.href );
+	return url.searchParams.has( 'p' );
+}
 
 type FeedbackFilterDate = {
 	month: number;
@@ -176,14 +212,15 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
 }
 
 /**
- * Stage component for the form responses DataViews.
+ * Inner stage component that uses the search params context.
  *
- * @return The stage component.
+ * @return The stage content.
  */
-function Stage() {
-	const params = useParams( { from: '/responses/$view' } );
-	const searchParams = useSearch( { from: '/responses/$view' } );
-	const navigate = useNavigate();
+function StageContent() {
+	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
+	const currentView = getViewFromUrl();
+	const isExternal = isExternalAdminContext();
+
 	const counts = useSelect(
 		select => ( select( dashboardStore ) as SelectActions ).getCounts(),
 		[]
@@ -195,9 +232,9 @@ function Stage() {
 	) as unknown as DispatchActions;
 	const filterOptions = useFilterOptions();
 	let status = 'publish';
-	if ( params.view === 'spam' ) {
+	if ( currentView === 'spam' ) {
 		status = 'spam';
-	} else if ( params.view === 'trash' ) {
+	} else if ( currentView === 'trash' ) {
 		status = 'trash';
 	}
 
@@ -216,44 +253,47 @@ function Stage() {
 
 	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
-		search: searchParams?.search || '',
+		search: searchParams.get( 'search' ) || '',
 	} ) );
 
-	const selection = searchParams?.responseIds ?? [];
+	const selection = searchParams.getAll( 'responseIds' );
 
 	useEffect( () => {
-		const urlSearch = searchParams?.search || '';
+		const urlSearch = searchParams.get( 'search' ) || '';
 		if ( urlSearch !== view.search ) {
 			setView( prev => ( { ...prev, search: urlSearch } ) );
 		}
-	}, [ searchParams?.search ] ); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [ searchParams ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onChangeView = useCallback(
 		( newView: View ) => {
 			setView( newView );
 
 			if ( newView.search !== view.search ) {
-				navigate( {
-					search: {
-						...searchParams,
-						search: newView.search || undefined,
-					},
-				} );
+				const nextParams = new URLSearchParams( searchParams );
+				if ( newView.search ) {
+					nextParams.set( 'search', newView.search );
+				} else {
+					nextParams.delete( 'search' );
+				}
+				setSearchParams( nextParams );
 			}
 		},
-		[ navigate, searchParams, view.search ]
+		[ searchParams, setSearchParams, view.search ]
 	);
 
 	const onChangeSelection = useCallback(
 		items => {
-			navigate( {
-				search: {
-					...searchParams,
-					responseIds: items.length > 0 ? items : undefined,
-				},
-			} );
+			const nextParams = new URLSearchParams( searchParams );
+			nextParams.delete( 'responseIds' );
+			if ( items.length > 0 ) {
+				for ( const item of items ) {
+					nextParams.append( 'responseIds', String( item ) );
+				}
+			}
+			setSearchParams( nextParams );
 		},
-		[ searchParams, navigate ]
+		[ searchParams, setSearchParams ]
 	);
 
 	const queryParams = useMemo( () => {
@@ -434,13 +474,10 @@ function Stage() {
 	}, [ invalidateResolution, queryParams ] );
 
 	const clearSelection = useCallback( () => {
-		navigate( {
-			search: {
-				...searchParams,
-				responseIds: undefined,
-			},
-		} );
-	}, [ navigate, searchParams ] );
+		const nextParams = new URLSearchParams( searchParams );
+		nextParams.delete( 'responseIds' );
+		setSearchParams( nextParams );
+	}, [ searchParams, setSearchParams ] );
 
 	const handleMarkAsSpam = useCallback(
 		async items => {
@@ -846,17 +883,17 @@ function Stage() {
 				isPrimary: true,
 				callback: items => {
 					const ids = items.map( item => getItemId( item ) );
-					navigate( {
-						search: {
-							...searchParams,
-							responseIds: ids,
-						},
-					} );
+					const nextParams = new URLSearchParams( searchParams );
+					nextParams.delete( 'responseIds' );
+					for ( const id of ids ) {
+						nextParams.append( 'responseIds', String( id ) );
+					}
+					setSearchParams( nextParams );
 				},
 			},
 		];
 
-		if ( params.view === 'inbox' || ! params.view ) {
+		if ( currentView === 'inbox' || ! currentView ) {
 			return [
 				...baseActions,
 				{
@@ -892,7 +929,7 @@ function Stage() {
 			];
 		}
 
-		if ( params.view === 'spam' ) {
+		if ( currentView === 'spam' ) {
 			return [
 				...baseActions,
 				{
@@ -913,7 +950,7 @@ function Stage() {
 			];
 		}
 
-		if ( params.view === 'trash' ) {
+		if ( currentView === 'trash' ) {
 			return [
 				...baseActions,
 				{
@@ -936,9 +973,9 @@ function Stage() {
 
 		return baseActions;
 	}, [
-		navigate,
 		searchParams,
-		params.view,
+		setSearchParams,
+		currentView,
 		handleMarkAsRead,
 		handleMarkAsUnread,
 		handleMarkAsSpam,
@@ -964,12 +1001,26 @@ function Stage() {
 
 	const handleTabChange = useCallback(
 		newView => {
-			navigate( {
-				to: '/responses/$view',
-				params: { view: newView },
-			} );
+			if ( isExternal ) {
+				// In external admin, update URL via history API
+				const url = new URL( window.location.href );
+				const pValue = url.searchParams.get( 'p' );
+				if ( pValue ) {
+					// Update path inside the p parameter
+					const pUrl = new URL( pValue, window.location.origin );
+					const newPath = pUrl.pathname.replace( /\/[^/?#]+$/, `/${ newView }` );
+					url.searchParams.set( 'p', newPath + pUrl.search );
+					window.history.pushState( {}, '', url.toString() );
+					window.location.reload();
+				}
+			} else {
+				// Standard wp-route navigation - need to use window.location for now
+				// since we don't have access to the navigate function in external context
+				const basePath = getPath();
+				window.location.href = `${ basePath }/${ newView }`;
+			}
 		},
-		[ navigate ]
+		[ isExternal ]
 	);
 
 	const { openNewForm } = useCreateForm();
@@ -991,7 +1042,7 @@ function Stage() {
 
 		// Show integrations button on inbox when feature flags are enabled
 		if (
-			( params.view === 'inbox' || ! params.view ) &&
+			( currentView === 'inbox' || ! currentView ) &&
 			isIntegrationsEnabled &&
 			showDashboardIntegrations
 		) {
@@ -1007,7 +1058,7 @@ function Stage() {
 			);
 		}
 
-		if ( params.view === 'inbox' || ! params.view ) {
+		if ( currentView === 'inbox' || ! currentView ) {
 			actionsArray.push(
 				<Button
 					key="create"
@@ -1024,7 +1075,7 @@ function Stage() {
 		actionsArray.push(
 			<Button
 				key="export"
-				variant={ params.view === 'inbox' ? 'primary' : 'secondary' }
+				variant={ currentView === 'inbox' ? 'primary' : 'secondary' }
 				size="compact"
 				icon={ download }
 			>
@@ -1032,17 +1083,17 @@ function Stage() {
 			</Button>
 		);
 
-		if ( params.view === 'trash' ) {
+		if ( currentView === 'trash' ) {
 			actionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		}
 
-		if ( params.view === 'spam' ) {
+		if ( currentView === 'spam' ) {
 			actionsArray.push( <EmptySpamButton key="empty-spam" /> );
 		}
 
 		return actionsArray;
 	}, [
-		params.view,
+		currentView,
 		handleIntegrations,
 		handleCreateForm,
 		isIntegrationsEnabled,
@@ -1053,79 +1104,88 @@ function Stage() {
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
 	return (
-		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
-			<Page
-				showSidebarToggle={ false }
-				title={
-					<Stack align="center" gap="xs">
-						<JetpackLogo showText={ false } width={ 20 } />
-						{ __( 'Forms', 'jetpack-forms' ) }
-					</Stack>
+		<Page
+			showSidebarToggle={ false }
+			title={
+				<Stack align="center" gap="xs">
+					<JetpackLogo showText={ false } width={ 20 } />
+					{ __( 'Forms', 'jetpack-forms' ) }
+				</Stack>
+			}
+			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
+			actions={ headerActions }
+			hasPadding={ false }
+		>
+			<DataViews
+				empty={
+					<EmptyResponses
+						status={ currentView }
+						isSearch={ !! view.search }
+						readStatusFilter={ readStatusFilter }
+					/>
 				}
-				subTitle={ __(
-					'View and manage all your form submissions in one place.',
-					'jetpack-forms'
-				) }
-				actions={ headerActions }
-				hasPadding={ false }
+				data={ records || EMPTY_ARRAY }
+				fields={ fields as Field< unknown >[] }
+				view={ view }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				isLoading={ isResolving }
+				getItemId={ getItemId }
+				defaultLayouts={ defaultLayouts }
+				selection={ selection }
+				onChangeSelection={ onChangeSelection }
+				actions={ actions }
 			>
-				<DataViews
-					empty={
-						<EmptyResponses
-							status={ params.view }
-							isSearch={ !! view.search }
-							readStatusFilter={ readStatusFilter }
-						/>
-					}
-					data={ records || EMPTY_ARRAY }
-					fields={ fields as Field< unknown >[] }
-					view={ view }
-					onChangeView={ onChangeView }
-					paginationInfo={ paginationInfo }
-					isLoading={ isResolving }
-					getItemId={ getItemId }
-					defaultLayouts={ defaultLayouts }
-					selection={ selection }
-					onChangeSelection={ onChangeSelection }
-					actions={ actions }
+				<Stack
+					align="center"
+					className="jp-forms-dataviews__view-actions"
+					gap="sm"
+					justify="space-between"
 				>
-					<Stack
-						align="center"
-						className="jp-forms-dataviews__view-actions"
-						gap="sm"
-						justify="space-between"
-					>
-						<Stack align="center" gap="sm">
-							<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
-								<Tabs.List density="compact">
-									{ statusTabs.map( tab => (
-										<Tabs.Tab value={ tab.slug } key={ tab.slug }>
-											{ tab.label }
-										</Tabs.Tab>
-									) ) }
-								</Tabs.List>
-							</Tabs.Root>
-						</Stack>
-						<Stack align="center" gap="sm">
-							<DataViews.Search />
-							<DataViews.FiltersToggle />
-							<DataViews.ViewConfig />
-						</Stack>
+					<Stack align="center" gap="sm">
+						<Tabs.Root value={ currentView || 'inbox' } onValueChange={ handleTabChange }>
+							<Tabs.List density="compact">
+								{ statusTabs.map( tab => (
+									<Tabs.Tab value={ tab.slug } key={ tab.slug }>
+										{ tab.label }
+									</Tabs.Tab>
+								) ) }
+							</Tabs.List>
+						</Tabs.Root>
 					</Stack>
-					<DataViews.Filters className="dataviews-filters__container" />
-					<DataViews.Layout />
-					<DataViews.Footer />
-				</DataViews>
-				<IntegrationsModal
-					isOpen={ isIntegrationsModalOpen }
-					onClose={ closeIntegrationsModal }
-					attributes={ undefined }
-					setAttributes={ undefined }
-					integrationsData={ integrations }
-					refreshIntegrations={ refreshIntegrations }
-					context="dashboard"
-				/>
-			</Page>
+					<Stack align="center" gap="sm">
+						<DataViews.Search />
+						<DataViews.FiltersToggle />
+						<DataViews.ViewConfig />
+					</Stack>
+				</Stack>
+				<DataViews.Filters className="dataviews-filters__container" />
+				<DataViews.Layout />
+				<DataViews.Footer />
+			</DataViews>
+			<IntegrationsModal
+				isOpen={ isIntegrationsModalOpen }
+				onClose={ closeIntegrationsModal }
+				attributes={ undefined }
+				setAttributes={ undefined }
+				integrationsData={ integrations }
+				refreshIntegrations={ refreshIntegrations }
+				context="dashboard"
+			/>
+		</Page>
+	);
+}
+
+/**
+ * Stage component for the form responses DataViews.
+ * Wraps content with the search params provider for router compatibility.
+ *
+ * @return The stage component.
+ */
+function Stage() {
+	return (
+		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
+			<StageContent />
 		</WpRouteDashboardSearchParamsProvider>
 	);
 }

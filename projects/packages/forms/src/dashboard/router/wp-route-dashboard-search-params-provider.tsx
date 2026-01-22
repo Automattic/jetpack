@@ -163,40 +163,85 @@ function urlSearchParamsToSearchRecord(
 }
 
 /**
- * Provider for the dashboard search params.
+ * Provider for external admin contexts (no router hooks).
+ * Uses direct URL parsing and history API for navigation.
+ *
+ * @param props          - Props.
+ * @param props.children - Children.
+ * @return               - JSX element.
+ */
+function ExternalAdminSearchParamsProvider( {
+	children,
+}: {
+	children: React.ReactNode;
+} ): JSX.Element {
+	const [ searchParams, setSearchParamsState ] = useState( parseExternalAdminSearchParams );
+
+	useEffect( () => {
+		/**
+		 * Updates params state when URL changes via browser navigation.
+		 */
+		function handleUrlChange() {
+			setSearchParamsState( parseExternalAdminSearchParams() );
+		}
+
+		window.addEventListener( 'popstate', handleUrlChange );
+		return () => window.removeEventListener( 'popstate', handleUrlChange );
+	}, [] );
+
+	const setSearchParams: SetDashboardSearchParams = useCallback(
+		next => {
+			const resolved = typeof next === 'function' ? next( searchParams ) : next;
+
+			// Update URL via history API
+			const url = new URL( window.location.href );
+			const pValue = url.searchParams.get( 'p' );
+
+			if ( pValue ) {
+				// Update params inside the p parameter
+				const pUrl = new URL( pValue, window.location.origin );
+				// Clear existing params we manage
+				pUrl.searchParams.delete( 'responseIds' );
+				pUrl.searchParams.delete( 'search' );
+				// Set new params
+				for ( const [ key, value ] of resolved.entries() ) {
+					pUrl.searchParams.append( key, value );
+				}
+				url.searchParams.set( 'p', pUrl.pathname + pUrl.search );
+			} else {
+				// Update direct URL params
+				url.searchParams.delete( 'responseIds' );
+				url.searchParams.delete( 'search' );
+				for ( const [ key, value ] of resolved.entries() ) {
+					url.searchParams.append( key, value );
+				}
+			}
+
+			window.history.pushState( {}, '', url.toString() );
+			setSearchParamsState( resolved );
+		},
+		[ searchParams ]
+	);
+
+	const value = useMemo(
+		() => [ searchParams, setSearchParams ] as DashboardSearchParamsTuple,
+		[ searchParams, setSearchParams ]
+	);
+
+	return (
+		<DashboardSearchParamsProvider value={ value }>{ children }</DashboardSearchParamsProvider>
+	);
+}
+
+/**
+ * Provider for standard wp-route contexts (uses router hooks).
  *
  * @param props          - Props.
  * @param props.from     - Route id to bind `useSearch` / `useNavigate` to.
  * @param props.children - Children.
  * @return               - JSX element.
  */
-export default function WpRouteDashboardSearchParamsProvider( {
-	from,
-	children,
-}: Props ): JSX.Element {
-	const isExternal = isExternalAdminContext();
-
-	// For external admin contexts, use URL-based parsing with popstate listener
-	const [ externalParams, setExternalParams ] = useState( () =>
-		isExternal ? parseExternalAdminSearchParams() : new URLSearchParams()
-	);
-
-	useEffect( () => {
-		if ( ! isExternal ) {
-			return;
-		}
-
-		/**
-		 * Updates params state when URL changes via browser navigation.
-		 */
-		function handleUrlChange() {
-			setExternalParams( parseExternalAdminSearchParams() );
-		}
-
-		window.addEventListener( 'popstate', handleUrlChange );
-		return () => window.removeEventListener( 'popstate', handleUrlChange );
-	}, [ isExternal ] );
-
+function WpRouteSearchParamsProvider( { from, children }: Props ): JSX.Element {
 	// `useSearch()` re-renders when the router search changes. We'll adapt it to URLSearchParams
 	// so shared dashboard code can keep using the URLSearchParams API.
 	const search = useSearch( {
@@ -206,45 +251,11 @@ export default function WpRouteDashboardSearchParamsProvider( {
 		strict: false,
 	} );
 	const navigate = useNavigate();
-	const routerParams = useMemo( () => searchRecordToUrlSearchParams( search ), [ search ] );
-
-	// Use external params if in external admin context, otherwise use router params
-	const searchParams = isExternal ? externalParams : routerParams;
+	const searchParams = useMemo( () => searchRecordToUrlSearchParams( search ), [ search ] );
 
 	const setSearchParams: SetDashboardSearchParams = useCallback(
 		next => {
 			const resolved = typeof next === 'function' ? next( searchParams ) : next;
-
-			if ( isExternal ) {
-				// In external admin context, update URL directly via history API
-				const url = new URL( window.location.href );
-				const pValue = url.searchParams.get( 'p' );
-
-				if ( pValue ) {
-					// Update params inside the p parameter
-					const pUrl = new URL( pValue, window.location.origin );
-					// Clear existing params we manage
-					pUrl.searchParams.delete( 'responseIds' );
-					pUrl.searchParams.delete( 'search' );
-					// Set new params
-					for ( const [ key, value ] of resolved.entries() ) {
-						pUrl.searchParams.append( key, value );
-					}
-					url.searchParams.set( 'p', pUrl.pathname + pUrl.search );
-				} else {
-					// Update direct URL params
-					url.searchParams.delete( 'responseIds' );
-					url.searchParams.delete( 'search' );
-					for ( const [ key, value ] of resolved.entries() ) {
-						url.searchParams.append( key, value );
-					}
-				}
-
-				window.history.pushState( {}, '', url.toString() );
-				setExternalParams( resolved );
-				return;
-			}
-
 			const nextSearch = urlSearchParamsToSearchRecord( resolved, {
 				arrayKeys: new Set( [ 'responseIds' ] ),
 			} );
@@ -259,7 +270,7 @@ export default function WpRouteDashboardSearchParamsProvider( {
 
 			navigate( { search: replaceSearch } );
 		},
-		[ isExternal, navigate, searchParams ]
+		[ navigate, searchParams ]
 	);
 
 	const value = useMemo(
@@ -270,4 +281,27 @@ export default function WpRouteDashboardSearchParamsProvider( {
 	return (
 		<DashboardSearchParamsProvider value={ value }>{ children }</DashboardSearchParamsProvider>
 	);
+}
+
+/**
+ * Provider for the dashboard search params.
+ * Automatically detects context and uses appropriate implementation.
+ *
+ * @param props          - Props.
+ * @param props.from     - Route id to bind `useSearch` / `useNavigate` to.
+ * @param props.children - Children.
+ * @return               - JSX element.
+ */
+export default function WpRouteDashboardSearchParamsProvider( {
+	from,
+	children,
+}: Props ): JSX.Element {
+	// Check context once at mount - this determines which provider to use
+	const [ isExternal ] = useState( isExternalAdminContext );
+
+	if ( isExternal ) {
+		return <ExternalAdminSearchParamsProvider>{ children }</ExternalAdminSearchParamsProvider>;
+	}
+
+	return <WpRouteSearchParamsProvider from={ from }>{ children }</WpRouteSearchParamsProvider>;
 }
