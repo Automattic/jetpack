@@ -1,7 +1,6 @@
 @use "../mixins";
 
 /* Protect Product Page Styles */
-
 .product-interstitial__product-header {
 
 	@include mixins.product-header;
