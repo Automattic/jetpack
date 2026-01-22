@@ -287,9 +287,8 @@ function StageContent() {
 			const nextParams = new URLSearchParams( searchParams );
 			nextParams.delete( 'responseIds' );
 			if ( items.length > 0 ) {
-				for ( const item of items ) {
-					nextParams.append( 'responseIds', String( item ) );
-				}
+				// Use JSON array format to match TanStack Router expectations
+				nextParams.set( 'responseIds', JSON.stringify( items.map( String ) ) );
 			}
 			setSearchParams( nextParams );
 		},

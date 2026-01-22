@@ -219,6 +219,8 @@ function ExternalAdminSearchParamsProvider( {
 
 			window.history.pushState( {}, '', url.toString() );
 			setSearchParamsState( resolved );
+			// Dispatch popstate event so other provider instances can update
+			window.dispatchEvent( new PopStateEvent( 'popstate' ) );
 		},
 		[ searchParams ]
 	);
