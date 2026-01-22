@@ -170,7 +170,7 @@ describe( 'EmptySpamButton', () => {
 		} );
 	} );
 
-	const renderWithProvider = ( component ) => {
+	const renderWithProvider = component => {
 		return render(
 			<DashboardSearchParamsProvider value={ [ mockSearchParams, mockSetSearchParams ] }>
 				{ component }
