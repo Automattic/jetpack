@@ -18,7 +18,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { download, plus, Icon, globe } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { useParams, useSearch, useNavigate } from '@wordpress/route';
+import { useNavigate } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
@@ -36,6 +36,7 @@ import { getPath } from '../../src/dashboard/inbox/utils';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
+import { useSearchParams, useViewParam, viewToStatus } from './url-params';
 /**
  * Types
  */
@@ -177,9 +178,11 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
  * @return The stage component.
  */
 function Stage() {
-	const params = useParams( { from: '/responses/$view' } );
-	const searchParams = useSearch( { from: '/responses/$view' } );
+	const currentView = useViewParam();
+	const searchParams = useSearchParams();
 	const navigate = useNavigate();
+	// Create a params-like object for backward compatibility
+	const params = useMemo( () => ( { view: currentView } ), [ currentView ] );
 	const counts = useSelect(
 		select => ( select( dashboardStore ) as SelectActions ).getCounts(),
 		[]
@@ -188,12 +191,7 @@ function Stage() {
 		dashboardStore
 	) as DispatchActions;
 	const filterOptions = useFilterOptions();
-	let status = 'publish';
-	if ( params.view === 'spam' ) {
-		status = 'spam';
-	} else if ( params.view === 'trash' ) {
-		status = 'trash';
-	}
+	const status = viewToStatus( currentView );
 
 	const { saveEntityRecord, deleteEntityRecord, invalidateResolution, editEntityRecord } =
 		useDispatch( coreStore ) as unknown as DispatchActions;

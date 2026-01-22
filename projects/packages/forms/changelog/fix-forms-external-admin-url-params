@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: Fix Forms dashboard URL parameter extraction to work in external admin contexts
+

@@ -25,7 +25,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useParams, useSearch, useNavigate } from '@wordpress/route';
+import { useNavigate } from '@wordpress/route';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -33,6 +33,7 @@ import * as React from 'react';
 import CopyClipboardButton from '../../../src/dashboard/components/copy-clipboard-button';
 import Flag from '../../../src/dashboard/components/flag';
 import Gravatar from '../../../src/dashboard/components/gravatar';
+import { useSearchParams, useViewParam, viewToStatus } from '../url-params';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
@@ -669,18 +670,11 @@ function SingleResponseView( {
  * @return - Element containing the inspector for responses.
  */
 export default function Inspector() {
-	const params = useParams( { from: '/responses/$view' } );
-	const searchParams = useSearch( { from: '/responses/$view' } );
+	const currentView = useViewParam();
+	const searchParams = useSearchParams();
 	const navigate = useNavigate();
 	const responseIds = searchParams?.responseIds || [];
-
-	// Determine the status based on the current view
-	let status = 'publish';
-	if ( params.view === 'spam' ) {
-		status = 'spam';
-	} else if ( params.view === 'trash' ) {
-		status = 'trash';
-	}
+	const status = viewToStatus( currentView );
 
 	// Fetch all visible records using the same query as the stage
 	// This leverages core-data's cache, so records loaded by stage are reused
