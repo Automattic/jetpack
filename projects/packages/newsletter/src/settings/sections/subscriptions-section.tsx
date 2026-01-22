@@ -10,6 +10,12 @@ import { __ } from '@wordpress/i18n';
 import { ToggleWithEditorLink } from '../components/toggle-with-link';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
+interface FieldRenderProps {
+	data: NewsletterSettings;
+	field: Field< Record< string, unknown > >;
+	onChange: ( updates: Partial< NewsletterSettings > ) => void;
+}
+
 interface SubscriptionsSectionProps {
 	data: NewsletterSettings;
 	jetpackSettings: JetpackNewsletterSettings | undefined;
@@ -57,15 +63,7 @@ export function SubscriptionsSection( {
 			label: __( 'Add the Subscribe Block at the end of each post.', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
-				? ( {
-						data: formData,
-						field,
-						onChange: fieldOnChange,
-				  }: {
-						data: NewsletterSettings;
-						field: Field< Record< string, unknown > >;
-						onChange: ( updates: Partial< NewsletterSettings > ) => void;
-				  } ) => (
+				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -83,15 +81,7 @@ export function SubscriptionsSection( {
 			label: __( 'Show subscription pop-up when scrolling a post.', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
-				? ( {
-						data: formData,
-						field,
-						onChange: fieldOnChange,
-				  }: {
-						data: NewsletterSettings;
-						field: Field< Record< string, unknown > >;
-						onChange: ( updates: Partial< NewsletterSettings > ) => void;
-				  } ) => (
+				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -109,15 +99,7 @@ export function SubscriptionsSection( {
 			label: __( 'Subscription overlay on homepage', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
-				? ( {
-						data: formData,
-						field,
-						onChange: fieldOnChange,
-				  }: {
-						data: NewsletterSettings;
-						field: Field< Record< string, unknown > >;
-						onChange: ( updates: Partial< NewsletterSettings > ) => void;
-				  } ) => (
+				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -135,15 +117,7 @@ export function SubscriptionsSection( {
 			label: __( "Floating subscribe button on site's bottom corner", 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
-				? ( {
-						data: formData,
-						field,
-						onChange: fieldOnChange,
-				  }: {
-						data: NewsletterSettings;
-						field: Field< Record< string, unknown > >;
-						onChange: ( updates: Partial< NewsletterSettings > ) => void;
-				  } ) => (
+				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -161,15 +135,7 @@ export function SubscriptionsSection( {
 			label: __( 'Add the Subscribe Block to the navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
-				? ( {
-						data: formData,
-						field,
-						onChange: fieldOnChange,
-				  }: {
-						data: NewsletterSettings;
-						field: Field< Record< string, unknown > >;
-						onChange: ( updates: Partial< NewsletterSettings > ) => void;
-				  } ) => (
+				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -187,15 +153,7 @@ export function SubscriptionsSection( {
 			label: __( 'Add the Subscriber Login Block to the navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
-				? ( {
-						data: formData,
-						field,
-						onChange: fieldOnChange,
-				  }: {
-						data: NewsletterSettings;
-						field: Field< Record< string, unknown > >;
-						onChange: ( updates: Partial< NewsletterSettings > ) => void;
-				  } ) => (
+				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
