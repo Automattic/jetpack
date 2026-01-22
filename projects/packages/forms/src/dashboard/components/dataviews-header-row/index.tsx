@@ -47,7 +47,7 @@ export default function DataViewsHeaderRow( {
 				</div>
 				<div className="jp-forms-view-actions__controls">
 					<DataViews.Search />
-					<DataViews.FiltersToggle />
+					{ isCentralFormManagementEnabled === true ? null : <DataViews.FiltersToggle /> }
 					<DataViews.ViewConfig />
 				</div>
 			</div>
