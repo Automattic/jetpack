@@ -44,7 +44,8 @@ const isEmpty = obj =>
 const formatFieldValue = fieldValue => {
 	if ( ! fieldValue || isEmpty( fieldValue ) ) {
 		return '-';
-	} else if ( Array.isArray( fieldValue ) ) {
+	}
+	if ( Array.isArray( fieldValue ) ) {
 		return fieldValue.join( ', ' );
 	}
 	return fieldValue;
