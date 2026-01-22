@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Add external admin context support to search params provider for compatibility with custom admin shells

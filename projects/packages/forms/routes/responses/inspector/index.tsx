@@ -25,7 +25,6 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -33,10 +32,38 @@ import * as React from 'react';
 import CopyClipboardButton from '../../../src/dashboard/components/copy-clipboard-button';
 import Flag from '../../../src/dashboard/components/flag';
 import Gravatar from '../../../src/dashboard/components/gravatar';
+import { useDashboardSearchParams } from '../../../src/dashboard/router/dashboard-search-params-context';
+import WpRouteDashboardSearchParamsProvider from '../../../src/dashboard/router/wp-route-dashboard-search-params-provider';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../../src/types/index.ts';
+
+/**
+ * Pattern to extract view from URL pathname.
+ */
+const VIEW_PATTERN = /(?:\/responses\/|\/marketing\/forms\/|\/forms\/)([^/?#]+)/;
+
+/**
+ * Get effective pathname, checking for external admin ?p= parameter.
+ *
+ * @return The effective pathname.
+ */
+function getEffectivePathname(): string {
+	const url = new URL( window.location.href );
+	return url.searchParams.get( 'p' ) || url.pathname;
+}
+
+/**
+ * Extract view parameter from URL pathname.
+ *
+ * @return The view parameter (inbox, spam, or trash).
+ */
+function getViewFromUrl(): string {
+	const pathname = getEffectivePathname();
+	const match = pathname.match( VIEW_PATTERN );
+	return match?.[ 1 ] || 'inbox';
+}
 
 const getDisplayName = ( response: FormResponse ) => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -664,21 +691,20 @@ function SingleResponseView( {
 }
 
 /**
- * Renders the inspector for responses.
+ * Inner inspector component that uses the search params context.
  *
  * @return - Element containing the inspector for responses.
  */
-export default function Inspector() {
-	const params = useParams( { from: '/responses/$view' } );
-	const searchParams = useSearch( { from: '/responses/$view' } );
-	const navigate = useNavigate();
-	const responseIds = searchParams?.responseIds || [];
+function InspectorContent() {
+	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
+	const view = getViewFromUrl();
+	const responseIds = searchParams.getAll( 'responseIds' );
 
 	// Determine the status based on the current view
 	let status = 'publish';
-	if ( params.view === 'spam' ) {
+	if ( view === 'spam' ) {
 		status = 'spam';
-	} else if ( params.view === 'trash' ) {
+	} else if ( view === 'trash' ) {
 		status = 'trash';
 	}
 
@@ -696,24 +722,19 @@ export default function Inspector() {
 	const allRecordIds = records?.map( record => record.id ) ?? [];
 
 	const handleClose = useCallback( () => {
-		navigate( {
-			search: {
-				...searchParams,
-				responseIds: undefined,
-			},
-		} );
-	}, [ navigate, searchParams ] );
+		const nextParams = new URLSearchParams( searchParams );
+		nextParams.delete( 'responseIds' );
+		setSearchParams( nextParams );
+	}, [ searchParams, setSearchParams ] );
 
 	const handleNavigate = useCallback(
 		( id: number ) => {
-			navigate( {
-				search: {
-					...searchParams,
-					responseIds: [ String( id ) ],
-				},
-			} );
+			const nextParams = new URLSearchParams( searchParams );
+			nextParams.delete( 'responseIds' );
+			nextParams.append( 'responseIds', String( id ) );
+			setSearchParams( nextParams );
 		},
-		[ navigate, searchParams ]
+		[ searchParams, setSearchParams ]
 	);
 
 	if ( responseIds.length !== 1 ) {
@@ -731,5 +752,19 @@ export default function Inspector() {
 				onClose={ handleClose }
 			/>
 		</Page>
+	);
+}
+
+/**
+ * Renders the inspector for responses.
+ * Wraps content with the search params provider for router compatibility.
+ *
+ * @return - Element containing the inspector for responses.
+ */
+export default function Inspector() {
+	return (
+		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
+			<InspectorContent />
+		</WpRouteDashboardSearchParamsProvider>
 	);
 }

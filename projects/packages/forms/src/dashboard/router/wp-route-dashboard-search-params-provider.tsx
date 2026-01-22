@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useSearch, useNavigate } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -25,6 +25,67 @@ type Props = PropsWithChildren< {
 	 */
 	from: string;
 } >;
+
+/**
+ * Check if we're in an external admin context (e.g., params embedded in ?p= parameter).
+ *
+ * @return True if in external admin context.
+ */
+function isExternalAdminContext(): boolean {
+	const url = new URL( window.location.href );
+	return url.searchParams.has( 'p' );
+}
+
+/**
+ * Parse search params from the URL for external admin contexts.
+ * In these contexts, params may be embedded inside the ?p= value.
+ *
+ * @return URLSearchParams parsed from the current URL.
+ */
+function parseExternalAdminSearchParams(): URLSearchParams {
+	const url = new URL( window.location.href );
+	const result = new URLSearchParams();
+
+	// First, check direct URL params
+	let rawResponseIds = url.searchParams.getAll( 'responseIds' );
+	let search = url.searchParams.get( 'search' );
+
+	// If not found, check inside the p parameter (external admin context)
+	if ( rawResponseIds.length === 0 ) {
+		const pValue = url.searchParams.get( 'p' );
+		if ( pValue && pValue.includes( '?' ) ) {
+			const pUrl = new URL( pValue, window.location.origin );
+			rawResponseIds = pUrl.searchParams.getAll( 'responseIds' );
+			if ( ! search ) {
+				search = pUrl.searchParams.get( 'search' );
+			}
+		}
+	}
+
+	// Parse responseIds, handling JSON-encoded arrays from TanStack Router
+	for ( const raw of rawResponseIds ) {
+		if ( raw.startsWith( '[' ) ) {
+			try {
+				const parsed = JSON.parse( raw );
+				if ( Array.isArray( parsed ) ) {
+					for ( const id of parsed ) {
+						result.append( 'responseIds', String( id ) );
+					}
+					continue;
+				}
+			} catch {
+				// Not valid JSON, treat as regular value
+			}
+		}
+		result.append( 'responseIds', raw );
+	}
+
+	if ( search ) {
+		result.set( 'search', search );
+	}
+
+	return result;
+}
 
 /**
  * Convert `@wordpress/route` `search` record shape into `URLSearchParams`.
@@ -113,6 +174,29 @@ export default function WpRouteDashboardSearchParamsProvider( {
 	from,
 	children,
 }: Props ): JSX.Element {
+	const isExternal = isExternalAdminContext();
+
+	// For external admin contexts, use URL-based parsing with popstate listener
+	const [ externalParams, setExternalParams ] = useState( () =>
+		isExternal ? parseExternalAdminSearchParams() : new URLSearchParams()
+	);
+
+	useEffect( () => {
+		if ( ! isExternal ) {
+			return;
+		}
+
+		/**
+		 * Updates params state when URL changes via browser navigation.
+		 */
+		function handleUrlChange() {
+			setExternalParams( parseExternalAdminSearchParams() );
+		}
+
+		window.addEventListener( 'popstate', handleUrlChange );
+		return () => window.removeEventListener( 'popstate', handleUrlChange );
+	}, [ isExternal ] );
+
 	// `useSearch()` re-renders when the router search changes. We'll adapt it to URLSearchParams
 	// so shared dashboard code can keep using the URLSearchParams API.
 	const search = useSearch( {
@@ -122,11 +206,45 @@ export default function WpRouteDashboardSearchParamsProvider( {
 		strict: false,
 	} );
 	const navigate = useNavigate();
-	const searchParams = useMemo( () => searchRecordToUrlSearchParams( search ), [ search ] );
+	const routerParams = useMemo( () => searchRecordToUrlSearchParams( search ), [ search ] );
+
+	// Use external params if in external admin context, otherwise use router params
+	const searchParams = isExternal ? externalParams : routerParams;
 
 	const setSearchParams: SetDashboardSearchParams = useCallback(
 		next => {
 			const resolved = typeof next === 'function' ? next( searchParams ) : next;
+
+			if ( isExternal ) {
+				// In external admin context, update URL directly via history API
+				const url = new URL( window.location.href );
+				const pValue = url.searchParams.get( 'p' );
+
+				if ( pValue ) {
+					// Update params inside the p parameter
+					const pUrl = new URL( pValue, window.location.origin );
+					// Clear existing params we manage
+					pUrl.searchParams.delete( 'responseIds' );
+					pUrl.searchParams.delete( 'search' );
+					// Set new params
+					for ( const [ key, value ] of resolved.entries() ) {
+						pUrl.searchParams.append( key, value );
+					}
+					url.searchParams.set( 'p', pUrl.pathname + pUrl.search );
+				} else {
+					// Update direct URL params
+					url.searchParams.delete( 'responseIds' );
+					url.searchParams.delete( 'search' );
+					for ( const [ key, value ] of resolved.entries() ) {
+						url.searchParams.append( key, value );
+					}
+				}
+
+				window.history.pushState( {}, '', url.toString() );
+				setExternalParams( resolved );
+				return;
+			}
+
 			const nextSearch = urlSearchParamsToSearchRecord( resolved, {
 				arrayKeys: new Set( [ 'responseIds' ] ),
 			} );
@@ -141,7 +259,7 @@ export default function WpRouteDashboardSearchParamsProvider( {
 
 			navigate( { search: replaceSearch } );
 		},
-		[ navigate, searchParams ]
+		[ isExternal, navigate, searchParams ]
 	);
 
 	const value = useMemo(
