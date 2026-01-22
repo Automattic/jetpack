@@ -48,20 +48,28 @@ abstract class Code_Block {
 	private static function assets_available(): bool {
 		static $result = null;
 		if ( null === $result ) {
-			$result =
-				is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php' ) &&
-				is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php' );
+			$block_definition_asset_readable = is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php' );
+			$module_asset_readable           = is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php' );
 
+			$result = $block_definition_asset_readable && $module_asset_readable;
 			if ( ! $result && \defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
 				$data = array(
 					'blog_id' => get_current_blog_id(),
 				);
 
+				$message = 'Missing build asset filtes.';
+				if ( ! $block_definition_asset_readable ) {
+					$message .= ' Block definition asset file is missing `' . Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php`.';
+				}
+				if ( ! $module_asset_readable ) {
+					$message .= ' Module asset file is missing `' . Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php`.';
+				}
+
 				log2logstash(
 					array(
 						'feature' => 'jetpack-enhanced-code-block',
-						'message' => 'Code Block assets are missing.',
+						'message' => $message,
 						'extra'   => wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
 					)
 				);
