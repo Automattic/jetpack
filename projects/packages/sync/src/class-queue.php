@@ -271,7 +271,7 @@ class Queue {
 		$items = $this->fetch_items( $limit );
 
 		if ( ! $items ) {
-			return;
+			return array();
 		}
 
 		$ids = $this->get_ids( $items );
@@ -292,7 +292,7 @@ class Queue {
 		$items = $this->fetch_items( $limit, 'DESC' );
 
 		if ( ! $items ) {
-			return;
+			return array();
 		}
 
 		$ids = $this->get_ids( $items );
