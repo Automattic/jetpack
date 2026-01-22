@@ -58,7 +58,7 @@ abstract class Code_Block {
 					'blog_id' => get_current_blog_id(),
 				);
 
-				$message = 'Missing build asset filtes.';
+				$message = 'Missing build asset files.';
 				if ( ! $block_definition_asset_readable ) {
 					$message .= ' Block definition asset file is missing `' . Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php`.';
 				}
