@@ -236,6 +236,15 @@ const setupFormEditorSubscription = () => {
 				enforceBlockNesting();
 			}
 
+			// Locate form block first (so we have the clientId for selection)
+			if ( ! formBlockClientId ) {
+				locateFormBlock();
+				// If we just found the form block, select it immediately
+				if ( formBlockClientId ) {
+					enforceBlockSelection();
+				}
+			}
+
 			// Only check selection when it changes
 			const { getSelectedBlockClientId } = select( 'core/block-editor' );
 			const currentSelectedBlockId = getSelectedBlockClientId();
@@ -254,10 +263,6 @@ const setupFormEditorSubscription = () => {
 				if ( formBlock && lock?.remove && lock?.move ) {
 					isFormBlockLocked = true;
 				}
-			}
-
-			if ( ! formBlockClientId ) {
-				locateFormBlock();
 			}
 
 			if ( ! categoriesFiltered ) {
