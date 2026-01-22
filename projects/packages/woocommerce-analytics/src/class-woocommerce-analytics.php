@@ -179,6 +179,8 @@ class Woocommerce_Analytics {
 		 *
 		 * When this filter returns false, the mu-plugin file can't be added automatically.
 		 *
+		 * @since 0.15.0
+		 *
 		 * @param bool $auto_install Whether to auto-install the mu-plugin. Default true.
 		 */
 		if ( ! apply_filters( 'woocommerce_analytics_auto_install_proxy_speed_module', true ) ) {
