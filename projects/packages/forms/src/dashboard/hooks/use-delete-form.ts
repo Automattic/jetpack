@@ -38,7 +38,6 @@ type UseDeleteFormReturn = {
 	trashForms: ( items: FormListItem[] ) => Promise< void >;
 	restoreForms: ( items: FormListItem[] ) => Promise< void >;
 	isPermanentDeleteConfirmOpen: boolean;
-	permanentDeleteItemsCount: number;
 	openPermanentDeleteConfirm: ( items: FormListItem[] ) => void;
 	closePermanentDeleteConfirm: () => void;
 	confirmPermanentDelete: () => Promise< void >;
@@ -344,6 +343,7 @@ export default function useDeleteForm( {
 		setIsPermanentDeleteConfirmOpen( false );
 		setIsDeleting( true );
 		const currentQuerySnapshot = currentQuery;
+		let shouldNavigateToPreviousPage = false;
 
 		try {
 			const promises = await Promise.allSettled(
@@ -381,7 +381,7 @@ export default function useDeleteForm( {
 					id: `delete-forms-permanently-${ Date.now() }`,
 				} );
 
-				const shouldNavigateToPreviousPage = page > 1 && deletedCount >= recordsLength;
+				shouldNavigateToPreviousPage = page > 1 && deletedCount >= recordsLength;
 				if ( shouldNavigateToPreviousPage ) {
 					setView( { ...view, page: page - 1 } );
 				}
@@ -403,6 +403,7 @@ export default function useDeleteForm( {
 				);
 			}
 		} catch {
+			// Note: Promise.allSettled captures per-item failures; this is only for unexpected exceptions.
 			createErrorNotice( __( 'Could not delete forms permanently.', 'jetpack-forms' ), {
 				type: 'snackbar',
 				id: `delete-forms-permanently-error-${ Date.now() }`,
@@ -411,8 +412,11 @@ export default function useDeleteForm( {
 			setIsDeleting( false );
 			setPermanentDeleteItems( [] );
 
-			// Invalidate the list query so the deleted form disappears from the table and totals refresh.
+			// Invalidate the list query so the deleted forms disappear from the table and totals refresh.
 			invalidateListQueries( currentQuerySnapshot );
+			if ( shouldNavigateToPreviousPage ) {
+				invalidateListQueries( { ...currentQuerySnapshot, page: page - 1 } );
+			}
 		}
 	}, [
 		createErrorNotice,
@@ -433,7 +437,6 @@ export default function useDeleteForm( {
 		trashForms,
 		restoreForms,
 		isPermanentDeleteConfirmOpen,
-		permanentDeleteItemsCount: permanentDeleteItems.length,
 		openPermanentDeleteConfirm,
 		closePermanentDeleteConfirm,
 		confirmPermanentDelete,

@@ -108,7 +108,11 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 	const onConfirmPermanentDelete = useCallback( async () => {
 		setPendingPermanentDeleteCount( 0 );
-		await confirmPermanentDelete();
+		try {
+			await confirmPermanentDelete();
+		} finally {
+			setSelection( [] );
+		}
 	}, [ confirmPermanentDelete ] );
 
 	const statusLabel = useCallback( ( status: string ) => {
