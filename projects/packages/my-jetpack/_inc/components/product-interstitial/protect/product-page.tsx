@@ -84,6 +84,7 @@ export default function ProtectProductPage() {
 	const scanVsProtectUrl = getRedirectUrl( 'jetpack-protect-support', {
 		anchor: 'jetpack-protect-jetpack-scan-and-wpscan-understand-the-difference',
 	} );
+	const securityFeaturesUrl = getRedirectUrl( 'jetpack-security' );
 
 	return (
 		<AdminPage
@@ -131,7 +132,7 @@ export default function ProtectProductPage() {
 
 							{ ! hasPaidPlan && (
 								<Button variant="primary" onClick={ handleUpgradeClick }>
-									{ __( 'Upgrade to Scan', 'jetpack-my-jetpack' ) }
+									{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
 								</Button>
 							) }
 							{ hasPaidPlan && (
@@ -285,7 +286,7 @@ export default function ProtectProductPage() {
 									) }
 								</p>
 								<Button variant="primary" onClick={ handleUpgradeClick }>
-									{ __( 'Upgrade to Scan', 'jetpack-my-jetpack' ) }
+									{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
 								</Button>
 							</div>
 						</div>
@@ -318,7 +319,7 @@ export default function ProtectProductPage() {
 								<Button variant="primary" onClick={ handleUpgradeClick }>
 									{ __( 'Secure your site', 'jetpack-my-jetpack' ) }
 								</Button>
-								<ExternalLink href="https://jetpack.com/features/security/">
+								<ExternalLink href={ securityFeaturesUrl }>
 									{ __( 'Learn more about Jetpack Security', 'jetpack-my-jetpack' ) }
 								</ExternalLink>
 							</div>
