@@ -31,7 +31,7 @@ function getTabLabel( label: string, count: number ): JSX.Element {
 }
 
 type InboxStatusToggleProps = {
-	onChange: ( status: string ) => void;
+	onChange?: ( status: string ) => void;
 };
 
 /**
@@ -71,7 +71,7 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 				return params;
 			} );
 			setSelectedResponses( [] );
-			onChange( newStatus );
+			onChange?.( newStatus );
 		},
 		[ isSm, status, setSearchParams, onChange, setSelectedResponses ]
 	);

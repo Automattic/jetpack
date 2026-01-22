@@ -5,7 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { Badge } from '@automattic/ui';
-import { ExternalLink, Modal, Button, Composite } from '@wordpress/components';
+import { ExternalLink, Modal } from '@wordpress/components';
 import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
@@ -22,14 +22,13 @@ import { useEffect } from 'react';
 import useConfigValue from '../../../hooks/use-config-value.ts';
 import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
 import CreateFormButton from '../../components/create-form-button/index.tsx';
+import DataViewsHeaderRow from '../../components/dataviews-header-row/index.tsx';
 import EmptyResponses from '../../components/empty-responses/index.tsx';
 import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
 import ExportResponsesButton from '../../components/export-responses/button.tsx';
 import Flag from '../../components/flag/index.tsx';
-import FormsResponsesTabs from '../../components/forms-responses-tabs/index.tsx';
 import Gravatar from '../../components/gravatar/index.tsx';
-import InboxStatusToggle from '../../components/inbox-status-toggle/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
 import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
@@ -88,15 +87,9 @@ const setupSidebarWidthObserver = () => {
 export default function InboxView() {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
-	const [ containerWidth, setContainerWidth ] = useState( 0 );
 
 	const dateSettings = getDateSettings();
-	const containerRef = useResizeObserver(
-		resizeObserverEntries => {
-			setContainerWidth( resizeObserverEntries[ 0 ].borderBoxSize[ 0 ].inlineSize );
-		},
-		{ box: 'border-box' }
-	);
+	const containerRef = useResizeObserver( () => {}, { box: 'border-box' } );
 
 	const selectedResponses = searchParams.get( 'r' );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
@@ -131,6 +124,10 @@ export default function InboxView() {
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
+	const urlFolder = useMemo( () => {
+		const urlStatus = searchParams.get( 'status' );
+		return [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
+	}, [ searchParams ] );
 
 	const {
 		setCurrentQuery,
@@ -141,35 +138,7 @@ export default function InboxView() {
 		isLoadingData,
 		totalItems,
 		totalPages,
-		totalItemsInbox,
-		totalItemsSpam,
-		totalItemsTrash,
 	} = useInboxData();
-	const onChangeStatus = useCallback(
-		newStatus => {
-			if ( ! isCentralFormManagementEnabled ) {
-				return;
-			}
-
-			setSearchParams( previousSearchParams => {
-				const params = new URLSearchParams( previousSearchParams );
-				params.set( 'status', newStatus );
-				params.delete( 'r' ); // Clear selected responses when changing status.
-				return params;
-			} );
-
-			// Reset page to 1 when switching status (matches previous tab behavior).
-			setView( { ...view, page: 1 } );
-
-			// Clear selection in store.
-			setSelectedResponses( [] );
-		},
-		[ isCentralFormManagementEnabled, setSearchParams, setSelectedResponses, setView, view ]
-	);
-
-	const onInboxClick = useCallback( () => onChangeStatus( 'inbox' ), [ onChangeStatus ] );
-	const onSpamClick = useCallback( () => onChangeStatus( 'spam' ), [ onChangeStatus ] );
-	const onTrashClick = useCallback( () => onChangeStatus( 'trash' ), [ onChangeStatus ] );
 	const isAkismetStatusPending = useSelect(
 		select => {
 			const store = select( INTEGRATIONS_STORE );
@@ -287,6 +256,45 @@ export default function InboxView() {
 		[ totalItems, totalPages ]
 	);
 
+	const onChangeView = useCallback(
+		newView => {
+			if ( isCentralFormManagementEnabled ) {
+				const folderValue = newView.filters?.find( filter => filter.field === 'folder' )?.value;
+				const nextFolder = [ 'inbox', 'spam', 'trash' ].includes( folderValue )
+					? folderValue
+					: 'inbox';
+
+				// Enforce that Folder is always set (cannot be removed). If the user clears it via the pill "X",
+				// re-add it as Inbox to match legacy default behavior.
+				if ( ! folderValue ) {
+					newView = {
+						...newView,
+						page: 1,
+						filters: [
+							{ field: 'folder', operator: 'is', value: 'inbox' },
+							...( newView.filters || [] ).filter( filter => filter.field !== 'folder' ),
+						],
+					};
+				}
+
+				// Sync Folder -> URL status (source of truth for querying), clear selection, and reset page.
+				if ( nextFolder !== urlFolder ) {
+					setSearchParams( previousSearchParams => {
+						const params = new URLSearchParams( previousSearchParams );
+						params.set( 'status', nextFolder );
+						params.delete( 'r' ); // Clear selected responses when changing folder.
+						return params;
+					} );
+					setSelectedResponses( [] );
+					newView = { ...newView, page: 1 };
+				}
+			}
+
+			setView( newView );
+		},
+		[ isCentralFormManagementEnabled, setSearchParams, setSelectedResponses, setView, urlFolder ]
+	);
+
 	const wrapperUnread = ( isUnread, itemValue ) => {
 		if ( isUnread ) {
 			return <span className="jp-forms__inbox__unread">{ itemValue }</span>;
@@ -296,6 +304,26 @@ export default function InboxView() {
 
 	const fields = useMemo(
 		() => [
+			...( isCentralFormManagementEnabled
+				? [
+						{
+							id: 'folder',
+							label: __( 'Folder', 'jetpack-forms' ),
+							elements: [
+								{ label: __( 'Inbox', 'jetpack-forms' ), value: 'inbox' },
+								{ label: __( 'Spam', 'jetpack-forms' ), value: 'spam' },
+								{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
+							],
+							// Primary so the filter UI (and its pill) is visible by default.
+							filterBy: { operators: [ 'is' ], isPrimary: true },
+							enableSorting: false,
+							enableHiding: true,
+							// Filter-only field; not shown as a column.
+							render: () => null,
+							getValue: () => null,
+						},
+				  ]
+				: [] ),
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
@@ -445,8 +473,32 @@ export default function InboxView() {
 			isMobileViewport,
 			openResponseModal,
 			dateSettings.formats.date,
+			isCentralFormManagementEnabled,
 		]
 	);
+
+	// When CFM is enabled, keep the DataViews "Folder" filter in sync with the URL `status` param
+	// (and default to Inbox on first load).
+	useEffect( () => {
+		if ( ! isCentralFormManagementEnabled ) {
+			return;
+		}
+		setView( previousView => {
+			const previousFilters = previousView.filters || [];
+			const existing = previousFilters.find( filter => filter.field === 'folder' );
+			if ( existing?.value === urlFolder ) {
+				return previousView;
+			}
+			const nextFilters = [
+				{ field: 'folder', operator: 'is', value: urlFolder },
+				...previousFilters.filter( filter => filter.field !== 'folder' ),
+			];
+			return {
+				...previousView,
+				filters: nextFilters,
+			};
+		} );
+	}, [ isCentralFormManagementEnabled, setView, urlFolder ] );
 
 	const actions = useMemo( () => {
 		const mobileViewAction = {
@@ -502,8 +554,9 @@ export default function InboxView() {
 	}, [ isMobileViewport, onChangeSelection, statusFilter ] );
 
 	const resetPage = useCallback( () => {
-		view.page = 1;
-	}, [ view ] );
+		// Reset to page 1 when switching legacy Inbox statuses (Inbox/Spam/Trash).
+		setView( { ...view, page: 1 } );
+	}, [ setView, view ] );
 
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
@@ -540,7 +593,6 @@ export default function InboxView() {
 			}
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
 			actions={ headerActions }
-			tabs={ isCentralFormManagementEnabled ? <FormsResponsesTabs /> : undefined }
 			hasPadding={ false }
 		>
 			<DataViews
@@ -550,7 +602,7 @@ export default function InboxView() {
 				data={ records || EMPTY_ARRAY }
 				isLoading={ isInboxLoading }
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ onChangeView }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
 				getItemId={ getItemId }
@@ -563,72 +615,7 @@ export default function InboxView() {
 					/>
 				}
 			>
-				{ isCentralFormManagementEnabled ? (
-					<div className="jp-forms-filters-bar">
-						<div className="jp-forms-filters-bar__chips">
-							<Composite className="jp-forms-filters-bar__status-chips">
-								<Button
-									size="compact"
-									variant={ 'tertiary' }
-									className={ statusFilter === 'draft,publish' ? 'is-active' : '' }
-									onClick={ onInboxClick }
-								>
-									{ __( 'Status is Inbox', 'jetpack-forms' ) } ({ totalItemsInbox })
-								</Button>
-
-								<Button
-									size="compact"
-									variant={ 'tertiary' }
-									className={ statusFilter === 'spam' ? 'is-active' : '' }
-									onClick={ onSpamClick }
-								>
-									{ __( 'Status is Spam', 'jetpack-forms' ) } ({ totalItemsSpam })
-								</Button>
-								<Button
-									size="compact"
-									variant={ 'tertiary' }
-									className={ statusFilter === 'trash' ? 'is-active' : '' }
-									onClick={ onTrashClick }
-								>
-									{ __( 'Status is Trash', 'jetpack-forms' ) } ({ totalItemsTrash })
-								</Button>
-							</Composite>
-							<DataViews.FiltersToggled className="jp-forms-filters-container" />
-						</div>
-						<div
-							className="jp-forms-filters-bar__controls"
-							style={ {
-								display: 'flex',
-								gap: '8px',
-								justifyContent: containerWidth < 600 ? 'unset' : 'flex-end',
-							} }
-						>
-							<DataViews.Search />
-							<DataViews.FiltersToggle />
-							<DataViews.ViewConfig />
-						</div>
-					</div>
-				) : (
-					<>
-						<div className="jp-forms-view-actions">
-							<div>
-								<InboxStatusToggle onChange={ resetPage } />
-							</div>
-							<div
-								style={ {
-									display: 'flex',
-									gap: '8px',
-									justifyContent: containerWidth < 600 ? 'unset' : 'flex-end',
-								} }
-							>
-								<DataViews.Search />
-								<DataViews.FiltersToggle />
-								<DataViews.ViewConfig />
-							</div>
-						</div>
-						<DataViews.FiltersToggled className="jp-forms-filters-container" />
-					</>
-				) }
+				<DataViewsHeaderRow onLegacyStatusChange={ resetPage } />
 				<div className="jp-forms-dataviews-layout-container">
 					<DataViews.Layout />
 					<DataViews.Footer />
