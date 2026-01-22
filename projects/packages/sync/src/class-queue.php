@@ -121,7 +121,7 @@ class Queue {
 	}
 
 	/**
-	 * Get the front-most item on the queue without checking it out.
+	 * Get the front-most items on the queue without checking them out.
 	 *
 	 * @param int $count Number of items to return when looking at the items.
 	 *
@@ -137,7 +137,7 @@ class Queue {
 	}
 
 	/**
-	 * Get the last-added item on the queue without checking it out.
+	 * Get the last-added items on the queue without checking them out.
 	 *
 	 * @param int $count Number of items to return when looking at the items.
 	 *
