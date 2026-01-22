@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts.
