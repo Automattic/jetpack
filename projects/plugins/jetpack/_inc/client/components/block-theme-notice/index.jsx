@@ -32,7 +32,7 @@ export default function BlockThemeNotice( { isModuleActive, redirectSlug } ) {
 		  )
 		: createInterpolateElement(
 				__(
-					"You are using a block-based theme. Instead of enabling this legacy feature, we recommend that you add the corresponding block to your theme's template in the site editor instead. <a>Discover how</a>.",
+					"You are using a block-based theme. Instead of enabling this legacy feature, we recommend that you add the corresponding block to your theme's template in the site editor. <a>Discover how</a>.",
 					'jetpack'
 				),
 				{
