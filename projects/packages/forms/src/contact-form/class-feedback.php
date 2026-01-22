@@ -1781,10 +1781,10 @@ class Feedback {
 		$meta = array();
 
 		if ( $type === 'rating' ) {
-			$icon_style   = $field->get_attribute( 'iconstyle' );
-			$max          = $field->get_attribute( 'max' );
-			$meta['icon'] = ! empty( $icon_style ) ? $icon_style : 'stars';
-			$meta['max']  = is_numeric( $max ) && (int) $max > 0 ? (int) $max : 5;
+			$icon_style        = $field->get_attribute( 'iconstyle' );
+			$max               = $field->get_attribute( 'max' );
+			$meta['iconStyle'] = ! empty( $icon_style ) ? $icon_style : 'stars';
+			$meta['maxRating'] = is_numeric( $max ) && (int) $max > 0 ? (int) $max : 5;
 		}
 
 		return $meta;
