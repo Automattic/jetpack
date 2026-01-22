@@ -45,7 +45,11 @@ function cleanContent( content ) {
 }
 
 /**
- * Sanitize content.
+ * Sanitize content for inclusion in a markdown code block.
+ *
+ * In GitHub-flavored Markdown, backslashes don't escape backticks inside code blocks.
+ * Instead, you use more backticks for the fence than appear in the content.
+ * We use 4 backticks for our fences, so we replace any sequence of 4+ backticks.
  *
  * @param {string} content - Content to sanitize.
  * @return {string} Sanitized content.
@@ -55,18 +59,9 @@ function sanitizeForPrompt( content ) {
 		return '';
 	}
 
-	// Replace sequences of three or more backticks (which could break markdown code blocks)
+	// Replace sequences of 4 or more backticks (which could break our 4-backtick fences)
 	// with a safe placeholder. This prevents prompt injection via code block delimiters.
-	// This is the critical fix: triple backticks would prematurely close the code block.
-	content = content.replace( /```+/g, '[code-fence]' );
-
-	// Escape backslashes first, then backticks.
-	// Order matters: if we escape backticks first, then a `\` followed by `` ` ``
-	// would become `\\`` which is ambiguous. By escaping backslashes first,
-	// we ensure proper encoding of both characters.
-	content = content.replace( /\\/g, '\\\\' );
-
-	return content.replace( /`/g, '\\`' );
+	return content.replace( /````+/g, '[code-fence]' );
 }
 
 /**
@@ -113,9 +108,9 @@ Here is the PR description:
 ${ sanitizedBody || '(No description provided)' }
 
 Here is the code diff:
-\`\`\`
+\`\`\`\`
 ${ sanitizedDiff }
-\`\`\`
+\`\`\`\`
 
 Analyze this PR and determine if users will experience something different after this change.
 
