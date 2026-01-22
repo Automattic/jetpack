@@ -44,6 +44,7 @@ import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integ
  */
 import type { SelectActions, DispatchActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
+import type { StoreDescriptor } from '@wordpress/data';
 import type { View, Field } from '@wordpress/dataviews';
 
 type FeedbackFilterDate = {
@@ -141,8 +142,8 @@ const DEFAULT_VIEW: View = {
  * @param {object} item - The item object.
  * @return {string} The item ID as a string.
  */
-function getItemId( item ) {
-	return item.id.toString();
+function getItemId( item: unknown ): string {
+	return ( item as { id: number | string } )?.id?.toString() ?? '';
 }
 
 /**
@@ -187,9 +188,11 @@ function Stage() {
 		select => ( select( dashboardStore ) as SelectActions ).getCounts(),
 		[]
 	);
+
+	const dashboardStoreDescriptor = dashboardStore as StoreDescriptor;
 	const { updateCountsOptimistically, invalidateCounts } = useDispatch(
-		( dashboardStore as unknown as { name: string } ).name
-	) as DispatchActions;
+		dashboardStoreDescriptor
+	) as unknown as DispatchActions;
 	const filterOptions = useFilterOptions();
 	let status = 'publish';
 	if ( params.view === 'spam' ) {
