@@ -77,20 +77,21 @@ function buildPrompt( title, body, diff ) {
 	const sanitizedBody = sanitizeForPrompt( body || '' );
 	const sanitizedDiff = sanitizeForPrompt( diff || '' );
 
-	return `You are analyzing a GitHub Pull Request to determine if users will experience something DIFFERENT after this change is deployed.
+	return `You are analyzing a GitHub Pull Request to determine if it contains changes that would require updates to user-facing support documentation.
 
-The key question is: "Will users notice any difference in behavior, appearance, or functionality?"
+The key question is: "Would support documentation need to be updated to reflect these changes?"
 
-Changes that ARE user-facing (flag these):
-- New UI elements (buttons, forms, layouts, modals)
-- Modified UI appearance (styling, layout, visual changes)
-- Changed text that users read (labels, messages, help text, error messages)
-- New or modified features users interact with
-- Changed behavior in response to user actions
-- Changes to public APIs that external developers consume
+Changes that WOULD require documentation updates (flag these):
+- New UI elements that users need to learn about (buttons, forms, layouts, modals)
+- Changed UI workflows or interactions users need to understand
+- New features or settings that need to be documented
+- Changed text that appears in documentation screenshots or examples
+- Changed behavior that affects how users accomplish tasks
+- Changes to public APIs that external developers need to know about
+- Modified error messages that support docs reference
 
-Changes that are NOT user-facing (do NOT flag these):
-- Refactoring code without changing behavior (moving code to new files, renaming internal variables, restructuring classes)
+Changes that would NOT require documentation updates (do NOT flag these):
+- Refactoring code without changing user-visible behavior
 - Code cleanup that preserves identical functionality
 - Test-only changes (adding, modifying, or removing tests)
 - Internal tooling or build configuration
@@ -98,8 +99,10 @@ Changes that are NOT user-facing (do NOT flag these):
 - Dependency updates with no behavior change
 - CI/CD configuration changes
 - Performance optimizations with no visible behavior change
+- Minor visual polish (slight color adjustments, spacing tweaks)
+- Bug fixes that restore documented behavior
 
-IMPORTANT: If a PR moves, reorganizes, or refactors code that relates to user-visible features but does NOT change what users see or experience, it is NOT user-facing. The question is not "does this code touch something users see?" but "will users see something DIFFERENT?"
+IMPORTANT: The question is not "does this change something users see?" but "would a technical writer need to update the support documentation?"
 
 Here is the PR title:
 ${ sanitizedTitle }
@@ -112,7 +115,7 @@ Here is the code diff:
 ${ sanitizedDiff }
 \`\`\`\`
 
-Analyze this PR and determine if users will experience something different after this change.
+Analyze this PR and determine if support documentation would need to be updated.
 
 Respond with a JSON object in this exact format:
 {
