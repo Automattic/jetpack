@@ -70,6 +70,11 @@ export type SharePostFormProps = {
 	 * Whether the form is disabled.
 	 */
 	disabled?: boolean;
+
+	/**
+	 * Whether to force media as attachment.
+	 */
+	forceMediaAsAttachment?: boolean;
 };
 
 /**
@@ -88,6 +93,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 	mediaSource,
 	onMediaChange,
 	disabled = false,
+	forceMediaAsAttachment,
 } ) => {
 	const {
 		message: storeMessage,
@@ -148,6 +154,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 									imageGeneratorSettings,
 									mediaSource,
 									onMediaChange,
+									forceAsAttachment: forceMediaAsAttachment,
 								} ) }
 							/>
 						) }
