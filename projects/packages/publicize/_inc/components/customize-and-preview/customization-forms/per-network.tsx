@@ -4,8 +4,7 @@ import { useCallback } from 'react';
 import { usePostMeta } from '../../../hooks/use-post-meta';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
-import { AttachedMedia } from '../../../utils';
-import { SharePostForm } from '../../form/share-post-form';
+import { SharePostForm, SharePostFormProps } from '../../form/share-post-form';
 import { ConnectionToggle } from '../connection-toggle';
 
 type PerNetworkCustomizationFormProps = {
@@ -20,10 +19,15 @@ type PerNetworkCustomizationFormProps = {
  */
 export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomizationFormProps ) {
 	const { customizeConnectionById } = useDispatch( socialStore );
-	const { attachedMedia: globalAttachedMedia, shareMessage: globalMessage } = usePostMeta();
+	const {
+		attachedMedia: globalAttachedMedia,
+		shareMessage: globalMessage,
+		mediaSource: globalMediaSource,
+	} = usePostMeta();
 
 	const message = connection.message ?? globalMessage ?? '';
 	const attachedMedia = connection.attached_media ?? globalAttachedMedia ?? [];
+	const mediaSource = connection.media_source ?? globalMediaSource ?? 'none';
 
 	// Handler for message changes
 	const handleMessageChange = useCallback(
@@ -34,10 +38,11 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 	);
 
 	// Handler for media changes - only stores attached_media in the override
-	const handleMediaChange = useCallback(
-		( updates: { attached_media?: Array< AttachedMedia > } ) => {
+	const handleMediaChange = useCallback< SharePostFormProps[ 'onMediaChange' ] >(
+		updates => {
 			customizeConnectionById( connection.connection_id, {
 				attached_media: updates.attached_media,
+				media_source: updates.media_source,
 			} );
 		},
 		[ connection.connection_id, customizeConnectionById ]
@@ -54,6 +59,8 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 				onMessageChange={ handleMessageChange }
 				attachedMedia={ attachedMedia }
 				onMediaChange={ handleMediaChange }
+				mediaSource={ mediaSource }
+				forceMediaAsAttachment
 			/>
 		</Flex>
 	);

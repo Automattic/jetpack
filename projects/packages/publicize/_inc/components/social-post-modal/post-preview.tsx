@@ -14,8 +14,7 @@ import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { useSocialPreviewPostData } from '../../hooks/use-social-preview-post-data';
+import { useConnectionPreviewData } from '../../hooks/use-connection-preview-data';
 import { Connection } from '../../social-store/types';
 import { InstagramNoMediaNotice } from '../form/instagram-no-media-notice';
 
@@ -42,7 +41,7 @@ function getCombinedText( title: string, excerpt: string ): string {
  *
  * @param {PostPreviewProps} props - PostPreview component props.
  *
- * @return {import('react').ReactNode} - Post preview component.
+ * @return - Post preview component.
  */
 export function PostPreview( { connection }: PostPreviewProps ) {
 	const user = useMemo(
@@ -54,8 +53,8 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 		[ connection ]
 	);
 
-	const { image, media, title, description, url, excerpt } = useSocialPreviewPostData();
-	const message = ( useSocialMediaMessage().message || '' ).trim();
+	const { image, media, title, description, url, excerpt, message } =
+		useConnectionPreviewData( connection );
 
 	const commonProps = useMemo(
 		() => ( {
