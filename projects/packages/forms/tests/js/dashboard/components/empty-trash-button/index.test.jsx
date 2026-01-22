@@ -157,7 +157,7 @@ const { DashboardSearchParamsProvider } = DashboardSearchParamsModule;
 
 describe( 'EmptyTrashButton', () => {
 	const mockSetSearchParams = jest.fn();
-	const mockSearchParams = new URLSearchParams();
+	const mockSearchParams = new URLSearchParams( 'status=trash' );
 
 	beforeEach( async () => {
 		// Reset all mocks before each test
