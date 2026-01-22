@@ -95,7 +95,9 @@ export default function MediaSectionV2( {
 		return detectMediaSource( attachedMedia, featuredImageId, sigEnabled );
 	}, [ mediaSource, attachedMedia, featuredImageId, sigEnabled ] );
 
-	// Attachment mode: check if attached_media has items (matches backend is_social_post())
+	// Attachment mode:
+	// - When attachedMedia has items, this reflects the backend behavior (attached_media is set).
+	// - When forceAsAttachment is true, attachment mode is forced on at the UI level, even if attachedMedia is empty.
 	const isShareAsAttachment = forceAsAttachment || attachedMedia?.length > 0;
 
 	// Get media ID for preview
