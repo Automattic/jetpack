@@ -1,9 +1,20 @@
+import { AttachedMedia } from '../utils';
+
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
-export type Connection = {
+/**
+ * Connection object in the block editor
+ */
+export interface EditorConnection {
+	enabled: boolean;
+	// Customization fields
+	message?: string;
+	attached_media?: Array< AttachedMedia >;
+}
+
+export type Connection = Partial< EditorConnection > & {
 	connection_id: string;
 	display_name: string;
-	enabled: boolean;
 	external_handle: string;
 	external_id: string;
 	profile_link: string;

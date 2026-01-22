@@ -1458,11 +1458,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$formatted_submission_data = array();
 
 		foreach ( $data as $field_data ) {
+			$url    = self::get_url( $field_data['value'] );
+			$images = self::get_images( $field_data['value'] );
+
 			$formatted_submission_data[] = array(
-				'label'  => self::maybe_add_colon_to_label( $field_data['label'] ),
-				'value'  => self::maybe_transform_value( $field_data['value'] ),
-				'images' => self::get_images( $field_data['value'] ),
-				'url'    => self::get_url( $field_data['value'] ),
+				'label'          => self::maybe_add_colon_to_label( $field_data['label'] ),
+				'value'          => self::maybe_transform_value( $field_data['value'] ),
+				'images'         => $images,
+				'url'            => $url,
+				'showPlainValue' => empty( $url ) && empty( $images ),
 			);
 		}
 
@@ -1578,45 +1582,74 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
 					<div class="jetpack_forms_contact-form-success-summary">
 						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
-						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.url"></div>
+						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.showPlainValue"></div>
 						<a class="field-url" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.url" target="_blank" rel="noopener noreferrer"></a>
 						<div class="field-images" data-wp-bind--hidden="!context.submission.images">
 							<template data-wp-each--image="context.submission.images">
-								<figure class="field-image" data-wp-class--is-empty="!context.image">
-									<img data-wp-bind--src="context.image" data-wp-bind--hidden="!context.image" />
-									<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image" />
-								</figure>
+								<div class="field-image-option" data-wp-class--is-empty="!context.image.src">
+									<figure class="field-image-option__image" data-wp-class--is-empty="!context.image.src">
+										<img data-wp-bind--src="context.image.src" data-wp-bind--hidden="!context.image.src" />
+										<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src" />
+									</figure>
+									<div class="field-image-option__label-wrapper">
+										<span class="field-image-option__label-code" data-wp-text="context.image.letterCode"></span>
+										<span class="field-image-option__label" data-wp-text="context.image.label" data-wp-bind--hidden="!context.image.label"></span>
+									</div>
+								</div>
 							</template>
 						</div>
 					</div>
 				</template>';
 
 				// For each entry in the submission data array, render a div with the label and value.
+				// Structure must match the template above for proper hydration.
 				foreach ( $formatted_submission_data as $submission ) {
-					$has_url = ! empty( $submission['url'] );
-					$html   .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">
-						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
+					$has_url        = ! empty( $submission['url'] );
+					$has_images     = ! empty( $submission['images'] );
+					$show_plain_val = ! $has_url && ! $has_images;
 
-					if ( $has_url ) {
-						$html .= '<a class="field-url" href="' . esc_attr( $submission['url'] ) . '" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" target="_blank" rel="noopener noreferrer">' . esc_html( $submission['value'] ) . '</a>';
-					} else {
-						$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.url">' . esc_html( $submission['value'] ) . '</div>';
-					}
+					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">';
 
-					$html .= '<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
+					// field-name: always present.
+					$html .= '<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
 
-					if ( ! empty( $submission['images'] ) ) {
+					// field-value: always present, hidden when URL or images exist.
+					$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.showPlainValue"';
+					$html .= $show_plain_val ? '' : ' hidden';
+					$html .= '>' . ( $show_plain_val ? esc_html( $submission['value'] ) : '' ) . '</div>';
+
+					// field-url: always present, hidden when no URL.
+					$html .= '<a class="field-url" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.url" target="_blank" rel="noopener noreferrer"';
+					$html .= $has_url ? ' href="' . esc_attr( $submission['url'] ) . '"' : ' hidden';
+					$html .= '>' . ( $has_url ? esc_html( $submission['value'] ) : '' ) . '</a>';
+
+					// field-images: always present, hidden when no images.
+					$html .= '<div class="field-images" data-wp-bind--hidden="!context.submission.images"';
+					$html .= $has_images ? '' : ' hidden';
+					$html .= '>';
+
+					if ( $has_images ) {
 						foreach ( $submission['images'] as $image ) {
-							$html .= '<figure data-wp-each-child class="field-image ' . ( empty( $image ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image">';
-							$html .= '<img data-wp-bind--src="context.image" src="' . $image . '" data-wp-bind--hidden="!context.image"' . ( empty( $image ) ? 'hidden' : '' ) . '/>';
-							$html .= '<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image"' . ( empty( $image ) ? '' : 'hidden' ) . '/>';
+							$image_src         = $image['src'] ?? '';
+							$image_letter_code = $image['letterCode'] ?? '';
+							$image_label       = $image['label'] ?? '';
+
+							$html .= '<div data-wp-each-child class="field-image-option ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
+							$html .= '<figure class="field-image-option__image ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
+							$html .= '<img data-wp-bind--src="context.image.src" src="' . esc_attr( $image_src ) . '" data-wp-bind--hidden="!context.image.src"' . ( empty( $image_src ) ? ' hidden' : '' ) . '/>';
+							$html .= '<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src"' . ( empty( $image_src ) ? '' : ' hidden' ) . '/>';
 							$html .= '</figure>';
+							$html .= '<div class="field-image-option__label-wrapper">';
+							$html .= '<span class="field-image-option__label-code" data-wp-text="context.image.letterCode">' . esc_html( $image_letter_code ) . '</span>';
+							$html .= '<span class="field-image-option__label" data-wp-text="context.image.label" data-wp-bind--hidden="!context.image.label"' . ( empty( $image_label ) ? ' hidden' : '' ) . '>' . esc_html( $image_label ) . '</span>';
+							$html .= '</div></div>';
 						}
 					} else {
+						// Empty template for hydration when no images.
 						$html .= '<template data-wp-each--image="context.submission.images"></template>';
 					}
 
-					$html .= '</div></div>';
+					$html .= '</div></div>'; // Close field-images and summary.
 				}
 			}
 		}
@@ -3222,14 +3255,30 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper method to get the images from an image select field.
 	 *
+	 * Returns an array of image choice objects, each containing:
+	 * - src: The image URL
+	 * - letterCode: The letter code (e.g., 'A', 'B', 'C')
+	 * - label: The choice label text (empty string if showLabels is false)
+	 *
 	 * @param array $value The value to get the images from.
-	 * @return array The images.
+	 * @return array|null The images with metadata, or null if not an image-select field.
 	 */
 	private static function get_images( $value ) {
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'image-select' ) {
 			return array_map(
 				function ( $choice ) {
-					return $choice['image']['src'] ?? '';
+					$letter_code = $choice['perceived'] ?? '';
+					$label       = '';
+
+					if ( ! empty( $choice['showLabels'] ) && ! empty( $choice['label'] ) ) {
+						$label = $choice['label'];
+					}
+
+					return array(
+						'src'        => $choice['image']['src'] ?? '',
+						'letterCode' => $letter_code,
+						'label'      => $label,
+					);
 				},
 				$value['choices']
 			);

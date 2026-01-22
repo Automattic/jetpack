@@ -1,7 +1,7 @@
 import { useSelect } from '@wordpress/data';
 import { store as socialStore } from '../../../../social-store';
+import { CustomizationSection } from '../../customization-section';
 import { PreviewSection } from '../preview-section';
-import { CustomizationSection } from './customization-section';
 import styles from './styles.module.scss';
 
 export type TabContentProps = {

@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
 import { Connection } from '../../../social-store/types';
 import { useConnectionState } from '../../form/use-connection-state';
+import styles from './styles.module.scss';
 
 export type ConnectionToggleProps = {
 	connection: Connection;
@@ -48,6 +49,7 @@ export function ConnectionToggle( { connection }: ConnectionToggleProps ) {
 				__( 'Share to %s', 'jetpack-publicize-pkg' ),
 				connection.display_name
 			) }
+			className={ styles[ 'connection-toggle' ] }
 			checked={ isEnabled }
 			onChange={ onClickConnectionToggle }
 			disabled={ isDisabled }
