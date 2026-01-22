@@ -144,8 +144,8 @@ const DEFAULT_VIEW: View = {
  * @param item.id - The item ID.
  * @return The item ID as a string.
  */
-function getItemId( item: { id: number | string } ): string {
-	return item.id.toString();
+function getItemId( item: unknown ): string {
+	return ( item as { id: number | string } )?.id?.toString() ?? '';
 }
 
 /**
