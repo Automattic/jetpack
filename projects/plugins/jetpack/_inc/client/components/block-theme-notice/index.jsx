@@ -23,7 +23,7 @@ export default function BlockThemeNotice( { isModuleActive, supportLink } ) {
 	const message = isModuleActive
 		? createInterpolateElement(
 				__(
-					'You are using a block-based theme. We recommend that you disable this legacy feature and add the corresponding block to your theme's template instead. <a>Discover how</a>.',
+					"You are using a block-based theme. We recommend that you disable this legacy feature and add the corresponding block to your theme's template instead. <a>Discover how</a>.",
 					'jetpack'
 				),
 				{
@@ -32,7 +32,7 @@ export default function BlockThemeNotice( { isModuleActive, supportLink } ) {
 		  )
 		: createInterpolateElement(
 				__(
-					'You are using a block-based theme. Instead of enabling this legacy feature, we recommend that you add the corresponding block to your theme's template in the site editor instead. <a>Discover how</a>.',
+					"You are using a block-based theme. Instead of enabling this legacy feature, we recommend that you add the corresponding block to your theme's template in the site editor instead. <a>Discover how</a>.",
 					'jetpack'
 				),
 				{
