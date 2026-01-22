@@ -2,3 +2,4 @@ Significance: patch
 Type: changed
 
 Enable the enhanced code block by default.
+Abort load and log if required asset files are missing.
