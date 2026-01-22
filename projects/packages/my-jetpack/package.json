@@ -25,11 +25,11 @@
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "pnpm webpack --config webpack.config.js",
 		"clean": "rm -rf build/",
-		"dev": "pnpm run clean && webpack serve",
 		"test": "jest --config=tests/jest.config.js",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
-		"watch": "pnpm run build && pnpm webpack watch"
+		"watch": "pnpm run build && pnpm webpack watch",
+		"watch:hot": "pnpm run clean && webpack serve"
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
