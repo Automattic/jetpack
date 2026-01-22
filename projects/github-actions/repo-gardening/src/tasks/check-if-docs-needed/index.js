@@ -171,9 +171,10 @@ async function checkIfDocsNeeded( payload, octokit ) {
 		return;
 	}
 
-	// Skip if PR title contains "revert" (case-insensitive).
-	if ( /revert/i.test( title ) ) {
-		debug( `check-if-docs-needed: PR #${ number } title contains "revert". Skipping.` );
+	// Skip if PR title starts with "Revert" (the standard GitHub revert format).
+	// This avoids false positives like "Undo revert and fix..." or "New UI for post revert feature".
+	if ( /^revert\b/i.test( title ) ) {
+		debug( `check-if-docs-needed: PR #${ number } title starts with "revert". Skipping.` );
 		return;
 	}
 
