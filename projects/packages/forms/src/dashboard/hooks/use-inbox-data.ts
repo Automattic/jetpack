@@ -42,7 +42,7 @@ const isEmpty = obj =>
 	[ Object, Array ].includes( ( obj || {} ).constructor ) && ! Object.entries( obj || {} ).length;
 
 const formatFieldValue = fieldValue => {
-	if ( isEmpty( fieldValue ) ) {
+	if ( ! fieldValue || isEmpty( fieldValue ) ) {
 		return '-';
 	} else if ( Array.isArray( fieldValue ) ) {
 		return fieldValue.join( ', ' );
