@@ -156,7 +156,7 @@ async function checkIfDocsNeeded( payload, octokit ) {
 	// Check if OpenAI API key is provided.
 	const apiKey = getInput( 'openai_api_key' );
 	if ( ! apiKey ) {
-		debug( `check-if-docs-needed: No OpenAI key is provided. Bail.` );
+		debug( `check-if-docs-needed: No OpenAI API key provided for PR #${ number }. Skipping.` );
 		return;
 	}
 
@@ -217,18 +217,37 @@ async function checkIfDocsNeeded( payload, octokit ) {
 		result = JSON.parse( response );
 	} catch ( error ) {
 		debug(
-			`check-if-docs-needed: Failed to parse OpenAI response for PR #${ number }: ${ error }`
+			`check-if-docs-needed: Failed to parse OpenAI response for PR #${ number }: ${ error }. Response was: ${ response }`
 		);
 		return;
 	}
 
-	const isUserFacing = typeof result?.is_user_facing === 'boolean' ? result.is_user_facing : false;
-	const confidence =
+	let isUserFacing = false;
+	if ( typeof result?.is_user_facing === 'boolean' ) {
+		isUserFacing = result.is_user_facing;
+	} else {
+		debug(
+			`check-if-docs-needed: PR #${ number } - is_user_facing is not a boolean, got: ${ JSON.stringify(
+				result?.is_user_facing
+			) }. Defaulting to false.`
+		);
+	}
+
+	let confidence = 'low';
+	if (
 		result?.confidence &&
 		typeof result.confidence === 'string' &&
 		[ 'low', 'medium', 'high' ].includes( result.confidence.trim().toLowerCase() )
-			? result.confidence.trim().toLowerCase()
-			: 'low';
+	) {
+		confidence = result.confidence.trim().toLowerCase();
+	} else {
+		debug(
+			`check-if-docs-needed: PR #${ number } - confidence is not a valid value, got: ${ JSON.stringify(
+				result?.confidence
+			) }. Defaulting to low.`
+		);
+	}
+
 	const reason = result?.reason && typeof result.reason === 'string' ? result.reason.trim() : '';
 
 	// Apply UI Changes label if user-facing with medium or high confidence.
