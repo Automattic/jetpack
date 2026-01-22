@@ -69,6 +69,7 @@
 		"react-page-visibility": "7.0.0"
 	},
 	"devDependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/calypso-color-schemes": "4.0.0",
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
