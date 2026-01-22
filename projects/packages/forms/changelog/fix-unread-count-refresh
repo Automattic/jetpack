@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Refactor feedback status tracking to handle unread count recalculation.
+Fix unread count not updating when feedback status changes between published and unpublished states.

@@ -3671,7 +3671,7 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Tracks when a feedback post status changes to 'publish' and triggers unread count recalculation.
+	 * Tracks when a feedback post status changes to or from 'publish' and triggers unread count recalculation.
 	 *
 	 * @param string  $new_status The new post status.
 	 * @param string  $old_status The old post status.
