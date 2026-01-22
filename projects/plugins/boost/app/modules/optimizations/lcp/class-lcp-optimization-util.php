@@ -99,6 +99,8 @@ class LCP_Optimization_Util {
 	 * Check if a specific optimization should be applied based on cloud response.
 	 * Returns true if no optimizations object exists (backward compatibility) or if the flag is truthy.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array  $lcp_data The LCP data array.
 	 * @param string $key      The optimization key to check.
 	 * @return bool True if the optimization should be applied.
