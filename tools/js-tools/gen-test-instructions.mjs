@@ -13,15 +13,15 @@
  * Usage: node gen-test-instructions.mjs [options]
  *
  * Required Options:
- *   --changelog <path>    Path to CHANGELOG.md file
- *   --output <file>       Output file path for generated test instructions
+ * --changelog <path>    Path to CHANGELOG.md file
+ * --output <file>       Output file path for generated test instructions
  *
  * Optional:
- *   --version <version>   Start from this version (e.g., 15.1). Defaults to last stable release
- *   --since-date <date>   Include entries since this date (YYYY-MM-DD format)
- *   --api-key <key>       Anthropic API key for AI consolidation (or use ANTHROPIC_API_KEY env var)
- *   --skip-ai             Skip AI consolidation and output raw format
- *   --verbose             Enable verbose output for debugging
+ * --version <version>   Start from this version (e.g., 15.1). Defaults to last stable release
+ * --since-date <date>   Include entries since this date (YYYY-MM-DD format)
+ * --api-key <key>       Anthropic API key for AI consolidation (or use ANTHROPIC_API_KEY env var)
+ * --skip-ai             Skip AI consolidation and output raw format
+ * --verbose             Enable verbose output for debugging
  */
 
 import { execSync } from 'child_process';
@@ -34,7 +34,7 @@ import path from 'path';
 
 const GITHUB_REPO = 'Automattic/jetpack';
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
-const CLAUDE_MODEL = 'claude-sonnet-4-5-20250929';
+const CLAUDE_MODEL = 'claude-opus-4-5-20251101';
 
 // ============================================================================
 // COMMAND LINE ARGUMENT PARSING
