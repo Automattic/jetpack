@@ -5,6 +5,7 @@ import {
 	PexelsIcon,
 	JetpackMobileAppIcon,
 } from '@automattic/jetpack-shared-extension-utils/icons';
+import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import {
 	SOURCE_WORDPRESS,
@@ -122,22 +123,35 @@ export function canDisplayPlaceholder( props ) {
  * @return {import('react').Component} - The external library.
  */
 export function getExternalLibrary( type ) {
+	let component = null;
+
 	if ( type === SOURCE_PEXELS ) {
-		return PexelsMedia;
+		component = PexelsMedia;
 	} else if ( type === SOURCE_GOOGLE_PHOTOS ) {
-		return GooglePhotosMedia;
+		component = GooglePhotosMedia;
 	} else if ( type === SOURCE_OPENVERSE ) {
-		return OpenverseMedia;
+		component = OpenverseMedia;
 	} else if ( type === SOURCE_JETPACK_APP_MEDIA ) {
-		return JetpackAppMedia;
+		component = JetpackAppMedia;
 	} else if ( type === SOURCE_JETPACK_AI_FEATURED_IMAGE ) {
-		return JetpackAIFeaturedImage;
+		component = JetpackAIFeaturedImage;
 	} else if ( type === SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE ) {
-		return JetpackAIGeneralPurposeImageForMediaSource;
+		component = JetpackAIGeneralPurposeImageForMediaSource;
 	} else if ( type === SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK ) {
-		return JetpackAIGeneralPurposeImageForBlock;
+		component = JetpackAIGeneralPurposeImageForBlock;
 	}
-	return null;
+
+	/**
+	 * Filter the external media library component.
+	 *
+	 * Allows replacing the component rendered for a given external media source type.
+	 *
+	 * @since $$next-version$$
+	 * @module jetpack/external-media
+	 * @param {import('react').Component|null} component - The component to render.
+	 * @param {string} type - The source type identifier.
+	 */
+	return applyFilters( 'jetpack.externalMedia.libraryComponent', component, type );
 }
 
 /**
