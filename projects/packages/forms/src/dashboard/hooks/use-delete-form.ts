@@ -90,6 +90,65 @@ export default function useDeleteForm( {
 		[ invalidateResolution ]
 	);
 
+	const restoreItemsToPublish = useCallback(
+		async (
+			items: FormListItem[],
+			{
+				successNoticeIdPrefix,
+				errorNoticeIdPrefix,
+			}: { successNoticeIdPrefix: string; errorNoticeIdPrefix: string }
+		): Promise< { restoredCount: number; failedCount: number } > => {
+			const promises = await Promise.allSettled(
+				items.map( item =>
+					saveEntityRecord(
+						'postType',
+						'jetpack_form',
+						{ id: item.id, status: 'publish' },
+						{ throwOnError: true }
+					)
+				)
+			);
+
+			const restoredCount = promises.filter( p => p.status === 'fulfilled' ).length;
+			const failedCount = promises.length - restoredCount;
+
+			if ( restoredCount ) {
+				const successMessage =
+					restoredCount === 1
+						? __( 'Form restored.', 'jetpack-forms' )
+						: sprintf(
+								/* translators: %d: number of forms. */
+								_n( '%d form restored.', '%d forms restored.', restoredCount, 'jetpack-forms' ),
+								restoredCount
+						  );
+
+				createSuccessNotice( successMessage, {
+					type: 'snackbar',
+					id: `${ successNoticeIdPrefix }-${ Date.now() }`,
+				} );
+			}
+
+			if ( failedCount ) {
+				createErrorNotice(
+					sprintf(
+						/* translators: %d: number of forms. */
+						_n(
+							'Could not restore %d form.',
+							'Could not restore %d forms.',
+							failedCount,
+							'jetpack-forms'
+						),
+						failedCount
+					),
+					{ type: 'snackbar', id: `${ errorNoticeIdPrefix }-${ Date.now() }` }
+				);
+			}
+
+			return { restoredCount, failedCount };
+		},
+		[ createErrorNotice, createSuccessNotice, saveEntityRecord ]
+	);
+
 	const restoreForms = useCallback(
 		async ( items: FormListItem[] ) => {
 			if ( isDeleting || ! items?.length ) {
@@ -102,54 +161,15 @@ export default function useDeleteForm( {
 			const currentQuerySnapshot = currentQuery;
 
 			try {
-				const promises = await Promise.allSettled(
-					items.map( item =>
-						saveEntityRecord(
-							'postType',
-							'jetpack_form',
-							{ id: item.id, status: 'publish' },
-							{ throwOnError: true }
-						)
-					)
-				);
+				const { restoredCount } = await restoreItemsToPublish( items, {
+					successNoticeIdPrefix: 'restore-forms',
+					errorNoticeIdPrefix: 'restore-forms-error',
+				} );
 
-				const restoredCount = promises.filter( p => p.status === 'fulfilled' ).length;
-				const failedCount = promises.length - restoredCount;
-
-				if ( restoredCount ) {
-					const successMessage =
-						restoredCount === 1
-							? __( 'Form restored.', 'jetpack-forms' )
-							: sprintf(
-									/* translators: %d: number of forms. */
-									_n( '%d form restored.', '%d forms restored.', restoredCount, 'jetpack-forms' ),
-									restoredCount
-							  );
-
-					createSuccessNotice( successMessage, {
-						type: 'snackbar',
-						id: `restore-forms-${ Date.now() }`,
-					} );
-
+				if ( restoredCount && shouldNavigateToPreviousPage ) {
 					if ( shouldNavigateToPreviousPage ) {
 						setView( { ...view, page: page - 1 } );
 					}
-				}
-
-				if ( failedCount ) {
-					createErrorNotice(
-						sprintf(
-							/* translators: %d: number of forms. */
-							_n(
-								'Could not restore %d form.',
-								'Could not restore %d forms.',
-								failedCount,
-								'jetpack-forms'
-							),
-							failedCount
-						),
-						{ type: 'snackbar', id: `restore-forms-error-${ Date.now() }` }
-					);
 				}
 			} finally {
 				setIsDeleting( false );
@@ -164,15 +184,13 @@ export default function useDeleteForm( {
 			}
 		},
 		[
-			createErrorNotice,
-			createSuccessNotice,
 			currentQuery,
 			invalidateListQueries,
 			isDeleting,
 			page,
 			perPage,
 			recordsLength,
-			saveEntityRecord,
+			restoreItemsToPublish,
 			search,
 			setView,
 			statusQuery,
@@ -190,64 +208,16 @@ export default function useDeleteForm( {
 			const currentQuerySnapshot = currentQuery;
 
 			try {
-				const promises = await Promise.allSettled(
-					items.map( item =>
-						saveEntityRecord(
-							'postType',
-							'jetpack_form',
-							{ id: item.id, status: 'publish' },
-							{ throwOnError: true }
-						)
-					)
-				);
-
-				const restoredCount = promises.filter( p => p.status === 'fulfilled' ).length;
-				const failedCount = promises.length - restoredCount;
-
-				if ( restoredCount ) {
-					const successMessage =
-						restoredCount === 1
-							? __( 'Form restored.', 'jetpack-forms' )
-							: sprintf(
-									/* translators: %d: number of forms. */
-									_n( '%d form restored.', '%d forms restored.', restoredCount, 'jetpack-forms' ),
-									restoredCount
-							  );
-
-					createSuccessNotice( successMessage, {
-						type: 'snackbar',
-						id: `undo-trash-forms-${ Date.now() }`,
-					} );
-				}
-
-				if ( failedCount ) {
-					createErrorNotice(
-						sprintf(
-							/* translators: %d: number of forms. */
-							_n(
-								'Could not restore %d form.',
-								'Could not restore %d forms.',
-								failedCount,
-								'jetpack-forms'
-							),
-							failedCount
-						),
-						{ type: 'snackbar', id: `undo-trash-forms-error-${ Date.now() }` }
-					);
-				}
+				await restoreItemsToPublish( items, {
+					successNoticeIdPrefix: 'undo-trash-forms',
+					errorNoticeIdPrefix: 'undo-trash-forms-error',
+				} );
 			} finally {
 				setIsDeleting( false );
 				invalidateListQueries( currentQuerySnapshot );
 			}
 		},
-		[
-			createErrorNotice,
-			createSuccessNotice,
-			currentQuery,
-			invalidateListQueries,
-			isDeleting,
-			saveEntityRecord,
-		]
+		[ currentQuery, invalidateListQueries, isDeleting, restoreItemsToPublish ]
 	);
 
 	const trashForms = useCallback(
