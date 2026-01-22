@@ -317,7 +317,8 @@ export default function InboxView() {
 							// Primary so the filter UI (and its pill) is visible by default.
 							filterBy: { operators: [ 'is' ], isPrimary: true },
 							enableSorting: false,
-							enableHiding: true,
+							// Prevent this filter-only field from being offered as a configurable column.
+							enableHiding: false,
 							// Filter-only field; not shown as a column.
 							render: () => null,
 							getValue: () => null,
