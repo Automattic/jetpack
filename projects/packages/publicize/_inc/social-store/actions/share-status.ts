@@ -1,4 +1,6 @@
 import { store as editorStore } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { PostShareStatus, SocialStoreState } from '../types';
 import {
 	FETCH_POST_SHARE_STATUS,
@@ -123,6 +125,8 @@ export function pollingForPostShareStatus( postId: number, polling = true ) {
 	};
 }
 
+const SHARING_IN_PROGRESS_NOTICE_ID = 'publicize_sharing_in_progress_notice';
+
 /**
  * Poll for share status.
  *
@@ -140,6 +144,7 @@ export function pollForPostShareStatus( {
 		const startedAt = Date.now();
 
 		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
+		const { createInfoNotice, removeNotice } = registry.dispatch( noticesStore );
 
 		const lastTimestamp = select.getPostShareStatus( postId ).shares[ 0 ]?.timestamp || 0;
 
@@ -147,6 +152,12 @@ export function pollForPostShareStatus( {
 		let hasTimeoutPassed = false;
 
 		dispatch( pollingForPostShareStatus( postId ) );
+
+		createInfoNotice( __( 'Sharing to your social media…', 'jetpack-publicize-pkg' ), {
+			type: 'snackbar',
+			id: SHARING_IN_PROGRESS_NOTICE_ID,
+			explicitDismiss: true,
+		} );
 
 		do {
 			// Do not invalidate the resolution if the request is still loading.
@@ -165,6 +176,8 @@ export function pollForPostShareStatus( {
 
 			hasTimeoutPassed = Date.now() - startedAt > timeout;
 		} while ( ! isTheRequestComplete && ! hasTimeoutPassed );
+
+		removeNotice( SHARING_IN_PROGRESS_NOTICE_ID );
 
 		dispatch( pollingForPostShareStatus( postId, false ) );
 	};
