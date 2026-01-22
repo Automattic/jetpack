@@ -14,7 +14,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons/index.ts';
 import { store as dashboardStore } from '../../store/index.js';
 import { updateMenuCounter, updateMenuCounterOptimistically, withTimeout } from '../utils.js';
-import { processStatusChange } from './process-status-change';
+import { optimisticallyUpdateUnreadCount, processStatusChange } from './process-status-change';
 import { defaultView } from './views.js';
 /**
  * Types
@@ -302,6 +302,9 @@ export const markAsSpamAction: Action = {
 				} else {
 					// Remove the info notice when undo completes successfully
 					removeNotice( 'mark-as-spam-action' );
+					items.forEach( item => {
+						optimisticallyUpdateUnreadCount( 'spam', 'publish', item.is_unread );
+					} );
 				}
 			} else {
 				// There is at least one failure.
@@ -436,6 +439,9 @@ export const markAsNotSpamAction: Action = {
 					} );
 				} else {
 					removeNotice( 'mark-as-not-spam-action' );
+					items.forEach( item => {
+						optimisticallyUpdateUnreadCount( 'publish', 'spam', item.is_unread );
+					} );
 				}
 			} else {
 				// There is at least one failure.
@@ -563,6 +569,10 @@ export const restoreAction: Action = {
 					} );
 				} else {
 					removeNotice( 'restore-action' );
+					items.forEach( item => {
+						// Since you can send an item to Trash from both Spam and Inbox, we need to restore the unread count based on the new status.
+						optimisticallyUpdateUnreadCount( newStatus, 'trash', item.is_unread );
+					} );
 				}
 
 				return;
@@ -703,6 +713,11 @@ export const moveToTrashAction: Action = {
 					} );
 				} else {
 					removeNotice( 'move-to-trash-action' );
+					// This is an undo action that moves the item from and is triggered by Undo in restore.
+					// Which means that we are on the Trash view and wanted to restore the item back to 'publish' but then decided to undo that.
+					items.forEach( item => {
+						optimisticallyUpdateUnreadCount( 'trash', 'publish', item.is_unread );
+					} );
 				}
 
 				return;

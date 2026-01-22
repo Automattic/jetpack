@@ -71,22 +71,8 @@ export const processStatusChange = async ( {
 		// Update counts optimistically
 		updateCountsOptimistically( item.status, newStatus, 1, queryParams );
 
-		// Update unread counts optimistically in the sidebar only since they do not represent the source of truth for unread items and can safely be temporarily out of sync with the server state.
-		if (
-			item.is_unread &&
-			( newStatus === 'spam' || newStatus === 'trash' ) &&
-			item.status === 'publish'
-		) {
-			updateMenuCounterOptimistically( -1 );
-		}
-
-		if (
-			item.is_unread &&
-			( item.status === 'spam' || item.status === 'trash' ) &&
-			newStatus === 'publish'
-		) {
-			updateMenuCounterOptimistically( 1 );
-		}
+		// Update unread count optimistically
+		optimisticallyUpdateUnreadCount( newStatus, item.status, item.is_unread );
 	} );
 
 	// Call API with timeout
@@ -118,23 +104,8 @@ export const processStatusChange = async ( {
 
 		// Revert the count change
 		updateCountsOptimistically( newStatus, originalStatus, 1, queryParams );
-
-		// Revert the menu counter change
-		if (
-			item.is_unread &&
-			( newStatus === 'spam' || newStatus === 'trash' ) &&
-			originalStatus === 'publish'
-		) {
-			updateMenuCounterOptimistically( 1 ); // Revert the decrement
-		}
-
-		if (
-			item.is_unread &&
-			( originalStatus === 'spam' || originalStatus === 'trash' ) &&
-			newStatus === 'publish'
-		) {
-			updateMenuCounterOptimistically( -1 ); // Revert the increment
-		}
+		// Revert unread count changes in the sidebar (swap statuses to reverse the operation)
+		optimisticallyUpdateUnreadCount( originalStatus, newStatus, item.is_unread );
 	} );
 
 	return {
@@ -142,4 +113,24 @@ export const processStatusChange = async ( {
 		itemsFailed,
 		numberOfErrors: itemsFailed.length,
 	};
+};
+
+export const optimisticallyUpdateUnreadCount = (
+	newStatus: string,
+	oldStatus: string,
+	isUnread: boolean
+) => {
+	if ( ! isUnread ) {
+		return;
+	}
+
+	if ( newStatus === 'spam' || newStatus === 'trash' ) {
+		if ( oldStatus === 'publish' ) {
+			updateMenuCounterOptimistically( -1 );
+		}
+	} else if ( oldStatus === 'spam' || oldStatus === 'trash' ) {
+		if ( newStatus === 'publish' ) {
+			updateMenuCounterOptimistically( 1 );
+		}
+	}
 };
