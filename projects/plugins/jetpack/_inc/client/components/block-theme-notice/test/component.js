@@ -9,7 +9,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 describe( 'BlockThemeNotice', () => {
 	it( 'renders the notice when module is active', () => {
 		render(
-			<BlockThemeNotice isModuleActive={ true } supportLink="jetpack-support-sharing-block" />
+			<BlockThemeNotice isModuleActive={ true } redirectSlug="jetpack-support-sharing-block" />
 		);
 
 		expect(
@@ -22,7 +22,7 @@ describe( 'BlockThemeNotice', () => {
 	} );
 
 	it( 'renders the notice when module is inactive', () => {
-		render( <BlockThemeNotice isModuleActive={ false } supportLink="jetpack-support-likes" /> );
+		render( <BlockThemeNotice isModuleActive={ false } redirectSlug="jetpack-support-likes" /> );
 
 		expect( screen.getByText( /Instead of enabling this legacy feature/ ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Discover how/i } ) ).toHaveAttribute(
@@ -33,7 +33,7 @@ describe( 'BlockThemeNotice', () => {
 
 	it( 'does not show dismiss button', () => {
 		render(
-			<BlockThemeNotice isModuleActive={ true } supportLink="jetpack-support-sharing-block" />
+			<BlockThemeNotice isModuleActive={ true } redirectSlug="jetpack-support-sharing-block" />
 		);
 
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();

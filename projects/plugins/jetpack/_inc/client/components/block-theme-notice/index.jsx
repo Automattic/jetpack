@@ -12,13 +12,13 @@ import SimpleNotice from 'components/notice';
  * block is available. It suggests disabling the legacy module and using
  * the block in the site editor instead.
  *
- * @param {object} props - Component props.
+ * @param {object}  props                - Component props.
  * @param {boolean} props.isModuleActive - Whether the legacy module is currently active.
- * @param {string} props.supportLink - The redirect URL key for the support documentation.
+ * @param {string}  props.redirectSlug   - The slug used with getRedirectUrl for support documentation.
  * @return {import('react').ReactNode} The notice component.
  */
-export default function BlockThemeNotice( { isModuleActive, supportLink } ) {
-	const supportUrl = getRedirectUrl( supportLink );
+export default function BlockThemeNotice( { isModuleActive, redirectSlug } ) {
+	const supportUrl = getRedirectUrl( redirectSlug );
 
 	const message = isModuleActive
 		? createInterpolateElement(
@@ -53,5 +53,5 @@ export default function BlockThemeNotice( { isModuleActive, supportLink } ) {
 
 BlockThemeNotice.propTypes = {
 	isModuleActive: PropTypes.bool.isRequired,
-	supportLink: PropTypes.string.isRequired,
+	redirectSlug: PropTypes.string.isRequired,
 };

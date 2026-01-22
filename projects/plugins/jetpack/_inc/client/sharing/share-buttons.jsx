@@ -91,7 +91,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						{ toggle }
 						<BlockThemeNotice
 							isModuleActive={ isActive }
-							supportLink="jetpack-support-sharing-block"
+							redirectSlug="jetpack-support-sharing-block"
 						/>
 					</>
 				);
