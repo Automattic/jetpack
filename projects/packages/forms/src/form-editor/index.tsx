@@ -138,12 +138,15 @@ const lockFormBlock = () => {
 
 /**
  * Ensure the contact-form block is always selected when no other block is selected.
+ * Also sets the insertion point to inside the form block so the block inserter
+ * shows the correct allowed blocks.
  */
 const enforceBlockSelection = () => {
 	if ( ! formBlockClientId ) {
 		return;
 	}
-	const { getSelectedBlockClientId, hasMultiSelection } = select( 'core/block-editor' );
+	const { getSelectedBlockClientId, hasMultiSelection, getBlockOrder } =
+		select( 'core/block-editor' );
 
 	if ( hasMultiSelection() ) {
 		return;
@@ -154,6 +157,22 @@ const enforceBlockSelection = () => {
 			selectBlock: ( clientId: string ) => void;
 		};
 		selectBlock( formBlockClientId );
+
+		// Set the insertion point to inside the form block so the sidebar inserter
+		// shows the form's allowed blocks instead of root-level blocks.
+		// setIsInserterOpened with rootClientId/insertionIndex sets the insertion point,
+		// then we close it immediately to avoid actually opening the inserter.
+		const { setIsInserterOpened } = dispatch( 'core/editor' ) as {
+			setIsInserterOpened: (
+				value: boolean | { rootClientId: string; insertionIndex: number }
+			) => void;
+		};
+		const innerBlockCount = getBlockOrder( formBlockClientId ).length;
+		setIsInserterOpened( {
+			rootClientId: formBlockClientId,
+			insertionIndex: innerBlockCount, // Insert at end of form
+		} );
+		setIsInserterOpened( false );
 	}
 };
 

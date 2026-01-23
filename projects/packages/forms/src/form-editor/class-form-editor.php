@@ -44,10 +44,13 @@ class Form_Editor {
 	 * @return bool|array Array of allowed block types for jetpack-form posts.
 	 */
 	public static function allowed_blocks_for_jetpack_form( $allowed_block_types, $editor_context ) {
+		l( 'requested allowed blocks for jetpack-form', $editor_context );
 		// Only apply to jetpack-form post type.
 		if ( ! isset( $editor_context->post ) || Contact_Form::POST_TYPE !== $editor_context->post->post_type ) {
 			return $allowed_block_types;
 		}
+
+		l( 'requested allowed blocks for jetpack-form' );
 
 		// Allow only field blocks, button, and core blocks.
 		// Visual wrapping is handled by JavaScript DOM manipulation.

@@ -6,6 +6,7 @@ import renderMaterialIcon from '../shared/components/render-material-icon.js';
 import defaultAttributes from './attributes.ts';
 import deprecated from './deprecated.js';
 import edit from './edit.tsx';
+import { getAllowedBlocks } from './get-allowed-blocks.ts';
 import transforms from './transforms.js';
 import variations from './variations.js';
 
@@ -114,6 +115,7 @@ export const settings = {
 	category: 'contact-form',
 	transforms,
 	deprecated,
+	allowedBlocks: getAllowedBlocks(),
 	__experimentalLabel: ( { ref } ) => {
 		return ref ? __( 'Form', 'jetpack-forms' ) + ' (Synced)' : __( 'Form', 'jetpack-forms' );
 	},
