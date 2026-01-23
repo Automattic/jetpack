@@ -312,4 +312,8 @@ export interface FormsConfigData {
 	newFormNonce?: string;
 	/** Number of days before WordPress permanently deletes trash. See https://developer.wordpress.org/advanced-administration/wordpress/wp-config/#empty-trash */
 	emptyTrashDays?: number;
+	/** The base admin URL for the site. */
+	adminUrl?: string;
+	/** The admin-ajax.php URL for the site. */
+	ajaxUrl?: string;
 }
