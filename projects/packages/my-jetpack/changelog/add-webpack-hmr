@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add HMR support by wiring up webpack dev server.

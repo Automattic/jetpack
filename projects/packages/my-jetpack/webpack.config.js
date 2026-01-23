@@ -72,5 +72,8 @@ module.exports = [
 				consumer_slug: 'my_jetpack',
 			} ),
 		},
+		devServer: jetpackWebpackConfig.DevServer( {
+			static: { directory: path.resolve( './build' ) },
+		} ),
 	},
 ];

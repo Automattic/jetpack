@@ -91,5 +91,8 @@ module.exports = [
 			'block-editor-jetpack': './_inc/entry-points/block-editor-jetpack.tsx',
 			'block-editor-social': './_inc/entry-points/block-editor-social.tsx',
 		},
+		devServer: jetpackWebpackConfig.DevServer( {
+			static: { directory: path.resolve( './build' ) },
+		} ),
 	},
 ];
