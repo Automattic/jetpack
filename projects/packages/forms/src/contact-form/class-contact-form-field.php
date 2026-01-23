@@ -941,13 +941,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 		return '
 			<div id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error" class="contact-form__input-error" data-wp-class--has-errors="state.fieldHasErrors">
-				<span class="contact-form__warning-icon">
+				<span class="contact-form__warning-icon" aria-hidden="true">
 					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z" />
 						<path d="M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z" />
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z" />
 					</svg>
-					<span class="visually-hidden">' . __( 'Warning', 'jetpack-forms' ) . '</span>
 				</span>
 				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message" role="alert" aria-live="assertive"></span>
 			</div>';
