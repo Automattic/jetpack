@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Jetpack Sync: Send Heartbeat data immediately.
+Stats Module: Send Heartbeat data immediately.
