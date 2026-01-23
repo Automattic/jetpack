@@ -102,6 +102,7 @@ const setupMockUseSelect = ( data: MockSelectorData ) => {
 					getPostShareStatus: () => postShareStatus,
 					getScheduledSharesForPost: () => scheduledShares,
 					isFetchingScheduledSharesForPost: () => isFetchingScheduled,
+					getConnections: () => Array.from( connections.values() ),
 					getConnectionById: ( id: string ) => connections.get( id ),
 					isDeletingScheduledShare: ( id: number ) => deletingIds.includes( id ),
 				};
