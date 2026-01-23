@@ -82,7 +82,7 @@
 		"gridicons": "3.4.2",
 		"js-sha256": "0.11.1",
 		"libphonenumber-js": "1.12.34",
-		"lodash": "4.17.21",
+		"lodash": "4.17.23",
 		"photon": "4.1.1",
 		"react-redux": "7.2.8",
 		"react-router": "7.12.0",

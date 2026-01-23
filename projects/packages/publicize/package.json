@@ -24,7 +24,8 @@
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
 		"validate": "pnpm exec validate-es build/",
-		"watch": "pnpm run build && webpack watch"
+		"watch": "pnpm run build && webpack watch",
+		"watch:hot": "pnpm run clean && webpack serve"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -69,6 +70,7 @@
 		"react-page-visibility": "7.0.0"
 	},
 	"devDependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/calypso-color-schemes": "4.0.0",
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
@@ -100,6 +102,7 @@
 		"storybook": "10.1.10",
 		"typescript": "5.9.3",
 		"webpack": "5.101.3",
-		"webpack-cli": "6.0.1"
+		"webpack-cli": "6.0.1",
+		"webpack-dev-server": "5.2.3"
 	}
 }
