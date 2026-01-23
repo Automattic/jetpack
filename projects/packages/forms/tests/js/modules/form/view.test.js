@@ -1,4 +1,11 @@
 import { describe, expect, test } from '@jest/globals';
+import { getRating } from '../../../../src/modules/field-rating/helpers.js';
+import {
+	maybeAddColonToLabel,
+	maybeTransformValue,
+	getImages,
+	getUrl,
+} from '../../../../src/modules/form/helpers.js';
 
 /**
  * Tests for the showPlainValue logic in form submission data formatting.
@@ -611,81 +618,3 @@ describe( 'Form View - getRating helper', () => {
 		expect( result.iconStyle ).toBe( 'hearts' );
 	} );
 } );
-
-// Helper functions replicated from view.js for testing
-const maybeAddColonToLabel = label => {
-	const formattedLabel = label ? label : null;
-
-	if ( ! formattedLabel ) {
-		return null;
-	}
-	return formattedLabel.endsWith( '?' )
-		? formattedLabel
-		: formattedLabel.replace( /[.:]$/, '' ) + ':';
-};
-
-const maybeTransformValue = value => {
-	if ( value?.type === 'image-select' ) {
-		return value.choices
-			.map( choice => {
-				let transformedValue = choice.perceived;
-
-				if ( choice.showLabels && choice.label != null && choice.label !== '' ) {
-					transformedValue += ' - ' + choice.label;
-				}
-
-				return transformedValue;
-			} )
-			.join( ', ' );
-	}
-
-	if ( value?.type === 'url' && value?.url ) {
-		return value.url;
-	}
-
-	return value;
-};
-
-const getImages = value => {
-	if ( value?.type === 'image-select' ) {
-		return value.choices.map( choice => {
-			const letterCode = choice.perceived ?? '';
-			const label =
-				choice.showLabels && choice.label != null && choice.label !== '' ? choice.label : '';
-
-			return {
-				src: choice.image?.src ?? '',
-				letterCode,
-				label,
-			};
-		} );
-	}
-
-	return null;
-};
-
-const getUrl = value => {
-	if ( value?.type === 'url' && value?.url ) {
-		let url = value.url;
-
-		if ( ! /^https?:\/\//i.test( url ) ) {
-			url = 'https://' + url;
-		}
-
-		return url;
-	}
-
-	return null;
-};
-
-const getRating = value => {
-	if ( value?.type === 'rating' ) {
-		return {
-			rating: value.rating ?? 0,
-			maxRating: value.maxRating ?? 5,
-			iconStyle: value.iconStyle ?? 'stars',
-		};
-	}
-
-	return null;
-};
