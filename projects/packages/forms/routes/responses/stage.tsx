@@ -35,7 +35,11 @@ import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 import { getPath } from '../../src/dashboard/inbox/utils';
 import { useDashboardSearchParams } from '../../src/dashboard/router/dashboard-search-params-context';
-import { isExternalAdminContext, getViewFromUrl } from '../../src/dashboard/router/utils';
+import {
+	isExternalAdminContext,
+	getViewFromUrl,
+	DASHBOARD_URL_CHANGE_EVENT,
+} from '../../src/dashboard/router/utils';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
@@ -184,8 +188,29 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
  */
 function StageContent() {
 	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
-	const currentView = getViewFromUrl();
+	const [ currentView, setCurrentView ] = useState( getViewFromUrl );
 	const isExternal = isExternalAdminContext();
+
+	// Listen for URL changes in external admin context to update view
+	useEffect( () => {
+		if ( ! isExternal ) {
+			return;
+		}
+
+		/**
+		 * Updates view state when URL changes via browser navigation or custom event.
+		 */
+		function handleUrlChange() {
+			setCurrentView( getViewFromUrl() );
+		}
+
+		window.addEventListener( 'popstate', handleUrlChange );
+		window.addEventListener( DASHBOARD_URL_CHANGE_EVENT, handleUrlChange );
+		return () => {
+			window.removeEventListener( 'popstate', handleUrlChange );
+			window.removeEventListener( DASHBOARD_URL_CHANGE_EVENT, handleUrlChange );
+		};
+	}, [ isExternal ] );
 
 	const counts = useSelect(
 		select => ( select( dashboardStore ) as SelectActions ).getCounts(),
@@ -251,9 +276,8 @@ function StageContent() {
 		items => {
 			const nextParams = new URLSearchParams( searchParams );
 			nextParams.delete( 'responseIds' );
-			if ( items.length > 0 ) {
-				// Use JSON array format to match TanStack Router expectations
-				nextParams.set( 'responseIds', JSON.stringify( items.map( String ) ) );
+			for ( const item of items ) {
+				nextParams.append( 'responseIds', String( item ) );
 			}
 			setSearchParams( nextParams );
 		},
@@ -966,20 +990,25 @@ function StageContent() {
 	const handleTabChange = useCallback(
 		newView => {
 			if ( isExternal ) {
-				// In external admin, update URL via history API
+				// In external admin, update URL via history API and dispatch custom event
 				const url = new URL( window.location.href );
 				const pValue = url.searchParams.get( 'p' );
 				if ( pValue ) {
-					// Update path inside the p parameter
-					const pUrl = new URL( pValue, window.location.origin );
-					const newPath = pUrl.pathname.replace( /\/[^/?#]+$/, `/${ newView }` );
-					url.searchParams.set( 'p', newPath + pUrl.search );
-					window.history.pushState( {}, '', url.toString() );
-					window.location.reload();
+					try {
+						// Update path inside the p parameter
+						const pUrl = new URL( pValue, window.location.origin );
+						const newPath = pUrl.pathname.replace( /\/[^/?#]+$/, `/${ newView }` );
+						url.searchParams.set( 'p', newPath + pUrl.search );
+						window.history.pushState( {}, '', url.toString() );
+						// Dispatch custom event to notify components of URL change
+						window.dispatchEvent( new CustomEvent( DASHBOARD_URL_CHANGE_EVENT ) );
+					} catch {
+						// Fallback to page reload if URL parsing fails
+						window.location.reload();
+					}
 				}
 			} else {
-				// Standard wp-route navigation - need to use window.location for now
-				// since we don't have access to the navigate function in external context
+				// Standard wp-route navigation
 				const basePath = getPath();
 				window.location.href = `${ basePath }/${ newView }`;
 			}

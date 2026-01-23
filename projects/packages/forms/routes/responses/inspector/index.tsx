@@ -33,37 +33,16 @@ import CopyClipboardButton from '../../../src/dashboard/components/copy-clipboar
 import Flag from '../../../src/dashboard/components/flag';
 import Gravatar from '../../../src/dashboard/components/gravatar';
 import { useDashboardSearchParams } from '../../../src/dashboard/router/dashboard-search-params-context';
+import {
+	getViewFromUrl,
+	isExternalAdminContext,
+	DASHBOARD_URL_CHANGE_EVENT,
+} from '../../../src/dashboard/router/utils';
 import WpRouteDashboardSearchParamsProvider from '../../../src/dashboard/router/wp-route-dashboard-search-params-provider';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../../src/types/index.ts';
-
-/**
- * Pattern to extract view from URL pathname.
- */
-const VIEW_PATTERN = /(?:\/responses\/|\/marketing\/forms\/|\/forms\/)([^/?#]+)/;
-
-/**
- * Get effective pathname, checking for external admin ?p= parameter.
- *
- * @return The effective pathname.
- */
-function getEffectivePathname(): string {
-	const url = new URL( window.location.href );
-	return url.searchParams.get( 'p' ) || url.pathname;
-}
-
-/**
- * Extract view parameter from URL pathname.
- *
- * @return The view parameter (inbox, spam, or trash).
- */
-function getViewFromUrl(): string {
-	const pathname = getEffectivePathname();
-	const match = pathname.match( VIEW_PATTERN );
-	return match?.[ 1 ] || 'inbox';
-}
 
 const getDisplayName = ( response: FormResponse ) => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -697,16 +676,33 @@ function SingleResponseView( {
  */
 function InspectorContent() {
 	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
-	const view = getViewFromUrl();
+	const [ view, setView ] = useState( getViewFromUrl );
+	const isExternal = isExternalAdminContext();
 	const responseIds = searchParams.getAll( 'responseIds' );
 
+	// Listen for URL changes in external admin context to update view
+	useEffect( () => {
+		if ( ! isExternal ) {
+			return;
+		}
+
+		/**
+		 * Updates view state when URL changes via browser navigation or custom event.
+		 */
+		function handleUrlChange() {
+			setView( getViewFromUrl() );
+		}
+
+		window.addEventListener( 'popstate', handleUrlChange );
+		window.addEventListener( DASHBOARD_URL_CHANGE_EVENT, handleUrlChange );
+		return () => {
+			window.removeEventListener( 'popstate', handleUrlChange );
+			window.removeEventListener( DASHBOARD_URL_CHANGE_EVENT, handleUrlChange );
+		};
+	}, [ isExternal ] );
+
 	// Determine the status based on the current view
-	let status = 'publish';
-	if ( view === 'spam' ) {
-		status = 'spam';
-	} else if ( view === 'trash' ) {
-		status = 'trash';
-	}
+	const status = view === 'spam' || view === 'trash' ? view : 'publish';
 
 	// Fetch all visible records using the same query as the stage
 	// This leverages core-data's cache, so records loaded by stage are reused

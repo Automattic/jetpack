@@ -45,10 +45,14 @@ function parseExternalAdminSearchParams(): URLSearchParams {
 	if ( rawResponseIds.length === 0 ) {
 		const pValue = url.searchParams.get( 'p' );
 		if ( pValue && pValue.includes( '?' ) ) {
-			const pUrl = new URL( pValue, window.location.origin );
-			rawResponseIds = pUrl.searchParams.getAll( 'responseIds' );
-			if ( ! search ) {
-				search = pUrl.searchParams.get( 'search' );
+			try {
+				const pUrl = new URL( pValue, window.location.origin );
+				rawResponseIds = pUrl.searchParams.getAll( 'responseIds' );
+				if ( ! search ) {
+					search = pUrl.searchParams.get( 'search' );
+				}
+			} catch {
+				// Ignore malformed p values that cannot be parsed as URLs.
 			}
 		}
 	}
@@ -194,16 +198,25 @@ function ExternalAdminSearchParamsProvider( {
 			const pValue = url.searchParams.get( 'p' );
 
 			if ( pValue ) {
-				// Update params inside the p parameter
-				const pUrl = new URL( pValue, window.location.origin );
-				// Clear existing params we manage
-				pUrl.searchParams.delete( 'responseIds' );
-				pUrl.searchParams.delete( 'search' );
-				// Set new params
-				for ( const [ key, value ] of resolved.entries() ) {
-					pUrl.searchParams.append( key, value );
+				try {
+					// Update params inside the p parameter
+					const pUrl = new URL( pValue, window.location.origin );
+					// Clear existing params we manage
+					pUrl.searchParams.delete( 'responseIds' );
+					pUrl.searchParams.delete( 'search' );
+					// Set new params
+					for ( const [ key, value ] of resolved.entries() ) {
+						pUrl.searchParams.append( key, value );
+					}
+					url.searchParams.set( 'p', pUrl.pathname + pUrl.search );
+				} catch {
+					// Fallback: Update direct URL params if pValue is malformed
+					url.searchParams.delete( 'responseIds' );
+					url.searchParams.delete( 'search' );
+					for ( const [ key, value ] of resolved.entries() ) {
+						url.searchParams.append( key, value );
+					}
 				}
-				url.searchParams.set( 'p', pUrl.pathname + pUrl.search );
 			} else {
 				// Update direct URL params
 				url.searchParams.delete( 'responseIds' );

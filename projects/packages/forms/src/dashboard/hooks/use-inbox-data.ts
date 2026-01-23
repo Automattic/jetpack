@@ -42,17 +42,25 @@ function formatFieldName( fieldName: string ): string {
 }
 
 /**
- * Checks if an object or array is empty.
+ * Checks if a value is empty (null, undefined, empty string, empty array, or empty object).
  *
- * @see https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore?tab=readme-ov-file#_isempty
- * @param {unknown} obj - The object to check.
+ * @param {unknown} value - The value to check.
  * @return {boolean} True if empty, false otherwise.
  */
-function isEmpty( obj: unknown ): boolean {
-	return (
-		[ Object, Array ].includes( ( obj || {} ).constructor as ObjectConstructor ) &&
-		! Object.entries( obj || {} ).length
-	);
+function isEmpty( value: unknown ): boolean {
+	if ( value == null ) {
+		return true;
+	}
+	if ( typeof value === 'string' ) {
+		return value.trim().length === 0;
+	}
+	if ( Array.isArray( value ) ) {
+		return value.length === 0;
+	}
+	if ( typeof value === 'object' ) {
+		return Object.keys( value ).length === 0;
+	}
+	return false;
 }
 
 /**
