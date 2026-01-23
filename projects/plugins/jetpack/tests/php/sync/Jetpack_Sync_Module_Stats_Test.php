@@ -14,6 +14,21 @@ class Jetpack_Sync_Module_Stats_Test extends Jetpack_Sync_TestBase {
 	const TEST_STAT_VALUE = 'test_stat_value';
 
 	/**
+	 * Tests that heartbeat is sent immediately.
+	 */
+	public function test_sends_data_on_heartbeat_immediately() {
+		$heartbeat = Heartbeat::init();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+		$heartbeat->cron_exec();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
+
+		$this->assertEquals( 'immediate-send', $action->queue );
+	}
+
+	/**
 	 * Tests that stats data is sent on heartbeat.
 	 */
 	public function test_sends_data_on_heartbeat() {
@@ -26,7 +41,6 @@ class Jetpack_Sync_Module_Stats_Test extends Jetpack_Sync_TestBase {
 		$heartbeat->cron_exec();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
-		$this->sender->do_sync();
 		remove_filter( 'jetpack_heartbeat_stats_array', array( $this, 'add_test_stat' ) );
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
@@ -43,8 +57,6 @@ class Jetpack_Sync_Module_Stats_Test extends Jetpack_Sync_TestBase {
 		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 		$heartbeat->cron_exec();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
-
-		$this->sender->do_sync();
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
 
@@ -68,7 +80,6 @@ class Jetpack_Sync_Module_Stats_Test extends Jetpack_Sync_TestBase {
 		$heartbeat->cron_exec();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
-		$this->sender->do_sync();
 		remove_filter( 'jetpack_heartbeat_stats_array', array( $this, 'add_test_stat' ) );
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
@@ -114,7 +125,6 @@ class Jetpack_Sync_Module_Stats_Test extends Jetpack_Sync_TestBase {
 		$heartbeat->cron_exec();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
-		$this->sender->do_sync();
 		add_filter( 'jetpack_heartbeat_stats_array', array( $this, 'add_test_stat' ) );
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
