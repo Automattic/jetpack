@@ -113,6 +113,11 @@ class LCP_Optimize_Bg_Image {
 				);
 			}
 
+			// Skip outputting empty style block when cssOverride is disabled.
+			if ( empty( $styles ) ) {
+				continue;
+			}
+
 			$bg_styling = PHP_EOL . '<style id="jetpack-boost-lcp-background-image">' . PHP_EOL;
 			// Ensure no </style> tag (or any HTML tags) in output.
 			$bg_styling .= wp_strip_all_tags( implode( PHP_EOL, $styles ) ) . PHP_EOL;
