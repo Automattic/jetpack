@@ -160,8 +160,12 @@ class Jetpack_Likes {
 	 * Load scripts and styles for front end.
 	 */
 	public function load_styles_register_scripts() {
-		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
-		wp_style_add_data( 'jetpack_likes', 'path', plugin_dir_path( __FILE__ ) . 'likes/style.css' );
+		$style_url = Assets::get_file_url_for_environment(
+			'_inc/build/likes/style.min.css',
+			'modules/likes/style.css'
+		);
+		wp_enqueue_style( 'jetpack_likes', $style_url, array(), JETPACK__VERSION );
+		wp_style_add_data( 'jetpack_likes', 'path', $style_url );
 		wp_register_script(
 			'jetpack_likes_queuehandler',
 			Assets::get_file_url_for_environment(

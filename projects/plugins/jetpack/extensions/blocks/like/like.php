@@ -85,8 +85,11 @@ function render_block( $attr, $content, $block ) {
 		}
 		$script_url = content_url( 'mu-plugins/likes/queuehandler.js' );
 	} else {
-		$style_url  = plugins_url( 'modules/likes/style.css', dirname( __DIR__, 2 ) );
-		$style_path = dirname( __DIR__, 3 ) . '/modules/likes/style.css';
+		$style_url  = Assets::get_file_url_for_environment(
+			'_inc/build/likes/style.min.css',
+			'modules/likes/style.css'
+		);
+		$style_path = $style_url;
 		$script_url = Assets::get_file_url_for_environment(
 			'_inc/build/likes/queuehandler.min.js',
 			'modules/likes/queuehandler.js'
