@@ -227,6 +227,12 @@ class Agents_Manager {
 	 * Determine if the agents manager files should be enqueued.
 	 */
 	private function should_enqueue_script() {
+		// Don't load in iframe preview contexts (dashboard preview, theme preview, etc.)
+		// IFRAME_REQUEST is defined by Jetpack_Iframe_Embed when URL contains ?iframe=true&preview=true
+		if ( defined( 'IFRAME_REQUEST' ) && IFRAME_REQUEST ) {
+			return false;
+		}
+
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
 		}
