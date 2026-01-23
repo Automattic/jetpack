@@ -169,6 +169,16 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		return stringValue;
 	};
 
+	const renderLabel = () => {
+		if ( fieldType === 'consent' ) {
+			if ( label.endsWith( '?' ) ) {
+				return label;
+			}
+			return label.endsWith( '.' ) ? `${ label.slice( 0, -1 ) }:` : `${ label }:`;
+		}
+		return label.endsWith( '?' ) ? label : `${ label }:`;
+	};
+
 	return (
 		<HStack
 			alignment="topLeft"
@@ -177,9 +187,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		>
 			<div className="jp-forms__field-preview-icon">{ icon }</div>
 			<VStack spacing="0" className="jp-forms__field-preview-content">
-				<div className="jp-forms__field-preview-label">
-					{ label.endsWith( '?' ) ? label : `${ label }:` }
-				</div>
+				<div className="jp-forms__field-preview-label">{ renderLabel() }</div>
 				<div className="jp-forms__field-preview-value">{ renderFieldValue() }</div>
 			</VStack>
 		</HStack>
