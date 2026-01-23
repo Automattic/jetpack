@@ -35,7 +35,6 @@ class Jetpack_Plugin_Compatibility {
 		'reset-wp/reset-wp.php'                           => '"reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'reset/data_reset.php'                            => '"reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'secure-file-manager/secure-file-manager.php'     => '"secure-file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'super-blank/super-blank.php'                     => '"super-blank" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'ultimate-reset/ultimate-reset.php'               => '"ultimate-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'ultimate-wp-reset/ultimate-wordpress-reset.php'  => '"ultimate-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'username-changer/class-username-changer.php'     => '"username-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
