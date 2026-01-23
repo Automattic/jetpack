@@ -912,7 +912,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					id='" . esc_attr( $id ) . "'
 					value='" . esc_attr( $value ) . "'
 
-					data-wp-bind--aria-invalid='state.fieldHasErrors'
+					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='state.getFieldValue'
 					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
 					data-wp-on--input='actions.onFieldChange'
@@ -1057,6 +1057,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			echo wp_interactivity_data_wp_context(
 				array(
 					'fieldId'             => $id,
+					'fieldType'           => 'telephone',
 					'defaultCountry'      => $default_country,
 					'showCountrySelector' => $this->get_attribute( 'showcountryselector' ),
 					// dynamic
@@ -1140,7 +1141,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					id="<?php echo esc_attr( $link_label_id ); ?>"
 					name="<?php echo esc_attr( $link_label_id ); ?>"
 					data-wp-bind--disabled='state.isSubmitting'
-					data-wp-bind--aria-invalid='state.fieldHasErrors'
+					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='context.phoneNumber'
 					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
 					data-wp-on--input='actions.phoneNumberInputHandler'
@@ -1217,8 +1218,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-on--input='actions.onFieldChange'
 						data-wp-on--blur='actions.onFieldBlur'
 						data-wp-class--has-value='state.hasFieldValue'
-						data-wp-bind--aria-invalid='state.fieldHasErrors'
 						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
+						data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 						"
 						. ( $this->get_attribute( 'labelhiddenbyblockvisibility' )
 							? "aria-label='" . esc_attr( $aria_label ) . "'"
@@ -1280,9 +1281,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
@@ -1723,9 +1724,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
+			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
@@ -1831,7 +1832,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$aria_label = ! empty( $this->get_attribute( 'togglelabel' ) )
 			? Contact_Form_Plugin::strip_tags( $this->get_attribute( 'togglelabel' ) )
 			: __( 'Select an option', 'jetpack-forms' ); // selects don't have a default label
-		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldHasErrors' " . ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ? "aria-label='" . esc_attr( $aria_label ) . "'" : '' ) . ">\n";
+		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' " . ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ? "aria-label='" . esc_attr( $aria_label ) . "'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -2024,7 +2025,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
 
-		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
@@ -2954,7 +2955,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					required<?php endif; ?>
 					data-wp-bind--value="state.getSliderValue"
 					data-wp-on--input="actions.onSliderChange"
-					data-wp-bind--aria-invalid="state.fieldHasErrors"
+					data-wp-bind--aria-invalid="state.fieldAriaInvalid"
 				/>
 				<div
 					class="jetpack-field-slider__value-indicator"
