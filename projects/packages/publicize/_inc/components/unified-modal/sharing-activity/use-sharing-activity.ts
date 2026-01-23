@@ -56,29 +56,8 @@ export function useSharingActivity(): UseSharingActivityReturn {
 		[ postId ]
 	);
 
-	// Get connections for all activity items (reactive)
-	const connectionsArray = useSelect(
-		select => {
-			const { getConnectionById } = select( socialStore );
-
-			// Collect unique connection IDs from both shared and scheduled items
-			const connectionIds = new Set< string >();
-			for ( const share of postShareStatus.shares ) {
-				connectionIds.add( share.connection_id.toString() );
-			}
-			for ( const share of scheduledShares ) {
-				connectionIds.add( share.connection_id.toString() );
-			}
-
-			return Array.from( connectionIds )
-				.map( connectionId => ( {
-					connectionId,
-					connection: getConnectionById( connectionId ),
-				} ) )
-				.filter( item => item.connection );
-		},
-		[ postShareStatus.shares, scheduledShares ]
-	);
+	// Get all connections (stable reference from store)
+	const allConnections = useSelect( select => select( socialStore ).getConnections(), [] );
 
 	// Get IDs of scheduled shares being deleted (reactive)
 	const deletingIdsArray = useSelect(
@@ -93,8 +72,8 @@ export function useSharingActivity(): UseSharingActivityReturn {
 
 	// Create lookup structures outside useSelect to avoid "data changing" warnings
 	const connectionsMap = useMemo(
-		() => new Map( connectionsArray.map( item => [ item.connectionId, item.connection ] ) ),
-		[ connectionsArray ]
+		() => new Map( allConnections.map( connection => [ connection.connection_id, connection ] ) ),
+		[ allConnections ]
 	);
 	const deletingIds = useMemo( () => new Set( deletingIdsArray ), [ deletingIdsArray ] );
 
