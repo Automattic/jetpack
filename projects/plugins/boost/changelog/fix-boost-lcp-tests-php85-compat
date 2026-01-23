@@ -1,5 +1,3 @@
 Significance: patch
 Type: changed
-Comment: Test files only
-
-
+Tests: Fix/adjust LCP optimization tests for PHP 8.5 compatibility.
