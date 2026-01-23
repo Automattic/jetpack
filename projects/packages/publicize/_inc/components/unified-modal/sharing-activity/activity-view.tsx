@@ -67,13 +67,6 @@ function getFiltersForTab( filter: SharingActivityFilter ): Filter[] {
 	return [];
 }
 
-interface ActivityViewProps {
-	/**
-	 * The current filter to apply.
-	 */
-	filter?: SharingActivityFilter;
-}
-
 /**
  * DataViews component for unified sharing activity.
  *
