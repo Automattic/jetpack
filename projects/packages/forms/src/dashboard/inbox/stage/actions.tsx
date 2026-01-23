@@ -13,13 +13,13 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { notSpam, spam } from '../../icons/index.ts';
 import { store as dashboardStore } from '../../store/index.js';
-import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils.js';
+import { updateMenuCounter, updateMenuCounterOptimistically, withTimeout } from '../utils.js';
+import { optimisticallyUpdateUnreadCount, processStatusChange } from './process-status-change';
 import { defaultView } from './views.js';
 /**
  * Types
  */
-import type { Action, DispatchActions, QueryParams, Registry } from './types.tsx';
-import type { FormResponse } from '../../../types/index.ts';
+import type { Action, QueryParams, Registry } from './types.tsx';
 
 /**
  * Helper function to extract count-relevant query params from the current query.
@@ -132,26 +132,6 @@ const getGenericErrorMessage = ( numberOfErrors: number ): string => {
 		  );
 };
 
-/**
- * Wraps a promise with a timeout to ensure it rejects after a reasonable time.
- * This is useful for network requests that might hang when the network is disabled.
- *
- * @param {Promise} promise   - The promise to wrap.
- * @param {number}  timeoutMs - The timeout in milliseconds (default: 30000).
- * @return {Promise} The wrapped promise that will reject on timeout.
- */
-const withTimeout = (
-	promise: Promise< unknown >,
-	timeoutMs: number = 30000
-): Promise< unknown > => {
-	return Promise.race( [
-		promise,
-		new Promise( ( _, reject ) =>
-			setTimeout( () => reject( new Error( 'Request timeout' ) ), timeoutMs )
-		),
-	] );
-};
-
 /*
  * Waits until the current entity records query resolves (or times out).
  */
@@ -174,101 +154,6 @@ const waitForEntityRecordsResolution = async (
 	} catch {
 		// Ignore failures/timeouts—UI should still recover once data arrives.
 	}
-};
-
-/**
- * Type for the result of processStatusChange.
- */
-type StatusChangeResult = {
-	itemsUpdated: { id: number }[];
-	itemsFailed: number[];
-	numberOfErrors: number;
-};
-
-type ProcessStatusChangeParams = {
-	items: FormResponse[];
-	newStatus: string;
-	apiCall: ( id: number ) => Promise< unknown >;
-	editEntityRecord: DispatchActions[ 'editEntityRecord' ];
-	updateCountsOptimistically: DispatchActions[ 'updateCountsOptimistically' ];
-	queryParams: QueryParams;
-};
-
-/**
- * Helper function to process status changes with optimistic updates and error handling.
- * Optimistic Update Strategy:
- * 1. Immediately update local state and counts
- * 2. Make API call
- * 3. On success: invalidate cache to sync with server
- * 4. On failure: rollback local changes
- * 5. Undo actions must preserve original status for proper restoration
- * @param {object}         params                            - The parameters for the status change.
- * @param {FormResponse[]} params.items                      - The items to update.
- * @param {string}         params.newStatus                  - The new status to set.
- * @param {Function}       params.apiCall                    - The API call function (saveEntityRecord or deleteEntityRecord).
- * @param {Function}       params.editEntityRecord           - The editEntityRecord dispatch function.
- * @param {Function}       params.updateCountsOptimistically - The updateCountsOptimistically dispatch function.
- * @param {QueryParams}    params.queryParams                - The query params for count updates.
- * @return {Promise<StatusChangeResult>} The result of the status change operation.
- */
-const processStatusChange = async ( {
-	items,
-	newStatus,
-	apiCall,
-	editEntityRecord,
-	updateCountsOptimistically,
-	queryParams,
-}: ProcessStatusChangeParams ): Promise< StatusChangeResult > => {
-	// Store original statuses before making optimistic changes
-	const originalStatuses = items.map( item => item.status );
-
-	// Make optimistic updates
-	items.forEach( item => {
-		editEntityRecord( 'postType', 'feedback', item.id, {
-			status: newStatus,
-		} );
-
-		// Update counts optimistically
-		updateCountsOptimistically( item.status, newStatus, 1, queryParams );
-	} );
-
-	// Call API with timeout
-	const promises = await Promise.allSettled(
-		items.map( ( { id } ) => withTimeout( apiCall( id ) ) as Promise< { id: number } > )
-	);
-
-	// Check for both rejected promises and fulfilled promises with undefined/invalid results
-	// const itemsUpdated: PromiseFulfilledResult< { id: number } >[] = [];
-	const itemsUpdated: { id: number }[] = [];
-	const itemsFailed: number[] = [];
-
-	promises.forEach( ( promise, index ) => {
-		// Failed if rejected OR if fulfilled but result is invalid
-		if ( promise.status === 'rejected' || ! promise.value?.id ) {
-			itemsFailed.push( index );
-		} else {
-			itemsUpdated.push( promise.value );
-		}
-	} );
-
-	// Revert optimistic changes for failed items
-	itemsFailed.forEach( index => {
-		const item = items[ index ];
-		const originalStatus = originalStatuses[ index ];
-
-		editEntityRecord( 'postType', 'feedback', item.id, {
-			status: originalStatus,
-		} );
-
-		// Revert the count change
-		updateCountsOptimistically( newStatus, originalStatus, 1, queryParams );
-	} );
-
-	return {
-		itemsUpdated,
-		itemsFailed,
-		numberOfErrors: itemsFailed.length,
-	};
 };
 
 export const BULK_ACTIONS = {
@@ -417,6 +302,9 @@ export const markAsSpamAction: Action = {
 				} else {
 					// Remove the info notice when undo completes successfully
 					removeNotice( 'mark-as-spam-action' );
+					items.forEach( item => {
+						optimisticallyUpdateUnreadCount( 'spam', 'publish', item.is_unread );
+					} );
 				}
 			} else {
 				// There is at least one failure.
@@ -551,6 +439,9 @@ export const markAsNotSpamAction: Action = {
 					} );
 				} else {
 					removeNotice( 'mark-as-not-spam-action' );
+					items.forEach( item => {
+						optimisticallyUpdateUnreadCount( 'publish', 'spam', item.is_unread );
+					} );
 				}
 			} else {
 				// There is at least one failure.
@@ -678,6 +569,10 @@ export const restoreAction: Action = {
 					} );
 				} else {
 					removeNotice( 'restore-action' );
+					items.forEach( item => {
+						// Since you can send an item to Trash from both Spam and Inbox, we need to restore the unread count based on the new status.
+						optimisticallyUpdateUnreadCount( newStatus, 'trash', item.is_unread );
+					} );
 				}
 
 				return;
@@ -818,6 +713,11 @@ export const moveToTrashAction: Action = {
 					} );
 				} else {
 					removeNotice( 'move-to-trash-action' );
+					// This is an undo action that moves the item from and is triggered by Undo in restore.
+					// Which means that we are on the Trash view and wanted to restore the item back to 'publish' but then decided to undo that.
+					items.forEach( item => {
+						optimisticallyUpdateUnreadCount( 'trash', 'publish', item.is_unread );
+					} );
 				}
 
 				return;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting.

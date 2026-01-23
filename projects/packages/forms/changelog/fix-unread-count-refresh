@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fix unread count not updating when feedback status changes between published and unpublished states.

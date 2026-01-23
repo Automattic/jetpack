@@ -5,11 +5,10 @@ import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useRef, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { isEmpty } from 'lodash';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import { useDashboardSearchParams } from '../router/dashboard-search-params-context.tsx';
 import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
@@ -38,10 +37,15 @@ const formatFieldName = fieldName => {
 	return fieldName;
 };
 
+// https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore?tab=readme-ov-file#_isempty
+const isEmpty = obj =>
+	[ Object, Array ].includes( ( obj || {} ).constructor ) && ! Object.entries( obj || {} ).length;
+
 const formatFieldValue = fieldValue => {
-	if ( isEmpty( fieldValue ) ) {
+	if ( ! fieldValue || isEmpty( fieldValue ) ) {
 		return '-';
-	} else if ( Array.isArray( fieldValue ) ) {
+	}
+	if ( Array.isArray( fieldValue ) ) {
 		return fieldValue.join( ', ' );
 	}
 	return fieldValue;
@@ -73,7 +77,7 @@ interface UseInboxDataReturn {
  * @return {UseInboxDataReturn} The inbox related data.
  */
 export default function useInboxData(): UseInboxDataReturn {
-	const [ searchParams ] = useSearchParams();
+	const [ searchParams ] = useDashboardSearchParams();
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
