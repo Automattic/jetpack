@@ -99,7 +99,7 @@ export function buildMailPoetCard( {
 				{ context === 'block-editor' &&
 					( lists.length ? (
 						<SelectControl
-							label={ __( 'Which MailPoet list should contacts be added to?', 'jetpack-forms' ) }
+							label={ __( 'Which email list should contacts be added to?', 'jetpack-forms' ) }
 							value={ selectedListId }
 							options={ lists.map( list => ( { label: list.name, value: list.id } ) ) }
 							onChange={ ( newId: string ) =>
@@ -124,7 +124,7 @@ export function buildMailPoetCard( {
 				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
 				<p className="integration-card__description">
 					<ExternalLink href={ settingsUrl }>
-						{ __( 'View MailPoet dashboard', 'jetpack-forms' ) }
+						{ __( 'View dashboard', 'jetpack-forms' ) }
 					</ExternalLink>
 				</p>
 			</div>
