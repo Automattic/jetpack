@@ -1056,7 +1056,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			echo wp_interactivity_data_wp_context(
 				array(
 					'fieldId'             => $id,
-					'fieldType'           => 'telephone',
 					'defaultCountry'      => $default_country,
 					'showCountrySelector' => $this->get_attribute( 'showcountryselector' ),
 					// dynamic
