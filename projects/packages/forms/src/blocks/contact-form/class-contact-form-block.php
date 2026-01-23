@@ -857,7 +857,7 @@ class Contact_Form_Block {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'css_path'     => '../../../dist/blocks/editor.css',
+				'css_path'     => is_rtl() ? '../../../dist/blocks/editor.rtl.css' : '../../../dist/blocks/editor.css',
 			)
 		);
 
