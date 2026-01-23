@@ -392,12 +392,16 @@ that needs to mimic the input element styles */
 }
 
 .contact-form-submission .field-file {
-	display: flex;
-	align-items: center;
-	gap: 8px;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: auto auto;
+	gap: 0 8px;
+	align-items: start;
 }
 
 .contact-form-submission .field-file__icon {
+	grid-row: span 2;
+	align-self: center;
 	flex-shrink: 0;
 	color: inherit;
 	opacity: 0.6;
