@@ -39,6 +39,7 @@ export const FIELD_TYPE_LABEL_PREFIXES: Array< [ string, FieldType ] > = [
 
 	// Consent field (partial match for long default label)
 	[ 'by submitting your information', 'consent' ],
+	[ 'can we send you an email from time to time', 'consent' ],
 ];
 
 /**

@@ -149,6 +149,9 @@ describe( 'field-preview-utils', () => {
 				expect(
 					inferFieldTypeFromLabel( 'By submitting your information, you agree to our terms' )
 				).toBe( 'consent' );
+				expect( inferFieldTypeFromLabel( 'Can we send you an email from time to time' ) ).toBe(
+					'consent'
+				);
 			} );
 		} );
 
