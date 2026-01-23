@@ -57,6 +57,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	private $original_wp_customize;
 
 	/**
+	 * Original current_screen global value to restore after tests.
+	 *
+	 * @var mixed
+	 */
+	private $original_current_screen;
+
+	/**
 	 * Set up test fixtures.
 	 */
 	public function set_up() {
@@ -70,6 +77,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Save original $wp_customize global.
 		global $wp_customize;
 		$this->original_wp_customize = $wp_customize;
+
+		// Save original current_screen global.
+		$this->original_current_screen = $GLOBALS['current_screen'] ?? null;
 	}
 
 	/**
@@ -100,6 +110,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Restore original $wp_customize global.
 		global $wp_customize;
 		$wp_customize = $this->original_wp_customize;
+
+		// Restore original current_screen global.
+		if ( $this->original_current_screen === null ) {
+			unset( $GLOBALS['current_screen'] );
+		} else {
+			$GLOBALS['current_screen'] = $this->original_current_screen;
+		}
 
 		// Reset the REST server to clear any registered routes.
 		global $wp_rest_server;
@@ -335,6 +352,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts adds script with empty providers and useUnifiedExperience false by default.
 	 */
 	public function test_enqueue_scripts_with_empty_providers() {
+		// Set admin context - scripts only enqueue in admin.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+
 		// Register the agents-manager script so we can attach inline script to it.
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
@@ -364,6 +385,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts includes providers added via the filter.
 	 */
 	public function test_enqueue_scripts_includes_filtered_providers() {
+		// Set admin context - scripts only enqueue in admin.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+
 		// Reset the script registry to ensure test isolation.
 		global $wp_scripts;
 		$wp_scripts = null;
@@ -408,6 +433,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts includes useUnifiedExperience true when filter returns true.
 	 */
 	public function test_enqueue_scripts_includes_use_unified_experience_when_enabled() {
+		// Set admin context - scripts only enqueue in admin.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+
 		// Reset the script registry to ensure test isolation.
 		global $wp_scripts;
 		$wp_scripts = null;
@@ -1143,6 +1172,23 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Helper to simulate admin context for tests.
+	 */
+	private function set_admin_context() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+	}
+
+	/**
+	 * Tests that should_enqueue_script returns false on site frontend.
+	 */
+	public function test_should_enqueue_script_returns_false_on_frontend() {
+		// Ensure we're not in admin context (default state in tests).
+		$this->assertFalse( is_admin() );
+		$this->assertFalse( $this->call_should_enqueue_script() );
+	}
+
+	/**
 	 * Tests that should_enqueue_script returns false in customizer preview.
 	 *
 	 * The is_customize_preview() function checks global $wp_customize, so we set it up directly
@@ -1150,6 +1196,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_should_enqueue_script_returns_false_in_customizer_preview() {
 		global $wp_customize;
+
+		$this->set_admin_context();
 
 		// Load WP_Customize_Manager class if not already loaded.
 		require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
@@ -1174,6 +1222,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * This prevents loading in dashboard site preview iframes, theme preview, and Calypso iframe embeds.
 	 */
 	public function test_should_enqueue_script_returns_false_when_preview_query_param_is_true() {
+		$this->set_admin_context();
 		$_GET['preview'] = 'true';
 
 		$this->assertFalse( $this->call_should_enqueue_script() );
@@ -1185,6 +1234,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * This prevents loading during Gutenberg asset requests.
 	 */
 	public function test_should_enqueue_script_returns_false_for_gutenberg_core_asset_requests() {
+		$this->set_admin_context();
 		$_SERVER['REQUEST_URI'] = '/wp-content/plugins/gutenberg-core/build/block-library/style.css';
 
 		$this->assertFalse( $this->call_should_enqueue_script() );
@@ -1194,6 +1244,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that should_enqueue_script returns true when unified experience is enabled and not in preview context.
 	 */
 	public function test_should_enqueue_script_returns_true_when_unified_experience_enabled() {
+		$this->set_admin_context();
 		$_SERVER['REQUEST_URI'] = '/wp-admin/index.php';
 
 		// Add a filter to enable unified experience.
@@ -1216,6 +1267,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * The preview check should take precedence over the unified experience filter.
 	 */
 	public function test_should_enqueue_script_preview_check_takes_precedence_over_unified_experience() {
+		$this->set_admin_context();
 		$_SERVER['REQUEST_URI'] = '/wp-admin/index.php';
 		$_GET['preview']        = 'true';
 

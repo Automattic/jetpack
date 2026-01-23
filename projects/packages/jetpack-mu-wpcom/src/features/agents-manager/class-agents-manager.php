@@ -227,6 +227,11 @@ class Agents_Manager {
 	 * Determine if the agents manager files should be enqueued.
 	 */
 	private function should_enqueue_script() {
+		// Don't load on site frontend - only load in wp-admin.
+		if ( ! is_admin() ) {
+			return false;
+		}
+
 		// Don't load in customizer preview iframe - Help Center handles customizer separately
 		// via customize_controls_enqueue_scripts hook (loads only in controls panel, not preview).
 		if ( is_customize_preview() ) {
