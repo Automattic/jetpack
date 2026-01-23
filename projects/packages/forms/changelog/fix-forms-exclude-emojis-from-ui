@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Forms: don't let WP convert external links to emojis.
