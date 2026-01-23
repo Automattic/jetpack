@@ -247,6 +247,12 @@ const { state, actions } = store( NAMESPACE, {
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
 		},
 
+		get fieldAriaInvalid() {
+			// Return 'true' for invalid fields, null to remove the attribute entirely.
+			// Using null instead of false prevents VoiceOver from announcing "invalid" for valid fields.
+			return state.fieldHasErrors ? 'true' : null;
+		},
+
 		get isFormEmpty() {
 			const context = getContext();
 			// If this is a multistep form (identified by the presence of `maxSteps` in context),

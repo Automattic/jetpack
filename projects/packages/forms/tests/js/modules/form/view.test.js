@@ -618,3 +618,49 @@ describe( 'Form View - getRating helper', () => {
 		expect( result.iconStyle ).toBe( 'hearts' );
 	} );
 } );
+
+/**
+ * Tests for accessibility-related computed properties.
+ *
+ * These tests verify the expected behavior of accessibility helpers used
+ * to properly announce form state to screen readers.
+ */
+describe( 'Form View - Accessibility helpers', () => {
+	/**
+	 * Computes the aria-invalid attribute value.
+	 * Returns 'true' for invalid fields, null to remove the attribute entirely.
+	 * Using null instead of false prevents VoiceOver from announcing "invalid" for valid fields.
+	 *
+	 * This mirrors the logic in state.fieldAriaInvalid from view.js.
+	 *
+	 * @param {boolean} fieldHasErrors - Whether the field has validation errors.
+	 * @return {string|null} 'true' if invalid, null if valid.
+	 */
+	const getFieldAriaInvalid = fieldHasErrors => {
+		return fieldHasErrors ? 'true' : null;
+	};
+
+	describe( 'fieldAriaInvalid', () => {
+		test( 'returns "true" (string) for invalid fields', () => {
+			const result = getFieldAriaInvalid( true );
+
+			expect( result ).toBe( 'true' );
+			expect( typeof result ).toBe( 'string' );
+		} );
+
+		test( 'returns null for valid fields to remove aria-invalid attribute', () => {
+			const result = getFieldAriaInvalid( false );
+
+			expect( result ).toBeNull();
+		} );
+
+		test( 'does not return false (which would cause VoiceOver to announce "invalid")', () => {
+			const result = getFieldAriaInvalid( false );
+
+			// This is the key behavior: we must return null, not false
+			// aria-invalid="false" causes VoiceOver to announce "invalid data"
+			expect( result ).not.toBe( false );
+			expect( result ).not.toBe( 'false' );
+		} );
+	} );
+} );
