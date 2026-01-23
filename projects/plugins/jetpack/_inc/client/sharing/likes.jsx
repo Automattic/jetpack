@@ -52,7 +52,10 @@ export const Likes = withModuleSettingsFormHelpers(
 							</span>
 						</ModuleToggle>
 						{ shouldShowLikeBlock && (
-							<BlockThemeNotice isModuleActive={ isActive } redirectSlug="jetpack-support-likes" />
+							<BlockThemeNotice
+								isModuleActive={ isActive }
+								redirectSlug="jetpack-support-like-block"
+							/>
 						) }
 					</SettingsGroup>
 				</SettingsCard>
