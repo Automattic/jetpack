@@ -3,6 +3,7 @@
  */
 import {
 	ExternalLink,
+	Icon,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
@@ -32,7 +33,7 @@ import UrlFieldBlock from '../../../../blocks/field-url/index.js';
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
 import FieldImageSelect from '../field-image-select/index.tsx';
-import { EMAIL_REGEX, inferFieldTypeFromLabel, getBlockIcon } from './field-preview-utils.ts';
+import { EMAIL_REGEX, getIconSource, inferFieldTypeFromLabel } from './field-preview-utils.ts';
 import type { ResponseField, FieldType, FileItem } from '../../../../types/index.ts';
 import './style.scss';
 
@@ -45,46 +46,46 @@ import './style.scss';
 const getFieldIcon = ( fieldType: FieldType ): React.ReactNode => {
 	switch ( fieldType ) {
 		case 'name':
-			return getBlockIcon( NameFieldBlock );
+			return <Icon icon={ getIconSource( NameFieldBlock.settings.icon ) } />;
 		case 'email':
-			return getBlockIcon( EmailFieldBlock );
+			return <Icon icon={ getIconSource( EmailFieldBlock.settings.icon ) } />;
 		case 'phone':
 		case 'telephone':
-			return getBlockIcon( TelephoneFieldBlock );
+			return <Icon icon={ getIconSource( TelephoneFieldBlock.settings.icon ) } />;
 		case 'url':
-			return getBlockIcon( UrlFieldBlock );
+			return <Icon icon={ getIconSource( UrlFieldBlock.settings.icon ) } />;
 		case 'file':
-			return getBlockIcon( FileFieldBlock );
+			return <Icon icon={ getIconSource( FileFieldBlock.settings.icon ) } />;
 		case 'image-select':
-			return getBlockIcon( ImageSelectFieldBlock );
+			return <Icon icon={ getIconSource( ImageSelectFieldBlock.settings.icon ) } />;
 		case 'date':
-			return getBlockIcon( DateFieldBlock );
+			return <Icon icon={ getIconSource( DateFieldBlock.settings.icon ) } />;
 		case 'time':
-			return getBlockIcon( TimeFieldBlock );
+			return <Icon icon={ getIconSource( TimeFieldBlock.settings.icon ) } />;
 		case 'hidden':
-			return getBlockIcon( HiddenFieldBlock );
+			return <Icon icon={ getIconSource( HiddenFieldBlock.settings.icon ) } />;
 		case 'select':
-			return getBlockIcon( SelectFieldBlock );
+			return <Icon icon={ getIconSource( SelectFieldBlock.settings.icon ) } />;
 		case 'checkbox':
-			return getBlockIcon( CheckboxFieldBlock );
+			return <Icon icon={ getIconSource( CheckboxFieldBlock.settings.icon ) } />;
 		case 'checkbox-multiple':
-			return getBlockIcon( MultipleChoiceFieldBlock );
+			return <Icon icon={ getIconSource( MultipleChoiceFieldBlock.settings.icon ) } />;
 		case 'radio':
-			return getBlockIcon( SingleChoiceFieldBlock );
+			return <Icon icon={ getIconSource( SingleChoiceFieldBlock.settings.icon ) } />;
 		case 'textarea':
-			return getBlockIcon( TextareaFieldBlock );
+			return <Icon icon={ getIconSource( TextareaFieldBlock.settings.icon ) } />;
 		case 'number':
-			return getBlockIcon( NumberFieldBlock );
+			return <Icon icon={ getIconSource( NumberFieldBlock.settings.icon ) } />;
 		case 'slider':
 		case 'range':
-			return getBlockIcon( SliderFieldBlock );
+			return <Icon icon={ getIconSource( SliderFieldBlock.settings.icon ) } />;
 		case 'rating':
-			return getBlockIcon( RatingFieldBlock );
+			return <Icon icon={ getIconSource( RatingFieldBlock.settings.icon ) } />;
 		case 'consent':
-			return getBlockIcon( ConsentFieldBlock );
+			return <Icon icon={ getIconSource( ConsentFieldBlock.settings.icon ) } />;
 		case 'text':
 		default:
-			return getBlockIcon( TextFieldBlock );
+			return <Icon icon={ getIconSource( TextFieldBlock.settings.icon ) } />;
 	}
 };
 

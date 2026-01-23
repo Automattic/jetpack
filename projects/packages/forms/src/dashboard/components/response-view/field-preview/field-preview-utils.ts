@@ -1,7 +1,13 @@
 /**
+ * External dependencies
+ */
+import { Icon } from '@wordpress/components';
+/**
  * Internal dependencies
  */
 import type { FieldType } from '../../../../types/index.ts';
+
+export type BlockIcon = React.ComponentProps< typeof Icon >[ 'icon' ];
 
 export const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
@@ -62,33 +68,15 @@ export const inferFieldTypeFromLabel = ( label: string ): FieldType | null => {
 };
 
 /**
- * Extracts and renders the icon from a block definition.
- * Handles different icon formats: direct elements, functions, and nested src properties.
+ * Extracts the icon source from a block's icon definition.
+ * Block icons can be defined as { src: ... } or directly as a function/element.
  *
- * @param {object} blockDef               - The block definition object.
- * @param {object} blockDef.settings      - The block settings object.
- * @param {object} blockDef.settings.icon - The icon object.
- * @return {React.ReactNode} The rendered icon element.
+ * @param {unknown} icon - The block icon definition.
+ * @return {BlockIcon} The icon source compatible with the Icon component.
  */
-export const getBlockIcon = ( blockDef: { settings: { icon: unknown } } ): React.ReactNode => {
-	const { icon } = blockDef.settings;
-
-	// Handle icon: { src: ... } structure
+export const getIconSource = ( icon: unknown ): BlockIcon => {
 	if ( icon && typeof icon === 'object' && 'src' in icon ) {
-		const src = ( icon as { src: unknown } ).src;
-		// If src is a function (renderMaterialIcon returns a function), call it
-		if ( typeof src === 'function' ) {
-			return ( src as () => JSX.Element )();
-		}
-		// Otherwise it's already a React element
-		return src as React.ReactNode;
+		return ( icon as { src: BlockIcon } ).src;
 	}
-
-	// Handle icon directly being a function (e.g., field-number)
-	if ( typeof icon === 'function' ) {
-		return ( icon as () => JSX.Element )();
-	}
-
-	// Otherwise icon is already a React element
-	return icon as React.ReactNode;
+	return icon as BlockIcon;
 };

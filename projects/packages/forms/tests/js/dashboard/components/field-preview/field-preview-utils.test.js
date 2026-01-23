@@ -9,7 +9,7 @@ import {
 	EMAIL_REGEX,
 	FIELD_TYPE_LABEL_PREFIXES,
 	inferFieldTypeFromLabel,
-	getBlockIcon,
+	getIconSource,
 } from '../../../../../src/dashboard/components/response-view/field-preview/field-preview-utils.ts';
 
 describe( 'field-preview-utils', () => {
@@ -185,47 +185,40 @@ describe( 'field-preview-utils', () => {
 		} );
 	} );
 
-	describe( 'getBlockIcon', () => {
+	describe( 'getIconSource', () => {
 		it( 'returns icon directly when it is a React element', () => {
 			const mockElement = { type: 'svg', props: {} };
-			const blockDef = { settings: { icon: mockElement } };
 
-			expect( getBlockIcon( blockDef ) ).toBe( mockElement );
+			expect( getIconSource( mockElement ) ).toBe( mockElement );
 		} );
 
-		it( 'calls icon function when icon is a function', () => {
+		it( 'returns icon directly when icon is a function', () => {
 			const mockElement = { type: 'svg', props: {} };
 			const iconFn = () => mockElement;
-			const blockDef = { settings: { icon: iconFn } };
 
-			expect( getBlockIcon( blockDef ) ).toBe( mockElement );
+			expect( getIconSource( iconFn ) ).toBe( iconFn );
 		} );
 
-		it( 'extracts icon from src property when icon is an object with src', () => {
+		it( 'extracts src from icon when icon is an object with src property', () => {
 			const mockElement = { type: 'svg', props: {} };
-			const blockDef = { settings: { icon: { src: mockElement } } };
+			const iconWithSrc = { src: mockElement };
 
-			expect( getBlockIcon( blockDef ) ).toBe( mockElement );
+			expect( getIconSource( iconWithSrc ) ).toBe( mockElement );
 		} );
 
-		it( 'calls src function when icon.src is a function', () => {
-			const mockElement = { type: 'svg', props: {} };
-			const srcFn = () => mockElement;
-			const blockDef = { settings: { icon: { src: srcFn } } };
+		it( 'extracts src function when icon.src is a function', () => {
+			const srcFn = () => ( { type: 'svg', props: {} } );
+			const iconWithSrc = { src: srcFn };
 
-			expect( getBlockIcon( blockDef ) ).toBe( mockElement );
+			expect( getIconSource( iconWithSrc ) ).toBe( srcFn );
 		} );
 
 		it( 'handles null icon', () => {
-			const blockDef = { settings: { icon: null } };
-
-			expect( getBlockIcon( blockDef ) ).toBeNull();
+			expect( getIconSource( null ) ).toBeNull();
 		} );
 
 		it( 'handles undefined icon', () => {
-			const blockDef = { settings: { icon: undefined } };
-
-			expect( getBlockIcon( blockDef ) ).toBeUndefined();
+			expect( getIconSource( undefined ) ).toBeUndefined();
 		} );
 	} );
 } );
