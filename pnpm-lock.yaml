@@ -3453,6 +3453,9 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(react@18.3.1)
     devDependencies:
+      '@automattic/babel-plugin-replace-textdomain':
+        specifier: workspace:*
+        version: link:../../js-packages/babel-plugin-replace-textdomain
       '@automattic/calypso-color-schemes':
         specifier: 4.0.0
         version: 4.0.0

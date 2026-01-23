@@ -19,15 +19,38 @@ const socialWebpackConfig = {
 	module: {
 		strictExportPresence: true,
 		rules: [
+			// Old Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
+			// @todo Remove this when we upgrade @wordpress/dataviews to 11.2.0+.
+			// https://github.com/WordPress/gutenberg/issues/73362
+			{
+				test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
+				resolve: { fullySpecified: false },
+			},
+
 			// Transpile JavaScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
 			} ),
 
-			// Transpile @automattic/* in node_modules too.
+			// Transpile @automattic/jetpack-* in node_modules too.
 			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@automattic/' ],
+				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
+
+			// Add textdomains (but no other optimizations) for @wordpress/dataviews and its dependencies.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [ '@wordpress/dataviews/' ],
+				babelOpts: {
+					configFile: false,
+					plugins: [
+						[
+							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+							{ textdomain: 'jetpack-publicize-pkg' },
+						],
+					],
+				},
+			} ),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
