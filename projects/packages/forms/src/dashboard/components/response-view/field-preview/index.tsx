@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Badge } from '@automattic/ui';
 import {
 	ExternalLink,
 	Icon,
@@ -117,12 +118,22 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 			return <FieldFile files={ files } handleFilePreview={ onFilePreview } />;
 		}
 
+		if ( fieldType === 'checkbox-multiple' && Array.isArray( value ) ) {
+			return (
+				<VStack spacing="2" alignment="topLeft">
+					{ ( value as string[] ).map( ( item, index ) => (
+						<Badge key={ index }>{ item }</Badge>
+					) ) }
+				</VStack>
+			);
+		}
+
 		// Handle null/undefined
-		if ( value === null || value === undefined ) {
+		if ( value === null || value === undefined || value === '' ) {
 			return '-';
 		}
 
-		// Handle arrays (e.g., multiple choice selections)
+		// Handle arrays (e.g., multiple choice selections but also anything else coming as array)
 		if ( Array.isArray( value ) ) {
 			return value.join( ', ' );
 		}
@@ -133,6 +144,13 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		}
 
 		const stringValue = String( value );
+
+		// These fields carry a single string as value and
+		// design option is to show a badge with the value
+		const badgedValueFields = [ 'consent', 'checkbox', 'radio', 'select' ];
+		if ( badgedValueFields.includes( fieldType ) ) {
+			return <Badge>{ stringValue }</Badge>;
+		}
 
 		// Emails
 		if ( fieldType === 'email' && EMAIL_REGEX.test( stringValue ) ) {
