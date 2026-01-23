@@ -98,10 +98,8 @@ type FieldPreviewProps = {
 const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	const { label, value, type } = field;
 	// For legacy responses without a proper type (undefined or "basic"), try to infer from label
-	const hasValidType = type && type !== 'basic';
-	const fieldType = hasValidType
-		? ( type as FieldType )
-		: inferFieldTypeFromLabel( label ) || 'text';
+	const fieldType: FieldType =
+		type && type !== 'basic' ? type : inferFieldTypeFromLabel( label ) ?? 'text';
 	const icon = getFieldIcon( fieldType );
 	const typeClassName = `is-field-type-${ fieldType }`;
 

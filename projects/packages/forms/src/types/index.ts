@@ -88,8 +88,8 @@ export interface ResponseField {
 	label: string;
 	/** The field value. */
 	value: unknown;
-	/** The field type (e.g., 'name', 'email', 'text', 'file', etc.). */
-	type?: string;
+	/** The field type (e.g., 'name', 'email', 'text', 'file', etc.). 'basic' is a legacy value for older responses. */
+	type?: FieldType | 'basic';
 	/** The form field ID from the form schema. */
 	id?: string;
 	/** The field key. */
