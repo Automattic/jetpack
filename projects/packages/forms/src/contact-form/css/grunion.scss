@@ -402,14 +402,16 @@ that needs to mimic the input element styles */
 .contact-form-submission .field-file__thumbnail {
 	grid-row: span 2;
 	align-self: center;
-	width: 32px;
-	height: 32px;
-	border-radius: 4px;
+	width: 46px;
+	min-width: 46px;
+	height: 46px;
+	border-radius: 50%;
+	aspect-ratio: 1 / 1;
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
 	// For non-image files, use mask-image with the icon
-	mask-size: contain;
+	mask-size: auto;
 	mask-position: center;
 	mask-repeat: no-repeat;
 	background-color: currentColor;
@@ -433,13 +435,8 @@ that needs to mimic the input element styles */
 
 .contact-form-submission .field-file__name {
 	color: inherit;
-	text-decoration: underline;
 	font-weight: 600;
 	font-size: 1rem;
-
-	&:hover {
-		text-decoration: none;
-	}
 }
 
 .contact-form-submission .field-file__size {
