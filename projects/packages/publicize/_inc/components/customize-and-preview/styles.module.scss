@@ -1,6 +1,9 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .customize-and-preview {
+	height: 100%;
+	display: grid;
+	grid-template-rows: auto 1fr;
 
 	.customization-toggle-wrapper {
 		padding: 1rem;

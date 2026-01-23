@@ -3,6 +3,8 @@
 .unified-modal {
 	max-width: gb.$wide-content-width;
 	width: 100%;
+	height: calc(100vh - 4rem);
+	max-height: 48rem;
 
 	@include gb.break-small {
 		width: calc(100vw - 40px);
