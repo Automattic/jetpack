@@ -8,6 +8,7 @@
 .jp-forms__field-preview-icon {
 	color: var(--jp-gray-50, #646970);
 	fill: var(--jp-gray-50, #646970);
+	flex-shrink: 0;
 }
 
 .jp-forms__field-preview-content {
