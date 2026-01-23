@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Agents Manager: Prevents loading in previews.
