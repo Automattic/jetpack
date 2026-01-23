@@ -125,7 +125,7 @@ class Jetpack_Sync_Module_Stats_Test extends Jetpack_Sync_TestBase {
 		$heartbeat->cron_exec();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
-		add_filter( 'jetpack_heartbeat_stats_array', array( $this, 'add_test_stat' ) );
+		remove_filter( 'jetpack_heartbeat_stats_array', array( $this, 'add_test_stat' ) );
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
 
