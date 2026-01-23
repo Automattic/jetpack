@@ -399,12 +399,36 @@ that needs to mimic the input element styles */
 	align-items: start;
 }
 
+.contact-form-submission .field-file__thumbnail {
+	grid-row: span 2;
+	align-self: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 4px;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	// For non-image files, use mask-image with the icon
+	mask-size: contain;
+	mask-position: center;
+	mask-repeat: no-repeat;
+	background-color: currentColor;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
 .contact-form-submission .field-file__icon {
 	grid-row: span 2;
 	align-self: center;
 	flex-shrink: 0;
 	color: inherit;
 	opacity: 0.6;
+
+	&[hidden] {
+		display: none;
+	}
 }
 
 .contact-form-submission .field-file__name {
