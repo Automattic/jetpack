@@ -1369,7 +1369,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$status['isInstalled'] = $is_installed;
 		$status['isActive']    = $is_active;
 		$status['version']     = $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null;
-		$status['settingsUrl'] = $is_active ? admin_url( $plugin_config['settings_url'] ) : null;
+		$status['settingsUrl'] = ( $is_active && ! empty( $plugin_config['settings_url'] ) )
+			? admin_url( $plugin_config['settings_url'] )
+			: null;
 
 		// Override base shape for specific plugins.
 		switch ( $plugin_slug ) {

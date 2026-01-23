@@ -122,11 +122,13 @@ export function buildMailPoetCard( {
 						</p>
 					) ) }
 				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
-				<p className="integration-card__description">
-					<ExternalLink href={ settingsUrl }>
-						{ __( 'View dashboard', 'jetpack-forms' ) }
-					</ExternalLink>
-				</p>
+				{ settingsUrl && (
+					<p className="integration-card__description">
+						<ExternalLink href={ settingsUrl }>
+							{ __( 'View dashboard', 'jetpack-forms' ) }
+						</ExternalLink>
+					</p>
+				) }
 			</div>
 		),
 	};
