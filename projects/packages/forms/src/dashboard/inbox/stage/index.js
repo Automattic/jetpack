@@ -6,7 +6,7 @@ import { JetpackLogo } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { Badge } from '@automattic/ui';
 import { ExternalLink, Modal } from '@wordpress/components';
-import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
@@ -89,7 +89,6 @@ export default function InboxView() {
 	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
 
 	const dateSettings = getDateSettings();
-	const containerRef = useResizeObserver( () => {}, { box: 'border-box' } );
 
 	const selectedResponses = searchParams.get( 'r' );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
@@ -556,8 +555,8 @@ export default function InboxView() {
 
 	const resetPage = useCallback( () => {
 		// Reset to page 1 when switching legacy Inbox statuses (Inbox/Spam/Trash).
-		setView( { ...view, page: 1 } );
-	}, [ setView, view ] );
+		setView( previousView => ( { ...previousView, page: 1 } ) );
+	}, [ setView ] );
 
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
@@ -627,9 +626,7 @@ export default function InboxView() {
 
 	return (
 		<>
-			<div ref={ containerRef } className="jp-forms-layout__surface is-stage">
-				{ pageContent }
-			</div>
+			<div className="jp-forms-layout__surface is-stage">{ pageContent }</div>
 			{ isResponseModalOpen && (
 				<Modal
 					title={ __( 'Response', 'jetpack-forms' ) }
