@@ -13,8 +13,8 @@ import { useNavigate } from 'react-router';
  */
 import useConfigValue from '../../hooks/use-config-value.ts';
 import CreateFormButton from '../components/create-form-button/index.tsx';
+import DataViewsHeaderRow from '../components/dataviews-header-row/index.tsx';
 import { EmptyWrapper } from '../components/empty-responses/index.tsx';
-import FormsResponsesTabs from '../components/forms-responses-tabs/index.tsx';
 import Page from '../components/page/index.tsx';
 import useDeleteForm from '../hooks/use-delete-form.ts';
 import useFormsData from '../hooks/use-forms-data.ts';
@@ -284,7 +284,6 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					</div>
 				}
 				subTitle={ __( 'View and manage all your forms in one place.', 'jetpack-forms' ) }
-				tabs={ <FormsResponsesTabs /> }
 				actions={ headerActions }
 				hasPadding={ false }
 			>
@@ -341,16 +340,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 								  ) }
 						</p>
 					</ConfirmDialog>
-					<div className="jp-forms-filters-bar">
-						<div className="jp-forms-filters-bar__chips">
-							<DataViews.FiltersToggled className="jp-forms-filters-container" />
-						</div>
-						<div className="jp-forms-filters-bar__controls">
-							<DataViews.Search />
-							<DataViews.FiltersToggle />
-							<DataViews.ViewConfig />
-						</div>
-					</div>
+					<DataViewsHeaderRow />
 					<div className="jp-forms-dataviews-layout-container">
 						<DataViews.Layout />
 						<DataViews.Footer />

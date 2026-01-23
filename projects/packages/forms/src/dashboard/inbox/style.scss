@@ -5,58 +5,6 @@
 @use "../../blocks/shared/styles/empty_image_option" as *;
 @import "@wordpress/dataviews/build-style/style.css";
 
-.jp-forms-view-actions {
-	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
-	padding-inline: variables.$grid-unit * 2.5;
-	overflow-x: auto;
-	width: 100%;
-	box-sizing: border-box;
-	display: flex;
-	container-type: inline-size;
-	flex-shrink: 0;
-
-	// Jetpack Forms specific additions
-	position: sticky;
-	left: 0;
-	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
-	justify-content: space-between;
-	gap: 8px;
-	flex-direction: column;
-	align-items: flex-start;
-
-	> div:not(:empty) {
-		min-height: 48px;
-		width: 100%;
-	}
-
-	@media (min-width: #{ (breakpoints.$break-small + 1) }) {
-
-		& {
-			flex-direction: row;
-			align-items: center;
-		}
-
-		> div:not(:empty) {
-			min-height: 0;
-		}
-	}
-
-	// Jetpack Forms specific: Tab styling
-	button[role="tab"] {
-		margin: 0;
-		padding: 12px 0;
-		color: var(--wpds-color-fg-interactive-neutral);
-
-		&[data-active="true"] {
-			color: var(--wpds-color-fg-interactive-neutral-active);
-		}
-
-		&:hover:not([data-active="true"]) {
-			color: var(--wpds-color-fg-interactive-neutral-active);
-		}
-	}
-}
-
 .jp-forms-filters-bar {
 	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 	display: flex;
@@ -95,10 +43,6 @@
 		flex: 0 0 auto;
 	}
 
-	.jp-forms-filters-container,
-	.jp-forms-filters-container:not(:empty) {
-		padding: 0;
-	}
 }
 
 .jp-forms-dataviews-layout-container {
@@ -108,11 +52,6 @@
 	display: flex;
 	flex-direction: column;
 	background-color: var(--wpds-color-bg-surface-neutral-strong, #fff);
-}
-
-.jp-forms-filters-container:not(:empty) {
-	padding-inline: variables.$grid-unit * 2.5;
-	padding-block: variables.$grid-unit * 1.5;
 }
 
 /*
