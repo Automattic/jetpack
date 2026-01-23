@@ -16,7 +16,6 @@ import { __ } from '@wordpress/i18n';
 import { Icon, globe } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -35,6 +34,7 @@ import { ResponseMobileView, SingleResponseView } from '../../components/inspect
 import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
+import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 import { getPath, getItemId } from '../utils.js';
 import {
 	viewAction,
@@ -87,7 +87,7 @@ const setupSidebarWidthObserver = () => {
  */
 export default function InboxView() {
 	const [ view, setView ] = useView();
-	const [ searchParams, setSearchParams ] = useSearchParams();
+	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
 
 	const dateSettings = getDateSettings();
