@@ -26,6 +26,8 @@ import * as React from 'react';
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
+import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
+import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
 import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
 import Page from '../../src/dashboard/components/page';
@@ -33,6 +35,7 @@ import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 import { getPath } from '../../src/dashboard/inbox/utils';
+import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
@@ -41,6 +44,7 @@ import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integ
  */
 import type { SelectActions, DispatchActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
+import type { StoreDescriptor } from '@wordpress/data';
 import type { View, Field } from '@wordpress/dataviews';
 
 type FeedbackFilterDate = {
@@ -138,8 +142,8 @@ const DEFAULT_VIEW: View = {
  * @param {object} item - The item object.
  * @return {string} The item ID as a string.
  */
-function getItemId( item ) {
-	return item.id.toString();
+function getItemId( item: unknown ): string {
+	return ( item as { id: number | string } )?.id?.toString() ?? '';
 }
 
 /**
@@ -184,9 +188,11 @@ function Stage() {
 		select => ( select( dashboardStore ) as SelectActions ).getCounts(),
 		[]
 	);
+
+	const dashboardStoreDescriptor = dashboardStore as StoreDescriptor;
 	const { updateCountsOptimistically, invalidateCounts } = useDispatch(
-		dashboardStore
-	) as DispatchActions;
+		dashboardStoreDescriptor
+	) as unknown as DispatchActions;
 	const filterOptions = useFilterOptions();
 	let status = 'publish';
 	if ( params.view === 'spam' ) {
@@ -1016,25 +1022,22 @@ function Stage() {
 		}
 
 		actionsArray.push(
-			<Button key="export" variant="primary" size="compact" icon={ download }>
+			<Button
+				key="export"
+				variant={ params.view === 'inbox' ? 'primary' : 'secondary' }
+				size="compact"
+				icon={ download }
+			>
 				{ __( 'Export', 'jetpack-forms' ) }
 			</Button>
 		);
 
 		if ( params.view === 'trash' ) {
-			actionsArray.push(
-				<Button key="empty-trash" variant="secondary" isDestructive size="compact">
-					{ __( 'Empty Trash', 'jetpack-forms' ) }
-				</Button>
-			);
+			actionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		}
 
 		if ( params.view === 'spam' ) {
-			actionsArray.push(
-				<Button key="empty-spam" variant="secondary" isDestructive size="compact">
-					{ __( 'Empty Spam', 'jetpack-forms' ) }
-				</Button>
-			);
+			actionsArray.push( <EmptySpamButton key="empty-spam" /> );
 		}
 
 		return actionsArray;
@@ -1050,75 +1053,80 @@ function Stage() {
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
 	return (
-		<Page
-			showSidebarToggle={ false }
-			title={
-				<Stack align="center" gap="xs">
-					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
-				</Stack>
-			}
-			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
-			actions={ headerActions }
-			hasPadding={ false }
-		>
-			<DataViews
-				empty={
-					<EmptyResponses
-						status={ params.view }
-						isSearch={ !! view.search }
-						readStatusFilter={ readStatusFilter }
-					/>
+		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
+			<Page
+				showSidebarToggle={ false }
+				title={
+					<Stack align="center" gap="xs">
+						<JetpackLogo showText={ false } width={ 20 } />
+						{ __( 'Forms', 'jetpack-forms' ) }
+					</Stack>
 				}
-				data={ records || EMPTY_ARRAY }
-				fields={ fields as Field< unknown >[] }
-				view={ view }
-				onChangeView={ onChangeView }
-				paginationInfo={ paginationInfo }
-				isLoading={ isResolving }
-				getItemId={ getItemId }
-				defaultLayouts={ defaultLayouts }
-				selection={ selection }
-				onChangeSelection={ onChangeSelection }
-				actions={ actions }
+				subTitle={ __(
+					'View and manage all your form submissions in one place.',
+					'jetpack-forms'
+				) }
+				actions={ headerActions }
+				hasPadding={ false }
 			>
-				<Stack
-					align="center"
-					className="jp-forms-dataviews__view-actions"
-					gap="sm"
-					justify="space-between"
+				<DataViews
+					empty={
+						<EmptyResponses
+							status={ params.view }
+							isSearch={ !! view.search }
+							readStatusFilter={ readStatusFilter }
+						/>
+					}
+					data={ records || EMPTY_ARRAY }
+					fields={ fields as Field< unknown >[] }
+					view={ view }
+					onChangeView={ onChangeView }
+					paginationInfo={ paginationInfo }
+					isLoading={ isResolving }
+					getItemId={ getItemId }
+					defaultLayouts={ defaultLayouts }
+					selection={ selection }
+					onChangeSelection={ onChangeSelection }
+					actions={ actions }
 				>
-					<Stack align="center" gap="sm">
-						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
-							<Tabs.List density="compact">
-								{ statusTabs.map( tab => (
-									<Tabs.Tab value={ tab.slug } key={ tab.slug }>
-										{ tab.label }
-									</Tabs.Tab>
-								) ) }
-							</Tabs.List>
-						</Tabs.Root>
+					<Stack
+						align="center"
+						className="jp-forms-dataviews__view-actions"
+						gap="sm"
+						justify="space-between"
+					>
+						<Stack align="center" gap="sm">
+							<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
+								<Tabs.List density="compact">
+									{ statusTabs.map( tab => (
+										<Tabs.Tab value={ tab.slug } key={ tab.slug }>
+											{ tab.label }
+										</Tabs.Tab>
+									) ) }
+								</Tabs.List>
+							</Tabs.Root>
+						</Stack>
+						<Stack align="center" gap="sm">
+							<DataViews.Search />
+							<DataViews.FiltersToggle />
+							<DataViews.ViewConfig />
+						</Stack>
 					</Stack>
-					<Stack align="center" gap="sm">
-						<DataViews.Search />
-						<DataViews.FiltersToggle />
-						<DataViews.ViewConfig />
-					</Stack>
-				</Stack>
-				<DataViews.Filters className="dataviews-filters__container" />
-				<DataViews.Layout />
-				<DataViews.Footer />
-			</DataViews>
-			<IntegrationsModal
-				isOpen={ isIntegrationsModalOpen }
-				onClose={ closeIntegrationsModal }
-				attributes={ undefined }
-				setAttributes={ undefined }
-				integrationsData={ integrations }
-				refreshIntegrations={ refreshIntegrations }
-				context="dashboard"
-			/>
-		</Page>
+					<DataViews.Filters className="dataviews-filters__container" />
+					<DataViews.Layout />
+					<DataViews.Footer />
+				</DataViews>
+				<IntegrationsModal
+					isOpen={ isIntegrationsModalOpen }
+					onClose={ closeIntegrationsModal }
+					attributes={ undefined }
+					setAttributes={ undefined }
+					integrationsData={ integrations }
+					refreshIntegrations={ refreshIntegrations }
+					context="dashboard"
+				/>
+			</Page>
+		</WpRouteDashboardSearchParamsProvider>
 	);
 }
 

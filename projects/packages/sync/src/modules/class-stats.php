@@ -33,30 +33,20 @@ class Stats extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param callable $callback Action handler callable.
+	 * @param callable $callback Unused - required for parent class compatibility.
 	 */
-	public function init_listeners( $callback ) {
+	public function init_listeners( $callback ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		add_action( 'jetpack_heartbeat', array( $this, 'sync_site_stats' ), 20 );
-		add_action( 'jetpack_sync_heartbeat_stats', $callback );
 	}
 
 	/**
-	 * This namespaces the action that we sync.
-	 * So that we can differentiate it from future actions.
+	 * Send Heartbeat stats immediately.
 	 *
 	 * @access public
 	 */
 	public function sync_site_stats() {
-		do_action( 'jetpack_sync_heartbeat_stats' );
-	}
 
-	/**
-	 * Initialize the module in the sender.
-	 *
-	 * @access public
-	 */
-	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_jetpack_sync_heartbeat_stats', array( $this, 'add_stats' ) );
+		$this->send_action( 'jetpack_sync_heartbeat_stats', $this->add_stats() );
 	}
 
 	/**
