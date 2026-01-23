@@ -56,8 +56,29 @@ export function useSharingActivity(): UseSharingActivityReturn {
 		[ postId ]
 	);
 
-	// Get connection lookup function
-	const getConnectionById = useSelect( select => select( socialStore ).getConnectionById, [] );
+	// Get connections for all activity items (reactive)
+	const connectionsArray = useSelect(
+		select => {
+			const { getConnectionById } = select( socialStore );
+
+			// Collect unique connection IDs from both shared and scheduled items
+			const connectionIds = new Set< string >();
+			for ( const share of postShareStatus.shares ) {
+				connectionIds.add( share.connection_id.toString() );
+			}
+			for ( const share of scheduledShares ) {
+				connectionIds.add( share.connection_id.toString() );
+			}
+
+			return Array.from( connectionIds )
+				.map( connectionId => ( {
+					connectionId,
+					connection: getConnectionById( connectionId ),
+				} ) )
+				.filter( item => item.connection );
+		},
+		[ postShareStatus.shares, scheduledShares ]
+	);
 
 	// Get IDs of scheduled shares being deleted (reactive)
 	const deletingIdsArray = useSelect(
@@ -70,7 +91,11 @@ export function useSharingActivity(): UseSharingActivityReturn {
 		[ scheduledShares ]
 	);
 
-	// Create Set outside useSelect to avoid "data changing" warnings
+	// Create lookup structures outside useSelect to avoid "data changing" warnings
+	const connectionsMap = useMemo(
+		() => new Map( connectionsArray.map( item => [ item.connectionId, item.connection ] ) ),
+		[ connectionsArray ]
+	);
 	const deletingIds = useMemo( () => new Set( deletingIdsArray ), [ deletingIdsArray ] );
 
 	// Transform and combine the data
@@ -81,17 +106,17 @@ export function useSharingActivity(): UseSharingActivityReturn {
 
 		// Transform shared items
 		for ( const share of postShareStatus.shares ) {
+			const connection = connectionsMap.get( share.connection_id.toString() );
+
 			const item: SharedActivityItem = {
 				id: `shared-${ share.external_id || share.connection_id }-${ share.timestamp }`,
 				activityType: 'shared',
 				status: share.status,
 				timestamp: share.timestamp,
-				serviceName: share.service,
-				displayName: share.external_name,
-				profilePicture: share.profile_picture,
-				profileLink: share.profile_link,
-				connectionId: share.connection_id,
-				externalId: share.external_id,
+				// Use connection as source of truth, fall back to share data
+				serviceName: connection?.service_name ?? share.service,
+				displayName: connection?.display_name ?? share.external_name,
+				profilePicture: connection?.profile_picture ?? share.profile_picture,
 				message: share.message,
 				originalItem: share,
 			};
@@ -106,7 +131,7 @@ export function useSharingActivity(): UseSharingActivityReturn {
 				continue;
 			}
 
-			const connection = getConnectionById( scheduledShare.connection_id.toString() );
+			const connection = connectionsMap.get( scheduledShare.connection_id.toString() );
 
 			// Skip if connection no longer exists
 			if ( ! connection ) {
@@ -121,10 +146,7 @@ export function useSharingActivity(): UseSharingActivityReturn {
 				serviceName: connection.service_name,
 				displayName: connection.display_name,
 				profilePicture: connection.profile_picture,
-				profileLink: connection.profile_link,
 				scheduleId: scheduledShare.id,
-				connectionId: scheduledShare.connection_id,
-				connection,
 			};
 			result.push( item );
 			scheduled++;
@@ -138,7 +160,7 @@ export function useSharingActivity(): UseSharingActivityReturn {
 			sharedCount: shared,
 			scheduledCount: scheduled,
 		};
-	}, [ postShareStatus.shares, scheduledShares, getConnectionById, deletingIds ] );
+	}, [ postShareStatus.shares, scheduledShares, connectionsMap, deletingIds ] );
 
 	return useMemo(
 		() => ( {

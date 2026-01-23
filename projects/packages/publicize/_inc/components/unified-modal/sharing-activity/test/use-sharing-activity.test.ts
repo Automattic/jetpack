@@ -160,7 +160,6 @@ describe( 'useSharingActivity', () => {
 
 		// Type assertion since we verified activityType above
 		const sharedItem = item as SharedActivityItem;
-		expect( sharedItem.connectionId ).toBe( 456 );
 		expect( sharedItem.message ).toBe( 'https://tumblr.com/post/123' );
 		expect( sharedItem.originalItem ).toBe( share );
 	} );
@@ -200,8 +199,6 @@ describe( 'useSharingActivity', () => {
 		// Type assertion since we verified activityType above
 		const scheduledItem = item as import('../types').ScheduledActivityItem;
 		expect( scheduledItem.scheduleId ).toBe( 10 );
-		expect( scheduledItem.connectionId ).toBe( 789 );
-		expect( scheduledItem.connection ).toBe( connection );
 	} );
 
 	it( 'should skip scheduled items when connection does not exist', () => {

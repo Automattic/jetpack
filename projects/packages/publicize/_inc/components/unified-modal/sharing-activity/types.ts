@@ -1,4 +1,4 @@
-import { Connection, ShareStatusItem } from '../../../social-store/types';
+import { ShareStatusItem } from '../../../social-store/types';
 
 /**
  * The activity type discriminator.
@@ -48,11 +48,6 @@ interface BaseSharingActivityItem {
 	 * Profile picture URL.
 	 */
 	profilePicture: string;
-
-	/**
-	 * Profile link URL (optional).
-	 */
-	profileLink?: string;
 }
 
 /**
@@ -68,16 +63,6 @@ export interface SharedActivityItem extends BaseSharingActivityItem {
 	 * Status of the share - success or failure.
 	 */
 	status: 'success' | 'failure';
-
-	/**
-	 * Connection ID from the original share.
-	 */
-	connectionId: number;
-
-	/**
-	 * External ID from the social network.
-	 */
-	externalId?: string;
 
 	/**
 	 * Message - URL for success, error message for failure.
@@ -108,16 +93,6 @@ export interface ScheduledActivityItem extends BaseSharingActivityItem {
 	 * Scheduled share ID.
 	 */
 	scheduleId: number;
-
-	/**
-	 * Connection ID.
-	 */
-	connectionId: number;
-
-	/**
-	 * The connection object for action handling.
-	 */
-	connection: Connection;
 }
 
 /**
