@@ -281,6 +281,11 @@ const { state, actions } = store( NAMESPACE, {
 			return state.isSubmitting;
 		},
 
+		get isSuccessMessageAriaHidden() {
+			const context = getContext();
+			return context.submissionSuccess ? null : 'true';
+		},
+
 		get errorMessage() {
 			const context = getContext();
 			const fieldId = context.fieldId;

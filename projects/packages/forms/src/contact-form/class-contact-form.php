@@ -1541,7 +1541,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 
-		$html = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess" id="contact-form-success-' . esc_attr( $form->hash ) . '" tabindex="-1" aria-labelledby="contact-form-success-header-' . esc_attr( $form->hash ) . '">';
+		$html = '<div class="' . esc_attr( $classes ) . '" data-wp-bind--aria-hidden="state.isSuccessMessageAriaHidden" data-wp-class--submission-success="context.submissionSuccess" id="contact-form-success-' . esc_attr( $form->hash ) . '" tabindex="-1" aria-labelledby="contact-form-success-header-' . esc_attr( $form->hash ) . '">';
 
 		if ( ! $disable_go_back ) {
 			$html .= '<p class="go-back-message">';
@@ -1550,7 +1550,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$html .=
-			'<h4 id="contact-form-success-header-' . esc_attr( $form->hash ) . '">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
+			'<h4 data-wp-bind--aria-hidden="state.isSuccessMessageAriaHidden" id="contact-form-success-header-' . esc_attr( $form->hash ) . '">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
 
 		if ( 'text' === $confirmation_type ) {
