@@ -24,6 +24,13 @@ const FIELD_STATUS = 'status';
 const FIELD_ACTIONS = 'actions';
 const FIELD_ACTIVITY_TYPE = 'activityType';
 
+interface ActivityViewProps {
+	/**
+	 * The current filter to apply.
+	 */
+	filter?: SharingActivityFilter;
+}
+
 /**
  * Get unique ID for a sharing activity item.
  *
