@@ -1607,7 +1607,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 									<svg class="field-file__icon" data-wp-bind--hidden="context.file.hasPreview" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 										<path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>
 									</svg>
-									<a class="field-file__name" data-wp-bind--href="context.file.url" data-wp-text="context.file.name" target="_blank" rel="noopener noreferrer"></a>
+									<span class="field-file__name" data-wp-text="context.file.name"></span>
 									<span class="field-file__size" data-wp-text="context.file.size"></span>
 								</div>
 							</template>
@@ -1675,7 +1675,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 						foreach ( $submission['files'] as $file ) {
 							$file_name   = $file['name'] ?? '';
 							$file_size   = $file['size'] ?? '';
-							$file_url    = $file['url'] ?? '';
 							$has_preview = $file['hasPreview'] ?? false;
 
 							$html .= '<div data-wp-each-child class="field-file">';
@@ -1689,9 +1688,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 							$html .= '>';
 							$html .= '<path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>';
 							$html .= '</svg>';
-							$html .= '<a class="field-file__name" data-wp-bind--href="context.file.url" data-wp-text="context.file.name" target="_blank" rel="noopener noreferrer"';
-							$html .= ! empty( $file_url ) ? ' href="' . esc_attr( $file_url ) . '"' : '';
-							$html .= '>' . esc_html( $file_name ) . '</a>';
+							$html .= '<span class="field-file__name" data-wp-text="context.file.name">' . esc_html( $file_name ) . '</span>';
 							$html .= '<span class="field-file__size" data-wp-text="context.file.size">' . esc_html( $file_size ) . '</span>';
 							$html .= '</div>';
 						}
