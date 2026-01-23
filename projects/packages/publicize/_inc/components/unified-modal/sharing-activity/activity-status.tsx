@@ -31,6 +31,7 @@ export function ActivityStatus( { item }: ActivityStatusProps ) {
 				icon={ info }
 				label={ __( 'Details', 'jetpack-publicize-pkg' ) }
 				showTooltip={ false }
+				// the button is not destructive, this is just to match the red color of the error badge
 				isDestructive
 				variant="tertiary"
 			/>
