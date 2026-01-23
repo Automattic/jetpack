@@ -1603,7 +1603,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 						<div class="field-files" data-wp-bind--hidden="!context.submission.files">
 							<template data-wp-each--file="context.submission.files">
 								<div class="field-file">
-									<svg class="field-file__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<div class="field-file__thumbnail" data-wp-style--background-image="context.file.previewUrl" data-wp-style--mask-image="context.file.iconUrl" data-wp-bind--hidden="!context.file.hasPreview"></div>
+									<svg class="field-file__icon" data-wp-bind--hidden="context.file.hasPreview" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 										<path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>
 									</svg>
 									<a class="field-file__name" data-wp-bind--href="context.file.url" data-wp-text="context.file.name" target="_blank" rel="noopener noreferrer"></a>
@@ -1672,12 +1673,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 					if ( $has_files ) {
 						foreach ( $submission['files'] as $file ) {
-							$file_name = $file['name'] ?? '';
-							$file_size = $file['size'] ?? '';
-							$file_url  = $file['url'] ?? '';
+							$file_name   = $file['name'] ?? '';
+							$file_size   = $file['size'] ?? '';
+							$file_url    = $file['url'] ?? '';
+							$has_preview = $file['hasPreview'] ?? false;
 
 							$html .= '<div data-wp-each-child class="field-file">';
-							$html .= '<svg class="field-file__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">';
+							// Thumbnail for AJAX submissions (has preview data)
+							$html .= '<div class="field-file__thumbnail" data-wp-style--background-image="context.file.previewUrl" data-wp-style--mask-image="context.file.iconUrl" data-wp-bind--hidden="!context.file.hasPreview"';
+							$html .= $has_preview ? '' : ' hidden';
+							$html .= '></div>';
+							// SVG fallback for non-AJAX submissions
+							$html .= '<svg class="field-file__icon" data-wp-bind--hidden="context.file.hasPreview" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"';
+							$html .= $has_preview ? ' hidden' : '';
+							$html .= '>';
 							$html .= '<path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>';
 							$html .= '</svg>';
 							$html .= '<a class="field-file__name" data-wp-bind--href="context.file.url" data-wp-text="context.file.name" target="_blank" rel="noopener noreferrer"';
@@ -3340,10 +3349,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'file' && ! empty( $value['files'] ) ) {
 			return array_map(
 				function ( $file ) {
+					$preview_url = $file['previewUrl'] ?? null;
+					$icon_url    = $file['iconUrl'] ?? null;
+					$has_preview = ! empty( $preview_url ) || ! empty( $icon_url );
+
 					return array(
-						'name' => $file['name'] ?? __( 'Attached file', 'jetpack-forms' ),
-						'size' => $file['size'] ?? '',
-						'url'  => $file['url'] ?? '',
+						'name'       => $file['name'] ?? __( 'Attached file', 'jetpack-forms' ),
+						'size'       => $file['size'] ?? '',
+						'url'        => $file['url'] ?? '',
+						// Preview URLs are captured from the DOM for AJAX submissions
+						'previewUrl' => $preview_url,
+						'iconUrl'    => $icon_url,
+						// Boolean flag for easier binding evaluation
+						'hasPreview' => $has_preview,
 					);
 				},
 				$value['files']
