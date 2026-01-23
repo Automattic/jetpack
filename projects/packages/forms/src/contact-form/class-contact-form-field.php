@@ -914,7 +914,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='state.getFieldValue'
-					aria-describedby='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
+					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
 					data-wp-on--input='actions.onFieldChange'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-class--has-value='state.hasFieldValue'
@@ -1142,7 +1142,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--disabled='state.isSubmitting'
 					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='context.phoneNumber'
-					aria-describedby="<?php echo esc_attr( $id ); ?>-phone-error-message"
+					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
 					data-wp-on--input='actions.phoneNumberInputHandler'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-on--focus='actions.phoneNumberFocusHandler'
@@ -1217,8 +1217,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-on--input='actions.onFieldChange'
 						data-wp-on--blur='actions.onFieldBlur'
 						data-wp-class--has-value='state.hasFieldValue'
+						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
 						data-wp-bind--aria-invalid='state.fieldAriaInvalid'
-						aria-describedby='" . esc_attr( $id ) . "-textarea-error-message'
 						"
 						. ( $this->get_attribute( 'labelhiddenbyblockvisibility' )
 							? "aria-label='" . esc_attr( $aria_label ) . "'"
