@@ -156,8 +156,8 @@ export default function useDeleteForm( {
 
 			setIsDeleting( true );
 
-			const shouldNavigateToPreviousPage = page > 1 && items.length >= recordsLength;
 			const currentQuerySnapshot = currentQuery;
+			let shouldNavigateToPreviousPage = false;
 
 			try {
 				const { restoredCount } = await restoreItemsToPublish( items, {
@@ -165,10 +165,11 @@ export default function useDeleteForm( {
 					errorNoticeIdPrefix: 'restore-forms-error',
 				} );
 
+				// Only page back if we successfully restored all items on the current page.
+				// If some restores fail, the page may still have items and navigating would be incorrect.
+				shouldNavigateToPreviousPage = page > 1 && restoredCount >= recordsLength;
 				if ( restoredCount && shouldNavigateToPreviousPage ) {
-					if ( shouldNavigateToPreviousPage ) {
-						setView( { ...view, page: page - 1 } );
-					}
+					setView( { ...view, page: page - 1 } );
 				}
 			} finally {
 				setIsDeleting( false );
@@ -227,8 +228,8 @@ export default function useDeleteForm( {
 
 			setIsDeleting( true );
 
-			const shouldNavigateToPreviousPage = page > 1 && items.length >= recordsLength;
 			const currentQuerySnapshot = currentQuery;
+			let shouldNavigateToPreviousPage = false;
 
 			try {
 				const promises = await Promise.allSettled(
@@ -275,6 +276,9 @@ export default function useDeleteForm( {
 						],
 					} );
 
+					// Only page back if we successfully trashed all items on the current page.
+					// If some trash operations fail, the page may still have items and navigating would be incorrect.
+					shouldNavigateToPreviousPage = page > 1 && trashedCount >= recordsLength;
 					if ( shouldNavigateToPreviousPage ) {
 						setView( { ...view, page: page - 1 } );
 					}
@@ -415,7 +419,9 @@ export default function useDeleteForm( {
 			// Invalidate the list query so the deleted forms disappear from the table and totals refresh.
 			invalidateListQueries( currentQuerySnapshot );
 			if ( shouldNavigateToPreviousPage ) {
-				invalidateListQueries( { ...currentQuerySnapshot, page: page - 1 } );
+				invalidateListQueries(
+					getFormsListQuery( page - 1, perPage, search, statusQuery ) as Record< string, unknown >
+				);
 			}
 		}
 	}, [
@@ -426,9 +432,12 @@ export default function useDeleteForm( {
 		invalidateListQueries,
 		isDeleting,
 		page,
+		perPage,
 		permanentDeleteItems,
 		recordsLength,
+		search,
 		setView,
+		statusQuery,
 		view,
 	] );
 
