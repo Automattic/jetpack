@@ -240,10 +240,10 @@ class Agents_Manager {
 
 		// Don't load during Gutenberg asset requests or in preview contexts.
 		// This matches the logic in Help_Center::init() to prevent excessive/unnecessary loading.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only checking for substring presence.
-		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
-		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || ( isset( $_GET['preview'] ) && 'true' === $_GET['preview'] ) ) {
+		$is_preview = isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) );
+		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || $is_preview ) {
 			return false;
 		}
 

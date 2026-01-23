@@ -33,9 +33,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	private $agents_manager;
 
 	/**
-	 * Set up test fixtures.
-	 */
-	/**
 	 * Original $_GET['preview'] value to restore after tests.
 	 *
 	 * @var mixed
