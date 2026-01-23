@@ -83,7 +83,10 @@ export function buildSalesforceCard( {
 						</HelpMessage>
 					) }
 					<p>
-						<ExternalLink href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
+						<ExternalLink
+							className="wp-exclude-emoji"
+							href="https://help.salesforce.com/s/articleView?id=000325251&type=1"
+						>
 							{ __( 'Where to find your Salesforce Organization ID', 'jetpack-forms' ) }
 						</ExternalLink>
 					</p>

@@ -38,7 +38,7 @@ export function buildAkismetCard( {
 					"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
 					'jetpack-forms'
 				),
-				{ a: <ExternalLink href={ marketingUrl } /> }
+				{ a: <ExternalLink className="wp-exclude-emoji" href={ marketingUrl } /> }
 			),
 			notActivatedMessage: __(
 				'Akismet is installed. Just activate the plugin to start blocking spam.',
@@ -55,7 +55,7 @@ export function buildAkismetCard( {
 							'Akismet is active. There is one step left. Please add your <a>Akismet key</a>.',
 							'jetpack-forms'
 						),
-						{ a: <ExternalLink href={ settingsUrl } /> }
+						{ a: <ExternalLink className="wp-exclude-emoji" href={ settingsUrl } /> }
 					) }
 				</p>
 				<Button
@@ -79,7 +79,13 @@ export function buildAkismetCard( {
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Button>
 					) : (
-						<Button variant="link" href={ spamUrl } target="_blank" rel="noopener noreferrer">
+						<Button
+							className="wp-exclude-emoji"
+							variant="link"
+							href={ spamUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+						>
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Button>
 					) }
@@ -88,7 +94,10 @@ export function buildAkismetCard( {
 						{ __( 'View stats and settings', 'jetpack-forms' ) }
 					</Button>
 					<span>|</span>
-					<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
+					<ExternalLink
+						className="wp-exclude-emoji"
+						href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }
+					>
 						{ __( 'Learn about Akismet', 'jetpack-forms' ) }
 					</ExternalLink>
 				</HStack>

@@ -59,7 +59,7 @@ export function buildMailPoetCard( {
 					'Add powerful email marketing to your forms with <a>MailPoet</a>. Simply install the plugin to start sending emails.',
 					'jetpack-forms'
 				),
-				{ a: <ExternalLink href={ marketingUrl } /> }
+				{ a: <ExternalLink className="wp-exclude-emoji" href={ marketingUrl } /> }
 			),
 			notActivatedMessage: __(
 				'MailPoet is installed. Just activate the plugin to start sending emails.',
@@ -76,7 +76,7 @@ export function buildMailPoetCard( {
 							'MailPoet is active. There is one step left. Please complete <a>MailPoet setup</a>.',
 							'jetpack-forms'
 						),
-						{ a: <ExternalLink href={ settingsUrl } /> }
+						{ a: <ExternalLink className="wp-exclude-emoji" href={ settingsUrl } /> }
 					) }
 				</p>
 				<HStack spacing="3" justify="start">
@@ -123,7 +123,7 @@ export function buildMailPoetCard( {
 					) ) }
 				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
 				<p className="integration-card__description">
-					<ExternalLink href={ settingsUrl }>
+					<ExternalLink className="wp-exclude-emoji" href={ settingsUrl }>
 						{ __( 'View MailPoet dashboard', 'jetpack-forms' ) }
 					</ExternalLink>
 				</p>

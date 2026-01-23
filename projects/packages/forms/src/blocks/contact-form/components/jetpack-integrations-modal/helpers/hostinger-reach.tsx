@@ -49,7 +49,14 @@ export function buildHostingerReachCard( {
 					'Add powerful email marketing to your forms with <a>Hostinger Reach</a>. Simply install the plugin to start sending emails.',
 					'jetpack-forms'
 				),
-				{ a: <ExternalLink href={ ( integration.marketingUrl as string ) || '' } /> }
+				{
+					a: (
+						<ExternalLink
+							className="wp-exclude-emoji"
+							href={ ( integration.marketingUrl as string ) || '' }
+						/>
+					),
+				}
 			),
 			notActivatedMessage: __(
 				'Hostinger Reach is installed. Just activate the plugin to start sending emails.',
@@ -61,7 +68,7 @@ export function buildHostingerReachCard( {
 		body: ! isConnected ? (
 			<>
 				<p className="integration-card__description">
-					<ExternalLink href={ settingsUrl }>
+					<ExternalLink className="wp-exclude-emoji" href={ settingsUrl }>
 						{ __(
 							'Hostinger Reach is active. There is one step left. Please complete Hostinger Reach setup.',
 							'jetpack-forms'
@@ -108,7 +115,7 @@ export function buildHostingerReachCard( {
 				) }
 				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
 				<p className="integration-card__description">
-					<ExternalLink href={ settingsUrl }>
+					<ExternalLink className="wp-exclude-emoji" href={ settingsUrl }>
 						{ __( 'View Hostinger Reach dashboard', 'jetpack-forms' ) }
 					</ExternalLink>
 				</p>
