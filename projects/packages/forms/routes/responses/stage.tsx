@@ -185,7 +185,7 @@ function Stage() {
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
 	const counts = useSelect(
-		select => ( select( dashboardStore ) as SelectActions ).getCounts(),
+		select => ( select( dashboardStore ) as unknown as SelectActions ).getCounts(),
 		[]
 	);
 
@@ -1052,6 +1052,13 @@ function Stage() {
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
+	const onClickItem = useCallback(
+		( item: unknown ) => {
+			onChangeSelection( [ String( ( item as { id: number | string } ).id ) ] );
+		},
+		[ onChangeSelection ]
+	);
+
 	return (
 		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
 			<Page
@@ -1087,6 +1094,7 @@ function Stage() {
 					defaultLayouts={ defaultLayouts }
 					selection={ selection }
 					onChangeSelection={ onChangeSelection }
+					onClickItem={ onClickItem }
 					actions={ actions }
 				>
 					<Stack
