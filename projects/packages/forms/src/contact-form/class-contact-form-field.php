@@ -869,17 +869,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Return the HTML for the input field.
 	 *
-	 * @param string $type - the field type.
+	 * @param string $type - the input element type attribute.
 	 * @param int    $id - the ID.
 	 * @param string $value - the value of the field.
 	 * @param string $class - the field class.
 	 * @param string $placeholder - the field placeholder content.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param array  $extra_attrs Array of key/value pairs to append as attributes to the element.
+	 * @param string $field_type - the field type for error ID generation (defaults to $type for backward compatibility).
 	 *
 	 * @return string HTML
 	 */
-	public function render_input_field( $type, $id, $value, $class, $placeholder, $required, $extra_attrs = array() ) {
+	public function render_input_field( $type, $id, $value, $class, $placeholder, $required, $extra_attrs = array(), $field_type = null ) {
+		// Use field_type for error div if provided, otherwise fall back to input type for backward compatibility.
+		if ( null === $field_type ) {
+			$field_type = $type;
+		}
 		if ( ! is_string( $value ) ) {
 			$value = '';
 		}
@@ -914,7 +919,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='state.getFieldValue'
-					aria-describedby='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
+					aria-describedby='" . esc_attr( $id ) . '-' . esc_attr( $field_type ) . "-error-message'
 					data-wp-on--input='actions.onFieldChange'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-class--has-value='state.hasFieldValue'
@@ -922,7 +927,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					" . $class . $placeholder . '
 					' . ( $required ? "required='true' aria-required='true' " : '' ) .
 					$extra_attrs_string .
-					" />\n " . $this->get_error_div( $id, $type ) . " \n";
+					" />\n " . $this->get_error_div( $id, $field_type ) . " \n";
 	}
 
 	/**
@@ -1015,7 +1020,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// old telephone field treatment
 			$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
 			$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
-			$field = $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
+			$field = $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required, array(), 'telephone' );
 			return $label . $field;
 		}
 
@@ -1182,7 +1187,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$this->set_invalid_message( 'url', __( 'Please enter a valid URL - https://www.example.com', 'jetpack-forms' ) );
 
 		$field  = $this->render_label( 'url', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
-		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
+		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, array(), 'url' );
 		return $field;
 	}
 
@@ -1891,7 +1896,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$extra_attrs = array( 'data-format' => $date_format );
 
 		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
-		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $extra_attrs );
+		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $extra_attrs, 'date' );
 
 		/* For AMP requests, use amp-date-picker element: https://amp.dev/documentation/components/amp-date-picker */
 		if ( class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request() ) {
@@ -2273,7 +2278,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function render_default_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $type, $required_indicator = true ) {
 		$field  = $this->render_label( $type, $id, $label, $required, $required_field_text, array(), false, $required_indicator );
-		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
+		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, array(), $type );
 		return $field;
 	}
 
