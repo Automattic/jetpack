@@ -52,6 +52,9 @@ class Contact_Form_Block {
 		add_filter( 'pre_render_block', array( __CLASS__, 'pre_render_contact_form' ), 10, 3 );
 
 		add_filter( 'block_editor_rest_api_preload_paths', array( __CLASS__, 'preload_endpoints' ) );
+
+		// Load scripts for the editing interface
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
 	}
 	/**
 	 * Register the contact form block feature flag.
@@ -826,22 +829,11 @@ class Contact_Form_Block {
 
 	/**
 	 * Load editor styles for the block.
-	 * These are loaded via enqueue_block_assets to ensure proper loading in the editor iframe context.
+	 *
+	 * @deprecated $$next-version$$ This function is deprecated and will be removed in a future version.
 	 */
 	public static function load_editor_styles() {
-
-		$handle = 'jp-forms-blocks';
-
-		Assets::register_script(
-			$handle,
-			'../../../dist/blocks/editor.js',
-			__FILE__,
-			array(
-				'css_path'   => '../../../dist/blocks/editor.css',
-				'textdomain' => 'jetpack-forms',
-			)
-		);
-		wp_enqueue_style( 'jp-forms-blocks' );
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 	}
 
 	/**
@@ -865,8 +857,7 @@ class Contact_Form_Block {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				// Editor styles are loaded separately, see load_editor_styles().
-				'css_path'     => null,
+				'css_path'     => '../../../dist/blocks/editor.css',
 			)
 		);
 

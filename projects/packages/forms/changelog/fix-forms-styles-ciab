@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Forms: fix block styles not loading in CIAB environment.
