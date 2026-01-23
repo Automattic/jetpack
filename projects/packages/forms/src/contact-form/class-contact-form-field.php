@@ -914,7 +914,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='state.getFieldValue'
-					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
+					aria-describedby='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
 					data-wp-on--input='actions.onFieldChange'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-class--has-value='state.hasFieldValue'
@@ -948,7 +948,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z" />
 					</svg>
 				</span>
-				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message" role="alert" aria-live="assertive"></span>
+				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
 			</div>';
 	}
 
@@ -1142,7 +1142,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--disabled='state.isSubmitting'
 					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='context.phoneNumber'
-					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
+					aria-describedby="<?php echo esc_attr( $id ); ?>-phone-error-message"
 					data-wp-on--input='actions.phoneNumberInputHandler'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-on--focus='actions.phoneNumberFocusHandler'
@@ -1217,7 +1217,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-on--input='actions.onFieldChange'
 						data-wp-on--blur='actions.onFieldBlur'
 						data-wp-class--has-value='state.hasFieldValue'
-						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
+						aria-describedby='" . esc_attr( $id ) . "-textarea-error-message'
 						data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 						"
 						. ( $this->get_attribute( 'labelhiddenbyblockvisibility' )
