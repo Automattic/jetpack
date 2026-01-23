@@ -1334,7 +1334,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				$user_id               = get_current_user_id();
 				$jetpack_connected     = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
 				$status['isConnected'] = $jetpack_connected && Google_Drive::has_valid_connection();
-				$status['settingsUrl'] = External_Connections::get_connect_url( $slug );
+				if ( ( $config['settings_url'] ?? null ) !== false ) {
+					$status['settingsUrl'] = External_Connections::get_connect_url( $slug );
+				}
 				break;
 			case 'salesforce':
 				// No overrides needed for now; keep defaults.
@@ -1369,7 +1371,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$status['isInstalled'] = $is_installed;
 		$status['isActive']    = $is_active;
 		$status['version']     = $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null;
-		$status['settingsUrl'] = $is_active ? admin_url( $plugin_config['settings_url'] ) : null;
+		$status['settingsUrl'] = ( $is_active && ! empty( $plugin_config['settings_url'] ) )
+			? admin_url( $plugin_config['settings_url'] )
+			: null;
 
 		// Override base shape for specific plugins.
 		switch ( $plugin_slug ) {
