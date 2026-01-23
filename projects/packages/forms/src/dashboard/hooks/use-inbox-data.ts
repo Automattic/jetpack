@@ -23,33 +23,53 @@ import type { FormResponse } from '../../types/index.ts';
  * @param {string} urlStatus - The current status from the URL.
  * @return {string} The status filter to apply.
  */
-function getStatusFilter( urlStatus ) {
-	// Only allow specific status values.
-	const statusFilter = [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
+function getStatusFilter( urlStatus: string | null ): string {
+	const statusFilter = [ 'inbox', 'spam', 'trash' ].includes( urlStatus ?? '' )
+		? urlStatus
+		: 'inbox';
 	return statusFilter === 'inbox' ? 'draft,publish' : statusFilter;
 }
 
-const formatFieldName = fieldName => {
+/**
+ * Formats a field name by removing any numeric prefix.
+ *
+ * @param {string} fieldName - The field name to format.
+ * @return {string} The formatted field name.
+ */
+function formatFieldName( fieldName: string ): string {
 	const match = fieldName.match( /^(\d+_)?(.*)/i );
-	if ( match ) {
-		return match[ 2 ];
-	}
-	return fieldName;
-};
+	return match ? match[ 2 ] : fieldName;
+}
 
-// https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore?tab=readme-ov-file#_isempty
-const isEmpty = obj =>
-	[ Object, Array ].includes( ( obj || {} ).constructor ) && ! Object.entries( obj || {} ).length;
+/**
+ * Checks if an object or array is empty.
+ *
+ * @see https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore?tab=readme-ov-file#_isempty
+ * @param {unknown} obj - The object to check.
+ * @return {boolean} True if empty, false otherwise.
+ */
+function isEmpty( obj: unknown ): boolean {
+	return (
+		[ Object, Array ].includes( ( obj || {} ).constructor as ObjectConstructor ) &&
+		! Object.entries( obj || {} ).length
+	);
+}
 
-const formatFieldValue = fieldValue => {
+/**
+ * Formats a field value for display.
+ *
+ * @param {unknown} fieldValue - The field value to format.
+ * @return {string} The formatted field value.
+ */
+function formatFieldValue( fieldValue: unknown ): string {
 	if ( ! fieldValue || isEmpty( fieldValue ) ) {
 		return '-';
 	}
 	if ( Array.isArray( fieldValue ) ) {
 		return fieldValue.join( ', ' );
 	}
-	return fieldValue;
-};
+	return String( fieldValue );
+}
 
 /**
  * Interface for the return value of the useInboxData hook.

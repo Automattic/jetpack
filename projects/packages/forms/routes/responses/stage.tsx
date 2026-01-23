@@ -197,12 +197,7 @@ function StageContent() {
 		dashboardStoreDescriptor
 	) as unknown as DispatchActions;
 	const filterOptions = useFilterOptions();
-	let status = 'publish';
-	if ( currentView === 'spam' ) {
-		status = 'spam';
-	} else if ( currentView === 'trash' ) {
-		status = 'trash';
-	}
+	const status = currentView === 'spam' || currentView === 'trash' ? currentView : 'publish';
 
 	const { saveEntityRecord, deleteEntityRecord, invalidateResolution, editEntityRecord } =
 		useDispatch( coreStore ) as unknown as DispatchActions;
