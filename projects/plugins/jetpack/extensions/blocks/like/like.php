@@ -89,7 +89,7 @@ function render_block( $attr, $content, $block ) {
 			'_inc/build/likes/style.min.css',
 			'modules/likes/style.css'
 		);
-		$style_path = $style_url;
+		$style_path = JETPACK__PLUGIN_DIR . ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? 'modules/likes/style.css' : '_inc/build/likes/style.min.css' );
 		$script_url = Assets::get_file_url_for_environment(
 			'_inc/build/likes/queuehandler.min.js',
 			'modules/likes/queuehandler.js'
