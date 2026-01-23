@@ -170,13 +170,18 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	};
 
 	const renderLabel = () => {
-		if ( fieldType === 'consent' ) {
-			if ( label.endsWith( '?' ) ) {
-				return label;
-			}
-			return label.endsWith( '.' ) ? `${ label.slice( 0, -1 ) }:` : `${ label }:`;
+		// If the label ends with a colon or question mark,
+		// return it as is to avoid adding a colon or question mark
+		if ( label.endsWith( ':' ) || label.endsWith( '?' ) ) {
+			return label;
 		}
-		return label.endsWith( '?' ) ? label : `${ label }:`;
+
+		if ( fieldType === 'consent' && label.endsWith( '.' ) ) {
+			return `${ label.slice( 0, -1 ) }:`;
+		}
+
+		// Default to adding a colon to the label
+		return `${ label }:`;
 	};
 
 	return (
