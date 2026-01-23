@@ -61,7 +61,7 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 } ) );
 
 await jest.unstable_mockModule(
-	'../../../../src/blocks/contact-form/utils/form-sync-manager',
+	'../../../../src/blocks/contact-form/util/create-synced-form',
 	() => ( {
 		createSyncedForm: mockCreateSyncedForm,
 	} )

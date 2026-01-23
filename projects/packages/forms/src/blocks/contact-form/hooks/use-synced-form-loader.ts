@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useRef } from '@wordpress/element';
-import { filterSyncedAttributes } from '../utils/synced-form-helpers.ts';
+import { filterSyncedAttributes } from '../util/form-sync.ts';
 
 interface UseSyncedFormLoaderParams {
 	ref?: number;
