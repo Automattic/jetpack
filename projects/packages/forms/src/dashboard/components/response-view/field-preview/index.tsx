@@ -189,6 +189,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		? ( type as FieldType )
 		: inferFieldTypeFromLabel( label ) || 'text';
 	const icon = getFieldIcon( fieldType );
+	const typeClassName = `is-field-type-${ fieldType }`;
 
 	const renderFieldValue = () => {
 		// Image select fields
@@ -238,7 +239,11 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	};
 
 	return (
-		<HStack alignment="topLeft" spacing="4" className="jp-forms__field-preview">
+		<HStack
+			alignment="topLeft"
+			spacing="4"
+			className={ `jp-forms__field-preview ${ typeClassName }` }
+		>
 			<div className="jp-forms__field-preview-icon">{ icon }</div>
 			<VStack spacing="0" className="jp-forms__field-preview-content">
 				<div className="jp-forms__field-preview-label">
