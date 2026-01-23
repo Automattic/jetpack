@@ -19,7 +19,7 @@ export function handleFormSelection( { formId, batch, setAttributes, selectBlock
 		if ( Number.isNaN( numericFormId ) ) {
 			return;
 		}
-		setAttributes( { ref: parseInt( numericFormId, 10 ) } );
+		setAttributes( { ref: numericFormId } );
 		selectBlock( clientId );
 	} );
 }
