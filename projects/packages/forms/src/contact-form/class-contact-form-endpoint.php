@@ -860,7 +860,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$data['fields'] = $feedback_response->get_compiled_fields( 'api', 'collection' );
+			$fields_format  = $request->get_param( 'fields_format' ) ?? 'label-value';
+			$data['fields'] = $feedback_response->get_compiled_fields( 'api', $fields_format );
 		}
 
 		if ( rest_is_field_included( 'has_file', $fields ) ) {
@@ -993,6 +994,14 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'sanitize_callback' => function ( $param ) {
 				return array_map( 'absint', (array) $param );
 			},
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+		$query_params['fields_format']  = array(
+			'description'       => __( 'Format for the fields data in the response.', 'jetpack-forms' ),
+			'type'              => 'string',
+			'enum'              => array( 'label-value', 'collection' ),
+			'default'           => 'label-value',
+			'sanitize_callback' => 'sanitize_text_field',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		return $query_params;
