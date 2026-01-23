@@ -306,6 +306,10 @@ const ResponseViewBody = ( {
 		return null;
 	}
 
+	const responseDataClass = clsx( 'jp-forms__inbox-response-data', {
+		'is-collection-format': fieldsAreNewFormat,
+	} );
+
 	if ( isPreviewModalOpen && ! onModalStateChange ) {
 		return (
 			<PreviewFile
@@ -399,7 +403,7 @@ const ResponseViewBody = ( {
 					</table>
 				</div>
 
-				<div className="jp-forms__inbox-response-data">
+				<div className={ responseDataClass }>
 					{ ! fieldsAreNewFormat &&
 						Object.entries( response.fields ).map( ( [ key, value ] ) => (
 							<div key={ key } className="jp-forms__inbox-response-item">
