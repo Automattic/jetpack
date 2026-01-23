@@ -84,7 +84,7 @@ const NotificationsSettings = ( {
 							pushNotificationsLink: isWpcom ? (
 								<WpcomSupportLink supportLink={ wpcomSupportLink } />
 							) : (
-								<ExternalLink href={ jetpackSupportLink } />
+								<ExternalLink href={ jetpackSupportLink } className="wp-exclude-emoji" />
 							),
 						}
 					) }

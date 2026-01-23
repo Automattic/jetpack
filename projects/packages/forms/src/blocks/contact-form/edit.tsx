@@ -1049,7 +1049,10 @@ function JetpackContactFormEdit( {
 						__next40pxDefaultSize={ true }
 					/>
 					<p>
-						<ExternalLink href="https://developer.mozilla.org/docs/Glossary/Accessible_name">
+						<ExternalLink
+							className="wp-exclude-emoji"
+							href="https://developer.mozilla.org/docs/Glossary/Accessible_name"
+						>
 							{ __( 'Read more.', 'jetpack-forms' ) }
 						</ExternalLink>
 					</p>

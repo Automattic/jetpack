@@ -46,7 +46,7 @@ const IntegrationsModal = ( {
 			title={ __( 'Manage integrations', 'jetpack-forms' ) }
 			onRequestClose={ onClose }
 			size="large"
-			className="jetpack-forms-integrations-modal"
+			className="jetpack-forms-integrations-modal wp-exclude-emoji"
 		>
 			<VStack spacing="4">
 				<IntegrationsList
