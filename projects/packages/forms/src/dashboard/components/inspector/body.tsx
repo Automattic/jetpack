@@ -85,8 +85,8 @@ const isLikelyPhoneNumber = value => {
 
 /**
  * Check if a field object is in the new collection format (has label, value, and key properties).
- * @param {unknown} item - The item to check.
- * @return {boolean} Whether the item is a collection format field.
+ * @param item - The item to check.
+ * @return Whether the item is a collection format field.
  */
 const isCollectionFormatField = ( item: unknown ): item is ResponseField => {
 	return (
