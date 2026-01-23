@@ -107,11 +107,13 @@ export function buildHostingerReachCard( {
 					</div>
 				) }
 				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
-				<p className="integration-card__description">
-					<ExternalLink href={ settingsUrl }>
-						{ __( 'View Hostinger Reach dashboard', 'jetpack-forms' ) }
-					</ExternalLink>
-				</p>
+				{ settingsUrl && (
+					<p className="integration-card__description">
+						<ExternalLink href={ settingsUrl }>
+							{ __( 'View Hostinger Reach dashboard', 'jetpack-forms' ) }
+						</ExternalLink>
+					</p>
+				) }
 			</>
 		),
 	};

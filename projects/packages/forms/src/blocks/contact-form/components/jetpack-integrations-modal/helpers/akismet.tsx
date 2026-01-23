@@ -84,10 +84,14 @@ export function buildAkismetCard( {
 						</Button>
 					) }
 					<span>|</span>
-					<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
-						{ __( 'View stats and settings', 'jetpack-forms' ) }
-					</Button>
-					<span>|</span>
+					{ settingsUrl && (
+						<>
+							<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
+								{ __( 'View stats and settings', 'jetpack-forms' ) }
+							</Button>
+							<span>|</span>
+						</>
+					) }
 					<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
 						{ __( 'Learn about Akismet', 'jetpack-forms' ) }
 					</ExternalLink>
