@@ -623,12 +623,14 @@ const { state, actions } = store( NAMESPACE, {
 				const wrapperElement = document.getElementById( `contact-form-${ context.formId }` );
 				wrapperElement?.scrollIntoView( { behavior: 'smooth' } );
 
-				// Move focus to the success heading for screen reader announcement.
+				// Move focus to the success wrapper for screen reader announcement.
+				// The wrapper has aria-labelledby pointing to the heading, so VoiceOver
+				// will read the heading content without announcing "heading level 4".
 				if ( context.submissionSuccess && ! context.hasClickedBack ) {
-					const successHeading = document.getElementById(
-						`contact-form-success-header-${ context.formHash }`
+					const successWrapper = document.getElementById(
+						`contact-form-success-${ context.formHash }`
 					);
-					successHeading?.focus();
+					successWrapper?.focus();
 				}
 
 				context.hasClickedBack = false;

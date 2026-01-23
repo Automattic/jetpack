@@ -1512,7 +1512,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</ul>';
 		$html .= '</div>';
 
-		$html .= '<div class="contact-form__error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError" tabindex="-1" role="alert" data-wp-watch="callbacks.focusOnSubmissionError"></div>';
+		$html .= '<div class="contact-form__error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError" tabindex="-1" data-wp-watch="callbacks.focusOnSubmissionError"></div>';
 		return $html;
 	}
 
@@ -1541,7 +1541,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 
-		$html = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
+		$html = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess" id="contact-form-success-' . esc_attr( $form->hash ) . '" tabindex="-1" aria-labelledby="contact-form-success-header-' . esc_attr( $form->hash ) . '">';
 
 		if ( ! $disable_go_back ) {
 			$html .= '<p class="go-back-message">';
@@ -1550,7 +1550,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$html .=
-			'<h4 id="contact-form-success-header-' . esc_attr( $form->hash ) . '" tabindex="-1" role="alert">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
+			'<h4 id="contact-form-success-header-' . esc_attr( $form->hash ) . '">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
 
 		if ( 'text' === $confirmation_type ) {
