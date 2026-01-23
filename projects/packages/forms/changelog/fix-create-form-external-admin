@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Fix "Create a form" button in external admin contexts by using config-provided URLs instead of relying on window.ajaxurl and relative paths.

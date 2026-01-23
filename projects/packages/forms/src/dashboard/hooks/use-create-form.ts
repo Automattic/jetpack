@@ -42,6 +42,8 @@ type CreateFormReturn = {
 export default function useCreateForm(): CreateFormReturn {
 	const newFormNonce = useConfigValue( 'newFormNonce' );
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
+	const adminUrl = useConfigValue( 'adminUrl' );
+	const ajaxUrl = useConfigValue( 'ajaxUrl' );
 	const createForm = useCallback(
 		async ( formPattern: string ) => {
 			const data = new FormData();
@@ -53,7 +55,9 @@ export default function useCreateForm(): CreateFormReturn {
 				data.append( 'pattern', formPattern );
 			}
 
-			const response = await fetch( window.ajaxurl, { method: 'POST', body: data } );
+			// Fall back to window.ajaxurl for backwards compatibility.
+			const fetchUrl = ajaxUrl || window.ajaxurl;
+			const response = await fetch( fetchUrl, { method: 'POST', body: data } );
 
 			const {
 				success,
@@ -67,7 +71,7 @@ export default function useCreateForm(): CreateFormReturn {
 
 			return postUrl;
 		},
-		[ newFormNonce ]
+		[ newFormNonce, ajaxUrl ]
 	);
 
 	const openNewForm = useCallback(
@@ -77,7 +81,8 @@ export default function useCreateForm(): CreateFormReturn {
 				// Keep existing behavior when disabled (or not yet loaded).
 				if ( isCentralFormManagementEnabled === true ) {
 					analyticsEvent?.( { formPattern: formPattern ?? '' } );
-					const url = 'post-new.php?post_type=jetpack_form';
+					// Use config adminUrl to build full URL for external admin contexts.
+					const url = `${ adminUrl || '' }post-new.php?post_type=jetpack_form`;
 					openFormLinkInNewTab( url );
 					return;
 				}
@@ -96,7 +101,7 @@ export default function useCreateForm(): CreateFormReturn {
 				console.error( error.message ); // eslint-disable-line no-console
 			}
 		},
-		[ createForm, isCentralFormManagementEnabled ]
+		[ createForm, isCentralFormManagementEnabled, adminUrl ]
 	);
 
 	return { createForm, openNewForm };
