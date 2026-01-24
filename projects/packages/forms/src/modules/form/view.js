@@ -630,6 +630,9 @@ const { state, actions } = store( NAMESPACE, {
 				}
 
 				context.isSubmitting = false;
+
+				// Clear captured previews to avoid memory leaks on repeated submissions
+				capturedFilePreviews.clear();
 			}
 		} ),
 
