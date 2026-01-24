@@ -229,6 +229,13 @@ const captureFilePreviews = formHash => {
 // Store for file previews captured before submission
 let capturedFilePreviews = new Map();
 
+/**
+ * Extract file data from a file field value for display on the confirmation page.
+ * Merges server response data with captured preview URLs (for AJAX submissions).
+ *
+ * @param {Object|null} value - The field value object, expected to have type 'file' and files array.
+ * @return {Array<{name: string, size: string, url: string, previewUrl: string|null, iconUrl: string|null, hasPreview: boolean}>|null} Array of file objects or null if not a file field.
+ */
 const getFiles = value => {
 	if ( value?.type === 'file' && value?.files ) {
 		return value.files.map( file => {
