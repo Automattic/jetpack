@@ -8,6 +8,7 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use WorDBless\BaseTestCase;
 use WP_Error;
 
@@ -397,6 +398,7 @@ class Pixel_Builder_Test extends BaseTestCase {
 	/**
 	 * Test send_pixels_batched with valid pixels returns true.
 	 */
+	#[IgnoreDeprecations]
 	public function test_send_pixels_batched_with_valid_pixels(): void {
 		$pixels = array(
 			Pixel_Builder::TRACKS_PIXEL_URL . '?_en=woocommerceanalytics_test1',
