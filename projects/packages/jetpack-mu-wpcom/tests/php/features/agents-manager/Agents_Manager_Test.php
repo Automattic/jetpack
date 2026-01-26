@@ -1311,6 +1311,34 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Helper to call the private is_image_studio_screen method via reflection.
+	 *
+	 * @return bool The result of is_image_studio_screen.
+	 */
+	private function call_is_image_studio_screen() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'is_image_studio_screen' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( $this->agents_manager );
+	}
+
+	/**
+	 * Helper to call the private has_unified_big_sky_flag method via reflection.
+	 *
+	 * @return bool The result of has_unified_big_sky_flag.
+	 */
+	private function call_has_unified_big_sky_flag() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'has_unified_big_sky_flag' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( $this->agents_manager );
+	}
+
+	/**
 	 * Tests that get_current_user_data returns null when no user is logged in.
 	 */
 	public function test_get_current_user_data_returns_null_when_no_user() {
@@ -1556,5 +1584,90 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that is_image_studio_screen returns false when get_current_screen returns null.
+	 */
+	public function test_is_image_studio_screen_returns_false_when_no_screen() {
+		$result = $this->call_is_image_studio_screen();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_image_studio_screen returns true when on Media Library (upload.php).
+	 */
+	public function test_is_image_studio_screen_returns_true_on_media_library() {
+		set_current_screen( 'upload' );
+
+		$result = $this->call_is_image_studio_screen();
+
+		set_current_screen( 'front' );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_image_studio_screen returns false on other admin screens.
+	 */
+	public function test_is_image_studio_screen_returns_false_on_other_screens() {
+		set_current_screen( 'dashboard' );
+
+		$result = $this->call_is_image_studio_screen();
+
+		set_current_screen( 'front' );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that has_unified_big_sky_flag returns false when no flags are set.
+	 */
+	public function test_has_unified_big_sky_flag_returns_false_when_no_flags() {
+		unset( $_GET['flags'] );
+
+		$result = $this->call_has_unified_big_sky_flag();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that has_unified_big_sky_flag returns true when unified-big-sky flag is present.
+	 */
+	public function test_has_unified_big_sky_flag_returns_true_when_flag_present() {
+		$_GET['flags'] = 'unified-big-sky';
+
+		$result = $this->call_has_unified_big_sky_flag();
+
+		unset( $_GET['flags'] );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that has_unified_big_sky_flag returns true when unified-big-sky is among multiple flags.
+	 */
+	public function test_has_unified_big_sky_flag_returns_true_when_flag_in_multiple() {
+		$_GET['flags'] = 'some-flag,unified-big-sky,another-flag';
+
+		$result = $this->call_has_unified_big_sky_flag();
+
+		unset( $_GET['flags'] );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that has_unified_big_sky_flag returns false when different flag is set.
+	 */
+	public function test_has_unified_big_sky_flag_returns_false_when_different_flag() {
+		$_GET['flags'] = 'some-other-flag';
+
+		$result = $this->call_has_unified_big_sky_flag();
+
+		unset( $_GET['flags'] );
+
+		$this->assertFalse( $result );
 	}
 }
