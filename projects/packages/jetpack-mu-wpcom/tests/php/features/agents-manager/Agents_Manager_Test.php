@@ -322,7 +322,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Reset the static instance for testing
 		$reflection = new \ReflectionClass( Agents_Manager::class );
 		$property   = $reflection->getProperty( 'instance' );
-		if ( PHP_VERSION_ID < 80500 ) {
+		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
 
@@ -997,7 +997,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	private function call_is_dev_mode() {
 		$reflection = new \ReflectionClass( Agents_Manager::class );
 		$method     = $reflection->getMethod( 'is_dev_mode' );
-		if ( PHP_VERSION_ID < 80500 ) {
+		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 		return $method->invoke( null );
@@ -1162,7 +1162,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	private function call_should_enqueue_script() {
 		$reflection = new \ReflectionClass( Agents_Manager::class );
 		$method     = $reflection->getMethod( 'should_enqueue_script' );
-		if ( PHP_VERSION_ID < 80500 ) {
+		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 		return $method->invoke( $this->agents_manager );
@@ -1205,7 +1205,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Use reflection to set the protected $previewing property to true.
 		$reflection = new \ReflectionClass( $wp_customize );
 		$property   = $reflection->getProperty( 'previewing' );
-		if ( PHP_VERSION_ID < 80500 ) {
+		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
 		$property->setValue( $wp_customize, true );
@@ -1280,5 +1280,453 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 
 		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Helper to call the private get_current_user_data method via reflection.
+	 *
+	 * @return array|null The result of get_current_user_data.
+	 */
+	private function call_get_current_user_data() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'get_current_user_data' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( $this->agents_manager );
+	}
+
+	/**
+	 * Helper to call the private get_current_site method via reflection.
+	 *
+	 * @return array The result of get_current_site.
+	 */
+	private function call_get_current_site() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'get_current_site' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( $this->agents_manager );
+	}
+
+	/**
+	 * Helper to call the private get_section_name method via reflection.
+	 *
+	 * @return string The result of get_section_name.
+	 */
+	private function call_get_section_name() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'get_section_name' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( $this->agents_manager );
+	}
+
+	/**
+	 * Helper to call the private get_is_eligible_for_chat method via reflection.
+	 *
+	 * @return bool The result of get_is_eligible_for_chat.
+	 */
+	private function call_get_is_eligible_for_chat() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'get_is_eligible_for_chat' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( $this->agents_manager );
+	}
+
+	/**
+	 * Tests that get_current_user_data returns null when no user is logged in.
+	 */
+	public function test_get_current_user_data_returns_null_when_no_user() {
+		wp_set_current_user( 0 );
+
+		$result = $this->call_get_current_user_data();
+
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Tests that get_current_user_data returns correct structure for logged in user.
+	 */
+	public function test_get_current_user_data_returns_correct_structure() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => 'test_user_data',
+				'user_pass'    => 'password',
+				'user_email'   => 'test@example.com',
+				'display_name' => 'Test User',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$result = $this->call_get_current_user_data();
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'ID', $result );
+		$this->assertArrayHasKey( 'username', $result );
+		$this->assertArrayHasKey( 'display_name', $result );
+		$this->assertArrayHasKey( 'avatar_URL', $result );
+		$this->assertArrayHasKey( 'email', $result );
+
+		$this->assertEquals( $user_id, $result['ID'] );
+		$this->assertEquals( 'test_user_data', $result['username'] );
+		$this->assertEquals( 'Test User', $result['display_name'] );
+		$this->assertEquals( 'test@example.com', $result['email'] );
+	}
+
+	/**
+	 * Tests that get_current_site returns correct structure.
+	 */
+	public function test_get_current_site_returns_correct_structure() {
+		update_option( 'home', 'https://example.com' );
+
+		$result = $this->call_get_current_site();
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'ID', $result );
+		$this->assertArrayHasKey( 'domain', $result );
+		$this->assertEquals( 'example.com', $result['domain'] );
+	}
+
+	/**
+	 * Tests that get_current_site uses jetpack_options ID when available.
+	 */
+	public function test_get_current_site_uses_jetpack_options_id() {
+		update_option( 'home', 'https://example.com' );
+		update_option( 'jetpack_options', array( 'id' => 12345 ) );
+
+		$result = $this->call_get_current_site();
+
+		$this->assertEquals( 12345, $result['ID'] );
+
+		delete_option( 'jetpack_options' );
+	}
+
+	/**
+	 * Tests that get_current_site falls back to blog ID when jetpack_options not available.
+	 */
+	public function test_get_current_site_falls_back_to_blog_id() {
+		update_option( 'home', 'https://example.com' );
+		delete_option( 'jetpack_options' );
+
+		$result = $this->call_get_current_site();
+
+		$this->assertEquals( get_current_blog_id(), $result['ID'] );
+	}
+
+	/**
+	 * Tests that get_section_name returns wp-admin by default.
+	 */
+	public function test_get_section_name_returns_wp_admin_by_default() {
+		$result = $this->call_get_section_name();
+
+		$this->assertEquals( 'wp-admin', $result );
+	}
+
+	/**
+	 * Tests that get_is_eligible_for_chat returns false when no user is logged in.
+	 */
+	public function test_get_is_eligible_for_chat_returns_false_when_no_user() {
+		wp_set_current_user( 0 );
+
+		$result = $this->call_get_is_eligible_for_chat();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that get_is_eligible_for_chat uses cached value.
+	 */
+	public function test_get_is_eligible_for_chat_uses_cache() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_chat_cache',
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Set cache to 'yes'.
+		set_transient( 'agents-manager-chat-eligible-' . $user_id, 'yes', Agents_Manager::CHAT_ELIGIBILITY_CACHE_DURATION );
+
+		$result = $this->call_get_is_eligible_for_chat();
+
+		$this->assertTrue( $result );
+
+		// Clean up.
+		delete_transient( 'agents-manager-chat-eligible-' . $user_id );
+	}
+
+	/**
+	 * Tests that get_is_eligible_for_chat returns false from cached 'no' value.
+	 */
+	public function test_get_is_eligible_for_chat_returns_false_from_cache() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_chat_cache_no',
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Set cache to 'no'.
+		set_transient( 'agents-manager-chat-eligible-' . $user_id, 'no', Agents_Manager::CHAT_ELIGIBILITY_CACHE_DURATION );
+
+		$result = $this->call_get_is_eligible_for_chat();
+
+		$this->assertFalse( $result );
+
+		// Clean up.
+		delete_transient( 'agents-manager-chat-eligible-' . $user_id );
+	}
+
+	/**
+	 * Tests that get_is_eligible_for_chat uses WPCOM_Help_Eligibility when available.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_is_eligible_for_chat_uses_wpcom_help_eligibility() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_chat_wpcom',
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock the WPCOM_Help_Eligibility class.
+		\Mockery::mock( 'alias:WPCOM_Help_Eligibility' )
+			->shouldReceive( 'get_user_paid_support_eligibility' )
+			->andReturn( array( 'is_user_eligible' => true ) );
+
+		$result = $this->call_get_is_eligible_for_chat();
+
+		$this->assertTrue( $result );
+
+		// Verify it was cached.
+		$cached = get_transient( 'agents-manager-chat-eligible-' . $user_id );
+		$this->assertEquals( 'yes', $cached );
+	}
+
+	/**
+	 * Tests that get_is_eligible_for_chat returns false when WPCOM_Help_Eligibility returns not eligible.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_is_eligible_for_chat_returns_false_when_not_eligible() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_chat_not_eligible',
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock the WPCOM_Help_Eligibility class returning not eligible.
+		\Mockery::mock( 'alias:WPCOM_Help_Eligibility' )
+			->shouldReceive( 'get_user_paid_support_eligibility' )
+			->andReturn( array( 'is_user_eligible' => false ) );
+
+		$result = $this->call_get_is_eligible_for_chat();
+
+		$this->assertFalse( $result );
+
+		// Verify it was cached.
+		$cached = get_transient( 'agents-manager-chat-eligible-' . $user_id );
+		$this->assertEquals( 'no', $cached );
+	}
+
+	/**
+	 * Tests that get_is_eligible_for_chat falls back to API when WPCOM_Help_Eligibility not available.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_is_eligible_for_chat_falls_back_to_api() {
+		// Simulate being on an Atomic site.
+		Cache::set( 'is_woa_site', true );
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_chat_api',
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Mock the API response.
+		add_filter(
+			'pre_http_request',
+			function ( $response, $args, $url ) {
+				if ( strpos( $url, '/help/support-status' ) === false ) {
+					return $response;
+				}
+
+				return array(
+					'body'     => wp_json_encode(
+						array(
+							'eligibility' => array( 'is_user_eligible' => true ),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$result = $this->call_get_is_eligible_for_chat();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that get_is_eligible_for_chat returns false when user is not connected.
+	 */
+	public function test_get_is_eligible_for_chat_returns_false_when_not_connected() {
+		// Simulate being on an Atomic site (no WPCOM_Help_Eligibility available).
+		Cache::set( 'is_woa_site', true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_chat_not_connected',
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Don't set up user tokens - user is not connected.
+
+		$result = $this->call_get_is_eligible_for_chat();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that enqueue_scripts includes isEligibleForChat in agentsManagerData.
+	 */
+	public function test_enqueue_scripts_includes_is_eligible_for_chat() {
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"isEligibleForChat":', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that enqueue_scripts includes currentUser in agentsManagerData.
+	 */
+	public function test_enqueue_scripts_includes_current_user() {
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => 'test_enqueue_user',
+				'user_pass'    => 'password',
+				'display_name' => 'Enqueue Test',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"currentUser":', $inline_script );
+		$this->assertStringContainsString( 'Enqueue Test', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that enqueue_scripts includes site in agentsManagerData.
+	 */
+	public function test_enqueue_scripts_includes_site() {
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		update_option( 'home', 'https://testsite.example.com' );
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"site":', $inline_script );
+		$this->assertStringContainsString( 'testsite.example.com', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that enqueue_scripts includes sectionName in agentsManagerData.
+	 */
+	public function test_enqueue_scripts_includes_section_name() {
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"sectionName":', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
 }

@@ -21,6 +21,13 @@ class Agents_Manager {
 	private static $instance = null;
 
 	/**
+	 * Cache duration for chat eligibility in seconds (30 minutes).
+	 *
+	 * @var int
+	 */
+	public const CHAT_ELIGIBILITY_CACHE_DURATION = 30 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Agents_Manager constructor.
 	 */
 	public function __construct() {
@@ -716,9 +723,10 @@ class Agents_Manager {
 
 		// If the eligibility class is available (wpcom), use it directly.
 		if ( class_exists( 'WPCOM_Help_Eligibility' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Class exists check above.
 			$eligibility = \WPCOM_Help_Eligibility::get_user_paid_support_eligibility();
 			$result      = ! empty( $eligibility['is_user_eligible'] );
-			set_transient( $cache_key, $result ? 'yes' : 'no', 5 * MINUTE_IN_SECONDS );
+			set_transient( $cache_key, $result ? 'yes' : 'no', self::CHAT_ELIGIBILITY_CACHE_DURATION );
 			return $result;
 		}
 
@@ -762,8 +770,8 @@ class Agents_Manager {
 		$data   = json_decode( $body, true );
 		$result = ! empty( $data['eligibility']['is_user_eligible'] );
 
-		// Cache for 5 minutes (eligibility doesn't change frequently).
-		set_transient( $cache_key, $result ? 'yes' : 'no', 5 * MINUTE_IN_SECONDS );
+		// Cache result (eligibility doesn't change frequently).
+		set_transient( $cache_key, $result ? 'yes' : 'no', self::CHAT_ELIGIBILITY_CACHE_DURATION );
 
 		return $result;
 	}
