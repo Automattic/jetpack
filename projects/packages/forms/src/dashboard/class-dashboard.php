@@ -125,12 +125,13 @@ class Dashboard {
 		// Preload Forms endpoints needed in dashboard context.
 		// Pre-fetch the first inbox page so the UI renders instantly on first load.
 		$preload_params = array(
-			'context'  => 'edit',
-			'order'    => 'desc',
-			'orderby'  => 'date',
-			'page'     => 1,
-			'per_page' => 20,
-			'status'   => 'draft,publish',
+			'context'       => 'edit',
+			'fields_format' => 'collection',
+			'order'         => 'desc',
+			'orderby'       => 'date',
+			'page'          => 1,
+			'per_page'      => 20,
+			'status'        => 'draft,publish',
 		);
 		\ksort( $preload_params );
 		$initial_responses_path        = \add_query_arg( $preload_params, '/wp/v2/feedback' );
