@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.72.0] - 2026-01-26
+### Added
+- Add sharing activity modal with tabs for All shares, Shared, and Scheduled views. [#46633]
+- Add HMR support by wiring up webpack dev server. [#46686]
+- Unify shared and scheduled sharing activity in Dataviews table. [#46724]
+- Wire up media customization per network. [#46699]
+- Wire up per-network customization form. [#46678]
+
+### Changed
+- Refactor share status UI to use Notice component. [#46673]
+- Show a snackbar while sharing is in progress. [#46672]
+- Update the customization toggle and save the flag to post meta. [#46654]
+- Use fallback avatar for Jetpack Social connection icons. [#46677]
+
 ## [0.71.0] - 2026-01-19
 ### Added
 - Add per-network customization with global toggle and per-connection message/media overrides. [#46563]
@@ -1215,6 +1229,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.72.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.71.0...v0.72.0
 [0.71.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.70.0...v0.71.0
 [0.70.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.2...v0.70.0
 [0.69.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.1...v0.69.2
