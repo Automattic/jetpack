@@ -24,7 +24,7 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 
 			// Get URL from attrs or extract from block_content
 			$url = $attributes['src'] ?? '';
-			if ( empty( $url ) && preg_match( '/<audio[^>]*\ssrc=["\']([^"\']*)["\'][^>]*/?>/', $block_content, $matches ) ) {
+			if ( empty( $url ) && preg_match( '#<audio[^>]*\ssrc=["\']([^"\']*)["\'][^>]*/?>#', $block_content, $matches ) ) {
 				$url = $matches[1] ?? '';
 			}
 
