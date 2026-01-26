@@ -244,8 +244,12 @@ export default function InboxView() {
 			return;
 		}
 
-		// Update sidebar if item changed or needs refresh
-		if ( ! sidePanelItem || getItemId( sidePanelItem ) !== getItemId( recordToShow ) ) {
+		// Update sidebar if item changed or needs refresh.
+		// Items can be updated from row actions (e.g. mark as read/unread) without changing the selected ID.
+		const isSameItem = sidePanelItem && getItemId( sidePanelItem ) === getItemId( recordToShow );
+		const needsRefresh = ! isSameItem || sidePanelItem.is_unread !== recordToShow.is_unread;
+
+		if ( needsRefresh ) {
 			setSidePanelItem( recordToShow );
 		}
 	}, [ isMobileViewport, records, selection, sidePanelItem ] );
