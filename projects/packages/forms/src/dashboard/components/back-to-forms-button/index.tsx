@@ -27,7 +27,7 @@ export default function BackToFormsButton(): JSX.Element {
 
 	return (
 		<Button size="compact" variant="primary" onClick={ onClick }>
-			{ __( 'Back to Forms', 'jetpack-forms' ) }
+			{ __( 'Back to forms', 'jetpack-forms' ) }
 		</Button>
 	);
 }

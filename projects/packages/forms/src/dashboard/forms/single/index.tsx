@@ -46,7 +46,7 @@ export default function SingleFormResponses(): JSX.Element | null {
 	const formTitle = useMemo( () => {
 		const rendered = formRecord?.title?.rendered || '';
 		const decoded = decodeEntities( rendered );
-		return decoded || __( '(no title)', 'jetpack-forms' );
+		return decoded;
 	}, [ formRecord?.title?.rendered ] );
 
 	useEffect( () => {
@@ -60,15 +60,23 @@ export default function SingleFormResponses(): JSX.Element | null {
 		return null;
 	}
 
-	return (
-		<Inbox
-			lockedParentId={ lockedParentId }
-			pageTitle={ `${ __( 'Forms', 'jetpack-forms' ) } > ${ formTitle }` }
-			pageSubtitle={ sprintf(
+	// Short-term: show a stable title/subtitle while the (optional) jetpack_form title is loading,
+	// and for non-jetpack_form "source" IDs (pre-CFM) where we may not be able to resolve a title yet.
+	const baseTitle = __( 'Form', 'jetpack-forms' );
+	const pageTitle = formTitle ? `${ baseTitle } > ${ formTitle }` : baseTitle;
+	const pageSubtitle = formTitle
+		? sprintf(
 				/* translators: %s: form name */
 				__( 'Viewing responses for %s.', 'jetpack-forms' ),
 				formTitle
-			) }
+		  )
+		: __( 'View responses for this form.', 'jetpack-forms' );
+
+	return (
+		<Inbox
+			lockedParentId={ lockedParentId }
+			pageTitle={ pageTitle }
+			pageSubtitle={ pageSubtitle }
 		/>
 	);
 }
