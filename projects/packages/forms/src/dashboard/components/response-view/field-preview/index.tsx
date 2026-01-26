@@ -126,6 +126,10 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 			);
 		}
 
+		if ( value === null || value === undefined ) {
+			return '-';
+		}
+
 		// Handle arrays (e.g., multiple choice selections but also anything else coming as array)
 		if ( Array.isArray( value ) ) {
 			return value.join( ', ' );
