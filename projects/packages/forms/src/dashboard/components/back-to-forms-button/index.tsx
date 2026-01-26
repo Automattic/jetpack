@@ -20,10 +20,10 @@ import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-vi
  */
 export default function BackToFormsButton(): JSX.Element {
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
-	const label =
-		isCentralFormManagementEnabled === true
-			? __( 'Back to Forms', 'jetpack-forms' )
-			: __( 'View all responses', 'jetpack-forms' );
+	// Avoid conditional translation calls: define strings unconditionally, then select.
+	const backToFormsLabel = __( 'Back to forms', 'jetpack-forms' );
+	const viewAllResponsesLabel = __( 'View all responses', 'jetpack-forms' );
+	const label = isCentralFormManagementEnabled === true ? backToFormsLabel : viewAllResponsesLabel;
 
 	const onClick = useCallback( () => {
 		// Go to the base Forms dashboard URL (no hash). This will land on:
