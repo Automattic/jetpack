@@ -5,9 +5,6 @@ import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import useConfigValue from '../../../hooks/use-config-value.ts';
