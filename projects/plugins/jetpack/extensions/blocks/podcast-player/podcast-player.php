@@ -332,14 +332,17 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 	}
 
 	// Build block content HTML with audio tag that the audio renderer expects
-	// Use the post URL so the link goes to the post, not a single episode
-	$post_url           = esc_url( $post_url );
-	$block_content_html = sprintf( '<audio src="%s"></audio>', $post_url );
+	// Note: The audio renderer extracts the URL from the src attribute and uses it as a link,
+	// not as an actual audio source. While semantically incorrect to use a post URL in an
+	// audio src attribute, this is the expected format for the WooCommerce audio renderer.
+	// The renderer will create a clickable link to the post, not attempt to play audio.
+	$escaped_post_url   = esc_url( $post_url );
+	$block_content_html = sprintf( '<audio src="%s"></audio>', $escaped_post_url );
 
 	// Create a mock parsed block that WooCommerce's audio renderer can handle
 	$mock_parsed_block = array(
 		'attrs' => array(
-			'src'   => $post_url,
+			'src'   => $escaped_post_url,
 			'label' => __( 'Listen to the podcast', 'jetpack' ),
 		),
 	);

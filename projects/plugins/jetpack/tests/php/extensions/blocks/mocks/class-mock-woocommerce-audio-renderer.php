@@ -42,7 +42,9 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Rend
 				$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin' ) ) ), '' );
 			}
 
-			$icon_image = plugins_url( '/icons/audio/audio-play.png', __FILE__ );
+			// Use CDN URL for icon in mock
+			// This ensures the mock works in tests without requiring actual icon files
+			$icon_image = 'https://s0.wp.com/i/emails/wpcom-notifications/audio-play.png';
 			$audio_url  = esc_url( $url );
 
 			// Define pill-style colors and styling
