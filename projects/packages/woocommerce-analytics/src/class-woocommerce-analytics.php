@@ -27,8 +27,8 @@ class Woocommerce_Analytics {
 	 * Proxy speed module version.
 	 *
 	 * @var string
-	*/
-	const PROXY_SPEED_MODULE_VERSION = '1.0.0';
+	 */
+	const PROXY_SPEED_MODULE_VERSION = '2.0.0';
 
 	/**
 	 * Proxy speed module version option.
