@@ -8,7 +8,7 @@
  */
 
 import { subscribe, select, dispatch } from '@wordpress/data';
-import { unregisterPlugin } from '@wordpress/plugins';
+import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 import {
 	activateBlockCategoryOverrides,
@@ -93,26 +93,49 @@ const restoreOriginalCategories = ( previousCategories: unknown[] ) => {
 	setCategories( categories );
 };
 
-let formBlockClientId: string | null = null;
 /**
- * Locate the contact-form block in the editor and store its client ID.
+ * Subscription state — tracks editor state across ticks to detect changes.
  */
-const locateFormBlock = () => {
-	const { getBlocks } = select( 'core/block-editor' );
-	const blocks = getBlocks();
+const state = {
+	isFormEditor: null as boolean | null,
+	formBlockClientId: null as string | null,
+	categoriesSetUp: false,
+	previousCategories: null as unknown[] | null,
+	blockDirectoryPlugin: null as Record< string, unknown > | null,
+	lastRootBlockIds: '',
+	lastSelectedBlockId: null as string | null | undefined,
+	isFormBlockLocked: false,
+};
 
-	const formBlock = findFormBlock( blocks );
-
-	if ( formBlock ) {
-		formBlockClientId = formBlock.clientId;
+/**
+ * Disable the block directory plugin while in the form editor.
+ * Stores the plugin settings so it can be re-enabled when leaving.
+ */
+const disableBlockDirectory = () => {
+	const plugin = getPlugin( 'block-directory' );
+	if ( ! plugin ) {
+		return;
 	}
+	state.blockDirectoryPlugin = plugin as Record< string, unknown >;
+	unregisterPlugin( 'block-directory' );
+};
+
+/**
+ * Re-enable the block directory plugin when leaving the form editor.
+ */
+const restoreBlockDirectory = () => {
+	if ( ! state.blockDirectoryPlugin ) {
+		return;
+	}
+	registerPlugin( 'block-directory', state.blockDirectoryPlugin );
+	state.blockDirectoryPlugin = null;
 };
 
 /**
  * Lock the contact-form block to prevent moving and removing the block.
  */
 const lockFormBlock = () => {
-	if ( ! formBlockClientId ) {
+	if ( ! state.formBlockClientId ) {
 		return;
 	}
 
@@ -121,13 +144,13 @@ const lockFormBlock = () => {
 		updateBlockAttributes: ( clientId: string, attributes: Record< string, unknown > ) => void;
 	};
 
-	const formBlock = getBlock( formBlockClientId );
+	const formBlock = getBlock( state.formBlockClientId );
 	if ( ! formBlock ) {
 		return;
 	}
 
 	if ( shouldLockBlock( formBlock ) ) {
-		updateBlockAttributes( formBlockClientId, {
+		updateBlockAttributes( state.formBlockClientId, {
 			lock: {
 				remove: true,
 				move: true,
@@ -140,7 +163,7 @@ const lockFormBlock = () => {
  * Ensure the contact-form block is always selected when no other block is selected.
  */
 const enforceBlockSelection = () => {
-	if ( ! formBlockClientId ) {
+	if ( ! state.formBlockClientId ) {
 		return;
 	}
 	const { getSelectedBlockClientId, hasMultiSelection } = select( 'core/block-editor' );
@@ -153,7 +176,7 @@ const enforceBlockSelection = () => {
 		const { selectBlock } = dispatch( 'core/block-editor' ) as {
 			selectBlock: ( clientId: string ) => void;
 		};
-		selectBlock( formBlockClientId );
+		selectBlock( state.formBlockClientId );
 	}
 };
 
@@ -162,7 +185,7 @@ const enforceBlockSelection = () => {
  * Uses pure utility functions for easier testing.
  */
 const enforceBlockNesting = () => {
-	if ( ! formBlockClientId ) {
+	if ( ! state.formBlockClientId ) {
 		return;
 	}
 
@@ -174,14 +197,14 @@ const enforceBlockNesting = () => {
 	}
 
 	// Find any blocks that aren't the form block
-	const blocksToMove = getBlocksToMove( rootBlocks, formBlockClientId );
+	const blocksToMove = getBlocksToMove( rootBlocks, state.formBlockClientId );
 
 	if ( blocksToMove.length === 0 ) {
 		return;
 	}
 
 	// Get the form block to determine where to insert the blocks
-	const formBlock = rootBlocks.find( b => b.clientId === formBlockClientId );
+	const formBlock = rootBlocks.find( b => b.clientId === state.formBlockClientId );
 	const targetIndex = formBlock ? getInsertionIndex( formBlock ) : 0;
 
 	// Collect all client IDs to move
@@ -199,18 +222,10 @@ const enforceBlockNesting = () => {
 	moveBlocksToPosition(
 		clientIdsToMove,
 		'', // From root
-		formBlockClientId, // To form block
+		state.formBlockClientId, // To form block
 		targetIndex
 	);
 };
-
-let isJetpackFormEditor: boolean | null = null;
-let categoriesFiltered: boolean = false;
-
-let lastRootBlockIds: string = '';
-let lastSelectedBlockId: string | null | undefined = null;
-let isFormBlockLocked: boolean = false;
-let previousCategories: unknown[] | null = null;
 
 let unsubscribe: ( () => void ) | null = null;
 
@@ -223,97 +238,86 @@ const setupFormEditorSubscription = () => {
 	}
 	unsubscribe = subscribe( () => {
 		const { getCurrentPostType } = select( 'core/editor' );
-		const isCurrentPostTypeJetpackForm = getCurrentPostType() === FORM_POST_TYPE;
-		if ( isCurrentPostTypeJetpackForm ) {
-			// Check if root blocks changed by comparing their IDs
-			// This detects when blocks are added, removed, or reordered at the root level
-			const { getBlocks } = select( 'core/block-editor' );
-			const rootBlocks = getBlocks();
-			const currentRootBlockIds = JSON.stringify( rootBlocks.map( b => b.clientId ) );
+		const isFormEditor = getCurrentPostType() === FORM_POST_TYPE;
 
-			if ( currentRootBlockIds !== lastRootBlockIds ) {
-				lastRootBlockIds = currentRootBlockIds;
+		// 1. Handle form editor enter/leave transitions
+		if ( isFormEditor !== state.isFormEditor ) {
+			state.isFormEditor = isFormEditor;
 
-				// Re-locate the form block — it may have a new clientId after
-				// block replacement (e.g. when Gutenberg parses the post content).
-				const previousFormBlockClientId = formBlockClientId;
-				formBlockClientId = null;
-				locateFormBlock();
+			if ( isFormEditor ) {
+				document.body.classList.add( 'post-type-jetpack_form' );
+			} else {
+				document.body.classList.remove( 'post-type-jetpack_form' );
 
-				if ( formBlockClientId && formBlockClientId !== previousFormBlockClientId ) {
-					// Reset lock flag — the new block instance won't have the lock attribute
-					isFormBlockLocked = false;
+				if ( state.categoriesSetUp ) {
+					state.categoriesSetUp = false;
+					restoreOriginalCategories( state.previousCategories || [] );
 				}
+				restoreBlockDirectory();
 
-				// Ensure the form block is selected and nested correctly
-				// after any root block change (including initial load).
-				if ( formBlockClientId ) {
-					enforceBlockSelection();
-				}
-
-				enforceBlockNesting();
+				state.formBlockClientId = null;
+				state.lastRootBlockIds = '';
+				state.lastSelectedBlockId = null;
+				state.isFormBlockLocked = false;
 			}
-
-			// Only check selection when it changes
-			const { getSelectedBlockClientId } = select( 'core/block-editor' );
-			const currentSelectedBlockId = getSelectedBlockClientId();
-			if ( currentSelectedBlockId !== lastSelectedBlockId ) {
-				lastSelectedBlockId = currentSelectedBlockId;
-				enforceBlockSelection();
-			}
-
-			// Only try to lock the form block once
-			if ( ! isFormBlockLocked && formBlockClientId ) {
-				lockFormBlock();
-				// Verify the block is now locked by checking the attributes
-				const { getBlock } = select( 'core/block-editor' );
-				const formBlock = getBlock( formBlockClientId );
-				const lock = formBlock?.attributes?.lock as BlockLock | undefined;
-				if ( formBlock && lock?.remove && lock?.move ) {
-					isFormBlockLocked = true;
-				}
-			}
-
-			// Locate the form block if we haven't yet
-			if ( ! formBlockClientId ) {
-				locateFormBlock();
-
-				if ( formBlockClientId ) {
-					enforceBlockSelection();
-				}
-			}
-
-			if ( ! categoriesFiltered ) {
-				categoriesFiltered = true;
-				previousCategories = setupFormEditorCategories();
-				try {
-					unregisterPlugin( 'block-directory' );
-				} catch {
-					// Plugin may not be registered, ignore.
-				}
-			}
-		} else if ( categoriesFiltered ) {
-			categoriesFiltered = false;
-			restoreOriginalCategories( previousCategories || [] );
 		}
 
-		if ( isCurrentPostTypeJetpackForm === isJetpackFormEditor ) {
+		// 2. Early return if not in form editor
+		if ( ! isFormEditor ) {
 			return;
 		}
 
-		if ( isCurrentPostTypeJetpackForm ) {
-			document.body.classList.add( 'post-type-jetpack_form' );
-		} else {
-			document.body.classList.remove( 'post-type-jetpack_form' );
-			formBlockClientId = null; // Reset the form block client ID if we are not in the Form editor anymore.
+		// 3. One-time category setup and block directory disable
+		if ( ! state.categoriesSetUp ) {
+			state.categoriesSetUp = true;
+			state.previousCategories = setupFormEditorCategories();
 
-			// Reset performance tracking state
-			lastRootBlockIds = '';
-			lastSelectedBlockId = null;
-			isFormBlockLocked = false;
+			disableBlockDirectory();
 		}
-		// Update the flag.
-		isJetpackFormEditor = isCurrentPostTypeJetpackForm;
+
+		// 4. React to root block changes (locate, select, nest)
+		const { getBlocks } = select( 'core/block-editor' );
+		const rootBlocks = getBlocks();
+		const currentRootBlockIds = JSON.stringify( rootBlocks.map( b => b.clientId ) );
+
+		if ( currentRootBlockIds !== state.lastRootBlockIds ) {
+			state.lastRootBlockIds = currentRootBlockIds;
+
+			// Re-locate the form block — it may have a new clientId after
+			// block replacement (e.g. when Gutenberg parses the post content).
+			const previousFormBlockClientId = state.formBlockClientId;
+			const formBlock = findFormBlock( rootBlocks );
+			state.formBlockClientId = formBlock ? formBlock.clientId : null;
+
+			if ( state.formBlockClientId && state.formBlockClientId !== previousFormBlockClientId ) {
+				state.isFormBlockLocked = false;
+			}
+
+			if ( state.formBlockClientId ) {
+				enforceBlockSelection();
+			}
+
+			enforceBlockNesting();
+		}
+
+		// 5. React to selection changes
+		const { getSelectedBlockClientId } = select( 'core/block-editor' );
+		const currentSelectedBlockId = getSelectedBlockClientId();
+		if ( currentSelectedBlockId !== state.lastSelectedBlockId ) {
+			state.lastSelectedBlockId = currentSelectedBlockId;
+			enforceBlockSelection();
+		}
+
+		// 6. Ensure form block is locked
+		if ( ! state.isFormBlockLocked && state.formBlockClientId ) {
+			lockFormBlock();
+			const { getBlock } = select( 'core/block-editor' );
+			const formBlock = getBlock( state.formBlockClientId );
+			const lock = formBlock?.attributes?.lock as BlockLock | undefined;
+			if ( formBlock && lock?.remove && lock?.move ) {
+				state.isFormBlockLocked = true;
+			}
+		}
 	} );
 
 	// Ensure we clean up the subscription when the editor/page unloads to avoid leaks.
