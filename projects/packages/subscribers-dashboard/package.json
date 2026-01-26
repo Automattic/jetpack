@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-subscribers-dashboard",
-	"version": "0.4.14",
+	"version": "0.4.15",
 	"private": true,
 	"description": "WP Admin page to manage subscribers",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/subscribers-dashboard/#readme",

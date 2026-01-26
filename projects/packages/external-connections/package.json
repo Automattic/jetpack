@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-external-connections",
-	"version": "0.1.12",
+	"version": "0.1.13",
 	"private": true,
 	"description": "Connect your site to external services.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/external-connections/#readme",

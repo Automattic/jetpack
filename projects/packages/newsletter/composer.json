@@ -53,7 +53,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-newsletter",
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.3.x-dev"
 		},
 		"textdomain": "jetpack-newsletter",
 		"version-constants": {
