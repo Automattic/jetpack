@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-LCP: Skip image optimizations that would break responsive backgrounds or custom focal points.
