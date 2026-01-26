@@ -38,6 +38,7 @@ export type ResponseMetaProps = {
  * @return {import('react').JSX.Element} The response meta component.
  */
 const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.Element => {
+	const dateSettings = getDateSettings();
 	const displayName = getDisplayName( response );
 	// Match the data view gravatar logic: use email or IP, and set defaultImage conditionally
 	const gravatarEmail = response.author_email || response.ip;

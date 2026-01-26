@@ -12,7 +12,7 @@ import {
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
-import { dateI18n } from '@wordpress/date';
+import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
@@ -156,6 +156,7 @@ function StageInner() {
 	const navigate = useNavigate();
 	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
 	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
+	const dateSettings = getDateSettings();
 
 	const sourceIdValue = ( searchParams as { sourceId?: string | number } )?.sourceId;
 	const sourceIdNumber =
@@ -177,7 +178,6 @@ function StageInner() {
 	} ) );
 
 	const selection = useMemo( () => searchParams?.responseIds ?? [], [ searchParams?.responseIds ] );
-
 	const {
 		setCurrentQuery,
 		setSelectedResponses,
@@ -312,9 +312,65 @@ function StageInner() {
 				queryArgs.source = filter.value;
 			}
 			if ( filter.field === 'date' ) {
-				const [ year, month ] = filter.value.split( '/' ).map( Number );
-				queryArgs.after = new Date( Date.UTC( year, month - 1, 1 ) ).toISOString();
-				queryArgs.before = new Date( Date.UTC( year, month, 0, 23, 59, 59 ) ).toISOString();
+				const filterValue: unknown = filter.value;
+				const operator = filter.operator ?? 'is';
+
+				if ( filterValue ) {
+					let startDate: Date;
+					let endDate: Date;
+
+					if ( Array.isArray( filterValue ) ) {
+						const firstValue: unknown = filterValue[ 0 ];
+						const secondValue: unknown = filterValue[ 1 ];
+						startDate = new Date(
+							typeof firstValue === 'string' ||
+							typeof firstValue === 'number' ||
+							firstValue instanceof Date
+								? firstValue
+								: ''
+						);
+						endDate = new Date(
+							typeof secondValue === 'string' ||
+							typeof secondValue === 'number' ||
+							secondValue instanceof Date
+								? secondValue
+								: ''
+						);
+					} else {
+						const dateValue =
+							typeof filterValue === 'string' ||
+							typeof filterValue === 'number' ||
+							filterValue instanceof Date
+								? filterValue
+								: '';
+						startDate = new Date( dateValue );
+						endDate = new Date( dateValue );
+					}
+
+					startDate.setUTCHours( 0, 0, 0, 0 );
+					endDate.setUTCHours( 23, 59, 59, 999 );
+
+					const startOfDayISO = startDate.toISOString();
+					const endOfDayISO = endDate.toISOString();
+
+					// Convert operator to REST API operator. Note, before and after are treated as inclusive.
+					switch ( operator ) {
+						case 'on':
+							queryArgs.after = startOfDayISO;
+							queryArgs.before = endOfDayISO;
+							break;
+						case 'before':
+							queryArgs.before = endOfDayISO;
+							break;
+						case 'after':
+							queryArgs.after = startOfDayISO;
+							break;
+						case 'between':
+							queryArgs.after = startOfDayISO;
+							queryArgs.before = endOfDayISO;
+							break;
+					}
+				}
 			}
 		} );
 
@@ -453,14 +509,21 @@ function StageInner() {
 			},
 			{
 				id: 'date',
+				type: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
+				filterBy: {
+					operators: [ 'on', 'between', 'before', 'after' ],
+				},
 				render: ( { item } ) => {
-					const dateStr = new Date( item.date ).toLocaleDateString( undefined, {
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric',
-					} );
-					return styleUnreadValue( dateStr, item.is_unread );
+					const date = dateI18n( dateSettings.formats.date, item.date );
+					return styleUnreadValue( date, item.is_unread );
+				},
+				getValue: ( { item } ) => {
+					if ( typeof item.date !== 'string' ) {
+						return '';
+					}
+					const [ datePart ] = item.date.split( 'T' );
+					return datePart;
 				},
 				elements: ( ( filterOptions as unknown as FeedbackFilters )?.date || [] ).map( filter => {
 					const date = new Date();
@@ -472,8 +535,6 @@ function StageInner() {
 						value: `${ filter.year }/${ filter.month }`,
 					};
 				} ),
-				filterBy: { operators: [ 'is' ] as Operator[] },
-				enableSorting: false,
 			},
 			{
 				id: 'source',
@@ -536,7 +597,14 @@ function StageInner() {
 				enableSorting: false,
 			},
 		],
-		[ filterOptions, isSingleFormView, totalItemsInbox, totalItemsSpam, totalItemsTrash ]
+		[
+			dateSettings.formats.date,
+			filterOptions,
+			isSingleFormView,
+			totalItemsInbox,
+			totalItemsSpam,
+			totalItemsTrash,
+		]
 	);
 
 	const actions = useMemo(
