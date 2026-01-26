@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Agents Manager: Add support for Image Studio on Media Library when unified-big-sky flag is present.
