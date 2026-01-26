@@ -302,6 +302,10 @@ const setupFormEditorSubscription = () => {
 					}
 					restoreBlockDirectory();
 					restoreAllowedBlocks();
+					if ( requestAnimationFrameId ) {
+						cancelAnimationFrame( requestAnimationFrameId );
+						requestAnimationFrameId = null;
+					}
 
 					state.formBlockClientId = null;
 					state.lastRootBlockIds = '';
