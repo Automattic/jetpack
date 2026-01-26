@@ -410,24 +410,15 @@ class WC_Analytics_Tracking {
 		}
 
 		// Get WooCommerce version if available.
-		$wc_version = null;
-		if ( function_exists( 'WC' ) && method_exists( WC(), 'stable_version' ) ) {
-			$wc_version = WC()->stable_version();
-		} elseif ( defined( 'WC_VERSION' ) ) {
+		// Check WC_VERSION constant first (most reliable), then fall back to option.
+		if ( defined( 'WC_VERSION' ) ) {
 			$wc_version = WC_VERSION;
 		} else {
-			// Fallback to known option name.
 			$wc_version = get_option( 'woocommerce_version', '' );
 		}
 
-		// Get store ID if WooCommerce is available.
-		$store_id = null;
-		if ( class_exists( '\WC_Install' ) && defined( '\WC_Install::STORE_ID_OPTION' ) ) {
-			$store_id = get_option( \WC_Install::STORE_ID_OPTION, null );
-		} else {
-			// Fallback to known option name.
-			$store_id = get_option( 'woocommerce_store_id', null );
-		}
+		// Get store ID from known option name.
+		$store_id = get_option( 'woocommerce_store_id', null );
 
 		// Get store currency - use WC function if available, otherwise fall back to option.
 		$store_currency = function_exists( 'get_woocommerce_currency' )
