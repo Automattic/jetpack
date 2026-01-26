@@ -304,6 +304,7 @@ const setupFormEditorSubscription = () => {
 					state.lastRootBlockIds = '';
 					state.lastSelectedBlockId = null;
 					state.isFormBlockLocked = false;
+					state.previousCategories = null;
 				}
 			}
 
@@ -338,13 +339,19 @@ const setupFormEditorSubscription = () => {
 					state.isFormBlockLocked = false;
 				}
 
-				// DEBUG: Track when form block first appears
+				// When the form block first appears, defer restricting allowed blocks.
 				if ( state.formBlockClientId && ! previousFormBlockClientId ) {
 					// Defer restrictAllowedBlocks to break out of the synchronous dispatch chain.
 					// This ensures ExperimentalBlockEditorProvider finishes its re-renders
 					// before we update settings.
 					if ( state.previousAllowedBlockTypes === null ) {
 						requestAnimationFrame( () => {
+							// Guard against race conditions: the editor may no longer be
+							// in form editing mode, or the allowed block types may have
+							// already been initialized by the time this runs.
+							if ( ! state.isFormEditor || state.previousAllowedBlockTypes !== null ) {
+								return;
+							}
 							restrictAllowedBlocks();
 						} );
 					}
