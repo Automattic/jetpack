@@ -219,6 +219,7 @@ class Agents_Manager {
 					'sectionName'          => $this->get_section_name(),
 					'currentUser'          => $this->get_current_user_data(),
 					'site'                 => $this->get_current_site(),
+					'isEligibleForChat'    => $this->get_is_eligible_for_chat(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -690,6 +691,81 @@ class Agents_Manager {
 		}
 
 		return 'wp-admin';
+	}
+
+	/**
+	 * Get whether the current user is eligible for chat support.
+	 *
+	 * On wpcom (Simple sites), calls WPCOM_Help_Eligibility directly.
+	 * On Atomic/Garden sites, calls the wpcom API via Jetpack connection.
+	 *
+	 * @return bool Whether user is eligible for chat support.
+	 */
+	private function get_is_eligible_for_chat() {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		// Check transient cache first (per-user cache).
+		$cache_key     = 'agents-manager-chat-eligible-' . $user_id;
+		$cached_result = get_transient( $cache_key );
+		if ( false !== $cached_result ) {
+			return 'yes' === $cached_result;
+		}
+
+		// If the eligibility class is available (wpcom), use it directly.
+		if ( class_exists( 'WPCOM_Help_Eligibility' ) ) {
+			$eligibility = \WPCOM_Help_Eligibility::get_user_paid_support_eligibility();
+			$result      = ! empty( $eligibility['is_user_eligible'] );
+			set_transient( $cache_key, $result ? 'yes' : 'no', 5 * MINUTE_IN_SECONDS );
+			return $result;
+		}
+
+		// On Atomic/Garden sites, call the wpcom API via Jetpack connection.
+		return $this->get_chat_eligibility_via_api( $cache_key, $user_id );
+	}
+
+	/**
+	 * Get chat eligibility via wpcom API (for Atomic/Garden sites).
+	 *
+	 * @param string $cache_key Transient cache key.
+	 * @param int    $user_id   User ID.
+	 * @return bool Whether user is eligible for chat support.
+	 */
+	private function get_chat_eligibility_via_api( $cache_key, $user_id ) {
+		// Check if user is connected before making API call.
+		if ( ! ( new Connection_Manager() )->is_user_connected( $user_id ) ) {
+			return false;
+		}
+
+		// Call help/support-status via wpcom API.
+		$wpcom_request = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+			'/help/support-status',
+			'2',
+			array( 'method' => 'GET' )
+		);
+
+		if ( is_wp_error( $wpcom_request ) ) {
+			// Cache failures to avoid hammering the API.
+			set_transient( $cache_key, 'no', MINUTE_IN_SECONDS );
+			return false;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 !== $response_code ) {
+			set_transient( $cache_key, 'no', MINUTE_IN_SECONDS );
+			return false;
+		}
+
+		$body   = wp_remote_retrieve_body( $wpcom_request );
+		$data   = json_decode( $body, true );
+		$result = ! empty( $data['eligibility']['is_user_eligible'] );
+
+		// Cache for 5 minutes (eligibility doesn't change frequently).
+		set_transient( $cache_key, $result ? 'yes' : 'no', 5 * MINUTE_IN_SECONDS );
+
+		return $result;
 	}
 }
 
