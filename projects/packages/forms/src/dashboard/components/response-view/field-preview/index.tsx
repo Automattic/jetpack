@@ -8,6 +8,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import parsePhoneNumber from 'libphonenumber-js';
 /**
  * Internal dependencies
  */
@@ -26,6 +27,7 @@ import RatingFieldIcon from '../../../../blocks/field-rating/icon.js';
 import SelectFieldIcon from '../../../../blocks/field-select/icon.js';
 import SingleChoiceFieldIcon from '../../../../blocks/field-single-choice/icon.js';
 import SliderFieldIcon from '../../../../blocks/field-slider/icon.js';
+import { countries } from '../../../../blocks/field-telephone/country-list.js';
 import TelephoneFieldIcon from '../../../../blocks/field-telephone/icon.js';
 import TextFieldIcon from '../../../../blocks/field-text/icon.js';
 import TextareaFieldIcon from '../../../../blocks/field-textarea/icon.js';
@@ -161,7 +163,18 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 
 		// Phone numbers
 		if ( fieldType === 'phone' || fieldType === 'telephone' ) {
-			return <a href={ `tel:${ stringValue }` }>{ stringValue }</a>;
+			const phoneNumber = parsePhoneNumber( stringValue );
+			const formattedNumber = phoneNumber?.formatInternational() ?? stringValue;
+			const countryCode = phoneNumber?.country;
+			const countryFlag = countryCode
+				? countries.find( c => c.code === countryCode )?.flag
+				: undefined;
+			return (
+				<>
+					{ countryFlag && `${ countryFlag } ` }
+					<a href={ `tel:${ stringValue }` }>{ formattedNumber }</a>
+				</>
+			);
 		}
 
 		if ( fieldType === 'url' && /^https?:\/\//.test( stringValue ) ) {
