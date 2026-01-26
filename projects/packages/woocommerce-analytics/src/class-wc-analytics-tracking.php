@@ -257,7 +257,7 @@ class WC_Analytics_Tracking {
 				'device'         => self::get_device_type(),
 				'store_currency' => $blog_details['store_currency'] ?? null,
 				'timezone'       => wp_timezone_string(),
-				'is_guest'       => ( $blog_user_id === null ) ? 1 : 0,
+				'is_guest'       => ( $blog_user_id === null || $blog_user_id === 0 ) ? 1 : 0,
 			),
 			$server_details
 		);
