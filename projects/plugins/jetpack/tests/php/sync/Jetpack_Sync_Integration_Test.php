@@ -100,7 +100,7 @@ class Jetpack_Sync_Integration_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'updating_jetpack_version' );
-		$this->assertFalse( '4.3', $event );
+		$this->assertFalse( $event );
 	}
 
 	public function test_cleanup_old_cron_job_on_update() {
