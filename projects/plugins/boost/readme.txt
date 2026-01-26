@@ -183,15 +183,14 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.5 - 2026-01-08
-#### Added
-- Connection: Add revalidation for IDCs.
-
+### 4.5.6-beta - 2026-01-26
 #### Changed
+- My Jetpack: Check red bubble notification async when cache is not available.
+- Update composer.lock.
 - Update package dependencies.
 
 #### Fixed
-- Critical CSS: Fix breaking stylesheets without media attributes.
+- LCP: Skip image optimizations that would break responsive backgrounds or custom focal points under specific configurations.
 
 --------
 
