@@ -346,7 +346,9 @@ const setupFormEditorSubscription = () => {
 					state.isFormBlockLocked = false;
 				}
 
-				// When the form block first appears, defer restricting allowed blocks.
+				// When the form block first appears, defer restrictAllowedBlocks to break
+				// out of the synchronous dispatch chain and ensure ExperimentalBlockEditorProvider
+				// finishes its re-renders before we update settings.
 				if ( state.formBlockClientId && ! previousFormBlockClientId ) {
 					// Defer restrictAllowedBlocks to break out of the synchronous dispatch chain.
 					// This ensures ExperimentalBlockEditorProvider finishes its re-renders
