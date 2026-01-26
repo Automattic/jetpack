@@ -262,20 +262,6 @@ class WC_Analytics_Tracking {
 			$server_details
 		);
 
-			/**
-		 * Allow defining custom event properties in WooCommerce Analytics.
-		 *
-		 * @module woocommerce-analytics
-		 *
-		 * @since 12.5
-		 *
-		 * @param array $properties Array of event props to be filtered.
-		 */
-		$common_properties = apply_filters(
-			'jetpack_woocommerce_analytics_event_props',
-			$common_properties
-		);
-
 		return is_array( $common_properties ) ? $common_properties : array();
 	}
 
@@ -289,7 +275,16 @@ class WC_Analytics_Tracking {
 	public static function get_properties( $event_name, $event_properties ) {
 		$common_properties = self::get_common_properties();
 
-		$properties = array_merge( $common_properties, $event_properties );
+		/**
+		 * Allow defining custom event properties in WooCommerce Analytics.
+		 *
+		 * @module woocommerce-analytics
+		 *
+		 * @since 12.5
+		 *
+		 * @param array $all_props Array of event props to be filtered.
+		 */
+		$properties = apply_filters( 'jetpack_woocommerce_analytics_event_props', array_merge( $common_properties, $event_properties ), $event_name );
 
 		$required_properties = $event_name
 			? array(

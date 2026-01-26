@@ -259,7 +259,22 @@ trait Woo_Analytics_Trait {
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
-		return WC_Analytics_Tracking::get_common_properties();
+		$common_properties = WC_Analytics_Tracking::get_common_properties();
+		/**
+		 * Allow defining custom event properties in WooCommerce Analytics.
+		 *
+		 * @module woocommerce-analytics
+		 *
+		 * @since 12.5
+		 *
+		 * @param array $properties Array of event props to be filtered.
+		 */
+		$properties = apply_filters(
+			'jetpack_woocommerce_analytics_event_props',
+			$common_properties
+		);
+
+		return $properties;
 	}
 
 	/**
