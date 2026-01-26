@@ -216,6 +216,9 @@ class Agents_Manager {
 					'agentProviders'       => $agent_providers,
 					'useUnifiedExperience' => $use_unified_experience,
 					'isDevMode'            => self::is_dev_mode(),
+					'sectionName'          => $this->get_section_name(),
+					'currentUser'          => $this->get_current_user_data(),
+					'site'                 => $this->get_current_site(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -609,6 +612,84 @@ class Agents_Manager {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get current user data for the agents manager.
+	 *
+	 * Mirrors the user data structure from Help Center's helpCenterData.
+	 *
+	 * @return array|null User data array or null if not logged in.
+	 */
+	private function get_current_user_data() {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return null;
+		}
+
+		$user_data = get_userdata( $user_id );
+		if ( ! $user_data ) {
+			return null;
+		}
+
+		$user_email = $user_data->user_email;
+
+		// Use wpcom_get_avatar_url on Simple sites, fall back to get_avatar_url elsewhere.
+		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
+			$avatar_url = wpcom_get_avatar_url( $user_email, 64, '', true )[0];
+		} else {
+			$avatar_url = get_avatar_url( $user_id );
+		}
+
+		return array(
+			'ID'           => $user_id,
+			'username'     => $user_data->user_login,
+			'display_name' => $user_data->display_name,
+			'avatar_URL'   => $avatar_url,
+			'email'        => $user_email,
+		);
+	}
+
+	/**
+	 * Get current site data for the agents manager.
+	 *
+	 * Returns minimal site data needed by AgentsManager (ID and domain only).
+	 * Uses jetpack_options['id'] on Atomic sites for the wpcom blog ID.
+	 *
+	 * @return array Site data with ID and domain.
+	 */
+	private function get_current_site() {
+		/*
+		 * Atomic sites have the WP.com blog ID stored as a Jetpack option.
+		 * This code deliberately doesn't use `Jetpack_Options::get_option`
+		 * so it works even when Jetpack has not been loaded.
+		 */
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+			$site_id = (int) $jetpack_options['id'];
+		} else {
+			$site_id = get_current_blog_id();
+		}
+
+		return array(
+			'ID'     => $site_id,
+			'domain' => wp_parse_url( home_url(), PHP_URL_HOST ),
+		);
+	}
+
+	/**
+	 * Get the section name for the current context.
+	 *
+	 * Mirrors Help Center's sectionName which is based on the variant.
+	 *
+	 * @return string The section name (e.g., 'gutenberg', 'wp-admin').
+	 */
+	private function get_section_name() {
+		if ( $this->is_block_editor() ) {
+			return 'gutenberg';
+		}
+
+		return 'wp-admin';
 	}
 }
 
