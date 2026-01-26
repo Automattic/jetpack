@@ -1,19 +1,20 @@
 <?php
 /**
- * WooCommerce Analytics Tracking
+ * WooCommerce Analytics ClickHouse Event
  *
  * @package automattic/woocommerce-analytics
  */
 
 namespace Automattic\Woocommerce_Analytics;
 
-use WC_Tracks_Client;
-use WC_Tracks_Event;
+use WP_Error;
 
 /**
- * WooCommerce Analytics ClickHouse Client class
+ * WooCommerce Analytics ClickHouse Event class
  */
-class WC_Analytics_Ch_Event extends WC_Tracks_Event {
+#[AllowDynamicProperties]
+class WC_Analytics_Ch_Event {
+
 	/**
 	 * The ClickHouse pixel URL.
 	 *
@@ -22,20 +23,57 @@ class WC_Analytics_Ch_Event extends WC_Tracks_Event {
 	const PIXEL = 'https://pixel.wp.com/w.gif';
 
 	/**
-	 * Build a pixel URL that will send a Tracks event when fired.
+	 * Error message as WP_Error.
+	 *
+	 * @var WP_Error|null
+	 */
+	public $error;
+
+	/**
+	 * Event properties.
+	 *
+	 * @var array
+	 */
+	private $properties;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param array $properties Event properties.
+	 */
+	public function __construct( $properties ) {
+		$this->properties = $properties;
+
+		// Validate the properties.
+		$validated = Pixel_Builder::validate_and_sanitize( $properties );
+
+		if ( is_wp_error( $validated ) ) {
+			$this->error = $validated;
+			return;
+		}
+
+		// Store validated properties as object properties for backwards compatibility.
+		foreach ( $validated as $key => $value ) {
+			$this->{$key} = $value;
+		}
+	}
+
+	/**
+	 * Build a pixel URL that will send a ClickHouse event when fired.
 	 * On error, returns an empty string ('').
 	 *
 	 * @return string A pixel URL or empty string ('') if there were invalid args.
 	 */
 	public function build_pixel_url() {
-		$pixel_url = parent::build_pixel_url();
-
-		if ( empty( $pixel_url ) ) {
-			return $pixel_url;
+		if ( $this->error ) {
+			return '';
 		}
 
-		// Replace Tracks pixel URL with ClickHouse pixel URL.
-		$pixel_url = str_replace( WC_Tracks_Client::PIXEL, self::PIXEL, $pixel_url );
+		$pixel_url = Pixel_Builder::build_ch_url( $this->properties );
+
+		if ( is_wp_error( $pixel_url ) ) {
+			return '';
+		}
 
 		return $pixel_url;
 	}
