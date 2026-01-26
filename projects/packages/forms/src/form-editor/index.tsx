@@ -27,6 +27,8 @@ import {
 	registerFormCategories,
 	unregisterFormCategories,
 } from './utils/category-utils';
+import { getAllowedBlocks } from './utils/get-allowed-blocks';
+import type { PluginSettings } from '@wordpress/plugins';
 
 import './style.scss';
 
@@ -102,6 +104,7 @@ const state = {
 	categoriesSetUp: false,
 	previousCategories: null as unknown[] | null,
 	blockDirectoryPlugin: null as Record< string, unknown > | null,
+	previousAllowedBlockTypes: null as string[] | boolean | null,
 	lastRootBlockIds: '',
 	lastSelectedBlockId: null as string | null | undefined,
 	isFormBlockLocked: false,
@@ -116,7 +119,7 @@ const disableBlockDirectory = () => {
 	if ( ! plugin ) {
 		return;
 	}
-	state.blockDirectoryPlugin = plugin as Record< string, unknown >;
+	state.blockDirectoryPlugin = plugin as unknown as Record< string, unknown >;
 	unregisterPlugin( 'block-directory' );
 };
 
@@ -127,8 +130,42 @@ const restoreBlockDirectory = () => {
 	if ( ! state.blockDirectoryPlugin ) {
 		return;
 	}
-	registerPlugin( 'block-directory', state.blockDirectoryPlugin );
+	registerPlugin( 'block-directory', state.blockDirectoryPlugin as unknown as PluginSettings );
 	state.blockDirectoryPlugin = null;
+};
+
+/**
+ * Restrict the editor to only allow form-related blocks.
+ * Stores the previous setting so it can be restored when leaving.
+ */
+const restrictAllowedBlocks = () => {
+	const { getSettings } = select( 'core/block-editor' );
+	const { updateSettings } = dispatch( 'core/block-editor' ) as {
+		updateSettings: ( settings: Record< string, unknown > ) => void;
+	};
+
+	const settings = getSettings() as { allowedBlockTypes?: string[] | boolean };
+	const currentAllowed = settings.allowedBlockTypes ?? true;
+	const newAllowed = getAllowedBlocks();
+
+	state.previousAllowedBlockTypes = currentAllowed;
+	updateSettings( { allowedBlockTypes: newAllowed } );
+};
+
+/**
+ * Restore the original allowed block types when leaving the form editor.
+ */
+const restoreAllowedBlocks = () => {
+	if ( state.previousAllowedBlockTypes === null ) {
+		return;
+	}
+	const { updateSettings } = dispatch( 'core/block-editor' ) as {
+		updateSettings: ( settings: Record< string, unknown > ) => void;
+	};
+
+	const restoring = state.previousAllowedBlockTypes;
+	updateSettings( { allowedBlockTypes: restoring } );
+	state.previousAllowedBlockTypes = null;
 };
 
 /**
@@ -236,87 +273,110 @@ const setupFormEditorSubscription = () => {
 	if ( unsubscribe ) {
 		return;
 	}
+
+	let isProcessing = false;
 	unsubscribe = subscribe( () => {
-		const { getCurrentPostType } = select( 'core/editor' );
-		const isFormEditor = getCurrentPostType() === FORM_POST_TYPE;
-
-		// 1. Handle form editor enter/leave transitions
-		if ( isFormEditor !== state.isFormEditor ) {
-			state.isFormEditor = isFormEditor;
-
-			if ( isFormEditor ) {
-				document.body.classList.add( 'post-type-jetpack_form' );
-			} else {
-				document.body.classList.remove( 'post-type-jetpack_form' );
-
-				if ( state.categoriesSetUp ) {
-					state.categoriesSetUp = false;
-					restoreOriginalCategories( state.previousCategories || [] );
-				}
-				restoreBlockDirectory();
-
-				state.formBlockClientId = null;
-				state.lastRootBlockIds = '';
-				state.lastSelectedBlockId = null;
-				state.isFormBlockLocked = false;
-			}
-		}
-
-		// 2. Early return if not in form editor
-		if ( ! isFormEditor ) {
+		if ( isProcessing ) {
 			return;
 		}
+		isProcessing = true;
+		try {
+			const { getCurrentPostType } = select( 'core/editor' );
+			const isFormEditor = getCurrentPostType() === FORM_POST_TYPE;
 
-		// 3. One-time category setup and block directory disable
-		if ( ! state.categoriesSetUp ) {
-			state.categoriesSetUp = true;
-			state.previousCategories = setupFormEditorCategories();
+			// 1. Handle form editor enter/leave transitions
+			if ( isFormEditor !== state.isFormEditor ) {
+				state.isFormEditor = isFormEditor;
 
-			disableBlockDirectory();
-		}
+				if ( isFormEditor ) {
+					document.body.classList.add( 'post-type-jetpack_form' );
+				} else {
+					document.body.classList.remove( 'post-type-jetpack_form' );
 
-		// 4. React to root block changes (locate, select, nest)
-		const { getBlocks } = select( 'core/block-editor' );
-		const rootBlocks = getBlocks();
-		const currentRootBlockIds = JSON.stringify( rootBlocks.map( b => b.clientId ) );
+					if ( state.categoriesSetUp ) {
+						state.categoriesSetUp = false;
+						restoreOriginalCategories( state.previousCategories || [] );
+					}
+					restoreBlockDirectory();
+					restoreAllowedBlocks();
 
-		if ( currentRootBlockIds !== state.lastRootBlockIds ) {
-			state.lastRootBlockIds = currentRootBlockIds;
-
-			// Re-locate the form block — it may have a new clientId after
-			// block replacement (e.g. when Gutenberg parses the post content).
-			const previousFormBlockClientId = state.formBlockClientId;
-			const formBlock = findFormBlock( rootBlocks );
-			state.formBlockClientId = formBlock ? formBlock.clientId : null;
-
-			if ( state.formBlockClientId && state.formBlockClientId !== previousFormBlockClientId ) {
-				state.isFormBlockLocked = false;
+					state.formBlockClientId = null;
+					state.lastRootBlockIds = '';
+					state.lastSelectedBlockId = null;
+					state.isFormBlockLocked = false;
+				}
 			}
 
-			if ( state.formBlockClientId ) {
+			// 2. Early return if not in form editor
+			if ( ! isFormEditor ) {
+				return;
+			}
+
+			// 3. One-time category setup and block directory disable
+			if ( ! state.categoriesSetUp ) {
+				state.categoriesSetUp = true;
+				state.previousCategories = setupFormEditorCategories();
+
+				disableBlockDirectory();
+			}
+
+			// 4. React to root block changes (locate, select, nest)
+			const { getBlocks } = select( 'core/block-editor' );
+			const rootBlocks = getBlocks();
+			const currentRootBlockIds = JSON.stringify( rootBlocks.map( b => b.clientId ) );
+
+			if ( currentRootBlockIds !== state.lastRootBlockIds ) {
+				state.lastRootBlockIds = currentRootBlockIds;
+
+				// Re-locate the form block — it may have a new clientId after
+				// block replacement (e.g. when Gutenberg parses the post content).
+				const previousFormBlockClientId = state.formBlockClientId;
+				const formBlock = findFormBlock( rootBlocks );
+				state.formBlockClientId = formBlock ? formBlock.clientId : null;
+
+				if ( state.formBlockClientId && state.formBlockClientId !== previousFormBlockClientId ) {
+					state.isFormBlockLocked = false;
+				}
+
+				// DEBUG: Track when form block first appears
+				if ( state.formBlockClientId && ! previousFormBlockClientId ) {
+					// Defer restrictAllowedBlocks to break out of the synchronous dispatch chain.
+					// This ensures ExperimentalBlockEditorProvider finishes its re-renders
+					// before we update settings.
+					if ( state.previousAllowedBlockTypes === null ) {
+						requestAnimationFrame( () => {
+							restrictAllowedBlocks();
+						} );
+					}
+				}
+
+				if ( state.formBlockClientId ) {
+					enforceBlockSelection();
+				}
+
+				enforceBlockNesting();
+			}
+
+			// 5. React to selection changes
+			const { getSelectedBlockClientId } = select( 'core/block-editor' );
+			const currentSelectedBlockId = getSelectedBlockClientId();
+			if ( currentSelectedBlockId !== state.lastSelectedBlockId ) {
+				state.lastSelectedBlockId = currentSelectedBlockId;
 				enforceBlockSelection();
 			}
 
-			enforceBlockNesting();
-		}
-
-		// 5. React to selection changes
-		const { getSelectedBlockClientId } = select( 'core/block-editor' );
-		const currentSelectedBlockId = getSelectedBlockClientId();
-		if ( currentSelectedBlockId !== state.lastSelectedBlockId ) {
-			state.lastSelectedBlockId = currentSelectedBlockId;
-			enforceBlockSelection();
-		}
-
-		// 6. Ensure form block is locked
-		if ( ! state.isFormBlockLocked && state.formBlockClientId ) {
-			lockFormBlock();
-			const { getBlock } = select( 'core/block-editor' );
-			const formBlock = getBlock( state.formBlockClientId );
-			const lock = formBlock?.attributes?.lock as BlockLock | undefined;
-			if ( formBlock && lock?.remove && lock?.move ) {
-				state.isFormBlockLocked = true;
+			// 6. Ensure form block is locked
+			if ( ! state.isFormBlockLocked && state.formBlockClientId ) {
+				lockFormBlock();
+				const { getBlock } = select( 'core/block-editor' );
+				const formBlock = getBlock( state.formBlockClientId );
+				const lock = formBlock?.attributes?.lock as BlockLock | undefined;
+				if ( formBlock && lock?.remove && lock?.move ) {
+					state.isFormBlockLocked = true;
+				}
 			}
+		} finally {
+			isProcessing = false;
 		}
 	} );
 
