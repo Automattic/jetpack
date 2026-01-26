@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import useConfigValue from '../../../hooks/use-config-value.ts';
 import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view.js';
 
 /**
@@ -18,16 +19,22 @@ import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-vi
  * @return {JSX.Element} Button component.
  */
 export default function BackToFormsButton(): JSX.Element {
+	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
+	const label =
+		isCentralFormManagementEnabled === true
+			? __( 'Back to Forms', 'jetpack-forms' )
+			: __( 'View all responses', 'jetpack-forms' );
+
 	const onClick = useCallback( () => {
 		// Go to the base Forms dashboard URL (no hash). This will land on:
 		// - Forms list when CFM is enabled
-		// - Responses inbox when CFM is disabled
+		// - All Responses when CFM is disabled
 		window.location.href = PARTIAL_RESPONSES_PATH;
 	}, [] );
 
 	return (
 		<Button size="compact" variant="primary" onClick={ onClick }>
-			{ __( 'Back to forms', 'jetpack-forms' ) }
+			{ label }
 		</Button>
 	);
 }

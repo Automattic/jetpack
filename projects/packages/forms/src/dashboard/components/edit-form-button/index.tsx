@@ -4,6 +4,10 @@
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import useConfigValue from '../../../hooks/use-config-value';
 
 type EditFormButtonProps = {
 	formId: number;
@@ -17,12 +21,12 @@ type EditFormButtonProps = {
  * @return JSX element.
  */
 export default function EditFormButton( { formId }: EditFormButtonProps ): JSX.Element {
+	const adminUrl = useConfigValue( 'adminUrl' ) || '';
+
 	const onClick = useCallback( () => {
-		// Prefer a relative URL so it works regardless of wp-admin path.
-		const fallbackEditUrl = `post.php?post=${ formId }&action=edit&post_type=jetpack_form`;
-		const url = new URL( fallbackEditUrl, window.location.href );
-		window.location.href = url.toString();
-	}, [ formId ] );
+		const editPath = `post.php?post=${ formId }&action=edit`;
+		window.location.href = adminUrl ? `${ adminUrl }${ editPath }` : editPath;
+	}, [ adminUrl, formId ] );
 
 	return (
 		<Button size="compact" variant="secondary" onClick={ onClick }>
