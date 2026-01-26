@@ -81,7 +81,7 @@
 		"email-validator": "2.0.4",
 		"gridicons": "3.4.2",
 		"js-sha256": "0.11.1",
-		"libphonenumber-js": "1.12.34",
+		"libphonenumber-js": "1.12.35",
 		"lodash": "4.17.23",
 		"photon": "4.1.1",
 		"react-redux": "7.2.8",
