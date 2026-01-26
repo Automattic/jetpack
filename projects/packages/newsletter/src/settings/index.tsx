@@ -250,20 +250,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				setError( null );
 				setNewsletterCategoriesChanges( {} );
 				setSnackbarMessage( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
-
-				// Re-fetch settings to sync client with server
-				// (backend may not update empty categories)
-				return restApi.fetchSettings();
-			} )
-			.then( ( settings: Record< string, unknown > ) => {
-				// Update client state with server values, preserving unsaved changes in other sections
-				const serverData = normalizeSettings( settings );
-				setData( {
-					...serverData,
-					...subscriptionChanges,
-					...senderNameChanges,
-					...welcomeEmailChanges,
-				} );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -275,13 +261,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingNewsletterCategories( false );
 			} );
-	}, [
-		newsletterCategoriesChanges,
-		data,
-		subscriptionChanges,
-		senderNameChanges,
-		welcomeEmailChanges,
-	] );
+	}, [ newsletterCategoriesChanges, data ] );
 
 	// Handle welcome email changes (staged, not auto-saved)
 	const handleWelcomeEmailChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
