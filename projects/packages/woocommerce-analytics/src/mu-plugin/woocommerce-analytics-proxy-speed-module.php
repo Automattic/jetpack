@@ -99,6 +99,11 @@ class WooCommerceAnalyticsProxySpeed {
 			header( 'Cache-Control: no-cache, must-revalidate' );
 		}
 
+		// Apply magic quotes to the $_COOKIE superglobal so it's compatible with the regular API flow.
+		if ( function_exists( 'wp_magic_quotes' ) ) {
+			wp_magic_quotes();
+		}
+
 		// Parse the request body.
 		$body = file_get_contents( 'php://input' );
 		if ( empty( $body ) ) {

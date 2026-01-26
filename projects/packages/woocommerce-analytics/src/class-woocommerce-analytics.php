@@ -31,6 +31,13 @@ class Woocommerce_Analytics {
 	const PROXY_SPEED_MODULE_VERSION = '1.0.0';
 
 	/**
+	 * Proxy speed module version option.
+	 *
+	 * @var string
+	 */
+	const PROXY_SPEED_MODULE_VERSION_OPTION = 'woocommerce_analytics_proxy_speed_module_version';
+
+	/**
 	 * Initializer.
 	 * Used to configure the WooCommerce Analytics package.
 	 *
@@ -53,6 +60,8 @@ class Woocommerce_Analytics {
 		// Initialize general store tracking actions.
 		add_action( 'init', array( new Universal(), 'init_hooks' ) );
 		add_action( 'init', array( new My_Account(), 'init_hooks' ) );
+
+		add_action( 'admin_init', array( __CLASS__, 'maybe_update_proxy_speed_module' ) );
 
 		// Initialize REST API endpoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
@@ -171,6 +180,21 @@ class Woocommerce_Analytics {
 	}
 
 	/**
+	 * Maybe update proxy speed module.
+	 */
+	public static function maybe_update_proxy_speed_module() {
+		$version = get_option( self::PROXY_SPEED_MODULE_VERSION_OPTION, false );
+		if ( $version === false ) {
+			return;
+		}
+		if ( $version === self::PROXY_SPEED_MODULE_VERSION ) {
+			return;
+		}
+
+		self::maybe_add_proxy_speed_module();
+	}
+
+	/**
 	 * Maybe add proxy speed module.
 	 */
 	public static function maybe_add_proxy_speed_module() {
@@ -211,7 +235,7 @@ class Woocommerce_Analytics {
 			return;
 		}
 
-		if ( get_option( 'woocommerce_analytics_proxy_speed_module_version' ) === self::PROXY_SPEED_MODULE_VERSION ) {
+		if ( get_option( self::PROXY_SPEED_MODULE_VERSION_OPTION ) === self::PROXY_SPEED_MODULE_VERSION ) {
 			// No need to copy the files again.
 			return;
 		}
@@ -242,7 +266,7 @@ class Woocommerce_Analytics {
 			return;
 		}
 
-		update_option( 'woocommerce_analytics_proxy_speed_module_version', self::PROXY_SPEED_MODULE_VERSION );
+		update_option( self::PROXY_SPEED_MODULE_VERSION_OPTION, self::PROXY_SPEED_MODULE_VERSION );
 	}
 
 	/**
@@ -264,7 +288,7 @@ class Woocommerce_Analytics {
 			$wp_filesystem->delete( $file_path );
 		}
 
-		delete_option( 'woocommerce_analytics_proxy_speed_module_version' );
+		delete_option( self::PROXY_SPEED_MODULE_VERSION_OPTION );
 	}
 
 	/**
