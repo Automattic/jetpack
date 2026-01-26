@@ -12,7 +12,7 @@ use WP_Error;
 /**
  * WooCommerce Analytics ClickHouse Event class
  */
-#[AllowDynamicProperties]
+#[\AllowDynamicProperties]
 class WC_Analytics_Ch_Event {
 
 	/**
@@ -53,8 +53,10 @@ class WC_Analytics_Ch_Event {
 		}
 
 		// Store validated properties as object properties for backwards compatibility.
-		foreach ( $validated as $key => $value ) {
-			$this->{$key} = $value;
+		if ( is_array( $validated ) ) {
+			foreach ( $validated as $key => $value ) {
+				$this->{$key} = $value;
+			}
 		}
 	}
 

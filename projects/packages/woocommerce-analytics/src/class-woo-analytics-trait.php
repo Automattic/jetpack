@@ -320,7 +320,7 @@ trait Woo_Analytics_Trait {
 		} else {
 			$out        = array();
 			$categories = get_the_terms( $product->get_id(), 'product_cat' );
-			if ( $categories ) {
+			if ( is_array( $categories ) ) {
 				foreach ( $categories as $category ) {
 					$out[] = $category->name;
 				}

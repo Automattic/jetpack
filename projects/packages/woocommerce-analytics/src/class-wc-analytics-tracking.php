@@ -242,11 +242,6 @@ class WC_Analytics_Tracking {
 		$blog_details    = self::get_blog_details();
 		$session_details = self::get_session_details();
 
-		// Get store currency - use WC function if available, otherwise fall back to option.
-		$store_currency = function_exists( 'get_woocommerce_currency' )
-			? get_woocommerce_currency()
-			: get_option( 'woocommerce_currency', 'USD' );
-
 		$common_properties = array_merge(
 			array(
 				'session_id'     => $session_details['session_id'] ?? null,
@@ -260,7 +255,7 @@ class WC_Analytics_Tracking {
 				'wp_version'     => get_bloginfo( 'version' ),
 				'store_admin'    => count( array_intersect( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles ) ) > 0 ? 1 : 0,
 				'device'         => self::get_device_type(),
-				'store_currency' => $store_currency,
+				'store_currency' => $blog_details['store_currency'] ?? null,
 				'timezone'       => wp_timezone_string(),
 				'is_guest'       => ( $blog_user_id === null ) ? 1 : 0,
 			),
@@ -333,9 +328,9 @@ class WC_Analytics_Tracking {
 	}
 
 	/**
-	 * Get the current user id. Returned as a string in the format "blog_id:user_id".
+	 * Get the current user id.
 	 *
-	 * @return string|null
+	 * @return int The user ID, or 0 if not logged in.
 	 */
 	private static function get_blog_user_id() {
 		// Ensure cookie constants are defined.
@@ -420,6 +415,9 @@ class WC_Analytics_Tracking {
 			$wc_version = WC()->stable_version();
 		} elseif ( defined( 'WC_VERSION' ) ) {
 			$wc_version = WC_VERSION;
+		} else {
+			// Fallback to known option name.
+			$wc_version = get_option( 'woocommerce_version', '' );
 		}
 
 		// Get store ID if WooCommerce is available.
@@ -431,12 +429,18 @@ class WC_Analytics_Tracking {
 			$store_id = get_option( 'woocommerce_store_id', null );
 		}
 
+		// Get store currency - use WC function if available, otherwise fall back to option.
+		$store_currency = function_exists( 'get_woocommerce_currency' )
+		? get_woocommerce_currency()
+		: get_option( 'woocommerce_currency', 'USD' );
+
 		$blog_details = array(
-			'url'        => home_url(),
-			'blog_lang'  => get_locale(),
-			'blog_id'    => $jetpack_blog_id,
-			'store_id'   => $store_id,
-			'wc_version' => $wc_version,
+			'url'            => home_url(),
+			'blog_lang'      => get_locale(),
+			'blog_id'        => $jetpack_blog_id,
+			'store_id'       => $store_id,
+			'wc_version'     => $wc_version,
+			'store_currency' => $store_currency,
 		);
 
 		// Cache for 1 day.
@@ -496,8 +500,8 @@ class WC_Analytics_Tracking {
 
 
 		if ( ! headers_sent()
-		&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
-		&& ! ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+			&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+			&& ! ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
 		) {
 			setcookie(
 				'tk_ai',
@@ -591,10 +595,10 @@ class WC_Analytics_Tracking {
 
 		// Check if salt exists and is still valid for today
 		if (
-		is_array( $salt_data )
-		&& isset( $salt_data['date'] )
-		&& isset( $salt_data['salt'] )
-		&& $salt_data['date'] === $today
+			is_array( $salt_data )
+			&& isset( $salt_data['date'] )
+			&& isset( $salt_data['salt'] )
+			&& $salt_data['date'] === $today
 		) {
 			return $salt_data['salt'];
 		}
