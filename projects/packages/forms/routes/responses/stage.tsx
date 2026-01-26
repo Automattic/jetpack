@@ -7,6 +7,7 @@ import '@automattic/ui/style.css';
 /**
  * WordPress dependencies
  */
+import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, ExternalLink } from '@wordpress/components';
 import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
@@ -30,7 +31,6 @@ import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
 import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
 import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
-import Page from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
