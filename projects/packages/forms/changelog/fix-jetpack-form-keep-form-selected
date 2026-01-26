@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Bug fixes for the form editor
+Ensure form block is selected and locked when editing forms, and restrict available blocks to form-related blocks only.
