@@ -265,6 +265,7 @@ const enforceBlockNesting = () => {
 };
 
 let unsubscribe: ( () => void ) | null = null;
+let requestAnimationFrameId: number | null = null;
 
 /**
  * Sets up a subscription to monitor editor state changes and enforce form editor behavior.
@@ -345,7 +346,7 @@ const setupFormEditorSubscription = () => {
 					// This ensures ExperimentalBlockEditorProvider finishes its re-renders
 					// before we update settings.
 					if ( state.previousAllowedBlockTypes === null ) {
-						requestAnimationFrame( () => {
+						requestAnimationFrameId = requestAnimationFrame( () => {
 							// Guard against race conditions: the editor may no longer be
 							// in form editing mode, or the allowed block types may have
 							// already been initialized by the time this runs.
@@ -395,6 +396,11 @@ const setupFormEditorSubscription = () => {
 			} finally {
 				unsubscribe = null;
 			}
+		}
+
+		if ( requestAnimationFrameId ) {
+			cancelAnimationFrame( requestAnimationFrameId );
+			requestAnimationFrameId = null;
 		}
 		window.removeEventListener( 'beforeunload', handleUnload );
 	};
