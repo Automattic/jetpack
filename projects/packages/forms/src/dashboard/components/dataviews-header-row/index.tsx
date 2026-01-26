@@ -2,11 +2,9 @@
  * External dependencies
  */
 import { DataViews } from '@wordpress/dataviews/wp';
-import { useLocation } from 'react-router';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../../../hooks/use-config-value.ts';
 import FormsResponsesTabs from '../forms-responses-tabs/index.tsx';
 import InboxStatusToggle from '../inbox-status-toggle/index.tsx';
 import './style.scss';
@@ -16,29 +14,32 @@ import './style.scss';
  *
  * Structure:
  * - Left: Forms / Responses tabs
- * - Special case: on the Responses screen with CFM disabled, show Inbox/Spam/Trash toggle instead
+ * - Special case: when requested by the parent, show Inbox/Spam/Trash toggle instead
  * - Right: DataViews Search / Filters toggle / View config
  * - Below (only when there are active filters): DataViews.FiltersToggled
  *
- * @param {object}                   props                        - Component props.
- * @param {(status: string) => void} [props.onLegacyStatusChange] - Optional callback invoked when the legacy Inbox status changes.
+ * @param {object}                   props                           - Component props.
+ * @param {(status: string) => void} [props.onLegacyStatusChange]    - Optional callback invoked when the legacy Inbox status changes.
+ * @param {boolean}                  [props.isInboxStatusToggleView] - Whether to show InboxStatusToggle instead of top tabs.
+ * @param {boolean}                  [props.hasLockedFilter]         - Whether a locked filter is present (e.g. single-form filter).
  * @return {JSX.Element} Header row markup for DataViews pages.
  */
 export default function DataViewsHeaderRow( {
 	onLegacyStatusChange,
+	isInboxStatusToggleView = false,
+	hasLockedFilter = false,
 }: {
 	onLegacyStatusChange?: ( status: string ) => void;
+	isInboxStatusToggleView?: boolean;
+	hasLockedFilter?: boolean;
 } ): JSX.Element {
-	const location = useLocation();
-	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
-	const isCentralFormManagementDisabled = isCentralFormManagementEnabled === false;
-	const isResponsesScreen = location.pathname === '/responses';
+	const showFiltersToggle = isInboxStatusToggleView && ! hasLockedFilter;
 
 	return (
 		<>
 			<div className="jp-forms-view-actions">
 				<div>
-					{ isResponsesScreen && isCentralFormManagementDisabled ? (
+					{ isInboxStatusToggleView ? (
 						<InboxStatusToggle onChange={ onLegacyStatusChange } />
 					) : (
 						<FormsResponsesTabs />
@@ -46,7 +47,7 @@ export default function DataViewsHeaderRow( {
 				</div>
 				<div className="jp-forms-view-actions__controls">
 					<DataViews.Search />
-					{ isCentralFormManagementEnabled === true ? null : <DataViews.FiltersToggle /> }
+					{ showFiltersToggle ? <DataViews.FiltersToggle /> : null }
 					<DataViews.ViewConfig />
 				</div>
 			</div>

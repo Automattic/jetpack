@@ -184,6 +184,19 @@ export default function FormsDashboardForms(): JSX.Element | null {
 	const actions = useMemo( () => {
 		const actionsList: Action< FormListItem >[] = [
 			{
+				id: 'view-responses',
+				isPrimary: false,
+				label: __( 'View responses', 'jetpack-forms' ),
+				supportsBulk: false,
+				callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+					navigate( `/forms/${ item.id }/responses` );
+				},
+			},
+			{
 				id: 'edit-form',
 				isPrimary: false,
 				label: __( 'Edit', 'jetpack-forms' ),
@@ -254,7 +267,14 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		} );
 
 		return actionsList;
-	}, [ isDeleting, isViewingTrash, onOpenPermanentDeleteConfirm, restoreForms, trashForms ] );
+	}, [
+		isDeleting,
+		isViewingTrash,
+		navigate,
+		onOpenPermanentDeleteConfirm,
+		restoreForms,
+		trashForms,
+	] );
 
 	const paginationInfo = useMemo(
 		() => ( {

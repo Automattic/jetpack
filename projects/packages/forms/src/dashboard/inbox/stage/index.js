@@ -20,8 +20,10 @@ import { useEffect } from 'react';
  */
 import useConfigValue from '../../../hooks/use-config-value.ts';
 import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
+import BackToFormsButton from '../../components/back-to-forms-button/index.tsx';
 import CreateFormButton from '../../components/create-form-button/index.tsx';
 import DataViewsHeaderRow from '../../components/dataviews-header-row/index.tsx';
+import EditFormButton from '../../components/edit-form-button/index.tsx';
 import EmptyResponses from '../../components/empty-responses/index.tsx';
 import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
@@ -48,6 +50,38 @@ import {
 import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
+
+/**
+ * Ensure the inbox view includes a locked "source" filter that maps to the REST `parent` query arg.
+ * This matches core DataViews behavior for locked filters (visible chip, not removable, preserved on reset).
+ *
+ * @param {object}      view         - DataViews view object.
+ * @param {number|null} lockedParent - Parent (form) ID to lock to.
+ * @return {object} Next view.
+ */
+function ensureLockedParentFilter( view, lockedParent ) {
+	if ( ! lockedParent ) {
+		return view;
+	}
+	const previousFilters = view.filters || [];
+	const existing = previousFilters.find( filter => filter.field === 'source' );
+	const isAlreadyLocked =
+		existing?.value === lockedParent &&
+		( existing?.operator || 'is' ) === 'is' &&
+		existing?.isLocked;
+	if ( isAlreadyLocked ) {
+		return view;
+	}
+	const nextFilters = [
+		{ field: 'source', operator: 'is', value: lockedParent, isLocked: true },
+		...previousFilters.filter( filter => filter.field !== 'source' ),
+	];
+	return {
+		...view,
+		page: 1,
+		filters: nextFilters,
+	};
+}
 
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
@@ -81,11 +115,19 @@ const setupSidebarWidthObserver = () => {
 /**
  * The DataViews implementation.
  *
+ * @param {object} [props]                - Props.
+ * @param {number} [props.lockedParentId] - Optional parent (form) ID to lock responses to.
+ * @param {string} [props.pageTitle]      - Optional page title string. Defaults to "Forms".
+ * @param {string} [props.pageSubtitle]   - Optional page subtitle string.
  * @return {import('react').JSX.Element} The DataViews component.
  */
-export default function InboxView() {
+export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } = {} ) {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
+	const lockedParent = useMemo( () => {
+		const id = Number( lockedParentId );
+		return Number.isFinite( id ) && id > 0 ? id : null;
+	}, [ lockedParentId ] );
 
 	const dateSettings = getDateSettings();
 
@@ -119,9 +161,18 @@ export default function InboxView() {
 		return setupSidebarWidthObserver();
 	}, [] );
 
+	// When rendering a single-form inbox, enforce the locked parent filter.
+	useEffect( () => {
+		setView( previousView => ensureLockedParentFilter( previousView, lockedParent ) );
+	}, [ lockedParent, setView ] );
+
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
+	// Use InboxStatusToggle UI when:
+	// - we're on the single-form responses screen (lockedParent), OR
+	// - CFM is not explicitly enabled (treat `undefined` like disabled to avoid showing folder UI early).
+	const isInboxStatusToggleView = !! lockedParent || isCentralFormManagementEnabled !== true;
 	const urlFolder = useMemo( () => {
 		const urlStatus = searchParams.get( 'status' );
 		return [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
@@ -260,7 +311,7 @@ export default function InboxView() {
 
 	const onChangeView = useCallback(
 		newView => {
-			if ( isCentralFormManagementEnabled ) {
+			if ( ! isInboxStatusToggleView ) {
 				const folderValue = newView.filters?.find( filter => filter.field === 'folder' )?.value;
 				const nextFolder = [ 'inbox', 'spam', 'trash' ].includes( folderValue )
 					? folderValue
@@ -292,9 +343,18 @@ export default function InboxView() {
 				}
 			}
 
+			// Enforce the locked parent filter for single-form inbox routes.
+			newView = ensureLockedParentFilter( newView, lockedParent );
 			setView( newView );
 		},
-		[ isCentralFormManagementEnabled, setSearchParams, setSelectedResponses, setView, urlFolder ]
+		[
+			isInboxStatusToggleView,
+			lockedParent,
+			setSearchParams,
+			setSelectedResponses,
+			setView,
+			urlFolder,
+		]
 	);
 
 	const wrapperUnread = ( isUnread, itemValue ) => {
@@ -306,7 +366,7 @@ export default function InboxView() {
 
 	const fields = useMemo(
 		() => [
-			...( isCentralFormManagementEnabled
+			...( ! isInboxStatusToggleView
 				? [
 						{
 							id: 'folder',
@@ -472,14 +532,14 @@ export default function InboxView() {
 			isMobileViewport,
 			openResponseModal,
 			dateSettings.formats.date,
-			isCentralFormManagementEnabled,
+			isInboxStatusToggleView,
 		]
 	);
 
 	// When CFM is enabled, keep the DataViews "Folder" filter in sync with the URL `status` param
 	// (and default to Inbox on first load).
 	useEffect( () => {
-		if ( ! isCentralFormManagementEnabled ) {
+		if ( isInboxStatusToggleView ) {
 			return;
 		}
 		setView( previousView => {
@@ -497,7 +557,7 @@ export default function InboxView() {
 				filters: nextFilters,
 			};
 		} );
-	}, [ isCentralFormManagementEnabled, setView, urlFolder ] );
+	}, [ isInboxStatusToggleView, setView, urlFolder ] );
 
 	const actions = useMemo( () => {
 		const mobileViewAction = {
@@ -569,16 +629,25 @@ export default function InboxView() {
 
 	// Conditional header actions based on status filter
 	const headerActions = useMemo( () => {
-		const exportIsPrimary = statusFilter !== 'trash' && statusFilter !== 'spam';
+		const isSingleFormView = !! lockedParent;
+		const exportIsPrimary =
+			! isSingleFormView && statusFilter !== 'trash' && statusFilter !== 'spam';
 		const headerActionsArray = [
 			<ExportResponsesButton key="export" isPrimary={ exportIsPrimary } />,
 		];
+
+		// On the single form screen, always show navigation actions regardless of folder (Inbox/Spam/Trash).
+		if ( isSingleFormView ) {
+			headerActionsArray.unshift( <BackToFormsButton key="back-to-forms" /> );
+			headerActionsArray.splice( 1, 0, <EditFormButton key="edit-form" formId={ lockedParent } /> );
+		}
 
 		if ( statusFilter === 'trash' ) {
 			headerActionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		} else if ( statusFilter === 'spam' ) {
 			headerActionsArray.push( <EmptySpamButton key="empty-spam" /> );
-		} else {
+		} else if ( ! isSingleFormView ) {
+			// When not on the single form screen, show create / integrations.
 			headerActionsArray.unshift( <CreateFormButton key="create" /> );
 			// Only show Create Form and Integrations buttons on inbox (when not in trash or spam)
 			if ( isIntegrationsEnabled && showDashboardIntegrations ) {
@@ -587,17 +656,20 @@ export default function InboxView() {
 		}
 
 		return headerActionsArray;
-	}, [ statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
+	}, [ lockedParent, statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
 
 	const pageContent = (
 		<Page
 			title={
 				<div className="jp-forms-page-header-title">
 					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
+					{ pageTitle ? pageTitle : __( 'Forms', 'jetpack-forms' ) }
 				</div>
 			}
-			subTitle={ __( 'View and manage all your form responses in one place.', 'jetpack-forms' ) }
+			subTitle={
+				pageSubtitle ??
+				__( 'View and manage all your form submissions in one place.', 'jetpack-forms' )
+			}
 			actions={ headerActions }
 			hasPadding={ false }
 		>
@@ -622,7 +694,11 @@ export default function InboxView() {
 					/>
 				}
 			>
-				<DataViewsHeaderRow onLegacyStatusChange={ resetPage } />
+				<DataViewsHeaderRow
+					onLegacyStatusChange={ resetPage }
+					isInboxStatusToggleView={ isInboxStatusToggleView }
+					hasLockedFilter={ !! lockedParent }
+				/>
 				<div className="jp-forms-dataviews-layout-container">
 					<DataViews.Layout />
 					<DataViews.Footer />
