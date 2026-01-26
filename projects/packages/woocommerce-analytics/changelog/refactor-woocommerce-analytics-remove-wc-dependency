@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-WooCommerce Analytics: refactor tracking classes to work without WooCommerce dependency.
+Update tracking classes to work without WooCommerce dependency.
