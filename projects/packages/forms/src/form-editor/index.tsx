@@ -105,24 +105,25 @@ const state = {
 	formBlockClientId: null as string | null,
 	categoriesSetUp: false,
 	previousCategories: null as unknown[] | null,
-	blockDirectoryPlugin: null as Record< string, unknown > | null,
+	blockDirectoryPlugin: null as PluginSettings,
 	previousAllowedBlockTypes: null as string[] | boolean | null,
 	lastRootBlockIds: '',
 	lastSelectedBlockId: null as string | null | undefined,
 	isFormBlockLocked: false,
 };
 
+const BLOCK_DIRECTORY_PLUGIN_NAME = 'block-directory';
 /**
  * Disable the block directory plugin while in the form editor.
  * Stores the plugin settings so it can be re-enabled when leaving.
  */
 const disableBlockDirectory = () => {
-	const plugin = getPlugin( 'block-directory' );
+	const plugin = getPlugin( BLOCK_DIRECTORY_PLUGIN_NAME );
 	if ( ! plugin ) {
 		return;
 	}
-	state.blockDirectoryPlugin = plugin as unknown as Record< string, unknown >;
-	unregisterPlugin( 'block-directory' );
+	state.blockDirectoryPlugin = plugin as PluginSettings;
+	unregisterPlugin( BLOCK_DIRECTORY_PLUGIN_NAME );
 };
 
 /**
@@ -132,7 +133,7 @@ const restoreBlockDirectory = () => {
 	if ( ! state.blockDirectoryPlugin ) {
 		return;
 	}
-	registerPlugin( 'block-directory', state.blockDirectoryPlugin as PluginSettings | null );
+	registerPlugin( BLOCK_DIRECTORY_PLUGIN_NAME, state.blockDirectoryPlugin );
 	state.blockDirectoryPlugin = null;
 };
 
