@@ -28,7 +28,9 @@ import {
 	unregisterFormCategories,
 } from './utils/category-utils';
 import { getAllowedBlocks } from './utils/get-allowed-blocks';
-import type { PluginSettings } from '@wordpress/plugins';
+import type { WPPlugin } from '@wordpress/plugins';
+
+type PluginSettings = Omit< WPPlugin, 'name' >;
 
 import './style.scss';
 
@@ -130,7 +132,7 @@ const restoreBlockDirectory = () => {
 	if ( ! state.blockDirectoryPlugin ) {
 		return;
 	}
-	registerPlugin( 'block-directory', state.blockDirectoryPlugin as unknown as PluginSettings );
+	registerPlugin( 'block-directory', state.blockDirectoryPlugin as PluginSettings | null );
 	state.blockDirectoryPlugin = null;
 };
 
