@@ -553,6 +553,13 @@ export default function InboxView() {
 		}
 	}, [ isMobileViewport, onChangeSelection, statusFilter ] );
 
+	const onClickItem = useCallback(
+		item => {
+			onChangeSelection( [ item.id.toString() ] );
+		},
+		[ onChangeSelection ]
+	);
+
 	const resetPage = useCallback( () => {
 		// Reset to page 1 when switching legacy Inbox statuses (Inbox/Spam/Trash).
 		setView( previousView => ( { ...previousView, page: 1 } ) );
@@ -605,6 +612,7 @@ export default function InboxView() {
 				onChangeView={ onChangeView }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
+				onClickItem={ onClickItem }
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
 				empty={
