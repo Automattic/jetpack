@@ -233,6 +233,24 @@ const setupFormEditorSubscription = () => {
 
 			if ( currentRootBlockIds !== lastRootBlockIds ) {
 				lastRootBlockIds = currentRootBlockIds;
+
+				// Re-locate the form block — it may have a new clientId after
+				// block replacement (e.g. when Gutenberg parses the post content).
+				const previousFormBlockClientId = formBlockClientId;
+				formBlockClientId = null;
+				locateFormBlock();
+
+				if ( formBlockClientId && formBlockClientId !== previousFormBlockClientId ) {
+					// Reset lock flag — the new block instance won't have the lock attribute
+					isFormBlockLocked = false;
+				}
+
+				// Ensure the form block is selected and nested correctly
+				// after any root block change (including initial load).
+				if ( formBlockClientId ) {
+					enforceBlockSelection();
+				}
+
 				enforceBlockNesting();
 			}
 
@@ -256,8 +274,13 @@ const setupFormEditorSubscription = () => {
 				}
 			}
 
+			// Locate the form block if we haven't yet
 			if ( ! formBlockClientId ) {
 				locateFormBlock();
+
+				if ( formBlockClientId ) {
+					enforceBlockSelection();
+				}
 			}
 
 			if ( ! categoriesFiltered ) {
