@@ -267,7 +267,15 @@ class Pixel_Builder {
 				\Requests::request_multiple( $requests, $options ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.requestsDeprecated
 			}
 		} catch ( \Exception $e ) {
-			// Fail gracefully - tracking pixels shouldn't break the site.
+			// Log error but don't break the site - tracking pixels should fail gracefully.
+			$error_message = 'WooCommerce Analytics: Batch pixel request failed - ' . $e->getMessage();
+			if ( function_exists( 'wc_get_logger' ) ) {
+				wc_get_logger()->error( $error_message, array( 'source' => 'woocommerce-analytics' ) );
+			} else {
+				// Fallback for MU-plugin stage when WooCommerce logger is not available.
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( $error_message );
+			}
 			return false;
 		}
 
