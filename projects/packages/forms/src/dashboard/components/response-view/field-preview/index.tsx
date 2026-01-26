@@ -11,26 +11,26 @@ import {
 /**
  * Internal dependencies
  */
-// Field block definitions - used to get consistent icons
-import CheckboxFieldBlock from '../../../../blocks/field-checkbox/index.js';
-import ConsentFieldBlock from '../../../../blocks/field-consent/index.js';
-import DateFieldBlock from '../../../../blocks/field-date/index.js';
-import EmailFieldBlock from '../../../../blocks/field-email/index.js';
-import FileFieldBlock from '../../../../blocks/field-file/index.js';
-import HiddenFieldBlock from '../../../../blocks/field-hidden/index.js';
-import ImageSelectFieldBlock from '../../../../blocks/field-image-select/index.tsx';
-import MultipleChoiceFieldBlock from '../../../../blocks/field-multiple-choice/index.js';
-import NameFieldBlock from '../../../../blocks/field-name/index.js';
-import NumberFieldBlock from '../../../../blocks/field-number/index.js';
-import RatingFieldBlock from '../../../../blocks/field-rating/index.js';
-import SelectFieldBlock from '../../../../blocks/field-select/index.js';
-import SingleChoiceFieldBlock from '../../../../blocks/field-single-choice/index.js';
-import SliderFieldBlock from '../../../../blocks/field-slider/index.js';
-import TelephoneFieldBlock from '../../../../blocks/field-telephone/index.js';
-import TextFieldBlock from '../../../../blocks/field-text/index.js';
-import TextareaFieldBlock from '../../../../blocks/field-textarea/index.js';
-import TimeFieldBlock from '../../../../blocks/field-time/index.js';
-import UrlFieldBlock from '../../../../blocks/field-url/index.js';
+// Field block icons
+import CheckboxFieldIcon from '../../../../blocks/field-checkbox/icon.js';
+import ConsentFieldIcon from '../../../../blocks/field-consent/icon.js';
+import DateFieldIcon from '../../../../blocks/field-date/icon.js';
+import EmailFieldIcon from '../../../../blocks/field-email/icon.js';
+import FileFieldIcon from '../../../../blocks/field-file/icon.js';
+import HiddenFieldIcon from '../../../../blocks/field-hidden/icon.js';
+import ImageSelectFieldIcon from '../../../../blocks/field-image-select/icon.tsx';
+import MultipleChoiceFieldIcon from '../../../../blocks/field-multiple-choice/icon.js';
+import NameFieldIcon from '../../../../blocks/field-name/icon.js';
+import NumberFieldIcon from '../../../../blocks/field-number/icon.js';
+import RatingFieldIcon from '../../../../blocks/field-rating/icon.js';
+import SelectFieldIcon from '../../../../blocks/field-select/icon.js';
+import SingleChoiceFieldIcon from '../../../../blocks/field-single-choice/icon.js';
+import SliderFieldIcon from '../../../../blocks/field-slider/icon.js';
+import TelephoneFieldIcon from '../../../../blocks/field-telephone/icon.js';
+import TextFieldIcon from '../../../../blocks/field-text/icon.js';
+import TextareaFieldIcon from '../../../../blocks/field-textarea/icon.js';
+import TimeFieldIcon from '../../../../blocks/field-time/icon.js';
+import UrlFieldIcon from '../../../../blocks/field-url/icon.js';
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
 import FieldImageSelect from '../field-image-select/index.tsx';
@@ -47,46 +47,46 @@ import './style.scss';
 const getFieldIcon = ( fieldType: FieldType ): React.ReactNode => {
 	switch ( fieldType ) {
 		case 'name':
-			return <Icon icon={ getIconSource( NameFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( NameFieldIcon ) } />;
 		case 'email':
-			return <Icon icon={ getIconSource( EmailFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( EmailFieldIcon ) } />;
 		case 'phone':
 		case 'telephone':
-			return <Icon icon={ getIconSource( TelephoneFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( TelephoneFieldIcon ) } />;
 		case 'url':
-			return <Icon icon={ getIconSource( UrlFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( UrlFieldIcon ) } />;
 		case 'file':
-			return <Icon icon={ getIconSource( FileFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( FileFieldIcon ) } />;
 		case 'image-select':
-			return <Icon icon={ getIconSource( ImageSelectFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( ImageSelectFieldIcon ) } />;
 		case 'date':
-			return <Icon icon={ getIconSource( DateFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( DateFieldIcon ) } />;
 		case 'time':
-			return <Icon icon={ getIconSource( TimeFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( TimeFieldIcon ) } />;
 		case 'hidden':
-			return <Icon icon={ getIconSource( HiddenFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( HiddenFieldIcon ) } />;
 		case 'select':
-			return <Icon icon={ getIconSource( SelectFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( SelectFieldIcon ) } />;
 		case 'checkbox':
-			return <Icon icon={ getIconSource( CheckboxFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( CheckboxFieldIcon ) } />;
 		case 'checkbox-multiple':
-			return <Icon icon={ getIconSource( MultipleChoiceFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( MultipleChoiceFieldIcon ) } />;
 		case 'radio':
-			return <Icon icon={ getIconSource( SingleChoiceFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( SingleChoiceFieldIcon ) } />;
 		case 'textarea':
-			return <Icon icon={ getIconSource( TextareaFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( TextareaFieldIcon ) } />;
 		case 'number':
-			return <Icon icon={ getIconSource( NumberFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( NumberFieldIcon ) } />;
 		case 'slider':
 		case 'range':
-			return <Icon icon={ getIconSource( SliderFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( SliderFieldIcon ) } />;
 		case 'rating':
-			return <Icon icon={ getIconSource( RatingFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( RatingFieldIcon ) } />;
 		case 'consent':
-			return <Icon icon={ getIconSource( ConsentFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( ConsentFieldIcon ) } />;
 		case 'text':
 		default:
-			return <Icon icon={ getIconSource( TextFieldBlock.settings.icon ) } />;
+			return <Icon icon={ getIconSource( TextFieldIcon ) } />;
 	}
 };
 
