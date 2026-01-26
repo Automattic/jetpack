@@ -48,7 +48,6 @@ import './style.scss';
  */
 import type { SelectActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
-import type { StoreDescriptor } from '@wordpress/data';
 import type { View, Field, Action } from '@wordpress/dataviews';
 
 type FeedbackFilterDate = {
@@ -193,10 +192,6 @@ function Stage() {
 		[]
 	);
 
-	const dashboardStoreDescriptor = dashboardStore as StoreDescriptor;
-	const { updateCountsOptimistically, invalidateCounts } = useDispatch(
-		dashboardStoreDescriptor
-	) as unknown as DispatchActions;
 	const filterOptions = useFilterOptions();
 	let status = 'publish';
 	if ( params.view === 'spam' ) {
@@ -437,7 +432,6 @@ function Stage() {
 				navigate,
 				searchParams,
 				view: params.view,
-				getItemId,
 				queryParams,
 			} ),
 		[ navigate, searchParams, params.view, queryParams ]
@@ -590,7 +584,7 @@ function Stage() {
 					selection={ selection }
 					onChangeSelection={ onChangeSelection }
 					onClickItem={ onClickItem }
-					actions={ actions as Action< FormResponse >[] }
+					actions={ actions as Action< unknown >[] }
 				>
 					<Stack
 						align="center"
