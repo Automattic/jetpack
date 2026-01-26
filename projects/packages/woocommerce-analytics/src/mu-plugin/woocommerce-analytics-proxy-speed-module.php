@@ -227,10 +227,25 @@ class WooCommerceAnalyticsProxySpeed {
 	 * @return string|false The path to the Jetpack plugin, or false if not found.
 	 */
 	private function get_jetpack_plugin_path() {
-		$active_plugins = (array) get_option( 'active_plugins', array() );
+		$active_plugins      = (array) get_option( 'active_plugins', array() );
+		$wp_plugins_realpath = realpath( WP_PLUGIN_DIR );
+
+		if ( false === $wp_plugins_realpath ) {
+			return false;
+		}
+
 		foreach ( $active_plugins as $plugin ) {
 			if ( strpos( $plugin, 'jetpack' ) !== false ) {
-				return WP_PLUGIN_DIR . '/' . dirname( $plugin );
+				$candidate_path = WP_PLUGIN_DIR . '/' . dirname( $plugin );
+				$real_candidate = realpath( $candidate_path );
+
+				if ( false === $real_candidate ) {
+					continue;
+				}
+
+				if ( 0 === strpos( $real_candidate, $wp_plugins_realpath ) ) {
+					return $real_candidate;
+				}
 			}
 		}
 		return false;
