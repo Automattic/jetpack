@@ -192,7 +192,7 @@ class WooCommerceAnalyticsProxySpeed {
 	}
 
 	/**
-	 * Send a JSON response and exit.
+	 * Send a JSON response.
 	 *
 	 * @param array $data Response data.
 	 * @param int   $status_code HTTP status code.
