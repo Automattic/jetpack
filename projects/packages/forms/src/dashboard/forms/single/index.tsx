@@ -9,10 +9,11 @@ import { useEffect, useMemo } from '@wordpress/element';
  */
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import useConfigValue from '../../../hooks/use-config-value.ts';
 import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view.js';
 import Inbox from '../../inbox/index.js';
 
@@ -29,6 +30,7 @@ type RouteParams = {
  */
 export default function SingleFormResponses(): JSX.Element | null {
 	const { formId } = useParams() as RouteParams;
+	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 
 	const parentId = useMemo( () => {
 		const id = Number( formId );
@@ -56,14 +58,27 @@ export default function SingleFormResponses(): JSX.Element | null {
 		}
 	}, [ parentId ] );
 
-	if ( parentId === null ) {
-		return null;
-	}
-
 	// Short-term: show a stable title/subtitle while the (optional) jetpack_form title is loading,
 	// and for non-jetpack_form "source" IDs (pre-CFM) where we may not be able to resolve a title yet.
-	const baseTitle = __( 'Form', 'jetpack-forms' );
-	const pageTitle = formTitle ? `${ baseTitle } > ${ formTitle }` : baseTitle;
+	const baseTitle = __( 'Forms', 'jetpack-forms' );
+	const formsPath = useMemo(
+		() => ( isCentralFormManagementEnabled === true ? '/forms' : '/responses' ),
+		[ isCentralFormManagementEnabled ]
+	);
+	const pageTitle = useMemo( () => {
+		const formsLink = (
+			<Link className="jp-forms-page-header-title__link" to={ formsPath }>
+				{ baseTitle }
+			</Link>
+		);
+		return formTitle ? (
+			<>
+				{ formsLink } / { formTitle }
+			</>
+		) : (
+			formsLink
+		);
+	}, [ baseTitle, formTitle, formsPath ] );
 	const pageSubtitle = formTitle
 		? sprintf(
 				/* translators: %s: form name */
@@ -71,6 +86,10 @@ export default function SingleFormResponses(): JSX.Element | null {
 				formTitle
 		  )
 		: __( 'View responses for this form.', 'jetpack-forms' );
+
+	if ( parentId === null ) {
+		return null;
+	}
 
 	return <Inbox parentId={ parentId } pageTitle={ pageTitle } pageSubtitle={ pageSubtitle } />;
 }

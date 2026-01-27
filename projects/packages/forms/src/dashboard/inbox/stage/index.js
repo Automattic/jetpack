@@ -83,10 +83,10 @@ const setupSidebarWidthObserver = () => {
 /**
  * The DataViews implementation.
  *
- * @param {object} [props]              - Props.
- * @param {number} [props.parentId]     - Optional parent (form/source) ID to scope responses to.
- * @param {string} [props.pageTitle]    - Optional page title string. Defaults to "Forms".
- * @param {string} [props.pageSubtitle] - Optional page subtitle string.
+ * @param {object}                    [props]              - Props.
+ * @param {number}                    [props.parentId]     - Optional parent (form/source) ID to scope responses to.
+ * @param {import('react').ReactNode} [props.pageTitle]    - Optional page title content. Defaults to "Forms".
+ * @param {string}                    [props.pageSubtitle] - Optional page subtitle string.
  * @return {import('react').JSX.Element} The DataViews component.
  */
 export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) {
