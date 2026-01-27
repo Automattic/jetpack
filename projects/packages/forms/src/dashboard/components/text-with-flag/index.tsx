@@ -51,7 +51,7 @@ export default function TextWithFlag( {
 	}
 
 	return (
-		<span className="jp-forms__text-with-flag">
+		<span>
 			{ countryCode && (
 				<>
 					<Tooltip text={ countryName }>
@@ -61,7 +61,9 @@ export default function TextWithFlag( {
 					</Tooltip>{ ' ' }
 				</>
 			) }
-			{ ! countryCode && fallbackIcon && <Icon icon={ globe } size={ 16 } /> }
+			{ ! countryCode && fallbackIcon && (
+				<Icon icon={ globe } size={ 16 } className="jp-forms__text-with-flag-globe" />
+			) }
 			{ children }
 		</span>
 	);
