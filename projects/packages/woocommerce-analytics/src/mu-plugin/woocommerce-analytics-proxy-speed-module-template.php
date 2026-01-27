@@ -67,7 +67,7 @@ class WooCommerceAnalyticsProxySpeed {
 		}
 
 		$request_uri = $this->get_request_uri();
-		$path        = parse_url( $request_uri, PHP_URL_PATH );
+		$path        = wp_parse_url( $request_uri, PHP_URL_PATH );
 
 		if ( ! is_string( $path ) || '' === $path ) {
 			return false;
@@ -235,16 +235,14 @@ class WooCommerceAnalyticsProxySpeed {
 	 * @return string
 	 */
 	private function get_request_uri() {
-		$raw_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+		$raw_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		if ( ! is_string( $raw_uri ) ) {
 			return '';
 		}
 
-		$raw_uri = wp_unslash( $raw_uri ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-
 		// Extract just the path component to avoid matching against query strings, etc.
-		$path = parse_url( $raw_uri, PHP_URL_PATH );
+		$path = wp_parse_url( $raw_uri, PHP_URL_PATH );
 
 		if ( ! is_string( $path ) ) {
 			return '';
