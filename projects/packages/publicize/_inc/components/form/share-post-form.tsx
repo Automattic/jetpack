@@ -77,7 +77,7 @@ export type SharePostFormProps = {
 	forceMediaAsAttachment?: boolean;
 
 	/**
-	 * Optional upgrade notice dependingind on where the form is rendered.
+	 * Optional upgrade notice depending on where the form is rendered.
 	 */
 	upgradeNotice?: React.ReactNode;
 };
