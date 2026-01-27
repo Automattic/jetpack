@@ -4,7 +4,7 @@
  * Description: Speeds up WooCommerce Analytics' proxy by handling requests at MU-plugin stage and exiting early.
  * Plugin URI: https://woocommerce.com
  * Author: WooCommerce
- * Version: 2.0.0
+ * Version: {{VERSION}}
  * Author URI: https://woocommerce.com
  *
  * Text Domain: woocommerce-analytics

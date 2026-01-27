@@ -296,8 +296,12 @@ class Woocommerce_Analytics {
 		$plugin_dir      = dirname( __DIR__ );
 		$autoloader_path = $plugin_dir . '/vendor/autoload.php';
 
-		// Replace the placeholder with the actual path.
-		$content = str_replace( '{{AUTOLOADER_PATH}}', $autoloader_path, $content );
+		// Replace placeholders with actual values.
+		$content = str_replace(
+			array( '{{AUTOLOADER_PATH}}', '{{VERSION}}' ),
+			array( $autoloader_path, self::PROXY_SPEED_MODULE_VERSION ),
+			$content
+		);
 
 		if ( ! $wp_filesystem->put_contents( $mu_plugin_dest_file, $content ) ) {
 			if ( function_exists( 'wc_get_logger' ) ) {
