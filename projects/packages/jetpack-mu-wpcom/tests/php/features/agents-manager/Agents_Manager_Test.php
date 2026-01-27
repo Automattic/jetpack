@@ -1311,20 +1311,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Helper to call the private get_section_name method via reflection.
-	 *
-	 * @return string The result of get_section_name.
-	 */
-	private function call_get_section_name() {
-		$reflection = new \ReflectionClass( Agents_Manager::class );
-		$method     = $reflection->getMethod( 'get_section_name' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-		return $method->invoke( $this->agents_manager );
-	}
-
-	/**
 	 * Helper to call the private get_is_eligible_for_chat method via reflection.
 	 *
 	 * @return bool The result of get_is_eligible_for_chat.
@@ -1416,65 +1402,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$result = $this->call_get_current_site();
 
 		$this->assertEquals( get_current_blog_id(), $result['ID'] );
-	}
-
-	/**
-	 * Tests that get_section_name returns wp-admin by default.
-	 */
-	public function test_get_section_name_returns_wp_admin_by_default() {
-		$result = $this->call_get_section_name();
-
-		$this->assertEquals( 'wp-admin', $result );
-	}
-
-	/**
-	 * Tests that get_section_name returns gutenberg when in block editor.
-	 */
-	public function test_get_section_name_returns_gutenberg_in_block_editor() {
-		require_once ABSPATH . 'wp-admin/includes/screen.php';
-
-		// Create a mock screen that simulates the block editor.
-		// The 'post' screen with block_editor=true simulates Gutenberg.
-		set_current_screen( 'post' );
-		$screen = get_current_screen();
-
-		// Use reflection to set the block_editor property.
-		$reflection = new \ReflectionClass( $screen );
-		$property   = $reflection->getProperty( 'is_block_editor' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( $screen, true );
-
-		$result = $this->call_get_section_name();
-
-		$this->assertEquals( 'gutenberg', $result );
-	}
-
-	/**
-	 * Tests that get_section_name returns wp-admin for the widgets screen even with block editor.
-	 *
-	 * The widgets screen has the block editor but no Gutenberg top bar,
-	 * so it should be treated as wp-admin.
-	 */
-	public function test_get_section_name_returns_wp_admin_for_widgets_screen() {
-		require_once ABSPATH . 'wp-admin/includes/screen.php';
-
-		// Set the widgets screen which has block editor but should return wp-admin.
-		set_current_screen( 'widgets' );
-		$screen = get_current_screen();
-
-		// Use reflection to set the block_editor property.
-		$reflection = new \ReflectionClass( $screen );
-		$property   = $reflection->getProperty( 'is_block_editor' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( $screen, true );
-
-		$result = $this->call_get_section_name();
-
-		$this->assertEquals( 'wp-admin', $result );
 	}
 
 	/**
@@ -1873,9 +1800,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that enqueue_scripts includes sectionName in agentsManagerData.
+	 * Tests that enqueue_scripts includes sectionName as wp-admin by default.
 	 */
-	public function test_enqueue_scripts_includes_section_name() {
+	public function test_enqueue_scripts_includes_section_name_wp_admin() {
 		// Set admin context - scripts only enqueue in admin.
 		$this->set_admin_context();
 
@@ -1893,7 +1820,84 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
 		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
 
-		$this->assertStringContainsString( '"sectionName":', $inline_script );
+		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that enqueue_scripts includes sectionName as gutenberg in block editor.
+	 */
+	public function test_enqueue_scripts_includes_section_name_gutenberg_in_block_editor() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Set up block editor context.
+		set_current_screen( 'post' );
+		$screen = get_current_screen();
+
+		// Use reflection to set the block_editor property.
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"sectionName":"gutenberg"', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that enqueue_scripts includes sectionName as wp-admin for widgets screen.
+	 *
+	 * The widgets screen has the block editor but no Gutenberg top bar,
+	 * so it should be treated as wp-admin.
+	 */
+	public function test_enqueue_scripts_includes_section_name_wp_admin_for_widgets() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Set up widgets screen with block editor.
+		set_current_screen( 'widgets' );
+		$screen = get_current_screen();
+
+		// Use reflection to set the block_editor property.
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}

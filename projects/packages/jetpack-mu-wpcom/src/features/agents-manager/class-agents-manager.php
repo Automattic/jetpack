@@ -28,6 +28,15 @@ class Agents_Manager {
 	public const CHAT_ELIGIBILITY_CACHE_DURATION = 30 * MINUTE_IN_SECONDS;
 
 	/**
+	 * Cache duration for chat eligibility API failures in seconds (1 minute).
+	 *
+	 * Shorter than success cache to allow quick recovery when API comes back.
+	 *
+	 * @var int
+	 */
+	public const CHAT_ELIGIBILITY_FAILURE_CACHE_DURATION = MINUTE_IN_SECONDS;
+
+	/**
 	 * Agents_Manager constructor.
 	 */
 	public function __construct() {
@@ -223,7 +232,7 @@ class Agents_Manager {
 					'agentProviders'       => $agent_providers,
 					'useUnifiedExperience' => $use_unified_experience,
 					'isDevMode'            => self::is_dev_mode(),
-					'sectionName'          => $this->get_section_name(),
+					'sectionName'          => $variant,
 					'currentUser'          => $this->get_current_user_data(),
 					'site'                 => $this->get_current_site(),
 					'isEligibleForChat'    => $this->get_is_eligible_for_chat(),
@@ -686,21 +695,6 @@ class Agents_Manager {
 	}
 
 	/**
-	 * Get the section name for the current context.
-	 *
-	 * Mirrors Help Center's sectionName which is based on the variant.
-	 *
-	 * @return string The section name (e.g., 'gutenberg', 'wp-admin').
-	 */
-	private function get_section_name() {
-		if ( $this->is_block_editor() ) {
-			return 'gutenberg';
-		}
-
-		return 'wp-admin';
-	}
-
-	/**
 	 * Get whether the current user is eligible for chat support.
 	 *
 	 * On wpcom (Simple sites), calls WPCOM_Help_Eligibility directly.
@@ -756,13 +750,13 @@ class Agents_Manager {
 
 		if ( is_wp_error( $wpcom_request ) ) {
 			// Cache failures to avoid hammering the API.
-			set_transient( $cache_key, 'no', MINUTE_IN_SECONDS );
+			set_transient( $cache_key, 'no', self::CHAT_ELIGIBILITY_FAILURE_CACHE_DURATION );
 			return false;
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 !== $response_code ) {
-			set_transient( $cache_key, 'no', MINUTE_IN_SECONDS );
+			set_transient( $cache_key, 'no', self::CHAT_ELIGIBILITY_FAILURE_CACHE_DURATION );
 			return false;
 		}
 
