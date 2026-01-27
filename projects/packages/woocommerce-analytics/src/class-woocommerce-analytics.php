@@ -51,6 +51,9 @@ class Woocommerce_Analytics {
 	 * @return void
 	 */
 	public static function init() {
+		// Admin hooks are registered early, regardless of tracking status.
+		self::register_admin_hooks();
+
 		if ( ! self::should_track_store() || did_action( 'woocommerce_analytics_init' ) ) {
 			return;
 		}
@@ -67,9 +70,6 @@ class Woocommerce_Analytics {
 		// Initialize general store tracking actions.
 		add_action( 'init', array( new Universal(), 'init_hooks' ) );
 		add_action( 'init', array( new My_Account(), 'init_hooks' ) );
-
-		add_action( 'upgrader_process_complete', array( __CLASS__, 'on_plugin_upgrade' ), 10, 2 );
-		add_action( 'admin_init', array( __CLASS__, 'maybe_update_proxy_speed_module' ) );
 
 		// Initialize REST API endpoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
@@ -352,5 +352,13 @@ class Woocommerce_Analytics {
 		ob_end_clean();
 
 		return $initialized;
+	}
+
+	/**
+	 * Register admin hooks for MU-plugin management.
+	 */
+	public static function register_admin_hooks() {
+		add_action( 'upgrader_process_complete', array( __CLASS__, 'on_plugin_upgrade' ), 10, 2 );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_update_proxy_speed_module' ) );
 	}
 }
