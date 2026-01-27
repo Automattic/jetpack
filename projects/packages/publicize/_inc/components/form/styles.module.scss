@@ -97,3 +97,15 @@
 	opacity: 0.5;
 	pointer-events: none;
 }
+
+.upgrade-notice-customisation {
+
+	:global(.components-notice__actions) {
+		margin-top: 12px;
+		margin-left: 0;
+
+		:global(.components-button) {
+			margin-left: 0;
+		}
+	}
+}

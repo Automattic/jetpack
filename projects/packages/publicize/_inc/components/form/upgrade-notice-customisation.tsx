@@ -7,6 +7,7 @@ import {
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import styles from './styles.module.scss';
 
 /**
  * A notice for upgrading to a plan that supports per-network customization.
@@ -29,6 +30,7 @@ export function UpgradeNoticeCustomisation() {
 		<Notice
 			isDismissible={ false }
 			status="info"
+			className={ styles[ 'upgrade-notice-customisation' ] }
 			actions={ [
 				{
 					variant: 'primary',
