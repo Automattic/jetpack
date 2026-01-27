@@ -22,7 +22,8 @@
 		},
 		"typography": {
 			"fontSize": true,
-			"lineHeight": true
+			"lineHeight": true,
+			"__experimentalTextDecoration": true
 		}
 	},
 	"example": {
