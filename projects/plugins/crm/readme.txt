@@ -362,7 +362,13 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.7.1 - 2026-01-20
-#### Security
-- Security: Various security updates in settings page navigation.
+### 6.7.2-beta - 2026-01-27
+#### Changed
+- Replace use of confusing `esc_js` with `wp_json_encode`.
+- Update package dependencies.
+
+#### Fixed
+- CSV Importer: Fix path separator issue causing import failures on Windows servers.
+- WooSync: Fix CRM contact identification on orders where customer used a different billing email.
+- WooSync: Prevent PHP warnings when order status does not have a mapping.
 
