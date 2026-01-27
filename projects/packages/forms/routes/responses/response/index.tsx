@@ -2,18 +2,12 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import {
-	Button,
-	ExternalLink,
-	Modal,
-	Spinner,
-	Tip,
-} from '@wordpress/components';
+import { Button, ExternalLink, Modal, Spinner, Tip } from '@wordpress/components';
 import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import * as React from 'react';
 /**
@@ -23,13 +17,11 @@ import CopyClipboardButton from '../../../src/dashboard/components/copy-clipboar
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
+/**
+ * Types
+ */
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../../src/types/index.ts';
-
-const getDisplayName = ( response: FormResponse ) => {
-	const { author_name, author_email, author_url, ip } = response;
-	return decodeEntities( author_name || author_email || author_url || ip || 'Anonymous' );
-};
 
 const isFileUploadField = ( value: unknown ): boolean => {
 	return !! value && typeof value === 'object' && 'files' in value;
@@ -269,7 +261,7 @@ function SingleResponseView( {
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 	const [ hasMarkedAsRead, setHasMarkedAsRead ] = useState< number | null >( null );
 
-	const { editEntityRecord } = useDispatch( coreStore ) as DispatchActions;
+	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
 
 	const { response, isLoading } = useSelect(
 		select => {
@@ -278,16 +270,15 @@ function SingleResponseView( {
 			}
 
 			return {
-				response: ( select( coreStore ) as SelectActions ).getEntityRecord(
+				response: ( select( coreStore ) as unknown as SelectActions ).getEntityRecord(
 					'postType',
 					'feedback',
 					responseId
 				) as unknown as FormResponse | null,
-				isLoading: ( select( coreStore ) as SelectActions ).isResolving( 'getEntityRecord', [
-					'postType',
-					'feedback',
-					responseId,
-				] ),
+				isLoading: ( select( coreStore ) as unknown as SelectActions ).isResolving(
+					'getEntityRecord',
+					[ 'postType', 'feedback', responseId ]
+				),
 			};
 		},
 		[ responseId ]
