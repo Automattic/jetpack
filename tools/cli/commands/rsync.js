@@ -49,7 +49,9 @@ export async function rsyncInit( argv ) {
 	// See also:
 	// * p1742486518169009-slack-CDLH4C1UZ
 	// * https://github.com/apple-oss-distributions/rsync/tree/main/openrsync
-	if ( os.platform() === 'darwin' ) {
+	//
+	// Skip this check in --prepare-filters mode — the host handles rsync detection.
+	if ( ! argv.prepareFilters && os.platform() === 'darwin' ) {
 		const { stdout: rsyncVersion } = await execa( 'rsync', [ '--version' ] );
 		isOpenrsync = rsyncVersion.indexOf( 'openrsync' ) >= 0;
 		if ( isOpenrsync ) {
@@ -150,7 +152,8 @@ export async function rsyncInit( argv ) {
 				console.debug( `rsync due to event ${ event } for ${ eventfile }` );
 			}
 
-			const paths = await rsyncToDest( sourcePluginPath, finalDest );
+			const syncFn = argv.prepareFilters ? prepareFiltersAndSignal : rsyncToDest;
+			const paths = await syncFn( sourcePluginPath, finalDest );
 
 			// Warn but don't fail if file was intentionally not synced. We still want to sync
 			// if a change event occurs, as other change events could have been debounced.
@@ -236,6 +239,8 @@ export async function rsyncInit( argv ) {
 			watcher.add( pathsToAdd );
 		};
 		await rsyncAndUpdateWatches( 'startup', 'jetpack rsync --watch' );
+	} else if ( argv.prepareFilters ) {
+		await prepareFiltersAndSignal( sourcePluginPath, finalDest );
 	} else {
 		await rsyncToDest( sourcePluginPath, finalDest );
 
@@ -476,6 +481,81 @@ async function createFilterFile( paths ) {
 	await util.promisify( tmpStream.close ).call( tmpStream );
 
 	return tmpFile;
+}
+
+/**
+ * Write an rsync filter file to a given path.
+ *
+ * Same filter content as createFilterFile(), but writes to a specified file path
+ * instead of a temp file descriptor.
+ *
+ * @param {Set}    paths      - Paths to include.
+ * @param {string} outputPath - File path to write.
+ * @return {Promise<void>}
+ */
+async function writeFilterFile( paths, outputPath ) {
+	const stream = createWriteStream( outputPath );
+	const write = data => {
+		return new Promise( resolve => {
+			if ( ! stream.write( data ) ) {
+				stream.once( 'drain', resolve );
+			} else {
+				resolve();
+			}
+		} );
+	};
+
+	// Exclude any `.git` dirs, mostly in case someone ran composer with --prefer-source (or composer fell back to that).
+	await write( '- .git\r\n' );
+
+	// Include each path.
+	for ( const file of paths ) {
+		// Rsync differentiates literal strings vs patterns by looking for `[`, `*`, and `?`.
+		// Only patterns use backslash escapes, literal strings do not.
+		await write(
+			'+ /' + ( file.match( /[[*?]/ ) ? file.replace( /[[*?\\]/g, '\\$&' ) : file ) + '\r\n'
+		);
+	}
+
+	// Exclude anything not included above.
+	await write( '- *\r\n' );
+
+	// Close the file.
+	await util.promisify( stream.close ).call( stream );
+}
+
+/**
+ * Collect paths, write filter rules and metadata for host-side rsync, then touch a trigger file.
+ *
+ * Used in --prepare-filters mode so the host can run rsync with native SSH.
+ *
+ * @param {string} source - Source path (e.g. projects/plugins/foo/).
+ * @param {string} dest   - Destination (e.g. wpcom:/path/).
+ * @return {Promise<Set>} Synced path set (needed for watch dir tracking).
+ */
+async function prepareFiltersAndSignal( source, dest ) {
+	const dataDir = path.join( process.cwd(), 'tools/docker/data/rsync' );
+	await fs.mkdir( dataDir, { recursive: true } );
+
+	const paths = await collectPaths( source );
+	const filterPath = path.join( dataDir, 'filter-rules.txt' );
+	await writeFilterFile( paths, filterPath );
+
+	// Store source as a relative path so the host can resolve it against its own monorepo root.
+	// Inside Docker, source is absolute (e.g. /workspace/projects/plugins/foo/).
+	const relativeSource = path.relative( process.cwd(), source ) + '/';
+	const metadata = {
+		version: 1,
+		source: relativeSource,
+		dest,
+		filterFile: 'tools/docker/data/rsync/filter-rules.txt',
+	};
+	await fs.writeFile( path.join( dataDir, 'metadata.json' ), JSON.stringify( metadata ) + '\n' );
+
+	// Touch trigger file — the host watches this for mtime changes.
+	await fs.writeFile( path.join( dataDir, 'trigger' ), Date.now().toString() + '\n' );
+
+	return paths;
 }
 
 /**
@@ -781,6 +861,12 @@ export function rsyncDefine( yargs ) {
 				} )
 				.option( 'non-interactive', {
 					describe: 'Do not use interactive prompts. Ideal for CI runs.',
+					type: 'boolean',
+				} )
+				.option( 'prepare-filters', {
+					hidden: true,
+					describe:
+						'Write filter rules and metadata for host-side rsync instead of running rsync directly.',
 					type: 'boolean',
 				} );
 		},
