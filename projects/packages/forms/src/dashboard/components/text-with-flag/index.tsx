@@ -1,8 +1,6 @@
-import {
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Tooltip } from '@wordpress/components';
 import { Icon, globe } from '@wordpress/icons';
-import Flag from '../flag/index.tsx';
+import { getTranslatedCountryName } from '../../../util/country-names-translated.js';
 import type { ReactNode } from 'react';
 import './style.scss';
 
@@ -11,6 +9,25 @@ type TextWithFlagProps = {
 	children: ReactNode;
 	fallbackIcon?: boolean;
 };
+
+/**
+ * Get the flag emoji for a country code.
+ * @param {string} countryCode - The country code to get the flag emoji for.
+ * @return {string} The flag emoji for the country code.
+ */
+function getFlagEmoji( countryCode: string ): string {
+	if ( ! countryCode ) {
+		return '';
+	}
+
+	const upperCountryCode = countryCode.toUpperCase();
+	const offset = 127397;
+
+	return String.fromCodePoint(
+		upperCountryCode.charCodeAt( 0 ) + offset,
+		upperCountryCode.charCodeAt( 1 ) + offset
+	);
+}
 
 /**
  * Renders text content with an optional country flag.
@@ -26,11 +43,26 @@ export default function TextWithFlag( {
 	countryCode,
 	fallbackIcon = false,
 }: TextWithFlagProps ): JSX.Element {
+	let flag, countryName;
+
+	if ( countryCode ) {
+		flag = getFlagEmoji( countryCode );
+		countryName = getTranslatedCountryName( countryCode );
+	}
+
 	return (
-		<Text className="jp-forms__text-with-flag">
-			{ countryCode && <Flag countryCode={ countryCode } /> }
-			{ ! countryCode && fallbackIcon && <Icon icon={ globe } size={ 20 } /> }
+		<span className="jp-forms__text-with-flag">
+			{ countryCode && (
+				<>
+					<Tooltip text={ countryName }>
+						<span aria-label={ countryName } role="img" className="jp-forms__text-with-flag-emoji">
+							{ flag }
+						</span>
+					</Tooltip>{ ' ' }
+				</>
+			) }
+			{ ! countryCode && fallbackIcon && <Icon icon={ globe } size={ 16 } /> }
 			{ children }
-		</Text>
+		</span>
 	);
 }

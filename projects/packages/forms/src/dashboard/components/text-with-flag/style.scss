@@ -1,8 +1,12 @@
 .jp-forms__text-with-flag {
-	display: inline;
-	vertical-align: middle;
+
+	.jp-forms__text-with-flag-emoji {
+		font-size: 16px;
+		vertical-align: middle;
+	}
 
 	svg {
+		fill: currentColor;
 		vertical-align: text-top;
 	}
 }
