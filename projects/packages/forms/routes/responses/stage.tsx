@@ -314,16 +314,15 @@ function Stage() {
 							{ item.is_unread && (
 								<span
 									style={ {
-										width: '7px',
-										height: '7px',
-										borderRadius: '50%',
-										backgroundColor: '#d63638',
-										flexShrink: 0,
+										color: '#d63638',
+										fontSize: '8px',
 										position: 'absolute',
 										marginLeft: '-12px',
 									} }
-									aria-label={ __( 'Unread', 'jetpack-forms' ) }
-								/>
+									aria-label={ __( '(Unread form response)', 'jetpack-forms' ) }
+								>
+									●
+								</span>
 							) }
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
