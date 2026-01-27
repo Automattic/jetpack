@@ -9,7 +9,11 @@ import '@automattic/ui/style.css';
  */
 import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, ExternalLink } from '@wordpress/components';
+import {
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	Button,
+	ExternalLink,
+} from '@wordpress/components';
 import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -315,6 +319,8 @@ function Stage() {
 										borderRadius: '50%',
 										backgroundColor: 'var(--wp-admin-theme-color, #3858e9)',
 										flexShrink: 0,
+										position: 'absolute',
+										marginLeft: '-12px',
 									} }
 									aria-label={ __( 'Unread', 'jetpack-forms' ) }
 								/>
@@ -330,9 +336,9 @@ function Stage() {
 								<Stack direction="column" gap="2xs">
 									{ displayName }
 									{ showEmail && (
-										<span style={ { fontSize: '12px', color: '#757575' } }>
+										<Text variant="muted" size="12px">
 											{ item.author_email }
-										</span>
+										</Text>
 									) }
 								</Stack>,
 								item.is_unread
