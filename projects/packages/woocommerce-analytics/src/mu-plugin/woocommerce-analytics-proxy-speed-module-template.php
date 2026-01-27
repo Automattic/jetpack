@@ -4,7 +4,7 @@
  * Description: Speeds up WooCommerce Analytics' proxy by handling requests at MU-plugin stage and exiting early.
  * Plugin URI: https://woocommerce.com
  * Author: WooCommerce
- * Version: 2.0.0
+ * Version: 2.1.0
  * Author URI: https://woocommerce.com
  *
  * Text Domain: woocommerce-analytics
@@ -25,6 +25,14 @@ class WooCommerceAnalyticsProxySpeed {
 	 * @var string
 	 */
 	const PROXY_REQUEST_PATH = 'woocommerce-analytics/v1/track';
+
+	/**
+	 * Autoloader path - this placeholder is replaced during installation.
+	 * DO NOT MODIFY - this value is injected by the parent plugin.
+	 *
+	 * @var string
+	 */
+	const AUTOLOADER_PATH = '{{AUTOLOADER_PATH}}';
 
 	/**
 	 * Initialize the proxy speed module.
@@ -61,21 +69,21 @@ class WooCommerceAnalyticsProxySpeed {
 	}
 
 	/**
-	 * Load the Jetpack autoloader.
+	 * Load the autoloader.
 	 *
 	 * At MU-plugin stage, plugins haven't loaded yet, so we bootstrap
-	 * the Jetpack autoloader directly.
+	 * the autoloader directly using the path injected during installation.
 	 *
 	 * @return bool True if autoloader loaded and classes are available.
 	 */
 	private function load_autoloader() {
-		$jetpack_plugin_path = $this->get_jetpack_plugin_path();
-		if ( ! $jetpack_plugin_path ) {
+		$autoload_path = self::AUTOLOADER_PATH;
+
+		// Validate the path was properly injected (not still a placeholder).
+		if ( strpos( $autoload_path, '{{' ) !== false ) {
 			return false;
 		}
 
-		// Try to load from Jetpack plugin's vendor autoloader.
-		$autoload_path = $jetpack_plugin_path . '/vendor/autoload.php';
 		if ( file_exists( $autoload_path ) ) {
 			require_once $autoload_path;
 			return class_exists( '\Automattic\Woocommerce_Analytics\WC_Analytics_Tracking' );
@@ -219,36 +227,6 @@ class WooCommerceAnalyticsProxySpeed {
 	 */
 	private function get_request_method() {
 		return isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	}
-
-	/**
-	 * Get the path to the Jetpack plugin.
-	 *
-	 * @return string|false The path to the Jetpack plugin, or false if not found.
-	 */
-	private function get_jetpack_plugin_path() {
-		$active_plugins      = (array) get_option( 'active_plugins', array() );
-		$wp_plugins_realpath = realpath( WP_PLUGIN_DIR );
-
-		if ( false === $wp_plugins_realpath ) {
-			return false;
-		}
-
-		foreach ( $active_plugins as $plugin ) {
-			if ( strpos( $plugin, 'jetpack' ) !== false ) {
-				$candidate_path = WP_PLUGIN_DIR . '/' . dirname( $plugin );
-				$real_candidate = realpath( $candidate_path );
-
-				if ( false === $real_candidate ) {
-					continue;
-				}
-
-				if ( 0 === strpos( $real_candidate, $wp_plugins_realpath ) ) {
-					return $real_candidate;
-				}
-			}
-		}
-		return false;
 	}
 }
 

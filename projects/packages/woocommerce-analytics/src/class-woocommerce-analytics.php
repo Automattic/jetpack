@@ -28,7 +28,7 @@ class Woocommerce_Analytics {
 	 *
 	 * @var string
 	 */
-	const PROXY_SPEED_MODULE_VERSION = '2.0.0';
+	const PROXY_SPEED_MODULE_VERSION = '2.1.0';
 
 	/**
 	 * Proxy speed module version option.
@@ -36,6 +36,13 @@ class Woocommerce_Analytics {
 	 * @var string
 	 */
 	const PROXY_SPEED_MODULE_VERSION_OPTION = 'woocommerce_analytics_proxy_speed_module_version';
+
+	/**
+	 * Proxy speed module version check transient.
+	 *
+	 * @var string
+	 */
+	const PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT = 'woocommerce_analytics_proxy_speed_module_version_check';
 
 	/**
 	 * Initializer.
@@ -61,6 +68,7 @@ class Woocommerce_Analytics {
 		add_action( 'init', array( new Universal(), 'init_hooks' ) );
 		add_action( 'init', array( new My_Account(), 'init_hooks' ) );
 
+		add_action( 'upgrader_process_complete', array( __CLASS__, 'on_plugin_upgrade' ), 10, 2 );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_update_proxy_speed_module' ) );
 
 		// Initialize REST API endpoints.
@@ -180,18 +188,41 @@ class Woocommerce_Analytics {
 	}
 
 	/**
-	 * Maybe update proxy speed module.
+	 * Handle plugin upgrade to update proxy speed module immediately.
+	 *
+	 * @param \WP_Upgrader $upgrader The upgrader instance.
+	 * @param array        $options  Array of update data.
 	 */
-	public static function maybe_update_proxy_speed_module() {
-		$version = get_option( self::PROXY_SPEED_MODULE_VERSION_OPTION, false );
-		if ( $version === false ) {
-			return;
-		}
-		if ( $version === self::PROXY_SPEED_MODULE_VERSION ) {
+	public static function on_plugin_upgrade( $upgrader, $options ) {
+		if ( ! isset( $options['action'] ) || ! isset( $options['type'] ) ) {
 			return;
 		}
 
+		if ( $options['action'] !== 'update' || $options['type'] !== 'plugin' ) {
+			return;
+		}
+
+		// Clear the transient so the update check runs immediately.
+		delete_transient( self::PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT );
 		self::maybe_add_proxy_speed_module();
+	}
+
+	/**
+	 * Maybe update proxy speed module.
+	 */
+	public static function maybe_update_proxy_speed_module() {
+		// Skip if we've already checked recently.
+		if ( get_transient( self::PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT ) ) {
+			return;
+		}
+
+		$version = get_option( self::PROXY_SPEED_MODULE_VERSION_OPTION, false );
+
+		// Only update the proxy speed module if the stored version differs from the current version and the version is not false.
+		if ( $version !== false && $version !== self::PROXY_SPEED_MODULE_VERSION ) {
+			self::maybe_add_proxy_speed_module();
+			set_transient( self::PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT, 1, DAY_IN_SECONDS );
+		}
 	}
 
 	/**
@@ -240,7 +271,7 @@ class Woocommerce_Analytics {
 			return;
 		}
 
-		$mu_plugin_src_file  = __DIR__ . '/mu-plugin/woocommerce-analytics-proxy-speed-module.php';
+		$mu_plugin_src_file  = __DIR__ . '/mu-plugin/woocommerce-analytics-proxy-speed-module-template.php';
 		$mu_plugin_dest_file = trailingslashit( WPMU_PLUGIN_DIR ) . 'woocommerce-analytics-proxy-speed-module.php';
 
 		// Verify source file exists before attempting to copy.
@@ -258,6 +289,13 @@ class Woocommerce_Analytics {
 			}
 			return;
 		}
+
+		// Get the autoloader path from the current plugin location.
+		$plugin_dir      = dirname( __DIR__ );
+		$autoloader_path = $plugin_dir . '/vendor/autoload.php';
+
+		// Replace the placeholder with the actual path.
+		$content = str_replace( '{{AUTOLOADER_PATH}}', $autoloader_path, $content );
 
 		if ( ! $wp_filesystem->put_contents( $mu_plugin_dest_file, $content ) ) {
 			if ( function_exists( 'wc_get_logger' ) ) {
@@ -289,6 +327,7 @@ class Woocommerce_Analytics {
 		}
 
 		delete_option( self::PROXY_SPEED_MODULE_VERSION_OPTION );
+		delete_transient( self::PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT );
 	}
 
 	/**
