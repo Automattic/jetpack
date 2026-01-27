@@ -450,6 +450,8 @@ class Connections_Post_Field {
 	 * @param WP_REST_Request $request               API request.
 	 */
 	private function save_connection_overrides( $requested_connections, $post_id, $request = null ) {
+		global $publicize;
+
 		// Check if per-network customization is enabled - prefer request value over database.
 		$customize_per_network = null;
 		if ( $request && isset( $request['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ] ) ) {
@@ -458,7 +460,12 @@ class Connections_Post_Field {
 		if ( null === $customize_per_network ) {
 			$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
 		}
-		if ( ! $customize_per_network ) {
+
+		// Verify user has the feature required for per-network customization.
+		$has_paid_features = $publicize && $publicize->has_paid_features();
+
+		// If customization is disabled or user lacks paid features, remove any existing overrides.
+		if ( ! $customize_per_network || ! $has_paid_features ) {
 			delete_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES );
 			return;
 		}
