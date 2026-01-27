@@ -26,7 +26,7 @@ function ThemedUnifiedModal() {
 	}, [ closeUnifiedModal ] );
 
 	return (
-		<ThemeProvider targetDom={ document.body } key={ initialPath }>
+		<ThemeProvider targetDom={ document.body }>
 			<NavigatorModal
 				className={ styles[ 'unified-modal' ] }
 				initialPath={ initialPath || '/' }
