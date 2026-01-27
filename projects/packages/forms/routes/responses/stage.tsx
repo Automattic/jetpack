@@ -33,8 +33,8 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
 import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
-import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
+import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
@@ -424,13 +424,9 @@ function Stage() {
 						return styleUnreadValue( '-', item.is_unread );
 					}
 					return (
-						<>
-							<span className="jp-forms__inbox-response-country-flag">
-								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
-								{ item.country_code && <Flag countryCode={ item.country_code } /> }
-							</span>
+						<TextWithFlag countryCode={ item.country_code } fallbackIcon>
 							{ styleUnreadValue( item.ip, item.is_unread ) }
-						</>
+						</TextWithFlag>
 					);
 				},
 				enableSorting: false,
