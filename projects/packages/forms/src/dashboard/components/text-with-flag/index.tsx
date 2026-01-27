@@ -58,7 +58,7 @@ export default function TextWithFlag( {
 
 	return (
 		<span>
-			{ countryCode && (
+			{ flag && (
 				<>
 					<Tooltip text={ countryName }>
 						<span aria-label={ countryName } role="img" className="jp-forms__text-with-flag-emoji">
@@ -67,7 +67,7 @@ export default function TextWithFlag( {
 					</Tooltip>{ ' ' }
 				</>
 			) }
-			{ ! countryCode && fallbackIcon && (
+			{ ! flag && fallbackIcon && (
 				<>
 					<Icon icon={ globe } size={ 16 } className="jp-forms__text-with-flag-globe" />{ ' ' }
 				</>
