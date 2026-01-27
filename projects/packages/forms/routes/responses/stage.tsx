@@ -9,7 +9,11 @@ import '@automattic/ui/style.css';
  */
 import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, ExternalLink } from '@wordpress/components';
+import {
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	Button,
+	ExternalLink,
+} from '@wordpress/components';
 import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -301,38 +305,44 @@ function Stage() {
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					const displayName =
-						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous';
-					const showEmail = item.author_email && item.author_name !== item.author_email;
+					const displayName = decodeEntities(
+						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous'
+					);
+					const showEmail =
+						item.author_email && displayName !== decodeEntities( item.author_email );
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+
 					return (
 						<Stack align="center" gap="sm">
 							{ item.is_unread && (
 								<span
 									style={ {
-										width: '8px',
-										height: '8px',
-										borderRadius: '50%',
-										backgroundColor: 'var(--wp-admin-theme-color, #3858e9)',
-										flexShrink: 0,
+										color: '#d63638',
+										fontSize: '8px',
+										position: 'absolute',
+										marginLeft: '-12px',
 									} }
-									aria-label={ __( 'Unread', 'jetpack-forms' ) }
-								/>
+									aria-label={ __( '(Unread form response)', 'jetpack-forms' ) }
+								>
+									●
+								</span>
 							) }
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ decodeEntities( displayName ) }
-								size={ 40 }
+								displayName={ displayName }
+								size={ 32 }
 								useHovercard={ false }
 							/>
 							{ styleUnreadValue(
 								<Stack direction="column" gap="2xs">
-									{ displayName }
+									<Text ellipsizeMode="tail" limit={ 50 } truncate>
+										{ displayName }
+									</Text>
 									{ showEmail && (
-										<span style={ { fontSize: '12px', color: '#757575' } }>
+										<Text variant="muted" size={ 12 } ellipsizeMode="tail" limit={ 50 } truncate>
 											{ item.author_email }
-										</span>
+										</Text>
 									) }
 								</Stack>,
 								item.is_unread
