@@ -317,7 +317,7 @@ function Stage() {
 										width: '7px',
 										height: '7px',
 										borderRadius: '50%',
-										backgroundColor: 'var(--wp-admin-theme-color, #3858e9)',
+										backgroundColor: '#d63638',
 										flexShrink: 0,
 										position: 'absolute',
 										marginLeft: '-12px',
