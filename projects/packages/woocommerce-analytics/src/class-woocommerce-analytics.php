@@ -216,12 +216,14 @@ class Woocommerce_Analytics {
 			return;
 		}
 
+		// Set the transient regardless of whether an update is needed to prevent checking on every admin_init.
+		set_transient( self::PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT, 1, DAY_IN_SECONDS );
+
 		$version = get_option( self::PROXY_SPEED_MODULE_VERSION_OPTION, false );
 
 		// Only update the proxy speed module if the stored version differs from the current version and the version is not false.
 		if ( $version !== false && $version !== self::PROXY_SPEED_MODULE_VERSION ) {
 			self::maybe_add_proxy_speed_module();
-			set_transient( self::PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT, 1, DAY_IN_SECONDS );
 		}
 	}
 
