@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-WooCommerce Analytics: handle proxy requests at MU-plugin stage and exit early for faster response time.
+Handle proxy requests at MU-plugin stage and exit early for faster response time.
