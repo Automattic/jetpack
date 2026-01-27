@@ -305,10 +305,12 @@ function Stage() {
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					const displayName =
-						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous';
+					const displayName = decodeEntities(
+						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous'
+					);
 					const showEmail = item.author_email && item.author_name !== item.author_email;
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+
 					return (
 						<Stack align="center" gap="sm">
 							{ item.is_unread && (
@@ -327,7 +329,7 @@ function Stage() {
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ decodeEntities( displayName ) }
+								displayName={ displayName }
 								size={ 32 }
 								useHovercard={ false }
 							/>
