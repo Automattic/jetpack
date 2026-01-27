@@ -1428,6 +1428,56 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that get_section_name returns gutenberg when in block editor.
+	 */
+	public function test_get_section_name_returns_gutenberg_in_block_editor() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Create a mock screen that simulates the block editor.
+		// The 'post' screen with block_editor=true simulates Gutenberg.
+		set_current_screen( 'post' );
+		$screen = get_current_screen();
+
+		// Use reflection to set the block_editor property.
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		$result = $this->call_get_section_name();
+
+		$this->assertEquals( 'gutenberg', $result );
+	}
+
+	/**
+	 * Tests that get_section_name returns wp-admin for the widgets screen even with block editor.
+	 *
+	 * The widgets screen has the block editor but no Gutenberg top bar,
+	 * so it should be treated as wp-admin.
+	 */
+	public function test_get_section_name_returns_wp_admin_for_widgets_screen() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Set the widgets screen which has block editor but should return wp-admin.
+		set_current_screen( 'widgets' );
+		$screen = get_current_screen();
+
+		// Use reflection to set the block_editor property.
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		$result = $this->call_get_section_name();
+
+		$this->assertEquals( 'wp-admin', $result );
+	}
+
+	/**
 	 * Tests that get_is_eligible_for_chat returns false when no user is logged in.
 	 */
 	public function test_get_is_eligible_for_chat_returns_false_when_no_user() {
@@ -1604,6 +1654,112 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that get_is_eligible_for_chat returns false and caches when API returns WP_Error.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_is_eligible_for_chat_returns_false_on_api_error() {
+		// Simulate being on an Atomic site.
+		Cache::set( 'is_woa_site', true );
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_chat_api_error',
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Mock the API to return WP_Error.
+		add_filter(
+			'pre_http_request',
+			function ( $response, $args, $url ) {
+				if ( strpos( $url, '/help/support-status' ) === false ) {
+					return $response;
+				}
+
+				return new \WP_Error( 'http_request_failed', 'Connection failed' );
+			},
+			10,
+			3
+		);
+
+		$result = $this->call_get_is_eligible_for_chat();
+
+		$this->assertFalse( $result );
+
+		// Verify failure is cached.
+		$cached = get_transient( 'agents-manager-chat-eligible-' . $user_id );
+		$this->assertEquals( 'no', $cached );
+	}
+
+	/**
+	 * Tests that get_is_eligible_for_chat returns false when API returns non-200 status.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_is_eligible_for_chat_returns_false_on_api_non_200() {
+		// Simulate being on an Atomic site.
+		Cache::set( 'is_woa_site', true );
+
+		// Set up Jetpack connection mocking.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_chat_api_500',
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Mock user connection.
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Mock the API to return 500 error.
+		add_filter(
+			'pre_http_request',
+			function ( $response, $args, $url ) {
+				if ( strpos( $url, '/help/support-status' ) === false ) {
+					return $response;
+				}
+
+				return array(
+					'body'     => wp_json_encode( array( 'error' => 'server_error' ), JSON_UNESCAPED_SLASHES ),
+					'response' => array(
+						'code'    => 500,
+						'message' => 'Internal Server Error',
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$result = $this->call_get_is_eligible_for_chat();
+
+		$this->assertFalse( $result );
+
+		// Verify failure is cached.
+		$cached = get_transient( 'agents-manager-chat-eligible-' . $user_id );
+		$this->assertEquals( 'no', $cached );
+	}
+
+	/**
 	 * Tests that get_is_eligible_for_chat returns false when user is not connected.
 	 */
 	public function test_get_is_eligible_for_chat_returns_false_when_not_connected() {
@@ -1629,6 +1785,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts includes isEligibleForChat in agentsManagerData.
 	 */
 	public function test_enqueue_scripts_includes_is_eligible_for_chat() {
+		// Set admin context - scripts only enqueue in admin.
+		$this->set_admin_context();
+
 		// Reset the script registry.
 		global $wp_scripts;
 		$wp_scripts = null;
@@ -1652,6 +1811,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts includes currentUser in agentsManagerData.
 	 */
 	public function test_enqueue_scripts_includes_current_user() {
+		// Set admin context - scripts only enqueue in admin.
+		$this->set_admin_context();
+
 		// Reset the script registry.
 		global $wp_scripts;
 		$wp_scripts = null;
@@ -1685,6 +1847,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts includes site in agentsManagerData.
 	 */
 	public function test_enqueue_scripts_includes_site() {
+		// Set admin context - scripts only enqueue in admin.
+		$this->set_admin_context();
+
 		// Reset the script registry.
 		global $wp_scripts;
 		$wp_scripts = null;
@@ -1711,6 +1876,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts includes sectionName in agentsManagerData.
 	 */
 	public function test_enqueue_scripts_includes_section_name() {
+		// Set admin context - scripts only enqueue in admin.
+		$this->set_admin_context();
+
 		// Reset the script registry.
 		global $wp_scripts;
 		$wp_scripts = null;
