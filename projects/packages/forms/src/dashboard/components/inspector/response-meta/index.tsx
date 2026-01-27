@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getRedirectUrl } from '@automattic/jetpack-components';
+//import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	ExternalLink,
 	Tooltip,
@@ -14,11 +14,12 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getPath } from '../../inbox/utils.js';
-import CopyClipboardButton from '../copy-clipboard-button/index.tsx';
-import Flag from '../flag/index.tsx';
-import Gravatar from '../gravatar/index.tsx';
-import type { FormResponse } from '../../../types/index.ts';
+import CopyClipboardButton from '../../../components/copy-clipboard-button/index.tsx';
+import Flag from '../../../components/flag/index.tsx';
+import Gravatar from '../../../components/gravatar/index.tsx';
+import { getPath } from '../../../inbox/utils.js';
+import type { FormResponse } from '../../../../types/index.ts';
+import './style.scss';
 
 const getDisplayName = ( response: FormResponse ) => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -103,7 +104,10 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 									</span>
 								) }
 								<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
-									<ExternalLink href={ getRedirectUrl( 'ip-lookup', { path: response.ip } ) }>
+									{ /*<ExternalLink href={ getRedirectUrl( 'ip-lookup', { path: response.ip } ) }> */ }
+									<ExternalLink
+										href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=/${ response.ip }` }
+									>
 										{ response.ip }
 									</ExternalLink>
 								</Tooltip>

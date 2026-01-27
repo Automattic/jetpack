@@ -26,7 +26,7 @@ import FieldEmail from '../response-view/field-email/index.tsx';
 import FieldFile from '../response-view/field-file/index.tsx';
 import FieldImageSelect from '../response-view/field-image-select/index.tsx';
 import FieldPreview from '../response-view/field-preview/index.tsx';
-import ResponseMeta from './response-meta.tsx';
+import ResponseMeta from './response-meta/index.tsx';
 import type { FormResponse, ResponseField } from '../../../types/index.ts';
 import './style.scss';
 

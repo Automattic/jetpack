@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
@@ -536,11 +535,11 @@ function SingleResponseView( {
 }
 
 /**
- * Renders the inspector for responses.
+ * Renders the response contents for inspector panel.
  *
- * @return - Element containing the inspector for responses.
+ * @return - Element containing response contents.
  */
-export default function Inspector() {
+export default function Response() {
 	const params = useParams( { from: '/responses/$view' } );
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
@@ -595,13 +594,11 @@ export default function Inspector() {
 	const selectedResponseId = Number( responseIds[ 0 ] );
 
 	return (
-		<Page showSidebarToggle={ false } hasPadding={ false }>
-			<SingleResponseView
-				responseId={ selectedResponseId }
-				allResponseIds={ allRecordIds }
-				onNavigate={ handleNavigate }
-				onClose={ handleClose }
-			/>
-		</Page>
+		<SingleResponseView
+			responseId={ selectedResponseId }
+			allResponseIds={ allRecordIds }
+			onNavigate={ handleNavigate }
+			onClose={ handleClose }
+		/>
 	);
 }
