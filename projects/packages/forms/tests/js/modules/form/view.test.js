@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { beforeEach, describe, expect, test } from '@jest/globals';
 
 /**
  * Tests for the showPlainValue logic in form submission data formatting.
@@ -307,6 +307,178 @@ describe( 'Form View - getImages helper', () => {
 		// Third choice - showLabels false
 		expect( result[ 2 ].letterCode ).toBe( 'C' );
 		expect( result[ 2 ].label ).toBe( '' );
+	} );
+} );
+
+/**
+ * Tests for the getFiles helper function.
+ */
+describe( 'Form View - getFiles helper', () => {
+	// Mock the capturedFilePreviews Map for testing
+	const mockCapturedFilePreviews = new Map();
+
+	// Local getFiles implementation that uses the mock Map
+	const getFilesWithMock = value => {
+		if ( value?.type === 'file' && value?.files ) {
+			return value.files.map( file => {
+				const fileName = file.name ?? '';
+				const preview = mockCapturedFilePreviews.get( fileName );
+				const hasPreview = !! ( preview?.previewUrl || preview?.iconUrl );
+
+				return {
+					name: fileName,
+					size: file.size ?? '',
+					url: file.url ?? '',
+					previewUrl: preview?.previewUrl ?? null,
+					iconUrl: preview?.iconUrl ?? null,
+					hasPreview,
+				};
+			} );
+		}
+
+		return null;
+	};
+
+	beforeEach( () => {
+		mockCapturedFilePreviews.clear();
+	} );
+
+	test( 'returns null for plain text value', () => {
+		const result = getFilesWithMock( 'plain text' );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'returns null for URL field value', () => {
+		const result = getFilesWithMock( { type: 'url', url: 'https://example.com' } );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'returns null for image-select field value', () => {
+		const result = getFilesWithMock( {
+			type: 'image-select',
+			choices: [ { perceived: 'A' } ],
+		} );
+		expect( result ).toBeNull();
+	} );
+
+	test( 'extracts file data from file field value', () => {
+		const result = getFilesWithMock( {
+			type: 'file',
+			files: [
+				{
+					name: 'document.pdf',
+					size: '1.5 MB',
+					url: 'https://example.com/download/123',
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].name ).toBe( 'document.pdf' );
+		expect( result[ 0 ].size ).toBe( '1.5 MB' );
+		expect( result[ 0 ].url ).toBe( 'https://example.com/download/123' );
+		expect( result[ 0 ].hasPreview ).toBe( false );
+	} );
+
+	test( 'handles multiple files', () => {
+		const result = getFilesWithMock( {
+			type: 'file',
+			files: [
+				{ name: 'file1.pdf', size: '1 MB', url: 'https://example.com/1' },
+				{ name: 'file2.jpg', size: '2 MB', url: 'https://example.com/2' },
+				{ name: 'file3.doc', size: '500 KB', url: 'https://example.com/3' },
+			],
+		} );
+
+		expect( result ).toHaveLength( 3 );
+		expect( result[ 0 ].name ).toBe( 'file1.pdf' );
+		expect( result[ 1 ].name ).toBe( 'file2.jpg' );
+		expect( result[ 2 ].name ).toBe( 'file3.doc' );
+	} );
+
+	test( 'handles missing properties gracefully', () => {
+		const result = getFilesWithMock( {
+			type: 'file',
+			files: [ {} ],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].name ).toBe( '' );
+		expect( result[ 0 ].size ).toBe( '' );
+		expect( result[ 0 ].url ).toBe( '' );
+	} );
+
+	test( 'returns empty array for empty files array', () => {
+		const result = getFilesWithMock( {
+			type: 'file',
+			files: [],
+		} );
+
+		expect( result ).toHaveLength( 0 );
+	} );
+
+	test( 'merges preview data when available', () => {
+		mockCapturedFilePreviews.set( 'photo.jpg', {
+			previewUrl: 'url(blob:http://localhost/abc123)',
+			iconUrl: null,
+		} );
+
+		const result = getFilesWithMock( {
+			type: 'file',
+			files: [
+				{
+					name: 'photo.jpg',
+					size: '500 KB',
+					url: 'https://example.com/download/photo',
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].previewUrl ).toBe( 'url(blob:http://localhost/abc123)' );
+		expect( result[ 0 ].iconUrl ).toBeNull();
+		expect( result[ 0 ].hasPreview ).toBe( true );
+	} );
+
+	test( 'sets hasPreview true when iconUrl is available', () => {
+		mockCapturedFilePreviews.set( 'document.pdf', {
+			previewUrl: null,
+			iconUrl: 'url(http://localhost/icons/pdf.svg)',
+		} );
+
+		const result = getFilesWithMock( {
+			type: 'file',
+			files: [
+				{
+					name: 'document.pdf',
+					size: '1 MB',
+					url: 'https://example.com/download/doc',
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].previewUrl ).toBeNull();
+		expect( result[ 0 ].iconUrl ).toBe( 'url(http://localhost/icons/pdf.svg)' );
+		expect( result[ 0 ].hasPreview ).toBe( true );
+	} );
+
+	test( 'sets hasPreview false when no preview data captured', () => {
+		const result = getFilesWithMock( {
+			type: 'file',
+			files: [
+				{
+					name: 'uncaptured.pdf',
+					size: '1 MB',
+					url: 'https://example.com/download/uncaptured',
+				},
+			],
+		} );
+
+		expect( result ).toHaveLength( 1 );
+		expect( result[ 0 ].previewUrl ).toBeNull();
+		expect( result[ 0 ].iconUrl ).toBeNull();
+		expect( result[ 0 ].hasPreview ).toBe( false );
 	} );
 } );
 

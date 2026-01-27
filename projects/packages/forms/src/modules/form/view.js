@@ -52,13 +52,16 @@ const setSubmissionData = ( data = [] ) => {
 	context.formattedSubmissionData = data.map( item => {
 		const images = getImages( item.value );
 		const url = getUrl( item.value );
+		const files = getFiles( item.value );
 
 		return {
 			label: maybeAddColonToLabel( item.label ),
 			value: maybeTransformValue( item.value ),
 			images,
 			url,
-			showPlainValue: ! url && ( ! images || images.length === 0 ),
+			files,
+			showPlainValue:
+				! url && ( ! images || images.length === 0 ) && ( ! files || files.length === 0 ),
 		};
 	} );
 };
@@ -174,6 +177,83 @@ const getUrl = value => {
 		}
 
 		return url;
+	}
+
+	return null;
+};
+
+/**
+ * Capture file preview data (thumbnail URLs and icons) from the DOM before form submission.
+ * This allows us to preserve the client-side preview for the confirmation page.
+ *
+ * @param {string} formHash - The form hash identifier.
+ * @return {Map<string, {previewUrl: string|null, iconUrl: string|null}>} Map of filename to preview data.
+ */
+const captureFilePreviews = formHash => {
+	const previews = new Map();
+	const form = document.getElementById( 'jp-form-' + formHash );
+
+	if ( ! form ) {
+		return previews;
+	}
+
+	// Find all file preview elements in the form
+	const filePreviewElements = form.querySelectorAll( '.jetpack-form-file-field__preview' );
+
+	filePreviewElements.forEach( preview => {
+		const nameElement = preview.querySelector( '.jetpack-form-file-field__file-name' );
+		const imageElement = preview.querySelector( '.jetpack-form-file-field__image' );
+
+		if ( nameElement && imageElement ) {
+			const fileName = nameElement.textContent?.trim();
+			const computedStyle = window.getComputedStyle( imageElement );
+
+			// Get the background-image (for image files) or mask-image (for non-image files)
+			const backgroundImage = computedStyle.backgroundImage;
+			const maskImage = computedStyle.maskImage || computedStyle.webkitMaskImage;
+
+			if ( fileName ) {
+				previews.set( fileName, {
+					// For images, the background-image contains the blob URL
+					previewUrl: backgroundImage && backgroundImage !== 'none' ? backgroundImage : null,
+					// For non-images, the mask-image contains the icon SVG URL
+					iconUrl: maskImage && maskImage !== 'none' ? maskImage : null,
+				} );
+			}
+		}
+	} );
+
+	return previews;
+};
+
+// Store for file previews captured before submission
+let capturedFilePreviews = new Map();
+
+/**
+ * Extract file data from a file field value for display on the confirmation page.
+ * Merges server response data with captured preview URLs (for AJAX submissions).
+ *
+ * @param {Object|null} value - The field value object, expected to have type 'file' and files array.
+ * @return {Array<{name: string, size: string, url: string, previewUrl: string|null, iconUrl: string|null, hasPreview: boolean}>|null} Array of file objects or null if not a file field.
+ */
+const getFiles = value => {
+	if ( value?.type === 'file' && value?.files ) {
+		return value.files.map( file => {
+			const fileName = file.name ?? '';
+			const preview = capturedFilePreviews.get( fileName );
+			const hasPreview = !! ( preview?.previewUrl || preview?.iconUrl );
+
+			return {
+				name: fileName,
+				size: file.size ?? '',
+				url: file.url ?? '',
+				// Include preview data if available (for AJAX submissions)
+				previewUrl: preview?.previewUrl ?? null,
+				iconUrl: preview?.iconUrl ?? null,
+				// Boolean flag for easier binding evaluation
+				hasPreview,
+			};
+		} );
 	}
 
 	return null;
@@ -518,6 +598,9 @@ const { state, actions } = store( NAMESPACE, {
 				event.stopPropagation();
 				context.submissionError = null;
 
+				// Capture file preview URLs before submission (blob URLs for images, icon URLs for other files)
+				capturedFilePreviews = captureFilePreviews( context.formHash );
+
 				const { success, error, data, refreshArgs } = yield submitForm( context.formHash );
 
 				if ( success ) {
@@ -547,6 +630,9 @@ const { state, actions } = store( NAMESPACE, {
 				}
 
 				context.isSubmitting = false;
+
+				// Clear captured previews to avoid memory leaks on repeated submissions
+				capturedFilePreviews.clear();
 			}
 		} ),
 
