@@ -193,9 +193,9 @@ class Jetpack_Plugin_Compatibility {
 					add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
 				}
 
-				if ( ! $should_init && class_exists( '\\Automattic\\Jetpack\\My_Jetpack\\Initializer' ) ) {
+				if ( ! $should_init && class_exists( '\Automattic\Jetpack\My_Jetpack\Initializer' ) ) {
 					// My Jetpack REST API endpoints are used for more than just My Jetpack UI.
-					add_action( 'rest_api_init', array( '\\Automattic\\Jetpack\\My_Jetpack\\Initializer', 'register_rest_endpoints' ) ); // @phan-suppress-current-line PhanUndeclaredClassInCallable
+					add_action( 'rest_api_init', array( '\Automattic\Jetpack\My_Jetpack\Initializer', 'register_rest_endpoints' ) ); // @phan-suppress-current-line PhanUndeclaredClassInCallable
 				}
 				return $should_init;
 			}
