@@ -130,6 +130,8 @@ class Instant_Search extends Classic_Search {
 	 */
 	protected function inject_javascript_options() {
 		$options = Helper::generate_initial_javascript_state();
+		error_log( 'INJECT JAVASCRIPT' );
+		error_log(print_r( $options, true ) );
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=' . wp_json_encode( $options, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
 	}

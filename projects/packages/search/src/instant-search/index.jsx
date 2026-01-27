@@ -14,6 +14,10 @@ import { getThemeOptions } from './lib/dom';
 import store from './store';
 
 const injectSearchApp = () => {
+	console.log( 'injectSearchApp - window[ SERVER_OBJECT_NAME ]:' );
+	console.log( window[ SERVER_OBJECT_NAME ] );
+	console.log( 'injectSearchApp - adminQueryFilter in options:' );
+	console.log( window[ SERVER_OBJECT_NAME ]?.adminQueryFilter );
 	render(
 		<Provider store={ store }>
 			<SearchApp

@@ -195,6 +195,10 @@ function buildStaticFilters( staticFilters ) {
  * @return {object} ElasticSearch filter object.
  */
 function buildFilterObject( filterQuery, adminQueryFilter, excludedPostTypes ) {
+	console.log( 'filterQuery:' );
+	console.log( filterQuery );
+	console.log( 'adminQueryFilter:' );
+	console.log( adminQueryFilter );
 	const filter = { bool: { must: [] } };
 	getFilterKeys()
 		.filter( key => isLengthyArray( filterQuery[ key ] ) )
@@ -275,6 +279,8 @@ function generateApiQueryString( {
 		query = '';
 	}
 
+	console.log( 'generate API Query string -- adminQueryFilter:' );
+	console.log( adminQueryFilter );
 	let fields = [
 		'date',
 		'permalink.url.raw',
@@ -434,6 +440,8 @@ function resetAbortController() {
  * @return {Promise} A promise to the JSON response object
  */
 export function search( options, requestId ) {
+	console.log( 'search: optoins:' );
+	console.log( options );
 	const key = stringify( Array.from( arguments ) );
 
 	// Use cached value from the last 30 minutes if browser is offline

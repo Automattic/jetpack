@@ -212,6 +212,10 @@ class SearchApp extends Component {
 	};
 
 	getResults = ( { pageHandle } = {} ) => {
+		console.log( 'getResults - this.props.options:' );
+		console.log( this.props.options );
+		console.log( 'getResults - adminQueryFilter from options:' );
+		console.log( this.props.options.adminQueryFilter );
 		this.props.makeSearchRequest( {
 			// Skip aggregations when requesting for paged results
 			aggregations: pageHandle ? {} : this.props.aggregations,

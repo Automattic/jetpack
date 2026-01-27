@@ -961,6 +961,7 @@ class Helper {
 		 *
 		 * @param array $options Array of parameters used in Instant Search queries.
 		 */
+		error_log(print_r( apply_filters( 'jetpack_instant_search_options', $options ), true ) );
 		return apply_filters( 'jetpack_instant_search_options', $options );
 	}
 
