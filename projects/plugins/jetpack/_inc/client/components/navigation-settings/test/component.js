@@ -157,8 +157,8 @@ describe( 'NavigationSettings', () => {
 
 		it( 'renders tabs with Discussion, Newsletter, Reader, Earn, Security, Performance, Traffic, Writing, Sharing', () => {
 			render( <NavigationSettings { ...currentTestProps } /> );
-			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 8 );
-			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 8 );
+			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 9 );
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 9 );
 			expect( screen.getByRole( 'menuitem', { name: 'Discussion' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Discussion' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'menuitem', { name: 'Monetize' } ) ).toBeInTheDocument();
