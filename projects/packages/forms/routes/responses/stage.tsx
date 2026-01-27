@@ -314,8 +314,8 @@ function Stage() {
 							{ item.is_unread && (
 								<span
 									style={ {
-										width: '8px',
-										height: '8px',
+										width: '7px',
+										height: '7px',
 										borderRadius: '50%',
 										backgroundColor: 'var(--wp-admin-theme-color, #3858e9)',
 										flexShrink: 0,
@@ -329,7 +329,7 @@ function Stage() {
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
 								displayName={ decodeEntities( displayName ) }
-								size={ 40 }
+								size={ 32 }
 								useHovercard={ false }
 							/>
 							{ styleUnreadValue(
