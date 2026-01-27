@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
@@ -344,14 +345,19 @@ function wpcom_add_jetpack_submenu() {
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
-		add_submenu_page(
-			'jetpack',
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/settings/newsletter/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
+		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
+			$newsletter_settings = new Newsletter_Settings();
+			$newsletter_settings->add_wp_admin_submenu();
+		} else {
+			add_submenu_page(
+				'jetpack',
+				__( 'Newsletter', 'jetpack-mu-wpcom' ),
+				__( 'Newsletter', 'jetpack-mu-wpcom' ),
+				'manage_options',
+				'https://wordpress.com/settings/newsletter/' . $domain,
+				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			);
+		}
 
 		// Jetpack > Traffic
 		add_submenu_page(
