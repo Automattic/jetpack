@@ -76,6 +76,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 			'markdown',
 			'post-by-email',
 			'post-list',
+			'reader',
 			'shortcodes',
 			'shortlinks',
 			'tiled-gallery',

@@ -111,6 +111,7 @@ export const JETPACK_NON_PAID_MODULES = [
 	'post-by-email',
 	'post-list',
 	'protect',
+	'reader',
 	'related-posts',
 	'seo-tools',
 	'sharedaddy',
