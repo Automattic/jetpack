@@ -289,12 +289,15 @@ const setupFormEditorSubscription = () => {
 			const isFormEditor = getCurrentPostType() === FORM_POST_TYPE;
 
 			// 1. Handle form editor enter/leave transitions
+			// Detect if we are in the form editor and detect when this state changes across ticks.
 			if ( isFormEditor !== state.isFormEditor ) {
-				state.isFormEditor = isFormEditor;
+				state.isFormEditor = isFormEditor; // lets store the current isFormEditor in the state object for future reference.
 
 				if ( isFormEditor ) {
+					// We just entered the form editor.
 					document.body.classList.add( 'post-type-jetpack_form' );
 				} else {
+					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
 
 					if ( state.categoriesSetUp ) {
@@ -318,6 +321,7 @@ const setupFormEditorSubscription = () => {
 
 			// 2. Early return if not in form editor
 			if ( ! isFormEditor ) {
+				// We are not in the form editor, nothing more to do.
 				return;
 			}
 
