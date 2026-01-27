@@ -1,9 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
+import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
@@ -25,6 +27,8 @@ function ReaderModule( props ) {
 		refreshSettings,
 		moduleName,
 	} = props;
+
+	const cannotBeToggled = isWoASite();
 
 	const toggleModule = useCallback(
 		module => {
@@ -53,6 +57,16 @@ function ReaderModule( props ) {
 			hideButton
 			module={ moduleName }
 		>
+			{ cannotBeToggled && (
+				<SimpleNotice
+					status={ 'is-info' }
+					showDismiss={ false }
+					text={ __(
+						'This feature is automatically managed for you on WordPress.com sites.',
+						'jetpack'
+					) }
+				/>
+			) }
 			<SettingsGroup
 				hasChild
 				module={ readerModule }
@@ -69,6 +83,7 @@ function ReaderModule( props ) {
 					activated={ isReaderModuleActive }
 					toggling={ isSavingAnyOption( moduleName ) }
 					toggleModule={ toggleModule }
+					disabled={ cannotBeToggled }
 				>
 					<span className="jp-form-toggle-explanation">
 						{ __( 'Add a link to the Reader in the top navigation bar', 'jetpack' ) }
