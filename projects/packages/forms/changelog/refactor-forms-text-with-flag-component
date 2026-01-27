@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Forms: Refactor country flag display by creating reusable TextWithFlag component and consolidating flag + text patterns across the dashboard.
+Improve country flag and text display consistency across the dashboard.
