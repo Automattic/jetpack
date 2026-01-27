@@ -65,7 +65,22 @@ class WooCommerceAnalyticsProxySpeed {
 		if ( 'POST' !== $this->get_request_method() ) {
 			return false;
 		}
-		return strpos( $this->get_request_uri(), self::PROXY_REQUEST_PATH ) !== false;
+
+		$request_uri = $this->get_request_uri();
+		$path        = parse_url( $request_uri, PHP_URL_PATH );
+
+		if ( ! is_string( $path ) || '' === $path ) {
+			return false;
+		}
+
+		$normalized_path = rtrim( $path, '/' );
+		$proxy_suffix    = '/' . ltrim( self::PROXY_REQUEST_PATH, '/' );
+
+		if ( strlen( $normalized_path ) < strlen( $proxy_suffix ) ) {
+			return false;
+		}
+
+		return substr( $normalized_path, -strlen( $proxy_suffix ) ) === $proxy_suffix;
 	}
 
 	/**
