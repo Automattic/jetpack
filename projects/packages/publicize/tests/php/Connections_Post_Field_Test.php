@@ -97,9 +97,6 @@ class Connections_Post_Field_Test extends TestCase {
 			->withAnyParameters()
 			->willReturn( true );
 
-		$this->publicize->method( 'has_paid_features' )
-			->willReturn( true );
-
 		$publicize = $this->publicize;
 
 		$this->setup_jetpack_connections();
@@ -418,6 +415,9 @@ class Connections_Post_Field_Test extends TestCase {
 	 * Test saving connection overrides via REST API.
 	 */
 	public function test_save_connection_overrides() {
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( true );
+
 		// Enable per-network customization.
 		update_post_meta( $this->draft_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
 
@@ -449,6 +449,44 @@ class Connections_Post_Field_Test extends TestCase {
 		$this->assertSame( 'Custom message for this connection', $overrides['4560']['message'] );
 		$this->assertCount( 1, $overrides['4560']['attached_media'] );
 		$this->assertSame( 123, $overrides['4560']['attached_media'][0]['id'] );
+	}
+
+	/**
+	 * Test that connection overrides are NOT saved when user lacks paid features.
+	 */
+	public function test_connection_overrides_not_saved_without_paid_features() {
+		// Override the has_paid_features method to return false for this test.
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( false );
+
+		// Enable per-network customization flag (should be ignored without paid features).
+		update_post_meta( $this->draft_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request->set_body_params(
+			array(
+				'jetpack_publicize_connections' => array(
+					array(
+						'connection_id'  => '4560',
+						'enabled'        => true,
+						'message'        => 'Custom message for this connection',
+						'attached_media' => array(
+							array(
+								'id'   => 123,
+								'url'  => 'https://example.com/image.jpg',
+								'type' => 'image/jpeg',
+							),
+						),
+					),
+				),
+			)
+		);
+		$this->server->dispatch( $request );
+
+		$overrides = get_post_meta( $this->draft_id, Publicize_Base::POST_CONNECTION_OVERRIDES, true );
+
+		// Assert that overrides were NOT saved.
+		$this->assertEmpty( $overrides );
 	}
 
 	/**
@@ -489,6 +527,9 @@ class Connections_Post_Field_Test extends TestCase {
 	 * Test that connection overrides are cleared when no message or media is provided.
 	 */
 	public function test_clear_connection_overrides() {
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( true );
+
 		// First, set up some override data.
 		update_post_meta(
 			$this->draft_id,
@@ -525,6 +566,9 @@ class Connections_Post_Field_Test extends TestCase {
 	 * Test that attached_media is properly sanitized.
 	 */
 	public function test_sanitize_attached_media() {
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( true );
+
 		// Enable per-network customization.
 		update_post_meta( $this->draft_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
 
