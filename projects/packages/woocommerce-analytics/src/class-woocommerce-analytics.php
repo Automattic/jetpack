@@ -24,13 +24,6 @@ class Woocommerce_Analytics {
 	const PACKAGE_VERSION = '0.15.6';
 
 	/**
-	 * Proxy speed module version.
-	 *
-	 * @var string
-	 */
-	const PROXY_SPEED_MODULE_VERSION = '2.0.0';
-
-	/**
 	 * Proxy speed module version option.
 	 *
 	 * @var string
@@ -222,7 +215,7 @@ class Woocommerce_Analytics {
 		$version = get_option( self::PROXY_SPEED_MODULE_VERSION_OPTION, false );
 
 		// Only update the proxy speed module if the stored version differs from the current version and the version is not false.
-		if ( $version !== false && $version !== self::PROXY_SPEED_MODULE_VERSION ) {
+		if ( $version !== false && $version !== self::PACKAGE_VERSION ) {
 			self::maybe_add_proxy_speed_module();
 		}
 	}
@@ -268,7 +261,7 @@ class Woocommerce_Analytics {
 			return;
 		}
 
-		if ( get_option( self::PROXY_SPEED_MODULE_VERSION_OPTION ) === self::PROXY_SPEED_MODULE_VERSION ) {
+		if ( get_option( self::PROXY_SPEED_MODULE_VERSION_OPTION ) === self::PACKAGE_VERSION ) {
 			// No need to copy the files again.
 			return;
 		}
@@ -299,7 +292,7 @@ class Woocommerce_Analytics {
 		// Replace placeholders with actual values.
 		$content = str_replace(
 			array( '{{AUTOLOADER_PATH}}', '{{VERSION}}' ),
-			array( $autoloader_path, self::PROXY_SPEED_MODULE_VERSION ),
+			array( $autoloader_path, self::PACKAGE_VERSION ),
 			$content
 		);
 
@@ -310,7 +303,7 @@ class Woocommerce_Analytics {
 			return;
 		}
 
-		update_option( self::PROXY_SPEED_MODULE_VERSION_OPTION, self::PROXY_SPEED_MODULE_VERSION );
+		update_option( self::PROXY_SPEED_MODULE_VERSION_OPTION, self::PACKAGE_VERSION );
 	}
 
 	/**
