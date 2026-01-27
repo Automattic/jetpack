@@ -4,18 +4,23 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, render, screen, waitFor } from '@testing-library/react';
 
-// Mock Flag component
-const mockFlag = jest.fn( ( { countryCode } ) => (
-	<span data-testid="flag" data-country={ countryCode }>
-		Flag: { countryCode }
+// Mock TextWithFlag component
+const mockTextWithFlag = jest.fn( ( { countryCode, children } ) => (
+	<span>
+		{ countryCode && (
+			<span data-testid="flag" data-country={ countryCode }>
+				Flag: { countryCode }
+			</span>
+		) }
+		{ children }
 	</span>
 ) );
 
 await jest.unstable_mockModule(
-	'../../../../../../src/dashboard/components/flag/index.tsx',
+	'../../../../../../src/dashboard/components/text-with-flag/index.tsx',
 	() => ( {
 		__esModule: true,
-		default: mockFlag,
+		default: mockTextWithFlag,
 	} )
 );
 
