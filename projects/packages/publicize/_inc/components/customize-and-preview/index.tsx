@@ -20,11 +20,13 @@ export function CustomizeAndPreview() {
 
 	return (
 		<div className={ styles[ 'customize-and-preview' ] }>
-			{ hasPaidFeatures && (
-				<div className={ styles[ 'customization-toggle-wrapper' ] }>
-					<CustomizationToggle />
-				</div>
-			) }
+			<div>
+				{ hasPaidFeatures && (
+					<div className={ styles[ 'customization-toggle-wrapper' ] }>
+						<CustomizationToggle />
+					</div>
+				) }
+			</div>
 			<div>{ isSmallScreen ? <TabPanelMobile /> : <TabPanelDesktop /> }</div>
 		</div>
 	);
