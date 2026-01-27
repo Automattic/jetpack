@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-//import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	ExternalLink,
 	Tooltip,
@@ -104,7 +103,6 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 									</span>
 								) }
 								<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
-									{ /*<ExternalLink href={ getRedirectUrl( 'ip-lookup', { path: response.ip } ) }> */ }
 									<ExternalLink
 										href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=/${ response.ip }` }
 									>
