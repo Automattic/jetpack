@@ -87,7 +87,7 @@ class Connections_Post_Field_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'refresh_connections', 'test_connection' ) )->getMock();
+		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'refresh_connections', 'test_connection', 'has_paid_features' ) )->getMock();
 
 		$this->publicize->method( 'refresh_connections' )
 			->withAnyParameters()
@@ -95,6 +95,9 @@ class Connections_Post_Field_Test extends TestCase {
 
 		$this->publicize->method( 'test_connection' )
 			->withAnyParameters()
+			->willReturn( true );
+
+		$this->publicize->method( 'has_paid_features' )
 			->willReturn( true );
 
 		$publicize = $this->publicize;
