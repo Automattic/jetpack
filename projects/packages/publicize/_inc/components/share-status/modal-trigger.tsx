@@ -33,7 +33,7 @@ export const ModalTrigger = forwardRef(
 
 			// Open the new modal with tabs if UNIFIED_UI feature flag is enabled
 			if ( siteHasFeature( features.UNIFIED_UI_V1 ) ) {
-				openUnifiedModal( { initialPath: '/sharing-activity' } );
+				openUnifiedModal( { initialPath: '/sharing-activity', isScreenLocked: true } );
 			} else {
 				openShareStatusModal();
 			}

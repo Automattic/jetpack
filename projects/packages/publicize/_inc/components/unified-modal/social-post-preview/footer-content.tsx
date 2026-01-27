@@ -15,7 +15,7 @@ import { ConfirmationConfig } from './confirmation-config';
 export function FooterContent() {
 	const { enabledConnections } = useSocialMediaConnections();
 	const navigator = useNavigator();
-	const { setUnifiedModalData } = useDispatch( socialStore );
+	const { setUnifiedModalData, setUnifiedModalScreenLock } = useDispatch( socialStore );
 
 	const isPrePublishScreen = useSelect( select => {
 		const store = select( editorStore );
@@ -29,9 +29,10 @@ export function FooterContent() {
 	}, [] );
 
 	const viewScheduled = useCallback( () => {
+		setUnifiedModalScreenLock( false );
 		setUnifiedModalData( { initialTab: 'scheduled' } );
 		navigator.goTo( '/sharing-activity' );
-	}, [ navigator, setUnifiedModalData ] );
+	}, [ navigator, setUnifiedModalData, setUnifiedModalScreenLock ] );
 
 	// If the pre-publish sidebar is opened, show the confirmation config.
 	if ( isPrePublishScreen ) {
