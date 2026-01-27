@@ -123,4 +123,35 @@ class Data_Test extends BaseTestCase {
 		}
 		$this->assertTrue( $has_videopress_exclusion, 'meta_query should exclude posts with videopress_guid' );
 	}
+
+	/**
+	 * Test that VideoPress query does NOT pass media_type parameter to REST API.
+	 *
+	 * This is the actual fix validation: ensuring media_type is not sent for VideoPress queries.
+	 * When media_type=video is combined with mime_type=video/videopress, WordPress may fall back
+	 * to all video types if video/videopress is not in the allowed mime types list.
+	 */
+	public function test_videopress_query_does_not_include_media_type_parameter() {
+		$captured_params = null;
+
+		// Capture the REST API request parameters before WordPress processes them.
+		add_filter(
+			'rest_pre_dispatch',
+			function ( $result, $server, $request ) use ( &$captured_params ) {
+				if ( strpos( $request->get_route(), '/wp/v2/media' ) !== false ) {
+					$captured_params = $request->get_params();
+				}
+				return $result;
+			},
+			10,
+			3
+		);
+
+		Data::get_video_data();
+
+		$this->assertNotNull( $captured_params, 'REST API request should have been made' );
+		$this->assertArrayHasKey( 'mime_type', $captured_params, 'Request should include mime_type parameter' );
+		$this->assertEquals( 'video/videopress', $captured_params['mime_type'], 'mime_type should be video/videopress' );
+		$this->assertArrayNotHasKey( 'media_type', $captured_params, 'Request should NOT include media_type parameter (this causes the bug)' );
+	}
 }
