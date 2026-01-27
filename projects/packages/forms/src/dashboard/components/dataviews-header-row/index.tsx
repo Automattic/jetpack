@@ -21,20 +21,15 @@ import './style.scss';
  * @param {object}                   props                           - Component props.
  * @param {(status: string) => void} [props.onLegacyStatusChange]    - Optional callback invoked when the legacy Inbox status changes.
  * @param {boolean}                  [props.isInboxStatusToggleView] - Whether to show InboxStatusToggle instead of top tabs.
- * @param {boolean}                  [props.hasLockedFilter]         - Whether a locked filter is present (e.g. single-form filter).
  * @return {JSX.Element} Header row markup for DataViews pages.
  */
 export default function DataViewsHeaderRow( {
 	onLegacyStatusChange,
 	isInboxStatusToggleView = false,
-	hasLockedFilter = false,
 }: {
 	onLegacyStatusChange?: ( status: string ) => void;
 	isInboxStatusToggleView?: boolean;
-	hasLockedFilter?: boolean;
 } ): JSX.Element {
-	const showFiltersToggle = isInboxStatusToggleView && ! hasLockedFilter;
-
 	return (
 		<>
 			<div className="jp-forms-view-actions">
@@ -47,7 +42,7 @@ export default function DataViewsHeaderRow( {
 				</div>
 				<div className="jp-forms-view-actions__controls">
 					<DataViews.Search />
-					{ showFiltersToggle ? <DataViews.FiltersToggle /> : null }
+					{ isInboxStatusToggleView ? <DataViews.FiltersToggle /> : null }
 					<DataViews.ViewConfig />
 				</div>
 			</div>

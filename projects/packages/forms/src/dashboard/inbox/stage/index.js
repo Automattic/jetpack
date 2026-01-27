@@ -51,38 +51,6 @@ import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
 
-/**
- * Ensure the inbox view includes a locked "source" filter that maps to the REST `parent` query arg.
- * This matches core DataViews behavior for locked filters (visible chip, not removable, preserved on reset).
- *
- * @param {object}      view         - DataViews view object.
- * @param {number|null} lockedParent - Parent (form) ID to lock to.
- * @return {object} Next view.
- */
-function ensureLockedParentFilter( view, lockedParent ) {
-	if ( ! lockedParent ) {
-		return view;
-	}
-	const previousFilters = view.filters || [];
-	const existing = previousFilters.find( filter => filter.field === 'source' );
-	const isAlreadyLocked =
-		existing?.value === lockedParent &&
-		( existing?.operator || 'is' ) === 'is' &&
-		existing?.isLocked;
-	if ( isAlreadyLocked ) {
-		return view;
-	}
-	const nextFilters = [
-		{ field: 'source', operator: 'is', value: lockedParent, isLocked: true },
-		...previousFilters.filter( filter => filter.field !== 'source' ),
-	];
-	return {
-		...view,
-		page: 1,
-		filters: nextFilters,
-	};
-}
-
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
 
@@ -115,19 +83,20 @@ const setupSidebarWidthObserver = () => {
 /**
  * The DataViews implementation.
  *
- * @param {object} [props]                - Props.
- * @param {number} [props.lockedParentId] - Optional parent (form) ID to lock responses to.
- * @param {string} [props.pageTitle]      - Optional page title string. Defaults to "Forms".
- * @param {string} [props.pageSubtitle]   - Optional page subtitle string.
+ * @param {object} [props]              - Props.
+ * @param {number} [props.parentId]     - Optional parent (form/source) ID to scope responses to.
+ * @param {string} [props.pageTitle]    - Optional page title string. Defaults to "Forms".
+ * @param {string} [props.pageSubtitle] - Optional page subtitle string.
  * @return {import('react').JSX.Element} The DataViews component.
  */
-export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } = {} ) {
+export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
-	const lockedParent = useMemo( () => {
-		const id = Number( lockedParentId );
+	const parent = useMemo( () => {
+		const id = Number( parentId );
 		return Number.isFinite( id ) && id > 0 ? id : null;
-	}, [ lockedParentId ] );
+	}, [ parentId ] );
+	const isSingleFormView = !! parent;
 
 	const dateSettings = getDateSettings();
 
@@ -161,18 +130,10 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 		return setupSidebarWidthObserver();
 	}, [] );
 
-	// When rendering a single-form inbox, enforce the locked parent filter.
-	useEffect( () => {
-		setView( previousView => ensureLockedParentFilter( previousView, lockedParent ) );
-	}, [ lockedParent, setView ] );
-
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
-	// Use InboxStatusToggle UI when:
-	// - we're on the single-form responses screen (lockedParent), OR
-	// - CFM is not explicitly enabled (treat `undefined` like disabled to avoid showing folder UI early).
-	const isInboxStatusToggleView = !! lockedParent || isCentralFormManagementEnabled !== true;
+	const isInboxStatusToggleView = isSingleFormView || isCentralFormManagementEnabled !== true;
 	const urlFolder = useMemo( () => {
 		const urlStatus = searchParams.get( 'status' );
 		return [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
@@ -224,6 +185,12 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 			}
 			return accumulator;
 		}, {} );
+
+		// Single-form view: scope the query directly (no DataViews Source filter pill).
+		if ( isSingleFormView && parent ) {
+			_filters.parent = parent;
+		}
+
 		const _queryArgs = {
 			order: 'desc',
 			orderby: 'date',
@@ -236,7 +203,7 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 		// We need to keep the current query args in the store to be used in `export`
 		// and for getting the total records per `status`.
 		setCurrentQuery( _queryArgs );
-	}, [ view, statusFilter, setCurrentQuery ] );
+	}, [ view, statusFilter, setCurrentQuery, isSingleFormView, parent ] );
 
 	const selection = selectedResponses?.split( ',' ) || EMPTY_ARRAY;
 
@@ -342,19 +309,9 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 					newView = { ...newView, page: 1 };
 				}
 			}
-
-			// Enforce the locked parent filter for single-form inbox routes.
-			newView = ensureLockedParentFilter( newView, lockedParent );
 			setView( newView );
 		},
-		[
-			isInboxStatusToggleView,
-			lockedParent,
-			setSearchParams,
-			setSelectedResponses,
-			setView,
-			urlFolder,
-		]
+		[ isInboxStatusToggleView, setSearchParams, setSelectedResponses, setView, urlFolder ]
 	);
 
 	const wrapperUnread = ( isUnread, itemValue ) => {
@@ -384,6 +341,33 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 							// Filter-only field; not shown as a column.
 							render: () => null,
 							getValue: () => null,
+						},
+				  ]
+				: [] ),
+			...( ! isSingleFormView
+				? [
+						{
+							id: 'source',
+							label: __( 'Source', 'jetpack-forms' ),
+							render: ( { item } ) => {
+								if ( ! item.entry_permalink ) {
+									return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
+								}
+								return (
+									<ExternalLink href={ item.entry_permalink }>
+										{ wrapperUnread(
+											item.is_unread,
+											decodeEntities( item.entry_title ) || getPath( item )
+										) }
+									</ExternalLink>
+								);
+							},
+							elements: ( filterOptions?.source || [] ).map( source => ( {
+								value: source.id,
+								label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
+							} ) ),
+							filterBy: { operators: [ 'is' ] },
+							enableSorting: false,
 						},
 				  ]
 				: [] ),
@@ -474,29 +458,6 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 				enableSorting: false,
 			},
 			{
-				id: 'source',
-				label: __( 'Source', 'jetpack-forms' ),
-				render: ( { item } ) => {
-					if ( ! item.entry_permalink ) {
-						return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
-					}
-					return (
-						<ExternalLink href={ item.entry_permalink }>
-							{ wrapperUnread(
-								item.is_unread,
-								decodeEntities( item.entry_title ) || getPath( item )
-							) }
-						</ExternalLink>
-					);
-				},
-				elements: ( filterOptions?.source || [] ).map( source => ( {
-					value: source.id,
-					label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
-				} ) ),
-				filterBy: { operators: [ 'is' ] },
-				enableSorting: false,
-			},
-			{
 				id: 'read_status',
 				label: __( 'Status', 'jetpack-forms' ),
 				elements: [
@@ -533,6 +494,7 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 			openResponseModal,
 			dateSettings.formats.date,
 			isInboxStatusToggleView,
+			isSingleFormView,
 		]
 	);
 
@@ -629,7 +591,6 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 
 	// Conditional header actions based on status filter
 	const headerActions = useMemo( () => {
-		const isSingleFormView = !! lockedParent;
 		const exportIsPrimary =
 			! isSingleFormView && statusFilter !== 'trash' && statusFilter !== 'spam';
 		const headerActionsArray = [
@@ -639,7 +600,7 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 		// On the single form screen, always show navigation actions regardless of folder (Inbox/Spam/Trash).
 		if ( isSingleFormView ) {
 			headerActionsArray.unshift( <BackToFormsButton key="back-to-forms" /> );
-			headerActionsArray.splice( 1, 0, <EditFormButton key="edit-form" formId={ lockedParent } /> );
+			headerActionsArray.splice( 1, 0, <EditFormButton key="edit-form" formId={ parent } /> );
 		}
 
 		if ( statusFilter === 'trash' ) {
@@ -656,7 +617,7 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 		}
 
 		return headerActionsArray;
-	}, [ lockedParent, statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
+	}, [ parent, isSingleFormView, statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
 
 	const pageContent = (
 		<Page
@@ -697,7 +658,6 @@ export default function InboxView( { lockedParentId, pageTitle, pageSubtitle } =
 				<DataViewsHeaderRow
 					onLegacyStatusChange={ resetPage }
 					isInboxStatusToggleView={ isInboxStatusToggleView }
-					hasLockedFilter={ !! lockedParent }
 				/>
 				<div className="jp-forms-dataviews-layout-container">
 					<DataViews.Layout />

@@ -30,17 +30,17 @@ type RouteParams = {
 export default function SingleFormResponses(): JSX.Element | null {
 	const { formId } = useParams() as RouteParams;
 
-	const lockedParentId = useMemo( () => {
+	const parentId = useMemo( () => {
 		const id = Number( formId );
 		return Number.isFinite( id ) && id > 0 ? id : null;
 	}, [ formId ] );
 
 	const formRecord = useSelect(
 		select =>
-			lockedParentId
-				? select( coreDataStore ).getEntityRecord( 'postType', 'jetpack_form', lockedParentId )
+			parentId
+				? select( coreDataStore ).getEntityRecord( 'postType', 'jetpack_form', parentId )
 				: undefined,
-		[ lockedParentId ]
+		[ parentId ]
 	) as { title?: { rendered?: string } } | undefined;
 
 	const formTitle = useMemo( () => {
@@ -51,12 +51,12 @@ export default function SingleFormResponses(): JSX.Element | null {
 
 	useEffect( () => {
 		// Invalid ID: go back to the Forms dashboard root (no hash).
-		if ( lockedParentId === null ) {
+		if ( parentId === null ) {
 			window.location.href = PARTIAL_RESPONSES_PATH;
 		}
-	}, [ lockedParentId ] );
+	}, [ parentId ] );
 
-	if ( lockedParentId === null ) {
+	if ( parentId === null ) {
 		return null;
 	}
 
@@ -72,11 +72,5 @@ export default function SingleFormResponses(): JSX.Element | null {
 		  )
 		: __( 'View responses for this form.', 'jetpack-forms' );
 
-	return (
-		<Inbox
-			lockedParentId={ lockedParentId }
-			pageTitle={ pageTitle }
-			pageSubtitle={ pageSubtitle }
-		/>
-	);
+	return <Inbox parentId={ parentId } pageTitle={ pageTitle } pageSubtitle={ pageSubtitle } />;
 }
