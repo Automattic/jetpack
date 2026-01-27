@@ -8,19 +8,13 @@ import { store as socialStore } from '../../../social-store';
 import { ConfirmationConfig } from './confirmation-config';
 
 /**
- * FooterContent component for social post preview modal.
+ * ScheduledPostsNav component to navigate to scheduled posts in sharing activity.
  *
- * @return Footer content element or null if no enabled connections.
+ * @return Button element or null.
  */
-export function FooterContent() {
-	const { enabledConnections } = useSocialMediaConnections();
+function ScheduledPostsNav() {
 	const navigator = useNavigator();
 	const { setUnifiedModalData, setUnifiedModalScreenLock } = useDispatch( socialStore );
-
-	const isPrePublishScreen = useSelect( select => {
-		const store = select( editorStore );
-		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
-	}, [] );
 
 	const hasScheduledShares = useSelect( select => {
 		const postId = select( editorStore ).getCurrentPostId();
@@ -34,10 +28,24 @@ export function FooterContent() {
 		navigator.goTo( '/sharing-activity' );
 	}, [ navigator, setUnifiedModalData, setUnifiedModalScreenLock ] );
 
-	// If the pre-publish sidebar is opened, show the confirmation config.
-	if ( isPrePublishScreen ) {
-		return <ConfirmationConfig />;
-	}
+	return hasScheduledShares ? (
+		<Button variant="link" onClick={ viewScheduled }>
+			{ __( 'View scheduled', 'jetpack-publicize-pkg' ) }
+		</Button>
+	) : null;
+}
+
+/**
+ * FooterInfo component for social post preview modal.
+ *
+ * @return Footer info element.
+ */
+function FooterInfo() {
+	const { enabledConnections } = useSocialMediaConnections();
+	const isCurrentPostPublished = useSelect(
+		select => select( editorStore ).isCurrentPostPublished(),
+		[]
+	);
 
 	return (
 		<>
@@ -56,11 +64,26 @@ export function FooterContent() {
 					&nbsp;
 				</span>
 			) : null }
-			{ hasScheduledShares ? (
-				<Button variant="link" onClick={ viewScheduled }>
-					{ __( 'View scheduled', 'jetpack-publicize-pkg' ) }
-				</Button>
-			) : null }
+			{ isCurrentPostPublished ? <ScheduledPostsNav /> : null }
 		</>
 	);
+}
+
+/**
+ * FooterContent component for social post preview modal.
+ *
+ * @return Footer content element or null if no enabled connections.
+ */
+export function FooterContent() {
+	const isPrePublishScreen = useSelect( select => {
+		const store = select( editorStore );
+		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
+	}, [] );
+
+	// If the pre-publish sidebar is opened, show the confirmation config.
+	if ( isPrePublishScreen ) {
+		return <ConfirmationConfig />;
+	}
+
+	return <FooterInfo />;
 }
