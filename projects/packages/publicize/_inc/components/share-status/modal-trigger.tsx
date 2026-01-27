@@ -52,7 +52,7 @@ export const ModalTrigger = forwardRef(
 				className={ clsx( styles.trigger, props.className ) }
 				ref={ ref }
 			>
-				{ props.children || __( 'View sharing history', 'jetpack-publicize-pkg' ) }
+				{ props.children || __( 'View sharing activity', 'jetpack-publicize-pkg' ) }
 			</Button>
 		);
 
