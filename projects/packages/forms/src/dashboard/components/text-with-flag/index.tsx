@@ -13,14 +13,20 @@ type TextWithFlagProps = {
 /**
  * Get the flag emoji for a country code.
  * @param {string} countryCode - The country code to get the flag emoji for.
- * @return {string} The flag emoji for the country code.
+ * @return {string} The flag emoji for the country code, or empty string if invalid.
  */
 function getFlagEmoji( countryCode: string ): string {
-	if ( ! countryCode ) {
+	if ( ! countryCode || countryCode.length !== 2 ) {
 		return '';
 	}
 
 	const upperCountryCode = countryCode.toUpperCase();
+
+	// Validate that both characters are A-Z letters
+	if ( ! /^[A-Z]{2}$/.test( upperCountryCode ) ) {
+		return '';
+	}
+
 	const offset = 127397;
 
 	return String.fromCodePoint(
@@ -62,7 +68,9 @@ export default function TextWithFlag( {
 				</>
 			) }
 			{ ! countryCode && fallbackIcon && (
-				<Icon icon={ globe } size={ 16 } className="jp-forms__text-with-flag-globe" />
+				<>
+					<Icon icon={ globe } size={ 16 } className="jp-forms__text-with-flag-globe" />{ ' ' }
+				</>
 			) }
 			{ children }
 		</span>
