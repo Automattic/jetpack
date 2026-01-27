@@ -334,9 +334,9 @@ function Stage() {
 							/>
 							{ styleUnreadValue(
 								<Stack direction="column" gap="2xs">
-									{ displayName }
+									<Text ellipsizeMode="tail" limit={60} truncate>{ displayName }</Text>
 									{ showEmail && (
-										<Text variant="muted" size="12px">
+										<Text variant="muted" size="12px" ellipsizeMode="tail" limit={60} truncate>
 											{ item.author_email }
 										</Text>
 									) }
