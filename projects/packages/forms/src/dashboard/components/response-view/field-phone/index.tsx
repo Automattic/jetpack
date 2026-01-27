@@ -32,6 +32,9 @@ const FieldPhone = ( { phone }: FieldPhoneProps ) => {
 	useEffect( () => {
 		let cancelled = false;
 
+		// Reset to raw phone value immediately when phone changes
+		setDisplayInfo( { formattedNumber: phone, countryCode: undefined } );
+
 		const formatPhone = async () => {
 			try {
 				const { parsePhoneNumber } = await import( 'libphonenumber-js' );
