@@ -301,7 +301,7 @@ class Editor_View {
 				<label><?php esc_html_e( 'What would you like the subject of the email to be?', 'jetpack-forms' ); ?>
 					<input type="text" name="subject" value="{{ data.subject }}" />
 				</label>
-				<label><?php esc_html_e( 'Which email address should we send the submissions to?', 'jetpack-forms' ); ?>
+				<label><?php esc_html_e( 'Which email address should we send the responses to?', 'jetpack-forms' ); ?>
 					<input type="text" name="to" value="{{ data.to }}" />
 				</label>
 			</section>
