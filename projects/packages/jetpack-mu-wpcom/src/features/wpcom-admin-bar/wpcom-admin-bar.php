@@ -10,6 +10,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Newsletter\Reader_Link;
 use Automattic\Jetpack\Status;
 
 // The $icon-color variable for admin color schemes.
@@ -281,27 +282,8 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 // Hook the cart icon to the admin bar menu, placing it before the reader icon (same as Calypso).
 add_action( 'admin_bar_menu', 'wpcom_add_shopping_cart', 11 );
 
-/**
- * Adds the Reader menu.
- *
- * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
- */
-function wpcom_add_reader_menu( $wp_admin_bar ) {
-	$wp_admin_bar->add_menu(
-		array(
-			'id'     => 'reader',
-			'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-mu-wpcom' ) . '" aria-hidden="true"></span>' .
-						'<span class="ab-label">' . __( 'Reader', 'jetpack-mu-wpcom' ) . '</span>',
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/reader' ),
-			'meta'   => array(
-				'class' => 'wp-admin-bar-reader',
-			),
-			'parent' => 'top-secondary',
-		)
-	);
-}
 // Add the reader icon to the admin bar before the help center icon.
-add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 11 );
+Reader_Link::init();
 
 /**
  * Points the "Edit Profile" and "Howdy,..." to /me if the user is not member of the blog.
