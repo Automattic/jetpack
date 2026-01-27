@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.5.0] - 2026-01-26
+### Added
+- Add an "Edit Form" button that takes you to edit the form via the form editor. [#46582]
+- Add granular block categories for better organization of form fields in the block inserter on the Form Editor. [#46626]
+- Add redirect for jetpack_forms post type to the new dashboard. [#46670]
+- Create a new form post type when inserting a form. [#46608]
+- Display image-select field choices with thumbnails and captions on submission confirmation page. [#46664]
+- Add bulk actions for form posts. [#46736]
+- Add form delete action. [#46648]
+- Add permanent delete for form posts. [#46711]
+- Add status filter for form posts. [#46709]
+
+### Changed
+- Allow hiding settings URL for integrations. [#46749]
+- Fix unread count not updating when feedback status changes between published and unpublished states. [#46505]
+- Update dataviews header and filters. [#46732]
+- Update copy for MailPoet integration. [#46748]
+- Use components for empty actions in trash/spam for new wp-build dashboard. [#46695]
+- Use Stack component from WP-UI package in new wp-build dashboard. [#46680]
+- Use the generated asset dependency file for the dashboard. [#46661]
+- Update package dependencies. [#46716]
+
+### Fixed
+- Fix a bug where we were overwriting the default wp modules. [#46650]
+- Fix wp-build dashboard rendering after wp-build dependency update and prefix functions to avoid conflicts with Gutenberg. [#46652]
+- Fix block styles not loading in CIAB environment. [#46643]
+- Fix race conditions in spam/not-spam actions when triggered in quick succession. [#46663]
+- Image Select Field: Fix useSelect returning different values warning by memoizing derived data. [#46712]
+- Image Select Response: Fix image previews by handling edge cases where Photon should not be used (localhost, blob URLs, local domains, private atomic sites). [#46682]
+- Slider Field: Fix React iteration render error by adding key prop to control wrapper. [#46713]
+
 ## [7.4.0] - 2026-01-19
 ### Added
 - Add ref attribute support for the form block. [#46555]
@@ -2075,6 +2106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.5.0]: https://github.com/automattic/jetpack-forms/compare/v7.4.0...v7.5.0
 [7.4.0]: https://github.com/automattic/jetpack-forms/compare/v7.3.0...v7.4.0
 [7.3.0]: https://github.com/automattic/jetpack-forms/compare/v7.2.0...v7.3.0
 [7.2.0]: https://github.com/automattic/jetpack-forms/compare/v7.1.0...v7.2.0

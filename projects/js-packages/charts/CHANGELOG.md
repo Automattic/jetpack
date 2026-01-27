@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.54.1] - 2026-01-26
+### Changed
+- Update dependencies. [#43811]
+
 ## [0.54.0] - 2026-01-21
 ### Added
 - Add labelOverflow ellipsis option to truncate long axis labels for bar chart. [#46656]
@@ -636,6 +640,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.54.1]: https://github.com/Automattic/charts/compare/v0.54.0...v0.54.1
 [0.54.0]: https://github.com/Automattic/charts/compare/v0.53.4...v0.54.0
 [0.53.4]: https://github.com/Automattic/charts/compare/v0.53.3...v0.53.4
 [0.53.3]: https://github.com/Automattic/charts/compare/v0.53.2...v0.53.3

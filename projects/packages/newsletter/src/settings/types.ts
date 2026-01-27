@@ -40,7 +40,6 @@ export interface JetpackNewsletterSettings {
 	siteAdminUrl: string;
 	themeStylesheet: string;
 	blogID: number;
-	siteRawUrl: string;
 	email: string;
 	gravatar: string;
 	displayName: string;
@@ -51,7 +50,6 @@ export interface JetpackNewsletterSettings {
 	isSitePublic: boolean;
 	isWpcomPlatform: boolean;
 	isWpcomSimple: boolean;
-	isSubscriptionsActive: boolean;
 	restApiRoot: string;
 	restApiNonce: string;
 	siteName: string;

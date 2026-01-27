@@ -357,6 +357,11 @@ class Feedback_Field {
 			return $this->value;
 		}
 
+		if ( $this->is_of_type( 'checkbox-multiple' ) ) {
+			// Since API gets format: collection, return the array as is.
+			return $this->value;
+		}
+
 		if ( is_array( $this->value ) ) {
 			// If the value is an array, we can return it as a JSON string.
 			return implode( ', ', $this->value );

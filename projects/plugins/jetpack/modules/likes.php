@@ -161,6 +161,7 @@ class Jetpack_Likes {
 	 */
 	public function load_styles_register_scripts() {
 		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
+		wp_style_add_data( 'jetpack_likes', 'path', plugin_dir_path( __FILE__ ) . 'likes/style.css' );
 		wp_register_script(
 			'jetpack_likes_queuehandler',
 			Assets::get_file_url_for_environment(

@@ -17,8 +17,10 @@ import type { FormResponse } from '../../types/index.ts';
 
 /**
  * Helper function to get the status filter to apply from the URL.
- * This is the only way to filter the data by `status` as intentionally
- * we don't want to have a `status` filter in the UI.
+ * This is the only way to filter the data by `status`.
+ *
+ * Note: When Central Form Management (CFM) is enabled, the UI can expose a
+ * "Folder" DataViews filter that syncs its value to the URL `status` param.
  *
  * @param {string} urlStatus - The current status from the URL.
  * @return {string} The status filter to apply.

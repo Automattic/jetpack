@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1988d49c2dfe6aa1ff072a3bed878b0d",
+    "content-hash": "0878b12512b5c0d49e152461c5fb055c",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -397,7 +397,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "d1580f849454c14c962b655dab4fca31d8577083"
+                "reference": "441a3689be7e956db950f27520952b81a249fedd"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -426,7 +426,7 @@
                     "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.26.x-dev"
+                    "dev-trunk": "0.27.x-dev"
                 },
                 "textdomain": "jetpack-blaze",
                 "version-constants": {
@@ -2191,16 +2191,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.3",
+            "version": "v2.11.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "5b82125fbb5aed63c84bba2e7e2bebcae17a24db"
+                "reference": "ab9c07ea45633064f7bc509242c367bc40a381bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/5b82125fbb5aed63c84bba2e7e2bebcae17a24db",
-                "reference": "5b82125fbb5aed63c84bba2e7e2bebcae17a24db",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/ab9c07ea45633064f7bc509242c367bc40a381bd",
+                "reference": "ab9c07ea45633064f7bc509242c367bc40a381bd",
                 "shasum": ""
             },
             "require-dev": {
@@ -2242,7 +2242,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2025-10-08T10:52:37+00:00"
+            "time": "2026-01-22T17:44:30+00:00"
         },
         {
             "name": "league/uri",

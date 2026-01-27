@@ -538,7 +538,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blaze",
-				"reference": "d1580f849454c14c962b655dab4fca31d8577083"
+				"reference": "441a3689be7e956db950f27520952b81a249fedd"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -567,7 +567,7 @@
 					"link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.26.x-dev"
+					"dev-trunk": "0.27.x-dev"
 				},
 				"textdomain": "jetpack-blaze",
 				"version-constants": {
@@ -1491,7 +1491,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "0244b4039a794debb10f7f576af7dc538ea78800"
+				"reference": "eaaaaeb6c9883b01b54fbf6b9c7f9e46fff74295"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1526,7 +1526,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "7.4.x-dev"
+					"dev-trunk": "7.5.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -2090,7 +2090,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "df44d78c36d9a11270b30e2cbb089bb589d74811"
+				"reference": "ac1c5bd85bf7c9e464995c699b49e8821fcfd6c4"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2173,6 +2173,10 @@
 				"watch": [
 					"Composer\\Config::disableProcessTimeout",
 					"pnpm run watch"
+				],
+				"watch-hot": [
+					"Composer\\Config::disableProcessTimeout",
+					"pnpm run watch:hot"
 				]
 			},
 			"license": [
@@ -2189,7 +2193,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/newsletter",
-				"reference": "c8acefd8afccfe14f61a3749fbfe2280fc411dc4"
+				"reference": "1a93a83b9c6c9cc0eab0dcad4f8ac4ee1ddd7d36"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2213,7 +2217,7 @@
 				"autotagger": true,
 				"mirror-repo": "Automattic/jetpack-newsletter",
 				"branch-alias": {
-					"dev-trunk": "0.2.x-dev"
+					"dev-trunk": "0.3.x-dev"
 				},
 				"textdomain": "jetpack-newsletter",
 				"version-constants": {
@@ -2721,7 +2725,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "a64234465a7ef9f803ea5ad27cf0d24e7832bac7"
+				"reference": "672719ef8b84bb360ce4771033011d2b244063ed"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2752,7 +2756,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.71.x-dev"
+					"dev-trunk": "0.72.x-dev"
 				}
 			},
 			"autoload": {
@@ -2784,6 +2788,10 @@
 				"watch": [
 					"Composer\\Config::disableProcessTimeout",
 					"pnpm run watch"
+				],
+				"watch-hot": [
+					"Composer\\Config::disableProcessTimeout",
+					"pnpm run watch:hot"
 				],
 				"build-production": [
 					"pnpm run build-production-concurrently"
@@ -3505,7 +3513,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/woocommerce-analytics",
-				"reference": "5c69cb69dce4d7cc9416e4e52743c5ca0cc653e1"
+				"reference": "11ede3fe2d181ec8dfb96f8f1abcdd8802584c31"
 			},
 			"require": {
 				"automattic/block-delimiter": "@dev",
@@ -3532,7 +3540,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.14.x-dev"
+					"dev-trunk": "0.15.x-dev"
 				},
 				"textdomain": "woocommerce-analytics",
 				"version-constants": {

@@ -10,7 +10,8 @@ export const defaultView: View = {
 	filters: [ { field: 'status', operator: 'is', value: 'all' } ],
 	page: 1,
 	perPage: 20,
-	fields: [ 'title', 'entries', 'status', 'modified' ],
+	titleField: 'title',
+	fields: [ 'entries', 'status', 'modified' ],
 };
 
 export const defaultLayouts = {

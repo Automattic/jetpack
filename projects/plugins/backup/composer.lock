@@ -1178,7 +1178,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "df44d78c36d9a11270b30e2cbb089bb589d74811"
+                "reference": "ac1c5bd85bf7c9e464995c699b49e8821fcfd6c4"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1261,6 +1261,10 @@
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
+                ],
+                "watch-hot": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch:hot"
                 ]
             },
             "license": [
