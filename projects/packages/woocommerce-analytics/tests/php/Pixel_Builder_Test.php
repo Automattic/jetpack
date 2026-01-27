@@ -66,7 +66,9 @@ class Pixel_Builder_Test extends BaseTestCase {
 		$this->assertStringEndsWith( '&_=_', $result );
 
 		// Extract the timestamp.
-		preg_match( '/&_rt=(\d+)&/', $result, $matches );
+		$matches = array();
+		$this->assertSame( 1, preg_match( '/&_rt=(\d+)&/', $result, $matches ) );
+		$this->assertArrayHasKey( 1, $matches );
 		$this->assertNotEmpty( $matches[1] );
 	}
 
