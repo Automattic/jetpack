@@ -37,6 +37,8 @@ export function unifiedModal(
 				isOpen: action.isOpen,
 				initialPath: action.initialPath ?? state?.initialPath,
 				isScreenLocked: action.isScreenLocked ?? state?.isScreenLocked,
+				// Set data when opening, clear it when closing
+				data: action.isOpen ? action.data ?? state?.data : undefined,
 			};
 
 		case SET_UNIFIED_MODAL_INITIAL_PATH:
