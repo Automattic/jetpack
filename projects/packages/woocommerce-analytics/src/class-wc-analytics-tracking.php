@@ -82,8 +82,7 @@ class WC_Analytics_Tracking {
 		}
 
 		// Skip recording if the request is coming from a bot.
-		// Check gracefully - class may not be loaded at MU-plugin stage.
-		if ( class_exists( User_Agent_Info::class ) && User_Agent_Info::is_bot() ) {
+		if ( User_Agent_Info::is_bot() ) {
 			return true;
 		}
 
