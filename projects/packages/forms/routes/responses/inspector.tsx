@@ -10,9 +10,9 @@ import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-
 import Response from './response';
 
 /**
- * Inspecto component for the form responses DataViews.
+ * Inspector component for the form responses DataViews.
  *
- * @return The stage component.
+ * @return The inspector component.
  */
 function Inspector() {
 	return (
