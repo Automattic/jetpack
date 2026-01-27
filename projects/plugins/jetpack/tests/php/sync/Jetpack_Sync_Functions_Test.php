@@ -913,11 +913,14 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 				'fun 😀' => admin_url( 'fun.php' ),
 			),
 			'jetpack/jetpack.php' => array(
-				'settings'   => admin_url( 'settings.php' ),
-				'support'    => 'https://jetpack.com/support',
-				'My Jetpack' => admin_url( 'admin.php?page=my-jetpack' ),
+				'settings' => admin_url( 'settings.php' ),
+				'support'  => 'https://jetpack.com/support',
 			),
 		);
+
+		if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) {
+			$expected_array['jetpack/jetpack.php']['My Jetpack'] = admin_url( 'admin.php?page=my-jetpack' );
+		}
 
 		$this->assertEquals( $expected_array, $this->extract_plugins_we_are_testing( $plugins_action_links ) );
 
