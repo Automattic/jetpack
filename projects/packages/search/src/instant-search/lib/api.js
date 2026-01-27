@@ -222,6 +222,8 @@ function buildFilterObject( filterQuery, adminQueryFilter, excludedPostTypes ) {
 			},
 		} );
 	}
+	// Log to console for debugging
+	console.log( filter );
 	return filter;
 }
 
