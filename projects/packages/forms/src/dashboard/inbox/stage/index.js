@@ -602,7 +602,7 @@ export default function InboxView() {
 					{ __( 'Forms', 'jetpack-forms' ) }
 				</div>
 			}
-			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
+			subTitle={ __( 'View and manage all your form responses in one place.', 'jetpack-forms' ) }
 			actions={ headerActions }
 			hasPadding={ false }
 		>
