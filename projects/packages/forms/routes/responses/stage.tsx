@@ -308,7 +308,8 @@ function Stage() {
 					const displayName = decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous'
 					);
-					const showEmail = item.author_email && item.author_name !== item.author_email;
+					const showEmail =
+						item.author_email && displayName !== decodeEntities( item.author_email );
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
 
 					return (
