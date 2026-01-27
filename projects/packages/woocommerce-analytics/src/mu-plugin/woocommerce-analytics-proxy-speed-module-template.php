@@ -229,10 +229,33 @@ class WooCommerceAnalyticsProxySpeed {
 	/**
 	 * Helper method to retrieve Request URI.
 	 *
+	 * Returns a normalized and validated path component derived from
+	 * $_SERVER['REQUEST_URI'] for safe internal matching.
+	 *
 	 * @return string
 	 */
 	private function get_request_uri() {
-		return isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$raw_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+
+		if ( ! is_string( $raw_uri ) ) {
+			return '';
+		}
+
+		$raw_uri = wp_unslash( $raw_uri ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+		// Extract just the path component to avoid matching against query strings, etc.
+		$path = parse_url( $raw_uri, PHP_URL_PATH );
+
+		if ( ! is_string( $path ) ) {
+			return '';
+		}
+
+		// Ensure the path contains only expected URL path characters.
+		if ( preg_match( '/[^A-Za-z0-9\-._~\/]/', $path ) ) {
+			return '';
+		}
+
+		return $path;
 	}
 
 	/**
