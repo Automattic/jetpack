@@ -288,6 +288,12 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 	const headerActions = useMemo( () => [ <CreateFormButton key="create" /> ], [] );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
+	const onClickItem = useCallback(
+		( item: FormListItem ) => {
+			navigate( `/forms/${ item.id }/responses` );
+		},
+		[ navigate ]
+	);
 
 	// Avoid rendering if the flag is off (we'll redirect).
 	if ( isCentralFormManagementDisabled ) {
@@ -332,6 +338,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					onChangeView={ onChangeView }
 					selection={ selection }
 					onChangeSelection={ setSelection }
+					onClickItem={ onClickItem }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 				>
