@@ -217,13 +217,18 @@ class Connections_Post_Field {
 		$properties  = array_keys( $schema['properties'] );
 		$connections = $publicize->get_filtered_connection_data( $post_id );
 
-		// Check if per-network customization is enabled.
-		$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+		if ( $publicize && $publicize->has_paid_features() ) {
+			// Check if per-network customization is enabled.
+			$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+			// Get per-connection overrides from post meta.
+			$connection_overrides = get_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES, true );
 
-		// Get per-connection overrides from post meta.
-		$connection_overrides = get_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES, true );
-		if ( ! is_array( $connection_overrides ) ) {
-			$connection_overrides = array();
+			if ( ! is_array( $connection_overrides ) ) {
+				$connection_overrides = array();
+			}
+		} else {
+			$customize_per_network = false;
+			$connection_overrides  = array();
 		}
 
 		$output_connections = array();
@@ -422,6 +427,8 @@ class Connections_Post_Field {
 	 * @param WP_REST_Request $request API request.
 	 */
 	public function update( $requested_connections, $post, $request = null ) {
+		global $publicize;
+
 		if ( isset( $this->meta_saved[ $post->ID ] ) ) { // Make sure we only save it once - per request.
 			return;
 		}
@@ -434,7 +441,9 @@ class Connections_Post_Field {
 		}
 
 		// Save per-connection overrides.
-		$this->save_connection_overrides( $requested_connections, $post->ID, $request );
+		if ( $publicize && $publicize->has_paid_features() ) {
+			$this->save_connection_overrides( $requested_connections, $post->ID, $request );
+		}
 
 		$this->meta_saved[ $post->ID ] = true;
 	}
@@ -450,8 +459,6 @@ class Connections_Post_Field {
 	 * @param WP_REST_Request $request               API request.
 	 */
 	private function save_connection_overrides( $requested_connections, $post_id, $request = null ) {
-		global $publicize;
-
 		// Check if per-network customization is enabled - prefer request value over database.
 		$customize_per_network = null;
 		if ( $request && isset( $request['meta'][ Publicize_Base::POST_CUSTOMIZE_PER_NETWORK ] ) ) {
@@ -461,11 +468,8 @@ class Connections_Post_Field {
 			$customize_per_network = get_post_meta( $post_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
 		}
 
-		// Verify user has the feature required for per-network customization.
-		$has_paid_features = $publicize && $publicize->has_paid_features();
-
-		// If customization is disabled or user lacks paid features, remove any existing overrides.
-		if ( ! $customize_per_network || ! $has_paid_features ) {
+		// If customization is disabled, remove any existing overrides.
+		if ( ! $customize_per_network ) {
 			delete_post_meta( $post_id, Publicize_Base::POST_CONNECTION_OVERRIDES );
 			return;
 		}
