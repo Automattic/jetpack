@@ -446,10 +446,47 @@ that needs to mimic the input element styles */
 }
 
 .contact-form-submission .field-value {
-	margin-bottom: 0;
+	margin-block-end: 0;
 	font-size: 1rem;
 	font-weight: 600;
 	white-space: pre-wrap;
+}
+
+.contact-form-submission .field-rating {
+	display: flex;
+	gap: 4px;
+	margin-block-end: 0;
+
+	&[hidden] {
+		display: none;
+	}
+
+	.field-rating__icon {
+		width: 24px;
+		height: 24px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linejoin: round;
+
+		&.is-filled {
+			fill: currentColor;
+		}
+	}
+}
+
+// Screen reader only text - visually hidden but accessible.
+.contact-form-submission .screen-reader-text {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
 }
 
 .form-errors .form-error-message {

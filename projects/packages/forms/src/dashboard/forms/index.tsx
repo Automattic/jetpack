@@ -184,6 +184,19 @@ export default function FormsDashboardForms(): JSX.Element | null {
 	const actions = useMemo( () => {
 		const actionsList: Action< FormListItem >[] = [
 			{
+				id: 'view-responses',
+				isPrimary: false,
+				label: __( 'View responses', 'jetpack-forms' ),
+				supportsBulk: false,
+				callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+					navigate( `/forms/${ item.id }/responses` );
+				},
+			},
+			{
 				id: 'edit-form',
 				isPrimary: false,
 				label: __( 'Edit', 'jetpack-forms' ),
@@ -254,7 +267,14 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		} );
 
 		return actionsList;
-	}, [ isDeleting, isViewingTrash, onOpenPermanentDeleteConfirm, restoreForms, trashForms ] );
+	}, [
+		isDeleting,
+		isViewingTrash,
+		navigate,
+		onOpenPermanentDeleteConfirm,
+		restoreForms,
+		trashForms,
+	] );
 
 	const paginationInfo = useMemo(
 		() => ( {
@@ -268,6 +288,12 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 	const headerActions = useMemo( () => [ <CreateFormButton key="create" /> ], [] );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
+	const onClickItem = useCallback(
+		( item: FormListItem ) => {
+			navigate( `/forms/${ item.id }/responses` );
+		},
+		[ navigate ]
+	);
 
 	// Avoid rendering if the flag is off (we'll redirect).
 	if ( isCentralFormManagementDisabled ) {
@@ -312,6 +338,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					onChangeView={ onChangeView }
 					selection={ selection }
 					onChangeSelection={ setSelection }
+					onClickItem={ onClickItem }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 				>
