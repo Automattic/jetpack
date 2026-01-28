@@ -1,5 +1,5 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';

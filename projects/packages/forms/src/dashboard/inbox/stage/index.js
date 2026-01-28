@@ -629,7 +629,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			}
 			subTitle={
 				pageSubtitle ??
-				__( 'View and manage all your form submissions in one place.', 'jetpack-forms' )
+				__( 'View and manage all your form responses in one place.', 'jetpack-forms' )
 			}
 			actions={ headerActions }
 			hasPadding={ false }
