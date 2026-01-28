@@ -324,6 +324,9 @@ class Feedback_Field {
 			return $this->value;
 		}
 
+		if ( $rating > $max ) {
+			return $this->value;
+		}
 		// Get icon style from meta data (defaults to 'stars').
 		$icon_style = $this->get_meta_key_value( 'iconStyle' );
 		if ( empty( $icon_style ) ) {
