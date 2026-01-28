@@ -12,31 +12,31 @@ import {
  * Internal dependencies
  */
 // Field block icons
-import CheckboxFieldIcon from '../../../../blocks/field-checkbox/icon.js';
-import ConsentFieldIcon from '../../../../blocks/field-consent/icon.js';
-import DateFieldIcon from '../../../../blocks/field-date/icon.js';
-import EmailFieldIcon from '../../../../blocks/field-email/icon.js';
-import FileFieldIcon from '../../../../blocks/field-file/icon.js';
-import HiddenFieldIcon from '../../../../blocks/field-hidden/icon.js';
-import ImageSelectFieldIcon from '../../../../blocks/field-image-select/icon.tsx';
-import MultipleChoiceFieldIcon from '../../../../blocks/field-multiple-choice/icon.js';
-import NameFieldIcon from '../../../../blocks/field-name/icon.js';
-import NumberFieldIcon from '../../../../blocks/field-number/icon.js';
-import RatingFieldIcon from '../../../../blocks/field-rating/icon.js';
-import SelectFieldIcon from '../../../../blocks/field-select/icon.js';
-import SingleChoiceFieldIcon from '../../../../blocks/field-single-choice/icon.js';
-import SliderFieldIcon from '../../../../blocks/field-slider/icon.js';
-import TelephoneFieldIcon from '../../../../blocks/field-telephone/icon.js';
-import TextFieldIcon from '../../../../blocks/field-text/icon.js';
-import TextareaFieldIcon from '../../../../blocks/field-textarea/icon.js';
-import TimeFieldIcon from '../../../../blocks/field-time/icon.js';
-import UrlFieldIcon from '../../../../blocks/field-url/icon.js';
+import CheckboxFieldIcon from '../../../../../blocks/field-checkbox/icon.js';
+import ConsentFieldIcon from '../../../../../blocks/field-consent/icon.js';
+import DateFieldIcon from '../../../../../blocks/field-date/icon.js';
+import EmailFieldIcon from '../../../../../blocks/field-email/icon.js';
+import FileFieldIcon from '../../../../../blocks/field-file/icon.js';
+import HiddenFieldIcon from '../../../../../blocks/field-hidden/icon.js';
+import ImageSelectFieldIcon from '../../../../../blocks/field-image-select/icon.tsx';
+import MultipleChoiceFieldIcon from '../../../../../blocks/field-multiple-choice/icon.js';
+import NameFieldIcon from '../../../../../blocks/field-name/icon.js';
+import NumberFieldIcon from '../../../../../blocks/field-number/icon.js';
+import RatingFieldIcon from '../../../../../blocks/field-rating/icon.js';
+import SelectFieldIcon from '../../../../../blocks/field-select/icon.js';
+import SingleChoiceFieldIcon from '../../../../../blocks/field-single-choice/icon.js';
+import SliderFieldIcon from '../../../../../blocks/field-slider/icon.js';
+import TelephoneFieldIcon from '../../../../../blocks/field-telephone/icon.js';
+import TextFieldIcon from '../../../../../blocks/field-text/icon.js';
+import TextareaFieldIcon from '../../../../../blocks/field-textarea/icon.js';
+import TimeFieldIcon from '../../../../../blocks/field-time/icon.js';
+import UrlFieldIcon from '../../../../../blocks/field-url/icon.js';
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
 import FieldImageSelect from '../field-image-select/index.tsx';
 import FieldPhone from '../field-phone/index.tsx';
 import { EMAIL_REGEX, getIconSource, inferFieldTypeFromLabel } from './field-preview-utils.ts';
-import type { ResponseField, FieldType, FileItem } from '../../../../types/index.ts';
+import type { ResponseField, FieldType, FileItem } from '../../../../../types/index.ts';
 import './style.scss';
 
 /**

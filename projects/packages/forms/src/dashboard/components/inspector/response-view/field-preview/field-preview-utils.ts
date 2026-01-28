@@ -5,7 +5,7 @@ import { Icon } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import type { FieldType } from '../../../../types/index.ts';
+import type { FieldType } from '../../../../../types/index.ts';
 
 export type BlockIcon = React.ComponentProps< typeof Icon >[ 'icon' ];
 

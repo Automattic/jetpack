@@ -34,7 +34,7 @@ await jest.unstable_mockModule( 'libphonenumber-js', () => ( {
 
 // Import component after mocks are set up
 const { default: FieldPhone } = await import(
-	'../../../../../../src/dashboard/components/response-view/field-phone/index.tsx'
+	'../../../../../../src/dashboard/components/inspector/response-view/field-phone/index.tsx'
 );
 
 describe( 'FieldPhone', () => {

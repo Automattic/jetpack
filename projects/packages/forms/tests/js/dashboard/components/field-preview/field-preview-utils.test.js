@@ -10,7 +10,7 @@ import {
 	FIELD_TYPE_LABEL_PREFIXES,
 	inferFieldTypeFromLabel,
 	getIconSource,
-} from '../../../../../src/dashboard/components/response-view/field-preview/field-preview-utils.ts';
+} from '../../../../../src/dashboard/components/inspector/response-view/field-preview/field-preview-utils.ts';
 
 describe( 'field-preview-utils', () => {
 	describe( 'EMAIL_REGEX', () => {

@@ -21,12 +21,12 @@ import { useMarkAsSpam } from '../../hooks/use-mark-as-spam.ts';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils.js';
 import { store as dashboardStore } from '../../store/index.js';
 import FeedbackComments from '../feedback-comments/index.tsx';
-import FieldEmail from '../response-view/field-email/index.tsx';
-import FieldFile from '../response-view/field-file/index.tsx';
-import FieldImageSelect from '../response-view/field-image-select/index.tsx';
-import FieldPreview from '../response-view/field-preview/index.tsx';
 import PreviewFile from './preview-file';
 import ResponseMeta from './response-meta';
+import FieldEmail from './response-view/field-email/index.tsx';
+import FieldFile from './response-view/field-file/index.tsx';
+import FieldImageSelect from './response-view/field-image-select/index.tsx';
+import FieldPreview from './response-view/field-preview/index.tsx';
 import {
 	isCollectionFormatField,
 	isFileUploadField,
