@@ -311,33 +311,45 @@ const detectOpenrsync = () => {
 };
 
 /**
+ * Write a line to stdout using \r\n endings.
+ *
+ * Docker exec may leave the host terminal in raw mode during watch,
+ * where \n alone moves down without returning to column 0.
+ *
+ * @param {string} text - Text to print (no trailing newline needed).
+ */
+const writeln = ( text = '' ) => {
+	process.stdout.write( text + '\r\n' );
+};
+
+/**
  * Print the AUTOLOAD_DEV warning banner.
  */
 const printAutoloadWarning = () => {
-	console.log( '\n' );
-	console.log(
+	writeln();
+	writeln(
 		chalk.black.bgYellow(
 			'*************************************************************************************'
 		)
 	);
-	console.log(
+	writeln(
 		chalk.black.bgYellow(
 			'**  Make sure you have set ' +
 				chalk.bold( "define( 'JETPACK_AUTOLOAD_DEV', true );" ) +
 				' in a mu-plugin  **'
 		)
 	);
-	console.log(
+	writeln(
 		chalk.black.bgYellow(
 			'**  on the remote site. Otherwise the wrong versions of packages may be loaded!    **'
 		)
 	);
-	console.log(
+	writeln(
 		chalk.black.bgYellow(
 			'*************************************************************************************'
 		)
 	);
-	console.log( '\n' );
+	writeln();
 };
 
 /**
@@ -359,11 +371,12 @@ const cleanupRsyncData = monorepoRoot => {
 /**
  * Run the host-side rsync command using metadata from the Docker phase.
  *
- * @param {string} monorepoRoot - Path to the monorepo root.
- * @param {string} copyLinksOpt - The --copy-links or --copy-unsafe-links flag.
+ * @param {string}  monorepoRoot - Path to the monorepo root.
+ * @param {string}  copyLinksOpt - The --copy-links or --copy-unsafe-links flag.
+ * @param {boolean} quiet        - If true, capture output instead of inheriting stdio.
  * @return {number} Exit code from rsync.
  */
-const runHostRsync = ( monorepoRoot, copyLinksOpt ) => {
+const runHostRsync = ( monorepoRoot, copyLinksOpt, quiet = false ) => {
 	const metadataPath = resolve( monorepoRoot, 'tools/docker/data/rsync/metadata.json' );
 	if ( ! fs.existsSync( metadataPath ) ) {
 		console.error( chalk.red( 'Error: rsync metadata not found after Docker phase.' ) );
@@ -392,24 +405,36 @@ const runHostRsync = ( monorepoRoot, copyLinksOpt ) => {
 	// Ensure source ends with / for rsync directory semantics.
 	const sourceArg = source.endsWith( '/' ) ? source : source + '/';
 
-	const rsyncResult = spawnSync(
-		'rsync',
-		[
-			'-azKPv',
-			'--prune-empty-dirs',
-			'--delete',
-			'--delete-after',
-			'--delete-excluded',
-			copyLinksOpt,
-			`--include-from=${ filterFile }`,
-			sourceArg,
-			metadata.dest,
-		],
-		{
-			stdio: 'inherit',
-			cwd: monorepoRoot,
+	const rsyncArgs = [
+		// In quiet mode, skip -P (progress bars use \r that clashes with concurrent output)
+		// and capture output to print as a block after completion.
+		quiet ? '-azKv' : '-azKPv',
+		'--prune-empty-dirs',
+		'--delete',
+		'--delete-after',
+		'--delete-excluded',
+		copyLinksOpt,
+		`--include-from=${ filterFile }`,
+		sourceArg,
+		metadata.dest,
+	];
+
+	const rsyncResult = spawnSync( 'rsync', rsyncArgs, {
+		stdio: quiet ? [ 'inherit', 'pipe', 'pipe' ] : 'inherit',
+		cwd: monorepoRoot,
+	} );
+
+	if ( quiet ) {
+		const stderr = ( rsyncResult.stderr || '' ).toString().trim();
+		if ( stderr ) {
+			// Use \r\n — terminal may be in raw mode during watch.
+			process.stderr.write( stderr.replace( /\n/g, '\r\n' ) + '\r\n' );
 		}
-	);
+		const stdout = ( rsyncResult.stdout || '' ).toString().trim();
+		if ( stdout ) {
+			process.stdout.write( stdout.replace( /\n/g, '\r\n' ) + '\r\n' );
+		}
+	}
 
 	return rsyncResult.status ?? 1;
 };
@@ -506,9 +531,9 @@ const handleRsyncSplit = async ( monorepoRoot, args ) => {
 			if ( ! fs.existsSync( triggerPath ) ) {
 				return;
 			}
-			const status = runHostRsync( monorepoRoot, copyLinksOpt );
+			const status = runHostRsync( monorepoRoot, copyLinksOpt, true );
 			if ( status !== 0 ) {
-				console.error( chalk.red( `rsync exited with status ${ status }` ) );
+				process.stderr.write( chalk.red( `rsync exited with status ${ status }` ) + '\r\n' );
 			} else if ( firstSync ) {
 				firstSync = false;
 				printAutoloadWarning();
@@ -751,8 +776,13 @@ const main = async () => {
 		}
 
 		// Handle rsync in split mode: Docker collects files, host runs rsync with native SSH.
-		// The --config flag falls through to all-in-Docker (no SSH needed).
-		if ( args[ 0 ] === 'rsync' && ! args.includes( '--config' ) ) {
+		// The --config, --help, and -h flags fall through to all-in-Docker (no SSH needed).
+		if (
+			args[ 0 ] === 'rsync' &&
+			! args.includes( '--config' ) &&
+			! args.includes( '--help' ) &&
+			! args.includes( '-h' )
+		) {
 			await handleRsyncSplit( monorepoRoot, args );
 			return;
 		}
