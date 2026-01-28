@@ -20,7 +20,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, _n } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { download, plus } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
