@@ -950,7 +950,7 @@ export function getActions( {
 								items.length
 						  );
 
-				createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
+				createSuccessNotice( successMessage, { type: 'snackbar', id: 'delete-action' } );
 
 				// Update the URL to remove references to deleted items.
 				// Parse the hash to extract just the query params (e.g., #/responses?r=1,2,3)
