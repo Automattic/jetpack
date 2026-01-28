@@ -2226,7 +2226,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					// } Trans
 				// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				if ( in_array( 'hastransactions', $columnsRequired ) || in_array( 'transactioncount', $columnsRequired ) || in_array( 'transactiontotal', $columnsRequired, true ) ) {
+				if ( in_array( 'hastransaction', $columnsRequired ) || in_array( 'transactioncount', $columnsRequired ) || in_array( 'transactiontotal', $columnsRequired, true ) ) {
 
 					$withTransactions = true;
 
