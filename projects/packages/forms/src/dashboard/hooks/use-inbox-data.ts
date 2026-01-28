@@ -13,7 +13,7 @@ import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
-import type { FormResponse, ResponseField } from '../../types/index.ts';
+import type { FormResponse } from '../../types/index.ts';
 
 /**
  * Helper function to get the status filter to apply from the URL.
@@ -57,12 +57,6 @@ type UseInboxDataOptions = {
 	status?: 'inbox' | 'spam' | 'trash';
 };
 
-const isCollectionFormatField = ( item: unknown ): item is ResponseField => {
-	return (
-		item !== null && typeof item === 'object' && 'label' in item && 'value' in item && 'key' in item
-	);
-};
-
 const decodeValue = ( value: unknown ): unknown => {
 	if ( typeof value === 'string' ) {
 		return decodeEntities( value );
@@ -78,61 +72,27 @@ const decodeValue = ( value: unknown ): unknown => {
 const normalizeFieldsForDisplay = (
 	fields: FormResponse[ 'fields' ]
 ): Record< string, unknown > => {
-	if ( ! fields ) {
+	if ( ! fields || ! Array.isArray( fields ) ) {
 		return {};
 	}
 
-	// Collection format: array (or an object with numeric keys containing collection items).
-	let candidateValues: unknown[] = [];
+	return fields.reduce(
+		( accumulator, field ) => {
+			const baseLabel = field.label || formatFieldName( field.key ) || field.key;
+			let label = baseLabel;
+			let counter = 2;
 
-	if ( Array.isArray( fields ) ) {
-		candidateValues = fields;
-	} else if ( typeof fields === 'object' ) {
-		candidateValues = Object.values( fields as Record< string, unknown > );
-	}
+			while ( accumulator[ label ] ) {
+				label = `${ baseLabel } (${ counter })`;
+				counter++;
+			}
 
-	if ( candidateValues.length > 0 && isCollectionFormatField( candidateValues[ 0 ] ) ) {
-		return ( candidateValues as ResponseField[] ).reduce(
-			( accumulator, field ) => {
-				const baseLabel = field.label || formatFieldName( field.key ) || field.key;
-				let label = baseLabel;
-				let counter = 2;
+			accumulator[ label ] = formatFieldValue( decodeValue( field.value ) );
 
-				while ( accumulator[ label ] ) {
-					label = `${ baseLabel } (${ counter })`;
-					counter++;
-				}
-
-				accumulator[ label ] = formatFieldValue( decodeValue( field.value ) );
-
-				return accumulator;
-			},
-			{} as Record< string, unknown >
-		);
-	}
-
-	// Legacy format: object map of label -> value.
-	if ( typeof fields === 'object' && ! Array.isArray( fields ) ) {
-		return Object.entries( fields ).reduce(
-			( accumulator, [ key, value ] ) => {
-				const baseLabel = formatFieldName( key );
-				let label = baseLabel;
-				let counter = 2;
-
-				while ( accumulator[ label ] ) {
-					label = `${ baseLabel } (${ counter })`;
-					counter++;
-				}
-
-				accumulator[ label ] = formatFieldValue( decodeValue( value ) );
-
-				return accumulator;
-			},
-			{} as Record< string, unknown >
-		);
-	}
-
-	return {};
+			return accumulator;
+		},
+		{} as Record< string, unknown >
+	);
 };
 
 /**
