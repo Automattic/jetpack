@@ -1,5 +1,5 @@
-import { Button, getRedirectUrl, useGlobalNotices } from '@automattic/jetpack-components';
-import { CheckboxControl, ExternalLink, Notice } from '@wordpress/components';
+import { getRedirectUrl, useGlobalNotices } from '@automattic/jetpack-components';
+import { CheckboxControl, ExternalLink, Notice, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -306,7 +306,7 @@ export function ConfirmationForm( {
 					{ __( 'Cancel', 'jetpack-publicize-pkg' ) }
 				</Button>
 				{ accounts.not_connected.length ? (
-					<Button form="connection-confirmation-form" type="submit">
+					<Button form="connection-confirmation-form" type="submit" variant="primary">
 						{ __( 'Confirm', 'jetpack-publicize-pkg' ) }
 					</Button>
 				) : null }
