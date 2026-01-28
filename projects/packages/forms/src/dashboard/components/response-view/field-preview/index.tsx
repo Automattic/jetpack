@@ -34,6 +34,7 @@ import UrlFieldIcon from '../../../../blocks/field-url/icon.js';
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
 import FieldImageSelect from '../field-image-select/index.tsx';
+import FieldPhone from '../field-phone/index.tsx';
 import { EMAIL_REGEX, getIconSource, inferFieldTypeFromLabel } from './field-preview-utils.ts';
 import type { ResponseField, FieldType, FileItem } from '../../../../types/index.ts';
 import './style.scss';
@@ -161,7 +162,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 
 		// Phone numbers
 		if ( fieldType === 'phone' || fieldType === 'telephone' ) {
-			return <a href={ `tel:${ stringValue }` }>{ stringValue }</a>;
+			return <FieldPhone phone={ stringValue } />;
 		}
 
 		if ( fieldType === 'url' && /^https?:\/\//.test( stringValue ) ) {
