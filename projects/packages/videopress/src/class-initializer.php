@@ -338,6 +338,78 @@ class Initializer {
 	}
 
 	/**
+	 * Render VideoPress video block for email.
+	 *
+	 * @param string $block_content     The original block HTML content.
+	 * @param array  $parsed_block      The parsed block data including attributes.
+	 * @param object $rendering_context Email rendering context.
+	 *
+	 * @return string
+	 */
+	public static function render_videopress_video_block_email( $block_content, $parsed_block, $rendering_context ) {
+		// Validate input parameters and required dependencies.
+		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
+			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Embed' ) ) {
+			return '';
+		}
+
+		$attributes = $parsed_block['attrs'];
+
+		// Get the VideoPress URL from the guid attribute.
+		$videopress_url = self::get_videopress_url_for_email( $attributes );
+
+		if ( empty( $videopress_url ) ) {
+			return '';
+		}
+
+		// Create a mock embed block structure that WooCommerce's embed renderer can handle.
+		// The embed renderer will detect VideoPress from the URL and render it appropriately.
+		$mock_embed_block = array(
+			'blockName' => 'core/embed',
+			'attrs'     => array(
+				'url'              => $videopress_url,
+				'providerNameSlug' => 'videopress',
+			),
+			'innerHTML' => sprintf(
+				'<figure class="wp-block-embed is-type-video is-provider-videopress"><div class="wp-block-embed__wrapper">%s</div></figure>',
+				esc_url( $videopress_url )
+			),
+		);
+
+		// Preserve email_attrs if present (used for spacing/width calculations).
+		if ( ! empty( $parsed_block['email_attrs'] ) ) {
+			$mock_embed_block['email_attrs'] = $parsed_block['email_attrs'];
+		}
+
+		// Use WooCommerce's core embed renderer.
+		$woo_embed_renderer = new \Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Embed();
+
+		return $woo_embed_renderer->render( $mock_embed_block['innerHTML'], $mock_embed_block, $rendering_context );
+	}
+
+	/**
+	 * Get the VideoPress URL from block attributes for email rendering.
+	 *
+	 * @param array $attributes Block attributes.
+	 *
+	 * @return string VideoPress URL or empty string.
+	 */
+	private static function get_videopress_url_for_email( $attributes ) {
+		// Construct URL from guid attribute.
+		if ( ! empty( $attributes['guid'] ) ) {
+			$guid = $attributes['guid'];
+
+			// VideoPress guids are alphanumeric only (e.g., "nfbj0J36").
+			// Validate format to prevent any injection issues.
+			if ( preg_match( '/^[a-zA-Z0-9]+$/', $guid ) ) {
+				return 'https://videopress.com/v/' . $guid;
+			}
+		}
+
+		return '';
+	}
+
+	/**
 	 * Register the VideoPress block editor block,
 	 * AKA "VideoPress Block v6".
 	 *
@@ -382,8 +454,9 @@ class Initializer {
 		$registration = register_block_type(
 			$videopress_video_metadata_file,
 			array(
-				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
-				'uses_context'    => array( 'premium-content/planId', 'isPremiumContentChild', 'selectedPlanId' ),
+				'render_callback'       => array( __CLASS__, 'render_videopress_video_block' ),
+				'render_email_callback' => array( __CLASS__, 'render_videopress_video_block_email' ),
+				'uses_context'          => array( 'premium-content/planId', 'isPremiumContentChild', 'selectedPlanId' ),
 			)
 		);
 
