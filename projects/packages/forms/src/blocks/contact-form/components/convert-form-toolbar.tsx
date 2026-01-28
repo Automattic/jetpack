@@ -10,7 +10,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
-import { createSyncedForm } from '../utils/form-sync-manager';
+import { createSyncedForm } from '../util/create-synced-form.ts';
 
 const FORM_CONVERSION_LOCK = 'jetpack-form-conversion';
 

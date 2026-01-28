@@ -81,6 +81,34 @@ export type Pattern = {
 };
 
 /**
+ * Represents a single field in a form response (new collection format).
+ */
+export interface ResponseField {
+	/** The field label displayed to users. */
+	label: string;
+	/** The field value. */
+	value: unknown;
+	/** The field type (e.g., 'name', 'email', 'text', 'file', etc.). 'basic' is a legacy value for older responses. */
+	type?: FieldType | 'basic';
+	/** The form field ID from the form schema. */
+	id?: string;
+	/** The field key. */
+	key: string;
+	/** Additional metadata for the field. */
+	meta?: Record< string, unknown >;
+}
+
+/**
+ * Legacy format for fields (label-value pairs).
+ */
+export type LegacyResponseFields = Record< string, unknown >;
+
+/**
+ * Fields can be either the new collection format (array) or the legacy format (object).
+ */
+export type ResponseFields = ResponseField[] | LegacyResponseFields;
+
+/**
  * Represents a form response.
  */
 export interface FormResponse {
@@ -114,8 +142,8 @@ export interface FormResponse {
 	has_file: boolean;
 	/** Whether the response is unread. */
 	is_unread: boolean;
-	/** The fields of the response. */
-	fields: Record< string, unknown >;
+	/** The fields of the response (can be new collection format or legacy format). */
+	fields: ResponseFields;
 	/** The URL to edit the form that the response was submitted to. */
 	edit_form_url: string;
 }
@@ -317,3 +345,35 @@ export interface FormsConfigData {
 	/** The admin-ajax.php URL for the site. */
 	ajaxUrl?: string;
 }
+
+export type FieldType =
+	| 'name'
+	| 'email'
+	| 'phone'
+	| 'telephone'
+	| 'url'
+	| 'file'
+	| 'image-select'
+	| 'date'
+	| 'select'
+	| 'checkbox'
+	| 'checkbox-multiple'
+	| 'radio'
+	| 'textarea'
+	| 'text'
+	| 'number'
+	| 'slider'
+	| 'range'
+	| 'rating'
+	| 'consent'
+	| 'time'
+	| 'hidden';
+
+export type FileItem = {
+	file_id: number;
+	name: string;
+	url: string;
+	size: string;
+	type?: string;
+	is_previewable?: boolean;
+};

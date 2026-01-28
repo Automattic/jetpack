@@ -39,19 +39,26 @@ export function useView() {
 		search: urlSearch,
 	} ) );
 	// When view changes, update the URL params if needed.
-	const setViewWithUrlUpdate = useEvent( newView => {
-		setView( newView );
-		if ( newView.search !== urlSearch ) {
-			setSearchParams( previousSearchParams => {
-				const _searchParams = new URLSearchParams( previousSearchParams );
-				if ( newView.search ) {
-					_searchParams.set( 'search', newView.search );
-				} else {
-					_searchParams.delete( 'search' );
-				}
-				return _searchParams;
-			} );
-		}
+	const setViewWithUrlUpdate = useEvent( nextView => {
+		// Support both "setView(newView)" and "setView(prev => next)" call styles,
+		// since callers treat this like a normal React setState setter.
+		setView( previousView => {
+			const resolvedView = typeof nextView === 'function' ? nextView( previousView ) : nextView;
+
+			if ( resolvedView.search !== urlSearch ) {
+				setSearchParams( previousSearchParams => {
+					const _searchParams = new URLSearchParams( previousSearchParams );
+					if ( resolvedView.search ) {
+						_searchParams.set( 'search', resolvedView.search );
+					} else {
+						_searchParams.delete( 'search' );
+					}
+					return _searchParams;
+				} );
+			}
+
+			return resolvedView;
+		} );
 	} );
 	// When search URL param changes, update the view's search filter
 	// without affecting any other config.

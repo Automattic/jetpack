@@ -1376,7 +1376,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 
 		// Set spam meta
-		update_post_meta( $feedback_id, '_spam_status_changed_gmt', current_time( 'mysql', 1 ) );
+		update_post_meta( $feedback_id, '_spam_status_changed_gmt', current_time( 'mysql', true ) );
 
 		$post   = get_post( $feedback_id );
 		$plugin = Contact_Form_Plugin::init();

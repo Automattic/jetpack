@@ -98,9 +98,11 @@ export function buildJetpackCrmCard( {
 				<p className="integration-card__description">
 					{ context === 'block-editor' ? connectedMsgEditor : connectedMsgDashboard }
 				</p>
-				<ExternalLink href={ settingsUrl }>
-					{ __( 'Open Jetpack CRM settings', 'jetpack-forms' ) }
-				</ExternalLink>
+				{ settingsUrl && (
+					<ExternalLink href={ settingsUrl }>
+						{ __( 'Open Jetpack CRM settings', 'jetpack-forms' ) }
+					</ExternalLink>
+				) }
 			</div>
 		);
 	};

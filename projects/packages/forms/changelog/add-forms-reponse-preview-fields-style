@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: add new field preview component for response view with improved field type rendering and styling.

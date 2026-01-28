@@ -3135,7 +3135,7 @@ class Contact_Form_Plugin {
 
 		if ( $pattern_name && WP_Block_Patterns_Registry::get_instance()->is_registered( $pattern_name ) ) {
 			$pattern         = WP_Block_Patterns_Registry::get_instance()->get_registered( $pattern_name );
-			$pattern_content = $pattern['content'];
+			$pattern_content = $pattern['content'] ?? '';
 		}
 
 		// If no pattern found or specified, use a default form block
@@ -3611,10 +3611,10 @@ class Contact_Form_Plugin {
 	 * @param string       $old_status The old post status.
 	 * @param WP_Post|null $post       The post object, when available.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 7.5.0
 	 */
 	public function track_spam_status_change( $new_status, $old_status, ?WP_Post $post = null ) {
-		_deprecated_function( __METHOD__, 'package-jetpack-forms-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-jetpack-forms-7.5.0' );
 
 		if ( ! $post instanceof WP_Post ) {
 			// Some callers fire the action without a populated post object (e.g. failed get_post lookups).
