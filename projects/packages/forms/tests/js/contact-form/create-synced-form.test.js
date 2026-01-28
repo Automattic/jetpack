@@ -102,7 +102,7 @@ describe( 'createSyncedForm', () => {
 			innerBlocks: [],
 		};
 
-		const result = await createSyncedForm( blockData, 'My Form', null );
+		const result = await createSyncedForm( blockData, 'My Form', 0 );
 
 		expect( result ).toBe( 42 );
 		expect( mockSaveEntityRecord ).toHaveBeenCalledWith(
