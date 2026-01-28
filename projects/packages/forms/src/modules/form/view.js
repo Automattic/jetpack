@@ -192,7 +192,6 @@ const getFiles = value => {
 	return null;
 };
 
-
 const toggleImageOptionInput = ( input, optionElement ) => {
 	if ( input ) {
 		input.focus();
