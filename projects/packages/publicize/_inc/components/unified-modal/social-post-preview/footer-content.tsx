@@ -73,7 +73,7 @@ function FooterInfo() {
 /**
  * FooterContent component for social post preview modal.
  *
- * @return Footer content element or null if no enabled connections.
+ * @return Footer content element.
  */
 export function FooterContent() {
 	const isPrePublishScreen = useSelect( select => {
