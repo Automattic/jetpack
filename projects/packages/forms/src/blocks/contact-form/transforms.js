@@ -82,6 +82,23 @@ const blockData = {
 export default {
 	from: [
 		{
+			type: 'shortcode',
+			tag: 'contact-form',
+			isMatch: function ( attributes ) {
+				// Only match shortcodes that have a ref attribute (synced form reference)
+				return attributes.named.ref !== undefined;
+			},
+			attributes: {
+				ref: {
+					type: 'number',
+					shortcode: ( { named: { ref } } ) => {
+						const parsed = parseInt( ref, 10 );
+						return Number.isNaN( parsed ) ? undefined : parsed;
+					},
+				},
+			},
+		},
+		{
 			type: 'raw',
 			priority: 1,
 			isMatch: node => {
