@@ -187,7 +187,7 @@ export default function ProtectProductPage() {
 						</h2>
 						<p className={ styles[ 'product-interstitial__section-sub-heading' ] }>
 							{ __(
-								'Your site benefits from these security features at no cost',
+								'Your site benefits from these security features at no cost.',
 								'jetpack-my-jetpack'
 							) }
 						</p>
