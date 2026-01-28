@@ -16,7 +16,6 @@ import * as React from 'react';
 import CopyClipboardButton from '../../../src/dashboard/components/copy-clipboard-button';
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
 import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
-import WpRouteDashboardSearchParamsProvider from '../../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
 /**
@@ -563,19 +562,6 @@ function SingleResponseView( {
  * @return - Element containing response contents.
  */
 export default function Response() {
-	return (
-		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
-			<ResponseInner />
-		</WpRouteDashboardSearchParamsProvider>
-	);
-}
-
-/**
- * Inner response view, rendered inside the dashboard search params provider.
- *
- * @return Element containing response contents.
- */
-function ResponseInner() {
 	const params = useParams( { from: '/responses/$view' } );
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
