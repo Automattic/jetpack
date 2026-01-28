@@ -209,6 +209,11 @@ class Agents_Manager {
 
 		$this->enqueue_script( $variant );
 
+		// Enqueue Image Studio on Media Library when flag is present
+		if ( $this->is_image_studio_screen() ) {
+			$this->enqueue_image_studio();
+		}
+
 		wp_add_inline_script(
 			'agents-manager',
 			'const agentsManagerData = ' . wp_json_encode(
@@ -295,6 +300,42 @@ class Agents_Manager {
 			'agents-manager-style',
 			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
+			$version
+		);
+	}
+
+	/**
+	 * Enqueue Image Studio script and styles.
+	 */
+	private function enqueue_image_studio() {
+		$cache_key  = 'image-studio-asset.asset.json';
+		$asset_file = get_transient( $cache_key );
+
+		if ( ! $asset_file ) {
+			$asset_file = self::get_assets_json( 'widgets.wp.com/agents-manager/image-studio.asset.json' );
+			if ( ! $asset_file ) {
+				return;
+			}
+			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
+		}
+
+		// When the request is dev mode, use a random cache buster as the version for easier debugging.
+		$version = self::is_dev_mode() ? wp_rand() : $asset_file['version'];
+
+		$script_dependencies = $asset_file['dependencies'] ?? array();
+
+		wp_enqueue_script(
+			'image-studio',
+			'https://widgets.wp.com/agents-manager/image-studio.min.js',
+			$script_dependencies,
+			$version,
+			true
+		);
+
+		wp_enqueue_style(
+			'image-studio-style',
+			'https://widgets.wp.com/agents-manager/image-studio' . ( is_rtl() ? '.rtl.css' : '.css' ),
+			array( 'wp-components' ),
 			$version
 		);
 	}
