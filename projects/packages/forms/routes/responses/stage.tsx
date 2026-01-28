@@ -8,13 +8,11 @@ import '@automattic/ui/style.css';
  * WordPress dependencies
  */
 import { Page } from '@wordpress/admin-ui';
-import apiFetch from '@wordpress/api-fetch';
 import {
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
 	ExternalLink,
 } from '@wordpress/components';
-import { useEntityRecords } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
@@ -36,9 +34,9 @@ import Gravatar from '../../src/dashboard/components/gravatar';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
+import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import { getPath } from '../../src/dashboard/inbox/utils';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
-import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
 import { getActions } from './actions';
@@ -46,7 +44,6 @@ import './style.scss';
 /**
  * Types
  */
-import type { SelectActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
 import type { View, Field, Action } from '@wordpress/dataviews';
 
@@ -65,29 +62,6 @@ type FeedbackFilters = {
 	date: FeedbackFilterDate[];
 	source: FeedbackFilterSource[];
 };
-
-/**
- * Hook to fetch filter options for date and source fields.
- *
- * @return Object containing date and source filter options.
- */
-function useFilterOptions() {
-	const [ filterOptions, setFilterOptions ] = useState< FeedbackFilters >( {
-		date: [],
-		source: [],
-	} );
-
-	useEffect( () => {
-		apiFetch< FeedbackFilters >( { path: '/wp/v2/feedback/filters' } ).then( response => {
-			setFilterOptions( {
-				date: response.date || [],
-				source: response.source || [],
-			} );
-		} );
-	}, [] );
-
-	return filterOptions;
-}
 
 /**
  * Returns a formatted tab label with count badge.
@@ -183,22 +157,12 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
  *
  * @return The stage component.
  */
-function Stage() {
+function StageInner() {
 	const params = useParams( { from: '/responses/$view' } );
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
-	const counts = useSelect(
-		select => ( select( dashboardStore ) as unknown as SelectActions ).getCounts(),
-		[]
-	);
-
-	const filterOptions = useFilterOptions();
-	let status = 'publish';
-	if ( params.view === 'spam' ) {
-		status = 'spam';
-	} else if ( params.view === 'trash' ) {
-		status = 'trash';
-	}
+	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
+	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
 
 	const [ isIntegrationsModalOpen, setIsIntegrationsModalOpen ] = useState( false );
 	const integrations = useSelect(
@@ -214,7 +178,20 @@ function Stage() {
 		search: searchParams?.search || '',
 	} ) );
 
-	const selection = searchParams?.responseIds ?? [];
+	const selection = useMemo( () => searchParams?.responseIds ?? [], [ searchParams?.responseIds ] );
+
+	const {
+		setCurrentQuery,
+		setSelectedResponses,
+		filterOptions,
+		records,
+		isLoadingData,
+		totalItems,
+		totalPages,
+		totalItemsInbox,
+		totalItemsSpam,
+		totalItemsTrash,
+	} = useInboxData( { status: statusView } );
 
 	useEffect( () => {
 		const urlSearch = searchParams?.search || '';
@@ -253,7 +230,7 @@ function Stage() {
 
 	const queryParams = useMemo( () => {
 		const queryArgs: QueryParams = {
-			status,
+			status: statusFilter,
 			per_page: view.perPage,
 			page: view.page || 1,
 			orderby: view.sort?.field || 'date',
@@ -282,13 +259,21 @@ function Stage() {
 		} );
 
 		return queryArgs;
-	}, [ status, view ] );
+	}, [ statusFilter, view ] );
 
-	const { records, isResolving, totalItems, totalPages } = useEntityRecords(
-		'postType',
-		'feedback',
-		queryParams
-	);
+	// Keep dashboard store query in sync so core-data fetches include fields_format=collection.
+	useEffect( () => {
+		setCurrentQuery( queryParams );
+	}, [ queryParams, setCurrentQuery ] );
+
+	// Keep selected responses in store for shared dashboard behavior (e.g., export).
+	useEffect( () => {
+		const validSelectedIds = ( selection || [] ).filter( id => {
+			return records?.some( record => getItemId( record ) === id );
+		} );
+
+		setSelectedResponses( validSelectedIds );
+	}, [ records, selection, setSelectedResponses ] );
 
 	const fields: Field< FormResponse >[] = useMemo(
 		() => [
@@ -357,7 +342,7 @@ function Stage() {
 					} );
 					return styleUnreadValue( dateStr, item.is_unread );
 				},
-				elements: ( filterOptions?.date || [] ).map( filter => {
+				elements: ( ( filterOptions as unknown as FeedbackFilters )?.date || [] ).map( filter => {
 					const date = new Date();
 					date.setDate( 1 );
 					date.setMonth( filter.month - 1 );
@@ -383,10 +368,12 @@ function Stage() {
 					}
 					return styleUnreadValue( source, item.is_unread );
 				},
-				elements: ( filterOptions?.source || [] ).map( source => ( {
-					value: source.id.toString(),
-					label: decodeEntities( source.title ) || source.url,
-				} ) ),
+				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
+					source => ( {
+						value: source.id.toString(),
+						label: decodeEntities( source.title ) || source.url,
+					} )
+				),
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
 			},
@@ -445,9 +432,9 @@ function Stage() {
 	);
 
 	const statusTabs = [
-		{ slug: 'inbox', label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), counts.inbox ) },
-		{ slug: 'spam', label: getTabLabel( __( 'Spam', 'jetpack-forms' ), counts.spam ) },
-		{ slug: 'trash', label: getTabLabel( __( 'Trash', 'jetpack-forms' ), counts.trash ) },
+		{ slug: 'inbox', label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), totalItemsInbox ) },
+		{ slug: 'spam', label: getTabLabel( __( 'Spam', 'jetpack-forms' ), totalItemsSpam ) },
+		{ slug: 'trash', label: getTabLabel( __( 'Trash', 'jetpack-forms' ), totalItemsTrash ) },
 	];
 
 	const handleTabChange = useCallback(
@@ -548,82 +535,85 @@ function Stage() {
 	);
 
 	return (
-		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
-			<Page
-				showSidebarToggle={ false }
-				title={
-					<Stack align="center" gap="xs">
-						<JetpackLogo showText={ false } width={ 20 } />
-						{ __( 'Forms', 'jetpack-forms' ) }
-					</Stack>
+		<Page
+			showSidebarToggle={ false }
+			title={
+				<Stack align="center" gap="xs">
+					<JetpackLogo showText={ false } width={ 20 } />
+					{ __( 'Forms', 'jetpack-forms' ) }
+				</Stack>
+			}
+			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
+			actions={ headerActions }
+			hasPadding={ false }
+		>
+			<DataViews
+				empty={
+					<EmptyResponses
+						status={ params.view }
+						isSearch={ !! view.search }
+						readStatusFilter={ readStatusFilter }
+					/>
 				}
-				subTitle={ __(
-					'View and manage all your form submissions in one place.',
-					'jetpack-forms'
-				) }
-				actions={ headerActions }
-				hasPadding={ false }
+				data={ records || EMPTY_ARRAY }
+				fields={ fields as Field< unknown >[] }
+				view={ view }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				isLoading={ isLoadingData }
+				getItemId={ getItemId }
+				defaultLayouts={ defaultLayouts }
+				selection={ selection }
+				onChangeSelection={ onChangeSelection }
+				onClickItem={ onClickItem }
+				actions={ actions as Action< unknown >[] }
 			>
-				<DataViews
-					empty={
-						<EmptyResponses
-							status={ params.view }
-							isSearch={ !! view.search }
-							readStatusFilter={ readStatusFilter }
-						/>
-					}
-					data={ records || EMPTY_ARRAY }
-					fields={ fields as Field< unknown >[] }
-					view={ view }
-					onChangeView={ onChangeView }
-					paginationInfo={ paginationInfo }
-					isLoading={ isResolving }
-					getItemId={ getItemId }
-					defaultLayouts={ defaultLayouts }
-					selection={ selection }
-					onChangeSelection={ onChangeSelection }
-					onClickItem={ onClickItem }
-					actions={ actions as Action< unknown >[] }
+				<Stack
+					align="center"
+					className="jp-forms-dataviews__view-actions"
+					gap="sm"
+					justify="space-between"
 				>
-					<Stack
-						align="center"
-						className="jp-forms-dataviews__view-actions"
-						gap="sm"
-						justify="space-between"
-					>
-						<Stack align="center" gap="sm">
-							<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
-								<Tabs.List density="compact">
-									{ statusTabs.map( tab => (
-										<Tabs.Tab value={ tab.slug } key={ tab.slug }>
-											{ tab.label }
-										</Tabs.Tab>
-									) ) }
-								</Tabs.List>
-							</Tabs.Root>
-						</Stack>
-						<Stack align="center" gap="sm">
-							<DataViews.Search />
-							<DataViews.FiltersToggle />
-							<DataViews.ViewConfig />
-						</Stack>
+					<Stack align="center" gap="sm">
+						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
+							<Tabs.List density="compact">
+								{ statusTabs.map( tab => (
+									<Tabs.Tab value={ tab.slug } key={ tab.slug }>
+										{ tab.label }
+									</Tabs.Tab>
+								) ) }
+							</Tabs.List>
+						</Tabs.Root>
 					</Stack>
-					<DataViews.Filters className="dataviews-filters__container" />
-					<DataViews.Layout />
-					<DataViews.Footer />
-				</DataViews>
-				<IntegrationsModal
-					isOpen={ isIntegrationsModalOpen }
-					onClose={ closeIntegrationsModal }
-					attributes={ undefined }
-					setAttributes={ undefined }
-					integrationsData={ integrations }
-					refreshIntegrations={ refreshIntegrations }
-					context="dashboard"
-				/>
-			</Page>
-		</WpRouteDashboardSearchParamsProvider>
+					<Stack align="center" gap="sm">
+						<DataViews.Search />
+						<DataViews.FiltersToggle />
+						<DataViews.ViewConfig />
+					</Stack>
+				</Stack>
+				<DataViews.Filters className="dataviews-filters__container" />
+				<DataViews.Layout />
+				<DataViews.Footer />
+			</DataViews>
+			<IntegrationsModal
+				isOpen={ isIntegrationsModalOpen }
+				onClose={ closeIntegrationsModal }
+				attributes={ undefined }
+				setAttributes={ undefined }
+				integrationsData={ integrations }
+				refreshIntegrations={ refreshIntegrations }
+				context="dashboard"
+			/>
+		</Page>
 	);
 }
+
+const Stage = () => {
+	return (
+		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
+			<StageInner />
+		</WpRouteDashboardSearchParamsProvider>
+	);
+};
 
 export { Stage as stage };

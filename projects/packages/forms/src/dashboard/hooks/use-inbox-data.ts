@@ -13,7 +13,7 @@ import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
-import type { FormResponse } from '../../types/index.ts';
+import type { FormResponse, ResponseField } from '../../types/index.ts';
 
 /**
  * Helper function to get the status filter to apply from the URL.
@@ -53,6 +53,88 @@ const formatFieldValue = fieldValue => {
 	return fieldValue;
 };
 
+type UseInboxDataOptions = {
+	status?: 'inbox' | 'spam' | 'trash';
+};
+
+const isCollectionFormatField = ( item: unknown ): item is ResponseField => {
+	return (
+		item !== null && typeof item === 'object' && 'label' in item && 'value' in item && 'key' in item
+	);
+};
+
+const decodeValue = ( value: unknown ): unknown => {
+	if ( typeof value === 'string' ) {
+		return decodeEntities( value );
+	}
+
+	if ( Array.isArray( value ) ) {
+		return value.map( v => ( typeof v === 'string' ? decodeEntities( v ) : v ) );
+	}
+
+	return value;
+};
+
+const normalizeFieldsForDisplay = (
+	fields: FormResponse[ 'fields' ]
+): Record< string, unknown > => {
+	if ( ! fields ) {
+		return {};
+	}
+
+	// Collection format: array (or an object with numeric keys containing collection items).
+	let candidateValues: unknown[] = [];
+
+	if ( Array.isArray( fields ) ) {
+		candidateValues = fields;
+	} else if ( typeof fields === 'object' ) {
+		candidateValues = Object.values( fields as Record< string, unknown > );
+	}
+
+	if ( candidateValues.length > 0 && isCollectionFormatField( candidateValues[ 0 ] ) ) {
+		return ( candidateValues as ResponseField[] ).reduce(
+			( accumulator, field ) => {
+				const baseLabel = field.label || formatFieldName( field.key ) || field.key;
+				let label = baseLabel;
+				let counter = 2;
+
+				while ( accumulator[ label ] ) {
+					label = `${ baseLabel } (${ counter })`;
+					counter++;
+				}
+
+				accumulator[ label ] = formatFieldValue( decodeValue( field.value ) );
+
+				return accumulator;
+			},
+			{} as Record< string, unknown >
+		);
+	}
+
+	// Legacy format: object map of label -> value.
+	if ( typeof fields === 'object' && ! Array.isArray( fields ) ) {
+		return Object.entries( fields ).reduce(
+			( accumulator, [ key, value ] ) => {
+				const baseLabel = formatFieldName( key );
+				let label = baseLabel;
+				let counter = 2;
+
+				while ( accumulator[ label ] ) {
+					label = `${ baseLabel } (${ counter })`;
+					counter++;
+				}
+
+				accumulator[ label ] = formatFieldValue( decodeValue( value ) );
+
+				return accumulator;
+			},
+			{} as Record< string, unknown >
+		);
+	}
+
+	return {};
+};
+
 /**
  * Interface for the return value of the useInboxData hook.
  */
@@ -76,12 +158,13 @@ interface UseInboxDataReturn {
 /**
  * Hook to get all inbox related data.
  *
+ * @param {UseInboxDataOptions} options - Optional configuration.
  * @return {UseInboxDataReturn} The inbox related data.
  */
-export default function useInboxData(): UseInboxDataReturn {
+export default function useInboxData( options: UseInboxDataOptions = {} ): UseInboxDataReturn {
 	const [ searchParams ] = useDashboardSearchParams();
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
-	const urlStatus = searchParams.get( 'status' );
+	const urlStatus = options.status ?? searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
 	const {
@@ -185,19 +268,7 @@ export default function useInboxData(): UseInboxDataReturn {
 			const formResponse = record as FormResponse;
 			return {
 				...formResponse,
-				fields: Object.entries( formResponse.fields || {} ).reduce(
-					( accumulator, [ key, value ] ) => {
-						let _key = formatFieldName( key );
-						let counter = 2;
-						while ( accumulator[ _key ] ) {
-							_key = `${ formatFieldName( key ) } (${ counter })`;
-							counter++;
-						}
-						accumulator[ _key ] = formatFieldValue( decodeEntities( value as string ) );
-						return accumulator;
-					},
-					{}
-				),
+				fields: normalizeFieldsForDisplay( formResponse.fields ),
 			};
 		} ) as FormResponse[];
 	}, [ editedRecords, statusFilter ] );
