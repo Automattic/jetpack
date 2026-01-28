@@ -86,6 +86,7 @@ const restoreOriginalCategories = ( previousCategories: unknown[] ) => {
 	// If we have stored categories, restore them directly
 	if ( previousCategories.length !== 0 ) {
 		setCategories( previousCategories );
+		state.previousCategories = null;
 		return;
 	}
 
@@ -95,6 +96,7 @@ const restoreOriginalCategories = ( previousCategories: unknown[] ) => {
 	categories = unregisterFormCategories( categories );
 	categories = moveCategoryToBack( categories );
 	setCategories( categories );
+	state.previousCategories = null;
 };
 
 /**
@@ -315,7 +317,6 @@ const setupFormEditorSubscription = () => {
 					state.lastRootBlockIds = '';
 					state.lastSelectedBlockId = null;
 					state.isFormBlockLocked = false;
-					state.previousCategories = null;
 				}
 			}
 
