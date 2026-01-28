@@ -1,4 +1,5 @@
 import { ShareStatusItem } from '../../../social-store/types';
+import { TABS } from './constants';
 
 /**
  * The activity type discriminator.
@@ -103,4 +104,4 @@ export type SharingActivityItem = SharedActivityItem | ScheduledActivityItem;
 /**
  * Filter values for the DataViews.
  */
-export type SharingActivityFilter = 'all' | 'shared' | 'scheduled';
+export type SharingActivityFilter = ( typeof TABS )[ keyof typeof TABS ];

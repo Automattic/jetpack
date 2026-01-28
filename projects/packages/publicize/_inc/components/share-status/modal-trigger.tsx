@@ -33,7 +33,7 @@ export const ModalTrigger = forwardRef(
 
 			// Open the new modal with tabs if UNIFIED_UI feature flag is enabled
 			if ( siteHasFeature( features.UNIFIED_UI_V1 ) ) {
-				openUnifiedModal( { initialPath: '/sharing-activity' } );
+				openUnifiedModal( { initialPath: '/sharing-activity', isScreenLocked: true } );
 			} else {
 				openShareStatusModal();
 			}
@@ -52,7 +52,7 @@ export const ModalTrigger = forwardRef(
 				className={ clsx( styles.trigger, props.className ) }
 				ref={ ref }
 			>
-				{ props.children || __( 'View sharing history', 'jetpack-publicize-pkg' ) }
+				{ props.children || __( 'View sharing activity', 'jetpack-publicize-pkg' ) }
 			</Button>
 		);
 
