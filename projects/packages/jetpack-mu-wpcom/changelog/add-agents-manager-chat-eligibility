@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Agents Manager: Add user, site, section, and chat eligibility data to agentsManagerData for standalone operation without Help Center.
