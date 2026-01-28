@@ -13,7 +13,6 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { Icon, globe } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
 /**
@@ -27,11 +26,11 @@ import EmptyResponses from '../../components/empty-responses/index.tsx';
 import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
 import ExportResponsesButton from '../../components/export-responses/button.tsx';
-import Flag from '../../components/flag/index.tsx';
 import Gravatar from '../../components/gravatar/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
 import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
+import TextWithFlag from '../../components/text-with-flag/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
 import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 import { getPath, getItemId } from '../utils.js';
@@ -460,13 +459,9 @@ export default function InboxView() {
 				enableSorting: false,
 				render: ( { item } ) => {
 					return (
-						<>
-							<span className="jp-forms__inbox-response-country-flag">
-								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
-								{ item.country_code && <Flag countryCode={ item.country_code } /> }
-							</span>
+						<TextWithFlag countryCode={ item.country_code } fallbackIcon>
 							{ item.ip || '' }
-						</>
+						</TextWithFlag>
 					);
 				},
 			},

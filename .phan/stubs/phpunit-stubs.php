@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.5
+ * Stubs automatically generated from PHPUnit 12.5.8
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -19678,6 +19678,14 @@ final class ClassIsAbstractException extends \RuntimeException implements \PHPUn
     public function __construct(string $className, string $file)
     {
     }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class CodeCoverageFileExistsException extends \RuntimeException implements \PHPUnit\Runner\Exception
+{
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit

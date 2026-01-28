@@ -93,15 +93,14 @@ class Jetpack_Sync_Integration_Test extends Jetpack_Sync_TestBase {
 		$this->assertTrue( $full_sync_module->is_started() );
 	}
 
-	public function test_sends_updating_jetpack_version_event() {
+	public function test_will_not_send_updating_jetpack_version_event() {
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.3', '4.2.1' );
 
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'updating_jetpack_version' );
-		$this->assertSame( '4.3', $event->args[0] );
-		$this->assertEquals( '4.2.1', $event->args[1] );
+		$this->assertFalse( $event );
 	}
 
 	public function test_cleanup_old_cron_job_on_update() {

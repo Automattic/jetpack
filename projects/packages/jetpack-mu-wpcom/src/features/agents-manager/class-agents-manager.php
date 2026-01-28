@@ -227,6 +227,26 @@ class Agents_Manager {
 	 * Determine if the agents manager files should be enqueued.
 	 */
 	private function should_enqueue_script() {
+		// Don't load on site frontend - only load in wp-admin.
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		// Don't load in customizer preview iframe - Help Center handles customizer separately
+		// via customize_controls_enqueue_scripts hook (loads only in controls panel, not preview).
+		if ( is_customize_preview() ) {
+			return false;
+		}
+
+		// Don't load during Gutenberg asset requests or in preview contexts.
+		// This matches the logic in Help_Center::init() to prevent excessive/unnecessary loading.
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
+		$is_preview = isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) );
+		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || $is_preview ) {
+			return false;
+		}
+
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
 		}
