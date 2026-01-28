@@ -13,7 +13,7 @@ import {
 	AiAssistantModal,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Spinner, ExternalLink, Notice } from '@wordpress/components';
+import { Button, Spinner, ExternalLink, Notice, Tooltip } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -225,18 +225,29 @@ export default function TitleOptimization( {
 		);
 	const showReplaceTitleButton = ! error;
 
+	const isPostEmpty = isEditedPostEmpty();
+	const isButtonDisabled = isPostEmpty || disabled;
+
 	return (
 		<div>
 			<p className="jetpack-ai-assistant__help-text">{ sidebarDescription }</p>
-			<Button
-				isBusy={ busy }
-				disabled={ isEditedPostEmpty() || disabled }
-				onClick={ handleTitleOptimization }
-				variant="secondary"
-				__next40pxDefaultSize
+			<Tooltip
+				text={
+					isPostEmpty
+						? __( 'Add content and save your draft first', 'jetpack' )
+						: undefined
+				}
 			>
-				{ sidebarButtonLabel }
-			</Button>
+				<Button
+					isBusy={ busy }
+					disabled={ isButtonDisabled }
+					onClick={ handleTitleOptimization }
+					variant="secondary"
+					__next40pxDefaultSize
+				>
+					{ sidebarButtonLabel }
+				</Button>
+			</Tooltip>
 			{ isTitleOptimizationModalVisible && (
 				<AiAssistantModal
 					handleClose={ handleClose }

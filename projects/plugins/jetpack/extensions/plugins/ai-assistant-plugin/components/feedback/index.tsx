@@ -5,7 +5,7 @@ import {
 	renderHTMLFromMarkdown,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { RawHTML, useCallback, useState } from '@wordpress/element';
@@ -84,6 +84,9 @@ export default function Feedback( {
 		} );
 	};
 
+	const isPostEmpty = isEditedPostEmpty();
+	const isButtonDisabled = isPostEmpty || disabled;
+
 	return (
 		<div>
 			{ isFeedbackModalVisible && (
@@ -94,15 +97,23 @@ export default function Feedback( {
 			<p className="jetpack-ai-assistant__help-text">
 				{ __( 'Get feedback on content structure.', 'jetpack' ) }
 			</p>
-			<Button
-				onClick={ handleRequest }
-				variant="secondary"
-				disabled={ isEditedPostEmpty() || disabled }
-				isBusy={ busy }
-				__next40pxDefaultSize
+			<Tooltip
+				text={
+					isPostEmpty
+						? __( 'Add content and save your draft first', 'jetpack' )
+						: undefined
+				}
 			>
-				{ __( 'Generate feedback', 'jetpack' ) }
-			</Button>
+				<Button
+					onClick={ handleRequest }
+					variant="secondary"
+					disabled={ isButtonDisabled }
+					isBusy={ busy }
+					__next40pxDefaultSize
+				>
+					{ __( 'Generate feedback', 'jetpack' ) }
+				</Button>
+			</Tooltip>
 		</div>
 	);
 }

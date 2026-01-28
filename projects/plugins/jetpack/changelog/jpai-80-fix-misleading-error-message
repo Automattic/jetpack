@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: improve UX by adding tooltips to disabled buttons and clearer error messages when trying to generate titles or feedback before adding content.
