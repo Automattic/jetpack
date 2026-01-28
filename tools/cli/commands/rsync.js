@@ -548,7 +548,7 @@ async function prepareFiltersAndSignal( source, dest ) {
 		version: 1,
 		source: relativeSource,
 		dest,
-		filterFile: 'tools/docker/data/rsync/filter-rules.txt',
+		filterFile: path.relative( process.cwd(), filterPath ),
 	};
 	await fs.writeFile( path.join( dataDir, 'metadata.json' ), JSON.stringify( metadata ) + '\n' );
 
