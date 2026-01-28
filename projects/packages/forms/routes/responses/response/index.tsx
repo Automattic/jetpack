@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Button, ExternalLink, Modal, Spinner, Tip } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
@@ -450,6 +450,8 @@ function SingleResponseView( {
 		return String( value );
 	};
 
+	const displayFields = useMemo( () => getDisplayFields( response?.fields ), [ response?.fields ] );
+
 	if ( isLoading ) {
 		return (
 			<div style={ { display: 'flex', justifyContent: 'center', padding: '40px' } }>
@@ -492,9 +494,9 @@ function SingleResponseView( {
 			<div style={ { padding: '20px', overflowY: 'auto' } }>
 				<ResponseMeta response={ response } />
 
-				{ getDisplayFields( response.fields ).length > 0 && (
+				{ displayFields.length > 0 && (
 					<div>
-						{ getDisplayFields( response.fields ).map( ( { label, value, key } ) => (
+						{ displayFields.map( ( { label, value, key } ) => (
 							<div
 								key={ key }
 								style={ {
