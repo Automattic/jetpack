@@ -13,8 +13,12 @@ const mockLockPostSaving = jest.fn();
 const mockUnlockPostSaving = jest.fn();
 const mockCreateErrorNotice = jest.fn();
 const mockOnNavigateToEntityRecord = jest.fn();
+const mockAddQueryArgs = jest.fn(
+	( base, args ) => `${ base }?post=${ args.post }&action=${ args.action }`
+);
 
 let mockIsLocked = false;
+let mockIsSiteEditor = false;
 
 // Mock WordPress dependencies
 await jest.unstable_mockModule( '@wordpress/components', () => ( {
@@ -32,6 +36,7 @@ await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 } ) );
 await jest.unstable_mockModule( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 await jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+await jest.unstable_mockModule( '@wordpress/url', () => ( { addQueryArgs: mockAddQueryArgs } ) );
 
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useSelect: jest.fn( callback =>
@@ -47,6 +52,9 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 					getBlock: () => ( { innerBlocks: [] } ),
 					getSettings: () => ( { onNavigateToEntityRecord: mockOnNavigateToEntityRecord } ),
 				};
+			}
+			if ( store === 'core/edit-site' ) {
+				return mockIsSiteEditor ? {} : undefined;
 			}
 			return undefined;
 		} )
@@ -75,6 +83,7 @@ describe( 'ConvertFormToolbar', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockIsLocked = false;
+		mockIsSiteEditor = false;
 	} );
 
 	it( 'renders Edit Form button', () => {
@@ -113,6 +122,42 @@ describe( 'ConvertFormToolbar', () => {
 
 		expect( mockLockPostSaving ).toHaveBeenCalled();
 		expect( mockUnlockPostSaving ).toHaveBeenCalled();
+	} );
+
+	it( 'in site editor, navigates via URL when clicking edit on synced form', async () => {
+		mockIsSiteEditor = true;
+
+		render( <ConvertFormToolbar clientId="test-id" attributes={ { ref: 456 } } /> );
+		await userEvent.click( screen.getByRole( 'button' ) );
+
+		expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
+			post: 456,
+			action: 'edit',
+		} );
+		expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
+		// jsdom logs an error for unimplemented navigation
+		expect( console ).toHaveErrored();
+	} );
+
+	it( 'in site editor, creates synced form and navigates via URL on convert', async () => {
+		mockIsSiteEditor = true;
+		mockCreateSyncedForm.mockResolvedValue( 789 );
+
+		render( <ConvertFormToolbar clientId="test-id" attributes={ { to: 'test@example.com' } } /> );
+		await userEvent.click( screen.getByRole( 'button' ) );
+
+		await waitFor( () => {
+			expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
+				post: 789,
+				action: 'edit',
+			} );
+		} );
+
+		expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
+		expect( mockLockPostSaving ).toHaveBeenCalled();
+		expect( mockUnlockPostSaving ).toHaveBeenCalled();
+		// jsdom logs an error for unimplemented navigation
+		expect( console ).toHaveErrored();
 	} );
 
 	it( 'shows error notice when conversion fails', async () => {
