@@ -4,6 +4,26 @@
 	<!-- We'll have to update all uses in all of our paid extensions as well, any community maintained plugins, etc. -->
 	<rule ref="WordPress.NamingConventions.ValidFunctionName">
 		<exclude name="WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid"/>
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+	</rule>
+
+	<!-- Legacy codebase uses camelCase/PascalCase for variables and properties -->
+	<!-- Renaming would require extensive refactoring across all extensions -->
+	<rule ref="WordPress.NamingConventions.ValidVariableName">
+		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
+		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
+	</rule>
+
+	<!-- Disable auto-fixing strict comparisons as they can change behavior -->
+	<!-- Changing == to === could break type coercion logic (e.g., '2' == 2 vs '2' === 2) -->
+	<rule ref="Universal.Operators.StrictComparisons">
+		<exclude name="Universal.Operators.StrictComparisons.LooseEqual"/>
+		<exclude name="Universal.Operators.StrictComparisons.LooseNotEqual"/>
+	</rule>
+
+	<!-- Don't auto-add strict parameter to in_array() -->
+	<rule ref="WordPress.PHP.StrictInArray">
+		<exclude name="WordPress.PHP.StrictInArray.MissingTrueStrict"/>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
