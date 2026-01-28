@@ -43,7 +43,7 @@ export function UpgradeNoticeCustomization() {
 			] }
 		>
 			{ __(
-				'Customize images and messages for each account for better performance.',
+				'Customize images and messages for each account for better engagement.',
 				'jetpack-publicize-pkg'
 			) }
 		</Notice>
