@@ -48,7 +48,7 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 					getSettings: () => ( { onNavigateToEntityRecord: mockOnNavigateToEntityRecord } ),
 				};
 			}
-			return {};
+			return undefined;
 		} )
 	),
 	useDispatch: jest.fn( () => ( {
