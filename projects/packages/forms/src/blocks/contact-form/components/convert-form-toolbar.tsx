@@ -15,7 +15,7 @@ import { createSyncedForm } from '../util/create-synced-form.ts';
 
 const FORM_CONVERSION_LOCK = 'jetpack-form-conversion';
 const isWidgetEditor = window.location.pathname.endsWith( '/widgets.php' );
-const isSiteEditor = window.location.pathname.includes( '/site-editor.php' );
+const isSiteEditor = window.location.pathname.endsWith( '/site-editor.php' );
 
 /**
  * Navigate to edit a form post.
