@@ -43,6 +43,32 @@ async function isComposerLockOk( dir ) {
 }
 
 /**
+ * Batch-check which projects have a committed composer.lock file.
+ *
+ * Replaces per-project `git ls-files` calls with a single invocation.
+ *
+ * @param {string[]} projects - Array of project slugs.
+ * @return {Set<string>} Set of project slugs that have a committed composer.lock.
+ */
+export async function batchLockFileStatus( projects ) {
+	const paths = projects
+		.filter( p => p !== 'monorepo' )
+		.map( p => `projects/${ p }/composer.lock` );
+	if ( paths.length === 0 ) {
+		return new Set();
+	}
+	const { stdout } = await execa( 'git', [ 'ls-files', '--', ...paths ], {
+		cwd: process.cwd(),
+	} );
+	return new Set(
+		stdout
+			.split( '\n' )
+			.filter( Boolean )
+			.map( p => p.replace( /^projects\//, '' ).replace( /\/composer\.lock$/, '' ) )
+	);
+}
+
+/**
  * Get the directory for a slug.
  *
  * @param {string} project - Project slug.
@@ -71,29 +97,36 @@ export async function needsPnpmInstall( project ) {
 /**
  * Determine install command arguments.
  *
- * @param {string}  project                         - Project slug.
- * @param {string}  pkgMgr                          - Package manager.
- * @param {object}  argv                            - Argv object.
- * @param {boolean} argv.production                 - Whether this is a production install.
- * @param {boolean} argv.useUncommittedComposerLock - Whether to use uncommitted composer.lock files when valid.
+ * @param {string}   project                         - Project slug.
+ * @param {string}   pkgMgr                          - Package manager.
+ * @param {object}   argv                            - Argv object.
+ * @param {boolean}  argv.production                 - Whether this is a production install.
+ * @param {boolean}  argv.useUncommittedComposerLock - Whether to use uncommitted composer.lock files when valid.
+ * @param {Set|null} lockedProjects                  - Pre-computed set of projects with committed composer.lock, or null to fall back to per-project check.
  * @return {string[]} Args to pass to the package manager.
  */
-export async function getInstallArgs( project, pkgMgr, argv ) {
+export async function getInstallArgs( project, pkgMgr, argv, lockedProjects = null ) {
 	const args = [];
 
 	// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
 	// For pnpm, the lockfile is always checked in thanks to the workspace thing.
 	if ( pkgMgr === 'composer' ) {
-		const dir = projectDir( project );
-		if ( await hasLockFile( dir, 'composer.lock' ) ) {
+		const hasLock = lockedProjects
+			? lockedProjects.has( project )
+			: await hasLockFile( projectDir( project ), 'composer.lock' );
+		if ( hasLock ) {
 			args.push( 'install' );
-		} else if ( argv.useUncommittedComposerLock && ( await isComposerLockOk( dir ) ) ) {
+		} else if (
+			argv.useUncommittedComposerLock &&
+			( await isComposerLockOk( projectDir( project ) ) )
+		) {
 			args.push( 'install' );
 		} else {
 			args.push( 'update' );
 		}
+		args.push( '--prefer-dist' );
 		if ( project.startsWith( 'plugins/' ) && argv.production ) {
-			args.push( '-o', '--no-dev', '--classmap-authoritative', '--prefer-dist' );
+			args.push( '-o', '--no-dev', '--classmap-authoritative' );
 		}
 	} else if ( pkgMgr === 'pnpm' ) {
 		args.push( 'install' );

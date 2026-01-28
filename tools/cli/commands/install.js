@@ -4,7 +4,12 @@ import { execa } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
-import { needsPnpmInstall, getInstallArgs, projectDir } from '../helpers/install.js';
+import {
+	needsPnpmInstall,
+	getInstallArgs,
+	projectDir,
+	batchLockFileStatus,
+} from '../helpers/install.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import { allProjects } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
@@ -45,7 +50,7 @@ export function builder( yargs ) {
 		.option( 'concurrency', {
 			type: 'number',
 			description: 'Maximum number of install tasks to run at once. Ignored with `--verbose`.',
-			default: Infinity,
+			default: 10,
 			coerce: coerceConcurrency,
 		} );
 }
@@ -80,6 +85,8 @@ export async function handler( argv ) {
 	const tasks = [];
 	let didPnpm = false;
 
+	const lockedProjects = await batchLockFileStatus( [ ...new Set( argv.project ) ] );
+
 	for ( const project of new Set( argv.project ) ) {
 		// Does the project even exist?
 		if (
@@ -95,7 +102,7 @@ export async function handler( argv ) {
 			tasks.unshift( {
 				title: `Installing pnpm dependencies`,
 				task: async () =>
-					execa( 'pnpm', await getInstallArgs( 'monorepo', 'pnpm', argv ), {
+					execa( 'pnpm', await getInstallArgs( 'monorepo', 'pnpm', argv, lockedProjects ), {
 						cwd: process.cwd(),
 						stdio,
 					} ),
@@ -106,7 +113,7 @@ export async function handler( argv ) {
 		tasks.push( {
 			title: `Installing composer dependencies for ${ project }`,
 			task: async () =>
-				execa( 'composer', await getInstallArgs( project, 'composer', argv ), {
+				execa( 'composer', await getInstallArgs( project, 'composer', argv, lockedProjects ), {
 					cwd: projectDir( project ),
 					stdio,
 				} ),
