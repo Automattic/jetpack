@@ -18,22 +18,21 @@ store( NAMESPACE, {
 		 */
 		watchFieldTypeIcon() {
 			const { ref } = getElement();
-			const context = getContext();
-
-			// For AJAX submissions, get the field type from context.
-			const fieldType = context.submission?.type || 'text';
-
-			// If the element already has the correct icon, skip re-rendering.
-			// This prevents unnecessary DOM updates during hydration.
-			if ( ref?.dataset?.renderedType === fieldType ) {
+			if ( ! ref ) {
 				return;
 			}
 
-			// Render the icon.
-			if ( ref ) {
-				ref.innerHTML = getFieldTypeIconHtml( fieldType );
-				ref.dataset.renderedType = fieldType;
+			const context = getContext();
+			const fieldType = context.submission?.type || 'text';
+
+			// Skip re-rendering if the element already has the correct icon.
+			// This prevents unnecessary DOM updates during hydration.
+			if ( ref.dataset.renderedType === fieldType ) {
+				return;
 			}
+
+			ref.innerHTML = getFieldTypeIconHtml( fieldType );
+			ref.dataset.renderedType = fieldType;
 		},
 	},
 } );
