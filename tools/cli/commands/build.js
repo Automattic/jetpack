@@ -49,7 +49,7 @@ export function builder( yargs ) {
 		.option( 'concurrency', {
 			type: 'number',
 			description: 'Maximum number of build tasks to run at once.',
-			default: Infinity,
+			default: 10,
 			coerce: coerceConcurrency,
 		} )
 		.option( 'deps', {
