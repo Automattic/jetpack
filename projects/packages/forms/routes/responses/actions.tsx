@@ -246,7 +246,6 @@ const processStatusChange = async ( {
 	);
 
 	// Check for both rejected promises and fulfilled promises with undefined/invalid results
-	// const itemsUpdated: PromiseFulfilledResult< { id: number } >[] = [];
 	const itemsUpdated: { id: number }[] = [];
 	const itemsFailed: number[] = [];
 
