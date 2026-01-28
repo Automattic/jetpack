@@ -382,8 +382,10 @@ class Initializer {
 		}
 
 		// Use WooCommerce's core embed renderer.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		$woo_embed_renderer = new \Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Embed();
 
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		return $woo_embed_renderer->render( $mock_embed_block['innerHTML'], $mock_embed_block, $rendering_context );
 	}
 
