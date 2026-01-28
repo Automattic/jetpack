@@ -54,7 +54,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 	const hasRef = !! attributes.ref;
 
 	/**
-	 * Open the form editor directly in a new window.
+	 * Open the form editor by navigating directly.
 	 * @param formId - The ID of the form to edit.
 	 */
 	const openFormEditor = ( formId: number ) => {
