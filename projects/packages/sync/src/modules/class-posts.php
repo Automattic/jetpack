@@ -177,6 +177,8 @@ class Posts extends Module {
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
 		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
+
+		add_action( 'deleted_post', array( $this, 'unmark_post_being_deleted' ), 11, 1 );
 	}
 
 	/**
@@ -405,6 +407,15 @@ class Posts extends Module {
 			}
 		}
 		return $args;
+	}
+
+	/**
+	 * Unmark a post as being deleted in the current request, to clean up.
+	 *
+	 * @param int $post_id ID of the post.
+	 */
+	public function unmark_post_being_deleted( $post_id ) {
+		unset( self::$deleted_posts_in_request[ (int) $post_id ] );
 	}
 
 	/**
