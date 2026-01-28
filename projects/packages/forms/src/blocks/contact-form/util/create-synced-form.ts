@@ -42,7 +42,7 @@ export async function createSyncedForm(
 		},
 	] );
 
-	// detect if currenPostId is valid before passing it to the seveEntityRecord
+	// detect if currentPostId is valid before passing it to the saveEntityRecord
 	const meta =
 		currentPostId > 0
 			? {
