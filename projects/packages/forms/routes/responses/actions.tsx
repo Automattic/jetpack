@@ -26,9 +26,9 @@ import type {
 	DispatchActions,
 	QueryParams,
 	Registry,
+	Action,
 } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
-import type { Action } from '@wordpress/dataviews';
 /**
  * Helper function to extract count-relevant query params from the current query.
  *
@@ -294,10 +294,9 @@ type GetActionsParams = {
 	navigate: NavigateFunction;
 	searchParams: SearchParams;
 	view: string | undefined;
-	queryParams: QueryParams;
 };
 
-type ActionWithDestructive< T > = Action< T > & {
+type ActionWithDestructive = Action & {
 	isDestructive?: boolean;
 };
 
@@ -305,14 +304,14 @@ type ActionWithDestructive< T > = Action< T > & {
  * Get actions configuration for form responses DataViews.
  *
  * @param {GetActionsParams} params - Parameters for generating actions.
- * @return {ActionWithDestructive<FormResponse>[]} Array of action configurations.
+ * @return {ActionWithDestructive[]} Array of action configurations.
  */
 export function getActions( {
 	navigate,
 	searchParams,
 	view,
-}: GetActionsParams ): ActionWithDestructive< FormResponse >[] {
-	const viewAction: Action< FormResponse > = {
+}: GetActionsParams ): ActionWithDestructive[] {
+	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
 		icon: <Icon icon={ commentContent } />,
@@ -333,7 +332,7 @@ export function getActions( {
 		},
 	};
 
-	const editFormAction: Action< FormResponse > = {
+	const editFormAction: Action = {
 		id: 'edit-form',
 		isPrimary: false,
 		icon: <Icon icon={ backup } />,
@@ -356,7 +355,7 @@ export function getActions( {
 		},
 	};
 
-	const markAsSpamAction: Action< FormResponse > = {
+	const markAsSpamAction: Action = {
 		id: 'mark-as-spam',
 		isPrimary: true,
 		icon: <Icon icon={ spam } />,
@@ -459,7 +458,7 @@ export function getActions( {
 
 										// Remove the original pending action before starting undo
 										removePendingAction( actionId );
-										markAsNotSpamAction.callback( items, { registry }, { isUndo: true } );
+										markAsNotSpamAction.callback?.( items, { registry }, { isUndo: true } );
 									},
 								},
 							],
@@ -496,7 +495,7 @@ export function getActions( {
 		},
 	};
 
-	const markAsNotSpamAction: Action< FormResponse > = {
+	const markAsNotSpamAction: Action = {
 		id: 'mark-as-not-spam',
 		isPrimary: true,
 		icon: <Icon icon={ notSpam } />,
@@ -594,7 +593,7 @@ export function getActions( {
 
 										// Remove the original pending action before starting undo
 										removePendingAction( actionId );
-										markAsSpamAction.callback( items, { registry }, { isUndo: true } );
+										markAsSpamAction.callback?.( items, { registry }, { isUndo: true } );
 									},
 								},
 							],
@@ -628,7 +627,7 @@ export function getActions( {
 		},
 	};
 
-	const restoreAction: Action< FormResponse > = {
+	const restoreAction: Action = {
 		id: 'restore',
 		isPrimary: true,
 		icon: <Icon icon={ backup } />,
@@ -726,7 +725,7 @@ export function getActions( {
 
 										// Remove the original pending action before starting undo
 										removePendingAction( actionId );
-										moveToTrashAction.callback( items, { registry }, { isUndo: true } );
+										moveToTrashAction.callback?.( items, { registry }, { isUndo: true } );
 									},
 								},
 							],
@@ -755,7 +754,7 @@ export function getActions( {
 		},
 	};
 
-	const moveToTrashAction: Action< FormResponse > = {
+	const moveToTrashAction: Action = {
 		id: 'move-to-trash',
 		isPrimary: true,
 		icon: <Icon icon={ trash } />,
@@ -861,7 +860,7 @@ export function getActions( {
 
 										// Remove the original pending action before starting undo
 										removePendingAction( actionId );
-										restoreAction.callback(
+										restoreAction.callback?.(
 											items,
 											{ registry },
 											// We can trash a spam or inbox item, so we need to restore to the original status
@@ -895,7 +894,7 @@ export function getActions( {
 		},
 	};
 
-	const deleteAction: ActionWithDestructive< FormResponse > = {
+	const deleteAction: ActionWithDestructive = {
 		id: 'delete',
 		isPrimary: true,
 		icon: <Icon icon={ trash } />,
@@ -983,7 +982,7 @@ export function getActions( {
 		},
 	};
 
-	const markAsReadAction: Action< FormResponse > = {
+	const markAsReadAction: Action = {
 		id: 'mark-as-read',
 		isPrimary: false,
 		icon: <Icon icon={ seen } />,
@@ -1024,7 +1023,8 @@ export function getActions( {
 						method: 'POST',
 						data: { is_unread: false },
 					} )
-						.then( ( { count } ) => {
+						.then( ( response: unknown ) => {
+							const { count } = response as { count: number };
 							// Update menu counter with accurate count from server.
 							updateMenuCounter( count );
 						} )
@@ -1081,7 +1081,7 @@ export function getActions( {
 						{
 							label: __( 'Undo', 'jetpack-forms' ),
 							onClick: () => {
-								markAsUnreadAction.callback( items, { registry } );
+								markAsUnreadAction.callback?.( items, { registry } );
 							},
 						},
 					],
@@ -1098,7 +1098,7 @@ export function getActions( {
 		},
 	};
 
-	const markAsUnreadAction: Action< FormResponse > = {
+	const markAsUnreadAction: Action = {
 		id: 'mark-as-unread',
 		isPrimary: false,
 		icon: <Icon icon={ unseen } />,
@@ -1139,7 +1139,8 @@ export function getActions( {
 						method: 'POST',
 						data: { is_unread: true },
 					} )
-						.then( ( { count } ) => {
+						.then( ( response: unknown ) => {
+							const { count } = response as { count: number };
 							// Update menu counter with accurate count from server.
 							updateMenuCounter( count );
 						} )
@@ -1189,7 +1190,7 @@ export function getActions( {
 						{
 							label: __( 'Undo', 'jetpack-forms' ),
 							onClick: () => {
-								markAsReadAction.callback( items, { registry } );
+								markAsReadAction.callback?.( items, { registry } );
 							},
 						},
 					],

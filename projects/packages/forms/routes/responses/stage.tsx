@@ -432,9 +432,8 @@ function Stage() {
 				navigate,
 				searchParams,
 				view: params.view,
-				queryParams,
 			} ),
-		[ navigate, searchParams, params.view, queryParams ]
+		[ navigate, searchParams, params.view ]
 	);
 
 	const paginationInfo = useMemo(
