@@ -290,12 +290,32 @@ that needs to mimic the input element styles */
 	}
 }
 
+.contact-form-submission .field-name-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.contact-form-submission .field-type-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: inherit;
+	opacity: 0.6;
+
+	.field-type-icon {
+		width: 20px;
+		height: 20px;
+	}
+}
+
 .contact-form-submission .field-name {
 	font-size: 0.875rem;
 	font-weight: 400;
 	color: inherit;
 	opacity: 0.6;
-	margin-bottom: 8px;
 }
 
 .contact-form-submission .field-images {
