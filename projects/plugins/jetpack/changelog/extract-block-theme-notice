@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Likes: Display a notice to block theme users explaining they can add the Like block directly in the site editor instead of enabling the legacy feature.

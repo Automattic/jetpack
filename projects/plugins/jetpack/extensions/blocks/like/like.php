@@ -85,8 +85,12 @@ function render_block( $attr, $content, $block ) {
 		}
 		$script_url = content_url( 'mu-plugins/likes/queuehandler.js' );
 	} else {
-		$style_url  = plugins_url( 'modules/likes/style.css', dirname( __DIR__, 2 ) );
-		$style_path = dirname( __DIR__, 3 ) . '/modules/likes/style.css';
+		$style_url = Assets::get_file_url_for_environment(
+			'_inc/build/likes/style.min.css',
+			'modules/likes/style.css'
+		);
+		/** This filter is documented in projects/plugins/jetpack/load-jetpack.php */
+		$style_path = JETPACK__PLUGIN_DIR . ( apply_filters( 'jetpack_should_use_minified_assets', true ) ? '_inc/build/likes/style.min.css' : 'modules/likes/style.css' );
 		$script_url = Assets::get_file_url_for_environment(
 			'_inc/build/likes/queuehandler.min.js',
 			'modules/likes/queuehandler.js'

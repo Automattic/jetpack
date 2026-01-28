@@ -1,17 +1,81 @@
-import { useSelect } from '@wordpress/data';
+import { Button, useNavigator } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { _n, sprintf } from '@wordpress/i18n';
+import { useCallback } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
+import { store as socialStore } from '../../../social-store';
+import { TABS } from '../sharing-activity/constants';
 import { ConfirmationConfig } from './confirmation-config';
+
+/**
+ * ScheduledPostsNav component to navigate to scheduled posts in sharing activity.
+ *
+ * @return Button element or null.
+ */
+function ScheduledPostsNav() {
+	const navigator = useNavigator();
+	const { setUnifiedModalData, setUnifiedModalScreenLock } = useDispatch( socialStore );
+
+	const hasScheduledShares = useSelect( select => {
+		const postId = select( editorStore ).getCurrentPostId();
+
+		return postId && select( socialStore ).getScheduledSharesForPost( Number( postId ) ).length > 0;
+	}, [] );
+
+	const viewScheduled = useCallback( () => {
+		setUnifiedModalScreenLock( false );
+		setUnifiedModalData( { initialTab: TABS.SCHEDULED } );
+		navigator.goTo( '/sharing-activity' );
+	}, [ navigator, setUnifiedModalData, setUnifiedModalScreenLock ] );
+
+	return hasScheduledShares ? (
+		<Button variant="link" onClick={ viewScheduled }>
+			{ __( 'View scheduled', 'jetpack-publicize-pkg' ) }
+		</Button>
+	) : null;
+}
+
+/**
+ * FooterInfo component for social post preview modal.
+ *
+ * @return Footer info element.
+ */
+function FooterInfo() {
+	const { enabledConnections } = useSocialMediaConnections();
+	const isCurrentPostPublished = useSelect(
+		select => select( editorStore ).isCurrentPostPublished(),
+		[]
+	);
+
+	return (
+		<>
+			{ enabledConnections.length ? (
+				<span>
+					{ sprintf(
+						/* translators: %d: Number of enabled connections. */
+						_n(
+							'Ready to share to %d account.',
+							'Ready to share to %d accounts.',
+							enabledConnections.length,
+							'jetpack-publicize-pkg'
+						),
+						enabledConnections.length
+					) }
+					&nbsp;
+				</span>
+			) : null }
+			{ isCurrentPostPublished ? <ScheduledPostsNav /> : null }
+		</>
+	);
+}
 
 /**
  * FooterContent component for social post preview modal.
  *
- * @return Footer content element or null if no enabled connections.
+ * @return Footer content element.
  */
 export function FooterContent() {
-	const { enabledConnections } = useSocialMediaConnections();
-
 	const isPrePublishScreen = useSelect( select => {
 		const store = select( editorStore );
 		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
@@ -22,18 +86,5 @@ export function FooterContent() {
 		return <ConfirmationConfig />;
 	}
 
-	return enabledConnections.length ? (
-		<span>
-			{ sprintf(
-				/* translators: %d: Number of enabled connections. */
-				_n(
-					'Ready to share to %d account.',
-					'Ready to share to %d accounts.',
-					enabledConnections.length,
-					'jetpack-publicize-pkg'
-				),
-				enabledConnections.length
-			) }
-		</span>
-	) : null;
+	return <FooterInfo />;
 }

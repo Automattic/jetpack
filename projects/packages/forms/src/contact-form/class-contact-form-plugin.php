@@ -3135,7 +3135,7 @@ class Contact_Form_Plugin {
 
 		if ( $pattern_name && WP_Block_Patterns_Registry::get_instance()->is_registered( $pattern_name ) ) {
 			$pattern         = WP_Block_Patterns_Registry::get_instance()->get_registered( $pattern_name );
-			$pattern_content = $pattern['content'];
+			$pattern_content = $pattern['content'] ?? '';
 		}
 
 		// If no pattern found or specified, use a default form block

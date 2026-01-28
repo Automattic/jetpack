@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
 import ConnectionIcon from '../../connection-icon';
 import { ActivityAction } from './activity-action';
 import { ActivityStatus } from './activity-status';
+import { TABS } from './constants';
 import { ReadableTime } from './readable-time';
 import styles from './styles.module.scss';
 import { SharingActivityFilter, SharingActivityItem } from './types';
@@ -73,7 +74,7 @@ function getFiltersForTab( filter: SharingActivityFilter ): Filter[] {
  * @param {ActivityViewProps} props - Component props.
  * @return React element.
  */
-export function ActivityView( { filter = 'all' }: ActivityViewProps ) {
+export function ActivityView( { filter = TABS.ALL }: ActivityViewProps ) {
 	const { items, isLoading } = useSharingActivity();
 
 	// DataView state

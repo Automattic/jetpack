@@ -12,6 +12,8 @@ import {
  * Internal dependencies
  */
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
+import { getRating } from '../field-rating/view.js';
+import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
 import { focusNextInput, submitForm } from './shared.ts';
 
 const withSyncEvent =
@@ -53,6 +55,7 @@ const setSubmissionData = ( data = [] ) => {
 		const images = getImages( item.value );
 		const url = getUrl( item.value );
 		const files = getFiles( item.value );
+		const rating = getRating( item.value );
 
 		return {
 			label: maybeAddColonToLabel( item.label ),
@@ -60,8 +63,12 @@ const setSubmissionData = ( data = [] ) => {
 			images,
 			url,
 			files,
+			rating,
 			showPlainValue:
-				! url && ( ! images || images.length === 0 ) && ( ! files || files.length === 0 ),
+				! url &&
+				! rating &&
+				( ! images || images.length === 0 ) &&
+				( ! files || files.length === 0 ),
 		};
 	} );
 };
@@ -106,80 +113,6 @@ const getError = field => {
 	}
 
 	return config.error_types && config.error_types[ field.error ];
-};
-
-const maybeAddColonToLabel = label => {
-	const formattedLabel = label ? label : null;
-
-	if ( ! formattedLabel ) {
-		return null;
-	}
-	// Special case for the Terms consent field block which has a period at the end of the text.
-	return formattedLabel.endsWith( '?' )
-		? formattedLabel
-		: formattedLabel.replace( /[.:]$/, '' ) + ':';
-};
-
-const maybeTransformValue = value => {
-	// For image select fields, we want to show the perceived values, as the choices can be shuffled.
-	if ( value?.type === 'image-select' ) {
-		return value.choices
-			.map( choice => {
-				let transformedValue = choice.perceived;
-
-				if ( choice.showLabels && choice.label != null && choice.label !== '' ) {
-					transformedValue += ' - ' + choice.label;
-				}
-
-				return transformedValue;
-			} )
-			.join( ', ' );
-	}
-
-	// For URL fields, extract the URL text value.
-	if ( value?.type === 'url' && value?.url ) {
-		return value.url;
-	}
-
-	// For file upload fields, we want to show the file name and size
-	if ( value?.name && value?.size ) {
-		return value.name + ' (' + value.size + ')';
-	}
-
-	return value;
-};
-
-const getImages = value => {
-	if ( value?.type === 'image-select' ) {
-		return value.choices.map( choice => {
-			const letterCode = choice.perceived ?? '';
-			const label =
-				choice.showLabels && choice.label != null && choice.label !== '' ? choice.label : '';
-
-			return {
-				src: choice.image?.src ?? '',
-				letterCode,
-				label,
-			};
-		} );
-	}
-
-	return null;
-};
-
-const getUrl = value => {
-	if ( value?.type === 'url' && value?.url ) {
-		let url = value.url;
-
-		// Prepend https:// if no protocol is specified.
-		if ( ! /^https?:\/\//i.test( url ) ) {
-			url = 'https://' + url;
-		}
-
-		return url;
-	}
-
-	return null;
 };
 
 /**
@@ -737,6 +670,20 @@ const { state, actions } = store( NAMESPACE, {
 				'style',
 				style + `--jetpack-input-image-option--outline-color: ${ borderColor }`
 			);
+		},
+
+		watchSubmissionValueVisibility() {
+			const context = getContext();
+
+			// If context.submission is not available (hydration), preserve server-rendered state.
+			if ( ! context.submission ) {
+				return;
+			}
+
+			// For AJAX submissions, show/hide based on whether url or rating is present.
+			const { ref } = getElement();
+			const shouldHide = !! ( context.submission.url || context.submission.rating );
+			ref.hidden = shouldHide;
 		},
 	},
 } );
