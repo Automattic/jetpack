@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 4.5.6-beta
+Stable tag: 4.5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.6-beta - 2026-01-26
+### 4.5.6 - 2026-01-28
 #### Changed
 - My Jetpack: Check red bubble notification async when cache is not available.
 - Update composer.lock.
