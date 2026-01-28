@@ -9,12 +9,11 @@ import { useEffect, useMemo } from '@wordpress/element';
  */
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 /**
  * Internal dependencies
  */
 import useConfigValue from '../../../hooks/use-config-value.ts';
-import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view.js';
 import Inbox from '../../inbox/index.js';
 
 type RouteParams = {
@@ -30,6 +29,7 @@ type RouteParams = {
  */
 export default function SingleFormResponses(): JSX.Element | null {
 	const { formId } = useParams() as RouteParams;
+	const navigate = useNavigate();
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 
 	const parentId = useMemo( () => {
@@ -52,11 +52,13 @@ export default function SingleFormResponses(): JSX.Element | null {
 	}, [ formRecord?.title?.rendered ] );
 
 	useEffect( () => {
-		// Invalid ID: go back to the Forms dashboard root (no hash).
+		// Invalid ID: go back to the appropriate dashboard screen without a full page reload.
 		if ( parentId === null ) {
-			window.location.href = PARTIAL_RESPONSES_PATH;
+			navigate( isCentralFormManagementEnabled === true ? '/forms' : '/responses', {
+				replace: true,
+			} );
 		}
-	}, [ parentId ] );
+	}, [ parentId, isCentralFormManagementEnabled, navigate ] );
 
 	// Short-term: show a stable title/subtitle while the (optional) jetpack_form title is loading,
 	// and for non-jetpack_form "source" IDs (pre-CFM) where we may not be able to resolve a title yet.
