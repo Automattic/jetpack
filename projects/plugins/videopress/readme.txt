@@ -1,7 +1,7 @@
 === Jetpack VideoPress  ===
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
-Requires at least: 6.7
+Requires at least: 6.8
 Tested up to: 6.9
 Stable tag: 2.7
 Requires PHP: 7.2
