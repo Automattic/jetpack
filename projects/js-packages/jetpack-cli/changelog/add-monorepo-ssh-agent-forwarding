@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Split rsync execution so Docker collects files and the host runs rsync with native SSH, enabling support for Secure Enclave keys that cannot be forwarded into Docker.
