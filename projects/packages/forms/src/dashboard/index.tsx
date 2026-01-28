@@ -11,6 +11,7 @@ import { RouterProvider } from 'react-router/dom';
 import useConfigValue from '../hooks/use-config-value.ts';
 import Layout from './components/layout/index.tsx';
 import FormsDashboardForms from './forms/index.tsx';
+import SingleFormResponses from './forms/single/index.tsx';
 import Inbox from './inbox/index.js';
 import DashboardNotices from './notices-list.tsx';
 import ReactRouterDashboardSearchParamsProvider from './router/react-router-dashboard-search-params-provider.tsx';
@@ -67,6 +68,10 @@ function initFormsDashboard() {
 				{
 					path: 'forms',
 					element: <FormsDashboardForms />,
+				},
+				{
+					path: 'forms/:formId/responses',
+					element: <SingleFormResponses />,
 				},
 				{
 					path: 'responses',

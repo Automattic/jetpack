@@ -5,21 +5,26 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.2-beta] - 2026-01-27
+### Changed
+- Replace use of confusing `esc_js` with `wp_json_encode`. [#46229]
+- Update package dependencies. [#46072] [#46143] [#46456] [#46512] [#46552] [#46647]
+
+### Fixed
+- CSV Importer: Fix path separator issue causing import failures on Windows servers. [#46684]
+- WooSync: Fix CRM contact identification on orders where customer used a different billing email. [#46667]
+- WooSync: Prevent PHP warnings when order status does not have a mapping. [#46087]
+
 ## [6.7.1] - 2026-01-20
-
 ### Security
-
 - Security: Various security updates in settings page navigation.
 
 ## [6.7.0] - 2025-11-20
-
 ### Added
-
 - Add `typecheck` placeholder script (to be implemented). [#44795]
 - Tested up to WordPress 6.9. [#45571]
 
 ### Changed
-
 - Client Portal: Allow admins and CRM quote managers to accept a quote from the frontend. [#45325]
 - My Jetpack: Unify the user connection flow with a unified screen. [#44469]
 - Send JSON with built-in WordPress functions. [#45002]
@@ -29,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use wp_rand() instead of rand() and mt_rand(). [#44964]
 
 ### Fixed
-
 - API: Prevent PHP error when updating companies through undocumented endpoint. [#44807]
 - Code: Clean up legacy PHPCS config files. [#44828]
 - Code: Resolve PhanImpossibleCondition violations. [#44869]
@@ -42,20 +46,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WooSync: Improve invalid URL detection. [#45962]
 
 ## [6.6.1] - 2025-07-10
-
 ### Fixed
-
 - Address regression that caused excess queries. [#44267]
 - Quote Templates: Clean up link when creating a new quote template. [#44251]
 
 ## [6.6.0] - 2025-07-09
-
 ### Added
-
 - Tasks: Show completion checkmark in week and day views. [#43940]
 
 ### Changed
-
 - Code: First pass of style coding standards. [#42734]
 - Code: Introduce version constant in main plugin class. [#41408]
 - Code: Load third-party dependencies from build folder. [#43563] [#43778]
@@ -67,14 +66,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#41286] [#41491] [#41577] [#41659] [#42163] [#42180] [#42384] [#42511] [#42762] [#42809] [#42815] [#43320] [#43326] [#43349] [#43355] [#43356] [#43398] [#43400] [#43425] [#43578] [#43718] [#43734] [#43766] [#43839] [#43892] [#43914] [#43951] [#43990] [#44020] [#44040] [#44148] [#44151] [#44206] [#44215] [#44217]
 
 ### Removed
-
 - Code: Remove unused function and images. [#42116]
 - Remove Bootstrap dependency. [#43584]
 - Remove Onboarding React prototype. [#43577]
 - Remove unused legacy code. [#43116]
 
 ### Fixed
-
 - API: Fix `companies` endpoint param mapping. [#41508]
 - Client Portal: Remove top margin from quotes to ensure the top of the quote is visible. [#41974]
 - Client Portal: Show success message when quote is accepted. [#43074]
@@ -103,32 +100,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Welcome Wizard: Fix regression in JS. [#41437]
 
 ## [6.5.1] - 2025-01-22
-
 ### Changed
-
 - Code: Use function-style exit() and die() with a default status code of 0. [#41167]
 
 ### Removed
-
 - Remove legacy Groove code. [#41247]
 
 ### Fixed
-
 - Invoices: Fix bug introduced in 6.5.0 that prevented email invoices from being sent. [#41172]
 
 ## [6.5.0] - 2025-01-10
-
 ### Removed
-
 - General: Remove unused legacy code. [#40267]
 
 ### Changed
-
 - General: Update minimum WordPress version to 6.6. [#40146]
 - API: Allow sort order in endpoints. [#38838]
 
 ### Fixed
-
 - CRM: Fix bug which caused duplicated queries to run. [#40711]
 - CRM: Fix a fatal error that occurred when exporting contacts with a custom field that had the same name as a linked field (e.g., 'company'). [#38851]
 - Dashboard: Fix an issue where the CRM contacts graph displayed incorrect values in some instances. [#38316]
@@ -138,35 +127,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrations: Improve WP Playground compatibility. [#39956]
 
 ## [6.4.4] - 2024-08-07
-
 ### Removed
-
 - MailPoet: Remove unused MailPoet use statements. [#38453]
 
 ### Fixed
-
 - WooSync: Fix a warning message on sync and fatal error when a fee value is not a number [#38570]
 
 ## [6.4.3] - 2024-05-23
-
 ### Added
-
 - Currency: Added several new currencies to the currency dropdown. [#36897]
 - Fonts: Updated core Noto Sans, and added new CJK fonts. [#36962]
 - Readme: Adding information on how to contribute to Jetpack CRM. [#36847]
 - WooSync: Added new status mapping to avoid creating invoices and transactions from WooCommerce to Jetpack CRM. [#37276]
 
 ### Changed
-
 - General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
 - Updated package dependencies. [#36775] [#37147] [#37148] [#37348] [#37379] [#37380] [#37382]
 
 ### Removed
-
 - Contact Form: Updated a comment reference to Grunion_Contact_Form_Plugin to be Contact_Form_Plugin. [#37157]
 
 ### Fixed
-
 - Companies: Increased city field size from 100 to 200. [#37509]
 - Contacts: Increased city field size from 100 to 200. [#37509]
 - Invoices: Fix "image not found" logo issue in PDF invoices. [#37311]
@@ -175,20 +156,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MailPoet Sync: Fix pending pages percentage calculation issue. [#37508]
 
 ## [6.4.2] - 2024-04-08
-
 ### Added
-
 - Dashboard: Sales Funnel now links to contact list view. [#36272]
 - Dashboard: Display red bubble notification in My Jetpack when installation is bad. [#36449]
 
 ### Changed
-
 - Dashboard: Only show installation errors on plugins page. [#36390]
 - Segments: Increased performance. [#36204]
 - WooSync: Added a setting to enable invoices generated by WooCommerce to use the Jetpack CRM invoice reference system. [#36727]
 
 ### Fixed
-
 - Data Tools: Cleanup of page logic. [#36273]
 - Invoices: Display full statements with long invoice lists.
 - Invoices: Enhanced the PDF generation for statements. [#36713]
@@ -198,14 +175,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Users: Make sure assigned users are not removed from contacts upon edit. [#36213]
 
 ## [6.4.1] - 2024-02-29
-
 ### Changed
-
 - General: Indicate compatibility with WordPress 6.5. [#35820]
 - Invoices: Total amount calculation in preview and pdf when refunds or credit notes are applied are back to pre-6.4.0 implementation. [#35569]
 
 ### Fixed
-
 - Client Portal: Admin banners are now more consistent across screens. [#35575]
 - Client Portal: Catch error if Woo order associated with invoice is deleted. [#35689]
 - Invoices: Standardize line item code.
@@ -224,14 +198,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WooSync: Prevent addition of the same site more than once. [#35576]
 
 ## [6.4.0] - 2024-01-23
-
 ### Added
-
 - Database: Added preliminary support for SQLite. [#34868]
 - Settings: Add setting to fine tune the Total Value field calculation for contacts and companies. [#34957]
 
 ### Fixed
-
 - Backend: Add fallback for dev site detection. [#34867]
 - Contacts: Updated default statuses. [#34892]
 - Custom fields: More robust fallbacks for slug creation. [#35175]
@@ -249,23 +220,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Transactions: Better support for SQLite. [#34868]
 
 ## [6.3.2] - 2023-12-19
-
 ### Changed
-
 - Settings: Make support document links more consistent. [#34695]
 
 ### Fixed
-
 - Segments: Fixed an issue preventing segments from being deleted. [#34690]
 
 ## [6.3.1] - 2023-12-14
-
 ### Added
-
 - WooSync: New `jpcrm_woo_sync_order_data` hook. [#34212]
 
 ### Fixed
-
 - Bulk actions: Stricter permissions checks. [#34586]
 - OAuth Connection: Updated typo to remove plural connection"s", and removed doc reference for whitelabel builds. [#34446]
 - Placeholders: Fixing quote placeholders on the quote template, client portal, pdf and emails. [#34490]
@@ -273,18 +238,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Quotes: Consistent rendering of values and currency in placeholders. [#34490]
 
 ## [6.3.0] - 2023-11-15
-
 ### Added
-
 - API: Add support for creating transactions with custom fields. [#33645]
 
 ### Changed
-
 - Requires PHP 7.4 or higher. [#33806]
 - Requires WordPress 6.0 or higher. [#33805]
 
 ### Fixed
-
 - API: Allow events endpoint to be filtered by owner. [#33789]
 - API: The `create_event` endpoint no longer throws a 100 error. [#33712]
 - API: Restrict what owner data is returned with events endpoint. [#33736]
@@ -300,21 +261,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WooSync: Contacts can now be assigned to existing companies. [#33711]
 
 ## [6.2.0] - 2023-10-11
-
 ### Added
-
 - Tests: Add mock globals for testing. [#32755]
 - Automations: Add new backend in preparation for future release.
 
 ### Changed
-
 - Quotes: Allow admin users to accept quotes. [#32738]
 - Tasks: Use consistent language in code. [#33221]
 - Increase PHP required version to 7.3. [#33003]
 - Updated package dependencies.
 
 ### Fixed
-
 - API: Rewrite rules are now flushed after enabling module. [#32901]
 - API: Task reminder param is no longer ignored. [#33194]
 - Better PHP 8.2 support. [#33421]
@@ -329,17 +286,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Transactions: Filters now work for custom statuses. [#33476]
 
 ## [6.1.0] - 2023-07-24
-
 ### Added
-
 - Listing pages: Add a new setting that allows listing pages to utilize the full width of the screen [#31904]
 
 ### Changed
-
 - General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
 
 ### Fixed
-
 - API: Fixed error 200 while saving new api connections [#32003]
 - Contacts: Fix bug that prevented the creation of contacts WP user for the Client Portal [#31710]
 - Contacts: Fix Filter options not available on the main contacts listing [#31517]
@@ -349,20 +302,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Segments: Fix bug that prevented dates to be saved in some environments [#31628]
 
 ## [6.0.0] - 2023-06-21
-
 ### Added
-
 - CRM: Revamped CRM User Interface - Merge the sleek aesthetics of Jetpack’s style, bringing a new level of sophistication and seamless navigation to your CRM experience [#30916]
 - API: Now it retrieves contacts with tags [#31418]
 - Contacts: Allow unsubscribe flag to be removed [#31029]
 
 ### Changed
-
 - User roles: Further restricted capabilities on some roles [#31174]
 - Contacts: Use sha256 instead of md5 for gravatar images [#31288]
 
 ### Fixed
-
 - Client Portal: Fix a fatal error initializing endpoints and shortcodes [#30678]
 - CRM: Fix new lines display in quote templates [#30974]
 - CRM: Fix whitelabel bug with full menu layout [#31126]
@@ -376,14 +325,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - White label: JPCRM support and resources pages no longer show [#31155]
 
 ## [5.8.0] - 2023-05-18
-
 ### Added
-
 - Composer: Added jetpack-forms as a required dependency to fix a Jetpack form compat issue [#30749]
 - Segments: Adding a doesnotcontain condition for email segments, for better compatibility with Advanced Segments [#30422]
 
 ### Changed
-
 - Code cleanup: Cleaning up WP Editor helper functions and wp_editor usage [#30306]
 - General: Update link references to releases in changelog [#30634]
 - Navigation: Changed Learn More button and Learn More link to be consistent with Jetpack styles [#30135]
@@ -391,7 +337,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WooSync: Improved status mapping logic [#30557]
 
 ### Fixed
-
 - Companies: Fix company name prefill so add links - transaction, invoice and tasks - prefill company name [#30752]
 - Contact / Company: Fix date styling for transactions, invoices and quotes [#30483]
 - Contact / Company: Profile summary total value and invoice count now removes deleted invoices [#30178]
@@ -416,15 +361,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Invoices: On invoice update the shipping tax selected is removed resulting on incorrect total amount [#29650]
 
 ## [5.7.0] - 2023-04-19
-
 ### Added
-
 - Menus: Add back to list button on add and edit pages for companies, transactions, invoices, and quotes [#29999]
 - Settings: Remove 'Restore default settings' from the General Settings page, add to settings page menu [#29999]
 - Support Page: Add new support page for customers to submit support requests [#29545]
 
 ### Changed
-
 - API: Add optional parameter to the API to set the external service name, and replace hyphens from the json response to underscores [#29316]
 - Companies: Move status select from Actions to main edit section underneath ID [#29999]
 - Contacts: Change location of save button and add Contact Actions metabox for contacts [#29999]
@@ -442,11 +384,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Transactions: Move status select HTML from Transaction Actions to main edit section underneath ID [#29999]
 
 ### Removed
-
 - Onboarding: Remove company name preview from onboarding wizard [#29999]
 
 ### Fixed
-
 - UI: Change fonts to smaller size, and different font family [#29999]
 - UI: Change form placeholder colors to a lighter shade of gray [#29999]
 - Contacts: Fix 403 error if file was uploaded via Client Portal Pro using Apache web server [#29969]
@@ -474,16 +414,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WooSync: Tag existing contacts with new orders [#30107]
 
 ## 5.6.0 - 2023-03-23
-
 ### Changed
-
 - Contacts: Change customer references to contact in all but Woo and commerce contexts [#29267]
 - Compatibility: Indicate full compatibility with the latest version of WordPress, 6.2 [#29341]
 - Move all files that were inside the zbscrm-store folder with a flat structure to the new jpcrm-storage folder that uses a hierarchical structure [#28350]
 - Extensions: Highlight popular Woo extensions on extensions page, plus alphabetize results [#29199]
 
 ### Fixed
-
 - Add a missing < which prevented a script tag from being opened. [#28834]
 - Allowing XMLRPC and REST requests when the frontend is disabled [#28970]
 - Client Portal: Fix bug that prevented access from being disabled using the contact page [#28675]
@@ -3783,6 +3720,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tested across 4 common web hosts
 - Tested with extensions: WooCommerce CRM Sync, PayPal CRM Sync, CSV Importer, ZBS CRM Mail Campaigns, and CRM Sales Dashboard
 
+[6.7.2-beta]: https://github.com/Automattic/jetpack-crm/compare/6.7.1...6.7.2-beta
 [6.7.1]: https://github.com/Automattic/jetpack-crm/compare/6.7.0...6.7.1
 [6.7.0]: https://github.com/Automattic/jetpack-crm/compare/6.6.1...6.7.0
 [6.6.1]: https://github.com/Automattic/jetpack-crm/compare/6.6.0...6.6.1

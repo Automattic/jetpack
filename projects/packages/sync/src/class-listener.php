@@ -92,9 +92,6 @@ class Listener {
 		add_action( 'jetpack_activate_module', $handler );
 		add_action( 'jetpack_deactivate_module', $handler );
 
-		// Jetpack Upgrade.
-		add_action( 'updating_jetpack_version', $handler, 10, 2 );
-
 		// Send periodic checksum.
 		add_action( 'jetpack_sync_checksum', $handler );
 	}
