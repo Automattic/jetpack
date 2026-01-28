@@ -141,7 +141,7 @@ class External_Storage {
 		// Only process 'error' and 'empty' events for provider error reporting
 		if ( 'error' !== $event_type && 'empty' !== $event_type ) {
 			// For non-reportable events, just do debug logging with rate limiting
-			if ( self::should_log_event( $key ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			if ( self::should_log_event( $key, $event_type ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					sprintf(
 						'Jetpack External Storage %s: %s in %s%s',
@@ -163,7 +163,7 @@ class External_Storage {
 		}
 
 		// Apply rate limiting only for events that will trigger provider notification
-		if ( ! self::should_log_event( $key ) ) {
+		if ( ! self::should_log_event( $key, $event_type ) ) {
 			return;
 		}
 
@@ -237,21 +237,25 @@ class External_Storage {
 	 * Determine if an event should be logged based on rate limiting rules.
 	 *
 	 * This prevents log spam from noisy events by applying a simple one-hour
-	 * rate limit per key, regardless of event type. Also uses a static cache
+	 * rate limit per key and event type combination. Also uses a static cache
 	 * to prevent duplicate logs within the same request.
 	 *
 	 * @since 6.18.0
 	 *
-	 * @param string $key The key that triggered the event.
+	 * @param string $key        The key that triggered the event.
+	 * @param string $event_type The event type (error, empty, unavailable).
 	 * @return bool True if the event should be logged, false if rate limited.
 	 */
-	private static function should_log_event( $key ) {
+	private static function should_log_event( $key, $event_type = '' ) {
+		// Combine event type and key for unique tracking
+		$cache_key = $event_type . '_' . $key;
+
 		// Check static cache first (prevents multiple logs in same request)
-		if ( isset( self::$logged_events[ $key ] ) ) {
+		if ( isset( self::$logged_events[ $cache_key ] ) ) {
 			return false;
 		}
 
-		$rate_limit_key = 'jetpack_ext_storage_rate_limit_' . $key;
+		$rate_limit_key = 'jetpack_ext_storage_rate_limit_' . $cache_key;
 
 		// Check if we're still within the rate limit period
 		if ( get_transient( $rate_limit_key ) ) {
@@ -259,7 +263,7 @@ class External_Storage {
 		}
 
 		// Mark as logged in both caches
-		self::$logged_events[ $key ] = true;
+		self::$logged_events[ $cache_key ] = true;
 		set_transient( $rate_limit_key, true, HOUR_IN_SECONDS );
 
 		return true;

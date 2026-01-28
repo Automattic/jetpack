@@ -105,8 +105,9 @@ class External_Storage_Test extends TestCase {
 	 * Test rate limiting with static cache prevents duplicate logs.
 	 */
 	public function test_rate_limiting_with_static_cache() {
-		delete_transient( 'jetpack_ext_storage_rate_limit_rate_test' );
-		delete_transient( 'jetpack_ext_storage_rate_limit_other_key' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_error_rate_test' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_error_other_key' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_empty_rate_test' );
 
 		$reflection = new \ReflectionClass( External_Storage::class );
 
@@ -125,21 +126,26 @@ class External_Storage_Test extends TestCase {
 		}
 
 		// First call should return true
-		$this->assertTrue( $method->invoke( null, 'rate_test' ) );
+		$this->assertTrue( $method->invoke( null, 'rate_test', 'error' ) );
 
-		// Verify both caches are set
-		$this->assertNotFalse( get_transient( 'jetpack_ext_storage_rate_limit_rate_test' ) );
-		$this->assertArrayHasKey( 'rate_test', $logged_events_property->getValue() );
+		// Verify both caches are set (key includes event type)
+		$this->assertNotFalse( get_transient( 'jetpack_ext_storage_rate_limit_error_rate_test' ) );
+		$this->assertArrayHasKey( 'error_rate_test', $logged_events_property->getValue() );
 
-		// Second call should return false (blocked by static cache)
-		$this->assertFalse( $method->invoke( null, 'rate_test' ) );
+		// Second call with same key and event type should return false (blocked by static cache)
+		$this->assertFalse( $method->invoke( null, 'rate_test', 'error' ) );
 
 		// Different key should still work
-		$this->assertTrue( $method->invoke( null, 'other_key' ) );
+		$this->assertTrue( $method->invoke( null, 'other_key', 'error' ) );
+
+		// Same key with different event type should also work
+		$this->assertTrue( $method->invoke( null, 'rate_test', 'empty' ) );
+		$this->assertArrayHasKey( 'empty_rate_test', $logged_events_property->getValue() );
 
 		// Clean up
-		delete_transient( 'jetpack_ext_storage_rate_limit_rate_test' );
-		delete_transient( 'jetpack_ext_storage_rate_limit_other_key' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_error_rate_test' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_error_other_key' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_empty_rate_test' );
 	}
 
 	/**
