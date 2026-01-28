@@ -1,4 +1,4 @@
-import { AttachedMedia } from '../utils';
+import { AttachedMedia, MediaSourceValue } from '../utils';
 
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
@@ -10,6 +10,7 @@ export interface EditorConnection {
 	// Customization fields
 	message?: string;
 	attached_media?: Array< AttachedMedia >;
+	media_source?: MediaSourceValue;
 }
 
 export type Connection = Partial< EditorConnection > & {
@@ -80,10 +81,15 @@ export type ScheduledShares = {
 	isScheduling?: boolean;
 };
 
+export type UnifiedModalData = {
+	initialTab?: string;
+};
+
 export type UnifiedModalState = {
 	isOpen?: boolean;
 	initialPath?: string;
 	isScreenLocked?: boolean;
+	data?: UnifiedModalData;
 };
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };

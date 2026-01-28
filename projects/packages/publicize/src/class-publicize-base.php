@@ -1230,45 +1230,11 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
-		// Schema for attached media, shared between jetpack_social_options and connection_overrides.
-		$attached_media_schema = array(
-			'type'  => 'array',
-			'items' => array(
-				'type'       => 'object',
-				'properties' => array(
-					'id'   => array(
-						'type' => 'number',
-					),
-					'url'  => array(
-						'type' => 'string',
-					),
-					'type' => array(
-						'type' => 'string',
-					),
-				),
-			),
-		);
-
 		$connection_overrides_args = array(
 			'type'          => 'object',
 			'description'   => __( 'Per-connection customizations for message and media.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => array(),
-			'show_in_rest'  => array(
-				'name'   => 'jetpack_publicize_connection_overrides',
-				'schema' => array(
-					'type'                 => 'object',
-					'additionalProperties' => array(
-						'type'       => 'object',
-						'properties' => array(
-							'message'        => array(
-								'type' => 'string',
-							),
-							'attached_media' => $attached_media_schema,
-						),
-					),
-				),
-			),
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 

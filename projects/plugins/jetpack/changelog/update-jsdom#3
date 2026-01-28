@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: test-extensions: Remove unnecessary mocks. Global config provides one for `window.matchMedia`, and `window.CSS` is apparently no longer needed.
-
-

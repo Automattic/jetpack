@@ -252,7 +252,7 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', true );
 		// Use the spam status changed date if available, otherwise fall back to post_date_gmt for backward compatibility
 		$sql      = $wpdb->prepare(
 			"
@@ -306,7 +306,7 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', true );
 		$sql     = $wpdb->prepare(
 			"
 			SELECT `ID`

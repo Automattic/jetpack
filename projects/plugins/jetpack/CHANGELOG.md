@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.5-a.5 - 2026-01-26
+### Enhancements
+- Forms: Update DataViews header and filters. [#46732]
+- Likes: Enable CSS inlining. [#46745]
+- Social: Refactor share status UI to use Notice component. [#46673]
+- Social: Show a snackbar while sharing is in progress. [#46672]
+- Social: Use fallback avatar for Jetpack Social connection icons. [#46677]
+
+### Bug fixes
+- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting. [#46718]
+- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts. [#46715]
+- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts. [#46734]
+- Social Previews: Use fallback image when social preview profile picture fails. [#46674]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Forms: Fix block styles not loading in CIAB environment. [#46643]
+- Newsletters: More work on the WIP new settings screen. [#46471]
+- Render slideshow block as core gallery block in emails. [#46624]
+- Update package dependencies. [#46691] [#46716]
+
 ## 15.5-a.3 - 2026-01-19
 ### Enhancements
 - Command Palette: Add site switcher command to quickly switch between WordPress.com connected sites. [#46342]

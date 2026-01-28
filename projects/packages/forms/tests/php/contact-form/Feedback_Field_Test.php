@@ -476,4 +476,114 @@ class Feedback_Field_Test extends BaseTestCase {
 		$field = new Feedback_Field( 'text_key', 'Text', '+44 7911 123456', 'text' );
 		$this->assertEquals( '+44 7911 123456', $field->get_render_value( 'web' ) );
 	}
+
+	/**
+	 * Test rating field returns structured array for web context.
+	 */
+	public function test_rating_field_returns_structured_array_for_web() {
+		$field = new Feedback_Field(
+			'rating_key',
+			'Rating',
+			'3/5',
+			'rating',
+			array(
+				'iconStyle' => 'stars',
+				'maxRating' => 5,
+			)
+		);
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 'rating', $value['type'] );
+		$this->assertEquals( 3, $value['rating'] );
+		$this->assertEquals( 5, $value['maxRating'] );
+		$this->assertEquals( 'stars', $value['iconStyle'] );
+		$this->assertEquals( '3/5', $value['displayValue'] );
+	}
+
+	/**
+	 * Test rating field with hearts icon style.
+	 */
+	public function test_rating_field_with_hearts_icon_style() {
+		$field = new Feedback_Field(
+			'rating_key',
+			'Rating',
+			'4/5',
+			'rating',
+			array(
+				'iconStyle' => 'hearts',
+				'maxRating' => 5,
+			)
+		);
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 'hearts', $value['iconStyle'] );
+		$this->assertEquals( 4, $value['rating'] );
+	}
+
+	/**
+	 * Test rating field with custom max rating.
+	 */
+	public function test_rating_field_with_custom_max_rating() {
+		$field = new Feedback_Field(
+			'rating_key',
+			'Rating',
+			'7/10',
+			'rating',
+			array(
+				'iconStyle' => 'stars',
+				'maxRating' => 10,
+			)
+		);
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 7, $value['rating'] );
+		$this->assertEquals( 10, $value['maxRating'] );
+		$this->assertEquals( '7/10', $value['displayValue'] );
+	}
+
+	/**
+	 * Test rating field defaults to stars when no icon style provided.
+	 */
+	public function test_rating_field_defaults_to_stars() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '2/5', 'rating' );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 'stars', $value['iconStyle'] );
+	}
+
+	/**
+	 * Test rating field with empty value returns empty string.
+	 */
+	public function test_rating_field_with_empty_value() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '', 'rating' );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Test rating field with invalid format returns original value.
+	 */
+	public function test_rating_field_with_invalid_format() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', 'invalid', 'rating' );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertEquals( 'invalid', $value );
+	}
+
+	/**
+	 * Test rating field with zero rating.
+	 */
+	public function test_rating_field_with_zero_rating() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '0/5', 'rating', array( 'iconStyle' => 'stars' ) );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertSame( 0, $value['rating'] );
+		$this->assertEquals( 5, $value['maxRating'] );
+	}
 }

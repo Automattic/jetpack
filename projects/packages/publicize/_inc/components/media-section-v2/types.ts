@@ -93,6 +93,11 @@ export interface MediaSectionV2Props {
 	 * operates in "controlled" mode and uses the media props above instead of fetching from the store.
 	 */
 	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
+
+	/**
+	 * Whether to force media as attachment.
+	 */
+	forceAsAttachment?: boolean;
 }
 
 /**

@@ -10,14 +10,33 @@ import { __ } from '@wordpress/i18n';
  */
 import { Header } from './components/header';
 import {
-	EmailBylineSection,
 	EmailContentSection,
-	EmailReplyToSettingsSection,
+	EmailBylineSection,
 	EmailSenderSettingsSection,
+	EmailReplyToSettingsSection,
 	NewsletterSection,
+	PaidNewsletterSection,
+	SubscriptionsSection,
+	WelcomeEmailSection,
 } from './sections';
 import type { NewsletterSettings, JetpackNewsletterSettings } from './types';
 import './style.scss';
+
+/**
+ * Normalize settings from API response
+ *
+ * @param {Record<string, unknown>} settings - Raw settings from API
+ * @return {NewsletterSettings} Normalized settings
+ */
+function normalizeSettings( settings: Record< string, unknown > ): NewsletterSettings {
+	return {
+		...( settings as NewsletterSettings ),
+		// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1')
+		wpcom_subscription_emails_use_excerpt: String(
+			Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
+		),
+	};
+}
 
 /**
  * Newsletter Settings App
@@ -29,6 +48,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ error, setError ] = useState< string | null >( null );
 
+	// Subscription settings state (for manual save)
+	const [ subscriptionChanges, setSubscriptionChanges ] = useState< Partial< NewsletterSettings > >(
+		{}
+	);
+	const [ isSavingSubscriptions, setIsSavingSubscriptions ] = useState( false );
+
 	// Sender name state (for manual save)
 	const [ senderNameChanges, setSenderNameChanges ] = useState< Partial< NewsletterSettings > >(
 		{}
@@ -37,6 +62,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	// Snackbar notification state
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string | null >( null );
+
+	// Welcome email state (for manual save)
+	const [ welcomeEmailChanges, setWelcomeEmailChanges ] = useState< Partial< NewsletterSettings > >(
+		{}
+	);
+	const [ isSavingWelcomeEmail, setIsSavingWelcomeEmail ] = useState( false );
 
 	// Get settings from PHP
 	const jetpackSettings = (
@@ -57,15 +88,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		restApi
 			.fetchSettings()
 			.then( ( settings: Record< string, unknown > ) => {
-				// Normalize settings types for frontend use
-				const normalizedSettings: NewsletterSettings = {
-					...( settings as NewsletterSettings ),
-					// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1')
-					wpcom_subscription_emails_use_excerpt: String(
-						Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
-					),
-				};
-				setData( normalizedSettings );
+				setData( normalizeSettings( settings ) );
 				setIsLoading( false );
 			} )
 			.catch( ( err: Error ) => {
@@ -84,7 +107,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			}
 
 			// Update local state optimistically
-			setData( { ...data, ...updates } );
+			setData( prev => ( { ...prev, ...updates } ) );
 
 			// Save to backend
 			restApi
@@ -137,6 +160,78 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			} );
 	}, [ senderNameChanges, data ] );
 
+	// Handle subscription settings changes (staged, not auto-saved)
+	const handleSubscriptionChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
+		// Update local state immediately (like auto-save)
+		setData( prev => ( { ...prev, ...updates } ) );
+		// Track changes for save button state
+		setSubscriptionChanges( prev => ( { ...prev, ...updates } ) );
+	}, [] );
+
+	// Save subscription settings
+	const saveSubscriptionSettings = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingSubscriptions( true );
+		setError( null );
+
+		restApi
+			.updateSettings( subscriptionChanges )
+			.then( () => {
+				setError( null );
+				setSubscriptionChanges( {} );
+				setSnackbarMessage( __( 'Settings saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter subscription settings save error:', err );
+				setError(
+					err.message || __( 'Failed to save subscription settings', 'jetpack-newsletter' )
+				);
+			} )
+			.finally( () => {
+				setIsSavingSubscriptions( false );
+			} );
+	}, [ subscriptionChanges, data ] );
+
+	// Handle welcome email changes (staged, not auto-saved)
+	const handleWelcomeEmailChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
+		// Update local state immediately (like auto-save)
+		setData( prev => ( { ...prev, ...updates } ) );
+		// Track changes for save button state
+		setWelcomeEmailChanges( prev => ( { ...prev, ...updates } ) );
+	}, [] );
+
+	// Save welcome email settings
+	const saveWelcomeEmail = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingWelcomeEmail( true );
+		setError( null );
+
+		restApi
+			.updateSettings( welcomeEmailChanges )
+			.then( () => {
+				setError( null );
+				setWelcomeEmailChanges( {} );
+				setSnackbarMessage( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter welcome email save error:', err );
+				setError(
+					err.message || __( 'Failed to save welcome email message', 'jetpack-newsletter' )
+				);
+			} )
+			.finally( () => {
+				setIsSavingWelcomeEmail( false );
+			} );
+	}, [ welcomeEmailChanges, data ] );
+
 	if ( isLoading ) {
 		return (
 			<div className="newsletter-settings">
@@ -159,7 +254,9 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		return null;
 	}
 
+	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
 	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
+	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
 		<div className="newsletter-settings">
@@ -172,6 +269,21 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					onChange={ handleAutoSave }
 				/>
 			) }
+
+			<SubscriptionsSection
+				data={ data }
+				jetpackSettings={ jetpackSettings }
+				onChange={ handleSubscriptionChange }
+				onSave={ saveSubscriptionSettings }
+				isSaving={ isSavingSubscriptions }
+				hasChanges={ hasSubscriptionChanges }
+				isNewsletterEnabled={ data.subscriptions }
+			/>
+
+			<PaidNewsletterSection
+				jetpackSettings={ jetpackSettings }
+				isNewsletterEnabled={ data.subscriptions }
+			/>
 
 			<EmailContentSection
 				data={ data }
@@ -200,6 +312,15 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			<EmailReplyToSettingsSection
 				data={ data }
 				onChange={ handleAutoSave }
+				isNewsletterEnabled={ data.subscriptions }
+			/>
+
+			<WelcomeEmailSection
+				data={ data }
+				onChange={ handleWelcomeEmailChange }
+				onSave={ saveWelcomeEmail }
+				isSaving={ isSavingWelcomeEmail }
+				hasChanges={ hasWelcomeEmailChanges }
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 

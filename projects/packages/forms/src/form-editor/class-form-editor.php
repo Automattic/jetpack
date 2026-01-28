@@ -31,6 +31,7 @@ class Form_Editor {
 		add_filter( 'allowed_block_types_all', array( __CLASS__, 'allowed_blocks_for_jetpack_form' ), 10, 2 );
 		add_filter( 'block_editor_settings_all', array( __CLASS__, 'block_editor_settings_all' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+		add_action( 'current_screen', array( __CLASS__, 'disable_block_directory' ) );
 	}
 
 	/**
@@ -96,6 +97,7 @@ class Form_Editor {
 			// Core blocks for rich content.
 			'core/audio',
 			'core/button',
+			'core/code',
 			'core/columns',
 			'core/column',
 			'core/group',
@@ -104,6 +106,7 @@ class Form_Editor {
 			'core/image',
 			'core/list',
 			'core/list-item',
+			'core/math',
 			'core/paragraph',
 			'core/row',
 			'core/separator',
@@ -131,6 +134,24 @@ class Form_Editor {
 		$settings['canLockBlocks'] = false;
 
 		return $settings;
+	}
+
+	/**
+	 * Disable the block directory in the form editor.
+	 *
+	 * Removes the block directory assets (install blocks from the inserter)
+	 * since this feature is not needed in the form editor.
+	 * Hooked to `current_screen` so it runs before scripts are enqueued.
+	 *
+	 * @param \WP_Screen $screen The current screen object.
+	 */
+	public static function disable_block_directory( $screen ) {
+		if ( ! isset( $screen->post_type ) ) {
+			return;
+		}
+		if ( Contact_Form::POST_TYPE === $screen->post_type ) {
+			remove_action( 'enqueue_block_editor_assets', 'wp_enqueue_editor_block_directory_assets' );
+		}
 	}
 
 	/**

@@ -7,17 +7,19 @@ import '@automattic/ui/style.css';
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { Button, ExternalLink } from '@wordpress/components';
-import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
+import { Page } from '@wordpress/admin-ui';
+import {
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	Button,
+	ExternalLink,
+} from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { download, plus, Icon, globe } from '@wordpress/icons';
-import { store as noticesStore } from '@wordpress/notices';
+import { __ } from '@wordpress/i18n';
+import { download, plus } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
 import * as React from 'react';
@@ -26,22 +28,24 @@ import * as React from 'react';
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
-import Flag from '../../src/dashboard/components/flag';
+import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
+import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
 import Gravatar from '../../src/dashboard/components/gravatar';
-import Page from '../../src/dashboard/components/page';
-import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
+import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
+import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import { getPath } from '../../src/dashboard/inbox/utils';
-import { store as dashboardStore } from '../../src/dashboard/store';
+import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
+import { getActions } from './actions';
+import './style.scss';
 /**
  * Types
  */
-import type { SelectActions, DispatchActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
-import type { View, Field } from '@wordpress/dataviews';
+import type { View, Field, Action } from '@wordpress/dataviews';
 
 type FeedbackFilterDate = {
 	month: number;
@@ -58,29 +62,6 @@ type FeedbackFilters = {
 	date: FeedbackFilterDate[];
 	source: FeedbackFilterSource[];
 };
-
-/**
- * Hook to fetch filter options for date and source fields.
- *
- * @return Object containing date and source filter options.
- */
-function useFilterOptions() {
-	const [ filterOptions, setFilterOptions ] = useState< FeedbackFilters >( {
-		date: [],
-		source: [],
-	} );
-
-	useEffect( () => {
-		apiFetch< FeedbackFilters >( { path: '/wp/v2/feedback/filters' } ).then( response => {
-			setFilterOptions( {
-				date: response.date || [],
-				source: response.source || [],
-			} );
-		} );
-	}, [] );
-
-	return filterOptions;
-}
 
 /**
  * Returns a formatted tab label with count badge.
@@ -138,8 +119,8 @@ const DEFAULT_VIEW: View = {
  * @param {object} item - The item object.
  * @return {string} The item ID as a string.
  */
-function getItemId( item ) {
-	return item.id.toString();
+function getItemId( item: unknown ): string {
+	return ( item as { id: number | string } )?.id?.toString() ?? '';
 }
 
 /**
@@ -176,28 +157,12 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
  *
  * @return The stage component.
  */
-function Stage() {
+function StageInner() {
 	const params = useParams( { from: '/responses/$view' } );
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
-	const counts = useSelect(
-		select => ( select( dashboardStore ) as SelectActions ).getCounts(),
-		[]
-	);
-	const { updateCountsOptimistically, invalidateCounts } = useDispatch(
-		dashboardStore
-	) as DispatchActions;
-	const filterOptions = useFilterOptions();
-	let status = 'publish';
-	if ( params.view === 'spam' ) {
-		status = 'spam';
-	} else if ( params.view === 'trash' ) {
-		status = 'trash';
-	}
-
-	const { saveEntityRecord, deleteEntityRecord, invalidateResolution, editEntityRecord } =
-		useDispatch( coreStore ) as unknown as DispatchActions;
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
+	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
 
 	const [ isIntegrationsModalOpen, setIsIntegrationsModalOpen ] = useState( false );
 	const integrations = useSelect(
@@ -213,7 +178,20 @@ function Stage() {
 		search: searchParams?.search || '',
 	} ) );
 
-	const selection = searchParams?.responseIds ?? [];
+	const selection = useMemo( () => searchParams?.responseIds ?? [], [ searchParams?.responseIds ] );
+
+	const {
+		setCurrentQuery,
+		setSelectedResponses,
+		filterOptions,
+		records,
+		isLoadingData,
+		totalItems,
+		totalPages,
+		totalItemsInbox,
+		totalItemsSpam,
+		totalItemsTrash,
+	} = useInboxData( { status: statusView } );
 
 	useEffect( () => {
 		const urlSearch = searchParams?.search || '';
@@ -252,7 +230,7 @@ function Stage() {
 
 	const queryParams = useMemo( () => {
 		const queryArgs: QueryParams = {
-			status,
+			status: statusFilter,
 			per_page: view.perPage,
 			page: view.page || 1,
 			orderby: view.sort?.field || 'date',
@@ -281,13 +259,21 @@ function Stage() {
 		} );
 
 		return queryArgs;
-	}, [ status, view ] );
+	}, [ statusFilter, view ] );
 
-	const { records, isResolving, totalItems, totalPages } = useEntityRecords(
-		'postType',
-		'feedback',
-		queryParams
-	);
+	// Keep dashboard store query in sync so core-data fetches include fields_format=collection.
+	useEffect( () => {
+		setCurrentQuery( queryParams );
+	}, [ queryParams, setCurrentQuery ] );
+
+	// Keep selected responses in store for shared dashboard behavior (e.g., export).
+	useEffect( () => {
+		const validSelectedIds = ( selection || [] ).filter( id => {
+			return records?.some( record => getItemId( record ) === id );
+		} );
+
+		setSelectedResponses( validSelectedIds );
+	}, [ records, selection, setSelectedResponses ] );
 
 	const fields: Field< FormResponse >[] = useMemo(
 		() => [
@@ -295,38 +281,44 @@ function Stage() {
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					const displayName =
-						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous';
-					const showEmail = item.author_email && item.author_name !== item.author_email;
+					const displayName = decodeEntities(
+						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous'
+					);
+					const showEmail =
+						item.author_email && displayName !== decodeEntities( item.author_email );
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+
 					return (
 						<Stack align="center" gap="sm">
 							{ item.is_unread && (
 								<span
 									style={ {
-										width: '8px',
-										height: '8px',
-										borderRadius: '50%',
-										backgroundColor: 'var(--wp-admin-theme-color, #3858e9)',
-										flexShrink: 0,
+										color: '#d63638',
+										fontSize: '8px',
+										position: 'absolute',
+										marginLeft: '-12px',
 									} }
-									aria-label={ __( 'Unread', 'jetpack-forms' ) }
-								/>
+									aria-label={ __( '(Unread form response)', 'jetpack-forms' ) }
+								>
+									●
+								</span>
 							) }
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ decodeEntities( displayName ) }
-								size={ 40 }
+								displayName={ displayName }
+								size={ 32 }
 								useHovercard={ false }
 							/>
 							{ styleUnreadValue(
 								<Stack direction="column" gap="2xs">
-									{ displayName }
+									<Text ellipsizeMode="tail" limit={ 50 } truncate>
+										{ displayName }
+									</Text>
 									{ showEmail && (
-										<span style={ { fontSize: '12px', color: '#757575' } }>
+										<Text variant="muted" size={ 12 } ellipsizeMode="tail" limit={ 50 } truncate>
 											{ item.author_email }
-										</span>
+										</Text>
 									) }
 								</Stack>,
 								item.is_unread
@@ -350,7 +342,7 @@ function Stage() {
 					} );
 					return styleUnreadValue( dateStr, item.is_unread );
 				},
-				elements: ( filterOptions?.date || [] ).map( filter => {
+				elements: ( ( filterOptions as unknown as FeedbackFilters )?.date || [] ).map( filter => {
 					const date = new Date();
 					date.setDate( 1 );
 					date.setMonth( filter.month - 1 );
@@ -376,10 +368,12 @@ function Stage() {
 					}
 					return styleUnreadValue( source, item.is_unread );
 				},
-				elements: ( filterOptions?.source || [] ).map( source => ( {
-					value: source.id.toString(),
-					label: decodeEntities( source.title ) || source.url,
-				} ) ),
+				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
+					source => ( {
+						value: source.id.toString(),
+						label: decodeEntities( source.title ) || source.url,
+					} )
+				),
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
 			},
@@ -408,13 +402,9 @@ function Stage() {
 						return styleUnreadValue( '-', item.is_unread );
 					}
 					return (
-						<>
-							<span className="jp-forms__inbox-response-country-flag">
-								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
-								{ item.country_code && <Flag countryCode={ item.country_code } /> }
-							</span>
+						<TextWithFlag countryCode={ item.country_code } fallbackIcon>
 							{ styleUnreadValue( item.ip, item.is_unread ) }
-						</>
+						</TextWithFlag>
 					);
 				},
 				enableSorting: false,
@@ -423,524 +413,15 @@ function Stage() {
 		[ filterOptions ]
 	);
 
-	const invalidateCache = useCallback( () => {
-		invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', queryParams ] );
-	}, [ invalidateResolution, queryParams ] );
-
-	const clearSelection = useCallback( () => {
-		navigate( {
-			search: {
-				...searchParams,
-				responseIds: undefined,
-			},
-		} );
-	}, [ navigate, searchParams ] );
-
-	const handleMarkAsSpam = useCallback(
-		async items => {
-			const originalStatuses = items.map( item => item.status );
-
-			// Optimistic update
-			items.forEach( item => {
-				editEntityRecord( 'postType', 'feedback', item.id, { status: 'spam' } );
-				updateCountsOptimistically( item.status, 'spam', 1 );
-			} );
-			clearSelection();
-
-			const message =
-				items.length === 1
-					? __( 'Response marked as spam.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: number of responses */
-							_n(
-								'%d response marked as spam.',
-								'%d responses marked as spam.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
-			createSuccessNotice( message, { type: 'snackbar' } );
-
-			try {
-				await Promise.all(
-					items.map( item =>
-						saveEntityRecord( 'postType', 'feedback', {
-							id: item.id,
-							status: 'spam',
-						} )
-					)
-				);
-				invalidateCache();
-				invalidateCounts();
-			} catch {
-				// Revert optimistic update
-				items.forEach( ( item, index ) => {
-					editEntityRecord( 'postType', 'feedback', item.id, {
-						status: originalStatuses[ index ],
-					} );
-					updateCountsOptimistically( 'spam', originalStatuses[ index ], 1 );
-				} );
-				createErrorNotice( __( 'Failed to mark as spam.', 'jetpack-forms' ), {
-					type: 'snackbar',
-				} );
-			}
-		},
-		[
-			editEntityRecord,
-			saveEntityRecord,
-			createSuccessNotice,
-			createErrorNotice,
-			invalidateCache,
-			clearSelection,
-			updateCountsOptimistically,
-			invalidateCounts,
-		]
+	const actions = useMemo(
+		() =>
+			getActions( {
+				navigate,
+				searchParams,
+				view: params.view,
+			} ),
+		[ navigate, searchParams, params.view ]
 	);
-
-	const handleMarkAsNotSpam = useCallback(
-		async items => {
-			const originalStatuses = items.map( item => item.status );
-
-			// Optimistic update
-			items.forEach( item => {
-				editEntityRecord( 'postType', 'feedback', item.id, { status: 'publish' } );
-				updateCountsOptimistically( item.status, 'publish', 1 );
-			} );
-			clearSelection();
-
-			const message =
-				items.length === 1
-					? __( 'Response restored from spam.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: number of responses */
-							_n(
-								'%d response restored from spam.',
-								'%d responses restored from spam.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
-			createSuccessNotice( message, { type: 'snackbar' } );
-
-			try {
-				await Promise.all(
-					items.map( item =>
-						saveEntityRecord( 'postType', 'feedback', {
-							id: item.id,
-							status: 'publish',
-						} )
-					)
-				);
-				invalidateCache();
-				invalidateCounts();
-			} catch {
-				// Revert optimistic update
-				items.forEach( ( item, index ) => {
-					editEntityRecord( 'postType', 'feedback', item.id, {
-						status: originalStatuses[ index ],
-					} );
-					updateCountsOptimistically( 'publish', originalStatuses[ index ], 1 );
-				} );
-				createErrorNotice( __( 'Failed to restore from spam.', 'jetpack-forms' ), {
-					type: 'snackbar',
-				} );
-			}
-		},
-		[
-			editEntityRecord,
-			saveEntityRecord,
-			createSuccessNotice,
-			createErrorNotice,
-			invalidateCache,
-			clearSelection,
-			updateCountsOptimistically,
-			invalidateCounts,
-		]
-	);
-
-	const handleMoveToTrash = useCallback(
-		async items => {
-			const originalStatuses = items.map( item => item.status );
-
-			// Optimistic update
-			items.forEach( item => {
-				editEntityRecord( 'postType', 'feedback', item.id, { status: 'trash' } );
-				updateCountsOptimistically( item.status, 'trash', 1 );
-			} );
-			clearSelection();
-
-			const message =
-				items.length === 1
-					? __( 'Response moved to trash.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: number of responses */
-							_n(
-								'%d response moved to trash.',
-								'%d responses moved to trash.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
-			createSuccessNotice( message, { type: 'snackbar' } );
-
-			try {
-				await Promise.all(
-					items.map( item =>
-						deleteEntityRecord( 'postType', 'feedback', item.id, {}, { throwOnError: true } )
-					)
-				);
-				invalidateCache();
-				invalidateCounts();
-			} catch {
-				// Revert optimistic update
-				items.forEach( ( item, index ) => {
-					editEntityRecord( 'postType', 'feedback', item.id, {
-						status: originalStatuses[ index ],
-					} );
-					updateCountsOptimistically( 'trash', originalStatuses[ index ], 1 );
-				} );
-				createErrorNotice( __( 'Failed to move to trash.', 'jetpack-forms' ), {
-					type: 'snackbar',
-				} );
-			}
-		},
-		[
-			editEntityRecord,
-			deleteEntityRecord,
-			createSuccessNotice,
-			createErrorNotice,
-			invalidateCache,
-			clearSelection,
-			updateCountsOptimistically,
-			invalidateCounts,
-		]
-	);
-
-	const handleRestore = useCallback(
-		async items => {
-			const originalStatuses = items.map( item => item.status );
-
-			// Optimistic update
-			items.forEach( item => {
-				editEntityRecord( 'postType', 'feedback', item.id, { status: 'publish' } );
-				updateCountsOptimistically( item.status, 'publish', 1 );
-			} );
-			clearSelection();
-
-			const message =
-				items.length === 1
-					? __( 'Response restored.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: number of responses */
-							_n(
-								'%d response restored.',
-								'%d responses restored.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
-			createSuccessNotice( message, { type: 'snackbar' } );
-
-			try {
-				await Promise.all(
-					items.map( item =>
-						saveEntityRecord( 'postType', 'feedback', {
-							id: item.id,
-							status: 'publish',
-						} )
-					)
-				);
-				invalidateCache();
-				invalidateCounts();
-			} catch {
-				// Revert optimistic update
-				items.forEach( ( item, index ) => {
-					editEntityRecord( 'postType', 'feedback', item.id, {
-						status: originalStatuses[ index ],
-					} );
-					updateCountsOptimistically( 'publish', originalStatuses[ index ], 1 );
-				} );
-				createErrorNotice( __( 'Failed to restore.', 'jetpack-forms' ), {
-					type: 'snackbar',
-				} );
-			}
-		},
-		[
-			editEntityRecord,
-			saveEntityRecord,
-			createSuccessNotice,
-			createErrorNotice,
-			invalidateCache,
-			clearSelection,
-			updateCountsOptimistically,
-			invalidateCounts,
-		]
-	);
-
-	const handleDelete = useCallback(
-		async items => {
-			// Optimistic update - decrease trash count
-			items.forEach( item => {
-				updateCountsOptimistically( item.status, '', 1 );
-			} );
-			clearSelection();
-
-			const message =
-				items.length === 1
-					? __( 'Response permanently deleted.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: number of responses */
-							_n(
-								'%d response permanently deleted.',
-								'%d responses permanently deleted.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
-			createSuccessNotice( message, { type: 'snackbar' } );
-
-			try {
-				await Promise.all(
-					items.map( item =>
-						deleteEntityRecord(
-							'postType',
-							'feedback',
-							item.id,
-							{ force: true },
-							{ throwOnError: true }
-						)
-					)
-				);
-				invalidateCache();
-				invalidateCounts();
-			} catch {
-				// Revert optimistic update
-				items.forEach( item => {
-					updateCountsOptimistically( '', item.status, 1 );
-				} );
-				createErrorNotice( __( 'Failed to delete.', 'jetpack-forms' ), {
-					type: 'snackbar',
-				} );
-				invalidateCache();
-			}
-		},
-		[
-			deleteEntityRecord,
-			createSuccessNotice,
-			createErrorNotice,
-			invalidateCache,
-			clearSelection,
-			updateCountsOptimistically,
-			invalidateCounts,
-		]
-	);
-
-	const handleMarkAsRead = useCallback(
-		async items => {
-			// Optimistic update
-			items.forEach( item => {
-				editEntityRecord( 'postType', 'feedback', item.id, { is_unread: false } );
-			} );
-
-			const message =
-				items.length === 1
-					? __( 'Response marked as read.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: number of responses */
-							_n(
-								'%d response marked as read.',
-								'%d responses marked as read.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
-			createSuccessNotice( message, { type: 'snackbar' } );
-
-			try {
-				await Promise.all(
-					items.map( item =>
-						apiFetch( {
-							path: `/wp/v2/feedback/${ item.id }/read`,
-							method: 'POST',
-							data: { is_unread: false },
-						} )
-					)
-				);
-				invalidateCache();
-			} catch {
-				// Revert optimistic update
-				items.forEach( item => {
-					editEntityRecord( 'postType', 'feedback', item.id, { is_unread: true } );
-				} );
-				createErrorNotice( __( 'Failed to mark as read.', 'jetpack-forms' ), {
-					type: 'snackbar',
-				} );
-			}
-		},
-		[ editEntityRecord, createSuccessNotice, createErrorNotice, invalidateCache ]
-	);
-
-	const handleMarkAsUnread = useCallback(
-		async items => {
-			// Optimistic update
-			items.forEach( item => {
-				editEntityRecord( 'postType', 'feedback', item.id, { is_unread: true } );
-			} );
-
-			const message =
-				items.length === 1
-					? __( 'Response marked as unread.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: number of responses */
-							_n(
-								'%d response marked as unread.',
-								'%d responses marked as unread.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
-			createSuccessNotice( message, { type: 'snackbar' } );
-
-			try {
-				await Promise.all(
-					items.map( item =>
-						apiFetch( {
-							path: `/wp/v2/feedback/${ item.id }/read`,
-							method: 'POST',
-							data: { is_unread: true },
-						} )
-					)
-				);
-				invalidateCache();
-			} catch {
-				// Revert optimistic update
-				items.forEach( item => {
-					editEntityRecord( 'postType', 'feedback', item.id, { is_unread: false } );
-				} );
-				createErrorNotice( __( 'Failed to mark as unread.', 'jetpack-forms' ), {
-					type: 'snackbar',
-				} );
-			}
-		},
-		[ editEntityRecord, createSuccessNotice, createErrorNotice, invalidateCache ]
-	);
-
-	const actions = useMemo( () => {
-		const baseActions = [
-			{
-				id: 'view-details',
-				label: __( 'View', 'jetpack-forms' ),
-				isPrimary: true,
-				callback: items => {
-					const ids = items.map( item => getItemId( item ) );
-					navigate( {
-						search: {
-							...searchParams,
-							responseIds: ids,
-						},
-					} );
-				},
-			},
-		];
-
-		if ( params.view === 'inbox' || ! params.view ) {
-			return [
-				...baseActions,
-				{
-					id: 'mark-as-read',
-					label: __( 'Mark as read', 'jetpack-forms' ),
-					supportsBulk: true,
-					isEligible: item => item.is_unread,
-					callback: handleMarkAsRead,
-				},
-				{
-					id: 'mark-as-spam',
-					label: __( 'Spam', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					isPrimary: true,
-					callback: handleMarkAsSpam,
-				},
-				{
-					id: 'move-to-trash',
-					label: __( 'Trash', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					isPrimary: true,
-					callback: handleMoveToTrash,
-				},
-				{
-					id: 'mark-as-unread',
-					label: __( 'Mark as unread', 'jetpack-forms' ),
-					supportsBulk: true,
-					isEligible: item => ! item.is_unread,
-					callback: handleMarkAsUnread,
-				},
-			];
-		}
-
-		if ( params.view === 'spam' ) {
-			return [
-				...baseActions,
-				{
-					id: 'not-spam',
-					label: __( 'Not spam', 'jetpack-forms' ),
-					supportsBulk: true,
-					isPrimary: true,
-					callback: handleMarkAsNotSpam,
-				},
-				{
-					id: 'move-to-trash',
-					label: __( 'Trash', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					isPrimary: true,
-					callback: handleMoveToTrash,
-				},
-			];
-		}
-
-		if ( params.view === 'trash' ) {
-			return [
-				...baseActions,
-				{
-					id: 'restore',
-					label: __( 'Restore', 'jetpack-forms' ),
-					supportsBulk: true,
-					isPrimary: true,
-					callback: handleRestore,
-				},
-				{
-					id: 'delete-permanently',
-					label: __( 'Delete', 'jetpack-forms' ),
-					supportsBulk: true,
-					isDestructive: true,
-					isPrimary: true,
-					callback: handleDelete,
-				},
-			];
-		}
-
-		return baseActions;
-	}, [
-		navigate,
-		searchParams,
-		params.view,
-		handleMarkAsRead,
-		handleMarkAsUnread,
-		handleMarkAsSpam,
-		handleMarkAsNotSpam,
-		handleMoveToTrash,
-		handleRestore,
-		handleDelete,
-	] );
 
 	const paginationInfo = useMemo(
 		() => ( {
@@ -951,9 +432,9 @@ function Stage() {
 	);
 
 	const statusTabs = [
-		{ slug: 'inbox', label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), counts.inbox ) },
-		{ slug: 'spam', label: getTabLabel( __( 'Spam', 'jetpack-forms' ), counts.spam ) },
-		{ slug: 'trash', label: getTabLabel( __( 'Trash', 'jetpack-forms' ), counts.trash ) },
+		{ slug: 'inbox', label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), totalItemsInbox ) },
+		{ slug: 'spam', label: getTabLabel( __( 'Spam', 'jetpack-forms' ), totalItemsSpam ) },
+		{ slug: 'trash', label: getTabLabel( __( 'Trash', 'jetpack-forms' ), totalItemsTrash ) },
 	];
 
 	const handleTabChange = useCallback(
@@ -1016,25 +497,22 @@ function Stage() {
 		}
 
 		actionsArray.push(
-			<Button key="export" variant="primary" size="compact" icon={ download }>
+			<Button
+				key="export"
+				variant={ params.view === 'inbox' ? 'primary' : 'secondary' }
+				size="compact"
+				icon={ download }
+			>
 				{ __( 'Export', 'jetpack-forms' ) }
 			</Button>
 		);
 
 		if ( params.view === 'trash' ) {
-			actionsArray.push(
-				<Button key="empty-trash" variant="secondary" isDestructive size="compact">
-					{ __( 'Empty Trash', 'jetpack-forms' ) }
-				</Button>
-			);
+			actionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		}
 
 		if ( params.view === 'spam' ) {
-			actionsArray.push(
-				<Button key="empty-spam" variant="secondary" isDestructive size="compact">
-					{ __( 'Empty Spam', 'jetpack-forms' ) }
-				</Button>
-			);
+			actionsArray.push( <EmptySpamButton key="empty-spam" /> );
 		}
 
 		return actionsArray;
@@ -1048,6 +526,13 @@ function Stage() {
 
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
+
+	const onClickItem = useCallback(
+		( item: unknown ) => {
+			onChangeSelection( [ String( ( item as { id: number | string } ).id ) ] );
+		},
+		[ onChangeSelection ]
+	);
 
 	return (
 		<Page
@@ -1075,12 +560,13 @@ function Stage() {
 				view={ view }
 				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
-				isLoading={ isResolving }
+				isLoading={ isLoadingData }
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
-				actions={ actions }
+				onClickItem={ onClickItem }
+				actions={ actions as Action< unknown >[] }
 			>
 				<Stack
 					align="center"
@@ -1121,5 +607,13 @@ function Stage() {
 		</Page>
 	);
 }
+
+const Stage = () => {
+	return (
+		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
+			<StageInner />
+		</WpRouteDashboardSearchParamsProvider>
+	);
+};
 
 export { Stage as stage };

@@ -30,6 +30,10 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
+  # Renovate security update: lodash@4.17.23
+  - lodash@4.17.23
+  # Renovate security update: lodash-es@4.17.23
+  - lodash-es@4.17.23
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
@@ -69,6 +73,7 @@ allowBuilds:
   svelte-preprocess: false
   # Attempt to show "support me" spam.
   core-js: false
+  core-js-pure: false
   print-this: false
 
 # Package compromise avoidance: Block odd protocols in subdeps
@@ -81,10 +86,6 @@ ignoredOptionalDependencies:
 
 # Dependencies needing patching.
 patchedDependencies:
-
-  # Old versions of Gutenberg packages all have their ESM files flagged as CommonJS.
-  "@wordpress/components@<32.0.0": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/dataviews@<11.2.0": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
 
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.

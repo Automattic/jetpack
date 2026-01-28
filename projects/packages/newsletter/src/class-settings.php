@@ -20,7 +20,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0';
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -207,8 +207,7 @@ class Settings {
 		$blog_id                = (int) $host->get_wpcom_site_id();
 		$is_wpcom               = $host->is_wpcom_platform();
 		$is_wpcom_simple        = $host->is_wpcom_simple();
-		$base_url               = $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/';
-		$setup_payment_plan_url = $base_url . rawurlencode( $site_raw_url );
+		$setup_payment_plan_url = ( $is_wpcom_simple ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . rawurlencode( $site_raw_url );
 
 		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
 
@@ -217,7 +216,6 @@ class Settings {
 			'siteAdminUrl'                    => admin_url(),
 			'themeStylesheet'                 => $theme->get_stylesheet(),
 			'blogID'                          => $blog_id,
-			'siteRawUrl'                      => $site_raw_url,
 			'email'                           => $current_user->user_email,
 			'gravatar'                        => get_avatar_url( $current_user->ID ),
 			'displayName'                     => $current_user->display_name,
@@ -228,7 +226,6 @@ class Settings {
 			'isSitePublic'                    => (int) get_option( 'blog_public' ) === 1,
 			'isWpcomPlatform'                 => $is_wpcom,
 			'isWpcomSimple'                   => $is_wpcom_simple,
-			'isSubscriptionsActive'           => $this->is_subscriptions_active(),
 			'restApiRoot'                     => esc_url_raw( rest_url() ),
 			'restApiNonce'                    => wp_create_nonce( 'wp_rest' ),
 			'siteName'                        => get_bloginfo( 'name' ),
