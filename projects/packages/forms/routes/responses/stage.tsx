@@ -34,15 +34,15 @@ import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
 import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
 import Gravatar from '../../src/dashboard/components/gravatar';
-import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
-import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
+import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 import { getPath } from '../../src/dashboard/inbox/utils';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
+import './style.scss';
 /**
  * Types
  */
