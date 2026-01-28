@@ -5,7 +5,7 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import Flag from '../../flag/index.tsx';
+import TextWithFlag from '../../text-with-flag/index.tsx';
 
 type PhoneDisplayInfo = {
 	formattedNumber: string;
@@ -64,14 +64,9 @@ const FieldPhone = ( { phone }: FieldPhoneProps ) => {
 	const { formattedNumber, countryCode } = displayInfo;
 
 	return (
-		<>
-			{ countryCode && (
-				<>
-					<Flag countryCode={ countryCode } />{ ' ' }
-				</>
-			) }
+		<TextWithFlag countryCode={ countryCode }>
 			<a href={ `tel:${ phone }` }>{ formattedNumber }</a>
-		</>
+		</TextWithFlag>
 	);
 };
 

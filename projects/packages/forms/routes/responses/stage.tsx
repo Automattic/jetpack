@@ -21,7 +21,7 @@ import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { download, plus, Icon, globe } from '@wordpress/icons';
+import { download, plus } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
@@ -33,16 +33,16 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
 import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
-import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
-import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
+import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 import { getPath } from '../../src/dashboard/inbox/utils';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
+import './style.scss';
 /**
  * Types
  */
@@ -424,13 +424,9 @@ function Stage() {
 						return styleUnreadValue( '-', item.is_unread );
 					}
 					return (
-						<>
-							<span className="jp-forms__inbox-response-country-flag">
-								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
-								{ item.country_code && <Flag countryCode={ item.country_code } /> }
-							</span>
+						<TextWithFlag countryCode={ item.country_code } fallbackIcon>
 							{ styleUnreadValue( item.ip, item.is_unread ) }
-						</>
+						</TextWithFlag>
 					);
 				},
 				enableSorting: false,

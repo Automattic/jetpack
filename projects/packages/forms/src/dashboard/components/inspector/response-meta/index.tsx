@@ -14,9 +14,9 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import CopyClipboardButton from '../../../components/copy-clipboard-button/index.tsx';
-import Flag from '../../../components/flag/index.tsx';
 import Gravatar from '../../../components/gravatar/index.tsx';
 import { getPath } from '../../../inbox/utils.js';
+import TextWithFlag from '../../text-with-flag/index.tsx';
 import type { FormResponse } from '../../../../types/index.ts';
 import './style.scss';
 
@@ -97,18 +97,15 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 						<tr>
 							<th>{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;</th>
 							<td>
-								{ response.country_code && (
-									<span className="jp-forms__inbox-response-country-flag">
-										<Flag countryCode={ response.country_code } />
-									</span>
-								) }
-								<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
-									<ExternalLink
-										href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=/${ response.ip }` }
-									>
-										{ response.ip }
-									</ExternalLink>
-								</Tooltip>
+								<TextWithFlag countryCode={ response.country_code }>
+									<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
+										<ExternalLink
+											href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=/${ response.ip }` }
+										>
+											{ response.ip }
+										</ExternalLink>
+									</Tooltip>
+								</TextWithFlag>
 							</td>
 						</tr>
 						{ response.browser && (
