@@ -70,7 +70,8 @@ export default function ProtectProductPage() {
 			has_paid_plan: hasPaidPlan,
 			is_connected: isSiteConnected,
 		} );
-	}, [ hasPaidPlan, isSiteConnected, recordEvent ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] ); // track only on page load
 
 	const handleUpgradeClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_upgrade_button', {
