@@ -12,9 +12,9 @@ import styles from './styles.module.scss';
 /**
  * A notice for upgrading to a plan that supports per-network customization.
  *
- * @return The UpgradeNoticeCustomisation component.
+ * @return The UpgradeNoticeCustomization component.
  */
-export function UpgradeNoticeCustomisation() {
+export function UpgradeNoticeCustomization() {
 	const redirectUrl = getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
 		site: getSiteFragment() || '',
 		query: 'redirect_to=' + encodeURIComponent( window.location.href ),
@@ -30,7 +30,7 @@ export function UpgradeNoticeCustomisation() {
 		<Notice
 			isDismissible={ false }
 			status="info"
-			className={ styles[ 'upgrade-notice-customisation' ] }
+			className={ styles[ 'upgrade-notice-customization' ] }
 			actions={ [
 				{
 					variant: 'primary',
