@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Update ERROR_UNCLEAR_PROMPT error message to provide clearer guidance to users.

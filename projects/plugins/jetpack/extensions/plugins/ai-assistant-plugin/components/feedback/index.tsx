@@ -104,15 +104,17 @@ export default function Feedback( {
 						: undefined
 				}
 			>
-				<Button
-					onClick={ handleRequest }
-					variant="secondary"
-					disabled={ isButtonDisabled }
-					isBusy={ busy }
-					__next40pxDefaultSize
-				>
-					{ __( 'Generate feedback', 'jetpack' ) }
-				</Button>
+				<span style={ { display: 'inline-flex' } }>
+					<Button
+						onClick={ handleRequest }
+						variant="secondary"
+						disabled={ isButtonDisabled }
+						isBusy={ busy }
+						__next40pxDefaultSize
+					>
+						{ __( 'Generate feedback', 'jetpack' ) }
+					</Button>
+				</span>
 			</Tooltip>
 		</div>
 	);

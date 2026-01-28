@@ -238,15 +238,17 @@ export default function TitleOptimization( {
 						: undefined
 				}
 			>
-				<Button
-					isBusy={ busy }
-					disabled={ isButtonDisabled }
-					onClick={ handleTitleOptimization }
-					variant="secondary"
-					__next40pxDefaultSize
-				>
-					{ sidebarButtonLabel }
-				</Button>
+				<span style={ { display: 'inline-flex' } }>
+					<Button
+						isBusy={ busy }
+						disabled={ isButtonDisabled }
+						onClick={ handleTitleOptimization }
+						variant="secondary"
+						__next40pxDefaultSize
+					>
+						{ sidebarButtonLabel }
+					</Button>
+				</span>
 			</Tooltip>
 			{ isTitleOptimizationModalVisible && (
 				<AiAssistantModal

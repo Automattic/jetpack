@@ -162,7 +162,7 @@ export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorP
 		case ERROR_UNCLEAR_PROMPT:
 			return {
 				code: ERROR_UNCLEAR_PROMPT,
-				message: __( 'Add content and save your draft to use this feature.', 'jetpack-ai-client' ),
+				message: __( 'Your request was unclear. Mind trying again?', 'jetpack-ai-client' ),
 				severity: 'info',
 			};
 		case ERROR_SERVICE_UNAVAILABLE:
