@@ -13,7 +13,7 @@ import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
-import type { FormResponse } from '../../types/index.ts';
+import type { FormResponse, ResponseField } from '../../types/index.ts';
 
 /**
  * Helper function to get the status filter to apply from the URL.
@@ -69,9 +69,7 @@ const decodeValue = ( value: unknown ): unknown => {
 	return value;
 };
 
-const normalizeFieldsForDisplay = (
-	fields: FormResponse[ 'fields' ]
-): Record< string, unknown > => {
+const normalizeFieldsForDisplay = ( fields: ResponseField[] ): Record< string, unknown > => {
 	if ( ! fields || ! Array.isArray( fields ) ) {
 		return {};
 	}
@@ -226,9 +224,10 @@ export default function useInboxData( options: UseInboxDataOptions = {} ): UseIn
 
 		return filteredRecords.map( record => {
 			const formResponse = record as FormResponse;
+
 			return {
 				...formResponse,
-				fields: normalizeFieldsForDisplay( formResponse.fields ),
+				fields: normalizeFieldsForDisplay( formResponse.fields as ResponseField[] ),
 			};
 		} ) as FormResponse[];
 	}, [ editedRecords, statusFilter ] );
