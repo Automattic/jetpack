@@ -34,6 +34,8 @@ minimumReleaseAgeExclude:
   - lodash@4.17.23
   # Renovate security update: lodash-es@4.17.23
   - lodash-es@4.17.23
+  # Renovate security update: pnpm@10.28.2
+  - pnpm@10.28.2
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
