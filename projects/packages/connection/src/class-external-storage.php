@@ -257,14 +257,14 @@ class External_Storage {
 	 */
 	private static function should_log_event( $key, $event_type = '' ) {
 		// Combine event type and key for unique tracking
-		$cache_key = $event_type . '_' . $key;
+		$event_cache_key = $event_type . '_' . $key;
 
 		// Check static cache first (prevents multiple logs in same request)
-		if ( isset( self::$logged_events[ $cache_key ] ) ) {
+		if ( isset( self::$logged_events[ $event_cache_key ] ) ) {
 			return false;
 		}
 
-		$rate_limit_key = 'jetpack_ext_storage_rate_limit_' . $cache_key;
+		$rate_limit_key = 'jetpack_ext_storage_rate_limit_' . $event_cache_key;
 
 		// Check if we're still within the rate limit period
 		if ( get_transient( $rate_limit_key ) ) {
@@ -272,7 +272,7 @@ class External_Storage {
 		}
 
 		// Mark as logged in both caches
-		self::$logged_events[ $cache_key ] = true;
+		self::$logged_events[ $event_cache_key ] = true;
 		set_transient( $rate_limit_key, true, HOUR_IN_SECONDS );
 
 		return true;
