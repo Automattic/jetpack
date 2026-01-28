@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * System Assistant: System status page
  */
 

@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Woody Hayday Country Lib
  * V1.0
  *

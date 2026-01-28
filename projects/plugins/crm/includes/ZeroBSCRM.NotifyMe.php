@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM - Notify Me
  * https://jetpackcrm.com
  * V2.4

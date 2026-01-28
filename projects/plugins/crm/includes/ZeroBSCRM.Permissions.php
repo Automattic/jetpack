@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -452,7 +451,7 @@ function zeroBSCRM_permsIsZBSUserOrAdmin( $wordpress_user_id = false ) {
 	// param passed?
 	if ( $wordpress_user_id == false ) {
 
-		// if using current wordpress user:
+		// if using current WordPress user:
 
 		// Maintain a global var for this load, (sometimes called multiple times)
 		// (Only for current user checks)

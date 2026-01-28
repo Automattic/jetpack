@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Single contact view page
  */
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );

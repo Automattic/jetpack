@@ -50,7 +50,7 @@
 	<rule ref="Squiz.Commenting.InlineComment">
 		<exclude name="Squiz.Commenting.InlineComment.WrongStyle"/>
 	</rule>
-
+	
 	<!-- Ideally we'd just configure PHPCompatibility with the right PHP version, but it uses <config> rather than <properties>. Sigh. -->
 	<!-- So instead we have to manually disable certain sniffs. -->
 	<rule ref="./.phpcs.dir.phpcompatibility.xml" />

@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -367,7 +366,7 @@ class Mailpoet_Background_Sync_Job {
 
 		// unused subscriber attributes:
 		// is_woocommerce_user, status, subscribed_ip, confirmed_ip, confirmed_at, last_subscribed_at,
-		// updated_at, deleted_at, unconfirmed_data, source (e.g. wordpress user), count_confirmations,
+		// updated_at, deleted_at, unconfirmed_data, source (e.g. WordPress user), count_confirmations,
 		// unsubscribe_token, link_token, engagement_score, engagement_score_updated_at, last_engagement_at
 		// woocommerce_synced_at, email_count
 		$contact_args = array(
