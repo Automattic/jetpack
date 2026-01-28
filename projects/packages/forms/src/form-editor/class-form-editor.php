@@ -146,6 +146,9 @@ class Form_Editor {
 	 * @param \WP_Screen $screen The current screen object.
 	 */
 	public static function disable_block_directory( $screen ) {
+		if ( ! isset( $screen->post_type ) ) {
+			return;
+		}
 		if ( Contact_Form::POST_TYPE === $screen->post_type ) {
 			remove_action( 'enqueue_block_editor_assets', 'wp_enqueue_editor_block_directory_assets' );
 		}
