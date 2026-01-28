@@ -12,27 +12,26 @@ import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedForm } from '../util/create-synced-form.ts';
+import { getEditorContext, type EditorContext } from '../util/get-editor-context.ts';
 
 const FORM_CONVERSION_LOCK = 'jetpack-form-conversion';
-const isWidgetEditor = window.location.pathname.endsWith( '/widgets.php' );
-const isSiteEditor = window.location.pathname.endsWith( '/site-editor.php' );
 
 /**
  * Navigate to edit a form post.
- * - Widget editor: opens in new tab (no in-editor navigation available)
- * - Site editor: redirects in same page
+ * - Widget/Site editor: redirects in same page (no in-editor navigation available)
  * - Post editor: uses in-editor navigation if available
  *
  * @param formId                   - The form post ID to edit.
+ * @param editorContext            - The current editor context.
  * @param onNavigateToEntityRecord - Optional callback for in-editor navigation.
  */
-const navigateToForm = (
+export const navigateToForm = (
 	formId: number,
+	editorContext: EditorContext,
 	onNavigateToEntityRecord?: ( params: { postId: number; postType: string } ) => void
 ) => {
-	const editUrl = addQueryArgs( 'post.php', { post: formId, action: 'edit' } );
-
-	if ( isWidgetEditor || isSiteEditor ) {
+	if ( editorContext === 'widget' || editorContext === 'site' ) {
+		const editUrl = addQueryArgs( 'post.php', { post: formId, action: 'edit' } );
 		window.location.href = editUrl;
 	} else if ( onNavigateToEntityRecord ) {
 		onNavigateToEntityRecord( { postId: formId, postType: FORM_POST_TYPE } );
@@ -53,6 +52,9 @@ interface ConvertFormToolbarProps {
  * @return Toolbar with edit/convert buttons.
  */
 export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbarProps ) {
+	const editorContext = getEditorContext();
+	const isWidgetEditor = editorContext === 'widget';
+
 	const { block, formTitle, currentPostId, isLocked, onNavigateToEntityRecord } = useSelect(
 		select => {
 			const { getBlock, getSettings } = select( blockEditorStore );
@@ -84,7 +86,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 				onNavigateToEntityRecord: getSettings().onNavigateToEntityRecord,
 			};
 		},
-		[ clientId ]
+		[ clientId, isWidgetEditor ]
 	);
 
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
@@ -118,7 +120,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 			);
 			updateBlockAttributes( clientId, clearedAttributes );
 
-			navigateToForm( formId, onNavigateToEntityRecord );
+			navigateToForm( formId, editorContext, onNavigateToEntityRecord );
 		} catch {
 			createErrorNotice( __( 'Failed to create a form. Please try again.', 'jetpack-forms' ), {
 				type: 'snackbar',
@@ -131,17 +133,21 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 
 	const handleEditOriginal = () => {
 		if ( attributes.ref ) {
-			navigateToForm( attributes.ref as number, onNavigateToEntityRecord );
+			navigateToForm( attributes.ref as number, editorContext, onNavigateToEntityRecord );
 		}
 	};
 
-	const handleOnClick = hasRef ? handleEditOriginal : convertToSynced;
-
 	return (
 		<ToolbarGroup>
-			<ToolbarButton onClick={ handleOnClick }>
-				{ __( 'Edit Form', 'jetpack-forms' ) }
-			</ToolbarButton>
+			{ hasRef ? (
+				<ToolbarButton onClick={ handleEditOriginal }>
+					{ __( 'Edit Form', 'jetpack-forms' ) }
+				</ToolbarButton>
+			) : (
+				<ToolbarButton onClick={ convertToSynced } disabled={ isLocked }>
+					{ __( 'Edit Form', 'jetpack-forms' ) }
+				</ToolbarButton>
+			) }
 		</ToolbarGroup>
 	);
 }
