@@ -291,7 +291,7 @@ const setupFormEditorSubscription = () => {
 			// 1. Handle form editor enter/leave transitions
 			// Detect if we are in the form editor and detect when this state changes across ticks.
 			if ( isFormEditor !== state.isFormEditor ) {
-				state.isFormEditor = isFormEditor; // lets store the current isFormEditor in the state object for future reference.
+				state.isFormEditor = isFormEditor; // Store the current isFormEditor in the state object for future reference.
 
 				if ( isFormEditor ) {
 					// We just entered the form editor.
