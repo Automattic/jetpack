@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -11,64 +12,61 @@
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
+/*
+======================================================
+	Init Func
+	====================================================== */
 
+function zeroBSCRM_QuotesTemplatesMetaboxSetup() {
 
-/* ======================================================
-   Init Func
-   ====================================================== */
+	// main detail
+	$zeroBS__Metabox_QuoteTemplate = new zeroBS__Metabox_QuoteTemplate( __FILE__ );
 
-   function zeroBSCRM_QuotesTemplatesMetaboxSetup(){
+	// save
+	$zeroBS__Metabox_QuoteTemplateActions = new zeroBS__Metabox_QuoteTemplateActions( __FILE__ );
+}
 
-        // main detail
-        $zeroBS__Metabox_QuoteTemplate = new zeroBS__Metabox_QuoteTemplate( __FILE__ );
+	add_action( 'admin_init', 'zeroBSCRM_QuotesTemplatesMetaboxSetup' );
 
-        // save
-        $zeroBS__Metabox_QuoteTemplateActions = new zeroBS__Metabox_QuoteTemplateActions( __FILE__ );
+/*
+======================================================
+	/ Init Func
+	====================================================== */
 
-   }
+/*
+======================================================
+	Quote Template Metabox
+	====================================================== */
 
-   add_action( 'admin_init','zeroBSCRM_QuotesTemplatesMetaboxSetup');
+class zeroBS__Metabox_QuoteTemplate extends zeroBS__Metabox {
 
+	// this is for catching 'new' quote templates
+	private $newRecordNeedsRedir = false;
 
-/* ======================================================
-   / Init Func
-   ====================================================== */
+	public function __construct( $plugin_file ) {
 
+		// set these
+		$this->objType         = 'quotetemplate';
+		$this->metaboxID       = 'zerobs-quote-template-edit';
+		$this->metaboxTitle    = __( 'Quote Template', 'zero-bs-crm' ); // will be headless anyhow
+		$this->metaboxScreen   = 'zbs-add-edit-quotetemplate-edit';
+		$this->metaboxArea     = 'normal';
+		$this->metaboxLocation = 'high';
+		$this->saveOrder       = 1;
+		$this->capabilities    = array(
 
-/* ======================================================
-  Quote Template Metabox
-   ====================================================== */
+			'can_hide'        => false, // can be hidden
+			'areas'           => array( 'normal' ), // areas can be dragged to - normal side = only areas currently
+			'can_accept_tabs' => true,  // can/can't accept tabs onto it
+			'can_become_tab'  => false, // can be added as tab
+			'can_minimise'    => true, // can be minimised
+			'can_move'        => true, // can be moved
 
-    class zeroBS__Metabox_QuoteTemplate extends zeroBS__Metabox{ 
-        
-        // this is for catching 'new' quote templates
-        private $newRecordNeedsRedir = false;
+		);
 
-        public function __construct( $plugin_file ) {
-
-            // set these
-            $this->objType = 'quotetemplate';
-            $this->metaboxID = 'zerobs-quote-template-edit';
-            $this->metaboxTitle = __('Quote Template','zero-bs-crm'); // will be headless anyhow
-            $this->metaboxScreen = 'zbs-add-edit-quotetemplate-edit';
-            $this->metaboxArea = 'normal';
-            $this->metaboxLocation = 'high';
-            $this->saveOrder = 1;
-            $this->capabilities = array(
-
-                'can_hide'          => false, // can be hidden
-                'areas'             => array('normal'), // areas can be dragged to - normal side = only areas currently
-                'can_accept_tabs'   => true,  // can/can't accept tabs onto it
-                'can_become_tab'    => false, // can be added as tab
-                'can_minimise'      => true, // can be minimised
-                'can_move'          => true // can be moved
-
-            );
-
-            // call this 
-            $this->initMetabox();
-
-        }
+		// call this
+		$this->initMetabox();
+	}
 
 	/**
 	 * Outputs the HTML for the Quote Template metabox.
@@ -148,227 +146,234 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 		<?php
 	}
 
-        public function save_data( $quoteTemplateID, $quoteTemplate ) {
+	public function save_data( $quoteTemplateID, $quoteTemplate ) {
 
-            if (!defined('ZBS_OBJ_SAVED')){
+		if ( ! defined( 'ZBS_OBJ_SAVED' ) ) {
 
-                define('ZBS_OBJ_SAVED',1);
+			define( 'ZBS_OBJ_SAVED', 1 );
 
-                // DAL3.0+
-                global $zbs;
+			// DAL3.0+
+			global $zbs;
 
-                // check this
-                if (empty($quoteTemplateID) || $quoteTemplateID < 1)  $quoteTemplateID = -1;
+			// check this
+			if ( empty( $quoteTemplateID ) || $quoteTemplateID < 1 ) {
+				$quoteTemplateID = -1;
+			}
 
-                /* old way:
-        
-                    Was previously just a CPT
+			/*
+				old way:
 
-                */
-                $extraMeta = array();
+				Was previously just a CPT
 
-                // retrieve _POST into arr     
-                $autoGenAutonumbers = true; // generate if not set               
-                $quoteTemplate = zeroBS_buildObjArr($_POST,array(),$fieldPrefix='zbsqt_',$outputPrefix='',false,ZBS_TYPE_QUOTETEMPLATE,$autoGenAutonumbers);
-                
-                // content (from other metabox actually)
-                if (isset($_POST['zbs_quotetemplate_content'])) {
+			*/
+			$extraMeta = array();
 
-                    #} Save content
-					$quoteTemplate['content'] = wp_kses( $_POST['zbs_quotetemplate_content'], $zbs->acceptable_html ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- to follow up with.
+			// retrieve _POST into arr
+			$autoGenAutonumbers = true; // generate if not set
+			$quoteTemplate      = zeroBS_buildObjArr( $_POST, array(), $fieldPrefix = 'zbsqt_', $outputPrefix = '', false, ZBS_TYPE_QUOTETEMPLATE, $autoGenAutonumbers );
 
-                    #} update templated vars
-                    // Think this was here in err... if (isset($_POST['zbs_quote_template_id_used'])) $quote['template'] = (int)sanitize_text_field($_POST['zbs_quote_template_id_used']);
+			// content (from other metabox actually)
+			if ( isset( $_POST['zbs_quotetemplate_content'] ) ) {
 
-                }
+				#} Save content
+				$quoteTemplate['content'] = wp_kses( $_POST['zbs_quotetemplate_content'], $zbs->acceptable_html ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- to follow up with.
 
-                // add/update
-                $addUpdateReturn = $zbs->DAL->quotetemplates->addUpdateQuoteTemplate(array(
+				#} update templated vars
+				// Think this was here in err... if (isset($_POST['zbs_quote_template_id_used'])) $quote['template'] = (int)sanitize_text_field($_POST['zbs_quote_template_id_used']);
 
-                            'id'    => $quoteTemplateID,
-                            'data'  => $quoteTemplate,
-                            'extraMeta' => $extraMeta,
-                            'limitedFields' => -1
+			}
 
-                    ));
+			// add/update
+			$addUpdateReturn = $zbs->DAL->quotetemplates->addUpdateQuoteTemplate(
+				array(
 
-                // Note: For NEW objs, we make sure a global is set here, that other update funcs can catch 
-                // ... so it's essential this one runs first!
-                // this is managed in the metabox Class :)
-                if ($quoteTemplateID == -1 && !empty($addUpdateReturn) && $addUpdateReturn != -1) {
-                    
-                    $quoteTemplateID = $addUpdateReturn;
-                    global $zbsJustInsertedMetaboxID; $zbsJustInsertedMetaboxID = $quoteTemplateID;
+					'id'            => $quoteTemplateID,
+					'data'          => $quoteTemplate,
+					'extraMeta'     => $extraMeta,
+					'limitedFields' => -1,
 
-                    // set this so it redirs
-                    $this->newRecordNeedsRedir = true;
-                }
+				)
+			);
 
-                // success?
-                if ($addUpdateReturn != -1 && $addUpdateReturn > 0){
+			// Note: For NEW objs, we make sure a global is set here, that other update funcs can catch
+			// ... so it's essential this one runs first!
+			// this is managed in the metabox Class :)
+			if ( $quoteTemplateID == -1 && ! empty( $addUpdateReturn ) && $addUpdateReturn != -1 ) {
 
-                    // Update Msg
-                    // this adds an update message which'll go out ahead of any content
-                    // This adds to metabox: $this->updateMessages['update'] = zeroBSCRM_UI2_messageHTML('info olive mini zbs-not-urgent',__('Contact Updated',"zero-bs-crm"),'','address book outline','contactUpdated');
-                    // This adds to edit page
-                    $this->updateMessage();
+				$quoteTemplateID = $addUpdateReturn;
+				global $zbsJustInsertedMetaboxID;
+				$zbsJustInsertedMetaboxID = $quoteTemplateID;
 
-                    // catch any non-critical messages
-                    $nonCriticalMessages = $zbs->DAL->getErrors(ZBS_TYPE_QUOTETEMPLATE);
-                    if (is_array($nonCriticalMessages) && count($nonCriticalMessages) > 0) $this->dalNoticeMessage($nonCriticalMessages);
+				// set this so it redirs
+				$this->newRecordNeedsRedir = true;
+			}
 
+			// success?
+			if ( $addUpdateReturn != -1 && $addUpdateReturn > 0 ) {
 
-                } else {
+				// Update Msg
+				// this adds an update message which'll go out ahead of any content
+				// This adds to metabox: $this->updateMessages['update'] = zeroBSCRM_UI2_messageHTML('info olive mini zbs-not-urgent',__('Contact Updated',"zero-bs-crm"),'','address book outline','contactUpdated');
+				// This adds to edit page
+				$this->updateMessage();
 
-                    // fail somehow
-                    $failMessages = $zbs->DAL->getErrors(ZBS_TYPE_QUOTETEMPLATE);
+				// catch any non-critical messages
+				$nonCriticalMessages = $zbs->DAL->getErrors( ZBS_TYPE_QUOTETEMPLATE );
+				if ( is_array( $nonCriticalMessages ) && count( $nonCriticalMessages ) > 0 ) {
+					$this->dalNoticeMessage( $nonCriticalMessages );
+				}
+			} else {
 
-                    // show msg (retrieved from DAL err stack)
-                    if (is_array($failMessages) && count($failMessages) > 0)
-                        $this->dalErrorMessage($failMessages);
-                    else
-                        $this->dalErrorMessage(array(__('Insert/Update Failed with general error','zero-bs-crm')));
+				// fail somehow
+				$failMessages = $zbs->DAL->getErrors( ZBS_TYPE_QUOTETEMPLATE );
 
-                    // pass the pre-fill:
-                    global $zbsObjDataPrefill; $zbsObjDataPrefill = $quoteTemplate;
+				// show msg (retrieved from DAL err stack)
+				if ( is_array( $failMessages ) && count( $failMessages ) > 0 ) {
+					$this->dalErrorMessage( $failMessages );
+				} else {
+					$this->dalErrorMessage( array( __( 'Insert/Update Failed with general error', 'zero-bs-crm' ) ) );
+				}
 
-        
-                }
+				// pass the pre-fill:
+				global $zbsObjDataPrefill;
+				$zbsObjDataPrefill = $quoteTemplate;
 
-            }
+			}
+		}
 
-            return $quoteTemplate;
-        }
+		return $quoteTemplate;
+	}
 
-        // This catches 'new' contacts + redirs to right url
-        public function post_save_data($objID,$obj){
+	// This catches 'new' contacts + redirs to right url
+	public function post_save_data( $objID, $obj ) {
 
-            if ($this->newRecordNeedsRedir){
+		if ( $this->newRecordNeedsRedir ) {
 
-                global $zbsJustInsertedMetaboxID;
-                if (!empty($zbsJustInsertedMetaboxID) && $zbsJustInsertedMetaboxID > 0){
+			global $zbsJustInsertedMetaboxID;
+			if ( ! empty( $zbsJustInsertedMetaboxID ) && $zbsJustInsertedMetaboxID > 0 ) {
 
-                    // redir
-                    wp_redirect( jpcrm_esc_link('edit',$zbsJustInsertedMetaboxID,$this->objType) );
+				// redir
+				wp_redirect( jpcrm_esc_link( 'edit', $zbsJustInsertedMetaboxID, $this->objType ) );
 				exit( 0 );
 
-                }
+			}
+		}
+	}
 
-            }
+	public function updateMessage() {
 
-        }
+		global $zbs;
 
-        public function updateMessage(){
+		// zbs-not-urgent means it'll auto hide after 1.5s
+		// genericified from DAL3.0
+		$msg = zeroBSCRM_UI2_messageHTML( 'info olive mini zbs-not-urgent', $zbs->DAL->typeStr( $zbs->DAL->objTypeKey( $this->objType ) ) . ' ' . __( 'Updated', 'zero-bs-crm' ), '', 'address book outline', 'contactUpdated' );
 
-            global $zbs;
+		$zbs->pageMessages[] = $msg;
+	}
+}
 
-            // zbs-not-urgent means it'll auto hide after 1.5s
-            // genericified from DAL3.0
-            $msg = zeroBSCRM_UI2_messageHTML('info olive mini zbs-not-urgent',$zbs->DAL->typeStr($zbs->DAL->objTypeKey($this->objType)).' '.__('Updated',"zero-bs-crm"),'','address book outline','contactUpdated');
+/*
+======================================================
+	/ Quote Template Metabox
+	====================================================== */
 
-            $zbs->pageMessages[] = $msg;
+/*
+======================================================
+	Quote Template Actions Metabox
+	====================================================== */
 
-        }
-    }
+class zeroBS__Metabox_QuoteTemplateActions extends zeroBS__Metabox {
 
+	public function __construct( $plugin_file ) {
 
-/* ======================================================
-  / Quote Template Metabox
-   ====================================================== */
+		// set these
+		$this->objType         = 'quotetemplate';
+		$this->metaboxID       = 'zerobs-quotetemplate-actions';
+		$this->metaboxTitle    = __( 'Quote Template', 'zero-bs-crm' ) . ' ' . __( 'Actions', 'zero-bs-crm' ); // will be headless anyhow
+		$this->headless        = true;
+		$this->metaboxScreen   = 'zbs-add-edit-quotetemplate-edit';
+		$this->metaboxArea     = 'side';
+		$this->metaboxLocation = 'high';
+		$this->saveOrder       = 1;
+		$this->capabilities    = array(
 
+			'can_hide'        => false, // can be hidden
+			'areas'           => array( 'side' ), // areas can be dragged to - normal side = only areas currently
+			'can_accept_tabs' => true,  // can/can't accept tabs onto it
+			'can_become_tab'  => false, // can be added as tab
+			'can_minimise'    => true, // can be minimised
+			'can_move'        => true, // can be moved
 
+		);
 
-/* ======================================================
-    Quote Template Actions Metabox
-   ====================================================== */
+		// call this
+		$this->initMetabox();
+	}
 
-    class zeroBS__Metabox_QuoteTemplateActions extends zeroBS__Metabox{ 
+	public function html( $quoteTemplate, $metabox ) {
 
-        public function __construct( $plugin_file ) {
+		?>
+			<div class="zbs-generic-save-wrap">
 
-            // set these
-            $this->objType = 'quotetemplate';
-            $this->metaboxID = 'zerobs-quotetemplate-actions';
-            $this->metaboxTitle = __('Quote Template','zero-bs-crm').' '.__('Actions','zero-bs-crm'); // will be headless anyhow
-            $this->headless = true;
-            $this->metaboxScreen = 'zbs-add-edit-quotetemplate-edit';
-            $this->metaboxArea = 'side';
-            $this->metaboxLocation = 'high';
-            $this->saveOrder = 1;
-            $this->capabilities = array(
+					<div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e( 'Template', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Actions', 'zero-bs-crm' ); ?></div>
 
-                'can_hide'          => false, // can be hidden
-                'areas'             => array('side'), // areas can be dragged to - normal side = only areas currently
-                'can_accept_tabs'   => true,  // can/can't accept tabs onto it
-                'can_become_tab'    => false, // can be added as tab
-                'can_minimise'      => true, // can be minimised
-                'can_move'          => true // can be moved
+			<?php
 
-            );
+			// localise ID & content
+			$quoteTemplateID = -1;
+			if ( is_array( $quoteTemplate ) && isset( $quoteTemplate['id'] ) ) {
+				$quoteTemplateID = (int) $quoteTemplate['id'];
+			}
 
-            // call this 
-            $this->initMetabox();
+			#} if a saved obj...
+			if ( $quoteTemplateID > 0 ) { // existing
 
-        }
+				?>
 
-        public function html( $quoteTemplate, $metabox ) {
-
-            ?><div class="zbs-generic-save-wrap">
-
-                    <div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e('Template','zero-bs-crm'); ?> <?php esc_html_e('Actions','zero-bs-crm'); ?></div>
-
-            <?php
-
-            // localise ID & content
-            $quoteTemplateID = -1; if (is_array($quoteTemplate) && isset($quoteTemplate['id'])) $quoteTemplateID = (int)$quoteTemplate['id'];
-            
-
-                #} if a saved obj...
-                if ($quoteTemplateID > 0){ // existing
-
-                    ?>
-
-                    <div class="zbs-quotetemplate-actions-bottom zbs-objedit-actions-bottom">
+					<div class="zbs-quotetemplate-actions-bottom zbs-objedit-actions-bottom">
 
 							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Template', 'zero-bs-crm' ); ?></button>
 
-                        <?php
+					<?php
 
-                            // delete?
+						// delete?
 
-                         // for now just check if can modify, later better, granular perms.
-                         if ( zeroBSCRM_permsQuotes() ) { 
-                        ?><div id="zbs-quotetemplate-actions-delete" class="zbs-objedit-actions-delete">
-                             <a class="submitdelete deletion" href="<?php echo jpcrm_esc_link( 'delete', $quoteTemplateID, 'quotetemplate' ); ?>"><?php esc_html_e('Delete Permanently', "zero-bs-crm"); ?></a>
-                        </div>
-                        <?php } // can delete  ?>
-                        
-                        <div class='clear'></div>
+					// for now just check if can modify, later better, granular perms.
+					if ( zeroBSCRM_permsQuotes() ) {
+						?>
+						<div id="zbs-quotetemplate-actions-delete" class="zbs-objedit-actions-delete">
+							<a class="submitdelete deletion" href="<?php echo jpcrm_esc_link( 'delete', $quoteTemplateID, 'quotetemplate' ); ?>"><?php esc_html_e( 'Delete Permanently', 'zero-bs-crm' ); ?></a>
+						</div>
+						<?php } // can delete ?>
+						
+						<div class='clear'></div>
 
-                    </div>
-                <?php
+					</div>
+				<?php
 
+			} else {
 
-                } else {
+				// NEW quote template
+				?>
 
-                    // NEW quote template ?>
-
-                    <div class="zbs-quotetemplate-actions-bottom zbs-objedit-actions-bottom">
-                        
+					<div class="zbs-quotetemplate-actions-bottom zbs-objedit-actions-bottom">
+						
 							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Template', 'zero-bs-crm' ); ?></button>
 
-                    </div>
+					</div>
 
-                 <?php
+				<?php
 
-                }
+			}
 
-            ?></div><?php // / .zbs-generic-save-wrap
-              
-        } // html
+			?>
+			</div>
+			<?php
+			// / .zbs-generic-save-wrap
+	} // html
 
-        // saved via main metabox
-    }
+	// saved via main metabox
+}
 
 /**
  * End of Quote Template Action Metabox

@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -27,7 +28,6 @@ class Package_Installer {
 	 * @var string
 	 */
 	private $package_dir;
-
 
 	/*
 	* Init
@@ -79,19 +79,19 @@ class Package_Installer {
 	/*
 	* Returns a list of packages available via our CDN
 	*/
-	public function list_all_available_packages( $with_install_status = false ){
+	public function list_all_available_packages( $with_install_status = false ) {
 
 		// list packages available
 		// later we could retrieve this via CDN's package_versions.json
 		$packages = $this->packages;
 
 		// if with install status, cycle through and check those
-		if ( $with_install_status ){
+		if ( $with_install_status ) {
 
 			$return = array();
-			foreach ( $packages as $package_key => $package_info ){
+			foreach ( $packages as $package_key => $package_info ) {
 
-				$return[ $package_key ] = $package_info;
+				$return[ $package_key ]              = $package_info;
 				$return[ $package_key ]['installed'] = $this->get_package_install_info( $package_key );
 
 				// check for failed attempts
@@ -104,9 +104,7 @@ class Package_Installer {
 		}
 
 		return $packages;
-
 	}
-
 
 	/*
 	* Returns info array on package
@@ -114,9 +112,9 @@ class Package_Installer {
 	* @param string $package_key - a slug for a particular package
 	*
 	*/
-	public function get_package_info( $package_key = '' ){
+	public function get_package_info( $package_key = '' ) {
 
-		if ( isset( $this->packages[ $package_key ] ) ){
+		if ( isset( $this->packages[ $package_key ] ) ) {
 
 			$package = $this->packages[ $package_key ];
 
@@ -131,9 +129,7 @@ class Package_Installer {
 		}
 
 		return false;
-
 	}
-
 
 	/*
 	* Returns installed package info from package's version_info.json file
@@ -141,18 +137,19 @@ class Package_Installer {
 	* @param string $package_key - a slug for a particular package
 	*
 	*/
-	public function get_package_install_info( $package_key = '' ){
+	public function get_package_install_info( $package_key = '' ) {
 
 		// retrieve version_info.json file and load info
 		$package_version_info_file = $this->package_dir . $package_key . '/version_info.json';
 
-		if ( file_exists( $package_version_info_file ) ){
+		if ( file_exists( $package_version_info_file ) ) {
 
-			/* Example version_info.json file:
+			/*
+			Example version_info.json file:
 
 			{
-			  "key": "my_package_key",
-			  "version": "1.0"
+				"key": "my_package_key",
+				"version": "1.0"
 			}
 
 			*/
@@ -162,7 +159,6 @@ class Package_Installer {
 		}
 
 		return false;
-
 	}
 
 	/*
@@ -172,10 +168,9 @@ class Package_Installer {
 	*
 	* @returns bool(ish)
 	*/
-	public function package_is_available( $package_key = '' ){
+	public function package_is_available( $package_key = '' ) {
 
 		return ( $this->get_package_info( $package_key ) ? true : false ); // package doesn't exist on CDN or no connection
-
 	}
 
 	/*
@@ -185,18 +180,18 @@ class Package_Installer {
 	* @param float $min_version - if > 0, installed version is compared and returns true only if min version met
 	*
 	*/
-	public function package_is_installed( $package_key = '', $min_version = 0 ){
+	public function package_is_installed( $package_key = '', $min_version = 0 ) {
 
 		// retrieve installed version data if available
 		$installed_info = $this->get_package_install_info( $package_key );
-		if ( !is_array( $installed_info ) ){
-			
+		if ( ! is_array( $installed_info ) ) {
+
 			return false;
 
 		} else {
 
 			// check min version
-			if ( $min_version > 0 ){
+			if ( $min_version > 0 ) {
 
 				$local_version = $installed_info['version'];
 				if ( version_compare( $local_version, $min_version, '>=' ) ) {
@@ -205,20 +200,17 @@ class Package_Installer {
 					return true;
 
 				}
-
 			} else {
 
 				// no min version check, but does seem to be installed
 				return true;
 
 			}
-
 		}
 
 		// +- check extraction endpoint (e.g. are files actually there?)
 
 		return false; // package doesn't exist or isn't installed
-
 	}
 
 	/*
@@ -228,9 +220,9 @@ class Package_Installer {
 	* @param float $min_version - if > 0, installed version is compared and returns true only if min version met
 	*
 	*/
-	public function ensure_package_is_installed( $package_key = '', $min_version = 0 ){
+	public function ensure_package_is_installed( $package_key = '', $min_version = 0 ) {
 
-		if ( !$this->package_is_installed( $package_key, $min_version ) ){
+		if ( ! $this->package_is_installed( $package_key, $min_version ) ) {
 
 			// not installed, try to install/update(reinstall) it
 			return $this->retrieve_and_install_package( $package_key, true );
@@ -244,40 +236,37 @@ class Package_Installer {
 		}
 
 		return true;
-
 	}
-
 
 	/*
 	* Retrieves a package zip from our CDN and installs it locally
 	*/
-	public function retrieve_and_install_package( $package_key = '', $force_reinstall = false){
+	public function retrieve_and_install_package( $package_key = '', $force_reinstall = false ) {
 
 		global $zbs;
 
 		// package exists?
-		if ( !$this->package_is_available( $package_key) ){
+		if ( ! $this->package_is_available( $package_key ) ) {
 
 			return false;
 
 		}
 
 		// package already installed?
-		if ( $this->package_is_installed( $package_key ) && !$force_reinstall ){
+		if ( $this->package_is_installed( $package_key ) && ! $force_reinstall ) {
 
 			return true;
 
 		}
 
 		// failed already 3 times?
-		if (  $this->get_fail_counter( $package_key ) >= 3 ){
+		if ( $this->get_fail_counter( $package_key ) >= 3 ) {
 
 			// Add error msg
-			zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'package.installer.fail_count_over',  $package_key );
+			zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'package.installer.fail_count_over', $package_key );
 
 			return false;
 		}
-
 
 		// here we set a failsafe which sets an option value such that if this install does not complete
 		// ... we'll know the package install failed (e.g. page timeout shorter than download/unzip time)
@@ -286,22 +275,22 @@ class Package_Installer {
 
 		// Retrieve & install the package
 		$package_info = $this->get_package_info( $package_key );
-		$installed = false;
+		$installed    = false;
 
 		// Directories
 		$working_dir = $this->package_dir;
-		if ( !file_exists( $working_dir ) ){ 
+		if ( ! file_exists( $working_dir ) ) {
 			wp_mkdir_p( $working_dir );
 			jpcrm_create_and_secure_dir_from_external_access( $working_dir, true );
 		}
 		$target_dir = $package_info['target_dir'];
-		if ( !file_exists( $target_dir ) ) {
+		if ( ! file_exists( $target_dir ) ) {
 			wp_mkdir_p( $target_dir );
 			jpcrm_create_and_secure_dir_from_external_access( $target_dir, true );
 		}
 
 		// did that work?
-		if ( !file_exists( $target_dir ) || !file_exists( $working_dir ) ) {
+		if ( ! file_exists( $target_dir ) || ! file_exists( $working_dir ) ) {
 
 			// error creating directories
 			// Add admin notification
@@ -316,38 +305,37 @@ class Package_Installer {
 		$source_file_name = $package_key . '.zip';
 
 		// Attempt to download and install
-		if ( file_exists( $target_dir ) && file_exists( $working_dir ) ){
+		if ( file_exists( $target_dir ) && file_exists( $working_dir ) ) {
 
 			// if force reinstall, clear out previous directory contents
-			if ( $this->package_is_installed( $package_key ) && $force_reinstall ){
+			if ( $this->package_is_installed( $package_key ) && $force_reinstall ) {
 
 				// empty it out!
 				jpcrm_delete_files_from_directory( $target_dir );
 
 			}
 
-			// Retrieve package 
+			// Retrieve package
 			$libs = zeroBSCRM_retrieveFile( $zbs->urls['extdlpackages'] . $source_file_name, $working_dir . $source_file_name, array( 'timeout' => 30 ) );
 
 			// Process package
-			if ( file_exists( $working_dir . $source_file_name ) ){
+			if ( file_exists( $working_dir . $source_file_name ) ) {
 
-				switch ( $package_info['install_method'] ){
+				switch ( $package_info['install_method'] ) {
 
 					// expand a zipped package
 					case 'unzip':
-
 						// Expand
 						$expanded = zeroBSCRM_expandArchive( $working_dir . $source_file_name, $target_dir );
 
-						if ( $expanded ){
+						if ( $expanded ) {
 
 							// Check success?
-							if ( !zeroBSCRM_is_dir_empty( $target_dir ) ){
+							if ( ! zeroBSCRM_is_dir_empty( $target_dir ) ) {
 
 								// appears to have worked, tidy up:
-								if ( file_exists( $working_dir  . $source_file_name ) ){
-									unlink( $working_dir . $source_file_name  );
+								if ( file_exists( $working_dir . $source_file_name ) ) {
+									unlink( $working_dir . $source_file_name );
 								}
 
 								$installed = true;
@@ -360,12 +348,11 @@ class Package_Installer {
 								return false;
 
 							}
-
 						} else {
 
 							// failed to open the .zip, remove it
-							if ( file_exists( $working_dir . $source_file_name ) ){
-								unlink( $working_dir . $source_file_name  );
+							if ( file_exists( $working_dir . $source_file_name ) ) {
+								unlink( $working_dir . $source_file_name );
 							}
 
 							// Add admin notification
@@ -379,22 +366,20 @@ class Package_Installer {
 
 					// 1 file package installs, copy to target location
 					default:
-
 						// TBD, add when we need this.
 
 						break;
 
 				}
 
-
 				// if successfully installed, do any follow-on tasks
-				if ( $installed ){
+				if ( $installed ) {
 
 					// Success. Reset fail counter
 					$this->clear_fail_counter( $package_key );
 
 					// if the $package_info has ['post_install_call'] set, call that
-					if ( isset( $package_info['post_install_call'] ) && function_exists( $package_info['post_install_call'] ) ){
+					if ( isset( $package_info['post_install_call'] ) && function_exists( $package_info['post_install_call'] ) ) {
 
 						call_user_func( $package_info['post_install_call'], $package_info );
 
@@ -403,15 +388,12 @@ class Package_Installer {
 					return true;
 
 				}
-
 			} else {
 
 				// Add error msg
 				zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'package.installer.dl_error', $package_info['title'] . ' (' . $package_key . ')' );
 
 			}
-
-
 		} else {
 
 			// Add error msg
@@ -420,42 +402,34 @@ class Package_Installer {
 		}
 
 		return false;
-
-
 	}
-
 
 	/*
 	* Gets a package fail counter option value
 	*/
-	private function get_fail_counter( $package_key = ''){
+	private function get_fail_counter( $package_key = '' ) {
 
-		return (int)get_option( 'jpcrm_package_fail_' . $package_key, 0 );
-
+		return (int) get_option( 'jpcrm_package_fail_' . $package_key, 0 );
 	}
-
 
 	/*
 	* Adds a tick to a package fail counter option ( to track failed installs )
 	*/
-	private function increment_fail_counter( $package_key = ''){
+	private function increment_fail_counter( $package_key = '' ) {
 
 		// here we set a failsafe which sets an option value such that if this install does not complete
 		// ... we'll know the package install failed (e.g. page timeout shorter than download/unzip time)
 		// ... that way we can avoid retrying 50000 times.
 		$existing_fails = $this->get_fail_counter( $package_key );
 		update_option( 'jpcrm_package_fail_' . $package_key, $existing_fails + 1, false );
-
 	}
-
 
 	/*
 	* Resets fail counter for a package
 	*/
-	private function clear_fail_counter( $package_key = ''){
+	private function clear_fail_counter( $package_key = '' ) {
 
 		// simple.
 		delete_option( 'jpcrm_package_fail_' . $package_key );
-
 	}
 }

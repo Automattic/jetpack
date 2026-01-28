@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -10,30 +11,28 @@
  */
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
+/*
+======================================================
+	Init Func
+	====================================================== */
 
+function zeroBSCRM_LogsMetaboxSetup() {
 
+	// req. for custom log types
+	zeroBSCRM_setupLogTypes();
+}
 
-/* ======================================================
-   Init Func
-   ====================================================== */
+	add_action( 'after_zerobscrm_settings_init', 'zeroBSCRM_LogsMetaboxSetup' );
 
-   function zeroBSCRM_LogsMetaboxSetup(){
+/*
+======================================================
+	/ Init Func
+	====================================================== */
 
-        // req. for custom log types
-        zeroBSCRM_setupLogTypes();
-
-   }
-
-   add_action( 'after_zerobscrm_settings_init','zeroBSCRM_LogsMetaboxSetup');
-
-/* ======================================================
-   / Init Func
-   ====================================================== */
-
-
-/* ======================================================
-  Declare Globals
-   ====================================================== */
+/*
+======================================================
+	Declare Globals
+	====================================================== */
 
 global $zeroBSCRM_logTypes; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 $zeroBSCRM_logTypes = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -95,51 +94,48 @@ $zeroBSCRM_logTypes = array( // phpcs:ignore WordPress.NamingConventions.ValidVa
 	// // phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 );
 
-    function zeroBSCRM_permifyLogType($logTypeStr=''){
+function zeroBSCRM_permifyLogType( $logTypeStr = '' ) {
 
-      return strtolower(str_replace(' ','_',str_replace(':','_',$logTypeStr)));
-      
-    }
+	return strtolower( str_replace( ' ', '_', str_replace( ':', '_', $logTypeStr ) ) );
+}
 
-    function zeroBSCRM_setupLogTypes(){
+function zeroBSCRM_setupLogTypes() {
 
-        global $zeroBSCRM_logTypes;
+	global $zeroBSCRM_logTypes;
 
-        // hide log types for objects that are disabled
-        $hide_quotes = zeroBSCRM_getSetting('feat_quotes') == -1;
-        $hide_invoices = zeroBSCRM_getSetting('feat_invs') == -1;
-        $hide_transactions = zeroBSCRM_getSetting('feat_transactions') == -1;
+	// hide log types for objects that are disabled
+	$hide_quotes       = zeroBSCRM_getSetting( 'feat_quotes' ) == -1;
+	$hide_invoices     = zeroBSCRM_getSetting( 'feat_invs' ) == -1;
+	$hide_transactions = zeroBSCRM_getSetting( 'feat_transactions' ) == -1;
 
-        foreach ( $zeroBSCRM_logTypes['zerobs_customer'] as $log_type => $log_type_value) {
+	foreach ( $zeroBSCRM_logTypes['zerobs_customer'] as $log_type => $log_type_value ) {
 		if (
-			$hide_quotes && str_starts_with( $log_type, 'quote' )
-			|| $hide_invoices && str_starts_with( $log_type, 'invoice' )
-			|| $hide_transactions && str_starts_with( $log_type, 'transaction' )
+		$hide_quotes && str_starts_with( $log_type, 'quote' )
+		|| $hide_invoices && str_starts_with( $log_type, 'invoice' )
+		|| $hide_transactions && str_starts_with( $log_type, 'transaction' )
 		) {
-            $zeroBSCRM_logTypes['zerobs_customer'][$log_type]['locked'] = true;
-          }
-        }
+			$zeroBSCRM_logTypes['zerobs_customer'][ $log_type ]['locked'] = true;
+		}
+	}
 
-        // apply filters
-        $zeroBSCRM_logTypes = apply_filters('zbs_logtype_array', $zeroBSCRM_logTypes);
+	// apply filters
+	$zeroBSCRM_logTypes = apply_filters( 'zbs_logtype_array', $zeroBSCRM_logTypes );
+}
 
-    }
+/*
+======================================================
+	/ Declare Globals
+	====================================================== */
 
-/* ======================================================
-  / Declare Globals
-   ====================================================== */
-
-
-
-
-/* ======================================================
-  Logs (v3 DB3) Metabox
-   ====================================================== */
+/*
+======================================================
+	Logs (v3 DB3) Metabox
+	====================================================== */
 
 class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
-    public $objtypeid = false; // child fills out e.g. ZBS_TYPE_CONTACT
-    public $metaboxLocation = 'normal';
+	public $objtypeid       = false; // child fills out e.g. ZBS_TYPE_CONTACT
+	public $metaboxLocation = 'normal';
 
 	/**
 	 * The legacy object name (e.g. 'zerobs_customer')
@@ -148,250 +144,284 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 	 */
 	private $postType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
-    public function __construct( $plugin_file ) {
+	public function __construct( $plugin_file ) {
 
-        // call this 
-        $this->initMetabox();
+		// call this
+		$this->initMetabox();
+	}
 
-    }
+	public function html( $obj, $metabox ) {
 
-    public function html( $obj, $metabox ) {
+		global $zbs;
 
-        global $zbs;
-
-            // needs conversion to set this v3+
-            // // obj type (1 => zerobs_customer)
-            // we load from DAL defaults, if objTypeID passed (overriding anything passed, if empty/false)
+			// needs conversion to set this v3+
+			// // obj type (1 => zerobs_customer)
+			// we load from DAL defaults, if objTypeID passed (overriding anything passed, if empty/false)
 		if ( isset( $this->objtypeid ) ) {
 
-                $objTypeID = (int)$this->objtypeid;
-                if ($objTypeID > 0){
+				$objTypeID = (int) $this->objtypeid;
+			if ( $objTypeID > 0 ) {
 
-                    // obj type (1 => zerobs_customer)
-                    $objTypeStr = $zbs->DAL->typeCPT($objTypeID);
-                    if ((!isset($this->postType) || $this->postType == false) && !empty($objTypeStr)) $this->postType = $objTypeStr;
+				// obj type (1 => zerobs_customer)
+				$objTypeStr = $zbs->DAL->typeCPT( $objTypeID );
+				if ( ( ! isset( $this->postType ) || $this->postType == false ) && ! empty( $objTypeStr ) ) {
+					$this->postType = $objTypeStr;
+				}
+			}
+		}
 
-                }
-            }
+			$objid = -1;
+		if ( is_array( $obj ) && isset( $obj['id'] ) ) {
+			$objid = $obj['id'];
+		}
 
+			#} Only load if is legit.
+			// if (in_array($this->postType,array('zerobs_customer'))){
+		if ( in_array( $this->objtypeid, array( ZBS_TYPE_CONTACT, ZBS_TYPE_COMPANY ) ) ) {
 
-            $objid = -1; if (is_array($obj) && isset($obj['id'])) $objid = $obj['id'];
+				#} Proceed
 
-            #} Only load if is legit.
-            //if (in_array($this->postType,array('zerobs_customer'))){
-            if (in_array($this->objtypeid,array(ZBS_TYPE_CONTACT,ZBS_TYPE_COMPANY))){
+				#} Retrieve
+				$zbsLogs = $zbs->DAL->logs->getLogsForObj(
+					array(
 
-                    #} Proceed
+						'objtype'      => $this->objtypeid,
+						'objid'        => $objid,
 
-                    #} Retrieve
-                    $zbsLogs = $zbs->DAL->logs->getLogsForObj(array(
+						'searchPhrase' => '',
 
-                            'objtype' => $this->objtypeid,
-                            'objid' => $objid,
+						'incMeta'      => false,
 
-                            'searchPhrase'  => '',
+						'sortByField'  => 'zbsl_created',
+						'sortOrder'    => 'DESC',
+						'page'         => 0,
+						'perPage'      => 100,
 
-                            'incMeta'   => false,
+						'ignoreowner'  => true,
 
-                            'sortByField'   => 'zbsl_created',
-                            'sortOrder'     => 'DESC',
-                            'page'          => 0,
-                            'perPage'       => 100,
+					)
+				);
 
-                            'ignoreowner' => true
+			if ( ! is_array( $zbsLogs ) ) {
+				$zbsLogs = array();
+			}
 
-                        ));
+			?>
+			<script type="text/javascript">var zbscrmjs_logsSecToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce-logs' ) ); ?>';</script>
 
-                    if (!is_array($zbsLogs)) $zbsLogs = array();
-
-            
-            ?>
-            <script type="text/javascript">var zbscrmjs_logsSecToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce-logs' ) ); ?>';</script>
-
-                <table class="form-table wh-metatab wptbp" id="wptbpMetaBoxLogs">
-                    
-                    <tr>
+				<table class="form-table wh-metatab wptbp" id="wptbpMetaBoxLogs">
+					
+					<tr>
 								<td><h4><span id="zbsActiveLogCount"><?php echo esc_html( zeroBSCRM_prettifyLongInts( count( $zbsLogs ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></span> <?php esc_html_e( 'Logs', 'zero-bs-crm' ); ?></h4></td>
 								<td><button type="button" class="ui button black jpcrm-button" id="zbscrmAddLog"><?php esc_html_e( 'Add Log', 'zero-bs-crm' ); ?></button></td>
-                    </tr>
+					</tr>
 
-                    <!-- this line will pop/close with "add log" button -->
-                    <tr id="zbsAddLogFormTR" style="display:none"><td colspan="2">
+					<!-- this line will pop/close with "add log" button -->
+					<tr id="zbsAddLogFormTR" style="display:none"><td colspan="2">
 
 
-                        <div id="zbsAddLogForm">
+						<div id="zbsAddLogForm">
 
-                            <div id="zbsAddLogIco">
-                                <!-- this will change with select changing... -->
-                                <i class="fa fa-sticky-note-o" aria-hidden="true"></i>
-                            </div>
+							<div id="zbsAddLogIco">
+								<!-- this will change with select changing... -->
+								<i class="fa fa-sticky-note-o" aria-hidden="true"></i>
+							</div>
 
-                            <label for="zbsAddLogType"><?php esc_html_e("Activity Type","zero-bs-crm");?>:</label>
-                            <select id="zbsAddLogType" class="form-control zbsUpdateTypeAdd">
-                                <?php global $zeroBSCRM_logTypes; 
-                                if (isset($zeroBSCRM_logTypes[$this->postType]) && count($zeroBSCRM_logTypes[$this->postType]) > 0) foreach ($zeroBSCRM_logTypes[$this->postType] as $logKey => $logType){
+							<label for="zbsAddLogType"><?php esc_html_e( 'Activity Type', 'zero-bs-crm' ); ?>:</label>
+							<select id="zbsAddLogType" class="form-control zbsUpdateTypeAdd">
+							<?php
+								global $zeroBSCRM_logTypes;
+							if ( isset( $zeroBSCRM_logTypes[ $this->postType ] ) && count( $zeroBSCRM_logTypes[ $this->postType ] ) > 0 ) {
+								foreach ( $zeroBSCRM_logTypes[ $this->postType ] as $logKey => $logType ) {
 
-                                    // not for locked logs
-                                    if (isset($logType['locked']) && $logType['locked']){
-                                        // nope
-                                    } else {
-                                        ?><option value="<?php echo esc_attr( $logKey ); ?>"><?php esc_html_e($logType['label'],"zero-bs-crm"); ?></option><?php 
-                                    }
-                                } 
+									// not for locked logs
+									if ( isset( $logType['locked'] ) && $logType['locked'] ) {
+										// nope
+									} else {
+										?>
+										<option value="<?php echo esc_attr( $logKey ); ?>"><?php esc_html_e( $logType['label'], 'zero-bs-crm' ); ?></option>
+										<?php
+									}
+								}
+							}
 
-                                ?>
-                            </select>
+							?>
+							</select>
 
-                            <br />
+							<br />
 
-                            <label for="zbsAddLogMainDesc"><?php esc_html_e("Activity Description","zero-bs-crm")?>:</label>
+							<label for="zbsAddLogMainDesc"><?php esc_html_e( 'Activity Description', 'zero-bs-crm' ); ?>:</label>
 														<input type="text" class="form-control" id="zbsAddLogMainDesc" placeholder="e.g. <?php esc_attr_e( 'Called and talked to Todd about service x, seemed keen', 'zero-bs-crm' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 
-                            <label for="zbsAddLogDetailedDesc"><?php esc_html_e("Activity Detailed Notes","zero-bs-crm");?>:</label>
+							<label for="zbsAddLogDetailedDesc"><?php esc_html_e( 'Activity Detailed Notes', 'zero-bs-crm' ); ?>:</label>
 														<textarea class="form-control" id="zbsAddLogDetailedDesc" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>"></textarea>
 
-                            <label for="zbsAddLogPinNote"><?php esc_html_e( 'Pin note', 'zero-bs-crm' ); ?>:</label>
-                            <input type="checkbox" id="zbsAddLogPinNote" />
+							<label for="zbsAddLogPinNote"><?php esc_html_e( 'Pin note', 'zero-bs-crm' ); ?>:</label>
+							<input type="checkbox" id="zbsAddLogPinNote" />
 
-                            <div id="zbsAddLogActions">
-                                <div id="zbsAddLogUpdateMsg"></div>
+							<div id="zbsAddLogActions">
+								<div id="zbsAddLogUpdateMsg"></div>
 											<button type="button" class="jpcrm-button white-bg" id="zbscrmAddLogCancel"><?php esc_html_e( 'Cancel', 'zero-bs-crm' ); ?></button>
 											<button type="button" class="jpcrm-button" id="zbscrmAddLogSave"><?php esc_html_e( 'Save Log', 'zero-bs-crm' ); ?></button>
-                            </div>
+							</div>
 
-                        </div>
+						</div>
 
 
 
-                        <!-- edit log form is to be moved about by edit routines :) -->
-                        <div id="zbsEditLogForm">
+						<!-- edit log form is to be moved about by edit routines :) -->
+						<div id="zbsEditLogForm">
 
-                            <div id="zbsEditLogIco">
-                                <!-- this will change with select changing... -->
-                                <i class="fa fa-sticky-note-o" aria-hidden="true"></i>
-                            </div>
+							<div id="zbsEditLogIco">
+								<!-- this will change with select changing... -->
+								<i class="fa fa-sticky-note-o" aria-hidden="true"></i>
+							</div>
 
-                            <label for="zbsEditLogType"><?php esc_html_e("Activity Type","zero-bs-crm");?>:</label>
+							<label for="zbsEditLogType"><?php esc_html_e( 'Activity Type', 'zero-bs-crm' ); ?>:</label>
 														<select id="zbsEditLogType" class="form-control zbsUpdateTypeEdit" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>">
-                                <?php global $zeroBSCRM_logTypes; 
-                                if (isset($zeroBSCRM_logTypes[$this->postType]) && count($zeroBSCRM_logTypes[$this->postType]) > 0) foreach ($zeroBSCRM_logTypes[$this->postType] as $logKey => $logType){
+								<?php
+								global $zeroBSCRM_logTypes;
+								if ( isset( $zeroBSCRM_logTypes[ $this->postType ] ) && count( $zeroBSCRM_logTypes[ $this->postType ] ) > 0 ) {
+									foreach ( $zeroBSCRM_logTypes[ $this->postType ] as $logKey => $logType ) {
 
-                                    // not for locked logs
-                                    if (isset($logType['locked']) && $logType['locked']){
-                                        // nope
-                                    } else {
-                                        ?><option value="<?php echo esc_attr( $logKey ); ?>"><?php echo esc_html( $logType['label'] ); ?></option><?php 
-                                    }
-                                } 
+										// not for locked logs
+										if ( isset( $logType['locked'] ) && $logType['locked'] ) {
+											// nope
+										} else {
+											?>
+										<option value="<?php echo esc_attr( $logKey ); ?>"><?php echo esc_html( $logType['label'] ); ?></option>
+											<?php
+										}
+									}
+								}
 
-                                ?>
-                            </select>
+								?>
+							</select>
 
-                            <br />
+							<br />
 
-                            <label for="zbsEditLogMainDesc"><?php esc_html_e("Activity Description","zero-bs-crm");?>:</label>
+							<label for="zbsEditLogMainDesc"><?php esc_html_e( 'Activity Description', 'zero-bs-crm' ); ?>:</label>
 														<input type="text" class="form-control" id="zbsEditLogMainDesc" placeholder="e.g. 'Called and talked to Todd about service x, seemed keen'" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 
-                            <label for="zbsEditLogDetailedDesc"><?php esc_html_e("Activity Detailed Notes","zero-bs-crm");?>:</label>
+							<label for="zbsEditLogDetailedDesc"><?php esc_html_e( 'Activity Detailed Notes', 'zero-bs-crm' ); ?>:</label>
 														<textarea class="form-control" id="zbsEditLogDetailedDesc" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>"></textarea>
 
-                            <label for="zbsEditLogPinNote"><?php esc_html_e( 'Pin note', 'zero-bs-crm' ); ?>:</label>
-                            <input type="checkbox" id="zbsEditLogPinNote" />
+							<label for="zbsEditLogPinNote"><?php esc_html_e( 'Pin note', 'zero-bs-crm' ); ?>:</label>
+							<input type="checkbox" id="zbsEditLogPinNote" />
 
-                            <div id="zbsEditLogActions">
-                                <div id="zbsEditLogUpdateMsg"></div>
-                                <button type="button" class="button button-info button-large" id="zbscrmEditLogCancel"><?php esc_html_e("Cancel","zero-bs-crm");?></button>
-                                <button type="button" class="button button-primary button-large" id="zbscrmEditLogSave"><?php esc_html_e("Save Log","zero-bs-crm");?></button>
-                            </div>
+							<div id="zbsEditLogActions">
+								<div id="zbsEditLogUpdateMsg"></div>
+								<button type="button" class="button button-info button-large" id="zbscrmEditLogCancel"><?php esc_html_e( 'Cancel', 'zero-bs-crm' ); ?></button>
+								<button type="button" class="button button-primary button-large" id="zbscrmEditLogSave"><?php esc_html_e( 'Save Log', 'zero-bs-crm' ); ?></button>
+							</div>
 
-                        </div>
-
-
+						</div>
 
 
-                    </td></tr>
-
-                    <tr><td colspan="2">
-
-                        <?php # Output logs (let JS do this!)
-
-                            #if (count($zbsLogs) > 0){ }
-
-                        ?>
-                        <div id="zbsAddLogOutputWrap"></div>
 
 
-                    </td></tr>
+					</td></tr>
 
-                </table>
+					<tr><td colspan="2">
+
+						<?php
+						# Output logs (let JS do this!)
+
+						#if (count($zbsLogs) > 0){ }
+
+						?>
+						<div id="zbsAddLogOutputWrap"></div>
 
 
-            <style type="text/css">
-                #submitdiv {
-                    display:none;
-                }
-            </style>
-            <script type="text/javascript">
+					</td></tr>
 
-                var zbsLogPerms = <?php echo json_encode(array('addedit'=>zeroBSCRM_permsLogsAddEdit(),'delete'=>zeroBSCRM_permsLogsDelete())); ?>;
+				</table>
 
-                var zbsLogAgainstID = <?php echo esc_html( $objid ); ?>; var zbsLogProcessingBlocker = false;
 
-                <?php if (isset($_GET['addlog']) && $_GET['addlog'] == "1"){
+			<style type="text/css">
+				#submitdiv {
+					display:none;
+				}
+			</style>
+			<script type="text/javascript">
 
-                    // this just opens new log for those who've clicked through from another page
-                    echo 'var initialiseAddLog = true;';
+				var zbsLogPerms = 
+				<?php
+				echo json_encode(
+					array(
+						'addedit' => zeroBSCRM_permsLogsAddEdit(),
+						'delete'  => zeroBSCRM_permsLogsDelete(),
+					)
+				);
+				?>
+									;
 
-                }
+				var zbsLogAgainstID = <?php echo esc_html( $objid ); ?>; var zbsLogProcessingBlocker = false;
 
-                
-                #} Centralised log types :)
-                global $zeroBSCRM_logTypes; 
+				<?php
+				if ( isset( $_GET['addlog'] ) && $_GET['addlog'] == '1' ) {
 
-                #} Build array of locked logs
-                $lockedLogs = array();
-                if (isset($zeroBSCRM_logTypes[$this->postType]) && count($zeroBSCRM_logTypes[$this->postType]) > 0) foreach ($zeroBSCRM_logTypes[$this->postType] as $logTypeKey => $logTypeDeet){
-                    if (isset($logTypeDeet['locked']) && $logTypeDeet['locked']) $lockedLogs[$logTypeKey] = true;
-                }
-                echo 'var zbsLogsLocked = '.json_encode($lockedLogs).';';
+					// this just opens new log for those who've clicked through from another page
+					echo 'var initialiseAddLog = true;';
 
-                /*
-                var zbsLogsLocked = {
-                    'created': true,
-                    'updated': true,
-                    'quote_created': true,
-                    'invoice_created': true,
-                    'form_filled': true
+				}
 
-                }; */ 
+				#} Centralised log types :)
+				global $zeroBSCRM_logTypes;
 
-                if (isset($zeroBSCRM_logTypes[$this->postType]) && count($zeroBSCRM_logTypes[$this->postType]) > 0) {
+				#} Build array of locked logs
+				$lockedLogs = array();
+				if ( isset( $zeroBSCRM_logTypes[ $this->postType ] ) && count( $zeroBSCRM_logTypes[ $this->postType ] ) > 0 ) {
+					foreach ( $zeroBSCRM_logTypes[ $this->postType ] as $logTypeKey => $logTypeDeet ) {
+						if ( isset( $logTypeDeet['locked'] ) && $logTypeDeet['locked'] ) {
+							$lockedLogs[ $logTypeKey ] = true;
+						}
+					}
+				}
+				echo 'var zbsLogsLocked = ' . json_encode( $lockedLogs ) . ';';
 
-                    echo 'var zbsLogTypes = '.json_encode($zeroBSCRM_logTypes[$this->postType]).';';
+				/*
+				var zbsLogsLocked = {
+				'created': true,
+				'updated': true,
+				'quote_created': true,
+				'invoice_created': true,
+				'form_filled': true
 
-                } 
+				}; */
+
+				if ( isset( $zeroBSCRM_logTypes[ $this->postType ] ) && count( $zeroBSCRM_logTypes[ $this->postType ] ) > 0 ) {
+
+					echo 'var zbsLogTypes = ' . json_encode( $zeroBSCRM_logTypes[ $this->postType ] ) . ';';
+
+				}
 				?>
 
-                var zbsLogIndex = <?php
+				var zbsLogIndex = 
+				<?php
 
-                    #} Array or empty
-                    if (count($zbsLogs) > 0 && is_array($zbsLogs)) {
-                      
-                        $zbsLogsExpose = array();
-                        foreach ($zbsLogs as $zbsLog){
+				#} Array or empty
+				if ( count( $zbsLogs ) > 0 && is_array( $zbsLogs ) ) {
 
-                            $retLine = $zbsLog;
-                            if (isset($retLine) && isset($retLine['longdesc'])) $retLine['longdesc'] = wp_kses( html_entity_decode( $retLine['longdesc'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $zbs->acceptable_restricted_html );
+					$zbsLogsExpose = array();
+					foreach ( $zbsLogs as $zbsLog ) {
 
-                            $zbsLogsExpose[] = $retLine;
+						$retLine = $zbsLog;
+						if ( isset( $retLine ) && isset( $retLine['longdesc'] ) ) {
+							$retLine['longdesc'] = wp_kses( html_entity_decode( $retLine['longdesc'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $zbs->acceptable_restricted_html );
+						}
 
-                        }
+						$zbsLogsExpose[] = $retLine;
 
-                        echo json_encode($zbsLogsExpose);
-                    } else
-                        echo json_encode(array());
+					}
+
+					echo json_encode( $zbsLogsExpose );
+				} else {
+					echo json_encode( array() );
+				}
                 // phpcs:disable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed
-                ?>;
+                ?>
+                ;
 
                 var zbsLogEditing = -1;
 
@@ -686,11 +716,11 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
                                 }
 
-                                var logEditElements = '<div class="zbsLogOutEdits"><i class="fa fa-pencil-square-o zbsLogActionEdit" title="<?php esc_attr_e('Edit Log',"zero-bs-crm");?>"></i><i class="fa fa-thumb-tack jpcrm_log_pin" title="<?php esc_attr_e('Pin log to contact', 'zero-bs-crm' ); ?>"></i><i class="fa fa-thumb-tack jpcrm_log_unpin" title="<?php esc_attr_e('Unpin log from contact', 'zero-bs-crm' ); ?>"></i><i class="fa fa-trash-o zbsLogActionRemove last" title="<?php esc_attr_e('Delete Log',"zero-bs-crm");?>"></i><span></span></div>';
+                                var logEditElements = '<div class="zbsLogOutEdits"><i class="fa fa-pencil-square-o zbsLogActionEdit" title="<?php esc_attr_e( 'Edit Log', 'zero-bs-crm' ); ?>"></i><i class="fa fa-thumb-tack jpcrm_log_pin" title="<?php esc_attr_e( 'Pin log to contact', 'zero-bs-crm' ); ?>"></i><i class="fa fa-thumb-tack jpcrm_log_unpin" title="<?php esc_attr_e( 'Unpin log from contact', 'zero-bs-crm' ); ?>"></i><i class="fa fa-trash-o zbsLogActionRemove last" title="<?php esc_attr_e( 'Delete Log', 'zero-bs-crm' ); ?>"></i><span></span></div>';
                                 thisLogHTML += '<div class="zbsLogOutTitle">' + thisTitle + logEditElements + '</div>';
 
                             // desc
-                           if (typeof logMeta.longdesc !== "undefined" && logMeta.longdesc !== '' && logMeta.longdesc !== null) thisLogHTML += '<div class="zbsLogOutDesc">' + jpcrm_strip_scripts(logMeta.longdesc) + '</div>';
+                            if (typeof logMeta.longdesc !== "undefined" && logMeta.longdesc !== '' && logMeta.longdesc !== null) thisLogHTML += '<div class="zbsLogOutDesc">' + jpcrm_strip_scripts(logMeta.longdesc) + '</div>';
 
                             thisLogHTML += '</div>';                            
 
@@ -970,7 +1000,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
                             }
                        
-                       } // if perms
+                        } // if perms
 
                     });
 
@@ -1207,16 +1237,16 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                         window.zbsLogProcessingBlocker = true;
 
                         // msg
-                        jQuery('#zbsAddLogUpdateMsg').html('<?php esc_html_e('Saving...',"zero-bs-crm");?>');
+                        jQuery('#zbsAddLogUpdateMsg').html('<?php esc_html_e( 'Saving...', 'zero-bs-crm' ); ?>');
 
-                         // Send 
+                        // Send 
                             jQuery.ajax({
-                                  type: "POST",
-                                  url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-                                  "data": dataArr,
-                                  dataType: 'json',
-                                  timeout: 20000,
-                                  success: function(response) {
+                                    type: "POST",
+                                    url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+                                    "data": dataArr,
+                                    dataType: 'json',
+                                    timeout: 20000,
+                                    success: function(response) {
 
                                     // Debug  console.log("RESPONSE",response);
 
@@ -1241,8 +1271,8 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                     }
 
 
-                                  },
-                                  error: function(response){ 
+                                    },
+                                    error: function(response){ 
 
                                     // Debug  console.error("RESPONSE",response);
 
@@ -1254,7 +1284,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
 
 
-                                  }
+                                    }
 
                             });
 
@@ -1285,16 +1315,16 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                         window.zbsLogProcessingBlocker = true;
 
                         // msg
-                        jQuery('#zbsEditLogUpdateMsg').html('<?php esc_html_e('Saving...',"zero-bs-crm");?>');
+                        jQuery('#zbsEditLogUpdateMsg').html('<?php esc_html_e( 'Saving...', 'zero-bs-crm' ); ?>');
 
-                         // Send 
+                        // Send 
                             jQuery.ajax({
-                                  type: "POST",
-                                  url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-                                  "data": dataArr,
-                                  dataType: 'json',
-                                  timeout: 20000,
-                                  success: function(response) {
+                                    type: "POST",
+                                    url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+                                    "data": dataArr,
+                                    dataType: 'json',
+                                    timeout: 20000,
+                                    success: function(response) {
 
                                     // Debug  console.log("RESPONSE",response);
 
@@ -1319,8 +1349,8 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                     }
 
 
-                                  },
-                                  error: function(response){ 
+                                    },
+                                    error: function(response){ 
 
                                     // Debug  console.error("RESPONSE",response);
 
@@ -1332,7 +1362,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
 
 
-                                  }
+                                    }
 
                             });
 
@@ -1369,14 +1399,14 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                             sec:window.zbscrmjs_logsSecToken
                         };
 
-                         // Send 
+                        // Send 
                             jQuery.ajax({
-                                  type: "POST",
-                                  url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-                                  "data": dataArr,
-                                  dataType: 'json',
-                                  timeout: 20000,
-                                  success: function(response) {
+                                    type: "POST",
+                                    url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+                                    "data": dataArr,
+                                    dataType: 'json',
+                                    timeout: 20000,
+                                    success: function(response) {
 
                                     // Debug  console.log("RESPONSE",response);
 
@@ -1402,8 +1432,8 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                     }
 
 
-                                  },
-                                  error: function(response){ 
+                                    },
+                                    error: function(response){ 
 
                                     // Debug  console.error("RESPONSE",response);
 
@@ -1415,7 +1445,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
 
 
-                                  }
+                                    }
 
                             });
 
@@ -1448,14 +1478,14 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                             sec:window.zbscrmjs_logsSecToken
                         };
 
-                         // Send 
+                        // Send 
                             jQuery.ajax({
-                                  type: "POST",
-                                  url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-                                  "data": dataArr,
-                                  dataType: 'json',
-                                  timeout: 20000,
-                                  success: function(response) {
+                                    type: "POST",
+                                    url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+                                    "data": dataArr,
+                                    dataType: 'json',
+                                    timeout: 20000,
+                                    success: function(response) {
 
                                     // Debug  console.log("RESPONSE",response);
 
@@ -1481,8 +1511,8 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                     }
 
 
-                                  },
-                                  error: function(response){ 
+                                    },
+                                    error: function(response){ 
 
                                     // Debug  console.error("RESPONSE",response);
 
@@ -1494,7 +1524,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
 
 
-                                  }
+                                    }
 
                             });
 
@@ -1525,14 +1555,14 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                             sec:window.zbscrmjs_logsSecToken
                         };
 
-                         // Send 
+                        // Send 
                             jQuery.ajax({
-                                  type: "POST",
-                                  url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-                                  "data": dataArr,
-                                  dataType: 'json',
-                                  timeout: 20000,
-                                  success: function(response) {
+                                    type: "POST",
+                                    url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+                                    "data": dataArr,
+                                    dataType: 'json',
+                                    timeout: 20000,
+                                    success: function(response) {
 
                                     // Debug  console.log("RESPONSE",response);
 
@@ -1558,8 +1588,8 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                     }
 
 
-                                  },
-                                  error: function(response){ 
+                                    },
+                                    error: function(response){ 
 
                                     // Debug  console.error("RESPONSE",response);
 
@@ -1571,7 +1601,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
 
 
-                                  }
+                                    }
 
                             });
 
@@ -1584,27 +1614,25 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
                 }
                 
-                </script><?php
+                </script>
+                <?php
                 // phpcs:enable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed
 
-        } // / if post type
+		} // / if post type
+	}
 
+	public function save_data( $objID, $obj ) {
 
-    }
+		// not req. ajax
 
-    public function save_data( $objID, $obj ) {
-
-        // not req. ajax
-
-        return $obj;
-    }
+		return $obj;
+	}
 }
 
+/*
+======================================================
+	/ Logs V2 - DB2 Metabox
+	====================================================== */
 
-/* ======================================================
-  / Logs V2 - DB2 Metabox
-   ====================================================== */
-
-
-    #} Mark as included :)
-    define('ZBSCRM_INC_LOGSMB',true);
+	#} Mark as included :)
+	define( 'ZBSCRM_INC_LOGSMB', true );

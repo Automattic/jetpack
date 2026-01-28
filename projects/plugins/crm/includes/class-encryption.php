@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -13,11 +14,11 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 class Encryption {
 
-	private $cipher            = 'aes-256-gcm'; // AES-256-GCM Cipher we're going to use to encrypt - previously we used AES-256-CBC
-	private $cipher_fallback   = 'aes-256-cbc'; // AES-256-CBC is our fallback
-	private $tag_length        = 16;         // AES GCM tag length (MAC)
-	private $default_key       = false;
-	private $ready_to_encrypt  = true;
+	private $cipher           = 'aes-256-gcm'; // AES-256-GCM Cipher we're going to use to encrypt - previously we used AES-256-CBC
+	private $cipher_fallback  = 'aes-256-cbc'; // AES-256-CBC is our fallback
+	private $tag_length       = 16;         // AES GCM tag length (MAC)
+	private $default_key      = false;
+	private $ready_to_encrypt = true;
 
 	/**
 	 * Setup
@@ -26,27 +27,24 @@ class Encryption {
 
 		// check if we have the algorhithm we want to use, and fall back if not
 		$this->check_cipher_and_fallback();
-
 	}
-
 
 	/*
 	 * check if we have the algorhithm we want to use, and fall back if not
 	*/
-	public function check_cipher_and_fallback(){
+	public function check_cipher_and_fallback() {
 
 		global $zbs;
 
 		// check if has flipped fallback previously
 		$fallback_blocked = zeroBSCRM_getSetting( 'enc_fallback_blocked' );
-		if ( !empty( $fallback_blocked ) ) {
+		if ( ! empty( $fallback_blocked ) ) {
 
 			// doesn't even have fallback. Non encrypting!!
 			$this->ready_to_encrypt = false;
 
 			// error loading encryption
-			echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Unable to load encryption method', 'zero-bs-crm' ), sprintf ( __( 'CRM was unable to load the required encryption method (%s). Until this is method is available to your PHP your sensitive data may not be encrypted properly.', 'zero-bs-crm' ), $this->cipher ) );
-
+			echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Unable to load encryption method', 'zero-bs-crm' ), sprintf( __( 'CRM was unable to load the required encryption method (%s). Until this is method is available to your PHP your sensitive data may not be encrypted properly.', 'zero-bs-crm' ), $this->cipher ) );
 
 			return;
 
@@ -54,7 +52,7 @@ class Encryption {
 
 		// check if has flipped fallback previously
 		$fallback_active = zeroBSCRM_getSetting( 'enc_fallback_active' );
-		if ( !empty( $fallback_active ) ) {
+		if ( ! empty( $fallback_active ) ) {
 
 			// has fallback. Let's use that:
 			$this->cipher = $this->cipher_fallback;
@@ -65,69 +63,62 @@ class Encryption {
 		$available_cipher_methods = openssl_get_cipher_methods();
 
 		// check for our method
-    	if ( !in_array( $this->cipher, $available_cipher_methods ) ){
+		if ( ! in_array( $this->cipher, $available_cipher_methods ) ) {
 
-    		// try fallback
-    		if ( in_array( $this->cipher_fallback, $available_cipher_methods ) ){ 
+			// try fallback
+			if ( in_array( $this->cipher_fallback, $available_cipher_methods ) ) {
 
-    			// has fallback. Let's use that:
-    			$this->cipher = $this->cipher_fallback;
+				// has fallback. Let's use that:
+				$this->cipher = $this->cipher_fallback;
 
-    			// set option so we get 'stuck' in this mode
-				$zbs->settings->update( 'enc_fallback_active', $this->cipher );				
+				// set option so we get 'stuck' in this mode
+				$zbs->settings->update( 'enc_fallback_active', $this->cipher );
 
-    		} else {
+			} else {
 
-    			// neither method. Present error
-    			$this->ready_to_encrypt = false;
+				// neither method. Present error
+				$this->ready_to_encrypt = false;
 
-    			// set option so we get 'stuck' in this mode
-				$zbs->settings->update( 'enc_fallback_blocked', 1 );	
+				// set option so we get 'stuck' in this mode
+				$zbs->settings->update( 'enc_fallback_blocked', 1 );
 
-    			// error loading encryption
-				echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Unable to load encryption method', 'zero-bs-crm' ), sprintf ( __( 'CRM was unable to load the required encryption method (%s). Until this is method is available to your PHP your sensitive data may not be encrypted properly.', 'zero-bs-crm' ), $this->cipher ) );
+				// error loading encryption
+				echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Unable to load encryption method', 'zero-bs-crm' ), sprintf( __( 'CRM was unable to load the required encryption method (%s). Until this is method is available to your PHP your sensitive data may not be encrypted properly.', 'zero-bs-crm' ), $this->cipher ) );
 
-    		}
-
-
-    	}
-
-
-
+			}
+		}
 	}
 
 	/*
 	 * Ready to encrypt?
 	*/
-	public function ready_to_encrypt(){
+	public function ready_to_encrypt() {
 
 		return $this->ready_to_encrypt;
-
 	}
 
 	/*
 	 * Cipher method
 	*/
-	public function cipher_method(){
+	public function cipher_method() {
 
 		return $this->cipher;
-
 	}
 
 	/*
 	 * Encrypts a string
 	*/
-	public function encrypt( $data, $key = false ){
+	public function encrypt( $data, $key = false ) {
 
-		if ( $this->ready_to_encrypt ){
+		if ( $this->ready_to_encrypt ) {
 
 			// retrieve encryption key (or default if false)
 			$encryption_key = $this->encryption_key( $key );
 
 			// encrypt
 			$iv_length = openssl_cipher_iv_length( $this->cipher );
-			$iv = openssl_random_pseudo_bytes( $iv_length );
-			$tag = ''; // will be filled by openssl_encrypt
+			$iv        = openssl_random_pseudo_bytes( $iv_length );
+			$tag       = ''; // will be filled by openssl_encrypt
 
 			$encrypted = openssl_encrypt( $data, $this->cipher, $encryption_key, OPENSSL_RAW_DATA, $iv, $tag, '', $this->tag_length );
 
@@ -139,25 +130,24 @@ class Encryption {
 			return $data;
 
 		}
-
 	}
 
 	/*
 	 * Decrypts a string
 	*/
-	public function decrypt( $encrypted_data, $key = false ){
+	public function decrypt( $encrypted_data, $key = false ) {
 
-		if ( $this->ready_to_encrypt ){
+		if ( $this->ready_to_encrypt ) {
 
 			// retrieve encryption key (or default if false)
 			$encryption_key = $this->encryption_key( $key );
 
 			// break up encrypted string into parts
-			$encrypted = base64_decode( $encrypted_data );
-			$iv_len = openssl_cipher_iv_length( $this->cipher );
-			$iv = substr( $encrypted, 0, $iv_len );
+			$encrypted  = base64_decode( $encrypted_data );
+			$iv_len     = openssl_cipher_iv_length( $this->cipher );
+			$iv         = substr( $encrypted, 0, $iv_len );
 			$ciphertext = substr( $encrypted, $iv_len, -$this->tag_length );
-			$tag = substr( $encrypted, -$this->tag_length );
+			$tag        = substr( $encrypted, -$this->tag_length );
 
 			return openssl_decrypt( $ciphertext, $this->cipher, $encryption_key, OPENSSL_RAW_DATA, $iv, $tag );
 
@@ -167,7 +157,6 @@ class Encryption {
 			return $encrypted_data;
 
 		}
-
 	}
 
 	/*
@@ -175,7 +164,7 @@ class Encryption {
 	 *
 	 * @param string $key - a key to make an encryption key for
 	*/
-	public function get_encryption_key( $key ){
+	public function get_encryption_key( $key ) {
 
 		global $zbs;
 
@@ -186,14 +175,13 @@ class Encryption {
 			$encryption_key = openssl_random_pseudo_bytes( 32 );
 			$zbs->settings->update( 'enc_' . $key, bin2hex( $encryption_key ) );
 
-		} else { 
+		} else {
 
 			$encryption_key = hex2bin( $encryption_key );
 
 		}
 
 		return $encryption_key;
-
 	}
 
 	/**
@@ -202,7 +190,7 @@ class Encryption {
 	public function get_default_encryption_key() {
 
 		// cached?
-		if ( !empty( $this->default_key ) ){
+		if ( ! empty( $this->default_key ) ) {
 
 			return $this->default_key;
 
@@ -215,16 +203,15 @@ class Encryption {
 		$this->default_key = $default_key;
 
 		return $default_key;
-
 	}
 
 	/*
 	 * Returns an encryption key, or default encryption key if no key passed
 	*/
-	public function encryption_key( $key ){
+	public function encryption_key( $key ) {
 
 		// retrieve encryption key
-		if ( !empty( $key ) ){
+		if ( ! empty( $key ) ) {
 
 			// retrieve encryption key for $key
 			return $this->get_encryption_key( $key );
@@ -235,7 +222,6 @@ class Encryption {
 			return $this->get_default_encryption_key();
 
 		}
-
 	}
 
 	/**
@@ -248,7 +234,7 @@ class Encryption {
 	 * @return string
 	 */
 	public function get_rand_hex( $bytes = 20 ) {
-		return bin2hex( openssl_random_pseudo_bytes( (int)$bytes ) );
+		return bin2hex( openssl_random_pseudo_bytes( (int) $bytes ) );
 	}
 
 	/**

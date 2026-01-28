@@ -106,7 +106,7 @@ function zeroBSCRM_render_add_or_edit_file() {
 
 						if ( isset( $upload['error'] ) && $upload['error'] != 0 ) {
 							echo "<div class='ui message red' style='margin-right:20px'><i class='icon info'></i> ";
-							echo sprintf( esc_html__( 'There was an error uploading your file: %s', 'zero-bs-crm' ), esc_html( $upload['error'] ) );
+							printf( esc_html__( 'There was an error uploading your file: %s', 'zero-bs-crm' ), esc_html( $upload['error'] ) );
 							echo '</div>';
 							$error_while_adding = true;
 						} else {

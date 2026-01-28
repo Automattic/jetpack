@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.0
@@ -11,24 +12,24 @@
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-class zeroBSCRM_list{
+class zeroBSCRM_list {
 
-    private $objType = false;
-    private $objTypeID = false; // Will be set in v3.0+ - is autogenned from $objType ^^
-    private $singular = false;
-    private $plural = false;
-    private $tag = false;
-    private $postType = false;
-    private $postPage = false;
-    private $langLabels = false;
-    private $bulkActions = false;
-    private $sortables = false;
-    private $unsortables = false;
-    private $extraBoxes = '';
-    private $extraJS = '';
-    private $messages = false;
-        #} All messages need params to match this func: 
-        #} ... zeroBSCRM_UI2_messageHTML($msgClass='',$msgHeader='',$msg='',$iconClass='',$id='')
+	private $objType     = false;
+	private $objTypeID   = false; // Will be set in v3.0+ - is autogenned from $objType ^^
+	private $singular    = false;
+	private $plural      = false;
+	private $tag         = false;
+	private $postType    = false;
+	private $postPage    = false;
+	private $langLabels  = false;
+	private $bulkActions = false;
+	private $sortables   = false;
+	private $unsortables = false;
+	private $extraBoxes  = '';
+	private $extraJS     = '';
+	private $messages    = false;
+		#} All messages need params to match this func:
+		#} ... zeroBSCRM_UI2_messageHTML($msgClass='',$msgHeader='',$msg='',$iconClass='',$id='')
 
 	/**
 	 * Construct function
@@ -119,68 +120,78 @@ class zeroBSCRM_list{
 		}
 	}
 
-    public function drawListView(){
+	public function drawListView() {
 
-        if (empty($this->objType) || empty($this->postType) || empty($this->postPage) || empty($this->singular) || empty($this->plural)){
+		if ( empty( $this->objType ) || empty( $this->postType ) || empty( $this->postPage ) || empty( $this->singular ) || empty( $this->plural ) ) {
 
-            return 'Error.';
-        }
+			return 'Error.';
+		}
 
-        global $zbs;
+		global $zbs;
 
+		#} Retrieve all passed filters (tags, etc.)
+		$listViewFilters = array(); if ( isset( $_GET['zbs_tag'] ) ) {
 
-        #} Retrieve all passed filters (tags, etc.)
-        $listViewFilters = array(); if (isset($_GET['zbs_tag'])){
-
-            $possibleTag = (int)sanitize_text_field($_GET['zbs_tag']);
+			$possibleTag = (int) sanitize_text_field( $_GET['zbs_tag'] );
 
 			$possibleTagObj = $zbs->DAL->getTag( $possibleTag, array( 'objtype' => $this->objTypeID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 			if ( isset( $possibleTagObj['id'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				$listViewFilters['tags'] = array( $possibleTagObj ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			}
-        }
-        if (isset($_GET['s']) && !empty($_GET['s'])){
+		}
+		if ( isset( $_GET['s'] ) && ! empty( $_GET['s'] ) ) {
 
-            $listViewFilters['s'] = sanitize_text_field($_GET['s']);
+			$listViewFilters['s'] = sanitize_text_field( $_GET['s'] );
 
-        }
-        if (isset($_GET['quickfilters']) && !empty($_GET['quickfilters'])){
+		}
+		if ( isset( $_GET['quickfilters'] ) && ! empty( $_GET['quickfilters'] ) ) {
 
-            // set it whether legit? what'll this do on error urls people make up?
-            // v2.2+ hone this + add multi-filter
-            // v2.99.5 - ALWAYS lowercase :) 
+			// set it whether legit? what'll this do on error urls people make up?
+			// v2.2+ hone this + add multi-filter
+			// v2.99.5 - ALWAYS lowercase :)
 					$possible_quick_filters          = sanitize_text_field( $_GET['quickfilters'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 					$listViewFilters['quickfilters'] = array( $possible_quick_filters ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-        }
+		}
 
+		#} Paging
+		$currentPage = 1;
+		if ( isset( $_GET['paged'] ) ) {
+			$currentPage = (int) sanitize_text_field( $_GET['paged'] );
+		}
 
-        #} Paging
-        $currentPage = 1; if (isset($_GET['paged'])) $currentPage = (int)sanitize_text_field($_GET['paged']);
+		#} Sort
+		$sort = false;
+		if ( isset( $_GET['sort'] ) && ! empty( $_GET['sort'] ) ) {
+			$sort = sanitize_text_field( $_GET['sort'] );
+		}
+		$sortOrder = false;
+		if ( isset( $_GET['sortdirection'] ) && ( $_GET['sortdirection'] == 'asc' || $_GET['sortdirection'] == 'desc' ) ) {
+			$sortOrder = sanitize_text_field( $_GET['sortdirection'] );
+		}
 
-        #} Sort
-        $sort = false; if (isset($_GET['sort']) && !empty($_GET['sort'])) $sort = sanitize_text_field($_GET['sort']);
-        $sortOrder = false; if (isset($_GET['sortdirection']) && ($_GET['sortdirection'] == 'asc' || $_GET['sortdirection'] == 'desc')) $sortOrder = sanitize_text_field($_GET['sortdirection']);
+		# SCAFFOLDING - TO BE RE-ARRANGED :)
+		#} NOTE SECOND FIELD IN THESE ARE NOW IGNORED!?!? (30/7)
 
+			#} Centralised into ZeroBSCRM.List.Columns.php 30/7/17
+			$columnVar      = 'zeroBSCRM_columns_' . $this->objType; // $zeroBSCRM_columns_transaction;
+			$defaultColumns = $GLOBALS[ $columnVar ]['default'];
+			$allColumns     = $GLOBALS[ $columnVar ]['all'];
 
-        # SCAFFOLDING - TO BE RE-ARRANGED :) 
-        #} NOTE SECOND FIELD IN THESE ARE NOW IGNORED!?!? (30/7)
+		global $zbs;
+		$usingOwnership = $zbs->settings->get( 'perusercustomers' );
 
-            #} Centralised into ZeroBSCRM.List.Columns.php 30/7/17
-            $columnVar = 'zeroBSCRM_columns_'.$this->objType; //$zeroBSCRM_columns_transaction;
-            $defaultColumns = $GLOBALS[ $columnVar ]['default'];
-            $allColumns = $GLOBALS[ $columnVar ]['all'];
+		#} Retrieve columns settings
+		$customViews = $zbs->settings->get( 'customviews2' );
 
-
-        global $zbs;
-        $usingOwnership = $zbs->settings->get('perusercustomers');
-
-        #} Retrieve columns settings
-        $customViews = $zbs->settings->get('customviews2');
-
-        $currentColumns = false; if (isset($customViews) && isset($customViews[$this->objType])) $currentColumns = $customViews[$this->objType];
-        if ($currentColumns == false) $currentColumns = $defaultColumns;
+		$currentColumns = false;
+		if ( isset( $customViews ) && isset( $customViews[ $this->objType ] ) ) {
+			$currentColumns = $customViews[ $this->objType ];
+		}
+		if ( $currentColumns == false ) {
+			$currentColumns = $defaultColumns;
+		}
 
 		// add all columns to sortables :)
 		if ( is_array( $currentColumns ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -199,132 +210,145 @@ class zeroBSCRM_list{
 			$per_page = 20;
 		}
 
-        #} Refresh 2
-        ?>
+		#} Refresh 2
+		?>
 
-            <!-- title + edit ico -->
+			<!-- title + edit ico -->
 
-            <!-- col editor -->
+			<!-- col editor -->
 						<div id="zbs-list-col-editor" class="hidden">
 
-                <h4 class="ui horizontal divider header">
-                  <i class="list layout icon"></i>
-                  <?php echo esc_html( sprintf(__('%s List View Options',"zero-bs-crm"),$this->singular) ); ?>
-                </h4>
-    
-                <?php if (zeroBSCRM_isZBSAdminOrAdmin()){ // only admin can manage columns (globally) ?>
-                <div id="zbs-list-view-options-wrap" class="ui divided grid">
+				<h4 class="ui horizontal divider header">
+					<i class="list layout icon"></i>
+					<?php echo esc_html( sprintf( __( '%s List View Options', 'zero-bs-crm' ), $this->singular ) ); ?>
+				</h4>
+	
+				<?php if ( zeroBSCRM_isZBSAdminOrAdmin() ) { // only admin can manage columns (globally) ?>
+				<div id="zbs-list-view-options-wrap" class="ui divided grid">
 
-                  <div class="ui active inverted dimmer hidden" id="zbs-col-manager-loading" style="display:none">
-                    <div class="ui text loader"><?php esc_html_e('Loading',"zero-bs-crm");?></div>
-                  </div>
+					<div class="ui active inverted dimmer hidden" id="zbs-col-manager-loading" style="display:none">
+					<div class="ui text loader"><?php esc_html_e( 'Loading', 'zero-bs-crm' ); ?></div>
+					</div>
 
-                    <div class="row">
-                        <div class="ten wide column">
+					<div class="row">
+						<div class="ten wide column">
 
-                            <h4><?php esc_html_e('Current Columns',"zero-bs-crm"); ?></h4>
-
-
-                            <div id="zbs-column-manager-current-cols" class="ui segment zbs-column-manager-connected"> 
-                                <?php if (is_array($currentColumns)) foreach ($currentColumns as $colKey => $col){
-
-                                    ?><div id="zbs-column-manager-col-<?php echo esc_attr( $colKey ); ?>" class="ui compact tiny basic button zbs-column-manager-col" data-key="<?php echo esc_attr( $colKey ); ?>"><?php esc_html_e($col[0],"zero-bs-crm"); ?></div><?php
-
-                                } ?>
-                            </div>
-
-                        </div>
-                        <div class="six wide column">
-
-                            <h4><?php esc_html_e('Available Columns',"zero-bs-crm"); ?></h4>
-
-                            <div id="zbs-column-manager-available-cols" class="ui segment"> 
-                                <?php if (is_array($allColumns)) {
-
-                                    // here we split them into groups, where there is. This allows a seperation of 'base fields' and compute fields (e.g. total value)
-                                    $allColumnsSorted = array('basefields'=>array(),'other'=>array());
-                                    $hasMultiColumnGroups = 0;
-
-                                    foreach ($allColumns as $colKey => $col){
-
-                                        if (!array_key_exists($colKey, $currentColumns)){
-
-                                            // split em up
-                                            if (isset($col[2]) && $col[2] == 'basefield'){
-                                                $allColumnsSorted['basefields'][$colKey] = $col;
-                                                $hasMultiColumnGroups = true;
-                                            } else
-                                                $allColumnsSorted['other'][$colKey] = $col;
-
-                                        }
-
-                                    }
-
-                                    // now we put them out sequentially
-                                    $colGroupCount = 0;
-                                    foreach ($allColumnsSorted as $sortGroup => $columns){
-
-                                        if (is_array($columns) && count($columns) > 0){
-
-                                            // put out a grouper + title
-                                            echo '<div>';
-
-                                            if ($hasMultiColumnGroups){
-
-                                                // header - <i class="list layout icon"></i>
-
-                                                $title = ''; $extraStyles = '';
-                                                switch ($sortGroup){
-
-                                                    case 'basefields':
-                                                        $title = __('Fields','zero-bs-crm');
-                                                        break;
-
-                                                    default: 
-                                                        $title = __('Extra Fields','zero-bs-crm');
-                                                        break;
-                                                }
-
-                                                if ($colGroupCount > 0) $extraStyles = 'margin-top: 1em;';
-
-                                                if (!empty($title)) echo '<h4 class="ui horizontal divider header" style="'. esc_attr( $extraStyles ) .'">'. esc_html( $title ) .'</h4>';
-                                            }
-
-                                            echo '<div class="zbs-column-manager-connected">';
-
-                                            foreach ($columns as $colKey => $col){
-
-                                                if (!array_key_exists($colKey, $currentColumns)){
-                                                    
-                                                    ?><div id="zbs-column-manager-col-<?php echo esc_attr( $colKey ); ?>" class="ui compact tiny basic button zbs-column-manager-col" data-key="<?php echo esc_attr( $colKey ); ?>"><?php esc_html_e($col[0],"zero-bs-crm"); ?></div><?php
-
-                                                }
-
-                                            }
-
-                                            echo '</div></div>';
-
-                                            $colGroupCount++;
-                                        }
-
-                                    }
-
-                                    // if NONE output, we need to always have smt to drop to, so put empty:
-                                    if ($colGroupCount == 0){
-                                        echo '<div class="zbs-column-manager-connected">';
-                                        echo '</div>';
-                                    }
+							<h4><?php esc_html_e( 'Current Columns', 'zero-bs-crm' ); ?></h4>
 
 
-                                } ?>
-                            </div>
+							<div id="zbs-column-manager-current-cols" class="ui segment zbs-column-manager-connected"> 
+								<?php
+								if ( is_array( $currentColumns ) ) {
+									foreach ( $currentColumns as $colKey => $col ) {
 
-                        </div>
-                    </div>
-                </div>
+										?>
+									<div id="zbs-column-manager-col-<?php echo esc_attr( $colKey ); ?>" class="ui compact tiny basic button zbs-column-manager-col" data-key="<?php echo esc_attr( $colKey ); ?>"><?php esc_html_e( $col[0], 'zero-bs-crm' ); ?></div>
+										<?php
 
-                <div class="ui divider"></div>
-                <?php } // if admin/can manage columns ?>
+									}
+								}
+								?>
+							</div>
+
+						</div>
+						<div class="six wide column">
+
+							<h4><?php esc_html_e( 'Available Columns', 'zero-bs-crm' ); ?></h4>
+
+							<div id="zbs-column-manager-available-cols" class="ui segment"> 
+								<?php
+								if ( is_array( $allColumns ) ) {
+
+									// here we split them into groups, where there is. This allows a seperation of 'base fields' and compute fields (e.g. total value)
+									$allColumnsSorted     = array(
+										'basefields' => array(),
+										'other'      => array(),
+									);
+									$hasMultiColumnGroups = 0;
+
+									foreach ( $allColumns as $colKey => $col ) {
+
+										if ( ! array_key_exists( $colKey, $currentColumns ) ) {
+
+											// split em up
+											if ( isset( $col[2] ) && $col[2] == 'basefield' ) {
+												$allColumnsSorted['basefields'][ $colKey ] = $col;
+												$hasMultiColumnGroups                      = true;
+											} else {
+												$allColumnsSorted['other'][ $colKey ] = $col;
+											}
+										}
+									}
+
+									// now we put them out sequentially
+									$colGroupCount = 0;
+									foreach ( $allColumnsSorted as $sortGroup => $columns ) {
+
+										if ( is_array( $columns ) && count( $columns ) > 0 ) {
+
+											// put out a grouper + title
+											echo '<div>';
+
+											if ( $hasMultiColumnGroups ) {
+
+												// header - <i class="list layout icon"></i>
+
+												$title       = '';
+												$extraStyles = '';
+												switch ( $sortGroup ) {
+
+													case 'basefields':
+														$title = __( 'Fields', 'zero-bs-crm' );
+														break;
+
+													default:
+														$title = __( 'Extra Fields', 'zero-bs-crm' );
+														break;
+												}
+
+												if ( $colGroupCount > 0 ) {
+													$extraStyles = 'margin-top: 1em;';
+												}
+
+												if ( ! empty( $title ) ) {
+													echo '<h4 class="ui horizontal divider header" style="' . esc_attr( $extraStyles ) . '">' . esc_html( $title ) . '</h4>';
+												}
+											}
+
+											echo '<div class="zbs-column-manager-connected">';
+
+											foreach ( $columns as $colKey => $col ) {
+
+												if ( ! array_key_exists( $colKey, $currentColumns ) ) {
+
+													?>
+													<div id="zbs-column-manager-col-<?php echo esc_attr( $colKey ); ?>" class="ui compact tiny basic button zbs-column-manager-col" data-key="<?php echo esc_attr( $colKey ); ?>"><?php esc_html_e( $col[0], 'zero-bs-crm' ); ?></div>
+													<?php
+
+												}
+											}
+
+											echo '</div></div>';
+
+											++$colGroupCount;
+										}
+									}
+
+									// if NONE output, we need to always have smt to drop to, so put empty:
+									if ( $colGroupCount == 0 ) {
+										echo '<div class="zbs-column-manager-connected">';
+										echo '</div>';
+									}
+								}
+								?>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+				<div class="ui divider"></div>
+				<?php } // if admin/can manage columns ?>
 
 								<div id="zbs-list-options-base-wrap" class="ui grid">
 
@@ -350,7 +374,7 @@ class zeroBSCRM_list{
 								</div>
 
 
-            </div>
+			</div>
 
 			<div class="jpcrm-listview">
 				<?php
@@ -396,190 +420,200 @@ class zeroBSCRM_list{
 
 			?>
 
-        <script type="text/javascript">
+		<script type="text/javascript">
 					<?php
 					// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
 					// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
 					?>
-            // expose log types (For columns)
-            var zbsLogTypes = <?php global $zeroBSCRM_logTypes; echo json_encode($zeroBSCRM_logTypes); ?>;
+			// expose log types (For columns)
+			var zbsLogTypes = <?php
+			global $zeroBSCRM_logTypes;
+			echo json_encode( $zeroBSCRM_logTypes );
+			?>;
 
-            <?php
+			<?php
 
-            $allowinlineedits = ( zeroBSCRM_getSetting('allowinlineedits') == "1" );
-            $inlineEditStr = array();
-            $columns = array();
+			$allowinlineedits = ( zeroBSCRM_getSetting( 'allowinlineedits' ) == '1' );
+			$inlineEditStr    = array();
+			$columns          = array();
 
-            #} Current cols
-            if ( is_array( $currentColumns ) ) {
-	            foreach ( $currentColumns as $colKey => $col ) {
+			#} Current cols
+			if ( is_array( $currentColumns ) ) {
+				foreach ( $currentColumns as $colKey => $col ) {
 
-		            // set column title
-		            $column_title = __($col[0],"zero-bs-crm");
+					// set column title
+					$column_title = __( $col[0], 'zero-bs-crm' );
 
-		            // overrides
+					// overrides
 
-		            // Invoicing: Ref
-		            if ( $this->objType == 'invoice' && $colKey == 'ref' ) {
-			            $column_title = $zbs->settings->get('reflabel');
-		            }
+					// Invoicing: Ref
+					if ( $this->objType == 'invoice' && $colKey == 'ref' ) {
+						$column_title = $zbs->settings->get( 'reflabel' );
+					}
 
-		            // can column be inline edited?
-		            $inline = '-1';
-		            if ( isset( $allColumns[$colKey] ) && isset( $allColumns[$colKey]['editinline'] ) && $allColumns[$colKey]['editinline'] ) {
-			            $inline = '1';
-		            }
+					// can column be inline edited?
+					$inline = '-1';
+					if ( isset( $allColumns[ $colKey ] ) && isset( $allColumns[ $colKey ]['editinline'] ) && $allColumns[ $colKey ]['editinline'] ) {
+						$inline = '1';
+					}
 
-		            $columns[] = array(
-			            'namestr'  => esc_html( zeroBSCRM_slashOut($column_title,true) ),
-			            'fieldstr' => esc_html( zeroBSCRM_slashOut($colKey,true) ),
-			            'inline'   => (int) $inline,
-		            );
+					$columns[] = array(
+						'namestr'  => esc_html( zeroBSCRM_slashOut( $column_title, true ) ),
+						'fieldstr' => esc_html( zeroBSCRM_slashOut( $colKey, true ) ),
+						'inline'   => (int) $inline,
+					);
 
-		            $inlineEditStr[ $colKey ] = (int) $inline;
-	            }
-            }
+					$inlineEditStr[ $colKey ] = (int) $inline;
+				}
+			}
 
-            // build options objects
-            $list_view_settings = array(
+			// build options objects
+			$list_view_settings = array(
 
-                'objdbname' => $this->objType,
-                'search' => true,
-                'filters' => true,
-                'tags' => true,
-                'c2c' => true,
-                'editinline' => $allowinlineedits
+				'objdbname'  => $this->objType,
+				'search'     => true,
+				'filters'    => true,
+				'tags'       => true,
+				'c2c'        => true,
+				'editinline' => $allowinlineedits,
 
-            );
+			);
 
-            $list_view_parameters = array(
+			$list_view_parameters = array(
 
-                'listtype' => $this->objType,
-                'columns' => $columns,
-                'editinline' => $inlineEditStr,
-                'retrieved' => false,
-                'count' => (int)$per_page,
-                'pagination' => true,
-                'paged' => (int)$currentPage,
+				'listtype'   => $this->objType,
+				'columns'    => $columns,
+				'editinline' => $inlineEditStr,
+				'retrieved'  => false,
+				'count'      => (int) $per_page,
+				'pagination' => true,
+				'paged'      => (int) $currentPage,
 
 				// cast to object so an empty array is {} instead of [] when encoded as JSON
 				'filters'    => (object) $listViewFilters, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-                'sort' => ( !empty( $sort ) ? esc_html( $sort ) : false ),
-                'sortorder' => ( !empty( $sortOrder ) ?  esc_html( $sortOrder ) : 'desc' ),
+				'sort'       => ( ! empty( $sort ) ? esc_html( $sort ) : false ),
+				'sortorder'  => ( ! empty( $sortOrder ) ? esc_html( $sortOrder ) : 'desc' ),
 
-                // expose page key (used to retrieve data with screen opts - perpage)
-                'pagekey' => ( isset( $zbs->pageKey ) ? esc_html( $zbs->pageKey ) : '' ),
+				// expose page key (used to retrieve data with screen opts - perpage)
+				'pagekey'    => ( isset( $zbs->pageKey ) ? esc_html( $zbs->pageKey ) : '' ),
 
-            );
+			);
 
-            ?>
+			?>
 
-            // General options for listview
-            var zbsListViewSettings = <?php echo wp_json_encode( $list_view_settings ) ?>;
+			// General options for listview
+			var zbsListViewSettings = <?php echo wp_json_encode( $list_view_settings ); ?>;
 
-            // Vars for zbs list view drawer
-            var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters ) ?>;
+			// Vars for zbs list view drawer
+			var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters ); ?>;
 
-            var zbsSortables = [<?php 
+			var zbsSortables = [<?php
 
-                $c = 0; if (count($this->sortables) > 0) foreach ($this->sortables as $sortableStr) {
+				$c = 0; if ( count( $this->sortables ) > 0 ) {
+				foreach ( $this->sortables as $sortableStr ) {
 
-                            if ($c > 0) echo ',';
+					if ( $c > 0 ) {
+						echo ',';
+					}
 
-                            echo "'". esc_html( $sortableStr ) ."'";
+							echo "'" . esc_html( $sortableStr ) . "'";
 
-                            $c++;
-                            
-                } 
+							++$c;
 
-            ?>]; // for v2.2 this is only lot that will show sort, until we redo db this'll be hard
-            var zbsBulkActions = [<?php $bulkCount = 0; if (count($this->bulkActions) > 0) foreach ($this->bulkActions as $bulkActionStr) {
+				}
+				}
 
-                        if ($bulkCount > 0) echo ',';
+				?>]; // for v2.2 this is only lot that will show sort, until we redo db this'll be hard
+			var zbsBulkActions = [<?php
+			$bulkCount = 0; if ( count( $this->bulkActions ) > 0 ) {
+				foreach ( $this->bulkActions as $bulkActionStr ) {
 
-                        echo "'". esc_html( $bulkActionStr ) ."'";
+					if ( $bulkCount > 0 ) {
+						echo ',';
+					}
 
-                        $bulkCount++;
+						echo "'" . esc_html( $bulkActionStr ) . "'";
 
-            } ?>]; // :D
-            var zbsListViewData = []; var zbsListViewCount = 0;
-            var zbsDrawListViewBlocker = false;
-            var zbsDrawListViewAJAXBlocker = false;
-            var zbsDrawListViewColUpdateBlocker = false;
-            var zbsDrawListViewColUpdateAJAXBlocker = false;
+						++$bulkCount;
 
-            var zbsObjectEmailLinkPrefix = '<?php 
+				}
+			}
+			?>]; // :D
+			var zbsListViewData = []; var zbsListViewCount = 0;
+			var zbsDrawListViewBlocker = false;
+			var zbsDrawListViewAJAXBlocker = false;
+			var zbsDrawListViewColUpdateBlocker = false;
+			var zbsDrawListViewColUpdateAJAXBlocker = false;
 
-                // this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol)
-                echo jpcrm_esc_link( 'email',-1,'zerobs_customer',true );
+			var zbsObjectEmailLinkPrefix = '<?php
 
-            ?>';
-            var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view',-1,'zerobs_customer',true ); ?>';
-            var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view',-1,'zerobs_company',true ); ?>';
-            var zbsObjectViewLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_quote',true ); ?>';
-            var zbsObjectViewLinkPrefixInvoice = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_invoice',true ); ?>';
-            var zbsObjectViewLinkPrefixTransaction = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_transaction',true ); ?>';
-            var zbsObjectViewLinkPrefixForm = '<?php echo jpcrm_esc_link( 'edit',-1,ZBS_TYPE_FORM,true ); ?>';
-            var zbsObjectViewLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit',-1,ZBS_TYPE_SEGMENT,true ); ?>';
-            var zbsObjectViewLinkPrefixTask = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_TASK, true  ); ?>';
+				// this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol)
+				echo jpcrm_esc_link( 'email', -1, 'zerobs_customer', true );
 
-            var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_customer',true ); ?>';
-            var zbsObjectEditLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_company',true ); ?>';
-            var zbsObjectEditLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_quote',true ); ?>';
-            var zbsObjectEditLinkPrefixQuoteTemplate = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_quo_template',true ); ?>';
-            var zbsObjectEditLinkPrefixInvoice = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_invoice',true ); ?>';
-            var zbsObjectEditLinkPrefixTransaction = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_transaction',true ); ?>';
-            var zbsObjectEditLinkPrefixForm = '<?php echo jpcrm_esc_link( 'edit',-1,ZBS_TYPE_FORM,true ); ?>';
-            var zbsObjectEditLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit',-1,ZBS_TYPE_SEGMENT,true ); ?>';
+			?>';
+			var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
+			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
+			var zbsObjectViewLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ); ?>';
+			var zbsObjectViewLinkPrefixInvoice = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ); ?>';
+			var zbsObjectViewLinkPrefixTransaction = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_transaction', true ); ?>';
+			var zbsObjectViewLinkPrefixForm = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_FORM, true ); ?>';
+			var zbsObjectViewLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_SEGMENT, true ); ?>';
+			var zbsObjectViewLinkPrefixTask = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_TASK, true ); ?>';
 
-            var jpcrm_segment_export_url_prefix = '<?php echo jpcrm_esc_link( $zbs->slugs['export-tools'] . '&segment-id=' ); ?>';
+			var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>';
+			var zbsObjectEditLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_company', true ); ?>';
+			var zbsObjectEditLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ); ?>';
+			var zbsObjectEditLinkPrefixQuoteTemplate = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quo_template', true ); ?>';
+			var zbsObjectEditLinkPrefixInvoice = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ); ?>';
+			var zbsObjectEditLinkPrefixTransaction = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_transaction', true ); ?>';
+			var zbsObjectEditLinkPrefixForm = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_FORM, true ); ?>';
+			var zbsObjectEditLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_SEGMENT, true ); ?>';
+
+			var jpcrm_segment_export_url_prefix = '<?php echo jpcrm_esc_link( $zbs->slugs['export-tools'] . '&segment-id=' ); ?>';
 
 						var zbsListViewLink = '<?php echo esc_url( admin_url( 'admin.php?page=' . $this->postPage ) ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase */ ?>';
-            var zbsExportPostURL = '<?php echo esc_url( zeroBSCRM_getAdminURL($zbs->slugs['export-tools']) ); ?>';
+			var zbsExportPostURL = '<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ); ?>';
 						var zbsTagSkipLinkPrefix = zbsListViewLink + '&zbs_tag=';
-            var zbsListViewObjName = '<?php
+			var zbsListViewObjName = '<?php
 
-                switch ($this->postType){
+			switch ( $this->postType ) {
 
+				case 'zerobs_customer':
+					zeroBSCRM_slashOut( __( 'Contact', 'zero-bs-crm' ) );
+					break;
 
-                    case 'zerobs_customer':
-                        zeroBSCRM_slashOut(__('Contact',"zero-bs-crm"));
-                        break;
+				case 'zerobs_company':
+					zeroBSCRM_slashOut( jpcrm_label_company() );
+					break;
 
-                    case 'zerobs_company':
-                        zeroBSCRM_slashOut(jpcrm_label_company());
-                        break;
+				case 'zerobs_quote':
+					zeroBSCRM_slashOut( __( 'Quote', 'zero-bs-crm' ) );
+					break;
 
-                    case 'zerobs_quote':
-                        zeroBSCRM_slashOut(__('Quote',"zero-bs-crm"));
-                        break;
+				case 'zerobs_invoice':
+					zeroBSCRM_slashOut( __( 'Invoice', 'zero-bs-crm' ) );
+					break;
 
-                    case 'zerobs_invoice':
-                        zeroBSCRM_slashOut(__('Invoice',"zero-bs-crm"));
-                        break;
+				case 'zerobs_transaction':
+					zeroBSCRM_slashOut( __( 'Transaction', 'zero-bs-crm' ) );
+					break;
 
-                    case 'zerobs_transaction':
-                        zeroBSCRM_slashOut(__('Transaction',"zero-bs-crm"));
-                        break;
+				case 'zerobs_form':
+					zeroBSCRM_slashOut( __( 'Form', 'zero-bs-crm' ) );
+					break;
 
-                    case 'zerobs_form':
-                        zeroBSCRM_slashOut(__('Form',"zero-bs-crm"));
-                        break;
+				case 'zerobs_quotetemplate':
+					zeroBSCRM_slashOut( __( 'Quote Template', 'zero-bs-crm' ) );
+					break;
 
-                    case 'zerobs_quotetemplate':
-                        zeroBSCRM_slashOut(__('Quote Template',"zero-bs-crm"));
-                        break;
+				default:
+					zeroBSCRM_slashOut( __( 'Item', 'zero-bs-crm' ) );
+					break;
 
-                    default:
-                        zeroBSCRM_slashOut(__('Item',"zero-bs-crm"));
-                        break;
+			}
 
-
-
-                } 
-
-            ?>';
-            var zbsClick2CallType = parseInt('<?php echo esc_url( zeroBSCRM_getSetting('clicktocalltype') ); ?>');
+			?>';
+			var zbsClick2CallType = parseInt('<?php echo esc_url( zeroBSCRM_getSetting( 'clicktocalltype' ) ); ?>');
 
 			<?php
 			$jpcrm_listview_lang_labels = array();
@@ -607,13 +641,13 @@ class zeroBSCRM_list{
 				// make simplified
 				$simple_tags = array();
 				if ( is_array( $tags ) && count( $tags ) > 0 ) {
-					foreach ( $tags as $t ) {
-						$simple_tags[] = array(
-							'id'   => $t['id'],
-							'name' => $t['name'],
-							'slug' => $t['slug'],
-						);
-					}
+											foreach ( $tags as $t ) {
+												$simple_tags[] = array(
+													'id'   => $t['id'],
+													'name' => $t['name'],
+													'slug' => $t['slug'],
+												);
+																	}
 				}
 
 				$zbs_tags_for_bulk_actions = wp_json_encode( $simple_tags );
@@ -631,9 +665,9 @@ class zeroBSCRM_list{
 							// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							global $zbsCustomerFields;
 							if ( is_array( $zbsCustomerFields['status'][3] ) ) {
-								echo wp_json_encode( $zbsCustomerFields['status'][3] );
+							echo wp_json_encode( $zbsCustomerFields['status'][3] );
 							} else {
-								echo '[]';
+							echo '[]';
 							}
 							// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						?>
@@ -644,9 +678,9 @@ class zeroBSCRM_list{
 						// hardcoded customer perms atm
 						$possible_owners = zeroBS_getPossibleOwners( array( 'zerobs_admin', 'zerobs_customermgr' ), true );
 						if ( ! is_array( $possible_owners ) ) {
-								echo wp_json_encode( array() );
+						echo wp_json_encode( array() );
 						} else {
-							echo wp_json_encode( $possible_owners );
+						echo wp_json_encode( $possible_owners );
 						}
 
 					?>
@@ -667,8 +701,7 @@ class zeroBSCRM_list{
 					<?php
 					// phpcs:enable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
 					// phpcs:enable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
-
-    } // /draw func
+	} // /draw func
 
 	/**
 	 * Draws listview header that contains search, bulk actions, and filter dropdowns

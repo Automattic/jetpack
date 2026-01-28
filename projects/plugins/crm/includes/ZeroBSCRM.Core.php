@@ -1063,23 +1063,23 @@ final class ZeroBSCRM {
 		// NOTE: DAL3 + these are referenced in DAL2.php so be aware :)
 		// (This helps for generically linking back to list obj etc.)
 		// USE zbsLink!
-		$this->slugs['managecontacts']          = 'manage-customers';
-		$this->slugs['managequotes']            = 'manage-quotes';
-		$this->slugs['manageinvoices']          = 'manage-invoices';
-		$this->slugs['managetransactions']      = 'manage-transactions';
-		$this->slugs['managecompanies']         = 'manage-companies';
-		$this->slugs['manageformscrm']          = 'manage-forms';
-		$this->slugs['segments']                = 'manage-segments';
-		$this->slugs['quote-templates']         = 'manage-quote-templates';
+		$this->slugs['managecontacts']         = 'manage-customers';
+		$this->slugs['managequotes']           = 'manage-quotes';
+		$this->slugs['manageinvoices']         = 'manage-invoices';
+		$this->slugs['managetransactions']     = 'manage-transactions';
+		$this->slugs['managecompanies']        = 'manage-companies';
+		$this->slugs['manageformscrm']         = 'manage-forms';
+		$this->slugs['segments']               = 'manage-segments';
+		$this->slugs['quote-templates']        = 'manage-quote-templates';
 		$this->slugs['manage-tasks']           = 'manage-tasks';
 		$this->slugs['manage-tasks-completed'] = 'manage-tasks-completed';
 		$this->slugs['manage-tasks-list']      = 'manage-tasks-list';
-		$this->slugs['managecontactsprev']      = 'manage-customers-crm';
-		$this->slugs['managequotesprev']        = 'manage-quotes-crm';
-		$this->slugs['managetransactionsprev']  = 'manage-transactions-crm';
-		$this->slugs['manageinvoicesprev']      = 'manage-invoices-crm';
-		$this->slugs['managecompaniesprev']     = 'manage-companies-crm';
-		$this->slugs['manageformscrmprev']      = 'manage-forms-crm';
+		$this->slugs['managecontactsprev']     = 'manage-customers-crm';
+		$this->slugs['managequotesprev']       = 'manage-quotes-crm';
+		$this->slugs['managetransactionsprev'] = 'manage-transactions-crm';
+		$this->slugs['manageinvoicesprev']     = 'manage-invoices-crm';
+		$this->slugs['managecompaniesprev']    = 'manage-companies-crm';
+		$this->slugs['manageformscrmprev']     = 'manage-forms-crm';
 
 		// } NEW UI - ADD or EDIT, SEND EMAIL, NOTIFICATIONS
 		$this->slugs['addedit']  = 'zbs-add-edit';

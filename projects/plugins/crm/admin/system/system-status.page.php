@@ -15,16 +15,16 @@ function zeroBSCRM_render_systemstatus_page() {
 	global $wpdb, $zbs;  // } Req
 
 		// catch tools:
-		if ( current_user_can( 'admin_zerobs_manage_options' ) && isset( $_GET['resetuserroles'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'resetuserroleszerobscrm' ) ) {
+	if ( current_user_can( 'admin_zerobs_manage_options' ) && isset( $_GET['resetuserroles'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'resetuserroleszerobscrm' ) ) {
 
-			// roles
-			zeroBSCRM_clearUserRoles();
+		// roles
+		zeroBSCRM_clearUserRoles();
 
-			// roles +
-			zeroBSCRM_addUserRoles();
+		// roles +
+		zeroBSCRM_addUserRoles();
 
-			// flag
-			$userRolesRebuilt = true;
+		// flag
+		$userRolesRebuilt = true;
 	}
 
 		// check for, and prep any general sys status errs:
@@ -32,45 +32,45 @@ function zeroBSCRM_render_systemstatus_page() {
 
 		// migration blocker (failed migrations looping)
 		$migBlocks = get_option( 'zbsmigrationblockerrors', false );
-		if ( $migBlocks !== false && ! empty( $migBlocks ) ) {
-			$generalErrors['migrationblock'] = __( 'A migration has been blocked from completing. Please contact support.', 'zero-bs-crm' ) . ' (#' . $migBlocks . ')';
+	if ( $migBlocks !== false && ! empty( $migBlocks ) ) {
+		$generalErrors['migrationblock'] = __( 'A migration has been blocked from completing. Please contact support.', 'zero-bs-crm' ) . ' (#' . $migBlocks . ')';
 
-			// add ability to 'reset migration block'
-			$generalErrors['migrationblock'] .= '<br /><a href="' . wp_nonce_url( '?page=' . $zbs->slugs['systemstatus'] . '&tab=status&resetmigrationblock=1', 'resetmigrationblock' ) . '">' . __( 'Retry the Migration', 'zero-bs-crm' ) . '</a>';
+		// add ability to 'reset migration block'
+		$generalErrors['migrationblock'] .= '<br /><a href="' . wp_nonce_url( '?page=' . $zbs->slugs['systemstatus'] . '&tab=status&resetmigrationblock=1', 'resetmigrationblock' ) . '">' . __( 'Retry the Migration', 'zero-bs-crm' ) . '</a>';
 
 	}
 
 		// hard-check database tables & report
 
-		global $ZBSCRM_t,$wpdb;
+		global $ZBSCRM_t, $wpdb;
 		$missingTables = array();
 
 		// then we cycle through our tables :) - means all keys NEED to be kept up to date :)
-		foreach ( $ZBSCRM_t as $tableKey => $tableName ) {
-			$tablesExist = $wpdb->get_results( "SHOW TABLES LIKE '" . $tableName . "'" );
-			if ( count( $tablesExist ) < 1 ) {
-				$missingTables[] = $tableName;
+	foreach ( $ZBSCRM_t as $tableKey => $tableName ) {
+		$tablesExist = $wpdb->get_results( "SHOW TABLES LIKE '" . $tableName . "'" );
+		if ( count( $tablesExist ) < 1 ) {
+			$missingTables[] = $tableName;
 		}
 	}
 
 		// missing tables?
-		if ( count( $missingTables ) > 0 ) {
+	if ( count( $missingTables ) > 0 ) {
 
-			$generalErrors['missingtables']  = __( 'Jetpack CRM has failed creating the tables it needs to operate. Please contact support.', 'zero-bs-crm' ) . ' (#306)';
-			$generalErrors['missingtables'] .= '<br />' . __( 'The following tables could not be created:', 'zero-bs-crm' ) . ' (' . implode( ', ', $missingTables ) . ')';
+		$generalErrors['missingtables']  = __( 'Jetpack CRM has failed creating the tables it needs to operate. Please contact support.', 'zero-bs-crm' ) . ' (#306)';
+		$generalErrors['missingtables'] .= '<br />' . __( 'The following tables could not be created:', 'zero-bs-crm' ) . ' (' . implode( ', ', $missingTables ) . ')';
 
 	}
 
 		// Got any persisitent SQL errors on db table creation?
 		$creationErrors = get_option( 'zbs_db_creation_errors' );
-		if ( is_array( $creationErrors ) && isset( $creationErrors['lasttried'] ) ) {
+	if ( is_array( $creationErrors ) && isset( $creationErrors['lasttried'] ) ) {
 
-			// has persistent SQL creation errors
-			$generalErrors['creationsql'] = __( 'Jetpack CRM experienced errors while trying to build its database tables. Please contact support sharing the following errors:', 'zero-bs-crm' ) . ' (#306sql)'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			if ( is_array( $creationErrors['errors'] ) ) {
-				foreach ( $creationErrors['errors'] as $err ) {
+		// has persistent SQL creation errors
+		$generalErrors['creationsql'] = __( 'Jetpack CRM experienced errors while trying to build its database tables. Please contact support sharing the following errors:', 'zero-bs-crm' ) . ' (#306sql)'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( is_array( $creationErrors['errors'] ) ) {
+			foreach ( $creationErrors['errors'] as $err ) {
 
-								$generalErrors['creationsql'] .= '<br />&nbsp;&nbsp;' . $err;
+							$generalErrors['creationsql'] .= '<br />&nbsp;&nbsp;' . $err;
 
 			}
 		}

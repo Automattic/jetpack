@@ -2081,8 +2081,8 @@ function zeroBSCRM_html_extensions() {
 				usort(
 					$top_woo_extensions,
 					function (
-					$str1,
-					$str2
+						$str1,
+						$str2
 					) {
 						return strcasecmp( $str1->name, $str2->name );
 					}
@@ -2092,8 +2092,8 @@ function zeroBSCRM_html_extensions() {
 			usort(
 				$extensions_to_display,
 				function (
-				$str1,
-				$str2
+					$str1,
+					$str2
 				) {
 					return strcasecmp( $str1->name, $str2->name );
 				}

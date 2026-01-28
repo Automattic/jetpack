@@ -28,14 +28,14 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	$zbsStatusStr              = zeroBSCRM_getTransactionsStatuses();
 	$zbsStatuses               = explode( ',', $zbsStatusStr );
 
-		foreach ( $zbsStatuses as $statusStr ) {
+	foreach ( $zbsStatuses as $statusStr ) {
 
-			// permify
-			$statusKey = strtolower( str_replace( ' ', '_', str_replace( ':', '_', $statusStr ) ) );
+		// permify
+		$statusKey = strtolower( str_replace( ' ', '_', str_replace( ':', '_', $statusStr ) ) );
 
-			// check post
-			if ( isset( $_POST[ 'wpzbscrm_transstatus_group_' . $statusKey ] ) ) {
-				$zbsStatusSettingPotential[] = $statusStr;
+		// check post
+		if ( isset( $_POST[ 'wpzbscrm_transstatus_group_' . $statusKey ] ) ) {
+			$zbsStatusSettingPotential[] = $statusStr;
 		}
 	}
 

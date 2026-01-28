@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -17,12 +18,12 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 class Woo_Sync_Background_Sync {
 
 	/**
-	 * Ready Mode, 
-	 * No syncing will run unless this is set to true. 
+	 * Ready Mode,
+	 * No syncing will run unless this is set to true.
 	 * This is designed to allow for migrations to run on update, before collision-likely sync runs.
 	 */
 	private $ready_mode = false;
-	
+
 	/**
 	 * If set to true this will echo progress of a sync job.
 	 */
@@ -48,10 +49,10 @@ class Woo_Sync_Background_Sync {
 		// check we're good to go
 		$this->verify_ready_mode();
 
-		if ( $this->ready_mode ){
+		if ( $this->ready_mode ) {
 
 			// load job class
-			require_once JPCRM_WOO_SYNC_ROOT_PATH. 'includes/class-woo-sync-background-sync-job.php';
+			require_once JPCRM_WOO_SYNC_ROOT_PATH . 'includes/class-woo-sync-background-sync-job.php';
 
 			// Initialise Hooks
 			$this->init_hooks();
@@ -60,9 +61,7 @@ class Woo_Sync_Background_Sync {
 			$this->schedule_cron();
 
 		}
-
 	}
-		
 
 	/**
 	 * Main Class Instance.
@@ -71,27 +70,24 @@ class Woo_Sync_Background_Sync {
 	 *
 	 * @since 2.0
 	 * @static
-	 * @see 
+	 * @see
 	 * @return Woo_Sync_Background_Sync main instance
 	 */
 	public static function instance() {
-		if ( is_null( self::$_instance ) ) {
+		if ( self::$_instance === null ) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
 	}
 
-
 	/**
 	 * Returns main class instance
 	 */
-	public function woosync(){
+	public function woosync() {
 
 		global $zbs;
 		return $zbs->modules->woosync;
-
 	}
-
 
 	/**
 	 * Checks that all 'pre-ready' conditions are met before enabling sync
@@ -100,33 +96,29 @@ class Woo_Sync_Background_Sync {
 	public function verify_ready_mode() {
 
 		// check for critical migration when we moved from 1 to many site syncing
-		$migration_status = get_option( 'jpcrm_woosync_52_mig' );		
-		if ( $migration_status ){
+		$migration_status = get_option( 'jpcrm_woosync_52_mig' );
+		if ( $migration_status ) {
 
 			$this->ready_mode = true;
 
 		}
 
 		return $this->ready_mode;
-
 	}
 
-	
 	/**
 	 * If $this->debug is true, outputs passed string
 	 *
 	 * @param string - Debug string
 	 */
-	private function debug( $str ){
+	private function debug( $str ) {
 
-		if ( $this->debug ){
+		if ( $this->debug ) {
 
 			echo '[' . zeroBSCRM_locale_utsToDatetime( time() ) . '] ' . $str . '<br>';
 
 		}
-
 	}
-
 
 	/**
 	 * Initialise Hooks
@@ -170,34 +162,29 @@ class Woo_Sync_Background_Sync {
 
 		// schedule it
 		if ( ! wp_next_scheduled( 'jpcrm_woosync_sync' ) ) {
-		  wp_schedule_event( time(), '5min', 'jpcrm_woosync_sync' );
-		}	
-
+			wp_schedule_event( time(), '5min', 'jpcrm_woosync_sync' );
+		}
 	}
-
 
 	/**
 	 * Run cron job
 	 */
-	public function cron_job(){
+	public function cron_job() {
 
 		// define global to mark this as a cron call
 		define( 'jpcrm_woosync_cron_running', 1 );
 
 		// fire job
 		$this->sync_orders();
-
 	}
 
 	/**
 	 * Returns bool as to whether or not the current call was made via cron
 	 */
-	private function is_cron(){
+	private function is_cron() {
 
 		return defined( 'jpcrm_woosync_cron_running' );
-
 	}
-
 
 	/**
 	 * Filter call to add the cron zbssendbot to the watcher system
@@ -209,12 +196,11 @@ class Woo_Sync_Background_Sync {
 
 		if ( is_array( $crons ) ) {
 
-			$crons[ 'jpcrm_woosync_sync' ] = '5min'; //'hourly';
+			$crons['jpcrm_woosync_sync'] = '5min'; // 'hourly';
 		}
 
 		return $crons;
 	}
-
 
 	/**
 	 * Main job function: using established settings, this will retrieve and import orders
@@ -223,28 +209,27 @@ class Woo_Sync_Background_Sync {
 	 *    - via AJAX (if not via cron and not in debug mode)
 	 *    - for debug (if $this->debug is set) This is designed to be called inline and will output progress of sync job
 	 *
-	 *
 	 * @return mixed (int|json)
 	 *   - if cron originated: a count of orers imported is returned
 	 *   - if not cron originated (assumes AJAX):
 	 *      - if completed sync: JSON summary info is output and then exit() is called
 	 *      - else count of orders imported is returned
 	 */
-	public function sync_orders(){
+	public function sync_orders() {
 
 		global $zbs;
 
 		$this->debug( 'Fired `sync_orders()`.' );
 
-		if ( !$this->ready_mode ){
+		if ( ! $this->ready_mode ) {
 
 			$this->debug( 'Blocked by !ready_mode.' );
 
 			// return blocker error
-			return array( 
-				'status' => 'not_in_ready_mode',
+			return array(
+				'status'            => 'not_in_ready_mode',
 				'status_short_text' => __( 'Unable to complete migration 5.2', 'zero-bs-crm' ),
-				'status_long_text' => __( 'WooSync was unable to complete a necessary migration and therefore cannot yet sync.', 'zero-bs-crm' ),
+				'status_long_text'  => __( 'WooSync was unable to complete a necessary migration and therefore cannot yet sync.', 'zero-bs-crm' ),
 			);
 
 		}
@@ -253,8 +238,8 @@ class Woo_Sync_Background_Sync {
 
 		$this->debug( 'Sync Sites:<pre>' . print_r( $sync_sites, 1 ) . '</pre>' );
 
-		if ( !is_array( $sync_sites ) ){
-			
+		if ( ! is_array( $sync_sites ) ) {
+
 			$this->debug( 'Failed to retrieve sites to sync! ' );
 
 		}
@@ -272,33 +257,33 @@ class Woo_Sync_Background_Sync {
 		$this->debug( 'Commencing syncing ' . count( $sync_sites ) . ' sites.' );
 
 		// prep silos
-		$total_remaining_pages = 0;
-		$total_pages = 0;
+		$total_remaining_pages    = 0;
+		$total_pages              = 0;
 		$total_active_connections = 0;
 		$total_paused_connections = 0;
-		$errors = array();
+		$errors                   = array();
 
 		// cycle through each sync site and attempt sync
-		foreach ( $sync_sites as $site_key => $site_info ){
+		foreach ( $sync_sites as $site_key => $site_info ) {
 
 			// check not marked 'paused'
-			if ( isset( $site_info['paused'] ) && $site_info['paused'] ){
+			if ( isset( $site_info['paused'] ) && $site_info['paused'] ) {
 
 				// skip it
-				$total_paused_connections++;
+				++$total_paused_connections;
 				$this->debug( 'Skipping Sync for ' . $site_info['domain'] . ' (mode: ' . $site_info['mode'] . ') - Paused' );
 				continue;
 
 			}
 
 			$this->debug( 'Starting Sync for ' . $site_info['domain'] . ' (mode: ' . $site_info['mode'] . ')' );
-			$total_active_connections++;
+			++$total_active_connections;
 
-			// blocker			
-			if ( !defined( 'jpcrm_woosync_running' ) ) {
-			
+			// blocker
+			if ( ! defined( 'jpcrm_woosync_running' ) ) {
+
 				define( 'jpcrm_woosync_running', 1 );
-			
+
 			}
 
 			// init class
@@ -306,10 +291,11 @@ class Woo_Sync_Background_Sync {
 
 			// start sync job
 			$sync_result = $sync_job->run_sync();
-			
+
 			$this->debug( 'Sync Result:<pre>' . print_r( $sync_result, 1 ) . '</pre>' );
 
-			/* will be
+			/*
+			will be
 			false
 
 			or
@@ -322,80 +308,70 @@ class Woo_Sync_Background_Sync {
 
 			);*/
 
-			if ( is_array( $sync_result ) && isset( $sync_result['total_pages'] ) && isset( $sync_result['total_remaining_pages'] ) ){
+			if ( is_array( $sync_result ) && isset( $sync_result['total_pages'] ) && isset( $sync_result['total_remaining_pages'] ) ) {
 
 				// maintain overall % counts later used to provide a summary % across sync site connections
-				$total_pages += (int)$sync_result['total_pages'];
+				$total_pages           += (int) $sync_result['total_pages'];
 				$total_remaining_pages += $sync_result['total_remaining_pages'];
 
 			}
-
 		}
 
 		// discern completeness
-		if ( $total_active_connections > 0 ){
+		if ( $total_active_connections > 0 ) {
 
-			if ( $total_paused_connections === 0 ){
+			if ( $total_paused_connections === 0 ) {
 
 				// no paused connections
 
-				if ( $total_remaining_pages == 0 ){
+				if ( $total_remaining_pages == 0 ) {
 
-					$sync_status = 'sync_completed';
+					$sync_status        = 'sync_completed';
 					$overall_percentage = 100;
-					$status_short_text = __( 'Sync Completed', 'zero-bs-crm' );
-					$status_long_text = __( 'WooSync has imported all existing orders and will continue to import future orders.', 'zero-bs-crm' );
+					$status_short_text  = __( 'Sync Completed', 'zero-bs-crm' );
+					$status_long_text   = __( 'WooSync has imported all existing orders and will continue to import future orders.', 'zero-bs-crm' );
 
 				} else {
 
-					$sync_status = 'sync_part_complete';
-					$overall_percentage = (int)( ( $total_pages - $total_remaining_pages ) / $total_pages * 100 );
-					$status_short_text = __( 'Syncing content from WooCommerce...', 'zero-bs-crm' );
-					$status_long_text = '';
+					$sync_status        = 'sync_part_complete';
+					$overall_percentage = (int) ( ( $total_pages - $total_remaining_pages ) / $total_pages * 100 );
+					$status_short_text  = __( 'Syncing content from WooCommerce...', 'zero-bs-crm' );
+					$status_long_text   = '';
 
 				}
-
 			} else {
 
 				// has some paused connections
 
-				if ( $total_remaining_pages == 0 ){
+				if ( $total_remaining_pages == 0 ) {
 
-					$sync_status = 'sync_completed';
+					$sync_status        = 'sync_completed';
 					$overall_percentage = 100;
-					$status_short_text = __( 'Sync Completed for active connections', 'zero-bs-crm' );
-					$status_long_text = __( 'WooSync has imported existing orders for sites with active connections, but could not import from paused site connections.', 'zero-bs-crm' );
+					$status_short_text  = __( 'Sync Completed for active connections', 'zero-bs-crm' );
+					$status_long_text   = __( 'WooSync has imported existing orders for sites with active connections, but could not import from paused site connections.', 'zero-bs-crm' );
 
 				} else {
 
-					$sync_status = 'sync_part_complete';
-					$overall_percentage = (int)( ( $total_pages - $total_remaining_pages ) / $total_pages * 100 );
-					$status_short_text = __( 'Syncing content from WooCommerce...', 'zero-bs-crm' );
-					$status_long_text = '';
+					$sync_status        = 'sync_part_complete';
+					$overall_percentage = (int) ( ( $total_pages - $total_remaining_pages ) / $total_pages * 100 );
+					$status_short_text  = __( 'Syncing content from WooCommerce...', 'zero-bs-crm' );
+					$status_long_text   = '';
 
 				}
-
 			}
+		} elseif ( $total_remaining_pages == 0 ) {
+
+				$sync_status        = 'sync_completed';
+				$overall_percentage = 100;
+				$status_short_text  = __( 'Sync Previously Completed', 'zero-bs-crm' );
+				$status_long_text   = __( 'WooSync imported orders previously, but is not currently actively syncing due to paused connections.', 'zero-bs-crm' );
 
 		} else {
 
-			if ( $total_remaining_pages == 0 ){
-
-				$sync_status = 'sync_completed';
-				$overall_percentage = 100;
-				$status_short_text = __( 'Sync Previously Completed', 'zero-bs-crm' );
-				$status_long_text = __( 'WooSync imported orders previously, but is not currently actively syncing due to paused connections.', 'zero-bs-crm' );
-
-			} else {
-
-				$sync_status = 'sync_part_complete';
-				$overall_percentage = (int)( ( $total_pages - $total_remaining_pages ) / $total_pages * 100 );
-				$status_short_text = __( 'WooSync is trying to sync, but cannot retrieve all orders due to paused connections.', 'zero-bs-crm' );
-				$status_long_text = '';
-
-			}
-
-
+			$sync_status        = 'sync_part_complete';
+			$overall_percentage = (int) ( ( $total_pages - $total_remaining_pages ) / $total_pages * 100 );
+			$status_short_text  = __( 'WooSync is trying to sync, but cannot retrieve all orders due to paused connections.', 'zero-bs-crm' );
+			$status_long_text   = '';
 		}
 
 		// if cron, we just return count
@@ -403,9 +379,9 @@ class Woo_Sync_Background_Sync {
 
 			return array(
 
-					'status'               => $sync_status, // sync_completed sync_part_complete job_in_progress error
-					'status_short_text'    => $status_short_text,
-					'percentage_completed' => $overall_percentage,
+				'status'               => $sync_status, // sync_completed sync_part_complete job_in_progress error
+				'status_short_text'    => $status_short_text,
+				'percentage_completed' => $overall_percentage,
 
 			);
 
@@ -424,82 +400,81 @@ class Woo_Sync_Background_Sync {
 			wp_send_json( array_merge( $woosync_latest_stats, $woosync_status_array ) );
 
 		}
-
 	}
-
-
 
 	/**
 	 * Update contact address of a wp user (likely WooCommerce user)
 	 *
-	 * @param int $user_id (WordPress user id)
+	 * @param int    $user_id (WordPress user id)
 	 * @param string $address_type (e.g. `billing`)
 	 */
-	public function update_contact_address_from_wp_user( $user_id = -1, $address_type = 'billing' ){
+	public function update_contact_address_from_wp_user( $user_id = -1, $address_type = 'billing' ) {
 
 		global $zbs;
 
 		// retrieve contact ID from WP user ID
-		$contact_id 	= $zbs->DAL->contacts->getContact(array(
-			'WPID'      => $user_id,
-			'onlyID'    => true
-		));
+		$contact_id = $zbs->DAL->contacts->getContact(
+			array(
+				'WPID'   => $user_id,
+				'onlyID' => true,
+			)
+		);
 
-		if ( $contact_id > 0 ){
+		if ( $contact_id > 0 ) {
 
 			// retrieve customer data from WP user ID
-			$woo_customer_meta 	= get_user_meta( $user_id );
-			
-			if ( $address_type == 'billing' ){
+			$woo_customer_meta = get_user_meta( $user_id );
+
+			if ( $address_type == 'billing' ) {
 
 				$data = array(
-						'addr1' 	=> $woo_customer_meta['billing_address_1'][0],
-						'addr2' 	=> $woo_customer_meta['billing_address_2'][0],
-						'city' 		=> $woo_customer_meta['billing_city'][0],
-						'county' 	=> $woo_customer_meta['billing_state'][0],
-						'country' 	=> $woo_customer_meta['billing_country'][0],
-						'postcode' 	=> $woo_customer_meta['billing_postcode'][0],
+					'addr1'    => $woo_customer_meta['billing_address_1'][0],
+					'addr2'    => $woo_customer_meta['billing_address_2'][0],
+					'city'     => $woo_customer_meta['billing_city'][0],
+					'county'   => $woo_customer_meta['billing_state'][0],
+					'country'  => $woo_customer_meta['billing_country'][0],
+					'postcode' => $woo_customer_meta['billing_postcode'][0],
 				);
 
 			} else {
-			
+
 				$data = array(
-						'secaddr1' 		=> $woo_customer_meta['shipping_address_1'][0],
-						'secaddr2' 		=> $woo_customer_meta['shipping_address_2'][0],
-						'seccity' 		=> $woo_customer_meta['shipping_city'][0],
-						'seccounty' 	=> $woo_customer_meta['shipping_state'][0],
-						'seccountry' 	=> $woo_customer_meta['shipping_country'][0],
-						'secpostcode' 	=> $woo_customer_meta['shipping_postcode'][0],
+					'secaddr1'    => $woo_customer_meta['shipping_address_1'][0],
+					'secaddr2'    => $woo_customer_meta['shipping_address_2'][0],
+					'seccity'     => $woo_customer_meta['shipping_city'][0],
+					'seccounty'   => $woo_customer_meta['shipping_state'][0],
+					'seccountry'  => $woo_customer_meta['shipping_country'][0],
+					'secpostcode' => $woo_customer_meta['shipping_postcode'][0],
 				);
-			
+
 			}
 
 			// addUpdate as limited fields
 			$limited_fields_array = array();
-			foreach ( $data as $k => $v ){
+			foreach ( $data as $k => $v ) {
 
 				$limited_fields_array[] = array(
 
-					'key' => 'zbsc_' .$k,
-					'val' => $v,
-					'type'=> '%s'
+					'key'  => 'zbsc_' . $k,
+					'val'  => $v,
+					'type' => '%s',
 
 				);
 
 			}
 
 			// then addUpdate
-			$zbs->DAL->contacts->addUpdateContact(array(
+			$zbs->DAL->contacts->addUpdateContact(
+				array(
 
-				'id'             => $contact_id,
-				'limitedFields'  => $limited_fields_array
+					'id'            => $contact_id,
+					'limitedFields' => $limited_fields_array,
 
-			));
+				)
+			);
 
 		}
-
 	}
-
 
 	/**
 	 * Catches trashing of WooCommerce orders and (optionally) removes transactions from CRM
@@ -518,9 +493,7 @@ class Woo_Sync_Background_Sync {
 
 		// act
 		$this->woocommerce_order_removed( $order_post_id, $delete_action );
-
 	}
-
 
 	/**
 	 * Catches deletion of WooCommerce orders and (optionally) removes transactions from CRM
@@ -539,9 +512,7 @@ class Woo_Sync_Background_Sync {
 
 		// act
 		$this->woocommerce_order_removed( $order_post_id, $delete_action );
-
 	}
-
 
 	/**
 	 * Catches deletion of WooCommerce orders and (optionally) removes transactions from CRM
@@ -590,7 +561,6 @@ class Woo_Sync_Background_Sync {
 
 				// change the transaction (and invoice) status to 'Deleted'
 				case 'change_status':
-
 					// set status
 					$zbs->DAL->transactions->setTransactionStatus( $transaction_id, __( 'Deleted', 'zero-bs-crm' ) );
 
@@ -603,18 +573,21 @@ class Woo_Sync_Background_Sync {
 
 				// Delete the transaction (and invoice) and add log to contact
 				case 'hard_delete_and_log':
-
 					// delete transaction
-					$zbs->DAL->transactions->deleteTransaction( array(
-						'id' => $transaction_id
-					));
+					$zbs->DAL->transactions->deleteTransaction(
+						array(
+							'id' => $transaction_id,
+						)
+					);
 
 					// Also delete any woo-created associated invoice
 					if ( $invoice_id > 0 ) {
-						$zbs->DAL->invoices->deleteInvoice( array(
-							'id'            => $invoice_id,
-							'saveOrphans'   => false
-						));
+						$zbs->DAL->invoices->deleteInvoice(
+							array(
+								'id'          => $invoice_id,
+								'saveOrphans' => false,
+							)
+						);
 					}
 
 					// get contact(s) to add log to
@@ -626,30 +599,29 @@ class Woo_Sync_Background_Sync {
 						foreach ( $contacts as $contact ) {
 
 							// add log
-							$zbs->DAL->logs->addUpdateLog( array(
+							$zbs->DAL->logs->addUpdateLog(
+								array(
 
-								'data' => array(
+									'data' => array(
 
-									'objtype'   => ZBS_TYPE_CONTACT,
-									'objid'     => $contact['id'],
-									'type'      => 'transaction_deleted',
-									'shortdesc' => __( 'WooCommerce Order Deleted', 'zero-bs-crm' ),
-									'longdesc'  => sprintf( __( 'Transaction #%s was removed from your CRM after the related WooCommerce order #%s was deleted.', 'zero-bs-crm' ), $transaction_id, $order_num )
+										'objtype'   => ZBS_TYPE_CONTACT,
+										'objid'     => $contact['id'],
+										'type'      => 'transaction_deleted',
+										'shortdesc' => __( 'WooCommerce Order Deleted', 'zero-bs-crm' ),
+										'longdesc'  => sprintf( __( 'Transaction #%1$s was removed from your CRM after the related WooCommerce order #%2$s was deleted.', 'zero-bs-crm' ), $transaction_id, $order_num ),
 
-								),
+									),
 
-							));
+								)
+							);
 
 						}
-
 					}
 
 					break;
 
 			}
-
 		}
-
 	}
 
 	/**
@@ -671,7 +643,6 @@ class Woo_Sync_Background_Sync {
 			$local_sync_job->add_update_from_woo_order( $order_id );
 
 		}
-
 	}
 
 	/**
@@ -679,7 +650,7 @@ class Woo_Sync_Background_Sync {
 	 */
 	public function get_tax_rates_table( $refresh_from_db = false ) {
 
-		if ( !is_array( $this->tax_rates_table ) || $refresh_from_db ){
+		if ( ! is_array( $this->tax_rates_table ) || $refresh_from_db ) {
 
 			// retrieve tax table to feed in tax links
 			$this->tax_rates_table = zeroBSCRM_taxRates_getTaxTableArr( true );
@@ -687,6 +658,5 @@ class Woo_Sync_Background_Sync {
 		}
 
 		return $this->tax_rates_table;
-
 	}
 }

@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V2.2
@@ -11,82 +12,75 @@
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
+/*
+======================================================
+	Hard Coded Social Types
+	====================================================== */
 
+	global $zbsSocialAccountTypes;
 
+	/*
+			WH added 2.2 - this drives what "social accounts" are shown everywhere for contacts etc.
 
-/* ======================================================
-  Hard Coded Social Types
-   ====================================================== */
+	*/
 
-    global $zbsSocialAccountTypes;
+		$zbsSocialAccountTypes = array(
 
-    /* 
-            WH added 2.2 - this drives what "social accounts" are shown everywhere for contacts etc.
-            
-    */
+			'tw' => array(
+				'name'        => 'Twitter',
+				'slug'        => 'twitter',
+				'placeholder' => 'example',
+				'fa'          => 'fa-twitter',
+				'urlprefix'   => 'https://twitter.com/',
+			),
+			'li' => array(
+				'name'        => 'Linked In',
+				'slug'        => 'linked-in',
+				'placeholder' => 'example',
+				'fa'          => 'fa-linkedin',
+				'urlprefix'   => 'https://www.linkedin.com/in/',
+			),
+			'fb' => array(
+				'name'        => 'Facebook',
+				'slug'        => 'facebook',
+				'placeholder' => 'example',
+				'fa'          => 'fa-facebook',
+				'urlprefix'   => 'https://fb.com/',
+			),
 
-        $zbsSocialAccountTypes = array(
+		);
 
+		/*
+		======================================================
+		/ Hard Coded Social Types
+		====================================================== */
 
-        	'tw' => array(
-        					'name'			=> 'Twitter',
-        					'slug' 			=> 'twitter',
-        					'placeholder' 	=> 'example',
-        					'fa'			=> 'fa-twitter',
-        					'urlprefix'		=> 'https://twitter.com/'
-        				),
-        	'li' => array(
-        					'name'			=> 'Linked In',
-        					'slug' 			=> 'linked-in',
-        					'placeholder' 	=> 'example',
-        					'fa'			=> 'fa-linkedin',
-        					'urlprefix'		=> 'https://www.linkedin.com/in/'
-        				),
-        	'fb' => array(
-        					'name'			=> 'Facebook',
-        					'slug' 			=> 'facebook',
-        					'placeholder' 	=> 'example',
-        					'fa'			=> 'fa-facebook',
-        					'urlprefix'		=> 'https://fb.com/'
-        				)
+		/*
+		======================================================
+		Social helper funcs
+		====================================================== */
 
+		// returns an url (E.g. https://twitter.com/woodyhayday) from a social acc obj
+		function zeroBSCRM_getSocialLink( $key, $userSocialAccs ) {
 
-        );
+			if ( isset( $key ) && isset( $userSocialAccs ) && is_array( $userSocialAccs ) ) {
 
-/* ======================================================
-  / Hard Coded Social Types
-   ====================================================== */
+				global $zbsSocialAccountTypes;
 
+				// got acc?
+				if ( isset( $userSocialAccs[ $key ] ) && ! empty( $userSocialAccs[ $key ] ) ) {
 
+					// get prefix
+					$URL = $zbsSocialAccountTypes[ $key ]['urlprefix'];
 
+					// finish it off + return
+					return $URL . $userSocialAccs[ $key ];
 
-/* ======================================================
-  Social helper funcs
-   ====================================================== */
+				}
+			}
 
-   // returns an url (E.g. https://twitter.com/woodyhayday) from a social acc obj
-   function zeroBSCRM_getSocialLink( $key, $userSocialAccs ){
-
-   		if (isset($key) && isset($userSocialAccs) && is_array($userSocialAccs)){
-
-   			global $zbsSocialAccountTypes;
-
-   			// got acc?
-   			if (isset($userSocialAccs[$key]) && !empty($userSocialAccs[$key])){
-
-	   			// get prefix
-	   			$URL = $zbsSocialAccountTypes[$key]['urlprefix'];
-
-	   			// finish it off + return
-	   			return $URL . $userSocialAccs[$key];
-
-	   		}
-
-   		}
-
-   		return '#';
-
-   }
+			return '#';
+		}
 
 		/**
 		 * Shows business social links

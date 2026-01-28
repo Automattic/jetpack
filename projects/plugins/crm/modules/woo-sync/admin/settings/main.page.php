@@ -1,5 +1,6 @@
 <?php
-/*!
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -44,7 +45,7 @@ function jpcrm_settings_page_html_woosync_main() {
 			}
 		}
 
-		//copy shipping address into second address
+		// copy shipping address into second address
 		$updatedSettings['wccopyship'] = ! empty( $_POST['wpzbscrm_wccopyship'] );
 
 		// tag objects with item name|coupon
@@ -103,7 +104,8 @@ function jpcrm_settings_page_html_woosync_main() {
 			'<a href="%s" class="ui basic positive button" style="margin-top:1em"><i class="shopping cart icon"></i> %s</a>',
 			jpcrm_esc_link( $zbs->slugs['woosync'] ),
 			esc_html__( 'WooSync Hub', 'zero-bs-crm' )
-		); ?>
+		);
+		?>
 	</p>
 	<p id="sbDesc"><?php esc_html_e( 'Here you can configure the global settings for WooSync.', 'zero-bs-crm' ); ?></p>
 
@@ -255,7 +257,7 @@ function jpcrm_settings_page_html_woosync_main() {
 							<input type="checkbox" class="winput form-control" name="wpzbscrm_wcacc" id="wpzbscrm_wcacc" value="1"<?php echo ( ! empty( $settings['wcacc'] ) ? ' checked="checked"' : '' ); ?> />
 							<?php
 							$invoices_enabled = zeroBSCRM_getSetting( 'feat_invs' ) > 0;
-							if ( !$invoices_enabled ) {
+							if ( ! $invoices_enabled ) {
 								?>
 								<br />
 								<small><?php esc_html_e( 'Warning: Invoicing module is currently disabled.', 'zero-bs-crm' ); ?></small>
@@ -313,7 +315,7 @@ function jpcrm_settings_page_html_woosync_main() {
 							<label for="jpcrm_enable_woo_status_mapping"><?php esc_html_e( 'Enable order status mapping', 'zero-bs-crm' ); ?>:</label><br />
 							<?php esc_html_e( 'Tick here if you want WooCommerce order status changes to automatically change contact statuses', 'zero-bs-crm' ); ?>
 						</td>
-						<td style="width:540px"><input type="checkbox" class="winput form-control" name="jpcrm_enable_woo_status_mapping" id="jpcrm_enable_woo_status_mapping" value="1"<?php echo isset( $settings['enable_woo_status_mapping'] ) && (int)$settings['enable_woo_status_mapping'] === 0 ? '' : ' checked="checked"'; ?> />
+						<td style="width:540px"><input type="checkbox" class="winput form-control" name="jpcrm_enable_woo_status_mapping" id="jpcrm_enable_woo_status_mapping" value="1"<?php echo isset( $settings['enable_woo_status_mapping'] ) && (int) $settings['enable_woo_status_mapping'] === 0 ? '' : ' checked="checked"'; ?> />
 						</td>
 					</tr>
 
@@ -330,11 +332,11 @@ function jpcrm_settings_page_html_woosync_main() {
 								<tr>
 									<th><?php esc_html_e( 'Order status', 'zero-bs-crm' ); ?></th>
 
-									<?php 
-										foreach ( $woo_order_mapping_types as $map_type_value ) :
-									?>
+									<?php
+									foreach ( $woo_order_mapping_types as $map_type_value ) :
+										?>
 										<th><?php echo esc_html( $map_type_value['label'] ); ?></th>
-									<?php 
+										<?php
 										endforeach;
 									?>
 								</tr>

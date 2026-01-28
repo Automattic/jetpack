@@ -420,7 +420,7 @@ class zeroBS__Metabox_TaskTags extends zeroBS__Metabox_Tags {
 		$this->objType         = 'event';
 		$this->metaboxID       = 'zerobs-event-tags';
 		$this->metaboxTitle    = __( 'Task Tags', 'zero-bs-crm' );
-		$this->metaboxScreen   = 'zbs-add-edit-event-edit'; //'zerobs_edit_contact'; // we can use anything here as is now using our func
+		$this->metaboxScreen   = 'zbs-add-edit-event-edit'; // 'zerobs_edit_contact'; // we can use anything here as is now using our func
 		$this->metaboxArea     = 'side';
 		$this->metaboxLocation = 'low';
 		$this->showSuggestions = true;
@@ -579,7 +579,7 @@ function zeroBSCRM_task_ui_assignment( $taskObject = array(), $taskID = -1 ) {
 	$linked_cal = $zbs->DAL->meta( ZBS_TYPE_TASK, $taskID, $key = 'zbs_outlook_id', false ); // false = default here
 
 	if ( $uid != $current_task_user_id ) {
-		//then it is LOCKED and cannot be changed to another owner?
+		// then it is LOCKED and cannot be changed to another owner?
 	}
 
 	// get potential owners
@@ -636,7 +636,7 @@ function zeroBSCRM_task_ui_for( $taskObject = array() ) {
 	global $zbs;
 	$html = "<div class='no-contact zbs-task-for-who'><div class='zbs-task-for-help'><i class='ui icon users'></i> " . __( 'Contact', 'zero-bs-crm' ) . '</div>';
 
-	//need UI for selecting who the task is for (company, then contaxt)
+	// need UI for selecting who the task is for (company, then contaxt)
 	$custName = '';
 	$custID   = '';
 
@@ -676,7 +676,7 @@ function zeroBSCRM_task_ui_for_co( $taskObject = array() ) {
 
 		$html .= "<div class='no-contact zbs-task-for-who'><div class='zbs-task-for-help'><i class='ui icon building outline'></i> " . jpcrm_label_company() . '</div>';
 
-		//need UI for selecting who the task is for (company, then contact)
+		// need UI for selecting who the task is for (company, then contact)
 		$co_name = '';
 		$co_id   = '';
 
@@ -770,7 +770,7 @@ function zeroBSCRM_task_ui_reminders( $taskObject = array(), $taskID = -1 ) {
 	$show = false;
 
 	// v3.0 + this is differently stored:
-	//if (isset($taskObject['notify_crm'])) $show = $taskObject['notify_crm'];
+	// if (isset($taskObject['notify_crm'])) $show = $taskObject['notify_crm'];
 	if ( isset( $taskObject['reminders'] ) && is_array( $taskObject['reminders'] ) ) {
 
 		// eventually diff time reminders will be in this array, for v3.0 we only have 24h reminders
@@ -807,7 +807,7 @@ function zeroBSCRM_task_ui_reminders( $taskObject = array(), $taskID = -1 ) {
 		$html .= ' checked="checked"';
 	}
 		$html .= "/><label for='zbs_remind_task_24'>" . __( 'Remind CRM member 24 hours before', 'zero-bs-crm' ) . '</label></div>';
-	//    $html .= "<a class='ui label blue' href='". admin_url('admin.php?page=zbs-reminders') ."' target='_blank' style='margin-top: 0.2em;margin-right: 0.3em;'>" .__('Add more reminders', 'zero-bs-crm') . "</a>";
+	// $html .= "<a class='ui label blue' href='". admin_url('admin.php?page=zbs-reminders') ."' target='_blank' style='margin-top: 0.2em;margin-right: 0.3em;'>" .__('Add more reminders', 'zero-bs-crm') . "</a>";
 	$html .= '</div>';
 
 	#} Better reminders in Calendar Pro :-)

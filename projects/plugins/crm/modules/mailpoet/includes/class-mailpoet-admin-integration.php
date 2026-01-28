@@ -1,5 +1,6 @@
 <?php
-/*!
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -16,7 +17,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
  */
 class Mailpoet_Admin_Integration {
 
-
 	/**
 	 * The single instance of the class.
 	 */
@@ -29,9 +29,7 @@ class Mailpoet_Admin_Integration {
 
 		// Initialise Hooks
 		$this->init_hooks();
-
 	}
-		
 
 	/**
 	 * Main Class Instance.
@@ -40,16 +38,15 @@ class Mailpoet_Admin_Integration {
 	 *
 	 * @since 2.0
 	 * @static
-	 * @see 
+	 * @see
 	 * @return Mailpoet_Admin_Integration main instance
 	 */
 	public static function instance() {
-		if ( is_null( self::$_instance ) ) {
+		if ( self::$_instance === null ) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
 	}
-
 
 	/**
 	 * Initialise Hooks
@@ -61,6 +58,5 @@ class Mailpoet_Admin_Integration {
 
 		// Add button column to subscriber list page 'View CRM Contact'
 		// /wp-admin/admin.php?page=mailpoet-subscribers#/
-
 	}
 }

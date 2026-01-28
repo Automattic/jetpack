@@ -384,7 +384,7 @@ function zeroBSCRM_pages_admin_addedit_page_contact( $id = -1, $action = 'new' )
 		================================================================================
 		=============================== EDIT OBJECT ==================================== */
 
-			global $zbs,$zbsEditView;
+			global $zbs, $zbsEditView;
 
 			/*
 			Edit Class now initiated above (in zeroBSCRM_prehtml_pages_admin_addedit) for pre-html saving

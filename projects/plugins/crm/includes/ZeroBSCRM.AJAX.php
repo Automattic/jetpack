@@ -2752,8 +2752,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -2881,8 +2881,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -3022,8 +3022,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -3137,8 +3137,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -3260,8 +3260,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = strtoupper( $listViewParams['sortorder'] );
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = strtoupper( $listViewParams['sortorder'] );
 					}
 				}
 
@@ -3361,8 +3361,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -3482,8 +3482,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -4934,13 +4934,13 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 		foreach ( $screenOpts as $k => $v ) {
 			if ( isset( $screenOptionsFilters[ $k ]['filter'] ) && $screenOptionsFilters[ $k ]['filter'] === FILTER_UNSAFE_RAW && $v !== null ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				foreach ( $v as $k2 => $v2 ) {
-					$screenOpts[$k][$k2] = strtr(
+					$screenOpts[ $k ][ $k2 ] = strtr(
 						strip_tags( $v2 ),
 						array(
 							"\0" => '',
-							'"' => '&#34;',
-							"'" => '&#39;',
-							"<" => '',
+							'"'  => '&#34;',
+							"'"  => '&#39;',
+							'<'  => '',
 						)
 					);
 				}
@@ -5634,4 +5634,3 @@ function zeroBSCRM_ajax_mark_task_complete() {
 ======================================================
 	/ Admin AJAX: Tasks
 ====================================================== */
-

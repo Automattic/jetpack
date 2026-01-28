@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -22,29 +23,26 @@ class CRM_Modules {
 
 		// register modules
 		$this->register_modules();
-
 	}
 
 	/*
 	 * Autoloads the modules (core extensions) included with core
-	 * 
+	 *
 	 * Modularisation of this manner may allow easier drop-in integrations by third-party devs as well.
 	*/
-	public function register_modules(){
+	public function register_modules() {
 
 		$module_directories = jpcrm_get_directories( JPCRM_MODULES_PATH );
 
-		if ( is_array( $module_directories ) ){
+		if ( is_array( $module_directories ) ) {
 
-			foreach ( $module_directories as $directory ){
+			foreach ( $module_directories as $directory ) {
 
 				// load module
 				$this->register_module( $directory );
 
 			}
-
 		}
-
 	}
 
 	/*
@@ -53,15 +51,14 @@ class CRM_Modules {
 	*
 	* @param string $module_slug
 	*/
-	public function register_module( $module_slug ){
+	public function register_module( $module_slug ) {
 
 		// where `jpcrm-{$directory}-init.php` present, include
-		if ( file_exists( JPCRM_MODULES_PATH . "{$module_slug}/jpcrm-{$module_slug}-init.php" ) ){
-		
-			require_once( JPCRM_MODULES_PATH . "{$module_slug}/jpcrm-{$module_slug}-init.php" );
+		if ( file_exists( JPCRM_MODULES_PATH . "{$module_slug}/jpcrm-{$module_slug}-init.php" ) ) {
+
+			require_once JPCRM_MODULES_PATH . "{$module_slug}/jpcrm-{$module_slug}-init.php";
 
 		}
-
 	}
 
 	/*
@@ -77,10 +74,9 @@ class CRM_Modules {
 		// double backslash due to the $
 		$class_name = "Automattic\JetpackCRM\\$module_class";
 
-		$this->$module_slug = new $class_name;
+		$this->$module_slug = new $class_name();
 
 		return $this->$module_slug;
-		
 	}
 
 	/**
@@ -101,8 +97,8 @@ class CRM_Modules {
 			return;
 		}
 
-		$module_name = sanitize_text_field( $_GET['jpcrm-module-name'] );
-		$safe_module_name = $this->get_safe_module_string( $module_name );
+		$module_name          = sanitize_text_field( $_GET['jpcrm-module-name'] );
+		$safe_module_name     = $this->get_safe_module_string( $module_name );
 		$safe_function_string = $this->get_safe_function_string( $module_name );
 
 		// if module is not installed, try to install it
@@ -119,13 +115,13 @@ class CRM_Modules {
 			// default to CRM dashboard
 			$redirect_to = jpcrm_esc_link( $zbs->slugs['dash'] );
 
-			//if redirect_to is specified, use that
+			// if redirect_to is specified, use that
 			if ( isset( $_GET['redirect_to'] ) ) {
 				$redirect_to = sanitize_url( $_GET['redirect_to'] );
 			}
 
 			// otherwise, if module has a hub slug use that
-			else if ( isset( $zbs->modules->$safe_module_name->slugs['hub'] ) ) {
+			elseif ( isset( $zbs->modules->$safe_module_name->slugs['hub'] ) ) {
 				$redirect_to = jpcrm_esc_link( $zbs->modules->$safe_module_name->slugs['hub'] );
 			}
 
@@ -135,19 +131,17 @@ class CRM_Modules {
 		} else {
 			printf( 'Module %s not found. Error #607', esc_html( $module_name ) );
 		}
-
 	}
 
 	/** These functions are used to avoid conflicts with old extension names (e.g. WooSync)
-	 * 
+	 *
 	 *  For example:
-	 * 
+	 *
 	 *  - the old Woo extension key is `woosync`
 	 *  - the new Woo module extension key is `woo-sync`
 	 *  - the install/load functions for the Woo module use `woo_sync`
 	 *  - the new Woo module is loaded into `$zbs->modules->woosync`
 	 */
-	
 	public function get_safe_module_string( $module_name ) {
 		return str_replace( '-', '', $module_name );
 	}

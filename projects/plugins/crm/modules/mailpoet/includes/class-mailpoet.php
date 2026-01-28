@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -37,7 +38,7 @@ class Mailpoet {
 	 *
 	 * @var \WHWPConfigExtensionsLib | null
 	 */
-	public $settings = null; 
+	public $settings = null;
 
 	/**
 	 * Show extension settings tab
@@ -92,9 +93,9 @@ class Mailpoet {
 	 * @var array()
 	 */
 	public $slugs = array(
-		'hub'                       => 'crm-mail-poet-hub', // note needs to match `$zbs->slugs['mailpoet'] and can't use `*mailpoet*` as the plugin inteferes with styles
-		'settings'                  => 'mailpoet',
-		'add-edit'                  => 'zbs-add-edit',
+		'hub'      => 'crm-mail-poet-hub', // note needs to match `$zbs->slugs['mailpoet'] and can't use `*mailpoet*` as the plugin inteferes with styles
+		'settings' => 'mailpoet',
+		'add-edit' => 'zbs-add-edit',
 	);
 
 	/**
@@ -104,7 +105,7 @@ class Mailpoet {
 	 */
 	public $urls = array(
 
-		'install_mailpoet' => '/wp-admin/plugin-install.php?tab=plugin-information&plugin=mailpoet'
+		'install_mailpoet' => '/wp-admin/plugin-install.php?tab=plugin-information&plugin=mailpoet',
 
 	);
 
@@ -121,7 +122,7 @@ class Mailpoet {
 
 			// Initialise Settings
 			$this->init_settings();
-			
+
 			// Initialise Features
 			$this->init_features();
 
@@ -138,9 +139,7 @@ class Mailpoet {
 			$this->register_styles_scripts();
 
 		}
-
 	}
-
 
 	/**
 	 * Main Class Instance.
@@ -149,45 +148,41 @@ class Mailpoet {
 	 *
 	 * @since 2.0
 	 * @static
-	 * @see 
+	 * @see
 	 * @return Mailpoet_Sync main instance
 	 */
 	public static function instance() {
-		if ( is_null( self::$_instance ) ) {
+		if ( self::$_instance === null ) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
 	}
 
-
 	/**
 	 * Define any key vars.
 	 */
-	private function definitions(){
+	private function definitions() {
 
 		// for now there is ONLY local, but precursors..
 		define( 'JPCRM_MAILPOET_MODE_LOCAL', 0 );
-		define( 'JPCRM_MAILPOET_MODE_API',   1 );
-
+		define( 'JPCRM_MAILPOET_MODE_API', 1 );
 	}
-
 
 	/**
 	 *
 	 * Checks dependencies
 	 *
 	 * @return bool
-	 *
 	 */
 	public function check_dependencies() {
 
 		global $zbs;
 
-		$core_reqs = array(
+		$core_reqs      = array(
 			'req_core_ver' => $zbs::VERSION, // will match current core version
 			'req_DAL_ver'  => '3.0',
 		);
-		$plugin_reqs = array(
+		$plugin_reqs    = array(
 			'name'    => 'MailPoet',
 			'slug'    => 'mailpoet/mailpoet.php',
 			'link'    => 'https://wordpress.org/plugins/mailpoet/',
@@ -206,23 +201,20 @@ class Mailpoet {
 		return false;
 	}
 
-
 	/**
 	 * Initialise Settings
 	 */
 	private function init_settings() {
-		
-		$this->settings = new \WHWPConfigExtensionsLib( $this->config_key, $this->default_settings() );
 
+		$this->settings = new \WHWPConfigExtensionsLib( $this->config_key, $this->default_settings() );
 	}
 
 	/**
 	 * Retrieve Settings
 	 */
 	public function get_settings() {
-		
-		return $this->settings->getAll();
 
+		return $this->settings->getAll();
 	}
 
 	/**
@@ -238,10 +230,9 @@ class Mailpoet {
 		// Adds Tools menu subitem
 		add_filter( 'zbs-tools-menu', array( $this, 'add_tools_menu_sub_item_link' ) );
 		// Learn menu
-		add_action( 'wp_after_admin_bar_render', array( $this, 'render_learn_menu'), 12 );
+		add_action( 'wp_after_admin_bar_render', array( $this, 'render_learn_menu' ), 12 );
 		// Admin menu
 		add_filter( 'zbs_menu_wpmenu', array( $this, 'add_wp_pages' ), 10, 1 );
-
 
 		// JPCRM effecting:
 
@@ -259,7 +250,6 @@ class Mailpoet {
 
 		// add a position to the MailPoet segment condition category positions array
 		add_filter( 'jpcrm_segment_condition_category_positions', array( $this, 'add_segments_condition_category_positions' ) );
-
 	}
 
 	/**
@@ -313,11 +303,9 @@ class Mailpoet {
 		$this->mailpoet_export_segment = Mailpoet_Export_Segment_To_MailPoet::instance();
 
 		// Segment conditions
-		require_once( JPCRM_MAILPOET_ROOT_PATH . 'includes/class-mailpoet-segment-conditions.php' );
+		require_once JPCRM_MAILPOET_ROOT_PATH . 'includes/class-mailpoet-segment-conditions.php';
 		$this->segment_conditions = MailPoet_Segment_Conditions::instance();
-
 	}
-
 
 	/**
 	 * Autoload page AJAX
@@ -326,33 +314,27 @@ class Mailpoet {
 
 		$admin_page_directories = jpcrm_get_directories( JPCRM_MAILPOET_ROOT_PATH . 'admin' );
 
-		if ( is_array( $admin_page_directories ) ){
+		if ( is_array( $admin_page_directories ) ) {
 
-			foreach ( $admin_page_directories as $directory ){
+			foreach ( $admin_page_directories as $directory ) {
 
 				$files = scandir( JPCRM_MAILPOET_ROOT_PATH . 'admin/' . $directory );
-				
-				if ( is_array( $files ) ){
 
-					foreach ( $files as $file ){
+				if ( is_array( $files ) ) {
+
+					foreach ( $files as $file ) {
 
 						// find files `*.ajax.*`
-						if ( strrpos( $file, '.ajax.' ) > 0 ){
+						if ( strrpos( $file, '.ajax.' ) > 0 ) {
 
 							// load it
-							require_once( JPCRM_MAILPOET_ROOT_PATH . 'admin/' . $directory . '/' . $file );
+							require_once JPCRM_MAILPOET_ROOT_PATH . 'admin/' . $directory . '/' . $file;
 
 						}
-
 					}
-
 				}
-
-
 			}
-
 		}
-
 	}
 
 	/**
@@ -374,17 +356,17 @@ class Mailpoet {
 		global $ZBSCRM_t;
 
 		// is a MailPoet subscriber? (Could be copied/generalised for other ext sources)
-		if ( $quick_filter_key == 'mailpoet_subscriber' ){
-	        $wheres['is_mailpoet_customer'] = array(
-	            'ID','IN',
-	            '(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . " WHERE zbss_objtype = " . ZBS_TYPE_CONTACT . " AND zbss_source = %s)",
-	            array( 'mailpoet' )
-	        );
-	    }
+		if ( $quick_filter_key == 'mailpoet_subscriber' ) {
+			$wheres['is_mailpoet_customer'] = array(
+				'ID',
+				'IN',
+				'(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . ' WHERE zbss_objtype = ' . ZBS_TYPE_CONTACT . ' AND zbss_source = %s)',
+				array( 'mailpoet' ),
+			);
+		}
 
-	    return $wheres;
+		return $wheres;
 	}
-
 
 	/**
 	 * Hook in to new contact log creation and add string manipulation
@@ -392,13 +374,13 @@ class Mailpoet {
 	 */
 	public function new_contact_log_override( $note_long_description, $source_key, $uid ) {
 
-        if ( $source_key == 'mailpoet' ){
+		if ( $source_key == 'mailpoet' ) {
 
-            $note_long_description = __( 'Synchronised from MailPoet', 'zero-bs-crm' ) . '&nbsp;&nbsp;<i class="users icon"></i>';           
+			$note_long_description = __( 'Synchronised from MailPoet', 'zero-bs-crm' ) . '&nbsp;&nbsp;<i class="users icon"></i>';
 
-        }
+		}
 
-	    return $note_long_description;
+		return $note_long_description;
 	}
 
 	/**
@@ -406,9 +388,7 @@ class Mailpoet {
 	 *  (previously on `init`)
 	 */
 	public function register_styles_scripts() {
-		
 	}
-
 
 	/**
 	 * Filter settings tabs, adding this extension
@@ -416,39 +396,35 @@ class Mailpoet {
 	 *
 	 * @param array $tabs
 	 */
-	public function add_settings_tab( $tabs ){
-		
+	public function add_settings_tab( $tabs ) {
+
 		// Append our tab if enabled
 		if ( $this->settings_tab ) {
 
-			$main_tab                     = $this->slugs['settings'];
-			$tabs[ $main_tab ]            = array(
-				'name' => $this->ext_name,
-				'ico' => '',
+			$main_tab          = $this->slugs['settings'];
+			$tabs[ $main_tab ] = array(
+				'name'    => $this->ext_name,
+				'ico'     => '',
 				'submenu' => array(),
 			);
-			
+
 		}
 
 		return $tabs;
-
 	}
-
 
 	/**
 	 * Return default settings
 	 */
 	public function default_settings() {
 
-		return require( JPCRM_MAILPOET_ROOT_PATH . 'includes/jpcrm-mailpoet-default-settings.php' );
-
+		return require JPCRM_MAILPOET_ROOT_PATH . 'includes/jpcrm-mailpoet-default-settings.php';
 	}
-
 
 	/**
 	 * Main page addition
 	 */
-	function add_wp_pages( $menu_array=array() ) {
+	function add_wp_pages( $menu_array = array() ) {
 
 		// add a submenu item to main CRM menu
 		$menu_array['jpcrm']['subitems']['mailpoet'] = array(
@@ -462,9 +438,7 @@ class Mailpoet {
 		);
 
 		return $menu_array;
-
-	} 
-
+	}
 
 	/**
 	 * Adds Tools menu sub item
@@ -472,32 +446,30 @@ class Mailpoet {
 	public function add_tools_menu_sub_item_link( $menu_items ) {
 
 		global $zbs;
-		
+
 		$menu_items[] = '<a href="' . zeroBSCRM_getAdminURL( $this->slugs['hub'] ) . '" class="item"><i class="users icon"></i> MailPoet Sync</a>';
-		
+
 		return $menu_items;
-
 	}
-
 
 	/**
 	 * Output learn menu
 	 */
-	public function render_learn_menu(){
+	public function render_learn_menu() {
 
-		if ( $this->is_hub_page() ){
+		if ( $this->is_hub_page() ) {
 
 			global $zbs;
 
-			$learn_content = '<p>' . __( "Here you can import your MailPoet data.", 'zerobscrm' ) . '</p>';
-			
+			$learn_content = '<p>' . __( 'Here you can import your MailPoet data.', 'zerobscrm' ) . '</p>';
+
 			// output
 			$zbs->learn_menu->render_generic_learn_menu(
 				'MailPoet Sync',
 				'',
 				'',
 				true,
-				__( "Import MailPoet Subscribers", "zerobscrm" ),
+				__( 'Import MailPoet Subscribers', 'zerobscrm' ),
 				$learn_content,
 				$zbs->urls['kb-mailpoet'],
 				false,
@@ -505,42 +477,39 @@ class Mailpoet {
 				''
 			);
 
-
 		}
 	}
-
 
 	/**
 	 * Load the file for a given page
 	 *
 	 * @param string $page_name (e.g. `settings/main`)
 	 */
-	public function load_admin_page( $page_name ){
-		
+	public function load_admin_page( $page_name ) {
+
 		jpcrm_load_admin_page( $page_name, JPCRM_MAILPOET_ROOT_PATH );
-
 	}
-
 
 	/**
 	 * Append/override MailPoet related info to CRM external source infobox
 	 *
 	 * @param string $html
-	 * @param array $external_source
+	 * @param array  $external_source
 	 */
 	public function override_crm_external_source_infobox( $html, $external_source ) {
 
 		global $zbs;
-		
-		if ( $external_source['source'] == 'mailpoet' ){
+
+		if ( $external_source['source'] == 'mailpoet' ) {
 
 			// verify subscriber is still in MailPoet before showing a link:
 			$potential_subscriber = $this->get_mailpoet_subscriber_by_subscriber_id( $external_source['unique_id'] );
 
-			if ( $potential_subscriber ){
+			if ( $potential_subscriber ) {
 
 				// retrieve origin info (where available)
-				/* Not in v1.0 of this module
+				/*
+				Not in v1.0 of this module
 				$origin_str = '';
 				$origin_detail = $zbs->DAL->hydrate_origin( $external_source['origin'] );
 				if ( is_array( $origin_detail ) && isset( $origin_detail['origin_type'] ) && $origin_detail['origin_type'] == 'domain' ){
@@ -553,40 +522,33 @@ class Mailpoet {
 
 				// adds button to subscriber page
 				// e.g. http://july.local/wp-admin/admin.php?page=mailpoet-subscribers#/stats/1
-				$mailpoet_stats_link = $this->get_mailpoet_sub_stats_link( $external_source['unique_id'] ); //admin_url( 'post.php?post=' . $external_source['unique_id'] . '&action=edit' );
+				$mailpoet_stats_link = $this->get_mailpoet_sub_stats_link( $external_source['unique_id'] ); // admin_url( 'post.php?post=' . $external_source['unique_id'] . '&action=edit' );
 
-				switch ( $external_source['objtype'] ){
+				switch ( $external_source['objtype'] ) {
 
 					case ZBS_TYPE_CONTACT:
-
 						$html = '<div class="jpcrm-ext-source-mailpoet-subscriber">' . sprintf( __( 'Subscriber ID #%s', 'zero-bs-crm' ), $external_source['unique_id'] ) . ' <a class="compact ui mini button right floated" href="' . esc_url( $mailpoet_stats_link ) . '" target="_blank">' . __( 'View Subscriber', 'zero-bs-crm' ) . '</a></div>';
 
 						break;
 
 				}
-
 			} else {
 
 				// probably has been deleted in MailPoet
 				// (where user had a delete_action option of `none|add_note`)
-				switch ( $external_source['objtype'] ){
+				switch ( $external_source['objtype'] ) {
 
 					case ZBS_TYPE_CONTACT:
-
 						$html = '<div class="jpcrm-ext-source-mailpoet-subscriber">' . sprintf( __( 'Subscriber ID #%s', 'zero-bs-crm' ), $external_source['unique_id'] ) . ' <span class="compact ui mini label right floated">' . __( 'Subscriber not found', 'zero-bs-crm' ) . '</span></div>';
 
 						break;
 
 				}
-
 			}
-
 		}
 
 		return $html;
-
 	}
-
 
 	/**
 	 * Returns the total number of mailpoet imported contacts present in CRM
@@ -595,72 +557,67 @@ class Mailpoet {
 
 		global $zbs;
 
-		return (int)$zbs->DAL->contacts->getContacts(
+		return (int) $zbs->DAL->contacts->getContacts(
 			array(
 				'externalSource' => 'mailpoet',
 				'count'          => true,
 				'ignoreowner'    => true,
-				)
-			);
-
+			)
+		);
 	}
-
 
 	/**
 	 * Returns bool: is the loading page, our hub page
 	 *
 	 * @return bool hub page
 	 */
-	public function is_hub_page(){
+	public function is_hub_page() {
 
 		$page = '';
 
-		if ( isset( $_GET['page'] ) ){
+		if ( isset( $_GET['page'] ) ) {
 			$page = sanitize_text_field( $_GET['page'] );
 		}
 
-		if ( $page == $this->slugs['hub'] ){
+		if ( $page == $this->slugs['hub'] ) {
 
 			return true;
 
 		}
 
 		return false;
-
 	}
 
 	/**
 	 * Returns bool: true if the page is zbs-add-edit
 	 *
-	 * @return bool 
+	 * @return bool
 	 */
-	public function is_add_edit_page(){
+	public function is_add_edit_page() {
 
 		$page = '';
 
-		if ( isset( $_GET['page'] ) ){
+		if ( isset( $_GET['page'] ) ) {
 			$page = sanitize_text_field( $_GET['page'] );
 		}
 
 		// specifically segment add-edit
 		$type = '';
-		if ( isset( $_GET['zbstype'] ) ){
+		if ( isset( $_GET['zbstype'] ) ) {
 			$type = sanitize_text_field( $_GET['zbstype'] );
 		}
-		if ( $type !== 'segment' ){
+		if ( $type !== 'segment' ) {
 			return false;
 		}
 
 		return $page == $this->slugs['add-edit'];
 	}
 
-
-
 	/**
 	 * Returns Summarised JPCRM MailPoet stats
 	 * Ripe for expansion
 	 *
-	 * @return 
+	 * @return
 	 */
 	public function get_jpcrm_mailpoet_latest_stats() {
 
@@ -669,44 +626,46 @@ class Mailpoet {
 			'subscribers_synced' => $this->get_crm_mailpoet_contact_count(),
 
 		);
-
 	}
 
 	/**
 	 * Returns link to MailPoet subscriber
 	 *
-	 * @param int $subscriber_id
+	 * @param int    $subscriber_id
 	 * or
 	 * @param string $email
 	 *
 	 * @return string URL
 	 */
-	public function get_mailpoet_sub_stats_link( $subscriber_id = false, $email = false ){
+	public function get_mailpoet_sub_stats_link( $subscriber_id = false, $email = false ) {
 
 		global $zbs;
 
 		// sits at /wp-admin/admin.php?page=mailpoet-subscribers#/stats/4
 		$id = false;
 
-		if ( $subscriber_id > 0 ){
+		if ( $subscriber_id > 0 ) {
 			$id = $subscriber_id;
-		} elseif ( !empty( $email ) ) {
+		} elseif ( ! empty( $email ) ) {
 
-			$id = $zbs->DAL->contacts->getContact( -1, array(
-				'email'       => $email,
-				'onlyID'      => true,
-				'ignoreowner' => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT )
-			));
+			$id = $zbs->DAL->contacts->getContact(
+				-1,
+				array(
+					'email'       => $email,
+					'onlyID'      => true,
+					'ignoreowner' => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
+				)
+			);
 
 		}
 
-		if ( $id ){
+		if ( $id ) {
 
 			return '/wp-admin/admin.php?page=mailpoet-subscribers#/stats/' . $id;
 
 		}
 
-		return '#';		
+		return '#';
 	}
 
 	/**
@@ -716,23 +675,21 @@ class Mailpoet {
 	 *
 	 * @return string URL
 	 */
-	public function get_mailpoet_list_subs_link( $segment_id ){
+	public function get_mailpoet_list_subs_link( $segment_id ) {
 
 		// sits at /wp-admin/admin.php?page=mailpoet-segments#/edit/3
 
 		return site_url( '/wp-admin/admin.php?page=mailpoet-segments#/edit/' . $segment_id );
-
 	}
 
 	/**
 	 * Returns URL to hop to local Mailpoet wp-admin
-	 *	 
+	 *
 	 * @return string URL
 	 */
 	public function get_local_mailpoet_admin_url() {
 
 		return site_url( '/wp-admin/admin.php?page=mailpoet-newsletters' );
-
 	}
 
 	/**
@@ -742,81 +699,78 @@ class Mailpoet {
 	 *
 	 * @return string URL
 	 */
-	public function get_mailpoet_list_tagged_link( $tag_id ){
+	public function get_mailpoet_list_tagged_link( $tag_id ) {
 
-
-		return site_url( '/wp-admin/admin.php?page=mailpoet-subscribers#/filter[tag=' . $tag_id . ']');
+		return site_url( '/wp-admin/admin.php?page=mailpoet-subscribers#/filter[tag=' . $tag_id . ']' );
 	}
-	
 
 	// ===============================================================================
 	// =========== MailPoet DAL ======================================================
 
-
 	/*
 	* Retrieve MailPoet data on a subscriber (from their MAILPOET subscriber ID)
 	*/
-	public function get_mailpoet_subscriber_by_subscriber_id( $subscriber_id, $with_meta = false, $with_tags = false ){
+	public function get_mailpoet_subscriber_by_subscriber_id( $subscriber_id, $with_meta = false, $with_tags = false ) {
 
 		// currently there's no direct MailPoet API way of doing this
 		// so here we use the subscriber ID (MP Unique ID) to find the contact via external source search
 		// ... then use their main email.
-		// ... this is flawed, because users can change emails, or use alias emails, 
+		// ... this is flawed, because users can change emails, or use alias emails,
 		// ... but until MailPoet has a `getSubscriberByID()` endpoint...
 		// gh-2565
 
 		global $zbs;
 
-		$potential_contact = $zbs->DAL->contacts->getContact( -1, array(
+		$potential_contact = $zbs->DAL->contacts->getContact(
+			-1,
+			array(
 
-            'externalSource'    => 'mailpoet',
-            'externalSourceUID' => $subscriber_id,
+				'externalSource'    => 'mailpoet',
+				'externalSourceUID' => $subscriber_id,
 
-        ));
+			)
+		);
 
-        if ( is_array( $potential_contact ) && isset( $potential_contact['email'] ) ){
+		if ( is_array( $potential_contact ) && isset( $potential_contact['email'] ) ) {
 
-        	return $this->get_mailpoet_subscriber_by_email( $potential_contact['email'], $with_meta, $with_tags );
+			return $this->get_mailpoet_subscriber_by_email( $potential_contact['email'], $with_meta, $with_tags );
 
+		}
 
-        }
-
-        return false;
-
+		return false;
 	}
 
 	/*
 	* Retrieve MailPoet data on a subscriber
 	*/
-	public function get_mailpoet_subscriber_by_email( $email, $with_meta = false, $with_tags = false ){
-
+	public function get_mailpoet_subscriber_by_email( $email, $with_meta = false, $with_tags = false ) {
 
 		// API+API Method
 		// https://github.com/mailpoet/mailpoet/blob/trunk/doc/api_methods/GetSubscriber.md
 		if ( class_exists( \MailPoet\API\API::class ) ) {
-		  
-			// load api
-		  	$mailpoet_api = \MailPoet\API\API::MP('v1');
 
-		  	// attempt retrieval
+			// load api
+			$mailpoet_api = \MailPoet\API\API::MP( 'v1' );
+
+			// attempt retrieval
 			try {
 
-				// basic retrieval 
+				// basic retrieval
 				$subscriber = $mailpoet_api->getSubscriber( $email );
-				$lists = $this->get_mailpoet_lists_summary();
+				$lists      = $this->get_mailpoet_lists_summary();
 
 				// hydrate subscriptions
-				if ( is_array( $subscriber['subscriptions'] ) ){
+				if ( is_array( $subscriber['subscriptions'] ) ) {
 
 					$full_subscriptions_array = array();
-					foreach ( $subscriber['subscriptions'] as $sub ){						
+					foreach ( $subscriber['subscriptions'] as $sub ) {
 
 						$new_sub = $sub;
 
 						// find sub list
-						foreach ( $lists as $list ){
+						foreach ( $lists as $list ) {
 
-							if ( $new_sub['segment_id'] == $list['id'] ){
+							if ( $new_sub['segment_id'] == $list['id'] ) {
 
 								// add some useful attributes not present in raw subscriptions obj
 								$new_sub['segment_name']        = $list['name'];
@@ -824,7 +778,6 @@ class Mailpoet {
 								$new_sub['segment_description'] = $list['description'];
 
 							}
-
 						}
 
 						$full_subscriptions_array[] = $new_sub;
@@ -836,20 +789,18 @@ class Mailpoet {
 
 				return $subscriber;
 
-			} catch (\Exception $e) {
-
+			} catch ( \Exception $e ) {
 
 			}
-
 		}
 
-
-		/* Bunch of ways could seemingly do this without API, tried the following with some luck,
-		but API method above more reliable in this instance. Would need to further check with 
+		/*
+		Bunch of ways could seemingly do this without API, tried the following with some luck,
+		but API method above more reliable in this instance. Would need to further check with
 		MailPoet team if wanted to switch from API for one of these methods...
 
 		// here's adirect call method
-		$subscriber = Subscriber::findOne( $email )->asArray();		
+		$subscriber = Subscriber::findOne( $email )->asArray();
 
 		// or by MP id...
 		$SubscribersRepository = ContainerWrapper::getInstance()->get(SubscribersRepository::class);
@@ -861,19 +812,15 @@ class Mailpoet {
 		// ... adding tags
 		$subscriber_array['tags'] = array();
 		if ( method_exists( $subscriber, 'getSubscriberTags' ) ){
-			
+
 			$subscriber_array['tags'] = $subscriber->getSubscriberTags();
 
 		}
 
 		return $subscriber_array;
 		*/
-
 	}
 
-
-	
-	
 	/**
 	 * Return an array of mailpoet lists which a contact is in
 	 *
@@ -884,69 +831,64 @@ class Mailpoet {
 		$subscriber = $this->get_mailpoet_subscriber_by_email( $email );
 
 		// return just the lists (Segments in MP nomenclature)
-		if ( is_array( $subscriber ) && isset( $subscriber['segments'] ) ){
+		if ( is_array( $subscriber ) && isset( $subscriber['segments'] ) ) {
 
 			return $subscriber['segments'];
 
 		}
 
 		// ... actually we use `subscriptions` which amounts to the same thing
-		if ( is_array( $subscriber ) && isset( $subscriber['subscriptions'] ) ){
+		if ( is_array( $subscriber ) && isset( $subscriber['subscriptions'] ) ) {
 
 			return $subscriber['subscriptions'];
 
 		}
 
 		return array();
-
 	}
 
-
 	/**
-	* Retrieve MailPoet list summary data by name
-	* (currently needs to retrieve all lists and enumerate)
-	*/
-	public function get_mailpoet_list_summary_by_name( $mailpoet_list_name = '' ){
+	 * Retrieve MailPoet list summary data by name
+	 * (currently needs to retrieve all lists and enumerate)
+	 */
+	public function get_mailpoet_list_summary_by_name( $mailpoet_list_name = '' ) {
 
 		$lists = $this->get_mailpoet_lists_summary();
-		if ( is_array( $lists ) ){
+		if ( is_array( $lists ) ) {
 
-			foreach( $lists as $list ){
+			foreach ( $lists as $list ) {
 
-				if ( $list['name'] == $mailpoet_list_name ){
+				if ( $list['name'] == $mailpoet_list_name ) {
 
 					return $list;
-					
+
 				}
-
 			}
-
 		}
 
 		return false;
-
 	}
 
 	/**
-	* Retrieve MailPoet lists summary data
-	*/
-	public function get_mailpoet_lists_summary( $keyed_by_mailpoet_segment_id = false ){
+	 * Retrieve MailPoet lists summary data
+	 */
+	public function get_mailpoet_lists_summary( $keyed_by_mailpoet_segment_id = false ) {
 
 		// https://github.com/mailpoet/mailpoet/blob/trunk/doc/api_methods/GetLists.md
 		if ( class_exists( \MailPoet\API\API::class ) ) {
-		  
-			// load api
-		  	$mailpoet_api = \MailPoet\API\API::MP('v1');
 
-		  	// attempt retrieval
+			// load api
+			$mailpoet_api = \MailPoet\API\API::MP( 'v1' );
+
+			// attempt retrieval
 			try {
-				
+
 				$list_of_lists = $mailpoet_api->getLists();
 
-				if ( $keyed_by_mailpoet_segment_id ){
+				if ( $keyed_by_mailpoet_segment_id ) {
 
 					$keyed_array_of_lists = array();
-					foreach ( $list_of_lists as $list ){
+					foreach ( $list_of_lists as $list ) {
 						$keyed_array_of_lists[ $list['id'] ] = $list;
 					}
 
@@ -956,39 +898,33 @@ class Mailpoet {
 
 				return $list_of_lists;
 
-			} catch (\Exception $e) {
-
+			} catch ( \Exception $e ) {
 
 			}
-
 		}
 
 		return false;
-
 	}
-
 
 	/*
 	* Retrieve an int count of all MailPoet subscribers
 	*/
-	public function get_all_mailpoet_subscribers_count(){
+	public function get_all_mailpoet_subscribers_count() {
 
 		return $this->get_all_mailpoet_subscribers( false, false, true );
-
 	}
-
 
 	/*
 	* Retrieve MailPoet subscribers (all of them)
 	* Wrapper for `get_mailpoet_subscribers()`
 	*/
-	public function get_all_mailpoet_subscribers( 
-		$limit = 50, 
-		$offset = 0, 
-		$count = false, 
-		$with_meta = false, 
-		$with_tags = false 
-	){
+	public function get_all_mailpoet_subscribers(
+		$limit = 50,
+		$offset = 0,
+		$count = false,
+		$with_meta = false,
+		$with_tags = false
+	) {
 
 		return $this->get_mailpoet_subscribers(
 			false,
@@ -998,13 +934,11 @@ class Mailpoet {
 			$offset,
 			$count
 		);
-
 	}
-
 
 	/*
 	* Retrieve MailPoet subscribers
-	* 
+	*
 	* @param int $limit
 	* @param int $offset
 	* @param int $count
@@ -1020,32 +954,32 @@ class Mailpoet {
 		$count = false,
 		$with_meta = false,
 		$with_tags = false
-	){
+	) {
 
 		// https://github.com/mailpoet/mailpoet/blob/trunk/doc/api_methods/GetSubscribers.md
 		// https://github.com/mailpoet/mailpoet/blob/trunk/doc/api_methods/GetSubscribersCount.md
 		if ( class_exists( \MailPoet\API\API::class ) ) {
-		  
-			// load api
-		  	$mailpoet_api = \MailPoet\API\API::MP('v1');
 
-		  	// attempt retrieval
+			// load api
+			$mailpoet_api = \MailPoet\API\API::MP( 'v1' );
+
+			// attempt retrieval
 			try {
 
 				// build params
 				$filters = array();
-				if ( !empty( $status ) ){
+				if ( ! empty( $status ) ) {
 					$filters['status'] = $status;
 				}
-				if ( $list_id > 0 ){
+				if ( $list_id > 0 ) {
 					$filters['listId'] = $list_id;
 				}
-				if ( $min_updated_at > 0 ){
+				if ( $min_updated_at > 0 ) {
 					$filters['minUpdatedAt'] = $min_updated_at;
 				}
-				
+
 				// if count, return that
-				if ( $count ){
+				if ( $count ) {
 
 					return $mailpoet_api->getSubscribersCount(
 						$filters
@@ -1056,40 +990,38 @@ class Mailpoet {
 				// as at 19/10/22 the MailPoet API endpoint does not yet support returning segments/tags
 				// $with_meta, $with_tags
 
-				// return				
+				// return
 				return $mailpoet_api->getSubscribers(
 					$filters,
 					$limit,
 					$offset
 				);
 
-			} catch (\Exception $e) {
+			} catch ( \Exception $e ) {
 
 				// debug: echo 'MailPoet API Error: ' . $e->getMessage();
 
 			}
-
 		}
 
 		return false;
-
 	}
-
-
 
 	/*
 	* Helper function to filter MailPoet lists by name.
 	*/
 	public function get_mailpoet_list_by_name( $name ) {
-		$mailpoet_api = \MailPoet\API\API::MP('v1');
-		$lists = $mailpoet_api->getLists();
-		$found = array_filter($lists, function ($i) use($name) {
-			return ($i['name'] == $name);
-		});
-	
-		return array_pop($found);
-	}
+		$mailpoet_api = \MailPoet\API\API::MP( 'v1' );
+		$lists        = $mailpoet_api->getLists();
+		$found        = array_filter(
+			$lists,
+			function ( $i ) use ( $name ) {
+				return ( $i['name'] == $name );
+			}
+		);
 
+		return array_pop( $found );
+	}
 
 	/*
 	* Creates a mew MailPoet mailing List.
@@ -1097,10 +1029,10 @@ class Mailpoet {
 	*/
 	public function reset_mailpoet_list_by_segment_name( $name ) {
 
-		$mailpoet_api = \MailPoet\API\API::MP('v1');
+		$mailpoet_api = \MailPoet\API\API::MP( 'v1' );
 
 		$list = $this->get_mailpoet_list_by_name( $name );
-		
+
 		// Delete all subscribers from this list
 		if ( ! empty( $list ) && ! empty( $list['id'] ) ) {
 			$mailpoet_api->deleteList( $list['id'] );
@@ -1113,9 +1045,11 @@ class Mailpoet {
 		$description = __( 'Created by Jetpack CRM', 'zero-bs-crm' );
 		##/WLREMOVE
 
-		$list = $mailpoet_api->addList( array(
-			'name' => $name,
-			'description' => $description )
+		$list = $mailpoet_api->addList(
+			array(
+				'name'        => $name,
+				'description' => $description,
+			)
 		);
 
 		return $list['id'];
@@ -1124,33 +1058,29 @@ class Mailpoet {
 	/*
 	* Retrieve MailPoet setup status
 	*/
-	public function get_mailpoet_setup_status(){
+	public function get_mailpoet_setup_status() {
 
 		// https://github.com/mailpoet/mailpoet/blob/trunk/doc/api_methods/IsSetupComplete.md
 		if ( class_exists( \MailPoet\API\API::class ) ) {
-		  
-			// load api
-		  	$mailpoet_api = \MailPoet\API\API::MP('v1');
 
-		  	// attempt retrieval
+			// load api
+			$mailpoet_api = \MailPoet\API\API::MP( 'v1' );
+
+			// attempt retrieval
 			try {
-				
+
 				return $mailpoet_api->isSetupComplete();
 
-			} catch (\Exception $e) {
-
+			} catch ( \Exception $e ) {
 
 			}
-
 		}
 
 		return false;
-
 	}
 
 	// =========== / MailPoet Specific Migrations  ===================================
 	// ===============================================================================
-	
 
 	// ===============================================================================
 	// =========== MailPoet Specific Migrations  =====================================
@@ -1158,8 +1088,7 @@ class Mailpoet {
 	/*
 	* Migrations
 	*/
-	private function run_migrations(){
-
+	private function run_migrations() {
 	}
 
 	// =========== / MailPoet Specific Migrations  ===================================
@@ -1172,14 +1101,14 @@ class Mailpoet {
 
 		try {
 
-			$mailpoet_api = \MailPoet\API\API::MP('v1');
+			$mailpoet_api = \MailPoet\API\API::MP( 'v1' );
 
-			foreach( $subscribers as $sc ) {
+			foreach ( $subscribers as $sc ) {
 
 				if ( ! zeroBSCRM_validateEmail( $sc['email'] ) ) {
 					continue;
 				}
-				
+
 				try {
 
 					$subscriber = $mailpoet_api->getSubscriber( $sc['email'] );
@@ -1191,22 +1120,21 @@ class Mailpoet {
 							$list_id,
 							array(
 								'send_confirmation_email' => false,
-								'schedule_welcome_email' => false,
+								'schedule_welcome_email'  => false,
 								'skip_subscriber_notification' => true,
 							)
 						);
 					}
-
-				} catch (APIException $th) {
+				} catch ( APIException $th ) {
 
 					// Subscriber not found. Create new Subscriber
 					if ( $th->getCode() === APIException::SUBSCRIBER_NOT_EXISTS ) {
 						try {
 							$mailpoet_api->addSubscriber(
 								array(
-									'email' => $sc['email'],
+									'email'      => $sc['email'],
 									'first_name' => $sc['fname'],
-									'last_name' => $sc['lname'],
+									'last_name'  => $sc['lname'],
 								),
 								array( $list_id ),
 								array(
@@ -1215,39 +1143,36 @@ class Mailpoet {
 									'skip_subscriber_notification' => true,
 								)
 							);
-						} catch (APIException $th) {
+						} catch ( APIException $th ) {
 							return null;
 						}
 					}
-
 				}
 			}
 
 			return array(
-				'success' => true
+				'success' => true,
 			);
 
-		} catch (\Throwable $th) {
+		} catch ( \Throwable $th ) {
 
 			return array(
 				'success' => false,
-				'error'	  => zeroBSCRM_locale_utsToDatetime( time() ) . '] ' . $th->getMessage()
+				'error'   => zeroBSCRM_locale_utsToDatetime( time() ) . '] ' . $th->getMessage(),
 			);
 
 		}
-	}	
-
+	}
 
 	/*
 	 *   Adds segment condition category positions (to effect the display order)
 	 */
 	public function add_segments_condition_category_positions( $positions = array() ) {
 
-	    global $zbs;
+		global $zbs;
 
-	    $positions['mailpoet'] = 11;
+		$positions['mailpoet'] = 11;
 
-	    return $positions;
-
+		return $positions;
 	}
 }

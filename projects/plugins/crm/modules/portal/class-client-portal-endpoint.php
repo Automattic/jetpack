@@ -1,5 +1,6 @@
 <?php
-/*!
+/*
+!
 * Jetpack CRM
 * https://jetpackcrm.com
 *
@@ -11,9 +12,8 @@ namespace Automattic\JetpackCRM;
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
- * 
+ *
  * This class represents a single Client Portal endpoint (e.g. Quotes)
- * 
  */
 #[\AllowDynamicProperties]
 abstract class Client_Portal_Endpoint {
@@ -32,6 +32,7 @@ abstract class Client_Portal_Endpoint {
 	public $default_template_path        = '';
 	/**
 	 * Option param value used by some endpoints
+	 *
 	 * @var string
 	 */
 	public $param_value;
@@ -47,16 +48,16 @@ abstract class Client_Portal_Endpoint {
 	 * the permission check.
 	 */
 	public function perform_endpoint_action() {
-		// Some endpoints from the Client Portal bypass user permissions and 
-		// allow users that are not logged in to see the content. 
+		// Some endpoints from the Client Portal bypass user permissions and
+		// allow users that are not logged in to see the content.
 		// e.g. Invoices with easy links.
 		if ( $this->should_check_user_permission ) {
 			if ( ! is_user_logged_in() ) {
-				return $this->portal->get_template('login.php');
+				return $this->portal->get_template( 'login.php' );
 			}
 
 			if ( ! $this->portal->is_user_enabled() ) {
-				return $this->portal->get_template('disabled.php');
+				return $this->portal->get_template( 'disabled.php' );
 			}
 		}
 
@@ -66,11 +67,11 @@ abstract class Client_Portal_Endpoint {
 	}
 
 	public function output_html() {
-		if ($this->template_name != '') {
-			$this->portal->get_template( 
+		if ( $this->template_name != '' ) {
+			$this->portal->get_template(
 				$this->template_name,
-				$this->template_args, 
-				$this->template_path, 
+				$this->template_args,
+				$this->template_path,
 				$this->default_template_path
 			);
 		}
@@ -79,21 +80,21 @@ abstract class Client_Portal_Endpoint {
 	/**
 	 * This action gets called before any action (even permission checks)
 	 * are performed by this endpoint.
-	*/
+	 */
 	public function before_endpoint_actions() {
 		// Do nothing. Should be overwritten by child classes if needed.
 	}
 
 	/**
 	 * This action gets called before any rendering is made by the endpoint.
-	*/
+	 */
 	public function pre_content_action() {
 		// Do nothing. Should be overwritten by child classes if needed.
 	}
 
 	/**
 	 * This action gets called after all rendering is finished.
-	*/
+	 */
 	public function post_content_action() {
 		// Do nothing. Should be overwritten by child classes if needed.
 	}

@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -32,10 +33,9 @@ class Woo_Sync_Segment_Conditions {
 	public function __construct() {
 
 		// Require segment conditions when jpcrm is ready
-    	add_action( 'jpcrm_post_init', array( $this, 'require_segment_conditions'), 1 );
-
+		add_action( 'jpcrm_post_init', array( $this, 'require_segment_conditions' ), 1 );
 	}
-		
+
 	/**
 	 * Main Class Instance.
 	 *
@@ -43,30 +43,27 @@ class Woo_Sync_Segment_Conditions {
 	 *
 	 * @since 2.0
 	 * @static
-	 * @see 
+	 * @see
 	 * @return Woo_Sync_Segment_Conditions main instance
 	 */
 	public static function instance() {
-		if ( is_null( self::$_instance ) ) {
+		if ( self::$_instance === null ) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
 	}
 
-
-
 	/**
 	 * Require segment conditions
 	 */
-	public function require_segment_conditions(){
+	public function require_segment_conditions() {
 
 		// is woo customer
-		require_once( JPCRM_WOO_SYNC_ROOT_PATH . 'includes/segment-conditions/class-segment-condition-woo-customer.php' );
+		require_once JPCRM_WOO_SYNC_ROOT_PATH . 'includes/segment-conditions/class-segment-condition-woo-customer.php';
 		$this->conditions['is_woo_customer'] = new \Segment_Condition_Woo_Customer();
 
 		// woo order count
-		require_once( JPCRM_WOO_SYNC_ROOT_PATH . 'includes/segment-conditions/class-segment-condition-woo-order-count.php' );
+		require_once JPCRM_WOO_SYNC_ROOT_PATH . 'includes/segment-conditions/class-segment-condition-woo-order-count.php';
 		$this->conditions['woo_order_count'] = new \Segment_Condition_Woo_Order_Count();
-
 	}
 }

@@ -1,5 +1,6 @@
-<?php 
-/*!
+<?php
+/*
+!
  * Jetpack CRM
  * https://jetpackcrm.com
  * Copyright 2021 Automattic
@@ -7,52 +8,49 @@
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-
 /**
  * Retrieve Template file path
- * 
+ *
  * This checks existence in /wp-content/theme/{active_theme}/jetpack-crm/*
  * ... and if doesn't exist, falls back to /wp-content/plugin/{this_plugin}/templates/*
  *
  * @param string template_file - the file path _after_ the /templates/ directory
- * 
+ *
  * @return string|bool false - the full file path to template if exists, false if not
  */
 function jpcrm_template_file_path( $template_file = '' ) {
 
-	if ( !empty( $template_file ) ){
+	if ( ! empty( $template_file ) ) {
 
 		global $zbs;
 
 		// Search for template file in theme folder.
-		$template_file_path = locate_template( array(
-			$zbs->template_path . '/' . $template_file,
-			$template_file
-		) );
+		$template_file_path = locate_template(
+			array(
+				$zbs->template_path . '/' . $template_file,
+				$template_file,
+			)
+		);
 
-		
-		// check any other externally added locations 
+		// check any other externally added locations
 		// default to our core template if no theme or external variant
-		if ( !$template_file_path ){
+		if ( ! $template_file_path ) {
 
 			// see if we have any other locations
 			// note this'll effectively 'pick' the first added & viable in this situation.
 			$extra_template_locations = apply_filters( 'jpcrm_template_locations', array() );
-			if ( is_array( $extra_template_locations ) ){
+			if ( is_array( $extra_template_locations ) ) {
 
-				foreach ( $extra_template_locations as $location ){
+				foreach ( $extra_template_locations as $location ) {
 
-					if ( file_exists( $location[ 'path' ] . $template_file ) ){
+					if ( file_exists( $location['path'] . $template_file ) ) {
 
 						// use this template
-						$template_file_path = $location[ 'path' ] . $template_file;
+						$template_file_path = $location['path'] . $template_file;
 
 						break;
 					}
-
-
 				}
-
 			}
 
 			// no theme template
@@ -63,45 +61,41 @@ function jpcrm_template_file_path( $template_file = '' ) {
 				$template_file_path = ZEROBSCRM_PATH . 'templates/' . $template_file;
 
 			}
-
 		}
 
-
 		// do we have a valid template?
-		if ( !empty( $template_file_path ) && file_exists( $template_file_path ) ){
+		if ( ! empty( $template_file_path ) && file_exists( $template_file_path ) ) {
 
 			return $template_file_path;
 
 		}
-
 	}
 
 	return false;
-
 }
 
 /**
  * Retrieve Template file
- * 
+ *
  * This checks existence in /wp-content/theme/{active_theme}/jetpack-crm/*
  * ... and if doesn't exist, falls back to /wp-content/plugin/{this_plugin}/templates/*
  *
  * @param string template_file - the file path _after_ the /templates/ directory
  * @param bool load - if true will include
- * 
- * @return string {contents_of_template_file} 
+ *
+ * @return string {contents_of_template_file}
  */
 function jpcrm_retrieve_template( $template_file = '', $load = true ) {
 
 	$template_contents = '';
 
-	if ( !empty( $template_file ) ){
+	if ( ! empty( $template_file ) ) {
 
 		// retrieve path
 		$template_file_path = jpcrm_template_file_path( $template_file );
 
 		// do we have a valid template?
-		if ( !empty( $template_file_path ) && file_exists( $template_file_path ) ){
+		if ( ! empty( $template_file_path ) && file_exists( $template_file_path ) ) {
 
 			// Prevent file traversal attacks.
 			$allowed_template_paths = jpcrm_get_allowed_template_paths();
@@ -110,48 +104,42 @@ function jpcrm_retrieve_template( $template_file = '', $load = true ) {
 			}
 
 			// load or return contents
-			if ( $load ){
+			if ( $load ) {
 
 				// load the file directly (no support for require_once here, expand via params if needed)
 				include $template_file_path;
 
 			} else {
-				
+
 				// retrieve contents
-				if (function_exists('file_get_contents')){
+				if ( function_exists( 'file_get_contents' ) ) {
 
-		            try {
+					try {
 
-		                $template_contents = file_get_contents( $template_file_path );
+						$template_contents = file_get_contents( $template_file_path );
 						return $template_contents;
 
+					} catch ( Exception $e ) {
 
-		            } catch (Exception $e){
-
-		                // Nada 
+						// Nada
 						// basic dialog
 						_doing_it_wrong( __FUNCTION__, sprintf( '<code>%s</code> could not be retrieved.', esc_html( $template_file_path ) ), '4.5.0' );
-						
+
 						// add admin notification
-						if ( zeroBSCRM_isZBSAdminOrAdmin() ){
-						
+						if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+
 							jpcrm_template_missing_notification( $template_file );
 
 						}
-
-		            }
-
-		        }
-
-
+					}
+				}
 			}
-
 		} else {
 
 			// if current user is an admin, let's return a useful debug string
-			if ( zeroBSCRM_isZBSAdminOrAdmin() ){
-				
-				// add admin notification		
+			if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+
+				// add admin notification
 				jpcrm_template_missing_notification( $template_file );
 
 				// return explainer string (note this'll get rolled into PDF/page output)
@@ -163,15 +151,11 @@ function jpcrm_retrieve_template( $template_file = '', $load = true ) {
 				// _doing_it_wrong( __FUNCTION__, sprintf( '<code>%s</code> does not exist.', $template_file ) );
 
 			}
-
 		}
-
 	}
-
 
 	// no dice
 	return '';
-
 }
 
 /**
@@ -201,7 +185,7 @@ function jpcrm_retrieve_template_variants( $original_template_path = '' ) {
 
 	$variants = array();
 
-	if ( !empty( $original_template_path ) ){
+	if ( ! empty( $original_template_path ) ) {
 
 		// get extension (e.g. html)
 		$file_extension = pathinfo( $original_template_path, PATHINFO_EXTENSION );
@@ -216,7 +200,9 @@ function jpcrm_retrieve_template_variants( $original_template_path = '' ) {
 
 		// to provide some form of protection here, we only allow zbs admins to do this
 		// (as we're iterating through directories)
-		if ( !zeroBSCRM_isZBSAdminOrAdmin() ) return false;
+		if ( ! zeroBSCRM_isZBSAdminOrAdmin() ) {
+			return false;
+		}
 
 		// Seeks out template files matching a pattern (in wp theme directories, and our core template directory)
 		// Adapted from locate_template: https://core.trac.wordpress.org/browser/tags/5.8/src/wp-includes/template.php#L697
@@ -225,15 +211,15 @@ function jpcrm_retrieve_template_variants( $original_template_path = '' ) {
 				'name' => __( 'Theme directory', 'zero-bs-crm' ),
 				'path' => get_stylesheet_directory() . '/' . $zbs->template_path . '/',
 			),
-			array( 
+			array(
 				'name' => __( 'Template Path directory', 'zero-bs-crm' ),
 				'path' => get_template_directory() . '/' . $zbs->template_path . '/',
 			),
-			array( 
-				'name' => __( 'Theme Compat directory', 'zero-bs-crm' ), 
+			array(
+				'name' => __( 'Theme Compat directory', 'zero-bs-crm' ),
 				'path' => ABSPATH . WPINC . '/theme-compat/' . $zbs->template_path . '/',
 			),
-			array( 
+			array(
 				'name' => __( 'Core Plugin', 'zero-bs-crm' ),
 				'path' => ZEROBSCRM_PATH . 'templates/',
 			),
@@ -247,13 +233,13 @@ function jpcrm_retrieve_template_variants( $original_template_path = '' ) {
 
 		// cycle through locations and seek out templates
 		if ( is_array( $template_locations ) ) {
-			foreach ( $template_locations as $directory ){
-			
+			foreach ( $template_locations as $directory ) {
+
 				// locate matching files
-				$template_files = glob( $directory['path'] . $pre_extension_path . '*.' . $file_extension);
+				$template_files = glob( $directory['path'] . $pre_extension_path . '*.' . $file_extension );
 
 				// determine viable
-				if ( is_array( $template_files ) ){
+				if ( is_array( $template_files ) ) {
 
 					foreach ( $template_files as $file_path ) {
 
@@ -262,27 +248,20 @@ function jpcrm_retrieve_template_variants( $original_template_path = '' ) {
 
 						$variants[ $path ] = array(
 							'full_path' => $file_path,
-							'filename' 	=> basename( $file_path ),
-							'origin'	=> $directory['name'],
-							'name'		=> '' // tbc
+							'filename'  => basename( $file_path ),
+							'origin'    => $directory['name'],
+							'name'      => '', // tbc
 						);
 
 					}
-
 				}
-
 			}
-
 		}
-
 	}
 
 	// return passed through filter so the likes of client portal pro could append
 	return apply_filters( 'jpcrm_template_variants', $variants, $original_template_path );
-
 }
-
-
 
 /**
  * Adds an admin notice for missing template
@@ -293,7 +272,7 @@ function jpcrm_retrieve_template_variants( $original_template_path = '' ) {
  */
 function jpcrm_template_missing_notification( $template_file = '' ) {
 
-	if ( !empty( $template_file ) ){
+	if ( ! empty( $template_file ) ) {
 
 		global $zbs;
 
@@ -317,17 +296,16 @@ function jpcrm_template_missing_notification( $template_file = '' ) {
 	}
 
 	return false;
-
-
 }
 
-/* WH Notes:
+/*
+WH Notes:
 
 	There was all this note-age from old vers:
-			Customer Meta Translation - 2.90 
+			Customer Meta Translation - 2.90
 			#}PUT THE EMAIL THROUGH THE FILTERS (FOR THE #FNAME# NEW CUSTOMER TAGS do prepare_email_{trigger}_template
 			#} WH: Let's do this as filters :)
-	
+
 	... but I think these funcs needed a bit of a clean up
 	... should be backward compatible, and safe to stick to using the filter: zeroBSCRM_replace_customer_placeholders
 	... MC2.0 uses this indirectly through 'zerobscrm_mailcamp_merge' and 'zerobscrm_mailcamp_merge_text'
@@ -336,15 +314,15 @@ function jpcrm_template_missing_notification( $template_file = '' ) {
 	... v3.0 I've made them DAL3 safe, not fully refactored as approaching deadline
 */
 // Note: this function is deprecated from ~4.3.0, please use $zbs->get_templating()->replace_placeholders()
-function zeroBSCRM_replace_customer_placeholders($html = '', $cID = -1, $contactObj = false){
+function zeroBSCRM_replace_customer_placeholders( $html = '', $cID = -1, $contactObj = false ) {
 
-	if ($cID > 0 && $html != ''){
+	if ( $cID > 0 && $html != '' ) {
 
 		global $zbs;
 
-		if (is_array($contactObj) && isset($contactObj['id']))
+		if ( is_array( $contactObj ) && isset( $contactObj['id'] ) ) {
 			$contact = $contactObj;
-		else {
+		} else {
 			$contact = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$cID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				array(
@@ -365,24 +343,23 @@ function zeroBSCRM_replace_customer_placeholders($html = '', $cID = -1, $contact
 
 		// replace all placeholders :)
 		$newHTML = $html;
-		foreach ($contact as $k => $v){
-			$newHTML = str_replace('##CONTACT-'.strtoupper($k) . '##' ,$v, $newHTML);  
+		foreach ( $contact as $k => $v ) {
+			$newHTML = str_replace( '##CONTACT-' . strtoupper( $k ) . '##', $v, $newHTML );
 		}
 		$html = $newHTML;
 
 	}
 
-    return $html;
-
+	return $html;
 }
 
-add_filter( 'zerobscrm_quote_html_generate','zeroBSCRM_replace_customer_placeholders', 20, 2);
+add_filter( 'zerobscrm_quote_html_generate', 'zeroBSCRM_replace_customer_placeholders', 20, 2 );
 
 // as above, but replaces with 'demo data'
-function zeroBSCRM_replace_customer_placeholders_demo( $html = '' ){
-	
-	if ( !empty( $html ) ){
-		
+function zeroBSCRM_replace_customer_placeholders_demo( $html = '' ) {
+
+	if ( ! empty( $html ) ) {
+
 		global $zbs;
 
 		// load templater
@@ -391,17 +368,17 @@ function zeroBSCRM_replace_customer_placeholders_demo( $html = '' ){
 		// assigned-to-*
 		$replacements = array(
 
-			'assigned-to-name' => __( 'Demo Contact Owner', 'zero-bs-crm' ),
-			'assigned-to-email' => 'demo.contact.owner@example.com',
+			'assigned-to-name'     => __( 'Demo Contact Owner', 'zero-bs-crm' ),
+			'assigned-to-email'    => 'demo.contact.owner@example.com',
 			'assigned-to-username' => 'demo.contact.owner.username',
-			'assigned-to-mob' => '999 999 999',
+			'assigned-to-mob'      => '999 999 999',
 
 		);
 
 		// return the example, with demo contact fields and assignments replaced
-		return $placeholder_templating->replace_placeholders( array(  'global', 'contact' ), $html, $replacements, array( ZBS_TYPE_CONTACT => zeroBS_getDemoCustomer() ), true );
+		return $placeholder_templating->replace_placeholders( array( 'global', 'contact' ), $html, $replacements, array( ZBS_TYPE_CONTACT => zeroBS_getDemoCustomer() ), true );
 
 	}
 
-    return $html;
+	return $html;
 }
