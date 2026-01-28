@@ -5,6 +5,7 @@ import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../../social-store';
+import { TABS } from '../sharing-activity/constants';
 import { ConfirmationConfig } from './confirmation-config';
 
 /**
@@ -24,7 +25,7 @@ function ScheduledPostsNav() {
 
 	const viewScheduled = useCallback( () => {
 		setUnifiedModalScreenLock( false );
-		setUnifiedModalData( { initialTab: 'scheduled' } );
+		setUnifiedModalData( { initialTab: TABS.SCHEDULED } );
 		navigator.goTo( '/sharing-activity' );
 	}, [ navigator, setUnifiedModalData, setUnifiedModalScreenLock ] );
 

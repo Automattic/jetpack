@@ -4,6 +4,7 @@ import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../../social-store';
 import { ActivityView } from './activity-view';
+import { TABS } from './constants';
 import styles from './styles.module.scss';
 
 type Tab = React.ComponentProps< typeof TabPanel >[ 'tabs' ][ number ];
@@ -15,21 +16,21 @@ type Tab = React.ComponentProps< typeof TabPanel >[ 'tabs' ][ number ];
  */
 export function Content() {
 	const initialTab = useSelect( select => {
-		return select( socialStore ).getUnifiedModalData()?.initialTab ?? 'all';
+		return select( socialStore ).getUnifiedModalData()?.initialTab ?? TABS.ALL;
 	}, [] );
 
 	const tabs: Tab[] = useMemo(
 		() => [
 			{
-				name: 'all',
+				name: TABS.ALL,
 				title: __( 'All shares', 'jetpack-publicize-pkg' ),
 			},
 			{
-				name: 'shared',
+				name: TABS.SHARED,
 				title: __( 'Shared', 'jetpack-publicize-pkg' ),
 			},
 			{
-				name: 'scheduled',
+				name: TABS.SCHEDULED,
 				title: __( 'Scheduled', 'jetpack-publicize-pkg' ),
 			},
 		],
