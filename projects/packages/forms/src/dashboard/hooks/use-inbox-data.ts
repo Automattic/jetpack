@@ -69,9 +69,12 @@ const decodeValue = ( value: unknown ): unknown => {
 	return value;
 };
 
+const hasOwn = ( obj: object, key: PropertyKey ): boolean =>
+	Object.prototype.hasOwnProperty.call( obj, key );
+
 const normalizeFieldsForDisplay = ( fields: ResponseField[] ): Record< string, unknown > => {
 	if ( ! fields || ! Array.isArray( fields ) ) {
-		return {};
+		return Object.create( null ) as Record< string, unknown >;
 	}
 
 	return fields.reduce(
@@ -80,7 +83,7 @@ const normalizeFieldsForDisplay = ( fields: ResponseField[] ): Record< string, u
 			let label = baseLabel;
 			let counter = 2;
 
-			while ( accumulator[ label ] ) {
+			while ( hasOwn( accumulator, label ) ) {
 				label = `${ baseLabel } (${ counter })`;
 				counter++;
 			}
@@ -89,7 +92,7 @@ const normalizeFieldsForDisplay = ( fields: ResponseField[] ): Record< string, u
 
 			return accumulator;
 		},
-		{} as Record< string, unknown >
+		Object.create( null ) as Record< string, unknown >
 	);
 };
 
