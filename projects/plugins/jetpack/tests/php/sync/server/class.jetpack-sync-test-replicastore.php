@@ -334,6 +334,9 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	public function delete_all_metadata( $type, $object_id ) {
 		$blog_id   = get_current_blog_id();
 		$object_id = absint( $object_id );
+		if ( ! isset( $this->meta[ $blog_id ][ $type ] ) ) {
+			return;
+		}
 		foreach ( $this->meta[ $blog_id ][ $type ] as $meta_id => $meta_data ) {
 			if ( $meta_data->object_id === $object_id ) {
 				unset( $this->meta[ $blog_id ][ $type ][ $meta_id ] );
