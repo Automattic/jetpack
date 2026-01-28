@@ -5080,13 +5080,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             }
 
             #} Transactions
-            // phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed, Generic.WhiteSpace.ScopeIndent, WordPress.WhiteSpace.ControlStructureSpacing, PEAR.Functions.FunctionCallSignature
-            if (in_array('transactiontotal', $columnsRequired, true)) {
+            // phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Generic.WhiteSpace.DisallowSpaceIndent, Generic.WhiteSpace.ScopeIndent
+            if ( in_array( 'transactiontotal', $columnsRequired, true ) ) {
 
-                if (isset($contact['transactions_total'])) {
-                    $resArr['transactionstotal'] = zeroBSCRM_formatCurrency($contact['transactions_total']);
+                if ( isset( $contact['transactions_total'] ) ) {
+                    $resArr['transactionstotal'] = zeroBSCRM_formatCurrency( $contact['transactions_total'] );
                 } else {
-                    $resArr['transactionstotal'] = zeroBSCRM_formatCurrency(0);
+                    $resArr['transactionstotal'] = zeroBSCRM_formatCurrency( 0 );
                 }
             }
             // phpcs:enable
