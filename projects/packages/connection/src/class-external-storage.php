@@ -59,6 +59,15 @@ class External_Storage {
 	private static $logged_events = array();
 
 	/**
+	 * Maximum delay threshold for empty state reporting (in seconds).
+	 * This also determines the transient expiry for tracking first empty state.
+	 * Provider custom thresholds must not exceed this value.
+	 *
+	 * @since $$next-version$$
+	 */
+	private const EMPTY_STATE_TRANSIENT_EXPIRY = 15 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Register a storage provider for external storage.
 	 *
 	 * @since 6.18.0
@@ -207,7 +216,7 @@ class External_Storage {
 
 		if ( false === $first_empty_time ) {
 			// First time encountering empty state - set delay transient and don't report yet
-			set_transient( $delay_key, time(), 15 * MINUTE_IN_SECONDS ); // Keep for 15 minutes
+			set_transient( $delay_key, time(), self::EMPTY_STATE_TRANSIENT_EXPIRY );
 			return false;
 		}
 
@@ -219,7 +228,7 @@ class External_Storage {
 		if ( null !== self::$provider && method_exists( self::$provider, 'get_empty_state_delay_threshold' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- Optional method, checked via method_exists()
 			$custom_threshold = self::$provider->get_empty_state_delay_threshold();
-			if ( is_int( $custom_threshold ) && $custom_threshold >= 0 ) {
+			if ( is_int( $custom_threshold ) && $custom_threshold >= 0 && $custom_threshold <= self::EMPTY_STATE_TRANSIENT_EXPIRY ) {
 				$delay_threshold = $custom_threshold;
 			}
 		}

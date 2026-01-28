@@ -62,6 +62,7 @@ namespace Automattic\Jetpack\Connection;
  *
  * - Return `0` if external storage is the source of truth (written first)
  * - Return higher values for slower sync systems
+ * - Maximum allowed value is 15 minutes (900 seconds); values above this are ignored
  *
  * Example:
  *
