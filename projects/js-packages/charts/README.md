@@ -64,6 +64,7 @@ The following components can be imported individually:
 - `@automattic/charts/pie-semi-circle-chart` - Pie Semi-Circle Chart component
 - `@automattic/charts/sparkline` - Sparkline component
 - `@automattic/charts/tooltip` - Tooltip component
+- `@automattic/charts/trend-indicator` - Trend Indicator component
 - `@automattic/charts/hooks` - React hooks
 - `@automattic/charts/providers` - Context providers
 - `@automattic/charts/visx/group` - Visx group utilities
@@ -85,6 +86,7 @@ Each component has its own CSS file that can be imported individually:
 - `@automattic/charts/pie-semi-circle-chart/style.css`
 - `@automattic/charts/sparkline/style.css`
 - `@automattic/charts/tooltip/style.css`
+- `@automattic/charts/trend-indicator/style.css`
 
 ### Basic Usage Example
 
