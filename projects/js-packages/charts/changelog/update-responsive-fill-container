@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Responsive charts now fill parent container by default instead of using a fixed aspect ratio. Pass `aspectRatio` prop to restore the previous behavior.
