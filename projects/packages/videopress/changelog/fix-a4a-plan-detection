@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Use feature flag from backend for VideoPress plan detection instead of hardcoded plan slugs. Fixes upgrade notice incorrectly showing for A4A (Automattic for Agencies) VideoPress customers.
+Fix upgrade notice incorrectly showing for A4A (Automattic for Agencies) VideoPress customers by using backend feature flag instead of hardcoded plan slugs.
