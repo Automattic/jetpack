@@ -12,7 +12,9 @@
 
 namespace Automattic\Jetpack\Forms\Abilities;
 
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 
 /**
  * Class Forms_Abilities
@@ -83,6 +85,8 @@ class Forms_Abilities {
 		self::register_get_responses_ability();
 		self::register_update_response_ability();
 		self::register_get_status_counts_ability();
+		self::register_get_forms_ability();
+		self::register_submit_form_ability();
 	}
 
 	/**
@@ -263,6 +267,86 @@ class Forms_Abilities {
 	}
 
 	/**
+	 * Register ability to list available forms and their fields.
+	 *
+	 * @return void
+	 */
+	private static function register_get_forms_ability() {
+		wp_register_ability(
+			'jetpack-forms/get-forms',
+			array(
+				'label'               => __( 'List available forms', 'jetpack-forms' ),
+				'description'         => __( 'Discover forms on this site that can be filled out. Returns form IDs, titles, and field definitions including labels, types, and options.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'default'              => array(),
+					'properties'           => array(
+						'post_id' => array(
+							'type'        => 'integer',
+							'description' => __( 'Only return forms embedded in this specific page or post.', 'jetpack-forms' ),
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'execute_callback'    => array( __CLASS__, 'get_forms' ),
+				'permission_callback' => '__return_true',
+				'meta'                => array(
+					'annotations'  => array(
+						'public'      => true,
+						'readonly'    => true,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
+			)
+		);
+	}
+
+	/**
+	 * Register ability to submit a form.
+	 *
+	 * @return void
+	 */
+	private static function register_submit_form_ability() {
+		wp_register_ability(
+			'jetpack-forms/submit-form',
+			array(
+				'label'               => __( 'Submit a form', 'jetpack-forms' ),
+				'description'         => __( 'Submit a form response. Provide the form ID and field values as key-value pairs matching the field labels.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'form_id', 'fields' ),
+					'properties'           => array(
+						'form_id' => array(
+							'type'        => 'integer',
+							'description' => __( 'The ID of the form to submit (from get-forms results).', 'jetpack-forms' ),
+						),
+						'fields'  => array(
+							'type'        => 'object',
+							'description' => __( 'Field values as key-value pairs. Keys should match field labels from the form definition.', 'jetpack-forms' ),
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'execute_callback'    => array( __CLASS__, 'submit_form' ),
+				'permission_callback' => '__return_true',
+				'meta'                => array(
+					'annotations'  => array(
+						'public'      => true,
+						'readonly'    => false,
+						'destructive' => false,
+						'idempotent'  => false,
+					),
+					'show_in_rest' => true,
+				),
+			)
+		);
+	}
+
+	/**
 	 * Check if user can edit pages.
 	 *
 	 * @return bool
@@ -358,6 +442,197 @@ class Forms_Abilities {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Get available forms callback.
+	 *
+	 * Queries published jetpack_form posts and extracts field definitions from blocks.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns array of forms with field definitions.
+	 */
+	public static function get_forms( $args = array() ) {
+		$args = is_array( $args ) ? $args : array();
+
+		$query_args = array(
+			'post_type'      => Contact_Form::POST_TYPE,
+			'post_status'    => 'publish',
+			'posts_per_page' => 50,
+		);
+
+		if ( ! empty( $args['post_id'] ) ) {
+			// Find forms embedded in a specific post by checking the source meta.
+			$query_args['meta_key']   = Contact_Form::SOURCE_META_KEY;
+			$query_args['meta_value'] = absint( $args['post_id'] );
+		}
+
+		$posts = get_posts( $query_args );
+		$forms = array();
+
+		foreach ( $posts as $post ) {
+			$fields  = self::extract_fields_from_post( $post );
+			$forms[] = array(
+				'id'     => $post->ID,
+				'title'  => $post->post_title,
+				'fields' => $fields,
+			);
+		}
+
+		return $forms;
+	}
+
+	/**
+	 * Extract field definitions from a form post's block content.
+	 *
+	 * @param \WP_Post $post The form post.
+	 * @return array Array of field definitions.
+	 */
+	private static function extract_fields_from_post( $post ) {
+		$blocks = parse_blocks( $post->post_content );
+		$fields = array();
+
+		self::extract_fields_from_blocks( $blocks, $fields );
+
+		return $fields;
+	}
+
+	/**
+	 * Recursively extract field definitions from blocks.
+	 *
+	 * @param array $blocks The blocks to process.
+	 * @param array $fields Reference to the fields array being built.
+	 */
+	private static function extract_fields_from_blocks( $blocks, &$fields ) {
+		foreach ( $blocks as $block ) {
+			if ( strpos( $block['blockName'] ?? '', 'jetpack/field-' ) === 0 ) {
+				$attrs = $block['attrs'] ?? array();
+				$field = array(
+					'label'    => $attrs['label'] ?? '',
+					'type'     => str_replace( 'jetpack/field-', '', $block['blockName'] ),
+					'required' => ! empty( $attrs['required'] ),
+				);
+
+				if ( ! empty( $attrs['options'] ) ) {
+					$field['options'] = $attrs['options'];
+				}
+
+				if ( ! empty( $attrs['placeholder'] ) ) {
+					$field['placeholder'] = $attrs['placeholder'];
+				}
+
+				$fields[] = $field;
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				self::extract_fields_from_blocks( $block['innerBlocks'], $fields );
+			}
+		}
+	}
+
+	/**
+	 * Submit a form callback.
+	 *
+	 * Creates a feedback post from the provided field values.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns success data or WP_Error on failure.
+	 */
+	public static function submit_form( $args ) {
+		if ( empty( $args['form_id'] ) || ! isset( $args['fields'] ) || ! is_array( $args['fields'] ) ) {
+			return new \WP_Error( 'missing_params', __( 'form_id and fields are required.', 'jetpack-forms' ) );
+		}
+
+		$form_post = get_post( absint( $args['form_id'] ) );
+		if ( ! $form_post || $form_post->post_type !== Contact_Form::POST_TYPE || $form_post->post_status !== 'publish' ) {
+			return new \WP_Error( 'invalid_form', __( 'Form not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+
+		// Extract field definitions to validate input and build POST data.
+		$form_fields = self::extract_fields_from_post( $form_post );
+		if ( empty( $form_fields ) ) {
+			return new \WP_Error( 'no_fields', __( 'Form has no fields.', 'jetpack-forms' ) );
+		}
+
+		// Validate required fields are present.
+		$submitted = $args['fields'];
+		foreach ( $form_fields as $field_def ) {
+			if ( $field_def['required'] && ! isset( $submitted[ $field_def['label'] ] ) ) {
+				return new \WP_Error(
+					'missing_field',
+					/* translators: %s is the field label */
+					sprintf( __( 'Required field "%s" is missing.', 'jetpack-forms' ), $field_def['label'] ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		// Build the feedback entry directly.
+		$fields_data = array();
+		$i           = 1;
+		foreach ( $form_fields as $field_def ) {
+			$label = $field_def['label'];
+			$value = isset( $submitted[ $label ] ) ? sanitize_textarea_field( $submitted[ $label ] ) : '';
+			$key   = $i . '_' . $label;
+
+			$fields_data[] = array(
+				'key'   => $key,
+				'label' => $label,
+				'value' => $value,
+				'type'  => $field_def['type'],
+			);
+			++$i;
+		}
+
+		$feedback_time  = current_time( 'mysql' );
+		$author         = __( 'API Submission', 'jetpack-forms' );
+		$feedback_title = "{$author} - {$feedback_time}";
+
+		$serialized_fields = array(
+			'subject'   => $form_post->post_title,
+			'ip'        => Contact_Form_Plugin::get_ip_address(),
+			'source_id' => 0,
+			'fields'    => array_map(
+				function ( $f ) {
+					return array(
+						'key'   => $f['key'],
+						'label' => $f['label'],
+						'value' => $f['value'],
+						'type'  => $f['type'],
+					);
+				},
+				$fields_data
+			),
+		);
+
+		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false, $serialized_fields['ip'] ) ) {
+			$serialized_fields['ip'] = null;
+		}
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => $feedback_title,
+				'post_date'      => $feedback_time,
+				'post_name'      => md5( $feedback_title ),
+				'post_content'   => addslashes( wp_json_encode( $serialized_fields, JSON_UNESCAPED_SLASHES ) ),
+				'post_mime_type' => 'v3',
+				'post_parent'    => $form_post->ID,
+				'comment_status' => 'unread',
+			)
+		);
+
+		if ( is_wp_error( $post_id ) ) {
+			return $post_id;
+		}
+
+		Contact_Form_Plugin::recalculate_unread_count();
+
+		return array(
+			'success'     => true,
+			'feedback_id' => $post_id,
+		);
 	}
 
 	/**

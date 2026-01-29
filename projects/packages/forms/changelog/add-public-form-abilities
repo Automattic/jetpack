@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities: add public get-forms and submit-form abilities for AI agent discovery and submission.
