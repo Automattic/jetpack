@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+TimeSeriesForecastChart: add compound composition pattern and full legend prop parity
