@@ -687,9 +687,9 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 				}
 			}
 
-				// ==== TOTAL VALUES
+			// ==== TOTAL VALUES
 
-				// Calculate total vals etc. with SQL
+			// Calculate total vals etc. with SQL
 			if ( $withValues && ! $onlyID ) {
 				// only include transactions with statuses which should be included in total value:
 				$transStatusQueryAdd = $this->DAL()->transactions->getTransactionStatusesToIncludeQuery(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -743,9 +743,9 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 				$extraSelect .= ')' . $transStatusQueryAdd . ') as transactions_paid_total';
 			}
 
-				// ==== / TOTAL VALUES
+			// ==== / TOTAL VALUES
 
-				$selector = 'contact.*';
+			$selector = 'contact.*';
 			if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 				$selector = '';
 
@@ -859,12 +859,12 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 				#} Has results, tidy + return
 
-					#} Only ID? return it directly
+				#} Only ID? return it directly
 				if ( $onlyID ) {
 					return $potentialRes->ID;
 				}
 
-					// tidy
+				// tidy
 				if ( is_array( $fields ) ) {
 					// guesses fields based on table col names
 					$res = $this->lazyTidyGeneric( $potentialRes );
@@ -1909,34 +1909,34 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 		// This catches listview and other specific sort cases
 		// Note: Prefix here is a legacy leftover from the fact the AJAX List view retrieve goes through zeroBS_getCustomers() which prefixes zbsc_
 		$sort_map = array(
-			'zbsc_id'                   => 'ID',
-			'zbsc_owner'                => 'zbs_owner',
-			'zbsc_zbs_owner'            => 'zbs_owner',
+			'zbsc_id'                           => 'ID',
+			'zbsc_owner'                        => 'zbs_owner',
+			'zbsc_zbs_owner'                    => 'zbs_owner',
 
 			// company (name)
-			'zbsc_company'              => '(SELECT zbsco_name FROM ' . $ZBSCRM_t['companies'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_from = contact.ID) ORDER BY zbsco_name ' . $sortOrder . ' LIMIT 0,1)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'zbsc_company'                      => '(SELECT zbsco_name FROM ' . $ZBSCRM_t['companies'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_from = contact.ID) ORDER BY zbsco_name ' . $sortOrder . ' LIMIT 0,1)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// sort by subquery: Logs
 			// sort by latest log is effectively 'sort by last log added'
-			'zbsc_latestlog'            => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ')', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'zbsc_latestlog'                    => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ')', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			// sort by latest contact log is effectively 'sort by last contact log added' (requires $withLastLog = true)
-			'zbsc_lastcontacted'        => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ' AND zbsl_type IN (' . $contact_log_types_str . '))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'zbsc_lastcontacted'                => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ' AND zbsl_type IN (' . $contact_log_types_str . '))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// has & counts (same queries)
-				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				'zbsc_hasquote'                 => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['quotes'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
-				'zbsc_hasinvoice'               => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
-				'zbsc_hastransaction'           => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['transactions'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
-				'zbsc_quotecount'               => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['quotes'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
-				'zbsc_invoicecount_inc_deleted' => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
-				'zbsc_invoicecount'             => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)' . $inv_status_query_add . ')',
-				'zbsc_transactioncount'         => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['transactions'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
-				// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				// following will only work if obj total value subqueries triggered above ^
-				'zbsc_totalvalue'               => '((IFNULL(invoices_total,0) + IFNULL(transactions_total,0)) - IFNULL(transactions_paid_total,0))', // custom sort by total invoice value + transaction value - paid transactions (as mimicking tidy_contact php logic into SQL)
-				'zbsc_transactiontotal'         => 'transactions_total',
-				'zbsc_quotetotal'               => 'quotes_total',
-				'zbsc_invoicetotal'             => 'invoices_total',
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'zbsc_hasquote'                 => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['quotes'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+			'zbsc_hasinvoice'               => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+			'zbsc_hastransaction'           => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['transactions'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+			'zbsc_quotecount'               => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['quotes'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+			'zbsc_invoicecount_inc_deleted' => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+			'zbsc_invoicecount'             => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)' . $inv_status_query_add . ')',
+			'zbsc_transactioncount'         => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['transactions'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			// following will only work if obj total value subqueries triggered above ^
+			'zbsc_totalvalue'               => '((IFNULL(invoices_total,0) + IFNULL(transactions_total,0)) - IFNULL(transactions_paid_total,0))', // custom sort by total invoice value + transaction value - paid transactions (as mimicking tidy_contact php logic into SQL)
+			'zbsc_transactiontotal'         => 'transactions_total',
+			'zbsc_quotetotal'               => 'quotes_total',
+			'zbsc_invoicetotal'             => 'invoices_total',
 		);
 
 		// either from $sort_map, or multi-dimensional name search
@@ -2543,7 +2543,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 			}
 		}
 
-			// Needs this to grab custom fields (if passed) too :)
+		// Needs this to grab custom fields (if passed) too :)
 		if ( is_array( $customFields ) ) {
 			foreach ( $customFields as $cK => $cF ) {
 
@@ -2618,9 +2618,9 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 		#} ========== CHECK FIELDS ============
 
-			$id = (int) $id;
+		$id = (int) $id;
 
-			// here we check that the potential owner CAN even own
+		// here we check that the potential owner CAN even own
 		if (
 				// specified owner is not an admin
 				! user_can( $owner, 'admin_zerobs_usr' )
@@ -2738,7 +2738,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 		#} ========= OVERRIDE SETTING (Deny blank overrides) ===========
 
-			// this only functions if externalsource is set (e.g. api/form, etc.)
+		// this only functions if externalsource is set (e.g. api/form, etc.)
 		if ( isset( $data['externalSources'] ) && is_array( $data['externalSources'] ) && count( $data['externalSources'] ) > 0 ) {
 			if ( zeroBSCRM_getSetting( 'fieldoverride' ) == '1' ) {
 
@@ -2869,7 +2869,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 				'zbsc_lastupdated' => time(),
 			);
 
-				// if set.
+			// if set.
 			if ( $data['lastcontacted'] !== -1 ) {
 				$dataArr['zbsc_lastcontacted'] = $data['lastcontacted'];
 			}
@@ -3396,7 +3396,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 				if ( is_array( $customFields ) ) {
 					foreach ( $customFields as $cK => $cF ) {
 
-							// any?
+						// any?
 						if ( isset( $data[ $cK ] ) ) {
 
 							// add update
@@ -3588,8 +3588,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 		#} ========== CHECK FIELDS ============
 
-			// check id
-			$id = (int) $id;
+		// check id
+		$id = (int) $id;
 		if ( empty( $id ) || $id <= 0 ) {
 			return false;
 		}
@@ -3650,13 +3650,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 		#} ========== CHECK FIELDS ============
 
-			// check id
-			$id = (int) $id;
+		// check id
+		$id = (int) $id;
 		if ( empty( $id ) || $id <= 0 ) {
 			return false;
 		}
 
-			// check co id's
+		// check co id's
 		if ( ! is_array( $companyIDs ) ) {
 			$companyIDs = array();
 		}
@@ -3715,14 +3715,14 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 		#} ========== CHECK FIELDS ============
 
-			// check id
-			$id = (int) $id;
+		// check id
+		$id = (int) $id;
 		if ( empty( $id ) || $id <= 0 ) {
 			return false;
 		}
 
-			// WPID may be -1 (NULL)
-			// -1 does okay here if ($WPID == -1) $WPID = '';
+		// WPID may be -1 (NULL)
+		// -1 does okay here if ($WPID == -1) $WPID = '';
 
 		#} ========= / CHECK FIELDS ===========
 
@@ -3883,8 +3883,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 			}
 
 			// delete any alias information (must delete regardless of
-				// $saveOrphans because there isn't a place where aliases are
-				// listed, so they would block forever usage of aliased emails)
+			// $saveOrphans because there isn't a place where aliases are
+			// listed, so they would block forever usage of aliased emails)
 			$existing_aliases = zeroBS_getObjAliases( ZBS_TYPE_CONTACT, $id );
 			if ( is_array( $existing_aliases ) ) {
 				foreach ( $existing_aliases as $alias ) {
@@ -4193,7 +4193,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 		#} ========== CHECK FIELDS ============
 
-			$contactID = (int) $contactID;
+		$contactID = (int) $contactID;
 
 		#} ========= / CHECK FIELDS ===========
 
@@ -4209,13 +4209,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 		#} ============= WHERE ================
 
-			#} contactID
+		#} contactID
 		if ( ! empty( $contactID ) && $contactID > 0 ) {
 			$wheres['zbss_objid'] = array( 'zbss_objid', '=', '%d', $contactID );
 		}
 
-			// type
-			$wheres['zbss_objtype'] = array( 'zbss_objtype', '=', '%d', 1 );
+		// type
+		$wheres['zbss_objtype'] = array( 'zbss_objtype', '=', '%d', 1 );
 
 		#} ============ / WHERE ===============
 
@@ -4316,7 +4316,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 		#} ========== CHECK FIELDS ============
 
-			$contactID = (int) $contactID;
+		$contactID = (int) $contactID;
 
 		#} ========= / CHECK FIELDS ===========
 
@@ -4332,12 +4332,12 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 		#} ============= WHERE ================
 
-			#} contactID
+		#} contactID
 		if ( ! empty( $contactID ) && $contactID > 0 ) {
 			$wheres['zbst_contactid'] = array( 'zbst_contactid', '=', '%d', $contactID );
 		}
 
-			#} action
+		#} action
 		if ( ! empty( $action ) ) {
 			$wheres['zbst_action'] = array( 'zbst_action', '=', '%s', $action );
 		}

@@ -1,5 +1,6 @@
 <?php
-/*!
+
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0+
@@ -17,8 +18,6 @@
   / Breaking Checks
    ====================================================== */
 
-
-
 /**
  * ZBS DAL >> Quotes
  *
@@ -29,35 +28,35 @@
  */
 class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
-	protected $objectType = ZBS_TYPE_QUOTE;
-	protected $objectDBPrefix = 'zbsq_';
+	protected $objectType            = ZBS_TYPE_QUOTE;
+	protected $objectDBPrefix        = 'zbsq_';
 	protected $include_in_templating = true;
-	protected $objectModel = array(
+	protected $objectModel           = array(
 		// ID
 		'ID'               => array(
 			'fieldname' => 'ID',
-			'format'    => 'int'
+			'format'    => 'int',
 		),
 
 		// site + team generics
 		'zbs_site'         => array(
 			'fieldname' => 'zbs_site',
-			'format'    => 'int'
+			'format'    => 'int',
 		),
 		'zbs_team'         => array(
 			'fieldname' => 'zbs_team',
-			'format'    => 'int'
+			'format'    => 'int',
 		),
 		'zbs_owner'        => array(
 			'fieldname' => 'zbs_owner',
-			'format'    => 'int'
+			'format'    => 'int',
 		),
 
 		// other fields
 		'id_override'      => array(
 			'fieldname' => 'zbsq_id_override',
 			'format'    => 'str',
-			'max_len'   => 128
+			'max_len'   => 128,
 		),
 		'title'            => array(
 			// db model:
@@ -69,12 +68,12 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			'placeholder' => 'e.g. New Website',
 			'essential'   => true,
 			'dal1key'     => 'name',
-			'max_len'     => 255
+			'max_len'     => 255,
 		),
 		'currency'         => array(
 			'fieldname' => 'zbsq_currency',
 			'format'    => 'curr',
-			'max_len'   => 4
+			'max_len'   => 4,
 		),
 		'value'            => array(
 			// db model:
@@ -85,7 +84,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			'label'       => 'Quote Value',
 			'placeholder' => 'e.g. 500.00',
 			'essential'   => true,
-			'dal1key'     => 'val'
+			'dal1key'     => 'val',
 		),
 		'date'             => array(
 			// db model:
@@ -96,15 +95,15 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			'input_type'  => 'date',
 			'label'       => 'Quote Date',
 			'placeholder' => '',
-			'essential'   => true
+			'essential'   => true,
 		),
 		'template'         => array(
 			'fieldname' => 'zbsq_template',
-			'format'    => 'str'
+			'format'    => 'str',
 		),
 		'content'          => array(
 			'fieldname' => 'zbsq_content',
-			'format'    => 'str'
+			'format'    => 'str',
 		),
 		'notes'            => array(
 			// db model:
@@ -113,46 +112,46 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			// output model
 			'input_type'  => 'textarea',
 			'label'       => 'Notes',
-			'placeholder' => ''
+			'placeholder' => '',
 
 		),
 		'send_attachments' => array(
 			'fieldname' => 'zbsq_send_attachments',
-			'format'    => 'bool'
+			'format'    => 'bool',
 		), // note, from 4.0.9 we removed this from the front-end ui as we now show a modal option pre-send allowing user to chose which pdf's to attach
 		'hash'             => array(
 			'fieldname' => 'zbsq_hash',
-			'format'    => 'str'
+			'format'    => 'str',
 		),
 		'lastviewed'       => array(
 			'fieldname' => 'zbsq_lastviewed',
-			'format'    => 'uts'
+			'format'    => 'uts',
 		),
 		'viewed_count'     => array(
 			'fieldname' => 'zbsq_viewed_count',
-			'format'    => 'int'
+			'format'    => 'int',
 		),
 		'accepted'         => array(
 			'fieldname' => 'zbsq_accepted',
-			'format'    => 'uts'
+			'format'    => 'uts',
 		),
 		'acceptedsigned'   => array(
 			'fieldname' => 'zbsq_acceptedsigned',
 			'format'    => 'str',
-			'max_len'   => 200
+			'max_len'   => 200,
 		),
 		'acceptedip'       => array(
 			'fieldname' => 'zbsq_acceptedip',
 			'format'    => 'str',
-			'max_len'   => 64
+			'max_len'   => 64,
 		),
 		'created'          => array(
 			'fieldname' => 'zbsq_created',
-			'format'    => 'uts'
+			'format'    => 'uts',
 		),
 		'lastupdated'      => array(
 			'fieldname' => 'zbsq_lastupdated',
-			'format'    => 'uts'
+			'format'    => 'uts',
 		),
 
 	);
@@ -160,33 +159,32 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	// hardtyped list of types this object type is commonly linked to
 	protected $linkedToObjectTypes = array(
 
-		ZBS_TYPE_CONTACT
+		ZBS_TYPE_CONTACT,
 
 	);
 
 	function __construct( $args = array() ) {
 
-
 		#} =========== LOAD ARGS ==============
 		$defaultArgs = array(
 
-			//'tag' => false,
+			// 'tag' => false,
 
 		);
 		foreach ( $defaultArgs as $argK => $argV ) {
 			$this->$argK = $argV;
-			if ( is_array( $args ) && isset( $args[$argK] ) ) {
-				if ( is_array( $args[$argK] ) ) {
+			if ( is_array( $args ) && isset( $args[ $argK ] ) ) {
+				if ( is_array( $args[ $argK ] ) ) {
 					$newData = $this->$argK;
 					if ( ! is_array( $newData ) ) {
 						$newData = array();
 					}
-					foreach ( $args[$argK] as $subK => $subV ) {
-						$newData[$subK] = $subV;
+					foreach ( $args[ $argK ] as $subK => $subV ) {
+						$newData[ $subK ] = $subV;
 					}
 					$this->$argK = $newData;
 				} else {
-					$this->$argK = $args[$argK];
+					$this->$argK = $args[ $argK ];
 				}
 			}
 		}
@@ -221,15 +219,14 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 	// generic get Company (by ID)
 	// Super simplistic wrapper used by edit page etc. (generically called via dal->contacts->getSingle etc.)
-	public function getSingle( $ID = -1 ){
+	public function getSingle( $ID = -1 ) {
 
 		return $this->getQuote( $ID );
-
 	}
 
 	// generic get (by ID list)
 	// Super simplistic wrapper used by MVP Export v3.0
-	public function getIDList( $IDs = false ){
+	public function getIDList( $IDs = false ) {
 
 		return $this->getQuotes(
 			array(
@@ -237,15 +234,14 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				'withOwner'    => true,
 				'withAssigned' => true,
 				'page'         => -1,
-				'perPage'      => -1
+				'perPage'      => -1,
 			)
 		);
-
 	}
 
 	// generic get (EVERYTHING)
 	// expect heavy load!
-	public function getAll( $IDs = false ){
+	public function getAll( $IDs = false ) {
 
 		return $this->getQuotes(
 			array(
@@ -257,11 +253,10 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				'perPage'      => -1,
 			)
 		);
-
 	}
 
 	// generic get count of (EVERYTHING)
-	public function getFullCount(){
+	public function getFullCount() {
 
 		return $this->getQuotes(
 			array(
@@ -270,18 +265,17 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				'perPage' => -1,
 			)
 		);
-
 	}
 
 	/**
 	 * returns full quote line +- details
 	 *
 	 * @param int id        quote id
-	 * @param array $args   Associative array of arguments
+	 * @param array                  $args   Associative array of arguments
 	 *
 	 * @return array quote object
 	 */
-	public function getQuote( $id = -1, $args = array() ){
+	public function getQuote( $id = -1, $args = array() ) {
 
 		global $zbs;
 
@@ -308,48 +302,47 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			// returns scalar ID of line
 			'onlyID'            => false,
 
-			'fields'            => false // false = *, array = fieldnames
+			'fields'            => false, // false = *, array = fieldnames
 
 		);
 		foreach ( $defaultArgs as $argK => $argV ) {
 			$$argK = $argV;
-			if ( is_array( $args ) && isset( $args[$argK] ) ) {
-				if ( is_array( $args[$argK] ) ) {
+			if ( is_array( $args ) && isset( $args[ $argK ] ) ) {
+				if ( is_array( $args[ $argK ] ) ) {
 					$newData = $$argK;
 					if ( ! is_array( $newData ) ) {
 						$newData = array();
 					}
-					foreach ( $args[$argK] as $subK => $subV ) {
-						$newData[$subK] = $subV;
+					foreach ( $args[ $argK ] as $subK => $subV ) {
+						$newData[ $subK ] = $subV;
 					}
 					$$argK = $newData;
 				} else {
-					$$argK = $args[$argK];
+					$$argK = $args[ $argK ];
 				}
 			}
 		}
 		#} =========== / LOAD ARGS =============
 
 		#} Check ID
-		$id = (int)$id;
+		$id = (int) $id;
 		if (
-			( ! empty( $id ) && $id > 0)
+			( ! empty( $id ) && $id > 0 )
 			||
-			( ! empty( $email ))
+			( ! empty( $email ) )
 			||
-			( ! empty( $hash ))
+			( ! empty( $hash ) )
 			||
-			( ! empty( $externalSource ) && ! empty( $externalSourceUID ))
+			( ! empty( $externalSource ) && ! empty( $externalSourceUID ) )
 			) {
 
 			global $ZBSCRM_t, $wpdb;
-			$wheres = array('direct' => array());
-			$whereStr = '';
+			$wheres          = array( 'direct' => array() );
+			$whereStr        = '';
 			$additionalWhere = '';
-			$params = array();
-			$res = array();
-			$extraSelect = '';
-
+			$params          = array();
+			$res             = array();
+			$extraSelect     = '';
 
 			#} ============= PRE-QUERY ============
 
@@ -357,10 +350,10 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			if ( $withCustomFields && ! $onlyID ) {
 
 				#} Retrieve any cf
-				$custFields = $this->DAL()->getActiveCustomFields( array('objtypeid' => ZBS_TYPE_QUOTE) );
+				$custFields = $this->DAL()->getActiveCustomFields( array( 'objtypeid' => ZBS_TYPE_QUOTE ) );
 
 				#} Cycle through + build into query
-				if (is_array( $custFields )) {
+				if ( is_array( $custFields ) ) {
 					foreach ( $custFields as $cK => $cF ) {
 
 						// add as subquery
@@ -374,56 +367,55 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				}
 			}
 
-				$selector = 'quote.*';
+			$selector = 'quote.*';
 			if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 				$selector = '';
 
 				// always needs id, so add if not present
-				if ( ! in_array( 'ID', $fields )) {
+				if ( ! in_array( 'ID', $fields ) ) {
 					$selector = 'quote.ID';
 				}
 
 				foreach ( $fields as $f ) {
-					if ( ! empty( $selector )) {
+					if ( ! empty( $selector ) ) {
 						$selector .= ',';
 					}
 					$selector .= 'quote.' . $f;
 				}
-			} else if ( $onlyID ) {
+			} elseif ( $onlyID ) {
 				$selector = 'quote.ID';
 			}
 
 			#} ============ / PRE-QUERY ===========
 
-
 			#} Build query
-			$query = "SELECT " . $selector . $extraSelect . " FROM " . $ZBSCRM_t['quotes'] . ' as quote';
+			$query = 'SELECT ' . $selector . $extraSelect . ' FROM ' . $ZBSCRM_t['quotes'] . ' as quote';
 			#} ============= WHERE ================
 
 			if ( ! empty( $id ) && $id > 0 ) {
 
 				#} Add ID
-				$wheres['ID'] = array('ID', '=', '%d', $id);
+				$wheres['ID'] = array( 'ID', '=', '%d', $id );
 
 			}
 			if ( ! empty( $id_override ) && $id_override > 0 ) {
 
 				#} Add id_override
-				//$wheres['search_id'] = array('ID','LIKE','%s','%'.$id_override.'%');
-				$wheres['search_id2'] = array('zbsq_id_override', 'LIKE', '%s', '%' . $id_override . '%');
+				// $wheres['search_id'] = array('ID','LIKE','%s','%'.$id_override.'%');
+				$wheres['search_id2'] = array( 'zbsq_id_override', 'LIKE', '%s', '%' . $id_override . '%' );
 
 			}
 
 			if ( ! empty( $hash ) ) {
 
 				#} Add hash
-				$wheres['hash'] = array('zbsq_hash', '=', '%s', $hash);
+				$wheres['hash'] = array( 'zbsq_hash', '=', '%s', $hash );
 
 			}
 
 			if ( ! empty( $externalSource ) && ! empty( $externalSourceUID ) ) {
 
-				$wheres['extsourcecheck'] = array('ID', 'IN', '(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . " WHERE zbss_objtype = " . ZBS_TYPE_QUOTE . " AND zbss_source = %s AND zbss_uid = %s)", array($externalSource, $externalSourceUID));
+				$wheres['extsourcecheck'] = array( 'ID', 'IN', '(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . ' WHERE zbss_objtype = ' . ZBS_TYPE_QUOTE . ' AND zbss_source = %s AND zbss_uid = %s)', array( $externalSource, $externalSourceUID ) );
 
 			}
 
@@ -431,14 +423,14 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 			#} Build out any WHERE clauses
 			$wheresArr = $this->buildWheres( $wheres, $whereStr, $params );
-			$whereStr = $wheresArr['where'];
-			$params = $params + $wheresArr['params'];
+			$whereStr  = $wheresArr['where'];
+			$params    = $params + $wheresArr['params'];
 			#} / Build WHERE
 
 			#} Ownership v1.0 - the following adds SITE + TEAM checks, and (optionally), owner
 			$params = array_merge( $params, $this->ownershipQueryVars( $ignoreowner ) ); // merges in any req.
-			$ownQ = $this->ownershipSQL( $ignoreowner, 'quote' );
-			if ( ! empty( $ownQ )) {
+			$ownQ   = $this->ownershipSQL( $ignoreowner, 'quote' );
+			if ( ! empty( $ownQ ) ) {
 				$additionalWhere = $this->spaceAnd( $additionalWhere ) . $ownQ; // adds str to query
 			}
 			#} / Ownership
@@ -449,7 +441,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			try {
 
 				#} Prep & run query
-				$queryObj = $this->prepare( $query, $params );
+				$queryObj     = $this->prepare( $query, $params );
 				$potentialRes = $wpdb->get_row( $queryObj, OBJECT );
 
 			} catch ( Exception $e ) {
@@ -465,7 +457,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				#} Has results, tidy + return
 
 				#} Only ID? return it directly
-				if ($onlyID) {
+				if ( $onlyID ) {
 					return $potentialRes->ID;
 				}
 
@@ -483,10 +475,10 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					// add all line item lines
 					$res['lineitems'] = $this->DAL()->lineitems->getLineitems(
 						array(
-						'associatedObjType' => ZBS_TYPE_QUOTE,
-						'associatedObjID'   => $potentialRes->ID,
-						'perPage'           => 1000,
-						'ignoreowner'       => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_LINEITEM )
+							'associatedObjType' => ZBS_TYPE_QUOTE,
+							'associatedObjID'   => $potentialRes->ID,
+							'perPage'           => 1000,
+							'ignoreowner'       => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_LINEITEM ),
 						)
 					);
 
@@ -494,7 +486,8 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				if ( $withAssigned ) {
 
-					/* This is for MULTIPLE (e.g. multi contact/companies assigned to an inv)
+					/*
+					This is for MULTIPLE (e.g. multi contact/companies assigned to an inv)
 
 						// add all assigned contacts/companies
 						$res['contacts'] = $this->DAL()->contacts->getContacts(array(
@@ -518,7 +511,8 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 								'hasObjIDLinkedTo'   => $potentialRes->ID,
 								'page'               => 0,
 								'perPage'            => 1, // FORCES 1,
-								'ignoreowner'        => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ))
+								'ignoreowner'        => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
+							)
 						);
 
 						$res['company'] = $this->DAL()->companies->getCompanies(
@@ -527,9 +521,9 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 								'hasObjIDLinkedTo'   => $potentialRes->ID,
 								'page'               => 0,
 								'perPage'            => 1, // FORCES 1,
-								'ignoreowner'        => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ))
+								'ignoreowner'        => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
+							)
 						);
-
 
 				}
 
@@ -544,8 +538,8 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					// add all tags lines
 					$res['tags'] = $this->DAL()->getTagsForObjID(
 						array(
-						'objtypeid' => ZBS_TYPE_QUOTE,
-						'objid'     => $potentialRes->ID
+							'objtypeid' => ZBS_TYPE_QUOTE,
+							'objid'     => $potentialRes->ID,
 						)
 					);
 
@@ -557,7 +551,6 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		} // / if ID
 
 		return false;
-
 	}
 
 	/**
@@ -567,7 +560,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return array of quote lines
 	 */
-	public function getQuotes( $args = array() ){
+	public function getQuotes( $args = array() ) {
 
 		global $zbs;
 
@@ -609,51 +602,50 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			// permissions
 			'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_QUOTE ), // this'll let you not-check the owner of obj
 
-
 		);
 		foreach ( $defaultArgs as $argK => $argV ) {
 			$$argK = $argV;
-			if ( is_array( $args ) && isset( $args[$argK] ) ) {
-				if ( is_array( $args[$argK] ) ) {
+			if ( is_array( $args ) && isset( $args[ $argK ] ) ) {
+				if ( is_array( $args[ $argK ] ) ) {
 					$newData = $$argK;
 					if ( ! is_array( $newData ) ) {
 						$newData = array();
 					}
-					foreach ( $args[$argK] as $subK => $subV ) {
-						$newData[$subK] = $subV;
+					foreach ( $args[ $argK ] as $subK => $subV ) {
+						$newData[ $subK ] = $subV;
 					}
 					$$argK = $newData;
 				} else {
-					$$argK = $args[$argK];
+					$$argK = $args[ $argK ];
 				}
 			}
 		}
 		#} =========== / LOAD ARGS =============
 
 		global $ZBSCRM_t, $wpdb, $zbs;
-		$wheres = array('direct' => array());
-		$whereStr = '';
+		$wheres          = array( 'direct' => array() );
+		$whereStr        = '';
 		$additionalWhere = '';
-		$params = array();
-		$res = array();
-		$joinQ = '';
-		$extraSelect = '';
+		$params          = array();
+		$res             = array();
+		$joinQ           = '';
+		$extraSelect     = '';
 
 		#} ============= PRE-QUERY ============
 
-			#} Capitalise this
-			$sortOrder = strtoupper( $sortOrder );
+		#} Capitalise this
+		$sortOrder = strtoupper( $sortOrder );
 
-			#} If just count, turn off any extra gumpf
+		#} If just count, turn off any extra gumpf
 		if ( $count ) {
 			$withCustomFields = false;
-			$withTags = false;
-			$withFiles = false;
-			$withOwner = false;
-			$withAssigned = false;
+			$withTags         = false;
+			$withFiles        = false;
+			$withOwner        = false;
+			$withAssigned     = false;
 		}
 
-			#} If onlyColumns, validate
+		#} If onlyColumns, validate
 		if ( $onlyColumns ) {
 
 			#} onlyColumns build out a field arr
@@ -664,13 +656,13 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 					// find db col key from field key (e.g. fname => zbsc_fname)
 					$dbCol = '';
-					if (isset( $this->objectModel[$col] ) && isset( $this->objectModel[$col]['fieldname'] )) {
-						$dbCol = $this->objectModel[$col]['fieldname'];
+					if ( isset( $this->objectModel[ $col ] ) && isset( $this->objectModel[ $col ]['fieldname'] ) ) {
+						$dbCol = $this->objectModel[ $col ]['fieldname'];
 					}
 
 					if ( ! empty( $dbCol ) ) {
 
-						$onlyColumnsFieldArr[$dbCol] = $col;
+						$onlyColumnsFieldArr[ $dbCol ] = $col;
 
 					}
 				}
@@ -683,10 +675,10 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				// If onlyColumns, turn off extras
 				$withCustomFields = false;
-				$withTags = false;
-				$withFiles = false;
-				$withOwner = false;
-				$withAssigned = false;
+				$withTags         = false;
+				$withFiles        = false;
+				$withOwner        = false;
+				$withAssigned     = false;
 
 			} else {
 
@@ -696,15 +688,15 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			}
 		}
 
-			#} Custom Fields
-			// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
+		#} Custom Fields
+		// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
 		if ( $withCustomFields ) {
 
 			#} Retrieve any cf
-			$custFields = $this->DAL()->getActiveCustomFields( array('objtypeid' => ZBS_TYPE_QUOTE) );
+			$custFields = $this->DAL()->getActiveCustomFields( array( 'objtypeid' => ZBS_TYPE_QUOTE ) );
 
 			#} Cycle through + build into query
-			if (is_array( $custFields )) {
+			if ( is_array( $custFields ) ) {
 				foreach ( $custFields as $cK => $cF ) {
 
 					// custom field (e.g. 'third name') it'll be passed here as 'third-name'
@@ -724,7 +716,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					}
 
 					// add as subquery
-					$extraSelect .= ',(SELECT zbscf_objval FROM ' . $ZBSCRM_t['customfields'] . " WHERE zbscf_objid = quote.ID AND zbscf_objkey = %s AND zbscf_objtype = %d LIMIT 1) " . $cKey;
+					$extraSelect .= ',(SELECT zbscf_objval FROM ' . $ZBSCRM_t['customfields'] . ' WHERE zbscf_objid = quote.ID AND zbscf_objkey = %s AND zbscf_objtype = %d LIMIT 1) ' . $cKey;
 
 					// add params
 					$params[] = $cK;
@@ -737,11 +729,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		#} ============ / PRE-QUERY ===========
 
 		#} Build query
-		$query = "SELECT quote.*" . $extraSelect . " FROM " . $ZBSCRM_t['quotes'] . ' as quote' . $joinQ;
+		$query = 'SELECT quote.*' . $extraSelect . ' FROM ' . $ZBSCRM_t['quotes'] . ' as quote' . $joinQ;
 
 		#} Count override
-		if ($count) {
-			$query = "SELECT COUNT(quote.ID) FROM " . $ZBSCRM_t['quotes'] . ' as quote' . $joinQ;
+		if ( $count ) {
+			$query = 'SELECT COUNT(quote.ID) FROM ' . $ZBSCRM_t['quotes'] . ' as quote' . $joinQ;
 		}
 
 		#} onlyColumns override
@@ -750,7 +742,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			$columnStr = '';
 			foreach ( $onlyColumnsFieldArr as $colDBKey => $colStr ) {
 
-				if ( ! empty( $columnStr )) {
+				if ( ! empty( $columnStr ) ) {
 					$columnStr .= ',';
 				}
 				// this presumes str is db-safe? could do with sanitation?
@@ -758,7 +750,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 			}
 
-			$query = "SELECT " . $columnStr . " FROM " . $ZBSCRM_t['quotes'] . ' as quote' . $joinQ;
+			$query = 'SELECT ' . $columnStr . ' FROM ' . $ZBSCRM_t['quotes'] . ' as quote' . $joinQ;
 
 		}
 
@@ -768,11 +760,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		if ( ! empty( $searchPhrase ) ) {
 
 			// search? - ALL THESE COLS should probs have index of FULLTEXT in db?
-			$searchWheres = array();
-			$searchWheres['search_id'] = array('ID', 'LIKE', '%s', '%' . $searchPhrase . '%');
-			$searchWheres['search_id_override'] = array('zbsq_id_override', 'LIKE', '%s', '%' . $searchPhrase . '%');
-			$searchWheres['search_title'] = array('zbsq_title', 'LIKE', '%s', '%' . $searchPhrase . '%');
-			$searchWheres['search_content'] = array('zbsq_content', 'LIKE', '%s', '%' . $searchPhrase . '%');
+			$searchWheres                       = array();
+			$searchWheres['search_id']          = array( 'ID', 'LIKE', '%s', '%' . $searchPhrase . '%' );
+			$searchWheres['search_id_override'] = array( 'zbsq_id_override', 'LIKE', '%s', '%' . $searchPhrase . '%' );
+			$searchWheres['search_title']       = array( 'zbsq_title', 'LIKE', '%s', '%' . $searchPhrase . '%' );
+			$searchWheres['search_content']     = array( 'zbsq_content', 'LIKE', '%s', '%' . $searchPhrase . '%' );
 
 			// 3.0.13 - Added ability to search custom fields (optionally)
 			$customFieldSearch = zeroBSCRM_getSetting( 'customfieldsearch' );
@@ -780,7 +772,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				// simplistic add
 				// NOTE: This IGNORES ownership of custom field lines.
-				$searchWheres['search_customfields'] = array('ID', 'IN', "(SELECT zbscf_objid FROM " . $ZBSCRM_t['customfields'] . " WHERE zbscf_objval LIKE %s AND zbscf_objtype = " . ZBS_TYPE_QUOTE . ")", '%' . $searchPhrase . '%');
+				$searchWheres['search_customfields'] = array( 'ID', 'IN', '(SELECT zbscf_objid FROM ' . $ZBSCRM_t['customfields'] . ' WHERE zbscf_objval LIKE %s AND zbscf_objtype = ' . ZBS_TYPE_QUOTE . ')', '%' . $searchPhrase . '%' );
 
 			}
 
@@ -791,61 +783,61 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			if ( is_array( $searchQueryArr ) && isset( $searchQueryArr['where'] ) && ! empty( $searchQueryArr['where'] ) ) {
 
 				// add it
-				$wheres['direct'][] = array('(' . $searchQueryArr['where'] . ')', $searchQueryArr['params']);
+				$wheres['direct'][] = array( '(' . $searchQueryArr['where'] . ')', $searchQueryArr['params'] );
 
 			}
 		}
 
-			#} In array (if inCompany passed, this'll currently overwrite that?! (todo2.5))
+		#} In array (if inCompany passed, this'll currently overwrite that?! (todo2.5))
 		if ( is_array( $inArr ) && count( $inArr ) > 0 ) {
 
 			// clean for ints
 			$inArrChecked = array();
 			foreach ( $inArr as $x ) {
-				$inArrChecked[] = (int)$x;
+				$inArrChecked[] = (int) $x;
 			}
 
 			// add where
-			$wheres['inarray'] = array('ID', 'IN', '(' . implode( ',', $inArrChecked ) . ')');
+			$wheres['inarray'] = array( 'ID', 'IN', '(' . implode( ',', $inArrChecked ) . ')' );
 
 		}
 
-			#} Owned by
+		#} Owned by
 		if ( ! empty( $ownedBy ) && $ownedBy > 0 ) {
 
 			// would never hard-type this in (would make generic as in buildWPMetaQueryWhere)
 			// but this is only here until MIGRATED to db2 globally
-			//$wheres['incompany'] = array('ID','IN','(SELECT DISTINCT post_id FROM '.$wpdb->prefix."postmeta WHERE meta_key = 'zbs_company' AND meta_value = %d)",$inCompany);
+			// $wheres['incompany'] = array('ID','IN','(SELECT DISTINCT post_id FROM '.$wpdb->prefix."postmeta WHERE meta_key = 'zbs_company' AND meta_value = %d)",$inCompany);
 			// Use obj links now
-			$wheres['ownedBy'] = array('zbs_owner', '=', '%s', $ownedBy);
+			$wheres['ownedBy'] = array( 'zbs_owner', '=', '%s', $ownedBy );
 
 		}
 
-			// External sources
+		// External sources
 		if ( ! empty( $externalSource ) ) {
 
 			// NO owernship built into this, check when roll out multi-layered ownsership
-			$wheres['externalsource'] = array('ID', 'IN', '(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . " WHERE zbss_objtype = " . ZBS_TYPE_QUOTE . " AND zbss_source = %s)", $externalSource);
+			$wheres['externalsource'] = array( 'ID', 'IN', '(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . ' WHERE zbss_objtype = ' . ZBS_TYPE_QUOTE . ' AND zbss_source = %s)', $externalSource );
 
 		}
 
-			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
-			// quick addition for mike
-			#} olderThan
-			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsq_created', '<=', '%d', $olderThan );
-			#} newerThan
-			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsq_created', '>=', '%d', $newerThan );
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+		// quick addition for mike
+		#} olderThan
+		if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsq_created', '<=', '%d', $olderThan );
+		#} newerThan
+		if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsq_created', '>=', '%d', $newerThan );
 
-			// status
-			if ( ! empty( $hasAccepted ) && $hasAccepted ) $wheres['hasAccepted']          = array( 'zbsq_accepted', '>', '%d', 0 );
-			if ( ! empty( $hasNotAccepted ) && $hasNotAccepted ) $wheres['hasnotAccepted'] = array( 'zbsq_accepted', '<=', '%d', 0 );
+		// status
+		if ( ! empty( $hasAccepted ) && $hasAccepted ) $wheres['hasAccepted']          = array( 'zbsq_accepted', '>', '%d', 0 );
+		if ( ! empty( $hasNotAccepted ) && $hasNotAccepted ) $wheres['hasnotAccepted'] = array( 'zbsq_accepted', '<=', '%d', 0 );
 
-			// assignedContact + assignedCompany
-			if ( ! empty( $assignedContact ) && $assignedContact > 0 ) $wheres['assignedContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
-			if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) $wheres['assignedCompany'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
-			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+		// assignedContact + assignedCompany
+		if ( ! empty( $assignedContact ) && $assignedContact > 0 ) $wheres['assignedContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
+		if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) $wheres['assignedCompany'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
-			#} Quick filters - adapted from DAL1 (probs can be slicker)
+		#} Quick filters - adapted from DAL1 (probs can be slicker)
 		if ( is_array( $quickFilters ) && count( $quickFilters ) > 0 ) {
 
 			// cycle through
@@ -863,10 +855,10 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			}
 		} // / quickfilters
 
-			#} Is Tagged (expects 1 tag ID OR array)
+		#} Is Tagged (expects 1 tag ID OR array)
 
-			// catch 1 item arr
-		if (is_array( $isTagged ) && count( $isTagged ) == 1) {
+		// catch 1 item arr
+		if ( is_array( $isTagged ) && count( $isTagged ) == 1 ) {
 			$isTagged = $isTagged[0];
 		}
 
@@ -874,17 +866,17 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				// add where tagged
 				// 1 int:
-				$wheres['direct'][] = array('((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = quote.ID AND zbstl_tagid = %d) > 0)', array(ZBS_TYPE_QUOTE, $isTagged));
+				$wheres['direct'][] = array( '((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = quote.ID AND zbstl_tagid = %d) > 0)', array( ZBS_TYPE_QUOTE, $isTagged ) );
 
-		} else if ( is_array( $isTagged ) && count( $isTagged ) > 0 ) {
+		} elseif ( is_array( $isTagged ) && count( $isTagged ) > 0 ) {
 
 			// foreach in array :)
 			$tagStr = '';
 			foreach ( $isTagged as $iTag ) {
-				$i = (int)$iTag;
+				$i = (int) $iTag;
 				if ( $i > 0 ) {
 
-					if ($tagStr !== '') {
+					if ( $tagStr !== '' ) {
 						$tagStr .= ',';
 					}
 					$tagStr .= $i;
@@ -892,14 +884,14 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			}
 			if ( ! empty( $tagStr ) ) {
 
-				$wheres['direct'][] = array('((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = quote.ID AND zbstl_tagid IN (%s)) > 0)', array(ZBS_TYPE_QUOTE, $tagStr));
+				$wheres['direct'][] = array( '((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = quote.ID AND zbstl_tagid IN (%s)) > 0)', array( ZBS_TYPE_QUOTE, $tagStr ) );
 
 			}
 		}
-			#} Is NOT Tagged (expects 1 tag ID OR array)
+		#} Is NOT Tagged (expects 1 tag ID OR array)
 
-			// catch 1 item arr
-		if (is_array( $isNotTagged ) && count( $isNotTagged ) == 1) {
+		// catch 1 item arr
+		if ( is_array( $isNotTagged ) && count( $isNotTagged ) == 1 ) {
 			$isNotTagged = $isNotTagged[0];
 		}
 
@@ -907,17 +899,17 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 			// add where tagged
 			// 1 int:
-			$wheres['direct'][] = array('((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = quote.ID AND zbstl_tagid = %d) = 0)', array(ZBS_TYPE_QUOTE, $isNotTagged));
+			$wheres['direct'][] = array( '((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = quote.ID AND zbstl_tagid = %d) = 0)', array( ZBS_TYPE_QUOTE, $isNotTagged ) );
 
-		} else if ( is_array( $isNotTagged ) && count( $isNotTagged ) > 0 ) {
+		} elseif ( is_array( $isNotTagged ) && count( $isNotTagged ) > 0 ) {
 
 			// foreach in array :)
 			$tagStr = '';
 			foreach ( $isNotTagged as $iTag ) {
-				$i = (int)$iTag;
+				$i = (int) $iTag;
 				if ( $i > 0 ) {
 
-					if ($tagStr !== '') {
+					if ( $tagStr !== '' ) {
 						$tagStr .= ',';
 					}
 					$tagStr .= $i;
@@ -925,192 +917,189 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			}
 			if ( ! empty( $tagStr ) ) {
 
-				$wheres['direct'][] = array('((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = quote.ID AND zbstl_tagid IN (%s)) = 0)', array(ZBS_TYPE_QUOTE, $tagStr));
+				$wheres['direct'][] = array( '((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = quote.ID AND zbstl_tagid IN (%s)) = 0)', array( ZBS_TYPE_QUOTE, $tagStr ) );
 
 			}
 		}
-
-
 
 		#} ============ / WHERE ===============
 
 		#} ============   SORT   ==============
 
-			// Obj Model based sort conversion
-			// converts 'addr1' => 'zbsco_addr1' generically
-		if (isset( $this->objectModel[$sortByField] ) && isset( $this->objectModel[$sortByField]['fieldname'] )) {
-			$sortByField = $this->objectModel[$sortByField]['fieldname'];
+		// Obj Model based sort conversion
+		// converts 'addr1' => 'zbsco_addr1' generically
+		if ( isset( $this->objectModel[ $sortByField ] ) && isset( $this->objectModel[ $sortByField ]['fieldname'] ) ) {
+			$sortByField = $this->objectModel[ $sortByField ]['fieldname'];
 		}
 
-			// Mapped sorts
-			// This catches listview and other exception sort cases
-				$sort_map = array(
-					'customer' => '(SELECT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_from = quote.ID)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-					// hack to support quote statuses (for here only, 2 is accepted, 1 is unaccepted, 0 is draft)
-					'status'   => '(CASE WHEN zbsq_accepted > 0 THEN 2 WHEN zbsq_template > 0 THEN 1 ELSE 0 END)',
-				);
+		// Mapped sorts
+		// This catches listview and other exception sort cases
+		$sort_map = array(
+			'customer' => '(SELECT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_from = quote.ID)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			// hack to support quote statuses (for here only, 2 is accepted, 1 is unaccepted, 0 is draft)
+			'status'   => '(CASE WHEN zbsq_accepted > 0 THEN 2 WHEN zbsq_template > 0 THEN 1 ELSE 0 END)',
+		);
 
-				if ( array_key_exists( $sortByField, $sort_map ) ) {
+		if ( array_key_exists( $sortByField, $sort_map ) ) {
 
-					$sortByField = $sort_map[ $sortByField ];
+			$sortByField = $sort_map[ $sortByField ];
 
-				}
+		}
 
-				#} ============ / SORT   ==============
+		#} ============ / SORT   ==============
 
-				#} CHECK this + reset to default if faulty
-				if ( ! in_array( $whereCase, array('AND', 'OR') )) {
-					$whereCase = 'AND';
-				}
+		#} CHECK this + reset to default if faulty
+		if ( ! in_array( $whereCase, array( 'AND', 'OR' ) ) ) {
+			$whereCase = 'AND';
+		}
 
-				#} Build out any WHERE clauses
-				$wheresArr = $this->buildWheres( $wheres, $whereStr, $params, $whereCase );
-				$whereStr = $wheresArr['where'];
-				$params = $params + $wheresArr['params'];
-				#} / Build WHERE
+		#} Build out any WHERE clauses
+		$wheresArr = $this->buildWheres( $wheres, $whereStr, $params, $whereCase );
+		$whereStr  = $wheresArr['where'];
+		$params    = $params + $wheresArr['params'];
+		#} / Build WHERE
 
-				#} Ownership v1.0 - the following adds SITE + TEAM checks, and (optionally), owner
-				$params = array_merge( $params, $this->ownershipQueryVars( $ignoreowner ) ); // merges in any req.
-				$ownQ = $this->ownershipSQL( $ignoreowner, 'quote' );
-				if ( ! empty( $ownQ )) {
-					$additionalWhere = $this->spaceAnd( $additionalWhere ) . $ownQ; // adds str to query
-				}
-				#} / Ownership
+		#} Ownership v1.0 - the following adds SITE + TEAM checks, and (optionally), owner
+		$params = array_merge( $params, $this->ownershipQueryVars( $ignoreowner ) ); // merges in any req.
+		$ownQ   = $this->ownershipSQL( $ignoreowner, 'quote' );
+		if ( ! empty( $ownQ ) ) {
+			$additionalWhere = $this->spaceAnd( $additionalWhere ) . $ownQ; // adds str to query
+		}
+		#} / Ownership
 
-				#} Append to sql (this also automatically deals with sortby and paging)
-				$query .= $this->buildWhereStr( $whereStr, $additionalWhere ) . $this->buildSort( $sortByField, $sortOrder ) . $this->buildPaging( $page, $perPage );
+		#} Append to sql (this also automatically deals with sortby and paging)
+		$query .= $this->buildWhereStr( $whereStr, $additionalWhere ) . $this->buildSort( $sortByField, $sortOrder ) . $this->buildPaging( $page, $perPage );
 
-				try {
+		try {
 
-					#} Prep & run query
-					$queryObj = $this->prepare( $query, $params );
+			#} Prep & run query
+			$queryObj = $this->prepare( $query, $params );
 
-					#} Catch count + return if requested
-					if ($count) {
-						return $wpdb->get_var( $queryObj );
+			#} Catch count + return if requested
+			if ( $count ) {
+				return $wpdb->get_var( $queryObj );
+			}
+
+			#} else continue..
+			$potentialRes = $wpdb->get_results( $queryObj, OBJECT );
+
+		} catch ( Exception $e ) {
+
+			#} General SQL Err
+			$this->catchSQLError( $e );
+
+		}
+
+		#} Interpret results (Result Set - multi-row)
+		if ( isset( $potentialRes ) && is_array( $potentialRes ) && count( $potentialRes ) > 0 ) {
+
+			#} Has results, tidy + return
+			foreach ( $potentialRes as $resDataLine ) {
+
+				// using onlyColumns filter?
+				if ( $onlyColumns && is_array( $onlyColumnsFieldArr ) && count( $onlyColumnsFieldArr ) > 0 ) {
+
+					// only coumns return.
+					$resArr = array();
+					foreach ( $onlyColumnsFieldArr as $colDBKey => $colStr ) {
+
+						if ( isset( $resDataLine->$colDBKey ) ) {
+							$resArr[ $colStr ] = $resDataLine->$colDBKey;
+						}
 					}
+				} else {
 
-					#} else continue..
-					$potentialRes = $wpdb->get_results( $queryObj, OBJECT );
-
-				} catch ( Exception $e ) {
-
-					#} General SQL Err
-					$this->catchSQLError( $e );
+					// tidy
+					$resArr = $this->tidy_quote( $resDataLine, $withCustomFields );
 
 				}
 
-				#} Interpret results (Result Set - multi-row)
-				if ( isset( $potentialRes ) && is_array( $potentialRes ) && count( $potentialRes ) > 0 ) {
+				if ( $withLineItems ) {
 
-					#} Has results, tidy + return
-					foreach ( $potentialRes as $resDataLine ) {
+					// add all line item lines
+					$resArr['lineitems'] = $this->DAL()->lineitems->getLineitems(
+						array(
+							'associatedObjType' => ZBS_TYPE_QUOTE,
+							'associatedObjID'   => $resDataLine->ID,
+							'perPage'           => 1000,
+							'ignoreowner'       => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_LINEITEM ),
+						)
+					);
 
-						// using onlyColumns filter?
-						if ( $onlyColumns && is_array( $onlyColumnsFieldArr ) && count( $onlyColumnsFieldArr ) > 0 ) {
-
-							// only coumns return.
-							$resArr = array();
-							foreach ( $onlyColumnsFieldArr as $colDBKey => $colStr ) {
-
-								if (isset( $resDataLine->$colDBKey )) {
-									$resArr[$colStr] = $resDataLine->$colDBKey;
-								}
-
-							}
-						} else {
-
-							// tidy
-							$resArr = $this->tidy_quote( $resDataLine, $withCustomFields );
-
-						}
-
-						if ( $withLineItems ) {
-
-							// add all line item lines
-							$resArr['lineitems'] = $this->DAL()->lineitems->getLineitems(
-								array(
-								'associatedObjType' => ZBS_TYPE_QUOTE,
-								'associatedObjID'   => $resDataLine->ID,
-								'perPage'           => 1000,
-								'ignoreowner'       => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_LINEITEM )
-								)
-							);
-
-						}
-
-						if ( $withFiles ) {
-
-							$resArr['files'] = zeroBSCRM_files_getFiles( 'quote', $resDataLine->ID );
-
-						}
-
-						if ( $withTags ) {
-
-							// add all tags lines
-							$resArr['tags'] = $this->DAL()->getTagsForObjID(
-								array(
-								'objtypeid' => ZBS_TYPE_QUOTE,
-								'objid'     => $resDataLine->ID
-								)
-							);
-
-						}
-
-						if ( $withAssigned ) {
-
-							/* This is for MULTIPLE (e.g. multi contact/companies assigned to an inv)
-
-								// add all assigned contacts/companies
-								$res['contacts'] = $this->DAL()->contacts->getContacts(array(
-							'hasObjTypeLinkedTo'=>ZBS_TYPE_QUOTE,
-							'hasObjIDLinkedTo'=>$resDataLine->ID,
-							'perPage'=>-1,
-							'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_CONTACT)));
-
-								$res['companies'] = $this->DAL()->companies->getCompanies(array(
-							'hasObjTypeLinkedTo'=>ZBS_TYPE_QUOTE,
-							'hasObjIDLinkedTo'=>$resDataLine->ID,
-							'perPage'=>-1,
-							'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_COMPANY)));
-
-							.. but we use 1:1, at least now: */
-
-								// add all assigned contacts/companies
-								$resArr['contact'] = $this->DAL()->contacts->getContacts(
-							array(
-								'hasObjTypeLinkedTo' => ZBS_TYPE_QUOTE,
-								'hasObjIDLinkedTo'   => $resDataLine->ID,
-								'page'               => 0,
-								'perPage'            => 1, // FORCES 1
-								'ignoreowner'        => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ))
-								);
-
-								$resArr['company'] = $this->DAL()->companies->getCompanies(
-									array(
-										'hasObjTypeLinkedTo' => ZBS_TYPE_QUOTE,
-										'hasObjIDLinkedTo'   => $resDataLine->ID,
-										'page'               => 0,
-										'perPage'            => 1, // FORCES 1
-										'ignoreowner'        => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ))
-								);
-
-
-						}
-
-						if ($suppressContent) {
-							unset( $resArr['content'] );
-						}
-
-						$res[] = $resArr;
-
-					}
 				}
 
-				return $res;
+				if ( $withFiles ) {
+
+					$resArr['files'] = zeroBSCRM_files_getFiles( 'quote', $resDataLine->ID );
+
+				}
+
+				if ( $withTags ) {
+
+					// add all tags lines
+					$resArr['tags'] = $this->DAL()->getTagsForObjID(
+						array(
+							'objtypeid' => ZBS_TYPE_QUOTE,
+							'objid'     => $resDataLine->ID,
+						)
+					);
+
+				}
+
+				if ( $withAssigned ) {
+
+					/*
+					This is for MULTIPLE (e.g. multi contact/companies assigned to an inv)
+
+						// add all assigned contacts/companies
+						$res['contacts'] = $this->DAL()->contacts->getContacts(array(
+					'hasObjTypeLinkedTo'=>ZBS_TYPE_QUOTE,
+					'hasObjIDLinkedTo'=>$resDataLine->ID,
+					'perPage'=>-1,
+					'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_CONTACT)));
+
+						$res['companies'] = $this->DAL()->companies->getCompanies(array(
+					'hasObjTypeLinkedTo'=>ZBS_TYPE_QUOTE,
+					'hasObjIDLinkedTo'=>$resDataLine->ID,
+					'perPage'=>-1,
+					'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_COMPANY)));
+
+					.. but we use 1:1, at least now: */
+
+					// add all assigned contacts/companies
+					$resArr['contact'] = $this->DAL()->contacts->getContacts(
+						array(
+							'hasObjTypeLinkedTo' => ZBS_TYPE_QUOTE,
+							'hasObjIDLinkedTo' => $resDataLine->ID,
+							'page'             => 0,
+							'perPage'          => 1, // FORCES 1
+							'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
+						)
+					);
+
+					$resArr['company'] = $this->DAL()->companies->getCompanies(
+						array(
+							'hasObjTypeLinkedTo' => ZBS_TYPE_QUOTE,
+							'hasObjIDLinkedTo' => $resDataLine->ID,
+							'page'             => 0,
+							'perPage'          => 1, // FORCES 1
+							'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
+						)
+					);
+
+				}
+
+				if ( $suppressContent ) {
+					unset( $resArr['content'] );
+				}
+
+				$res[] = $resArr;
+
+			}
+		}
+
+		return $res;
 	}
-
-
 
 	/**
 	 * Returns a count of quotes (owned)
@@ -1118,7 +1107,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return int count
 	 */
-	public function getQuoteCount( $args = array() ){
+	public function getQuoteCount( $args = array() ) {
 
 		#} ============ LOAD ARGS =============
 		$defaultArgs = array(
@@ -1132,18 +1121,18 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		);
 		foreach ( $defaultArgs as $argK => $argV ) {
 			$$argK = $argV;
-			if ( is_array( $args ) && isset( $args[$argK] ) ) {
-				if ( is_array( $args[$argK] ) ) {
+			if ( is_array( $args ) && isset( $args[ $argK ] ) ) {
+				if ( is_array( $args[ $argK ] ) ) {
 					$newData = $$argK;
 					if ( ! is_array( $newData ) ) {
 						$newData = array();
 					}
-					foreach ( $args[$argK] as $subK => $subV ) {
-						$newData[$subK] = $subV;
+					foreach ( $args[ $argK ] as $subK => $subV ) {
+						$newData[ $subK ] = $subV;
 					}
 					$$argK = $newData;
 				} else {
-					$$argK = $args[$argK];
+					$$argK = $args[ $argK ];
 				}
 			}
 		}
@@ -1151,8 +1140,8 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 		$whereArr = array();
 
-		if ($withStatus !== false && ! empty( $withStatus )) {
-			$whereArr['status'] = array('zbsq_status', '=', '%s', $withStatus);
+		if ( $withStatus !== false && ! empty( $withStatus ) ) {
+			$whereArr['status'] = array( 'zbsq_status', '=', '%s', $withStatus );
 		}
 
 		return $this->DAL()->getFieldByWHERE(
@@ -1160,12 +1149,12 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				'objtype'     => ZBS_TYPE_QUOTE,
 				'colname'     => 'COUNT(ID)',
 				'where'       => $whereArr,
-				'ignoreowner' => $ignoreowner)
+				'ignoreowner' => $ignoreowner,
+			)
 		);
-
 	}
 
-	 /**
+	/**
 	 * adds or updates a quote object
 	 *
 	 * @param array $args Associative array of arguments
@@ -1173,13 +1162,13 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return int line ID
 	 */
-	public function addUpdateQuote( $args = array() ){
+	public function addUpdateQuote( $args = array() ) {
 
 		global $ZBSCRM_t, $wpdb, $zbs;
 
 		#} Retrieve any cf
-		$customFields = $this->DAL()->getActiveCustomFields( array('objtypeid' => ZBS_TYPE_QUOTE) );
-		$addrCustomFields = $this->DAL()->getActiveCustomFields( array('objtypeid' => ZBS_TYPE_ADDRESS) );
+		$customFields     = $this->DAL()->getActiveCustomFields( array( 'objtypeid' => ZBS_TYPE_QUOTE ) );
+		$addrCustomFields = $this->DAL()->getActiveCustomFields( array( 'objtypeid' => ZBS_TYPE_ADDRESS ) );
 
 		#} ============ LOAD ARGS =============
 		$defaultArgs = array(
@@ -1210,7 +1199,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				'lineitems'        => false,
 				// will be an array of lineitem lines (as per matching lineitem database model)
 				// note:    if no change desired, pass "false"
-				//          if removal of all/change, pass empty array
+				// if removal of all/change, pass empty array
 
 				// Note Custom fields may be passed here, but will not have defaults so check isset()
 
@@ -1239,52 +1228,51 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 			'silentInsert'         => false, // this was for init Migration - it KILLS all IA for newQuote (because is migrating, not creating new :) this was -1 before
 
-			'do_not_update_blanks' => false // this allows you to not update fields if blank (same as fieldoverride for extsource -> in)
+			'do_not_update_blanks' => false, // this allows you to not update fields if blank (same as fieldoverride for extsource -> in)
 
 		);
 		foreach ( $defaultArgs as $argK => $argV ) {
 			$$argK = $argV;
-			if ( is_array( $args ) && isset( $args[$argK] ) ) {
-				if ( is_array( $args[$argK] ) ) {
+			if ( is_array( $args ) && isset( $args[ $argK ] ) ) {
+				if ( is_array( $args[ $argK ] ) ) {
 					$newData = $$argK;
 					if ( ! is_array( $newData ) ) {
 						$newData = array();
 					}
-					foreach ( $args[$argK] as $subK => $subV ) {
-						$newData[$subK] = $subV;
+					foreach ( $args[ $argK ] as $subK => $subV ) {
+						$newData[ $subK ] = $subV;
 					}
 					$$argK = $newData;
 				} else {
-					$$argK = $args[$argK];
+					$$argK = $args[ $argK ];
 				}
 			}
 		}
 
 		// Needs this to grab custom fields (if passed) too :)
-		if (is_array( $customFields )) {
+		if ( is_array( $customFields ) ) {
 			foreach ( $customFields as $cK => $cF ) {
 
 				// only for data, limited fields below
 				if ( is_array( $data ) ) {
 
-					if (isset( $args['data'][$cK] )) {
-						$data[$cK] = $args['data'][$cK];
+					if ( isset( $args['data'][ $cK ] ) ) {
+						$data[ $cK ] = $args['data'][ $cK ];
 					}
-
 				}
 			}
 		}
 
 		// this takes limited fields + checks through for custom fields present
-			// (either as key zbsq_source or source, for example)
-			// then switches them into the $data array, for separate update
-			// where this'll fall over is if NO normal contact data is sent to update, just custom fields
+		// (either as key zbsq_source or source, for example)
+		// then switches them into the $data array, for separate update
+		// where this'll fall over is if NO normal contact data is sent to update, just custom fields
 		if ( is_array( $limitedFields ) && is_array( $customFields ) ) {
 
-				//$customFieldKeys = array_keys($customFields);
-				$newLimitedFields = array();
+			// $customFieldKeys = array_keys($customFields);
+			$newLimitedFields = array();
 
-				// cycle through
+			// cycle through
 			foreach ( $limitedFields as $field ) {
 
 				// some weird case where getting empties, so added check
@@ -1295,15 +1283,15 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						$dePrefixed = substr( $field['key'], strlen( 'zbsq_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					}
 
-					if ( isset( $customFields[$field['key']] ) ) {
+					if ( isset( $customFields[ $field['key'] ] ) ) {
 
 						// is custom, move to data
-						$data[$field['key']] = $field['val'];
+						$data[ $field['key'] ] = $field['val'];
 
-					} else if ( ! empty( $dePrefixed ) && isset( $customFields[$dePrefixed] ) ) {
+					} elseif ( ! empty( $dePrefixed ) && isset( $customFields[ $dePrefixed ] ) ) {
 
 						// is custom, move to data
-						$data[$dePrefixed] = $field['val'];
+						$data[ $dePrefixed ] = $field['val'];
 
 					} else {
 
@@ -1313,9 +1301,9 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				}
 			}
 
-				// move this back in
-				$limitedFields = $newLimitedFields;
-				unset( $newLimitedFields );
+			// move this back in
+			$limitedFields = $newLimitedFields;
+			unset( $newLimitedFields );
 
 		}
 
@@ -1323,19 +1311,19 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 		#} ========== CHECK FIELDS ============
 
-			$id = (int)$id;
+		$id = (int) $id;
 
-			// here we check that the potential owner CAN even own
-		if ( ! user_can( $owner, 'admin_zerobs_usr' )) {
+		// here we check that the potential owner CAN even own
+		if ( ! user_can( $owner, 'admin_zerobs_usr' ) ) {
 			$owner = -1;
 		}
 
-			// if owner = -1, add current
+		// if owner = -1, add current
 		if ( ! isset( $owner ) || $owner === -1 ) {
 			$owner = zeroBSCRM_user();
 		}
 
-			// if no date is passed, use current date
+		// if no date is passed, use current date
 		if ( empty( $data['date'] ) ) {
 			$data['date'] = time(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		}
@@ -1343,36 +1331,33 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		if ( is_array( $limitedFields ) ) {
 
 			// LIMITED UPDATE (only a few fields.)
-			if ( ! is_array( $limitedFields ) || count( $limitedFields ) <= 0) {
+			if ( ! is_array( $limitedFields ) || count( $limitedFields ) <= 0 ) {
 				return false;
 			}
 			// REQ. ID too (can only update)
-			if (empty( $id ) || $id <= 0) {
+			if ( empty( $id ) || $id <= 0 ) {
 				return false;
 			}
-
 		} else {
 
 			// NORMAL, FULL UPDATE
 
 		}
 
-
 		#} ========= / CHECK FIELDS ===========
-
 
 		#} ========= OVERRIDE SETTING (Deny blank overrides) ===========
 
-			// this only functions if externalsource is set (e.g. api/form, etc.)
+		// this only functions if externalsource is set (e.g. api/form, etc.)
 		if ( isset( $data['externalSources'] ) && is_array( $data['externalSources'] ) && count( $data['externalSources'] ) > 0 ) {
-			if ( zeroBSCRM_getSetting( 'fieldoverride' ) == "1" ) {
+			if ( zeroBSCRM_getSetting( 'fieldoverride' ) == '1' ) {
 
 				$do_not_update_blanks = true;
 
 			}
 		}
 
-			// either ext source + setting, or set by the func call
+		// either ext source + setting, or set by the func call
 		if ( $do_not_update_blanks ) {
 
 			// this setting says 'don't override filled-out data with blanks'
@@ -1382,17 +1367,17 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				// get data to copy over (for now, this is required to remove 'fullname' etc.)
 				$dbData = $this->db_ready_quote( $data );
-				//unset($dbData['id']); // this is unset because we use $id, and is update, so not req. legacy issue
-				//unset($dbData['created']); // this is unset because this uses an obj which has been 'updated' against original details, where created is output in the WRONG format :)
+				// unset($dbData['id']); // this is unset because we use $id, and is update, so not req. legacy issue
+				// unset($dbData['created']); // this is unset because this uses an obj which has been 'updated' against original details, where created is output in the WRONG format :)
 
-				$origData = $data; //$data = array();
+				$origData    = $data; // $data = array();
 				$limitedData = array(); // array(array('key'=>'zbsq_x','val'=>y,'type'=>'%s'))
 
 				// cycle through + translate into limitedFields (removing any blanks, or arrays (e.g. externalSources))
 				// we also have to remake a 'faux' data (removing blanks for tags etc.) for the post-update updates
 				foreach ( $dbData as $k => $v ) {
 
-					$intV = (int)$v;
+					$intV = (int) $v;
 
 					// only add if valuenot empty
 					if ( ! is_array( $v ) && ! empty( $v ) && $v != '' && $v !== 0 && $v !== -1 && $intV !== -1 ) {
@@ -1401,11 +1386,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						$limitedData[] = array(
 							'key'  => 'zbsq_' . $k, // we have to add zbsq_ here because translating from data -> limited fields
 							'val'  => $v,
-							'type' => $this->getTypeStr( 'zbsq_' . $k )
+							'type' => $this->getTypeStr( 'zbsq_' . $k ),
 						);
 
 						// add to remade $data for post-update updates
-						$data[$k] = $v;
+						$data[ $k ] = $v;
 
 					}
 				}
@@ -1421,10 +1406,10 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 		#} ========= BUILD DATA ===========
 
-			$update = false;
-			$dataArr = array();
-			$typeArr = array();
-			$was_accepted_before = $this->getQuoteAccepted( $id );
+		$update              = false;
+		$dataArr             = array();
+		$typeArr             = array();
+		$was_accepted_before = $this->getQuoteAccepted( $id );
 
 		if ( is_array( $limitedFields ) ) {
 
@@ -1436,15 +1421,15 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				// some weird case where getting empties, so added check
 				if ( ! empty( $field['key'] ) ) {
-					$dataArr[$field['key']] = $field['val'];
-					$typeArr[] = $field['type'];
+					$dataArr[ $field['key'] ] = $field['val'];
+					$typeArr[]                = $field['type'];
 				}
 			}
 
 			// add update time
 			if ( ! isset( $dataArr['zbsq_lastupdated'] ) ) {
 				$dataArr['zbsq_lastupdated'] = time();
-				$typeArr[] = '%d';
+				$typeArr[]                   = '%d';
 			}
 		} else {
 
@@ -1455,14 +1440,14 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				$coArr = array();
 				foreach ( $data['contacts'] as $c ) {
-					$cI = (int)$c;
-					if ($cI > 0 && ! in_array( $cI, $coArr )) {
+					$cI = (int) $c;
+					if ( $cI > 0 && ! in_array( $cI, $coArr ) ) {
 						$coArr[] = $cI;
 					}
 				}
 
 				// reset the main
-				if (count( $coArr ) > 0) {
+				if ( count( $coArr ) > 0 ) {
 					$data['contacts'] = $coArr;
 				} else {
 					$data['contacts'] = 'unset';
@@ -1476,14 +1461,14 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				$coArr = array();
 				foreach ( $data['companies'] as $c ) {
-					$cI = (int)$c;
-					if ($cI > 0 && ! in_array( $cI, $coArr )) {
+					$cI = (int) $c;
+					if ( $cI > 0 && ! in_array( $cI, $coArr ) ) {
 						$coArr[] = $cI;
 					}
 				}
 
 				// reset the main
-				if (count( $coArr ) > 0) {
+				if ( count( $coArr ) > 0 ) {
 					$data['companies'] = $coArr;
 				} else {
 					$data['companies'] = 'unset';
@@ -1497,10 +1482,9 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				// ownership
 				// no need to update these (as of yet) - can't move teams etc.
-				//'zbs_site' => zeroBSCRM_installSite(),
-				//'zbs_team' => zeroBSCRM_installTeam(),
-				//'zbs_owner' => $owner,
-
+				// 'zbs_site' => zeroBSCRM_installSite(),
+				// 'zbs_team' => zeroBSCRM_installTeam(),
+				// 'zbs_owner' => $owner,
 
 				'zbsq_id_override'      => $data['id_override'],
 				'zbsq_title'            => $data['title'],
@@ -1522,29 +1506,28 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			);
 
 			$typeArr = array( // field data types
-							//'%d',  // site
-							//'%d',  // team
-							//'%d',  // owner
+							// '%d',  // site
+							// '%d',  // team
+							// '%d',  // owner
 
+				'%s',
+				'%s',
+				'%s',
+				'%s',
+				'%d',
+				'%s',
+				'%s',
+				'%s',
+				'%d', // send_attachment
+				'%s',
+				'%d',
+				'%d',
+				'%d',
+				'%s',
+				'%s',
+				'%d',
 
-					'%s',
-					'%s',
-					'%s',
-					'%s',
-					'%d',
-					'%s',
-					'%s',
-					'%s',
-					'%d', // send_attachment
-					'%s',
-					'%d',
-					'%d',
-					'%d',
-					'%s',
-					'%s',
-					'%d',
-
-				);
+			);
 
 			if ( ! empty( $id ) && $id > 0 ) {
 
@@ -1554,27 +1537,25 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			} else {
 
 				// INSERT (get's few extra :D)
-				$update = false;
-				$dataArr['zbs_site'] = zeroBSCRM_site();
-				$typeArr[] = '%d';
-				$dataArr['zbs_team'] = zeroBSCRM_team();
-				$typeArr[] = '%d';
+				$update               = false;
+				$dataArr['zbs_site']  = zeroBSCRM_site();
+				$typeArr[]            = '%d';
+				$dataArr['zbs_team']  = zeroBSCRM_team();
+				$typeArr[]            = '%d';
 				$dataArr['zbs_owner'] = $owner;
-				$typeArr[] = '%d';
+				$typeArr[]            = '%d';
 				if ( isset( $data['created'] ) && ! empty( $data['created'] ) && $data['created'] !== -1 ) {
 					$dataArr['zbsq_created'] = $data['created'];
-					$typeArr[] = '%d';
+					$typeArr[]               = '%d';
 				} else {
 					$dataArr['zbsq_created'] = time();
-					$typeArr[] = '%d';
+					$typeArr[]               = '%d';
 				}
-
 
 				// and on new inserts, if no hash passed, it gen's one
-				if (isset( $dataArr['zbsq_hash'] ) && $dataArr['zbsq_hash'] == '') {
+				if ( isset( $dataArr['zbsq_hash'] ) && $dataArr['zbsq_hash'] == '' ) {
 					$dataArr['zbsq_hash'] = zeroBSCRM_generateHash( 20 );
 				}
-
 			}
 		}
 
@@ -1583,24 +1564,23 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		#} ============================================================
 		#} ========= CHECK force_uniques & not_empty & max_len ========
 
-			// if we're passing limitedFields we skip these, for now
-			// #v3.1 - would make sense to unique/nonempty check just the limited fields. #gh-145
+		// if we're passing limitedFields we skip these, for now
+		// #v3.1 - would make sense to unique/nonempty check just the limited fields. #gh-145
 		if ( ! is_array( $limitedFields ) ) {
 
 			// verify uniques
-			if ( ! $this->verifyUniqueValues( $data, $id )) {
+			if ( ! $this->verifyUniqueValues( $data, $id ) ) {
 				return false; // / fails unique field verify
 			}
 
 			// verify not_empty
-			if ( ! $this->verifyNonEmptyValues( $data )) {
+			if ( ! $this->verifyNonEmptyValues( $data ) ) {
 				return false; // / fails empty field verify
 			}
-
 		}
 
-			// whatever we do we check for max_len breaches and abbreviate to avoid wpdb rejections
-			$dataArr = $this->wpdbChecks( $dataArr );
+		// whatever we do we check for max_len breaches and abbreviate to avoid wpdb rejections
+		$dataArr = $this->wpdbChecks( $dataArr );
 
 		#} ========= / CHECK force_uniques & not_empty ================
 		#} ============================================================
@@ -1608,7 +1588,8 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		#} Check if ID present
 		if ( $update ) {
 
-			/* WH included this "for now" - status change for IA, not sure if used for this obj,?
+			/*
+			WH included this "for now" - status change for IA, not sure if used for this obj,?
 
 				#} Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
 				$originalStatus = $this->getQuoteStatus($id);
@@ -1624,33 +1605,31 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				}
 			*/
 
-				#} Attempt update
+			#} Attempt update
 			if ( $wpdb->update(
-					$ZBSCRM_t['quotes'],
-					$dataArr,
-					array( // where
-						'ID' => $id
-					),
-					$typeArr,
-					array( // where data types
-						'%d'
-					)
-				) !== false ) {
+				$ZBSCRM_t['quotes'],
+				$dataArr,
+				array( // where
+					'ID' => $id,
+				),
+				$typeArr,
+				array( // where data types
+					'%d',
+				)
+			) !== false ) {
 
-
-						// if passing limitedFields instead of data, we ignore the following
-							// this doesn't work, because data is in args default as arr
-							//if (isset($data) && is_array($data)){
-							// so...
+				// if passing limitedFields instead of data, we ignore the following
+					// this doesn't work, because data is in args default as arr
+					// if (isset($data) && is_array($data)){
+					// so...
 				if ( ! isset( $limitedFields ) || ! is_array( $limitedFields ) || $limitedFields == -1 ) {
-
 
 					// Line Items ====
 
 					// line item work
 					if ( isset( $data['lineitems'] ) && is_array( $data['lineitems'] ) ) {
 
-								// if array passed, update, even if removing
+						// if array passed, update, even if removing
 						if ( count( $data['lineitems'] ) > 0 ) {
 
 							// passed, for now this is BRUTAL and just clears old ones + readds
@@ -1659,9 +1638,9 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 							// delete all lineitems
 							$this->DAL()->lineitems->deleteLineItemsForObject(
 								array(
-								'objID'   => $id,
-								'objType' => ZBS_TYPE_QUOTE
-								) 
+									'objID'   => $id,
+									'objType' => ZBS_TYPE_QUOTE,
+								)
 							);
 
 							// addupdate each
@@ -1669,16 +1648,16 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 								// slight rejig of passed so works cleanly with data array style
 								$lineItemID = false;
-								if (isset( $lineitem['ID'] )) {
+								if ( isset( $lineitem['ID'] ) ) {
 									$lineItemID = $lineitem['ID'];
 								}
 								$this->DAL()->lineitems->addUpdateLineitem(
-								array(
-								'id'   => $lineItemID,
-								'linkedObjType' => ZBS_TYPE_QUOTE,
-								'linkedObjID' => $id,
-								'data' => $lineitem
-												)
+									array(
+										'id'            => $lineItemID,
+										'linkedObjType' => ZBS_TYPE_QUOTE,
+										'linkedObjID'   => $id,
+										'data'          => $lineitem,
+									)
 								);
 
 							}
@@ -1686,67 +1665,67 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 							// delete all lineitems
 							$this->DAL()->lineitems->deleteLineItemsForObject(
-							array(
-							'objID'   => $id,
-							'objType' => ZBS_TYPE_QUOTE
-										)
+								array(
+									'objID'   => $id,
+									'objType' => ZBS_TYPE_QUOTE,
+								)
 							);
 
 						}
 					}
 
-							// / Line Items ====
+					// / Line Items ====
 
+					// OBJ LINKS - to contacts/companies
+					$this->addUpdateObjectLinks( $id, $data['contacts'], ZBS_TYPE_CONTACT ); // 13567
+					$this->addUpdateObjectLinks( $id, $data['companies'], ZBS_TYPE_COMPANY );
+					// IA also gets 'againstid' historically, but we'll pass as 'against id's'
+					$againstIDs = array(
+						'contacts'  => $data['contacts'],
+						'companies' => $data['companies'],
+					);
 
-							// OBJ LINKS - to contacts/companies
-							$this->addUpdateObjectLinks( $id, $data['contacts'], ZBS_TYPE_CONTACT ); ///13567
-							$this->addUpdateObjectLinks( $id, $data['companies'], ZBS_TYPE_COMPANY );
-							// IA also gets 'againstid' historically, but we'll pass as 'against id's'
-							$againstIDs = array(
-							'contacts'  => $data['contacts'],
-							'companies' => $data['companies']
-							);
+					// tags
+					if ( isset( $data['tags'] ) && is_array( $data['tags'] ) ) {
 
-							// tags
-							if ( isset( $data['tags'] ) && is_array( $data['tags'] ) ) {
-
-								$this->addUpdateQuoteTags(
-								array(
-									'id'        => $id,
-									'tag_input' => $data['tags'],
-									'mode'      => $data['tag_mode']
-								)
-								);
-
-							}
-
-							// externalSources
-							$approvedExternalSource = $this->DAL()->addUpdateExternalSources(
+						$this->addUpdateQuoteTags(
 							array(
-							'obj_id'      => $id,
-							'obj_type_id' => ZBS_TYPE_QUOTE,
-							'external_sources' => isset( $data['externalSources'] ) ? $data['externalSources'] : array(),
+								'id'        => $id,
+								'tag_input' => $data['tags'],
+								'mode'      => $data['tag_mode'],
 							)
+						);
+
+					}
+
+					// externalSources
+					$approvedExternalSource = $this->DAL()->addUpdateExternalSources(
+						array(
+							'obj_id'           => $id,
+							'obj_type_id'      => ZBS_TYPE_QUOTE,
+							'external_sources' => isset( $data['externalSources'] ) ? $data['externalSources'] : array(),
+						)
 					); // for IA below
 
 					// Custom fields?
 
 					#} Cycle through + add/update if set
-					if (is_array( $customFields )) {
+					if ( is_array( $customFields ) ) {
 						foreach ( $customFields as $cK => $cF ) {
 
 							// any?
-							if ( isset( $data[$cK] ) ) {
+							if ( isset( $data[ $cK ] ) ) {
 
 								// add update
 								$cfID = $this->DAL()->addUpdateCustomField(
-								array(
-								'data' => array(
-									'objtype'   => ZBS_TYPE_QUOTE,
-									'objid'     => $id,
-									'objkey'    => $cK,
-									'objval'    => $data[$cK]
-								))
+									array(
+										'data' => array(
+											'objtype' => ZBS_TYPE_QUOTE,
+											'objid'   => $id,
+											'objkey'  => $cK,
+											'objval'  => $data[ $cK ],
+										),
+									)
 								);
 
 							}
@@ -1757,9 +1736,9 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				} // / if $data
 
-						#} Any extra meta keyval pairs?
-						// BRUTALLY updates (no checking)
-						$confirmedExtraMeta = false;
+				#} Any extra meta keyval pairs?
+				// BRUTALLY updates (no checking)
+				$confirmedExtraMeta = false;
 				if ( is_array( $extraMeta ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 					$confirmedExtraMeta = array();
@@ -1770,33 +1749,31 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						$cleanKey = strtolower( str_replace( ' ', '_', $k ) );
 
 						#} Brutal update
-						//update_post_meta($postID, 'zbs_customer_extra_'.$cleanKey, $v);
+						// update_post_meta($postID, 'zbs_customer_extra_'.$cleanKey, $v);
 						$this->DAL()->updateMeta( ZBS_TYPE_QUOTE, $id, 'extra_' . $cleanKey, $v );
 
 						#} Add it to this, which passes to IA
-						$confirmedExtraMeta[$cleanKey] = $v;
+						$confirmedExtraMeta[ $cleanKey ] = $v;
 
 					}
 				}
 
-
-						#} INTERNAL AUTOMATOR
-						#} &
-						#} FALLBACKS
-						// UPDATING CONTACT
+				#} INTERNAL AUTOMATOR
+				#} &
+				#} FALLBACKS
+				// UPDATING CONTACT
 				if ( ! $silentInsert ) {
-
 
 					// IA General quote update (2.87+)
 					zeroBSCRM_FireInternalAutomator(
 						'quote.update',
 						array(
-							'id'         => $id,
-							'data'       => $data,
-							'againstids' => array(), //$againstIDs,
-							'extsource'  => false, //$approvedExternalSource,
+							'id'                   => $id,
+							'data'                 => $data,
+							'againstids'           => array(), // $againstIDs,
+							'extsource'            => false, // $approvedExternalSource,
 							'automatorpassthrough' => $automatorPassthrough, #} This passes through any custom log titles or whatever into the Internal automator recipe.
-							'extraMeta'  => $confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
+							'extraMeta'            => $confirmedExtraMeta, #} This is the "extraMeta" passed (as saved)
 						)
 					);
 
@@ -1807,20 +1784,19 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						zeroBSCRM_FireInternalAutomator(
 							'quote.accepted',
 							array(
-								'id'         => $id,
-								'data'       => $data,
-								'againstids' => false,
-								'extsource'  => false,
+								'id'                   => $id,
+								'data'                 => $data,
+								'againstids'           => false,
+								'extsource'            => false,
 								'automatorpassthrough' => false,
-								'extraMeta'  => $confirmedExtraMeta,
+								'extraMeta'            => $confirmedExtraMeta,
 							)
 						);
 					}
 				}
 
-
-						// Successfully updated - Return id
-						return $id;
+				// Successfully updated - Return id
+				return $id;
 
 			} else {
 
@@ -1840,13 +1816,12 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				$typeArr
 			) > 0 ) {
 
-					#} Successfully inserted, lets return new ID
-					$newID = $wpdb->insert_id;
+				#} Successfully inserted, lets return new ID
+				$newID = $wpdb->insert_id;
 
+				// Line Items ====
 
-					// Line Items ====
-
-					// line item work
+				// line item work
 				if ( isset( $data['lineitems'] ) && is_array( $data['lineitems'] ) ) {
 
 					// if array passed, update, even if removing
@@ -1855,29 +1830,29 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						// passed, for now this is BRUTAL and just clears old ones + readds
 						// once live, discuss how to refactor to be less brutal.
 
-							// delete all lineitems
-							$this->DAL()->lineitems->deleteLineItemsForObject(
-								array(
+						// delete all lineitems
+						$this->DAL()->lineitems->deleteLineItemsForObject(
+							array(
 								'objID'   => $newID,
-								'objType' => ZBS_TYPE_QUOTE
-								) 
-							);
+								'objType' => ZBS_TYPE_QUOTE,
+							)
+						);
 
-							// addupdate each
+						// addupdate each
 						foreach ( $data['lineitems'] as $lineitem ) {
 
 							// slight rejig of passed so works cleanly with data array style
 							$lineItemID = false;
-							if (isset( $lineitem['ID'] )) {
-									$lineItemID = $lineitem['ID'];
+							if ( isset( $lineitem['ID'] ) ) {
+								$lineItemID = $lineitem['ID'];
 							}
 							$this->DAL()->lineitems->addUpdateLineitem(
-							array(
-								'id'            => $lineItemID,
-								'linkedObjType' => ZBS_TYPE_QUOTE,
-								'linkedObjID'   => $newID,
-								'data'          => $lineitem
-									)
+								array(
+									'id'            => $lineItemID,
+									'linkedObjType' => ZBS_TYPE_QUOTE,
+									'linkedObjID'   => $newID,
+									'data'          => $lineitem,
+								)
 							);
 
 						}
@@ -1886,56 +1861,55 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						// delete all lineitems
 						$this->DAL()->lineitems->deleteLineItemsForObject(
 							array(
-							'objID'   => $newID,
-							'objType' => ZBS_TYPE_QUOTE
+								'objID'   => $newID,
+								'objType' => ZBS_TYPE_QUOTE,
 							)
 						);
 
 					}
 				}
 
-					// / Line Items ====
+				// / Line Items ====
 
-					// OBJ LINKS - to contacts/companies
-					$this->addUpdateObjectLinks( $newID, $data['contacts'], ZBS_TYPE_CONTACT );
-					$this->addUpdateObjectLinks( $newID, $data['companies'], ZBS_TYPE_COMPANY );
-					// IA also gets 'againstid' historically, but we'll pass as 'against id's'
-					$againstIDs = array(
-						'contacts'  => $data['contacts'],
-						'companies' => $data['companies']
+				// OBJ LINKS - to contacts/companies
+				$this->addUpdateObjectLinks( $newID, $data['contacts'], ZBS_TYPE_CONTACT );
+				$this->addUpdateObjectLinks( $newID, $data['companies'], ZBS_TYPE_COMPANY );
+				// IA also gets 'againstid' historically, but we'll pass as 'against id's'
+				$againstIDs = array(
+					'contacts'  => $data['contacts'],
+					'companies' => $data['companies'],
+				);
+
+				// tags
+				if ( isset( $data['tags'] ) && is_array( $data['tags'] ) ) {
+
+					$this->addUpdateQuoteTags(
+						array(
+							'id'        => $newID,
+							'tag_input' => $data['tags'],
+							'mode'      => $data['tag_mode'],
+						)
 					);
 
+				}
 
-					// tags
-					if ( isset( $data['tags'] ) && is_array( $data['tags'] ) ) {
+				// externalSources
+				$approvedExternalSource = $this->DAL()->addUpdateExternalSources(
+					array(
+						'obj_id'           => $newID,
+						'obj_type_id'      => ZBS_TYPE_QUOTE,
+						'external_sources' => isset( $data['externalSources'] ) ? $data['externalSources'] : array(),
+					)
+				); // for IA below
 
-						$this->addUpdateQuoteTags(
-							array(
-								'id'        => $newID,
-								'tag_input' => $data['tags'],
-								'mode'      => $data['tag_mode']
-							)
-						);
+				// Custom fields?
 
-					}
-
-					// externalSources
-					$approvedExternalSource = $this->DAL()->addUpdateExternalSources(
-						array(
-							'obj_id'           => $newID,
-							'obj_type_id'      => ZBS_TYPE_QUOTE,
-							'external_sources' => isset( $data['externalSources'] ) ? $data['externalSources'] : array(),
-						)
-					); // for IA below
-
-					// Custom fields?
-
-						#} Cycle through + add/update if set
-				if (is_array( $customFields )) {
+				#} Cycle through + add/update if set
+				if ( is_array( $customFields ) ) {
 					foreach ( $customFields as $cK => $cF ) {
 
 						// any?
-						if ( isset( $data[$cK] ) ) {
+						if ( isset( $data[ $cK ] ) ) {
 
 							// add update
 							$cfID = $this->DAL()->addUpdateCustomField(
@@ -1944,19 +1918,20 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 										'objtype' => ZBS_TYPE_QUOTE,
 										'objid'   => $newID,
 										'objkey'  => $cK,
-										'objval'  => $data[$cK]
-									))
+										'objval'  => $data[ $cK ],
+									),
+								)
 							);
 
 						}
 					}
 				}
 
-					// / Custom Fields
+				// / Custom Fields
 
-					#} Any extra meta keyval pairs?
-					// BRUTALLY updates (no checking)
-					$confirmedExtraMeta = false;
+				#} Any extra meta keyval pairs?
+				// BRUTALLY updates (no checking)
+				$confirmedExtraMeta = false;
 				if ( is_array( $extraMeta ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 					$confirmedExtraMeta = array();
@@ -1967,21 +1942,19 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						$cleanKey = strtolower( str_replace( ' ', '_', $k ) );
 
 						#} Brutal update
-						//update_post_meta($postID, 'zbs_customer_extra_'.$cleanKey, $v);
+						// update_post_meta($postID, 'zbs_customer_extra_'.$cleanKey, $v);
 						$this->DAL()->updateMeta( ZBS_TYPE_QUOTE, $newID, 'extra_' . $cleanKey, $v );
 
 						#} Add it to this, which passes to IA
-						$confirmedExtraMeta[$cleanKey] = $v;
+						$confirmedExtraMeta[ $cleanKey ] = $v;
 
 					}
 				}
 
-
-
-					#} INTERNAL AUTOMATOR
-					#} &
-					#} FALLBACKS
-					// NEW CONTACT
+				#} INTERNAL AUTOMATOR
+				#} &
+				#} FALLBACKS
+				// NEW CONTACT
 				if ( ! $silentInsert ) {
 
 					#} Add to automator
@@ -1993,13 +1966,13 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 							'againstids'           => $againstIDs,
 							'extsource'            => $approvedExternalSource,
 							'automatorpassthrough' => $automatorPassthrough, #} This passes through any custom log titles or whatever into the Internal automator recipe.
-							'extraMeta'            => $confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
+							'extraMeta'            => $confirmedExtraMeta, #} This is the "extraMeta" passed (as saved)
 						)
 					);
 
 				}
 
-					return $newID;
+				return $newID;
 
 			} else {
 
@@ -2013,10 +1986,9 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		}
 
 		return false;
-
 	}
 
-	 /**
+	/**
 	 * adds or updates a quote's tags
 	 * ... this is really just a wrapper for addUpdateObjectTags
 	 *
@@ -2025,7 +1997,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return int line ID
 	 */
-	public function addUpdateQuoteTags( $args = array() ){
+	public function addUpdateQuoteTags( $args = array() ) {
 
 		global $ZBSCRM_t, $wpdb;
 
@@ -2041,23 +2013,23 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			'tagIDs'    => -1,
 			'tags'      => -1,
 
-			'mode'      => 'append'
+			'mode'      => 'append',
 
 		);
 		foreach ( $defaultArgs as $argK => $argV ) {
 			$$argK = $argV;
-			if ( is_array( $args ) && isset( $args[$argK] ) ) {
-				if ( is_array( $args[$argK] ) ) {
+			if ( is_array( $args ) && isset( $args[ $argK ] ) ) {
+				if ( is_array( $args[ $argK ] ) ) {
 					$newData = $$argK;
 					if ( ! is_array( $newData ) ) {
 						$newData = array();
 					}
-					foreach ( $args[$argK] as $subK => $subV ) {
-						$newData[$subK] = $subV;
+					foreach ( $args[ $argK ] as $subK => $subV ) {
+						$newData[ $subK ] = $subV;
 					}
 					$$argK = $newData;
 				} else {
-					$$argK = $args[$argK];
+					$$argK = $args[ $argK ];
 				}
 			}
 		}
@@ -2065,9 +2037,9 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 		#} ========== CHECK FIELDS ============
 
-			// check id
-			$id = (int)$id;
-		if (empty( $id ) || $id <= 0) {
+		// check id
+		$id = (int) $id;
+		if ( empty( $id ) || $id <= 0 ) {
 			return false;
 		}
 
@@ -2080,10 +2052,9 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				'tag_input' => $tag_input,
 				'tags'      => $tags,
 				'tagIDs'    => $tagIDs,
-				'mode'      => $mode
+				'mode'      => $mode,
 			)
 		);
-
 	}
 
 	/**
@@ -2094,11 +2065,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return bool
 	 */
-	public function setQuoteTemplate( $id = -1, $template = -1 ){
+	public function setQuoteTemplate( $id = -1, $template = -1 ) {
 
 		global $zbs;
 
-		$id = (int)$id;
+		$id = (int) $id;
 
 		if ( $id > 0 ) {
 
@@ -2109,19 +2080,18 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						array(
 							'key'  => 'zbsq_template',
 							'val'  => $template,
-							'type' => '%d'
-						)
-					))
+							'type' => '%d',
+						),
+					),
+				)
 			);
 
 		}
 
 		return false;
-
 	}
 
-
-	 /**
+	/**
 	 * accepts/unaccepts a quote
 	 * ... this is really just a wrapper for addUpdateQuote
 	 * ... and replaces zeroBS_markQuoteAccepted + zeroBS_markQuoteUnAccepted
@@ -2131,7 +2101,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return int line ID
 	 */
-	public function addUpdateQuoteAccepted( $args = array() ){
+	public function addUpdateQuoteAccepted( $args = array() ) {
 
 		global $ZBSCRM_t, $wpdb;
 
@@ -2141,23 +2111,23 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			'id'       => -1,
 			'accepted' => -1,
 			'signedby' => '',
-			'ip'       => ''
+			'ip'       => '',
 
 		);
 		foreach ( $defaultArgs as $argK => $argV ) {
 			$$argK = $argV;
-			if ( is_array( $args ) && isset( $args[$argK] ) ) {
-				if ( is_array( $args[$argK] ) ) {
+			if ( is_array( $args ) && isset( $args[ $argK ] ) ) {
+				if ( is_array( $args[ $argK ] ) ) {
 					$newData = $$argK;
 					if ( ! is_array( $newData ) ) {
 						$newData = array();
 					}
-					foreach ( $args[$argK] as $subK => $subV ) {
-						$newData[$subK] = $subV;
+					foreach ( $args[ $argK ] as $subK => $subV ) {
+						$newData[ $subK ] = $subV;
 					}
 					$$argK = $newData;
 				} else {
-					$$argK = $args[$argK];
+					$$argK = $args[ $argK ];
 				}
 			}
 		}
@@ -2165,17 +2135,16 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 		#} ========== CHECK FIELDS ============
 
-			// check id
-			$id = (int)$id;
-		if (empty( $id ) || $id <= 0) {
+		// check id
+		$id = (int) $id;
+		if ( empty( $id ) || $id <= 0 ) {
 			return false;
 		}
 
-			// WPID may be -1 (NULL)
-			// -1 does okay here if ($WPID == -1) $WPID = '';
+		// WPID may be -1 (NULL)
+		// -1 does okay here if ($WPID == -1) $WPID = '';
 
 		#} ========= / CHECK FIELDS ===========
-
 
 		#} Enact
 		$r = $this->addUpdateQuote(
@@ -2185,21 +2154,21 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					array(
 						'key'  => 'zbsq_accepted',
 						'val'  => $accepted,
-						'type' => '%d'
+						'type' => '%d',
 					),
 					array(
 						'key'  => 'zbsq_acceptedsigned',
 						'val'  => $signedby,
-						'type' => '%s'
+						'type' => '%s',
 					),
 					array(
 						'key'  => 'zbsq_acceptedip',
 						'val'  => $ip,
-						'type' => '%s'
-					)
-				))
+						'type' => '%s',
+					),
+				),
+			)
 		);
-
 
 		// if quote was accepted, run internal automator quote.accepted
 		if ( $accepted ) {
@@ -2211,20 +2180,18 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					'id'                   => $id,
 					'data'                 => array(
 						'signed' => $signedby,
-						'ip'     => $ip
+						'ip'     => $ip,
 					),
 					'againstids'           => false,
 					'extsource'            => false,
 					'automatorpassthrough' => false,
-					'extraMeta'            => false
+					'extraMeta'            => false,
 				)
 			);
 
 		}
 
-
 		return $r;
-
 	}
 
 	/**
@@ -2235,11 +2202,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return bool
 	 */
-	public function setQuoteStatus( $id = -1, $status = -1 ){
+	public function setQuoteStatus( $id = -1, $status = -1 ) {
 
 		global $zbs;
 
-		$id = (int)$id;
+		$id = (int) $id;
 
 		if ( $id > 0 && ! empty( $status ) && $status !== -1 ) {
 
@@ -2250,20 +2217,18 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						array(
 							'key'  => 'zbsq_status',
 							'val'  => $status,
-							'type' => '%s'
-						)
-					))
+							'type' => '%s',
+						),
+					),
+				)
 			);
 
 		}
 
 		return false;
-
 	}
 
-
-
-	 /**
+	/**
 	 * deletes a quote object
 	 *
 	 * @param array $args Associative array of arguments
@@ -2271,7 +2236,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return int success;
 	 */
-	public function deleteQuote( $args = array() ){
+	public function deleteQuote( $args = array() ) {
 
 		global $ZBSCRM_t, $wpdb, $zbs;
 
@@ -2279,30 +2244,30 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		$defaultArgs = array(
 
 			'id'          => -1,
-			'saveOrphans' => false
+			'saveOrphans' => false,
 
 		);
 		foreach ( $defaultArgs as $argK => $argV ) {
 			$$argK = $argV;
-			if ( is_array( $args ) && isset( $args[$argK] ) ) {
-				if ( is_array( $args[$argK] ) ) {
+			if ( is_array( $args ) && isset( $args[ $argK ] ) ) {
+				if ( is_array( $args[ $argK ] ) ) {
 					$newData = $$argK;
 					if ( ! is_array( $newData ) ) {
 						$newData = array();
 					}
-					foreach ( $args[$argK] as $subK => $subV ) {
-						$newData[$subK] = $subV;
+					foreach ( $args[ $argK ] as $subK => $subV ) {
+						$newData[ $subK ] = $subV;
 					}
 					$$argK = $newData;
 				} else {
-					$$argK = $args[$argK];
+					$$argK = $args[ $argK ];
 				}
 			}
 		}
 		#} =========== / LOAD ARGS ============
 
 		#} Check ID & Delete :)
-		$id = (int)$id;
+		$id = (int) $id;
 		if ( ! empty( $id ) && $id > 0 ) {
 
 			// delete orphans?
@@ -2313,7 +2278,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					array(
 
 						'objtype' => ZBS_TYPE_QUOTE,
-						'objid'   => $id
+						'objid'   => $id,
 					)
 				);
 
@@ -2337,7 +2302,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				'quote.delete',
 				array(
 					'id'          => $id,
-					'saveOrphans' => $saveOrphans
+					'saveOrphans' => $saveOrphans,
 				)
 			);
 
@@ -2346,7 +2311,6 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -2361,60 +2325,55 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		$res = false;
 
 		if ( isset( $obj->ID ) ) {
-			$res = array();
+			$res       = array();
 			$res['id'] = $obj->ID;
 			/*
-			  `zbs_site` INT NULL DEFAULT NULL,
-			  `zbs_team` INT NULL DEFAULT NULL,
-			  `zbs_owner` INT NOT NULL,
+				`zbs_site` INT NULL DEFAULT NULL,
+				`zbs_team` INT NULL DEFAULT NULL,
+				`zbs_owner` INT NOT NULL,
 			*/
 			$res['owner'] = $obj->zbs_owner;
 
-			$res['id_override'] = $this->stripSlashes( $obj->zbsq_id_override );
-			$res['title'] = $this->stripSlashes( $obj->zbsq_title );
-			$res['currency'] = $this->stripSlashes( $obj->zbsq_currency );
-			$res['value'] = $this->stripSlashes( $obj->zbsq_value );
-			$res['date'] = (int)$obj->zbsq_date;
-			$res['date_date'] = (isset( $obj->zbsq_date ) && $obj->zbsq_date > 0) ? zeroBSCRM_date_i18n( -1, $obj->zbsq_date, false, true ) : false;
-			$res['template'] = (int)$this->stripSlashes( $obj->zbsq_template );
-			$res['content'] = $this->stripSlashes( $obj->zbsq_content );
-			$res['notes'] = $this->stripSlashes( $obj->zbsq_notes );
-			$res['send_attachments'] = (bool)$obj->zbsq_send_attachments;
-			$res['hash'] = $this->stripSlashes( $obj->zbsq_hash );
-			$res['lastviewed'] = (int)$obj->zbsq_lastviewed;
-			$res['lastviewed_date'] = (isset( $obj->zbsq_lastviewed ) && $obj->zbsq_lastviewed > 0) ? zeroBSCRM_date_i18n( -1, $obj->zbsq_lastviewed, false, true ) : false;
-			$res['viewed_count'] = (int)$obj->zbsq_viewed_count;
-			$res['accepted'] = (int)$obj->zbsq_accepted;
-			$res['accepted_date'] = (isset( $obj->zbsq_accepted ) && $obj->zbsq_accepted > 0) ? zeroBSCRM_date_i18n( -1, $obj->zbsq_accepted, false, true ) : false;
-			$res['acceptedsigned'] = (int)$obj->zbsq_accepted;
-			$res['acceptedip'] = (int)$obj->zbsq_accepted;
-			$res['created'] = (int)$obj->zbsq_created;
-			$res['created_date'] = (isset( $obj->zbsq_created ) && $obj->zbsq_created > 0) ? zeroBSCRM_date_i18n( -1, $obj->zbsq_created, false, true ) : false;
-			$res['lastupdated'] = (int)$obj->zbsq_lastupdated;
-			$res['lastupdated_date'] = (isset( $obj->zbsq_lastupdated ) && $obj->zbsq_lastupdated > 0) ? zeroBSCRM_date_i18n( -1, $obj->zbsq_lastupdated, false, true ) : false;
+			$res['id_override']      = $this->stripSlashes( $obj->zbsq_id_override );
+			$res['title']            = $this->stripSlashes( $obj->zbsq_title );
+			$res['currency']         = $this->stripSlashes( $obj->zbsq_currency );
+			$res['value']            = $this->stripSlashes( $obj->zbsq_value );
+			$res['date']             = (int) $obj->zbsq_date;
+			$res['date_date']        = ( isset( $obj->zbsq_date ) && $obj->zbsq_date > 0 ) ? zeroBSCRM_date_i18n( -1, $obj->zbsq_date, false, true ) : false;
+			$res['template']         = (int) $this->stripSlashes( $obj->zbsq_template );
+			$res['content']          = $this->stripSlashes( $obj->zbsq_content );
+			$res['notes']            = $this->stripSlashes( $obj->zbsq_notes );
+			$res['send_attachments'] = (bool) $obj->zbsq_send_attachments;
+			$res['hash']             = $this->stripSlashes( $obj->zbsq_hash );
+			$res['lastviewed']       = (int) $obj->zbsq_lastviewed;
+			$res['lastviewed_date']  = ( isset( $obj->zbsq_lastviewed ) && $obj->zbsq_lastviewed > 0 ) ? zeroBSCRM_date_i18n( -1, $obj->zbsq_lastviewed, false, true ) : false;
+			$res['viewed_count']     = (int) $obj->zbsq_viewed_count;
+			$res['accepted']         = (int) $obj->zbsq_accepted;
+			$res['accepted_date']    = ( isset( $obj->zbsq_accepted ) && $obj->zbsq_accepted > 0 ) ? zeroBSCRM_date_i18n( -1, $obj->zbsq_accepted, false, true ) : false;
+			$res['acceptedsigned']   = (int) $obj->zbsq_accepted;
+			$res['acceptedip']       = (int) $obj->zbsq_accepted;
+			$res['created']          = (int) $obj->zbsq_created;
+			$res['created_date']     = ( isset( $obj->zbsq_created ) && $obj->zbsq_created > 0 ) ? zeroBSCRM_date_i18n( -1, $obj->zbsq_created, false, true ) : false;
+			$res['lastupdated']      = (int) $obj->zbsq_lastupdated;
+			$res['lastupdated_date'] = ( isset( $obj->zbsq_lastupdated ) && $obj->zbsq_lastupdated > 0 ) ? zeroBSCRM_date_i18n( -1, $obj->zbsq_lastupdated, false, true ) : false;
 
 			// determine status :)
 			$res['status'] = -1; // not yet pub
-			if (isset( $res['template'] ) && $res['template'] > 0) {
+			if ( isset( $res['template'] ) && $res['template'] > 0 ) {
 				$res['status'] = -2; // published not accepted
 			}
-			if (isset( $res['accepted'] ) && $res['accepted'] > 0) {
+			if ( isset( $res['accepted'] ) && $res['accepted'] > 0 ) {
 				$res['status'] = 1; // accepted
 			}
 
 			// custom fields - tidy any that are present:
-			if ($withCustomFields) {
+			if ( $withCustomFields ) {
 				$res = $this->tidyAddCustomFields( ZBS_TYPE_QUOTE, $obj, $res, false );
 			}
-
 		}
 
-
 		return $res;
-
-
 	}
-
 
 	/**
 	 * Wrapper, use $this->getQuoteMeta($contactID,$key) for easy retrieval of singular quote
@@ -2426,7 +2385,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return array quote meta result
 	 */
-	public function getQuoteMeta( $id = -1, $key = '', $default = false ){
+	public function getQuoteMeta( $id = -1, $key = '', $default = false ) {
 
 		global $zbs;
 
@@ -2440,7 +2399,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					'key'         => $key,
 					'fullDetails' => false,
 					'default'     => $default,
-					'ignoreowner' => true // for now !!
+					'ignoreowner' => true, // for now !!
 
 				)
 			);
@@ -2457,11 +2416,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return int quote owner id
 	 */
-	public function getQuoteContent( $id = -1 ){
+	public function getQuoteContent( $id = -1 ) {
 
 		global $zbs;
 
-		$id = (int)$id;
+		$id = (int) $id;
 
 		if ( $id > 0 ) {
 
@@ -2470,13 +2429,13 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					'id'          => $id,
 					'objtype'     => ZBS_TYPE_QUOTE,
 					'colname'     => 'zbsq_content',
-					'ignoreowner' => true)
+					'ignoreowner' => true,
+				)
 			);
 
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -2486,11 +2445,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return int quote template ID, or 0
 	 */
-	public function getQuoteTemplateID( $id = -1 ){
+	public function getQuoteTemplateID( $id = -1 ) {
 
 		global $zbs;
 
-		$id = (int)$id;
+		$id = (int) $id;
 
 		if ( $id > 0 ) {
 
@@ -2499,15 +2458,14 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					'id'          => $id,
 					'objtype'     => ZBS_TYPE_QUOTE,
 					'colname'     => 'zbsq_template',
-					'ignoreowner' => true)
+					'ignoreowner' => true,
+				)
 			);
 
 		}
 
 		return false;
-
 	}
-
 
 	/**
 	 * Returns quote accepted UTC time, if accepted
@@ -2516,11 +2474,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return int UTC accepted, or 0
 	 */
-	public function getQuoteAcceptedTime( $id = -1 ){
+	public function getQuoteAcceptedTime( $id = -1 ) {
 
 		global $zbs;
 
-		$id = (int)$id;
+		$id = (int) $id;
 
 		if ( $id > 0 ) {
 
@@ -2529,13 +2487,13 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					'id'          => $id,
 					'objtype'     => ZBS_TYPE_QUOTE,
 					'colname'     => 'zbsq_accepted',
-					'ignoreowner' => true)
+					'ignoreowner' => true,
+				)
 			);
 
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -2545,11 +2503,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return array (Accepted deets)
 	 */
-	public function getQuoteAccepted( $id = -1 ){
+	public function getQuoteAccepted( $id = -1 ) {
 
 		global $zbs;
 
-		$id = (int)$id;
+		$id = (int) $id;
 
 		if ( $id > 0 ) {
 
@@ -2557,34 +2515,36 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 				'accepted'       => $this->DAL()->getFieldByID(
 					array(
-						'id'      => $id,
-						'objtype' => ZBS_TYPE_QUOTE,
-						'colname' => 'zbsq_accepted',
-						'ignoreowner'             => true)
+						'id'          => $id,
+						'objtype'     => ZBS_TYPE_QUOTE,
+						'colname'     => 'zbsq_accepted',
+						'ignoreowner' => true,
+					)
 				),
 
 				'acceptedsigned' => $this->DAL()->getFieldByID(
 					array(
-						'id'      => $id,
-						'objtype' => ZBS_TYPE_QUOTE,
-						'colname' => 'zbsq_acceptedsigned',
-						'ignoreowner'             => true)
+						'id'          => $id,
+						'objtype'     => ZBS_TYPE_QUOTE,
+						'colname'     => 'zbsq_acceptedsigned',
+						'ignoreowner' => true,
+					)
 				),
 
 				'acceptedip'     => $this->DAL()->getFieldByID(
 					array(
-						'id'      => $id,
-						'objtype' => ZBS_TYPE_QUOTE,
-						'colname' => 'zbsq_acceptedip',
-						'ignoreowner'             => true)
-				)
+						'id'          => $id,
+						'objtype'     => ZBS_TYPE_QUOTE,
+						'colname'     => 'zbsq_acceptedip',
+						'ignoreowner' => true,
+					)
+				),
 
 			);
 
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -2594,11 +2554,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return int quote owner id
 	 */
-	public function getQuoteOwner( $id = -1 ){
+	public function getQuoteOwner( $id = -1 ) {
 
 		global $zbs;
 
-		$id = (int)$id;
+		$id = (int) $id;
 
 		if ( $id > 0 ) {
 
@@ -2607,13 +2567,13 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					'id'          => $id,
 					'objtype'     => ZBS_TYPE_QUOTE,
 					'colname'     => 'zbs_owner',
-					'ignoreowner' => true)
+					'ignoreowner' => true,
+				)
 			);
 
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -2623,11 +2583,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return int quote contact id
 	 */
-	public function getQuoteContactID( $id = -1 ){
+	public function getQuoteContactID( $id = -1 ) {
 
 		global $zbs;
 
-		$id = (int)$id;
+		$id = (int) $id;
 
 		if ( $id > 0 ) {
 
@@ -2641,7 +2601,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				)
 			);
 
-			if (is_array( $contacts )) {
+			if ( is_array( $contacts ) ) {
 				foreach ( $contacts as $c ) {
 
 					// first
@@ -2652,7 +2612,6 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -2662,11 +2621,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return string quote hash string
 	 */
-	public function getQuoteHash( $id = -1 ){
+	public function getQuoteHash( $id = -1 ) {
 
 		global $zbs;
 
-		$id = (int)$id;
+		$id = (int) $id;
 
 		if ( $id > 0 ) {
 
@@ -2675,13 +2634,13 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					'id'          => $id,
 					'objtype'     => ZBS_TYPE_QUOTE,
 					'colname'     => 'zbsq_hash',
-					'ignoreowner' => true)
+					'ignoreowner' => true,
+				)
 			);
 
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -2694,14 +2653,11 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return array (db ready arr)
 	 */
-	private function db_ready_quote( $obj = false ){
+	private function db_ready_quote( $obj = false ) {
 
 		// use the generic? (override here if necessary)
 		return $this->db_ready_obj( $obj );
-
 	}
-
-
 
 	/**
 	 * Takes full object and makes a "list view" boiled down version
@@ -2711,13 +2667,13 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return array (listview ready obj)
 	 */
-	public function listViewObj( $quote = false, $columnsRequired = array() ){
+	public function listViewObj( $quote = false, $columnsRequired = array() ) {
 
 		if ( is_array( $quote ) && isset( $quote['id'] ) ) {
 
 			$resArr = $quote;
 
-			if (isset( $quote['id_override'] ) && $quote['id_override'] !== null) {
+			if ( isset( $quote['id_override'] ) && $quote['id_override'] !== null ) {
 				$resArr['zbsid'] = $quote['id_override'];
 			} else {
 				$resArr['zbsid'] = $quote['id'];
@@ -2725,59 +2681,53 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 			#} Custom columns
 
-				#} Status
-				$resArr['statusint'] = -2; // def
+			#} Status
+			$resArr['statusint'] = -2; // def
 
-					// determine status - this is now done in tidy_quote
-			if (isset( $quote['status'] )) {
+			// determine status - this is now done in tidy_quote
+			if ( isset( $quote['status'] ) ) {
 				$resArr['statusint'] = $quote['status'];
 			}
 
 			if ( $resArr['statusint'] == -2 ) {
 
-					#} is published
-					$resArr['status'] = '<span class="ui label orange">' . __( 'Not accepted yet', "zero-bs-crm" ) . '</span>';
+				#} is published
+				$resArr['status'] = '<span class="ui label orange">' . __( 'Not accepted yet', 'zero-bs-crm' ) . '</span>';
 
-			} else if ( $resArr['statusint'] == -1 ) {
+			} elseif ( $resArr['statusint'] == -1 ) {
 
-					#} not yet published
-					$resArr['status'] = '<span class="ui label grey">' . __( 'Draft', "zero-bs-crm" ) . '</span>';
-
+				#} not yet published
+				$resArr['status'] = '<span class="ui label grey">' . __( 'Draft', 'zero-bs-crm' ) . '</span>';
 
 			} else {
 
 				#} Accepted
-				$resArr['status'] = '<span class="ui label green">' . __( 'Accepted', "zero-bs-crm" ) . ' ' . date( zeroBSCRM_getDateFormat(), $quote['accepted'] ) . '</span>';
+				$resArr['status'] = '<span class="ui label green">' . __( 'Accepted', 'zero-bs-crm' ) . ' ' . date( zeroBSCRM_getDateFormat(), $quote['accepted'] ) . '</span>';
 
 			}
 
-
-				#} customer
+			#} customer
 			if ( in_array( 'customer', $columnsRequired ) ) {
 
 				#} Convert $contact arr into list-view-digestable 'customer'// & unset contact for leaner data transfer
-				$resArr['customer'] = zeroBSCRM_getSimplyFormattedContact( $quote['contact'], (in_array( 'assignedobj', $columnsRequired )) );
+				$resArr['customer'] = zeroBSCRM_getSimplyFormattedContact( $quote['contact'], ( in_array( 'assignedobj', $columnsRequired ) ) );
 
 				#} Convert $contact arr into list-view-digestable 'customer'// & unset contact for leaner data transfer
 				// not yet. $resArr['company'] = zeroBSCRM_getSimplyFormattedCompany($transaction['company'],(in_array('assignedobj', $columnsRequired)));
 
-
 			}
 
 			// let it use proper obj.
-			//$resArr['added'] = $quote['created_date'];
+			// $resArr['added'] = $quote['created_date'];
 			// prev was 'val'
 			$resArr['value'] = zeroBSCRM_formatCurrency( $resArr['value'] );
-
 
 			return $resArr;
 
 		}
 
 		return false;
-
 	}
-
 
 	// ===========  /   QUOTE  =======================================================
 	// ===============================================================================
