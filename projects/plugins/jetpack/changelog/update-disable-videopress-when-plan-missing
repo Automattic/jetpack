@@ -1,4 +1,4 @@
 Significance: minor
 Type: other
 
-VideoPress when requiring an upgrade would display working buttons. They're now disabled
+Disable buttons on VideoPress block renders that require an upgrade to function
