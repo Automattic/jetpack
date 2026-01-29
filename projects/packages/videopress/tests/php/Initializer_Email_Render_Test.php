@@ -283,9 +283,18 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test render_email with private video renders a link fallback.
+	 * Test render_email with private video renders a link fallback to the post.
 	 */
 	public function test_render_email_with_private_video_renders_link() {
+		// Create a post so get_the_permalink() returns a valid URL.
+		$post_id         = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+			)
+		);
+		$GLOBALS['post'] = get_post( $post_id );
+
 		$parsed_block = $this->create_parsed_block(
 			array(
 				'guid'      => 'privatevid',
@@ -296,13 +305,18 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 
 		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
 
-		// Should render a simple link instead of video embed.
+		// Should render a simple link to the post instead of video embed.
 		$this->assertNotEmpty( $result );
-		$this->assertStringContainsString( 'https://videopress.com/v/privatevid', $result );
 		$this->assertStringContainsString( '<a href=', $result );
-		$this->assertStringContainsString( 'Watch on VideoPress', $result );
+		$this->assertStringContainsString( 'Watch the video', $result );
 		// Should NOT contain the embed wrapper that the mock renderer produces.
 		$this->assertStringNotContainsString( 'email-embed-video', $result );
+		// Should NOT link to VideoPress since video is private.
+		$this->assertStringNotContainsString( 'videopress.com', $result );
+
+		// Clean up.
+		wp_delete_post( $post_id, true );
+		unset( $GLOBALS['post'] );
 	}
 
 	/**
@@ -329,6 +343,15 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 	 * Test render_email private video link includes padding when email_attrs present.
 	 */
 	public function test_render_email_private_video_link_with_padding() {
+		// Create a post so get_the_permalink() returns a valid URL.
+		$post_id         = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+			)
+		);
+		$GLOBALS['post'] = get_post( $post_id );
+
 		$parsed_block = $this->create_parsed_block(
 			array(
 				'guid'      => 'privatevid',
@@ -343,5 +366,30 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( 'padding: 20px', $result );
 		$this->assertStringContainsString( '<p style=', $result );
+
+		// Clean up.
+		wp_delete_post( $post_id, true );
+		unset( $GLOBALS['post'] );
+	}
+
+	/**
+	 * Test render_email with private video returns empty when no post context.
+	 */
+	public function test_render_email_with_private_video_no_post_returns_empty() {
+		// Ensure no post context.
+		unset( $GLOBALS['post'] );
+
+		$parsed_block = $this->create_parsed_block(
+			array(
+				'guid'      => 'privatevid',
+				'isPrivate' => true,
+			)
+		);
+		$mock_context = $this->create_rendering_context_mock();
+
+		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+
+		// Should return empty string when no post URL available.
+		$this->assertSame( '', $result );
 	}
 }

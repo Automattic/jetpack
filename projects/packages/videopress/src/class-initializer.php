@@ -362,10 +362,10 @@ class Initializer {
 			return '';
 		}
 
-		// For private videos, render a simple link since the thumbnail won't be accessible.
+		// For private videos, render a simple link to the post since the video isn't accessible on VideoPress.
 		// The isPrivate attribute is pre-computed by the block editor based on video and site settings.
 		if ( isset( $attributes['isPrivate'] ) && true === $attributes['isPrivate'] ) {
-			return self::render_videopress_email_link( $videopress_url, $parsed_block );
+			return self::render_videopress_email_link( $parsed_block );
 		}
 
 		// Create a mock embed block structure that WooCommerce's embed renderer can handle.
@@ -397,18 +397,24 @@ class Initializer {
 
 	/**
 	 * Render a simple link for private VideoPress videos in emails.
+	 * Links to the post containing the video since private videos aren't accessible on VideoPress.
 	 *
-	 * @param string $url          The VideoPress URL.
-	 * @param array  $parsed_block The parsed block data.
+	 * @param array $parsed_block The parsed block data.
 	 *
 	 * @return string The rendered link HTML.
 	 */
-	private static function render_videopress_email_link( $url, $parsed_block ) {
-		$link_text = __( 'Watch on VideoPress', 'jetpack-videopress-pkg' );
+	private static function render_videopress_email_link( $parsed_block ) {
+		$post_url = get_the_permalink();
+
+		if ( empty( $post_url ) ) {
+			return '';
+		}
+
+		$link_text = __( 'Watch the video', 'jetpack-videopress-pkg' );
 
 		$link_html = sprintf(
 			'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
-			esc_url( $url ),
+			esc_url( $post_url ),
 			esc_html( $link_text )
 		);
 
