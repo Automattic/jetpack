@@ -281,4 +281,67 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( 'https://videopress.com/v/testguid', $result );
 	}
+
+	/**
+	 * Test render_email with private video renders a link fallback.
+	 */
+	public function test_render_email_with_private_video_renders_link() {
+		$parsed_block = $this->create_parsed_block(
+			array(
+				'guid'      => 'privatevid',
+				'isPrivate' => true,
+			)
+		);
+		$mock_context = $this->create_rendering_context_mock();
+
+		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+
+		// Should render a simple link instead of video embed.
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( 'https://videopress.com/v/privatevid', $result );
+		$this->assertStringContainsString( '<a href=', $result );
+		$this->assertStringContainsString( 'Watch on VideoPress', $result );
+		// Should NOT contain the embed wrapper that the mock renderer produces.
+		$this->assertStringNotContainsString( 'email-embed-video', $result );
+	}
+
+	/**
+	 * Test render_email with public video renders full embed.
+	 */
+	public function test_render_email_with_public_video_renders_embed() {
+		$parsed_block = $this->create_parsed_block(
+			array(
+				'guid'      => 'publicvid',
+				'isPrivate' => false,
+			)
+		);
+		$mock_context = $this->create_rendering_context_mock();
+
+		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+
+		// Should render the full embed (via mock renderer).
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( 'https://videopress.com/v/publicvid', $result );
+		$this->assertStringContainsString( 'email-embed-video', $result );
+	}
+
+	/**
+	 * Test render_email private video link includes padding when email_attrs present.
+	 */
+	public function test_render_email_private_video_link_with_padding() {
+		$parsed_block = $this->create_parsed_block(
+			array(
+				'guid'      => 'privatevid',
+				'isPrivate' => true,
+			),
+			array( 'padding' => '20px' )
+		);
+		$mock_context = $this->create_rendering_context_mock();
+
+		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+
+		$this->assertNotEmpty( $result );
+		$this->assertStringContainsString( 'padding: 20px', $result );
+		$this->assertStringContainsString( '<p style=', $result );
+	}
 }

@@ -362,6 +362,12 @@ class Initializer {
 			return '';
 		}
 
+		// For private videos, render a simple link since the thumbnail won't be accessible.
+		// The isPrivate attribute is pre-computed by the block editor based on video and site settings.
+		if ( isset( $attributes['isPrivate'] ) && true === $attributes['isPrivate'] ) {
+			return self::render_videopress_email_link( $videopress_url, $parsed_block );
+		}
+
 		// Create a mock embed block structure that WooCommerce's embed renderer can handle.
 		// The embed renderer will detect VideoPress from the URL and render it appropriately.
 		$mock_embed_block = array(
@@ -387,6 +393,35 @@ class Initializer {
 
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		return $woo_embed_renderer->render( $mock_embed_block['innerHTML'], $mock_embed_block, $rendering_context );
+	}
+
+	/**
+	 * Render a simple link for private VideoPress videos in emails.
+	 *
+	 * @param string $url          The VideoPress URL.
+	 * @param array  $parsed_block The parsed block data.
+	 *
+	 * @return string The rendered link HTML.
+	 */
+	private static function render_videopress_email_link( $url, $parsed_block ) {
+		$link_text = __( 'Watch on VideoPress', 'jetpack-videopress-pkg' );
+
+		$link_html = sprintf(
+			'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+			esc_url( $url ),
+			esc_html( $link_text )
+		);
+
+		// Wrap with spacing if email_attrs are present.
+		if ( ! empty( $parsed_block['email_attrs']['padding'] ) ) {
+			$link_html = sprintf(
+				'<p style="padding: %s;">%s</p>',
+				esc_attr( $parsed_block['email_attrs']['padding'] ),
+				$link_html
+			);
+		}
+
+		return $link_html;
 	}
 
 	/**
