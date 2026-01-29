@@ -92,6 +92,7 @@ export const isFieldsCollection = ( fields: FormResponse[ 'fields' ] ): boolean 
 		if ( fields.length === 0 ) {
 			return true;
 		}
+
 		return isCollectionFormatField( fields[ 0 ] );
 	}
 
@@ -100,5 +101,7 @@ export const isFieldsCollection = ( fields: FormResponse[ 'fields' ] ): boolean 
 	}
 
 	const values = Object.values( fields );
+
+	// If values.length is 0 we cannot determine if the fields are supposed to be in the new collection format.
 	return values.length > 0 && isCollectionFormatField( values[ 0 ] );
 };
