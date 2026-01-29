@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: tests: Remove workaround for WP Core PHP 8.5 fail that should be fixed by now.
-
-
