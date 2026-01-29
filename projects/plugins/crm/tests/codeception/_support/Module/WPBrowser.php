@@ -24,7 +24,13 @@ class WPBrowser extends PhpBrowser {
 
 	use WPBrowserMethods;
 
-	protected array $requiredFields = array( 'adminUsername', 'adminPassword', 'adminPath' );
+	public function _beforeSuite( $settings = array() ) {
+		parent::_beforeSuite( $settings );
+
+		// To set this as a field, Codeception v5 needs "protected array $requiredFields = ..." while v4 needs "protected $requiredFields = ..."
+		// @todo When we drop Codeception v4, we can move this back to "protected array $requiredFields"
+		$this->requiredFields = array( 'adminUsername', 'adminPassword', 'adminPath' );
+	}
 
 	/**
 	 * Returns all the cookies whose name matches a regex pattern.
