@@ -8,10 +8,9 @@ import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -23,17 +22,8 @@ import { store as dashboardStore } from '../../store/index.js';
 import FeedbackComments from '../feedback-comments/index.tsx';
 import PreviewFile from './preview-file';
 import ResponseMeta from './response-meta';
-import FieldEmail from './response-view/field-email/index.tsx';
-import FieldFile from './response-view/field-file/index.tsx';
-import FieldImageSelect from './response-view/field-image-select/index.tsx';
-import FieldPreview from './response-view/field-preview/index.tsx';
-import {
-	isCollectionFormatField,
-	isFileUploadField,
-	isImageSelectField,
-	isLikelyPhoneNumber,
-} from './utils';
-import type { FormResponse, ResponseField } from '../../../types/index.ts';
+import ResponseView from './response-view/index.tsx';
+import type { FormResponse } from '../../../types/index.ts';
 import './style.scss';
 
 export type ResponseViewBodyProps = {
@@ -102,51 +92,6 @@ const ResponseViewBody = ( {
 			onModalStateChange( false );
 		}
 	}, [ onModalStateChange, setIsPreviewModalOpen, setIsImageLoading ] );
-
-	const renderFieldValue = value => {
-		if ( isImageSelectField( value ) ) {
-			return <FieldImageSelect choices={ value.choices } handleFilePreview={ handleFilePreview } />;
-		}
-
-		// File uploads
-		if ( isFileUploadField( value ) ) {
-			return <FieldFile files={ value?.files } handleFilePreview={ handleFilePreview } />;
-		}
-
-		// Emails
-		const emailRegEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-		if ( emailRegEx.test( value ) ) {
-			return <FieldEmail email={ value } />;
-		}
-
-		// Phone numbers
-		if ( isLikelyPhoneNumber( value ) ) {
-			return <a href={ `tel:${ value }` }>{ value }</a>;
-		}
-
-		return value;
-	};
-
-	// Determine format synchronously to avoid render timing issues.
-	// Handles both true arrays and objects with numeric keys (from PHP JSON encoding).
-	const fieldsAreNewFormat = useMemo( () => {
-		if ( Array.isArray( response.fields ) ) {
-			// Any array value represents the new format, even when empty.
-			if ( response.fields.length === 0 ) {
-				return true;
-			}
-			return isCollectionFormatField( response.fields[ 0 ] );
-		}
-
-		// Guard against null/undefined and non-object values before using Object.values.
-		if ( ! response.fields || typeof response.fields !== 'object' ) {
-			return false;
-		}
-
-		// Object with numeric keys - check first value.
-		const values = Object.values( response.fields );
-		return values.length > 0 && isCollectionFormatField( values[ 0 ] );
-	}, [ response.fields ] );
 
 	useEffect( () => {
 		if ( ! ref.current ) {
@@ -220,10 +165,6 @@ const ResponseViewBody = ( {
 		return null;
 	}
 
-	const responseDataClass = clsx( 'jp-forms__inbox-response-data', {
-		'is-collection-format': fieldsAreNewFormat,
-	} );
-
 	// Mobile doesn't render a modal, so we render the preview file directly.
 	if ( isPreviewModalOpen && ! onModalStateChange && previewFile ) {
 		return (
@@ -240,26 +181,11 @@ const ResponseViewBody = ( {
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<ResponseMeta response={ response } />
 
-				<div className={ responseDataClass }>
-					{ ! fieldsAreNewFormat &&
-						Object.entries( response.fields ).map( ( [ key, value ] ) => (
-							<div key={ key } className="jp-forms__inbox-response-item">
-								<div className="jp-forms__inbox-response-data-label">
-									{ key.endsWith( '?' ) ? key : `${ key }:` }
-								</div>
-								<div className="jp-forms__inbox-response-data-value">
-									{ renderFieldValue( value ) }
-								</div>
-							</div>
-						) ) }
-					{ fieldsAreNewFormat &&
-						( Array.isArray( response.fields )
-							? response.fields
-							: ( Object.values( response.fields ) as ResponseField[] )
-						).map( field => (
-							<FieldPreview key={ field.key } field={ field } onFilePreview={ handleFilePreview } />
-						) ) }
-				</div>
+				<ResponseView
+					fields={ response.fields }
+					onFilePreview={ handleFilePreview }
+					className="jp-forms__inbox-response-data"
+				/>
 				{ isPreviewModalOpen && previewFile && onModalStateChange && (
 					<Modal
 						title={ decodeEntities( previewFile.name ) }
