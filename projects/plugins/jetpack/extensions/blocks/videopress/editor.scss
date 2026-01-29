@@ -3,19 +3,21 @@
 .no-videopress-media-placeholder {
 
 	.components-placeholder__fieldset {
-		// Make buttons appear disabled.
-		// They won't do anything because onSelect handlers are intercepted.
+		flex-direction: row-reverse;
+		align-items: flex-start;
+		justify-content: flex-end;
+
 		button {
-			opacity: 0.5;
-			pointer-events: none;
-			cursor: not-allowed;
+			display: none;
 		}
 
-		// But keep the URL input container buttons functional.
-		.block-editor-media-placeholder__url-input-container button {
-			opacity: 1;
-			pointer-events: auto;
-			cursor: pointer;
+		.block-editor-media-placeholder__url-input-container button,
+		.no-videopress-disabled-button {
+			display: inline-flex;
+		}
+
+		.no-videopress-disabled-button:last-child {
+			margin-right: 12px;
 		}
 	}
 }

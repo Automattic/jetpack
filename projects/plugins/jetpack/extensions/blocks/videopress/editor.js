@@ -11,6 +11,7 @@ import { createBlobURL } from '@wordpress/blob';
 import { useBlockEditContext, store as blockEditorStore } from '@wordpress/block-editor';
 import { parse } from '@wordpress/block-serialization-default-parser';
 import { createBlock, getBlockType } from '@wordpress/blocks';
+import { Button } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, select } from '@wordpress/data';
 import { mediaUpload, store as editorStore } from '@wordpress/editor';
@@ -41,17 +42,28 @@ const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 			return <OriginalPlaceholder { ...props } />;
 		}
 
-		// Disable upload functionality while preserving the rest of the UI (including upsell banners).
-		// We intercept selection handlers to prevent any action.
 		return (
 			<OriginalPlaceholder
 				{ ...props }
-				className={ `${ props.className || '' } no-videopress-media-placeholder`.trim() }
 				disableDropZone={ true }
-				handleUpload={ false }
-				onSelect={ () => {} }
-				onSelectURL={ () => {} }
-			/>
+				className="no-videopress-media-placeholder"
+			>
+				<Button
+					disabled={ true }
+					className="components-button no-videopress-disabled-button"
+					variant="secondary"
+				>
+					{ __( 'Media Library', 'jetpack' ) }
+				</Button>
+
+				<Button
+					disabled={ true }
+					className="components-button no-videopress-disabled-button"
+					variant="secondary"
+				>
+					{ __( 'Upload', 'jetpack' ) }
+				</Button>
+			</OriginalPlaceholder>
 		);
 	},
 	'videoPressNoPlanMediaPlaceholder'
