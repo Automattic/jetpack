@@ -14,7 +14,7 @@ import FieldImageSelect from './field-image-select/index.tsx';
 import FieldPreview from './field-preview/index.tsx';
 import type { FileItem, ResponseField, ResponseFields } from '../../../../types/index.ts';
 
-export type ResponseViewProps = {
+export type ResponseFieldsProps = {
 	fields: ResponseFields;
 	onFilePreview: ( file: FileItem | { url: string; name: string } ) => () => void;
 	className: string;
@@ -29,11 +29,11 @@ export type ResponseViewProps = {
  * @param props.className     - CSS class for the container.
  * @return The response fields view.
  */
-const ResponseView = ( {
+const ResponseFields = ( {
 	fields,
 	onFilePreview,
 	className,
-}: ResponseViewProps ): import('react').JSX.Element => {
+}: ResponseFieldsProps ): import('react').JSX.Element => {
 	const fieldsAreNewFormat = isFieldsCollection( fields );
 	const rootClass = clsx( className, {
 		'is-collection-format': fieldsAreNewFormat,
@@ -88,4 +88,4 @@ const ResponseView = ( {
 	);
 };
 
-export default ResponseView;
+export default ResponseFields;

@@ -21,8 +21,8 @@ import { updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/
 import { store as dashboardStore } from '../../store/index.js';
 import FeedbackComments from '../feedback-comments/index.tsx';
 import PreviewFile from './preview-file';
+import ResponseFields from './response-fields/index.tsx';
 import ResponseMeta from './response-meta';
-import ResponseView from './response-view/index.tsx';
 import type { FormResponse } from '../../../types/index.ts';
 import './style.scss';
 
@@ -181,7 +181,7 @@ const ResponseViewBody = ( {
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<ResponseMeta response={ response } />
 
-				<ResponseView
+				<ResponseFields
 					fields={ response.fields }
 					onFilePreview={ handleFilePreview }
 					className="jp-forms__inbox-response-data"
