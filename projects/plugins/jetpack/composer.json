@@ -44,6 +44,7 @@
 		"automattic/jetpack-paypal-payments": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-post-list": "@dev",
+		"automattic/jetpack-public-abilities": "@dev",
 		"automattic/jetpack-publicize": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-roles": "@dev",
