@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Slider Field: fix React iteration render error by adding key prop to control wrapper.

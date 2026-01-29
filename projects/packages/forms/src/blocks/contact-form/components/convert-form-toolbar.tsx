@@ -9,8 +9,9 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { addQueryArgs } from '@wordpress/url';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
-import { createSyncedForm } from '../utils/form-sync-manager';
+import { createSyncedForm } from '../util/create-synced-form.ts';
 
 const FORM_CONVERSION_LOCK = 'jetpack-form-conversion';
 
@@ -31,10 +32,11 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 		};
 	}, [] );
 
-	const { onNavigateToEntityRecord } = useSelect( select => {
+	const { onNavigateToEntityRecord, isSiteEditor } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
 		return {
 			onNavigateToEntityRecord: getSettings().onNavigateToEntityRecord,
+			isSiteEditor: !! select( 'core/edit-site' ),
 		};
 	}, [] );
 
@@ -50,6 +52,15 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const hasRef = !! attributes.ref;
+
+	/**
+	 * Open the form editor by navigating directly.
+	 * @param formId - The ID of the form to edit.
+	 */
+	const openFormEditor = ( formId: number ) => {
+		const editUrl = addQueryArgs( 'post.php', { post: formId, action: 'edit' } );
+		window.location.href = editUrl;
+	};
 
 	/**
 	 * Convert inline form to synced form
@@ -94,7 +105,9 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 			// Update attributes using updateBlockAttributes which properly clears them
 			updateBlockAttributes( clientId, clearedAttributes );
 
-			if ( onNavigateToEntityRecord ) {
+			if ( isSiteEditor ) {
+				openFormEditor( formId );
+			} else if ( onNavigateToEntityRecord ) {
 				onNavigateToEntityRecord( {
 					postId: formId,
 					postType: FORM_POST_TYPE,
@@ -114,17 +127,24 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 	 * Navigate to edit the synced form post
 	 */
 	const handleEditOriginal = () => {
-		if ( ! attributes.ref || ! onNavigateToEntityRecord ) {
+		if ( ! attributes.ref ) {
 			return;
 		}
 
-		onNavigateToEntityRecord( {
-			postId: attributes.ref as number,
-			postType: FORM_POST_TYPE,
-		} );
+		if ( isSiteEditor ) {
+			openFormEditor( attributes.ref as number );
+			return;
+		}
+
+		if ( onNavigateToEntityRecord ) {
+			onNavigateToEntityRecord( {
+				postId: attributes.ref as number,
+				postType: FORM_POST_TYPE,
+			} );
+		}
 	};
 
-	const showEditButton = hasRef && onNavigateToEntityRecord;
+	const showEditButton = hasRef && ( isSiteEditor || onNavigateToEntityRecord );
 	const showConvertButton = ! hasRef;
 
 	return (

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "3.7.19",
+	"version": "3.7.20",
 	"private": true,
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
@@ -33,6 +33,7 @@
 		"@babel/preset-react": "7.27.1",
 		"@babel/preset-typescript": "7.27.1",
 		"@cerner/duplicate-package-checker-webpack-plugin": "2.3.0",
+		"@pmmmwh/react-refresh-webpack-plugin": "0.6.2",
 		"@wordpress/browserslist-config": "6.38.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.38.0",
 		"babel-loader": "9.1.2",
@@ -43,6 +44,7 @@
 		"css-minimizer-webpack-plugin": "7.0.3",
 		"fork-ts-checker-webpack-plugin": "9.0.2",
 		"mini-css-extract-plugin": "2.9.4",
+		"react-refresh": "0.17.0",
 		"terser-webpack-plugin": "5.3.14",
 		"thread-loader": "3.0.4"
 	},
@@ -51,7 +53,8 @@
 		"@babel/runtime": "7.28.4",
 		"typescript": "5.9.3",
 		"webpack": "5.101.3",
-		"webpack-cli": "6.0.1"
+		"webpack-cli": "6.0.1",
+		"webpack-dev-server": "5.2.3"
 	},
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
@@ -67,6 +70,9 @@
 			"optional": true
 		},
 		"typescript": {
+			"optional": true
+		},
+		"webpack-dev-server": {
 			"optional": true
 		}
 	}

@@ -343,7 +343,7 @@ class Terms extends Module {
 		list( $term_taxonomy_ids, $previous_end ) = $args;
 
 		return array(
-			// @phan-suppress-next-line PhanAccessMethodInternal -- the @internal annotation is for an internal comment, not to mark the function as internal
+			// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 			'terms'        => get_terms(
 				array(
 					'hide_empty'       => false,
