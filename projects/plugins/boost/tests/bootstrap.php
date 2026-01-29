@@ -42,3 +42,6 @@ if ( ! function_exists( 'wp_unslash' ) ) {
 		}
 	}
 }
+
+// Additional mocks.
+require_once __DIR__ . '/php/mocks/class-wp-speculation-rules.php';
