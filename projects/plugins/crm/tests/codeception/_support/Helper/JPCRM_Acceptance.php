@@ -13,20 +13,18 @@ class JPCRM_Acceptance extends WPBrowser {
 	/** @var RunProcess */
 	protected $serverProcess;
 
+	protected array $requiredFields = array(
+		'adminUsername',
+		'adminPassword',
+		'adminPath',
+		'database',
+		'wp_prefix',
+		'jpcrm_prefix',
+		'wp_path',
+	);
+
 	public function _beforeSuite( $settings = array() ) {
 		parent::_beforeSuite( $settings );
-
-		// To set this as a field, Codeception v5 needs "protected array $requiredFields = ...". But PHP 7.3 doesn't support that syntax.
-		// @todo When we drop support for PHP 7.3, we can move this back to "protected array $requiredFields"
-		$this->requiredFields = array(
-			'adminUsername',
-			'adminPassword',
-			'adminPath',
-			'database',
-			'wp_prefix',
-			'jpcrm_prefix',
-			'wp_path',
-		);
 
 		// todo: prepare the database (remove and restore, change the home and siteurl options
 		// $this->setup_database();
