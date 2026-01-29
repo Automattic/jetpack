@@ -159,7 +159,7 @@ function TimeSeriesForecastChartInternal< D >( {
 				label: seriesKeys.forecast,
 				value: '',
 				color: primaryColor,
-				shapeStyle: { strokeDasharray: '5 5' },
+				shapeStyle: { strokeDasharray: '4 4' },
 			} );
 		}
 
@@ -340,7 +340,7 @@ function TimeSeriesForecastChartInternal< D >( {
 						curve={ curveMonotoneX }
 						lineProps={ {
 							stroke: primaryColor,
-							strokeDasharray: '5 5',
+							strokeDasharray: '4 4',
 						} }
 					/>
 				) }
