@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add unauthenticated REST endpoints for discovering and executing public abilities.
