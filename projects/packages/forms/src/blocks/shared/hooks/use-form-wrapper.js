@@ -1,7 +1,7 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { store as coreStore } from '@wordpress/core-data';
-import { resolveSelect, useDispatch, useSelect } from '@wordpress/data';
+import { resolveSelect, select, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -68,9 +68,7 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 
 						// Verify the block still exists before updating its attributes
 						// (user might have deleted it or undone the operation)
-						const blockExists = await resolveSelect( blockEditorStore ).getBlock(
-							formBlock.clientId
-						);
+						const blockExists = select( blockEditorStore ).getBlock( formBlock.clientId );
 						if ( ! blockExists ) {
 							return;
 						}
