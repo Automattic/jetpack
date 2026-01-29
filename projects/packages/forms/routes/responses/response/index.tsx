@@ -15,6 +15,7 @@ import * as React from 'react';
  */
 import CopyClipboardButton from '../../../src/dashboard/components/copy-clipboard-button';
 import PreviewFile from '../../../src/dashboard/components/inspector/preview-file';
+import ResponseActions from '../../../src/dashboard/components/inspector/response-actions';
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
 import {
 	isFileUploadField,
@@ -22,7 +23,7 @@ import {
 	isLikelyPhoneNumber,
 } from '../../../src/dashboard/components/inspector/utils';
 import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
-import { ResponseActions } from './actions';
+// import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../../src/types/index.ts';
@@ -218,13 +219,13 @@ function SingleResponseView( {
 			}
 
 			return {
-				response: ( select( coreStore ) as unknown as SelectActions ).getEntityRecord(
+				response: ( select( coreStore ) as unknown as SelectActions ).getEditedEntityRecord(
 					'postType',
 					'feedback',
 					responseId
 				) as unknown as FormResponse | null,
 				isLoading: ( select( coreStore ) as unknown as SelectActions ).isResolving(
-					'getEntityRecord',
+					'getEditedEntityRecord',
 					[ 'postType', 'feedback', responseId ]
 				),
 			};
@@ -319,9 +320,13 @@ function SingleResponseView( {
 				} else {
 					onClose();
 				}
+			} else if ( updatedItem?.id === response?.id && updatedItem.status === response?.status ) {
+				// update response with updatedItem
+				console.log( 'updatedItem', updatedItem );
+				console.log( 'response', response );
 			}
 		},
-		[ hasNext, hasPrevious, handleNext, handlePrevious, onClose ]
+		[ hasNext, hasPrevious, handleNext, handlePrevious, onClose, response ]
 	);
 
 	const renderFieldValue = ( value: unknown ) => {
@@ -398,7 +403,11 @@ function SingleResponseView( {
 					flexWrap: 'wrap',
 				} }
 			>
-				<ResponseActions response={ response } onActionComplete={ handleActionComplete } />
+				<ResponseActions
+					variant="text"
+					response={ response }
+					onActionComplete={ handleActionComplete }
+				/>
 				<ResponseNavigation
 					hasNext={ hasNext }
 					hasPrevious={ hasPrevious }

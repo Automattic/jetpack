@@ -137,7 +137,7 @@ const ResponseActions = ( {
 				marginLeft: '-12px', // Compensate for button internal padding
 		  }
 		: {};
-
+	console.log( 'response', response );
 	switch ( response.status ) {
 		case 'spam':
 			return (

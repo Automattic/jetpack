@@ -91,6 +91,11 @@ export type SelectActions = {
 	getCounts: () => { inbox: number; spam: number; trash: number };
 
 	// Core store select actions
+	getEditedEntityRecord: (
+		kind: string,
+		name: string,
+		recordId: number
+	) => Record< string, unknown > | undefined;
 	getEntityRecord: (
 		kind: string,
 		name: string,
