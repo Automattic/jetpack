@@ -29,6 +29,7 @@ const DisconnectDialog = props => {
 		apiRoot,
 		apiNonce,
 		connectedPlugins,
+		assetBaseUrl,
 		title = __( 'Are you sure you want to disconnect?', 'jetpack-connection-js' ),
 		pluginScreenDisconnectCallback,
 		onDisconnected,
@@ -329,6 +330,7 @@ const DisconnectDialog = props => {
 					canProvideFeedback={ canProvideFeedback() }
 					onProvideFeedback={ handleProvideFeedback }
 					onExit={ backToWordpress }
+					assetBaseUrl={ assetBaseUrl }
 				/>
 			);
 		} else if ( isProvidingFeedback && ! isFeedbackProvided ) {
@@ -340,7 +342,7 @@ const DisconnectDialog = props => {
 				/>
 			);
 		} else if ( isFeedbackProvided ) {
-			return <StepThankYou onExit={ backToWordpress } />;
+			return <StepThankYou onExit={ backToWordpress } assetBaseUrl={ assetBaseUrl } />;
 		}
 
 		return undefined;
@@ -376,6 +378,8 @@ DisconnectDialog.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	/** API Nonce, required. */
 	apiNonce: PropTypes.string.isRequired,
+	/** Base URL for where image assets are served from (no trailing slash). */
+	assetBaseUrl: PropTypes.string,
 	/** The modal title. */
 	title: PropTypes.string,
 	/** The callback to be called upon disconnection success. */
