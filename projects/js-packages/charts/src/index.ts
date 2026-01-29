@@ -8,6 +8,10 @@ export { LineChart, LineChartUnresponsive } from './charts/line-chart';
 export { PieChart, PieChartUnresponsive } from './charts/pie-chart';
 export { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from './charts/pie-semi-circle-chart';
 export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
+export {
+	TimeSeriesForecastChart,
+	TimeSeriesForecastChartUnresponsive,
+} from './charts/time-series-forecast-chart';
 
 // Components
 export { BaseTooltip } from './components/tooltip';
@@ -35,6 +39,10 @@ export type { PieChartProps } from './charts/pie-chart';
 export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
+export type {
+	TimeSeriesForecastChartProps,
+	TimeSeriesForecastAccessors,
+} from './charts/time-series-forecast-chart';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 export type {
 	GoogleDataTableColumn,

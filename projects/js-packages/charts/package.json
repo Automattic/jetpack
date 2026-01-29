@@ -95,6 +95,12 @@
 		},
 		"./sparkline/style.css": "./dist/components/sparkline/index.css",
 		"./style.css": "./dist/index.css",
+		"./time-series-forecast-chart": {
+			"jetpack:src": "./src/charts/time-series-forecast-chart/index.ts",
+			"import": "./dist/charts/time-series-forecast-chart/index.js",
+			"require": "./dist/charts/time-series-forecast-chart/index.cjs"
+		},
+		"./time-series-forecast-chart/style.css": "./dist/charts/time-series-forecast-chart/index.css",
 		"./tooltip": {
 			"jetpack:src": "./src/components/tooltip/index.ts",
 			"import": "./dist/components/tooltip/index.js",
@@ -170,6 +176,9 @@
 			],
 			"sparkline": [
 				"./dist/components/sparkline/index.d.ts"
+			],
+			"time-series-forecast-chart": [
+				"./dist/charts/time-series-forecast-chart/index.d.ts"
 			],
 			"tooltip": [
 				"./dist/components/tooltip/index.d.ts"
