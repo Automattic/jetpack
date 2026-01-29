@@ -30,9 +30,9 @@ import type { FC } from 'react';
 const DEFAULT_MARGIN = { top: 20, right: 20, bottom: 40, left: 50 };
 
 const DEFAULT_SERIES_KEYS: Required< SeriesKeys > = {
-	historical: 'Historical',
-	forecast: 'Forecast',
-	band: 'Uncertainty',
+	historical: __( 'Historical', 'jetpack-charts' ),
+	forecast: __( 'Forecast', 'jetpack-charts' ),
+	band: __( 'Uncertainty', 'jetpack-charts' ),
 };
 
 const formatDateTick = ( d: Date ) => {
