@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import edit from './edit.js';
-import StepContainerIcon from './icon.js';
+import StepContainerIcon from './icon.jsx';
 import save from './save.js';
 
 export const name = 'form-step-container';

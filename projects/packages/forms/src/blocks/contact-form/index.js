@@ -2,7 +2,7 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import defaultAttributes from './attributes.ts';
 import deprecated from './deprecated.js';
 import edit from './edit.tsx';
