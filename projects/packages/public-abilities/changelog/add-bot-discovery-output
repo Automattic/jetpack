@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add bot-visible discovery HTML in wp_footer for AI agents to find available abilities.
