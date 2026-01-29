@@ -3384,6 +3384,8 @@ importers:
 
   projects/packages/protect-status: {}
 
+  projects/packages/public-abilities: {}
+
   projects/packages/publicize:
     dependencies:
       '@automattic/jetpack-ai-client':
