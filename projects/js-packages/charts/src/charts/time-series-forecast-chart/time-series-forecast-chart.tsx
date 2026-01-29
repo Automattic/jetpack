@@ -45,25 +45,31 @@ const formatDateTick = ( d: Date ) => {
 /**
  * Internal component that renders the TimeSeriesForecastChart
  *
- * @param root0                - Component props
- * @param root0.data           - Array of data points to display
- * @param root0.accessors      - Accessor functions to extract values from data
- * @param root0.forecastStart  - Date at which forecast begins
- * @param root0.height         - Chart height in pixels
- * @param root0.width          - Chart width in pixels
- * @param root0.margin         - Chart margin configuration
- * @param root0.yDomain        - Optional fixed y-axis domain
- * @param root0.xTickFormat    - Formatter function for x-axis ticks
- * @param root0.yTickFormat    - Formatter function for y-axis ticks
- * @param root0.showTooltip    - Whether to show tooltips on hover
- * @param root0.seriesKeys     - Custom labels for series in legend/tooltip
- * @param root0.renderTooltip  - Custom tooltip renderer function
- * @param root0.className      - Additional CSS class name
- * @param root0.chartId        - Unique chart identifier
- * @param root0.showLegend     - Whether to show the legend
- * @param root0.legendPosition - Position of the legend (top or bottom)
- * @param root0.animation      - Whether to enable chart animations
- * @param root0.gridVisibility - Which grid lines to show (x, y, xy, or none)
+ * @param root0                     - Component props
+ * @param root0.data                - Array of data points to display
+ * @param root0.accessors           - Accessor functions to extract values from data
+ * @param root0.forecastStart       - Date at which forecast begins
+ * @param root0.height              - Chart height in pixels
+ * @param root0.width               - Chart width in pixels
+ * @param root0.margin              - Chart margin configuration
+ * @param root0.yDomain             - Optional fixed y-axis domain
+ * @param root0.xTickFormat         - Formatter function for x-axis ticks
+ * @param root0.yTickFormat         - Formatter function for y-axis ticks
+ * @param root0.showTooltip         - Whether to show tooltips on hover
+ * @param root0.seriesKeys          - Custom labels for series in legend/tooltip
+ * @param root0.renderTooltip       - Custom tooltip renderer function
+ * @param root0.className           - Additional CSS class name
+ * @param root0.chartId             - Unique chart identifier
+ * @param root0.showLegend          - Whether to show the legend
+ * @param root0.legendOrientation   - Legend orientation (horizontal or vertical)
+ * @param root0.legendPosition      - Position of the legend (top or bottom)
+ * @param root0.legendAlignment     - Legend alignment within its position
+ * @param root0.legendMaxWidth      - Maximum width for legend items
+ * @param root0.legendTextOverflow  - How text behaves when exceeding legendMaxWidth
+ * @param root0.legendItemClassName - Additional CSS class name for legend items
+ * @param root0.legendShape         - Shape for legend items
+ * @param root0.animation           - Whether to enable chart animations
+ * @param root0.gridVisibility      - Which grid lines to show (x, y, xy, or none)
  * @return The rendered chart component
  */
 function TimeSeriesForecastChartInternal< D >( {
@@ -82,7 +88,13 @@ function TimeSeriesForecastChartInternal< D >( {
 	className,
 	chartId: providedChartId,
 	showLegend = false,
+	legendOrientation = 'horizontal',
 	legendPosition = 'bottom',
+	legendAlignment = 'center',
+	legendMaxWidth,
+	legendTextOverflow = 'wrap',
+	legendItemClassName,
+	legendShape = 'line',
 	animation = false,
 	gridVisibility = 'y',
 }: TimeSeriesForecastChartProps< D > ) {
@@ -366,11 +378,14 @@ function TimeSeriesForecastChartInternal< D >( {
 
 			{ showLegend && (
 				<Legend
-					orientation="horizontal"
-					alignment="center"
+					orientation={ legendOrientation }
+					alignment={ legendAlignment }
 					position={ legendPosition }
+					maxWidth={ legendMaxWidth }
+					textOverflow={ legendTextOverflow }
+					legendItemClassName={ legendItemClassName }
 					className={ styles[ 'time-series-forecast-chart__legend' ] }
-					shape="line"
+					shape={ legendShape }
 					chartId={ chartId }
 					ref={ legendRef }
 					items={ legendItems }
