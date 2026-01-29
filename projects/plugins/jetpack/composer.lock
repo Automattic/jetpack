@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "513d4f057e5ac1783b24badcd64f982b",
+    "content-hash": "b9e0daca7b798bd7b411662e3c345b0b",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2717,6 +2717,44 @@
                 "GPL-2.0-or-later"
             ],
             "description": "This package contains the Protect Status API functionality to retrieve a site's scan status (WordPress, Themes, and Plugins threats).",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-public-abilities",
+            "version": "dev-add/public-abilities-package",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/public-abilities",
+                "reference": "b235097e2ce78b9844b3427b94f454a13316e729"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Unauthenticated REST discovery and execution of WordPress abilities flagged as public.",
             "transport-options": {
                 "relative": true
             }
@@ -6469,6 +6507,7 @@
         "automattic/jetpack-paypal-payments": 20,
         "automattic/jetpack-plugins-installer": 20,
         "automattic/jetpack-post-list": 20,
+        "automattic/jetpack-public-abilities": 20,
         "automattic/jetpack-publicize": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,
