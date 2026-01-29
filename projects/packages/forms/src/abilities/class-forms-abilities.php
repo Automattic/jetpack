@@ -1,11 +1,8 @@
 <?php
 /**
- * Jetpack Forms Abilities Registration
- *
- * Registers Jetpack Forms abilities with the WordPress Abilities API.
+ * Jetpack Forms Abilities Registration.
  *
  * @package automattic/jetpack-forms
- * @since 1.0.0
  */
 
 // @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Ability API added in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this line when we drop WP <6.9.
@@ -17,10 +14,7 @@ use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 
 /**
- * Class Forms_Abilities
- *
  * Registers Jetpack Forms abilities with the WordPress Abilities API.
- * Provides abilities for managing form responses and status counts.
  */
 class Forms_Abilities {
 
@@ -37,14 +31,12 @@ class Forms_Abilities {
 	 * @return void
 	 */
 	public static function init() {
-		// Register category
 		if ( did_action( 'wp_abilities_api_categories_init' ) ) {
 			self::register_category();
 		} else {
 			add_action( 'wp_abilities_api_categories_init', array( __CLASS__, 'register_category' ) );
 		}
 
-		// Register abilities
 		if ( did_action( 'wp_abilities_api_init' ) ) {
 			self::register_abilities();
 		} else {
@@ -388,7 +380,6 @@ class Forms_Abilities {
 			array( 'page', 'per_page', 'parent', 'status', 'is_unread', 'search', 'before', 'after' )
 		);
 
-		// Filter by specific IDs if provided
 		if ( isset( $args['ids'] ) && is_array( $args['ids'] ) ) {
 			$request->set_param( 'include', $args['ids'] );
 		}
@@ -415,7 +406,6 @@ class Forms_Abilities {
 		$endpoint = new Contact_Form_Endpoint( 'feedback' );
 		$result   = array();
 
-		// Update status if provided
 		if ( isset( $args['status'] ) ) {
 			$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/' . $args['id'] );
 			$request->set_url_params( array( 'id' => $args['id'] ) );
@@ -428,7 +418,6 @@ class Forms_Abilities {
 			$result = $response->get_data();
 		}
 
-		// Update read status if provided
 		if ( isset( $args['is_unread'] ) ) {
 			$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/' . $args['id'] . '/read' );
 			$request->set_url_params( array( 'id' => $args['id'] ) );
@@ -667,10 +656,10 @@ class Forms_Abilities {
 		);
 
 		$response = $endpoint->get_status_counts( $request );
-		if ( $response instanceof \WP_Error ) {
+		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
-		return (array) $response->get_data();
+		return $response->get_data();
 	}
 }
