@@ -56,15 +56,16 @@ export function NewsletterCategoriesSection( {
 			page = 1,
 			allCategories: { id: number; name: string }[] = []
 		): Promise< { id: number; name: string }[] > => {
-			const response = await fetch(
-				`${ wpApiSettings.root }wp/v2/categories?per_page=100&page=${ page }`,
-				{
-					credentials: 'same-origin',
-					headers: {
-						'X-WP-Nonce': wpApiSettings.nonce,
-					},
-				}
-			);
+			const url = new URL( 'wp/v2/categories', wpApiSettings.root );
+			url.searchParams.set( 'per_page', '100' );
+			url.searchParams.set( 'page', String( page ) );
+
+			const response = await fetch( url.toString(), {
+				credentials: 'same-origin',
+				headers: {
+					'X-WP-Nonce': wpApiSettings.nonce,
+				},
+			} );
 
 			if ( ! response.ok ) {
 				throw new Error(
