@@ -418,6 +418,8 @@ function TimeSeriesForecastChartWithProvider< D >(
 	);
 }
 
+TimeSeriesForecastChartWithProvider.displayName = 'TimeSeriesForecastChart';
+
 /**
  * TimeSeriesForecastChart - Displays historical data and forecasts with uncertainty bands
  *
