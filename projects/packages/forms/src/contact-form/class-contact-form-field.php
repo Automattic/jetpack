@@ -862,7 +862,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. $extra_attrs_string
 				. '>'
 				. '<span class="grunion-label-text">' . wp_kses_post( $legend ) . '</span>'
-				. ( $required && $required_indicator ? '<span class="grunion-label-required" >' . $required_field_text . '</span>' : '' )
+				. ( $required && $required_indicator ? '<span class="grunion-label-required">' . $required_field_text . '</span>' : '' )
 				. "</legend>\n";
 	}
 
