@@ -873,7 +873,6 @@ class Jetpack {
 		 */
 		do_action( 'jetpack_loaded', $this );
 
-		// Initialize public abilities REST bridge (behind feature flag, default off).
 		if ( apply_filters( 'jetpack_public_abilities_enabled', false )
 			&& class_exists( '\Automattic\Jetpack\Public_Abilities' ) ) {
 			\Automattic\Jetpack\Public_Abilities::init();
