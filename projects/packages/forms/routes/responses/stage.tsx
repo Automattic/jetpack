@@ -591,7 +591,7 @@ function StageInner() {
 						<DataViews.ViewConfig />
 					</Stack>
 				</Stack>
-				<DataViews.Filters className="dataviews-filters__container" />
+				<DataViews.FiltersToggled className="dataviews-filters__container jp-forms-dataviews-filters__container" />
 				<DataViews.Layout />
 				<DataViews.Footer />
 			</DataViews>
