@@ -29,7 +29,7 @@ export type ResponseFieldsProps = {
  * @param props.className     - CSS class for the container.
  * @return The response fields view.
  */
-const ResponseFields = ( {
+const ResponseFieldsIterator = ( {
 	fields,
 	onFilePreview,
 	className,
@@ -88,4 +88,4 @@ const ResponseFields = ( {
 	);
 };
 
-export default ResponseFields;
+export default ResponseFieldsIterator;
