@@ -6,13 +6,20 @@
  */
 
 use Imports\Playground_DB_Importer;
-use Imports\SQL_Generator;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class PlaygroundDBImporterTest.
  */
 class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * Path to test fixtures directory.
+	 *
+	 * @var string
+	 */
+	private static $fixtures_path = __DIR__ . '/fixtures';
 
 	/**
 	 * Temporary file path.
@@ -52,243 +59,104 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Open an empty path.
+	 * Test loading valid fixture database files.
+	 *
+	 * @dataProvider provide_valid_fixture_files
+	 * @param string $fixture_path Path to the fixture file.
 	 */
-	public function test_error_open_an_empty_file_path() {
-		$result = $this->db_importer->generate_sql( '' );
+	#[DataProvider( 'provide_valid_fixture_files' )]
+	public function test_generate_sql_with_valid_fixture_database( $fixture_path ) {
+		$this->assertFileExists( $fixture_path );
 
-		$this->assertWPError( $result );
-		$this->assertEquals( 'database-file-not-exists', $result->get_error_code() );
-	}
+		$result = $this->db_importer->generate_sql( $fixture_path );
 
-	/**
-	 * Open an empty file.
-	 */
-	public function test_error_open_an_empty_file() {
-		$tmp_file = $this->generate_tmp_file();
-		$result   = $this->db_importer->generate_sql( $tmp_file['path'] );
-
-		$this->assertWPError( $result );
-		$this->assertEquals( 'database-file-empty', $result->get_error_code() );
-
-		fclose( $tmp_file['resource'] );
-	}
-
-	/**
-	 * Open a not valid SQLite file.
-	 */
-	public function test_error_open_a_not_valid_file() {
-		$tmp_file = $this->generate_tmp_file( 0 );
-		$result   = $this->db_importer->generate_sql( $tmp_file['path'] );
-
-		$this->assertWPError( $result );
-		$this->assertEquals( 'not-valid-sqlite-file', $result->get_error_code() );
-
-		fclose( $tmp_file['resource'] );
-	}
-
-	/**
-	 * Open an empty SQLite database.
-	 */
-	public function test_error_open_an_empty_database() {
-		$this->generate_sqlite_database();
-		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
-
-		$this->assertWPError( $result );
-		$this->assertEquals( 'database-file-empty', $result->get_error_code() );
-	}
-
-	/**
-	 * Open an empty SQLite database.
-	 */
-	public function test_error_open_a_database_without_master_table() {
-		$this->generate_sqlite_database(
-			array(
-				'queries' => $this->get_base_queries( 'test_table', false ),
-			)
-		);
-
-		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
-
-		$this->assertWPError( $result );
-		$this->assertEquals( 'not-valid-sqlite-file', $result->get_error_code() );
-	}
-
-	/**
-	 * Open a SQLite database with an empty cache table.
-	 */
-	public function test_error_open_a_database_with_empty_cache_table() {
-		$this->generate_sqlite_database(
-			array(
-				'cache_table' => true,
-				'queries'     => $this->get_base_queries( 'test_table', false ),
-			)
-		);
-
-		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
-
-		// Tables without entries in the cache table are skipped.
 		$this->assertNotWPError( $result );
-	}
-
-	/**
-	 * Open a SQLite without tables.
-	 */
-	public function test_open_a_database_without_tables() {
-		$this->generate_sqlite_database(
-			array(
-				'cache_table' => true,
-				'queries'     => $this->get_base_queries(),
-			)
-		);
-
-		$options = array(
-			'exclude_tables' => array( 'test_table' ),
-		);
-		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
-
 		$this->assertIsString( $result );
-		$this->assertStringContainsString( 'START TRANSACTION;', $result );
-		$this->assertStringNotContainsString( 'CREATE TABLE `test_table`', $result );
-
-		$options = array(
-			'all_tables' => false,
-		);
-		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
-
-		$this->assertWPError( $result );
-		$this->assertEquals( 'missing-tables', $result->get_error_code() );
 	}
 
 	/**
-	 * Open a SQLite database with a valid cache table.
+	 * Test loading valid fixture database files.
+	 *
+	 * @dataProvider provide_valid_fixture_files
+	 * @param string $fixture_path Path to the fixture file.
 	 */
-	public function test_open_a_database_with_a_valid_cache_table() {
+	#[DataProvider( 'provide_valid_fixture_files' )]
+	public function test_generate_sql_with_valid_fixture_database_and_tmp_tables( $fixture_path ) {
 		global $wpdb;
 
-		$this->generate_sqlite_database(
-			array(
-				'cache_table' => true,
-				'queries'     => $this->get_base_queries(),
-			)
-		);
+		$this->assertFileExists( $fixture_path );
 
-		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
+		$options = array( 'tmp_tables' => true );
+		$result  = $this->db_importer->generate_sql( $fixture_path, $options );
 
+		$this->assertNotWPError( $result );
 		$this->assertIsString( $result );
-		$this->assertStringContainsString( 'START TRANSACTION;', $result );
-		$this->assertStringContainsString( "CREATE TABLE `{$wpdb->prefix}test_table`", $result );
-	}
 
-	/**
-	 * Generate a sql dump with temporary tables.
-	 */
-	public function test_generate_sql_with_tmp_tables() {
-		global $wpdb;
-
-		$this->generate_sqlite_database(
-			array(
-				'cache_table' => true,
-				'queries'     => $this->get_base_queries(),
-			)
-		);
-
-		$options = array(
-			'tmp_tables' => true,
-		);
-		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
-
-		$this->assertIsString( $result );
 		$this->assertStringNotContainsString( 'START TRANSACTION;', $result );
-		$this->assertStringContainsString( "CREATE TABLE `tmp_{$wpdb->prefix}test_table`", $result );
+		$this->assertStringContainsString( "CREATE TABLE `tmp_{$wpdb->prefix}posts`", $result, $result );
 
 		$options['tmp_prefix'] = 'test_';
-		$result                = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
+		$result                = $this->db_importer->generate_sql( $fixture_path, $options );
 
+		$this->assertNotWPError( $result );
 		$this->assertIsString( $result );
 		$this->assertStringNotContainsString( 'START TRANSACTION;', $result );
-		$this->assertStringContainsString( "CREATE TABLE `test_{$wpdb->prefix}test_table`", $result );
+		$this->assertStringContainsString( "CREATE TABLE `test_{$wpdb->prefix}posts`", $result );
 	}
 
 	/**
 	 * Generate a sql dump with custom output prefix.
+	 *
+	 * @dataProvider provide_valid_fixture_files
 	 */
-	public function test_generate_sql_with_custom_output_prefix() {
-		$this->generate_sqlite_database(
-			array(
-				'cache_table' => true,
-				'queries'     => $this->get_base_queries(),
-			)
-		);
+	#[DataProvider( 'provide_valid_fixture_files' )]
+	public function test_generate_sql_with_valid_fixture_database_and_custom_output_prefix( $fixture_path ) {
+		$options = array( 'output_prefix' => 'testprefix_' );
+		$result  = $this->db_importer->generate_sql( $fixture_path, $options );
 
-		$options = array(
-			'output_prefix' => 'testprefix_',
-		);
-		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
-
+		$this->assertNotWPError( $result );
 		$this->assertIsString( $result );
-		$this->assertStringContainsString( 'CREATE TABLE `testprefix_test_table`', $result );
-
-		$options = array(
-			'output_prefix' => null, // Not output prefix.
-		);
-		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
-
-		$this->assertIsString( $result );
-		$this->assertStringContainsString( 'CREATE TABLE `test_table`', $result );
-	}
-
-	/**
-	 * Generate a sql dump with custom input prefix.
-	 */
-	public function test_generate_sql_with_custom_input_prefix() {
-		global $wpdb;
-
-		$this->generate_sqlite_database(
-			array(
-				'cache_table' => true,
-				'queries'     => $this->get_base_queries( 'wptest_test_table' ),
-			)
-		);
-
-		$options = array(
-			'prefix' => 'wptest_',
-		);
-		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
-
-		$this->assertIsString( $result );
-		$this->assertStringContainsString( "CREATE TABLE `{$wpdb->prefix}test_table`", $result );
+		$this->assertStringContainsString( 'CREATE TABLE `testprefix_posts`', $result );
 
 		$options['output_prefix'] = null; // Not output prefix.
-		$result                   = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
+		$result                   = $this->db_importer->generate_sql( $fixture_path, $options );
 
+		$this->assertNotWPError( $result );
 		$this->assertIsString( $result );
-		$this->assertStringContainsString( 'CREATE TABLE `test_table`', $result );
+		$this->assertStringContainsString( 'CREATE TABLE `posts`', $result );
 	}
 
-	/**
-	 * Generate a sql dump with temporary tables.
-	 */
-	public function test_generate_sql_with_collation() {
-		$this->generate_sqlite_database(
+	public function test_hot_fix_missing_indexes() {
+		$map = $this->db_importer->hot_fix_missing_indexes( 'wp_options', array() );
+		$this->assertEquals( array(), $map );
+
+		$table_name = 'wp_woocommerce_tax_rate_locations';
+		$index      = array(
+			'name'    => 'location_type_code',
+			'columns' => 'test',
+		);
+
+		$map = $this->db_importer->hot_fix_missing_indexes(
+			$table_name,
+			array( $index )
+		);
+
+		$this->assertEquals(
 			array(
-				'cache_table' => true,
-				'queries'     => $this->get_base_queries(),
-			)
+				array(
+					'name'    => 'location_type_code',
+					'columns' => '(`location_type`(10),`location_code`(20))',
+				),
+			),
+			$map
 		);
+	}
 
-		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
-
-		$this->assertIsString( $result );
-		$this->assertStringNotContainsString( SQL_Generator::DEFAULT_COLLATION, $result );
-
-		$options = array(
-			'collation' => SQL_Generator::DEFAULT_COLLATION,
-		);
-		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
-
-		$this->assertIsString( $result );
-		$this->assertStringContainsString( SQL_Generator::DEFAULT_COLLATION, $result );
+	public function test_is_valid_table() {
+		$this->assertFalse( $this->db_importer->is_valid_table( '_wp_sqlite_mysql_information_schema_columns' ) );
+		$this->assertFalse( $this->db_importer->is_valid_table( '_wp_sqlite_global_variables' ) );
+		$this->assertFalse( $this->db_importer->is_valid_table( 'sqlite_sequence' ) );
+		$this->assertTrue( $this->db_importer->is_valid_table( 'wp_options' ) );
 	}
 
 	public function test_get_needs_191_limit_test_cases() {
@@ -318,55 +186,89 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_get_tmp_file_name() {
-		$this->assertStringContainsString( 'sqlite-export-', $this->db_importer->get_tmp_file_name() );
+	/**
+	 * Test loading invalid fixture database files.
+	 *
+	 * @dataProvider provide_invalid_fixture_files
+	 * @param string $fixture_path Path to the fixture file.
+	 */
+	#[DataProvider( 'provide_invalid_fixture_files' )]
+	public function test_load_invalid_fixture_database( $fixture_path ) {
+		$this->assertFileExists( $fixture_path );
+
+		$result = $this->db_importer->generate_sql( $fixture_path );
+
+		$this->assertWPError( $result );
 	}
 
-	public function test_hot_fix_missing_indexes() {
-		$map = $this->db_importer->hot_fix_missing_indexes( 'wp_options', array() );
-		$this->assertEquals( array(), $map );
+	/**
+	 * Open an empty path.
+	 */
+	public function test_error_open_an_empty_file_path() {
+		$result = $this->db_importer->generate_sql( '' );
 
-		$table_name = 'wp_woocommerce_tax_rate_locations';
-		$index      = array(
-			'name'    => 'location_type_code',
-			'columns' => 'test',
-		);
-
-		$map = $this->db_importer->hot_fix_missing_indexes(
-			$table_name,
-			array( $index )
-		);
-
-		$this->assertEquals(
-			array(
-				array(
-					'name'    => 'location_type_code',
-					'columns' => '(`location_type`(10),`location_code`(20))',
-				),
-			),
-			$map
-		);
+		$this->assertWPError( $result );
+		$this->assertEquals( 'database-file-not-exists', $result->get_error_code() );
 	}
 
-	public function test_open_a_database_with_internal_wp_tables() {
-		$this->generate_sqlite_database(
-			array(
-				'cache_table' => true,
-				'queries'     => $this->get_base_queries( '_wp_sqlite_global_variables', false ),
-			)
-		);
+	/**
+	 * Open a not valid SQLite file.
+	 */
+	public function test_error_open_a_not_valid_file() {
+		$tmp_file = $this->generate_tmp_file( 0 );
+		$result   = $this->db_importer->generate_sql( $tmp_file['path'] );
 
-		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
+		$this->assertWPError( $result );
+		$this->assertEquals( 'not-valid-sqlite-file', $result->get_error_code() );
 
-		$this->assertNotWPError( $result );
-		$this->assertStringNotContainsString( 'CREATE TABLE `_wp_sqlite_global_variables`', $result );
+		fclose( $tmp_file['resource'] );
 	}
 
-	public function test_is_valid_table() {
-		$this->assertFalse( $this->db_importer->is_valid_table( '_mysql_data_types_cache' ) );
-		$this->assertFalse( $this->db_importer->is_valid_table( '_wp_sqlite_global_variables' ) );
-		$this->assertFalse( $this->db_importer->is_valid_table( 'sqlite_sequence' ) );
-		$this->assertTrue( $this->db_importer->is_valid_table( 'wp_options' ) );
+	/**
+	 * Data provider for valid fixture files.
+	 *
+	 * @return array Array of valid fixture file paths for parameterized tests.
+	 */
+	public static function provide_valid_fixture_files() {
+		$fixtures = glob( trailingslashit( self::$fixtures_path ) . 'valid/*.sqlite' );
+		$data     = array();
+
+		foreach ( $fixtures as $fixture ) {
+			$data[ 'valid/' . basename( $fixture ) ] = array( $fixture );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Data provider for invalid fixture files.
+	 *
+	 * @return array Array of invalid fixture file paths for parameterized tests.
+	 */
+	public static function provide_invalid_fixture_files() {
+		$fixtures = glob( trailingslashit( self::$fixtures_path ) . 'invalid/*.sqlite' );
+		$data     = array();
+
+		foreach ( $fixtures as $fixture ) {
+			$data[ 'invalid/' . basename( $fixture ) ] = array( $fixture );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Get all fixture files matching a pattern.
+	 *
+	 * @param string $pattern Glob pattern (e.g., '*.sqlite').
+	 * @param string $subfolder Optional subfolder (e.g., 'valid', 'invalid').
+	 * @return array Array of fixture file paths.
+	 */
+	private function get_fixtures( $pattern = '*.sqlite', $subfolder = '' ) {
+		$path = trailingslashit( self::$fixtures_path );
+		if ( ! empty( $subfolder ) ) {
+			$path = trailingslashit( $path . $subfolder );
+		}
+		return glob( $path . $pattern );
 	}
 
 	/**
@@ -387,67 +289,5 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 			'resource' => $tmp_file,
 			'path'     => $tmp_db_path,
 		);
-	}
-
-	/**
-	 * Generates a SQLite database.
-	 *
-	 * @param array $options Options to generate the database.
-	 */
-	private function generate_sqlite_database( $options = array() ) {
-		$defaults = array(
-			'cache_table' => false,
-			'queries'     => array(),
-		);
-
-		$options = wp_parse_args( $options, $defaults );
-
-		// Use a temporary file name.
-		$tmp_db_path = trailingslashit( sys_get_temp_dir() ) . 'wpcomsh-sqlite-test-' . uniqid() . '.sqlite';
-
-		try {
-			$tmp_db = new SQLite3( $tmp_db_path );
-
-			if ( $options['cache_table'] ) {
-				// Create the cache table.
-				$query = 'CREATE TABLE _mysql_data_types_cache (
-					`table` TEXT NOT NULL,
-					`column_or_index` TEXT NOT NULL,
-					`mysql_type` TEXT NOT NULL,
-					PRIMARY KEY(`table`, `column_or_index`)
-				);';
-
-				$tmp_db->exec( $query );
-			}
-
-			foreach ( $options['queries'] as $query ) {
-				// Run a query.
-				$tmp_db->exec( $query );
-			}
-
-			$tmp_db->close();
-
-			$this->tmp_db_path = $tmp_db_path;
-		} catch ( Exception $e ) {
-			$this->tmp_db_path = '';
-		}
-	}
-
-	/**
-	 * Get the base queries to generate a SQLite database.
-	 *
-	 * @param string $table_name     Table name.
-	 * @param bool   $generate_cache Generate the cache table.
-	 */
-	private function get_base_queries( $table_name = 'test_table', $generate_cache = true ) {
-		$queries = array(
-			"CREATE TABLE \"{$table_name}\" (\"id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
-		);
-
-		if ( $generate_cache ) {
-			$queries[] = "INSERT INTO _mysql_data_types_cache VALUES (\"{$table_name}\", \"id\", \"bigint(20) unsigned\")";
-		}
-
-		return $queries;
 	}
 }

@@ -19,7 +19,7 @@ class Playground_DB_Importer {
 	/**
 	 * Name of the table where SQLite map the internal types to the MySQL types.
 	 */
-	public const SQLITE_DATA_TYPES_TABLE = '_mysql_data_types_cache';
+	public const SQLITE_DATA_TYPES_TABLE = '_wp_sqlite_mysql_information_schema_columns';
 
 	/**
 	 * Name of the table where SQLite store the autoincrement value.
@@ -313,7 +313,7 @@ class Playground_DB_Importer {
 
 		// Get the "type map" of the table.
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQLITE_DATA_TYPES_TABLE is a constant string.
-		$query   = $this->prepare( 'SELECT column_or_index, mysql_type from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `table`=%s;', $table_name );
+		$query   = $this->prepare( 'SELECT COLUMN_NAME, DATA_TYPE from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `TABLE_NAME`=%s;', $table_name );
 		$results = $this->db->query( $query );
 
 		if ( ! $results ) {
@@ -324,16 +324,11 @@ class Playground_DB_Importer {
 
 		// Schema: column_or_index|mysql_type
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			// Hot fix: the default SQLite driver sometimes generate a column named `KEY`.
-			if ( $column['column_or_index'] === 'KEY' ) {
-				continue;
-			}
-
 			// Map by column name and MySQL type.
-			$mysql_map[ $column['column_or_index'] ] = $column['mysql_type'];
+			$mysql_map[ $column['COLUMN_NAME'] ] = $column['DATA_TYPE'];
 		}
 
-		// Tables like `'_wp_sqlite_*` do not have entries in the `_mysql_data_types_cache` table.
+		// Tables like `'_wp_sqlite_*` do not have entries in the `_wp_sqlite_mysql_information_schema_columns` table.
 		// In this case, we return an empty map.
 		if ( empty( $mysql_map ) ) {
 			return array(
@@ -363,11 +358,6 @@ class Playground_DB_Importer {
 
 		// Schema: cid|name|type|notnull|dflt_value|pk
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			// Hot fix: skip `KEY` columns.
-			if ( $column['name'] === 'KEY' ) {
-				continue;
-			}
-
 			$is_primary    = $column['pk'] >= 1;
 			$field_names[] = $column['name'];
 
