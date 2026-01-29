@@ -451,6 +451,13 @@ function handleVideoPressVideoUnavailability( settings, name ) {
 		videoPressNoPlanMediaPlaceholder
 	);
 
+	// Add the warning/interactive class names filter for visual consistency with core/video.
+	addFilter(
+		'editor.BlockListBlock',
+		'jetpack/videopress-video-with-has-warning-is-interactive-class-names',
+		withHasWarningIsInteractiveClassNames( 'videopress/video' )
+	);
+
 	return settings;
 }
 
