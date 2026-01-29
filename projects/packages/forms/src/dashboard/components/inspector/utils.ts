@@ -79,3 +79,29 @@ export const isCollectionFormatField = ( item: unknown ): item is ResponseField 
 		item !== null && typeof item === 'object' && 'label' in item && 'value' in item && 'key' in item
 	);
 };
+
+/**
+ * Checks if response fields use the new collection format (array or object of ResponseField).
+ * Handles both true arrays and objects with numeric keys (e.g. from PHP JSON encoding).
+ *
+ * @param fields - The response fields (array or record).
+ * @return True if the fields are in the new collection format.
+ */
+export const isFieldsCollection = ( fields: FormResponse[ 'fields' ] ): boolean => {
+	if ( Array.isArray( fields ) ) {
+		if ( fields.length === 0 ) {
+			return true;
+		}
+
+		return isCollectionFormatField( fields[ 0 ] );
+	}
+
+	if ( ! fields || typeof fields !== 'object' ) {
+		return false;
+	}
+
+	const values = Object.values( fields );
+
+	// If values.length is 0 we cannot determine if the fields are supposed to be in the new collection format.
+	return values.length > 0 && isCollectionFormatField( values[ 0 ] );
+};
