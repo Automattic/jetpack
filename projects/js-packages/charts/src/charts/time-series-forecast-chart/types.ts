@@ -199,4 +199,9 @@ export interface TimeSeriesForecastChartProps< D > {
 	 * Grid visibility. Default: 'y'
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+	/**
+	 * Children for compound composition pattern.
+	 * Use TimeSeriesForecastChart.SVG for SVG children and TimeSeriesForecastChart.HTML for HTML children.
+	 */
+	children?: ReactNode;
 }

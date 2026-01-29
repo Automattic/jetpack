@@ -12,6 +12,9 @@ import {
 	useChartId,
 	useGlobalChartsTheme,
 } from '../../providers';
+import { attachSubComponents } from '../../utils';
+import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { ForecastDivider, useForecastData } from './private';
 import styles from './time-series-forecast-chart.module.scss';
@@ -23,6 +26,8 @@ import type {
 } from './types';
 import type { BaseLegendItem } from '../../components/legend';
 import type { Optional } from '../../types';
+import type { ChartComponentWithComposition } from '../private/chart-composition';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC } from 'react';
@@ -70,6 +75,7 @@ const formatDateTick = ( d: Date ) => {
  * @param root0.legendShape         - Shape for legend items
  * @param root0.animation           - Whether to enable chart animations
  * @param root0.gridVisibility      - Which grid lines to show (x, y, xy, or none)
+ * @param root0.children            - Children for compound composition pattern
  * @return The rendered chart component
  */
 function TimeSeriesForecastChartInternal< D >( {
@@ -97,6 +103,7 @@ function TimeSeriesForecastChartInternal< D >( {
 	legendShape = 'line',
 	animation = false,
 	gridVisibility = 'y',
+	children = null,
 }: TimeSeriesForecastChartProps< D > ) {
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
@@ -177,6 +184,12 @@ function TimeSeriesForecastChartInternal< D >( {
 
 		return items;
 	}, [ historical.length, forecast.length, seriesKeys, primaryColor ] );
+
+	// Process children to extract compound components
+	const { svgChildren, htmlChildren, otherChildren } = useChartChildren(
+		children,
+		'TimeSeriesForecastChart'
+	);
 
 	// Accessors for transformed points (memoized to avoid recreating on each render)
 	const xAccessor = useCallback( ( p: TransformedForecastPoint | BandPoint ) => p.date, [] );
@@ -281,117 +294,135 @@ function TimeSeriesForecastChartInternal< D >( {
 	const showYGrid = gridVisibility === 'y' || gridVisibility === 'xy';
 
 	return (
-		<div
-			className={ clsx(
-				'time-series-forecast-chart',
-				styles[ 'time-series-forecast-chart' ],
-				{
-					[ styles[ 'time-series-forecast-chart--animated' ] ]: animation && ! prefersReducedMotion,
-					[ styles[ 'time-series-forecast-chart--legend-top' ] ]:
-						showLegend && legendPosition === 'top',
-				},
-				className
-			) }
-			data-testid="time-series-forecast-chart"
-			style={ { width, height } }
+		<SingleChartContext.Provider
+			value={ {
+				chartId,
+				chartWidth: width,
+				chartHeight,
+			} }
 		>
-			<XYChart
-				theme={ theme }
-				width={ width }
-				height={ chartHeight }
-				margin={ computedMargin }
-				xScale={ { type: 'time', domain: xDomain } }
-				yScale={ { type: 'linear', domain: yDomain, nice: true } }
-				pointerEventsDataKey="nearest"
+			<div
+				className={ clsx(
+					'time-series-forecast-chart',
+					styles[ 'time-series-forecast-chart' ],
+					{
+						[ styles[ 'time-series-forecast-chart--animated' ] ]:
+							animation && ! prefersReducedMotion,
+						[ styles[ 'time-series-forecast-chart--legend-top' ] ]:
+							showLegend && legendPosition === 'top',
+					},
+					className
+				) }
+				data-testid="time-series-forecast-chart"
+				style={ { width, height } }
 			>
-				{ gridVisibility !== 'none' && (
-					<Grid columns={ showXGrid } rows={ showYGrid } numTicks={ 4 } />
-				) }
+				<XYChart
+					theme={ theme }
+					width={ width }
+					height={ chartHeight }
+					margin={ computedMargin }
+					xScale={ { type: 'time', domain: xDomain } }
+					yScale={ { type: 'linear', domain: yDomain, nice: true } }
+					pointerEventsDataKey="nearest"
+				>
+					{ gridVisibility !== 'none' && (
+						<Grid columns={ showXGrid } rows={ showYGrid } numTicks={ 4 } />
+					) }
 
-				<Axis orientation="bottom" numTicks={ 5 } tickFormat={ xTickFormat } />
-				<Axis orientation="left" numTicks={ 4 } tickFormat={ yAxisTickFormat } />
+					<Axis orientation="bottom" numTicks={ 5 } tickFormat={ xTickFormat } />
+					<Axis orientation="left" numTicks={ 4 } tickFormat={ yAxisTickFormat } />
 
-				{ /* Uncertainty band - rendered first (behind lines) */ }
-				{ bandData.length > 0 && (
-					<AreaSeries
-						dataKey={ seriesKeys.band }
-						data={ bandData }
-						xAccessor={ xAccessor }
-						yAccessor={ bandUpperAccessor }
-						y0Accessor={ bandLowerAccessor }
-						fill={ bandColor }
-						fillOpacity={ 0.2 }
-						renderLine={ false }
-						curve={ curveMonotoneX }
+					{ /* Uncertainty band - rendered first (behind lines) */ }
+					{ bandData.length > 0 && (
+						<AreaSeries
+							dataKey={ seriesKeys.band }
+							data={ bandData }
+							xAccessor={ xAccessor }
+							yAccessor={ bandUpperAccessor }
+							y0Accessor={ bandLowerAccessor }
+							fill={ bandColor }
+							fillOpacity={ 0.2 }
+							renderLine={ false }
+							curve={ curveMonotoneX }
+						/>
+					) }
+
+					{ /* Historical line - solid */ }
+					{ historical.length > 0 && (
+						<AreaSeries
+							dataKey={ seriesKeys.historical }
+							data={ historical }
+							xAccessor={ xAccessor }
+							yAccessor={ yAccessor }
+							fill="transparent"
+							renderLine={ true }
+							curve={ curveMonotoneX }
+							lineProps={ { stroke: primaryColor } }
+						/>
+					) }
+
+					{ /* Forecast line - dashed */ }
+					{ forecast.length > 0 && (
+						<AreaSeries
+							dataKey={ seriesKeys.forecast }
+							data={ forecast }
+							xAccessor={ xAccessor }
+							yAccessor={ yAccessor }
+							fill="transparent"
+							renderLine={ true }
+							curve={ curveMonotoneX }
+							lineProps={ {
+								stroke: primaryColor,
+								strokeDasharray: '4 4',
+							} }
+						/>
+					) }
+
+					{ /* Vertical divider at forecast start */ }
+					{ showDivider && (
+						<ForecastDivider
+							forecastStart={ forecastStart }
+							color={ providerTheme.gridStyles?.stroke ?? '#cccccc' }
+						/>
+					) }
+
+					{ /* Tooltip */ }
+					{ showTooltip && (
+						<Tooltip
+							snapTooltipToDatumX
+							snapTooltipToDatumY
+							showSeriesGlyphs
+							renderTooltip={ tooltipRenderer }
+						/>
+					) }
+				</XYChart>
+
+				{ /* Render SVG children from TimeSeriesForecastChart.SVG */ }
+				{ svgChildren }
+
+				{ showLegend && (
+					<Legend
+						orientation={ legendOrientation }
+						alignment={ legendAlignment }
+						position={ legendPosition }
+						maxWidth={ legendMaxWidth }
+						textOverflow={ legendTextOverflow }
+						legendItemClassName={ legendItemClassName }
+						className={ styles[ 'time-series-forecast-chart__legend' ] }
+						shape={ legendShape }
+						chartId={ chartId }
+						ref={ legendRef }
+						items={ legendItems }
 					/>
 				) }
 
-				{ /* Historical line - solid */ }
-				{ historical.length > 0 && (
-					<AreaSeries
-						dataKey={ seriesKeys.historical }
-						data={ historical }
-						xAccessor={ xAccessor }
-						yAccessor={ yAccessor }
-						fill="transparent"
-						renderLine={ true }
-						curve={ curveMonotoneX }
-						lineProps={ { stroke: primaryColor } }
-					/>
-				) }
+				{ /* Render HTML children from TimeSeriesForecastChart.HTML */ }
+				{ htmlChildren }
 
-				{ /* Forecast line - dashed */ }
-				{ forecast.length > 0 && (
-					<AreaSeries
-						dataKey={ seriesKeys.forecast }
-						data={ forecast }
-						xAccessor={ xAccessor }
-						yAccessor={ yAccessor }
-						fill="transparent"
-						renderLine={ true }
-						curve={ curveMonotoneX }
-						lineProps={ {
-							stroke: primaryColor,
-							strokeDasharray: '4 4',
-						} }
-					/>
-				) }
-
-				{ /* Vertical divider at forecast start */ }
-				{ showDivider && (
-					<ForecastDivider
-						forecastStart={ forecastStart }
-						color={ providerTheme.gridStyles?.stroke ?? '#cccccc' }
-					/>
-				) }
-
-				{ /* Tooltip */ }
-				{ showTooltip && (
-					<Tooltip
-						snapTooltipToDatumX
-						snapTooltipToDatumY
-						showSeriesGlyphs
-						renderTooltip={ tooltipRenderer }
-					/>
-				) }
-			</XYChart>
-
-			{ showLegend && (
-				<Legend
-					orientation={ legendOrientation }
-					alignment={ legendAlignment }
-					position={ legendPosition }
-					maxWidth={ legendMaxWidth }
-					textOverflow={ legendTextOverflow }
-					legendItemClassName={ legendItemClassName }
-					className={ styles[ 'time-series-forecast-chart__legend' ] }
-					shape={ legendShape }
-					chartId={ chartId }
-					ref={ legendRef }
-					items={ legendItems }
-				/>
-			) }
-		</div>
+				{ /* Render other React children for backward compatibility */ }
+				{ otherChildren }
+			</div>
+		</SingleChartContext.Provider>
 	);
 }
 
@@ -420,6 +451,20 @@ function TimeSeriesForecastChartWithProvider< D >(
 
 TimeSeriesForecastChartWithProvider.displayName = 'TimeSeriesForecastChart';
 
+// Base props type with optional responsive properties
+type TimeSeriesForecastChartBaseProps< D > = Optional<
+	TimeSeriesForecastChartProps< D >,
+	'width' | 'height'
+>;
+
+// Composition API types
+type TimeSeriesForecastChartComponent = ChartComponentWithComposition<
+	TimeSeriesForecastChartBaseProps< unknown >
+>;
+type TimeSeriesForecastChartResponsiveComponent = ChartComponentWithComposition<
+	TimeSeriesForecastChartBaseProps< unknown > & ResponsiveConfig
+>;
+
 /**
  * TimeSeriesForecastChart - Displays historical data and forecasts with uncertainty bands
  *
@@ -430,22 +475,28 @@ TimeSeriesForecastChartWithProvider.displayName = 'TimeSeriesForecastChart';
  * - Vertical divider at the forecast start date
  * - Generic data type support via accessors
  */
-const TimeSeriesForecastChart = withResponsive(
-	TimeSeriesForecastChartWithProvider as FC< TimeSeriesForecastChartProps< unknown > >
-) as < D >(
-	props: Optional< TimeSeriesForecastChartProps< D >, 'width' | 'height' > & {
-		maxWidth?: number;
-		aspectRatio?: number;
-		resizeDebounceTime?: number;
+const TimeSeriesForecastChart = attachSubComponents(
+	withResponsive< TimeSeriesForecastChartProps< unknown > >(
+		TimeSeriesForecastChartWithProvider as FC< TimeSeriesForecastChartProps< unknown > >
+	),
+	{
+		Legend,
+		SVG: ChartSVG,
+		HTML: ChartHTML,
 	}
-) => JSX.Element;
+) as TimeSeriesForecastChartResponsiveComponent;
 
 /**
  * Non-responsive version of TimeSeriesForecastChart
  * Requires explicit width and height props
  */
-const TimeSeriesForecastChartUnresponsive = TimeSeriesForecastChartWithProvider as < D >(
-	props: TimeSeriesForecastChartProps< D >
-) => JSX.Element;
+const TimeSeriesForecastChartUnresponsive = attachSubComponents(
+	TimeSeriesForecastChartWithProvider as FC< TimeSeriesForecastChartProps< unknown > >,
+	{
+		Legend,
+		SVG: ChartSVG,
+		HTML: ChartHTML,
+	}
+) as TimeSeriesForecastChartComponent;
 
 export { TimeSeriesForecastChart as default, TimeSeriesForecastChartUnresponsive };
