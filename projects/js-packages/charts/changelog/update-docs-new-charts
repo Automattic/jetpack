@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update documentation to include GeoChart and Sparkline components in README and Storybook introduction.
