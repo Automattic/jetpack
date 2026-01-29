@@ -5,6 +5,9 @@
  * @package automattic/jetpack-boost
  */
 
+// Load Patchwork for mocking built-in functions (must be loaded before autoloader).
+require_once __DIR__ . '/../vendor/antecedent/patchwork/Patchwork.php';
+
 // Set this to ensure we can load any files with a direct access check.
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', true );
