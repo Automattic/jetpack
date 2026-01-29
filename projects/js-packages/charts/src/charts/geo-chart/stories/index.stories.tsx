@@ -12,12 +12,9 @@ const meta: Meta< typeof GeoChart > = {
 export default meta;
 type Story = StoryObj< typeof GeoChart >;
 
-const responsiveArgs = { ...geoChartStoryArgs };
-delete responsiveArgs.height;
-
 export const Default: Story = {
 	args: {
-		...responsiveArgs,
+		...geoChartStoryArgs,
 		containerHeight: '400px',
 		resize: 'both' as const,
 	},
@@ -33,7 +30,7 @@ export const Default: Story = {
 
 export const SingleCountry: Story = {
 	args: {
-		...geoChartStoryArgs,
+		...Default.args,
 		data: [
 			[ 'Country', 'Views' ],
 			[ 'United States', 1500 ],
@@ -43,14 +40,14 @@ export const SingleCountry: Story = {
 
 export const EmptyData: Story = {
 	args: {
-		...geoChartStoryArgs,
+		...Default.args,
 		data: [ [ 'Country', 'Views' ] ],
 	},
 };
 
 export const USStates: Story = {
 	args: {
-		...geoChartStoryArgs,
+		...Default.args,
 		region: 'US',
 		resolution: 'provinces',
 		data: viewsByUSState,
@@ -59,7 +56,7 @@ export const USStates: Story = {
 
 export const EuropeanCountries: Story = {
 	args: {
-		...geoChartStoryArgs,
+		...Default.args,
 		region: '150',
 		resolution: 'countries',
 		data: viewsByEuropeanCountry,
@@ -68,7 +65,7 @@ export const EuropeanCountries: Story = {
 
 export const WithAspectRatio: Story = {
 	args: {
-		...responsiveArgs,
+		...Default.args,
 		aspectRatio: 0.5,
 		resize: 'both' as const,
 	},
