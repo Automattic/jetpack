@@ -20,9 +20,11 @@ use WorDBless\BaseTestCase;
  *
  * @covers \Automattic\Jetpack\VideoPress\Initializer::render_videopress_video_block_email
  * @covers \Automattic\Jetpack\VideoPress\Initializer::get_videopress_url_for_email
+ * @covers \Automattic\Jetpack\VideoPress\Initializer::render_videopress_email_link
  */
 #[CoversMethod( Initializer::class, 'render_videopress_video_block_email' )]
 #[CoversMethod( Initializer::class, 'get_videopress_url_for_email' )]
+#[CoversMethod( Initializer::class, 'render_videopress_email_link' )]
 class Initializer_Email_Render_Test extends BaseTestCase {
 
 	/**
