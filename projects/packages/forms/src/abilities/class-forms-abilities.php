@@ -557,13 +557,18 @@ class Forms_Abilities {
 		// Validate required fields are present.
 		$submitted = $args['fields'];
 		foreach ( $form_fields as $field_def ) {
-			if ( $field_def['required'] && ! isset( $submitted[ $field_def['label'] ] ) ) {
-				return new \WP_Error(
-					'missing_field',
-					/* translators: %s is the field label */
-					sprintf( __( 'Required field "%s" is missing.', 'jetpack-forms' ), $field_def['label'] ),
-					array( 'status' => 400 )
-				);
+			if ( $field_def['required'] ) {
+				$label = $field_def['label'];
+				$value = isset( $submitted[ $label ] ) ? $submitted[ $label ] : null;
+
+				if ( null === $value || ( is_scalar( $value ) && '' === trim( (string) $value ) ) ) {
+					return new \WP_Error(
+						'missing_field',
+						/* translators: %s is the field label */
+						sprintf( __( 'Required field "%s" is missing.', 'jetpack-forms' ), $label ),
+						array( 'status' => 400 )
+					);
+				}
 			}
 		}
 
@@ -619,13 +624,22 @@ class Forms_Abilities {
 				'post_content'   => addslashes( wp_json_encode( $serialized_fields, JSON_UNESCAPED_SLASHES ) ),
 				'post_mime_type' => 'v3',
 				'post_parent'    => $form_post->ID,
-				'comment_status' => 'unread',
+				'comment_status' => 'open',
 			)
 		);
 
 		if ( is_wp_error( $post_id ) ) {
 			return $post_id;
 		}
+
+		/** This action is documented in class-contact-form.php */
+		do_action(
+			'grunion_after_feedback_post_inserted',
+			$post_id,
+			$serialized_fields['fields'],
+			false,
+			wp_list_pluck( $serialized_fields['fields'], 'value', 'key' )
+		);
 
 		Contact_Form_Plugin::recalculate_unread_count();
 
