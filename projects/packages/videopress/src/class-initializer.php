@@ -346,7 +346,7 @@ class Initializer {
 	 *
 	 * @return string
 	 */
-	public static function render_videopress_video_block_email( $block_content, $parsed_block, $rendering_context ) {
+	public static function render_videopress_video_block_email( $block_content, $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Validate input parameters and required dependencies.
 		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
 			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Embed' ) ) {
