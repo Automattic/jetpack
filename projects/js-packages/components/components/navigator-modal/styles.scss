@@ -1,37 +1,36 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
-.modal {
+.components-modal__screen-overlay:has(.jp-navigator-modal) {
+	z-index: 99999; // Slightly lower than snackbar z-index (100001) so snackbars remain visible above the modal
+}
+
+.jp-navigator-modal {
 	container-type: inline-size;
 	container-name: navigator-modal;
-
-	:global(.components-modal__screen-overlay):has(&) {
-		z-index: 99999; // Slightly lower than snackbar z-index (100001) so snackbars remain visible above the modal
-	}
-
 	width: 100%;
 
 	@include gb.break-medium() {
 		max-height: 90%;
 	}
 
-	:global(.components-modal__content) {
+	.components-modal__content {
 		padding: 0;
 
 		> div {
 			height: 100%;
 		}
 	}
-}
 
-.navigator {
-	height: 100%;
-}
+	&__navigator {
+		height: 100%;
+	}
 
-.screen {
-	height: 100%;
-	padding: 0;
+	&__screen {
+		height: 100%;
+		padding: 0;
+	}
 
-	.header {
+	&__header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -39,12 +38,6 @@
 		height: 4.5rem;
 		border-bottom: 1px solid gb.$gray-200;
 		flex-shrink: 0;
-
-		.title-wrap {
-			display: flex;
-			align-items: center;
-			gap: 1rem;
-		}
 
 		h1 {
 			margin: 0;
@@ -55,55 +48,51 @@
 		}
 	}
 
-	.body {
+	&__title-wrap {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	&__body {
 		height: 100%;
 		overflow: auto;
 		flex-direction: column;
 
 		@container navigator-modal (width >= #{gb.$break-small}) {
-
-			& {
-				flex-direction: row;
-			}
+			flex-direction: row;
 		}
 	}
 
-	.sidebar {
+	&__sidebar {
 		width: 100%;
 		display: flex;
 		flex-direction: column;
 		gap: 1.5rem;
 
 		@container navigator-modal (width >= #{gb.$break-small}) {
-
-			& {
-				flex-basis: 30%;
-				height: 100%;
-				flex-shrink: 0;
-				border-inline-end: 1px solid gb.$gray-300;
-				overflow: auto;
-			}
+			flex-basis: 30%;
+			height: 100%;
+			flex-shrink: 0;
+			border-inline-end: 1px solid gb.$gray-300;
+			overflow: auto;
 		}
 	}
 
-	.content {
+	&__content {
 		width: 100%;
 		height: 100%;
 		flex: 1;
 
 		@container navigator-modal (width >= #{gb.$break-small}) {
-
-			& {
-				overflow: auto;
-			}
+			overflow: auto;
 		}
 	}
 
-	.footer {
+	&__footer {
 		padding: 1rem 1.5rem;
 		border-top: 1px solid gb.$gray-300;
 		height: 4.5rem;
 		flex-shrink: 0;
 	}
-
 }

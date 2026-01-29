@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+NavigatorModal: Use BEM for styling instead of CSS modules to avoid having to pass too many className props.

@@ -2,7 +2,6 @@ import { Flex, Navigator } from '@wordpress/components';
 import clsx from 'clsx';
 import { Footer, FooterProps } from './footer.tsx';
 import { Header } from './header.tsx';
-import styles from './styles.module.scss';
 
 export type ScreenProps = {
 	/**
@@ -79,13 +78,13 @@ export function Screen( {
 	const hasFooter = Boolean( footerContent || ( footerActions && footerActions.length ) );
 
 	return (
-		<Navigator.Screen path={ path } className={ clsx( styles.screen, className ) }>
+		<Navigator.Screen path={ path } className={ clsx( 'jp-navigator-modal__screen', className ) }>
 			<Flex direction="column" gap={ 0 }>
 				<Header title={ title } isScreenLocked={ isScreenLocked } icon={ headerIcon } />
 
-				<Flex gap={ 0 } align="start" className={ styles.body }>
-					{ sidebar ? <div className={ styles.sidebar }>{ sidebar }</div> : null }
-					<div className={ styles.content }>
+				<Flex gap={ 0 } align="start" className="jp-navigator-modal__body">
+					{ sidebar ? <div className="jp-navigator-modal__sidebar">{ sidebar }</div> : null }
+					<div className="jp-navigator-modal__content">
 						{ ( 'children' in props && props.children ) || ( 'content' in props && props.content ) }
 					</div>
 				</Flex>

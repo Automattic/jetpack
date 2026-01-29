@@ -1,7 +1,6 @@
 import { Button, Flex, FlexBlock, FlexItem, useNavigator } from '@wordpress/components';
 import { useCallback, useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
-import styles from './styles.module.scss';
 import { SharedProps } from './types.ts';
 
 export type FooterProps = SharedProps & {
@@ -32,7 +31,7 @@ export function Footer( { children, actions, isScreenLocked }: FooterProps ) {
 	}, [ isScreenLocked, navigator, context ] );
 
 	return (
-		<Flex className={ styles.footer }>
+		<Flex className="jp-navigator-modal__footer">
 			<FlexBlock>{ children }</FlexBlock>
 			{ actions ? (
 				<FlexItem>
