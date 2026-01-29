@@ -410,22 +410,18 @@ class Playground_DB_Importer {
 		// Schema: name|sql
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			// Some SQLite columns are not indexed. See https://sqlite.org/forum/info/f16f8ed8666c5e97
-			if ( ! array_key_exists( $column['name'], $mysql_map ) ) {
+			if ( $column['sql'] === null ) {
 				continue;
-			}
-
-			if ( ! in_array( $mysql_map[ $column['name'] ], array( 'KEY', 'UNIQUE' ), true ) ) {
-				return new WP_Error( 'missing-index', 'Query error: not a valid SQLite database, missing index' );
 			}
 
 			// Strip out the index definition.
 			// wp_comments__comment_approved_date_gmt|CREATE INDEX "wp_comments__comment_approved_date_gmt" ON "wp_comments" ("comment_approved", "comment_date_gmt")
-			$split_query = explode( '" ON "' . $table_name . '" ', $column['sql'] );
+			$split_query = explode( '` ON `' . $table_name . '` ', $column['sql'] );
 			$real_name   = SQL_Generator::get_index_name( $column['name'] );
 			$new_index   = array(
 				'name'    => $real_name,
-				'type'    => $mysql_map[ $column['name'] ],
-				'columns' => str_replace( '"', '`', $split_query[1] ),
+				'type'    => ( strpos( $column['sql'], 'CREATE UNIQUE INDEX' ) === 0 ) ? 'UNIQUE' : 'KEY',
+				'columns' => $split_query[1],
 			);
 
 			if ( array_key_exists( $real_name, $map_by_name ) ) {

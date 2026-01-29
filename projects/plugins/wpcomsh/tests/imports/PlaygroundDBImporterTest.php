@@ -76,6 +76,9 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";', $result );
 		$this->assertStringContainsString( '  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,', $result );
 		$this->assertStringContainsString( '  `meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,', $result );
+		$this->assertStringContainsString( '  PRIMARY KEY (`object_id`,`term_taxonomy_id`),', $result );
+		$this->assertStringContainsString( '  UNIQUE KEY `term_id_taxonomy` (`term_id`, `taxonomy`),', $result );
+		$this->assertStringContainsString( '  UNIQUE KEY `option_name` (`option_name`),', $result );
 	}
 
 	/**
