@@ -48,9 +48,8 @@ class WPCOM_REST_API_V2_Verbum_OEmbed extends \WP_REST_Controller {
 	 * @return bool
 	 */
 	public function permission_callback( WP_REST_Request $request ) {
-		$current_user = wp_get_current_user();
-		if ( $current_user->ID ) {
-			return true; // Bypass nonce check for already logged in users.
+		if ( is_user_logged_in() ) {
+			return true; // Bypass nonce check for logged-in users.
 		}
 
 		$nonce = $request->get_param( 'embed_nonce' );
@@ -65,10 +64,9 @@ class WPCOM_REST_API_V2_Verbum_OEmbed extends \WP_REST_Controller {
 	 * @return array|\WP_Error
 	 */
 	public function get_embed_data( WP_REST_Request $request ) {
-		$decoded_url = urldecode( $request->get_param( 'embed_url' ) );
-		$cleaned_url = sanitize_url( $decoded_url );
-		$instance    = new WP_oEmbed();
-		$embed_data  = $instance->get_data( $cleaned_url, array() );
+		$url        = sanitize_url( $request->get_param( 'embed_url' ) );
+		$instance   = new WP_oEmbed();
+		$embed_data = $instance->get_data( $url, array() );
 
 		// Return error if the embed data is empty.
 		// This matches the core response.
