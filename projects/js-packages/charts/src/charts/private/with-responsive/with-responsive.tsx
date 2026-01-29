@@ -8,7 +8,9 @@ export type ResponsiveConfig = {
 	 */
 	maxWidth?: number;
 	/**
-	 * The aspect ratio of the chart.
+	 * The aspect ratio of the chart (height = width * aspectRatio).
+	 * When provided, height is calculated from width.
+	 * When omitted, the chart fills the parent container's height.
 	 */
 	aspectRatio?: number;
 	/**
@@ -20,17 +22,26 @@ export type ResponsiveConfig = {
 const useResponsiveDimensions = ( {
 	resizeDebounceTime = 300,
 	maxWidth = 1200,
-	aspectRatio = 0.5,
+	aspectRatio,
 }: ResponsiveConfig ) => {
-	const { parentRef, width: parentWidth } = useParentSize( {
+	const {
+		parentRef,
+		width: parentWidth,
+		height: parentHeight,
+	} = useParentSize( {
 		debounceTime: resizeDebounceTime,
 		enableDebounceLeadingCall: true,
 	} );
 
 	const containerWidth = parentWidth > 0 ? Math.min( parentWidth, maxWidth ) : 0;
-	const containerHeight = containerWidth * aspectRatio;
+	const containerHeight = aspectRatio !== undefined ? containerWidth * aspectRatio : parentHeight;
 
-	return { parentRef, width: containerWidth, height: containerHeight };
+	return {
+		parentRef,
+		width: containerWidth,
+		height: containerHeight,
+		hasAspectRatio: aspectRatio !== undefined,
+	};
 };
 
 /**
@@ -46,13 +57,14 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 	return function ResponsiveChart( {
 		resizeDebounceTime = 300,
 		maxWidth = 1200,
-		aspectRatio = 0.5,
+		aspectRatio,
 		...chartProps
 	}: Optional< T, 'width' | 'height' | 'size' > & ResponsiveConfig ) {
 		const {
 			parentRef,
 			width: containerWidth,
 			height: containerHeight,
+			hasAspectRatio,
 		} = useResponsiveDimensions( {
 			resizeDebounceTime,
 			maxWidth,
@@ -64,7 +76,9 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				ref={ parentRef }
 				style={ {
 					width: chartProps.size ?? chartProps.width ?? '100%',
-					height: chartProps.size ?? chartProps.height ?? 'auto',
+					height: hasAspectRatio
+						? chartProps.size ?? chartProps.height ?? 'auto'
+						: chartProps.size ?? chartProps.height ?? '100%',
 				} }
 			>
 				<WrappedComponent
