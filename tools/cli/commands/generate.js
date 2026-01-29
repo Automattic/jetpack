@@ -69,6 +69,23 @@ export function generateDefine( yargs ) {
 					alias: 'n',
 					describe: 'Name of the project',
 					type: 'string',
+				} )
+				.options( 'description', {
+					describe: 'Project description (skips interactive prompt)',
+					type: 'string',
+				} )
+				.options( 'build-scripts', {
+					describe:
+						'Comma-separated build scripts: "production,development", or empty string for none (skips interactive prompt)',
+					type: 'string',
+				} )
+				.options( 'wordbless', {
+					describe: 'Use WordPress core functions in PHPUnit tests (skips interactive prompt)',
+					type: 'boolean',
+				} )
+				.options( 'mirrorrepo', {
+					describe: 'Create a mirror repo for public deployment (skips interactive prompt)',
+					type: 'boolean',
 				} );
 		},
 		async argv => {
@@ -132,14 +149,38 @@ async function promptForGenerate( options ) {
 		}
 	}
 
-	// Give the list of questions
-	const finalAnswers = await enquirer.prompt( questions );
+	// Build answers from CLI flags, only prompt for unanswered questions.
+	const cliAnswers = {};
+	const remainingQuestions = questions.filter( q => {
+		if ( q.name === 'description' && typeof options.description === 'string' ) {
+			cliAnswers.description = options.description;
+			return false;
+		}
+		if ( q.name === 'buildScripts' && typeof options.buildScripts === 'string' ) {
+			cliAnswers.buildScripts = options.buildScripts
+				? options.buildScripts.split( ',' ).map( s => s.trim() )
+				: [];
+			return false;
+		}
+		if ( q.name === 'wordbless' && typeof options.wordbless === 'boolean' ) {
+			cliAnswers.wordbless = options.wordbless;
+			return false;
+		}
+		if ( q.name === 'mirrorrepo' && typeof options.mirrorrepo === 'boolean' ) {
+			cliAnswers.mirrorrepo = options.mirrorrepo;
+			return false;
+		}
+		return true;
+	} );
+
+	const finalAnswers = remainingQuestions.length ? await enquirer.prompt( remainingQuestions ) : {};
 
 	return {
 		...options,
 		type: pluralize.singular( typeAnswer.type ),
 		name: nameAnswer.name,
 		n: nameAnswer.name,
+		...cliAnswers,
 		...finalAnswers,
 	};
 }
