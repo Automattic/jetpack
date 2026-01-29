@@ -120,6 +120,7 @@ const entries = {
 
 // CSS that needs to have the rtl files renamed using the above RenamerPlugin.
 const weirdRtlEntries = {
+	'_inc/build/likes/style.min': path.join( __dirname, '../modules/likes/style.css' ),
 	'_inc/build/subscriptions/subscriptions.min': path.join(
 		__dirname,
 		'../modules/subscriptions/subscriptions.css'

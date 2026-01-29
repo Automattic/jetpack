@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add is_agent() method for detecting bots, AI assistants, and programmatic HTTP clients.

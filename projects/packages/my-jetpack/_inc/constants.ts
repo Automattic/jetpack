@@ -25,6 +25,7 @@ export const MyJetpackRoutes = {
 	AddStats: '/add-stats',
 	AddLicense: '/add-license',
 	JetpackAi: '/jetpack-ai',
+	ProtectDetails: '/protect-details',
 	RedeemToken: '/redeem-token',
 } as const;
 
