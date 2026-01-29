@@ -191,6 +191,24 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 				)
 			)
 		);
+		$this->assertFalse(
+			$this->db_importer->needs_191_limit(
+				array(
+					'type'        => 'int',
+					'sqlite_type' => 'unknown',
+				)
+			)
+		);
+	}
+
+	public function test_get_tmp_file_name() {
+		$this->assertIsString( $this->db_importer->get_tmp_file_name() );
+	}
+
+	public function test_sqlite_type_to_format() {
+		$this->assertEquals( '%d', $this->db_importer->sqlite_type_to_format( 'integer' ) );
+		$this->assertEquals( '%f', $this->db_importer->sqlite_type_to_format( 'real' ) );
+		$this->assertEquals( '%s', $this->db_importer->sqlite_type_to_format( 'null' ) );
 	}
 
 	/**

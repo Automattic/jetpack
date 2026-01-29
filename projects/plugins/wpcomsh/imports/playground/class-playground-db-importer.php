@@ -460,7 +460,7 @@ class Playground_DB_Importer {
 	 *
 	 * @return string
 	 */
-	private function sqlite_type_to_format( string $type ): string {
+	public function sqlite_type_to_format( string $type ): string {
 		switch ( $type ) {
 			case 'integer':
 				return '%d';
