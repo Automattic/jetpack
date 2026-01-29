@@ -33,7 +33,7 @@ function Stage() {
 		>
 			<DataViewsHeaderRow activeTab="forms" />
 			<Stack direction="column" gap="sm">
-				<h3>{ __( 'Forms list placeholder page.', 'jetpack-forms' ) }</h3>
+				<h3>Forms list placeholder page.</h3>
 			</Stack>
 		</Page>
 	);

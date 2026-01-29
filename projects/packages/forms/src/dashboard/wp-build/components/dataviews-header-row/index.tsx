@@ -25,18 +25,22 @@ type ActiveTab = 'forms' | 'responses';
  * @return Header row markup for wp-build DataViews screens.
  */
 export default function DataViewsHeaderRow( { activeTab }: { activeTab: ActiveTab } ): JSX.Element {
-	const navigate = useNavigate();
+	// Keep navigation type-safe without requiring callers to pass a `from` prop.
+	// We bind two typed navigate functions (hooks are unconditional).
+	const navigateFromForms = useNavigate( { from: '/forms' } );
+	const navigateFromResponses = useNavigate( { from: '/responses/$view' } );
+
 	const onTabChange = useCallback(
 		( nextValue: ActiveTab ) => {
 			if ( nextValue === 'forms' ) {
-				navigate( { to: '/forms' } );
+				navigateFromResponses( { to: '/forms' } );
 				return;
 			}
 
 			// In the wp-build environment we always treat Responses as `/responses/inbox`.
-			navigate( { to: '/responses/$view', params: { view: 'inbox' } } );
+			navigateFromForms( { to: '/responses/$view', params: { view: 'inbox' } } );
 		},
-		[ navigate ]
+		[ navigateFromForms, navigateFromResponses ]
 	);
 
 	return (
