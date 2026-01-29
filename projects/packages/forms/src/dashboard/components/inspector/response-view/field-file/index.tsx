@@ -1,5 +1,5 @@
 import File from './file.tsx';
-import type { FileItem } from '../../../../types/index.ts';
+import type { FileItem } from '../../../../../types/index.ts';
 import './style.scss';
 
 type FieldFileProps = {

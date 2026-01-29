@@ -5,7 +5,7 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import TextWithFlag from '../../text-with-flag/index.tsx';
+import TextWithFlag from '../../../text-with-flag/index.tsx';
 
 type PhoneDisplayInfo = {
 	formattedNumber: string;
