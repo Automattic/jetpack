@@ -9,7 +9,6 @@
 
 .description {
 	color: #757575;
-	margin: 8px 0 8px;
 	font-size: 13px;
 	line-height: 1.4;
 }
@@ -17,10 +16,14 @@
 .selectButton {
 	width: 100%;
 	justify-content: center;
-	margin-top: 6px;
+}
+
+.editTemplateButton {
+	margin-top: 1rem;
 }
 
 .dropdownMenu {
+	margin-top: 1rem;
 	width: 100%;
 }
 
@@ -78,11 +81,11 @@
 }
 
 .custom-media-toggle {
-	margin-top: 16px;
+	margin-top: 1rem;
 }
 
 .notice {
-	margin-top: 12px;
+	margin-top: 1rem;
 }
 
 .learn-more {

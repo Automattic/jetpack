@@ -10,6 +10,7 @@ import { MediaUpload } from '@wordpress/block-editor';
 import { BaseControl, Button, ExternalLink, Notice } from '@wordpress/components';
 import { useCallback, useMemo, useReducer, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
@@ -275,7 +276,9 @@ export default function MediaSectionV2( {
 					<BaseControl.VisualLabel>
 						{ __( 'Media', 'jetpack-publicize-pkg' ) }
 					</BaseControl.VisualLabel>
-					<p className={ styles.description }>{ getMediaSourceDescription( currentSource ) }</p>
+					<span className={ styles.description }>
+						{ getMediaSourceDescription( currentSource ) }
+					</span>
 
 					{ /* MediaUpload component - rendered once, open function stored in ref */ }
 					<MediaUpload
@@ -307,7 +310,7 @@ export default function MediaSectionV2( {
 							</MediaSourceMenu>
 							{ currentSource === 'sig' && (
 								<Button
-									className={ styles.selectButton }
+									className={ clsx( styles.selectButton, styles.editTemplateButton ) }
 									variant="secondary"
 									onClick={ onEditTemplate }
 									disabled={ disabled }
