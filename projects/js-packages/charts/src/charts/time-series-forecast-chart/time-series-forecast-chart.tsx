@@ -245,11 +245,6 @@ function TimeSeriesForecastChartInternal< D >( {
 		return formatNumberCompact as TickFormatter< number >;
 	}, [ yTickFormat ] );
 
-	// X-axis tick formatter wrapper
-	const xAxisTickFormat = useMemo( () => {
-		return ( d: Date ) => xTickFormat( d );
-	}, [ xTickFormat ] );
-
 	// Handle empty data
 	if ( data.length === 0 ) {
 		return (
@@ -301,7 +296,7 @@ function TimeSeriesForecastChartInternal< D >( {
 					<Grid columns={ showXGrid } rows={ showYGrid } numTicks={ 4 } />
 				) }
 
-				<Axis orientation="bottom" numTicks={ 5 } tickFormat={ xAxisTickFormat } />
+				<Axis orientation="bottom" numTicks={ 5 } tickFormat={ xTickFormat } />
 				<Axis orientation="left" numTicks={ 4 } tickFormat={ yAxisTickFormat } />
 
 				{ /* Uncertainty band - rendered first (behind lines) */ }
