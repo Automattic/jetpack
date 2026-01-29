@@ -4,7 +4,7 @@ import { XYChart, AreaSeries, Grid, Axis, Tooltip } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useMemo, useCallback } from 'react';
-import { Legend, useChartLegendItems } from '../../components/legend';
+import { Legend } from '../../components/legend';
 import { useXYChartTheme, useElementHeight, usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -165,9 +165,6 @@ function TimeSeriesForecastChartInternal< D >( {
 
 		return items;
 	}, [ historical.length, forecast.length, seriesKeys, primaryColor ] );
-
-	// Use legend hook for consistent styling
-	useChartLegendItems( mockSeriesData, {}, 'line' );
 
 	// Accessors for transformed points (memoized to avoid recreating on each render)
 	const xAccessor = useCallback( ( p: TransformedForecastPoint | BandPoint ) => p.date, [] );
