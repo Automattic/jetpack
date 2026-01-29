@@ -1,8 +1,8 @@
 {
-	"name": "_TBD_",
-	"version": "0.0.0+TBD",
+	"name": "jetpack-public-abilities",
+	"version": "0.1.0-alpha",
 	"private": true,
-	"description": "_TBD_",
+	"description": "Unauthenticated REST bridge for WordPress public abilities.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
