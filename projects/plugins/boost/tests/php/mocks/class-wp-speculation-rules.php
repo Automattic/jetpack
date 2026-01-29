@@ -1,15 +1,13 @@
 <?php
 /**
- * Polyfill for WP_Speculation_Rules class that will be available in WordPress 6.8.0
+ * Mock WP_Speculation_Rules for testing.
  *
- * @package Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules
+ * @package automattic/jetpack-boost
  */
 
 if ( ! class_exists( 'WP_Speculation_Rules' ) ) {
 	/**
 	 * Class WP_Speculation_Rules
-	 *
-	 * Temporary implementation until WordPress 6.8.0 is released.
 	 */
 	class WP_Speculation_Rules {
 		/**
