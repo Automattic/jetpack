@@ -79,6 +79,7 @@ jobs:
           slack_editorial_channel: ${{ vars.SLACK_EDITORIAL_CHANNEL }}
           slack_he_triage_channel: ${{ vars.SLACK_HE_TRIAGE_CHANNEL }}
           slack_quality_channel: ${{ vars.SLACK_QUALITY_CHANNEL }}
+          slack_product_ambassadors_channel: ${{ vars.SLACK_PRODUCT_AMBASSADORS_CHANNEL }}
           triage_projects_token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
           project_board_url: ${{ vars.PROJECT_BOARD_URL }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
