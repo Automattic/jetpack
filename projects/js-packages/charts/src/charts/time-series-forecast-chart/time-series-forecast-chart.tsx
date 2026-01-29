@@ -10,6 +10,7 @@ import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
 	useChartId,
+	useChartRegistration,
 	useGlobalChartsTheme,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
@@ -190,6 +191,26 @@ function TimeSeriesForecastChartInternal< D >( {
 		children,
 		'TimeSeriesForecastChart'
 	);
+
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			forecastStart,
+			hasHistorical: historical.length > 0,
+			hasForecast: forecast.length > 0,
+			hasBand: bandData.length > 0,
+		} ),
+		[ forecastStart, historical.length, forecast.length, bandData.length ]
+	);
+
+	// Register chart with context
+	useChartRegistration( {
+		chartId,
+		legendItems,
+		chartType: 'time-series-forecast',
+		isDataValid: data.length > 0,
+		metadata: chartMetadata,
+	} );
 
 	// Accessors for transformed points (memoized to avoid recreating on each render)
 	const xAccessor = useCallback( ( p: TransformedForecastPoint | BandPoint ) => p.date, [] );
