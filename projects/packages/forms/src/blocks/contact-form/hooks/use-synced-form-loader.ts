@@ -22,14 +22,6 @@ interface UseSyncedFormLoaderResult {
 }
 
 /**
- * Hook to handle loading synced form content into the editor
- * This performs a one-time sync when the ref changes or loads for the first time
- * After loading, the user can edit freely and changes will be saved back via auto-save
- *
- * @param {UseSyncedFormLoaderParams} params - Configuration parameters
- * @return {UseSyncedFormLoaderResult} Object containing syncing state ref
- */
-/**
  * Helper to find the first step block in a multistep form structure.
  *
  * @param {Block[]} blocks - The blocks to search through.
@@ -51,6 +43,14 @@ function findFirstStepClientId( blocks: Block[] ): string | null {
 	return null;
 }
 
+/**
+ * Hook to handle loading synced form content into the editor
+ * This performs a one-time sync when the ref changes or loads for the first time
+ * After loading, the user can edit freely and changes will be saved back via auto-save
+ *
+ * @param {UseSyncedFormLoaderParams} params - Configuration parameters
+ * @return {UseSyncedFormLoaderResult} Object containing syncing state ref
+ */
 export function useSyncedFormLoader( {
 	ref,
 	syncedFormBlocks,
