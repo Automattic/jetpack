@@ -12,7 +12,7 @@ import { FORM_BLOCK_NAME, FORM_POST_TYPE } from '../util/constants.js';
 export default function useFormWrapper( { attributes, clientId, name } ) {
 	const { replaceBlock, updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
 		useDispatch( blockEditorStore );
-	const { getBlocks } = useSelect( blockEditorStore );
+	const { getBlock, getBlocks } = useSelect( blockEditorStore );
 
 	// Feature flag for central form management
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
@@ -65,6 +65,12 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 						// This ensures the form component won't show a loading skeleton
 						// because the data will already be available in the store.
 						await resolveSelect( coreStore ).getEntityRecord( 'postType', FORM_POST_TYPE, formId );
+
+						// Verify the block still exists before updating its attributes
+						// (user might have deleted it or undone the operation)
+						if ( ! getBlock( formBlock.clientId ) ) {
+							return;
+						}
 
 						// Now set the ref - the form data is already cached, so no loading state
 						__unstableMarkNextChangeAsNotPersistent();
