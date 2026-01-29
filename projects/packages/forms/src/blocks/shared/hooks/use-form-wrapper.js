@@ -12,7 +12,7 @@ import { FORM_BLOCK_NAME, FORM_POST_TYPE } from '../util/constants.js';
 export default function useFormWrapper( { attributes, clientId, name } ) {
 	const { replaceBlock, updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
 		useDispatch( blockEditorStore );
-	const { getBlock, getBlocks } = useSelect( blockEditorStore );
+	const { getBlocks } = useSelect( blockEditorStore );
 
 	// Feature flag for central form management
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
@@ -68,7 +68,10 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 
 						// Verify the block still exists before updating its attributes
 						// (user might have deleted it or undone the operation)
-						if ( ! getBlock( formBlock.clientId ) ) {
+						const blockExists = await resolveSelect( blockEditorStore ).getBlock(
+							formBlock.clientId
+						);
+						if ( ! blockExists ) {
 							return;
 						}
 
