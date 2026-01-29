@@ -313,7 +313,7 @@ class Playground_DB_Importer {
 
 		// Get the "type map" of the table.
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQLITE_DATA_TYPES_TABLE is a constant string.
-		$query   = $this->prepare( 'SELECT COLUMN_NAME, DATA_TYPE from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `TABLE_NAME`=%s;', $table_name );
+		$query   = $this->prepare( 'SELECT COLUMN_NAME, COLUMN_TYPE from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `TABLE_NAME`=%s;', $table_name );
 		$results = $this->db->query( $query );
 
 		if ( ! $results ) {
@@ -322,10 +322,10 @@ class Playground_DB_Importer {
 
 		$mysql_map = array();
 
-		// Schema: column_or_index|mysql_type
+		// Schema: COLUMN_NAME|COLUMN_TYPE
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			// Map by column name and MySQL type.
-			$mysql_map[ $column['COLUMN_NAME'] ] = $column['DATA_TYPE'];
+			$mysql_map[ $column['COLUMN_NAME'] ] = $column['COLUMN_TYPE'];
 		}
 
 		// Tables like `'_wp_sqlite_*` do not have entries in the `_wp_sqlite_mysql_information_schema_columns` table.
