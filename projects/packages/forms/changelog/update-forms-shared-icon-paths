@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: extract shared icon path data for field type icons to enable reuse across React and non-React contexts.
