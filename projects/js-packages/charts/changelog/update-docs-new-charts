@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: fixed
 
-Update documentation to include GeoChart and Sparkline components in README and Storybook introduction.
+Fix Sparkline component export paths in package.json and update documentation to include GeoChart and Sparkline components.
