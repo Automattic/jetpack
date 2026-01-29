@@ -82,6 +82,8 @@ const blockData = {
 export default {
 	from: [
 		{
+			// This transform handles only the contact-form shortcode that has the ref attribute only.
+			// This will activly be used for Centralized Form Management feature.
 			type: 'shortcode',
 			tag: 'contact-form',
 			isMatch: function ( attributes ) {
