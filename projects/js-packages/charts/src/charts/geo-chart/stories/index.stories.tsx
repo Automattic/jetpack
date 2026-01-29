@@ -12,9 +12,22 @@ const meta: Meta< typeof GeoChart > = {
 export default meta;
 type Story = StoryObj< typeof GeoChart >;
 
+const responsiveArgs = { ...geoChartStoryArgs };
+delete responsiveArgs.height;
+
 export const Default: Story = {
 	args: {
-		...geoChartStoryArgs,
+		...responsiveArgs,
+		containerHeight: '400px',
+		resize: 'both' as const,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Default responsive behavior. The chart fills its parent container. Resize the container to see how the chart adapts to any aspect ratio.',
+			},
+		},
 	},
 };
 
@@ -50,5 +63,21 @@ export const EuropeanCountries: Story = {
 		region: '150',
 		resolution: 'countries',
 		data: viewsByEuropeanCountry,
+	},
+};
+
+export const WithAspectRatio: Story = {
+	args: {
+		...responsiveArgs,
+		aspectRatio: 0.5,
+		resize: 'both' as const,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'When `aspectRatio` is provided, the chart height is calculated as `width * aspectRatio`. This maintains a consistent shape regardless of container size.',
+			},
+		},
 	},
 };
