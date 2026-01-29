@@ -8,7 +8,7 @@ A comprehensive charting library for displaying interactive data visualizations 
 
 ## Features
 
-- ✨ **Rich Chart Types** - Bar charts, bar list charts, conversion funnel charts, donut charts, leaderboard visualizations, line charts, and pie charts
+- ✨ **Rich Chart Types** - Bar charts, bar list charts, conversion funnel charts, donut charts, geo charts, leaderboard visualizations, line charts, pie charts, and sparklines
 - 🎨 **Themeable** - Built-in default theme with custom theme support
 - 📱 **Responsive** - Automatically adapts to container size and viewport changes
 - ♿ **Accessible** - Full keyboard navigation, screen reader support, and ARIA compliance
@@ -34,62 +34,82 @@ yarn add @automattic/charts
 	language="jsx"
 	code={`import { LineChart, GlobalChartsProvider } from '@automattic/charts';
 
-	const data = [
-		{
-			label: 'Views',
-			data: [
-				{ date: new Date('2024-01-01'), value: 1200 },
-				{ date: new Date('2024-01-02'), value: 1400 },
-				{ date: new Date('2024-01-03'), value: 1100 },
-			],
-			options: {}
-		}
-	];
+    const data = [
+    	{
+    		label: 'Views',
+    		data: [
+    			{ date: new Date('2024-01-01'), value: 1200 },
+    			{ date: new Date('2024-01-02'), value: 1400 },
+    			{ date: new Date('2024-01-03'), value: 1100 },
+    		],
+    		options: {}
+    	}
+    ];
 
-	function MyChart() {
-		return (
-			<GlobalChartsProvider>
-				<LineChart data={data} />
-			</GlobalChartsProvider>
-		);
-	}`}
+    function MyChart() {
+    	return (
+    		<GlobalChartsProvider>
+    			<LineChart data={data} />
+    		</GlobalChartsProvider>
+    	);
+    }`}
+
 />
 
 ## Available Chart Types
 
 ### [Bar Chart](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs)
+
 Ideal for comparing values across categories, with vertical and horizontal orientations.
 
 ### [Bar List Chart](./?path=/docs/js-packages-charts-library-charts-bar-list-chart--docs)
+
 A horizontal bar chart with customizable labels and value positioning, perfect for displaying categorized data with text annotations.
 
 ### [Conversion Funnel Chart](./?path=/docs/js-packages-charts-library-charts-conversion-funnel-chart--docs)
+
 A specialized chart for visualizing conversion funnels with interactive bar selection, hover effects, and step-by-step progression tracking.
 
 ### [Donut Chart](./?path=/docs/js-packages-charts-library-charts-donut-chart--docs)
+
 A variation of pie charts with a hollow center for additional content display.
 
+### [Geo Chart](./?path=/docs/js-packages-charts-library-charts-geo-chart--docs)
+
+Visualizes geographical data on an interactive world map, making it easy to understand the distribution of values across countries.
+
 ### [Leaderboard Chart](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart--docs)
+
 Specialized for ranking data with progress bars and comparison values.
 
 ### [Line Chart](./?path=/docs/js-packages-charts-library-charts-line-chart--docs)
+
 Perfect for displaying trends over time, with support for multiple data series, annotations, and various curve types.
 
 ### [Pie Chart](./?path=/docs/js-packages-charts-library-charts-pie-chart--docs)
+
 Great for showing parts of a whole, with customizable thickness and gap spacing.
+
+### [Sparkline](./?path=/docs/js-packages-charts-library-charts-sparkline--docs)
+
+A minimal, word-sized chart component designed for showing trends at a glance, perfect for dashboard metrics and inline data visualization.
 
 ## Core Concepts
 
 ### Data Format
+
 Charts expect data in a standardized format with `date` (for time-series) or category values and numeric `value` properties.
 
 ### Theme System
+
 Use the `GlobalChartsProvider` component to apply consistent styling across all charts. Create custom themes by defining the properties you want to override, such as colors, grid styling, and typography.
 
 ### Responsive Design
+
 All charts automatically adapt to their container size using the `withResponsive` higher-order component.
 
 ### Compound Components
+
 Advanced features like annotations, legends, and tooltips are implemented as compound components for maximum flexibility.
 
 ## Development
