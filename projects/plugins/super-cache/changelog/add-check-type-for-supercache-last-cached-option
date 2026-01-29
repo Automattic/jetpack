@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+WP Super Cache: fix "Trying to access array offset on false" PHP warning by typechecking 'supercache_last_cached' option return value
