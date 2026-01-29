@@ -1,3 +1,4 @@
+import type { LegendShape } from '@visx/legend/lib/types';
 import type { ReactNode } from 'react';
 
 /**
@@ -160,9 +161,36 @@ export interface TimeSeriesForecastChartProps< D > {
 	 */
 	showLegend?: boolean;
 	/**
+	 * Legend orientation. Default: 'horizontal'
+	 */
+	legendOrientation?: 'horizontal' | 'vertical';
+	/**
 	 * Legend position. Default: 'bottom'
 	 */
 	legendPosition?: 'top' | 'bottom';
+	/**
+	 * Legend alignment within its position. Default: 'center'
+	 */
+	legendAlignment?: 'start' | 'center' | 'end';
+	/**
+	 * Maximum width for legend items. When set, text overflow behavior is controlled by legendTextOverflow.
+	 * Should be a CSS value string (e.g. '200px', '50%', '10rem')
+	 */
+	legendMaxWidth?: string;
+	/**
+	 * Controls how text behaves when it exceeds legendMaxWidth.
+	 * - 'ellipsis': Truncate with ellipsis
+	 * - 'wrap': Wrap text to multiple lines (default)
+	 */
+	legendTextOverflow?: 'ellipsis' | 'wrap';
+	/**
+	 * Additional CSS class name for legend items.
+	 */
+	legendItemClassName?: string;
+	/**
+	 * Legend shape. Default: 'line'
+	 */
+	legendShape?: LegendShape< D, number >;
 	/**
 	 * Whether to animate the chart on initial render. Default: false
 	 */
