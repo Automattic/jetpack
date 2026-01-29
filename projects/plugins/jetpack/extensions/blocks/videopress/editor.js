@@ -11,7 +11,6 @@ import { createBlobURL } from '@wordpress/blob';
 import { useBlockEditContext, store as blockEditorStore } from '@wordpress/block-editor';
 import { parse } from '@wordpress/block-serialization-default-parser';
 import { createBlock, getBlockType } from '@wordpress/blocks';
-import { Button } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, select } from '@wordpress/data';
 import { mediaUpload, store as editorStore } from '@wordpress/editor';
@@ -37,32 +36,22 @@ import './editor.scss';
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
 		const { name } = useBlockEditContext();
-		if ( name !== 'core/video' ) {
+		// Apply to both core/video and videopress/video blocks
+		if ( name !== 'core/video' && name !== 'videopress/video' ) {
 			return <OriginalPlaceholder { ...props } />;
 		}
 
+		// Disable upload functionality while preserving the rest of the UI (including upsell banners).
+		// We intercept selection handlers to prevent any action.
 		return (
 			<OriginalPlaceholder
 				{ ...props }
+				className={ `${ props.className || '' } no-videopress-media-placeholder`.trim() }
 				disableDropZone={ true }
-				className="no-videopress-media-placeholder"
-			>
-				<Button
-					disabled={ true }
-					className="components-button no-videopress-disabled-button"
-					variant="secondary"
-				>
-					{ __( 'Media Library', 'jetpack' ) }
-				</Button>
-
-				<Button
-					disabled={ true }
-					className="components-button no-videopress-disabled-button"
-					variant="secondary"
-				>
-					{ __( 'Upload', 'jetpack' ) }
-				</Button>
-			</OriginalPlaceholder>
+				handleUpload={ false }
+				onSelect={ () => {} }
+				onSelectURL={ () => {} }
+			/>
 		);
 	},
 	'videoPressNoPlanMediaPlaceholder'
@@ -411,6 +400,54 @@ addFilter(
 	'blocks.registerBlockType',
 	'videopress/add-v6-transform-support',
 	addV6TransformSupport
+);
+
+/**
+ * Handle videopress/video block unavailability.
+ * When the block is unavailable due to missing plan, add a filter to disable
+ * the upload buttons in the MediaPlaceholder.
+ *
+ * @param {object} settings - Block settings.
+ * @param {string} name     - Block name.
+ * @return {object} Modified block settings.
+ */
+function handleVideoPressVideoUnavailability( settings, name ) {
+	// Only apply to videopress/video block.
+	if ( name !== 'videopress/video' ) {
+		return settings;
+	}
+
+	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress/video' );
+
+	// If available, don't modify.
+	if ( available ) {
+		return settings;
+	}
+
+	// Check if unavailable due to missing plan on WPCOM.
+	const isUnavailableDueToMissingPlan =
+		isWpcomPlatformSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason );
+
+	if ( ! isUnavailableDueToMissingPlan ) {
+		return settings;
+	}
+
+	// Add the filter to disable upload buttons in the MediaPlaceholder for videopress/video blocks.
+	addFilter(
+		'editor.MediaPlaceholder',
+		'jetpack/videopress-video-no-plan',
+		videoPressNoPlanMediaPlaceholder
+	);
+
+	return settings;
+}
+
+addFilter(
+	'blocks.registerBlockType',
+	'videopress/handle-unavailability',
+	handleVideoPressVideoUnavailability,
+	// Use priority 20 to run after the block is registered but before other modifications.
+	20
 );
 
 /**
