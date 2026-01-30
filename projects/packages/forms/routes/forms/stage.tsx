@@ -18,7 +18,6 @@ import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/ind
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
-import useConfigValue from '../../src/hooks/use-config-value.ts';
 import type { FormListItem } from '../../src/dashboard/hooks/use-forms-data.ts';
 import type { Action, Operator, View } from '@wordpress/dataviews';
 
@@ -50,7 +49,6 @@ const defaultLayouts = {
 function StageInner() {
 	const navigate = useNavigate();
 	const searchParams = useSearch( { from: '/forms' } );
-	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 
 	const dateSettings = getDateSettings();
 
@@ -109,13 +107,6 @@ function StageInner() {
 
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ pendingPermanentDeleteCount, setPendingPermanentDeleteCount ] = useState( 0 );
-
-	// If CFM is disabled, we shouldn't show Forms list (wp-build assumes CFM, but keep this safe).
-	useEffect( () => {
-		if ( isCentralFormManagementEnabled === false ) {
-			navigate( { href: '/responses/inbox' } );
-		}
-	}, [ isCentralFormManagementEnabled, navigate ] );
 
 	// Selection is local state. Clear it whenever the view changes (page/perPage/search/filters).
 	useEffect( () => {
@@ -319,11 +310,6 @@ function StageInner() {
 
 	const headerActions = useMemo( () => [ <CreateFormButton key="create" /> ], [] );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
-
-	// Avoid rendering if the flag is off (we'll navigate away).
-	if ( isCentralFormManagementEnabled === false ) {
-		return null;
-	}
 
 	return (
 		<Page
