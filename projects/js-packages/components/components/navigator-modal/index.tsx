@@ -4,16 +4,20 @@ import { useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
 import { Screen } from './screen.tsx';
 import './styles.scss';
-import { SharedProps, TNavigatorModalContext } from './types.ts';
+import { TNavigatorModalContext } from './types.ts';
+
+type ModalProps = React.ComponentProps< typeof Modal >;
+
+type NavigatorModalProps = ModalProps & TNavigatorModalContext;
 
 /**
  * Renders the internal NavigatorModal component.
  *
- * @param { SharedProps } props - Props
+ * @param { ModalProps } props - Props
  *
  * @return Component
  */
-function InternalNavigatorModal( { children, className }: SharedProps ) {
+function InternalNavigatorModal( { children, className, ...props }: ModalProps ) {
 	const context = useContext( NavigatorModalContext );
 
 	return (
@@ -21,6 +25,7 @@ function InternalNavigatorModal( { children, className }: SharedProps ) {
 			__experimentalHideHeader
 			onRequestClose={ context.onClose }
 			className={ clsx( 'jp-navigator-modal', className ) }
+			{ ...props }
 		>
 			<Navigator initialPath={ context.initialPath } className="jp-navigator-modal__navigator">
 				{ children }
@@ -32,7 +37,7 @@ function InternalNavigatorModal( { children, className }: SharedProps ) {
 /**
  * Renders a modal with navigator capabilities.
  *
- * @param {SharedProps & TNavigatorModalContext} props - Props
+ * @param {NavigatorModalProps} props - Props
  *
  * @return Component
  */
@@ -42,7 +47,7 @@ function NavigatorModalMain( {
 	initialPath = '/',
 	onClose,
 	isDismissible = true,
-}: SharedProps & TNavigatorModalContext ) {
+}: NavigatorModalProps ) {
 	return (
 		<NavigatorModalContext.Provider value={ { onClose, initialPath, isDismissible } }>
 			<InternalNavigatorModal className={ className }>{ children }</InternalNavigatorModal>
