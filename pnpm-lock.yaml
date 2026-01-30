@@ -2523,8 +2523,8 @@ importers:
         specifier: 6.38.0
         version: 6.38.0
       '@wordpress/build':
-        specifier: 0.6.0
-        version: 0.6.0(@babel/core@7.28.4)(@wordpress/boot@0.5.0(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1))(@wordpress/route@0.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1))(browserslist@4.24.5)
+        specifier: 0.7.0
+        version: 0.7.0(@babel/core@7.28.4)(@wordpress/boot@0.5.0(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1))(@wordpress/route@0.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1))(browserslist@4.24.5)
       '@wordpress/date':
         specifier: 5.38.0
         version: 5.38.0
@@ -4911,9 +4911,6 @@ importers:
       jsdom:
         specifier: ^27.0.0
         version: 27.4.0
-      katex:
-        specifier: 0.16.22
-        version: 0.16.22
       mapbox-gl:
         specifier: 1.13.3
         version: 1.13.3
@@ -10396,8 +10393,8 @@ packages:
     resolution: {integrity: sha512-cLm8mg7jHdajpkuC0ohjy1/DWB7X/mrW8N5spA0ukKfj+CbJi7+PVFeeEPCjDLEybnlqrVCJ8VaLaxde+xU3UA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/build@0.6.0':
-    resolution: {integrity: sha512-GUrt5nErSN4dgYkKwFyO5sZ7sRJGUqXv5hxL2mAoC3E3+aXtDmXzretXRplewNWfk5DRgvMxUc1iXK6ePVps5Q==}
+  '@wordpress/build@0.7.0':
+    resolution: {integrity: sha512-KcacUEQ71otmvVNmpe/z6APjUrKfOEdD6PZoHeFouaRVObigctwo01/6SgWmcnnoWROib1B8psvebt32F4vJuw==}
     engines: {node: '>=20.10.0', npm: '>=10.2.3'}
     hasBin: true
     peerDependencies:
@@ -14188,10 +14185,6 @@ packages:
   jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
     engines: {node: '>=4.0'}
-
-  katex@0.16.22:
-    resolution: {integrity: sha512-XCHRdUw4lf3SKBaJe4EvgqIuWwkPSo9XoeO8GjQW94Bp7TWv9hNhzZjZ+OH9yf1UmLygb7DIT5GSFQiyt16zYg==}
-    hasBin: true
 
   kdbush@3.0.0:
     resolution: {integrity: sha512-hRkd6/XW4HTsA9vjVpY9tuXJYLSlelnkTmVFu4M9/7MIYQtFcHpbugAU7UbOfjOiVSVYl2fqgBuJ32JUmRo5Ew==}
@@ -24360,7 +24353,7 @@ snapshots:
 
   '@wordpress/browserslist-config@6.38.0': {}
 
-  '@wordpress/build@0.6.0(@babel/core@7.28.4)(@wordpress/boot@0.5.0(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1))(@wordpress/route@0.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1))(browserslist@4.24.5)':
+  '@wordpress/build@0.7.0(@babel/core@7.28.4)(@wordpress/boot@0.5.0(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1))(@wordpress/route@0.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1))(browserslist@4.24.5)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       autoprefixer: 10.4.23(postcss@8.5.6)
@@ -27974,7 +27967,7 @@ snapshots:
   css-tree@2.2.1:
     dependencies:
       mdn-data: 2.0.28
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   css-tree@2.3.1:
     dependencies:
@@ -27984,7 +27977,7 @@ snapshots:
   css-tree@3.1.0:
     dependencies:
       mdn-data: 2.12.2
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   css-what@6.2.2: {}
 
@@ -30926,10 +30919,6 @@ snapshots:
       array.prototype.flat: 1.3.3
       object.assign: 4.1.7
       object.values: 1.2.1
-
-  katex@0.16.22:
-    dependencies:
-      commander: 8.3.0
 
   kdbush@3.0.0: {}
 

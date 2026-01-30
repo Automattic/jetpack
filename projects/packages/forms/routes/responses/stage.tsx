@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Badge } from '@automattic/ui';
 import '@automattic/ui/style.css';
 /**
@@ -30,6 +29,7 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
 import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
+import FormsLogo from '../../src/dashboard/components/forms-logo';
 import Gravatar from '../../src/dashboard/components/gravatar';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
@@ -548,12 +548,7 @@ function StageInner() {
 	return (
 		<Page
 			showSidebarToggle={ false }
-			title={
-				<Stack align="center" gap="xs">
-					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
-				</Stack>
-			}
+			title={ <FormsLogo /> }
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
 			actions={ headerActions }
 			hasPadding={ false }
