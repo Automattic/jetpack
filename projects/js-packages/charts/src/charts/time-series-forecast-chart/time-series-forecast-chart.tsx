@@ -1,6 +1,6 @@
 import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
 import { curveMonotoneX } from '@visx/curve';
-import { XYChart, AreaSeries, Grid, Axis, Tooltip } from '@visx/xychart';
+import { XYChart, AreaSeries, LineSeries, Grid, Axis, Tooltip } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useMemo, useCallback } from 'react';
@@ -61,7 +61,7 @@ const formatDateTick = ( d: Date ) => {
  * @param root0.yDomain             - Optional fixed y-axis domain
  * @param root0.xTickFormat         - Formatter function for x-axis ticks
  * @param root0.yTickFormat         - Formatter function for y-axis ticks
- * @param root0.showTooltip         - Whether to show tooltips on hover
+ * @param root0.withTooltips        - Whether to show tooltips on hover
  * @param root0.seriesKeys          - Custom labels for series in legend/tooltip
  * @param root0.renderTooltip       - Custom tooltip renderer function
  * @param root0.className           - Additional CSS class name
@@ -89,7 +89,7 @@ function TimeSeriesForecastChartInternal< D >( {
 	yDomain: providedYDomain,
 	xTickFormat = formatDateTick,
 	yTickFormat,
-	showTooltip = true,
+	withTooltips = true,
 	seriesKeys: providedSeriesKeys,
 	renderTooltip,
 	className,
@@ -122,6 +122,7 @@ function TimeSeriesForecastChartInternal< D >( {
 
 	// Transform and split data
 	const {
+		allPoints,
 		historical,
 		forecast,
 		bandData,
@@ -293,7 +294,6 @@ function TimeSeriesForecastChartInternal< D >( {
 		return formatNumberCompact as TickFormatter< number >;
 	}, [ yTickFormat ] );
 
-
 	// Handle empty data
 	if ( data.length === 0 ) {
 		return (
@@ -356,7 +356,7 @@ function TimeSeriesForecastChartInternal< D >( {
 					<Axis orientation="bottom" numTicks={ 5 } tickFormat={ xTickFormat } />
 					<Axis orientation="left" numTicks={ 4 } tickFormat={ yAxisTickFormat } />
 
-					{ /* Uncertainty band - rendered first (behind lines) */ }
+					{ /* Uncertainty band - rendered first (behind lines), no pointer events */ }
 					{ bandData.length > 0 && (
 						<AreaSeries
 							dataKey={ seriesKeys.band }
@@ -368,10 +368,11 @@ function TimeSeriesForecastChartInternal< D >( {
 							fillOpacity={ 0.2 }
 							renderLine={ false }
 							curve={ curveMonotoneX }
+							enableEvents={ false }
 						/>
 					) }
 
-					{ /* Historical line - solid */ }
+					{ /* Historical line - solid, visual only */ }
 					{ historical.length > 0 && (
 						<AreaSeries
 							dataKey={ seriesKeys.historical }
@@ -382,10 +383,11 @@ function TimeSeriesForecastChartInternal< D >( {
 							renderLine={ true }
 							curve={ curveMonotoneX }
 							lineProps={ { stroke: primaryColor } }
+							enableEvents={ false }
 						/>
 					) }
 
-					{ /* Forecast line - dashed */ }
+					{ /* Forecast line - dashed, visual only */ }
 					{ forecast.length > 0 && (
 						<AreaSeries
 							dataKey={ seriesKeys.forecast }
@@ -399,8 +401,20 @@ function TimeSeriesForecastChartInternal< D >( {
 								stroke: primaryColor,
 								strokeDasharray: '4 4',
 							} }
+							enableEvents={ false }
 						/>
 					) }
+
+					{ /* Invisible line for tooltip - handles all pointer events */ }
+					<LineSeries
+						dataKey="__tooltip__"
+						data={ allPoints }
+						xAccessor={ xAccessor }
+						yAccessor={ yAccessor }
+						curve={ curveMonotoneX }
+						stroke="transparent"
+						strokeWidth={ 0 }
+					/>
 
 					{ /* Vertical divider at forecast start */ }
 					{ showDivider && (
@@ -411,7 +425,7 @@ function TimeSeriesForecastChartInternal< D >( {
 					) }
 
 					{ /* Tooltip */ }
-					{ showTooltip && (
+					{ withTooltips && (
 						<Tooltip
 							snapTooltipToDatumX
 							snapTooltipToDatumY

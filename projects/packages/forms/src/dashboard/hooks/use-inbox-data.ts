@@ -8,12 +8,13 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
+import { isCollectionFormatField } from '../components/inspector/utils.ts';
 import { useDashboardSearchParams } from '../router/dashboard-search-params-context.tsx';
 import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
-import type { FormResponse, ResponseField } from '../../types/index.ts';
+import type { FormResponse, ResponseField, ResponseFields } from '../../types/index.ts';
 
 /**
  * Helper function to get the status filter to apply from the URL.
@@ -72,23 +73,26 @@ const decodeValue = ( value: unknown ): unknown => {
 const hasOwn = ( obj: object, key: PropertyKey ): boolean =>
 	Object.prototype.hasOwnProperty.call( obj, key );
 
-const normalizeFieldsForDisplay = ( fields: ResponseField[] ): Record< string, unknown > => {
+const normalizeFieldsForDisplay = ( fields: ResponseField[] ): ResponseFields => {
 	if ( ! fields || ! Array.isArray( fields ) ) {
 		return Object.create( null ) as Record< string, unknown >;
 	}
 
-	return fields.reduce(
-		( accumulator, field ) => {
-			const baseLabel = field.label || formatFieldName( field.key ) || field.key;
-			let label = baseLabel;
+	if ( isCollectionFormatField( fields[ 0 ] ) ) {
+		return fields;
+	}
+
+	return Object.entries( fields || {} ).reduce(
+		( accumulator, [ key, value ] ) => {
+			let _key = formatFieldName( key );
 			let counter = 2;
 
-			while ( hasOwn( accumulator, label ) ) {
-				label = `${ baseLabel } (${ counter })`;
+			while ( hasOwn( accumulator, _key ) ) {
+				_key = `${ formatFieldName( key ) } (${ counter })`;
 				counter++;
 			}
 
-			accumulator[ label ] = formatFieldValue( decodeValue( field.value ) );
+			accumulator[ _key ] = formatFieldValue( decodeValue( value ) );
 
 			return accumulator;
 		},

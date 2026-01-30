@@ -4,19 +4,43 @@
 
 import { useEffect, useRef } from '@wordpress/element';
 import { filterSyncedAttributes } from '../util/form-sync.ts';
+import type { Block } from '@wordpress/blocks';
 
 interface UseSyncedFormLoaderParams {
 	ref?: number;
-	syncedFormBlocks: unknown[] | null;
+	syncedFormBlocks: Block[] | null;
 	syncedFormAttributes: Record< string, unknown > | null;
 	clientId: string;
 	setAttributes: ( attributes: Record< string, unknown > ) => void;
-	replaceInnerBlocks: ( clientId: string, blocks: unknown[], updateSelection: boolean ) => void;
+	replaceInnerBlocks: ( clientId: string, blocks: Block[], updateSelection: boolean ) => void;
 	__unstableMarkNextChangeAsNotPersistent: () => void;
+	setActiveStep: ( formClientId: string, stepClientId: string ) => void;
 }
 
 interface UseSyncedFormLoaderResult {
 	isSyncingRef: React.MutableRefObject< boolean >;
+}
+
+/**
+ * Helper to find the first step block in a multistep form structure.
+ *
+ * @param {Block[]} blocks - The blocks to search through.
+ * @return {string|null} The clientId of the first step block, or null if not found.
+ */
+function findFirstStepClientId( blocks: Block[] ): string | null {
+	for ( const block of blocks ) {
+		if ( block.name === 'jetpack/form-step-container' && block.innerBlocks?.length ) {
+			const firstStep = block.innerBlocks.find( b => b.name === 'jetpack/form-step' );
+			return firstStep?.clientId || null;
+		}
+		if ( block.innerBlocks?.length ) {
+			const found = findFirstStepClientId( block.innerBlocks );
+			if ( found ) {
+				return found;
+			}
+		}
+	}
+	return null;
 }
 
 /**
@@ -35,6 +59,7 @@ export function useSyncedFormLoader( {
 	setAttributes,
 	replaceInnerBlocks,
 	__unstableMarkNextChangeAsNotPersistent,
+	setActiveStep,
 }: UseSyncedFormLoaderParams ): UseSyncedFormLoaderResult {
 	// Track if we're currently syncing to prevent save-back loops
 	const isSyncingRef = useRef( false );
@@ -71,6 +96,12 @@ export function useSyncedFormLoader( {
 		__unstableMarkNextChangeAsNotPersistent();
 		replaceInnerBlocks( clientId, syncedFormBlocks, false );
 
+		// For multistep forms, select the first step so the editor shows it immediately
+		const firstStepClientId = findFirstStepClientId( syncedFormBlocks );
+		if ( firstStepClientId ) {
+			setActiveStep( clientId, firstStepClientId );
+		}
+
 		// Reset syncing flag after a short delay
 		const timeoutId = setTimeout( () => {
 			isSyncingRef.current = false;
@@ -87,6 +118,7 @@ export function useSyncedFormLoader( {
 		__unstableMarkNextChangeAsNotPersistent,
 		replaceInnerBlocks,
 		setAttributes,
+		setActiveStep,
 	] );
 
 	return { isSyncingRef };

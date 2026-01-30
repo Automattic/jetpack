@@ -8,8 +8,13 @@ interface UseForecastDataOptions< D > {
 }
 
 interface UseForecastDataResult {
+	/** All transformed points (no duplicates) - used for tooltip */
+	allPoints: TransformedForecastPoint[];
+	/** Historical points (before forecastStart) - for visual rendering */
 	historical: TransformedForecastPoint[];
+	/** Forecast points (at or after forecastStart) - for visual rendering */
 	forecast: TransformedForecastPoint[];
+	/** Band data for uncertainty region */
 	bandData: BandPoint[];
 	yDomain: [ number, number ];
 	xDomain: [ Date, Date ];
@@ -49,6 +54,7 @@ export function useForecastData< D >( {
 		if ( data.length === 0 ) {
 			const now = new Date();
 			return {
+				allPoints: [],
 				historical: [],
 				forecast: [],
 				bandData: [],
@@ -88,13 +94,13 @@ export function useForecastData< D >( {
 		const allLowers = transformed.map( p => p.lower ).filter( ( v ): v is number => v !== null );
 		const allUppers = transformed.map( p => p.upper ).filter( ( v ): v is number => v !== null );
 
-		// Use reduce instead of spread to avoid stack overflow on large arrays
-		const allYValues = [ ...allValues, ...allLowers, ...allUppers ];
+		// Use concat instead of spread to avoid stack overflow on large arrays
+		const allYValues = allValues.concat( allLowers, allUppers );
 		const minY = allYValues.reduce( ( min, val ) => Math.min( min, val ), Infinity );
 		const maxY = allYValues.reduce( ( max, val ) => Math.max( max, val ), -Infinity );
 
-		// Add some padding to y domain
-		const yPadding = ( maxY - minY ) * 0.1;
+		// Add some padding to y domain (ensure minimum padding to avoid zero-height scales)
+		const yPadding = Math.max( ( maxY - minY ) * 0.1, 1 );
 		const yDomain: [ number, number ] = [ Math.max( 0, minY - yPadding ), maxY + yPadding ];
 
 		// 6. Compute x domain (use reduce to avoid stack overflow on large arrays)
@@ -104,6 +110,6 @@ export function useForecastData< D >( {
 			new Date( allDateTimes.reduce( ( max, val ) => Math.max( max, val ), -Infinity ) ),
 		];
 
-		return { historical, forecast, bandData, yDomain, xDomain };
+		return { allPoints: transformed, historical, forecast, bandData, yDomain, xDomain };
 	}, [ data, accessors, forecastStart ] );
 }
