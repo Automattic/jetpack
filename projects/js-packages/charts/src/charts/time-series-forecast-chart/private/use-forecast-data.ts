@@ -54,6 +54,7 @@ export function useForecastData< D >( {
 		if ( data.length === 0 ) {
 			const now = new Date();
 			return {
+				allPoints: [],
 				historical: [],
 				forecast: [],
 				bandData: [],
