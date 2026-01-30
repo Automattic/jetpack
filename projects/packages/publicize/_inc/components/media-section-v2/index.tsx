@@ -276,9 +276,7 @@ export default function MediaSectionV2( {
 					<BaseControl.VisualLabel>
 						{ __( 'Media', 'jetpack-publicize-pkg' ) }
 					</BaseControl.VisualLabel>
-					<span className={ styles.description }>
-						{ getMediaSourceDescription( currentSource ) }
-					</span>
+					<p className={ styles.description }>{ getMediaSourceDescription( currentSource ) }</p>
 
 					{ /* MediaUpload component - rendered once, open function stored in ref */ }
 					<MediaUpload
