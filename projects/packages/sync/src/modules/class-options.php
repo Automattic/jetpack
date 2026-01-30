@@ -504,20 +504,34 @@ class Options extends Module {
 	 * @return bool False if only excluded keys changed (or no change), true otherwise.
 	 */
 	private function should_enqueue_jetpack_options_update( $old_value, $value ) {
-		// No changes at all
+		// No changes at all.
 		if ( $old_value === $value ) {
 			return false;
 		}
-
-		// Values are different but not both arrays - meaningful change
+		// Values are different but not both arrays - meaningful change.
 		if ( ! is_array( $old_value ) || ! is_array( $value ) ) {
 			return true;
 		}
-
-		// Get changed keys in both directions (modified/added and removed)
-		$changed_keys = array_keys(
-			array_diff_assoc( $value, $old_value ) + array_diff_assoc( $old_value, $value )
+		// Determine all top-level keys present in either the old or new value.
+		$all_keys     = array_unique(
+			array_merge(
+				array_keys( $old_value ),
+				array_keys( $value )
+			)
 		);
+		$changed_keys = array();
+		// Collect keys that were added, removed, or whose values changed (strict comparison).
+		foreach ( $all_keys as $key ) {
+			$old_has_key = array_key_exists( $key, $old_value );
+			$new_has_key = array_key_exists( $key, $value );
+			if ( ! $old_has_key || ! $new_has_key ) {
+				$changed_keys[] = $key;
+				continue;
+			}
+			if ( $old_value[ $key ] !== $value[ $key ] ) {
+				$changed_keys[] = $key;
+			}
+		}
 
 		// Return false if ALL changed keys are excluded, true otherwise
 		return ! empty( array_diff( $changed_keys, Defaults::$jetpack_options_blacklist ) );

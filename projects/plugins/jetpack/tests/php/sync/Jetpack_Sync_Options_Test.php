@@ -343,7 +343,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 		);
 	}
 
-	public function test_sync_blacklisted_jetpack_options() {
+	public function test_don_t_sync_jetpack_options_if_changed_key_is_blacklisted() {
 		$this->setSyncClientDefaults();
 
 		$this->server_replica_storage->reset();
