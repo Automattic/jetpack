@@ -3,7 +3,6 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import disconnectImage from '../images/disconnect-thanks.jpg';
 
 /**
  * Show the "thank you" step following survey submission
@@ -12,7 +11,8 @@ import disconnectImage from '../images/disconnect-thanks.jpg';
  * @return {import('react').Component} - The StepThankYou Component
  */
 const StepThankYou = props => {
-	const { onExit } = props;
+	const { onExit, assetBaseUrl } = props;
+	const disconnectImage = assetBaseUrl ? `${ assetBaseUrl }/disconnect-thanks.jpg` : undefined;
 
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
@@ -43,10 +43,10 @@ const StepThankYou = props => {
 	);
 };
 
-StepThankYou.PropTypes = {
+StepThankYou.propTypes = {
 	/** Callback function to close the disconnect modal. */
 	onExit: PropTypes.func,
-	/** Base URL for where webpack-ed images will be stored for the consumer of this component. */
+	/** Base URL for where image assets are served from (no trailing slash). */
 	assetBaseUrl: PropTypes.string,
 };
 
