@@ -28,7 +28,6 @@ import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import Gravatar from '../../src/dashboard/components/gravatar';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
-import { getPath } from '../../src/dashboard/inbox/utils';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
@@ -127,6 +126,21 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
 
 	// Fallback: wrap in span for other types
 	return <span style={ { fontWeight: 600 } }>{ element }</span>;
+}
+
+/**
+ * Get the path from a URL string.
+ *
+ * @param url - The URL string.
+ * @return The pathname from the URL, or null if the URL is invalid.
+ */
+function getPath( url: string ): string | null {
+	try {
+		const parsedUrl = new URL( url );
+		return parsedUrl.pathname;
+	} catch {
+		return null;
+	}
 }
 
 /**
