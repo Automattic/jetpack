@@ -70,8 +70,18 @@ class Settings {
 		if ( ! $this->expose_to_users() ) {
 			return;
 		}
+
+		$host = new Host();
+
+		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php,
+		// which will call add_wp_admin_submenu() directly. Skip adding the menu here to avoid
+		// trying to add a submenu before the parent menu exists.
+		if ( $host->is_wpcom_simple() ) {
+			return;
+		}
+
 		// Add admin menu item.
-		add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), 1000 );
+		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 1000 );
 
 		// Hijack the config URLs to point to our settings page.
 		// Customize the configuration URL to lead to the Subscriptions settings.
@@ -84,11 +94,67 @@ class Settings {
 	}
 
 	/**
-	 * Add the newsletter settings submenu.
+	 * Add the newsletter settings submenu to the Jetpack menu.
 	 *
-	 * On wpcom, this is called from wpcom-admin-menu.php at late priority (999999)
-	 * when the Jetpack menu already exists. On standalone Jetpack, this is called
-	 * via init_hooks() at priority 1000.
+	 * Note: This method is NOT called on wpcom Simple sites. Simple sites use
+	 * add_wp_admin_submenu() called from wpcom-admin-menu.php instead.
+	 *
+	 * Menu visibility rules:
+	 * - wpcom Atomic: Show under 'jetpack' if module active, hidden if inactive.
+	 * - Standalone Jetpack: Show under 'jetpack' if module active, hidden if inactive.
+	 */
+	public function add_wp_admin_menu() {
+		if ( ! $this->expose_to_users() ) {
+			return;
+		}
+
+		$host             = new Host();
+		$is_module_active = $this->is_subscriptions_active();
+
+		// Determine parent slug and menu registration method.
+		// - wpcom Atomic: Show in Jetpack menu if active, hidden page if inactive.
+		// - Standalone Jetpack: Show in Jetpack menu if active, hidden page if inactive.
+		if ( $host->is_woa_site() ) {
+			$parent_slug      = $is_module_active ? 'jetpack' : '';
+			$use_jetpack_menu = false; // Use add_submenu_page for Atomic sites.
+		} else {
+			$parent_slug      = $is_module_active ? 'jetpack' : '';
+			$use_jetpack_menu = $is_module_active;
+		}
+
+		// Register menu item.
+		if ( $use_jetpack_menu ) {
+			$page_suffix = Admin_Menu::add_menu(
+				/** "Newsletter" is a product name, do not translate. */
+				'Newsletter',
+				'Newsletter',
+				'manage_options',
+				'jetpack-newsletter',
+				array( $this, 'render' ),
+				10
+			);
+		} else {
+			$page_suffix = add_submenu_page(
+				$parent_slug,
+				/** "Newsletter" is a product name, do not translate. */
+				'Newsletter',
+				'Newsletter',
+				'manage_options',
+				'jetpack-newsletter',
+				array( $this, 'render' )
+			);
+		}
+
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		}
+	}
+
+	/**
+	 * Add the newsletter settings submenu directly under the Jetpack menu.
+	 *
+	 * This method is called from wpcom-admin-menu.php on Simple sites at late priority
+	 * (999999) when the Jetpack menu already exists.
 	 *
 	 * Similar to Subscribers_Dashboard::add_wp_admin_submenu().
 	 */
@@ -97,46 +163,15 @@ class Settings {
 			return;
 		}
 
-		$host = new Host();
-
-		if ( $host->is_wpcom_platform() ) {
-			// On wpcom, use add_submenu_page directly under 'jetpack'.
-			// When called from wpcom-admin-menu.php at late priority, the menu exists.
-			$page_suffix = add_submenu_page(
-				'jetpack',
-				/** "Newsletter" is a product name, do not translate. */
-				'Newsletter',
-				'Newsletter',
-				'manage_options',
-				'jetpack-newsletter',
-				array( $this, 'render' )
-			);
-		} else {
-			// For standalone Jetpack, use Admin_Menu which handles timing.
-			$is_module_active = $this->is_subscriptions_active();
-			if ( $is_module_active ) {
-				$page_suffix = Admin_Menu::add_menu(
-					/** "Newsletter" is a product name, do not translate. */
-					'Newsletter',
-					'Newsletter',
-					'manage_options',
-					'jetpack-newsletter',
-					array( $this, 'render' ),
-					10
-				);
-			} else {
-				// Hidden page when module is inactive.
-				$page_suffix = add_submenu_page(
-					'',
-					/** "Newsletter" is a product name, do not translate. */
-					'Newsletter',
-					'Newsletter',
-					'manage_options',
-					'jetpack-newsletter',
-					array( $this, 'render' )
-				);
-			}
-		}
+		$page_suffix = add_submenu_page(
+			'jetpack',
+			/** "Newsletter" is a product name, do not translate. */
+			'Newsletter',
+			'Newsletter',
+			'manage_options',
+			'jetpack-newsletter',
+			array( $this, 'render' )
+		);
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );

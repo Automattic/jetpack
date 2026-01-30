@@ -1,4 +1,3 @@
 Significance: patch
-Type: fixed
-
-Settings: refactor add_wp_admin_submenu to be callable from wpcom-admin-menu for proper menu integration on Simple sites.
+Type: changed
+Comment: Code quality improvements with no user-facing changes.

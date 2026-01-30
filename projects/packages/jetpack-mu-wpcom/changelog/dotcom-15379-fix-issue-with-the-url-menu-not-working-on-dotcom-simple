@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Admin Menu: fix Newsletter menu link not working on Simple sites by using Newsletter_Settings when enabled.
+Fix Newsletter menu on Simple sites to open in-admin settings when enabled instead of external URL.
