@@ -1,4 +1,6 @@
+import { hasSocialPaidFeatures } from '../../../utils';
 import { SharePostForm } from '../../form/share-post-form';
+import { UpgradeNoticeCustomization } from '../../form/upgrade-notice-customization';
 
 /**
  * Global Customization Form component.
@@ -6,9 +8,15 @@ import { SharePostForm } from '../../form/share-post-form';
  * @return - Global Customization Form component.
  */
 export function GlobalCustomizationForm() {
+	const hasPaidFeatures = hasSocialPaidFeatures();
+
 	return (
 		<div>
-			<SharePostForm analyticsData={ { location: 'preview-modal' } } isInsideNavigatorModal />
+			<SharePostForm
+				analyticsData={ { location: 'preview-modal' } }
+				isInsideNavigatorModal
+				upgradeNotice={ ! hasPaidFeatures ? <UpgradeNoticeCustomization /> : undefined }
+			/>
 		</div>
 	);
 }
