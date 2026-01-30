@@ -30,12 +30,13 @@ export function TabContent( { connectionId, usingPerNetworkCustomization }: TabC
 		>
 			{ usingPerNetworkCustomization ? (
 				<CustomizationSection connection={ connection } usingPerNetworkCustomization />
-			) : (
+			) : null }
+			<div className={ styles[ 'preview-wrapper' ] }>
 				<div className={ styles[ 'connection-toggle-wrapper' ] }>
 					<ConnectionToggle connection={ connection } />
 				</div>
-			) }
-			<PreviewSection connection={ connection } />
+				<PreviewSection connection={ connection } />
+			</div>
 		</div>
 	);
 }

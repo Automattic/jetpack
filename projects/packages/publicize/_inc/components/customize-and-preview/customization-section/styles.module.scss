@@ -6,16 +6,29 @@
 	flex-direction: column;
 	gap: 1.5rem;
 
+	legend {
+		color: gb.$gray-700;
+		// Float fixes the default fieldset/legend border and padding issues.
+		float: inline-start;
+	}
+
+	&[data-variant="per-network"] {
+
+		legend {
+			// Hide legend on small screens
+			// for per-network customization.
+			display: none;
+
+			@include gb.break-medium() {
+				display: block;
+			}
+		}
+	}
+
 	@include gb.break-medium() {
 
 		&[data-variant="global"] {
 			border-inline-end: 1px solid gb.$gray-200;
 		}
-	}
-
-	legend {
-		color: gb.$gray-700;
-		// Float fixes the default fieldset/legend border and padding issues.
-		float: inline-start;
 	}
 }

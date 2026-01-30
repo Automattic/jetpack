@@ -59,13 +59,47 @@
 	grid-template-columns: 1fr;
 	height: 100%;
 
+	// On mobile per-network mode,
+	// move connection toggle above customization section
+	&[data-variant="per-network"] {
+
+		.preview-wrapper {
+			display: contents;
+		}
+
+		.connection-toggle-wrapper {
+			order: -1;
+		}
+	}
+
 	@include gb.break-medium() {
-		grid-template-rows: auto 1fr;
+		// Ensure that it takes full height
+		grid-template-rows: 1fr;
+
 
 		&[data-variant="per-network"] {
-			grid-template-rows: 1fr;
+			// Make the sidebar and preview take appropriate space
 			grid-template-columns: clamp(200px, 33.33%, 350px) minmax(0, 1fr);
+
+			.preview-wrapper {
+				// Reset from mobile's `display: contents`
+				display: flex;
+			}
+
+			.connection-toggle-wrapper {
+				order: unset;
+			}
 		}
+	}
+}
+
+.preview-wrapper {
+	display: flex;
+	flex-direction: column;
+
+	// Make the preview section fill remaining space
+	> :last-child {
+		flex: 1;
 	}
 }
 
