@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatNumber } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import '@automattic/ui/style.css';
 /**
@@ -301,25 +302,25 @@ function StageInner() {
 				elements: [
 					{
 						label: sprintf(
-							/* translators: %d is the number of inbox responses. */
-							__( 'Inbox (%d)', 'jetpack-forms' ),
-							totalItemsInbox ?? 0
+							/* translators: %s is the number of inbox responses. */
+							__( 'Inbox (%s)', 'jetpack-forms' ),
+							formatNumber( totalItemsInbox ?? 0 )
 						),
 						value: 'inbox',
 					},
 					{
 						label: sprintf(
-							/* translators: %d is the number of spam responses. */
-							__( 'Spam (%d)', 'jetpack-forms' ),
-							totalItemsSpam ?? 0
+							/* translators: %s is the number of spam responses. */
+							__( 'Spam (%s)', 'jetpack-forms' ),
+							formatNumber( totalItemsSpam ?? 0 )
 						),
 						value: 'spam',
 					},
 					{
 						label: sprintf(
-							/* translators: %d is the number of trash responses. */
-							__( 'Trash (%d)', 'jetpack-forms' ),
-							totalItemsTrash ?? 0
+							/* translators: %s is the number of trash responses. */
+							__( 'Trash (%s)', 'jetpack-forms' ),
+							formatNumber( totalItemsTrash ?? 0 )
 						),
 						value: 'trash',
 					},
