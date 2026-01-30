@@ -29,6 +29,19 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 	if ( ! outOf || outOf.trim() === '' ) {
 		return <>-</>;
 	}
+
+	const parsedRating = Number.parseInt( rateValue.trim(), 10 );
+	const parsedMax = Number.parseInt( outOf.trim(), 10 );
+	if (
+		! Number.isFinite( parsedRating ) ||
+		parsedRating < 0 ||
+		! Number.isFinite( parsedMax ) ||
+		parsedMax < 0
+	) {
+		return <>-</>;
+	}
+	const displayRating = Math.min( Math.max( 0, parsedRating ), parsedMax );
+
 	const iconSvg = (
 		<SVG viewBox="0 0 24 24" aria-hidden="true">
 			<Path
@@ -43,15 +56,15 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 	const ratingLabel = sprintf(
 		/* translators: 1: rating value, 2: maximum rating (e.g. "4" and "5" for "4 out of 5") */
 		__( 'Rating %1$s out of %2$s', 'jetpack-forms' ),
-		rateValue.trim(),
-		outOf.trim()
+		String( displayRating ),
+		String( parsedMax )
 	);
 
 	return (
 		<>
 			<VisuallyHidden as="span">{ ratingLabel }</VisuallyHidden>
 			<HStack spacing="1" alignment="topLeft">
-				{ Array.from( { length: parseInt( rateValue ) }, ( _, index ) => (
+				{ Array.from( { length: displayRating }, ( _, index ) => (
 					<span style={ { flex: '0 0 24px' } } key={ index }>
 						{ iconSvg }
 					</span>

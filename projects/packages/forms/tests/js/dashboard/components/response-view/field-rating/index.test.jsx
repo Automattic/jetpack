@@ -93,12 +93,24 @@ describe( 'FieldRating', () => {
 	} );
 
 	describe( 'Edge cases', () => {
-		it( 'renders zero icons for non-numeric rate part', () => {
-			const { container } = render( <FieldRating value="abc/5" /> );
+		it( 'falls back to "-" for non-numeric rate part', () => {
+			render( <FieldRating value="abc/5" /> );
+
+			expect( screen.getByText( '-' ) ).toBeInTheDocument();
+		} );
+
+		it( 'falls back to "-" for non-numeric max part', () => {
+			render( <FieldRating value="3/abc" /> );
+
+			expect( screen.getByText( '-' ) ).toBeInTheDocument();
+		} );
+
+		it( 'clamps rating to max (e.g. 7/5 shows 5 icons)', () => {
+			const { container } = render( <FieldRating value="7/5" /> );
 
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			const svgs = container.querySelectorAll( 'svg' );
-			expect( svgs ).toHaveLength( 0 );
+			expect( svgs ).toHaveLength( 5 );
 		} );
 
 		it( 'parses only the first segment before slash', () => {
