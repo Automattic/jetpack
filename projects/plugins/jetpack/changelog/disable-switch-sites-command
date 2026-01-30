@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Switch Site command: disable for now - note this was never included in a jetpack-plugin release
