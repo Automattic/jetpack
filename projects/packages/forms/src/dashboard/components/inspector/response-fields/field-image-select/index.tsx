@@ -2,7 +2,8 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils/site-type-utils';
 import {
 	Button,
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	Icon,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { image as imageIcon } from '@wordpress/icons';
 import photon from 'photon';
@@ -35,7 +36,7 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 		<>
 			{ ( choices?.length ?? 0 ) === 0 && '-' }
 			{ ( choices?.length ?? 0 ) > 0 && (
-				<VStack spacing="1">
+				<HStack spacing="1" alignment="topLeft" wrap="wrap">
 					{ choices.map( choice => {
 						const label = choice.label
 							? `${ choice.selected }: ${ choice.label }`
@@ -45,7 +46,7 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 							<Button
 								__next40pxDefaultSize
 								key={ choice.selected }
-								variant="tertiary"
+								variant="secondary"
 								onClick={
 									hasImage
 										? handleFilePreview( {
@@ -56,25 +57,24 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 										: undefined
 								}
 								className="jp-forms__image-select-field-button"
-								icon={
-									hasImage ? (
-										<img
-											alt={ choice.selected }
-											loading="lazy"
-											src={ photonSafeUrl( choice.image.src ) }
-											style={ { objectFit: 'cover' } }
-										/>
-									) : (
-										imageIcon
-									)
-								}
-								iconSize={ 60 }
 							>
-								{ label }
+								{ hasImage ? (
+									<img
+										width={ 138 }
+										height={ 144 }
+										alt={ choice.selected }
+										loading="lazy"
+										src={ photonSafeUrl( choice.image.src ) }
+										style={ { objectFit: 'cover' } }
+									/>
+								) : (
+									<Icon icon={ imageIcon } size={ 144 } />
+								) }
+								<span className="jp-forms__image-select-field-button-label">{ label }</span>
 							</Button>
 						);
 					} ) }
-				</VStack>
+				</HStack>
 			) }
 		</>
 	);

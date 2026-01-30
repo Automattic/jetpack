@@ -5,7 +5,12 @@
 	text-align: left;
 	text-wrap: auto;
 
-	&.has-icon.has-text {
-		gap: variables.$grid-unit-10;
+	padding: 8px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: variables.$grid-unit-10;
+
+	.jp-forms__image-select-field-button-label {
+		max-width: 138px; // Same as the image width
 	}
 }
