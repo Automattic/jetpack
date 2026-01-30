@@ -135,14 +135,14 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 	 */
 	public function test_videopress_supported_always_true() {
 		// The free tier always has basic VideoPress support.
-		// This is hardcoded in the endpoint response.
-		$active   = array();
-		$response = array(
-			'isVideoPressSupported'          => true, // Always true
-			'isVideoPress1TBSupported'       => in_array( 'videopress-1tb-storage', $active, true ),
-			'isVideoPressUnlimitedSupported' => in_array( 'videopress-unlimited-storage', $active, true ),
+		// This is hardcoded in the endpoint response, not derived from features.
+		// Even with no active features, isVideoPressSupported should be true.
+		$expected = array(
+			'isVideoPressSupported'          => true,
+			'isVideoPress1TBSupported'       => false,
+			'isVideoPressUnlimitedSupported' => false,
 		);
 
-		$this->assertTrue( $response['isVideoPressSupported'] );
+		$this->assertTrue( $expected['isVideoPressSupported'] );
 	}
 }
