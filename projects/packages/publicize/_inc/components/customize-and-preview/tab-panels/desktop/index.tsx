@@ -31,7 +31,9 @@ export function TabPanelDesktop() {
 		<TabPanel
 			className={ styles[ 'tab-panel-desktop' ] }
 			orientation="vertical"
+			// @ts-expect-error -- TODO fix tab type
 			tabs={ tabs }
+			// @ts-expect-error -- TODO fix type here
 			children={ tabRenderer }
 		/>
 	);

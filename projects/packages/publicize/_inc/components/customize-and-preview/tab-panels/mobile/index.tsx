@@ -39,7 +39,13 @@ export function TabPanelMobile() {
 			{ ! usingPerNetworkCustomization && (
 				<CustomizationSection usingPerNetworkCustomization={ false } />
 			) }
-			<TabPanel className={ styles[ 'tab-panel-mobile' ] } tabs={ tabs } children={ tabRenderer } />
+			<TabPanel
+				className={ styles[ 'tab-panel-mobile' ] }
+				// @ts-expect-error -- TODO fix tab type
+				tabs={ tabs }
+				// @ts-expect-error -- TODO fix type here
+				children={ tabRenderer }
+			/>
 		</div>
 	);
 }
