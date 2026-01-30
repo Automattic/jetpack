@@ -345,6 +345,49 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			)
 		);
 	}
+	/**
+	 * Get source array from post IDs
+	 *
+	 * @param array $post_ids Array of post IDs.
+	 *
+	 * @return array Array of sources.
+	 */
+	private static function get_source_array( $post_ids ) {
+		if ( empty( $post_ids ) ) {
+			return array();
+		}
+
+		$source_query = new WP_Query(
+			array(
+				'post__in'       => $post_ids,
+				'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private', 'inherit', 'trash' ),
+				'post_type'      => 'any',
+				'orderby'        => 'post_title',
+				'order'          => 'ASC',
+				'posts_per_page' => -1,
+			)
+		);
+
+		return array_map(
+			static function ( $post ) {
+				$permalink = get_permalink( $post->ID );
+				if ( $permalink === false ) {
+					$permalink = '';
+				}
+				$status = get_post_status( $post );
+				$title  = get_the_title( $post->ID );
+				if ( 'trash' === $status ) {
+					$title = sprintf( /* translators: %s: post title */ __( '(trashed) %s', 'jetpack-forms' ), $title );
+				}
+				return array(
+					'id'    => $post->ID,
+					'title' => $title,
+					'url'   => $permalink,
+				);
+			},
+			$source_query->posts
+		);
+	}
 
 	/**
 	 * Retrieves all distinct sources (posts) and all the distinct available dates that
@@ -368,37 +411,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			array_diff_key( array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) ), array( 'post_parent' => '' ) )
 		);
 
-		$source_query = new WP_Query(
-			array(
-				'post__in'       => $source_ids,
-				'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private', 'inherit', 'trash' ),
-				'post_type'      => 'any',
-				'orderby'        => 'post_title',
-				'order'          => 'ASC',
-				'posts_per_page' => -1,
-			)
-		);
-
-		$source_array = array_map(
-			static function ( $post ) {
-				$permalink = get_permalink( $post->ID );
-				if ( $permalink === false ) {
-					$permalink = '';
-				}
-				$status = get_post_status( $post );
-				$title  = get_the_title( $post->ID );
-				if ( 'trash' === $status ) {
-					$title = sprintf( /* translators: %s: post title */ __( '(trashed) %s', 'jetpack-forms' ), $title );
-				}
-				return array(
-					'id'    => $post->ID,
-					'title' => $title,
-					'url'   => $permalink,
-				);
-			},
-			$source_query->posts
-		);
-
 		return rest_ensure_response(
 			array(
 				'date'   => array_map(
@@ -410,7 +422,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					},
 					$months
 				),
-				'source' => $source_array,
+				'source' => self::get_source_array( $source_ids ),
 			)
 		);
 	}
