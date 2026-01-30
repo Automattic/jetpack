@@ -208,7 +208,7 @@ const blockEdit = withColors(
 							</Button>
 						) }
 						renderContent={ ( { onClose }: { onClose: () => void } ) => (
-							<NavigableMenu role="menu" stopNavigationEvents>
+							<NavigableMenu role="menu">
 								<MenuGroup>
 									<MenuItem
 										key={ emptyLanguageOption.value }
