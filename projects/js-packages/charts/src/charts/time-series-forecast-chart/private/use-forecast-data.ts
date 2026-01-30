@@ -8,8 +8,13 @@ interface UseForecastDataOptions< D > {
 }
 
 interface UseForecastDataResult {
+	/** All transformed points (no duplicates) - used for tooltip */
+	allPoints: TransformedForecastPoint[];
+	/** Historical points (before forecastStart) - for visual rendering */
 	historical: TransformedForecastPoint[];
+	/** Forecast points (at or after forecastStart) - for visual rendering */
 	forecast: TransformedForecastPoint[];
+	/** Band data for uncertainty region */
 	bandData: BandPoint[];
 	yDomain: [ number, number ];
 	xDomain: [ Date, Date ];
@@ -70,7 +75,7 @@ export function useForecastData< D >( {
 		transformed.sort( ( a, b ) => a.date.getTime() - b.date.getTime() );
 
 		// 3. Split by forecastStart
-		// Both series include the transition point so the lines connect seamlessly
+		// Both series include the transition point so the lines connect seamlessly visually
 		const forecastStartTime = forecastStart.getTime();
 		const historical = transformed.filter( p => p.date.getTime() <= forecastStartTime );
 		const forecast = transformed.filter( p => p.date.getTime() >= forecastStartTime );
@@ -104,6 +109,6 @@ export function useForecastData< D >( {
 			new Date( allDateTimes.reduce( ( max, val ) => Math.max( max, val ), -Infinity ) ),
 		];
 
-		return { historical, forecast, bandData, yDomain, xDomain };
+		return { allPoints: transformed, historical, forecast, bandData, yDomain, xDomain };
 	}, [ data, accessors, forecastStart ] );
 }
