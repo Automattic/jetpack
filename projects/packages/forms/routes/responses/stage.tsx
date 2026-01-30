@@ -27,9 +27,9 @@ import * as React from 'react';
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
-import FormsLogo from '../../src/dashboard/components/forms-logo';
 import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
 import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
+import FormsLogo from '../../src/dashboard/components/forms-logo';
 import Gravatar from '../../src/dashboard/components/gravatar';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
