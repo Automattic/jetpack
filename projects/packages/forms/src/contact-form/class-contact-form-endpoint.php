@@ -380,10 +380,22 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				),
 				'source' => array_map(
 					static function ( $post_id ) {
+						if ( ! get_post_status( $post_id ) ) {
+							return array(
+								'id'    => $post_id,
+								// translators: %d is the post ID.
+								'title' => sprintf( __( '(Deleted #%d)', 'jetpack-forms' ), $post_id ),
+								'url'   => '',
+							);
+						}
+						$permalink = get_permalink( $post_id );
+						if ( $permalink === false ) {
+							$permalink  = '';
+						}
 						return array(
 							'id'    => $post_id,
 							'title' => get_the_title( $post_id ),
-							'url'   => get_permalink( $post_id ),
+							'url'   => $permalink,
 						);
 					},
 					$source_ids
