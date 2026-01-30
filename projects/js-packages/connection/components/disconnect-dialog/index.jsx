@@ -376,8 +376,6 @@ DisconnectDialog.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	/** API Nonce, required. */
 	apiNonce: PropTypes.string.isRequired,
-	/** Base URL for where image assets are served from (no trailing slash). */
-	assetBaseUrl: PropTypes.string,
 	/** The modal title. */
 	title: PropTypes.string,
 	/** The callback to be called upon disconnection success. */
