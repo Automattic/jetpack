@@ -20,6 +20,7 @@
 		},
 		"./components": "./src/components/index.js",
 		"./icons": "./src/icons.js",
+		"./site-type-utils": "./src/site-type-utils.js",
 		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",
 		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts"
 	},
