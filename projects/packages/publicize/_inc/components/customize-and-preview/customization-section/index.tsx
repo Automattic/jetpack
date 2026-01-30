@@ -36,7 +36,7 @@ export function CustomizationSection( {
 									'<label/>'
 								),
 								{
-									label: <b>{ connection.display_name }</b>,
+									label: <b title={ connection.display_name }>{ connection.display_name }</b>,
 								}
 						  )
 						: __( 'Customizing for all the connections.', 'jetpack-publicize-pkg' ) }

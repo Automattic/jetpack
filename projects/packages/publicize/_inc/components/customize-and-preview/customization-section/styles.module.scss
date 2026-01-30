@@ -5,11 +5,18 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1.5rem;
+	overflow: hidden;
+	// Allow fieldset to shrink below its content size in grid/flex layouts.
+	min-inline-size: 0;
 
 	legend {
 		color: gb.$gray-700;
 		// Float fixes the default fieldset/legend border and padding issues.
 		float: inline-start;
+		// Truncate long legend names with ellipsis.
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	&[data-variant="per-network"] {
