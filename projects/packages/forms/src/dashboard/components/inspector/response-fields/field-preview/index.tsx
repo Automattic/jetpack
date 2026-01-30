@@ -36,6 +36,7 @@ import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
 import FieldImageSelect from '../field-image-select/index.tsx';
 import FieldPhone from '../field-phone/index.tsx';
+import FieldRating from '../field-rating/index.tsx';
 import { EMAIL_REGEX, getIconSource, inferFieldTypeFromLabel } from './field-preview-utils.ts';
 import type { ResponseField, FieldType, FileItem } from '../../../../../types/index.ts';
 import './style.scss';
@@ -173,6 +174,10 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 
 		if ( fieldType === 'url' && /^https?:\/\//.test( stringValue ) ) {
 			return <ExternalLink href={ stringValue }>{ stringValue }</ExternalLink>;
+		}
+
+		if ( fieldType === 'rating' ) {
+			return <FieldRating value={ stringValue } />;
 		}
 
 		return stringValue;
