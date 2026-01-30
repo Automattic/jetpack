@@ -379,7 +379,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			)
 		);
 
-		$sourse_array = array_map(
+		$source_array = array_map(
 			static function ( $post ) {
 				$permalink = get_permalink( $post->ID );
 				if ( $permalink === false ) {
@@ -410,7 +410,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					},
 					$months
 				),
-				'source' => $sourse_array,
+				'source' => $source_array,
 			)
 		);
 	}
