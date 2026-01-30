@@ -969,7 +969,6 @@ function JetpackContactFormEdit( {
 										setAttributes( { disableSummary: ! newDisableSummary } )
 									}
 									__nextHasNoMarginBottom={ true }
-									__next40pxDefaultSize={ true }
 								/>
 
 								<ToggleControl
@@ -979,7 +978,6 @@ function JetpackContactFormEdit( {
 										setAttributes( { disableGoBack: ! newDisableGoBack } )
 									}
 									__nextHasNoMarginBottom={ true }
-									__next40pxDefaultSize={ true }
 								/>
 							</>
 						) }
