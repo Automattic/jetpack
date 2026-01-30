@@ -12,6 +12,7 @@
 
 	&[data-plan="paid"] {
 		border-top: 1px solid gb.$gray-200;
+		overflow: auto;
 	}
 
 	[role="tablist"] {
