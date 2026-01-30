@@ -3,8 +3,8 @@ import clsx from 'clsx';
 import { useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
 import { Screen } from './screen.tsx';
-import styles from './styles.module.scss';
-import { TNavigatorModalContext, SharedProps } from './types.ts';
+import './styles.scss';
+import { SharedProps, TNavigatorModalContext } from './types.ts';
 
 /**
  * Renders the internal NavigatorModal component.
@@ -20,9 +20,9 @@ function InternalNavigatorModal( { children, className }: SharedProps ) {
 		<Modal
 			__experimentalHideHeader
 			onRequestClose={ context.onClose }
-			className={ clsx( styles.modal, className ) }
+			className={ clsx( 'jp-navigator-modal', className ) }
 		>
-			<Navigator initialPath={ context.initialPath } className={ styles.navigator }>
+			<Navigator initialPath={ context.initialPath } className="jp-navigator-modal__navigator">
 				{ children }
 			</Navigator>
 		</Modal>
