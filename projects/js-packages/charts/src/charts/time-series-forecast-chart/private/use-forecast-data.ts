@@ -95,7 +95,7 @@ export function useForecastData< D >( {
 
 		// Add some padding to y domain
 		const yPadding = ( maxY - minY ) * 0.1;
-		const yDomain: [ number, number ] = [ Math.max( 0, minY - yPadding ), maxY + yPadding ];
+		const yDomain: [ number, number ] = [ minY - yPadding, maxY + yPadding ];
 
 		// 6. Compute x domain (use reduce to avoid stack overflow on large arrays)
 		const allDateTimes = transformed.map( p => p.date.getTime() );

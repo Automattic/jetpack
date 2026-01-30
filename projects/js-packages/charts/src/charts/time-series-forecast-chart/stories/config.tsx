@@ -122,7 +122,7 @@ export const timeSeriesForecastChartMetaArgs: Meta< StoryArgs > = {
 		...legendArgTypes,
 		...themeArgTypes,
 		...sharedChartArgTypes,
-		showTooltip: {
+		withTooltips: {
 			control: 'boolean',
 			description: 'Show tooltips on hover',
 			table: { category: 'Tooltip' },
@@ -146,7 +146,7 @@ export const timeSeriesForecastChartStoryArgs = {
 	data: sampleForecastData,
 	accessors: sampleAccessors,
 	forecastStart: sampleForecastStart,
-	showTooltip: true,
+	withTooltips: true,
 	showLegend: false,
 	animation: false,
 	gridVisibility: 'y' as const,

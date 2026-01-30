@@ -21,7 +21,8 @@
 	}
 
 	&__tooltip {
-		background: #fff;
+		background: var(--charts-tooltip-background, #fff);
+		color: var(--charts-tooltip-color, inherit);
 		padding: 0.5rem;
 		border-radius: 4px;
 		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
@@ -47,7 +48,7 @@
 		font-weight: 500;
 		padding: 2px 6px;
 		border-radius: 3px;
-		background: rgba(0, 0, 0, 0.1);
+		background: var(--charts-forecast-badge-background, rgba(0, 0, 0, 0.1));
 	}
 
 	&__legend {

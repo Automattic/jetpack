@@ -144,7 +144,7 @@ export interface TimeSeriesForecastChartProps< D > {
 	/**
 	 * Whether to show tooltips on hover. Default: true
 	 */
-	showTooltip?: boolean;
+	withTooltips?: boolean;
 	/**
 	 * Custom labels for series in legend and tooltip
 	 */
