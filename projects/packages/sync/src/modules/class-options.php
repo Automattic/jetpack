@@ -317,7 +317,8 @@ class Options extends Module {
 			return false;
 		}
 
-		if ( 'jetpack_options' === $args[0] && ! empty( $args[1] ) && ! empty( $args[2] ) ) {
+		// Check if 'jetpack_options' were updated and reject if the change affected only blacklisted keys.
+		if ( 'jetpack_options' === $args[0] && 3 === count( $args ) ) {
 			if ( ! $this->should_enqueue_jetpack_options_update( $args[1], $args[2] ) ) {
 				return false;
 			}
@@ -513,27 +514,31 @@ class Options extends Module {
 			return true;
 		}
 		// Determine all top-level keys present in either the old or new value.
-		$all_keys     = array_unique(
+		$all_keys = array_unique(
 			array_merge(
 				array_keys( $old_value ),
 				array_keys( $value )
 			)
 		);
-		$changed_keys = array();
-		// Collect keys that were added, removed, or whose values changed (strict comparison).
+		// Short-circuit as soon as we find a changed key that is not blacklisted.
 		foreach ( $all_keys as $key ) {
 			$old_has_key = array_key_exists( $key, $old_value );
 			$new_has_key = array_key_exists( $key, $value );
+			// Key was added or removed.
 			if ( ! $old_has_key || ! $new_has_key ) {
-				$changed_keys[] = $key;
+				if ( ! in_array( $key, Defaults::$jetpack_options_blacklist, true ) ) {
+					return true;
+				}
 				continue;
 			}
+			// Key exists in both arrays but the value changed.
 			if ( $old_value[ $key ] !== $value[ $key ] ) {
-				$changed_keys[] = $key;
+				if ( ! in_array( $key, Defaults::$jetpack_options_blacklist, true ) ) {
+					return true;
+				}
 			}
 		}
-
-		// Return false if ALL changed keys are excluded, true otherwise
-		return ! empty( array_diff( $changed_keys, Defaults::$jetpack_options_blacklist ) );
+		// Either there were no effective changes, or all changed keys are excluded.
+		return false;
 	}
 }
