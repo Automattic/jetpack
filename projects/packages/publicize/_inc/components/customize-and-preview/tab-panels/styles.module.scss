@@ -1,0 +1,73 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.tab-panel-wrapper {
+
+	@include gb.break-medium() {
+		display: grid;
+	}
+
+	&[data-variant="global"] {
+		grid-template-columns: clamp(200px, 33.33%, 350px) minmax(0, 1fr);
+	}
+
+	&[data-plan="paid"] {
+		border-top: 1px solid gb.$gray-200;
+	}
+
+	[role="tablist"] {
+		padding: gb.$grid-unit-10; // 8px
+		border-block: 1px solid gb.$gray-200;
+
+		@include gb.break-medium() {
+			border-block-start: none;
+		}
+	}
+
+	&[data-variant="per-network"] [role="tablist"] {
+		border-block-start: none;
+	}
+}
+
+.tab-panel {
+
+	display: grid;
+
+	@include gb.break-medium() {
+		grid-template-rows: auto 1fr;
+		height: 100%;
+	}
+
+	:global(.components-tab-panel__tabs-item) {
+		padding: 0;
+		height: 40px !important; // Core uses !important for tab height.
+
+		&:global(.is-active) {
+			background: gb.$gray-900;
+			border-radius: gb.$radius-medium;
+
+			// Hide the default active tab underline.
+			&::after {
+				display: none;
+			}
+		}
+	}
+}
+
+.tab-content {
+	display: grid;
+	grid-template-columns: 1fr;
+	height: 100%;
+
+	@include gb.break-medium() {
+		grid-template-rows: auto 1fr;
+
+		&[data-variant="per-network"] {
+			grid-template-rows: 1fr;
+			grid-template-columns: clamp(200px, 33.33%, 350px) minmax(0, 1fr);
+		}
+	}
+}
+
+.connection-toggle-wrapper {
+	padding: 1rem;
+}

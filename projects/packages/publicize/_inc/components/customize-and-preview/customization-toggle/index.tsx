@@ -5,6 +5,7 @@ import {
 } from '@wordpress/components';
 import { _x } from '@wordpress/i18n';
 import { usePerNetworkCustomization } from '../../../hooks/use-per-network-customization';
+import styles from './styles.module.scss';
 
 /**
  * Customization Toggle component for the social preview modal.
@@ -23,6 +24,7 @@ export function CustomizationToggle() {
 			onChange={ toggle }
 			value={ isEnabled ? 'each' : 'all' }
 			hideLabelFromVision
+			className={ styles[ 'customization-toggle' ] }
 		>
 			<ToggleGroupControlOption
 				label={ _x(

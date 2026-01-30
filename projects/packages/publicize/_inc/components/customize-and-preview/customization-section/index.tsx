@@ -1,14 +1,12 @@
-import { Flex } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Connection } from '../../../social-store/types';
-import { ConnectionToggle } from '../connection-toggle';
 import { GlobalCustomizationForm } from '../customization-forms/global';
 import { PerNetworkCustomizationForm } from '../customization-forms/per-network';
 import styles from './styles.module.scss';
 
 type CustomizationSectionProps = {
 	connection?: Connection;
-	usingPerNetworkCustomization: boolean;
+	usingPerNetworkCustomization?: boolean;
 };
 
 /**
@@ -25,14 +23,12 @@ export function CustomizationSection( {
 		<section
 			aria-label={ __( 'Customization form', 'jetpack-publicize-pkg' ) }
 			className={ styles[ 'customization-section' ] }
+			data-variant={ usingPerNetworkCustomization ? 'per-network' : 'global' }
 		>
 			{ usingPerNetworkCustomization ? (
 				<PerNetworkCustomizationForm connection={ connection } />
 			) : (
-				<Flex direction="column" gap={ 8 } justify="start">
-					{ connection ? <ConnectionToggle connection={ connection } /> : null }
-					<GlobalCustomizationForm />
-				</Flex>
+				<GlobalCustomizationForm />
 			) }
 		</section>
 	);

@@ -1,7 +1,7 @@
 import { Flex, Notice } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { Connection } from '../../../../social-store/types';
-import { PostPreview } from '../../../social-post-modal/post-preview';
+import { Connection } from '../../../social-store/types';
+import { PostPreview } from '../../social-post-modal/post-preview';
 import styles from './styles.module.scss';
 
 type PreviewSectionProps = {
