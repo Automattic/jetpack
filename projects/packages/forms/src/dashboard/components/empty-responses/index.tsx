@@ -90,7 +90,7 @@ const useInstallAkismet = (): UseInstallAkismetReturn => {
 			'jetpack-forms'
 		),
 		{
-			moreInfoLink: <ExternalLink href="https://akismet.com/" />,
+			moreInfoLink: <ExternalLink href="https://akismet.com/" children={ null } />,
 		}
 	);
 
