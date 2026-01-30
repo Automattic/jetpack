@@ -51,9 +51,9 @@ function Legend( { connection, usingPerNetworkCustomization }: CustomizationSect
 				sprintf(
 					/* translators: %s is the name of the social media account. */
 					__( 'Customizing for %s.', 'jetpack-publicize-pkg' ),
-					'<label/>'
+					'<accountName/>'
 				),
-				{ label }
+				{ accountName: label }
 			) }
 		</legend>
 	);
