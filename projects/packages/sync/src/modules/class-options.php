@@ -317,6 +317,14 @@ class Options extends Module {
 			return false;
 		}
 
+		if ( 'jetpack_options' === $args[0] && ! empty( $args[1] ) & ! empty( $args[2] ) ) {
+			if ( ! $this->should_enqueue_jetpack_options_update( $args[1], $args[2] ) ) {
+				return false;
+			}
+
+			return $args;
+		}
+
 		// Filter our weird array( false ) value for theme_mods_*.
 		if ( str_starts_with( $args[0], 'theme_mods_' ) ) {
 			$this->filter_theme_mods( $args[1] );
@@ -486,5 +494,32 @@ class Options extends Module {
 		}
 
 		return 'OPTION-DOES-NOT-EXIST';
+	}
+
+	/**
+	 * Check if 'jetpack_options' option update should be processed based on excluded keys.
+	 *
+	 * @param mixed $old_value    The old option value.
+	 * @param mixed $value        The new option value.
+	 * @return bool False if only excluded keys changed (or no change), true otherwise.
+	 */
+	private function should_enqueue_jetpack_options_update( $old_value, $value ) {
+		// No changes at all
+		if ( $old_value === $value ) {
+			return false;
+		}
+
+		// Values are different but not both arrays - meaningful change
+		if ( ! is_array( $old_value ) || ! is_array( $value ) ) {
+			return true;
+		}
+
+		// Get changed keys in both directions (modified/added and removed)
+		$changed_keys = array_keys(
+			array_diff_assoc( $value, $old_value ) + array_diff_assoc( $old_value, $value )
+		);
+
+		// Return false if ALL changed keys are excluded, true otherwise
+		return ! empty( array_diff( $changed_keys, Defaults::$jetpack_options_blacklist ) );
 	}
 }
