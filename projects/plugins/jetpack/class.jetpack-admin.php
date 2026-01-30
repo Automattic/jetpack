@@ -589,6 +589,9 @@ class Jetpack_Admin {
 	/**
 	 * Check if we're on a Jetpack admin page.
 	 *
+	 * Similar to how WooCommerce checks for its admin pages by comparing
+	 * against known screen ID patterns.
+	 *
 	 * @return bool True if on a Jetpack admin page, false otherwise.
 	 */
 	private function is_jetpack_admin_page() {
@@ -597,8 +600,17 @@ class Jetpack_Admin {
 			return false;
 		}
 
-		// Check if the screen ID or parent base contains 'jetpack'
-		return ( strpos( $screen->id, 'jetpack' ) !== false || strpos( $screen->parent_base, 'jetpack' ) !== false );
+		// Check for Jetpack admin pages:
+		// - toplevel_page_jetpack (main Jetpack menu page)
+		// - jetpack_page_* (Jetpack submenu pages)
+		// - admin_page_jetpack* (legacy/special Jetpack pages)
+		// Or check if parent_base is 'jetpack' (submenu pages)
+		return (
+			$screen->id === 'toplevel_page_jetpack' ||
+			strpos( $screen->id, 'jetpack_page_' ) === 0 ||
+			strpos( $screen->id, 'admin_page_jetpack' ) === 0 ||
+			$screen->parent_base === 'jetpack'
+		);
 	}
 
 	/**
