@@ -304,7 +304,7 @@ function TimeSeriesForecastChartInternal< D >( {
 				<Axis orientation="bottom" numTicks={ 5 } tickFormat={ xAxisTickFormat } />
 				<Axis orientation="left" numTicks={ 4 } tickFormat={ yAxisTickFormat } />
 
-				{ /* Uncertainty band - rendered first (behind lines) */ }
+				{ /* Uncertainty band - rendered first (behind lines), no pointer events */ }
 				{ bandData.length > 0 && (
 					<AreaSeries
 						dataKey={ seriesKeys.band }
@@ -316,6 +316,7 @@ function TimeSeriesForecastChartInternal< D >( {
 						fillOpacity={ 0.2 }
 						renderLine={ false }
 						curve={ curveMonotoneX }
+						enableEvents={ false }
 					/>
 				) }
 
