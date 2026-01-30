@@ -27,43 +27,6 @@ async function pathExists( p ) {
 }
 
 /**
- * Walk a directory and yield all files.
- * @param {string} dir - The directory to walk.
- * @yield {string} - A file path.
- * @return {AsyncGenerator<string>} - A generator of file paths.
- */
-async function* walk( dir ) {
-	const entries = await fs.readdir( dir, { withFileTypes: true } );
-
-	for ( const entry of entries ) {
-		const fullPath = path.join( dir, entry.name );
-
-		if ( entry.isDirectory() ) {
-			if ( IGNORED_DIRS.has( entry.name ) ) {
-				continue;
-			}
-
-			yield* walk( fullPath );
-
-			continue;
-		}
-
-		if ( entry.isFile() ) {
-			yield fullPath;
-		}
-	}
-}
-
-/**
- * Check if a file is an SCSS file.
- * @param {string} filePath - The path to the file.
- * @return {boolean} - True if the file is an SCSS file, false otherwise.
- */
-function isScssFile( filePath ) {
-	return filePath.endsWith( '.scss' );
-}
-
-/**
  * Copy a file preserving the relative path.
  * @param {string} srcFile - The path to the source file.
  * @return {Promise<void>} - A promise that resolves when the file is copied.
@@ -87,12 +50,12 @@ async function main() {
 		return;
 	}
 
-	for await ( const filePath of walk( packageRoot ) ) {
-		if ( ! isScssFile( filePath ) ) {
-			continue;
-		}
-
-		await copyFilePreservingRelativePath( filePath );
+	for await ( const filePath of fs.glob( '**/*.scss', {
+		cwd: packageRoot,
+		exclude: Array.from( IGNORED_DIRS, dir => `**/${ dir }/**` ),
+	} ) ) {
+		const absolutePath = path.resolve( packageRoot, filePath );
+		await copyFilePreservingRelativePath( absolutePath );
 	}
 }
 
