@@ -7,8 +7,12 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\My_Jetpack\Product;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
+use WP_REST_Request;
+use WP_REST_Server;
 
 /**
  * Tests for the VideoPress features REST API endpoint.
@@ -16,34 +20,98 @@ use WorDBless\BaseTestCase;
 class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 
 	/**
-	 * Test that the REST route is registered.
+	 * REST server instance.
+	 *
+	 * @var WP_REST_Server
 	 */
-	public function test_rest_route_is_registered() {
-		VideoPress_Rest_Api_V1_Features::init();
-		do_action( 'rest_api_init' );
-
-		$routes = rest_get_server()->get_routes();
-		$this->assertArrayHasKey( '/videopress/v1/features', $routes );
-	}
+	private $server;
 
 	/**
-	 * Test permissions callback requires read capability.
+	 * Test user ID.
+	 *
+	 * @var int
 	 */
-	public function test_permissions_callback_requires_read() {
-		// Non-logged in user should not have read capability.
-		wp_set_current_user( 0 );
-		$this->assertFalse( VideoPress_Rest_Api_V1_Features::permissions_callback() );
+	private $user_id;
 
-		// Create a subscriber user (has read capability).
-		$user_id = wp_insert_user(
+	/**
+	 * Set up the test environment.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
+
+		// Create a user with read capability.
+		$this->user_id = wp_insert_user(
 			array(
 				'user_login' => 'test_subscriber',
 				'user_pass'  => 'password',
 				'role'       => 'subscriber',
 			)
 		);
-		wp_set_current_user( $user_id );
-		$this->assertTrue( VideoPress_Rest_Api_V1_Features::permissions_callback() );
+
+		// Register REST routes.
+		VideoPress_Rest_Api_V1_Features::init();
+		do_action( 'rest_api_init' );
+	}
+
+	/**
+	 * Clean up after tests.
+	 */
+	public function tearDown(): void {
+		parent::tearDown();
+
+		global $wp_rest_server;
+		$wp_rest_server = null;
+
+		wp_set_current_user( 0 );
+	}
+
+	/**
+	 * Test that the REST route is registered.
+	 */
+	public function test_rest_route_is_registered() {
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayHasKey( '/videopress/v1/features', $routes );
+	}
+
+	/**
+	 * Test that unauthenticated requests are rejected.
+	 */
+	public function test_unauthenticated_request_rejected() {
+		wp_set_current_user( 0 );
+
+		$request  = new WP_REST_Request( 'GET', '/videopress/v1/features' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test that authenticated requests succeed.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function test_authenticated_request_succeeds() {
+		wp_set_current_user( $this->user_id );
+
+		// Seed the transient to avoid WPCOM API call.
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => array(),
+				'available' => array(),
+			),
+			15
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/videopress/v1/features' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
 	}
 
 	/**
@@ -97,20 +165,39 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that feature flags are correctly mapped from WPCOM features.
+	 * Test that the endpoint correctly maps WPCOM features to VideoPress feature flags.
 	 *
-	 * @param array $active_features Features returned by WPCOM API.
-	 * @param array $expected Expected feature flags.
+	 * This test seeds the My Jetpack transient cache with mock data, then dispatches
+	 * a REST request to the endpoint. Each test runs in a separate process to avoid
+	 * static cache pollution from Product::get_site_features_from_wpcom().
+	 *
+	 * @param array $active_features Features that would be returned by WPCOM API.
+	 * @param array $expected Expected feature flags from the endpoint.
+	 *
+	 * @runInSeparateProcess
 	 * @dataProvider feature_flag_mapping_provider
 	 */
+	#[RunInSeparateProcess]
 	#[DataProvider( 'feature_flag_mapping_provider' )]
 	public function test_feature_flag_mapping( array $active_features, array $expected ) {
-		$response = array(
-			'isVideoPressSupported'          => true, // isVideoPressSupported is always true (free tier).
-			'isVideoPress1TBSupported'       => in_array( 'videopress-1tb-storage', $active_features, true ),
-			'isVideoPressUnlimitedSupported' => in_array( 'videopress-unlimited-storage', $active_features, true ),
+		wp_set_current_user( $this->user_id );
+
+		// Seed the transient that Product::get_site_features_from_wpcom() checks.
+		// This bypasses the WPCOM API call since the transient is checked first.
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => $active_features,
+				'available' => array(),
+			),
+			15
 		);
 
-		$this->assertSame( $expected, $response );
+		// Dispatch actual REST request.
+		$request  = new WP_REST_Request( 'GET', '/videopress/v1/features' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( $expected, $response->get_data() );
 	}
 }
