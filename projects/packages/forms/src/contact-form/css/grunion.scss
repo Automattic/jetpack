@@ -306,6 +306,12 @@ that needs to mimic the input element styles */
 	height: 20px;
 	color: inherit;
 	opacity: 0.6;
+
+	svg {
+		width: 100%;
+		height: 100%;
+		fill: currentColor;
+	}
 }
 
 .contact-form-submission .field-name {
