@@ -47,10 +47,13 @@ function NavigatorModalMain( {
 	initialPath = '/',
 	onClose,
 	isDismissible = true,
+	...props
 }: NavigatorModalProps ) {
 	return (
 		<NavigatorModalContext.Provider value={ { onClose, initialPath, isDismissible } }>
-			<InternalNavigatorModal className={ className }>{ children }</InternalNavigatorModal>
+			<InternalNavigatorModal className={ className } { ...props }>
+				{ children }
+			</InternalNavigatorModal>
 		</NavigatorModalContext.Provider>
 	);
 }
