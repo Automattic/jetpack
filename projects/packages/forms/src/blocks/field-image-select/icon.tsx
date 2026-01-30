@@ -5,7 +5,7 @@ import { Path } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 
 // "image" icon from @wordpress/icons
 const ImageSelectFieldIcon = renderMaterialIcon(

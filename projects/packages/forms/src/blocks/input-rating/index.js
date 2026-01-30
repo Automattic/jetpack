@@ -1,7 +1,7 @@
 import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import './style.scss';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import edit from './edit.js';
 
 const name = 'input-rating';

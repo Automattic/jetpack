@@ -2287,4 +2287,103 @@ class User_Agent_Info {
 
 		return false;
 	}
+
+	/**
+	 * Is the current request from an agent?
+	 *
+	 * Detects bots, crawlers, AI assistants, and programmatic HTTP clients.
+	 * Useful for showing machine-readable hints or alternative content to non-browser clients.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
+	 * @return bool True if the request appears to be from an agent.
+	 */
+	public static function is_agent( $user_agent = null ) {
+		static $cached_ua     = null;
+		static $cached_result = null;
+
+		if ( null === $user_agent ) {
+			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				// Empty User-Agent is likely programmatic - real browsers always send one.
+				return true;
+			}
+			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+			// Use cache for default user agent, but invalidate if UA changed.
+			if ( $cached_ua === $user_agent && null !== $cached_result ) {
+				return $cached_result;
+			}
+
+			$cached_ua     = $user_agent;
+			$cached_result = self::is_agent_user_agent( $user_agent );
+
+			/** This filter is documented below. */
+			if ( function_exists( 'apply_filters' ) ) {
+				$cached_result = apply_filters( 'jetpack_is_agent', $cached_result, $user_agent );
+			}
+			return $cached_result;
+		}
+
+		if ( empty( $user_agent ) ) {
+			// Empty User-Agent is likely programmatic.
+			return true;
+		}
+
+		$result = self::is_agent_user_agent( $user_agent );
+
+		/**
+		 * Filter to customize agent detection.
+		 *
+		 * @param bool   $is_agent   Whether the request is from an agent.
+		 * @param string $user_agent The user agent string.
+		 */
+		if ( function_exists( 'apply_filters' ) ) {
+			$result = apply_filters( 'jetpack_is_agent', $result, $user_agent );
+		}
+		return $result;
+	}
+
+	/**
+	 * Is the given user-agent from an agent?
+	 *
+	 * @param string $ua A user-agent string.
+	 *
+	 * @return bool True if the user-agent appears to be from an agent.
+	 */
+	private static function is_agent_user_agent( $ua ) {
+		if ( self::is_bot_user_agent( $ua ) ) {
+			return true;
+		}
+
+		// HTTP libraries and programmatic clients (alphabetized).
+		$http_clients = array(
+			'aiohttp',
+			'axios',
+			'curl/',
+			'go-http-client',
+			'got/',
+			'guzzlehttp',
+			'httpie',
+			'httpx',
+			'insomnia',
+			'java/',
+			'libwww-perl',
+			'node-fetch',
+			'okhttp',
+			'postman',
+			'python-requests',
+			'python-urllib',
+			'ruby',
+			'undici',
+			'wget/',
+		);
+
+		foreach ( $http_clients as $client ) {
+			if ( false !== stripos( $ua, $client ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

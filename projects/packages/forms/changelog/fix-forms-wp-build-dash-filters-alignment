@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix filters alignment and spacing in the new wp-build dashboard responses view so the filters row matches the Inbox layout.
+
