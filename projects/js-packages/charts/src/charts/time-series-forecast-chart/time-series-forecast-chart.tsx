@@ -1,6 +1,6 @@
 import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
 import { curveMonotoneX } from '@visx/curve';
-import { XYChart, AreaSeries, Grid, Axis, Tooltip } from '@visx/xychart';
+import { XYChart, AreaSeries, LineSeries, Grid, Axis, Tooltip } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useMemo, useCallback } from 'react';
@@ -102,6 +102,7 @@ function TimeSeriesForecastChartInternal< D >( {
 
 	// Transform and split data
 	const {
+		allPoints,
 		historical,
 		forecast,
 		bandData,
@@ -320,7 +321,7 @@ function TimeSeriesForecastChartInternal< D >( {
 					/>
 				) }
 
-				{ /* Historical line - solid */ }
+				{ /* Historical line - solid, visual only */ }
 				{ historical.length > 0 && (
 					<AreaSeries
 						dataKey={ seriesKeys.historical }
@@ -331,10 +332,11 @@ function TimeSeriesForecastChartInternal< D >( {
 						renderLine={ true }
 						curve={ curveMonotoneX }
 						lineProps={ { stroke: primaryColor } }
+						enableEvents={ false }
 					/>
 				) }
 
-				{ /* Forecast line - dashed */ }
+				{ /* Forecast line - dashed, visual only */ }
 				{ forecast.length > 0 && (
 					<AreaSeries
 						dataKey={ seriesKeys.forecast }
@@ -348,8 +350,20 @@ function TimeSeriesForecastChartInternal< D >( {
 							stroke: primaryColor,
 							strokeDasharray: '5 5',
 						} }
+						enableEvents={ false }
 					/>
 				) }
+
+				{ /* Invisible line for tooltip - handles all pointer events */ }
+				<LineSeries
+					dataKey="__tooltip__"
+					data={ allPoints }
+					xAccessor={ xAccessor }
+					yAccessor={ yAccessor }
+					curve={ curveMonotoneX }
+					stroke="transparent"
+					strokeWidth={ 0 }
+				/>
 
 				{ /* Vertical divider at forecast start */ }
 				{ showDivider && (
