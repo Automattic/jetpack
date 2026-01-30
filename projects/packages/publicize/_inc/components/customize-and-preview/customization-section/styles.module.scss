@@ -12,4 +12,10 @@
 			border-inline-end: 1px solid gb.$gray-200;
 		}
 	}
+
+	legend {
+		color: gb.$gray-700;
+		// Float fixes the default fieldset/legend border and padding issues.
+		float: inline-start;
+	}
 }
