@@ -1,5 +1,5 @@
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils/site-type-utils';
 import {
 	Button,
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
