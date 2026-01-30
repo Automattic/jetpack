@@ -146,4 +146,4 @@ info 'Extracting Gutenberg stubs'
 
 echo
 info 'Updating composer stub packages'
-composer --working-dir="$BASE" update 'php-stubs/*'
+composer --working-dir="$BASE" update --no-install --ignore-platform-reqs 'php-stubs/*'
