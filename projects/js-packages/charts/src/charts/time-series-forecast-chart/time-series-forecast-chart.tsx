@@ -424,6 +424,9 @@ function TimeSeriesForecastChartInternal< D >( {
 						/>
 					) }
 
+					{ /* Render SVG children from TimeSeriesForecastChart.SVG */ }
+					{ svgChildren }
+
 					{ /* Tooltip */ }
 					{ withTooltips && (
 						<Tooltip
@@ -434,9 +437,6 @@ function TimeSeriesForecastChartInternal< D >( {
 						/>
 					) }
 				</XYChart>
-
-				{ /* Render SVG children from TimeSeriesForecastChart.SVG */ }
-				{ svgChildren }
 
 				{ showLegend && (
 					<Legend
