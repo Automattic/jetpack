@@ -59,9 +59,6 @@
 		<exclude-pattern>*/*Test.php</exclude-pattern>
 		<exclude-pattern>*/*TestCase.php</exclude-pattern>
 		<exclude-pattern>*/*TestBase.php</exclude-pattern>
-		<!-- @todo Remove these. -->
-		<exclude-pattern>*/test-*.php</exclude-pattern>
-		<exclude-pattern>*/test_*.php</exclude-pattern>
 	</rule>
 
 </ruleset>

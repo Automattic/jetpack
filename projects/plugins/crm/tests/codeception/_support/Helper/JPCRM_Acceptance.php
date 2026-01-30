@@ -16,8 +16,8 @@ class JPCRM_Acceptance extends WPBrowser {
 	public function _beforeSuite( $settings = array() ) {
 		parent::_beforeSuite( $settings );
 
-		// To set this as a field, Codeception v5 needs "protected array $requiredFields = ...". But PHP 7.3 doesn't support that syntax.
-		// @todo When we drop support for PHP 7.3, we can move this back to "protected array $requiredFields"
+		// To set this as a field, Codeception v5 needs "protected array $requiredFields = ..." while v4 needs "protected $requiredFields = ..."
+		// @todo When we drop Codeception v4, we can move this back to "protected array $requiredFields"
 		$this->requiredFields = array(
 			'adminUsername',
 			'adminPassword',

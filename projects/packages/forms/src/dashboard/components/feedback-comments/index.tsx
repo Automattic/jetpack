@@ -226,7 +226,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 
 				{ isLoadingComments && (
 					<span className="jp-forms__feedback-loading">
-						<Spinner size={ 12 } />
+						<Spinner height={ 12 } width={ 12 } />
 					</span>
 				) }
 			</h3>

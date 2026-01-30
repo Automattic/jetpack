@@ -6,6 +6,7 @@ import { store as socialStore } from '../../../social-store';
 import { ActivityView } from './activity-view';
 import { TABS } from './constants';
 import styles from './styles.module.scss';
+import type { SharingActivityFilter } from './types';
 
 type Tab = React.ComponentProps< typeof TabPanel >[ 'tabs' ][ number ];
 
@@ -40,7 +41,7 @@ export function Content() {
 	return (
 		<div className={ styles[ 'tab-panel-wrapper' ] }>
 			<TabPanel tabs={ tabs } initialTabName={ initialTab }>
-				{ ( tab: Tab ) => <ActivityView filter={ tab.name } /> }
+				{ tab => <ActivityView filter={ tab.name as SharingActivityFilter } /> }
 			</TabPanel>
 		</div>
 	);
