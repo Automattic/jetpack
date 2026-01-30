@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\My_Jetpack\Products\Product;
+use Automattic\Jetpack\My_Jetpack\Product;
 
 /**
  * VideoPress REST API class for fetching site features from WPCOM.
