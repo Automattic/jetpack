@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor: consolidate response-view components under inspector folder
+
+

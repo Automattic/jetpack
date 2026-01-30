@@ -338,6 +338,7 @@ function JetpackContactFormEdit( {
 		useDispatch( blockEditorStore );
 
 	const { editEntityRecord } = useDispatch( coreStore );
+	const { setActiveStep } = useDispatch( singleStepStore );
 
 	const currentInnerBlocks = useSelect(
 		select => select( blockEditorStore ).getBlocks( clientId ),
@@ -353,6 +354,7 @@ function JetpackContactFormEdit( {
 		setAttributes,
 		replaceInnerBlocks,
 		__unstableMarkNextChangeAsNotPersistent,
+		setActiveStep,
 	} );
 
 	// Auto-save editor changes BACK to the synced form post
@@ -707,6 +709,11 @@ function JetpackContactFormEdit( {
 		__unstableMarkNextChangeAsNotPersistent();
 		replaceInnerBlocks( clientId, [ progressIndicator, stepContainer, stepNavigation ], false );
 
+		// Select the first step so the editor shows it immediately
+		if ( stepContainer.innerBlocks.length > 0 ) {
+			setActiveStep( clientId, stepContainer.innerBlocks[ 0 ].clientId );
+		}
+
 		// Ensure we are marked as multistep – this records the undo level.
 		if ( variationName !== 'multistep' ) {
 			setAttributes( { variationName: 'multistep' } );
@@ -717,6 +724,7 @@ function JetpackContactFormEdit( {
 		currentInnerBlocks,
 		clientId,
 		replaceInnerBlocks,
+		setActiveStep,
 		setAttributes,
 		containsMultistepBlock,
 		__unstableMarkNextChangeAsNotPersistent,
@@ -809,8 +817,6 @@ function JetpackContactFormEdit( {
 		__unstableMarkNextChangeAsNotPersistent,
 		setAttributes,
 	] );
-
-	const { setActiveStep } = useDispatch( singleStepStore );
 
 	useEffect( () => {
 		if (
