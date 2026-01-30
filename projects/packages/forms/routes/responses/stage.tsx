@@ -46,7 +46,7 @@ import './style.scss';
  * Types
  */
 import type { FormResponse } from '../../src/types/index.ts';
-import type { View, Field, Action } from '@wordpress/dataviews';
+import type { View, Field, Action, Operator } from '@wordpress/dataviews';
 
 type FeedbackFilterDate = {
 	month: number;
@@ -147,6 +147,11 @@ function StageInner() {
 	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
 	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
 
+	const sourceIdValue = ( searchParams as { sourceId?: string | number } )?.sourceId;
+	const sourceIdNumber =
+		typeof sourceIdValue === 'number' ? sourceIdValue : Number( sourceIdValue );
+	const isSingleFormView = Number.isFinite( sourceIdNumber ) && sourceIdNumber > 0;
+
 	const [ isIntegrationsModalOpen, setIsIntegrationsModalOpen ] = useState( false );
 	const integrations = useSelect(
 		select => ( select( INTEGRATIONS_STORE ) as IntegrationsSelectors ).getIntegrations?.() ?? [],
@@ -185,22 +190,24 @@ function StageInner() {
 
 	const onChangeView = useCallback(
 		( newView: View ) => {
-			// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
-			const folderValue =
-				newView.filters?.find( filter => filter.field === 'folder' )?.value || 'inbox';
+			if ( ! isSingleFormView ) {
+				// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
+				const folderValue =
+					newView.filters?.find( filter => filter.field === 'folder' )?.value || 'inbox';
 
-			if ( folderValue !== statusView ) {
-				// Clear selection when changing folder to avoid mismatched inspector state.
-				navigate( {
-					to: '/responses/$view',
-					params: { view: folderValue },
-					search: {
-						...searchParams,
-						responseIds: undefined,
-					},
-				} );
-				setView( { ...newView, page: 1 } );
-				return;
+				if ( folderValue !== statusView ) {
+					// Clear selection when changing folder to avoid mismatched inspector state.
+					navigate( {
+						to: '/responses/$view',
+						params: { view: folderValue },
+						search: {
+							...searchParams,
+							responseIds: undefined,
+						},
+					} );
+					setView( { ...newView, page: 1 } );
+					return;
+				}
 			}
 
 			setView( newView );
@@ -214,7 +221,7 @@ function StageInner() {
 				} );
 			}
 		},
-		[ navigate, searchParams, statusView, view.search ]
+		[ isSingleFormView, navigate, searchParams, statusView, view.search ]
 	);
 
 	const onChangeSelection = useCallback(
@@ -229,8 +236,26 @@ function StageInner() {
 		[ searchParams, navigate ]
 	);
 
+	const onStatusChange = useCallback(
+		( nextStatus: 'inbox' | 'spam' | 'trash' ) => {
+			navigate( {
+				to: '/responses/$view',
+				params: { view: nextStatus },
+				search: {
+					...searchParams,
+					responseIds: undefined,
+					sourceId: isSingleFormView ? String( sourceIdNumber ) : undefined,
+				},
+			} );
+		},
+		[ isSingleFormView, navigate, searchParams, sourceIdNumber ]
+	);
+
 	// Keep the Folder filter in sync with the route param (CFM-on behavior).
 	useEffect( () => {
+		if ( isSingleFormView ) {
+			return;
+		}
 		setView( previousView => {
 			const previousFilters = previousView.filters || [];
 			const existing = previousFilters.find( filter => filter.field === 'folder' );
@@ -245,7 +270,7 @@ function StageInner() {
 				],
 			};
 		} );
-	}, [ setView, statusView ] );
+	}, [ isSingleFormView, setView, statusView ] );
 
 	const queryParams = useMemo( () => {
 		const queryArgs: QueryParams = {
@@ -260,6 +285,10 @@ function StageInner() {
 			queryArgs.search = view.search;
 		}
 
+		if ( isSingleFormView ) {
+			queryArgs.parent = String( sourceIdNumber );
+		}
+
 		view.filters?.forEach( filter => {
 			if ( ! filter.value ) {
 				return;
@@ -267,7 +296,7 @@ function StageInner() {
 			if ( filter.field === 'read_status' ) {
 				queryArgs.is_unread = filter.value === 'unread';
 			}
-			if ( filter.field === 'source' ) {
+			if ( ! isSingleFormView && filter.field === 'source' ) {
 				queryArgs.parent = filter.value;
 			}
 			if ( filter.field === 'date' ) {
@@ -278,7 +307,7 @@ function StageInner() {
 		} );
 
 		return queryArgs;
-	}, [ statusFilter, view ] );
+	}, [ isSingleFormView, sourceIdNumber, statusFilter, view ] );
 
 	// Keep dashboard store query in sync so core-data fetches include fields_format=collection.
 	useEffect( () => {
@@ -296,43 +325,47 @@ function StageInner() {
 
 	const fields: Field< FormResponse >[] = useMemo(
 		() => [
-			{
-				id: 'folder',
-				label: __( 'Folder', 'jetpack-forms' ),
-				elements: [
-					{
-						label: sprintf(
-							/* translators: %s is the number of inbox responses. */
-							__( 'Inbox (%s)', 'jetpack-forms' ),
-							formatNumber( totalItemsInbox ?? 0 )
-						),
-						value: 'inbox',
-					},
-					{
-						label: sprintf(
-							/* translators: %s is the number of spam responses. */
-							__( 'Spam (%s)', 'jetpack-forms' ),
-							formatNumber( totalItemsSpam ?? 0 )
-						),
-						value: 'spam',
-					},
-					{
-						label: sprintf(
-							/* translators: %s is the number of trash responses. */
-							__( 'Trash (%s)', 'jetpack-forms' ),
-							formatNumber( totalItemsTrash ?? 0 )
-						),
-						value: 'trash',
-					},
-				],
-				// Primary so the filter UI (and its pill) is visible by default.
-				filterBy: { operators: [ 'is' ], isPrimary: true },
-				enableSorting: false,
-				enableHiding: false,
-				// Filter-only field; not shown as a column.
-				render: () => null,
-				getValue: () => null,
-			},
+			...( isSingleFormView
+				? []
+				: [
+						{
+							id: 'folder',
+							label: __( 'Folder', 'jetpack-forms' ),
+							elements: [
+								{
+									label: sprintf(
+										/* translators: %s is the number of inbox responses. */
+										__( 'Inbox (%s)', 'jetpack-forms' ),
+										formatNumber( totalItemsInbox ?? 0 )
+									),
+									value: 'inbox',
+								},
+								{
+									label: sprintf(
+										/* translators: %s is the number of spam responses. */
+										__( 'Spam (%s)', 'jetpack-forms' ),
+										formatNumber( totalItemsSpam ?? 0 )
+									),
+									value: 'spam',
+								},
+								{
+									label: sprintf(
+										/* translators: %s is the number of trash responses. */
+										__( 'Trash (%s)', 'jetpack-forms' ),
+										formatNumber( totalItemsTrash ?? 0 )
+									),
+									value: 'trash',
+								},
+							],
+							// Primary so the filter UI (and its pill) is visible by default.
+							filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
+							enableSorting: false,
+							enableHiding: false,
+							// Filter-only field; not shown as a column.
+							render: () => null,
+							getValue: () => null,
+						},
+				  ] ),
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
@@ -408,31 +441,36 @@ function StageInner() {
 						value: `${ filter.year }/${ filter.month }`,
 					};
 				} ),
-				filterBy: { operators: [ 'is' ] },
+				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
-			{
-				id: 'source',
-				label: __( 'Source', 'jetpack-forms' ),
-				render: ( { item } ) => {
-					const source = item.entry_title || getPath( item ) || __( '(no title)', 'jetpack-forms' );
-					if ( item.entry_permalink ) {
-						return styleUnreadValue(
-							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
-							item.is_unread
-						);
-					}
-					return styleUnreadValue( source, item.is_unread );
-				},
-				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
-					source => ( {
-						value: source.id.toString(),
-						label: decodeEntities( source.title ) || source.url,
-					} )
-				),
-				filterBy: { operators: [ 'is' ] },
-				enableSorting: false,
-			},
+			...( isSingleFormView
+				? []
+				: [
+						{
+							id: 'source',
+							label: __( 'Source', 'jetpack-forms' ),
+							render: ( { item } ) => {
+								const source =
+									item.entry_title || getPath( item ) || __( '(no title)', 'jetpack-forms' );
+								if ( item.entry_permalink ) {
+									return styleUnreadValue(
+										<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+										item.is_unread
+									);
+								}
+								return styleUnreadValue( source, item.is_unread );
+							},
+							elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
+								source => ( {
+									value: source.id.toString(),
+									label: decodeEntities( source.title ) || source.url,
+								} )
+							),
+							filterBy: { operators: [ 'is' ] as Operator[] },
+							enableSorting: false,
+						},
+				  ] ),
 			{
 				id: 'read_status',
 				label: __( 'Status', 'jetpack-forms' ),
@@ -440,7 +478,7 @@ function StageInner() {
 					{ label: __( 'Unread', 'jetpack-forms' ), value: 'unread' },
 					{ label: __( 'Read', 'jetpack-forms' ), value: 'read' },
 				],
-				filterBy: { operators: [ 'is' ] },
+				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 				render: ( { item } ) => {
 					return (
@@ -466,7 +504,7 @@ function StageInner() {
 				enableSorting: false,
 			},
 		],
-		[ filterOptions, totalItemsInbox, totalItemsSpam, totalItemsTrash ]
+		[ filterOptions, isSingleFormView, totalItemsInbox, totalItemsSpam, totalItemsTrash ]
 	);
 
 	const actions = useMemo(
@@ -599,7 +637,17 @@ function StageInner() {
 				onClickItem={ onClickItem }
 				actions={ actions as Action< unknown >[] }
 			>
-				<DataViewsHeaderRow activeTab="responses" />
+				<DataViewsHeaderRow
+					activeTab="responses"
+					isSingleFormView={ isSingleFormView }
+					activeStatus={ statusView }
+					statusCounts={ {
+						inbox: totalItemsInbox ?? 0,
+						spam: totalItemsSpam ?? 0,
+						trash: totalItemsTrash ?? 0,
+					} }
+					onStatusChange={ onStatusChange }
+				/>
 				<DataViews.Layout />
 				<DataViews.Footer />
 			</DataViews>

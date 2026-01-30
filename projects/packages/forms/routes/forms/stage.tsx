@@ -199,6 +199,13 @@ function StageInner() {
 		[ dateSettings.formats.datetime, statusLabel ]
 	);
 
+	const openSingleFormView = useCallback(
+		( formId: number | string ) => {
+			navigate( { href: `/responses/inbox?sourceId=${ encodeURIComponent( String( formId ) ) }` } );
+		},
+		[ navigate ]
+	);
+
 	const actions = useMemo( () => {
 		const actionsList: Action< FormListItem >[] = [
 			{
@@ -206,8 +213,12 @@ function StageInner() {
 				isPrimary: false,
 				label: __( 'View responses', 'jetpack-forms' ),
 				supportsBulk: false,
-				callback() {
-					// Intentionally no-op for now; single form screen will be added later.
+				callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+					openSingleFormView( item.id );
 				},
 			},
 			{
@@ -281,7 +292,14 @@ function StageInner() {
 		} );
 
 		return actionsList;
-	}, [ isDeleting, isViewingTrash, onOpenPermanentDeleteConfirm, restoreForms, trashForms ] );
+	}, [
+		isDeleting,
+		isViewingTrash,
+		onOpenPermanentDeleteConfirm,
+		openSingleFormView,
+		restoreForms,
+		trashForms,
+	] );
 
 	const paginationInfo = useMemo(
 		() => ( {
@@ -310,6 +328,12 @@ function StageInner() {
 
 	const headerActions = useMemo( () => [ <CreateFormButton key="create" /> ], [] );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
+	const onClickItem = useCallback(
+		( item: FormListItem ) => {
+			openSingleFormView( item.id );
+		},
+		[ openSingleFormView ]
+	);
 
 	return (
 		<Page
@@ -344,6 +368,7 @@ function StageInner() {
 				onChangeView={ onChangeView }
 				selection={ selection }
 				onChangeSelection={ setSelection }
+				onClickItem={ onClickItem }
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
 			>
