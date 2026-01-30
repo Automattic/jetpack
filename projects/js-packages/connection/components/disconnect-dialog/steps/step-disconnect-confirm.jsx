@@ -3,6 +3,7 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import disconnectImage from '../images/disconnect-confirm.jpg';
 
 /**
  * Shows the step that confirms the site has been disconnected, asks if user would like to provide feedback.
@@ -12,8 +13,7 @@ import PropTypes from 'prop-types';
  * @return {import('react').Component} - StepDisconnectConfirm Component
  */
 const StepDisconnectConfirm = props => {
-	const { onExit, canProvideFeedback, onProvideFeedback, assetBaseUrl } = props;
-	const disconnectImage = assetBaseUrl ? `${ assetBaseUrl }/disconnect-confirm.jpg` : undefined;
+	const { onExit, canProvideFeedback, onProvideFeedback } = props;
 
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
@@ -81,8 +81,6 @@ StepDisconnectConfirm.propTypes = {
 	onProvideFeedback: PropTypes.func,
 	/** Does the app have the necessary information to collect a survey response? */
 	canProvideFeedback: PropTypes.bool,
-	/** Base URL for where image assets are served from (no trailing slash). */
-	assetBaseUrl: PropTypes.string,
 };
 
 export default StepDisconnectConfirm;
