@@ -317,7 +317,7 @@ class Options extends Module {
 			return false;
 		}
 
-		if ( 'jetpack_options' === $args[0] && ! empty( $args[1] ) & ! empty( $args[2] ) ) {
+		if ( 'jetpack_options' === $args[0] && ! empty( $args[1] ) && ! empty( $args[2] ) ) {
 			if ( ! $this->should_enqueue_jetpack_options_update( $args[1], $args[2] ) ) {
 				return false;
 			}
