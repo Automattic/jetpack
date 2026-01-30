@@ -8,7 +8,8 @@ import { TNavigatorModalContext } from './types.ts';
 
 type ModalProps = React.ComponentProps< typeof Modal >;
 
-type NavigatorModalProps = ModalProps & TNavigatorModalContext;
+// Omit onRequestClose since NavigatorModal uses onClose from TNavigatorModalContext instead
+type NavigatorModalProps = Omit< ModalProps, 'onRequestClose' > & TNavigatorModalContext;
 
 /**
  * Renders the internal NavigatorModal component.
@@ -17,7 +18,11 @@ type NavigatorModalProps = ModalProps & TNavigatorModalContext;
  *
  * @return Component
  */
-function InternalNavigatorModal( { children, className, ...props }: ModalProps ) {
+function InternalNavigatorModal( {
+	children,
+	className,
+	...props
+}: Omit< ModalProps, 'onRequestClose' > ) {
 	const context = useContext( NavigatorModalContext );
 
 	return (

@@ -15,7 +15,7 @@ import { useFooterActions } from './use-footer-actions';
  *
  * @return screen details
  */
-export function useModalScreen(): ScreenDetails {
+export function useModalScreen() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	const footerActions = useFooterActions();
@@ -25,7 +25,7 @@ export function useModalScreen(): ScreenDetails {
 		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
 	}, [] );
 
-	return useMemo(
+	return useMemo< ScreenDetails >(
 		() => ( {
 			path: '/',
 			title: ! isPostPublished

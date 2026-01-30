@@ -3,7 +3,10 @@ import clsx from 'clsx';
 import { Footer, FooterProps } from './footer.tsx';
 import { Header } from './header.tsx';
 
-export type ScreenProps = React.ComponentProps< typeof Navigator.Screen > & {
+export type ScreenProps = Omit<
+	React.ComponentProps< typeof Navigator.Screen >,
+	'content' | 'children'
+> & {
 	/**
 	 * The title of the screen.
 	 */
@@ -47,6 +50,11 @@ export type ScreenProps = React.ComponentProps< typeof Navigator.Screen > & {
 	 * The content of the screen.
 	 */
 	content?: React.ReactNode;
+
+	/**
+	 * The children of the screen. Alternative to `content`.
+	 */
+	children?: React.ReactNode;
 };
 
 /**
