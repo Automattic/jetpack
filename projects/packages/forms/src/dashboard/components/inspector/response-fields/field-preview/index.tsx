@@ -158,7 +158,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 
 		// Numbers
 		if ( fieldType === 'number' ) {
-			return formatNumber( stringValue );
+			return formatNumber( Number( stringValue ) );
 		}
 
 		// Emails
