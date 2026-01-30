@@ -106,9 +106,10 @@ class Jetpack_Admin {
 		// Register Jetpack partner coupon hooks.
 		Jetpack_Partner_Coupon::register_coupon_admin_hooks( 'jetpack', Jetpack::admin_url() );
 
-		// Remove default WordPress admin footer.
-		add_filter( 'admin_footer_text', '__return_empty_string' );
-		add_filter( 'update_footer', '__return_empty_string', 11 );
+		// Remove default WordPress admin footer on Jetpack pages only.
+		add_filter( 'admin_footer_text', array( $this, 'maybe_remove_admin_footer_text' ) );
+		add_filter( 'update_footer', array( $this, 'maybe_remove_admin_footer_version' ), 11 );
+		add_filter( 'admin_body_class', array( $this, 'add_jetpack_admin_body_class' ) );
 	}
 
 	/**
@@ -583,6 +584,60 @@ class Jetpack_Admin {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Check if we're on a Jetpack admin page.
+	 *
+	 * @return bool True if on a Jetpack admin page, false otherwise.
+	 */
+	private function is_jetpack_admin_page() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return false;
+		}
+
+		// Check if the screen ID or parent base contains 'jetpack'
+		return ( strpos( $screen->id, 'jetpack' ) !== false || strpos( $screen->parent_base, 'jetpack' ) !== false );
+	}
+
+	/**
+	 * Add a body class to Jetpack admin pages.
+	 *
+	 * @param string $classes Space-separated list of CSS classes.
+	 * @return string Modified class list.
+	 */
+	public function add_jetpack_admin_body_class( $classes ) {
+		if ( $this->is_jetpack_admin_page() ) {
+			$classes .= ' jetpack-admin-page';
+		}
+		return $classes;
+	}
+
+	/**
+	 * Maybe remove the admin footer text on Jetpack pages.
+	 *
+	 * @param string $content The default footer text.
+	 * @return string Empty string on Jetpack pages, original content otherwise.
+	 */
+	public function maybe_remove_admin_footer_text( $content ) {
+		if ( $this->is_jetpack_admin_page() ) {
+			return '';
+		}
+		return $content;
+	}
+
+	/**
+	 * Maybe remove the admin footer version on Jetpack pages.
+	 *
+	 * @param string $content The default footer version text.
+	 * @return string Empty string on Jetpack pages, original content otherwise.
+	 */
+	public function maybe_remove_admin_footer_version( $content ) {
+		if ( $this->is_jetpack_admin_page() ) {
+			return '';
+		}
+		return $content;
 	}
 }
 Jetpack_Admin::init();
