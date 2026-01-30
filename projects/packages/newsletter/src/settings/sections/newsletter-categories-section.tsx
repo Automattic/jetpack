@@ -176,7 +176,7 @@ export function NewsletterCategoriesSection( {
 	const SubscribeBlockLink = jetpackSettings?.isWpcomPlatform ? (
 		<WpcomSupportLink supportLink={ subscribeBlockUrl } supportPostId={ 170164 } />
 	) : (
-		<ExternalLink href={ subscribeBlockUrl } />
+		<ExternalLink href={ subscribeBlockUrl } children={ null } />
 	);
 
 	return (
