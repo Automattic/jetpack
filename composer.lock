@@ -9,7 +9,7 @@
     "packages-dev": [
         {
             "name": "automattic/ignorefile",
-            "version": "dev-trunk",
+            "version": "dev-fix/update-phan-stubs",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
@@ -60,7 +60,7 @@
         },
         {
             "name": "automattic/jetpack-codesniffer",
-            "version": "dev-trunk",
+            "version": "dev-fix/update-phan-stubs",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
@@ -136,7 +136,7 @@
         },
         {
             "name": "automattic/jetpack-phan-plugins",
-            "version": "dev-trunk",
+            "version": "dev-fix/update-phan-stubs",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phan-plugins",
@@ -194,7 +194,7 @@
         },
         {
             "name": "automattic/jetpack-phpcs-filter",
-            "version": "dev-trunk",
+            "version": "dev-fix/update-phan-stubs",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
