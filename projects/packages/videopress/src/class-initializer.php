@@ -127,6 +127,7 @@ class Initializer {
 		VideoPress_Rest_Api_V1_Stats::init();
 		VideoPress_Rest_Api_V1_Site::init();
 		VideoPress_Rest_Api_V1_Settings::init();
+		VideoPress_Rest_Api_V1_Features::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
 		self::register_oembed_providers();

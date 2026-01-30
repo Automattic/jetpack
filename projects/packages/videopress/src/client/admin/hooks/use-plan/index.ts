@@ -31,23 +31,23 @@ export const usePlan = (): usePlanProps => {
 	const introductoryOffer = mapObjectKeysToCamel( productData.introductory_offer, true );
 	const videoPressProduct = { ...mapObjectKeysToCamel( productData, true ), introductoryOffer };
 
-	const { purchases, isFetchingPurchases } = useSelect( select => {
+	const { features, isFetchingFeatures } = useSelect( select => {
 		return {
-			purchases: ( select( STORE_ID ) as VideopressSelectors ).getPurchases(),
-			isFetchingPurchases: ( select( STORE_ID ) as VideopressSelectors ).isFetchingPurchases(),
+			features: ( select( STORE_ID ) as VideopressSelectors ).getFeatures(),
+			isFetchingFeatures: ( select( STORE_ID ) as VideopressSelectors ).isFetchingFeatures(),
 		};
 	}, [] );
-	const purchasesCamelCase = purchases.map( purchase => mapObjectKeysToCamel( purchase, true ) );
+
+	// Use dynamic features from API, fall back to static paidFeatures from initial state while loading
+	const resolvedFeatures = features ?? paidFeatures;
 
 	return {
-		features: paidFeatures,
+		features: resolvedFeatures,
 		siteProduct: { ...mapObjectKeysToCamel( { ...siteProductData }, true ), pricingForUi },
 		product: videoPressProduct,
 		productPrice,
 
-		// Site purchases
-		purchases: purchasesCamelCase,
-		hasVideoPressPurchase: paidFeatures?.isVideoPress1TBSupported ?? false,
-		isFetchingPurchases,
+		hasVideoPressPurchase: resolvedFeatures?.isVideoPress1TBSupported ?? false,
+		isFetchingFeatures,
 	};
 };

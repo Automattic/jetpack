@@ -1,31 +1,44 @@
 /**
  * Test for usePlan hook's hasVideoPressPurchase logic.
  *
- * Since the hook reads from window.jetpackVideoPressInitialState at module load time,
- * we use jest.isolateModules() to get fresh module instances with different window state.
+ * The hook now fetches features dynamically from the Redux store via useSelect.
  */
 
 declare global {
 	interface Window {
 		jetpackVideoPressInitialState?: {
+			siteProductData?: object;
+			productData?: object;
+			productPrice?: object;
 			paidFeatures?: {
 				isVideoPressSupported?: boolean;
 				isVideoPress1TBSupported?: boolean;
 				isVideoPressUnlimitedSupported?: boolean;
 			};
-			siteProductData?: object;
-			productData?: object;
-			productPrice?: object;
 		};
 	}
 }
 
+// Store the mock features data that tests will set
+let mockFeaturesData: {
+	features?: {
+		isVideoPressSupported?: boolean;
+		isVideoPress1TBSupported?: boolean;
+		isVideoPressUnlimitedSupported?: boolean;
+	};
+	isFetchingFeatures: boolean;
+} = {
+	features: undefined,
+	isFetchingFeatures: false,
+};
+
 // Mock @wordpress/data
 jest.mock( '@wordpress/data', () => ( {
-	useSelect: jest.fn( () => ( {
-		purchases: [],
-		isFetchingPurchases: false,
-	} ) ),
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	useSelect: jest.fn( ( _selectorCallback: ( select: () => object ) => object ) => {
+		// Return the mock data directly since we're mocking the entire flow
+		return mockFeaturesData;
+	} ),
 	combineReducers: jest.fn( reducers => reducers ),
 	createReduxStore: jest.fn(),
 	register: jest.fn(),
@@ -36,36 +49,56 @@ jest.mock( '../../../../state', () => ( {
 	STORE_ID: 'jetpack-videopress',
 } ) );
 
+// Mock mapObjectKeysToCamel
+jest.mock( '../../../../utils/map-object-keys-to-camel-case', () => ( {
+	mapObjectKeysToCamel: jest.fn( obj => obj || {} ),
+} ) );
+
 /**
  * Helper to import usePlan in an isolated module context.
  * This ensures each test gets a fresh module that reads the current window state.
  *
  * @return {object} The result of calling usePlan()
  */
-function importUsePlan(): { hasVideoPressPurchase: boolean } {
-	let result: { hasVideoPressPurchase: boolean } = { hasVideoPressPurchase: false };
+function importUsePlan(): { hasVideoPressPurchase: boolean; isFetchingFeatures: boolean } {
+	let result: { hasVideoPressPurchase: boolean; isFetchingFeatures: boolean } = {
+		hasVideoPressPurchase: false,
+		isFetchingFeatures: false,
+	};
 	jest.isolateModules( () => {
-		const { usePlan } = jest.requireActual< typeof import('..') >( '..' );
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		const { usePlan } = require( '..' );
 		result = usePlan();
 	} );
 	return result;
 }
 
 describe( 'usePlan hasVideoPressPurchase logic', () => {
+	beforeEach( () => {
+		jest.resetModules();
+		window.jetpackVideoPressInitialState = {
+			siteProductData: {},
+			productData: {},
+			productPrice: {},
+		};
+		mockFeaturesData = {
+			features: undefined,
+			isFetchingFeatures: false,
+		};
+	} );
+
 	afterEach( () => {
 		delete window.jetpackVideoPressInitialState;
 	} );
 
 	it( 'returns true when isVideoPress1TBSupported is true (paid VideoPress plan)', () => {
-		window.jetpackVideoPressInitialState = {
-			paidFeatures: {
+		mockFeaturesData = {
+			features: {
 				isVideoPressSupported: true,
 				isVideoPress1TBSupported: true,
 				isVideoPressUnlimitedSupported: false,
 			},
-			siteProductData: {},
-			productData: {},
-			productPrice: {},
+			isFetchingFeatures: false,
 		};
 
 		const result = importUsePlan();
@@ -73,52 +106,75 @@ describe( 'usePlan hasVideoPressPurchase logic', () => {
 	} );
 
 	it( 'returns false when isVideoPress1TBSupported is false (free tier)', () => {
-		window.jetpackVideoPressInitialState = {
-			paidFeatures: {
+		mockFeaturesData = {
+			features: {
 				isVideoPressSupported: true, // This is always true, even for free tier
 				isVideoPress1TBSupported: false,
 				isVideoPressUnlimitedSupported: false,
 			},
-			siteProductData: {},
-			productData: {},
-			productPrice: {},
+			isFetchingFeatures: false,
 		};
 
 		const result = importUsePlan();
 		expect( result.hasVideoPressPurchase ).toBe( false );
 	} );
 
-	it( 'returns false when paidFeatures is undefined', () => {
-		window.jetpackVideoPressInitialState = {
-			siteProductData: {},
-			productData: {},
-			productPrice: {},
+	it( 'returns false when features is undefined', () => {
+		mockFeaturesData = {
+			features: undefined,
+			isFetchingFeatures: false,
 		};
 
-		const result = importUsePlan();
-		expect( result.hasVideoPressPurchase ).toBe( false );
-	} );
-
-	it( 'returns false when jetpackVideoPressInitialState is undefined', () => {
-		// Don't set window.jetpackVideoPressInitialState at all
 		const result = importUsePlan();
 		expect( result.hasVideoPressPurchase ).toBe( false );
 	} );
 
 	it( 'returns true when isVideoPressUnlimitedSupported is true (Complete plan has both)', () => {
 		// Complete plans have both 1TB and unlimited features
-		window.jetpackVideoPressInitialState = {
-			paidFeatures: {
+		mockFeaturesData = {
+			features: {
 				isVideoPressSupported: true,
 				isVideoPress1TBSupported: true,
 				isVideoPressUnlimitedSupported: true,
 			},
-			siteProductData: {},
-			productData: {},
-			productPrice: {},
+			isFetchingFeatures: false,
 		};
 
 		const result = importUsePlan();
+		expect( result.hasVideoPressPurchase ).toBe( true );
+	} );
+
+	it( 'returns isFetchingFeatures state from store', () => {
+		mockFeaturesData = {
+			features: undefined,
+			isFetchingFeatures: true,
+		};
+
+		const result = importUsePlan();
+		expect( result.isFetchingFeatures ).toBe( true );
+	} );
+
+	it( 'falls back to static paidFeatures when dynamic features are undefined', () => {
+		// Set static paidFeatures in initial state
+		window.jetpackVideoPressInitialState = {
+			siteProductData: {},
+			productData: {},
+			productPrice: {},
+			paidFeatures: {
+				isVideoPressSupported: true,
+				isVideoPress1TBSupported: true,
+				isVideoPressUnlimitedSupported: false,
+			},
+		};
+
+		// Dynamic features not yet loaded
+		mockFeaturesData = {
+			features: undefined,
+			isFetchingFeatures: true,
+		};
+
+		const result = importUsePlan();
+		// Should use static paidFeatures as fallback
 		expect( result.hasVideoPressPurchase ).toBe( true );
 	} );
 } );

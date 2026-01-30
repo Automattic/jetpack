@@ -12,6 +12,7 @@ import {
 	WP_REST_API_MEDIA_ENDPOINT,
 	FLUSH_DELETED_VIDEOS,
 	REST_API_SITE_INFO_ENDPOINT,
+	REST_API_FEATURES_ENDPOINT,
 	SET_VIDEO_PROCESSING,
 	SET_LOCAL_VIDEOS_QUERY,
 	WP_REST_API_USERS_ENDPOINT,
@@ -440,6 +441,28 @@ const getVideoPressSettings = {
 		},
 };
 
+const getFeatures = {
+	isFulfilled: state => state?.features?.isVideoPressSupported !== undefined,
+
+	fulfill:
+		() =>
+		async ( { dispatch } ) => {
+			dispatch.setIsFetchingFeatures( true );
+
+			try {
+				const features = await apiFetch( {
+					path: REST_API_FEATURES_ENDPOINT,
+					method: 'GET',
+				} );
+
+				dispatch.setFeatures( features );
+				return features;
+			} catch ( error ) {
+				console.error( error ); // eslint-disable-line no-console
+			}
+		},
+};
+
 export default {
 	getStorageUsed,
 	getUploadedVideoCount,
@@ -453,4 +476,6 @@ export default {
 	getPlaybackToken,
 
 	getVideoPressSettings,
+
+	getFeatures,
 };

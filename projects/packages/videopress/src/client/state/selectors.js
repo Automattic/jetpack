@@ -79,13 +79,15 @@ export const getVideoStateMetadata = ( state, id ) => {
 	return _metaVideo;
 };
 
-export const isFetchingPurchases = state => {
-	return state?.purchases?.isFetching;
+export const isFetchingFeatures = state => {
+	return state?.features?.isFetching;
 };
 
-export const getPurchases = state => {
-	return state?.purchases?.items || [];
-};
+export const getFeatures = state => ( {
+	isVideoPressSupported: state?.features?.isVideoPressSupported ?? false,
+	isVideoPress1TBSupported: state?.features?.isVideoPress1TBSupported ?? false,
+	isVideoPressUnlimitedSupported: state?.features?.isVideoPressUnlimitedSupported ?? false,
+} );
 
 export const getLocalVideos = state => {
 	return state?.localVideos?.items || [];
@@ -154,8 +156,8 @@ const selectors = {
 	getUsers,
 	getUsersPagination,
 
-	getPurchases,
-	isFetchingPurchases,
+	getFeatures,
+	isFetchingFeatures,
 
 	getPlaybackToken,
 	isFetchingPlaybackToken,
