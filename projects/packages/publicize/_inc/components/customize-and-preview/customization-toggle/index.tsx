@@ -26,7 +26,7 @@ export function CustomizationToggle() {
 		>
 			<ToggleGroupControlOption
 				label={ _x(
-					'For all',
+					'Same for all',
 					'An option to customize for all networks',
 					'jetpack-publicize-pkg'
 				) }
@@ -34,7 +34,7 @@ export function CustomizationToggle() {
 			/>
 			<ToggleGroupControlOption
 				label={ _x(
-					'For each',
+					'Customize each',
 					'An option to customize for each network',
 					'jetpack-publicize-pkg'
 				) }
