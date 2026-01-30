@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor: rename icon.js files to icon.jsx for proper JSX file extensions
+
+

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Mark new connections as shared by default for privileged users.

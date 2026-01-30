@@ -20,8 +20,10 @@ import { useEffect } from 'react';
  */
 import useConfigValue from '../../../hooks/use-config-value.ts';
 import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
+import BackToFormsButton from '../../components/back-to-forms-button/index.tsx';
 import CreateFormButton from '../../components/create-form-button/index.tsx';
 import DataViewsHeaderRow from '../../components/dataviews-header-row/index.tsx';
+import EditFormButton from '../../components/edit-form-button/index.tsx';
 import EmptyResponses from '../../components/empty-responses/index.tsx';
 import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
@@ -81,11 +83,20 @@ const setupSidebarWidthObserver = () => {
 /**
  * The DataViews implementation.
  *
+ * @param {object}                    [props]              - Props.
+ * @param {number}                    [props.parentId]     - Optional parent (form/source) ID to scope responses to.
+ * @param {import('react').ReactNode} [props.pageTitle]    - Optional page title content. Defaults to "Forms".
+ * @param {string}                    [props.pageSubtitle] - Optional page subtitle string.
  * @return {import('react').JSX.Element} The DataViews component.
  */
-export default function InboxView() {
+export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
+	const parent = useMemo( () => {
+		const id = Number( parentId );
+		return Number.isFinite( id ) && id > 0 ? id : null;
+	}, [ parentId ] );
+	const isSingleFormView = !! parent;
 
 	const dateSettings = getDateSettings();
 
@@ -122,6 +133,7 @@ export default function InboxView() {
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
+	const isInboxStatusToggleView = isSingleFormView || isCentralFormManagementEnabled !== true;
 	const urlFolder = useMemo( () => {
 		const urlStatus = searchParams.get( 'status' );
 		return [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
@@ -173,6 +185,12 @@ export default function InboxView() {
 			}
 			return accumulator;
 		}, {} );
+
+		// Single-form view: scope the query directly (no DataViews Source filter pill).
+		if ( isSingleFormView && parent ) {
+			_filters.parent = parent;
+		}
+
 		const _queryArgs = {
 			order: 'desc',
 			orderby: 'date',
@@ -185,7 +203,7 @@ export default function InboxView() {
 		// We need to keep the current query args in the store to be used in `export`
 		// and for getting the total records per `status`.
 		setCurrentQuery( _queryArgs );
-	}, [ view, statusFilter, setCurrentQuery ] );
+	}, [ view, statusFilter, setCurrentQuery, isSingleFormView, parent ] );
 
 	const selection = selectedResponses?.split( ',' ) || EMPTY_ARRAY;
 
@@ -260,7 +278,7 @@ export default function InboxView() {
 
 	const onChangeView = useCallback(
 		newView => {
-			if ( isCentralFormManagementEnabled ) {
+			if ( ! isInboxStatusToggleView ) {
 				const folderValue = newView.filters?.find( filter => filter.field === 'folder' )?.value;
 				const nextFolder = [ 'inbox', 'spam', 'trash' ].includes( folderValue )
 					? folderValue
@@ -291,10 +309,9 @@ export default function InboxView() {
 					newView = { ...newView, page: 1 };
 				}
 			}
-
 			setView( newView );
 		},
-		[ isCentralFormManagementEnabled, setSearchParams, setSelectedResponses, setView, urlFolder ]
+		[ isInboxStatusToggleView, setSearchParams, setSelectedResponses, setView, urlFolder ]
 	);
 
 	const wrapperUnread = ( isUnread, itemValue ) => {
@@ -306,7 +323,7 @@ export default function InboxView() {
 
 	const fields = useMemo(
 		() => [
-			...( isCentralFormManagementEnabled
+			...( ! isInboxStatusToggleView
 				? [
 						{
 							id: 'folder',
@@ -324,6 +341,33 @@ export default function InboxView() {
 							// Filter-only field; not shown as a column.
 							render: () => null,
 							getValue: () => null,
+						},
+				  ]
+				: [] ),
+			...( ! isSingleFormView
+				? [
+						{
+							id: 'source',
+							label: __( 'Source', 'jetpack-forms' ),
+							render: ( { item } ) => {
+								if ( ! item.entry_permalink ) {
+									return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
+								}
+								return (
+									<ExternalLink href={ item.entry_permalink }>
+										{ wrapperUnread(
+											item.is_unread,
+											decodeEntities( item.entry_title ) || getPath( item )
+										) }
+									</ExternalLink>
+								);
+							},
+							elements: ( filterOptions?.source || [] ).map( source => ( {
+								value: source.id,
+								label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
+							} ) ),
+							filterBy: { operators: [ 'is' ] },
+							enableSorting: false,
 						},
 				  ]
 				: [] ),
@@ -414,29 +458,6 @@ export default function InboxView() {
 				enableSorting: false,
 			},
 			{
-				id: 'source',
-				label: __( 'Source', 'jetpack-forms' ),
-				render: ( { item } ) => {
-					if ( ! item.entry_permalink ) {
-						return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
-					}
-					return (
-						<ExternalLink href={ item.entry_permalink }>
-							{ wrapperUnread(
-								item.is_unread,
-								decodeEntities( item.entry_title ) || getPath( item )
-							) }
-						</ExternalLink>
-					);
-				},
-				elements: ( filterOptions?.source || [] ).map( source => ( {
-					value: source.id,
-					label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
-				} ) ),
-				filterBy: { operators: [ 'is' ] },
-				enableSorting: false,
-			},
-			{
 				id: 'read_status',
 				label: __( 'Status', 'jetpack-forms' ),
 				elements: [
@@ -472,14 +493,15 @@ export default function InboxView() {
 			isMobileViewport,
 			openResponseModal,
 			dateSettings.formats.date,
-			isCentralFormManagementEnabled,
+			isInboxStatusToggleView,
+			isSingleFormView,
 		]
 	);
 
 	// When CFM is enabled, keep the DataViews "Folder" filter in sync with the URL `status` param
 	// (and default to Inbox on first load).
 	useEffect( () => {
-		if ( ! isCentralFormManagementEnabled ) {
+		if ( isInboxStatusToggleView ) {
 			return;
 		}
 		setView( previousView => {
@@ -497,7 +519,7 @@ export default function InboxView() {
 				filters: nextFilters,
 			};
 		} );
-	}, [ isCentralFormManagementEnabled, setView, urlFolder ] );
+	}, [ isInboxStatusToggleView, setView, urlFolder ] );
 
 	const actions = useMemo( () => {
 		const mobileViewAction = {
@@ -569,16 +591,24 @@ export default function InboxView() {
 
 	// Conditional header actions based on status filter
 	const headerActions = useMemo( () => {
-		const exportIsPrimary = statusFilter !== 'trash' && statusFilter !== 'spam';
+		const exportIsPrimary =
+			! isSingleFormView && statusFilter !== 'trash' && statusFilter !== 'spam';
 		const headerActionsArray = [
 			<ExportResponsesButton key="export" isPrimary={ exportIsPrimary } />,
 		];
+
+		// On the single form screen, always show navigation actions regardless of folder (Inbox/Spam/Trash).
+		if ( isSingleFormView ) {
+			headerActionsArray.unshift( <BackToFormsButton key="back-to-forms" /> );
+			headerActionsArray.splice( 1, 0, <EditFormButton key="edit-form" formId={ parent } /> );
+		}
 
 		if ( statusFilter === 'trash' ) {
 			headerActionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		} else if ( statusFilter === 'spam' ) {
 			headerActionsArray.push( <EmptySpamButton key="empty-spam" /> );
-		} else {
+		} else if ( ! isSingleFormView ) {
+			// When not on the single form screen, show create / integrations.
 			headerActionsArray.unshift( <CreateFormButton key="create" /> );
 			// Only show Create Form and Integrations buttons on inbox (when not in trash or spam)
 			if ( isIntegrationsEnabled && showDashboardIntegrations ) {
@@ -587,17 +617,20 @@ export default function InboxView() {
 		}
 
 		return headerActionsArray;
-	}, [ statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
+	}, [ parent, isSingleFormView, statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
 
 	const pageContent = (
 		<Page
 			title={
 				<div className="jp-forms-page-header-title">
 					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
+					{ pageTitle ? pageTitle : __( 'Forms', 'jetpack-forms' ) }
 				</div>
 			}
-			subTitle={ __( 'View and manage all your form responses in one place.', 'jetpack-forms' ) }
+			subTitle={
+				pageSubtitle ??
+				__( 'View and manage all your form responses in one place.', 'jetpack-forms' )
+			}
 			actions={ headerActions }
 			hasPadding={ false }
 		>
@@ -622,7 +655,10 @@ export default function InboxView() {
 					/>
 				}
 			>
-				<DataViewsHeaderRow onLegacyStatusChange={ resetPage } />
+				<DataViewsHeaderRow
+					onLegacyStatusChange={ resetPage }
+					isInboxStatusToggleView={ isInboxStatusToggleView }
+				/>
 				<div className="jp-forms-dataviews-layout-container">
 					<DataViews.Layout />
 					<DataViews.Footer />
