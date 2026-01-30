@@ -289,6 +289,15 @@ that needs to mimic the input element styles */
 		border-top: 1px solid currentColor;
 		border-top-color: color-mix(in sRGB, currentColor 20%, transparent);
 	}
+
+	// Align field values with the label text, past the icon.
+	> .field-value,
+	> .field-url,
+	> .field-rating,
+	> .field-images,
+	> .field-files {
+		margin-inline-start: 28px; // icon width (20px) + gap (8px)
+	}
 }
 
 .contact-form-submission .field-name-wrapper {
