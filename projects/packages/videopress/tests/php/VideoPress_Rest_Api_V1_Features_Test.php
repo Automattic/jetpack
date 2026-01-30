@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\My_Jetpack\Product;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
@@ -93,8 +94,10 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 	 * Test that authenticated requests succeed.
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_authenticated_request_succeeds() {
 		wp_set_current_user( $this->user_id );
 
@@ -175,9 +178,11 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 	 * @param array $expected Expected feature flags from the endpoint.
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @dataProvider feature_flag_mapping_provider
 	 */
 	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	#[DataProvider( 'feature_flag_mapping_provider' )]
 	public function test_feature_flag_mapping( array $active_features, array $expected ) {
 		wp_set_current_user( $this->user_id );
