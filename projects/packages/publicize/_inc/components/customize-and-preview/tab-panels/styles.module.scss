@@ -4,10 +4,10 @@
 
 	@include gb.break-medium() {
 		display: grid;
-	}
 
-	&[data-variant="global"] {
-		grid-template-columns: clamp(200px, 33.33%, 350px) minmax(0, 1fr);
+		&[data-variant="global"] {
+			grid-template-columns: clamp(200px, 33.33%, 350px) minmax(0, 1fr);
+		}
 	}
 
 	&[data-plan="paid"] {
