@@ -11,7 +11,6 @@
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-
 	/*
 
 		This file contains functions from DAL1 & DAL2 which have been translated into DAL2.5
@@ -29,20 +28,17 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 	*/
 
-
-
 // ====================================================================================================================================
 // ====================================================================================================================================
 // ==================== DAL 2.0 FUNCS =================================================================================================
 // ====================================================================================================================================
 // ====================================================================================================================================
 
-
 /* ======================================================
 	  Unchanged DAL2->3 (Mostly customer/contact + log relatead)
    ====================================================== */
 
-function zeroBS_getCustomer( $cID = -1, $withInvoices = false, $withQuotes = false, $withTransactions = false ){
+function zeroBS_getCustomer( $cID = -1, $withInvoices = false, $withQuotes = false, $withTransactions = false ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContact(
@@ -61,7 +57,7 @@ function zeroBS_getCustomer( $cID = -1, $withInvoices = false, $withQuotes = fal
 
 }
 
-function zeroBS_getCustomerName( $contactID = -1 ){
+function zeroBS_getCustomerName( $contactID = -1 ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContactFullNameEtc(
@@ -74,7 +70,7 @@ function zeroBS_getCustomerName( $contactID = -1 ){
 	);
 
 }
-function zeroBS_customerName( $contactID = '', $contactArr = false, $incFirstLineAddr = true, $incID = true ){
+function zeroBS_customerName( $contactID = '', $contactArr = false, $incFirstLineAddr = true, $incID = true ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContactFullNameEtc(
@@ -86,9 +82,8 @@ function zeroBS_customerName( $contactID = '', $contactArr = false, $incFirstLin
 		)
 	);
 
-
 }
-function zeroBS_getCustomerNameShort( $contactID = -1 ){
+function zeroBS_getCustomerNameShort( $contactID = -1 ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContactFullNameEtc(
@@ -101,7 +96,7 @@ function zeroBS_getCustomerNameShort( $contactID = -1 ){
 	);
 }
 
-function zeroBS_customerAddr( $contactID = '', $contactArr = array(), $addrFormat = 'short', $delimiter = ', ' ){
+function zeroBS_customerAddr( $contactID = '', $contactArr = array(), $addrFormat = 'short', $delimiter = ', ' ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContactAddress(
@@ -117,7 +112,7 @@ function zeroBS_customerAddr( $contactID = '', $contactArr = array(), $addrForma
 
 #} Returns a str of address, ($third param = 'short','full')
 #} Pass an ID OR a customerMeta array (saves loading ;) - in fact doesn't even work with ID yet... lol)
-function zeroBS_customerSecondAddr( $contactID = '', $contactArr = array(), $addrFormat = 'short', $delimiter = ', ' ){
+function zeroBS_customerSecondAddr( $contactID = '', $contactArr = array(), $addrFormat = 'short', $delimiter = ', ' ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContact2ndAddress(
@@ -131,28 +126,28 @@ function zeroBS_customerSecondAddr( $contactID = '', $contactArr = array(), $add
 
 }
 
-function zeroBS_customerEmail( $contactID = '', $contactArr = false ){
+function zeroBS_customerEmail( $contactID = '', $contactArr = false ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContactEmail( $contactID );
 
 }
 
-function zeroBS_customerMobile( $contactID = '', $contactArr = false ){
+function zeroBS_customerMobile( $contactID = '', $contactArr = false ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContactMobile( $contactID );
 
 }
 
-function zeroBS_customerAvatarHTML( $contactID = '', $contactArr = false, $size = 100, $extraClasses = '' ){
+function zeroBS_customerAvatarHTML( $contactID = '', $contactArr = false, $size = 100, $extraClasses = '' ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContactAvatarHTML( $contactID, $size, $extraClasses );
 
 }
 
-function zeroBS_customerCount(){
+function zeroBS_customerCount() {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContactCount( array('ignoreowner' => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT )) );
@@ -161,11 +156,11 @@ function zeroBS_customerCount(){
 
 #} Retrieves company post id if associated with customer
 // note 2.5+ can have multiple co's, but this'll only return first ID, need to move away from this
-function zeroBS_getCustomerCompanyID( $cID = -1 ){
+function zeroBS_getCustomerCompanyID( $cID = -1 ) {
 
 	global $zbs;
 	$coArr = $zbs->DAL->contacts->getContactCompanies( $cID );
-	if (is_array( $coArr ) && count( $coArr ) > 0) {
+	if ( is_array( $coArr ) && count( $coArr ) > 0 ) {
 		return $coArr[0]['id'];
 	}
 
@@ -174,7 +169,7 @@ function zeroBS_getCustomerCompanyID( $cID = -1 ){
 
 #} sets company id associated with customer (note this'll override any existing val)
 // note 2.5+ can have multiple co's, but this'll only add first ID, need to move away from this
-function zeroBS_setCustomerCompanyID( $cID = -1, $coID = -1 ){
+function zeroBS_setCustomerCompanyID( $cID = -1, $coID = -1 ) {
 
 	global $zbs;
 	if ( ! empty( $cID ) && ! empty( $coID ) ) {
@@ -189,7 +184,7 @@ function zeroBS_setCustomerCompanyID( $cID = -1, $coID = -1 ){
 
 	return false;
 }
-function zbsCRM_addUpdateCustomerCompany( $customerID = -1, $companyID = -1 ){
+function zbsCRM_addUpdateCustomerCompany( $customerID = -1, $companyID = -1 ) {
 
 	global $zbs;
 	if ( ! empty( $customerID ) && ! empty( $companyID ) ) {
@@ -207,7 +202,7 @@ function zbsCRM_addUpdateCustomerCompany( $customerID = -1, $companyID = -1 ){
 }
 
 #} Retrieves wp id for a customer
-function zeroBS_getCustomerWPID( $cID = -1 ){
+function zeroBS_getCustomerWPID( $cID = -1 ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContactWPID( $cID );
@@ -215,7 +210,7 @@ function zeroBS_getCustomerWPID( $cID = -1 ){
 }
 
 #} Retrieves wp id for a customer
-function zeroBS_getCustomerIDFromWPID( $wpID = -1 ){
+function zeroBS_getCustomerIDFromWPID( $wpID = -1 ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContact(
@@ -229,7 +224,7 @@ function zeroBS_getCustomerIDFromWPID( $wpID = -1 ){
 }
 
 #} Sets a WP id against a customer
-function zeroBS_setCustomerWPID( $cID = -1, $wpID = -1 ){
+function zeroBS_setCustomerWPID( $cID = -1, $wpID = -1 ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->addUpdateContactWPID(
@@ -241,7 +236,7 @@ function zeroBS_setCustomerWPID( $cID = -1, $wpID = -1 ){
 
 }
 
-function zeroBSCRM_getCustomerTags( $hide_empty = false ){
+function zeroBSCRM_getCustomerTags( $hide_empty = false ) {
 
 	global $zbs;
 
@@ -255,7 +250,7 @@ function zeroBSCRM_getCustomerTags( $hide_empty = false ){
 }
 
 // either or
-function zeroBSCRM_setContactTags( $cID = -1, $tags = array(), $tagIDs = array(), $mode = 'replace' ){
+function zeroBSCRM_setContactTags( $cID = -1, $tags = array(), $tagIDs = array(), $mode = 'replace' ) {
 
 	if ( $cID > 0 ) {
 
@@ -283,7 +278,7 @@ function zeroBSCRM_setContactTags( $cID = -1, $tags = array(), $tagIDs = array()
 	return false;
 
 }
-function zeroBSCRM_getContactTagsArr( $hide_empty = true ){
+function zeroBSCRM_getContactTagsArr( $hide_empty = true ) {
 
 	global $zbs;
 
@@ -296,7 +291,7 @@ function zeroBSCRM_getContactTagsArr( $hide_empty = true ){
 	);
 
 }
-function zeroBS_getCustomerIcoHTML( $cID = -1, $additionalClasses = '' ){
+function zeroBS_getCustomerIcoHTML( $cID = -1, $additionalClasses = '' ) {
 
 	$thumbHTML = '<i class="fa fa-user" aria-hidden="true"></i>';
 
@@ -311,8 +306,7 @@ function zeroBS_getCustomerIcoHTML( $cID = -1, $additionalClasses = '' ){
 	return '<div class="zbs-co-img ' . $additionalClasses . '">' . $thumbHTML . '</div>';
 }
 
-
-function zeroBS_getCustomerIDWithEmail( $custEmail = '' ){
+function zeroBS_getCustomerIDWithEmail( $custEmail = '' ) {
 	/**
 	 *  @var $custEmail the customer email you want to check if a contact exists for
 	 *
@@ -331,8 +325,7 @@ function zeroBS_getCustomerIDWithEmail( $custEmail = '' ){
 
 }
 
-
-function zeroBS_searchCustomers( $args = array(), $withMoneyData = false ){
+function zeroBS_searchCustomers( $args = array(), $withMoneyData = false ) {
 
 	// here I've shoehorned old into new,
 	// NOTE:
@@ -361,12 +354,12 @@ function zeroBS_searchCustomers( $args = array(), $withMoneyData = false ){
 function zeroBSCRM_customerPortalDisableEnable( $contact_id = -1, $enable_or_disable = 'disable' ) {
 	global $zbs;
 
-	if ( zeroBSCRM_permsCustomers() && ! empty( $contact_id ) ) {
+	if ( zeroBSCRM_permsCustomers( ) && ! empty( $contact_id ) ) {
 		// Verify this user can be changed.
 		// Has to have singular role of `zerobs_customer`. This helps to avoid users changing each others accounts via crm.
 		$wp_user_id  = zeroBSCRM_getClientPortalUserID( $contact_id );
 		$user_object = get_userdata( $wp_user_id );
-		if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
+		if ( jpcrm_role_check( $user_object, array( ), array( ), array( 'zerobs_customer' ) ) ) {
 			if ( $enable_or_disable === 'disable' ) {
 				return $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, 'portal_disabled', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			} else {
@@ -378,7 +371,6 @@ function zeroBSCRM_customerPortalDisableEnable( $contact_id = -1, $enable_or_dis
 	return false;
 }
 
-
 /*
  * Resets the password for client portal access for a contact, by ID
  */
@@ -386,7 +378,7 @@ function zeroBSCRM_customerPortalPWReset( $contact_id = -1 ) {
 
 	global $zbs;
 
-	if ( zeroBSCRM_permsCustomers() && ! empty( $contact_id ) ) {
+	if ( zeroBSCRM_permsCustomers( ) && ! empty( $contact_id ) ) {
 
 		$wp_user_id = zeroBS_getCustomerWPID( $contact_id );
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );
@@ -397,7 +389,7 @@ function zeroBSCRM_customerPortalPWReset( $contact_id = -1 ) {
 
 			// Verify this user can be changed
 			// (Has to have singular role of `zerobs_customer`. This helps to avoid users resetting each others passwords via crm)
-			if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
+			if ( jpcrm_role_check( $user_object, array( ), array( ), array( 'zerobs_customer' ) ) ) {
 
 				return false;
 
@@ -449,19 +441,17 @@ function zeroBSCRM_customerPortalPWReset( $contact_id = -1 ) {
 
 				// discern del method
 				$mailDeliveryMethod = zeroBSCRM_mailTemplate_getMailDelMethod( ZBSEMAIL_CLIENTPORTALPWREST );
-				if ( ! isset( $mailDeliveryMethod ) || empty( $mailDeliveryMethod )) {
+				if ( ! isset( $mailDeliveryMethod ) || empty( $mailDeliveryMethod ) ) {
 					$mailDeliveryMethod = -1;
 				}
 
 				// send
 				$sent = zeroBSCRM_mailDelivery_sendMessage( $mailDeliveryMethod, $mailArray );
 
-
 				// =================================== / MAIL SENDING =======================================
 				// ==========================================================================================
 
 			}
-
 
 			return $new_password;
 
@@ -479,7 +469,7 @@ function zeroBSCRM_isCustomerPortalDisabled( $contact_id = -1 ) {
 	// No Contact ID, no entry, unless Admin or Jetpack CRM Admin we can let those in.
 	$contact_id = (int)$contact_id;
 	if ( $contact_id < 1 ) {
-		if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		if ( zeroBSCRM_isZBSAdminOrAdmin( ) ) {
 			return false;
 		}
 		return true;
@@ -498,7 +488,7 @@ function zeroBSCRM_isCustomerPortalDisabled( $contact_id = -1 ) {
 
 // loads customer record + creates a portal user for record
 // replaces zeroBSCRM_genPortalUser
-function zeroBSCRM_createClientPortalUserFromRecord( $cID = -1 ){
+function zeroBSCRM_createClientPortalUserFromRecord( $cID = -1 ) {
 
 	if ( ! empty( $cID ) ) {
 
@@ -506,18 +496,18 @@ function zeroBSCRM_createClientPortalUserFromRecord( $cID = -1 ){
 
 		// existing?
 		$existing = zeroBSCRM_getClientPortalUserID( $cID );
-		if ( ! empty( $existing ) || $existing > 0) {
+		if ( ! empty( $existing ) || $existing > 0 ) {
 			return false;
 		}
 
 		$email = $zbs->DAL->contacts->getContactEmail( $cID );
 		$contact = $zbs->DAL->contacts->getContact( $cID, array('fields' => array('zbsc_fname', 'zbsc_lname')) );
 		$fname = '';
-		if (isset( $contact['fname'] ) && ! empty( $contact['fname'] )) {
+		if ( isset( $contact['fname'] ) && ! empty( $contact['fname'] ) ) {
 			$fname = $contact['fname'];
 		}
 		$lname = '';
-		if (isset( $contact['lname'] ) && ! empty( $contact['lname'] )) {
+		if ( isset( $contact['lname'] ) && ! empty( $contact['lname'] ) ) {
 			$lname = $contact['lname'];
 		}
 
@@ -530,7 +520,7 @@ function zeroBSCRM_createClientPortalUserFromRecord( $cID = -1 ){
 
 }
 
-function zeroBSCRM_getClientPortalUserID( $cID = -1 ){
+function zeroBSCRM_getClientPortalUserID( $cID = -1 ) {
 
 	if ( ! empty( $cID ) ) {
 
@@ -559,7 +549,7 @@ function zeroBSCRM_getClientPortalUserID( $cID = -1 ){
 	return false;
 }
 
-function zeroBSCRM_getClientPortalUserWPObj( $cID = -1 ){
+function zeroBSCRM_getClientPortalUserWPObj( $cID = -1 ) {
 
 	if ( ! empty( $cID ) ) {
 
@@ -577,7 +567,7 @@ function zeroBSCRM_getClientPortalUserWPObj( $cID = -1 ){
 }
 
 // Function to update the zbs<->wp user link
-function zeroBSCRM_setClientPortalUser( $cID = -1, $wpUserID = -1 ){
+function zeroBSCRM_setClientPortalUser( $cID = -1, $wpUserID = -1 ) {
 
 	if ( $cID > 0 && $wpUserID > 0 ) {
 
@@ -630,7 +620,7 @@ function zeroBSCRM_createClientPortalUser( $cID = -1, $email = '', $passwordLeng
 	$user = new WP_User( $user_id );
 
 	// fail if the user doesn't exist
-	if ( ! $user->exists() ) {
+	if ( ! $user->exists( ) ) {
 		return false;
 	}
 
@@ -707,19 +697,17 @@ function zeroBSCRM_createClientPortalUser( $cID = -1, $email = '', $passwordLeng
 
 }
 
-
-
 // THIS IS NOW DEPRECATED db2+
 // (META used to be all deets, it's now normal deets - as table)
 #} Quick wrapper to future-proof.
 #} Should later replace all get_post_meta's with this
-function zeroBS_getCustomerMeta( $cID = -1 ){
+function zeroBS_getCustomerMeta( $cID = -1 ) {
 
 	global $zbs;
 
 	//if (!empty($cID)) return get_post_meta($cID, 'zbs_customer_meta', true);
 	// Return contact directly DB2+
-	if ( ! empty( $cID )) {
+	if ( ! empty( $cID ) ) {
 		return $zbs->DAL->contacts->getContact( $cID, array('ignoreowner' => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT )) );
 	}
 
@@ -727,7 +715,7 @@ function zeroBS_getCustomerMeta( $cID = -1 ){
 
 }
 // generates a 'demo' customer object (excluding custom fields)
-function zeroBS_getDemoCustomer(){
+function zeroBS_getDemoCustomer() {
 
 	global $zbs, $zbsCustomerFields;
 
@@ -779,7 +767,7 @@ function zeroBS_getDemoCustomer(){
 	return $ret;
 
 }
-function zeroBS_getCustomerExtraMetaVal( $cID = -1, $extraMetaKey = false ){
+function zeroBS_getCustomerExtraMetaVal( $cID = -1, $extraMetaKey = false ) {
 
 	if ( ! empty( $cID ) && ! empty( $extraMetaKey ) ) {
 
@@ -798,7 +786,7 @@ function zeroBS_getCustomerExtraMetaVal( $cID = -1, $extraMetaKey = false ){
 }
 
 #} sets an extra meta val
-function zeroBS_setCustomerExtraMetaVal( $cID = -1, $extraMetaKey = false, $extraMetaVal = false ){
+function zeroBS_setCustomerExtraMetaVal( $cID = -1, $extraMetaKey = false, $extraMetaVal = false ) {
 
 	if ( ! empty( $cID ) && ! empty( $extraMetaKey ) ) {
 
@@ -816,9 +804,9 @@ function zeroBS_setCustomerExtraMetaVal( $cID = -1, $extraMetaKey = false, $extr
 
 }
 
-function zeroBS_updateCustomerSocialAccounts( $cID = -1, $accArray = array() ){
+function zeroBS_updateCustomerSocialAccounts( $cID = -1, $accArray = array() ) {
 
-	if ( ! empty( $cID ) && is_array( $accArray ) ) { //return update_post_meta($cID, 'zbs_customer_socials', $accArray);
+	if ( ! empty( $cID ) && is_array( $accArray ) ) { //return update_post_meta( $cID, 'zbs_customer_socials', $accArray);
 
 		global $zbs;
 		#} Enact
@@ -849,8 +837,7 @@ function zeroBS_updateCustomerSocialAccounts( $cID = -1, $accArray = array() ){
 	return false;
 }
 
-
-function zeroBSCRM_getCustomerFiles( $cID = -1 ){
+function zeroBSCRM_getCustomerFiles( $cID = -1 ) {
 
 	if ( ! empty( $cID ) ) {
 
@@ -866,7 +853,7 @@ function zeroBSCRM_getCustomerFiles( $cID = -1 ){
 
 }
 // maintainIndexs keeps the files original index .e.g. 1,2 so that can match when doing portal stuff (as we're using legacy indx)
-function zeroBSCRM_getCustomerPortalFiles( $cID = -1 ){
+function zeroBSCRM_getCustomerPortalFiles( $cID = -1 ) {
 
 	if ( ! empty( $cID ) ) {
 
@@ -877,11 +864,11 @@ function zeroBSCRM_getCustomerPortalFiles( $cID = -1 ){
 		$ret = array();
 		$files = zeroBSCRM_files_getFiles( 'customer', $cID );
 		$fileIndex = 0;
-		if (is_array( $files )) {
+		if ( is_array( $files ) ) {
 			foreach ( $files as $f ) {
 
 						// APPROVED portal files
-				if (isset( $f['portal'] ) && $f['portal'] == 1) {
+				if ( isset( $f['portal'] ) && $f['portal'] == 1 ) {
 					$ret[$fileIndex] = $f;
 				}
 
@@ -896,7 +883,7 @@ function zeroBSCRM_getCustomerPortalFiles( $cID = -1 ){
 	return false;
 
 }
-function zeroBSCRM_updateCustomerFiles( $cID = -1, $filesArray = false ){
+function zeroBSCRM_updateCustomerFiles( $cID = -1, $filesArray = false ) {
 
 	if ( ! empty( $cID ) ) {
 
@@ -938,7 +925,7 @@ function zeroBS_getCustomers(
 		$quickFilters = false,
 		$ownedByID = false,
 		$withValues = false
-		){
+		) {
 	/* DAL3.0: $withValues */
 
 	#} Query Performance index
@@ -950,7 +937,7 @@ function zeroBS_getCustomers(
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	// $argsOverride CAN NO LONGER WORK :)
-	if ($argsOverride !== false) {
+	if ( $argsOverride !== false ) {
 		zeroBSCRM_DEPRECATEDMSG( 'Use of $argsOverride in zeroBS_getCustomers is no longer relevant (DB2)' );
 	}
 
@@ -958,13 +945,13 @@ function zeroBS_getCustomers(
 
 	// this needs translating for new dbfields:
 	// FOR NOW
-	if ($sortByField == 'post_id') {
+	if ( $sortByField == 'post_id' ) {
 		$sortByField = 'ID';
 	}
-	if ($sortByField == 'post_title') {
+	if ( $sortByField == 'post_title' ) {
 		$sortByField = 'zbsc_lname';
 	}
-	if ($sortByField == 'post_excerpt') {
+	if ( $sortByField == 'post_excerpt' ) {
 		$sortByField = 'zbsc_lname';
 	}
 
@@ -973,25 +960,24 @@ function zeroBS_getCustomers(
 
 		// needs to check if field name is custom field:
 		$sortIsCustomField = false;
-	if (is_array( $custFields ) && array_key_exists( $sortByField, $custFields )) {
+	if ( is_array( $custFields ) && array_key_exists( $sortByField, $custFields ) ) {
 		$sortIsCustomField = true;
 	}
-	if ( ! $sortIsCustomField && $sortByField != 'ID') {
+	if ( ! $sortIsCustomField && $sortByField != 'ID' ) {
 		$sortByField = 'zbsc_' . $sortByField;
 	}
 
-
 	// catch empties
-	if (empty( $sortByField )) {
+	if ( empty( $sortByField ) ) {
 		$sortByField = 'ID';
 	}
-	if (empty( $sortOrder )) {
+	if ( empty( $sortOrder ) ) {
 		$sortOrder = 'desc';
 	}
 
 	// legacy from dal1
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -1023,7 +1009,6 @@ function zeroBS_getCustomers(
 
 			'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT )
 
-
 		);
 
 	// here ignore owners = true the default, because we're not really forcing ownership anywhere overall,
@@ -1051,10 +1036,9 @@ function zeroBS_getCustomersCountIncParams(
 	$inArr = '',
 	$quickFilters = ''){
 
-
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	// $argsOverride CAN NO LONGER WORK :)
-	if ($argsOverride !== false) {
+	if ( $argsOverride !== false ) {
 		zeroBSCRM_DEPRECATEDMSG( 'Use of $argsOverride in zeroBS_getCustomersCountIncParams is no longer relevant (DB2)' );
 	}
 
@@ -1081,17 +1065,15 @@ function zeroBS_getCustomersCountIncParams(
 
 }
 
-
-
 #} same as above but wrapped in contact view link
-function zeroBS_getCustomerIcoLinked( $cID = -1, $incName = false, $extraClasses = '', $maxSize = 100 ){
+function zeroBS_getCustomerIcoLinked( $cID = -1, $incName = false, $extraClasses = '', $maxSize = 100 ) {
 
 	$extraHTML = '';
 	if ( $incName ) {
 
 		$cName = zeroBS_getCustomerNameShort( $cID );
 
-		if ( ! empty( $cName )) {
+		if ( ! empty( $cName ) ) {
 			$extraHTML = '<span class="">' . $cName . '</span>';
 		}
 	}
@@ -1100,17 +1082,16 @@ function zeroBS_getCustomerIcoLinked( $cID = -1, $incName = false, $extraClasses
 
 }
 
-
 #} same as above but wrapped in contact view link + semantic ui label img link
-function zeroBS_getCustomerIcoLinkedLabel( $cID = -1 ){
+function zeroBS_getCustomerIcoLinkedLabel( $cID = -1 ) {
 
 	$extraHTML = '';
 	$cName = zeroBS_getCustomerNameShort( $cID );
-	if ( ! empty( $cName )) {
+	if ( ! empty( $cName ) ) {
 		$extraHTML = '<span>' . $cName . '</span>';
 	} else {
 		$cEmail = zeroBS_customerEmail( $cID );
-		if ( ! empty( $cEmail )) {
+		if ( ! empty( $cEmail ) ) {
 			$extraHTML = '<span>' . $cEmail . '</span>';
 		}
 	}
@@ -1121,22 +1102,21 @@ function zeroBS_getCustomerIcoLinkedLabel( $cID = -1 ){
 
 }
 
-
 #} same as above but with no image (for non-avatar mode)
-function zeroBS_getCustomerLinkedLabel( $cID = -1 ){
+function zeroBS_getCustomerLinkedLabel( $cID = -1 ) {
 
 	$extraHTML = '';
 	$cName = zeroBS_getCustomerNameShort( $cID );
-	if ( ! empty( $cName )) {
+	if ( ! empty( $cName ) ) {
 		$extraHTML = '<span>' . $cName . '</span>';
 	} else {
 		$cEmail = zeroBS_customerEmail( $cID );
-		if ( ! empty( $cEmail )) {
+		if ( ! empty( $cEmail ) ) {
 			$extraHTML = '<span>' . $cEmail . '</span>';
 		}
 	}
 	// for empties, add no
-	if (empty( $extraHTML )) {
+	if ( empty( $extraHTML ) ) {
 		$extraHTML = '<span>#' . $cID . '</span>';
 	}
 
@@ -1146,9 +1126,8 @@ function zeroBS_getCustomerLinkedLabel( $cID = -1 ){
 
 }
 
-
 /* Centralised delete customer func, including sub-element removal */
-function zeroBS_deleteCustomer( $id = -1, $saveOrphans = true ){
+function zeroBS_deleteCustomer( $id = -1, $saveOrphans = true ) {
 
 	if ( ! empty( $id ) ) {
 
@@ -1166,8 +1145,7 @@ function zeroBS_deleteCustomer( $id = -1, $saveOrphans = true ){
 	return false;
 }
 
-
-function zeroBS_getCustomerIDWithExternalSource( $externalSource = '', $externalID = '' ){
+function zeroBS_getCustomerIDWithExternalSource( $externalSource = '', $externalID = '' ) {
 
 	global $zbs;
 
@@ -1191,13 +1169,11 @@ function zeroBS_getCustomerIDWithExternalSource( $externalSource = '', $external
 
 	}
 
-
 	return false;
 
 }
 
-
-function zeroBSCRM_getCustomerTagsByID( $cID = -1, $justIDs = false ){
+function zeroBSCRM_getCustomerTagsByID( $cID = -1, $justIDs = false ) {
 
 	if ( ! empty( $cID ) ) {
 
@@ -1215,9 +1191,8 @@ function zeroBSCRM_getCustomerTagsByID( $cID = -1, $justIDs = false ){
 
 }
 
-
 // NOTE: $objType is temporary until DB2 fully rolled out all tables
-function zeroBS_getOwner( $objID = -1, $withDeets = true, $objType = -1, $knownOwnerID = -1 ){
+function zeroBS_getOwner( $objID = -1, $withDeets = true, $objType = -1, $knownOwnerID = -1 ) {
 
 	if ( $objID !== -1 && $objType !== -1 ) {
 
@@ -1258,7 +1233,6 @@ function zeroBS_getOwner( $objID = -1, $withDeets = true, $objType = -1, $knownO
 			}
 
 		}
-
 
 		return $retObj;
 
@@ -1311,12 +1285,12 @@ function zeroBS_getOwnerObj( $wp_user_id = -1 ) {
 // NOTE - this is very generic & not to be used in future code
 // Use the direct $zbs->DAL->contacts->addUpdateContact code example in below rather than this generic.
 // kthx.
-function zeroBS_setOwner( $objID = -1, $ownerID = -1, $objTypeID = false ){
+function zeroBS_setOwner( $objID = -1, $ownerID = -1, $objTypeID = false ) {
 
 	if ( $objID !== -1 && $objTypeID !== false ) {
 
 		// here we check that the potential owner CAN even own
-		if ( ! user_can( $ownerID, 'admin_zerobs_usr' )) {
+		if ( ! user_can( $ownerID, 'admin_zerobs_usr' ) ) {
 			return false;
 		}
 
@@ -1340,7 +1314,7 @@ function zeroBS_setOwner( $objID = -1, $ownerID = -1, $objTypeID = false ){
 	return false;
 }
 
-function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
+function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ) {
 
 	if ( ! empty( $dominantID ) && ! empty( $slaveID ) ) {
 
@@ -1380,7 +1354,7 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 				// DB2 converted these from obj[meta] -> obj
 
 				// first, just copy through slave email if present
-				if (isset( $slave['email'] ) && ! empty( $slave['email'] )) {
+				if ( isset( $slave['email'] ) && ! empty( $slave['email'] ) ) {
 					$slaveEmailAddress = $slave['email'];
 				}
 
@@ -1429,7 +1403,7 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 						if ( str_starts_with( $fieldKey, 'secaddr_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							// check presence (of any secaddr_ field)
-							if (isset( $master[$fieldKey] ) && ! empty( $master[$fieldKey] )) {
+							if ( isset( $master[$fieldKey] ) && ! empty( $master[$fieldKey] ) ) {
 								$masterHasSecondAddr = true;
 							}
 
@@ -1440,7 +1414,7 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 								$slaveHasSecondAddr = true;
 
 								// we also build this str which'll be shown as conflicting change (so we don't "loose" this data)
-								if ( ! empty( $slaveSecondAddrStr )) {
+								if ( ! empty( $slaveSecondAddrStr ) ) {
 									$slaveSecondAddrStr .= ', ';
 								}
 								$slaveSecondAddrStr .= $slave[$fieldKey];
@@ -1455,7 +1429,7 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 								$slaveHasFirstAddr = true;
 
 								// we also build this str which'll be shown as conflicting change (so we don't "loose" this data)
-								if ( ! empty( $slaveFirstAddrStr )) {
+								if ( ! empty( $slaveFirstAddrStr ) ) {
 									$slaveFirstAddrStr .= ', ';
 								}
 								$slaveFirstAddrStr .= $slave[$fieldKey];
@@ -1464,7 +1438,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 						}
 					}
 				}
-
 
 				// addr's
 
@@ -1479,7 +1452,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 						$masterNewMeta[$fieldPrefix . 'secaddr_' . $addrFieldKey] = $slave[$addrFieldKey];
 						// Does for now lol $masterNewMeta['secaddr_'.$addrFieldKey] = $slave[$addrFieldKey];
 
-
 					}
 					$changes[] = __( 'Copied address from secondary record into "secondary address" for main record', "zero-bs-crm" );
 
@@ -1488,7 +1460,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 
 							// provide old addr string
 							$conflictingChanges[] = __( 'Address not copied. Secondary address from secondary record could not be copied (master already had two addresses).', "zero-bs-crm" ) . "\r\n" . __( 'Address', "zero-bs-crm" ) . ': ' . "\r\n" . $slaveSecondAddrStr;
-
 
 					}
 				} else {
@@ -1500,24 +1471,20 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 						// provide old addr string
 						$conflictingChanges[] = __( 'Address not copied. Address from secondary record could not be copied (master already had two addresses).', "zero-bs-crm" ) . "\r\n" . __( 'Address', "zero-bs-crm" ) . ': ' . "\r\n" . $slaveFirstAddrStr;
 
-
 					}
 					if ( $slaveHasSecondAddr ) {
 
 							// provide old addr string
 							$conflictingChanges[] = __( 'Address not copied. Secondary address from secondary record could not be copied (master already had two addresses).', "zero-bs-crm" ) . "\r\n" . __( 'Address', "zero-bs-crm" ) . ': ' . "\r\n" . $slaveSecondAddrStr;
 
-
 					}
 				}
-
 
 				// assign social profiles from slave -> master
 				// GET THESE BEFORE updating!
 					$masterSocial = $zbs->DAL->contacts->getContactSocials( $dominantID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					$slaveSocial = $zbs->DAL->contacts->getContactSocials( $slaveID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
 
 				// UPDATE MASTER META:
 				zeroBS_addUpdateCustomer( $dominantID, $masterNewMeta, '', '', '', false, false, false, -1, $fieldPrefix );
@@ -1547,7 +1514,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 							// conflicting change
 							$conflictingChanges[] = __( 'Social account not copied.', "zero-bs-crm" ) . ' "' . $socialAccType['name'] . '" of "' . $slaveSocial[$socialKey] . '" ' . __( 'from secondary record (master already has a ', "zero-bs-crm" ) . $socialAccType['name'] . ' ' . __( 'account.', "zero-bs-crm" );
 
-
 						} elseif ( $masterHas && ! $slaveHas ) {
 
 							// no change
@@ -1558,7 +1524,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 							$masterNewSocial[$socialKey] = $slaveSocial[$socialKey];
 							$changes[] = __( 'Copied social account from secondary record into main record', "zero-bs-crm" ) . ' (' . $socialAccType['name'] . ').';
 
-
 						}
 					}
 
@@ -1566,7 +1531,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 					zeroBS_updateCustomerSocialAccounts( $dominantID, $masterNewSocial );
 
 				}
-
 
 				// assign files from slave -> master
 
@@ -1590,7 +1554,7 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 
 					$masterFiles = zeroBSCRM_getCustomerFiles( $dominantID );
 
-					if ( ! is_array( $masterFiles )) {
+					if ( ! is_array( $masterFiles ) ) {
 						$masterFiles = array();
 					}
 
@@ -1611,12 +1575,10 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 
 							$changes[] = __( 'Moved file to main record', "zero-bs-crm" ) . ' (' . $filename . ')';
 
-
 					}
 
 					// save master files
 					zeroBSCRM_updateCustomerFiles( $dominantID, $masterFiles );
-
 
 				}
 
@@ -1632,7 +1594,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 						zeroBS_setCustomerCompanyID( $dominantID, $slaveCompany );
 						$changes[] = __( 'Assigned main record to secondary record\'s ' . jpcrm_label_company(), "zero-bs-crm" ) . ' (#' . $slaveCompany . ').';
 
-
 					}
 				} else {
 
@@ -1641,7 +1602,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 
 						// conflicting change
 						$conflictingChanges[] = __( 'Secondary contact was assigned to ' . jpcrm_label_company() . ', whereas main record was assigned to another ' . jpcrm_label_company() . '.', "zero-bs-crm" ) . ' (#' . $slaveCompany . ').';
-
 
 					}
 				}
@@ -1658,14 +1618,13 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 							// id for passing to logs
 							$qID = '';
 							#TRANSITIONTOMETANO
-							if (isset( $quote['zbsid'] )) {
+							if ( isset( $quote['zbsid'] ) ) {
 								$qID = $quote['zbsid'];
 							}
 
 							// for quotes, we just "switch" the owner meta :)
 							zeroBSCRM_changeQuoteCustomer( $quote['id'], $dominantID );
 							$changes[] = __( 'Assigned quote from secondary record onto main record', "zero-bs-crm" ) . ' (#' . $qID . ').';
-
 
 					}
 				} // / has quotes
@@ -1681,10 +1640,8 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 							zeroBSCRM_changeInvoiceCustomer( $invoice['id'], $dominantID );
 							$changes[] = __( 'Assigned invoice from secondary record onto main record', "zero-bs-crm" ) . ' (#' . $invoice['id'] . ').';
 
-
 					}
 				} // / has invoices
-
 
 				// assign trans from slave -> master
 
@@ -1697,11 +1654,8 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 							zeroBSCRM_changeTransactionCustomer( $transaction['id'], $dominantID );
 							$changes[] = __( 'Assigned transaction from secondary record onto main record', "zero-bs-crm" ) . ' (#' . $transaction['id'] . ').';
 
-
 					}
 				} // / has invoices
-
-
 
 				// assign events from slave -> master
 
@@ -1715,11 +1669,8 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 							zeroBSCRM_changeEventCustomer( $event['id'], $dominantID );
 										$changes[] = __( 'Assigned task from secondary record onto main record', 'zero-bs-crm' ) . ' (#' . $event['id'] . ').';
 
-
 					}
 				} // / has invoices
-
-
 
 				// assign logs(?) from slave -> master
 
@@ -1731,10 +1682,9 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 					// brutal str builder.
 					$logStr = '';
 
-					foreach ($slaveLogs as $log){
+					foreach ( $slaveLogs as $log){
 
-						if (!empty($logStr)) $logStr .= "\r\n";
-
+						if ( !empty( $logStr)) $logStr .= "\r\n";
 
 					} */
 
@@ -1743,7 +1693,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 					$zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $dominantID, 'merged_customer_log_bk_' . time(), $slaveLogs );
 
 				}
-
 
 				// assign tags(?) from slave -> master
 
@@ -1763,7 +1712,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 						);
 						$changes[] = __( 'Tagged main record with', "zero-bs-crm" ) . ' ' . count( $slaveTagsIDs ) . ' ' . __( 'tags from secondary record.', "zero-bs-crm" );
 
-
 				}
 
 				// AKA / alias
@@ -1771,20 +1719,15 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 				// second email -> alias first
 				if ( ! empty( $slaveEmailAddress ) ) {
 
-
 					// add as alias
 					zeroBS_addCustomerAlias( $dominantID, $slaveEmailAddress );
 					$changes[] = __( 'Added secondary record email as alias/aka of main record', "zero-bs-crm" ) . ' (' . $slaveEmailAddress . ')';
 
-
 				}
-
-
 
 				// Customer image
 
 					//(for now, left to die)
-
 
 				// delete slave
 				zeroBS_deleteCustomer( $slaveID, false );
@@ -1830,7 +1773,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ){
 
 				}
 
-
 					// MASTER LOG :D
 					zeroBS_addUpdateContactLog(
 						$dominantID,
@@ -1874,7 +1816,7 @@ function zeroBS_addUpdateCustomer(
 
 		$metaBuilderPrefix = 'zbsc_'
 
-		){
+		) {
 
 	#} return
 	$ret = false;
@@ -1887,7 +1829,6 @@ function zeroBS_addUpdateCustomer(
 
 		global $zbs;
 
-
 		if ( $cID > 0 ) {
 
 			#} Retrieve / check?
@@ -1896,9 +1837,8 @@ function zeroBS_addUpdateCustomer(
 			#} Build "existing meta" to pass, (so we only update fields pushed here)
 			$existingMeta = $zbs->DAL->contacts->getContact( $postID, array() );
 
-
 			$originalDate = time();
-			if (isset( $existingMeta ) && is_array( $existingMeta ) && isset( $existingMeta['createduts'] ) && ! empty( $existingMeta['createduts'] )) {
+			if ( isset( $existingMeta ) && is_array( $existingMeta ) && isset( $existingMeta['createduts'] ) && ! empty( $existingMeta['createduts'] ) ) {
 				$originalDate = $existingMeta['createduts'];
 			}
 
@@ -1935,7 +1875,6 @@ function zeroBS_addUpdateCustomer(
 			// ... this was required when we used old meta objs. (pre db2)
 			// ... so if we're now DAL2, we can do away with that and simply pass what's to be updated and mode do_not_update_blanks
 			$existingMeta = array();
-
 
 		} else {
 
@@ -2016,7 +1955,6 @@ function zeroBS_addUpdateCustomer(
 			}
 		}
 
-
 	#} Add external source/externalid
 	#} No empties, no random externalSources :)
 	$extSourceArr = -1;
@@ -2042,10 +1980,9 @@ function zeroBS_addUpdateCustomer(
 	} #} Otherwise will just be a random customer no ext source
 
 	#} Got owner?
-	if ($owner !== -1) {
+	if ( $owner !== -1 ) {
 		$zbsCustomerMeta['owner'] = $owner;
 	}
-
 
 	#} Update record (All IA is now fired intrinsicly )
 	// DB2 update_post_meta($postID, 'zbs_customer_meta', $zbsCustomerMeta);
@@ -2059,15 +1996,14 @@ function zeroBS_addUpdateCustomer(
 				)
 			);
 
-
 			/* This now get's passed above, and dealt with by DAL
 			#} Any extra meta keyval pairs?
 			$confirmedExtraMeta = false;
-			if (isset($extraMeta) && is_array($extraMeta)) {
+			if ( isset( $extraMeta) && is_array( $extraMeta) ) {
 
 				$confirmedExtraMeta = array();
 
-					foreach ($extraMeta as $k => $v){
+					foreach ( $extraMeta as $k => $v){
 
 					#} This won't fix stupid keys, just catch basic fails...
 					$cleanKey = strtolower(str_replace(' ','_',$k));
@@ -2083,15 +2019,13 @@ function zeroBS_addUpdateCustomer(
 
 			} */
 
-
 			/* NOW DEALT WITH IN DAL2 :)
-
 
 			#} INTERNAL AUTOMATOR
 			#} &
 			#} FALLBACKS
 
-			if ($newCustomer){
+			if ( $newCustomer){
 
 				#} Add to automator
 				zeroBSCRM_FireInternalAutomator('customer.new',array(
@@ -2102,7 +2036,6 @@ function zeroBS_addUpdateCustomer(
 					'customerExtraMeta'=>$confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
 				));
 
-
 				// (WH) Moved this to fire on the IA...
 				// do_action('zbs_new_customer', $postID);   //fire the hook here...
 
@@ -2110,7 +2043,6 @@ function zeroBS_addUpdateCustomer(
 
 				#} Customer Update here (automator)?
 				#} TODO
-
 
 				#} FALLBACK
 				#} (This fires for customers that weren't added because they already exist.)
@@ -2120,13 +2052,13 @@ function zeroBS_addUpdateCustomer(
 					isset($fallBackLog) && is_array($fallBackLog)
 					&& isset($fallBackLog['type']) && !empty($fallBackLog['type'])
 					&& isset($fallBackLog['shortdesc']) && !empty($fallBackLog['shortdesc'])
-				){
+				) {
 
 					#} Brutal add, maybe validate more?!
 
 					#} Long desc if present:
 					$zbsNoteLongDesc = '';
-					if (isset($fallBackLog['longdesc']) && !empty($fallBackLog['longdesc'])) {
+					if ( isset( $fallBackLog['longdesc']) && !empty( $fallBackLog['longdesc']) ) {
 						$zbsNoteLongDesc = $fallBackLog['longdesc'];
 					}
 
@@ -2138,15 +2070,12 @@ function zeroBS_addUpdateCustomer(
 							'longdesc' => $zbsNoteLongDesc
 						));
 
-
 				}
-
-
 
 				// catch dirty flag (update of status) (note, after update_post_meta - as separate)
 				//if (isset($_POST['zbsc_status_dirtyflag']) && $_POST['zbsc_status_dirtyflag'] == "1"){
 				// actually here, it's set above
-				if (isset($statusChange) && is_array($statusChange)){
+				if ( isset( $statusChange) && is_array( $statusChange)){
 
 					// status has changed
 
@@ -2161,92 +2090,79 @@ function zeroBS_addUpdateCustomer(
 
 				}
 
-
 			} */
-
-
 
 			#} REQ?
 			#} MAKE SURE if you change any post_name features you also look at: "NAMECHANGES" in this file (when a post updates it'll auto replace these...)
 			#$newCName = zeroBS_customerName('',$zbsMeta,true,false)
 
-
 			#} Return customerID if success :)
 			//$ret = $postID;
 
-
-
 	}
-
-
 
 	return $ret;
 
 }
 
-
 /* ======================================================
 	 Contact -> aliases
    ====================================================== */
 #} See if already in use/exists
-function zeroBS_canUseCustomerAlias( $alias = '' ){
+function zeroBS_canUseCustomerAlias( $alias = '' ) {
 
 	// now can call this generic:
 	return zeroBS_canUseAlias( ZBS_TYPE_CONTACT, $alias );
 
 }
 
-
 #} Get specific alias if exists
-function zeroBS_getCustomerAlias( $cID = -1, $alias = '' ){
+function zeroBS_getCustomerAlias( $cID = -1, $alias = '' ) {
 
 	return zeroBS_getObjAlias( ZBS_TYPE_CONTACT, $cID, $alias );
 
 }
 
 #} Get specific alias if exists
-function zeroBS_getCustomerAliasByID( $cID = -1, $aliasID = -1 ){
+function zeroBS_getCustomerAliasByID( $cID = -1, $aliasID = -1 ) {
 
 	return zeroBS_getAliasByID( ZBS_TYPE_CONTACT, $cID, $aliasID );
 
 }
 
 #} Get All Aliases against a contact.
-function zeroBS_getCustomerAliases( $cID = -1 ){
+function zeroBS_getCustomerAliases( $cID = -1 ) {
 
 	return zeroBS_getObjAliases( ZBS_TYPE_CONTACT, $cID );
 
 }
 
 #} add Aliases to a contact.
-function zeroBS_addCustomerAlias( $cID = -1, $alias = '' ){
+function zeroBS_addCustomerAlias( $cID = -1, $alias = '' ) {
 
 	return zeroBS_addObjAlias( ZBS_TYPE_CONTACT, $cID, $alias );
 
 }
 
 #} remove Alias from an contact
-function zeroBS_removeCustomerAlias( $cID = -1, $alias = '' ){
+function zeroBS_removeCustomerAlias( $cID = -1, $alias = '' ) {
 
 	return zeroBS_removeObjAlias( ZBS_TYPE_CONTACT, $cID, $alias );
 
 }
 
 #} remove Alias from a contact.
-function zeroBS_removeCustomerAliasByID( $cID = -1, $aliasID = -1 ){
+function zeroBS_removeCustomerAliasByID( $cID = -1, $aliasID = -1 ) {
 
 	return zeroBS_removeObjAliasByID( ZBS_TYPE_CONTACT, $cID, $aliasID );
 
 }
 
-
-
 /* ======================================================
 	/ Contact -> aliases
    ====================================================== */
 
-
-function zeroBSCRM_getLog( $lID = -1 ){
+function zeroBSCRM_getLog( $lID = -1 ) {
 
 	if ( $lID !== -1 ) {
 
@@ -2264,7 +2180,7 @@ function zeroBSCRM_getLog( $lID = -1 ){
 	return false;
 }
 
-function zeroBSCRM_getContactLogs( $customerID = -1, $withFullDetails = false, $perPage = 100, $page = 0, $searchPhrase = '', $argsOverride = false ){
+function zeroBSCRM_getContactLogs( $customerID = -1, $withFullDetails = false, $perPage = 100, $page = 0, $searchPhrase = '', $argsOverride = false ) {
 
 	if ( ! empty( $customerID ) && $customerID !== -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
@@ -2292,7 +2208,7 @@ function zeroBSCRM_getContactLogs( $customerID = -1, $withFullDetails = false, $
 	return array();
 }
 
-function zeroBSCRM_getAllContactLogs( $withFullDetails = false, $perPage = 100, $page = 0, $searchPhrase = '', $argsOverride = false ){
+function zeroBSCRM_getAllContactLogs( $withFullDetails = false, $perPage = 100, $page = 0, $searchPhrase = '', $argsOverride = false ) {
 
 	global $zbs;
 	return $zbs->DAL->logs->getLogsForANYObj(
@@ -2313,7 +2229,7 @@ function zeroBSCRM_getAllContactLogs( $withFullDetails = false, $perPage = 100, 
 		)
 	);
 }
-function zeroBSCRM_getCompanyLogs( $companyID = false, $withFullDetails = false, $perPage = 100, $page = 0, $searchPhrase = '', $argsOverride = false ){
+function zeroBSCRM_getCompanyLogs( $companyID = false, $withFullDetails = false, $perPage = 100, $page = 0, $searchPhrase = '', $argsOverride = false ) {
 
 	// DAL 3+ :)
 	if ( ! empty( $companyID ) ) {
@@ -2343,7 +2259,7 @@ function zeroBSCRM_getCompanyLogs( $companyID = false, $withFullDetails = false,
 
 }
 
-function zeroBSCRM_getObjCreationLog( $objID = -1, $objType = ZBS_TYPE_CONTACT ){
+function zeroBSCRM_getObjCreationLog( $objID = -1, $objType = ZBS_TYPE_CONTACT ) {
 
 	if ( ! empty( $objID ) && $objID !== -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
@@ -2370,7 +2286,7 @@ function zeroBSCRM_getObjCreationLog( $objID = -1, $objType = ZBS_TYPE_CONTACT )
 	}
 }
 
-function zeroBSCRM_getMostRecentContactLog( $objID = false, $withFullDetails = false, $restrictToTypes = false ){
+function zeroBSCRM_getMostRecentContactLog( $objID = false, $withFullDetails = false, $restrictToTypes = false ) {
 
 	if ( ! empty( $objID ) ) {
 
@@ -2398,7 +2314,7 @@ function zeroBSCRM_getMostRecentContactLog( $objID = false, $withFullDetails = f
 	}
 }
 
-function zeroBSCRM_getMostRecentCompanyLog( $objID = false, $withFullDetails = false, $restrictToTypes = false ){
+function zeroBSCRM_getMostRecentCompanyLog( $objID = false, $withFullDetails = false, $restrictToTypes = false ) {
 
 	if ( ! empty( $objID ) ) {
 
@@ -2426,8 +2342,7 @@ function zeroBSCRM_getMostRecentCompanyLog( $objID = false, $withFullDetails = f
 	}
 }
 
-
-function zeroBS_searchLogs( $querystring ){
+function zeroBS_searchLogs( $querystring ) {
 
 	global $zbs;
 
@@ -2440,7 +2355,7 @@ function zeroBS_searchLogs( $querystring ){
 	);
 }
 
-function zeroBS_allLogs(){
+function zeroBS_allLogs() {
 
 	global $zbs;
 
@@ -2451,9 +2366,6 @@ function zeroBS_allLogs(){
 		)
 	);
 }
-
-
-
 
 function zeroBS_addUpdateLog(
 
@@ -2480,10 +2392,9 @@ function zeroBS_addUpdateLog(
 		$objType = '', /* contact or 'zerobs_contact' */
 		$owner = -1
 
-		){
+		) {
 
 			global $zbs;
-
 
 		// DAL3 all obj logs: if ($objType == 'zerobs_customer'){
 			//zeroBSCRM_DEPRECATEDMSG('zeroBS_addUpdateLog has been replaced by zeroBS_addUpdateContactLog etc. or (better still) DAL2 calls direct');
@@ -2507,7 +2418,6 @@ function zeroBS_addUpdateLog(
 		zeroBSCRM_DEPRECATEDMSG( 'zeroBS_addUpdateLog has been replaced by DAL3 logging. Please do not use, or at least pass an object type.' );
 		return false;
 
-
 }
 // really should just be calling direct at this point, or zeroBS_addUpdateObjLog at least
 function zeroBS_addUpdateContactLog(
@@ -2516,7 +2426,7 @@ function zeroBS_addUpdateContactLog(
 		$logDate = -1,
 		$noteFields = array(),
 		$owner = -1
-		){
+		) {
 
 		// wrapper for this:
 		return zeroBS_addUpdateObjLog( ZBS_TYPE_CONTACT, $cID, $logID, $logDate, $noteFields, $owner );
@@ -2531,7 +2441,7 @@ function zeroBS_addUpdateObjLog(
 		$logDate = -1,
 		$noteFields = array(),
 		$owner = -1
-		){
+		) {
 
 	if ( $objTypeID > 0 ) {
 
@@ -2541,19 +2451,19 @@ function zeroBS_addUpdateObjLog(
 		$logMeta = -1;
 		$logCreated = -1;
 		$pinned = -1;
-		if (isset( $noteFields['type'] )) {
+		if ( isset( $noteFields['type'] ) ) {
 			$logType = zeroBSCRM_permifyLogType( $noteFields['type'] );
 		}
-		if (isset( $noteFields['shortdesc'] )) {
+		if ( isset( $noteFields['shortdesc'] ) ) {
 			$logShortDesc = $noteFields['shortdesc'];
 		}
-		if (isset( $noteFields['longdesc'] )) {
+		if ( isset( $noteFields['longdesc'] ) ) {
 			$logLongDesc = $noteFields['longdesc'];
 		}
-		if (isset( $noteFields['meta'] )) {
+		if ( isset( $noteFields['meta'] ) ) {
 			$logMeta = $noteFields['meta'];
 		}
-		if (isset( $noteFields['pinned'] )) {
+		if ( isset( $noteFields['pinned'] ) ) {
 			$pinned = $noteFields['pinned'];
 		}
 		if ( $logDate !== -1 ) {
@@ -2593,15 +2503,12 @@ function zeroBS_addUpdateObjLog(
 
 }
 
-
-
-
 // allows us to lazily 'hotswap' wp_set_post_terms in extensions (e.g. pre DAL2 it'll just fire wp_set_post_terms)
 // ... here it does DAL2 equiv
 // WH Note: if using old WP method (wp_set_post_terms) can pass tags or tagIDS - DB2 currently only accepts tagIDs - to add in
 // ... to get around this I've temp added $usingTagIDS=true flag
 // still used in bulk-tagger and groove-connect extensions as of 9 May 1923
-function zeroBSCRM_DAL2_set_post_terms( $cID = -1, $tags = array(), $taxonomy = 'zerobscrm_customertag', $append = true, $usingTagIDS = true ){
+function zeroBSCRM_DAL2_set_post_terms( $cID = -1, $tags = array(), $taxonomy = 'zerobscrm_customertag', $append = true, $usingTagIDS = true ) {
 
 	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_set_post_terms has been replaced by DAL3 tagging. Please do not use.' );
 
@@ -2613,12 +2520,12 @@ function zeroBSCRM_DAL2_set_post_terms( $cID = -1, $tags = array(), $taxonomy = 
 	if ( $possibleObjTypeID > 0 ) {
 
 		$mode = 'replace';
-		if ($append) {
+		if ( $append ) {
 			$mode = 'append';
 		}
 
 		$fieldName = 'tagIDs';
-		if ( ! $usingTagIDS) {
+		if ( ! $usingTagIDS ) {
 			$fieldName = 'tags';
 		}
 
@@ -2641,7 +2548,7 @@ function zeroBSCRM_DAL2_set_post_terms( $cID = -1, $tags = array(), $taxonomy = 
 // WH Note: if using old WP method (wp_set_object_terms) can pass tags or tagIDS - DB2 currently only accepts tagIDs - to add in
 // ... to get around this I've temp added $usingTagIDS=true flag
 // still used in several extensions as of 9 May 1923
-function zeroBSCRM_DAL2_set_object_terms( $cID = -1, $tags = array(), $taxonomy = 'zerobscrm_customertag', $append = true, $usingTagIDS = true ){
+function zeroBSCRM_DAL2_set_object_terms( $cID = -1, $tags = array(), $taxonomy = 'zerobscrm_customertag', $append = true, $usingTagIDS = true ) {
 
 	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_set_object_terms has been replaced by DAL3 tagging. Please do not use.' );
 
@@ -2653,12 +2560,12 @@ function zeroBSCRM_DAL2_set_object_terms( $cID = -1, $tags = array(), $taxonomy 
 	if ( $possibleObjTypeID > 0 ) {
 
 		$mode = 'replace';
-		if ($append) {
+		if ( $append ) {
 			$mode = 'append';
 		}
 
 		$fieldName = 'tagIDs';
-		if ( ! $usingTagIDS) {
+		if ( ! $usingTagIDS ) {
 			$fieldName = 'tags';
 		}
 
@@ -2675,17 +2582,17 @@ function zeroBSCRM_DAL2_set_object_terms( $cID = -1, $tags = array(), $taxonomy 
 	return false;
 	/*
 	// we only switch out for customer tags, rest just go old way
-	if ($taxonomy == 'zerobscrm_customertag'){
+	if ( $taxonomy == 'zerobscrm_customertag'){
 
 		global $zbs;
 
 		$mode = 'replace';
-		if ($append) {
+		if ( $append ) {
 			$mode = 'append';
 		}
 
 		$fieldName = 'tagIDs';
-		if (!$usingTagIDS) {
+		if ( !$usingTagIDS ) {
 			$fieldName = 'tags';
 		}
 
@@ -2713,7 +2620,7 @@ function zeroBSCRM_DAL2_set_object_terms( $cID = -1, $tags = array(), $taxonomy 
 #} 27/09/16: Can now also pass starting array, which lets you "override" fields present in $arraySource, without loosing originals not passed
 #} 12/04/18: Added prefix so as to be able to pass normal array e.g. fname (by passing empty fieldPrefix)
 #} 3.0: this was moved to generic zeroBS_buildObjArr :)
-function zeroBS_buildContactMeta( $arraySource = array(), $startingArray = array(), $fieldPrefix = 'zbsc_', $outputPrefix = '', $removeEmpties = false, $autoGenAutonumbers = false ){
+function zeroBS_buildContactMeta( $arraySource = array(), $startingArray = array(), $fieldPrefix = 'zbsc_', $outputPrefix = '', $removeEmpties = false, $autoGenAutonumbers = false ) {
 
 	// moved to generic, just return that :)
 	return zeroBS_buildObjArr( $arraySource, $startingArray, $fieldPrefix, $outputPrefix, $removeEmpties, ZBS_TYPE_CONTACT, $autoGenAutonumbers );
@@ -2729,8 +2636,6 @@ function zeroBS_buildContactMeta( $arraySource = array(), $startingArray = array
 // ====================================================================================================================================
 // ====================================================================================================================================
 
-
-
 // ====================================================================================================================================
 // ====================================================================================================================================
 // ==================== DAL 3.0 FUNCS ===============================================================================================
@@ -2745,7 +2650,7 @@ function zeroBS_buildContactMeta( $arraySource = array(), $startingArray = array
 	#} it'll take a DAL1 obj (e.g. transaction with 'orderid') and produce a v3 translated field variant (e.g. orderid => ref (via 'dal1key' attr on obj model))
 	#} param $objType = ZBS_TYPE_TRANSACTION
 	#} param $fieldPrefix = zbst_ if fields are prefixed with
-function zeroBS_translateDAL1toDAL3Obj( $arraySource = array(), $objType = -1, $fieldPrefix = '' ){
+function zeroBS_translateDAL1toDAL3Obj( $arraySource = array(), $objType = -1, $fieldPrefix = '' ) {
 
 	if ( $objType > 0 ) {
 
@@ -2758,14 +2663,14 @@ function zeroBS_translateDAL1toDAL3Obj( $arraySource = array(), $objType = -1, $
 
 			$ret = array();
 			$objTranslationMatrix = $objectLayer->getDAL1toDAL3ConversionMatrix();
-			if ( ! is_array( $objTranslationMatrix )) {
+			if ( ! is_array( $objTranslationMatrix ) ) {
 				$objTranslationMatrix = array();
 			}
 
 			foreach ( $arraySource as $k => $v ) {
 
 				$kClean = $k;
-				if ( ! empty( $fieldPrefix )) {
+				if ( ! empty( $fieldPrefix ) ) {
 					$kClean = str_replace( $fieldPrefix, '', $k );
 				}
 
@@ -2793,13 +2698,13 @@ function zeroBS_translateDAL1toDAL3Obj( $arraySource = array(), $objType = -1, $
 	#} ... this is a generalised postarray->objarray creator, built from zeroBS_buildContactMeta,
 	#} ... now produces all "meta" (objarrays) for all objs. Centralised to keep DRY
 	#} 13/03/19: Added $autoGenAutonumbers - if TRUE, empty/non-passed autonumber custom fields will assume fresh + autogen (useful for PORTAL/SYNC generated)
-function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $fieldPrefix = 'zbsc_', $outputPrefix = '', $removeEmpties = false, $objType = ZBS_TYPE_CONTACT, $autoGenAutonumbers = false ){
+function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $fieldPrefix = 'zbsc_', $outputPrefix = '', $removeEmpties = false, $objType = ZBS_TYPE_CONTACT, $autoGenAutonumbers = false ) {
 
 	#} def
 	$retArray = array();
 
 	#} if passed...
-	if (isset( $startingArray ) && is_array( $startingArray )) {
+	if ( isset( $startingArray ) && is_array( $startingArray ) ) {
 		$retArray = $startingArray;
 	}
 
@@ -2847,7 +2752,6 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 			if ( isset( $arraySource[$fieldPrefix . $fK] ) ) {
 
 				switch ( $fV[0] ) {
-
 
 					case 'tel':
 
@@ -2916,13 +2820,9 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 
 						break;
 
-
-
 				} // / switch type
 
-
 			} // / if isset (simple) $arraySource[$fieldPrefix.$fK]
-
 
 			// catch checkboxes
 			if ( $fV[0] == 'checkbox' ) {
@@ -2955,7 +2855,7 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 				if ( isset( $arraySource[$fieldPrefix . $fK] ) && is_string( $arraySource[$fieldPrefix . $fK] ) ) {
 
 					// one option or multi?
-					if (strpos( $arraySource[$fieldPrefix . $fK], ',' )) {
+					if ( strpos( $arraySource[$fieldPrefix . $fK], ',' ) ) {
 						$checkboxArr = explode( ',', $arraySource[$fieldPrefix . $fK] );
 					} else {
 						$checkboxArr = array($arraySource[$fieldPrefix . $fK]);
@@ -2969,7 +2869,6 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 				if ( isset( $arraySource[$fieldPrefix . $fK] ) && is_array( $arraySource[$fieldPrefix . $fK] ) ) {
 					$checkboxArr = $arraySource[$fieldPrefix . $fK];
 				}
-
 
 				if ( is_array( $checkboxArr ) ) {
 
@@ -3016,29 +2915,28 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 						// build
 
 						// prefix
-						if ( ! empty( $formatParts[0] )) {
+						if ( ! empty( $formatParts[0] ) ) {
 							$autono .= zeroBSCRM_customFields_parseAutoNumberStr( $formatParts[0] );
 						}
 
 						// number
 						$no = zeroBSCRM_customFields_getAutoNumber( $objType, $fK );
-						if ($no > 0 && $no !== false) {
+						if ( $no > 0 && $no !== false ) {
 							$autono .= $no;
 						}
 
 						// suffix
-						if ( ! empty( $formatParts[2] )) {
+						if ( ! empty( $formatParts[2] ) ) {
 							$autono .= zeroBSCRM_customFields_parseAutoNumberStr( $formatParts[2] );
 						}
 
 							// if legit, add
-						if ($no > 0 && $no !== false) {
+						if ( $no > 0 && $no !== false ) {
 							$retArray[$outputPrefix . $fK] = $autono;
 						}
 					}
 				}
 			} // / if autonumber
-
 
 		} // / foreach field
 
@@ -3053,7 +2951,7 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 				'secpostcode' => 'secaddr_postcode'
 			);
 
-			foreach ($replaceMap as $d2key => $d1key) {
+			foreach ( $replaceMap as $d2key => $d1key ) {
 				if ( isset( $retArray[$outputPrefix . $d1key] ) ) {
 					$retArray[$outputPrefix . $d2key] = $retArray[$outputPrefix . $d1key];
 					unset( $retArray[$outputPrefix . $d1key] );
@@ -3067,7 +2965,7 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 				$extras = array('tw', 'fb', 'li');
 				foreach ( $extras as $fK ) {
 
-					if ( ! isset( $retArray[$outputPrefix . $fK] )) {
+					if ( ! isset( $retArray[$outputPrefix . $fK] ) ) {
 						$retArray[$outputPrefix . $fK] = '';
 					}
 
@@ -3092,7 +2990,7 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 				foreach ( $potentialModel as $fieldKey => $fieldDetail ) {
 
 					// there's a few we ignore :)
-					if (in_array( $fieldKey, array('ID', 'zbs_site', 'zbs_team') )) {
+					if ( in_array( $fieldKey, array( 'ID', 'zbs_site', 'zbs_team') ) ) {
 						continue;
 					}
 
@@ -3104,7 +3002,7 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 
 							case 'str':
 							case 'curr': // for now, process curr as str. (probs needs to just validate IS CURR)
-								if (isset( $arraySource[$fieldPrefix . $fieldKey] )) {
+								if ( isset( $arraySource[$fieldPrefix . $fieldKey] ) ) {
 									$retArray[$outputPrefix . $fieldKey] = zeroBSCRM_textProcess( $arraySource[$fieldPrefix . $fieldKey] );
 								}
 								break;
@@ -3161,11 +3059,10 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 								break;
 
 							default: // basically str.
-								if (isset( $arraySource[$fieldPrefix . $fieldKey] )) {
+								if ( isset( $arraySource[$fieldPrefix . $fieldKey] ) ) {
 									$retArray[$outputPrefix . $fieldKey] = zeroBSCRM_textProcess( $arraySource[$fieldPrefix . $fieldKey] );
 								}
 								break;
-
 
 						} // / format switch
 
@@ -3199,7 +3096,7 @@ function zeroBS_buildObjArr( $arraySource = array(), $startingArray = array(), $
 	// here it takes an array of contacts, and (currently) returns 1 contact simplified
 	// This may make more sense in the contact DAL obj layer?
 	// >> this has a company variant too, in this file.
-function zeroBSCRM_getSimplyFormattedContact( $contacts = array(), $requireOwner = false ){
+function zeroBSCRM_getSimplyFormattedContact( $contacts = array(), $requireOwner = false ) {
 
 	$return = false;
 
@@ -3213,7 +3110,7 @@ function zeroBSCRM_getSimplyFormattedContact( $contacts = array(), $requireOwner
 			// works with zeroBSCRMJS_listView_generic_customer
 			// provides a simplified ver of customer obj (4 data transit efficiency/exposure)
 			$email = '';
-		if (isset( $contact['email'] ) && ! empty( $contact['email'] )) {
+		if ( isset( $contact['email'] ) && ! empty( $contact['email'] ) ) {
 			$email = $contact['email'];
 		}
 							global $zbs;
@@ -3224,7 +3121,7 @@ function zeroBSCRM_getSimplyFormattedContact( $contacts = array(), $requireOwner
 								'email'    => $email,
 							);
 
-							if ($requireOwner) {
+							if ( $requireOwner ) {
 								$return['owner'] = zeroBS_getOwner( $contact['id'], true, 'zerobs_customer' );
 							}
 
@@ -3243,7 +3140,7 @@ function zeroBSCRM_getSimplyFormattedContact( $contacts = array(), $requireOwner
    ====================================================== */
 
 	#} Get the COUNT of companies.
-function zeroBS_companyCount( $status = false ){
+function zeroBS_companyCount( $status = false ) {
 
 	global $zbs;
 	return $zbs->DAL->companies->getCompanyCount(
@@ -3255,7 +3152,7 @@ function zeroBS_companyCount( $status = false ){
 }
 
 	// another func which should be skipped 3.0+, just do direct call :)
-function zeroBS_getCompany( $coID = -1, $withObjs = false ){
+function zeroBS_getCompany( $coID = -1, $withObjs = false ) {
 
 	if ( $coID !== -1 ) {
 
@@ -3296,20 +3193,18 @@ function zeroBS_getCompanies(
 		$withStatus = false,
 		$inArr = false
 
-
-		){
-
+		) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	// $argsOverride CAN NO LONGER WORK :)
-	if ($argsOverride !== false) {
+	if ( $argsOverride !== false ) {
 		zeroBSCRM_DEPRECATEDMSG( 'Use of $argsOverride in zeroBS_getCompanies is no longer relevant (DAL3.0)' );
 	}
 
 	global $zbs;
 
 		$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -3339,7 +3234,6 @@ function zeroBS_getCompanies(
 
 			'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY )
 
-
 		);
 
 		// here ignore owners = true the default, because we're not really forcing ownership anywhere overall,
@@ -3352,11 +3246,10 @@ function zeroBS_getCompanies(
 
 		return $zbs->DAL->companies->getCompanies( $args );
 
-
 }
 
 	// returns email for a company
-function zeroBS_companyEmail( $companyID = '', $companyArr = false ){
+function zeroBS_companyEmail( $companyID = '', $companyArr = false ) {
 
 	global $zbs;
 	return $zbs->DAL->companies->getCompanyEmail( $companyID );
@@ -3378,7 +3271,7 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 }
 
 	#} ExternalID is name in this case :)
-function zeroBS_getCompanyIDWithExternalSource( $externalSource = '', $externalID = '' ){
+function zeroBS_getCompanyIDWithExternalSource( $externalSource = '', $externalID = '' ) {
 
 	global $zbs;
 
@@ -3402,22 +3295,19 @@ function zeroBS_getCompanyIDWithExternalSource( $externalSource = '', $externalI
 
 	}
 
-
 	return false;
 
 }
 
-
-
 	// This should probably be deprecated and just called directly.
 	// for now just translating
-function zeroBS_getCompaniesForTypeahead( $searchQueryStr = '' ){
+function zeroBS_getCompaniesForTypeahead( $searchQueryStr = '' ) {
 
 	/*
 	//gets them all, from a brutal SQL
 	global $wpdb;
 
-		if (!empty($searchQueryStr)){
+		if ( !empty( $searchQueryStr)){
 
 			// param query
 			$sql = "SELECT ID as id, post_title as name, post_date as created FROM $wpdb->posts WHERE post_type = 'zerobs_company' AND post_status = 'publish' AND post_title LIKE %s";
@@ -3445,8 +3335,7 @@ function zeroBS_getCompaniesForTypeahead( $searchQueryStr = '' ){
 
 }
 
-
-function zeroBS_getCompanyIDWithEmail( $custEmail = '' ){
+function zeroBS_getCompanyIDWithEmail( $custEmail = '' ) {
 
 	if ( ! empty( $custEmail ) ) {
 
@@ -3466,9 +3355,6 @@ function zeroBS_getCompanyIDWithEmail( $custEmail = '' ){
 
 }
 
-
-
-
 	#} Add or Update a Company - ideally use $zbs->DAL->companies->addUpdateCompany() rather than this wrapper, in proper code now :)
 function zeroBS_addUpdateCompany(
 
@@ -3486,19 +3372,17 @@ function zeroBS_addUpdateCompany(
 		$owner = -1,
 		$metaBuilderPrefix = 'zbsc_'
 
-		){
-
+		) {
 
 	#} Basics - /--needs status
 	#} 27/09/16 - WH - Removed need for zeroBS_addUpdateCustomer to have a "status" passed with customer (defaults to lead for now if not present)
-	if ( isset( $coFields ) && count( $coFields ) > 0 ) { #} && isset($coFields['zbsc_status'])
+	if ( isset( $coFields ) && count( $coFields ) > 0 ) { #} && isset( $coFields['zbsc_status'])
 
 		global $zbs;
 
 		#} New flag
 		$newCompany = false;
 		$existingMeta = array();
-
 
 		if ( $coID > 0 ) {
 
@@ -3508,7 +3392,7 @@ function zeroBS_addUpdateCompany(
 			#} need to check the dates here. If a date is passed which is BEFORE the current "created" date then overwrite the date with the new date. If a date is passed which is AFTER the current "created" date, then do not update the date..
 			#} date changed - created is only in the wp_posts table in DB v1.0
 			$originalDate = time();
-			if (isset( $existingMeta ) && is_array( $existingMeta ) && isset( $existingMeta['created'] ) && ! empty( $existingMeta['created'] )) {
+			if ( isset( $existingMeta ) && is_array( $existingMeta ) && isset( $existingMeta['created'] ) && ! empty( $existingMeta['created'] ) ) {
 				$originalDate = $existingMeta['created'];
 			}
 
@@ -3555,7 +3439,7 @@ function zeroBS_addUpdateCompany(
 
 				#} DATE PASSED TO THE FUNCTION
 				$companyDateTimeStamp = strtotime( $companyDate );
-				if ($companyDateTimeStamp > 0) {
+				if ( $companyDateTimeStamp > 0 ) {
 					$existingMeta = array('created' => $companyDateTimeStamp);
 				}
 
@@ -3626,7 +3510,6 @@ function zeroBS_addUpdateCompany(
 			}
 		}
 
-
 		#} Add external source/externalid
 		#} No empties, no random externalSources :)
 		$extSourceArr = -1;
@@ -3652,7 +3535,7 @@ function zeroBS_addUpdateCompany(
 		} #} Otherwise will just be a random customer no ext source
 
 		#} Got owner?
-		if ($owner !== -1) {
+		if ( $owner !== -1 ) {
 			$zbsCompanyMeta['owner'] = $owner;
 		}
 
@@ -3667,7 +3550,6 @@ function zeroBS_addUpdateCompany(
 			)
 		);
 
-
 	} // if fields
 
 	return false;
@@ -3675,14 +3557,14 @@ function zeroBS_addUpdateCompany(
 }
 
 	// v3.0+ this uses the generic zeroBS_buildObjArr, and accepts full args as per contact meta DAL2:
-function zeroBS_buildCompanyMeta( $arraySource = array(), $startingArray = array(), $fieldPrefix = 'zbsco_', $outputPrefix = '', $removeEmpties = false, $autoGenAutonumbers = false ){
+function zeroBS_buildCompanyMeta( $arraySource = array(), $startingArray = array(), $fieldPrefix = 'zbsco_', $outputPrefix = '', $removeEmpties = false, $autoGenAutonumbers = false ) {
 
 	return zeroBS_buildObjArr( $arraySource, $startingArray, $fieldPrefix, $outputPrefix, $removeEmpties, ZBS_TYPE_COMPANY, $autoGenAutonumbers );
 
 }
 
 	/* Centralised delete company func, including sub-element removal */
-function zeroBS_deleteCompany( $id = -1, $saveOrphans = true ){
+function zeroBS_deleteCompany( $id = -1, $saveOrphans = true ) {
 
 	if ( ! empty( $id ) ) {
 
@@ -3701,7 +3583,7 @@ function zeroBS_deleteCompany( $id = -1, $saveOrphans = true ){
 }
 
 	// adapted company name builder to use proper DAL3 func
-function zeroBS_companyName( $companyID = '', $companyArr = array(), $incFirstLineAddr = true, $incID = true ){
+function zeroBS_companyName( $companyID = '', $companyArr = array(), $incFirstLineAddr = true, $incID = true ) {
 
 	global $zbs;
 	return $zbs->DAL->companies->getCompanyNameEtc(
@@ -3716,7 +3598,7 @@ function zeroBS_companyName( $companyID = '', $companyArr = array(), $incFirstLi
 }
 
 	// adapted company name builder to use proper DAL3 func
-function zeroBS_companyAddr( $companyID = '', $companyArr = array(), $addrFormat = 'short', $delimiter = ', ' ){
+function zeroBS_companyAddr( $companyID = '', $companyArr = array(), $addrFormat = 'short', $delimiter = ', ' ) {
 
 	global $zbs;
 	return $zbs->DAL->companies->getCompanyAddress(
@@ -3731,7 +3613,7 @@ function zeroBS_companyAddr( $companyID = '', $companyArr = array(), $addrFormat
 }
 
 	// adapted company name builder to use proper DAL3 func
-function zeroBS_companySecondAddr( $companyID = '', $companyArr = array(), $addrFormat = 'short', $delimiter = ', ' ){
+function zeroBS_companySecondAddr( $companyID = '', $companyArr = array(), $addrFormat = 'short', $delimiter = ', ' ) {
 
 	global $zbs;
 	return $zbs->DAL->companies->getCompany2ndAddress(
@@ -3746,7 +3628,7 @@ function zeroBS_companySecondAddr( $companyID = '', $companyArr = array(), $addr
 }
 
 	// sets tags, in future just use direct DAL func plz
-function zeroBSCRM_setCompanyTags( $coID = -1, $tags = array(), $tagIDs = array(), $mode = 'replace' ){
+function zeroBSCRM_setCompanyTags( $coID = -1, $tags = array(), $tagIDs = array(), $mode = 'replace' ) {
 
 	if ( $coID > 0 ) {
 
@@ -3762,7 +3644,7 @@ function zeroBSCRM_setCompanyTags( $coID = -1, $tags = array(), $tagIDs = array(
 		);
 
 		// got tags?
-		if (is_array( $tags ) && count( $tags ) > 0) {
+		if ( is_array( $tags ) && count( $tags ) > 0 ) {
 			$args['tags'] = $tags;
 		} else if (is_array( $tagIDs ) && count( $tagIDs ) > 0) {
 			$args['tagIDs'] = $tagIDs;
@@ -3773,7 +3655,6 @@ function zeroBSCRM_setCompanyTags( $coID = -1, $tags = array(), $tagIDs = array(
 		global $zbs;
 		return $zbs->DAL->companies->addUpdateCompanyTags( $args );
 
-
 	}
 
 	return false;
@@ -3781,7 +3662,7 @@ function zeroBSCRM_setCompanyTags( $coID = -1, $tags = array(), $tagIDs = array(
 }
 
 	// gets tags, in future just use direct DAL func plz
-function zeroBSCRM_getCompanyTagsByID( $coID = -1, $justIDs = false ){
+function zeroBSCRM_getCompanyTagsByID( $coID = -1, $justIDs = false ) {
 
 	global $zbs;
 	$tags = $zbs->DAL->companies->getCompanyTags( $coID );
@@ -3790,8 +3671,8 @@ function zeroBSCRM_getCompanyTagsByID( $coID = -1, $justIDs = false ){
 	if ( $justIDs ) {
 
 		$ret = array();
-		if (is_array( $tags )) {
-			foreach ($tags as $t) {
+		if ( is_array( $tags ) ) {
+			foreach ( $tags as $t ) {
 				$ret[] = $t['id'];
 			}
 		}
@@ -3807,7 +3688,7 @@ function zeroBSCRM_getCompanyTagsByID( $coID = -1, $justIDs = false ){
 	// here it takes an array of contacts, and (currently) returns 1 company simplified
 	// This may make more sense in the company DAL obj layer?
 	// >> this has a contact variant too, in this file.
-function zeroBSCRM_getSimplyFormattedCompany( $companies = array(), $requireOwner = false ){
+function zeroBSCRM_getSimplyFormattedCompany( $companies = array(), $requireOwner = false ) {
 
 	$return = false;
 
@@ -3821,7 +3702,7 @@ function zeroBSCRM_getSimplyFormattedCompany( $companies = array(), $requireOwne
 		// works with zeroBSCRMJS_listView_generic_customer
 		// provides a simplified ver of customer obj (4 data transit efficiency/exposure)
 		$email = '';
-		if (isset( $company['email'] ) && ! empty( $company['email'] )) {
+		if ( isset( $company['email'] ) && ! empty( $company['email'] ) ) {
 			$email = $company['email'];
 		}
 		$return = array(
@@ -3832,7 +3713,7 @@ function zeroBSCRM_getSimplyFormattedCompany( $companies = array(), $requireOwne
 			'email'    => $email
 
 		);
-		if ($requireOwner) {
+		if ( $requireOwner ) {
 			$return['owner'] = zeroBS_getOwner( $company['id'], true, 'zerobs_company' );
 		}
 
@@ -3856,7 +3737,7 @@ function zeroBS_getQuoteStatus( $item = false, $returnAsInt = false ) {
 
 	#} marked accepted?
 	$accepted = false;
-	if (is_array( $item ) && isset( $item['accepted'] )) {
+	if ( is_array( $item ) && isset( $item['accepted'] ) ) {
 		$accepted = $item['accepted'];
 	}
 
@@ -3867,7 +3748,7 @@ function zeroBS_getQuoteStatus( $item = false, $returnAsInt = false ) {
 
 	if ( $accepted > 0 ) {
 
-		if ($returnAsInt) {
+		if ( $returnAsInt ) {
 			return $accepted;
 		}
 
@@ -3879,7 +3760,7 @@ function zeroBS_getQuoteStatus( $item = false, $returnAsInt = false ) {
 		$zbsTemplated = $item['template'];
 		if ( ! empty( $zbsTemplated ) ) {
 
-			if ($returnAsInt) {
+			if ( $returnAsInt ) {
 				return -2;
 			}
 
@@ -3888,7 +3769,7 @@ function zeroBS_getQuoteStatus( $item = false, $returnAsInt = false ) {
 
 		} else {
 
-			if ($returnAsInt) {
+			if ( $returnAsInt ) {
 				return -1;
 			}
 
@@ -3898,19 +3779,18 @@ function zeroBS_getQuoteStatus( $item = false, $returnAsInt = false ) {
 		}
 	}
 
-
 	return $td;
 }
 
 	// Get next available sequential quote ID
-function zeroBSCRM_getNextQuoteID(){
+function zeroBSCRM_getNextQuoteID() {
 
 	#} Retrieves option, and returns, is dumb for now.
 	// DAL1+2: return (int)get_option('quoteindx',$defaultStartingQuoteID)+1;
 
 	// DAL3:
 	$potential = (int)zeroBSCRM_getSetting( 'quoteindx', true );
-	if ($potential > 0) {
+	if ( $potential > 0 ) {
 		return $potential + 1;
 	} else {
 		return zeroBSCRM_getQuoteOffset() + 1;
@@ -3919,7 +3799,7 @@ function zeroBSCRM_getNextQuoteID(){
 }
 
 	// set the current max used quoteid
-function zeroBSCRM_setMaxQuoteID( $newMax = 0 ){
+function zeroBSCRM_setMaxQuoteID( $newMax = 0 ) {
 
 	$existingMax = zeroBSCRM_getNextQuoteID();
 
@@ -3934,14 +3814,13 @@ function zeroBSCRM_setMaxQuoteID( $newMax = 0 ){
 	return false;
 }
 
-
 	#} Minified get offset func
-function zeroBSCRM_getQuoteOffset(){
+function zeroBSCRM_getQuoteOffset() {
 
 	global $zbs;
 	$offset = (int)$zbs->settings->get( 'quoteoffset' );
 
-	if (empty( $offset ) || $offset < 0) {
+	if ( empty( $offset ) || $offset < 0 ) {
 		$offset = 0;
 	}
 
@@ -3954,7 +3833,7 @@ function zeroBSCRM_getQuoteOffset(){
 	// ... so any existing use may be broken (have mass replaced in core at this point)
 	// ... use direct ->getQuotes in future anyhow.
 	// (which is diff format! any use of zeroBS_getQuote is now borked. - couldn't find any though + did proper search.)
-function zeroBS_getQuote( $qID = -1, $withQuoteBuilderData = false ){
+function zeroBS_getQuote( $qID = -1, $withQuoteBuilderData = false ) {
 
 	if ( $qID !== -1 ) {
 
@@ -3975,7 +3854,7 @@ function zeroBS_getQuote( $qID = -1, $withQuoteBuilderData = false ){
 
 	#} Marks a quote as "accepted" and saves as much related data as poss on accepter
 	// again, use DAL to do this in future (zbs->DAL->quotes->addUpdateQuoteStatus directly)
-function zeroBS_markQuoteAccepted( $qID = -1, $quoteSignedBy = '' ){
+function zeroBS_markQuoteAccepted( $qID = -1, $quoteSignedBy = '' ) {
 
 	if ( $qID !== -1 ) {
 
@@ -3998,7 +3877,7 @@ function zeroBS_markQuoteAccepted( $qID = -1, $quoteSignedBy = '' ){
 
 	#} UNMarks a quote as "accepted" and saves as much related data as poss on accepter
 	// again, use DAL to do this in future (zbs->DAL->quotes->addUpdateQuoteStatus directly)
-function zeroBS_markQuoteUnAccepted( $qID = -1 ){
+function zeroBS_markQuoteUnAccepted( $qID = -1 ) {
 
 	if ( $qID !== -1 ) {
 
@@ -4031,13 +3910,13 @@ function zeroBS_getQuotes(
 		$quickFilters = array(),
 		$hasTagIDs = array()
 
-		){
+		) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -4059,12 +3938,10 @@ function zeroBS_getQuotes(
 
 		'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_QUOTE )
 
-
 	);
 
 	return $zbs->DAL->quotes->getQuotes( $args );
 }
-
 
 // Please use direct dal calls in future work.
 function zeroBS_getQuotesCountIncParams(
@@ -4080,13 +3957,13 @@ function zeroBS_getQuotesCountIncParams(
 		$quickFilters = array(),
 		$hasTagIDs = array()
 
-		){
+		) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -4110,7 +3987,6 @@ function zeroBS_getQuotesCountIncParams(
 
 		'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_QUOTE )
 
-
 	);
 
 	return $zbs->DAL->quotes->getQuotes( $args );
@@ -4126,12 +4002,12 @@ function zeroBS_getQuotesForCustomer(
 		$withCustomerDeets = false,
 		$withQuoteBuilderData = true
 
-		){
+		) {
 
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -4150,7 +4026,6 @@ function zeroBS_getQuotesForCustomer(
 		'perPage'         => $perPage,
 
 		'ignoreowner'     => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_QUOTE )
-
 
 	);
 
@@ -4195,7 +4070,7 @@ function zeroBS_getQuoteTemplates( $withFullDetails = false, $perPage = 10, $pag
 }
 
 // retrieves a count for listview retrievedata, really
-function zeroBS_getQuoteTemplatesCountIncParams( $withFullDetails = false, $perPage = 10, $page = 0, $searchPhrase = '' ){
+function zeroBS_getQuoteTemplatesCountIncParams( $withFullDetails = false, $perPage = 10, $page = 0, $searchPhrase = '' ) {
 
 	global $zbs;
 
@@ -4212,7 +4087,7 @@ function zeroBS_getQuoteTemplatesCountIncParams( $withFullDetails = false, $perP
 // moves a quote from being assigned to one cust, to another
 // this is a fill-in to match old DAL2 func, however DAL3+ can accept customer/company,
 // ... so use the proper $DAL->addUpdateObjectLinks for fresh code
-function zeroBSCRM_changeQuoteCustomer( $id = -1, $contactID = 0 ){
+function zeroBSCRM_changeQuoteCustomer( $id = -1, $contactID = 0 ) {
 
 	if ( ! empty( $id ) && $contactID > 0 ) {
 
@@ -4234,7 +4109,7 @@ function zeroBSCRM_changeQuoteCustomer( $id = -1, $contactID = 0 ){
    ====================================================== */
 
 	// Get next available sequential invoice ID
-function zeroBSCRM_getNextInvoiceID(){
+function zeroBSCRM_getNextInvoiceID() {
 
 	// DAL3:
 	$potential = (int)zeroBSCRM_getSetting( 'invoiceindx', true );
@@ -4247,7 +4122,7 @@ function zeroBSCRM_getNextInvoiceID(){
 }
 
 	// set the current max used invid
-function zeroBSCRM_setMaxInvoiceID( $newMax = 0 ){
+function zeroBSCRM_setMaxInvoiceID( $newMax = 0 ) {
 
 	$existingMax = zeroBSCRM_getNextInvoiceID();
 
@@ -4263,7 +4138,7 @@ function zeroBSCRM_setMaxInvoiceID( $newMax = 0 ){
 }
 
 	// Minified get offset func
-function zeroBSCRM_getInvoiceOffset(){
+function zeroBSCRM_getInvoiceOffset() {
 
 	global $zbs;
 	// this only exists on legacy sites
@@ -4291,13 +4166,13 @@ function zeroBS_getInvoices(
 		$quickFilters = array(),
 		$hasTagIDs = array()
 
-		){
+		) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -4319,7 +4194,6 @@ function zeroBS_getInvoices(
 
 		'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_INVOICE )
 
-
 	);
 
 	return $zbs->DAL->invoices->getInvoices( $args );
@@ -4340,13 +4214,13 @@ function zeroBS_getInvoicesCountIncParams(
 		$quickFilters = array(),
 		$hasTagIDs = array()
 
-		){
+		) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -4370,16 +4244,14 @@ function zeroBS_getInvoicesCountIncParams(
 
 		'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_INVOICE )
 
-
 	);
 
 	return $zbs->DAL->invoices->getInvoices( $args );
 }
 
-
 	// DAL3 translated.
 	// invs model now looks diff so adapt everywhere with getInvoice
-function zeroBS_getInvoice( $invoiceID = -1 ){
+function zeroBS_getInvoice( $invoiceID = -1 ) {
 
 	if ( $invoiceID > 0 ) {
 
@@ -4403,13 +4275,13 @@ function zeroBS_getInvoicesForCustomer(
 		$orderBy = 'ID',
 		$order = 'DESC'
 
-		){
+		) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -4429,7 +4301,6 @@ function zeroBS_getInvoicesForCustomer(
 
 		'ignoreowner'     => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_INVOICE )
 
-
 	);
 
 	return $zbs->DAL->invoices->getInvoices( $args );
@@ -4438,7 +4309,7 @@ function zeroBS_getInvoicesForCustomer(
 	// moves a inv from being assigned to one cust, to another
 	// this is a fill-in to match old DAL2 func, however DAL3+ can accept customer/company,
 	// ... so use the proper $DAL->addUpdateObjectLinks for fresh code
-function zeroBSCRM_changeInvoiceCustomer( $id = -1, $contactID = 0 ){
+function zeroBSCRM_changeInvoiceCustomer( $id = -1, $contactID = 0 ) {
 
 	if ( ! empty( $id ) && $contactID > 0 ) {
 
@@ -4451,10 +4322,8 @@ function zeroBSCRM_changeInvoiceCustomer( $id = -1, $contactID = 0 ){
 
 }
 
-
 	// grabs invoice customer
-function zeroBSCRM_getInvoiceCustomer( $invID = -1 ){
-
+function zeroBSCRM_getInvoiceCustomer( $invID = -1 ) {
 
 	if ( ! empty( $invWPID ) ) {
 
@@ -4469,9 +4338,9 @@ function zeroBSCRM_getInvoiceCustomer( $invID = -1 ){
 
 	// updates a stauts, if inv exists.
 	// use $zbs->DAL->invoices->setInvoiceStatus($invoiceID,$statusStr); for new code
-function zeroBS_updateInvoiceStatus( $invoiceID = -1, $statusStr = 'Draft' ){
+function zeroBS_updateInvoiceStatus( $invoiceID = -1, $statusStr = 'Draft' ) {
 
-	if ( in_array( $statusStr, zeroBSCRM_getInvoicesStatuses() ) ) {
+	if ( in_array( $statusStr, zeroBSCRM_getInvoicesStatuses( ) ) ) {
 
 		$potentialInvoice = zeroBS_getInvoice( $invoiceID );
 		if ( isset( $potentialInvoice ) && is_array( $potentialInvoice ) ) {
@@ -4486,7 +4355,6 @@ function zeroBS_updateInvoiceStatus( $invoiceID = -1, $statusStr = 'Draft' ){
 	return false;
 
 }
-
 
 /* ======================================================
 		Invoice 3.0 helpers
@@ -4543,10 +4411,9 @@ function zeroBSCRM_get_invoice_defaults( $obj_id = -1 ) {
 
 }
 
-
 #} wrapper as right now it was loading the full settings into the page. Tidy up page to have the translations here.
 #} WH - is it possible that some languages here will mess with the output? character encoding wise?
-function zeroBSCRM_get_invoice_settings(){
+function zeroBSCRM_get_invoice_settings() {
 
 	global $zbs;
 
@@ -4666,8 +4533,6 @@ function zeroBSCRM_get_invoice_settings(){
 			'senderrortitle'      => zeroBSCRM_slashOut( __( 'Error sending', 'zero-bs-crm' ), true ),
 			'senderror'           => zeroBSCRM_slashOut( __( 'There was an error sending this invoice via email.', 'zero-bs-crm' ), true ),
 
-
-
 		)
 	);
 	return $invoice_settings;
@@ -4676,20 +4541,18 @@ function zeroBSCRM_get_invoice_settings(){
 
 	#} Invoicing Pro - needs product index
 	// WH: Don't like the lazy naming
-function zeroBSCRM_getProductIndex(){
+function zeroBSCRM_getProductIndex() {
 	$product_index = array();
 	apply_filters( 'zbs_product_index_array', $product_index );
 	return $product_index;
 }
 
 	// wrapper now for zeroBSCRM_hashes_GetObjFromHash
-function zeroBSCRM_quotes_getFromHash( $hash = '' ){
+function zeroBSCRM_quotes_getFromHash( $hash = '' ) {
 
 	return zeroBSCRM_hashes_GetObjFromHash( $hash, -1, ZBS_TYPE_QUOTE );
 
-
 }
-
 
 	// NOTE ON FOLLOWING:
 	// ... this is MS's centralised func which centralises Inv data req. but it's still clunky.
@@ -4814,12 +4677,9 @@ function zeroBSCRM_quotes_getFromHash( $hash = '' ){
 	 *                  }
 	 */
 
-
 	// this gets the data (from the current DAL and outputs it to the UI) - can get via jQuery
 	// once happy it works and fills the current databse. This will need switching over come
 	// the new DAL database structure but allows me to work with the UI now ahead of time.
-
-
 
 // wh Centralised, is ultimately output via ajax zeroBSCRM_AJAX_getInvoice function in Control.Invoices
 // was called zeroBSCRM_getInvoiceData -> zeroBSCRM_invoicing_getInvoiceData
@@ -4861,7 +4721,6 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 
 			)
 		);
-
 
 		if ( ! is_array( $invoice ) ) {
 
@@ -5009,16 +4868,14 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 	return false;
 }
 
-
 /* ======================================================
 	  / Invoice 3.0 helpers
    ====================================================== */
 
-
 #} General function to check the amount due on an invoice, if <= mark as paid.
 // Adapted to work V3.0+
 // ... ultimately just uses zeroBSCRM_invoicing_invOutstandingBalance to check for balance + marks if paid off
-function zeroBSCRM_check_amount_due_mark_paid( $invoice_id = -1 ){
+function zeroBSCRM_check_amount_due_mark_paid( $invoice_id = -1 ) {
 
 	if ( $invoice_id > 0 ) {
 
@@ -5045,16 +4902,12 @@ function zeroBSCRM_check_amount_due_mark_paid( $invoice_id = -1 ){
 	  / Invoice helpers
    ====================================================== */
 
-
-
-
-
 /* ======================================================
 	  Transactions helpers
    ====================================================== */
 
 // Please use direct dal calls in future work.
-function zeroBS_getTransaction( $tID = -1 ){
+function zeroBS_getTransaction( $tID = -1 ) {
 
 	if ( $tID !== -1 ) {
 
@@ -5077,8 +4930,6 @@ function zeroBS_getTransaction( $tID = -1 ){
 
 }
 
-
-
 // Please use direct dal calls in future work.
 function zeroBS_getTransactions(
 
@@ -5094,13 +4945,13 @@ function zeroBS_getTransactions(
 		$withTags = false,
 		$quickFilters = array(),
 		$external_source_uid = false
-		){
+		) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -5125,7 +4976,6 @@ function zeroBS_getTransactions(
 
 		'external_source_uid' => $external_source_uid
 
-
 	);
 
 	return $zbs->DAL->transactions->getTransactions( $args );
@@ -5147,13 +4997,13 @@ function zeroBS_getTransactionsCountIncParams(
 		$withTags = false,
 		$quickFilters = array()
 
-		){
+		) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -5177,7 +5027,6 @@ function zeroBS_getTransactionsCountIncParams(
 
 		'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_TRANSACTION )
 
-
 	);
 
 	return $zbs->DAL->transactions->getTransactions( $args );
@@ -5193,12 +5042,12 @@ function zeroBS_getTransactionsForCustomer(
 		$page = 0,
 		$withCustomerDeets = false
 
-		){
+		) {
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -5218,7 +5067,6 @@ function zeroBS_getTransactionsForCustomer(
 
 		'ignoreowner'     => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_TRANSACTION )
 
-
 	);
 
 	return $zbs->DAL->transactions->getTransactions( $args );
@@ -5226,7 +5074,7 @@ function zeroBS_getTransactionsForCustomer(
 }
 
 	// Please use direct dal calls in future work.
-function zeroBS_getTransactionIDWithExternalSource( $transactionExternalSource = '', $transactionExternalID = '' ){
+function zeroBS_getTransactionIDWithExternalSource( $transactionExternalSource = '', $transactionExternalID = '' ) {
 
 	// retrieve external sources from $zbs now
 	global $zbs;
@@ -5245,13 +5093,11 @@ function zeroBS_getTransactionIDWithExternalSource( $transactionExternalSource =
 			)
 		);
 
-
 	}
 
 	return false;
 
 }
-
 
 	// v3.0 + avoid using these centralised funcs (this + zeroBS_integrations_addOrUpdateTransaction)
 	// ... direct calls all the way :D
@@ -5280,7 +5126,6 @@ function zeroBS_addUpdateTransaction(
 					'discount' => 0,
 					'tax_rate' => 0,
 
-
 				);
 
 			*/
@@ -5298,8 +5143,7 @@ function zeroBS_addUpdateTransaction(
 
 			$arrBuilderPrefix = 'zbst_'
 
-			){
-
+			) {
 
 	// zeroBSCRM_DEPRECATEDMSG('ZBS Function Deprecated in v3.0+. zeroBS_addUpdateTransaction should now be replaced with proper zbs->DAL->calls');
 
@@ -5318,7 +5162,7 @@ function zeroBS_addUpdateTransaction(
 
 			// Do date comparison + update that where relevant
 			$originalDate = time();
-			if (isset( $existingMeta ) && is_array( $existingMeta ) && isset( $existingMeta['created'] ) && ! empty( $existingMeta['created'] )) {
+			if ( isset( $existingMeta ) && is_array( $existingMeta ) && isset( $existingMeta['created'] ) && ! empty( $existingMeta['created'] ) ) {
 				$originalDate = $existingMeta['created'];
 			}
 			if ( ! empty( $transactionDate ) && $transactionDate != '' ) {
@@ -5376,15 +5220,15 @@ function zeroBS_addUpdateTransaction(
 		// few DAL2 -> DAL3 translations:
 
 		// owner?
-		if (isset( $tFields['owner'] ) > 0) {
+		if ( isset( $tFields['owner'] ) > 0 ) {
 			$args['owner'] = $tFields['owner'];
 		}
 
 		// contact/companies?
-		if (isset( $tFields['customer'] ) && $tFields['customer'] > 0) {
+		if ( isset( $tFields['customer'] ) && $tFields['customer'] > 0 ) {
 			$args['data']['contacts'] = array((int)$tFields['customer']);
 		}
-		if (isset( $tFields['company'] ) && $tFields['company'] > 0) {
+		if ( isset( $tFields['company'] ) && $tFields['company'] > 0 ) {
 			$args['data']['companies'] = array((int)$tFields['company']);
 		}
 
@@ -5401,7 +5245,6 @@ function zeroBS_addUpdateTransaction(
 				'source' => $approvedExternalSource,
 				'uid'    => $transactionExternalID
 			);
-
 
 			$args['data']['externalSources'] = array($extSourceArr);
 
@@ -5470,12 +5313,12 @@ function zeroBS_addUpdateTransaction(
 	// Please use direct dal calls in future work, not this.
 	#} Quick wrapper to future-proof.
 	#} Should later replace all get_post_meta's with this
-function zeroBS_getTransactionMeta( $tID = -1 ){
+function zeroBS_getTransactionMeta( $tID = -1 ) {
 
 	global $zbs;
 
 	// in DAL3 it's just a normal get
-	if ( ! empty( $tID )) {
+	if ( ! empty( $tID ) ) {
 		return $zbs->DAL->transactions->getTransaction( $tID );
 	}
 
@@ -5485,7 +5328,7 @@ function zeroBS_getTransactionMeta( $tID = -1 ){
 
 	// filters array for fields currently used in fields.php
 	// v3.0+ this uses the generic zeroBS_buildObjArr, and accepts full args as per contact meta DAL2:
-function zeroBS_buildTransactionMeta( $arraySource = array(), $startingArray = array(), $fieldPrefix = 'zbst_', $outputPrefix = '', $removeEmpties = false, $autoGenAutonumbers = false ){
+function zeroBS_buildTransactionMeta( $arraySource = array(), $startingArray = array(), $fieldPrefix = 'zbst_', $outputPrefix = '', $removeEmpties = false, $autoGenAutonumbers = false ) {
 
 	return zeroBS_buildObjArr( $arraySource, $startingArray, $fieldPrefix, $outputPrefix, $removeEmpties, ZBS_TYPE_TRANSACTION, $autoGenAutonumbers );
 
@@ -5494,7 +5337,7 @@ function zeroBS_buildTransactionMeta( $arraySource = array(), $startingArray = a
 	// moves a tran from being assigned to one cust, to another
 	// this is a fill-in to match old DAL2 func, however DAL3+ can accept customer/company,
 	// ... so use the proper $DAL->addUpdateObjectLinks for fresh code
-function zeroBSCRM_changeTransactionCustomer( $id = -1, $contactID = 0 ){
+function zeroBSCRM_changeTransactionCustomer( $id = -1, $contactID = 0 ) {
 
 	if ( ! empty( $id ) && $contactID > 0 ) {
 
@@ -5510,7 +5353,7 @@ function zeroBSCRM_changeTransactionCustomer( $id = -1, $contactID = 0 ){
 	// moves a tran from being assigned to one company, to another
 	// this is a fill-in to match old DAL2 func, however DAL3+ can accept customer/company,
 	// ... so use the proper $DAL->addUpdateObjectLinks for fresh code
-function zeroBSCRM_changeTransactionCompany( $id = -1, $companyID = 0 ){
+function zeroBSCRM_changeTransactionCompany( $id = -1, $companyID = 0 ) {
 
 	if ( ! empty( $id ) && $companyID > 0 ) {
 
@@ -5523,7 +5366,6 @@ function zeroBSCRM_changeTransactionCompany( $id = -1, $companyID = 0 ){
 
 }
 
-
 /* ======================================================
 	  / Transactions helpers
    ====================================================== */
@@ -5533,7 +5375,7 @@ function zeroBSCRM_changeTransactionCompany( $id = -1, $companyID = 0 ){
    ====================================================== */
 
 	// old way of doing - also should really be "get list of events/tasks for a contact"
-function zeroBSCRM_getTaskList( $cID = -1 ){
+function zeroBSCRM_getTaskList( $cID = -1 ) {
 
 	$ret = array();
 
@@ -5551,14 +5393,14 @@ function zeroBSCRM_getTaskList( $cID = -1 ){
 			/* these translated for DAL3
 
 		$i = 0;
-		foreach($tasks as $task){
+		foreach ( $tasks as $task){
 			$ret[$i]['title'] = $task->post_title;
 			$ret[$i]['ID'] = $task->ID;
 			$ret[$i]['meta'] = get_post_meta($task->ID,'zbs_event_meta',true);
 			$ret[$i]['actions'] = get_post_meta($task->ID,'zbs_event_actions',true);
 
 			// titles moved into meta with MS new task ui, wh bringing them out here:
-			if (empty($task->post_title) && is_array($ret[$i]['meta']) && isset($ret[$i]['meta']['title']) && !empty($ret[$i]['meta']['title'])){
+			if ( empty( $task->post_title) && is_array( $ret[$i]['meta']) && isset( $ret[$i]['meta']['title']) && !empty( $ret[$i]['meta']['title'])){
 				$ret[$i]['title'] = $ret[$i]['meta']['title'];
 			}
 
@@ -5584,12 +5426,12 @@ function zeroBS_getEvents(
 		$sortByField = '',
 		$sortOrder = 'DESC',
 		$hasTagIDs = array()
-	){
+	) {
 
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -5610,7 +5452,7 @@ function zeroBS_getEvents(
 		'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_TASK )
 
 	);
-	if ($ownedByID > 0) {
+	if ( $ownedByID > 0 ) {
 		$args['ownedBy'] = $ownedByID;
 	}
 	if ( ! empty( $search_term ) ) {
@@ -5624,13 +5466,12 @@ function zeroBS_getEvents(
 	// NOTE: $withFullDetails is redundant here
 	// NOTE: as with all dal3 translations, objs no longer have ['meta'] etc.
 	// USE direct DAL calls in code, not this, for future proofing
-function zeroBS_getEventsByCustomerID( $cID = -1, $withFullDetails = false, $perPage = 10, $page = 0 ){
-
+function zeroBS_getEventsByCustomerID( $cID = -1, $withFullDetails = false, $perPage = 10, $page = 0 ) {
 
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -5644,18 +5485,15 @@ function zeroBS_getEventsByCustomerID( $cID = -1, $withFullDetails = false, $per
 
 		'ignoreowner'     => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_TASK )
 
-
 	);
 
 	return $zbs->DAL->events->getEvents( $args );
 }
 
-
-
 	// moves an event from being assigned to one cust, to another
 	// this is a fill-in to match old DAL2 func, however DAL3+ can accept customer/company,
 	// ... so use the proper $DAL->addUpdateObjectLinks for fresh code
-function zeroBSCRM_changeEventCustomer( $id = -1, $contactID = 0 ){
+function zeroBSCRM_changeEventCustomer( $id = -1, $contactID = 0 ) {
 
 	if ( ! empty( $id ) && $contactID > 0 ) {
 
@@ -5668,18 +5506,16 @@ function zeroBSCRM_changeEventCustomer( $id = -1, $contactID = 0 ){
 
 }
 
-
 	// Add an event
-function zeroBS_addUpdateEvent( $eventID = -1, $eventFields = array(), $reminders = array() ){
+function zeroBS_addUpdateEvent( $eventID = -1, $eventFields = array(), $reminders = array() ) {
 
 	// if using 'from' and 'to', probably using v1 dal, so translate dates:
-	if (isset( $eventFields['from'] )) {
+	if ( isset( $eventFields['from'] ) ) {
 		$eventFields['from'] = strtotime( $eventFields['from'] );
 	}
-	if (isset( $eventFields['to'] )) {
+	if ( isset( $eventFields['to'] ) ) {
 		$eventFields['to'] = strtotime( $eventFields['to'] );
 	}
-
 
 	#} Build using centralised func below, passing any existing meta (updates not overwrites)
 	$removeEmpties = false;
@@ -5689,7 +5525,6 @@ function zeroBS_addUpdateEvent( $eventID = -1, $eventFields = array(), $reminder
 	// ... by time it gets here it should be sanitized (e.g. a level up)
 	// ... leaving as I translate this to DAL3
 	//$zbsEventMeta = filter_var_array($eventFields,FILTER_SANITIZE_STRING);
-
 
 	// format it for DAL3 addition
 	$args = array(
@@ -5703,22 +5538,22 @@ function zeroBS_addUpdateEvent( $eventID = -1, $eventFields = array(), $reminder
 	// few DAL2 -> DAL3 translations:
 
 	// owner?
-	if (isset( $eventFields['owner'] ) > 0) {
+	if ( isset( $eventFields['owner'] ) > 0 ) {
 		$args['owner'] = $eventFields['owner'];
 	}
 
 	// contact/companies?
-	if (isset( $eventFields['customer'] ) && $eventFields['customer'] > 0) {
+	if ( isset( $eventFields['customer'] ) && $eventFields['customer'] > 0 ) {
 		$args['data']['contacts'] = array($eventFields['customer']);
 	}
-	if (isset( $eventFields['company'] ) && $eventFields['company'] > 0) {
+	if ( isset( $eventFields['company'] ) && $eventFields['company'] > 0 ) {
 		$args['data']['companies'] = array($eventFields['company']);
 	}
 
 	$args['data']['reminders'] = array();
 
 	// reminders into new DAL2 eventreminder format:
-	if (is_array( $reminders ) && count( $reminders ) > 0) {
+	if ( is_array( $reminders ) && count( $reminders ) > 0 ) {
 		foreach ( $reminders as $reminder ) {
 
 			// this just adds with correct fields
@@ -5734,7 +5569,7 @@ function zeroBS_addUpdateEvent( $eventID = -1, $eventFields = array(), $reminder
 	}
 
 	// updating....
-	if ($eventID > 0) {
+	if ( $eventID > 0 ) {
 		$args['id']  = (int)$eventID;
 	}
 
@@ -5753,7 +5588,7 @@ function zeroBS_addUpdateEvent( $eventID = -1, $eventFields = array(), $reminder
 
 	// Please use direct dal calls in future work.
 	// simple wrapper for Form
-function zeroBS_getForm( $formID = -1 ){
+function zeroBS_getForm( $formID = -1 ) {
 
 	if ( $formID > 0 ) {
 
@@ -5779,7 +5614,6 @@ function zeroBS_getForm( $formID = -1 ){
 	return false;
 }
 
-
 	// Please use direct dal calls in future work.
 function zeroBS_getForms(
 
@@ -5793,7 +5627,7 @@ function zeroBS_getForms(
 		$quickFilters = array(),
 		$hasTagIDs = array()
 
-		){
+		) {
 
 	// quickFilters not used for forms :) *yet
 
@@ -5801,7 +5635,7 @@ function zeroBS_getForms(
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -5819,7 +5653,6 @@ function zeroBS_getForms(
 		'perPage'      => $perPage,
 
 		'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_FORM )
-
 
 	);
 
@@ -5840,7 +5673,7 @@ function zeroBS_getFormsCountIncParams(
 		$quickFilters = array(),
 		$hasTagIDs = array()
 
-		){
+		) {
 
 	// quickFilters not used for forms :) *yet
 
@@ -5848,7 +5681,7 @@ function zeroBS_getFormsCountIncParams(
 	global $zbs;
 
 	$actualPage = $page;
-	if ($actualPage < 0) {
+	if ( $actualPage < 0 ) {
 		$actualPage = 0;
 	}
 
@@ -5868,15 +5701,11 @@ function zeroBS_getFormsCountIncParams(
 
 		'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_FORM )
 
-
 	);
 
 	return $zbs->DAL->forms->getForms( $args );
 
 }
-
-
-
 
 /* ======================================================
 	  / Form helpers
@@ -5887,7 +5716,7 @@ function zeroBS_getFormsCountIncParams(
    ====================================================== */
 
 	#} Minified get setting func
-function zeroBSCRM_getSetting( $key, $freshFromDB = false ){
+function zeroBSCRM_getSetting( $key, $freshFromDB = false ) {
 
 	global $zbs;
 	$zbs->checkSettingsSetup();
@@ -5899,22 +5728,19 @@ function zeroBSCRM_getSetting( $key, $freshFromDB = false ){
 	  / Settings helpers
    ====================================================== */
 
-
-
 /* ======================================================
 	Alias / AKA helpers
    ====================================================== */
 	// Aliases - direct SQL here, could do with moving to DAL3
 
-
 	#} (Generic) See if already in use/exists
-function zeroBS_canUseAlias( $objType = ZBS_TYPE_CONTACT, $alias = '' ){
+function zeroBS_canUseAlias( $objType = ZBS_TYPE_CONTACT, $alias = '' ) {
 
 	if ( ! empty( $alias ) ) {
 
 		// verify email?
 
-		if ( ! zeroBSCRM_validateEmail( $alias )) {
+		if ( ! zeroBSCRM_validateEmail( $alias ) ) {
 			return false;
 		}
 
@@ -5923,7 +5749,7 @@ function zeroBS_canUseAlias( $objType = ZBS_TYPE_CONTACT, $alias = '' ){
 		// is customer with this email?
 		$existing = zeroBS_getCustomerIDWithEmail( $alias );
 
-		if ( ! empty( $existing )) {
+		if ( ! empty( $existing ) ) {
 			return false;
 		}
 
@@ -5934,7 +5760,7 @@ function zeroBS_canUseAlias( $objType = ZBS_TYPE_CONTACT, $alias = '' ){
 		$aliasID = $wpdb->get_var( $query );
 
 		// has alias in there already?
-		if ( ! empty( $aliasID )) {
+		if ( ! empty( $aliasID ) ) {
 			return false;
 		}
 
@@ -5947,7 +5773,7 @@ function zeroBS_canUseAlias( $objType = ZBS_TYPE_CONTACT, $alias = '' ){
 }
 
 	#} Get specific alias if exists
-function zeroBS_getObjAlias( $objType = ZBS_TYPE_CONTACT, $objID = -1, $alias = '' ){
+function zeroBS_getObjAlias( $objType = ZBS_TYPE_CONTACT, $objID = -1, $alias = '' ) {
 
 	if ( ! empty( $objID ) && ! empty( $alias ) ) {
 
@@ -5958,7 +5784,7 @@ function zeroBS_getObjAlias( $objType = ZBS_TYPE_CONTACT, $objID = -1, $alias = 
 		$alias = $wpdb->get_row( $query, ARRAY_A );
 
 		// check it + return
-		if (is_array( $alias )) {
+		if ( is_array( $alias ) ) {
 			return $alias;
 		}
 
@@ -5968,7 +5794,7 @@ function zeroBS_getObjAlias( $objType = ZBS_TYPE_CONTACT, $objID = -1, $alias = 
 }
 
 	#} Get specific alias if exists
-function zeroBS_getAliasByID( $objType = ZBS_TYPE_CONTACT, $objID = -1, $aliasID = -1 ){
+function zeroBS_getAliasByID( $objType = ZBS_TYPE_CONTACT, $objID = -1, $aliasID = -1 ) {
 
 	if ( ! empty( $objID ) && ! empty( $aliasID ) ) {
 
@@ -5979,7 +5805,7 @@ function zeroBS_getAliasByID( $objType = ZBS_TYPE_CONTACT, $objID = -1, $aliasID
 		$alias = $wpdb->get_row( $query, ARRAY_A );
 
 		// check it + return
-		if (is_array( $alias )) {
+		if ( is_array( $alias ) ) {
 			return $alias;
 		}
 
@@ -5989,7 +5815,7 @@ function zeroBS_getAliasByID( $objType = ZBS_TYPE_CONTACT, $objID = -1, $aliasID
 }
 
 	#} Get All Aliases against an obj.
-function zeroBS_getObjAliases( $objType = ZBS_TYPE_CONTACT, $objID = -1 ){
+function zeroBS_getObjAliases( $objType = ZBS_TYPE_CONTACT, $objID = -1 ) {
 
 	if ( ! empty( $objID ) ) {
 
@@ -6000,7 +5826,7 @@ function zeroBS_getObjAliases( $objType = ZBS_TYPE_CONTACT, $objID = -1 ){
 		$aliases = $wpdb->get_results( $query, ARRAY_A );
 
 		// check it + return
-		if (is_array( $aliases ) && count( $aliases ) > 0) {
+		if ( is_array( $aliases ) && count( $aliases ) > 0 ) {
 			return $aliases;
 		}
 
@@ -6010,7 +5836,7 @@ function zeroBS_getObjAliases( $objType = ZBS_TYPE_CONTACT, $objID = -1 ){
 }
 
 #} add Aliases to an obj.
-function zeroBS_addObjAlias( $objType = ZBS_TYPE_CONTACT, $objID = -1, $alias = '' ){
+function zeroBS_addObjAlias( $objType = ZBS_TYPE_CONTACT, $objID = -1, $alias = '' ) {
 
 	if ( ! empty( $objID ) && ! empty( $alias ) ) {
 
@@ -6058,7 +5884,7 @@ function zeroBS_addObjAlias( $objType = ZBS_TYPE_CONTACT, $objID = -1, $alias = 
 }
 
 #} remove Alias from an obj.
-function zeroBS_removeObjAlias( $objType = ZBS_TYPE_CONTACT, $objID = -1, $alias = '' ){
+function zeroBS_removeObjAlias( $objType = ZBS_TYPE_CONTACT, $objID = -1, $alias = '' ) {
 
 	if ( ! empty( $objID ) && ! empty( $alias ) ) {
 
@@ -6080,7 +5906,7 @@ function zeroBS_removeObjAlias( $objType = ZBS_TYPE_CONTACT, $objID = -1, $alias
 }
 
 #} remove Alias from an obj.
-function zeroBS_removeObjAliasByID( $objType = ZBS_TYPE_CONTACT, $objID = -1, $aliasID = -1 ){
+function zeroBS_removeObjAliasByID( $objType = ZBS_TYPE_CONTACT, $objID = -1, $aliasID = -1 ) {
 
 	if ( ! empty( $objID ) && ! empty( $aliasID ) ) {
 
@@ -6104,7 +5930,6 @@ function zeroBS_removeObjAliasByID( $objType = ZBS_TYPE_CONTACT, $objID = -1, $a
 /* ======================================================
 	  / Alias / AKA helpers
    ====================================================== */
-
 
 /* ======================================================
 	  Value Calculator / helpers
@@ -6152,7 +5977,7 @@ function jpcrm_get_total_value_from_contact_or_company( $entity ) {
 	// THIS STAYS THE SAME FOR DB2 until trans+invoices MOVED OVER #DB2ROUND2
 	#} Main function to return a customers "total value"
 	#} At MVP that means Invoices + Transactions
-function zeroBS_customerTotalValue( $contactID = '', $customerInvoices = array(), $customerTransactions = array() ){
+function zeroBS_customerTotalValue( $contactID = '', $customerInvoices = array(), $customerTransactions = array() ) {
 
 	global $zbs;
 
@@ -6165,7 +5990,7 @@ function zeroBS_customerTotalValue( $contactID = '', $customerInvoices = array()
 
 	// throwaway obj apart from totals
 	// later could optimise, but better to optimise 1 level up and not even use this func
-	if (isset( $contactWithVals['total_value'] )) {
+	if ( isset( $contactWithVals['total_value'] ) ) {
 		return $contactWithVals['total_value'];
 	}
 
@@ -6176,7 +6001,7 @@ function zeroBS_customerTotalValue( $contactID = '', $customerInvoices = array()
 	// evolved for dal3.0
 	// left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
 	#} Adds up value of quotes for a customer...
-function zeroBS_customerQuotesValue( $contactID = '', $customerQuotes = array() ){
+function zeroBS_customerQuotesValue( $contactID = '', $customerQuotes = array() ) {
 
 	global $zbs;
 
@@ -6189,7 +6014,7 @@ function zeroBS_customerQuotesValue( $contactID = '', $customerQuotes = array() 
 
 	// throwaway obj apart from totals
 	// later could optimise, but better to optimise 1 level up and not even use this func
-	if (isset( $contactWithVals['quotes_value'] )) {
+	if ( isset( $contactWithVals['quotes_value'] ) ) {
 		return $contactWithVals['quotes_value'];
 	}
 
@@ -6200,7 +6025,7 @@ function zeroBS_customerQuotesValue( $contactID = '', $customerQuotes = array() 
 	// evolved for dal3.0
 	// left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
 	#} Adds up value of invoices for a customer...
-function zeroBS_customerInvoicesValue( $contactID = '', $customerInvoices = array() ){
+function zeroBS_customerInvoicesValue( $contactID = '', $customerInvoices = array() ) {
 
 	global $zbs;
 
@@ -6213,7 +6038,7 @@ function zeroBS_customerInvoicesValue( $contactID = '', $customerInvoices = arra
 
 	// throwaway obj apart from totals
 	// later could optimise, but better to optimise 1 level up and not even use this func
-	if (isset( $contactWithVals['invoices_value'] )) {
+	if ( isset( $contactWithVals['invoices_value'] ) ) {
 		return $contactWithVals['invoices_value'];
 	}
 
@@ -6224,7 +6049,7 @@ function zeroBS_customerInvoicesValue( $contactID = '', $customerInvoices = arra
 	// left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
 	// THIS STAYS THE SAME FOR DB2 until trans MOVED OVER #DB2ROUND2
 	#} Adds up value of transactions for a customer...
-function zeroBS_customerTransactionsValue( $contactID = '', $customerTransactions = array() ){
+function zeroBS_customerTransactionsValue( $contactID = '', $customerTransactions = array() ) {
 
 	global $zbs;
 
@@ -6237,7 +6062,7 @@ function zeroBS_customerTransactionsValue( $contactID = '', $customerTransaction
 
 	// throwaway obj apart from totals
 	// later could optimise, but better to optimise 1 level up and not even use this func
-	if (isset( $contactWithVals['transactions_value'] )) {
+	if ( isset( $contactWithVals['transactions_value'] ) ) {
 		return $contactWithVals['transactions_value'];
 	}
 
@@ -6248,17 +6073,16 @@ function zeroBS_customerTransactionsValue( $contactID = '', $customerTransaction
 	  / Value Calculator / helpers
    ====================================================== */
 
-
 // ===============================================================================
 // ========  Security Logs (used for Quote + Trans hashlink access) ==============
 
 	// this is fired on all req (expects a "fini" followup fire of next func to mark "success")
 	// (defaults to failed req.)
-function zeroBSCRM_security_logRequest( $reqType = 'unknown', $reqHash = '', $reqID = -1 ){
+function zeroBSCRM_security_logRequest( $reqType = 'unknown', $reqHash = '', $reqID = -1 ) {
 
 	// don't log requests for admins, who by nature, can see all
 	// needs to match zeroBSCRM_security_finiRequest precheck
-	if (zeroBSCRM_isZBSAdminOrAdmin()) {
+	if ( zeroBSCRM_isZBSAdminOrAdmin( ) ) {
 		return false;
 	}
 
@@ -6267,18 +6091,18 @@ function zeroBSCRM_security_logRequest( $reqType = 'unknown', $reqHash = '', $re
 	// if user logged in, also log id
 	$userID = -1;
 	$current_user = wp_get_current_user();
-	if (isset( $current_user->ID )) {
+	if ( isset( $current_user->ID ) ) {
 		$userID = (int)$current_user->ID;
 	}
 	$userIP = zeroBSCRM_getRealIpAddr();
 
 	// validate these a bit
 	$validTypes = array('quoteeasy', 'inveasy');
-	if ( ! in_array( $reqType, $validTypes )) {
+	if ( ! in_array( $reqType, $validTypes ) ) {
 		$reqType = 'na';
 	}
 	$reqHash = sanitize_text_field( $reqHash );
-	if (strlen( $reqHash ) > 128) {
+	if ( strlen( $reqHash ) > 128 ) {
 		$reqHash = '';
 	}
 	$reqID = (int)sanitize_text_field( $reqID );
@@ -6324,11 +6148,11 @@ function zeroBSCRM_security_logRequest( $reqType = 'unknown', $reqHash = '', $re
 }
 
 	// after security validated,
-function zeroBSCRM_security_finiRequest( $requestID = -1 ){
+function zeroBSCRM_security_finiRequest( $requestID = -1 ) {
 
 	// don't log requests for admins, who by nature, can see all
 	// needs to match zeroBSCRM_security_logRequest precheck
-	if (zeroBSCRM_isZBSAdminOrAdmin()) {
+	if ( zeroBSCRM_isZBSAdminOrAdmin( ) ) {
 		return false;
 	}
 
@@ -6366,11 +6190,11 @@ function zeroBSCRM_security_finiRequest( $requestID = -1 ){
 }
 
 	// checks if blocked
-function zeroBSCRM_security_blockRequest( $reqType = 'unknown' ){
+function zeroBSCRM_security_blockRequest( $reqType = 'unknown' ) {
 
 	// don't log requests for admins, who by nature, can see all
 	// needs to match zeroBSCRM_security_logRequest etc. above
-	if (zeroBSCRM_isZBSAdminOrAdmin()) {
+	if ( zeroBSCRM_isZBSAdminOrAdmin( ) ) {
 		return false;
 	}
 
@@ -6384,17 +6208,16 @@ function zeroBSCRM_security_blockRequest( $reqType = 'unknown' ){
 	$countFailed = (int)$wpdb->get_var( $query );
 
 	// less than ..
-	if ($countFailed < $maxFails) {
+	if ( $countFailed < $maxFails ) {
 		return false;
 	}
 
 	return true;
 }
 
-
 	// removes all security logs older than setting (72h at addition)
 	// this is run DAILY by a cron job in ZeroBSCRM.CRON.php
-function zeroBSCRM_clearSecurityLogs(){
+function zeroBSCRM_clearSecurityLogs() {
 
 	global $zbs, $wpdb, $ZBSCRM_t;
 
@@ -6406,8 +6229,7 @@ function zeroBSCRM_clearSecurityLogs(){
 
 }
 
-
-function zeroBSCRM_hashes_GetHashForObj( $objID = -1, $objTypeID = -1 ){
+function zeroBSCRM_hashes_GetHashForObj( $objID = -1, $objTypeID = -1 ) {
 
 	if ( $objID > 0 && $objTypeID > 0 ) {
 
@@ -6415,7 +6237,7 @@ function zeroBSCRM_hashes_GetHashForObj( $objID = -1, $objTypeID = -1 ){
 		$hash = $zbs->DAL->meta( $objTypeID, $objID, 'zbshash', '' );
 
 		// Return with PREFIX (makes it interpretable later on as this is shared between invID + invHash (for example) at endpoint /invoices/*hashorid)
-		if ( ! empty( $hash )) {
+		if ( ! empty( $hash ) ) {
 			return 'zh-' . $hash;
 		}
 
@@ -6424,12 +6246,11 @@ function zeroBSCRM_hashes_GetHashForObj( $objID = -1, $objTypeID = -1 ){
 	return false;
 }
 
-
 	// NOTE: This is now GENERIC, for quotes/invs whatever has meta :) (DAL3+ pass objTypeID)
 	//function is this a hash of an INVOICE. Could be refined when DB2.0
 	//function for checking if a hash is valid
 	// ... THIS WAS refactored for v3.0, now uses hash cols on objs :)
-function zeroBSCRM_hashes_GetObjFromHash( $hash = '', $pay = -1, $objTypeID = -1 ){
+function zeroBSCRM_hashes_GetObjFromHash( $hash = '', $pay = -1, $objTypeID = -1 ) {
 
 	// def
 	$ret = array(
@@ -6474,7 +6295,7 @@ function zeroBSCRM_hashes_GetObjFromHash( $hash = '', $pay = -1, $objTypeID = -1
 
 						//paying so need the customerID from settings otherwise just viewing so dont need to expose data
 						// WH: I've added this for future ease:
-						if (is_array( $invoice ) && isset( $invoice['contact'] ) && is_array( $invoice['contact'] ) && count( $invoice['contact'] ) > 0) {
+						if ( is_array( $invoice ) && isset( $invoice['contact'] ) && is_array( $invoice['contact'] ) && count( $invoice['contact'] ) > 0 ) {
 							$contactID = $invoice['contact'][0]['id'];
 						}
 						//$companyID = -1;  if (is_array($invoice) && isset($invoice['company']) && is_array($invoice['company']) && count($invoice['company']) > 0) $companyID = $invoice['company'][0]['id'];
@@ -6523,8 +6344,6 @@ function zeroBSCRM_hashes_GetObjFromHash( $hash = '', $pay = -1, $objTypeID = -1
 
 // ======== / Security Logs (used for Quote + Trans hashlink access) =============
 // ===============================================================================
-
-
 
 // ===============================================================================
 // =======================  Tax Table Helpers ====================================
@@ -6583,7 +6402,7 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 }
 
 // gets single tax rate by id
-function zeroBSCRM_taxRates_getTaxRate( $taxRateID = '' ){
+function zeroBSCRM_taxRates_getTaxRate( $taxRateID = '' ) {
 
 	// retrieve tax rate(s)
 	if ( ! empty( $taxRateID ) ) {
@@ -6602,7 +6421,6 @@ function zeroBSCRM_taxRates_getTaxRate( $taxRateID = '' ){
 
 		} catch ( Exception $e ) {
 
-
 		}
 
 		#} Interpret results (Result Set - multi-row)
@@ -6618,7 +6436,7 @@ function zeroBSCRM_taxRates_getTaxRate( $taxRateID = '' ){
 }
 
 // retrieve tax table as array
-function zeroBSCRM_taxRates_getTaxTableArr( $indexByID = false ){
+function zeroBSCRM_taxRates_getTaxTableArr( $indexByID = false ) {
 
 	/* // demo/dummy data
 	return array(
@@ -6690,7 +6508,7 @@ function jpcrm_tax_rates_generate_lookup_key( $name, $rate ) {
 	 *
 	 * @return int line ID
 	 */
-function zeroBSCRM_taxRates_addUpdateTaxRate( $args = array() ){
+function zeroBSCRM_taxRates_addUpdateTaxRate( $args = array() ) {
 
 	global $ZBSCRM_t, $wpdb;
 
@@ -6715,7 +6533,7 @@ function zeroBSCRM_taxRates_addUpdateTaxRate( $args = array() ){
 		if ( is_array( $args ) && isset( $args[$argK] ) ) {
 			if ( is_array( $args[$argK] ) ) {
 				$newData = $$argK;
-				if ( ! is_array( $newData )) {
+				if ( ! is_array( $newData ) ) {
 					$newData = array();
 				}
 				foreach ( $args[$argK] as $subK => $subV ) {
@@ -6728,7 +6546,6 @@ function zeroBSCRM_taxRates_addUpdateTaxRate( $args = array() ){
 		}
 	}
 	#} =========== / LOAD ARGS ============
-
 
 	#} ========== CHECK FIELDS ============
 
@@ -6808,7 +6625,6 @@ function zeroBSCRM_taxRates_addUpdateTaxRate( $args = array() ){
 		$dataTypes[] = '%d';
 	}
 
-
 	if ( isset( $id ) && ! empty( $id ) && $id > 0 ) {
 
 			#} Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
@@ -6885,7 +6701,7 @@ function zeroBSCRM_taxRates_addUpdateTaxRate( $args = array() ){
 	 *
 	 * @return int success;
 	 */
-function zeroBSCRM_taxRates_deleteTaxRate( $args = array() ){
+function zeroBSCRM_taxRates_deleteTaxRate( $args = array() ) {
 
 	global $ZBSCRM_t, $wpdb;
 
@@ -6900,7 +6716,7 @@ function zeroBSCRM_taxRates_deleteTaxRate( $args = array() ){
 		if ( is_array( $args ) && isset( $args[$argK] ) ) {
 			if ( is_array( $args[$argK] ) ) {
 				$newData = $$argK;
-				if ( ! is_array( $newData )) {
+				if ( ! is_array( $newData ) ) {
 					$newData = array();
 				}
 				foreach ( $args[$argK] as $subK => $subV ) {
@@ -6916,7 +6732,7 @@ function zeroBSCRM_taxRates_deleteTaxRate( $args = array() ){
 
 	#} Check ID & Delete :)
 	$id = (int)$id;
-	if ( ! empty( $id ) && $id > 0) {
+	if ( ! empty( $id ) && $id > 0 ) {
 		return zeroBSCRM_db2_deleteGeneric( $id, 'tax' );
 	}
 
@@ -6931,7 +6747,7 @@ function zeroBSCRM_taxRates_deleteTaxRate( $args = array() ){
 	 *
 	 * @return array (clean obj)
 	 */
-function zeroBSCRM_taxRates_tidy_taxRate( $obj = false ){
+function zeroBSCRM_taxRates_tidy_taxRate( $obj = false ) {
 
 	$res = false;
 
@@ -6953,19 +6769,16 @@ function zeroBSCRM_taxRates_tidy_taxRate( $obj = false ){
 
 		return $res;
 
-
 }
-
 
 // ======================= / Tax Table Helpers ===================================
 // ===============================================================================
-
 
 // ===============================================================================
 // =======================  File Upload Related Funcs ============================
 
 	// retrieve all files for a (customer)whatever
-function zeroBSCRM_files_getFiles( $fileType = '', $objID = -1 ){
+function zeroBSCRM_files_getFiles( $fileType = '', $objID = -1 ) {
 
 	global $zbs;
 
@@ -7006,14 +6819,13 @@ function zeroBSCRM_files_getFiles( $fileType = '', $objID = -1 ){
 }
 
 // updates files array for a (whatever)
-function zeroBSCRM_files_updateFiles( $fileType = '', $objID = -1, $filesArray = -1 ){
+function zeroBSCRM_files_updateFiles( $fileType = '', $objID = -1, $filesArray = -1 ) {
 
 	global $zbs;
 
 	$filesArrayKey = zeroBSCRM_files_key( $fileType );
 
 	if ( ! empty( $filesArrayKey ) && $objID > 0 ) {
-
 
 		// DAL2+
 		// bit gross hard-typed, could be genericified as all is using is >DAL()->getMeta
@@ -7043,7 +6855,6 @@ function zeroBSCRM_files_updateFiles( $fileType = '', $objID = -1, $filesArray =
 
 		}
 
-
 		return $filesArray;
 
 	}
@@ -7052,8 +6863,7 @@ function zeroBSCRM_files_updateFiles( $fileType = '', $objID = -1, $filesArray =
 }
 
 // gets meta key for file type arr
-function zeroBSCRM_files_key( $fileType = '' ){
-
+function zeroBSCRM_files_key( $fileType = '' ) {
 
 	switch ( $fileType ) {
 
@@ -7091,25 +6901,22 @@ function zeroBSCRM_files_key( $fileType = '' ){
 // ======================= / File Upload Related Funcs ===========================
 // ===============================================================================
 
-
-
 // ===============================================================================
 // ===========   TEMPHASH (remains same for DAL2->3) =============================
-
 
  /**
  * checks validity of a temporary hash object
  *
  * @return int success;
  */
-function zeroBSCRM_checkValidTempHash( $objid = -1, $type = '', $hash = '' ){
+function zeroBSCRM_checkValidTempHash( $objid = -1, $type = '', $hash = '' ) {
 
 	// get a valid hash
 	$hash = zeroBSCRM_getTempHash( -1, $type, $hash, 1 );
 
 	// check id
-	if (isset( $hash ) && is_array( $hash ) && isset( $hash['objid'] )) {
-		if ($objid == $hash['objid']) {
+	if ( isset( $hash ) && is_array( $hash ) && isset( $hash['objid'] ) ) {
+		if ( $objid == $hash['objid'] ) {
 			return true;
 		}
 	}
@@ -7123,7 +6930,7 @@ function zeroBSCRM_checkValidTempHash( $objid = -1, $type = '', $hash = '' ){
  *
  * @return int success;
  */
-function zeroBSCRM_getTempHash( $id = -1, $type = '', $hash = '', $status = -99 ){
+function zeroBSCRM_getTempHash( $id = -1, $type = '', $hash = '', $status = -99 ) {
 
 	$id = (int)$id;
 	if ( ! empty( $id ) && $id > 0 ) {
@@ -7142,7 +6949,6 @@ function zeroBSCRM_getTempHash( $id = -1, $type = '', $hash = '', $status = -99 
 			$additionalWHERE = 'AND zbstemphash_objtype = %s ';
 
 		} // else will be from ANY type
-
 
 		if ( $status != -99 ) {
 
@@ -7170,7 +6976,6 @@ function zeroBSCRM_getTempHash( $id = -1, $type = '', $hash = '', $status = -99 
 
 	return false;
 
-
 }
 
 /**
@@ -7178,7 +6983,7 @@ function zeroBSCRM_getTempHash( $id = -1, $type = '', $hash = '', $status = -99 
  *
  * @return int success;
  */
-function zeroBSCRM_addUpdateTempHash( $id = -1, $objstatus = -1, $objtype = '', $objid = -1, $objhash = '', $returnHashArr = false ){
+function zeroBSCRM_addUpdateTempHash( $id = -1, $objstatus = -1, $objtype = '', $objid = -1, $objhash = '', $returnHashArr = false ) {
 
 	// globals
 	global $ZBSCRM_t, $wpdb;
@@ -7221,7 +7026,7 @@ function zeroBSCRM_addUpdateTempHash( $id = -1, $objstatus = -1, $objtype = '', 
 		) !== false ) {
 
 					// if "return hash"
-			if ($returnHashArr) {
+			if ( $returnHashArr ) {
 				return array(
 					'id'   => $id,
 					'hash' => $objhash
@@ -7237,7 +7042,7 @@ function zeroBSCRM_addUpdateTempHash( $id = -1, $objstatus = -1, $objtype = '', 
 		// insert
 
 		// create hash if not created :)
-		if (empty( $objhash )) {
+		if ( empty( $objhash ) ) {
 			$objhash = zeroBSCRM_GenerateTempHash();
 		}
 
@@ -7275,7 +7080,7 @@ function zeroBSCRM_addUpdateTempHash( $id = -1, $objstatus = -1, $objtype = '', 
 				$newID = $wpdb->insert_id;
 
 				// if "return hash"
-			if ($returnHashArr) {
+			if ( $returnHashArr ) {
 				return array(
 					'id'   => $id,
 					'hash' => $objhash
@@ -7297,7 +7102,7 @@ function zeroBSCRM_addUpdateTempHash( $id = -1, $objstatus = -1, $objtype = '', 
  *
  * @return int success;
  */
-function zeroBSCRM_deleteTempHash( $args = array() ){
+function zeroBSCRM_deleteTempHash( $args = array() ) {
 
 	// Load Args
 	$defaultArgs = array(
@@ -7307,7 +7112,7 @@ function zeroBSCRM_deleteTempHash( $args = array() ){
 	);
 	foreach ( $defaultArgs as $argK => $argV ) {
 		$$argK = $argV;
-		if (is_array( $args ) && isset( $args[$argK] )) {
+		if ( is_array( $args ) && isset( $args[$argK] ) ) {
 			$$argK = $args[$argK];
 		}
 	}
@@ -7316,7 +7121,7 @@ function zeroBSCRM_deleteTempHash( $args = array() ){
 	global $ZBSCRM_t, $wpdb;
 
 	$id = (int)$id;
-	if ( ! empty( $id ) && $id > 0) {
+	if ( ! empty( $id ) && $id > 0 ) {
 		return zeroBSCRM_db2_deleteGeneric( $id, 'temphash' );
 	}
 
@@ -7324,7 +7129,7 @@ function zeroBSCRM_deleteTempHash( $args = array() ){
 
 }
 
-function zeroBS_tidy_temphash( $obj = false ){
+function zeroBS_tidy_temphash( $obj = false ) {
 
 	$res = false;
 
@@ -7344,7 +7149,7 @@ function zeroBS_tidy_temphash( $obj = false ){
 
 }
 // generates generic HASH (used for links etc.)
-function zeroBSCRM_GenerateTempHash( $str = -1, $length = 20 ){
+function zeroBSCRM_GenerateTempHash( $str = -1, $length = 20 ) {
 
 	#} Brutal hash generator, for now
 	if ( ! empty( $str ) ) {
@@ -7365,10 +7170,6 @@ function zeroBSCRM_GenerateTempHash( $str = -1, $length = 20 ){
 // =========== / TEMPHASH   ======================================================
 // ===============================================================================
 
-
-
-
-
 /* ======================================================
 	  General/WP helpers
    ====================================================== */
@@ -7379,7 +7180,6 @@ function zeroBSCRM_GenerateTempHash( $str = -1, $length = 20 ){
 function zeroBS_getAssigneeEmail( $cID = -1 ) {
 	return jpcrm_get_obj_owner_wordpress_email( $cID, ZBS_TYPE_CONTACT );
 }
-
 
 	// returns an obj owner's email as set against their WordPress account
 function jpcrm_get_obj_owner_wordpress_email( $objID, $objTypeID ) {
@@ -7398,21 +7198,20 @@ function jpcrm_get_obj_owner_wordpress_email( $objID, $objTypeID ) {
 
 }
 
-
 	// in effect this is: get owner (WP USER)'s mobile
 	// use zeroBS_getObjOwnerWPMobile in future... (renamed, bad naming)
-function zeroBS_getAssigneeMobile( $wpUID = -1 ){
+function zeroBS_getAssigneeMobile( $wpUID = -1 ) {
 	return zeroBS_getObjOwnerWPMobile( $wpUID );
 }
 
 	// returns owner of obj's mobile (from WP USER)
-function zeroBS_getObjOwnerWPMobile( $objID = -1, $objType = 'zerobs_customer' ){
+function zeroBS_getObjOwnerWPMobile( $objID = -1, $objType = 'zerobs_customer' ) {
 
 	if ( $objID > 0 ) {
 
 		$ownerID = zeroBS_getOwner( $objID, false, $objType );
 
-		if ($ownerID > 0) {
+		if ( $ownerID > 0 ) {
 			return zeroBS_getWPUsersMobile( $ownerID );
 		}
 
@@ -7423,7 +7222,7 @@ function zeroBS_getObjOwnerWPMobile( $objID = -1, $objType = 'zerobs_customer' )
 }
 
 	// returns an obj owner's mobile number as per their wp account
-function zeroBS_getWPUsersMobile( $uID = -1 ){
+function zeroBS_getWPUsersMobile( $uID = -1 ) {
 	if ( $uID !== -1 ) {
 		if ( ! empty( $uID ) ) {
 			$mobile_number = get_user_meta( 'mobile_number', $uID );
@@ -7437,7 +7236,7 @@ function zeroBS_getWPUsersMobile( $uID = -1 ){
 	/*
 	* Gets formatted display name for user (tries to retrieve fname lname)
 	*/
-function jpcrm_wp_user_name( $wordpress_user_id = -1 ){
+function jpcrm_wp_user_name( $wordpress_user_id = -1 ) {
 
 	$user_info = get_userdata( $wordpress_user_id );
 	if ( ! $user_info ) {
@@ -7478,12 +7277,11 @@ function jpcrm_wp_user_name( $wordpress_user_id = -1 ){
 	/// ======= Statuses wrappers - bit antiquated  now...
 
 		// outdated wrapper
-function zeroBS_getTransactionsStatuses(){
+function zeroBS_getTransactionsStatuses() {
 	return zeroBSCRM_getTransactionsStatuses();
 }
 
-
-function zeroBSCRM_getCustomerStatuses( $asArray = false ){
+function zeroBSCRM_getCustomerStatuses( $asArray = false ) {
 
 	global $zbs;
 
@@ -7492,13 +7290,13 @@ function zeroBSCRM_getCustomerStatuses( $asArray = false ){
 	$zbsStatusStr = '';
 
 	#} stored here: $settings['customisedfields']
-	if (is_array( $setting ) && isset( $setting['customers']['status'] ) && is_array( $setting['customers']['status'] )) {
+	if ( is_array( $setting ) && isset( $setting['customers']['status'] ) && is_array( $setting['customers']['status'] ) ) {
 		$zbsStatusStr = $setting['customers']['status'][1];
 	}
 	if ( empty( $zbsStatusStr ) ) {
 		#} Defaults:
 		global $zbsCustomerFields;
-		if (is_array( $zbsCustomerFields )) {
+		if ( is_array( $zbsCustomerFields ) ) {
 			$zbsStatusStr = implode( ',', $zbsCustomerFields['status'][3] );
 		}
 	}
@@ -7511,7 +7309,7 @@ function zeroBSCRM_getCustomerStatuses( $asArray = false ){
 			$ret = array();
 			foreach ( $arr as $x ) {
 				$z = trim( $x );
-				if ( ! empty( $z )) {
+				if ( ! empty( $z ) ) {
 					$ret[] = $z;
 				}
 			}
@@ -7572,8 +7370,7 @@ function zeroBSCRM_getInvoicesStatuses() {
 	);
 }
 
-
-function zeroBSCRM_getCompanyStatusesCSV(){
+function zeroBSCRM_getCompanyStatusesCSV() {
 
 	global $zbs;
 
@@ -7582,13 +7379,13 @@ function zeroBSCRM_getCompanyStatusesCSV(){
 	$zbsStatusStr = '';
 
 	#} stored here: $settings['customisedfields']
-	if (is_array( $setting ) && isset( $setting['companies']['status'] ) && is_array( $setting['companies']['status'] )) {
+	if ( is_array( $setting ) && isset( $setting['companies']['status'] ) && is_array( $setting['companies']['status'] ) ) {
 		$zbsStatusStr = $setting['companies']['status'][1];
 	}
 	if ( empty( $zbsStatusStr ) ) {
 		#} Defaults:
 		global $zbsCompanyFields;
-		if (is_array( $zbsCompanyFields )) {
+		if ( is_array( $zbsCompanyFields ) ) {
 			$zbsStatusStr = implode( ',', $zbsCompanyFields['status'][3] );
 		}
 	}
@@ -7613,7 +7410,7 @@ function zeroBSCRM_getCompanyStatuses() {
 
 	// DELETES ALL rows from any table, based on ID
 	// no limits! be careful.
-function zeroBSCRM_db2_deleteGeneric( $id = -1, $tableKey = '' ){
+function zeroBSCRM_db2_deleteGeneric( $id = -1, $tableKey = '' ) {
 
 	// req
 	global $ZBSCRM_t, $wpdb;
@@ -7638,32 +7435,32 @@ function zeroBSCRM_db2_deleteGeneric( $id = -1, $tableKey = '' ){
 }
 
 	// this has a js equivilent in global.js: zeroBSCRMJS_telURLFromNo
-function zeroBSCRM_clickToCallPrefix(){
+function zeroBSCRM_clickToCallPrefix() {
 
 	$click2CallType = zeroBSCRM_getSetting( 'clicktocalltype' );
 
-	if ($click2CallType == 1) {
+	if ( $click2CallType == 1 ) {
 		return 'tel:';
 	}
-	if ($click2CallType == 2) {
+	if ( $click2CallType == 2 ) {
 		return 'callto:';
 	}
 
 }
 
-function zeroBS_getCurrentUserUsername(){
+function zeroBS_getCurrentUserUsername() {
 
 	// https://codex.wordpress.org/Function_Reference/wp_get_current_user
 
 	$current_user = wp_get_current_user();
-	if ( ! ($current_user instanceof WP_User) ) {
+	if ( ! ( $current_user instanceof WP_User) ) {
 		return;
 	}
 	return $current_user->user_login;
 }
 
 	#} ZBS users page - returns list of WP user IDs, which have a ZBS role and includes name / email, etc
-function zeroBSCRM_crm_users_list(){
+function zeroBSCRM_crm_users_list() {
 	  //from Permissions
 	  /*
 	  remove_role('zerobs_admin');
@@ -7689,10 +7486,9 @@ function zeroBSCRM_crm_users_list(){
 
 }
 
-
 	// returns a system setting for ignore ownership
 	// ... ownership ignored, unless the setting is on + not admin
-function zeroBSCRM_DAL2_ignoreOwnership( $objType = 1 ){
+function zeroBSCRM_DAL2_ignoreOwnership( $objType = 1 ) {
 
 	global $zbs;
 
@@ -7704,7 +7500,7 @@ function zeroBSCRM_DAL2_ignoreOwnership( $objType = 1 ){
 
 }
 
-function zeroBSCRM_DEPRECATEDMSG( $msg = '' ){
+function zeroBSCRM_DEPRECATEDMSG( $msg = '' ) {
 
 	echo '<div class="zbs info msg">' . $msg . '</div>';
 	error_log( strip_tags( $msg ) );
@@ -7735,7 +7531,7 @@ function jpcrm_upconvert_obj_type( $obj_type = -1 ) {
 	/**
 	 * Backward compat - `zbsLink` got renamed to `jpcrm_esc_link` in 5.5
 	 **/
-function zbsLink( $key = '', $id = -1, $type = 'zerobs_customer', $prefixOnly = false, $taxonomy = false ){
+function zbsLink( $key = '', $id = -1, $type = 'zerobs_customer', $prefixOnly = false, $taxonomy = false ) {
 
 	return jpcrm_esc_link( $key, $id, $type, $prefixOnly, $taxonomy );
 
@@ -7753,7 +7549,7 @@ function zbsLink( $key = '', $id = -1, $type = 'zerobs_customer', $prefixOnly = 
 	 * - accepts new (contact,ZBS_TYPE_CONTACT) or old (zerobs_customer) references (but use NEW going forward)
 	 * - previously called `zbsLink`
 	 **/
-function jpcrm_esc_link( $key = '', $id = -1, $type = 'zerobs_customer', $prefixOnly = false, $taxonomy = false ){
+function jpcrm_esc_link( $key = '', $id = -1, $type = 'zerobs_customer', $prefixOnly = false, $taxonomy = false ) {
 
 	global $zbs;
 
@@ -7924,7 +7720,6 @@ function jpcrm_esc_link( $key = '', $id = -1, $type = 'zerobs_customer', $prefix
 
 	}
 
-
 	// if $key isn't in switch, assume it's a slug :)
 	return esc_url_raw( admin_url( 'admin.php?page=' . $key ) );
 
@@ -7950,7 +7745,7 @@ function zeroBSCRM_installDefaultContent() {
 
 		#} Web Design: Example
 		$templatedHTML = file_get_contents( ZEROBSCRM_PATH . 'html/quotes/quote-template-web-design.html' );
-		if ( ! empty( $templatedHTML )) {
+		if ( ! empty( $templatedHTML ) ) {
 			$quoteBuilderDefaultTemplates['webdesignexample'] = array(
 				'title' => __( 'Web Design: Example', 'zero-bs-crm' ),
 				'html'  => $templatedHTML,
@@ -7958,9 +7753,8 @@ function zeroBSCRM_installDefaultContent() {
 			);
 		}
 
-
 		#} Install..
-		if (count( $quoteBuilderDefaultTemplates ) > 0) {
+		if ( count( $quoteBuilderDefaultTemplates ) > 0 ) {
 			foreach ( $quoteBuilderDefaultTemplates as $template ) {
 
 				// Insert via DAL3
@@ -7979,14 +7773,13 @@ function zeroBSCRM_installDefaultContent() {
 							'created'     => time(),
 							'lastupdated' => time(),
 
-
 						),
 
 						'extraMeta' => array('zbsdefault' => 1)
 					)
 				);
 
-				if ($newTemplateID > 0) {
+				if ( $newTemplateID > 0 ) {
 					$installedQuoteTemplates[] = $newTemplateID;
 				}
 
@@ -7997,8 +7790,6 @@ function zeroBSCRM_installDefaultContent() {
 		$zbs->settings->update( 'quotes_default_templates', $installedQuoteTemplates );
 
 	}
-
-
 
 }
 

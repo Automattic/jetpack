@@ -735,7 +735,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 						)
 
-
 				*/
 				$extraSelect .= ',(SELECT SUM(assignedtranstotal.zbst_total) FROM ' . $ZBSCRM_t['transactions'] . ' assignedtranstotal WHERE assignedtranstotal.ID IN ';
 				$extraSelect .= '(SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objid_to IN ';
@@ -1420,7 +1419,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 					)
 
-
 			*/
 			$extraSelect .= ',(SELECT SUM(assignedtranstotal.zbst_total) FROM ' . $ZBSCRM_t['transactions'] . ' assignedtranstotal WHERE assignedtranstotal.ID IN ';
 			$extraSelect .= '(SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objid_to IN ';
@@ -1909,18 +1907,18 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 		// This catches listview and other specific sort cases
 		// Note: Prefix here is a legacy leftover from the fact the AJAX List view retrieve goes through zeroBS_getCustomers() which prefixes zbsc_
 		$sort_map = array(
-			'zbsc_id'                           => 'ID',
-			'zbsc_owner'                        => 'zbs_owner',
-			'zbsc_zbs_owner'                    => 'zbs_owner',
+			'zbsc_id'                       => 'ID',
+			'zbsc_owner'                    => 'zbs_owner',
+			'zbsc_zbs_owner'                => 'zbs_owner',
 
 			// company (name)
-			'zbsc_company'                      => '(SELECT zbsco_name FROM ' . $ZBSCRM_t['companies'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_from = contact.ID) ORDER BY zbsco_name ' . $sortOrder . ' LIMIT 0,1)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'zbsc_company'                  => '(SELECT zbsco_name FROM ' . $ZBSCRM_t['companies'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_from = contact.ID) ORDER BY zbsco_name ' . $sortOrder . ' LIMIT 0,1)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// sort by subquery: Logs
 			// sort by latest log is effectively 'sort by last log added'
-			'zbsc_latestlog'                    => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ')', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'zbsc_latestlog'                => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ')', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			// sort by latest contact log is effectively 'sort by last contact log added' (requires $withLastLog = true)
-			'zbsc_lastcontacted'                => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ' AND zbsl_type IN (' . $contact_log_types_str . '))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'zbsc_lastcontacted'            => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ' AND zbsl_type IN (' . $contact_log_types_str . '))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// has & counts (same queries)
 			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -2559,10 +2557,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 			/*
 			NOT REQ: // Needs this to grab custom addr fields (if passed) too :)
-			if (is_array($addrCustomFields)) foreach ($addrCustomFields as $cK => $cF){
+			if ( is_array( $addrCustomFields)) foreach ( $addrCustomFields as $cK => $cF){
 
 				// only for data, limited fields below
-				if (is_array($data)) {
+				if ( is_array( $data) ) {
 
 					//if (isset($args['data'][$cK])) $data[$cK] = $args['data'][$cK];
 
@@ -2701,9 +2699,9 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 				there was a bug happening here where same company could get dude at a few times...
 				so for now only use the first company */
 				/*
-				foreach ($data['companies'] as $c){
+				foreach ( $data['companies'] as $c){
 					$cI = (int)$c;
-					if ($cI > 0 && !in_array($cI, $coArr)) $coArr[] = $cI;
+					if ( $cI > 0 && !in_array( $cI, $coArr)) $coArr[] = $cI;
 				}*/
 
 				$cI = (int) $data['companies'][0];
@@ -3333,7 +3331,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 				// OBJ LINKS - to companies (1liner now as genericified)
 				$this->addUpdateObjectLinks( $newID, $data['companies'], ZBS_TYPE_COMPANY );
 				/*
-				if (isset($data['companies']) && is_array($data['companies']) && count($data['companies']) > 0)
+				if ( isset( $data['companies']) && is_array( $data['companies']) && count( $data['companies']) > 0)
 					$this->DAL()->addUpdateObjLinks(array(
 													'objtypefrom'       => ZBS_TYPE_CONTACT,
 													'objtypeto'         => ZBS_TYPE_COMPANY,
@@ -3465,7 +3463,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 						}
 						// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-
 
 					}
 				}
@@ -4052,13 +4049,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 		global $zbs;
 
 		/*
-		if (is_array($obj)){
+		if ( is_array( $obj)){
 
 			$removeNonDBFields = array('meta','fullname','name');
 
-			foreach ($removeNonDBFields as $fKey){
+			foreach ( $removeNonDBFields as $fKey){
 
-				if (isset($obj[$fKey])) unset($obj[$fKey]);
+				if ( isset( $obj[$fKey])) unset( $obj[$fKey]);
 
 			}
 

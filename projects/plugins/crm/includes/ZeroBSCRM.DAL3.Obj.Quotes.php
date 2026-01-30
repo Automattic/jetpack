@@ -10,13 +10,15 @@
  * Date: 14/01/19
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
+/*
+======================================================
+	Breaking Checks ( stops direct access )
+	====================================================== */
 	defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+/*
+======================================================
+	/ Breaking Checks
+	====================================================== */
 
 /**
  * ZBS DAL >> Quotes
@@ -833,8 +835,8 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 		if ( ! empty( $hasNotAccepted ) && $hasNotAccepted ) $wheres['hasnotAccepted'] = array( 'zbsq_accepted', '<=', '%d', 0 );
 
 		// assignedContact + assignedCompany
-		if ( ! empty( $assignedContact ) && $assignedContact > 0 ) $wheres['assignedContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
-		if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) $wheres['assignedCompany'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
+		if ( ! empty( $assignedContact ) && $assignedContact > 0 ) $wheres['assignedContact'] = array( 'ID', 'IN', '( SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
+		if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) $wheres['assignedCompany'] = array( 'ID', 'IN', '( SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
 		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
 		#} Quick filters - adapted from DAL1 (probs can be slicker)
@@ -1070,20 +1072,20 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 					$resArr['contact'] = $this->DAL()->contacts->getContacts(
 						array(
 							'hasObjTypeLinkedTo' => ZBS_TYPE_QUOTE,
-							'hasObjIDLinkedTo' => $resDataLine->ID,
-							'page'             => 0,
-							'perPage'          => 1, // FORCES 1
-							'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
+							'hasObjIDLinkedTo'   => $resDataLine->ID,
+							'page'               => 0,
+							'perPage'            => 1, // FORCES 1
+							'ignoreowner'        => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
 						)
 					);
 
 					$resArr['company'] = $this->DAL()->companies->getCompanies(
 						array(
 							'hasObjTypeLinkedTo' => ZBS_TYPE_QUOTE,
-							'hasObjIDLinkedTo' => $resDataLine->ID,
-							'page'             => 0,
-							'perPage'          => 1, // FORCES 1
-							'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
+							'hasObjIDLinkedTo'   => $resDataLine->ID,
+							'page'               => 0,
+							'perPage'            => 1, // FORCES 1
+							'ignoreowner'        => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
 						)
 					);
 
@@ -1595,7 +1597,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 				$originalStatus = $this->getQuoteStatus($id);
 
 				// log any change of status
-				if (isset($dataArr['zbsq_status']) && !empty($dataArr['zbsq_status']) && !empty($originalStatus) && $dataArr['zbsq_status'] != $originalStatus){
+				if ( isset( $dataArr['zbsq_status']) && !empty( $dataArr['zbsq_status']) && !empty( $originalStatus) && $dataArr['zbsq_status'] != $originalStatus){
 
 					// status change
 					$statusChange = array(

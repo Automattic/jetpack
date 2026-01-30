@@ -11,9 +11,6 @@
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-
-
-
 /* ======================================================
   Integration specific extension functions (#MIKELOOK)
    ====================================================== */
@@ -44,7 +41,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 	| Check via: if ($customerobj !== false)
 	|=======================================
 */
-function zeroBS_integrations_getCustomer( $externalSource = '', $externalID = '' ){
+function zeroBS_integrations_getCustomer( $externalSource = '', $externalID = '' ) {
 
 	#} Do query for ID
 	$potentialCustomerID = zeroBS_getCustomerIDWithExternalSource( $externalSource, $externalID );
@@ -217,7 +214,7 @@ function zeroBS_integrations_getCustomer( $externalSource = '', $externalID = ''
 	|   False (boolean) (customer create/update failed)
 	|=======================================
 */
-function zeroBS_integrations_addOrUpdateCustomer( $externalSource = '', $externalID = '', $customerFields = array(), $customerDate = '', $fallbackLog = 'auto', $extraMeta = false, $automatorPassthroughArray = false, $emailAlreadyExistsAction = 'update', $fieldPrefix = 'zbsc_' ){
+function zeroBS_integrations_addOrUpdateCustomer( $externalSource = '', $externalID = '', $customerFields = array(), $customerDate = '', $fallbackLog = 'auto', $extraMeta = false, $automatorPassthroughArray = false, $emailAlreadyExistsAction = 'update', $fieldPrefix = 'zbsc_' ) {
 
 	#} leave this true and it'll run as normal.
 	$usualUpdate = true;
@@ -242,7 +239,6 @@ function zeroBS_integrations_addOrUpdateCustomer( $externalSource = '', $externa
 
 						#} Just add the external source
 
-
 						break; */
 					case 'update':
 
@@ -255,7 +251,6 @@ function zeroBS_integrations_addOrUpdateCustomer( $externalSource = '', $externa
 						#} don't do nothin :)
 						$usualUpdate = false;
 
-
 						break;
 					case 'notifyexit':
 
@@ -265,8 +260,6 @@ function zeroBS_integrations_addOrUpdateCustomer( $externalSource = '', $externa
 
 						break;
 
-
-
 				}
 			}
 		}
@@ -275,7 +268,6 @@ function zeroBS_integrations_addOrUpdateCustomer( $externalSource = '', $externa
 		#} NO existing user! Proceed as before!
 		#} =========================================================================================
 		if ( $usualUpdate ) {
-
 
 			// if ID specifically passed, use that :)
 			if ( isset( $customerFields['id'] ) && ! empty( $customerFields['id'] ) && $customerFields['id'] > 0 ) {
@@ -331,7 +323,6 @@ function zeroBS_integrations_addOrUpdateCustomer( $externalSource = '', $externa
 			#} MS - 3rd Jan 2019 - this (eventually) just calls the usual _addUpdateCustomer function
 			$customerID = zeroBS_addUpdateCustomer( $potentialCustomerID, $customerFields, $externalSource, $externalID, $customerDate, $fallbackLogToPass, $extraMeta, $automatorPassthrough, -1, $fieldPrefix );
 			return $customerID;
-
 
 	} #} / usual update
 
@@ -524,7 +515,6 @@ function zeroBS_integrations_addOrUpdateCompany(
 			$potentialCoName = $companyFields[$fieldPrefix . 'name'];
 		}
 
-
 		if ( $potentialCoName !== '' ) {
 
 			#} First check for name in company list
@@ -541,7 +531,6 @@ function zeroBS_integrations_addOrUpdateCompany(
 
 						#} Just add the external source
 
-
 						break; */
 					case 'update':
 
@@ -554,7 +543,6 @@ function zeroBS_integrations_addOrUpdateCompany(
 						#} don't do nothin :)
 						$usualUpdate = false;
 
-
 						break;
 					case 'notifyexit':
 
@@ -563,8 +551,6 @@ function zeroBS_integrations_addOrUpdateCompany(
 						exit( 0 );
 
 						break;
-
-
 
 				}
 			}
@@ -621,16 +607,13 @@ function zeroBS_integrations_addOrUpdateCompany(
 
 			return $companyID;
 
-
 	} #} / usual update
 
 	} else {
 		return false;
 	}
 
-
 }
-
 
 /*
 	|=======================================
@@ -652,7 +635,7 @@ function zeroBS_integrations_addOrUpdateCompany(
 	| Check via: if ($coobj !== false)
 	|=======================================
 */
-function zeroBS_integrations_getCompany( $externalSource = '', $externalID = '' ){
+function zeroBS_integrations_getCompany( $externalSource = '', $externalID = '' ) {
 
 	#} Do query for ID
 	$potentialCompanyID = zeroBS_getCompanyIDWithExternalSource( $externalSource, $externalID );
@@ -668,14 +651,6 @@ function zeroBS_integrations_getCompany( $externalSource = '', $externalID = '' 
 	return false;
 
 }
-
-
-
-
-
-
-
-
 
 /*
 	|=======================================
@@ -703,7 +678,6 @@ function zeroBS_integrations_getCompany( $externalSource = '', $externalID = '' 
 				'fee' => 0,
 				'discount' => 0,
 				'tax_rate' => 0,
-
 
 			), array(
 				TAGS:
@@ -897,7 +871,6 @@ function zeroBS_integrations_addOrUpdateTask(
 	}
 }
 
-
 /*
 	|=======================================
 	|   zeroBS_integrations_getTransaction
@@ -918,7 +891,7 @@ function zeroBS_integrations_addOrUpdateTask(
 	| Check via: if ($transobj !== false)
 	|=======================================
 */
-function zeroBS_integrations_getTransaction( $transactionExternalSource = '', $transactionExternalID = '' ){
+function zeroBS_integrations_getTransaction( $transactionExternalSource = '', $transactionExternalID = '' ) {
 
 	#} Do query for ID
 	$potentialTransactionID = zeroBS_getTransactionIDWithExternalSource( $transactionExternalSource, $transactionExternalID );
@@ -934,13 +907,6 @@ function zeroBS_integrations_getTransaction( $transactionExternalSource = '', $t
 	return false;
 
 }
-
-
-
-
-
-
-
 
 /*
 	For now a wrapper, later will allow us to seemlessly feed in customer generated cats
@@ -965,7 +931,6 @@ function zeroBS_integrations_getAllCategories( $incEmpty = false ) {
 		) );
 
 }
-
 
 #} For now just a wrapper
 function zeroBS_integrations_searchCustomers( $args = array() ) {
@@ -1017,12 +982,11 @@ function zeroBS_integrations_addLog(
 
 	return false;
 
-
 }
 
 // WH added, backward compat:
 // only works DAL2 +
-function zeroBS_integrations_getCustomFields( $objTypeID = -1 ){
+function zeroBS_integrations_getCustomFields( $objTypeID = -1 ) {
 
 	$objTypeID = (int)$objTypeID;
 
