@@ -2696,7 +2696,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$expected_attributes['notificationRecipients'] = array();
 		$expected_attributes['webhooks']               = array();
 		$expected_attributes['disableSummary']         = '';
-		$expected_attributes['confirmationType']       = '';
+		$expected_attributes['confirmationType']       = 'text';
 		$expected_attributes['hostingerReach']         = '';
 		$expected_attributes['ref']                    = '';
 		$expected_attributes['formTitle']              = 'Test Form';
