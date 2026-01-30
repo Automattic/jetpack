@@ -2495,6 +2495,9 @@ importers:
       '@babel/runtime':
         specifier: 7.28.4
         version: 7.28.4
+      '@svgr/webpack':
+        specifier: 8.1.0
+        version: 8.1.0(typescript@5.9.3)
       '@tanstack/react-router':
         specifier: ^1.139.12
         version: 1.157.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
