@@ -28,7 +28,7 @@ export const ForecastDivider: FC< ForecastDividerProps > = ( {
 } ) => {
 	const context = useContext( DataContext );
 
-	if ( ! context?.xScale || ! context?.yScale ) {
+	if ( ! context?.xScale ) {
 		return null;
 	}
 

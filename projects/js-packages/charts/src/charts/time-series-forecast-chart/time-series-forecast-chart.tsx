@@ -224,6 +224,8 @@ function TimeSeriesForecastChartInternal< D >( {
 				const nearestDatum = params.tooltipData?.nearestDatum?.datum;
 				if ( ! nearestDatum ) return null;
 
+				// originalIndex refers to the position in the original data array (before sorting),
+				// so this correctly retrieves the user's original datum for custom tooltip rendering
 				const originalDatum = data[ nearestDatum.originalIndex ];
 				const isForecast = nearestDatum.date.getTime() >= forecastStart.getTime();
 
@@ -248,10 +250,8 @@ function TimeSeriesForecastChartInternal< D >( {
 		return formatNumberCompact as TickFormatter< number >;
 	}, [ yTickFormat ] );
 
-	// X-axis tick formatter wrapper
-	const xAxisTickFormat = useMemo( () => {
-		return ( d: Date ) => xTickFormat( d );
-	}, [ xTickFormat ] );
+	// X-axis tick formatter - use directly without wrapper
+	const xAxisTickFormat = xTickFormat;
 
 	// Handle empty data
 	if ( data.length === 0 ) {

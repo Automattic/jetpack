@@ -18,11 +18,17 @@ export type TimeSeriesForecastAccessors< D > = {
 	 */
 	y: Accessor< D, number >;
 	/**
-	 * Optional accessor function to extract the lower bound of the forecast uncertainty
+	 * Optional accessor function to extract the lower bound of the forecast uncertainty.
+	 * The uncertainty band is only rendered for points where BOTH yLower and yUpper return
+	 * valid numbers. If bounds are not provided, the forecast line will still be shown
+	 * without an uncertainty band.
 	 */
 	yLower?: Accessor< D, number | null | undefined >;
 	/**
-	 * Optional accessor function to extract the upper bound of the forecast uncertainty
+	 * Optional accessor function to extract the upper bound of the forecast uncertainty.
+	 * The uncertainty band is only rendered for points where BOTH yLower and yUpper return
+	 * valid numbers. If bounds are not provided, the forecast line will still be shown
+	 * without an uncertainty band.
 	 */
 	yUpper?: Accessor< D, number | null | undefined >;
 };

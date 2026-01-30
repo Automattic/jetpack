@@ -32,13 +32,13 @@
 		align-items: center;
 		gap: 8px;
 		font-weight: 700;
-		padding-bottom: 8px;
+		padding-block-end: 8px;
 	}
 
 	&__tooltip-row {
 		display: flex;
 		justify-content: space-between;
-		padding: 4px 0;
+		padding-block: 4px;
 		gap: 16px;
 	}
 
@@ -51,7 +51,7 @@
 	}
 
 	&__legend {
-		padding-top: 8px;
+		padding-block-start: 8px;
 	}
 }
 

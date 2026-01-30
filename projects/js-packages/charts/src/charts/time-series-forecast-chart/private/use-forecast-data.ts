@@ -88,19 +88,20 @@ export function useForecastData< D >( {
 		const allLowers = transformed.map( p => p.lower ).filter( ( v ): v is number => v !== null );
 		const allUppers = transformed.map( p => p.upper ).filter( ( v ): v is number => v !== null );
 
+		// Use reduce instead of spread to avoid stack overflow on large arrays
 		const allYValues = [ ...allValues, ...allLowers, ...allUppers ];
-		const minY = Math.min( ...allYValues );
-		const maxY = Math.max( ...allYValues );
+		const minY = allYValues.reduce( ( min, val ) => Math.min( min, val ), Infinity );
+		const maxY = allYValues.reduce( ( max, val ) => Math.max( max, val ), -Infinity );
 
 		// Add some padding to y domain
 		const yPadding = ( maxY - minY ) * 0.1;
 		const yDomain: [ number, number ] = [ Math.max( 0, minY - yPadding ), maxY + yPadding ];
 
-		// 6. Compute x domain
-		const allDates = transformed.map( p => p.date );
+		// 6. Compute x domain (use reduce to avoid stack overflow on large arrays)
+		const allDateTimes = transformed.map( p => p.date.getTime() );
 		const xDomain: [ Date, Date ] = [
-			new Date( Math.min( ...allDates.map( d => d.getTime() ) ) ),
-			new Date( Math.max( ...allDates.map( d => d.getTime() ) ) ),
+			new Date( allDateTimes.reduce( ( min, val ) => Math.min( min, val ), Infinity ) ),
+			new Date( allDateTimes.reduce( ( max, val ) => Math.max( max, val ), -Infinity ) ),
 		];
 
 		return { historical, forecast, bandData, yDomain, xDomain };
