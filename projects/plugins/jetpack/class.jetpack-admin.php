@@ -105,6 +105,10 @@ class Jetpack_Admin {
 
 		// Register Jetpack partner coupon hooks.
 		Jetpack_Partner_Coupon::register_coupon_admin_hooks( 'jetpack', Jetpack::admin_url() );
+
+		// Remove default WordPress admin footer.
+		add_filter( 'admin_footer_text', '__return_empty_string' );
+		add_filter( 'update_footer', '__return_empty_string', 11 );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin: Remove default WordPress footer in wp-admin pages.
