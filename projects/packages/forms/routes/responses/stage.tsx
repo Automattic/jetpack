@@ -134,7 +134,7 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
  * @param url - The URL string.
  * @return The pathname from the URL, or null if the URL is invalid.
  */
-function getPath( url: string ): string | null {
+function getUrlPath( url: string ): string | null {
 	try {
 		const parsedUrl = new URL( url );
 		return parsedUrl.pathname;
