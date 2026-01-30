@@ -2,10 +2,13 @@ import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useMemo } from 'react';
+import { hasSocialPaidFeatures } from '../../../utils';
 import { ScreenDetails } from '../types';
 import { Content } from './content';
 import { FooterContent } from './footer-content';
+import styles from './styles.module.scss';
 import { useFooterActions } from './use-footer-actions';
 
 /**
@@ -38,6 +41,7 @@ export function useModalScreen(): ScreenDetails {
 			content: <Content />,
 			footerContent: <FooterContent />,
 			footerActions,
+			className: clsx( { [ styles[ 'social-post-preview-screen' ] ]: hasSocialPaidFeatures() } ),
 		} ),
 		[ isPostPublished, isPrePublishScreen, footerActions ]
 	);
