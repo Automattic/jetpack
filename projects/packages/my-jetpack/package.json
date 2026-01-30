@@ -51,7 +51,7 @@
 		"@wordpress/components": "32.1.0",
 		"@wordpress/compose": "7.39.0",
 		"@wordpress/data": "10.39.0",
-		"@wordpress/dataviews": "11.2.0",
+		"@wordpress/dataviews": "11.3.0",
 		"@wordpress/date": "5.39.0",
 		"@wordpress/element": "6.39.0",
 		"@wordpress/i18n": "6.12.0",
