@@ -367,6 +367,33 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
 			array_diff_key( array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) ), array( 'post_parent' => '' ) )
 		);
+
+		$source_query = new WP_Query(
+			array(
+				'post__in'       => $source_ids,
+				'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private', 'inherit', 'trash' ),
+				'post_type'      => 'any',
+				'orderby'        => 'post_title',
+				'order'          => 'ASC',
+				'posts_per_page' => -1,
+			)
+		);
+
+		$sourse_array = array_map(
+			static function ( $post ) {
+				$permalink = get_permalink( $post->ID );
+				if ( $permalink === false ) {
+					$permalink = '';
+				}
+				return array(
+					'id'    => $post->ID,
+					'title' => get_the_title( $post->ID ),
+					'url'   => $permalink,
+				);
+			},
+			$source_query->posts
+		);
+
 		return rest_ensure_response(
 			array(
 				'date'   => array_map(
@@ -378,28 +405,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					},
 					$months
 				),
-				'source' => array_map(
-					static function ( $post_id ) {
-						if ( ! get_post_status( $post_id ) ) {
-							return array(
-								'id'    => $post_id,
-								// translators: %d is the post ID.
-								'title' => sprintf( __( '(Deleted #%d)', 'jetpack-forms' ), $post_id ),
-								'url'   => '',
-							);
-						}
-						$permalink = get_permalink( $post_id );
-						if ( $permalink === false ) {
-							$permalink  = '';
-						}
-						return array(
-							'id'    => $post_id,
-							'title' => get_the_title( $post_id ),
-							'url'   => $permalink,
-						);
-					},
-					$source_ids
-				),
+				'source' => $sourse_array,
 			)
 		);
 	}
