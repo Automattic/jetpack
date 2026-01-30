@@ -459,6 +459,8 @@ const getFeatures = {
 				return features;
 			} catch ( error ) {
 				console.error( error ); // eslint-disable-line no-console
+			} finally {
+				dispatch.setIsFetchingFeatures( false );
 			}
 		},
 };

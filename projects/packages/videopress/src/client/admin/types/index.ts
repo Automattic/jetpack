@@ -249,11 +249,13 @@ export type VideopressSelectors = {
 	getFirstVideoProcessed: () => boolean;
 	getDismissedFirstVideoPopover: () => boolean;
 	getIsFetching: () => boolean;
-	getFeatures: () => {
-		isVideoPressSupported: boolean;
-		isVideoPress1TBSupported: boolean;
-		isVideoPressUnlimitedSupported: boolean;
-	};
+	getFeatures: () =>
+		| {
+				isVideoPressSupported: boolean;
+				isVideoPress1TBSupported: boolean;
+				isVideoPressUnlimitedSupported: boolean;
+		  }
+		| undefined;
 
 	getPlaybackToken: ( guid: string ) => { guid: string; token: string };
 	isFetchingPlaybackToken: () => boolean;
