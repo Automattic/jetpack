@@ -111,16 +111,11 @@ class Settings {
 		$host             = new Host();
 		$is_module_active = $this->is_subscriptions_active();
 
-		// Determine parent slug and menu registration method.
-		// - wpcom Atomic: Show in Jetpack menu if active, hidden page if inactive.
-		// - Standalone Jetpack: Show in Jetpack menu if active, hidden page if inactive.
-		if ( $host->is_woa_site() ) {
-			$parent_slug      = $is_module_active ? 'jetpack' : '';
-			$use_jetpack_menu = false; // Use add_submenu_page for Atomic sites.
-		} else {
-			$parent_slug      = $is_module_active ? 'jetpack' : '';
-			$use_jetpack_menu = $is_module_active;
-		}
+		// Show in Jetpack menu if module active, hidden page if inactive.
+		$parent_slug = $is_module_active ? 'jetpack' : '';
+
+		// On Atomic, use add_submenu_page. On standalone Jetpack, use Admin_Menu when active.
+		$use_jetpack_menu = ! $host->is_woa_site() && $is_module_active;
 
 		// Register menu item.
 		if ( $use_jetpack_menu ) {
