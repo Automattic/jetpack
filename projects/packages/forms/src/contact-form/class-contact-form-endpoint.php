@@ -385,9 +385,14 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				if ( $permalink === false ) {
 					$permalink = '';
 				}
+				$status = get_post_status( $post );
+				$title  = get_the_title( $post->ID );
+				if ( 'trash' === $status ) {
+					$title = sprintf( /* translators: %s: post title */ __( '(trashed) %s', 'jetpack-forms' ), $title );
+				}
 				return array(
 					'id'    => $post->ID,
-					'title' => get_the_title( $post->ID ),
+					'title' => $title,
 					'url'   => $permalink,
 				);
 			},
