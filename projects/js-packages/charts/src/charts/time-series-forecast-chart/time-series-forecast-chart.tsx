@@ -4,7 +4,7 @@ import { XYChart, AreaSeries, Grid, Axis, Tooltip } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useMemo, useCallback } from 'react';
-import { Legend, useChartLegendItems } from '../../components/legend';
+import { Legend } from '../../components/legend';
 import { useXYChartTheme, useElementHeight, usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -55,7 +55,7 @@ const formatDateTick = ( d: Date ) => {
  * @param root0.yDomain        - Optional fixed y-axis domain
  * @param root0.xTickFormat    - Formatter function for x-axis ticks
  * @param root0.yTickFormat    - Formatter function for y-axis ticks
- * @param root0.showTooltip    - Whether to show tooltips on hover
+ * @param root0.withTooltips   - Whether to show tooltips on hover
  * @param root0.seriesKeys     - Custom labels for series in legend/tooltip
  * @param root0.renderTooltip  - Custom tooltip renderer function
  * @param root0.className      - Additional CSS class name
@@ -76,7 +76,7 @@ function TimeSeriesForecastChartInternal< D >( {
 	yDomain: providedYDomain,
 	xTickFormat = formatDateTick,
 	yTickFormat,
-	showTooltip = true,
+	withTooltips = true,
 	seriesKeys: providedSeriesKeys,
 	renderTooltip,
 	className,
@@ -165,9 +165,6 @@ function TimeSeriesForecastChartInternal< D >( {
 
 		return items;
 	}, [ historical.length, forecast.length, seriesKeys, primaryColor ] );
-
-	// Use legend hook for consistent styling
-	useChartLegendItems( mockSeriesData, {}, 'line' );
 
 	// Accessors for transformed points (memoized to avoid recreating on each render)
 	const xAccessor = useCallback( ( p: TransformedForecastPoint | BandPoint ) => p.date, [] );
@@ -362,7 +359,7 @@ function TimeSeriesForecastChartInternal< D >( {
 				) }
 
 				{ /* Tooltip */ }
-				{ showTooltip && (
+				{ withTooltips && (
 					<Tooltip
 						snapTooltipToDatumX
 						snapTooltipToDatumY
@@ -410,6 +407,8 @@ function TimeSeriesForecastChartWithProvider< D >(
 		</GlobalChartsProvider>
 	);
 }
+
+TimeSeriesForecastChartWithProvider.displayName = 'TimeSeriesForecastChart';
 
 /**
  * TimeSeriesForecastChart - Displays historical data and forecasts with uncertainty bands
