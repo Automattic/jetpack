@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-/**
  * WordPress dependencies
  */
 import { Page } from '@wordpress/admin-ui';
@@ -12,6 +8,7 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
+import FormsLogo from '../../src/dashboard/components/forms-logo';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 
 /**
@@ -23,12 +20,7 @@ function Stage() {
 	return (
 		<Page
 			showSidebarToggle={ false }
-			title={
-				<Stack align="center" gap="xs">
-					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
-				</Stack>
-			}
+			title={ <FormsLogo /> }
 			subTitle={ __( 'View and manage all your forms in one place.', 'jetpack-forms' ) }
 		>
 			<DataViewsHeaderRow activeTab="forms" />
