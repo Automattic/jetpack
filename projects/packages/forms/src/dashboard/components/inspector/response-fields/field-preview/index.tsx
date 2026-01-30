@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatNumber } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import {
 	ExternalLink,
@@ -153,6 +154,11 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		const badgedValueFields = [ 'consent', 'checkbox', 'radio', 'select' ];
 		if ( badgedValueFields.includes( fieldType ) ) {
 			return <Badge>{ stringValue }</Badge>;
+		}
+
+		// Numbers
+		if ( fieldType === 'number' ) {
+			return formatNumber( Number( stringValue ) );
 		}
 
 		// Emails
