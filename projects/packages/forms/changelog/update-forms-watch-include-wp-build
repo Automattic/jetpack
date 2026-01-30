@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: include wp-build watch in regular watch command.
