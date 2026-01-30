@@ -17,7 +17,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { download, plus } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
@@ -170,6 +170,9 @@ function StageInner() {
 		isLoadingData,
 		totalItems,
 		totalPages,
+		totalItemsInbox,
+		totalItemsSpam,
+		totalItemsTrash,
 	} = useInboxData( { status: statusView } );
 
 	useEffect( () => {
@@ -296,9 +299,30 @@ function StageInner() {
 				id: 'folder',
 				label: __( 'Folder', 'jetpack-forms' ),
 				elements: [
-					{ label: __( 'Inbox', 'jetpack-forms' ), value: 'inbox' },
-					{ label: __( 'Spam', 'jetpack-forms' ), value: 'spam' },
-					{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
+					{
+						label: sprintf(
+							/* translators: %d is the number of inbox responses. */
+							__( 'Inbox (%d)', 'jetpack-forms' ),
+							totalItemsInbox ?? 0
+						),
+						value: 'inbox',
+					},
+					{
+						label: sprintf(
+							/* translators: %d is the number of spam responses. */
+							__( 'Spam (%d)', 'jetpack-forms' ),
+							totalItemsSpam ?? 0
+						),
+						value: 'spam',
+					},
+					{
+						label: sprintf(
+							/* translators: %d is the number of trash responses. */
+							__( 'Trash (%d)', 'jetpack-forms' ),
+							totalItemsTrash ?? 0
+						),
+						value: 'trash',
+					},
 				],
 				// Primary so the filter UI (and its pill) is visible by default.
 				filterBy: { operators: [ 'is' ], isPrimary: true },
@@ -441,7 +465,7 @@ function StageInner() {
 				enableSorting: false,
 			},
 		],
-		[ filterOptions ]
+		[ filterOptions, totalItemsInbox, totalItemsSpam, totalItemsTrash ]
 	);
 
 	const actions = useMemo(
