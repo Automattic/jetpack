@@ -12,9 +12,9 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
-import FormsLogo from '../../src/dashboard/components/forms-logo';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
 import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/index.tsx';
+import FormsLogo from '../../src/dashboard/components/forms-logo';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
