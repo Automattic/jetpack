@@ -88,6 +88,12 @@ fi
   GIT_USER_NAME=$(git config user.name 2>/dev/null || echo "")
   GIT_USER_EMAIL=$(git config user.email 2>/dev/null || echo "")
 
+  # Pass rsync proxy port if set (for SSH proxy through host.docker.internal)
+  RSYNC_ENV=""
+  if [[ -n "${RSYNC_PROXY_PORT:-}" ]]; then
+      RSYNC_ENV="-e RSYNC_PROXY_PORT=$RSYNC_PROXY_PORT"
+  fi
+
   docker run --rm $TTY_FLAG \
     -v "$MONOREPO_ROOT:/workspace" \
     -v "$MONOREPO_ROOT/tools/docker/data/monorepo:/root" \
@@ -109,5 +115,6 @@ fi
     -e GIT_AUTHOR_EMAIL="${GIT_USER_EMAIL}" \
     -e GIT_COMMITTER_NAME="${GIT_USER_NAME}" \
     -e GIT_COMMITTER_EMAIL="${GIT_USER_EMAIL}" \
+    $RSYNC_ENV \
     jetpack-monorepo:latest \
     "$@"

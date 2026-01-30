@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
-import { spawnSync } from 'child_process';
-import fs, { readFileSync } from 'fs';
+import { spawn, spawnSync } from 'child_process';
+import fs, { readFileSync, readdirSync } from 'fs';
+import net from 'net';
+import os from 'os';
 import { dirname, resolve } from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
@@ -291,6 +293,399 @@ const initJetpack = async () => {
 	}
 };
 
+/**
+ * Read saved rsync destinations from the config store.
+ * Checks both the Docker volume location and the standard configstore location.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @return {object} Object mapping alias names to destination paths
+ */
+const readRsyncConfig = monorepoRoot => {
+	// Possible config locations (Docker volume first, then standard configstore)
+	const configPaths = [
+		resolve(
+			monorepoRoot,
+			'tools/docker/data/monorepo/.config/configstore/automattic/jetpack-cli/rsync.json'
+		),
+		resolve(
+			process.env.XDG_CONFIG_HOME || resolve( os.homedir(), '.config', 'configstore' ),
+			'automattic',
+			'jetpack-cli',
+			'rsync.json'
+		),
+	];
+
+	for ( const configPath of configPaths ) {
+		try {
+			if ( fs.existsSync( configPath ) ) {
+				return JSON.parse( readFileSync( configPath, 'utf8' ) );
+			}
+		} catch {
+			// Ignore errors, try next path
+		}
+	}
+	return {};
+};
+
+/**
+ * List available plugins in the monorepo.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @return {Array} Array of plugin directory names
+ */
+const listPlugins = monorepoRoot => {
+	const pluginsDir = resolve( monorepoRoot, 'projects/plugins' );
+	try {
+		return readdirSync( pluginsDir, { withFileTypes: true } )
+			.filter( dirent => dirent.isDirectory() )
+			.map( dirent => dirent.name )
+			.sort();
+	} catch {
+		return [];
+	}
+};
+
+/**
+ * Parse rsync command args to extract plugin and dest values.
+ *
+ * @param {Array} args - Command line arguments
+ * @return {object} Object with plugin, dest, and other parsed values
+ */
+const parseRsyncArgs = args => {
+	const result = { plugin: null, dest: null, watch: false, remainingArgs: [] };
+
+	for ( let i = 0; i < args.length; i++ ) {
+		const arg = args[ i ];
+		if ( arg === '--plugin' || arg === '-p' ) {
+			result.plugin = args[ ++i ];
+		} else if ( arg.startsWith( '--plugin=' ) ) {
+			result.plugin = arg.split( '=' )[ 1 ];
+		} else if ( arg === '--dest' || arg === '-d' ) {
+			result.dest = args[ ++i ];
+		} else if ( arg.startsWith( '--dest=' ) ) {
+			result.dest = arg.split( '=' )[ 1 ];
+		} else if ( arg === '--watch' || arg === '-w' ) {
+			result.watch = true;
+			result.remainingArgs.push( arg );
+		} else if ( arg !== 'rsync' ) {
+			result.remainingArgs.push( arg );
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Prompt for plugin selection if not already specified.
+ *
+ * @param {string}      monorepoRoot - Path to the monorepo root
+ * @param {string|null} currentValue - Current plugin value from args
+ * @return {Promise<string>} Selected plugin name
+ */
+const promptForPlugin = async ( monorepoRoot, currentValue ) => {
+	if ( currentValue ) {
+		return currentValue;
+	}
+
+	const plugins = listPlugins( monorepoRoot );
+	if ( plugins.length === 0 ) {
+		throw new Error( 'No plugins found in projects/plugins/' );
+	}
+
+	const choices = plugins.map( p => ( { title: p, value: p } ) );
+
+	const response = await prompts( {
+		type: 'autocomplete',
+		name: 'plugin',
+		message: 'Which plugin?',
+		choices,
+		suggest: ( input, choices_ ) => {
+			const inputLower = input.toLowerCase();
+			return Promise.resolve(
+				choices_.filter( choice => choice.title.toLowerCase().includes( inputLower ) )
+			);
+		},
+	} );
+
+	if ( ! response.plugin ) {
+		throw new Error( 'Plugin selection cancelled' );
+	}
+
+	return response.plugin;
+};
+
+/**
+ * Prompt for destination selection if not already specified.
+ *
+ * @param {string}      monorepoRoot - Path to the monorepo root
+ * @param {string|null} currentValue - Current dest value from args
+ * @return {Promise<string>} Selected destination path or alias
+ */
+const promptForDest = async ( monorepoRoot, currentValue ) => {
+	const config = readRsyncConfig( monorepoRoot );
+
+	// If current value is an alias, resolve it
+	if ( currentValue ) {
+		// Configstore escapes dots in keys, so we need to check both
+		const escapedKey = currentValue.replace( /\./g, '\\.' );
+		if ( config[ escapedKey ] ) {
+			console.log( `Alias found, using dest: ${ config[ escapedKey ] }` );
+			return config[ escapedKey ];
+		}
+		if ( config[ currentValue ] ) {
+			console.log( `Alias found, using dest: ${ config[ currentValue ] }` );
+			return config[ currentValue ];
+		}
+		// Not an alias, use as-is
+		return currentValue;
+	}
+
+	const savedDests = Object.keys( config );
+
+	if ( savedDests.length === 0 ) {
+		// No saved destinations, prompt for new one
+		const response = await prompts( {
+			type: 'text',
+			name: 'dest',
+			message:
+				"Input destination host:path to the plugin's dir or the /plugins or /mu-plugins dir:",
+			validate: v => ( v === '' ? 'Please enter a host:path' : true ),
+		} );
+
+		if ( ! response.dest ) {
+			throw new Error( 'Destination input cancelled' );
+		}
+
+		return response.dest;
+	}
+
+	// Show saved destinations with option to create new
+	const choices = [
+		{ title: 'Create new destination', value: '__new__' },
+		...savedDests.map( key => ( {
+			title: `${ key } → ${ config[ key ] }`,
+			value: config[ key ],
+		} ) ),
+	];
+
+	const response = await prompts( {
+		type: 'select',
+		name: 'dest',
+		message: 'Choose destination:',
+		choices,
+	} );
+
+	if ( response.dest === undefined ) {
+		throw new Error( 'Destination selection cancelled' );
+	}
+
+	if ( response.dest === '__new__' ) {
+		const newResponse = await prompts( {
+			type: 'text',
+			name: 'dest',
+			message:
+				"Input destination host:path to the plugin's dir or the /plugins or /mu-plugins dir:",
+			validate: v => ( v === '' ? 'Please enter a host:path' : true ),
+		} );
+
+		if ( ! newResponse.dest ) {
+			throw new Error( 'Destination input cancelled' );
+		}
+
+		return newResponse.dest;
+	}
+
+	return response.dest;
+};
+
+/**
+ * Run rsync command with SSH TCP proxy.
+ * This allows rsync to run inside Docker while SSH connections are handled by the host,
+ * enabling support for Secure Enclave SSH keys (like AutoProxxy) that can't be forwarded into Docker.
+ *
+ * Architecture:
+ * 1. Host creates a TCP server on a random port
+ * 2. Run rsync in Docker with RSYNC_PROXY_PORT set
+ * 3. When rsync needs SSH, the rsh-proxy script connects to host.docker.internal:port
+ * 4. rsh-proxy sends the SSH command as the first line, then proxies data
+ * 5. Host reads the command, spawns SSH, and proxies data bidirectionally
+ * 6. Data flows: rsync <-> TCP <-> host SSH <-> remote
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @param {Array}  args         - Command arguments (starting with 'rsync')
+ * @throws {Error} If rsync fails
+ */
+const runRsyncWithProxy = async ( monorepoRoot, args ) => {
+	let tcpServer = null;
+	let dockerProcess = null;
+	let cleanedUp = false;
+
+	/**
+	 * Clean up the TCP server.
+	 */
+	const cleanup = () => {
+		if ( cleanedUp ) {
+			return;
+		}
+		cleanedUp = true;
+
+		if ( tcpServer ) {
+			tcpServer.close();
+			tcpServer = null;
+		}
+	};
+
+	/**
+	 * Handle an incoming TCP connection from the rsh-proxy script.
+	 * Protocol: first line is the SSH command, then bidirectional data proxy.
+	 *
+	 * @param {net.Socket} socket - The incoming TCP connection
+	 */
+	const handleConnection = socket => {
+		let sshCommand = '';
+		let sshProcess = null;
+		let commandReceived = false;
+
+		socket.on( 'data', data => {
+			if ( ! commandReceived ) {
+				// Accumulate data until we see a newline (end of command)
+				sshCommand += data.toString();
+				const newlineIndex = sshCommand.indexOf( '\n' );
+
+				if ( newlineIndex !== -1 ) {
+					// Extract the command and any remaining data
+					const command = sshCommand.substring( 0, newlineIndex ).trim();
+					const remainingData = sshCommand.substring( newlineIndex + 1 );
+					commandReceived = true;
+
+					// Spawn the SSH process using bash to handle the escaped command
+					sshProcess = spawn( 'bash', [ '-c', command ], {
+						stdio: [ 'pipe', 'pipe', 'inherit' ],
+					} );
+
+					// Proxy stdout from SSH to socket
+					sshProcess.stdout.on( 'data', chunk => {
+						socket.write( chunk );
+					} );
+
+					sshProcess.on( 'close', () => {
+						// Signal end of writing but keep socket readable
+						// This allows the container to close the connection when ready
+						socket.end();
+					} );
+
+					sshProcess.on( 'error', err => {
+						console.error( chalk.yellow( `SSH process error: ${ err.message }` ) );
+						socket.destroy();
+					} );
+
+					// Send any data that came after the command
+					if ( remainingData.length > 0 ) {
+						sshProcess.stdin.write( remainingData );
+					}
+				}
+			} else if ( sshProcess ) {
+				// Command already received, proxy data to SSH stdin
+				sshProcess.stdin.write( data );
+			}
+		} );
+
+		socket.on( 'end', () => {
+			if ( sshProcess ) {
+				sshProcess.stdin.end();
+			}
+		} );
+
+		socket.on( 'error', err => {
+			// Connection errors are expected when rsync closes the connection
+			if ( err.code !== 'ECONNRESET' ) {
+				console.error( chalk.yellow( `Socket error: ${ err.message }` ) );
+			}
+			if ( sshProcess ) {
+				sshProcess.kill();
+			}
+		} );
+	};
+
+	// Set up cleanup handlers
+	const onSignal = signal => {
+		cleanup();
+		if ( dockerProcess ) {
+			dockerProcess.kill( signal );
+		}
+	};
+
+	process.on( 'SIGINT', () => {
+		onSignal( 'SIGINT' );
+		process.exit( 130 );
+	} );
+
+	process.on( 'SIGTERM', () => {
+		onSignal( 'SIGTERM' );
+		process.exit( 143 );
+	} );
+
+	process.on( 'exit', cleanup );
+
+	try {
+		// Create TCP server and wait for it to start listening
+		const port = await new Promise( ( resolvePort, rejectPort ) => {
+			tcpServer = net.createServer( handleConnection );
+
+			tcpServer.on( 'error', err => {
+				rejectPort( err );
+			} );
+
+			// Listen on a random port (0 = OS assigns a free port)
+			tcpServer.listen( 0, '0.0.0.0', () => {
+				const addr = tcpServer.address();
+				resolvePort( addr.port );
+			} );
+		} );
+
+		// Build the command args, adding --non-interactive if not already present
+		// This is necessary because interactive prompts don't work properly when stdin
+		// is being proxied through the TCP connection
+		const rsyncArgs = [ ...args ];
+		if ( ! rsyncArgs.includes( '--non-interactive' ) && ! rsyncArgs.includes( '-n' ) ) {
+			rsyncArgs.push( '--non-interactive' );
+		}
+
+		// Run the monorepo script with RSYNC_PROXY_PORT set
+		const result = await new Promise( ( resolvePromise, rejectPromise ) => {
+			dockerProcess = spawn(
+				resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
+				[ 'pnpm', 'jetpack', ...rsyncArgs ],
+				{
+					stdio: 'inherit',
+					cwd: monorepoRoot,
+					env: {
+						...process.env,
+						RSYNC_PROXY_PORT: String( port ),
+					},
+				}
+			);
+
+			dockerProcess.on( 'close', code => {
+				resolvePromise( { status: code } );
+			} );
+
+			dockerProcess.on( 'error', err => {
+				rejectPromise( err );
+			} );
+		} );
+
+		cleanup();
+
+		if ( result.status !== 0 ) {
+			throw new Error( `Command failed with status ${ result.status }` );
+		}
+	} catch ( err ) {
+		cleanup();
+		throw err;
+	}
+};
+
 // Main execution
 const main = async () => {
 	try {
@@ -342,6 +737,30 @@ const main = async () => {
 			}
 
 			runGitHook( monorepoRoot, hookName, hookArgs );
+			return;
+		}
+
+		// Handle rsync command with SSH proxy for Secure Enclave keys
+		// This allows rsync to run inside Docker while using host SSH authentication
+		if (
+			args[ 0 ] === 'rsync' &&
+			! args.includes( '--config' ) &&
+			! args.includes( '--help' ) &&
+			! args.includes( '-h' )
+		) {
+			// Parse args to check if plugin and dest are provided
+			const parsed = parseRsyncArgs( args );
+
+			// Prompt for missing values on the host side (before starting Docker)
+			// This is necessary because interactive prompts don't work when stdin
+			// is being proxied through the TCP connection
+			const plugin = await promptForPlugin( monorepoRoot, parsed.plugin );
+			const dest = await promptForDest( monorepoRoot, parsed.dest );
+
+			// Build the final args with the selected/provided values
+			const finalArgs = [ 'rsync', '--plugin', plugin, '--dest', dest, ...parsed.remainingArgs ];
+
+			await runRsyncWithProxy( monorepoRoot, finalArgs );
 			return;
 		}
 

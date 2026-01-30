@@ -574,7 +574,8 @@ async function rsyncToDest( source, dest ) {
 		// Some versions of openrsync partially work with --copy-unsafe-links, so do that for them.
 		const copyLinksOpt = isOpenrsync ? '--copy-unsafe-links' : '--copy-links';
 
-		await runCommand( 'rsync', [
+		// Build rsync arguments
+		const rsyncArgs = [
 			'-azKPv',
 			'--prune-empty-dirs',
 			'--delete',
@@ -582,9 +583,17 @@ async function rsyncToDest( source, dest ) {
 			'--delete-excluded',
 			copyLinksOpt,
 			`--include-from=${ tmpFile.name }`,
-			source,
-			dest,
-		] );
+		];
+
+		// When RSYNC_PROXY_PORT is set, use the rsh-proxy script to route SSH through the host
+		// This enables support for Secure Enclave SSH keys that can't be forwarded into Docker
+		if ( process.env.RSYNC_PROXY_PORT ) {
+			rsyncArgs.push( '--rsh=/workspace/tools/docker/bin/rsync-rsh-proxy.sh' );
+		}
+
+		rsyncArgs.push( source, dest );
+
+		await runCommand( 'rsync', rsyncArgs );
 		tmpFile.removeCallback();
 	} catch ( e ) {
 		console.log( e );
