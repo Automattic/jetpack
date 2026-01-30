@@ -23,6 +23,7 @@
 		"chalk": "^5.4.1",
 		"dotenv": "^16.3.1",
 		"prompts": "^2.4.2",
+		"shell-quote": "^1.8.3",
 		"update-notifier": "^7.0.0"
 	},
 	"publishConfig": {

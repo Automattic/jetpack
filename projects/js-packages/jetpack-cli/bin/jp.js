@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import * as dotenv from 'dotenv';
 import prompts from 'prompts';
+import { parse as shellParse } from 'shell-quote';
 import updateNotifier from 'update-notifier';
 
 // Get package.json path relative to this file
@@ -426,8 +427,10 @@ const promptForDest = async ( monorepoRoot, currentValue ) => {
 
 	// If current value is an alias, resolve it
 	if ( currentValue ) {
-		// Configstore escapes dots in keys, so we need to check both
-		const escapedKey = currentValue.replace( /\./g, '\\.' );
+		// Configstore escapes dots in keys by replacing . with \.
+		// We need to check both the original key and the escaped version
+		// Use split/join for safe string replacement (no regex special char issues)
+		const escapedKey = currentValue.split( '.' ).join( '\\.' );
 		if ( config[ escapedKey ] ) {
 			console.log( `Alias found, using dest: ${ config[ escapedKey ] }` );
 			return config[ escapedKey ];
@@ -558,8 +561,20 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 					const remainingData = sshCommand.substring( newlineIndex + 1 );
 					commandReceived = true;
 
-					// Spawn the SSH process using bash to handle the escaped command
-					sshProcess = spawn( 'bash', [ '-c', command ], {
+					// Parse the command safely using shell-quote
+					// The command comes from our rsync-rsh-proxy.sh and should be "ssh <args>"
+					const parsedArgs = shellParse( command );
+
+					// Validate that this is an SSH command (security check)
+					if ( parsedArgs.length === 0 || parsedArgs[ 0 ] !== 'ssh' ) {
+						console.error( chalk.red( 'Invalid command received: expected ssh command' ) );
+						socket.destroy();
+						return;
+					}
+
+					// Spawn SSH directly with parsed arguments (safer than bash -c)
+					const sshArgs = parsedArgs.slice( 1 );
+					sshProcess = spawn( 'ssh', sshArgs, {
 						stdio: [ 'pipe', 'pipe', 'inherit' ],
 					} );
 
