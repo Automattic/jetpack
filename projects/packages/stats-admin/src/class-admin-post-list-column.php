@@ -54,6 +54,14 @@ class Admin_Post_List_Column {
 
 		add_action( 'manage_posts_custom_column', array( $this, 'add_stats_post_table_cell' ), 10, 2 );
 		add_action( 'manage_pages_custom_column', array( $this, 'add_stats_post_table_cell' ), 10, 2 );
+
+		// Make the stats column sortable.
+		add_filter( 'manage_edit-post_sortable_columns', array( $this, 'make_stats_column_sortable' ) );
+		add_filter( 'manage_edit-page_sortable_columns', array( $this, 'make_stats_column_sortable' ) );
+
+		// Handle the sorting logic.
+		add_action( 'pre_get_posts', array( $this, 'handle_stats_column_sorting' ) );
+		add_filter( 'posts_results', array( $this, 'sort_posts_by_stats' ), 10, 2 );
 	}
 
 	/**
@@ -348,5 +356,94 @@ class Admin_Post_List_Column {
 		}
 
 		return (string) $views;
+	}
+
+	/**
+	 * Make the stats column sortable.
+	 *
+	 * @param array $columns An array of sortable columns.
+	 *
+	 * @return array
+	 */
+	public function make_stats_column_sortable( $columns ) {
+		$columns['stats'] = 'stats';
+		return $columns;
+	}
+
+	/**
+	 * Handle sorting by the stats column.
+	 *
+	 * @param \WP_Query $query The WordPress query object.
+	 *
+	 * @return void
+	 */
+	public function handle_stats_column_sorting( $query ) {
+		if ( ! is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		$orderby = $query->get( 'orderby' );
+
+		if ( 'stats' === $orderby ) {
+			// Set a flag to indicate we need to sort by stats.
+			// The actual sorting happens in sort_posts_by_stats().
+			$query->set( 'jetpack_sort_by_stats', true );
+		}
+	}
+
+	/**
+	 * Sort posts by stats views after query execution.
+	 *
+	 * @param array     $posts The array of post objects.
+	 * @param \WP_Query $query The WordPress query object.
+	 *
+	 * @return array
+	 */
+	public function sort_posts_by_stats( $posts, $query ) {
+		if ( ! is_admin() || ! $query->is_main_query() || ! $query->get( 'jetpack_sort_by_stats' ) ) {
+			return $posts;
+		}
+
+		if ( empty( $posts ) ) {
+			return $posts;
+		}
+
+		// Get stats for all posts in the current result set.
+		$post_ids    = wp_list_pluck( $posts, 'ID' );
+		$wpcom_stats = $this->get_stats();
+		$post_views  = $wpcom_stats->get_total_post_views(
+			array(
+				'num'      => 30,
+				'post_ids' => implode( ',', $post_ids ),
+			)
+		);
+
+		if ( is_wp_error( $post_views ) || empty( $post_views['posts'] ) ) {
+			return $posts;
+		}
+
+		// Create a map of post_id => views.
+		$views_map = array();
+		foreach ( $post_views['posts'] as $post_stats ) {
+			$views_map[ $post_stats['ID'] ] = (int) $post_stats['views'];
+		}
+
+		// Sort posts by view count.
+		usort(
+			$posts,
+			function ( $a, $b ) use ( $views_map, $query ) {
+				$views_a = $views_map[ $a->ID ] ?? 0;
+				$views_b = $views_map[ $b->ID ] ?? 0;
+
+				$order = $query->get( 'order' );
+				if ( 'asc' === strtolower( $order ) ) {
+					return $views_a <=> $views_b;
+				}
+
+				return $views_b <=> $views_a;
+			}
+		);
+
+		return $posts;
 	}
 }
