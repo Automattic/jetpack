@@ -196,7 +196,6 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) {
 			'pinterest.'                        => 'pinterest',
 			'pocketcasts.com'                   => 'pocket-casts',
 			'podcasts.apple.com'                => 'apple-podcasts',
-			'getpocket.com'                     => 'pocket',
 			'ravelry.com'                       => 'ravelry',
 			'reddit.com'                        => 'reddit',
 			'slideshare.net'                    => 'slideshare',

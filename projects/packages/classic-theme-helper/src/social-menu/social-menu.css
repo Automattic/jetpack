@@ -133,11 +133,6 @@ Genericons
 	content: "\f210";
 }
 
-/* Pocket */
-.jetpack-social-navigation-genericons a[href*="getpocket.com"]::before {
-	content: "\f224";
-}
-
 /* Polldaddy */
 .jetpack-social-navigation-genericons a[href*="polldaddy.com"]::before {
 	content: "\f217";

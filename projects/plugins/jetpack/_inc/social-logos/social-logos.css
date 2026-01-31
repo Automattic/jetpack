@@ -185,11 +185,6 @@
 }
 
 
-.social-logo__pocket::before {
-	content: "\f224";
-}
-
-
 .social-logo__polldaddy::before {
 	content: "\f217";
 }
