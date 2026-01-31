@@ -9,12 +9,6 @@
 // ==========================================================================
 @use "sass:color";
 
-// Remove default WordPress admin footer padding on Jetpack pages only
-// Footer is removed via PHP filters, so padding is not needed
-.jetpack-admin-page #wpbody-content {
-	padding-bottom: 0;
-}
-
 .configure .frame.top.fixed {
 
 	@include breakpoint.breakpoint(tablet) {

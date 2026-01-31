@@ -110,6 +110,7 @@ class Jetpack_Admin {
 		add_filter( 'admin_footer_text', array( $this, 'maybe_remove_admin_footer_text' ) );
 		add_filter( 'update_footer', array( $this, 'maybe_remove_admin_footer_version' ), 11 );
 		add_filter( 'admin_body_class', array( $this, 'add_jetpack_admin_body_class' ) );
+		add_action( 'admin_head', array( $this, 'add_footer_removal_styles' ) );
 	}
 
 	/**
@@ -627,29 +628,36 @@ class Jetpack_Admin {
 	}
 
 	/**
-	 * Maybe remove the admin footer text on Jetpack pages.
+	 * Add inline styles to remove footer padding on Jetpack pages.
+	 *
+	 * This needs to be inline because jetpack-admin.css is not loaded on
+	 * React-powered admin pages (they use load_wrapper_styles instead).
+	 */
+	public function add_footer_removal_styles() {
+		if ( ! $this->is_jetpack_admin_page() ) {
+			return;
+		}
+		echo '<style>.jetpack-admin-page #wpbody-content { padding-bottom: 0; }</style>';
+	}
+
+	/**
+	 * Remove the admin footer text on Jetpack pages.
 	 *
 	 * @param string $content The default footer text.
 	 * @return string Empty string on Jetpack pages, original content otherwise.
 	 */
 	public function maybe_remove_admin_footer_text( $content ) {
-		if ( $this->is_jetpack_admin_page() ) {
-			return '';
-		}
-		return $content;
+		return $this->is_jetpack_admin_page() ? '' : $content;
 	}
 
 	/**
-	 * Maybe remove the admin footer version on Jetpack pages.
+	 * Remove the admin footer version on Jetpack pages.
 	 *
 	 * @param string $content The default footer version text.
 	 * @return string Empty string on Jetpack pages, original content otherwise.
 	 */
 	public function maybe_remove_admin_footer_version( $content ) {
-		if ( $this->is_jetpack_admin_page() ) {
-			return '';
-		}
-		return $content;
+		return $this->is_jetpack_admin_page() ? '' : $content;
 	}
 }
 Jetpack_Admin::init();
