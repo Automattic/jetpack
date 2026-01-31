@@ -170,7 +170,6 @@ function get_services() {
 		'twitter'   => Share_Twitter_Block::class,
 		'tumblr'    => Share_Tumblr_Block::class,
 		'pinterest' => Share_Pinterest_Block::class,
-		'pocket'    => Share_Pocket_Block::class,
 		'telegram'  => Share_Telegram_Block::class,
 		'threads'   => Share_Threads_Block::class,
 		'whatsapp'  => Jetpack_Share_WhatsApp_Block::class,
