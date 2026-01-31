@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: other
 
 Admin: Remove default WordPress footer on Jetpack admin pages.
