@@ -85,8 +85,8 @@ export const Default: Story = {
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
 		maxWidth: 1200,
-		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
+		containerHeight: '400px',
 	},
 };
 
@@ -163,7 +163,7 @@ export const FixedDimensions: Story = {
 	args: {
 		...Default.args,
 		width: 800,
-		height: 400,
+		height: 300,
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
 	},
 	parameters: {
@@ -273,13 +273,13 @@ export const WithInteractiveLegend: Story = {
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 	render: args => (
-		<div style={ { width: '800px' } }>
+		<div style={ { width: '800px', height: '420px' } }>
 			<BarChart
 				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
 				withTooltips={ true }
 				gridVisibility="x"
 				maxWidth={ 1200 }
-				aspectRatio={ 0.5 }
+				height={ 400 }
 			>
 				<BarChart.Legend
 					orientation={ args.legendOrientation || 'horizontal' }
@@ -313,8 +313,8 @@ export const CustomLegendPositioning: Story = {
 		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
 		gridVisibility: 'x',
 		maxWidth: 1200,
-		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
+		containerHeight: '400px',
 		// showLegend defaults to false, explicitly enabling for demonstration
 		showLegend: true,
 		legendOrientation: 'vertical',

@@ -69,8 +69,8 @@ export const lineChartStoryArgs = {
 	withLegendGlyph: false,
 	smoothing: true,
 	maxWidth: 1200,
-	aspectRatio: 0.5,
 	resizeDebounceTime: 300,
+	containerHeight: '400px',
 	options: {
 		axis: {
 			x: {
