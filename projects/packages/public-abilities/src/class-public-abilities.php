@@ -70,13 +70,13 @@ class Public_Abilities {
 	/**
 	 * Check if the current request is from a bot.
 	 *
-	 * Uses WordPress core is_bot() when available (WP 6.9+), otherwise
-	 * falls back to a simple user-agent check.
+	 * Uses WordPress core is_bot() when available, otherwise falls back
+	 * to a simple user-agent check.
 	 *
 	 * @return bool
 	 */
 	private static function is_bot_request(): bool {
-		// phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- function name check
+		// phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled -- function name check
 		if ( function_exists( 'is_bot' ) ) {
 			return is_bot();
 		}
@@ -86,7 +86,7 @@ class Public_Abilities {
 			return false;
 		}
 
-		$bot_patterns = array( 'bot', 'crawl', 'spider', 'slurp', 'claudebot', 'gptbot', 'chatgpt', 'anthropic' );
+		$bot_patterns = array( 'googlebot', 'bingbot', 'claudebot', 'gptbot', 'chatgpt-user', 'anthropic', 'crawl', 'spider', 'slurp', 'facebookexternalhit', 'applebot' );
 		$ua_lower     = strtolower( $ua );
 		foreach ( $bot_patterns as $pattern ) {
 			if ( strpos( $ua_lower, $pattern ) !== false ) {
@@ -125,8 +125,24 @@ class Public_Abilities {
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'input' => array(
-						'required' => false,
-						'default'  => null,
+						'required'          => false,
+						'default'           => null,
+						'validate_callback' => function ( $value ) {
+							if ( null === $value ) {
+								return true;
+							}
+							if ( ! is_array( $value ) && ! is_object( $value ) ) {
+								return new WP_Error(
+									'invalid_input',
+									__( 'Input must be a JSON object.', 'jetpack-public-abilities' ),
+									array( 'status' => 400 )
+								);
+							}
+							return true;
+						},
+						'sanitize_callback' => function ( $value ) {
+							return is_array( $value ) ? map_deep( $value, 'sanitize_text_field' ) : $value;
+						},
 					),
 				),
 			)
@@ -155,6 +171,26 @@ class Public_Abilities {
 	public static function run_ability( WP_REST_Request $request ) {
 		$name  = $request->get_param( 'name' );
 		$input = $request->get_param( 'input' );
+
+		/**
+		 * Filters whether to allow a public ability execution.
+		 * Plugins can use this to implement rate limiting or other restrictions.
+		 *
+		 * @param bool|WP_Error $allowed Whether the execution is allowed.
+		 * @param string        $name    The ability name.
+		 * @param mixed         $input   The request input.
+		 */
+		$allowed = apply_filters( 'jetpack_public_abilities_allow_execution', true, $name, $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+		if ( ! $allowed ) {
+			return new WP_Error(
+				'rate_limited',
+				__( 'Too many requests. Please try again later.', 'jetpack-public-abilities' ),
+				array( 'status' => 429 )
+			);
+		}
 
 		$abilities = self::get_public_abilities();
 
