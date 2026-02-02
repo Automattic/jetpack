@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { useCallback } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -69,11 +69,14 @@ export default function InboxStatusToggle( {
 		[ activeStatus, onChange ]
 	);
 
-	const statusTabs: Array< { value: Status; label: string } > = [
-		{ value: 'inbox', label: getLabel( 'inbox', counts.inbox ) },
-		{ value: 'spam', label: getLabel( 'spam', counts.spam ) },
-		{ value: 'trash', label: getLabel( 'trash', counts.trash ) },
-	];
+	const statusTabs: Array< { value: Status; label: string } > = useMemo(
+		() => [
+			{ value: 'inbox', label: getLabel( 'inbox', counts.inbox ) },
+			{ value: 'spam', label: getLabel( 'spam', counts.spam ) },
+			{ value: 'trash', label: getLabel( 'trash', counts.trash ) },
+		],
+		[ counts.inbox, counts.spam, counts.trash ]
+	);
 
 	return (
 		<Tabs.Root value={ activeStatus } onValueChange={ handleChange }>
