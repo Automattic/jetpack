@@ -17,6 +17,7 @@ import numberIcon from '../../blocks/field-number/icon.svg?raw';
 import ratingIcon from '../../blocks/field-rating/icon.svg?raw';
 import selectIcon from '../../blocks/field-select/icon.svg?raw';
 import radioIcon from '../../blocks/field-single-choice/icon.svg?raw';
+import sliderIcon from '../../blocks/field-slider/icon.svg?raw';
 import phoneIcon from '../../blocks/field-telephone/icon.svg?raw';
 import textIcon from '../../blocks/field-text/icon.svg?raw';
 import textareaIcon from '../../blocks/field-textarea/icon.svg?raw';
@@ -45,6 +46,7 @@ const FIELD_TYPE_ICONS = {
 	rating: ratingIcon,
 	consent: consentIcon,
 	'image-select': imageSelectIcon,
+	slider: sliderIcon,
 };
 
 /**

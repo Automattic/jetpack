@@ -1560,6 +1560,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'rating'            => 'field-rating',
 			'consent'           => 'field-consent',
 			'image-select'      => 'field-image-select',
+			'slider'            => 'field-slider',
 		);
 
 		$block_dir = isset( $type_to_block[ $field_type ] ) ? $type_to_block[ $field_type ] : 'field-text';
