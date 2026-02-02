@@ -2201,8 +2201,9 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					$withValues = true;
 
 				}
-					// } trans val present? // ONLY WORKS DAL3
-				if ( in_array( 'transactionsvalue', $columnsRequired ) ) {
+					// } trans total present? // ONLY WORKS DAL3
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				if ( in_array( 'transactiontotal', $columnsRequired, true ) ) {
 
 					$withValues = true;
 
@@ -2223,7 +2224,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				}
 
 					// } Trans
-				if ( in_array( 'hastransactions', $columnsRequired ) || in_array( 'transactioncount', $columnsRequired ) || in_array( 'transactiontotal', $columnsRequired ) ) {
+				// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				if ( in_array( 'hastransaction', $columnsRequired ) || in_array( 'transactioncount', $columnsRequired ) || in_array( 'transactiontotal', $columnsRequired, true ) ) {
 
 					$withTransactions = true;
 
@@ -2533,7 +2535,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 				}
 					// } trans val present?
-				if ( in_array( 'transactiontotal', $columnsRequired ) || in_array( 'transactionsvalue', $columnsRequired ) ) {
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				if ( in_array( 'transactiontotal', $columnsRequired, true ) ) {
 
 					$withValues = true;
 

@@ -1,5 +1,5 @@
-import SliderIcon from '../input-range/icon.jsx';
+import Icon from './icon.svg?component';
 
 export default {
-	src: <SliderIcon />,
+	src: Icon,
 };

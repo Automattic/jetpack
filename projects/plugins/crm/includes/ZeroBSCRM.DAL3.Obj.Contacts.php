@@ -5530,12 +5530,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 			#} Transactions
 			if ( in_array( 'transactiontotal', $columnsRequired ) ) {
-
-				$resArr['transactionstotal'] = zeroBSCRM_formatCurrency( 0 );
-				if ( isset( $contact['transactions_value'] ) ) {
-					$resArr['transactionstotal'] = zeroBSCRM_formatCurrency( $contact['transactions_value'] );
+				if ( isset( $contact['transactions_total'] ) ) {
+					$resArr['transactionstotal'] = zeroBSCRM_formatCurrency( $contact['transactions_total'] );
+				} else {
+					$resArr['transactionstotal'] = zeroBSCRM_formatCurrency( 0 );
 				}
 			}
+
 			// v3.0
 			if ( isset( $contact['transactions_total'] ) ) {
 
