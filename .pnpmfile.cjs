@@ -256,12 +256,6 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Seems to depend on hoisting. 33306 doesn't seem to directly address it, but 33315 looks like it will fix it anyway.
-	// https://github.com/storybookjs/storybook/issues/33306
-	if ( pkg.name === 'storybook' && ! pkg.dependencies[ '@vitest/mocker' ] ) {
-		pkg.dependencies[ '@vitest/mocker' ] = '*';
-	}
-
 	// CVE-2026-22036
 	// https://github.com/actions/toolkit/issues/2242
 	if (
