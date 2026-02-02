@@ -126,6 +126,18 @@ describe( 'FieldRating', () => {
 			expect( screen.getByText( '-' ) ).toBeInTheDocument();
 		} );
 
+		it( 'falls back to "-" for partial numeric rate (e.g. "4abc/5")', () => {
+			render( <FieldRating value="4abc/5" /> );
+
+			expect( screen.getByText( '-' ) ).toBeInTheDocument();
+		} );
+
+		it( 'falls back to "-" for partial numeric max (e.g. "3/5abc")', () => {
+			render( <FieldRating value="3/5abc" /> );
+
+			expect( screen.getByText( '-' ) ).toBeInTheDocument();
+		} );
+
 		it( 'clamps rating to max (e.g. 7/5 shows 5 filled icons)', () => {
 			const { container } = render( <FieldRating value="7/5" /> );
 

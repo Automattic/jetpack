@@ -30,8 +30,16 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 		return <>-</>;
 	}
 
-	const parsedRating = Number.parseInt( rateValue.trim(), 10 );
-	const parsedMax = Number.parseInt( outOf.trim(), 10 );
+	const rateValueTrimmed = rateValue.trim();
+	const outOfTrimmed = outOf.trim();
+
+	// Require strictly numeric values to reject partial matches like "4abc"
+	if ( ! /^[0-9]+$/.test( rateValueTrimmed ) || ! /^[0-9]+$/.test( outOfTrimmed ) ) {
+		return <>-</>;
+	}
+
+	const parsedRating = Number.parseInt( rateValueTrimmed, 10 );
+	const parsedMax = Number.parseInt( outOfTrimmed, 10 );
 	if (
 		! Number.isFinite( parsedRating ) ||
 		parsedRating < 0 ||
