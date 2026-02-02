@@ -446,7 +446,16 @@ function SingleResponseView( {
 				{ response.status === 'spam' && (
 					<div style={ { marginTop: '20px' } }>
 						<Tip>
-							{ __( 'Spam responses are permanently deleted after 15 days.', 'jetpack-forms' ) }
+							{ sprintf(
+								/* translators: %d number of days. */
+								_n(
+									'Spam responses are permanently deleted after %d day.',
+									'Spam responses are permanently deleted after %d days.',
+									15,
+									'jetpack-forms'
+								),
+								15
+							) }
 						</Tip>
 					</div>
 				) }
