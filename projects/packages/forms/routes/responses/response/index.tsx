@@ -22,7 +22,7 @@ import {
 	isLikelyPhoneNumber,
 } from '../../../src/dashboard/components/inspector/utils';
 import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
-import useConfigValue from '../../../src/dashboard/hooks/use-config-value.ts';
+import useConfigValue from '../../../src/hooks/use-config-value.ts';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
@@ -444,7 +444,7 @@ function SingleResponseView( {
 				) }
 
 				{ response.status === 'spam' && (
-					<div style={ { marginTop: '20px' } }>
+					<div className="jp-forms__inbox__tip-container">
 						<Tip>
 							{ sprintf(
 								/* translators: %d number of days. */
@@ -461,7 +461,7 @@ function SingleResponseView( {
 				) }
 
 				{ response.status === 'trash' && (
-					<div style={ { marginTop: '20px' } }>
+					<div className="jp-forms__inbox__tip-container">
 						<Tip>
 							{ sprintf(
 								/* translators: %d number of days. */
