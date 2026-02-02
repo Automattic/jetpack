@@ -1,5 +1,6 @@
-import { Flex, Notice } from '@wordpress/components';
+import { Icon } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+import { info } from '@wordpress/icons';
 import { Connection } from '../../../social-store/types';
 import { PostPreview } from '../../social-post-modal/post-preview';
 import styles from './styles.module.scss';
@@ -28,11 +29,10 @@ export function PreviewSection( { connection }: PreviewSectionProps ) {
 					<PostPreview connection={ connection } />
 				</>
 			) : (
-				<Flex className={ styles[ 'inactive-preview' ] } justify="center">
-					<Notice isDismissible={ false } status="info">
-						{ __( 'Enable sharing to this account to see the preview.', 'jetpack-publicize-pkg' ) }
-					</Notice>
-				</Flex>
+				<div className={ styles[ 'inactive-preview' ] }>
+					<Icon icon={ info } size={ 48 } />
+					<div>{ __( "The post won't be shared to this account.", 'jetpack-publicize-pkg' ) }</div>
+				</div>
 			) }
 		</section>
 	);
