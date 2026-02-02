@@ -1,22 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { SVG, Path } from '@wordpress/components';
-import { RATING_ICONS } from '../field-rating/rating-icons.js';
+import { RatingIcon } from '../field-rating/rating-icon.js';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
-
-export const RatingIcon = ( { iconStyle, strokeColor = 'currentColor', fillColor = 'none' } ) => {
-	const iconPath = RATING_ICONS[ iconStyle ] || RATING_ICONS.stars;
-	return (
-		<SVG className="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true">
-			<Path
-				d={ iconPath }
-				fill={ fillColor }
-				stroke={ strokeColor }
-				strokeWidth="2"
-				strokeLinejoin="round"
-			/>
-		</SVG>
-	);
-};
 
 export default function RatingInputEdit( { context, clientId } ) {
 	const max = context?.[ 'jetpack/field-rating-max' ] || 5;
