@@ -4,12 +4,6 @@
 	background: gb.$gray-100;
 	padding: 1rem;
 
-	h2 {
-
-		@include gb.body-medium();
-		margin-top: 0;
-	}
-
 	.inactive-preview {
 		height: 100%;
 		display: flex;
