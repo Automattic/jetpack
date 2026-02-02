@@ -64,6 +64,14 @@ describe( 'withResponsive', () => {
 			expect( component ).toHaveStyle( { height: '300px' } );
 		} );
 
+		test( 'uses desired height when enabled but desired height is less than parent height', () => {
+			// With width 600 and aspectRatio 0.25, desired height would be 150
+			// Parent height is 300, so it should use desired height (150)
+			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.25 } constrainToParentHeight /> );
+			const component = screen.getByTestId( 'mock-component' );
+			expect( component ).toHaveStyle( { height: '150px' } );
+		} );
+
 		test( 'uses aspect ratio height when disabled regardless of parent height', () => {
 			// With width 600 and aspectRatio 0.75, height should be 450 (600 * 0.75)
 			// even though parent height is only 300
