@@ -70,8 +70,17 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 
 	/**
 	 * Test handle_error method returns protected owner error when active error exists.
+	 *
+	 * Note: This test requires the Atomic_Persistent_Data class to exist (simulating Atomic environment)
+	 * and to return empty/null for JETPACK_CONNECTION_OWNER_EMAIL. In the real test environment,
+	 * this depends on the actual APD implementation.
 	 */
 	public function test_handle_error_returns_protected_owner_error() {
+		// Skip if Atomic_Persistent_Data class doesn't exist (not on Atomic, error would be cleared)
+		if ( ! class_exists( \Atomic_Persistent_Data::class ) ) {
+			$this->markTestSkipped( 'Test requires Atomic_Persistent_Data class (Atomic environment).' );
+		}
+
 		$test_email = 'test@example.com';
 
 		// Set an error
@@ -85,6 +94,8 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 
 		$result = $this->handler->handle_error( array() );
 
+		// If APD returns an owner email, the error will be cleared (test will fail)
+		// This is expected behavior - we can only verify the error is returned when APD has no owner email
 		$this->assertArrayHasKey( 'protected_owner_missing', $result );
 		$error_details = $result['protected_owner_missing']['0'];
 		$this->assertEquals( 'protected_owner_missing', $error_details['error_code'] );
@@ -122,6 +133,38 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 
 		$result = $this->handler->handle_error( array() );
 
+		$this->assertEmpty( $result );
+		$this->assertFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
+	}
+
+	/**
+	 * Test handle_error method clears error when not on Atomic.
+	 *
+	 * When Atomic_Persistent_Data class doesn't exist, we're not on Atomic
+	 * and the error should be cleared.
+	 */
+	public function test_handle_error_clears_error_when_not_on_atomic() {
+		// This test verifies the behavior when APD class doesn't exist
+		// In the test environment, APD typically exists, so we can only verify
+		// the logic through the code path that checks class_exists
+		if ( class_exists( \Atomic_Persistent_Data::class ) ) {
+			$this->markTestSkipped( 'Test requires Atomic_Persistent_Data class to NOT exist.' );
+		}
+
+		$test_email = 'test@example.com';
+
+		// Set an error
+		update_option(
+			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
+			array(
+				'error_type' => 'missing_owner',
+				'email'      => $test_email,
+			)
+		);
+
+		$result = $this->handler->handle_error( array() );
+
+		// Error should be cleared when not on Atomic
 		$this->assertEmpty( $result );
 		$this->assertFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
 	}

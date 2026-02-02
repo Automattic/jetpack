@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
+import { formatNumber } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import '@automattic/ui/style.css';
 /**
@@ -18,7 +18,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { download, plus } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
@@ -30,13 +30,14 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
 import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
+import FormsLogo from '../../src/dashboard/components/forms-logo';
 import Gravatar from '../../src/dashboard/components/gravatar';
-import * as Tabs from '../../src/dashboard/components/tabs';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import { getPath } from '../../src/dashboard/inbox/utils';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
+import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
 import { getActions } from './actions';
@@ -62,24 +63,6 @@ type FeedbackFilters = {
 	date: FeedbackFilterDate[];
 	source: FeedbackFilterSource[];
 };
-
-/**
- * Returns a formatted tab label with count badge.
- *
- * @param label - The label for the tab.
- * @param count - The count to display.
- * @return The formatted label with count badge.
- */
-function getTabLabel( label: string, count: number ): JSX.Element {
-	return (
-		<Stack align="center" gap="2xs">
-			{ label }
-			<Badge intent="default" style={ { backgroundColor: '#f0f0f0' } }>
-				{ count.toString() }
-			</Badge>
-		</Stack>
-	);
-}
 
 const EMPTY_ARRAY = [];
 
@@ -202,6 +185,24 @@ function StageInner() {
 
 	const onChangeView = useCallback(
 		( newView: View ) => {
+			// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
+			const folderValue =
+				newView.filters?.find( filter => filter.field === 'folder' )?.value || 'inbox';
+
+			if ( folderValue !== statusView ) {
+				// Clear selection when changing folder to avoid mismatched inspector state.
+				navigate( {
+					to: '/responses/$view',
+					params: { view: folderValue },
+					search: {
+						...searchParams,
+						responseIds: undefined,
+					},
+				} );
+				setView( { ...newView, page: 1 } );
+				return;
+			}
+
 			setView( newView );
 
 			if ( newView.search !== view.search ) {
@@ -213,7 +214,7 @@ function StageInner() {
 				} );
 			}
 		},
-		[ navigate, searchParams, view.search ]
+		[ navigate, searchParams, statusView, view.search ]
 	);
 
 	const onChangeSelection = useCallback(
@@ -227,6 +228,24 @@ function StageInner() {
 		},
 		[ searchParams, navigate ]
 	);
+
+	// Keep the Folder filter in sync with the route param (CFM-on behavior).
+	useEffect( () => {
+		setView( previousView => {
+			const previousFilters = previousView.filters || [];
+			const existing = previousFilters.find( filter => filter.field === 'folder' );
+			if ( existing?.value === statusView ) {
+				return previousView;
+			}
+			return {
+				...previousView,
+				filters: [
+					{ field: 'folder', operator: 'is', value: statusView },
+					...previousFilters.filter( filter => filter.field !== 'folder' ),
+				],
+			};
+		} );
+	}, [ setView, statusView ] );
 
 	const queryParams = useMemo( () => {
 		const queryArgs: QueryParams = {
@@ -277,6 +296,43 @@ function StageInner() {
 
 	const fields: Field< FormResponse >[] = useMemo(
 		() => [
+			{
+				id: 'folder',
+				label: __( 'Folder', 'jetpack-forms' ),
+				elements: [
+					{
+						label: sprintf(
+							/* translators: %s is the number of inbox responses. */
+							__( 'Inbox (%s)', 'jetpack-forms' ),
+							formatNumber( totalItemsInbox ?? 0 )
+						),
+						value: 'inbox',
+					},
+					{
+						label: sprintf(
+							/* translators: %s is the number of spam responses. */
+							__( 'Spam (%s)', 'jetpack-forms' ),
+							formatNumber( totalItemsSpam ?? 0 )
+						),
+						value: 'spam',
+					},
+					{
+						label: sprintf(
+							/* translators: %s is the number of trash responses. */
+							__( 'Trash (%s)', 'jetpack-forms' ),
+							formatNumber( totalItemsTrash ?? 0 )
+						),
+						value: 'trash',
+					},
+				],
+				// Primary so the filter UI (and its pill) is visible by default.
+				filterBy: { operators: [ 'is' ], isPrimary: true },
+				enableSorting: false,
+				enableHiding: false,
+				// Filter-only field; not shown as a column.
+				render: () => null,
+				getValue: () => null,
+			},
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
@@ -410,7 +466,7 @@ function StageInner() {
 				enableSorting: false,
 			},
 		],
-		[ filterOptions ]
+		[ filterOptions, totalItemsInbox, totalItemsSpam, totalItemsTrash ]
 	);
 
 	const actions = useMemo(
@@ -418,9 +474,9 @@ function StageInner() {
 			getActions( {
 				navigate,
 				searchParams,
-				view: params.view,
+				view: statusView,
 			} ),
-		[ navigate, searchParams, params.view ]
+		[ navigate, searchParams, statusView ]
 	);
 
 	const paginationInfo = useMemo(
@@ -429,22 +485,6 @@ function StageInner() {
 			totalPages: totalPages || 1,
 		} ),
 		[ totalItems, totalPages ]
-	);
-
-	const statusTabs = [
-		{ slug: 'inbox', label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), totalItemsInbox ) },
-		{ slug: 'spam', label: getTabLabel( __( 'Spam', 'jetpack-forms' ), totalItemsSpam ) },
-		{ slug: 'trash', label: getTabLabel( __( 'Trash', 'jetpack-forms' ), totalItemsTrash ) },
-	];
-
-	const handleTabChange = useCallback(
-		newView => {
-			navigate( {
-				to: '/responses/$view',
-				params: { view: newView },
-			} );
-		},
-		[ navigate ]
 	);
 
 	const { openNewForm } = useCreateForm();
@@ -465,11 +505,7 @@ function StageInner() {
 		const actionsArray: React.ReactNode[] = [];
 
 		// Show integrations button on inbox when feature flags are enabled
-		if (
-			( params.view === 'inbox' || ! params.view ) &&
-			isIntegrationsEnabled &&
-			showDashboardIntegrations
-		) {
+		if ( statusView === 'inbox' && isIntegrationsEnabled && showDashboardIntegrations ) {
 			actionsArray.push(
 				<Button
 					key="integrations"
@@ -482,7 +518,7 @@ function StageInner() {
 			);
 		}
 
-		if ( params.view === 'inbox' || ! params.view ) {
+		if ( statusView === 'inbox' ) {
 			actionsArray.push(
 				<Button
 					key="create"
@@ -499,7 +535,7 @@ function StageInner() {
 		actionsArray.push(
 			<Button
 				key="export"
-				variant={ params.view === 'inbox' ? 'primary' : 'secondary' }
+				variant={ statusView === 'inbox' ? 'primary' : 'secondary' }
 				size="compact"
 				icon={ download }
 			>
@@ -507,21 +543,21 @@ function StageInner() {
 			</Button>
 		);
 
-		if ( params.view === 'trash' ) {
+		if ( statusView === 'trash' ) {
 			actionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		}
 
-		if ( params.view === 'spam' ) {
+		if ( statusView === 'spam' ) {
 			actionsArray.push( <EmptySpamButton key="empty-spam" /> );
 		}
 
 		return actionsArray;
 	}, [
-		params.view,
 		handleIntegrations,
 		handleCreateForm,
 		isIntegrationsEnabled,
 		showDashboardIntegrations,
+		statusView,
 	] );
 
 	// Check if read_status filter is applied
@@ -537,12 +573,7 @@ function StageInner() {
 	return (
 		<Page
 			showSidebarToggle={ false }
-			title={
-				<Stack align="center" gap="xs">
-					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
-				</Stack>
-			}
+			title={ <FormsLogo /> }
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
 			actions={ headerActions }
 			hasPadding={ false }
@@ -550,7 +581,7 @@ function StageInner() {
 			<DataViews
 				empty={
 					<EmptyResponses
-						status={ params.view }
+						status={ statusView }
 						isSearch={ !! view.search }
 						readStatusFilter={ readStatusFilter }
 					/>
@@ -568,30 +599,7 @@ function StageInner() {
 				onClickItem={ onClickItem }
 				actions={ actions as Action< unknown >[] }
 			>
-				<Stack
-					align="center"
-					className="jp-forms-dataviews__view-actions"
-					gap="sm"
-					justify="space-between"
-				>
-					<Stack align="center" gap="sm">
-						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
-							<Tabs.List density="compact">
-								{ statusTabs.map( tab => (
-									<Tabs.Tab value={ tab.slug } key={ tab.slug }>
-										{ tab.label }
-									</Tabs.Tab>
-								) ) }
-							</Tabs.List>
-						</Tabs.Root>
-					</Stack>
-					<Stack align="center" gap="sm">
-						<DataViews.Search />
-						<DataViews.FiltersToggle />
-						<DataViews.ViewConfig />
-					</Stack>
-				</Stack>
-				<DataViews.FiltersToggled className="dataviews-filters__container jp-forms-dataviews-filters__container" />
+				<DataViewsHeaderRow activeTab="responses" />
 				<DataViews.Layout />
 				<DataViews.Footer />
 			</DataViews>

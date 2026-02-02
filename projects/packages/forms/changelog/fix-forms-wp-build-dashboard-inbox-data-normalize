@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix data normalization on dashboard

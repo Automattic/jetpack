@@ -113,7 +113,7 @@ class Jetpack_Plugin_Compatibility {
 		'disable-xml-rpc-api/disable-xml-rpc-api.php'     => '"disable-xml-rpc-api" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
 		'manage-xml-rpc/manage-xml-rpc.php'               => '"manage-xml-rpc" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
 		'one-click-ssl/ssl.php'                           => '"one-click-ssl" has been deactivated, because it is not supported on WordPress.com.',
-		'really-simple-ssl/really-simple-ssl.php'         => '"really-simple-ssl" is not supported on WordPress.com.',
+		'really-simple-ssl/rlrsssl-really-simple-ssl.php' => '"really-simple-ssl" is not supported on WordPress.com.',
 		'really-simple-ssl-pro/really-simple-ssl-pro.php' => '"really-simple-ssl-pro" is not supported on WordPress.com.',
 		'sg-security/sg-security.php'                     => '"sg-security" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
 		'stopbadbots/stopbadbots.php'                     => '"stopbadbots" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',

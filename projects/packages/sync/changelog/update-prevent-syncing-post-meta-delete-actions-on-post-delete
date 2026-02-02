@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: Stop syncing deleted_post_meta actions when deleting posts.
