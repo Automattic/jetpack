@@ -29,11 +29,36 @@ class Public_Abilities {
 	const REST_BASE = 'public-abilities';
 
 	/**
+	 * Whether init() has been called.
+	 *
+	 * @var bool
+	 */
+	private static $initialized = false;
+
+	/**
+	 * Cached public abilities for the current request.
+	 *
+	 * @var array<string, WP_Ability>|null
+	 */
+	private static $cached_abilities = null;
+
+	/**
+	 * Default rate limit: max executions per IP per minute.
+	 */
+	const DEFAULT_RATE_LIMIT = 20;
+
+	/**
 	 * Hook into WordPress.
 	 */
 	public static function init() {
+		if ( self::$initialized ) {
+			return;
+		}
+		self::$initialized = true;
+
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'render_bot_discovery' ) );
+		add_filter( 'jetpack_public_abilities_allow_execution', array( __CLASS__, 'default_rate_limit' ), 5, 1 );
 	}
 
 	/**
@@ -131,7 +156,7 @@ class Public_Abilities {
 							if ( null === $value ) {
 								return true;
 							}
-							if ( ! is_array( $value ) && ! is_object( $value ) ) {
+							if ( ! is_array( $value ) ) {
 								return new WP_Error(
 									'invalid_input',
 									__( 'Input must be a JSON object.', 'jetpack-public-abilities' ),
@@ -140,9 +165,7 @@ class Public_Abilities {
 							}
 							return true;
 						},
-						'sanitize_callback' => function ( $value ) {
-							return is_array( $value ) ? map_deep( $value, 'sanitize_text_field' ) : $value;
-						},
+						// Abilities validate and sanitize their own input via input_schema.
 					),
 				),
 			)
@@ -158,7 +181,7 @@ class Public_Abilities {
 		$abilities = self::get_public_abilities();
 
 		return new WP_REST_Response(
-			array_map( array( __CLASS__, 'format_ability' ), $abilities )
+			array_values( array_map( array( __CLASS__, 'format_ability' ), $abilities ) )
 		);
 	}
 
@@ -174,7 +197,7 @@ class Public_Abilities {
 
 		/**
 		 * Filters whether to allow a public ability execution.
-		 * Plugins can use this to implement rate limiting or other restrictions.
+		 * Return false or a WP_Error to block. Used for rate limiting.
 		 *
 		 * @param bool|WP_Error $allowed Whether the execution is allowed.
 		 * @param string        $name    The ability name.
@@ -225,13 +248,58 @@ class Public_Abilities {
 	}
 
 	/**
+	 * Default rate limiter: transient-based, per IP, per minute.
+	 *
+	 * @param bool|WP_Error $allowed Current filter value.
+	 * @return bool|WP_Error
+	 */
+	public static function default_rate_limit( $allowed ) {
+		if ( is_wp_error( $allowed ) || ! $allowed ) {
+			return $allowed;
+		}
+
+		if ( ! function_exists( 'get_transient' ) ) {
+			return $allowed;
+		}
+
+		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : 'unknown';
+		$key = 'jpa_rl_' . md5( $ip );
+
+		$count = (int) get_transient( $key );
+
+		/**
+		 * Filters the maximum number of public ability executions per IP per minute.
+		 *
+		 * @param int $limit The rate limit. Default 20.
+		 */
+		$limit = (int) apply_filters( 'jetpack_public_abilities_rate_limit', self::DEFAULT_RATE_LIMIT );
+
+		if ( $count >= $limit ) {
+			return new WP_Error(
+				'rate_limited',
+				__( 'Too many requests. Please try again later.', 'jetpack-public-abilities' ),
+				array( 'status' => 429 )
+			);
+		}
+
+		set_transient( $key, $count + 1, MINUTE_IN_SECONDS );
+
+		return $allowed;
+	}
+
+	/**
 	 * Get abilities that have the `public` annotation set to true.
 	 *
 	 * @return array<string, WP_Ability> Keyed by ability name.
 	 */
 	public static function get_public_abilities(): array {
+		if ( null !== self::$cached_abilities ) {
+			return self::$cached_abilities;
+		}
+
 		if ( ! function_exists( 'wp_get_abilities' ) ) {
-			return array();
+			self::$cached_abilities = array();
+			return self::$cached_abilities;
 		}
 
 		$public = array();
@@ -244,7 +312,8 @@ class Public_Abilities {
 			}
 		}
 
-		return $public;
+		self::$cached_abilities = $public;
+		return self::$cached_abilities;
 	}
 
 	/**
