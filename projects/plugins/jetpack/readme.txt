@@ -326,19 +326,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.5-a.5 - 2026-01-26
+### 15.5-beta - 2026-02-02
+#### Major Enhancements
+- General: Update minimum WordPress version to 6.8.
+
 #### Enhancements
-- Forms: Update DataViews header and filters.
-- Likes: Enable CSS inlining.
-- Social: Refactor share status UI to use Notice component.
-- Social: Show a snackbar while sharing is in progress.
-- Social: Use fallback avatar for Jetpack Social connection icons.
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
+- Forms: Add single forms screen.
+- Forms: Display star and heart rating icons on form submission confirmation page.
+- Social: Gate per-network customization behind paid features.
+- Likes: Add minified build for CSS.
+- Likes: Display a notice to block theme users explaining they can add the Like block directly in the site editor instead of enabling the legacy feature.
+- Social: Mark new connections as shared by default for privileged users.
 
 #### Bug fixes
-- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting.
-- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts.
-- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts.
-- Social Previews: Use fallback image when social preview profile picture fails.
+- Forms: Improve VoiceOver for form submissions.
+- Site Switcher: Fix partial keyword matching so typing 'swit' shows 'Switch to...' results in the command palette.
 
 --------
 
