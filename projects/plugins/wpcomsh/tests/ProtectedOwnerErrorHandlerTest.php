@@ -7,31 +7,35 @@
 
 use Automattic\WPComSH\Connection\Protected_Owner_Error_Handler;
 
-/**
- * Mock Atomic_Persistent_Data class for testing.
- *
- * This mock simulates the Atomic_Persistent_Data class that exists on WordPress.com Atomic.
- * It allows tests to control the JETPACK_CONNECTION_OWNER_EMAIL value.
- */
-class Atomic_Persistent_Data {
+// Only declare the mock class if the real one doesn't exist.
+// In CI, the real Atomic_Persistent_Data class may be loaded.
+if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 	/**
-	 * Mock owner email value. Set this in tests to control behavior.
+	 * Mock Atomic_Persistent_Data class for testing.
 	 *
-	 * @var string|null
+	 * This mock simulates the Atomic_Persistent_Data class that exists on WordPress.com Atomic.
+	 * It allows tests to control the JETPACK_CONNECTION_OWNER_EMAIL value.
 	 */
-	public static $mock_owner_email = null;
+	class Atomic_Persistent_Data {
+		/**
+		 * Mock owner email value. Set this in tests to control behavior.
+		 *
+		 * @var string|null
+		 */
+		public static $mock_owner_email = null;
 
-	/**
-	 * Magic getter to return mock values.
-	 *
-	 * @param string $name Property name.
-	 * @return mixed
-	 */
-	public function __get( $name ) {
-		if ( 'JETPACK_CONNECTION_OWNER_EMAIL' === $name ) {
-			return self::$mock_owner_email;
+		/**
+		 * Magic getter to return mock values.
+		 *
+		 * @param string $name Property name.
+		 * @return mixed
+		 */
+		public function __get( $name ) {
+			if ( 'JETPACK_CONNECTION_OWNER_EMAIL' === $name ) {
+				return self::$mock_owner_email;
+			}
+			return null;
 		}
-		return null;
 	}
 }
 
@@ -60,8 +64,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		delete_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION );
 		delete_option( 'jetpack_connection_xmlrpc_verified_errors' );
 
-		// Reset mock Atomic_Persistent_Data owner email
-		Atomic_Persistent_Data::$mock_owner_email = null;
+		// Reset mock Atomic_Persistent_Data owner email (only if using mock class)
+		if ( property_exists( 'Atomic_Persistent_Data', 'mock_owner_email' ) ) {
+			Atomic_Persistent_Data::$mock_owner_email = null;
+		}
 	}
 
 	/**
@@ -71,8 +77,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		delete_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION );
 		delete_option( 'jetpack_connection_xmlrpc_verified_errors' );
 
-		// Reset mock Atomic_Persistent_Data owner email
-		Atomic_Persistent_Data::$mock_owner_email = null;
+		// Reset mock Atomic_Persistent_Data owner email (only if using mock class)
+		if ( property_exists( 'Atomic_Persistent_Data', 'mock_owner_email' ) ) {
+			Atomic_Persistent_Data::$mock_owner_email = null;
+		}
 
 		parent::tearDown();
 	}
@@ -107,6 +115,11 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	 * Test handle_error method returns protected owner error when active error exists.
 	 */
 	public function test_handle_error_returns_protected_owner_error() {
+		// Skip if using real Atomic_Persistent_Data class (can't control its values)
+		if ( ! property_exists( 'Atomic_Persistent_Data', 'mock_owner_email' ) ) {
+			$this->markTestSkipped( 'Test requires mock Atomic_Persistent_Data class.' );
+		}
+
 		$test_email = 'test@example.com';
 
 		// Set an error
@@ -168,6 +181,11 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	 * was established at some point, so any stored error is no longer valid.
 	 */
 	public function test_handle_error_clears_error_when_apd_has_owner_email() {
+		// Skip if using real Atomic_Persistent_Data class (can't control its values)
+		if ( ! property_exists( 'Atomic_Persistent_Data', 'mock_owner_email' ) ) {
+			$this->markTestSkipped( 'Test requires mock Atomic_Persistent_Data class.' );
+		}
+
 		$test_email = 'test@example.com';
 
 		// Set an error
