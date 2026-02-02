@@ -229,10 +229,6 @@ class Public_Abilities {
 			return $allowed;
 		}
 
-		if ( ! function_exists( 'get_transient' ) ) {
-			return $allowed;
-		}
-
 		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : 'unknown';
 		$key = 'jpa_rl_' . md5( $ip );
 
