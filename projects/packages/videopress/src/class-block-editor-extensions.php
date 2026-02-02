@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -161,6 +162,7 @@ class Block_Editor_Extensions {
 			'isStandaloneActive'          => Status::is_standalone_plugin_active(),
 			'imagesURLBase'               => plugin_dir_url( __DIR__ ) . 'build/images/',
 			'playerBridgeUrl'             => plugins_url( '../build/lib/player-bridge.js', __FILE__ ),
+			'canUploadToVideoPress'       => self::can_upload_to_videopress( $site_type ),
 		);
 
 		// Expose initial state of site connection
@@ -168,5 +170,36 @@ class Block_Editor_Extensions {
 
 		// Expose initial state of videoPress editor
 		wp_localize_script( self::$script_handle, 'videoPressEditorState', $videopress_editor_state );
+	}
+
+	/**
+	 * Check if the user can upload videos to VideoPress.
+	 *
+	 * On Dotcom sites, VideoPress always handles video uploads to show appropriate
+	 * errors/upsell messages. On Jetpack sites, we check if VideoPress is active
+	 * and if the user has plan support or hasn't used their free video yet.
+	 *
+	 * @param string $site_type The site type ('simple', 'atomic', or 'jetpack').
+	 * @return bool Whether VideoPress should handle video uploads.
+	 */
+	private static function can_upload_to_videopress( $site_type ) {
+		// On Dotcom sites (simple/atomic), VideoPress always handles video uploads.
+		if ( 'jetpack' !== $site_type ) {
+			return true;
+		}
+
+		// On Jetpack sites, check if VideoPress is active (module OR standalone plugin).
+		if ( ! Status::is_active() ) {
+			return false;
+		}
+
+		// Check if user has a plan that supports VideoPress.
+		if ( Current_Plan::supports( 'videopress' ) ) {
+			return true;
+		}
+
+		// Check if user hasn't used their free video yet.
+		$video_data = Data::get_video_data();
+		return 0 === (int) $video_data['total'];
 	}
 }

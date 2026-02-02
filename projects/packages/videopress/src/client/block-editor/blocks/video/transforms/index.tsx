@@ -52,9 +52,17 @@ const transformFromCoreEmbed = {
 
 const transformFromFile = {
 	type: 'files',
-	// Check if the files array contains a video file.
+	// Check if the files array contains a video file and VideoPress can handle uploads.
 	isMatch: files => {
 		if ( ! files || ! files.length ) {
+			return false;
+		}
+
+		// Check if VideoPress should handle video uploads.
+		// On Jetpack sites without VideoPress active or without plan/free video,
+		// let core/video handle the upload instead.
+		const canUpload = window?.videoPressEditorState?.canUploadToVideoPress === '1';
+		if ( ! canUpload ) {
 			return false;
 		}
 
