@@ -26,7 +26,9 @@ export function PreviewSection( { connection }: PreviewSectionProps ) {
 					<VisuallyHidden as="h2">
 						{ _x( 'Preview', 'Noun: Post preview section heading', 'jetpack-publicize-pkg' ) }
 					</VisuallyHidden>
-					<PostPreview connection={ connection } />
+					<div className={ styles[ 'preview-wrapper' ] }>
+						<PostPreview connection={ connection } />
+					</div>
 				</>
 			) : (
 				<div className={ styles[ 'inactive-preview' ] }>
