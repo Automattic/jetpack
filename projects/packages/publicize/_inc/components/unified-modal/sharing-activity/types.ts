@@ -1,5 +1,4 @@
-import { ShareStatusItem } from '../../../social-store/types';
-import { TABS } from './constants';
+import { ShareStatusItem, UnifiedModalData } from '../../../social-store/types';
 
 /**
  * The activity type discriminator.
@@ -104,4 +103,4 @@ export type SharingActivityItem = SharedActivityItem | ScheduledActivityItem;
 /**
  * Filter values for the DataViews.
  */
-export type SharingActivityFilter = ( typeof TABS )[ keyof typeof TABS ];
+export type SharingActivityFilter = UnifiedModalData[ 'sharingActivity' ][ 'initialTab' ];

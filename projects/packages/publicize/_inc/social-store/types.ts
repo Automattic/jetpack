@@ -1,4 +1,4 @@
-import { AttachedMedia, MediaSourceValue } from '../utils';
+import { AttachedMedia, MediaSourceValue, SHARING_ACTIVITY_TABS } from '../utils';
 
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
@@ -82,7 +82,9 @@ export type ScheduledShares = {
 };
 
 export type UnifiedModalData = {
-	initialTab?: string;
+	sharingActivity?: {
+		initialTab?: ( typeof SHARING_ACTIVITY_TABS )[ keyof typeof SHARING_ACTIVITY_TABS ];
+	};
 };
 
 export type UnifiedModalState = {
