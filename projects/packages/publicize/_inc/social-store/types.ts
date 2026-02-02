@@ -85,6 +85,9 @@ export type UnifiedModalData = {
 	sharingActivity?: {
 		initialTab?: ( typeof SHARING_ACTIVITY_TABS )[ keyof typeof SHARING_ACTIVITY_TABS ];
 	};
+	socialPreview?: {
+		initialTab?: string;
+	};
 };
 
 export type UnifiedModalState = {

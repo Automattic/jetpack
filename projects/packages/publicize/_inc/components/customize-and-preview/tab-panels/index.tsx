@@ -1,6 +1,8 @@
 import { TabPanel } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from 'react';
 import { usePerNetworkCustomization } from '../../../hooks/use-per-network-customization';
+import { store as socialStore } from '../../../social-store';
 import { hasSocialPaidFeatures } from '../../../utils';
 import { CustomizationSection } from '../customization-section';
 import styles from './styles.module.scss';
@@ -30,6 +32,19 @@ export function TabPanelWrapper() {
 		[ usingPerNetworkCustomization ]
 	);
 
+	const { setUnifiedModalData } = useDispatch( socialStore );
+
+	const initialTab = useSelect( select => {
+		return select( socialStore ).getUnifiedModalData()?.socialPreview?.initialTab;
+	}, [] );
+
+	const onSelect = useCallback(
+		( tabName: string ) => {
+			setUnifiedModalData( { socialPreview: { initialTab: tabName } } );
+		},
+		[ setUnifiedModalData ]
+	);
+
 	return (
 		<div
 			className={ styles[ 'tab-panel-wrapper' ] }
@@ -39,6 +54,8 @@ export function TabPanelWrapper() {
 			{ ! usingPerNetworkCustomization && <CustomizationSection /> }
 			<TabPanel
 				className={ styles[ 'tab-panel' ] }
+				initialTabName={ initialTab }
+				onSelect={ onSelect }
 				tabs={ tabs }
 				children={ tabRenderer }
 				data-variant={ usingPerNetworkCustomization ? 'per-network' : 'global' }
