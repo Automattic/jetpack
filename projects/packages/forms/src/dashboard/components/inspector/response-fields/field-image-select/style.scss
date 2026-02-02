@@ -1,16 +1,32 @@
 @use "@wordpress/base-styles/variables";
 
-.jp-forms__image-select-field-button.components-button {
-	height: auto;
-	text-align: left;
-	text-wrap: auto;
+.jp-forms__image-select-preview {
+	// Without display: block, image/svg will display a blank space.
+	img,
+	svg {
+		display: block;
+	}
 
-	padding: variables.$grid-unit-10;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: variables.$grid-unit-10;
+	&.has-image {
+		cursor: pointer;
 
-	.jp-forms__image-select-field-button-label {
+	}
+
+	.jp-forms__image-select-preview-label-wrapper {
 		max-width: 138px; // Same as the image width
+		align-items: baseline;
+
+		.jp-forms__image-select-preview-selected {
+			flex-shrink: 0;
+			box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+			border-radius: 2px;
+			padding: 4px;
+			min-width: 1em;
+			text-align: center;
+		}
+
+		.jp-forms__image-select-preview-label {
+			flex-grow: 1;
+		}
 	}
 }

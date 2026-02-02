@@ -1,8 +1,11 @@
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils/site-type-utils';
 import {
-	Button,
 	Icon,
+	Card,
+	CardMedia,
+	CardBody,
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { image as imageIcon } from '@wordpress/icons';
@@ -31,47 +34,72 @@ function photonSafeUrl( url: string = '' ): string | null {
 	return photon( url.split( '?', 1 )[ 0 ], { width: 120, height: 120 } );
 }
 
+const ImageSelectButton2 = ( { choice, handleFilePreview } ) => {
+	const label = choice.label ? `${ choice.selected }: ${ choice.label }` : choice.selected;
+	const hasImage = choice.image?.src;
+	return (
+		<Card
+			onClick={
+				hasImage
+					? handleFilePreview( {
+							file_id: choice.image.id,
+							name: label,
+							url: choice.image.src,
+					  } )
+					: undefined
+			}
+			className={ `jp-forms__image-select-preview ${ hasImage ? 'has-image' : '' }` }
+		>
+			<CardMedia>
+				<div className="jp-forms__image-select-preview-image" style={ { padding: '8px' } }>
+					{ hasImage ? (
+						<img
+							width={ 138 }
+							height={ 144 }
+							alt={ choice.selected }
+							loading="lazy"
+							src={ photonSafeUrl( choice.image.src ) }
+							style={ { objectFit: 'cover' } }
+						/>
+					) : (
+						<Icon icon={ imageIcon } size={ 144 } />
+					) }
+				</div>
+			</CardMedia>
+			<CardBody
+				size={ {
+					blockStart: 'none',
+					blockEnd: 'xSmall',
+					inlineStart: 'xSmall',
+					inlineEnd: 'xSmall',
+				} }
+			>
+				<HStack
+					className="jp-forms__image-select-preview-label-wrapper"
+					spacing="2"
+					alignment="topLeft"
+				>
+					<Text className="jp-forms__image-select-preview-selected">{ choice.selected }</Text>
+					<Text className="jp-forms__image-select-preview-label">{ choice.label }</Text>
+				</HStack>
+			</CardBody>
+		</Card>
+	);
+};
+
 const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 	return (
 		<>
 			{ ( choices?.length ?? 0 ) === 0 && '-' }
 			{ ( choices?.length ?? 0 ) > 0 && (
-				<HStack spacing="1" alignment="topLeft" wrap="wrap">
+				<HStack spacing="2" alignment="topLeft" wrap={ true }>
 					{ choices.map( choice => {
-						const label = choice.label
-							? `${ choice.selected }: ${ choice.label }`
-							: choice.selected;
-						const hasImage = choice.image?.src;
 						return (
-							<Button
-								__next40pxDefaultSize
+							<ImageSelectButton2
 								key={ choice.selected }
-								variant="secondary"
-								onClick={
-									hasImage
-										? handleFilePreview( {
-												file_id: choice.image.id,
-												name: label,
-												url: choice.image.src,
-										  } )
-										: undefined
-								}
-								className="jp-forms__image-select-field-button"
-							>
-								{ hasImage ? (
-									<img
-										width={ 138 }
-										height={ 144 }
-										alt={ choice.selected }
-										loading="lazy"
-										src={ photonSafeUrl( choice.image.src ) }
-										style={ { objectFit: 'cover' } }
-									/>
-								) : (
-									<Icon icon={ imageIcon } size={ 144 } />
-								) }
-								<span className="jp-forms__image-select-field-button-label">{ label }</span>
-							</Button>
+								choice={ choice }
+								handleFilePreview={ handleFilePreview }
+							/>
 						);
 					} ) }
 				</HStack>
