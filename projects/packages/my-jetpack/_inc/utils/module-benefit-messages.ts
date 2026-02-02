@@ -99,7 +99,7 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 			'Your posts now auto-share to social networks and track engagement in one place.',
 			'jetpack-my-jetpack'
 		),
-		reader: __(
+		'wpcom-reader': __(
 			'You can now reach the WordPress.com Reader from your site, and join a community of creators and bloggers.',
 			'jetpack-my-jetpack'
 		),

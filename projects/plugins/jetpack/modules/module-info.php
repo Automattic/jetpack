@@ -883,15 +883,15 @@ add_action( 'jetpack_module_more_info_blaze', 'jetpack_more_info_blaze' );
 /**
  * WordPress.com Reader support link.
  */
-function jetpack_reader_more_link() {
+function jetpack_wpcom_reader_more_link() {
 	echo esc_url( Redirect::get_url( 'jetpack-support-reader' ) );
 }
-add_action( 'jetpack_learn_more_button_reader', 'jetpack_reader_more_link' );
+add_action( 'jetpack_learn_more_button_wpcom-reader', 'jetpack_wpcom_reader_more_link' );
 
 /**
  * WordPress.com Reader description.
  */
-function jetpack_more_info_reader() {
+function jetpack_more_info_wpcom_reader() {
 	esc_html_e( 'Quickly access the WordPress.com Reader from your site’s admin bar.', 'jetpack' );
 }
-add_action( 'jetpack_module_more_info_reader', 'jetpack_more_info_reader' );
+add_action( 'jetpack_module_more_info_wpcom-reader', 'jetpack_more_info_wpcom_reader' );
