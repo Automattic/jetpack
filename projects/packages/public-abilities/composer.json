@@ -3,7 +3,9 @@
 	"description": "Unauthenticated REST discovery and execution of WordPress abilities flagged as public.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-device-detection": "^2.2"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-changelogger": "@dev",

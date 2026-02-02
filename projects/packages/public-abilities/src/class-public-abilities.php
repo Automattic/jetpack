@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use WP_Ability;
 use WP_Error;
 use WP_REST_Request;
@@ -101,25 +102,7 @@ class Public_Abilities {
 	 * @return bool
 	 */
 	private static function is_bot_request(): bool {
-		// phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled -- function name check
-		if ( function_exists( 'is_bot' ) ) {
-			return is_bot();
-		}
-
-		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		if ( empty( $ua ) ) {
-			return false;
-		}
-
-		$bot_patterns = array( 'googlebot', 'bingbot', 'claudebot', 'gptbot', 'chatgpt-user', 'anthropic', 'crawl', 'spider', 'slurp', 'facebookexternalhit', 'applebot' );
-		$ua_lower     = strtolower( $ua );
-		foreach ( $bot_patterns as $pattern ) {
-			if ( strpos( $ua_lower, $pattern ) !== false ) {
-				return true;
-			}
-		}
-
-		return false;
+		return User_Agent_Info::is_bot();
 	}
 
 	/**
