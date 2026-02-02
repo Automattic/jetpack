@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  # actions/checkout, actions/cache?, actions/upload-artifact, actions/download-artifact
+  # actions/checkout, actions/upload-artifact, actions/download-artifact
   contents: read
 
 env:
@@ -81,65 +81,66 @@ jobs:
       matrix:
         include: ${{ fromJson( needs.create-test-matrix.outputs.build-matrix ) }}
     steps:
-      - name: Ensure ${{ matrix.buildGroup }} build cache
-        id: jetpack-build-cache
-        uses: actions/cache/restore@v5
-        with:
-          lookup-only: true
-          path: |
-            .
-            !./.github/
-          key: ${{ matrix.buildGroup }}-${{ github.sha }}
-
       - name: Checkout code
-        if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v6
 
       - name: Setup tools
-        if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         uses: ./.github/actions/tool-setup
 
       - name: Install monorepo
-        if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         run: pnpm install
 
       - name: Build projects
         id: build-step
-        if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         env:
           COMPOSER_ROOT_VERSION: "dev-trunk"
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
         run: |
           find . -path ./.github -prune -o -type f -print | sort > /tmp/before.txt
+          find . -path ./.github -prune -o -type l -print | sort > /tmp/beforel.txt
           echo "::group::Build plugin(s)"
           cd "$PROJECT_PATH"
           pnpm run build
           cd "$GITHUB_WORKSPACE"
           echo "::endgroup::"
+          find . -path ./.github -prune -o -type f -print | sort > /tmp/after.txt
+          find . -path ./.github -prune -o -type l -print | sort > /tmp/afterl.txt
 
           # We only want to save the files that were actually created or changed.
-          # But we can't just list them for actions/cache/save, "Argument list too long".
-          # So instead we delete all the unchanged files so we can tell actions/cache/save
-          # to save everything that's left.
-          git -c core.quotepath=off diff --name-only | sort > /tmp/changed.txt
-          if [[ -s /tmp/changed.txt ]]; then
-            grep -F -x -v -f /tmp/changed.txt /tmp/before.txt > /tmp/remove.txt
-          else
-            cp /tmp/before.txt /tmp/remove.txt
-          fi
-          xargs -d '\n' rm < /tmp/remove.txt
-          find . -type d -empty -delete
+          {
+            comm -13 /tmp/before.txt /tmp/after.txt
+            git -c core.quotepath=off diff --name-only
+          } | sed 's!^./!!' | sort -u > /tmp/changed.txt
+          comm -13 /tmp/beforel.txt /tmp/afterl.txt | sed 's!^./!!' > /tmp/changedl.txt
+
+          # There will probably be a bunch of duplicate vendor files. Try to deduplicate them.
+          echo "::group::Deduplicating files"
+          xargs -d '\n' sha256sum < /tmp/changed.txt | perl -nwe '
+            BEGIN { $h = ""; $f = ""; }
+            die "WTF? $_" unless /^([0-9a-f]{64})  (\S.*)$/;
+            if ( $h ne $1 ) {
+              $h=$1; $l=$2;
+            } else {
+              print "$2 → $f\n";
+              unlink( $2 ) or die "Failed to delete $2: $!\n";
+              link( $f, $2 ) or die "Failed to link $2 → $f: $!\n";
+            }
+          '
+          echo "::endgroup::"
+
+          echo "::group::Creating artifact"
+          sed 's!^!./!' /tmp/changed.txt /tmp/changedl.txt | tar -cvvf build-cache.tar.xz
+          echo "::endgroup::"
 
       - name: Save ${{ matrix.buildGroup }} build cache
-        if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
-        id: jetpack-build-cache-save
-        uses: actions/cache/save@v5
+        uses: actions/upload-artifact@v6
         with:
-          path: |
-            .
-            !./.github/
-          key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
+          name: ${{ matrix.buildGroup }}
+          path: build-cache.tar.xz
+          retention-days: 1
+          # Already compressed.
+          compression-level: 0
 
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
@@ -161,15 +162,14 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Restore ${{ matrix.buildGroup }} build cache
-        id: jetpack-build-cache
+        uses: actions/download-artifact@v7
         if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
-        uses: actions/cache/restore@v5
         with:
-          path: |
-            .
-            !./.github/
-          key: ${{ matrix.buildGroup }}-${{ github.sha }}
-          fail-on-cache-miss: true
+          name: ${{ matrix.buildGroup }}
+      - name: Extract ${{ matrix.buildGroup }} build cache
+        if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
+        run: |
+          tar -xvvf build-cache.tar.xz .
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
