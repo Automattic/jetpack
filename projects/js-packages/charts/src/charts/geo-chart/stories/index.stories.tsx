@@ -113,7 +113,8 @@ export const ConstrainedToParentHeight: Story = {
 		constrainToParentHeight: true,
 		aspectRatio: 0.6,
 		/**
-		 * Remove the height prop to allow the chart to fill the parent container.
+		 * Set height to undefined so the wrapper uses 100% height,
+		 * enabling the constrainToParentHeight logic to work correctly.
 		 */
 		height: undefined,
 		containerWidth: '500px',
