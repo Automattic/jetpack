@@ -106,3 +106,11 @@ export const WithComplexTooltips: Story = {
 		],
 	},
 };
+
+export const ConstrainedToParentHeight: Story = {
+	args: {
+		...geoChartStoryArgs,
+		constrainToParentHeight: true,
+		containerHeight: '300px',
+	},
+};

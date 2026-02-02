@@ -167,6 +167,12 @@ export const sharedChartArgTypes = {
 		description: 'Debounce time in ms for resize events (performance)',
 		table: { category: 'Performance' },
 	},
+	constrainToParentHeight: {
+		control: { type: 'boolean' },
+		description:
+			'When true, constrains the chart height to not exceed the parent container height. Prevents vertical scrollbars in fixed-height containers.',
+		table: { category: 'Dimensions' },
+	},
 	containerWidth: {
 		control: { type: 'text' },
 		description: 'CSS width value for the chart container (e.g., "400px", "100%")',

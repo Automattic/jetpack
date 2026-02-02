@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+withResponsive: add constrainToParentHeight prop to prevent chart overflow in fixed-height containers.
