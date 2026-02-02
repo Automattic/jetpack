@@ -332,16 +332,41 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Enhancements
 - Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
+- Command Palette: Add site switcher command to quickly switch between WordPress.com connected sites.
+- Forms: Add form editor.
+- Forms: Add ref attribute support for the form block.
 - Forms: Add single forms screen.
+- Forms: Allow merging two options together with backspace.
 - Forms: Display star and heart rating icons on form submission confirmation page.
-- Social: Gate per-network customization behind paid features.
+- Forms: Make form webhooks generally available.
+- Forms: Update DataViews header and filters.
+- IDC: Add revalidation of IDC.
+- Instant Search: Show WooCommerce product filters in filter widget.
 - Likes: Add minified build for CSS.
 - Likes: Display a notice to block theme users explaining they can add the Like block directly in the site editor instead of enabling the legacy feature.
+- Likes: Enable CSS inlining.
+- My Jetpack: Check red bubble notifications async when cache is not available.
+- Sharing: Improve accessibility of sharing button texts by removing "Click to" prefix.
+- Social: Gate per-network customization behind paid features.
 - Social: Mark new connections as shared by default for privileged users.
+- Social: Refactor share status UI to use Notice component.
+- Social: Show a snackbar while sharing is in progress.
+- Social: Use fallback avatar for Jetpack Social connection icons.
 
 #### Bug fixes
+- About Page: Fix plugin icon positioning and sizing.
+- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting.
+- AI Search: Prevent AI Search from disappearing when returning certain responses.
+- Contact Form: Fix checkbox field value not being properly output in the classic editor form builder.
+- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts.
+- Forms: Fix date exports.
 - Forms: Improve VoiceOver for form submissions.
+- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts.
+- Shortcode: Fix broken YouTube URL on the classic editor.
 - Site Switcher: Fix partial keyword matching so typing 'swit' shows 'Switch to...' results in the command palette.
+- Slideshow: Ensure slideshows do not stretch to parent container width on mobile if no list height is set.
+- Social Previews: Use fallback image when social preview profile picture fails.
+- UI: Prevent social modals in editor from stretching too wide on large screens.
 
 --------
 
