@@ -3,7 +3,10 @@ import clsx from 'clsx';
 import { Footer, FooterProps } from './footer.tsx';
 import { Header } from './header.tsx';
 
-export type ScreenProps = {
+export type ScreenProps = Omit<
+	React.ComponentProps< typeof Navigator.Screen >,
+	'content' | 'children'
+> & {
 	/**
 	 * The title of the screen.
 	 */
@@ -42,20 +45,17 @@ export type ScreenProps = {
 	 * className to be applied to the modal.
 	 */
 	className?: string;
-} & (
-	| {
-			/**
-			 * The content of the screen.
-			 */
-			children: React.ReactNode;
-	  }
-	| {
-			/**
-			 * The content of the screen.
-			 */
-			content: React.ReactNode;
-	  }
-);
+
+	/**
+	 * The content of the screen.
+	 */
+	content?: React.ReactNode;
+
+	/**
+	 * The children of the screen. Alternative to `content`.
+	 */
+	children?: React.ReactNode;
+};
 
 /**
  * Renders a screen.
@@ -73,20 +73,24 @@ export function Screen( {
 	isScreenLocked,
 	footerContent,
 	footerActions,
+	children,
+	content,
 	...props
 }: ScreenProps ) {
 	const hasFooter = Boolean( footerContent || ( footerActions && footerActions.length ) );
 
 	return (
-		<Navigator.Screen path={ path } className={ clsx( 'jp-navigator-modal__screen', className ) }>
+		<Navigator.Screen
+			path={ path }
+			className={ clsx( 'jp-navigator-modal__screen', className ) }
+			{ ...props }
+		>
 			<Flex direction="column" gap={ 0 }>
 				<Header title={ title } isScreenLocked={ isScreenLocked } icon={ headerIcon } />
 
 				<Flex gap={ 0 } align="start" className="jp-navigator-modal__body">
 					{ sidebar ? <div className="jp-navigator-modal__sidebar">{ sidebar }</div> : null }
-					<div className="jp-navigator-modal__content">
-						{ ( 'children' in props && props.children ) || ( 'content' in props && props.content ) }
-					</div>
+					<div className="jp-navigator-modal__content">{ content ?? children }</div>
 				</Flex>
 				{ hasFooter ? (
 					<Footer actions={ footerActions } isScreenLocked={ isScreenLocked }>
