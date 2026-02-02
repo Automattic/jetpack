@@ -3,15 +3,16 @@
 	"description": "Check that a Pull Request has reviews from required teams.",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"type": "module",
 	"main": "index.js",
 	"scripts": {
 		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt",
-		"test": "jest --config=tests/jest.config.js --verbose",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js --verbose",
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
-		"@actions/core": "2.0.2",
-		"@actions/github": "7.0.0",
+		"@actions/core": "3.0.0",
+		"@actions/github": "9.0.0",
 		"error": "10.4.0",
 		"js-yaml": "4.1.1",
 		"picomatch": "4.0.2"
