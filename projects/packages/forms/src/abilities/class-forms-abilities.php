@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Forms\Abilities;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\ContactForm\Feedback;
 
 /**
  * Registers Jetpack Forms abilities with the WordPress Abilities API.
@@ -268,7 +269,7 @@ class Forms_Abilities {
 			'jetpack-forms/get-forms',
 			array(
 				'label'               => __( 'List available forms', 'jetpack-forms' ),
-				'description'         => __( 'Discover forms on this site that can be filled out. Returns form IDs, titles, and field definitions including labels, types, and options.', 'jetpack-forms' ),
+				'description'         => __( 'Discover forms on this site that can be filled out. Returns up to 50 forms with IDs, titles, and field definitions including labels, types, and options.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -451,9 +452,12 @@ class Forms_Abilities {
 		);
 
 		if ( ! empty( $args['post_id'] ) ) {
-			// Find forms embedded in a specific post by checking the source meta.
-			$query_args['meta_key']   = Contact_Form::SOURCE_META_KEY;
-			$query_args['meta_value'] = absint( $args['post_id'] );
+			$query_args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'   => Contact_Form::SOURCE_META_KEY,
+					'value' => absint( $args['post_id'] ),
+				),
+			);
 		}
 
 		$posts = get_posts( $query_args );
@@ -496,8 +500,15 @@ class Forms_Abilities {
 		foreach ( $blocks as $block ) {
 			if ( strpos( $block['blockName'] ?? '', 'jetpack/field-' ) === 0 ) {
 				$attrs = $block['attrs'] ?? array();
+				$label = $attrs['label'] ?? '';
+
+				// Skip fields without a label — they can't be submitted by key.
+				if ( '' === $label ) {
+					continue;
+				}
+
 				$field = array(
-					'label'    => $attrs['label'] ?? '',
+					'label'    => $label,
 					'type'     => str_replace( 'jetpack/field-', '', $block['blockName'] ),
 					'required' => ! empty( $attrs['required'] ),
 				);
@@ -548,12 +559,12 @@ class Forms_Abilities {
 
 		$submitted = $args['fields'];
 
-		// Validate required fields.
+		// Validate required fields and option values in a single pass.
 		foreach ( $form_fields as $field_def ) {
-			if ( $field_def['required'] ) {
-				$label = $field_def['label'];
-				$value = $submitted[ $label ] ?? null;
+			$label = $field_def['label'];
+			$value = $submitted[ $label ] ?? null;
 
+			if ( $field_def['required'] ) {
 				if ( null === $value || ( is_scalar( $value ) && '' === trim( (string) $value ) ) ) {
 					return new \WP_Error(
 						'missing_field',
@@ -563,17 +574,13 @@ class Forms_Abilities {
 					);
 				}
 			}
-		}
 
-		// Validate option fields against allowed values.
-		foreach ( $form_fields as $field_def ) {
-			if ( ! empty( $field_def['options'] ) && isset( $submitted[ $field_def['label'] ] ) ) {
-				$val = $submitted[ $field_def['label'] ];
-				if ( '' !== $val && ! in_array( $val, $field_def['options'], true ) ) {
+			if ( ! empty( $field_def['options'] ) && null !== $value && '' !== $value ) {
+				if ( ! in_array( $value, $field_def['options'], true ) ) {
 					return new \WP_Error(
 						'invalid_option',
 						/* translators: %s is the field label */
-						sprintf( __( 'Invalid option for field "%s".', 'jetpack-forms' ), $field_def['label'] ),
+						sprintf( __( 'Invalid option for field "%s".', 'jetpack-forms' ), $label ),
 						array( 'status' => 400 )
 					);
 				}
@@ -656,7 +663,7 @@ class Forms_Abilities {
 				'post_mime_type' => 'v3',
 				'post_parent'    => $form_post->ID,
 				'post_author'    => 0,
-				'comment_status' => 'open',
+				'comment_status' => Feedback::STATUS_UNREAD,
 			)
 		);
 
@@ -670,11 +677,16 @@ class Forms_Abilities {
 			update_post_meta( $post_id, '_feedback_akismet_values', $akismet_values );
 		}
 
-		/** This action is documented in class-contact-form.php */
+		/**
+		 * This action is documented in class-contact-form.php.
+		 *
+		 * Note: 2nd arg is empty because this flow doesn't have Contact_Form_Field
+		 * objects. Hook consumers should use $all_values (4th arg) instead.
+		 */
 		do_action(
 			'grunion_after_feedback_post_inserted',
 			$post_id,
-			$fields_data,
+			array(),
 			$is_spam,
 			$all_values
 		);
