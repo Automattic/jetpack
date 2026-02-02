@@ -206,7 +206,7 @@ describe( 'ConvertFormToolbar', () => {
 		} );
 
 		it( 'creates synced form and navigates via URL on convert', async () => {
-			mockCreateSyncedForm.mockResolvedValue( 789, 'Footer Widget Area', 0 );
+			mockCreateSyncedForm.mockResolvedValue( 789 );
 
 			render( <ConvertFormToolbar clientId="test-id" attributes={ { to: 'test@example.com' } } /> );
 			await userEvent.click( screen.getByRole( 'button' ) );
