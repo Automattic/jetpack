@@ -12,6 +12,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Ip\Utils as Ip_Utils;
 use WP_Ability;
 use WP_Error;
 use WP_REST_Request;
@@ -198,18 +199,8 @@ class Public_Abilities {
 
 		$ability = $abilities[ $name ];
 
-		$permission = $ability->check_permissions( $input );
-		if ( is_wp_error( $permission ) ) {
-			return $permission;
-		}
-		if ( ! $permission ) {
-			return new WP_Error(
-				'ability_forbidden',
-				__( 'Permission denied.', 'jetpack-public-abilities' ),
-				array( 'status' => 403 )
-			);
-		}
-
+		// WP_Ability::execute() handles the full lifecycle: input validation
+		// against input_schema, permission checks, execution, and output validation.
 		$result = $ability->execute( $input );
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -219,7 +210,10 @@ class Public_Abilities {
 	}
 
 	/**
-	 * Default rate limiter: transient-based, per IP, per minute.
+	 * Default rate limiter using wp_cache for atomic increments.
+	 *
+	 * Uses the jetpack-ip package for proxy-aware IP detection and
+	 * wp_cache_incr() for race-safe counting on object-cache backends.
 	 *
 	 * @param bool|WP_Error $allowed Current filter value.
 	 * @return bool|WP_Error
@@ -229,10 +223,9 @@ class Public_Abilities {
 			return $allowed;
 		}
 
-		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : 'unknown';
-		$key = 'jpa_rl_' . md5( $ip );
-
-		$count = (int) get_transient( $key );
+		$ip    = Ip_Utils::get_ip() ?? 'unknown';
+		$key   = 'jpa_rl_' . md5( $ip );
+		$group = 'jetpack_public_abilities';
 
 		/**
 		 * Filters the maximum number of public ability executions per IP per minute.
@@ -241,15 +234,17 @@ class Public_Abilities {
 		 */
 		$limit = (int) apply_filters( 'jetpack_public_abilities_rate_limit', self::DEFAULT_RATE_LIMIT );
 
-		if ( $count >= $limit ) {
+		// wp_cache_add is a no-op if the key exists, so this only sets the initial value.
+		wp_cache_add( $key, 0, $group, MINUTE_IN_SECONDS );
+		$count = wp_cache_incr( $key, 1, $group );
+
+		if ( false !== $count && $count > $limit ) {
 			return new WP_Error(
 				'rate_limited',
 				__( 'Too many requests. Please try again later.', 'jetpack-public-abilities' ),
 				array( 'status' => 429 )
 			);
 		}
-
-		set_transient( $key, $count + 1, MINUTE_IN_SECONDS );
 
 		return $allowed;
 	}

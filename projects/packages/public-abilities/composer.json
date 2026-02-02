@@ -4,7 +4,8 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-device-detection": "^2.2"
+		"automattic/jetpack-device-detection": "^2.2",
+		"automattic/jetpack-ip": "^0.4"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
