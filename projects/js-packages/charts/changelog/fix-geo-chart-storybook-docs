@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+GeoChart: add missing stories referenced by Storybook MDX docs.
