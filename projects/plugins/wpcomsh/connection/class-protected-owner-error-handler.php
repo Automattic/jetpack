@@ -55,6 +55,10 @@ class Protected_Owner_Error_Handler {
 
 		// Disable WordPress.com invitations when creating protected owner accounts
 		add_filter( 'jetpack_sso_invite_new_users_wpcom', array( $this, 'disable_wpcom_invite_for_protected_owner' ) );
+
+		// Add warning when editing the protected owner's email
+		add_action( 'admin_footer-profile.php', array( $this, 'add_owner_email_warning' ) );
+		add_action( 'admin_footer-user-edit.php', array( $this, 'add_owner_email_warning' ) );
 	}
 
 	/**
@@ -318,5 +322,66 @@ class Protected_Owner_Error_Handler {
 
 		// Disable invitations for protected owner creation
 		return false;
+	}
+
+	/**
+	 * Check if a user is the protected owner based on APD email
+	 *
+	 * @param int $user_id User ID to check.
+	 * @return bool True if user is the protected owner.
+	 */
+	private function is_protected_owner( $user_id ) {
+		if ( ! class_exists( \Atomic_Persistent_Data::class ) ) {
+			return false;
+		}
+
+		$apd         = new \Atomic_Persistent_Data(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$owner_email = $apd->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		if ( ! $owner_email ) {
+			return false;
+		}
+
+		$user = get_user_by( 'id', $user_id );
+		if ( ! $user ) {
+			return false;
+		}
+
+		return strtolower( $user->user_email ) === strtolower( $owner_email );
+	}
+
+	/**
+	 * Add warning notice for protected owner email field
+	 *
+	 * Displays a warning when editing a user profile if the user is the WordPress.com
+	 * plan owner, cautioning against changing their email address.
+	 */
+	public function add_owner_email_warning() {
+		// Determine which user is being edited
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check for display purposes
+		$user_id = isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : get_current_user_id();
+
+		if ( ! $this->is_protected_owner( $user_id ) ) {
+			return;
+		}
+
+		$warning_text = __(
+			'This account is the WordPress.com plan owner. Changing the email address here can affect the connection between your site and the hosting platform. We recommend managing your account email on WP.com.',
+			'wpcomsh'
+		);
+		?>
+		<script type="text/javascript">
+		document.addEventListener('DOMContentLoaded', function() {
+			var emailCell = document.querySelector('.user-email-wrap')?.querySelector('td');
+			if (emailCell) {
+				var warning = document.createElement('p');
+				warning.className = 'description';
+				warning.style.cssText = 'color: #d63638; font-weight: 500;';
+				warning.innerHTML = '⚠️ ' + <?php echo wp_json_encode( $warning_text, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				emailCell.insertBefore(warning, emailCell.firstChild);
+			}
+		});
+		</script>
+		<?php
 	}
 }
