@@ -109,15 +109,18 @@ export const WithComplexTooltips: Story = {
 
 export const ConstrainedToParentHeight: Story = {
 	args: {
-		...geoChartStoryArgs,
+		data: geoChartStoryArgs.data,
+		withPadding: geoChartStoryArgs.withPadding,
 		constrainToParentHeight: true,
 		aspectRatio: 0.6,
-		/**
-		 * Set height to undefined so the wrapper uses 100% height,
-		 * enabling the constrainToParentHeight logic to work correctly.
-		 */
-		height: undefined,
 		containerWidth: '500px',
 		containerHeight: '200px',
 	},
+	decorators: [
+		Story => (
+			<div style={ { overflow: 'hidden', height: '100%' } }>
+				<Story />
+			</div>
+		),
+	],
 };
