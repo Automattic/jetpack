@@ -1510,8 +1510,8 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 // use new ::after approach for animated spinner inside forms
-.contact-form .wp-block-jetpack-button:last-of-type button[type="submit"].is-submitting,
-.contact-form .wp-block-button:last-of-type button[type="submit"].is-submitting {
+.contact-form .wp-block-jetpack-button .is-submitting:not(.disable-spinner),
+.contact-form .wp-block-button .is-submitting:not(.disable-spinner) {
 
 	&::after {
 
