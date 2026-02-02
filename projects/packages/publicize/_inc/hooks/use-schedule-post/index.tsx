@@ -4,7 +4,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils';
+import { features, SHARING_ACTIVITY_TABS } from '../../utils';
 import useSocialMediaConnections from '../use-social-media-connections';
 import useSocialMediaMessage from '../use-social-media-message';
 
@@ -28,7 +28,7 @@ export function useSchedulePost() {
 		// Just in case the modal is closed, we open it first.
 		openUnifiedModal( {
 			initialPath: '/sharing-activity',
-			data: { initialTab: 'scheduled' },
+			data: { sharingActivity: { initialTab: SHARING_ACTIVITY_TABS.SCHEDULED } },
 		} );
 
 		// Now do the navigation if it's already open.
