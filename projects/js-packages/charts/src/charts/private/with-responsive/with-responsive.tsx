@@ -84,6 +84,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		return (
 			<div
 				ref={ parentRef }
+				data-testid="responsive-wrapper"
 				style={ {
 					width: chartProps.size ?? chartProps.width ?? '100%',
 					height: chartProps.size ?? chartProps.height ?? defaultHeight,

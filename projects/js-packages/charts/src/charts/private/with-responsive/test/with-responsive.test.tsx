@@ -54,4 +54,36 @@ describe( 'withResponsive', () => {
 		render( <ResponsiveComponent data={ [] } /> );
 		expect( screen.getByTestId( 'responsive-container' ) ).toBeInTheDocument();
 	} );
+
+	describe( 'constrainToParentHeight', () => {
+		test( 'caps chart height at parent height when enabled and desired height exceeds parent', () => {
+			// With width 600 and aspectRatio 0.75, desired height would be 450
+			// But parent height is 300, so it should be capped at 300
+			render( <ResponsiveComponent data={ [] } aspectRatio={ 0.75 } constrainToParentHeight /> );
+			const component = screen.getByTestId( 'mock-component' );
+			expect( component ).toHaveStyle( { height: '300px' } );
+		} );
+
+		test( 'uses aspect ratio height when disabled regardless of parent height', () => {
+			// With width 600 and aspectRatio 0.75, height should be 450 (600 * 0.75)
+			// even though parent height is only 300
+			render(
+				<ResponsiveComponent data={ [] } aspectRatio={ 0.75 } constrainToParentHeight={ false } />
+			);
+			const component = screen.getByTestId( 'mock-component' );
+			expect( component ).toHaveStyle( { height: '450px' } );
+		} );
+
+		test( 'container has height 100% when constrainToParentHeight is enabled', () => {
+			render( <ResponsiveComponent data={ [] } constrainToParentHeight /> );
+			const wrapperDiv = screen.getByTestId( 'responsive-wrapper' );
+			expect( wrapperDiv ).toHaveStyle( { height: '100%' } );
+		} );
+
+		test( 'container has height auto when constrainToParentHeight is disabled', () => {
+			render( <ResponsiveComponent data={ [] } constrainToParentHeight={ false } /> );
+			const wrapperDiv = screen.getByTestId( 'responsive-wrapper' );
+			expect( wrapperDiv ).toHaveStyle( { height: 'auto' } );
+		} );
+	} );
 } );
