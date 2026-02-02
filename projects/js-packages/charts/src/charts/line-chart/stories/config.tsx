@@ -75,7 +75,6 @@ export const lineChartStoryArgs = {
 	smoothing: true,
 	maxWidth: 1200,
 	resizeDebounceTime: 300,
-	containerHeight: '400px',
 	options: {
 		axis: {
 			x: {

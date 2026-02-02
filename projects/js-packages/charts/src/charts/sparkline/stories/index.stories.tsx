@@ -120,24 +120,16 @@ export const TwoPoints: Story = {
 };
 
 /**
- * Responsive sparkline that adjusts to container width using aspectRatio.
+ * Responsive sparkline that fills the container.
  * Drag the corner of the container to resize and see the sparkline adapt.
  */
 export const Responsive: Story = {
+	render: () => <Sparkline data={ [ 10, 15, 12, 18, 22, 25 ] } color="#9C27B0" />,
+};
+
+export const AspectRatio: Story = {
 	render: () => (
-		<div
-			style={ {
-				width: '200px',
-				resize: 'horizontal',
-				overflow: 'auto',
-				padding: '8px',
-				border: '1px dashed #ccc',
-				minWidth: '80px',
-				maxWidth: '400px',
-			} }
-		>
-			<Sparkline data={ [ 10, 15, 12, 18, 22, 25 ] } color="#9C27B0" aspectRatio={ 0.3 } />
-		</div>
+		<Sparkline data={ [ 10, 15, 12, 18, 22, 25 ] } color="#9C27B0" aspectRatio={ 0.3 } />
 	),
 };
 

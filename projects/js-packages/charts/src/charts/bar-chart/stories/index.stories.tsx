@@ -86,8 +86,6 @@ export const Default: Story = {
 		gridVisibility: 'x',
 		maxWidth: 1200,
 		resizeDebounceTime: 300,
-		containerHeight: '400px',
-		resize: 'both' as const,
 	},
 };
 

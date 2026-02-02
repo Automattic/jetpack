@@ -16,7 +16,6 @@ export const Default: Story = {
 	args: {
 		...geoChartStoryArgs,
 		containerHeight: '400px',
-		resize: 'both' as const,
 	},
 	parameters: {
 		docs: {
@@ -67,7 +66,6 @@ export const WithAspectRatio: Story = {
 	args: {
 		...Default.args,
 		aspectRatio: 0.5,
-		resize: 'both' as const,
 	},
 	parameters: {
 		docs: {
