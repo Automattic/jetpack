@@ -460,7 +460,9 @@ function StageInner() {
 							label: __( 'Source', 'jetpack-forms' ),
 							render: ( { item } ) => {
 								const source =
-									item.entry_title || getPath( item ) || __( '(no title)', 'jetpack-forms' );
+									item.entry_title ||
+									getUrlPath( item.entry_permalink ) ||
+									__( '(no title)', 'jetpack-forms' );
 								if ( item.entry_permalink ) {
 									return styleUnreadValue(
 										<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
@@ -472,7 +474,10 @@ function StageInner() {
 							elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
 								source => ( {
 									value: source.id.toString(),
-									label: decodeEntities( source.title ) || source.url,
+									label:
+										decodeEntities( source.title ) ||
+										getUrlPath( source.url ) ||
+										__( '(no title)', 'jetpack-forms' ),
 								} )
 							),
 							filterBy: { operators: [ 'is' ] as Operator[] },
