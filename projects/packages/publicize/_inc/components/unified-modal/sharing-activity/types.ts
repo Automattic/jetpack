@@ -103,4 +103,6 @@ export type SharingActivityItem = SharedActivityItem | ScheduledActivityItem;
 /**
  * Filter values for the DataViews.
  */
-export type SharingActivityFilter = UnifiedModalData[ 'sharingActivity' ][ 'initialTab' ];
+export type SharingActivityFilter = NonNullable<
+	NonNullable< UnifiedModalData[ 'sharingActivity' ] >[ 'initialTab' ]
+>;
