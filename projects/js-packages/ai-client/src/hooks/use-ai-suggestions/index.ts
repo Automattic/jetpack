@@ -8,7 +8,6 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import askQuestion from '../../ask-question/index.ts';
-import ChromeAIFactory from '../../chrome-ai/factory.ts';
 import {
 	ERROR_CONTEXT_TOO_LARGE,
 	ERROR_MODERATION,
@@ -18,7 +17,6 @@ import {
 	ERROR_UNCLEAR_PROMPT,
 	ERROR_RESPONSE,
 	AI_MODEL_DEFAULT,
-	AI_MODEL_GEMINI_NANO,
 } from '../../types.ts';
 /**
  * Types & constants
@@ -80,7 +78,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * onDone callback.
 	 */
-	onDone?: ( content: string, skipRequestCount?: boolean, modelUsed?: AiModelTypeProp ) => void;
+	onDone?: ( content: string, modelUsed?: AiModelTypeProp ) => void;
 
 	/*
 	 * onStop callback.
@@ -95,7 +93,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * Error callback common for all errors.
 	 */
-	onAllErrors?: ( error: RequestingErrorProps, skipRequestCount?: boolean ) => void;
+	onAllErrors?: ( error: RequestingErrorProps ) => void;
 };
 
 type useAiSuggestionsProps = {
@@ -281,7 +279,7 @@ export default function useAiSuggestions( {
 
 			const fullSuggestion = removeLlamaArtifact( event?.detail?.message ?? event?.detail );
 
-			onDone?.( fullSuggestion, event?.detail?.source === 'chromeAI', modelRef.current );
+			onDone?.( fullSuggestion, modelRef.current );
 			setRequestingState( 'done' );
 		},
 		[ onDone ]
@@ -289,7 +287,7 @@ export default function useAiSuggestions( {
 
 	const handleAnyError = useCallback(
 		( event: CustomEvent ) => {
-			onAllErrors?.( event?.detail, event?.detail?.source === 'chromeAI' );
+			onAllErrors?.( event?.detail );
 		},
 		[ onAllErrors ]
 	);
@@ -338,17 +336,8 @@ export default function useAiSuggestions( {
 			// Set the request status.
 			setRequestingState( 'requesting' );
 
-			// check if we can (or should) use Chrome AI
-			const chromeAI = await ChromeAIFactory( promptArg );
-			debug( 'chromeAI', chromeAI !== false );
-
-			if ( chromeAI !== false ) {
-				setModelAndRef( AI_MODEL_GEMINI_NANO );
-				eventSourceRef.current = chromeAI;
-			} else {
-				setModelAndRef( AI_MODEL_DEFAULT );
-				eventSourceRef.current = await askQuestion( promptArg, options );
-			}
+			setModelAndRef( AI_MODEL_DEFAULT );
+			eventSourceRef.current = await askQuestion( promptArg, options );
 
 			if ( ! eventSourceRef?.current ) {
 				debug( 'no event source' );
