@@ -95,7 +95,7 @@ export default {
 					type: 'number',
 					shortcode: ( { named: { ref } } ) => {
 						const parsed = parseInt( ref, 10 );
-						return Number.isNaN( parsed ) ? undefined : parsed;
+						return Number.isNaN( parsed ) || parsed <= 0 ? undefined : parsed;
 					},
 				},
 			},
