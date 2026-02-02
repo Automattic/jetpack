@@ -17,6 +17,9 @@ type FieldRatingProps = {
 	value?: string | null;
 };
 
+// Maximum icons to render to prevent DOM bloat from malformed values
+const MAX_RATING_ICONS = 10;
+
 const FieldRating = ( { value }: FieldRatingProps ) => {
 	const stringValue = value != null ? String( value ) : '';
 	if ( stringValue.trim() === '' ) {
@@ -48,7 +51,10 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 	) {
 		return <>-</>;
 	}
-	const displayRating = Math.min( Math.max( 0, parsedRating ), parsedMax );
+
+	// Clamp max to prevent DOM bloat from large values
+	const clampedMax = Math.min( parsedMax, MAX_RATING_ICONS );
+	const displayRating = Math.min( Math.max( 0, parsedRating ), clampedMax );
 
 	const filledIcon = (
 		<SVG viewBox="0 0 24 24" aria-hidden="true">
@@ -78,14 +84,14 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 		/* translators: 1: rating value, 2: maximum rating (e.g. "4" and "5" for "4 out of 5") */
 		__( 'Rating %1$s out of %2$s', 'jetpack-forms' ),
 		String( displayRating ),
-		String( parsedMax )
+		String( clampedMax )
 	);
 
 	return (
 		<>
 			<VisuallyHidden as="span">{ ratingLabel }</VisuallyHidden>
 			<HStack spacing="1" alignment="topLeft">
-				{ Array.from( { length: parsedMax }, ( _, index ) => (
+				{ Array.from( { length: clampedMax }, ( _, index ) => (
 					<span style={ { flex: '0 0 24px' } } key={ index }>
 						{ index < displayRating ? filledIcon : emptyIcon }
 					</span>

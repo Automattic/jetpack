@@ -165,5 +165,17 @@ describe( 'FieldRating', () => {
 			expect( filledPaths ).toHaveLength( 2 );
 			expect( emptyPaths ).toHaveLength( 8 );
 		} );
+
+		it( 'clamps max to 10 icons to prevent DOM bloat (e.g. "50/100")', () => {
+			const { container } = render( <FieldRating value="50/100" /> );
+
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const svgs = container.querySelectorAll( 'svg' );
+			// Should render max 10 icons, all filled since 50 > 10
+			expect( svgs ).toHaveLength( 10 );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const filledPaths = container.querySelectorAll( 'path[fill="#F0B849"]' );
+			expect( filledPaths ).toHaveLength( 10 );
+		} );
 	} );
 } );
