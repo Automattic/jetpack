@@ -35,7 +35,13 @@ export function UpgradeNoticeCustomization() {
 			<Flex direction="column">
 				<FlexItem>{ message }</FlexItem>
 				<Flex>
-					<Button variant="primary" href={ redirectUrl } target="_blank" rel="noopener noreferrer">
+					<Button
+						variant="primary"
+						href={ redirectUrl }
+						className="is-compact"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
 						{ __( 'Upgrade now', 'jetpack-publicize-pkg' ) }
 					</Button>
 				</Flex>
