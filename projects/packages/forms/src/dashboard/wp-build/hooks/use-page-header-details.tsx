@@ -95,10 +95,8 @@ export default function usePageHeaderDetails(
 			];
 		}
 
-		return [
-			{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
-			{ label: __( 'Form Responses', 'jetpack-forms' ) },
-		];
+		// Responses list screen.
+		return [ { label: __( 'Form Responses', 'jetpack-forms' ) } ];
 	}, [ formTitle, isFormsScreen, isSingleFormScreen ] );
 
 	const breadcrumbs = useMemo( () => {
