@@ -9,14 +9,12 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { RatingIcon } from '../../../../../blocks/input-rating/edit.js';
+import { RatingIcon } from '../../../../../blocks/field-rating/rating-icon.js';
+import { MAX_RATING_ICONS } from '../../../../../blocks/field-rating/rating-icons.js';
 
 type FieldRatingProps = {
 	value?: string | null;
 };
-
-// Maximum icons to render to prevent DOM bloat from malformed values
-const MAX_RATING_ICONS = 10;
 
 const FieldRating = ( { value }: FieldRatingProps ) => {
 	const stringValue = value != null ? String( value ) : '';
