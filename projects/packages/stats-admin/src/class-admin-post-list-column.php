@@ -398,6 +398,8 @@ class Admin_Post_List_Column {
 	 * @param array     $posts The array of post objects.
 	 * @param \WP_Query $query The WordPress query object.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return array
 	 */
 	public function sort_posts_by_stats( $posts, $query ) {
