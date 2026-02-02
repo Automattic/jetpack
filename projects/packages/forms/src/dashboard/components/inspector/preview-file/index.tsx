@@ -5,6 +5,7 @@ import { Spinner } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import './style.scss';
 
 export type PreviewFileProps = {
 	/** The file object with url and name. */
