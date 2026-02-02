@@ -358,7 +358,10 @@ class Sender {
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
 	public function do_sync() {
-		if ( ! Settings::is_dedicated_sync_enabled() ) {
+		// Sync directly during cron. We are doing this because otherwise
+		// the dedicated sync flow would be spawning HTTP requests during cron shutdown,
+		// which can be unreliable and cause sync lag for time-sensitive events like updates.
+		if ( ! Settings::is_dedicated_sync_enabled() || Settings::is_doing_cron() ) {
 			$result = $this->do_sync_and_set_delays( $this->sync_queue );
 		} else {
 			$result = Dedicated_Sender::spawn_sync( $this->sync_queue );
