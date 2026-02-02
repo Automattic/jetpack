@@ -18,7 +18,7 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
-		"@actions/core": "2.0.2",
+		"@actions/core": "2.0.3",
 		"@actions/github": "7.0.0",
 		"@slack/web-api": "7.12.0",
 		"glob": "11.1.0",
