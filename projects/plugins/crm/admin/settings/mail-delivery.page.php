@@ -35,7 +35,7 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 		<h1 class="ui header blue zbs-non-wizard" style="margin-top: 0;"><?php esc_html_e( 'Mail Delivery', 'zero-bs-crm' ); ?></h1>
 
 		<div class="ui icon big message zbs-non-wizard">
-			<i class="WordPress icon"></i>
+			<i class="wordpress icon"></i>
 			<div class="content">
 				<div class="header">
 				<?php esc_html_e( 'Jetpack CRM is using the default WordPress email delivery', 'zero-bs-crm' ); ?>
