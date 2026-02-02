@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor: Add ResponseFields component to consolidate field rendering logic.
+
+

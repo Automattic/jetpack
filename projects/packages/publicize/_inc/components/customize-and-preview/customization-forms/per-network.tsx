@@ -1,11 +1,9 @@
-import { Flex } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback } from 'react';
 import { usePostMeta } from '../../../hooks/use-post-meta';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
 import { SharePostForm, SharePostFormProps } from '../../form/share-post-form';
-import { ConnectionToggle } from '../connection-toggle';
 
 type PerNetworkCustomizationFormProps = {
 	connection: Connection;
@@ -49,19 +47,16 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 	);
 
 	return (
-		<Flex direction="column" gap={ 8 } justify="start">
-			<ConnectionToggle connection={ connection } />
-			<SharePostForm
-				analyticsData={ { location: 'preview-modal' } }
-				isInsideNavigatorModal
-				disabled={ ! connection.enabled }
-				message={ message }
-				onMessageChange={ handleMessageChange }
-				attachedMedia={ attachedMedia }
-				onMediaChange={ handleMediaChange }
-				mediaSource={ mediaSource }
-				forceMediaAsAttachment
-			/>
-		</Flex>
+		<SharePostForm
+			analyticsData={ { location: 'preview-modal' } }
+			isInsideNavigatorModal
+			disabled={ ! connection.enabled }
+			message={ message }
+			onMessageChange={ handleMessageChange }
+			attachedMedia={ attachedMedia }
+			onMediaChange={ handleMediaChange }
+			mediaSource={ mediaSource }
+			forceMediaAsAttachment
+		/>
 	);
 }

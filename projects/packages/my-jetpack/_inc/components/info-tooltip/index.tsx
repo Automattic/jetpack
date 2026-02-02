@@ -65,7 +65,7 @@ export const InfoTooltip: FC< Props > = ( {
 					placement={ isMobileViewport ? 'top-end' : 'right' }
 					noArrow={ false }
 					offset={ 10 }
-					focusOnMount={ 'container' }
+					focusOnMount="firstElement"
 					onClose={ hideTooltip }
 					{ ...rest }
 				>

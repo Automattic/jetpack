@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: add SVG icon files for all form field blocks and configure webpack for SVG component and raw imports.

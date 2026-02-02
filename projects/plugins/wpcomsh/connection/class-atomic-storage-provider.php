@@ -83,6 +83,44 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
+		 * Handle error events from External_Storage for monitoring and alerting.
+		 *
+		 * Reports storage errors and empty states to the wpcom logstash cluster
+		 * for centralized error tracking and alerting.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $event_type  The event type ('error' or 'empty').
+		 * @param string $key         The option key that triggered the event.
+		 * @param string $details     Additional error details.
+		 * @param string $environment The environment identifier.
+		 */
+		public function handle_error_event( $event_type, $key, $details, $environment ) {
+			// Build log message
+			$message = sprintf(
+				'External Storage %s: %s',
+				$event_type,
+				$key
+			);
+
+			$extra = array(
+				'event_type'  => $event_type,
+				'key'         => $key,
+				'environment' => $environment,
+			);
+
+			if ( ! empty( $details ) ) {
+				$extra['details'] = $details;
+			}
+
+			// Use unsafe_direct_log to ensure storage errors are always logged
+			// regardless of at_options_logging_on setting
+			if ( class_exists( 'WPCOMSH_Log' ) ) {
+				\WPCOMSH_Log::unsafe_direct_log( $message, $extra );
+			}
+		}
+
+		/**
 		 * Get the master user id from email.
 		 *
 		 * @since $$next-version$$

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Format number field values in the response field preview component using formatNumber() for proper locale-specific formatting (e.g., thousands separators).

@@ -15,6 +15,7 @@ on:
       - 'tools/docker/config/*'
       - '.github/versions.sh'
       - '.github/workflows/build-docker.yml'
+  workflow_dispatch:
 concurrency:
   group: build-docker-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Contain file preview modal component styles with component by moving preview-file component to its own folder with co-located styles.

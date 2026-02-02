@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Stop syncing `updating_jetpack_version` actions to WordPress.com.

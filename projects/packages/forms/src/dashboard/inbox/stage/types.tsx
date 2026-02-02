@@ -1,4 +1,5 @@
 import type { FormResponse } from '../../../types/index.ts';
+import type { IconType } from '@wordpress/components';
 import type { StoreDescriptor } from '@wordpress/data';
 
 /**
@@ -119,7 +120,7 @@ export type Registry = {
 export type Action = {
 	id: string;
 	isPrimary: boolean;
-	icon: React.ReactNode;
+	icon: IconType;
 	label: string;
 	modalHeader?: string;
 	isEligible?: ( item: FormResponse ) => boolean;

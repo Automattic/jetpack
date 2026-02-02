@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: Update dashboard default view and tab labels - rename "All responses" to "Responses", set "Responses" as the default landing page instead of Forms, and reorder tabs to show Responses first.
