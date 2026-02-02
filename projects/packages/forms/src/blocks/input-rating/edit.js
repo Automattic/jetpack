@@ -3,6 +3,21 @@ import { SVG, Path } from '@wordpress/components';
 import { RATING_ICONS } from '../field-rating/rating-icons.js';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
 
+export const RatingIcon = ( { iconStyle, strokeColor = 'currentColor', fillColor = 'none' } ) => {
+	const iconPath = RATING_ICONS[ iconStyle ] || RATING_ICONS.stars;
+	return (
+		<SVG className="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true">
+			<Path
+				d={ iconPath }
+				fill={ fillColor }
+				stroke={ strokeColor }
+				strokeWidth="2"
+				strokeLinejoin="round"
+			/>
+		</SVG>
+	);
+};
+
 export default function RatingInputEdit( { context, clientId } ) {
 	const max = context?.[ 'jetpack/field-rating-max' ] || 5;
 	const defaultValue = context?.[ 'jetpack/field-rating-default' ] || 0;
@@ -11,21 +26,6 @@ export default function RatingInputEdit( { context, clientId } ) {
 	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId );
 
 	// Color and other support classes are injected by useBlockProps
-
-	// Get icon SVG based on iconStyle (default: stars)
-	const iconPath = RATING_ICONS[ iconStyle ] || RATING_ICONS.stars;
-	const iconSvg = (
-		<SVG className="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true">
-			<Path
-				d={ iconPath }
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="2"
-				strokeLinejoin="round"
-			></Path>
-		</SVG>
-	);
-
 	const blockProps = useBlockProps( {
 		className: 'jetpack-field-rating__options',
 	} );
@@ -51,7 +51,7 @@ export default function RatingInputEdit( { context, clientId } ) {
 					onKeyDown={ onKeyDown }
 				/>
 				<label htmlFor={ radioId } className="jetpack-field-rating__label">
-					{ iconSvg }
+					<RatingIcon iconStyle={ iconStyle } />
 				</label>
 			</div>
 		);

@@ -3,15 +3,13 @@
  */
 import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	SVG,
-	Path,
 	VisuallyHidden,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { RATING_ICONS } from '../../../../../blocks/field-rating/rating-icons.js';
+import { RatingIcon } from '../../../../../blocks/input-rating/edit.js';
 
 type FieldRatingProps = {
 	value?: string | null;
@@ -56,30 +54,6 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 	const clampedMax = Math.min( parsedMax, MAX_RATING_ICONS );
 	const displayRating = Math.min( Math.max( 0, parsedRating ), clampedMax );
 
-	const filledIcon = (
-		<SVG viewBox="0 0 24 24" aria-hidden="true">
-			<Path
-				d={ RATING_ICONS.stars }
-				fill="#F0B849"
-				stroke="#F0B849"
-				strokeWidth="1"
-				strokeLinejoin="round"
-			/>
-		</SVG>
-	);
-
-	const emptyIcon = (
-		<SVG viewBox="0 0 24 24" aria-hidden="true">
-			<Path
-				d={ RATING_ICONS.stars }
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="1"
-				strokeLinejoin="round"
-			/>
-		</SVG>
-	);
-
 	const ratingLabel = sprintf(
 		/* translators: 1: rating value, 2: maximum rating (e.g. "4" and "5" for "4 out of 5") */
 		__( 'Rating %1$s out of %2$s', 'jetpack-forms' ),
@@ -93,7 +67,11 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 			<HStack spacing="1" alignment="topLeft">
 				{ Array.from( { length: clampedMax }, ( _, index ) => (
 					<span style={ { flex: '0 0 24px' } } key={ index }>
-						{ index < displayRating ? filledIcon : emptyIcon }
+						<RatingIcon
+							iconStyle="stars"
+							strokeColor={ index < displayRating ? '#F0B849' : 'currentColor' }
+							fillColor={ index < displayRating ? '#F0B849' : 'none' }
+						/>
 					</span>
 				) ) }
 			</HStack>
