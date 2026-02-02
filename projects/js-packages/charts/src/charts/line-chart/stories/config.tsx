@@ -59,6 +59,11 @@ export const lineChartMetaArgs: Meta< StoryArgs > = {
 		...themeArgTypes,
 		...sharedChartArgTypes,
 		...lineChartTooltipArgTypes,
+		data: {
+			control: { type: 'object' },
+			description: 'Array of series data to display in the chart',
+			table: { category: 'Data' },
+		},
 	},
 };
 
