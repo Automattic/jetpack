@@ -364,7 +364,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'post_type'      => 'any',
 				'orderby'        => 'post_title',
 				'order'          => 'ASC',
-				'posts_per_page' => -1,
+				'posts_per_page' => count( $post_ids ), // Retrieve all in the post_ids array but no more than that.
 			)
 		);
 
