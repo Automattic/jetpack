@@ -598,7 +598,8 @@ function zeroBSCRM_locale_getServerLocale() {
 /*
 ===========================================
 	Helper functions (moved from dal 2.2)
-=========================================== */
+===========================================
+*/
 	// } Minified get currency func
 function zeroBSCRM_getCurrencyChr() {
 
