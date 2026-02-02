@@ -14,6 +14,7 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
+import FeedbackComments from '../../../src/dashboard/components/feedback-comments';
 import PreviewFile from '../../../src/dashboard/components/inspector/preview-file';
 import ResponseFieldsIterator from '../../../src/dashboard/components/inspector/response-fields';
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
