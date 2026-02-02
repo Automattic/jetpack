@@ -62,7 +62,9 @@ class Block_Editor_Extensions_Test extends BaseTestCase {
 	private function invoke_can_upload_to_videopress( $site_type ) {
 		$reflection = new \ReflectionClass( Block_Editor_Extensions::class );
 		$method     = $reflection->getMethod( 'can_upload_to_videopress' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invoke( null, $site_type );
 	}
 }
