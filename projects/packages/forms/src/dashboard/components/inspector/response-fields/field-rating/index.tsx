@@ -42,17 +42,30 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 	}
 	const displayRating = Math.min( Math.max( 0, parsedRating ), parsedMax );
 
-	const iconSvg = (
+	const filledIcon = (
 		<SVG viewBox="0 0 24 24" aria-hidden="true">
 			<Path
 				d={ RATING_ICONS.stars }
 				fill="#F0B849"
 				stroke="#F0B849"
-				strokeWidth="0"
+				strokeWidth="1"
 				strokeLinejoin="round"
 			/>
 		</SVG>
 	);
+
+	const emptyIcon = (
+		<SVG viewBox="0 0 24 24" aria-hidden="true">
+			<Path
+				d={ RATING_ICONS.stars }
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1"
+				strokeLinejoin="round"
+			/>
+		</SVG>
+	);
+
 	const ratingLabel = sprintf(
 		/* translators: 1: rating value, 2: maximum rating (e.g. "4" and "5" for "4 out of 5") */
 		__( 'Rating %1$s out of %2$s', 'jetpack-forms' ),
@@ -64,9 +77,9 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 		<>
 			<VisuallyHidden as="span">{ ratingLabel }</VisuallyHidden>
 			<HStack spacing="1" alignment="topLeft">
-				{ Array.from( { length: displayRating }, ( _, index ) => (
+				{ Array.from( { length: parsedMax }, ( _, index ) => (
 					<span style={ { flex: '0 0 24px' } } key={ index }>
-						{ iconSvg }
+						{ index < displayRating ? filledIcon : emptyIcon }
 					</span>
 				) ) }
 			</HStack>

@@ -13,44 +13,65 @@ const { default: FieldRating } = await import(
 
 describe( 'FieldRating', () => {
 	describe( 'Valid rating values', () => {
-		it( 'renders 4 star icons for value "4/5"', () => {
+		it( 'renders 5 icons with 4 filled for value "4/5"', () => {
 			const { container } = render( <FieldRating value="4/5" /> );
 
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			const svgs = container.querySelectorAll( 'svg' );
-			expect( svgs ).toHaveLength( 4 );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const filledPaths = container.querySelectorAll( 'path[fill="#F0B849"]' );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const emptyPaths = container.querySelectorAll( 'path[fill="none"]' );
+			expect( svgs ).toHaveLength( 5 );
+			expect( filledPaths ).toHaveLength( 4 );
+			expect( emptyPaths ).toHaveLength( 1 );
 		} );
 
-		it( 'renders 3 star icons for value "3/5"', () => {
+		it( 'renders 5 icons with 3 filled for value "3/5"', () => {
 			const { container } = render( <FieldRating value="3/5" /> );
 
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			const svgs = container.querySelectorAll( 'svg' );
-			expect( svgs ).toHaveLength( 3 );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const filledPaths = container.querySelectorAll( 'path[fill="#F0B849"]' );
+			expect( svgs ).toHaveLength( 5 );
+			expect( filledPaths ).toHaveLength( 3 );
 		} );
 
-		it( 'renders 5 star icons for value "5/5"', () => {
+		it( 'renders 5 icons all filled for value "5/5"', () => {
 			const { container } = render( <FieldRating value="5/5" /> );
 
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			const svgs = container.querySelectorAll( 'svg' );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const filledPaths = container.querySelectorAll( 'path[fill="#F0B849"]' );
 			expect( svgs ).toHaveLength( 5 );
+			expect( filledPaths ).toHaveLength( 5 );
 		} );
 
-		it( 'renders 1 star icon for value "1/5"', () => {
+		it( 'renders 5 icons with 1 filled for value "1/5"', () => {
 			const { container } = render( <FieldRating value="1/5" /> );
 
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			const svgs = container.querySelectorAll( 'svg' );
-			expect( svgs ).toHaveLength( 1 );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const filledPaths = container.querySelectorAll( 'path[fill="#F0B849"]' );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const emptyPaths = container.querySelectorAll( 'path[fill="none"]' );
+			expect( svgs ).toHaveLength( 5 );
+			expect( filledPaths ).toHaveLength( 1 );
+			expect( emptyPaths ).toHaveLength( 4 );
 		} );
 
-		it( 'coerces numeric value to string and renders correct number of icons', () => {
-			const { container } = render( <FieldRating value={ '2/5' } /> );
+		it( 'renders 5 icons with 2 filled for value "2/5"', () => {
+			const { container } = render( <FieldRating value="2/5" /> );
 
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			const svgs = container.querySelectorAll( 'svg' );
-			expect( svgs ).toHaveLength( 2 );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const filledPaths = container.querySelectorAll( 'path[fill="#F0B849"]' );
+			expect( svgs ).toHaveLength( 5 );
+			expect( filledPaths ).toHaveLength( 2 );
 		} );
 	} );
 
@@ -105,20 +126,32 @@ describe( 'FieldRating', () => {
 			expect( screen.getByText( '-' ) ).toBeInTheDocument();
 		} );
 
-		it( 'clamps rating to max (e.g. 7/5 shows 5 icons)', () => {
+		it( 'clamps rating to max (e.g. 7/5 shows 5 filled icons)', () => {
 			const { container } = render( <FieldRating value="7/5" /> );
 
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			const svgs = container.querySelectorAll( 'svg' );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const filledPaths = container.querySelectorAll( 'path[fill="#F0B849"]' );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const emptyPaths = container.querySelectorAll( 'path[fill="none"]' );
 			expect( svgs ).toHaveLength( 5 );
+			expect( filledPaths ).toHaveLength( 5 );
+			expect( emptyPaths ).toHaveLength( 0 );
 		} );
 
-		it( 'parses only the first segment before slash', () => {
+		it( 'renders correct icons for different max values (e.g. "2/10")', () => {
 			const { container } = render( <FieldRating value="2/10" /> );
 
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			const svgs = container.querySelectorAll( 'svg' );
-			expect( svgs ).toHaveLength( 2 );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const filledPaths = container.querySelectorAll( 'path[fill="#F0B849"]' );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const emptyPaths = container.querySelectorAll( 'path[fill="none"]' );
+			expect( svgs ).toHaveLength( 10 );
+			expect( filledPaths ).toHaveLength( 2 );
+			expect( emptyPaths ).toHaveLength( 8 );
 		} );
 	} );
 } );
