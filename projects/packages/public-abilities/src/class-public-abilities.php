@@ -58,7 +58,7 @@ class Public_Abilities {
 		self::$initialized = true;
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
-		add_action( 'wp_footer', array( __CLASS__, 'render_bot_discovery' ) );
+		add_action( 'wp_body_open', array( __CLASS__, 'render_bot_discovery' ) );
 		add_filter( 'jetpack_public_abilities_allow_execution', array( __CLASS__, 'default_rate_limit' ), 5, 1 );
 	}
 
