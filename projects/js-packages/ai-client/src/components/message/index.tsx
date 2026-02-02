@@ -169,7 +169,10 @@ export function FairUsageLimitMessage(): ReactElement {
 	);
 	const element = createInterpolateElement( message, {
 		link: (
-			<ExternalLink href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy" />
+			<ExternalLink
+				href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy"
+				children={ null }
+			/>
 		),
 	} );
 

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatNumber } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import {
 	ExternalLink,
@@ -155,6 +156,11 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 			return <Badge>{ stringValue }</Badge>;
 		}
 
+		// Numbers
+		if ( fieldType === 'number' ) {
+			return formatNumber( Number( stringValue ) );
+		}
+
 		// Emails
 		if ( fieldType === 'email' && EMAIL_REGEX.test( stringValue ) ) {
 			return <FieldEmail email={ stringValue } />;
@@ -172,21 +178,6 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		return stringValue;
 	};
 
-	const renderLabel = () => {
-		// If the label ends with a colon or question mark,
-		// return it as is to avoid adding a colon or question mark
-		if ( label.endsWith( ':' ) || label.endsWith( '?' ) ) {
-			return label;
-		}
-
-		if ( fieldType === 'consent' && label.endsWith( '.' ) ) {
-			return `${ label.slice( 0, -1 ) }:`;
-		}
-
-		// Default to adding a colon to the label
-		return `${ label }:`;
-	};
-
 	return (
 		<HStack
 			alignment="topLeft"
@@ -195,7 +186,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		>
 			<div className="jp-forms__field-preview-icon">{ icon }</div>
 			<VStack spacing="0" className="jp-forms__field-preview-content">
-				<div className="jp-forms__field-preview-label">{ renderLabel() }</div>
+				{ label && <div className="jp-forms__field-preview-label">{ label }</div> }
 				<div className="jp-forms__field-preview-value">{ renderFieldValue() }</div>
 			</VStack>
 		</HStack>

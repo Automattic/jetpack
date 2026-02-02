@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contacts: fix Transactions Total column showing $0.00 in list view.
