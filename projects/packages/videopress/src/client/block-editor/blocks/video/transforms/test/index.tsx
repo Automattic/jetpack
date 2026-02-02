@@ -42,6 +42,18 @@ describe( 'transforms', () => {
 		beforeEach( () => {
 			jest.clearAllMocks();
 			( findTransform as jest.Mock ).mockReturnValue( null );
+
+			// Mock window.videoPressEditorState to enable VideoPress uploads
+			Object.defineProperty( window, 'videoPressEditorState', {
+				value: { canUploadToVideoPress: '1' },
+				writable: true,
+				configurable: true,
+			} );
+		} );
+
+		afterEach( () => {
+			// Clean up window mock
+			delete ( window as Window & { videoPressEditorState?: unknown } ).videoPressEditorState;
 		} );
 
 		it( 'should return false when no files are provided', () => {
@@ -201,6 +213,38 @@ describe( 'transforms', () => {
 
 			// Ensure the unmatched file didn't cause issues
 			expect( result ).toHaveLength( 2 );
+		} );
+
+		describe( 'canUploadToVideoPress check', () => {
+			it( 'should return false when videoPressEditorState is undefined', () => {
+				// Clean up the mock set in beforeEach
+				delete ( window as Window & { videoPressEditorState?: unknown } ).videoPressEditorState;
+
+				const mockFile = new File( [ '' ], 'test.mp4', { type: 'video/mp4' } );
+				expect( transformFromFile.isMatch( [ mockFile ] ) ).toBe( false );
+			} );
+
+			it( 'should return false when canUploadToVideoPress is empty string', () => {
+				Object.defineProperty( window, 'videoPressEditorState', {
+					value: { canUploadToVideoPress: '' },
+					writable: true,
+					configurable: true,
+				} );
+
+				const mockFile = new File( [ '' ], 'test.mp4', { type: 'video/mp4' } );
+				expect( transformFromFile.isMatch( [ mockFile ] ) ).toBe( false );
+			} );
+
+			it( 'should return false when canUploadToVideoPress is missing from state', () => {
+				Object.defineProperty( window, 'videoPressEditorState', {
+					value: {},
+					writable: true,
+					configurable: true,
+				} );
+
+				const mockFile = new File( [ '' ], 'test.mp4', { type: 'video/mp4' } );
+				expect( transformFromFile.isMatch( [ mockFile ] ) ).toBe( false );
+			} );
 		} );
 	} );
 } );
