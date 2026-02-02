@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
+import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -22,7 +23,7 @@ import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../../src/types/index.ts';
-import '../../../src/dashboard/components/inspector/style.scss';
+import './style.scss';
 
 /**
  * Renders a single response.
@@ -169,31 +170,31 @@ function SingleResponseView( {
 
 	if ( isLoading ) {
 		return (
-			<div style={ { display: 'flex', justifyContent: 'center', padding: '40px' } }>
+			<Stack direction="row" justify="center" style={ { padding: '40px' } }>
 				<Spinner />
-			</div>
+			</Stack>
 		);
 	}
 
 	if ( ! response ) {
 		return (
-			<div style={ { padding: '20px' } }>
+			<Stack direction="row" justify="center" style={ { padding: '40px' } }>
 				<p>{ __( 'Response not found.', 'jetpack-forms' ) }</p>
-			</div>
+			</Stack>
 		);
 	}
 
 	return (
 		<>
-			<div
+			<Stack
+				direction="row"
+				justify="space-between"
+				align="center"
+				gap="xs"
+				wrap="wrap"
 				style={ {
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
 					padding: '8px 16px',
 					borderBottom: '1px solid #e0e0e0',
-					gap: '8px',
-					flexWrap: 'wrap',
 				} }
 			>
 				<ResponseActions response={ response } onActionComplete={ handleActionComplete } />
@@ -204,11 +205,11 @@ function SingleResponseView( {
 					onPrevious={ handlePrevious }
 					onClose={ onClose }
 				/>
-			</div>
+			</Stack>
+
+			<ResponseMeta response={ response } />
 
 			<div style={ { padding: '20px', overflowY: 'auto' } }>
-				<ResponseMeta response={ response } />
-
 				<ResponseFieldsIterator
 					fields={ response.fields }
 					onFilePreview={ handleFilePreview }

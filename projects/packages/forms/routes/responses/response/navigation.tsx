@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { Button } from '@wordpress/components';
+import { Stack } from '@wordpress/ui';
 import { __ } from '@wordpress/i18n';
 import { chevronUp, chevronDown, close } from '@wordpress/icons';
 import * as React from 'react';
@@ -39,8 +40,8 @@ export function ResponseNavigation( {
 	};
 
 	return (
-		<div style={ { display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 } }>
-			<div style={ { display: 'flex', alignItems: 'center' } }>
+		<Stack direction="row" align="center" gap="xs" style={ { flexShrink: 0 } }>
+			<Stack direction="row" align="center">
 				<Button
 					{ ...sharedProps }
 					disabled={ ! hasPrevious }
@@ -65,7 +66,7 @@ export function ResponseNavigation( {
 						marginLeft: '4px',
 					} }
 				/>
-			</div>
+			</Stack>
 			<Button
 				{ ...sharedProps }
 				iconSize={ 20 }
@@ -73,6 +74,6 @@ export function ResponseNavigation( {
 				label={ __( 'Close', 'jetpack-forms' ) }
 				onClick={ onClose }
 			/>
-		</div>
+		</Stack>
 	);
 }

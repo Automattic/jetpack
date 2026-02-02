@@ -17,7 +17,6 @@
 	flex-grow: 2;
 
 	.jp-forms__inbox-response-header {
-		margin: 24px 0 0;
 		padding: 0 16px 0 0;
 
 		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
@@ -59,7 +58,8 @@
 }
 
 .jp-forms__inbox-response-data {
-	border-top: 1px solid var(--jp-forms-border-color);
+
+	/*border-top: 1px solid var(--jp-forms-border-color);*/
 	font-size: var(--jp-forms-font-size-regular);
 	line-height: 24px;
 	padding: 0 16px;

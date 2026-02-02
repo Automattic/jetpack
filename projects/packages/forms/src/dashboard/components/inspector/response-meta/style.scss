@@ -1,28 +1,37 @@
 
 @use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/variables";
-@use "../../../mixins";
 
-.jp-forms__inbox-response-header-title {
+.jp-forms__inbox-response-meta {
+	background-color: #fcfcfc; // TODO: use variable
+	padding: variables.$grid-unit-30 variables.$grid-unit-20;
+	border-bottom: 1px solid rgb(238, 238, 238); /* TODO: use variable: 1px solid var(--jp-forms-border-color);*/
+}
+
+.jp-forms__inbox-response-meta-date {
+	margin-left: auto;
+}
+
+.jp-forms__inbox-response-meta-from {
 	min-height: 48px; // Same as avatar to middle-align single lines
 }
 
 // Reset margins and padding for response header elements
-.jp-forms__inbox-response-name,
-.jp-forms__inbox-response-email {
+.jp-forms__inbox-response-meta-from-name,
+.jp-forms__inbox-response-meta-from-email {
 	margin: 0;
 	padding: 0;
 }
 
-.jp-forms__inbox-response-name {
+.jp-forms__inbox-response-meta-from-name {
 	font-size: 24px;
 	font-weight: 700;
 	line-height: 24px;
 }
 
-.jp-forms__inbox-response-email {
-
-	@include mixins.flex-center;
+.jp-forms__inbox-response-meta-from-email {
+	display: flex;
+	align-items: center;
 	flex-shrink: 0;
 	font-size: 14px;
 	font-weight: 500;
@@ -33,7 +42,7 @@
 	word-break: break-word;
 }
 
-.jp-forms__inbox-response-meta {
+.jp-forms__inbox-response-meta-data {
 	color: var(--jp-gray-80);
 	font-size: 12px;
 	padding-top: 12px;

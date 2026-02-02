@@ -1,0 +1,72 @@
+/**
+ * Response View Component Styles
+ */
+
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/variables";
+
+// Main response container
+
+.jp-forms-response-actions {
+	padding: 8px 16px;
+	border-bottom: 1px solid var(--jp-forms-border-color);
+}
+
+.jp-forms-response-navigation {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	.jp-forms-response-navigation__arrows {
+		display: flex;
+		align-items: center;
+
+		// Add separator after the arrows group (before close button)
+		&::after {
+			content: "";
+			display: inline-block;
+			width: 1px;
+			height: 20px;
+			background-color: var(--wp-admin-theme-color-darker-10, #135e96);
+			opacity: 0.2;
+			margin-left: 4px;
+		}
+	}
+}
+
+.jp-forms__inbox-response-data {
+	border-top: 1px solid var(--jp-forms-border-color);
+	font-size: var(--jp-forms-font-size-regular);
+	line-height: 24px;
+	padding: 0 16px;
+
+	// old field format renders without .jp-forms__field-preview
+	&:not(.is-collection-format) {
+
+		display: flex;
+		flex-direction: column;
+		row-gap: 24px;
+		padding-top: 24px;
+		padding-bottom: 24px;
+
+		.jp-forms__inbox-response-data-label {
+			font-weight: 600;
+		}
+
+		.jp-forms__inbox-response-data-value {
+			white-space: pre-wrap;
+		}
+	}
+}
+
+.jp-forms__inbox__tip-container {
+	border-top: 1px solid var(--jp-forms-border-color);
+	margin: 8px 0 0 0;
+	padding: 16px 0;
+	text-wrap: pretty;
+
+	// https://wordpress.github.io/gutenberg/?path=/docs/components-tip--docs
+	.components-tip {
+		align-items: anchor-center;
+	}
+}
