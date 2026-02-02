@@ -35,7 +35,7 @@ export function UpgradeNotice() {
 		<Notice isDismissible={ false } status="info" spokenMessage={ message }>
 			<Flex direction="column">
 				<FlexItem>{ message }</FlexItem>
-				<Flex justify="flex-start" gap={ 3 }>
+				<Flex justify="start" gap={ 3 }>
 					<Button
 						variant="primary"
 						className="is-compact"
