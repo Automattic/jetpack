@@ -7,7 +7,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, _n } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import * as React from 'react';
 /**
@@ -22,6 +22,7 @@ import {
 	isLikelyPhoneNumber,
 } from '../../../src/dashboard/components/inspector/utils';
 import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
+import useConfigValue from '../../../src/dashboard/hooks/use-config-value.ts';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
@@ -208,6 +209,8 @@ function SingleResponseView( {
 	const [ previewFile, setPreviewFile ] = useState< { url: string; name: string } | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 	const [ hasMarkedAsRead, setHasMarkedAsRead ] = useState< number | null >( null );
+
+	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 
 	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
 
@@ -451,11 +454,15 @@ function SingleResponseView( {
 				{ response.status === 'trash' && (
 					<div style={ { marginTop: '20px' } }>
 						<Tip>
-							{ _n(
-								'Items in trash are permanently deleted after 30 days.',
-								'Items in trash are permanently deleted after 30 days.',
-								30,
-								'jetpack-forms'
+							{ sprintf(
+								/* translators: %d number of days. */
+								_n(
+									'Items in trash are permanently deleted after %d day.',
+									'Items in trash are permanently deleted after %d days.',
+									emptyTrashDays,
+									'jetpack-forms'
+								),
+								emptyTrashDays
 							) }
 						</Tip>
 					</div>
