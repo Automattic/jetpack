@@ -300,6 +300,60 @@ class Feedback {
 	}
 
 	/**
+	 * Create a Feedback instance from structured field data.
+	 *
+	 * Used by programmatic submission flows (Abilities API) that have
+	 * structured input instead of raw $_POST data.
+	 *
+	 * @param int   $form_id     The jetpack_form post ID.
+	 * @param array $fields_data Array of [ 'key' => string, 'label' => string, 'value' => mixed, 'type' => string ].
+	 * @param array $options     Optional settings for the feedback entry.
+	 * @return static
+	 */
+	public static function from_structured_input( $form_id, $fields_data, $options = array() ) {
+		$instance = new self();
+
+		$options = wp_parse_args(
+			$options,
+			array(
+				'subject'                 => '',
+				'author_name'             => __( 'API Submission', 'jetpack-forms' ),
+				'author_email'            => '',
+				'notification_recipients' => array(),
+			)
+		);
+
+		// Build Feedback_Field objects from structured data.
+		$fields = array();
+		foreach ( $fields_data as $field_info ) {
+			$key   = $field_info['key'] ?? '';
+			$label = $field_info['label'] ?? '';
+			$value = $field_info['value'] ?? '';
+			$type  = $field_info['type'] ?? 'basic';
+			$meta  = $field_info['meta'] ?? array();
+
+			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta );
+		}
+
+		$instance->fields       = $fields;
+		$instance->form_id      = $form_id;
+		$instance->ip_address   = Contact_Form_Plugin::get_ip_address();
+		$instance->country_code = $instance->get_country_code_from_ip( $instance->ip_address );
+		$instance->user_agent   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : null;
+		$instance->subject      = $options['subject'];
+		$instance->source       = new Feedback_Source( 0 );
+		$instance->author_data  = new Feedback_Author( $options['author_name'], $options['author_email'] );
+
+		$instance->notification_recipients = $options['notification_recipients'];
+
+		$instance->feedback_time         = current_time( 'mysql' );
+		$instance->legacy_feedback_title = "{$instance->get_author()} - {$instance->feedback_time}";
+		$instance->legacy_feedback_id    = md5( $instance->legacy_feedback_title );
+
+		return $instance;
+	}
+
+	/**
 	 * Set the source of the feedback entry.
 	 *
 	 * @param Feedback_Source $source The source object.

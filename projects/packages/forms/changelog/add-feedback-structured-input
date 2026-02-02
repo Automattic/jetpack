@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: add Feedback::from_structured_input() factory method for programmatic submissions.

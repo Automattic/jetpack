@@ -533,11 +533,8 @@ class Forms_Abilities {
 	/**
 	 * Submit a form callback.
 	 *
-	 * Creates a feedback post from the provided field values.
-	 *
-	 * @todo Extract shared submission logic from Contact_Form::process_submission()
-	 *       so both the browser flow and this API flow use the same pipeline for
-	 *       sanitization, spam checking, and post creation.
+	 * Creates a feedback post from the provided field values using
+	 * Feedback::from_structured_input() and Feedback::save().
 	 *
 	 * @param array $args Arguments from the ability input.
 	 * @return array|\WP_Error Returns success data or WP_Error on failure.
@@ -587,30 +584,32 @@ class Forms_Abilities {
 			}
 		}
 
-		// Build field data with type-appropriate sanitization.
+		// Build fields_data array for Feedback::from_structured_input().
 		$fields_data = array();
-		$all_values  = array();
 		$i           = 1;
 		foreach ( $form_fields as $field_def ) {
 			$label = $field_def['label'];
-			$value = isset( $submitted[ $label ] ) ? self::sanitize_field_value( $submitted[ $label ], $field_def['type'] ) : '';
+			$value = isset( $submitted[ $label ] ) ? sanitize_textarea_field( (string) $submitted[ $label ] ) : '';
 			$key   = $i . '_' . $label;
 
-			$fields_data[]      = array(
+			$fields_data[] = array(
 				'key'   => $key,
 				'label' => $label,
 				'value' => $value,
 				'type'  => $field_def['type'],
 			);
-			$all_values[ $key ] = $value;
 			++$i;
 		}
 
+		$feedback = Feedback::from_structured_input(
+			$form_post->ID,
+			$fields_data,
+			array( 'subject' => $form_post->post_title )
+		);
+
 		// Run spam check via the same filter used by the normal form flow.
 		$plugin         = Contact_Form_Plugin::init();
-		$akismet_vars   = array(
-			'comment_content' => implode( "\n", array_column( $fields_data, 'value' ) ),
-		);
+		$akismet_vars   = $feedback->get_akismet_vars();
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
 		/** This filter is documented in class-contact-form.php */
@@ -630,20 +629,7 @@ class Forms_Abilities {
 			$feedback_status = 'publish';
 		}
 
-		$feedback_time  = current_time( 'mysql' );
-		$author         = __( 'API Submission', 'jetpack-forms' );
-		$feedback_title = "{$author} - {$feedback_time}";
-
-		$serialized_fields = array(
-			'subject'   => $form_post->post_title,
-			'ip'        => Contact_Form_Plugin::get_ip_address(),
-			'source_id' => 0,
-			'fields'    => $fields_data,
-		);
-
-		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false, $serialized_fields['ip'] ) ) {
-			$serialized_fields['ip'] = null;
-		}
+		$feedback->set_status( $feedback_status );
 
 		// Force post_author to 0, matching the normal form submission flow.
 		$zero_author = function ( $data ) {
@@ -652,26 +638,15 @@ class Forms_Abilities {
 		};
 		add_filter( 'wp_insert_post_data', $zero_author );
 
-		$post_id = wp_insert_post(
-			array(
-				'post_type'      => 'feedback',
-				'post_status'    => $feedback_status,
-				'post_title'     => $feedback_title,
-				'post_date'      => $feedback_time,
-				'post_name'      => md5( $feedback_title ),
-				'post_content'   => addslashes( wp_json_encode( $serialized_fields, JSON_UNESCAPED_SLASHES ) ),
-				'post_mime_type' => 'v3',
-				'post_parent'    => $form_post->ID,
-				'post_author'    => 0,
-				'comment_status' => Feedback::STATUS_UNREAD,
-			)
-		);
+		$feedback_post = $feedback->save();
 
 		remove_filter( 'wp_insert_post_data', $zero_author );
 
-		if ( is_wp_error( $post_id ) ) {
-			return $post_id;
+		if ( ! $feedback_post || is_wp_error( $feedback_post ) ) {
+			return new \WP_Error( 'save_failed', __( 'Failed to save form submission.', 'jetpack-forms' ) );
 		}
+
+		$post_id = $feedback_post->ID;
 
 		if ( defined( 'AKISMET_VERSION' ) ) {
 			update_post_meta( $post_id, '_feedback_akismet_values', $akismet_values );
@@ -688,7 +663,7 @@ class Forms_Abilities {
 			$post_id,
 			array(),
 			$is_spam,
-			$all_values
+			$feedback->get_all_values()
 		);
 
 		if ( 'publish' === $feedback_status ) {
@@ -696,28 +671,6 @@ class Forms_Abilities {
 		}
 
 		return array( 'success' => true );
-	}
-
-	/**
-	 * Sanitize a field value based on its type.
-	 *
-	 * @param mixed  $value The value to sanitize.
-	 * @param string $type  The field type (e.g. 'email', 'url', 'textarea', 'name', 'text').
-	 * @return string The sanitized value.
-	 */
-	private static function sanitize_field_value( $value, $type ) {
-		$value = (string) $value;
-
-		switch ( $type ) {
-			case 'email':
-				return sanitize_email( $value );
-			case 'url':
-				return esc_url_raw( $value );
-			case 'textarea':
-				return sanitize_textarea_field( $value );
-			default:
-				return sanitize_text_field( $value );
-		}
 	}
 
 	/**
