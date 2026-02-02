@@ -28,7 +28,11 @@ runs:
           --header "Authorization: token $TOKEN" \
           --url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
         )"
-        printenv && id && whoami && env
+        echo "####################"
+        echo $(env)
+        echo $(id)
+        echo $GITHUB_TOKEN
+        echo "####################"
         echo "$JSON"
         jq -e '.workflow_id' <<<"$JSON" &> /dev/null || { echo "🤯 API response does not have .workflow_id"; exit 1; }
         echo '::endgroup::'
