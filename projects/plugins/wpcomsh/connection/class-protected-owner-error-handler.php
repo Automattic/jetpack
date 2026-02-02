@@ -97,8 +97,8 @@ class Protected_Owner_Error_Handler {
 		}
 
 		// Validate that the error email matches the owner email in Atomic Persistent Data (source of truth)
-		if ( class_exists( 'Atomic_Persistent_Data' ) ) {
-			$atomic_persistent_data = new Atomic_Persistent_Data(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		if ( class_exists( \Atomic_Persistent_Data::class ) ) {
+			$atomic_persistent_data = new \Atomic_Persistent_Data(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$owner_email            = $atomic_persistent_data->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			if ( $owner_email ) {
 				// APD has owner email - connection was established, error is not valid
