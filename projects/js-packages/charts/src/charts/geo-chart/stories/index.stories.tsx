@@ -110,7 +110,7 @@ export const WithComplexTooltips: Story = {
 export const ConstrainedToParentHeight: Story = {
 	args: {
 		...geoChartStoryArgs,
-		constrainToParentHeight: false,
+		constrainToParentHeight: true,
 		aspectRatio: 0.6,
 		/**
 		 * Remove the height prop to allow the chart to fill the parent container.
