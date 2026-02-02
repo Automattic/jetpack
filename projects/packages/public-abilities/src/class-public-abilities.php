@@ -69,7 +69,7 @@ class Public_Abilities {
 	 * invisible to regular visitors.
 	 */
 	public static function render_bot_discovery() {
-		if ( ! self::is_bot_request() ) {
+		if ( ! User_Agent_Info::is_bot() ) {
 			return;
 		}
 
@@ -91,18 +91,6 @@ class Public_Abilities {
 		echo '</ul>' . "\n";
 		echo '<p>Execute an ability: POST ' . esc_html( $rest_url ) . '/{name} with JSON body</p>' . "\n";
 		echo '</div>' . "\n";
-	}
-
-	/**
-	 * Check if the current request is from a bot.
-	 *
-	 * Uses WordPress core is_bot() when available, otherwise falls back
-	 * to a simple user-agent check.
-	 *
-	 * @return bool
-	 */
-	private static function is_bot_request(): bool {
-		return User_Agent_Info::is_bot();
 	}
 
 	/**
