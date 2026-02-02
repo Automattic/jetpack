@@ -452,15 +452,8 @@ class Forms_Abilities_Test extends BaseTestCase {
 
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['success'] );
-		$this->assertArrayHasKey( 'feedback_id', $result );
+		$this->assertArrayNotHasKey( 'feedback_id', $result, 'Should not expose internal post IDs' );
 
-		// Verify the feedback post was created.
-		$feedback = get_post( $result['feedback_id'] );
-		$this->assertNotNull( $feedback );
-		$this->assertEquals( 'feedback', $feedback->post_type );
-		$this->assertEquals( $form_id, $feedback->post_parent );
-
-		wp_delete_post( $result['feedback_id'], true );
 		wp_delete_post( $form_id, true );
 	}
 

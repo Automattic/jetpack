@@ -524,6 +524,10 @@ class Forms_Abilities {
 	 *
 	 * Creates a feedback post from the provided field values.
 	 *
+	 * @todo Extract shared submission logic from Contact_Form::process_submission()
+	 *       so both the browser flow and this API flow use the same pipeline for
+	 *       sanitization, spam checking, and post creation.
+	 *
 	 * @param array $args Arguments from the ability input.
 	 * @return array|\WP_Error Returns success data or WP_Error on failure.
 	 */
@@ -537,18 +541,18 @@ class Forms_Abilities {
 			return new \WP_Error( 'invalid_form', __( 'Form not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
 		}
 
-		// Extract field definitions to validate input and build POST data.
 		$form_fields = self::extract_fields_from_post( $form_post );
 		if ( empty( $form_fields ) ) {
 			return new \WP_Error( 'no_fields', __( 'Form has no fields.', 'jetpack-forms' ) );
 		}
 
-		// Validate required fields are present.
 		$submitted = $args['fields'];
+
+		// Validate required fields.
 		foreach ( $form_fields as $field_def ) {
 			if ( $field_def['required'] ) {
 				$label = $field_def['label'];
-				$value = isset( $submitted[ $label ] ) ? $submitted[ $label ] : null;
+				$value = $submitted[ $label ] ?? null;
 
 				if ( null === $value || ( is_scalar( $value ) && '' === trim( (string) $value ) ) ) {
 					return new \WP_Error(
@@ -561,21 +565,62 @@ class Forms_Abilities {
 			}
 		}
 
-		// Build the feedback entry directly.
+		// Validate option fields against allowed values.
+		foreach ( $form_fields as $field_def ) {
+			if ( ! empty( $field_def['options'] ) && isset( $submitted[ $field_def['label'] ] ) ) {
+				$val = $submitted[ $field_def['label'] ];
+				if ( '' !== $val && ! in_array( $val, $field_def['options'], true ) ) {
+					return new \WP_Error(
+						'invalid_option',
+						/* translators: %s is the field label */
+						sprintf( __( 'Invalid option for field "%s".', 'jetpack-forms' ), $field_def['label'] ),
+						array( 'status' => 400 )
+					);
+				}
+			}
+		}
+
+		// Build field data with type-appropriate sanitization.
 		$fields_data = array();
+		$all_values  = array();
 		$i           = 1;
 		foreach ( $form_fields as $field_def ) {
 			$label = $field_def['label'];
-			$value = isset( $submitted[ $label ] ) ? sanitize_textarea_field( $submitted[ $label ] ) : '';
+			$value = isset( $submitted[ $label ] ) ? self::sanitize_field_value( $submitted[ $label ], $field_def['type'] ) : '';
 			$key   = $i . '_' . $label;
 
-			$fields_data[] = array(
+			$fields_data[]      = array(
 				'key'   => $key,
 				'label' => $label,
 				'value' => $value,
 				'type'  => $field_def['type'],
 			);
+			$all_values[ $key ] = $value;
 			++$i;
+		}
+
+		// Run spam check via the same filter used by the normal form flow.
+		$plugin         = Contact_Form_Plugin::init();
+		$akismet_vars   = array(
+			'comment_content' => implode( "\n", array_column( $fields_data, 'value' ) ),
+		);
+		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
+
+		/** This filter is documented in class-contact-form.php */
+		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
+		if ( is_wp_error( $is_spam ) ) {
+			return $is_spam;
+		}
+
+		/** This filter is documented in class-contact-form.php */
+		$in_disallowed_list = apply_filters( 'jetpack_contact_form_in_comment_disallowed_list', false, $akismet_values );
+
+		if ( $in_disallowed_list ) {
+			$feedback_status = 'trash';
+		} elseif ( $is_spam ) {
+			$feedback_status = 'spam';
+		} else {
+			$feedback_status = 'publish';
 		}
 
 		$feedback_time  = current_time( 'mysql' );
@@ -586,56 +631,81 @@ class Forms_Abilities {
 			'subject'   => $form_post->post_title,
 			'ip'        => Contact_Form_Plugin::get_ip_address(),
 			'source_id' => 0,
-			'fields'    => array_map(
-				function ( $f ) {
-					return array(
-						'key'   => $f['key'],
-						'label' => $f['label'],
-						'value' => $f['value'],
-						'type'  => $f['type'],
-					);
-				},
-				$fields_data
-			),
+			'fields'    => $fields_data,
 		);
 
 		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false, $serialized_fields['ip'] ) ) {
 			$serialized_fields['ip'] = null;
 		}
 
+		// Force post_author to 0, matching the normal form submission flow.
+		$zero_author = function ( $data ) {
+			$data['post_author'] = 0;
+			return $data;
+		};
+		add_filter( 'wp_insert_post_data', $zero_author );
+
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => 'feedback',
-				'post_status'    => 'publish',
+				'post_status'    => $feedback_status,
 				'post_title'     => $feedback_title,
 				'post_date'      => $feedback_time,
 				'post_name'      => md5( $feedback_title ),
 				'post_content'   => addslashes( wp_json_encode( $serialized_fields, JSON_UNESCAPED_SLASHES ) ),
 				'post_mime_type' => 'v3',
 				'post_parent'    => $form_post->ID,
+				'post_author'    => 0,
 				'comment_status' => 'open',
 			)
 		);
 
+		remove_filter( 'wp_insert_post_data', $zero_author );
+
 		if ( is_wp_error( $post_id ) ) {
 			return $post_id;
+		}
+
+		if ( defined( 'AKISMET_VERSION' ) ) {
+			update_post_meta( $post_id, '_feedback_akismet_values', $akismet_values );
 		}
 
 		/** This action is documented in class-contact-form.php */
 		do_action(
 			'grunion_after_feedback_post_inserted',
 			$post_id,
-			$serialized_fields['fields'],
-			false,
-			wp_list_pluck( $serialized_fields['fields'], 'value', 'key' )
+			$fields_data,
+			$is_spam,
+			$all_values
 		);
 
-		Contact_Form_Plugin::recalculate_unread_count();
+		if ( 'publish' === $feedback_status ) {
+			Contact_Form_Plugin::recalculate_unread_count();
+		}
 
-		return array(
-			'success'     => true,
-			'feedback_id' => $post_id,
-		);
+		return array( 'success' => true );
+	}
+
+	/**
+	 * Sanitize a field value based on its type.
+	 *
+	 * @param mixed  $value The value to sanitize.
+	 * @param string $type  The field type (e.g. 'email', 'url', 'textarea', 'name', 'text').
+	 * @return string The sanitized value.
+	 */
+	private static function sanitize_field_value( $value, $type ) {
+		$value = (string) $value;
+
+		switch ( $type ) {
+			case 'email':
+				return sanitize_email( $value );
+			case 'url':
+				return esc_url_raw( $value );
+			case 'textarea':
+				return sanitize_textarea_field( $value );
+			default:
+				return sanitize_text_field( $value );
+		}
 	}
 
 	/**
