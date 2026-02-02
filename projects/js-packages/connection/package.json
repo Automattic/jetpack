@@ -20,7 +20,8 @@
 	],
 	"type": "module",
 	"exports": {
-		".": "./index.jsx"
+		".": "./index.jsx",
+		"./use-connection": "./components/use-connection/index.jsx"
 	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",

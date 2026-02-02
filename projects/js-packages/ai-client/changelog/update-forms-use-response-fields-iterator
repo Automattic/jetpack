@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Client: Add explicit window interface with missing types

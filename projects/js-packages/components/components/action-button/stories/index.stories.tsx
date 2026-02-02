@@ -1,5 +1,5 @@
 import { action } from 'storybook/actions';
-import ActionButton from '../index.jsx';
+import ActionButton from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Action Button',
