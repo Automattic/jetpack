@@ -96,6 +96,21 @@ class Protected_Owner_Error_Handler {
 			return false;
 		}
 
+		// Validate that the error email matches the owner email in Atomic Persistent Data (source of truth)
+		if ( class_exists( 'Atomic_Persistent_Data' ) ) {
+			$atomic_persistent_data = new Atomic_Persistent_Data(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$owner_email            = $atomic_persistent_data->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			if ( $owner_email ) {
+				// APD has owner email - connection was established, error is not valid
+				$this->delete_error();
+				return false;
+			}
+		} else {
+			// We are not on WordPress.com Atomic, delete the error and return false (no active error)
+			$this->delete_error();
+			return false;
+		}
+
 		// User doesn't exist, we have an active error
 		return $raw_error;
 	}
