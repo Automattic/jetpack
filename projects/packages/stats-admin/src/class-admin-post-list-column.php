@@ -375,6 +375,7 @@ class Admin_Post_List_Column {
 	 *
 	 * @param \WP_Query $query The WordPress query object.
 	 *
+	 * @since $$next-version$$
 	 * @return void
 	 */
 	public function handle_stats_column_sorting( $query ) {
