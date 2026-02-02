@@ -106,12 +106,6 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		} );
 	}, [ commentsPage ] );
 
-	useEffect( () => {
-		setLoadedComments( [] );
-		setClientAddedComments( [] );
-		setPage( 1 );
-	}, [ postId ] );
-
 	const scrollToBottom = useCallback( () => {
 		const button = document.querySelector( '.jp-forms__feedback-comments-form-button' );
 		if ( button ) {
