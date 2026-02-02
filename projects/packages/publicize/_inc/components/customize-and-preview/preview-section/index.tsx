@@ -1,4 +1,4 @@
-import { Icon } from '@wordpress/components';
+import { Icon, VisuallyHidden } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Connection } from '../../../social-store/types';
@@ -23,10 +23,12 @@ export function PreviewSection( { connection }: PreviewSectionProps ) {
 		>
 			{ connection.enabled ? (
 				<>
-					<h2>
+					<VisuallyHidden as="h2">
 						{ _x( 'Preview', 'Noun: Post preview section heading', 'jetpack-publicize-pkg' ) }
-					</h2>
-					<PostPreview connection={ connection } />
+					</VisuallyHidden>
+					<div className={ styles[ 'preview-wrapper' ] }>
+						<PostPreview connection={ connection } />
+					</div>
 				</>
 			) : (
 				<div className={ styles[ 'inactive-preview' ] }>
