@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for VideoPress Initializer email rendering methods.
+ * Tests for VideoPress video block email renderer.
  *
  * @package automattic/jetpack-videopress
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 // Include mock classes for WooCommerce Email Editor helpers FIRST.
-// This ensures the mock class is available when Initializer checks for it.
+// This ensures the mock class is available when Video_Block_Email_Renderer checks for it.
 require_once __DIR__ . '/mocks/class-mock-woocommerce-embed-renderer.php';
 
 use PHPUnit\Framework\Attributes\CoversMethod;
@@ -16,16 +16,16 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
- * Tests for VideoPress Initializer email rendering methods.
+ * Tests for VideoPress video block email renderer.
  *
- * @covers \Automattic\Jetpack\VideoPress\Initializer::render_videopress_video_block_email
- * @covers \Automattic\Jetpack\VideoPress\Initializer::get_videopress_url_for_email
- * @covers \Automattic\Jetpack\VideoPress\Initializer::render_videopress_email_link
+ * @covers \Automattic\Jetpack\VideoPress\Video_Block_Email_Renderer::render
+ * @covers \Automattic\Jetpack\VideoPress\Video_Block_Email_Renderer::get_videopress_url
+ * @covers \Automattic\Jetpack\VideoPress\Video_Block_Email_Renderer::render_link
  */
-#[CoversMethod( Initializer::class, 'render_videopress_video_block_email' )]
-#[CoversMethod( Initializer::class, 'get_videopress_url_for_email' )]
-#[CoversMethod( Initializer::class, 'render_videopress_email_link' )]
-class Initializer_Email_Render_Test extends BaseTestCase {
+#[CoversMethod( Video_Block_Email_Renderer::class, 'render' )]
+#[CoversMethod( Video_Block_Email_Renderer::class, 'get_videopress_url' )]
+#[CoversMethod( Video_Block_Email_Renderer::class, 'render_link' )]
+class Video_Block_Email_Renderer_Test extends BaseTestCase {
 
 	/**
 	 * Helper to create a parsed block with attributes.
@@ -65,13 +65,13 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test render_videopress_video_block_email with valid guid.
+	 * Test render with valid guid.
 	 */
 	public function test_render_email_with_valid_guid() {
 		$parsed_block = $this->create_parsed_block( array( 'guid' => 'nfbj0J36' ) );
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		// Should return HTML content from the mock renderer.
 		$this->assertNotEmpty( $result );
@@ -81,40 +81,40 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test render_videopress_video_block_email with missing attrs.
+	 * Test render with missing attrs.
 	 */
 	public function test_render_email_with_missing_attrs() {
 		$mock_context = $this->create_rendering_context_mock();
 
 		// Test with missing attrs key.
-		$result = Initializer::render_videopress_video_block_email( '', array( 'not-attrs' => array() ), $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', array( 'not-attrs' => array() ), $mock_context );
 		$this->assertSame( '', $result );
 
 		// Test with non-array attrs.
-		$result = Initializer::render_videopress_video_block_email( '', array( 'attrs' => 'not-an-array' ), $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', array( 'attrs' => 'not-an-array' ), $mock_context );
 		$this->assertSame( '', $result );
 	}
 
 	/**
-	 * Test render_videopress_video_block_email with missing guid.
+	 * Test render with missing guid.
 	 */
 	public function test_render_email_with_missing_guid() {
 		$parsed_block = $this->create_parsed_block( array( 'title' => 'Test Video' ) );
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		$this->assertSame( '', $result );
 	}
 
 	/**
-	 * Test render_videopress_video_block_email with empty guid.
+	 * Test render with empty guid.
 	 */
 	public function test_render_email_with_empty_guid() {
 		$parsed_block = $this->create_parsed_block( array( 'guid' => '' ) );
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		$this->assertSame( '', $result );
 	}
@@ -139,7 +139,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test render_videopress_video_block_email rejects invalid guid characters (security).
+	 * Test render rejects invalid guid characters (security).
 	 *
 	 * @dataProvider invalid_guid_provider
 	 * @param string $invalid_guid The invalid guid to test.
@@ -149,7 +149,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		$parsed_block = $this->create_parsed_block( array( 'guid' => $invalid_guid ) );
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		// Should return empty string for invalid guids.
 		$this->assertSame( '', $result, "Invalid guid '$invalid_guid' should be rejected" );
@@ -173,7 +173,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test render_videopress_video_block_email accepts valid guid formats.
+	 * Test render accepts valid guid formats.
 	 *
 	 * @dataProvider valid_guid_provider
 	 * @param string $valid_guid The valid guid to test.
@@ -183,7 +183,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		$parsed_block = $this->create_parsed_block( array( 'guid' => $valid_guid ) );
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		// Should return HTML content for valid guids.
 		$this->assertNotEmpty( $result, "Valid guid '$valid_guid' should be accepted" );
@@ -191,7 +191,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test render_videopress_video_block_email preserves email_attrs.
+	 * Test render preserves email_attrs.
 	 */
 	public function test_render_email_preserves_email_attrs() {
 		$email_attrs = array(
@@ -206,20 +206,20 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		$mock_context = $this->create_rendering_context_mock();
 
 		// The mock renderer doesn't use email_attrs, but we verify the function doesn't error.
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( 'https://videopress.com/v/testguid', $result );
 	}
 
 	/**
-	 * Test render_videopress_video_block_email constructs correct mock block structure.
+	 * Test render constructs correct mock block structure.
 	 */
 	public function test_render_email_constructs_correct_mock_block() {
 		$parsed_block = $this->create_parsed_block( array( 'guid' => 'abc123' ) );
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		// Verify the mock renderer received correct provider.
 		$this->assertStringContainsString( 'data-provider="videopress"', $result );
@@ -235,14 +235,14 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		$parsed_block = $this->create_parsed_block( array( 'guid' => 'MyVideo1' ) );
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		// URL should be exactly https://videopress.com/v/{guid}.
 		$this->assertStringContainsString( 'href="https://videopress.com/v/MyVideo1"', $result );
 	}
 
 	/**
-	 * Test render_email works with real-world block attributes.
+	 * Test render works with real-world block attributes.
 	 */
 	public function test_render_email_with_realistic_block_attributes() {
 		// Simulate attributes from a real VideoPress block.
@@ -263,7 +263,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		);
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( 'https://videopress.com/v/nfbj0J36', $result );
@@ -278,14 +278,14 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		$block_content = '<div>Some original content</div>';
 
 		// Should work with non-empty block_content.
-		$result = Initializer::render_videopress_video_block_email( $block_content, $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( $block_content, $parsed_block, $mock_context );
 
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( 'https://videopress.com/v/testguid', $result );
 	}
 
 	/**
-	 * Test render_email with private video renders a link fallback to the post.
+	 * Test render with private video renders a link fallback to the post.
 	 */
 	public function test_render_email_with_private_video_renders_link() {
 		// Create a post so get_the_permalink() returns a valid URL.
@@ -305,12 +305,12 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		);
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		// Should render a simple link to the post instead of video embed.
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( '<a href=', $result );
-		$this->assertStringContainsString( 'Watch the video', $result );
+		$this->assertStringContainsString( 'Visit the post to watch the video', $result );
 		// Should NOT contain the embed wrapper that the mock renderer produces.
 		$this->assertStringNotContainsString( 'email-embed-video', $result );
 		// Should NOT link to VideoPress since video is private.
@@ -322,7 +322,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test render_email with public video renders full embed.
+	 * Test render with public video renders full embed.
 	 */
 	public function test_render_email_with_public_video_renders_embed() {
 		$parsed_block = $this->create_parsed_block(
@@ -333,7 +333,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		);
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		// Should render the full embed (via mock renderer).
 		$this->assertNotEmpty( $result );
@@ -342,7 +342,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test render_email private video link includes padding when email_attrs present.
+	 * Test render private video link includes padding when email_attrs present.
 	 */
 	public function test_render_email_private_video_link_with_padding() {
 		// Create a post so get_the_permalink() returns a valid URL.
@@ -363,7 +363,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		);
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( 'padding: 20px', $result );
@@ -375,7 +375,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test render_email with private video returns empty when no post context.
+	 * Test render with private video returns empty when no post context.
 	 */
 	public function test_render_email_with_private_video_no_post_returns_empty() {
 		// Ensure no post context.
@@ -389,7 +389,7 @@ class Initializer_Email_Render_Test extends BaseTestCase {
 		);
 		$mock_context = $this->create_rendering_context_mock();
 
-		$result = Initializer::render_videopress_video_block_email( '', $parsed_block, $mock_context );
+		$result = Video_Block_Email_Renderer::render( '', $parsed_block, $mock_context );
 
 		// Should return empty string when no post URL available.
 		$this->assertSame( '', $result );
