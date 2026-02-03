@@ -208,11 +208,7 @@ class Agents_Manager {
 		}
 
 		$this->enqueue_script( $variant );
-
-		// Enqueue Image Studio on Media Library when flag is present
-		if ( $this->is_image_studio_screen() ) {
-			$this->enqueue_image_studio();
-		}
+		$this->enqueue_image_studio();
 
 		wp_add_inline_script(
 			'agents-manager',
@@ -330,6 +326,12 @@ class Agents_Manager {
 			$script_dependencies,
 			$version,
 			true
+		);
+
+		wp_add_inline_script(
+			'image-studio',
+			'window.imageStudio = window.imageStudio || { enabled: true }; window.bigSkyImageStudio = window.bigSkyImageStudio || { enabled: true };',
+			'before'
 		);
 
 		wp_enqueue_style(
