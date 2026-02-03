@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: add base @wordpress/admin-ui Page component styles for external admin compatibility.
