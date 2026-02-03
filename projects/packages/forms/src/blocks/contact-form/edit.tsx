@@ -944,7 +944,7 @@ function JetpackContactFormEdit( {
 		private: {
 			status: 'info',
 			message: __(
-				'This form is private and only visible to site administrators.',
+				'This form is private and will not be displayed on the frontend until published.',
 				'jetpack-forms'
 			),
 		},
