@@ -390,7 +390,7 @@ export default function MediaSectionV2( {
 								</Button>
 							) }
 							<CustomMediaToggle
-								source={ currentSource }
+								source={ effectiveSource }
 								checked={ isShareAsAttachment }
 								onChange={ handleAttachmentToggle }
 								disabled={ forceAsAttachment || disabled }
