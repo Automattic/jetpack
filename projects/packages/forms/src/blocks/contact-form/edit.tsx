@@ -164,6 +164,7 @@ type JetpackContactFormEditProps = {
 	setAttributes: ( attributes: Partial< JetpackContactFormAttributes > ) => void;
 	clientId: string;
 	className: string;
+	isSelected: boolean;
 };
 
 function JetpackContactFormEdit( {
@@ -172,6 +173,7 @@ function JetpackContactFormEdit( {
 	setAttributes,
 	clientId,
 	className,
+	isSelected,
 }: JetpackContactFormEditProps ) {
 	// Initialize default form block settings as needed.
 	useFormBlockDefaults( { attributes, setAttributes } );
@@ -963,9 +965,9 @@ function JetpackContactFormEdit( {
 		},
 	};
 
-	// Render status notice for synced forms with non-publish status
+	// Render status notice for synced forms with non-publish status (only when selected)
 	const formStatus = syncedForm?.status;
-	const statusNotice = ref && formStatus && formStatus !== 'publish' && (
+	const statusNotice = isSelected && ref && formStatus && formStatus !== 'publish' && (
 		<Notice
 			status={ statusNoticeConfig[ formStatus ]?.status || 'warning' }
 			isDismissible={ false }
