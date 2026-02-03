@@ -330,7 +330,7 @@ class Agents_Manager {
 
 		wp_add_inline_script(
 			'image-studio',
-			'window.imageStudio = window.imageStudio || { enabled: true }; window.bigSkyImageStudio = window.bigSkyImageStudio || { enabled: true };',
+			'window.imageStudio = window.imageStudio || { enabled: true };',
 			'before'
 		);
 
