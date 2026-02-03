@@ -120,7 +120,7 @@ jobs:
             BEGIN { $h = ""; $f = ""; }
             die "WTF? $_" unless /^([0-9a-f]{64})  (\S.*)$/;
             if ( $h ne $1 ) {
-              $h=$1; $l=$2;
+              $h=$1; $f=$2;
             } else {
               print "$2 → $f\n";
               unlink( $2 ) or die "Failed to delete $2: $!\n";
