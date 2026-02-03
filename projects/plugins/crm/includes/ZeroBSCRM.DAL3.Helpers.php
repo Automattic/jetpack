@@ -354,12 +354,12 @@ function zeroBS_searchCustomers( $args = array(), $withMoneyData = false ) {
 function zeroBSCRM_customerPortalDisableEnable( $contact_id = -1, $enable_or_disable = 'disable' ) {
 	global $zbs;
 
-	if ( zeroBSCRM_permsCustomers( ) && ! empty( $contact_id ) ) {
+	if ( zeroBSCRM_permsCustomers() && ! empty( $contact_id ) ) {
 		// Verify this user can be changed.
 		// Has to have singular role of `zerobs_customer`. This helps to avoid users changing each others accounts via crm.
 		$wp_user_id  = zeroBSCRM_getClientPortalUserID( $contact_id );
 		$user_object = get_userdata( $wp_user_id );
-		if ( jpcrm_role_check( $user_object, array( ), array( ), array( 'zerobs_customer' ) ) ) {
+		if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
 			if ( $enable_or_disable === 'disable' ) {
 				return $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, 'portal_disabled', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			} else {
@@ -378,7 +378,7 @@ function zeroBSCRM_customerPortalPWReset( $contact_id = -1 ) {
 
 	global $zbs;
 
-	if ( zeroBSCRM_permsCustomers( ) && ! empty( $contact_id ) ) {
+	if ( zeroBSCRM_permsCustomers() && ! empty( $contact_id ) ) {
 
 		$wp_user_id = zeroBS_getCustomerWPID( $contact_id );
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );
@@ -389,7 +389,7 @@ function zeroBSCRM_customerPortalPWReset( $contact_id = -1 ) {
 
 			// Verify this user can be changed
 			// (Has to have singular role of `zerobs_customer`. This helps to avoid users resetting each others passwords via crm)
-			if ( jpcrm_role_check( $user_object, array( ), array( ), array( 'zerobs_customer' ) ) ) {
+			if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
 
 				return false;
 
@@ -469,7 +469,7 @@ function zeroBSCRM_isCustomerPortalDisabled( $contact_id = -1 ) {
 	// No Contact ID, no entry, unless Admin or Jetpack CRM Admin we can let those in.
 	$contact_id = (int)$contact_id;
 	if ( $contact_id < 1 ) {
-		if ( zeroBSCRM_isZBSAdminOrAdmin( ) ) {
+		if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 			return false;
 		}
 		return true;
@@ -620,7 +620,7 @@ function zeroBSCRM_createClientPortalUser( $cID = -1, $email = '', $passwordLeng
 	$user = new WP_User( $user_id );
 
 	// fail if the user doesn't exist
-	if ( ! $user->exists( ) ) {
+	if ( ! $user->exists() ) {
 		return false;
 	}
 
@@ -4340,7 +4340,7 @@ function zeroBSCRM_getInvoiceCustomer( $invID = -1 ) {
 	// use $zbs->DAL->invoices->setInvoiceStatus($invoiceID,$statusStr); for new code
 function zeroBS_updateInvoiceStatus( $invoiceID = -1, $statusStr = 'Draft' ) {
 
-	if ( in_array( $statusStr, zeroBSCRM_getInvoicesStatuses( ) ) ) {
+	if ( in_array( $statusStr, zeroBSCRM_getInvoicesStatuses() ) ) {
 
 		$potentialInvoice = zeroBS_getInvoice( $invoiceID );
 		if ( isset( $potentialInvoice ) && is_array( $potentialInvoice ) ) {
@@ -6082,7 +6082,7 @@ function zeroBSCRM_security_logRequest( $reqType = 'unknown', $reqHash = '', $re
 
 	// don't log requests for admins, who by nature, can see all
 	// needs to match zeroBSCRM_security_finiRequest precheck
-	if ( zeroBSCRM_isZBSAdminOrAdmin( ) ) {
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		return false;
 	}
 
@@ -6152,7 +6152,7 @@ function zeroBSCRM_security_finiRequest( $requestID = -1 ) {
 
 	// don't log requests for admins, who by nature, can see all
 	// needs to match zeroBSCRM_security_logRequest precheck
-	if ( zeroBSCRM_isZBSAdminOrAdmin( ) ) {
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		return false;
 	}
 
@@ -6194,7 +6194,7 @@ function zeroBSCRM_security_blockRequest( $reqType = 'unknown' ) {
 
 	// don't log requests for admins, who by nature, can see all
 	// needs to match zeroBSCRM_security_logRequest etc. above
-	if ( zeroBSCRM_isZBSAdminOrAdmin( ) ) {
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		return false;
 	}
 
