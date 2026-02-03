@@ -868,6 +868,10 @@ class Contact_Form_Block {
 	private static function render_frontend_status_notice( $synced_form ) {
 		$status = $synced_form->post_status;
 
+		if ( 'publish' === $status || 'private' === $status ) {
+			return '';
+		}
+
 		$status_config = array(
 			'draft'   => array(
 				'type'    => 'warning',
