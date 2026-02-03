@@ -464,6 +464,7 @@ class Protected_Owner_Error_Handler {
 				$wpcom_account_link
 			);
 		}
+		$warning_label = __( 'Warning:', 'wpcomsh' );
 		?>
 		<script type="text/javascript">
 		document.addEventListener('DOMContentLoaded', function() {
@@ -471,8 +472,7 @@ class Protected_Owner_Error_Handler {
 			if (emailCell) {
 				var warning = document.createElement('p');
 				warning.className = 'description';
-				warning.style.cssText = 'color: #d63638; font-weight: 500;';
-				warning.innerHTML = '⚠️ ' + <?php echo wp_json_encode( $warning_text, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				warning.innerHTML = '<span style="color: #d63638; font-weight: 600;">⚠️ ' + <?php echo wp_json_encode( $warning_label, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> + '</span> ' + <?php echo wp_json_encode( $warning_text, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				emailCell.insertBefore(warning, emailCell.firstChild);
 			}
 		});
