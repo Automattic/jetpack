@@ -16,6 +16,7 @@ import {
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
+	Button,
 	ExternalLink,
 	Notice,
 	PanelBody,
@@ -28,8 +29,8 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -333,7 +334,7 @@ function JetpackContactFormEdit( {
 	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
 		useDispatch( blockEditorStore );
 
-	const { editEntityRecord } = useDispatch( coreStore );
+	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
 	const { setActiveStep } = useDispatch( singleStepStore );
 
 	const currentInnerBlocks = useSelect(
@@ -362,6 +363,23 @@ function JetpackContactFormEdit( {
 		isSyncingRef,
 		editEntityRecord,
 	} );
+
+	// State for publishing synced forms
+	const [ isPublishingForm, setIsPublishingForm ] = useState( false );
+
+	// Handler to publish a synced form
+	const handlePublishForm = useCallback( async () => {
+		if ( ! ref ) {
+			return;
+		}
+		setIsPublishingForm( true );
+		try {
+			await editEntityRecord( 'postType', FORM_POST_TYPE, ref, { status: 'publish' } );
+			await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, ref );
+		} finally {
+			setIsPublishingForm( false );
+		}
+	}, [ ref, editEntityRecord, saveEditedEntityRecord ] );
 
 	// Note: We don't clear attributes in memory when ref is set, as they're needed
 	// for the form to work properly in the editor. The save() method ensures that
@@ -858,6 +876,75 @@ function JetpackContactFormEdit( {
 		stepBlock,
 	] );
 
+	// Status notice messages for synced forms with non-publish status
+	const statusNoticeConfig: Record<
+		string,
+		{ status: 'error' | 'warning' | 'info'; message: string }
+	> = {
+		trash: {
+			status: 'error',
+			message: __(
+				'This form has been trashed and will not be displayed on the frontend.',
+				'jetpack-forms'
+			),
+		},
+		draft: {
+			status: 'warning',
+			message: __(
+				'This form is a draft and will not be displayed on the frontend until published.',
+				'jetpack-forms'
+			),
+		},
+		pending: {
+			status: 'warning',
+			message: __(
+				'This form is pending review and will not be displayed on the frontend.',
+				'jetpack-forms'
+			),
+		},
+		future: {
+			status: 'info',
+			message: __(
+				'This form is scheduled and will not be displayed until its publish date.',
+				'jetpack-forms'
+			),
+		},
+		private: {
+			status: 'info',
+			message: __(
+				'This form is private and only visible to site administrators.',
+				'jetpack-forms'
+			),
+		},
+	};
+
+	// Render status notice for synced forms with non-publish status
+	const formStatus = syncedForm?.status;
+	const statusNotice = ref && formStatus && formStatus !== 'publish' && (
+		<Notice
+			status={ statusNoticeConfig[ formStatus ]?.status || 'warning' }
+			isDismissible={ false }
+			className="jetpack-contact-form__status-notice"
+		>
+			{ statusNoticeConfig[ formStatus ]?.message ||
+				sprintf(
+					/* translators: %s: form status */
+					__( 'This form has status "%s" and may not display correctly.', 'jetpack-forms' ),
+					formStatus
+				) }
+			{ formStatus !== 'trash' && (
+				<Button
+					variant="link"
+					onClick={ handlePublishForm }
+					isBusy={ isPublishingForm }
+					disabled={ isPublishingForm }
+				>
+					{ __( 'Publish now', 'jetpack-forms' ) }
+				</Button>
+			) }
+		</Notice>
+	);
+
 	let elt;
 
 	// Show loading state when resolving synced form
@@ -1069,7 +1156,10 @@ function JetpackContactFormEdit( {
 	return (
 		<SyncedAttributeProvider>
 			<ThemeProvider targetDom={ wrapperRef.current }>
-				<div { ...blockProps }>{ elt }</div>
+				<div { ...blockProps }>
+					{ statusNotice }
+					{ elt }
+				</div>
 			</ThemeProvider>
 		</SyncedAttributeProvider>
 	);
