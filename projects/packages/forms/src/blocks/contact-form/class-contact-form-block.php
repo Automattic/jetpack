@@ -885,6 +885,10 @@ class Contact_Form_Block {
 					wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $synced_form->post_date ) )
 				),
 			),
+			'private' => array(
+				'type'    => 'warning',
+				'message' => __( 'This form is private and is only visible to you. Change its status to published to make it visible to site visitors.', 'jetpack-forms' ),
+			),
 		);
 
 		if ( ! isset( $status_config[ $status ] ) ) {
@@ -893,11 +897,18 @@ class Contact_Form_Block {
 
 		$config     = $status_config[ $status ];
 		$type_class = 'info' === $config['type'] ? 'jetpack-form-status-notice--info' : 'jetpack-form-status-notice--warning';
+		$edit_url   = get_edit_post_link( $synced_form->ID, 'raw' );
+		$edit_link  = $edit_url ? sprintf(
+			' <a href="%s" class="jetpack-form-status-notice__edit-link">%s</a>',
+			esc_url( $edit_url ),
+			esc_html__( 'Edit form', 'jetpack-forms' )
+		) : '';
 
 		return sprintf(
-			'<div class="jetpack-form-status-notice %s"><p>%s</p></div>',
+			'<div class="jetpack-form-status-notice %s"><p>%s%s</p></div>',
 			esc_attr( $type_class ),
-			esc_html( $config['message'] )
+			esc_html( $config['message'] ),
+			$edit_link
 		);
 	}
 
