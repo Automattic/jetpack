@@ -938,7 +938,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * @return array The mocked response.
 	 */
 	public function mock_preferences_api_enabled( $response, $args, $url ) {
-		if ( strpos( $url, '/me/preferences' ) === false ) {
+		if ( strpos( $url, '/agents-manager/state' ) === false ) {
 			return $response;
 		}
 
@@ -960,7 +960,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * @return array The mocked response.
 	 */
 	public function mock_preferences_api_disabled( $response, $args, $url ) {
-		if ( strpos( $url, '/me/preferences' ) === false ) {
+		if ( strpos( $url, '/agents-manager/state' ) === false ) {
 			return $response;
 		}
 
@@ -982,7 +982,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * @return \WP_Error The mocked error response.
 	 */
 	public function mock_preferences_api_error( $response, $args, $url ) {
-		if ( strpos( $url, '/me/preferences' ) === false ) {
+		if ( strpos( $url, '/agents-manager/state' ) === false ) {
 			return $response;
 		}
 
