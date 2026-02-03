@@ -961,7 +961,10 @@ function JetpackContactFormEdit( {
 			{ statusNoticeConfig[ formStatus ]?.message ||
 				sprintf(
 					/* translators: %s: form status */
-					__( 'This form has status "%s" and may not display correctly.', 'jetpack-forms' ),
+					__(
+						'This form has status "%s" and will not be displayed on the frontend until it is published.',
+						'jetpack-forms'
+					),
 					formStatus
 				) }
 			{ formStatus !== 'trash' && (
