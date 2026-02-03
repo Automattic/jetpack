@@ -938,47 +938,29 @@ function JetpackContactFormEdit( {
 	> = {
 		trash: {
 			status: 'error',
-			message: __(
-				'This form has been trashed and will not be displayed on the frontend.',
-				'jetpack-forms'
-			),
+			message: __( 'Trashed — not visible to visitors.', 'jetpack-forms' ),
 		},
 		draft: {
 			status: 'warning',
-			message: __(
-				'This form is a draft and will not be displayed on the frontend until published.',
-				'jetpack-forms'
-			),
+			message: __( 'Draft form — not visible to visitors.', 'jetpack-forms' ),
 		},
 		pending: {
 			status: 'warning',
-			message: __(
-				'This form is pending review and will not be displayed on the frontend until approved and published.',
-				'jetpack-forms'
-			),
+			message: __( 'Pending Review - not visible to visitors.', 'jetpack-forms' ),
 		},
 		future: {
 			status: 'info',
 			message: syncedForm?.date
 				? sprintf(
 						/* translators: %s: scheduled publish date */
-						__(
-							'This form is scheduled for %s and will not be displayed until then.',
-							'jetpack-forms'
-						),
+						__( 'Hidden until publication on %s.', 'jetpack-forms' ),
 						dateI18n( 'F j, Y g:i a', syncedForm.date )
 				  )
-				: __(
-						'This form is scheduled and will not be displayed until its publish date.',
-						'jetpack-forms'
-				  ),
+				: __( 'Hidden until publication date.', 'jetpack-forms' ),
 		},
 		private: {
 			status: 'warning',
-			message: __(
-				'This form is private and will not be displayed on the frontend. To make it visible, change its status to published.',
-				'jetpack-forms'
-			),
+			message: __( 'Private form — not visible to visitors.', 'jetpack-forms' ),
 		},
 	};
 
