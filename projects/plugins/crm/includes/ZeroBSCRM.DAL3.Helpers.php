@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile -- Legacy file pending gradual refactoring.
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -5777,17 +5776,27 @@ function jpcrm_get_total_value_from_contact_or_company( $entity ) {
 
 	}
 
-   // evolved for dal3.0
-   // left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
-	#} Adds up value of quotes for a customer...
-	function zeroBS_customerQuotesValue($contactID='',$customerQuotes=array()){
+	/**
+	 * Adds up value of quotes for a customer...
+	 *
+	 * Evolved for dal3.0
+	 * Left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
+	 *
+	 * @param string $contact_id Contact ID.
+	 * @param array  $customer_quotes Customer quotes.
+	 * @return int Total.
+	 */
+	function zeroBS_customerQuotesValue( $contact_id = '', $customer_quotes = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		global $zbs;
 
-		$contact_with_vals = $zbs->DAL->contacts->getContact( $contactID, array(
-			'withCustomFields' => false,
-			'withValues' => true
-		) );
+		$contact_with_vals = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$contact_id,
+			array(
+				'withCustomFields' => false,
+				'withValues'       => true,
+			)
+		);
 
 		// throwaway obj apart from totals
 		// later could optimise, but better to optimise 1 level up and not even use this func
@@ -5796,20 +5805,29 @@ function jpcrm_get_total_value_from_contact_or_company( $entity ) {
 		}
 
 		return 0;
-
 	}
 
-   // evolved for dal3.0
-   // left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
-	#} Adds up value of invoices for a customer...
-	function zeroBS_customerInvoicesValue($contactID='',$customerInvoices=array()){
+	/**
+	 * Adds up value of invoices for a customer...
+	 *
+	 * Evolved for dal3.0
+	 * Left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
+	 *
+	 * @param string $contact_id Contact ID.
+	 * @param array  $customer_invoices Customer invoices.
+	 * @return int Total.
+	 */
+	function zeroBS_customerInvoicesValue( $contact_id = '', $customer_invoices = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		global $zbs;
 
-		$contact_with_vals = $zbs->DAL->contacts->getContact( $contactID, array(
-			'withCustomFields' => false,
-			'withValues' => true
-		) );
+		$contact_with_vals = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$contact_id,
+			array(
+				'withCustomFields' => false,
+				'withValues'       => true,
+			)
+		);
 
 		// throwaway obj apart from totals
 		// later could optimise, but better to optimise 1 level up and not even use this func
@@ -5817,21 +5835,31 @@ function jpcrm_get_total_value_from_contact_or_company( $entity ) {
 			return $contact_with_vals['invoices_total'];
 		}
 
-		return 0;		
+		return 0;
 	}
 
-   // evolved for dal3.0
-   // left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
-	// THIS STAYS THE SAME FOR DB2 until trans MOVED OVER #DB2ROUND2
-	#} Adds up value of transactions for a customer...
-	function zeroBS_customerTransactionsValue($contactID='',$customerTransactions=array()){
+	/**
+	 * Adds up value of transactions for a customer...
+	 *
+	 * Evolved for dal3.0
+	 * Left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
+	 * THIS STAYS THE SAME FOR DB2 until trans MOVED OVER #DB2ROUND2
+	 *
+	 * @param string $contact_id Contact ID.
+	 * @param array  $customer_transactions Customer transactions.
+	 * @return int Total.
+	 */
+	function zeroBS_customerTransactionsValue( $contact_id = '', $customer_transactions = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		global $zbs;
 
-		$contact_with_vals = $zbs->DAL->contacts->getContact( $contactID, array(
-			'withCustomFields' => false,
-			'withValues' => true
-		) );
+		$contact_with_vals = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$contact_id,
+			array(
+				'withCustomFields' => false,
+				'withValues'       => true,
+			)
+		);
 
 		// throwaway obj apart from totals
 		// later could optimise, but better to optimise 1 level up and not even use this func
@@ -5839,7 +5867,7 @@ function jpcrm_get_total_value_from_contact_or_company( $entity ) {
 			return $contact_with_vals['transactions_total'];
 		}
 
-		return 0;		
+		return 0;
 	}
 
 /* ======================================================
