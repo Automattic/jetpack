@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Making featured image default for sharing previews and fixing a bug with removal not reflected in the preview.
