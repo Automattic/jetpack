@@ -7,7 +7,7 @@ on:
       - Build
 concurrency:
   # Cancel concurrent jobs on pull_request but not push, by including the run_id in the concurrency group for the latter.
-  group: post-build-${{ github.event.workflow_run.event == 'push' && github.run_id || 'pr' }}-${{ github.event.workflow_run.head_branch }}
+  group: post-build-${{ case( github.event.workflow_run.event == 'push', github.run_id, 'pr' ) }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 env:
@@ -400,7 +400,7 @@ jobs:
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
           conclusion: ${{ needs.upgrade_test.result }}
-          title: ${{ needs.upgrade_test.result == 'success' && 'Tests passed' || needs.upgrade_test.result == 'cancelled' && 'Cancelled' || 'Tests failed' }}
+          title: ${{ case( needs.upgrade_test.result == 'success', 'Tests passed', needs.upgrade_test.result == 'cancelled', 'Cancelled', 'Tests failed' ) }}
           summary: |
             ${{ env.SUMMARY }}
 
@@ -473,7 +473,7 @@ jobs:
         with:
           id: ${{ needs.setup.outputs.wpcom_filename_check }}
           conclusion: ${{ job.status }}
-          title: ${{ job.status == 'success' && 'Tests passed' || job.status == 'cancelled' && 'Cancelled' || 'Tests failed' }}
+          title: ${{ case( job.status == 'success', 'Tests passed', job.status == 'cancelled', 'Cancelled', 'Tests failed' ) }}
           summary: |
             ${{ env.SUMMARY }}
 

@@ -20,6 +20,14 @@
 	min-height: 20rem;
 }
 
+.tab-panel-wrapper {
+
+	:global(.components-tab-panel__tabs) {
+		height: 48px;
+		border-bottom: 1px solid var(--jp-gray-10);
+	}
+}
+
 .share-item-name-wrapper {
 	display: flex;
 	flex-direction: column;

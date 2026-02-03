@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "1.4.27",
+	"version": "1.4.30",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -33,14 +33,14 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-config": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@wordpress/base-styles": "6.14.0",
-		"@wordpress/browserslist-config": "6.38.0",
-		"@wordpress/components": "32.0.0",
-		"@wordpress/data": "10.38.0",
-		"@wordpress/element": "6.38.0",
-		"@wordpress/i18n": "6.11.0",
-		"@wordpress/icons": "11.5.0",
-		"@wordpress/url": "4.38.0",
+		"@wordpress/base-styles": "6.15.0",
+		"@wordpress/browserslist-config": "6.39.0",
+		"@wordpress/components": "32.1.0",
+		"@wordpress/data": "10.39.0",
+		"@wordpress/element": "6.39.0",
+		"@wordpress/i18n": "6.12.0",
+		"@wordpress/icons": "11.6.0",
+		"@wordpress/url": "4.39.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
 		"prop-types": "^15.7.2"
@@ -56,7 +56,7 @@
 		"jest": "30.2.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"storybook": "10.1.10",
+		"storybook": "10.2.3",
 		"typescript": "5.9.3"
 	},
 	"peerDependencies": {

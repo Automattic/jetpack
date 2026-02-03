@@ -1458,11 +1458,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$formatted_submission_data = array();
 
 		foreach ( $data as $field_data ) {
+			$url    = self::get_url( $field_data['value'] );
+			$images = self::get_images( $field_data['value'] );
+			$files  = self::get_files( $field_data['value'] );
+			$rating = self::get_rating( $field_data['value'] );
+
 			$formatted_submission_data[] = array(
-				'label'  => self::maybe_add_colon_to_label( $field_data['label'] ),
-				'value'  => self::maybe_transform_value( $field_data['value'] ),
-				'images' => self::get_images( $field_data['value'] ),
-				'url'    => self::get_url( $field_data['value'] ),
+				'label'          => self::maybe_add_colon_to_label( $field_data['label'] ),
+				'value'          => self::maybe_transform_value( $field_data['value'] ),
+				'images'         => $images,
+				'url'            => $url,
+				'files'          => $files,
+				'rating'         => $rating,
+				'showPlainValue' => empty( $url ) && empty( $images ) && empty( $files ) && empty( $rating ),
 			);
 		}
 
@@ -1493,22 +1501,51 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the rating data from a rating field value if present.
+	 *
+	 * @param mixed $value The field value.
+	 *
+	 * @return array|null The rating data if this is a rating field, null otherwise.
+	 */
+	private static function get_rating( $value ) {
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
+			$rating     = isset( $value['rating'] ) ? (int) $value['rating'] : 0;
+			$max_rating = isset( $value['maxRating'] ) ? (int) $value['maxRating'] : 5;
+			$icon_style = isset( $value['iconStyle'] ) ? $value['iconStyle'] : 'stars';
+
+			// Generate translated screen reader text.
+			$icon_label = 'hearts' === $icon_style
+				? _n( 'heart', 'hearts', $max_rating, 'jetpack-forms' )
+				: _n( 'star', 'stars', $max_rating, 'jetpack-forms' );
+
+			return array(
+				'rating'           => $rating,
+				'maxRating'        => $max_rating,
+				'iconStyle'        => $icon_style,
+				/* translators: 1: rating value, 2: maximum rating, 3: icon type (stars or hearts) */
+				'screenReaderText' => sprintf( __( 'Rating: %1$d out of %2$d %3$s', 'jetpack-forms' ), $rating, $max_rating, $icon_label ),
+			);
+		}
+		return null;
+	}
+
+	/**
 	 * Helper function that display the error wrapper.
 	 *
 	 * @return string HTML string for the error wrapper.
 	 */
 	private static function render_error_wrapper() {
 		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFormErrors">';
-		$html .= '<span class="contact-form__warning-icon"><span class="visually-hidden">' . __( 'Warning.', 'jetpack-forms' ) . '</span><i aria-hidden="true"></i></span>
-				<span data-wp-text="state.getFormErrorMessage"></span>
-				<ul>
+		$html .= '<span class="contact-form__warning-icon" aria-hidden="true"><i></i></span>';
+		$html .= '<span class="contact-form__error-message" tabindex="-1" data-wp-watch="callbacks.focusOnValidationError" data-wp-text="state.getFormErrorMessage"></span>';
+		$html .= '<ul aria-label="' . esc_attr__( 'Form errors', 'jetpack-forms' ) . '">
 				<template data-wp-each="state.getErrorList" data-wp-key="context.item.id">
 					<li><a data-wp-bind--href="context.item.anchor" data-wp-on--click="actions.scrollIntoView" data-wp-text="context.item.label"></a></li>
 				</template>
 				</ul>';
 		$html .= '</div>';
 
-		$html .= '<div class="contact-form__error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError"></div>';
+		$html .= '<div class="contact-form__error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError" tabindex="-1" data-wp-watch="callbacks.focusOnSubmissionError"></div>';
 		return $html;
 	}
 
@@ -1537,7 +1574,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 
-		$html = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
+		$html = '<div class="' . esc_attr( $classes ) . '" data-wp-bind--aria-hidden="state.isSuccessMessageAriaHidden" data-wp-class--submission-success="context.submissionSuccess" id="contact-form-success-' . esc_attr( $form->hash ) . '" tabindex="-1" aria-labelledby="contact-form-success-header-' . esc_attr( $form->hash ) . '">';
 
 		if ( ! $disable_go_back ) {
 			$html .= '<p class="go-back-message">';
@@ -1546,7 +1583,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$html .=
-			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
+			'<h4 data-wp-bind--aria-hidden="state.isSuccessMessageAriaHidden" id="contact-form-success-header-' . esc_attr( $form->hash ) . '">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
 
 		if ( 'text' === $confirmation_type ) {
@@ -1578,45 +1615,127 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
 					<div class="jetpack_forms_contact-form-success-summary">
 						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
-						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.url"></div>
+						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.showPlainValue"></div>
 						<a class="field-url" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.url" target="_blank" rel="noopener noreferrer"></a>
+						<div class="field-rating" data-wp-bind--hidden="!context.submission.rating" data-wp-watch="callbacks.watchRatingIcons"></div>
 						<div class="field-images" data-wp-bind--hidden="!context.submission.images">
 							<template data-wp-each--image="context.submission.images">
-								<figure class="field-image" data-wp-class--is-empty="!context.image">
-									<img data-wp-bind--src="context.image" data-wp-bind--hidden="!context.image" />
-									<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image" />
-								</figure>
+								<div class="field-image-option" data-wp-class--is-empty="!context.image.src">
+									<figure class="field-image-option__image" data-wp-class--is-empty="!context.image.src">
+										<img data-wp-bind--src="context.image.src" data-wp-bind--hidden="!context.image.src" />
+										<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src" />
+									</figure>
+									<div class="field-image-option__label-wrapper">
+										<span class="field-image-option__label-code" data-wp-text="context.image.letterCode"></span>
+										<span class="field-image-option__label" data-wp-text="context.image.label" data-wp-bind--hidden="!context.image.label"></span>
+									</div>
+								</div>
+							</template>
+						</div>
+						<div class="field-files" data-wp-bind--hidden="!context.submission.files">
+							<template data-wp-each--file="context.submission.files">
+								<div class="field-file">
+									<div class="field-file__thumbnail" data-wp-style--background-image="context.file.previewUrl" data-wp-style--mask-image="context.file.iconUrl" data-wp-bind--hidden="!context.file.hasPreview"></div>
+									<svg class="field-file__icon" data-wp-bind--hidden="context.file.hasPreview" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+										<path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>
+									</svg>
+									<span class="field-file__name" data-wp-text="context.file.name"></span>
+									<span class="field-file__size" data-wp-text="context.file.size"></span>
+								</div>
 							</template>
 						</div>
 					</div>
 				</template>';
 
 				// For each entry in the submission data array, render a div with the label and value.
+				// Structure must match the template above for proper hydration.
 				foreach ( $formatted_submission_data as $submission ) {
-					$has_url = ! empty( $submission['url'] );
-					$html   .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">
-						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
+					$has_url        = ! empty( $submission['url'] );
+					$has_images     = ! empty( $submission['images'] );
+					$has_files      = ! empty( $submission['files'] );
+					$has_rating     = ! empty( $submission['rating'] );
+					$show_plain_val = ! $has_url && ! $has_images && ! $has_files && ! $has_rating;
 
-					if ( $has_url ) {
-						$html .= '<a class="field-url" href="' . esc_attr( $submission['url'] ) . '" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" target="_blank" rel="noopener noreferrer">' . esc_html( $submission['value'] ) . '</a>';
-					} else {
-						$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="context.submission.url">' . esc_html( $submission['value'] ) . '</div>';
-					}
+					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">';
 
-					$html .= '<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
+					// field-name: always present.
+					$html .= '<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
 
-					if ( ! empty( $submission['images'] ) ) {
+					// field-value: always present, hidden when URL, images, or files exist.
+					$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.showPlainValue"';
+					$html .= $show_plain_val ? '' : ' hidden';
+					$html .= '>' . ( $show_plain_val ? esc_html( $submission['value'] ) : '' ) . '</div>';
+
+					// field-url: always present, hidden when no URL.
+					$html .= '<a class="field-url" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.url" target="_blank" rel="noopener noreferrer"';
+					$html .= $has_url ? ' href="' . esc_attr( $submission['url'] ) . '"' : ' hidden';
+					$html .= '>' . ( $has_url ? esc_html( $submission['value'] ) : '' ) . '</a>';
+
+					// Field rating - only visible when rating is present. JS renders the SVG icons.
+					$html .= '<div class="field-rating" data-wp-bind--hidden="!context.submission.rating" data-wp-watch="callbacks.watchRatingIcons"';
+					$html .= $has_rating ? ' data-rating="' . esc_attr( wp_json_encode( $submission['rating'], JSON_UNESCAPED_SLASHES ) ) . '">' : ' hidden>';
+					$html .= '</div>';
+
+					// field-images: always present, hidden when no images.
+					$html .= '<div class="field-images" data-wp-bind--hidden="!context.submission.images"';
+					$html .= $has_images ? '' : ' hidden';
+					$html .= '>';
+
+					if ( $has_images ) {
 						foreach ( $submission['images'] as $image ) {
-							$html .= '<figure data-wp-each-child class="field-image ' . ( empty( $image ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image">';
-							$html .= '<img data-wp-bind--src="context.image" src="' . $image . '" data-wp-bind--hidden="!context.image"' . ( empty( $image ) ? 'hidden' : '' ) . '/>';
-							$html .= '<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image"' . ( empty( $image ) ? '' : 'hidden' ) . '/>';
+							$image_src         = $image['src'] ?? '';
+							$image_letter_code = $image['letterCode'] ?? '';
+							$image_label       = $image['label'] ?? '';
+
+							$html .= '<div data-wp-each-child class="field-image-option ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
+							$html .= '<figure class="field-image-option__image ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
+							$html .= '<img data-wp-bind--src="context.image.src" src="' . esc_attr( $image_src ) . '" data-wp-bind--hidden="!context.image.src"' . ( empty( $image_src ) ? ' hidden' : '' ) . '/>';
+							$html .= '<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src"' . ( empty( $image_src ) ? '' : ' hidden' ) . '/>';
 							$html .= '</figure>';
+							$html .= '<div class="field-image-option__label-wrapper">';
+							$html .= '<span class="field-image-option__label-code" data-wp-text="context.image.letterCode">' . esc_html( $image_letter_code ) . '</span>';
+							$html .= '<span class="field-image-option__label" data-wp-text="context.image.label" data-wp-bind--hidden="!context.image.label"' . ( empty( $image_label ) ? ' hidden' : '' ) . '>' . esc_html( $image_label ) . '</span>';
+							$html .= '</div></div>';
 						}
 					} else {
+						// Empty template for hydration when no images.
 						$html .= '<template data-wp-each--image="context.submission.images"></template>';
 					}
 
-					$html .= '</div></div>';
+					$html .= '</div>'; // Close field-images.
+
+					// field-files: always present, hidden when no files.
+					$html .= '<div class="field-files" data-wp-bind--hidden="!context.submission.files"';
+					$html .= $has_files ? '' : ' hidden';
+					$html .= '>';
+
+					if ( $has_files ) {
+						foreach ( $submission['files'] as $file ) {
+							$file_name   = $file['name'] ?? '';
+							$file_size   = $file['size'] ?? '';
+							$has_preview = $file['hasPreview'] ?? false;
+
+							$html .= '<div data-wp-each-child class="field-file">';
+							// Thumbnail for AJAX submissions (has preview data)
+							$html .= '<div class="field-file__thumbnail" data-wp-style--background-image="context.file.previewUrl" data-wp-style--mask-image="context.file.iconUrl" data-wp-bind--hidden="!context.file.hasPreview"';
+							$html .= $has_preview ? '' : ' hidden';
+							$html .= '></div>';
+							// SVG fallback for non-AJAX submissions
+							$html .= '<svg class="field-file__icon" data-wp-bind--hidden="context.file.hasPreview" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"';
+							$html .= $has_preview ? ' hidden' : '';
+							$html .= '>';
+							$html .= '<path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>';
+							$html .= '</svg>';
+							$html .= '<span class="field-file__name" data-wp-text="context.file.name">' . esc_html( $file_name ) . '</span>';
+							$html .= '<span class="field-file__size" data-wp-text="context.file.size">' . esc_html( $file_size ) . '</span>';
+							$html .= '</div>';
+						}
+					} else {
+						// Empty template for hydration when no files.
+						$html .= '<template data-wp-each--file="context.submission.files"></template>';
+					}
+
+					$html .= '</div></div>'; // Close field-files and summary.
 				}
 			}
 		}
@@ -1852,6 +1971,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			return implode( '<br>', $file_links );
+		}
+
+		// Handle rating field - return displayValue (e.g., "3/5") as text fallback.
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
+			return isset( $value['displayValue'] ) ? esc_html( $value['displayValue'] ) : '';
+		}
+
+		// Handle URL field - return displayValue or url.
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' ) {
+			return isset( $value['displayValue'] ) ? esc_html( $value['displayValue'] ) : ( isset( $value['url'] ) ? esc_html( $value['url'] ) : '' );
 		}
 
 		if ( is_array( $value ) ) {
@@ -3209,6 +3338,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return isset( $value['displayValue'] ) ? $value['displayValue'] : ( isset( $value['url'] ) ? $value['url'] : '' );
 		}
 
+		// For rating fields, return the displayValue (e.g., "3/5") for text fallback.
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
+			return isset( $value['displayValue'] ) ? $value['displayValue'] : '';
+		}
+
 		// For file upload fields, we want to show the file name and size
 		if ( is_array( $value ) && isset( $value['name'] ) && isset( $value['size'] ) ) {
 			$file_name = $value['name'];
@@ -3222,16 +3356,65 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper method to get the images from an image select field.
 	 *
+	 * Returns an array of image choice objects, each containing:
+	 * - src: The image URL
+	 * - letterCode: The letter code (e.g., 'A', 'B', 'C')
+	 * - label: The choice label text (empty string if showLabels is false)
+	 *
 	 * @param array $value The value to get the images from.
-	 * @return array The images.
+	 * @return array|null The images with metadata, or null if not an image-select field.
 	 */
 	private static function get_images( $value ) {
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'image-select' ) {
 			return array_map(
 				function ( $choice ) {
-					return $choice['image']['src'] ?? '';
+					$letter_code = $choice['perceived'] ?? '';
+					$label       = '';
+
+					if ( ! empty( $choice['showLabels'] ) && ! empty( $choice['label'] ) ) {
+						$label = $choice['label'];
+					}
+
+					return array(
+						'src'        => $choice['image']['src'] ?? '',
+						'letterCode' => $letter_code,
+						'label'      => $label,
+					);
 				},
 				$value['choices']
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get files from a file field value if present.
+	 *
+	 * @param mixed $value The field value.
+	 *
+	 * @return array|null Array of file data if this is a file field, null otherwise.
+	 */
+	private static function get_files( $value ) {
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'file' && ! empty( $value['files'] ) ) {
+			return array_map(
+				function ( $file ) {
+					$preview_url = $file['previewUrl'] ?? null;
+					$icon_url    = $file['iconUrl'] ?? null;
+					$has_preview = ! empty( $preview_url ) || ! empty( $icon_url );
+
+					return array(
+						'name'       => $file['name'] ?? __( 'Attached file', 'jetpack-forms' ),
+						'size'       => $file['size'] ?? '',
+						'url'        => $file['url'] ?? '',
+						// Preview URLs are captured from the DOM for AJAX submissions
+						'previewUrl' => $preview_url,
+						'iconUrl'    => $icon_url,
+						// Boolean flag for easier binding evaluation
+						'hasPreview' => $has_preview,
+					);
+				},
+				$value['files']
 			);
 		}
 

@@ -1,6 +1,8 @@
-import { useBreakpoint } from '@automattic/viewport-react';
-import { TabPanelDesktop } from './tab-panels/desktop';
-import { TabPanelMobile } from './tab-panels/mobile';
+import { useSyncMediaToConnections } from '../../hooks/use-sync-media-to-connections';
+import { hasSocialPaidFeatures } from '../../utils';
+import { CustomizationToggle } from './customization-toggle';
+import styles from './styles.module.scss';
+import { TabPanelWrapper } from './tab-panels';
 
 /**
  * Customize and Preview component.
@@ -8,7 +10,18 @@ import { TabPanelMobile } from './tab-panels/mobile';
  * @return - Customize and Preview component.
  */
 export function CustomizeAndPreview() {
-	const isSmallScreen = useBreakpoint( '<782px' );
+	const hasPaidFeatures = hasSocialPaidFeatures();
 
-	return isSmallScreen ? <TabPanelMobile /> : <TabPanelDesktop />;
+	// Sync media URLs (SIG, featured image) to connections when they change
+	useSyncMediaToConnections();
+
+	return (
+		<div
+			className={ styles[ 'customize-and-preview' ] }
+			data-plan={ hasPaidFeatures ? 'paid' : 'free' }
+		>
+			{ hasPaidFeatures && <CustomizationToggle /> }
+			<TabPanelWrapper />
+		</div>
+	);
 }

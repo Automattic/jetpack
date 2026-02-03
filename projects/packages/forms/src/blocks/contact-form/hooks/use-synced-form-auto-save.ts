@@ -4,7 +4,7 @@
 
 import { useEffect } from '@wordpress/element';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
-import { serializeSyncedForm } from '../utils/synced-form-helpers.ts';
+import { serializeSyncedForm } from '../util/form-sync.ts';
 
 interface UseSyncedFormAutoSaveParams {
 	ref?: number;

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.30.4] - 2026-02-02
+### Added
+- Adding Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+
+### Changed
+- Update package dependencies. [#46853] [#46854]
+
+## [5.30.3] - 2026-01-26
+### Changed
+- Update package dependencies. [#46430]
+
+## [5.30.2] - 2026-01-26
+### Added
+- Add HMR support by wiring up webpack dev server. [#46686]
+
+### Changed
+- Update dependencies. [#46697]
+
 ## [5.30.1] - 2026-01-19
 ### Changed
 - Check red bubble notifications async when cache is not available. [#46396]
@@ -2489,6 +2507,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.30.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.3...5.30.4
+[5.30.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.2...5.30.3
+[5.30.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.1...5.30.2
 [5.30.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.0...5.30.1
 [5.30.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.3...5.30.0
 [5.29.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.2...5.29.3

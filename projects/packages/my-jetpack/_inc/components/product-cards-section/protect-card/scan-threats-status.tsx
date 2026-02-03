@@ -132,7 +132,7 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 								placement={ isMobileViewport ? 'top-end' : 'right' }
 								noArrow={ false }
 								offset={ 10 }
-								focusOnMount={ 'container' }
+								focusOnMount="firstElement"
 								onClose={ hideTooltip }
 							>
 								<div className="info-tooltip__content">

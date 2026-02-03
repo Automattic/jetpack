@@ -13,8 +13,8 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { next, previous, check } from '@wordpress/icons';
 import { store as singleStepStore } from '../../../../store/form-step-preview.js';
-import StepIcon from '../../../form-step/icon.js';
-import StepContainerIcon from '../../../form-step-container/icon.js';
+import StepIcon from '../../../form-step/icon.jsx';
+import StepContainerIcon from '../../../form-step-container/icon.jsx';
 import useStepNavigation from '../../hooks/use-step-navigation.js';
 import { getStepLabel } from '../../util/step-labels.js';
 

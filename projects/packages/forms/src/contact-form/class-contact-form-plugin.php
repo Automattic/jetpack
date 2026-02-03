@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use Automattic\Jetpack\Forms\Editor\Form_Editor;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Form_Webhooks;
@@ -319,8 +320,8 @@ class Contact_Form_Plugin {
 			)
 		);
 
-		// Track when post status changes to 'spam' for accurate deletion timing
-		add_action( 'transition_post_status', array( $this, 'track_spam_status_change' ), 10, 3 );
+		// Track when post status changes to feedback posts types.
+		add_action( 'transition_post_status', array( $this, 'track_feedback_status_change' ), 10, 3 );
 
 		// POST handler
 		if (
@@ -3134,7 +3135,7 @@ class Contact_Form_Plugin {
 
 		if ( $pattern_name && WP_Block_Patterns_Registry::get_instance()->is_registered( $pattern_name ) ) {
 			$pattern         = WP_Block_Patterns_Registry::get_instance()->get_registered( $pattern_name );
-			$pattern_content = $pattern['content'];
+			$pattern_content = $pattern['content'] ?? '';
 		}
 
 		// If no pattern found or specified, use a default form block
@@ -3609,8 +3610,12 @@ class Contact_Form_Plugin {
 	 * @param string       $new_status The new post status.
 	 * @param string       $old_status The old post status.
 	 * @param WP_Post|null $post       The post object, when available.
+	 *
+	 * @deprecated since 7.5.0
 	 */
 	public function track_spam_status_change( $new_status, $old_status, ?WP_Post $post = null ) {
+		_deprecated_function( __METHOD__, 'package-jetpack-forms-7.5.0' );
+
 		if ( ! $post instanceof WP_Post ) {
 			// Some callers fire the action without a populated post object (e.g. failed get_post lookups).
 			return;
@@ -3621,13 +3626,67 @@ class Contact_Form_Plugin {
 			return;
 		}
 
+		$this->track_spam_status( $new_status, $old_status, $post->ID );
+	}
+
+	/**
+	 * Tracks when a feedback post status changes and triggers related handlers.
+	 * Used to handle spam meta tracking and unread count recalculation for feedback posts.
+	 *
+	 * @param string       $new_status The new post status.
+	 * @param string       $old_status The old post status.
+	 * @param WP_Post|null $post       The post object, when available.
+	 */
+	public function track_feedback_status_change( $new_status, $old_status, ?WP_Post $post = null ) {
+		if ( ! $post instanceof WP_Post ) {
+			// Some callers fire the action without a populated post object (e.g. failed get_post lookups).
+			return;
+		}
+
+		// Only track for feedback posts
+		if ( 'feedback' !== $post->post_type ) {
+			return;
+		}
+		$this->track_spam_status( $new_status, $old_status, $post->ID );
+		$this->track_recount_unread( $new_status, $old_status, $post );
+	}
+
+	/**
+	 * Tracks when a feedback post status changes to 'spam' and stores the timestamp.
+	 * This allows us to accurately determine when spam was marked, independent of other post updates.
+	 *
+	 * @param string $new_status The new post status.
+	 * @param string $old_status The old post status.
+	 * @param int    $post_id    The post ID.
+	 */
+	private function track_spam_status( $new_status, $old_status, $post_id ) {
 		// Only track when status changes TO spam (not from spam to something else)
 		if ( 'spam' === $new_status && 'spam' !== $old_status ) {
 			// Store the current GMT timestamp when status changes to spam
-			update_post_meta( $post->ID, '_spam_status_changed_gmt', current_time( 'mysql', 1 ) );
+			update_post_meta( $post_id, '_spam_status_changed_gmt', current_time( 'mysql', 1 ) );
 		} elseif ( 'spam' === $old_status && 'spam' !== $new_status ) {
 			// Remove the meta when post is no longer spam
-			delete_post_meta( $post->ID, '_spam_status_changed_gmt' );
+			delete_post_meta( $post_id, '_spam_status_changed_gmt' );
+		}
+	}
+
+	/**
+	 * Tracks when a feedback post status changes to or from 'publish' and triggers unread count recalculation.
+	 *
+	 * @param string  $new_status The new post status.
+	 * @param string  $old_status The old post status.
+	 * @param WP_Post $post       The post object.
+	 */
+	private function track_recount_unread( $new_status, $old_status, WP_Post $post ) {
+		// If the feedback is already marked as read, it doesn't matter if its status changes.
+		if ( $post->comment_status === Feedback::STATUS_READ ) {
+			return;
+		}
+
+		// If the status changed to or from 'publish', we need to recount unread feedbacks.
+		if ( ( 'publish' === $new_status && 'publish' !== $old_status ) ||
+			( 'publish' === $old_status && 'publish' !== $new_status ) ) {
+			add_action( 'shutdown', array( __CLASS__, 'recalculate_unread_count' ) );
 		}
 	}
 
@@ -3765,17 +3824,15 @@ class Contact_Form_Plugin {
 
 		$screen = get_current_screen();
 
-		// Check if this is the edit-feedback screen
-		if ( ! $screen || $screen->id !== 'edit-feedback' ) {
+		if ( ! $screen || ! isset( $screen->id ) ) {
 			return;
 		}
 
-		// Perform the redirect to the Jetpack Forms admin page
-		$redirect_url = admin_url( 'admin.php?page=jetpack-forms-admin' );
-
-		// Use wp_safe_redirect to ensure we're redirecting to a safe location
-		wp_safe_redirect( $redirect_url );
-		exit;
+		$redirect = Dashboard::get_admin_url( $screen->id );
+		if ( $redirect ) {
+			wp_safe_redirect( $redirect );
+			exit;
+		}
 	}
 
 	/**

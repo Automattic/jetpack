@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Format numbers consistently in response action messages using formatNumber() for proper locale-specific formatting (e.g., thousands separators) in all sprintf calls with _n() pluralization.

@@ -1,0 +1,58 @@
+
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/variables";
+@use "../../../mixins";
+
+.jp-forms__inbox-response-header-title {
+	min-height: 48px; // Same as avatar to middle-align single lines
+}
+
+// Reset margins and padding for response header elements
+.jp-forms__inbox-response-name,
+.jp-forms__inbox-response-email {
+	margin: 0;
+	padding: 0;
+}
+
+.jp-forms__inbox-response-name {
+	font-size: 24px;
+	font-weight: 700;
+	line-height: 24px;
+}
+
+.jp-forms__inbox-response-email {
+
+	@include mixins.flex-center;
+	flex-shrink: 0;
+	font-size: 14px;
+	font-weight: 500;
+	gap: 4px;
+	line-height: 24px;
+	max-width: 100%;
+	min-height: 24px;
+	word-break: break-word;
+}
+
+.jp-forms__inbox-response-meta {
+	color: var(--jp-gray-80);
+	font-size: 12px;
+	padding-top: 12px;
+	padding-bottom: 24px;
+
+	table {
+		text-align: left;
+		width: fit-content;
+
+		td,
+		th {
+			padding: 0;
+		}
+
+		th {
+			font-weight: 400;
+			padding-right: variables.$grid-unit-10;
+			vertical-align: top;
+			white-space: nowrap;
+		}
+	}
+}

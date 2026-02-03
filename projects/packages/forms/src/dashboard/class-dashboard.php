@@ -28,12 +28,13 @@ class Dashboard {
 	 */
 	public static function load_wp_build() {
 		if ( self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG ) {
-			$wp_build_index = dirname( __DIR__, 2 ) . '/build/index.php';
+			$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
 			if ( file_exists( $wp_build_index ) ) {
 				require_once $wp_build_index;
 			}
 		}
 	}
+
 	/**
 	 * Script handle for the JS file we enqueue in the Feedback admin page.
 	 *
@@ -84,6 +85,7 @@ class Dashboard {
 			remove_all_actions( 'admin_notices' );
 		}
 	}
+
 	/**
 	 * Get the current query 'page' parameter.
 	 *
@@ -123,12 +125,13 @@ class Dashboard {
 		// Preload Forms endpoints needed in dashboard context.
 		// Pre-fetch the first inbox page so the UI renders instantly on first load.
 		$preload_params = array(
-			'context'  => 'edit',
-			'order'    => 'desc',
-			'orderby'  => 'date',
-			'page'     => 1,
-			'per_page' => 20,
-			'status'   => 'draft,publish',
+			'context'       => 'edit',
+			'fields_format' => 'collection',
+			'order'         => 'desc',
+			'orderby'       => 'date',
+			'page'          => 1,
+			'per_page'      => 20,
+			'status'        => 'draft,publish',
 		);
 		\ksort( $preload_params );
 		$initial_responses_path        = \add_query_arg( $preload_params, '/wp/v2/feedback' );
@@ -211,8 +214,8 @@ class Dashboard {
 	 * Register Forms (WP-Build) submenu under Jetpack menu using wp-build page.
 	 */
 	public function add_forms_wpbuild_submenu() {
-		$callback = function_exists( 'jetpack_forms_responses_wp_admin_render_page' )
-			? 'jetpack_forms_responses_wp_admin_render_page'
+		$callback = function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' )
+			? 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page'
 			: array( $this, 'render_dashboard' );
 
 		Admin_Menu::add_menu(
@@ -314,5 +317,21 @@ class Dashboard {
 		* @param bool $enabled Should the form notes feature be enabled? Defaults to false.
 		*/
 		return apply_filters( 'jetpack_forms_notes_enable', false );
+	}
+
+	/**
+	 * Get admin URL for given screen ID.
+	 *
+	 * @param string $screen_id Screen ID.
+	 * @return string|null Admin URL or null if not found.
+	 */
+	public static function get_admin_url( $screen_id ) {
+		switch ( $screen_id ) {
+			case 'edit-jetpack_form':
+				return admin_url( 'admin.php?page=' . self::ADMIN_SLUG . '#/forms' );
+			case 'edit-feedback':
+				return admin_url( 'admin.php?page=' . self::ADMIN_SLUG . '#/responses' );
+		}
+		return null;
 	}
 }

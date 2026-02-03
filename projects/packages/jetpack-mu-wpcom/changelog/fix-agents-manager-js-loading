@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Agents Manager: Fix JavaScript conflicts with WooCommerce checkout and other plugins by preventing unnecessary script loading on irrelevant screens.

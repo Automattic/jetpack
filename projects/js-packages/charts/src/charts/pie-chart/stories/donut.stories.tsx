@@ -413,7 +413,7 @@ const CustomPieLegend = ( {
 
 			return (
 				<Fragment key={ index }>
-					<HStack direction="row" justify="flex-start" gap={ 2 }>
+					<HStack direction="row" justify="flex-start" spacing={ 2 }>
 						<div
 							style={ {
 								width: '8px',

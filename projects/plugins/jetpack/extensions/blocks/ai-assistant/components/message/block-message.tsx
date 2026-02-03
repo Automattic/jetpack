@@ -73,7 +73,12 @@ export default function BlockMessage( props: BlockMessageProps ): ReactElement {
 					'jetpack'
 				),
 				{
-					link: <ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines" />,
+					link: (
+						<ExternalLink
+							href="https://jetpack.com/redirect/?source=ai-guidelines"
+							children={ null }
+						/>
+					),
 				}
 			);
 			break;

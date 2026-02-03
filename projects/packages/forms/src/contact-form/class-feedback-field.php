@@ -216,6 +216,34 @@ class Feedback_Field {
 			}
 		}
 
+		// For file fields, return a structured array with file metadata for proper rendering.
+		if ( $this->is_of_type( 'file' ) ) {
+			$files = array();
+			if ( isset( $this->value['files'] ) && is_array( $this->value['files'] ) ) {
+				foreach ( $this->value['files'] as $file ) {
+					if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
+						continue;
+					}
+					$file_id = absint( $file['file_id'] );
+					$files[] = array(
+						'file_id' => $file_id,
+						'name'    => $file['name'] ?? __( 'Attached file', 'jetpack-forms' ),
+						'size'    => size_format( $file['size'] ),
+						'url'     => apply_filters( 'jetpack_unauth_file_download_url', '', $file_id ),
+					);
+				}
+			}
+			return array(
+				'type'  => 'file',
+				'files' => $files,
+			);
+		}
+
+		// For rating fields, return a structured array with rating data for star/heart display.
+		if ( $this->is_of_type( 'rating' ) ) {
+			return $this->get_rating_value();
+		}
+
 		return $this->get_render_default_value();
 	}
 
@@ -267,6 +295,51 @@ class Feedback_Field {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Get rating value as a structured array for web rendering.
+	 *
+	 * Parses the rating value (format: "rating/max" e.g., "3/5") and returns
+	 * a structured array with the rating, max, and iconStyle for star/heart display.
+	 *
+	 * @return array|string Structured rating data or original value if parsing fails.
+	 */
+	private function get_rating_value() {
+		if ( empty( $this->value ) ) {
+			return $this->value;
+		}
+
+		// Parse the rating value format: "rating/max" (e.g., "3/5").
+		$parts = explode( '/', $this->value );
+		if ( count( $parts ) !== 2 ) {
+			return $this->value;
+		}
+
+		$rating = (int) $parts[0];
+		$max    = (int) $parts[1];
+
+		// Validate parsed values.
+		if ( $rating < 0 || $max <= 0 ) {
+			return $this->value;
+		}
+
+		if ( $rating > $max ) {
+			return $this->value;
+		}
+		// Get icon style from meta data (defaults to 'stars').
+		$icon_style = $this->get_meta_key_value( 'iconStyle' );
+		if ( empty( $icon_style ) ) {
+			$icon_style = 'stars';
+		}
+
+		return array(
+			'type'         => 'rating',
+			'rating'       => $rating,
+			'maxRating'    => $max,
+			'iconStyle'    => $icon_style,
+			'displayValue' => $this->value,
+		);
 	}
 
 	/**
@@ -354,6 +427,11 @@ class Feedback_Field {
 
 		if ( $this->is_of_type( 'image-select' ) ) {
 			// Return the array as is.
+			return $this->value;
+		}
+
+		if ( $this->is_of_type( 'checkbox-multiple' ) ) {
+			// Since API gets format: collection, return the array as is.
 			return $this->value;
 		}
 

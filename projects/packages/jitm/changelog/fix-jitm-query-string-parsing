@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed JITM REST endpoint query string parsing where the first parameter was corrupted.
