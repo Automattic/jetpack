@@ -22,14 +22,15 @@ store( NAMESPACE, {
 				return;
 			}
 
-			const context = getContext();
-			const fieldType = context.submission?.type || 'text';
-
-			// Skip re-rendering if the element already has the correct icon.
-			// This prevents unnecessary DOM updates during hydration.
-			if ( ref.dataset.renderedType === fieldType ) {
+			// If server already rendered an icon (has content), preserve it.
+			// This handles page reloads where PHP renders the SVG from disk.
+			if ( ref.dataset.renderedType && ref.innerHTML.trim() !== '' ) {
 				return;
 			}
+
+			// For AJAX submissions, render the icon via JS.
+			const context = getContext();
+			const fieldType = context.submission?.type || 'text';
 
 			ref.innerHTML = getFieldTypeIconHtml( fieldType );
 			ref.dataset.renderedType = fieldType;
