@@ -14,8 +14,8 @@ function wpcomsh_activate_reader_module() {
 		return;
 	}
 
-	if ( ! Jetpack::is_module_active( 'reader' ) ) {
-		Jetpack::activate_module( 'reader', false, false );
+	if ( ! Jetpack::is_module_active( 'wpcom-reader' ) ) {
+		Jetpack::activate_module( 'wpcom-reader', false, false );
 	}
 }
 add_action( 'init', 'wpcomsh_activate_reader_module', 0, 0 );
@@ -28,7 +28,7 @@ add_action( 'init', 'wpcomsh_activate_reader_module', 0, 0 );
  * @return array
  */
 function wpcomsh_rm_reader_module_list( $items ) {
-	unset( $items['reader'] );
+	unset( $items['wpcom-reader'] );
 	return $items;
 }
 add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_reader_module_list' );

@@ -462,7 +462,7 @@ function wpcomsh_woa_post_process_activate_jetpack_modules( $args, $assoc_args )
 		'account-protection',
 		'blaze',
 		'blocks',
-		'reader',
+		'wpcom-reader',
 	);
 
 	$activated_modules = array();
