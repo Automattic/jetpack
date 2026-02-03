@@ -69,7 +69,7 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 							iconStyle="stars"
 							strokeColor={ index < displayRating ? '#F0B849' : '#757575' }
 							fillColor={ index < displayRating ? '#F0B849' : 'none' }
-							strokeWidth={ 2 }
+							strokeWidth={ 1.5 }
 						/>
 					</span>
 				) ) }
