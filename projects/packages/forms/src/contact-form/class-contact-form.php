@@ -1570,7 +1570,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( ! isset( $icon_cache[ $block_dir ] ) ) {
 			$svg_file = dirname( __DIR__ ) . '/blocks/' . $block_dir . '/icon.svg';
-			$svg      = file_get_contents( $svg_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local package file, not a remote URL.
+			$svg      = '';
+
+			if ( file_exists( $svg_file ) ) {
+				$svg = file_get_contents( $svg_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local package file, not a remote URL.
+			}
 
 			if ( $svg ) {
 				// Trim whitespace.
