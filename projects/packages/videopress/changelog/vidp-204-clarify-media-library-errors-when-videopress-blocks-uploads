@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Retry uploads only on transient HTTP errors to show plan limit errors immediately.
+Clarify error messages when video uploads fail due to plan limitations.
