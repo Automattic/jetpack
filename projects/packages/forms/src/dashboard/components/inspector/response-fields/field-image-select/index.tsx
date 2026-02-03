@@ -34,7 +34,7 @@ function photonSafeUrl( url: string = '' ): string | null {
 	return photon( url.split( '?', 1 )[ 0 ], { width: 120, height: 120 } );
 }
 
-const ImageSelectButton2 = ( { choice, handleFilePreview } ) => {
+const ImageSelectButton = ( { choice, handleFilePreview } ) => {
 	const label = choice.label ? `${ choice.selected }: ${ choice.label }` : choice.selected;
 	const hasImage = choice.image?.src;
 	return (
@@ -92,10 +92,15 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 		<>
 			{ ( choices?.length ?? 0 ) === 0 && '-' }
 			{ ( choices?.length ?? 0 ) > 0 && (
-				<HStack spacing="2" alignment="topLeft" wrap={ true }>
+				<HStack
+					spacing="2"
+					alignment="topLeft"
+					wrap={ true }
+					className="jp-forms__image-select-preview-wrapper"
+				>
 					{ choices.map( choice => {
 						return (
-							<ImageSelectButton2
+							<ImageSelectButton
 								key={ choice.selected }
 								choice={ choice }
 								handleFilePreview={ handleFilePreview }

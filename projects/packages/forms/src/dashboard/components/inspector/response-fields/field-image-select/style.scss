@@ -1,5 +1,9 @@
 @use "@wordpress/base-styles/variables";
 
+.jp-forms__image-select-preview-wrapper {
+	padding-block-start: 8px;
+}
+
 .jp-forms__image-select-preview {
 	// Without display: block, image/svg will display a blank space.
 	img,
