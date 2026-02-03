@@ -98,7 +98,6 @@ const getVideos = {
 				orderby: query.orderBy,
 				page: query.page,
 				per_page: query.itemsPerPage,
-				media_type: 'video',
 				mime_type: 'video/videopress',
 			};
 
@@ -227,7 +226,6 @@ const getUploadedVideoCount = {
 			// Only the minimum necessary data
 			const wpv2MediaQuery = {
 				per_page: 1,
-				media_type: 'video',
 				mime_type: 'video/videopress',
 			};
 
