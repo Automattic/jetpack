@@ -168,7 +168,7 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 		echo "- $FILE"
 		check_executable "$FILE"
 		check_symlink "$FILE"
-	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=M )
+	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=MT )
 
 	if [[ -z "$FAILED" ]]; then
 		OUTPUT+=( "✅ $SLUG: All good!" )
