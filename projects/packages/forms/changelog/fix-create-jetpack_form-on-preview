@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Form Wrapper: prevent creating synced jetpack_form posts during block preview, and skip form wrapping when editing jetpack_form post type directly.
