@@ -50,9 +50,7 @@ export default function ActionButtons( {
 				<FormFileUpload
 					accept=".mp3,.mpeg,.mpga,.ogg,.flac,.m4a,.mp4,.wav,.wave,.webm"
 					onChange={ onUpload }
-					variant="secondary"
-					className="jetpack-ai-voice-to-content__button"
-					__next40pxDefaultSize={ true }
+					className="jetpack-ai-voice-to-content__button is-secondary"
 				>
 					{ __( 'Upload audio', 'jetpack' ) }
 				</FormFileUpload>

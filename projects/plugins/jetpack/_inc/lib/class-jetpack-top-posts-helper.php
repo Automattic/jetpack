@@ -110,7 +110,7 @@ class Jetpack_Top_Posts_Helper {
 			if ( $post['public'] ) {
 				$top_posts[] = array(
 					'id'        => $post_id,
-					'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ),
+					'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ), // @phan-suppress-current-line PhanTypeMismatchArgument @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 					'context'   => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
 					'href'      => $post['href'],
 					'date'      => get_the_date( '', $post_id ),

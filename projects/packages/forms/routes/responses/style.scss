@@ -1,3 +1,5 @@
+@use "@wordpress/base-styles/variables";
+
 // Fix for sticky header on mobile in wp-admin
 // The header needs to account for the wp-admin bar
 // (46px on mobile, 32px on tablet+)
@@ -30,14 +32,13 @@
 	}
 }
 
-.jp-forms__inbox-response-country-flag {
-	font-size: 16px;
-	display: inline;
-	padding-right: 4px;
-	vertical-align: middle;
+// Filters "pills" row: collapse when empty (match Inbox behavior).
+.jp-forms-dataviews-filters__container,
+.jp-forms-dataviews-filters__container:not(:empty) {
+	padding: 0;
+}
 
-	svg {
-		fill: currentColor;
-		vertical-align: text-top;
-	}
+.jp-forms-dataviews-filters__container:not(:empty) {
+	padding-inline: variables.$grid-unit * 2.5;
+	padding-block: variables.$grid-unit * 1.5;
 }

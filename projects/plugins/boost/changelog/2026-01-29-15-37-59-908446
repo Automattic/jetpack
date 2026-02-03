@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Compatibility: Disable JS concatenation in Beaver Builder editor to prevent script execution order issues.
