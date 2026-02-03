@@ -19,14 +19,14 @@ type FieldRatingProps = {
 const FieldRating = ( { value }: FieldRatingProps ) => {
 	const stringValue = value != null ? String( value ) : '';
 	if ( stringValue.trim() === '' ) {
-		return <>-</>;
+		return '-';
 	}
 	const [ rateValue, outOf ] = stringValue.split( '/' ) ?? [];
 	if ( ! rateValue || rateValue.trim() === '' ) {
-		return <>-</>;
+		return '-';
 	}
 	if ( ! outOf || outOf.trim() === '' ) {
-		return <>-</>;
+		return '-';
 	}
 
 	const rateValueTrimmed = rateValue.trim();
@@ -34,7 +34,7 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 
 	// Require strictly numeric values to reject partial matches like "4abc"
 	if ( ! /^[0-9]+$/.test( rateValueTrimmed ) || ! /^[0-9]+$/.test( outOfTrimmed ) ) {
-		return <>-</>;
+		return '-';
 	}
 
 	const parsedRating = Number.parseInt( rateValueTrimmed, 10 );
@@ -45,7 +45,7 @@ const FieldRating = ( { value }: FieldRatingProps ) => {
 		! Number.isFinite( parsedMax ) ||
 		parsedMax < 0
 	) {
-		return <>-</>;
+		return '-';
 	}
 
 	// Clamp max to prevent DOM bloat from large values
