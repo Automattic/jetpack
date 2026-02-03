@@ -1,7 +1,7 @@
-import { Button, Notice } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { dateI18n } from '@wordpress/date';
+import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useState, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
@@ -24,52 +24,45 @@ const STATUS_CONFIG: Record<
 > = {
 	trash: {
 		status: 'error',
-		getMessage: () =>
-			__(
-				'This form has been trashed and will not be displayed on the frontend.',
-				'jetpack-forms'
-			),
+		getMessage: () => __( 'Trashed form. Currently hidden from site visitors.', 'jetpack-forms' ),
 	},
 	draft: {
 		status: 'warning',
-		getMessage: () =>
-			__(
-				'This form is a draft and will not be displayed on the frontend until published.',
-				'jetpack-forms'
-			),
+		getMessage: () => __( 'Draft form. Currently hidden from site visitors.', 'jetpack-forms' ),
 	},
 	pending: {
 		status: 'warning',
 		getMessage: () =>
 			__(
-				'This form is pending review and will not be displayed on the frontend until approved and published.',
+				'Pending review form. Currently hidden from site visitors until approved and published.',
 				'jetpack-forms'
 			),
 	},
 	future: {
 		status: 'info',
-		getMessage: form =>
-			form?.date
+		getMessage: form => {
+			const dateSettings = getDateSettings();
+			const dateFormat = dateSettings.formats.datetime || 'F j, Y g:i a';
+
+			const message = form?.date
 				? sprintf(
 						/* translators: %s: scheduled publish date */
 						__(
-							'This form is scheduled for %s and will not be displayed until then.',
+							'Scheduled form. It will be published on %s but will remain hidden from site visitors until then.',
 							'jetpack-forms'
 						),
-						dateI18n( 'F j, Y g:i a', form.date )
+						dateI18n( dateFormat, form.date )
 				  )
 				: __(
-						'This form is scheduled and will not be displayed until its publish date.',
+						'Scheduled form. It will not be displayed to site visitors until its publish date.',
 						'jetpack-forms'
-				  ),
+				  );
+			return message;
+		},
 	},
 	private: {
 		status: 'warning',
-		getMessage: () =>
-			__(
-				'This form is private and will not be displayed on the frontend. To make it visible, change its status to published.',
-				'jetpack-forms'
-			),
+		getMessage: () => __( 'Private form. Currently hidden from site visitors.', 'jetpack-forms' ),
 	},
 };
 
@@ -132,23 +125,24 @@ export default function FormStatusNotice( {
 			formStatus
 		);
 
+	const actions = [];
+	if ( formStatus !== 'trash' ) {
+		actions.push( {
+			label: __( 'Publish', 'jetpack-forms' ),
+			onClick: handlePublish,
+			variant: 'secondary',
+			disabled: isPublishing,
+		} );
+	}
+
 	return (
 		<Notice
 			status={ noticeStatus }
 			isDismissible={ false }
 			className="jetpack-contact-form__status-notice"
+			actions={ actions }
 		>
 			{ message }
-			{ formStatus !== 'trash' && (
-				<Button
-					variant="link"
-					onClick={ handlePublish }
-					isBusy={ isPublishing }
-					disabled={ isPublishing }
-				>
-					{ __( 'Publish now', 'jetpack-forms' ) }
-				</Button>
-			) }
 		</Notice>
 	);
 }
