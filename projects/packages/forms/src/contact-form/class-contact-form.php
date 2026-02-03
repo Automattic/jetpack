@@ -1540,30 +1540,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The SVG icon HTML.
 	 */
 	private static function get_field_type_icon( $field_type ) {
-		// Map field types to block directory names where the SVG icon files live.
-		static $type_to_block = array(
-			'text'              => 'field-text',
-			'textarea'          => 'field-textarea',
-			'name'              => 'field-name',
-			'email'             => 'field-email',
+		// Map field types that don't follow the 'field-{type}' naming convention.
+		static $type_exceptions = array(
 			'phone'             => 'field-telephone',
 			'telephone'         => 'field-telephone',
-			'url'               => 'field-url',
-			'date'              => 'field-date',
-			'time'              => 'field-time',
-			'number'            => 'field-number',
-			'select'            => 'field-select',
 			'radio'             => 'field-single-choice',
-			'checkbox'          => 'field-checkbox',
 			'checkbox-multiple' => 'field-multiple-choice',
-			'file'              => 'field-file',
-			'rating'            => 'field-rating',
-			'consent'           => 'field-consent',
-			'image-select'      => 'field-image-select',
-			'slider'            => 'field-slider',
 		);
 
-		$block_dir = isset( $type_to_block[ $field_type ] ) ? $type_to_block[ $field_type ] : 'field-text';
+		$block_dir = $type_exceptions[ $field_type ] ?? 'field-' . $field_type;
 
 		// Cache loaded SVG content to avoid re-reading files.
 		static $icon_cache = array();
@@ -1577,7 +1562,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			if ( $svg ) {
-				// Trim whitespace.
 				$svg = trim( $svg );
 
 				$icon_cache[ $block_dir ] = $svg;
