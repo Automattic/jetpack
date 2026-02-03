@@ -136,9 +136,7 @@ Display multiple data series with automatic color differentiation and grouped ba
 
 ### Many Data Series
 
-The component handles large numbers of series gracefully with automatic color cycling:
-
-<Canvas of={ BarChartStories.ManyDataSeries } />
+The component handles large numbers of series gracefully with automatic color cycling. Use the `seriesCount` control above to see how the chart handles many series:
 
 <Source
 	language="jsx"
@@ -411,22 +409,27 @@ Control grid line visibility and appearance:
 
 ### Responsive Behavior
 
-Charts automatically resize based on container size:
+By default, charts **fill their parent container's dimensions**. The parent must have an explicit height:
 
-<Canvas of={ BarChartStories.FixedDimensions } />
+<Canvas of={ BarChartStories.Default } />
 
 <Source
 	language="jsx"
-	code={ `// Responsive (default)
-	<BarChart data={data} />
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<BarChart data={data} />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%' }}>
+		<BarChart data={data} aspectRatio={0.5} />
+	</div>
 
 	// Fixed dimensions
-	<BarChart
-		data={data}
-		width={800}
-		height={400}
-	/>` }
+	<BarChart data={data} width={800} height={400} />` }
 />
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ### Custom Margins
 

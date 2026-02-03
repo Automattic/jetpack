@@ -106,7 +106,66 @@ Use the `GlobalChartsProvider` component to apply consistent styling across all 
 
 ### Responsive Design
 
-All charts automatically adapt to their container size using the `withResponsive` higher-order component.
+All charts automatically adapt to their container size using the `withResponsive` higher-order component. By default, charts **fill their parent container's dimensions** rather than calculating height from a fixed aspect ratio.
+
+#### Default Behavior (Fill Container)
+
+When you omit dimension props, the chart expands to fill its parent container:
+
+<Source
+	language="jsx"
+	code={`// Chart fills parent container's width and height
+	<div style={{ width: '100%', height: '400px' }}>
+		<LineChart data={data} />
+	</div>`}
+/>
+
+**Important**: The parent container must have an explicit height. Without a defined height, the chart cannot determine how tall to render.
+
+#### Aspect Ratio Mode
+
+For layouts where you want height calculated from width, pass the `aspectRatio` prop:
+
+<Source
+	language="jsx"
+	code={`// Height = width × aspectRatio (e.g., 2:1 ratio)
+	<div style={{ width: '100%' }}>
+		<LineChart data={data} aspectRatio={0.5} />
+	</div>`}
+/>
+
+This is useful for responsive layouts where the container width varies but you want consistent proportions.
+
+#### Fixed Dimensions
+
+For complete control, specify explicit `width` and `height` props:
+
+<Source
+	language="jsx"
+	code={`<LineChart data={data} width={800} height={400} />`}
+/>
+
+#### Responsive Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `width` | `number` | - | Fixed width in pixels (omit for responsive) |
+| `height` | `number` | - | Fixed height in pixels (omit for responsive) |
+| `aspectRatio` | `number` | - | Height as ratio of width (e.g., `0.5` = half width) |
+| `maxWidth` | `number` | `1200` | Maximum width constraint |
+| `resizeDebounceTime` | `number` | `300` | Debounce delay for resize events (ms) |
+
+#### Unresponsive Variants
+
+Each chart exports an "Unresponsive" variant for cases where you need direct control without the responsive wrapper:
+
+<Source
+	language="jsx"
+	code={`import { LineChartUnresponsive } from '@automattic/charts';
+
+	// Requires explicit width and height
+	<LineChartUnresponsive data={data} width={800} height={400} />`}
+/>
 
 ### Compound Components
 

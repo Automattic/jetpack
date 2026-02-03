@@ -145,20 +145,24 @@ Disable the gradient for a cleaner line-only appearance, or customize it:
 
 ### Responsive Sparkline
 
-The default `Sparkline` export includes responsive behavior. Wrap in a container and use `aspectRatio`:
+The default `Sparkline` export includes responsive behavior. By default, it **fills its parent container's dimensions**:
 
 <Canvas of={ SparklineStories.Responsive } />
 
 <Source
 	language="jsx"
-	code={ `<div style={{ width: '100%', maxWidth: '200px' }}>
-		<Sparkline
-			data={[10, 15, 12, 18, 22, 25]}
-			color="#9C27B0"
-			aspectRatio={0.3}
-		/>
-	</div>` }
+	code={ `// Fill parent container (default) - parent needs explicit height
+<div style={{ width: '200px', height: '60px' }}>
+	<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" />
+</div>
+
+// Use aspect ratio - height calculated from width
+<div style={{ width: '100%', maxWidth: '200px' }}>
+	<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" aspectRatio={0.3} />
+</div>` }
 />
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Dashboard Integration
 

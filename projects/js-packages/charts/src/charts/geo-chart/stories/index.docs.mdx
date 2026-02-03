@@ -318,6 +318,28 @@ The Geo Chart uses Google Charts' default Mercator projection for world map visu
 - **Validate data**: Check that values are positive numbers
 - **Consider scale**: Large value ranges will show more dramatic color differences
 
+### Responsive Behavior
+
+Like other charts in this library, GeoChart supports responsive sizing. By default, it **fills its parent container's dimensions**:
+
+<Source
+	language="tsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<GeoChart data={ordersByCountry} />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%' }}>
+		<GeoChart data={ordersByCountry} aspectRatio={0.625} />
+	</div>
+
+	// Fixed dimensions
+	<GeoChart data={ordersByCountry} width={800} height={500} />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
 ### Performance Considerations
 
 The Geo Chart renders efficiently for typical use cases, but consider these factors:
@@ -325,7 +347,6 @@ The Geo Chart renders efficiently for typical use cases, but consider these fact
 - **Network dependency**: Google Charts loads resources from Google's CDN, requiring network access
 - **Initial load**: The first render requires loading Google Charts library (~100KB)
 - **Caching**: Subsequent renders benefit from browser caching of Google Charts resources
-- **Fixed dimensions**: The chart uses fixed width and height, not responsive sizing
 
 ### Accessibility
 
