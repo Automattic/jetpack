@@ -36,10 +36,9 @@
 		}
 	},
 	"scripts": {
-		"build": "pnpm run clean && pnpm run compile-ts && pnpm run copy-scss",
+		"build": "pnpm run clean && pnpm run compile-ts",
 		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty --project tsconfig.build.json",
-		"copy-scss": "node ./tools/copy-scss-to-build.mjs",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit"

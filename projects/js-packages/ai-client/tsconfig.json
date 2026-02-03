@@ -1,6 +1,6 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.tsc.json",
-	"include": [ "src", "declarations.d.ts" ],
+	"include": [ "src" ],
 	"compilerOptions": {
 		"sourceMap": false,
 		"outDir": "./build/",
