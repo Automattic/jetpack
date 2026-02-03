@@ -88,16 +88,45 @@ export default function FormStatusNotice( {
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
 	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
 
+	const handleUndo = useCallback(
+		async ( previousStatus: string ) => {
+			if ( ! formRef ) {
+				return;
+			}
+			try {
+				await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, {
+					status: previousStatus,
+				} );
+				await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, formRef );
+			} catch {
+				createErrorNotice(
+					__( 'Failed to undo. Refresh this page and try again.', 'jetpack-forms' ),
+					{ type: 'snackbar' }
+				);
+			}
+		},
+		[ formRef, editEntityRecord, saveEditedEntityRecord, createErrorNotice ]
+	);
+
 	const handlePublish = useCallback( async () => {
 		if ( ! formRef ) {
 			return;
 		}
+		const previousStatus = syncedForm?.status;
 		setIsPublishing( true );
 		try {
 			await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, { status: 'publish' } );
 			await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, formRef );
 			createSuccessNotice( __( 'Form is live and ready to accept responses.', 'jetpack-forms' ), {
 				type: 'snackbar',
+				actions: previousStatus
+					? [
+							{
+								label: __( 'Undo', 'jetpack-forms' ),
+								onClick: () => handleUndo( previousStatus ),
+							},
+					  ]
+					: [],
 			} );
 		} catch {
 			createErrorNotice(
@@ -109,10 +138,12 @@ export default function FormStatusNotice( {
 		}
 	}, [
 		formRef,
+		syncedForm?.status,
 		editEntityRecord,
 		saveEditedEntityRecord,
 		createSuccessNotice,
 		createErrorNotice,
+		handleUndo,
 	] );
 
 	const formStatus = syncedForm?.status;
