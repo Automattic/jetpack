@@ -65,6 +65,7 @@ class Rest_Api_Endpoints {
 		$query_array  = array();
 		if ( ! empty( $query_string ) ) {
 			parse_str( $query_string, $query_array );
+			$query_array = urldecode_deep( $query_array );
 		}
 
 		return $jitm->get_messages( $request['message_path'], $query_array, 'true' === $request['full_jp_logo_exists'] );

@@ -140,7 +140,7 @@ class Rest_Api_Endpoints_Test extends TestCase {
 	 * @param string $message_path The message path.
 	 * @param string $query The query string.
 	 * @param string $full_jp_logo_exists Whether the full JP logo exists.
-	 * @return \WP_REST_Request&\Mockery\MockInterface Mock request object.
+	 * @return \WP_REST_Request Mock request object.
 	 */
 	private function create_mock_request( $message_path, $query, $full_jp_logo_exists = 'false' ) {
 		$request = \Mockery::mock( 'WP_REST_Request' );
@@ -148,6 +148,7 @@ class Rest_Api_Endpoints_Test extends TestCase {
 		$request->shouldReceive( 'offsetGet' )->with( 'query' )->andReturn( $query );
 		$request->shouldReceive( 'offsetGet' )->with( 'full_jp_logo_exists' )->andReturn( $full_jp_logo_exists );
 		$request->shouldReceive( 'offsetExists' )->andReturn( true );
+		// @phan-suppress-next-line PhanTypeMismatchReturn -- Mockery mock satisfies WP_REST_Request interface.
 		return $request;
 	}
 }
