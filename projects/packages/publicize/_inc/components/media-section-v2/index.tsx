@@ -7,7 +7,7 @@ import { GeneralPurposeImage } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl, ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
-import { BaseControl, Button, ExternalLink, Notice } from '@wordpress/components';
+import { BaseControl, Button, ExternalLink } from '@wordpress/components';
 import { useCallback, useMemo, useReducer, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -64,8 +64,10 @@ export default function MediaSectionV2( {
 			isControlled ? imageGeneratorSettingsProp ?? { enabled: false } : storeImageGeneratorSettings,
 		[ isControlled, imageGeneratorSettingsProp, storeImageGeneratorSettings ]
 	);
+	// In controlled mode, use the prop value directly (even if undefined)
+	// to allow automatic fallback detection (e.g., featured image)
 	const mediaSource = useMemo(
-		() => ( isControlled ? mediaSourceProp ?? storeMediaSource : storeMediaSource ),
+		() => ( isControlled ? mediaSourceProp : storeMediaSource ),
 		[ isControlled, mediaSourceProp, storeMediaSource ]
 	);
 
@@ -75,9 +77,10 @@ export default function MediaSectionV2( {
 		[ isControlled, onMediaChange, updateJetpackSocialOptions ]
 	);
 
-	// Get SIG preview URL when SIG is enabled
+	// Get SIG preview URL when SIG is enabled or when attachment mode is on
+	// (so it's available when switching sources with attachment preserved)
 	const { url: sigPreviewUrl, isLoading: sigIsLoading } = useSigPreview(
-		sigEnabled || mediaSource === 'sig'
+		sigEnabled || mediaSource === 'sig' || attachedMedia?.length > 0
 	);
 
 	// Ref to store the MediaUpload open function
@@ -114,6 +117,22 @@ export default function MediaSectionV2( {
 
 	const [ mediaDetails ] = useMediaDetails( mediaId );
 
+	// Always fetch featured image details so it's available when switching sources
+	const [ featuredImageDetails ] = useMediaDetails( featuredImageId );
+
+	const featuredImageData: MediaPreviewData | null = useMemo( () => {
+		if ( ! featuredImageId || ! featuredImageDetails?.mediaData ) {
+			return null;
+		}
+		const { sourceUrl } = featuredImageDetails.mediaData;
+
+		return {
+			id: featuredImageId,
+			url: sourceUrl,
+			type: 'image',
+		};
+	}, [ featuredImageId, featuredImageDetails ] );
+
 	const previewData: MediaPreviewData | null = useMemo( () => {
 		// Use SIG preview URL when SIG is selected
 		// Always return an object (even with empty URL) so the loading spinner can show
@@ -126,6 +145,10 @@ export default function MediaSectionV2( {
 		}
 
 		if ( ! mediaId || ! mediaDetails?.mediaData ) {
+			// Fallback to featured image when no explicit media and source is undefined/null
+			if ( ! currentSource && featuredImageData ) {
+				return featuredImageData;
+			}
 			return null;
 		}
 
@@ -137,7 +160,7 @@ export default function MediaSectionV2( {
 			url: sourceUrl,
 			type: mime?.startsWith( 'video/' ) ? 'video' : 'image',
 		};
-	}, [ currentSource, mediaId, mediaDetails, sigPreviewUrl ] );
+	}, [ currentSource, mediaId, mediaDetails, sigPreviewUrl, featuredImageData ] );
 
 	// Handle media source selection from dropdown
 	const handleSourceSelect = useCallback(
@@ -147,17 +170,40 @@ export default function MediaSectionV2( {
 				source,
 			} );
 
+			// Determine attached_media based on source and current attachment state
+			let attachedMediaUpdate: Array< { id: number; url: string; type: string } > = [];
+
+			// Preserve attachment state when switching to link preview sources
+			if ( isShareAsAttachment ) {
+				if ( source === 'featured-image' && featuredImageData ) {
+					attachedMediaUpdate = [
+						{ id: featuredImageData.id, url: featuredImageData.url, type: 'image/jpeg' },
+					];
+				} else if ( source === 'sig' ) {
+					// Set placeholder even if sigPreviewUrl isn't ready yet - URL will be resolved by backend
+					attachedMediaUpdate = [ { id: 0, url: sigPreviewUrl || '', type: 'image/jpeg' } ];
+				}
+			}
+
 			// Single batch update with explicit media_source and all related fields
 			updateMediaOptions( {
 				media_source: source || 'none',
-				attached_media: [], // Reset attachment when changing source
+				attached_media: attachedMediaUpdate,
 				image_generator_settings: {
 					...imageGeneratorSettings,
 					enabled: source === 'sig',
 				},
 			} );
 		},
-		[ recordEvent, analyticsData, updateMediaOptions, imageGeneratorSettings ]
+		[
+			recordEvent,
+			analyticsData,
+			updateMediaOptions,
+			imageGeneratorSettings,
+			isShareAsAttachment,
+			featuredImageData,
+			sigPreviewUrl,
+		]
 	);
 
 	// Handle media selection from Media Library
@@ -212,11 +258,11 @@ export default function MediaSectionV2( {
 		return null;
 	}, [] );
 
-	// Handle remove - go to "no image" state
+	// Handle remove - reset to automatic detection (allows featured image fallback)
 	const handleRemove = useCallback( () => {
-		// Single batch update with explicit 'none' source
+		// Reset to undefined to allow automatic detection (e.g., featured image fallback)
 		updateMediaOptions( {
-			media_source: 'none',
+			media_source: undefined,
 			attached_media: [],
 			image_generator_settings: { ...imageGeneratorSettings, enabled: false },
 		} );
@@ -227,24 +273,47 @@ export default function MediaSectionV2( {
 		} );
 	}, [ updateMediaOptions, imageGeneratorSettings, recordEvent, analyticsData, currentSource ] );
 
+	// Determine the effective source - for featured image fallback (currentSource is null),
+	// treat it as 'featured-image' when there's preview data from featured image
+	const effectiveSource = useMemo( () => {
+		if ( currentSource ) {
+			return currentSource;
+		}
+		// If no explicit source but we have featured image data showing, treat as featured-image
+		if ( featuredImageData && previewData?.id === featuredImageData.id ) {
+			return 'featured-image';
+		}
+		return null;
+	}, [ currentSource, featuredImageData, previewData ] );
+
 	// Handle attachment toggle change
 	const handleAttachmentToggle = useCallback(
 		( checked: boolean ) => {
-			if ( currentSource === 'featured-image' && previewData ) {
-				// Featured image: toggle attachment mode
+			if ( checked ) {
+				// When turning ON, set the explicit source and attached media
+				if ( effectiveSource === 'featured-image' && previewData ) {
+					updateMediaOptions( {
+						media_source: 'featured-image',
+						attached_media: [ { id: previewData.id, url: previewData.url, type: 'image/jpeg' } ],
+					} );
+				} else if ( effectiveSource === 'sig' ) {
+					// Set placeholder even if sigPreviewUrl isn't ready yet - URL will be resolved by backend
+					updateMediaOptions( {
+						media_source: 'sig',
+						attached_media: [ { id: 0, url: sigPreviewUrl || '', type: 'image/jpeg' } ],
+						image_generator_settings: { ...imageGeneratorSettings, enabled: true },
+					} );
+				}
+			} else {
+				// When turning OFF, keep the current source but clear attachment
 				updateMediaOptions( {
-					media_source: 'featured-image',
-					attached_media: checked
-						? [ { id: previewData.id, url: previewData.url, type: 'image/jpeg' } ]
-						: [],
-				} );
-			} else if ( currentSource === 'sig' && sigPreviewUrl ) {
-				// SIG: toggle attachment mode (add SIG URL to attached_media)
-				updateMediaOptions( {
-					media_source: 'sig',
-					attached_media: checked ? [ { id: 0, url: sigPreviewUrl, type: 'image/jpeg' } ] : [],
-					// Keep SIG enabled regardless
-					image_generator_settings: { ...imageGeneratorSettings, enabled: true },
+					media_source: effectiveSource,
+					attached_media: [],
+					// Keep SIG enabled if that's the current source
+					image_generator_settings: {
+						...imageGeneratorSettings,
+						enabled: effectiveSource === 'sig',
+					},
 				} );
 			}
 
@@ -254,12 +323,12 @@ export default function MediaSectionV2( {
 					: 'jetpack_social_share_as_attachment_disabled',
 				{
 					...analyticsData,
-					source: currentSource,
+					source: effectiveSource,
 				}
 			);
 		},
 		[
-			currentSource,
+			effectiveSource,
 			previewData,
 			sigPreviewUrl,
 			updateMediaOptions,
@@ -276,7 +345,9 @@ export default function MediaSectionV2( {
 					<BaseControl.VisualLabel>
 						{ __( 'Media', 'jetpack-publicize-pkg' ) }
 					</BaseControl.VisualLabel>
-					<p className={ styles.description }>{ getMediaSourceDescription( currentSource ) }</p>
+					<p className={ styles.description }>
+						{ getMediaSourceDescription( currentSource, { featuredImageId } ) }
+					</p>
 
 					{ /* MediaUpload component - rendered once, open function stored in ref */ }
 					<MediaUpload
@@ -295,6 +366,7 @@ export default function MediaSectionV2( {
 								onMediaLibraryClick={ handleMediaLibraryClick }
 								onAiImageClick={ toggleShowAiImageModal }
 								disabled={ disabled }
+								featuredImageId={ featuredImageId }
 							>
 								{ ( { open } ) => (
 									<MediaPreview
@@ -303,6 +375,7 @@ export default function MediaSectionV2( {
 										onReplace={ open }
 										onRemove={ handleRemove }
 										disabled={ disabled }
+										showRemove={ currentSource === 'media-library' || currentSource === 'sig' }
 									/>
 								) }
 							</MediaSourceMenu>
@@ -327,20 +400,14 @@ export default function MediaSectionV2( {
 
 					{ /* Show dropdown when no media */ }
 					{ ! previewData && (
-						<>
-							<MediaSourceMenu
-								currentSource={ currentSource }
-								onSelect={ handleSourceSelect }
-								onMediaLibraryClick={ handleMediaLibraryClick }
-								onAiImageClick={ toggleShowAiImageModal }
-								disabled={ disabled }
-							/>
-							{ currentSource === 'featured-image' && ! featuredImageId && (
-								<Notice status="warning" isDismissible={ false } className={ styles.notice }>
-									{ __( 'Your post does not have a featured image.', 'jetpack-publicize-pkg' ) }
-								</Notice>
-							) }
-						</>
+						<MediaSourceMenu
+							currentSource={ currentSource }
+							onSelect={ handleSourceSelect }
+							onMediaLibraryClick={ handleMediaLibraryClick }
+							onAiImageClick={ toggleShowAiImageModal }
+							disabled={ disabled }
+							featuredImageId={ featuredImageId }
+						/>
 					) }
 					{ currentSource === 'media-library' && (
 						<ExternalLink
