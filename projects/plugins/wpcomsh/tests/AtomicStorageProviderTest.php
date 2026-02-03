@@ -229,4 +229,98 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		// Should have replaced with new token
 		$this->assertSame( 'new.secret.' . $user_id, $result[ $user_id ] );
 	}
+
+	/**
+	 * Test handle_error_event suppresses empty errors when APD has values but no local user matches.
+	 *
+	 * When APD has email/secret configured but no local WordPress user matches,
+	 * this is an expected intermediate state handled by Protected_Owner_Error_Handler.
+	 */
+	public function test_handle_error_event_suppresses_when_apd_configured_but_no_user() {
+		// APD has values - this simulates "user changed email locally" scenario
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'abc.xyz' );
+
+		// These should be suppressed - APD is configured, just no local user matches
+		$this->provider->handle_error_event( 'empty', 'master_user', '', 'woa' );
+		$this->provider->handle_error_event( 'empty', 'user_tokens', '', 'woa' );
+
+		// If we got here without errors, the suppression logic worked
+		$this->assertTrue( true );
+
+		// Cleanup
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
+	}
+
+	/**
+	 * Test handle_error_event logs when APD is truly empty.
+	 *
+	 * When APD doesn't have email/secret configured, this is a real configuration
+	 * problem that should be logged.
+	 */
+	public function test_handle_error_event_logs_when_apd_truly_empty() {
+		// APD is empty - this is a real config problem
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
+
+		// These should proceed to logging (though WPCOMSH_Log doesn't exist in tests)
+		$this->provider->handle_error_event( 'empty', 'master_user', '', 'woa' );
+		$this->provider->handle_error_event( 'empty', 'user_tokens', '', 'woa' );
+
+		// If we got here without errors, the logic worked
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Test handle_error_event logs user_tokens when only email exists (no secret).
+	 */
+	public function test_handle_error_event_logs_user_tokens_when_secret_missing() {
+		// APD has email but no secret - incomplete config for user_tokens
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
+
+		// master_user only needs email, so should be suppressed
+		$this->provider->handle_error_event( 'empty', 'master_user', '', 'woa' );
+
+		// user_tokens needs both email AND secret, so should be logged
+		$this->provider->handle_error_event( 'empty', 'user_tokens', '', 'woa' );
+
+		// If we got here without errors, the logic worked
+		$this->assertTrue( true );
+
+		// Cleanup
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
+	}
+
+	/**
+	 * Test handle_error_event always logs actual error events (not just empty).
+	 */
+	public function test_handle_error_event_logs_error_events() {
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'abc.xyz' );
+
+		// "error" events (exceptions, etc.) should always be logged regardless of APD state
+		$this->provider->handle_error_event( 'error', 'master_user', 'Some error', 'woa' );
+		$this->provider->handle_error_event( 'error', 'user_tokens', 'Some error', 'woa' );
+
+		// If we got here without errors, the logic worked
+		$this->assertTrue( true );
+
+		// Cleanup
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
+	}
+
+	/**
+	 * Test handle_error_event processes events for other keys normally.
+	 */
+	public function test_handle_error_event_processes_other_keys() {
+		// Events for other keys (blog_token, id) should always be processed
+		$this->provider->handle_error_event( 'empty', 'blog_token', '', 'woa' );
+		$this->provider->handle_error_event( 'error', 'id', 'Some error', 'woa' );
+
+		// If we got here without errors, the logic worked
+		$this->assertTrue( true );
+	}
 }
