@@ -80,7 +80,9 @@ const ImageSelectButton = ( { choice, handleFilePreview } ) => {
 					alignment="topLeft"
 				>
 					<Text className="jp-forms__image-select-preview-selected">{ choice.selected }</Text>
-					<Text className="jp-forms__image-select-preview-label">{ choice.label }</Text>
+					<Text title={ choice.label } className="jp-forms__image-select-preview-label">
+						{ choice.label }
+					</Text>
 				</HStack>
 			</CardBody>
 		</Card>
