@@ -1083,11 +1083,13 @@ function JetpackContactFormEdit( {
 		<SyncedAttributeProvider>
 			<ThemeProvider targetDom={ wrapperRef.current }>
 				<div { ...blockProps }>
-					<FormStatusNotice
-						syncedForm={ syncedForm }
-						formRef={ ref }
-						isVisible={ isFormOrChildSelected }
-					/>
+					{ ref && (
+						<FormStatusNotice
+							syncedForm={ syncedForm }
+							formRef={ ref }
+							isVisible={ isFormOrChildSelected }
+						/>
+					) }
 					{ elt }
 				</div>
 			</ThemeProvider>
