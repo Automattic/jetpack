@@ -66,13 +66,13 @@
 		"turndown": "7.1.2"
 	},
 	"devDependencies": {
-		"@storybook/addon-docs": "10.1.10",
-		"@storybook/react": "10.1.10",
+		"@storybook/addon-docs": "10.2.3",
+		"@storybook/react": "10.2.3",
 		"@testing-library/dom": "10.4.1",
 		"@types/markdown-it": "14.1.2",
 		"@types/turndown": "5.0.6",
 		"jest": "30.2.0",
-		"storybook": "10.1.10",
+		"storybook": "10.2.3",
 		"typescript": "5.9.3"
 	}
 }
