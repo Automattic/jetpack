@@ -1126,7 +1126,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 												if ( $wp_user !== null && zeroBSCRM_isWPAdmin() ) {
 													$url = admin_url( 'user-edit.php?user_id=' . $zbsFile['owner'] );
-													echo '<br /><br /><a style="font-size: 12px;" href="' . esc_url( $url ) . '" target="_blank"><i class="WordPress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>';
+													echo '<br /><br /><a style="font-size: 12px;" href="' . esc_url( $url ) . '" target="_blank"><i class="wordpress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- "wordpress" is a Semantic UI icon class name, not the brand name.
 												}
 
 												?>
