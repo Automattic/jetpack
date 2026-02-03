@@ -984,7 +984,9 @@ function JetpackContactFormEdit( {
 				) }
 			{ formStatus !== 'trash' && (
 				<Button
-					variant="link"
+					variant="secondary"
+					size="small"
+					__next40pxDefaultSize={ true }
 					onClick={ handlePublishForm }
 					isBusy={ isPublishingForm }
 					disabled={ isPublishingForm }
