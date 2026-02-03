@@ -8,9 +8,15 @@ import { RATING_ICONS } from './rating-icons.js';
  * @param {string} props.iconStyle   - The icon style ('stars' or 'hearts').
  * @param {string} props.strokeColor - SVG stroke color.
  * @param {string} props.fillColor   - SVG fill color.
+ * @param {number} props.strokeWidth - SVG stroke width.
  * @return {import('react').JSX.Element} SVG icon element.
  */
-export const RatingIcon = ( { iconStyle, strokeColor = 'currentColor', fillColor = 'none' } ) => {
+export const RatingIcon = ( {
+	iconStyle,
+	strokeColor = 'currentColor',
+	fillColor = 'none',
+	strokeWidth = 2,
+} ) => {
 	const iconPath = RATING_ICONS[ iconStyle ] || RATING_ICONS.stars;
 	return (
 		<SVG className="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -18,7 +24,7 @@ export const RatingIcon = ( { iconStyle, strokeColor = 'currentColor', fillColor
 				d={ iconPath }
 				fill={ fillColor }
 				stroke={ strokeColor }
-				strokeWidth="2"
+				strokeWidth={ strokeWidth }
 				strokeLinejoin="round"
 			/>
 		</SVG>
