@@ -239,11 +239,11 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 */
 	private function set_apd_value( $key, $value ) {
 		if ( method_exists( \Atomic_Persistent_Data::class, 'set' ) ) {
-			\Atomic_Persistent_Data::set( $key, $value );
+			\Atomic_Persistent_Data::set( $key, $value ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 			return true;
 		}
 		if ( property_exists( \Atomic_Persistent_Data::class, 'data' ) ) {
-			\Atomic_Persistent_Data::$data[ $key ] = $value;
+			\Atomic_Persistent_Data::$data[ $key ] = $value; // @phan-suppress-current-line PhanUndeclaredStaticProperty
 			return true;
 		}
 		return false;
@@ -257,11 +257,11 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 */
 	private function delete_apd_value( $key ) {
 		if ( method_exists( \Atomic_Persistent_Data::class, 'delete' ) ) {
-			\Atomic_Persistent_Data::delete( $key );
+			\Atomic_Persistent_Data::delete( $key ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 			return true;
 		}
 		if ( property_exists( \Atomic_Persistent_Data::class, 'data' ) ) {
-			unset( \Atomic_Persistent_Data::$data[ $key ] );
+			unset( \Atomic_Persistent_Data::$data[ $key ] ); // @phan-suppress-current-line PhanUndeclaredStaticProperty
 			return true;
 		}
 		return false;
