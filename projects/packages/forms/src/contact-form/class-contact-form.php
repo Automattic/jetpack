@@ -1721,7 +1721,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 					// field-name-wrapper: contains icon and label.
 					$html .= '<div class="field-name-wrapper">';
 					// field-type-icon: rendered based on field type.
-					$html .= '<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon">' . self::get_field_type_icon( $field_type ) . '</div>';
+					// The data-rendered-type attribute enables hydration optimization by allowing
+					// the JS callback to skip re-rendering when the icon is already correct.
+					$html .= '<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon" data-rendered-type="' . esc_attr( $field_type ) . '">' . self::get_field_type_icon( $field_type ) . '</div>';
 					// field-name: always present.
 					$html .= '<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
 					$html .= '</div>'; // Close field-name-wrapper.
