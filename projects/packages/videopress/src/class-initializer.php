@@ -382,8 +382,9 @@ class Initializer {
 		$registration = register_block_type(
 			$videopress_video_metadata_file,
 			array(
-				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
-				'uses_context'    => array( 'premium-content/planId', 'isPremiumContentChild', 'selectedPlanId' ),
+				'render_callback'       => array( __CLASS__, 'render_videopress_video_block' ),
+				'render_email_callback' => array( Video_Block_Email_Renderer::class, 'render' ),
+				'uses_context'          => array( 'premium-content/planId', 'isPremiumContentChild', 'selectedPlanId' ),
 			)
 		);
 
