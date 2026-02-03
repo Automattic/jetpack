@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: fixed
 
 Fix Sparkline component export paths in package.json and update documentation to include GeoChart, Sparkline, and TrendIndicator components.
