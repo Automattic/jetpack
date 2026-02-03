@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import { AvatarWithFallback } from '../../../avatar-with-fallback';
 import { formatMastodonDate } from '../../../helpers';
-import { DEFAULT_AVATAR, DEFAULT_MASTODON_INSTANCE } from '../../constants';
+import { DEFAULT_MASTODON_INSTANCE } from '../../constants';
 import { GlobeIcon } from '../icons';
 import type { MastodonPreviewProps } from '../../types';
-
 import './styles.scss';
 
 type Props = Pick< MastodonPreviewProps, 'user' >;
@@ -14,7 +14,7 @@ const MastodonPostHeader: React.FC< Props > = ( { user } ) => {
 	return (
 		<div className="mastodon-preview__post-header">
 			<div className="mastodon-preview__post-header-user">
-				<img className="mastodon-preview__post-avatar" src={ avatarUrl || DEFAULT_AVATAR } alt="" />
+				<AvatarWithFallback className="mastodon-preview__post-avatar" src={ avatarUrl } />
 				<div>
 					<div className="mastodon-preview__post-header-displayname">
 						{ displayName ||

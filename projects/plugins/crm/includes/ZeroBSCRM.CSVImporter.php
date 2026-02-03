@@ -152,7 +152,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 	// eventually update this to use the zbscrm-store/_wip replacement
 	// apparently sys_get_temp_dir() isn't consistent on whether it has a trailing slash
 	$tmp_dir = untrailingslashit( sys_get_temp_dir() );
-	$tmp_dir = realpath( $tmp_dir ) . '/';
+	$tmp_dir = realpath( $tmp_dir ) . DIRECTORY_SEPARATOR;
 
 	$field_map = array();
 

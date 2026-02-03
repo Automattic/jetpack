@@ -436,16 +436,29 @@ class VaultPress {
 		}
 	}
 
-	// get any messages from the VP servers
+	/**
+	 * Get messages from the VP servers
+	 *
+	 * @param bool $force_reload Whether to force a reload of the messages.
+	 * @return array The messages.
+	 */
 	function get_messages( $force_reload = false ) {
 		$last_contact = $this->get_option( 'messages_last_contact' );
 
 		// only run the messages check every 30 minutes
-		if ( ( time() - (int)$last_contact ) > 1800 || $force_reload ) {
-			$messages = base64_decode( $this->contact_service( 'messages', array() ) );
-			$messages = unserialize( $messages );
-			$this->update_option( 'messages_last_contact', time() );
-			$this->update_option( 'messages', $messages );
+		if ( ( time() - (int) $last_contact ) > 1800 || $force_reload ) {
+			$response = $this->contact_service( 'messages', array() );
+
+			// Only process if we got a valid string response
+			if ( is_string( $response ) && ! empty( $response ) ) {
+				$messages = base64_decode( $response ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+				$messages = unserialize( $messages ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+				$this->update_option( 'messages_last_contact', time() );
+				$this->update_option( 'messages', $messages );
+			} else {
+				// If we got an error (array) or false/empty, fall back to cached messages
+				$messages = $this->get_option( 'messages' );
+			}
 		} else {
 			$messages = $this->get_option( 'messages' );
 		}
@@ -2239,6 +2252,17 @@ JS;
 		return false;
 	}
 
+	/**
+	 * Contact the VaultPress service.
+	 *
+	 * @param string $action The action to perform.
+	 * @param array  $args   Optional. Arguments to pass to the service. Default empty array.
+	 * @return string|array|false The service response. Returns:
+	 *                           - A string containing the base64-encoded response on success
+	 *                           - An array with 'faultCode' and 'faultString' keys on XML-RPC error
+	 *                           - An empty string if the client message is empty
+	 *                           - false if connection check fails
+	 */
 	function contact_service( $action, $args = array() ) {
 		if ( 'test' != $action && 'register' != $action && !$this->check_connection() )
 			return false;

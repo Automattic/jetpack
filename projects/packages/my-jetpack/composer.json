@@ -61,6 +61,10 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
+		],
+		"watch-hot": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch:hot"
 		]
 	},
 	"repositories": [

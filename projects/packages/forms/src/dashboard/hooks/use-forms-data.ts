@@ -11,6 +11,34 @@ export type FormListItem = {
 	editUrl?: string;
 };
 
+/**
+ * Build the query object for fetching Forms list records from core-data.
+ *
+ * @param page    - Current page number.
+ * @param perPage - Items per page.
+ * @param search  - Search term.
+ * @param status  - REST `status` query param (comma-separated list or single status).
+ *
+ * @return Query params for useEntityRecords / core-data.
+ */
+export function getFormsListQuery( page: number, perPage: number, search: string, status: string ) {
+	const queryParams: Record< string, unknown > = {
+		context: 'edit',
+		jetpack_forms_context: 'dashboard',
+		order: 'desc',
+		orderby: 'modified',
+		page,
+		per_page: perPage,
+		status,
+	};
+
+	if ( search ) {
+		queryParams.search = search;
+	}
+
+	return queryParams;
+}
+
 type JetpackFormRestItem = {
 	id: number;
 	title?: { rendered?: string };
@@ -33,31 +61,19 @@ type UseFormsDataReturn = {
  * @param page    - Current page number.
  * @param perPage - Items per page.
  * @param search  - Search term.
+ * @param status  - REST `status` query param (comma-separated list or single status).
  *
  * @return Forms list data for the current query.
  */
 export default function useFormsData(
 	page: number,
 	perPage: number,
-	search: string
+	search: string,
+	status: string
 ): UseFormsDataReturn {
 	const query = useMemo( () => {
-		const queryParams: Record< string, unknown > = {
-			context: 'edit',
-			jetpack_forms_context: 'dashboard',
-			order: 'desc',
-			orderby: 'modified',
-			page,
-			per_page: perPage,
-			status: 'publish,draft,pending,future,private',
-		};
-
-		if ( search ) {
-			queryParams.search = search;
-		}
-
-		return queryParams;
-	}, [ page, perPage, search ] );
+		return getFormsListQuery( page, perPage, search, status );
+	}, [ page, perPage, search, status ] );
 
 	const {
 		records: rawRecords,

@@ -176,6 +176,10 @@ class Agents_Manager {
 			add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
 		}
 
+		if ( ! $this->should_enqueue_script() ) {
+			return;
+		}
+
 		/**
 		 * Filter to register agent provider modules for the Agents Manager.
 		 *
@@ -197,10 +201,6 @@ class Agents_Manager {
 		 */
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
 
-		if ( ! $this->should_enqueue_script() ) {
-			return;
-		}
-
 		if ( $this->is_block_editor() ) {
 			$variant = 'gutenberg';
 		} else {
@@ -216,6 +216,9 @@ class Agents_Manager {
 					'agentProviders'       => $agent_providers,
 					'useUnifiedExperience' => $use_unified_experience,
 					'isDevMode'            => self::is_dev_mode(),
+					'sectionName'          => $variant,
+					'currentUser'          => $this->get_current_user_data(),
+					'site'                 => $this->get_current_site(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -227,6 +230,26 @@ class Agents_Manager {
 	 * Determine if the agents manager files should be enqueued.
 	 */
 	private function should_enqueue_script() {
+		// Don't load on site frontend - only load in wp-admin.
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		// Don't load in customizer preview iframe - Help Center handles customizer separately
+		// via customize_controls_enqueue_scripts hook (loads only in controls panel, not preview).
+		if ( is_customize_preview() ) {
+			return false;
+		}
+
+		// Don't load during Gutenberg asset requests or in preview contexts.
+		// This matches the logic in Help_Center::init() to prevent excessive/unnecessary loading.
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
+		$is_preview = isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) );
+		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || $is_preview ) {
+			return false;
+		}
+
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
 		}
@@ -589,6 +612,69 @@ class Agents_Manager {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get current user data for the agents manager.
+	 *
+	 * Mirrors the user data structure from Help Center's helpCenterData.
+	 *
+	 * @return array|null User data array or null if not logged in.
+	 */
+	private function get_current_user_data() {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return null;
+		}
+
+		$user_data = get_userdata( $user_id );
+		if ( ! $user_data ) {
+			return null;
+		}
+
+		$user_email = $user_data->user_email;
+
+		// Use wpcom_get_avatar_url on Simple sites, fall back to get_avatar_url elsewhere.
+		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
+			$avatar_url = wpcom_get_avatar_url( $user_email, 64, '', true )[0];
+		} else {
+			$avatar_url = get_avatar_url( $user_id );
+		}
+
+		return array(
+			'ID'           => $user_id,
+			'username'     => $user_data->user_login,
+			'display_name' => $user_data->display_name,
+			'avatar_URL'   => $avatar_url,
+			'email'        => $user_email,
+		);
+	}
+
+	/**
+	 * Get current site data for the agents manager.
+	 *
+	 * Returns minimal site data needed by AgentsManager (ID and domain only).
+	 * Uses jetpack_options['id'] on Atomic sites for the wpcom blog ID.
+	 *
+	 * @return array Site data with ID and domain.
+	 */
+	private function get_current_site() {
+		/*
+		 * Atomic sites have the WP.com blog ID stored as a Jetpack option.
+		 * This code deliberately doesn't use `Jetpack_Options::get_option`
+		 * so it works even when Jetpack has not been loaded.
+		 */
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+			$site_id = (int) $jetpack_options['id'];
+		} else {
+			$site_id = get_current_blog_id();
+		}
+
+		return array(
+			'ID'     => $site_id,
+			'domain' => wp_parse_url( home_url(), PHP_URL_HOST ),
+		);
 	}
 }
 

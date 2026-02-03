@@ -159,7 +159,7 @@ describe( 'CalendlyEdit', () => {
 		expect( screen.getByText( 'Embed' ) ).toBeInTheDocument();
 
 		const link = screen.getByRole( 'link', {
-			name: 'Need help finding your embed code? (opens in a new tab)',
+			name: 'Need help finding your embed code?(opens in a new tab)',
 		} );
 
 		expect( link ).toBeInTheDocument();

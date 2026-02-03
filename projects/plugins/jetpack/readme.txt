@@ -1,8 +1,8 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.5-a.3
-Requires at least: 6.7
+Stable tag: 15.5-beta
+Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
 License: GPLv2 or later
@@ -326,20 +326,47 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.5-a.3 - 2026-01-19
+### 15.5-beta - 2026-02-02
+#### Major Enhancements
+- General: Update minimum WordPress version to 6.8.
+
 #### Enhancements
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
 - Command Palette: Add site switcher command to quickly switch between WordPress.com connected sites.
+- Forms: Add form editor.
 - Forms: Add ref attribute support for the form block.
+- Forms: Add single forms screen.
+- Forms: Allow merging two options together with backspace.
+- Forms: Display star and heart rating icons on form submission confirmation page.
 - Forms: Make form webhooks generally available.
+- Forms: Update DataViews header and filters.
+- IDC: Add revalidation of IDC.
 - Instant Search: Show WooCommerce product filters in filter widget.
+- Likes: Add minified build for CSS.
+- Likes: Display a notice to block theme users explaining they can add the Like block directly in the site editor instead of enabling the legacy feature.
+- Likes: Enable CSS inlining.
 - My Jetpack: Check red bubble notifications async when cache is not available.
 - Sharing: Improve accessibility of sharing button texts by removing "Click to" prefix.
+- Social: Gate per-network customization behind paid features.
+- Social: Mark new connections as shared by default for privileged users.
+- Social: Refactor share status UI to use Notice component.
+- Social: Show a snackbar while sharing is in progress.
+- Social: Use fallback avatar for Jetpack Social connection icons.
 
 #### Bug fixes
 - About Page: Fix plugin icon positioning and sizing.
+- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting.
+- AI Search: Prevent AI Search from disappearing when returning certain responses.
 - Contact Form: Fix checkbox field value not being properly output in the classic editor form builder.
+- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts.
+- Forms: Fix date exports.
+- Forms: Improve VoiceOver for form submissions.
+- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts.
 - Shortcode: Fix broken YouTube URL on the classic editor.
+- Site Switcher: Fix partial keyword matching so typing 'swit' shows 'Switch to...' results in the command palette.
 - Slideshow: Ensure slideshows do not stretch to parent container width on mobile if no list height is set.
+- Social Previews: Use fallback image when social preview profile picture fails.
+- UI: Prevent social modals in editor from stretching too wide on large screens.
 
 --------
 

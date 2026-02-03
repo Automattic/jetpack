@@ -1,9 +1,13 @@
 import { Circle, Rect } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import edit from './edit.js';
 
 export const name = 'form-progress-indicator';
+
+export const form_editor = {
+	category: 'multistep',
+};
 
 export const settings = {
 	apiVersion: 3,
@@ -172,4 +176,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };
