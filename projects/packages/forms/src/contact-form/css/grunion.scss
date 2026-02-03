@@ -230,6 +230,11 @@ that needs to mimic the input element styles */
 	max-width: 600px;
 }
 
+.contact-form-submission:focus {
+	outline: none;
+	border: none;
+}
+
 .contact-form-submission p {
 	margin: 0 auto;
 	word-wrap: break-word;
