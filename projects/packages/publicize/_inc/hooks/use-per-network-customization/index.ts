@@ -2,10 +2,10 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
-import { AttachedMedia } from '../../utils';
 import useFeaturedImage from '../use-featured-image';
 import useMediaDetails from '../use-media-details';
 import { usePostMeta } from '../use-post-meta';
+import { computeAttachedMediaForSource, getEffectiveMediaSource } from './utils';
 
 const TOGGLE_KEY = '_wpas_customize_per_network';
 
@@ -39,34 +39,14 @@ export function usePerNetworkCustomization() {
 		connections.forEach( connection => {
 			// Only copy if no existing customization.
 			if ( connection.message === undefined ) {
-				// Determine the effective media source (detect featured image fallback if undefined)
-				let effectiveSource = postMeta.mediaSource;
-				if ( effectiveSource === undefined && featuredImageId ) {
-					effectiveSource = 'featured-image';
-				}
-
-				// Determine attached_media based on source
-				// Per-network mode forces attachment, so we need to populate for all sources
-				let attachedMedia: Array< AttachedMedia > | undefined;
-				switch ( effectiveSource ) {
-					case 'media-library':
-					case 'upload-video':
-						attachedMedia = postMeta.attachedMedia;
-						break;
-					case 'featured-image':
-						if ( featuredImageId && featuredImageUrl ) {
-							attachedMedia = [
-								{ id: featuredImageId, url: featuredImageUrl, type: featuredImageMime },
-							];
-						}
-						break;
-					case 'sig':
-						// For SIG, use the global attached media (contains SIG URL)
-						attachedMedia = postMeta.attachedMedia;
-						break;
-					default:
-						attachedMedia = undefined;
-				}
+				const effectiveSource = getEffectiveMediaSource( postMeta.mediaSource, featuredImageId );
+				const attachedMedia = computeAttachedMediaForSource( {
+					mediaSource: postMeta.mediaSource,
+					globalAttachedMedia: postMeta.attachedMedia,
+					featuredImageId,
+					featuredImageUrl,
+					featuredImageMime,
+				} );
 
 				customizeConnectionById( connection.connection_id, {
 					message: postMeta.shareMessage || '',

@@ -260,12 +260,12 @@ export default function MediaSectionV2( {
 
 	// Handle remove - reset to automatic detection (allows featured image fallback)
 	const handleRemove = useCallback( () => {
-		// Reset to undefined to allow:
-		// 1. Automatic detection (e.g., featured image fallback) in global mode
-		// 2. Proper inheritance from global settings in per-network mode
+		// Reset to allow automatic detection and inheritance:
+		// - media_source: undefined allows fallback detection in global mode
+		// - attached_media: [] clears explicit attachment, triggering forced attachment logic in per-network mode
 		updateMediaOptions( {
 			media_source: undefined,
-			attached_media: undefined,
+			attached_media: [],
 			image_generator_settings: { ...imageGeneratorSettings, enabled: false },
 		} );
 
