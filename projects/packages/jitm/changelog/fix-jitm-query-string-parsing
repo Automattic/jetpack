@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fixed JITM REST endpoint query string parsing for mobile app requests where the first parameter was corrupted.
+Fixed JITM REST endpoint query string parsing where the first parameter was corrupted.
