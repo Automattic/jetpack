@@ -25,7 +25,8 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 
 	const message = connection.message ?? globalMessage ?? '';
 	const attachedMedia = connection.attached_media ?? globalAttachedMedia ?? [];
-	const mediaSource = connection.media_source ?? globalMediaSource ?? 'none';
+	// Don't default to 'none' - let undefined trigger featured image fallback detection
+	const mediaSource = connection.media_source ?? globalMediaSource;
 
 	// Handler for message changes
 	const handleMessageChange = useCallback(

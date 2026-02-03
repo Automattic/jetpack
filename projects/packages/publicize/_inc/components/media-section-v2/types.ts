@@ -7,7 +7,7 @@ import type { AttachedMedia, JetpackSocialOptions, SIGSettings } from '../../uti
 /**
  * Media source types
  */
-export type MediaSourceType = 'featured-image' | 'media-library' | 'sig' | null;
+export type MediaSourceType = 'featured-image' | 'media-library' | 'upload-video' | 'sig' | null;
 
 /**
  * Menu option IDs - includes all menu items including 'ai-image' which is handled specially
