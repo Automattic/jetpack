@@ -64,9 +64,7 @@
 - Tests: Add coverage for modules added to sync configuration mid-progress. [#46475]
 - Update composer lock following Publicize changes. [#46516]
 - Update dependencies. [#46467] [#46489] [#46456] [#46512]
-- Update package dependencies. [#46647]
-- Update package dependencies. [#46691] [#46716]
-- Update package dependencies. [#46785] [#46854]
+- Update package dependencies. [#46647] [#46691] [#46716] [#46785] [#46854]
 
 ## 15.4 - 2026-01-06
 ### Enhancements
