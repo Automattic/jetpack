@@ -18,11 +18,11 @@ The Geo Chart component provides a clean, accessible solution for displaying cou
 	language="tsx"
 	code={ `import { GeoChart } from '@automattic/charts';
 
-    <GeoChart
-    	data={ ordersByCountry }
-    	width={ 800 }
-    	height={ 500 }
-    />` }
+	<GeoChart
+		data={ ordersByCountry }
+		width={ 800 }
+		height={ 500 }
+	/>` }
 
 />
 
@@ -261,21 +261,21 @@ Geo Charts integrate seamlessly with the chart theming system. The default theme
 	language="tsx"
 	code={ `import { GlobalChartsProvider, GeoChart, type ChartTheme } from '@automattic/charts';
 
-    const customTheme: ChartTheme = {
-    	colors: ['#FF6B6B', '#4ECDC4', '#45B7D1'],
-    	backgroundColor: '#f5f5f5',
-    	geoChart: {
-    		featureFillColor: '#e0e0e0',
-    	},
-    };
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1'],
+		backgroundColor: '#f5f5f5',
+		geoChart: {
+			featureFillColor: '#e0e0e0',
+		},
+	};
 
-    <GlobalChartsProvider theme={customTheme}>
-    	<GeoChart
-    		data={ordersByCountry}
-    		width={800}
-    		height={500}
-    	/>
-    </GlobalChartsProvider>` }
+	<GlobalChartsProvider theme={customTheme}>
+		<GeoChart
+			data={ ordersByCountry }
+			width={ 800 }
+			height={ 500 }
+		/>
+	</GlobalChartsProvider>` }
 
 />
 
@@ -296,12 +296,12 @@ Add custom styles using the `className` prop:
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
-    <GeoChart
-    	data={ ordersByCountry }
-    	width={ 800 }
-    	height={ 500 }
-    	className="custom-geo-chart"
-    />` }
+	<GeoChart
+		data={ ordersByCountry }
+		width={ 800 }
+		height={ 500 }
+		className="custom-geo-chart"
+	/>` }
 
 />
 

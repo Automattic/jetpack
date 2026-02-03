@@ -34,25 +34,25 @@ yarn add @automattic/charts
 	language="jsx"
 	code={`import { LineChart, GlobalChartsProvider } from '@automattic/charts';
 
-    const data = [
-    	{
-    		label: 'Views',
-    		data: [
-    			{ date: new Date('2024-01-01'), value: 1200 },
-    			{ date: new Date('2024-01-02'), value: 1400 },
-    			{ date: new Date('2024-01-03'), value: 1100 },
-    		],
-    		options: {}
-    	}
-    ];
+	const data = [
+		{
+			label: 'Views',
+			data: [
+				{ date: new Date('2024-01-01'), value: 1200 },
+				{ date: new Date('2024-01-02'), value: 1400 },
+				{ date: new Date('2024-01-03'), value: 1100 },
+			],
+			options: {}
+		}
+	];
 
-    function MyChart() {
-    	return (
-    		<GlobalChartsProvider>
-    			<LineChart data={data} />
-    		</GlobalChartsProvider>
-    	);
-    }`}
+	function MyChart() {
+		return (
+			<GlobalChartsProvider>
+				<LineChart data={data} />
+			</GlobalChartsProvider>
+		);
+	}`}
 
 />
 
