@@ -295,6 +295,6 @@ class Form_Preview {
 	 * Add preview mode script variable.
 	 */
 	public static function add_preview_mode_script() {
-		echo '<script>window.jetpackFormsPreviewMode = true;</script>' . "\n";
+		wp_print_inline_script_tag( 'window.jetpackFormsPreviewMode = true;' );
 	}
 }
