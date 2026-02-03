@@ -325,29 +325,102 @@ class Protected_Owner_Error_Handler {
 	}
 
 	/**
-	 * Check if a user is the protected owner based on APD email
+	 * Check if a user is the protected owner based on APD email or token
 	 *
 	 * @param int $user_id User ID to check.
 	 * @return bool True if user is the protected owner.
 	 */
 	private function is_protected_owner( $user_id ) {
+		$status = $this->get_protected_owner_status( $user_id );
+		return 'no_match' !== $status['match_type'];
+	}
+
+	/**
+	 * Get the protected owner match status for a user
+	 *
+	 * Returns information about how (or if) the user matches the protected owner:
+	 * - 'email_match': User's email matches the APD owner email
+	 * - 'token_match': User's email doesn't match, but their token matches the APD owner token
+	 * - 'no_match': User is not the protected owner
+	 *
+	 * @param int $user_id User ID to check.
+	 * @return array {
+	 *     @type string      $match_type   One of 'email_match', 'token_match', or 'no_match'.
+	 *     @type string|null $owner_email  The owner email from APD (if available).
+	 * }
+	 */
+	private function get_protected_owner_status( $user_id ) {
+		$default_status = array(
+			'match_type'  => 'no_match',
+			'owner_email' => null,
+		);
+
 		if ( ! class_exists( \Atomic_Persistent_Data::class ) ) {
-			return false;
+			return $default_status;
 		}
 
-		$apd         = new \Atomic_Persistent_Data(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$owner_email = $apd->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$apd          = new \Atomic_Persistent_Data(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$owner_email  = $apd->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$owner_secret = $apd->JETPACK_CONNECTION_OWNER_TOKEN_SECRET; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-		if ( ! $owner_email ) {
-			return false;
+		// Need at least email or secret to identify the owner
+		if ( ! $owner_email && ! $owner_secret ) {
+			return $default_status;
 		}
 
 		$user = get_user_by( 'id', $user_id );
 		if ( ! $user ) {
+			return $default_status;
+		}
+
+		// First, try to match by email
+		if ( $owner_email && strtolower( $user->user_email ) === strtolower( $owner_email ) ) {
+			return array(
+				'match_type'  => 'email_match',
+				'owner_email' => $owner_email,
+			);
+		}
+
+		// If email doesn't match, try to match by token
+		// This handles the case where the user already changed their local email
+		if ( $owner_secret && $this->user_has_owner_token( $user_id, $owner_secret ) ) {
+			return array(
+				'match_type'  => 'token_match',
+				'owner_email' => $owner_email,
+			);
+		}
+
+		return $default_status;
+	}
+
+	/**
+	 * Check if a user has the owner token from APD
+	 *
+	 * @param int    $user_id      User ID to check.
+	 * @param string $owner_secret The owner token secret from APD (format: token_key.secret).
+	 * @return bool True if user has a token matching the owner secret.
+	 */
+	private function user_has_owner_token( $user_id, $owner_secret ) {
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
 			return false;
 		}
 
-		return strtolower( $user->user_email ) === strtolower( $owner_email );
+		$private_options = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
+		if ( ! isset( $private_options['user_tokens'] ) || ! is_array( $private_options['user_tokens'] ) ) {
+			return false;
+		}
+
+		$user_tokens = $private_options['user_tokens'];
+		if ( ! isset( $user_tokens[ $user_id ] ) || ! is_string( $user_tokens[ $user_id ] ) ) {
+			return false;
+		}
+
+		$user_token = $user_tokens[ $user_id ];
+
+		// User token format: token_key.secret.user_id
+		// Owner secret format: token_key.secret
+		// Match if user's token starts with owner_secret followed by a dot
+		return strpos( $user_token, $owner_secret . '.' ) === 0;
 	}
 
 	/**
@@ -361,14 +434,36 @@ class Protected_Owner_Error_Handler {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check for display purposes
 		$user_id = isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : get_current_user_id();
 
-		if ( ! $this->is_protected_owner( $user_id ) ) {
+		$status = $this->get_protected_owner_status( $user_id );
+
+		if ( 'no_match' === $status['match_type'] ) {
 			return;
 		}
 
-		$warning_text = __(
-			'This account is the WordPress.com plan owner. Changing the email address here can affect the connection between your site and the hosting platform. We recommend managing your account email on WP.com.',
-			'wpcomsh'
-		);
+		$wpcom_account_link = '<a href="https://wordpress.com/me/account" target="_blank">WordPress.com account</a>';
+
+		if ( 'email_match' === $status['match_type'] ) {
+			// Emails are in sync - show preventive warning
+			$warning_text = sprintf(
+				/* translators: %s is a link to the WordPress.com account settings page */
+				__(
+					'This account is the WordPress.com plan owner. Changing the email address here can affect the connection between the site and the hosting platform. If you need to change your email, update it both on your %s and here to keep them synchronized.',
+					'wpcomsh'
+				),
+				$wpcom_account_link
+			);
+		} else {
+			// Token match but emails differ - show sync warning
+			$warning_text = sprintf(
+				/* translators: 1: The expected WordPress.com email address, 2: A link to the WordPress.com account settings page */
+				__(
+					'This account is the WordPress.com plan owner, but the email address here does not match your WordPress.com account email (%1$s). This mismatch may cause connection issues. Please update this email to match your %2$s, or update both if you need to change your email.',
+					'wpcomsh'
+				),
+				esc_html( $status['owner_email'] ),
+				$wpcom_account_link
+			);
+		}
 		?>
 		<script type="text/javascript">
 		document.addEventListener('DOMContentLoaded', function() {
