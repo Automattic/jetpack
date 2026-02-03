@@ -493,7 +493,7 @@ class Agents_Manager {
 			}
 		}
 
-		// On WoA and Garden sites, delegate to wpcom via the /me/preferences endpoint.
+		// On WoA and Garden sites, delegate to wpcom via the /agents-manager/state endpoint.
 		// This avoids duplicating rollout logic and handles cases where
 		// wpcom-specific functions (like get_user_attribute) aren't available.
 		if ( $this->fetch_unified_experience_preference() ) {
@@ -530,7 +530,7 @@ class Agents_Manager {
 	 * Used on Atomic sites to delegate the decision to wpcom, which has
 	 * access to user attributes and can evaluate the rollout logic.
 	 *
-	 * Calls /me/preferences endpoint which is accessible via Jetpack user tokens.
+	 * Calls /agents-manager/state endpoint which is accessible via Jetpack user tokens.
 	 *
 	 * @return bool Whether user should see unified experience.
 	 */
@@ -552,9 +552,9 @@ class Agents_Manager {
 			return false;
 		}
 
-		// Call /me/preferences via wpcom/v2 namespace (works with Jetpack user tokens).
+		// Call dedicated agents-manager/state endpoint (limits token scope to only needed preferences).
 		$wpcom_request = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-			'/me/preferences?preference_key=unified_ai_chat',
+			'/wpcom/v2/agents-manager/state?preference_key=unified_ai_chat',
 			'2',
 			array( 'method' => 'GET' )
 		);

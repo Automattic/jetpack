@@ -47,12 +47,14 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Get chat_id and last_chat_id from user preferences.
+	 * Get Agents Manager state from user preferences.
+	 *
+	 * Uses the dedicated /wpcom/v2/agents-manager/state endpoint
+	 * which only exposes the specific preferences needed.
 	 */
 	public function get_state() {
-		// Forward the request body to the support chat endpoint.
 		$body = Client::wpcom_json_api_request_as_user(
-			'/me/preferences',
+			'/wpcom/v2/agents-manager/state',
 			'2',
 			array( 'method' => 'GET' )
 		);
@@ -63,19 +65,27 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
-		$calypso_preferences = $response->calypso_preferences ?? (object) array();
+		if ( ! $response || ! isset( $response->calypso_preferences ) ) {
+			return rest_ensure_response(
+				array(
+					'calypso_preferences' => array(
+						'agents_manager_open'              => false,
+						'agents_manager_docked'            => false,
+						'agents_manager_floating_position' => 'right',
+						'agents_manager_router_history'    => null,
+					),
+				)
+			);
+		}
 
-		$is_open           = $calypso_preferences->agents_manager_open ?? false;
-		$is_docked         = $calypso_preferences->agents_manager_docked ?? false;
-		$floating_position = $calypso_preferences->agents_manager_floating_position ?? 'right';
-		$router_history    = $calypso_preferences->agents_manager_router_history ?? null;
+		$calypso_preferences = $response->calypso_preferences;
 
 		$projected_response = array(
 			'calypso_preferences' => array(
-				'agents_manager_open'              => (bool) $is_open,
-				'agents_manager_docked'            => (bool) $is_docked,
-				'agents_manager_floating_position' => $floating_position,
-				'agents_manager_router_history'    => $router_history,
+				'agents_manager_open'              => (bool) ( $calypso_preferences->agents_manager_open ?? false ),
+				'agents_manager_docked'            => (bool) ( $calypso_preferences->agents_manager_docked ?? false ),
+				'agents_manager_floating_position' => $calypso_preferences->agents_manager_floating_position ?? 'right',
+				'agents_manager_router_history'    => $calypso_preferences->agents_manager_router_history ?? null,
 			),
 		);
 
@@ -83,38 +93,36 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Set chat_id or last_chat_id from user preferences.
+	 * Set Agents Manager state in user preferences.
+	 *
+	 * Uses the dedicated /wpcom/v2/agents-manager/state endpoint
+	 * which only allows updating the specific preferences needed.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the API.
 	 */
 	public function set_state( \WP_REST_Request $request ) {
-		$state             = $request['agents_manager_open'];
-		$router_history    = $request['agents_manager_router_history'];
-		$docked            = $request['agents_manager_docked'];
-		$floating_position = $request['agents_manager_floating_position'];
-
 		$data = array(
 			'calypso_preferences' => array(),
 		);
 
 		if ( $request->has_param( 'agents_manager_open' ) ) {
-			$data['calypso_preferences']['agents_manager_open'] = $state;
+			$data['calypso_preferences']['agents_manager_open'] = $request['agents_manager_open'];
 		}
 
 		if ( $request->has_param( 'agents_manager_router_history' ) ) {
-			$data['calypso_preferences']['agents_manager_router_history'] = $router_history;
+			$data['calypso_preferences']['agents_manager_router_history'] = $request['agents_manager_router_history'];
 		}
 
 		if ( $request->has_param( 'agents_manager_docked' ) ) {
-			$data['calypso_preferences']['agents_manager_docked'] = $docked;
+			$data['calypso_preferences']['agents_manager_docked'] = $request['agents_manager_docked'];
 		}
 
 		if ( $request->has_param( 'agents_manager_floating_position' ) ) {
-			$data['calypso_preferences']['agents_manager_floating_position'] = $floating_position;
+			$data['calypso_preferences']['agents_manager_floating_position'] = $request['agents_manager_floating_position'];
 		}
 
 		$body = Client::wpcom_json_api_request_as_user(
-			'/me/preferences',
+			'/wpcom/v2/agents-manager/state',
 			'2',
 			array( 'method' => 'POST' ),
 			$data
@@ -126,17 +134,22 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
-		$is_open           = $response->calypso_preferences->agents_manager_open ?? false;
-		$is_docked         = $response->calypso_preferences->agents_manager_docked ?? false;
-		$floating_position = $response->calypso_preferences->agents_manager_floating_position ?? 'right';
-		$router_history    = $response->calypso_preferences->agents_manager_router_history ?? null;
+		if ( ! $response || ! isset( $response->calypso_preferences ) ) {
+			return new \WP_Error(
+				'invalid_response',
+				'Invalid response from WPCOM endpoint',
+				array( 'status' => 500 )
+			);
+		}
+
+		$calypso_preferences = $response->calypso_preferences;
 
 		$projected_response = array(
 			'calypso_preferences' => array(
-				'agents_manager_open'              => (bool) $is_open,
-				'agents_manager_docked'            => (bool) $is_docked,
-				'agents_manager_floating_position' => $floating_position,
-				'agents_manager_router_history'    => $router_history,
+				'agents_manager_open'              => (bool) ( $calypso_preferences->agents_manager_open ?? false ),
+				'agents_manager_docked'            => (bool) ( $calypso_preferences->agents_manager_docked ?? false ),
+				'agents_manager_floating_position' => $calypso_preferences->agents_manager_floating_position ?? 'right',
+				'agents_manager_router_history'    => $calypso_preferences->agents_manager_router_history ?? null,
 			),
 		);
 
