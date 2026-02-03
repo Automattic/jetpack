@@ -454,6 +454,7 @@ function SingleResponseView( {
 									15,
 									'jetpack-forms'
 								),
+								// Number from https://github.com/Automattic/jetpack/blob/bde3cf9a89ce0d02e50469df173a6253383bd276/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L132
 								15
 							) }
 						</Tip>
