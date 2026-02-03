@@ -556,9 +556,25 @@ function JetpackContactFormEdit( {
 			if ( ! button ) return null;
 
 			const preparedButton = button;
-			preparedButton.attributes.uniqueId = 'submit-step';
-			preparedButton.attributes.customVariant = 'submit';
-			preparedButton.attributes.metaName = __( 'Submit button', 'jetpack-forms' );
+			// Add the form-button-submit and is-submit classes for identification and CSS visibility
+			const existingClassName = preparedButton.attributes.className || '';
+			const classesToAdd = [];
+			if ( ! existingClassName.includes( 'form-button-submit' ) ) {
+				classesToAdd.push( 'form-button-submit' );
+			}
+			if ( ! existingClassName.includes( 'is-submit' ) ) {
+				classesToAdd.push( 'is-submit' );
+			}
+			if ( classesToAdd.length > 0 ) {
+				preparedButton.attributes.className = existingClassName
+					? `${ existingClassName } ${ classesToAdd.join( ' ' ) }`
+					: classesToAdd.join( ' ' );
+			}
+			// Set metadata name for core/button
+			preparedButton.attributes.metadata = {
+				...( preparedButton.attributes.metadata || {} ),
+				name: __( 'Submit button', 'jetpack-forms' ),
+			};
 			return preparedButton;
 		};
 
@@ -588,8 +604,12 @@ function JetpackContactFormEdit( {
 					},
 				},
 				button
-					? [ createBlock( PREVIOUS_BUTTON_TEMPLATE ), createBlock( NEXT_BUTTON_TEMPLATE ), button ]
-					: NAVIGATION_TEMPLATE.map( createBlock )
+					? [
+							createBlock( ...PREVIOUS_BUTTON_TEMPLATE ),
+							createBlock( ...NEXT_BUTTON_TEMPLATE ),
+							button,
+					  ]
+					: NAVIGATION_TEMPLATE.map( template => createBlock( ...template ) )
 			);
 		};
 
@@ -770,10 +790,21 @@ function JetpackContactFormEdit( {
 				) {
 					// Capture submit button (if any) inside navigation but skip the wrapper.
 					if ( ! finalSubmitButton ) {
-						finalSubmitButton = block.innerBlocks?.find(
-							inner =>
-								inner.name === 'jetpack/button' && inner.attributes?.customVariant === 'submit'
-						);
+						finalSubmitButton = block.innerBlocks?.find( inner => {
+							// Check for jetpack/button with customVariant (legacy)
+							if (
+								inner.name === 'jetpack/button' &&
+								inner.attributes?.customVariant === 'submit'
+							) {
+								return true;
+							}
+							// Check for core/button with form-button-submit class
+							if ( inner.name === 'core/button' ) {
+								const buttonClassName = inner.attributes?.className || '';
+								return buttonClassName.split( /\s+/ ).includes( 'form-button-submit' );
+							}
+							return false;
+						} );
 					}
 					return; // Omit multistep-specific blocks.
 				}

@@ -52,8 +52,14 @@
 	display: block;
 }
 
+// jetpack/button: is-hidden class is on inner button element
 .contact-form .wp-block-button:has(button.is-hidden),
 .contact-form .wp-block-jetpack-button:has(button.is-hidden) {
+	display: none;
+}
+
+// core/button: is-hidden class is on wrapper element
+.contact-form .wp-block-button.is-hidden {
 	display: none;
 }
 
