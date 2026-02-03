@@ -231,15 +231,66 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper to set APD value, works with both mock and environments with static $data.
+	 *
+	 * @param string $key   Key to set.
+	 * @param string $value Value to set.
+	 * @return bool True if set was possible, false otherwise.
+	 */
+	private function set_apd_value( $key, $value ) {
+		if ( method_exists( \Atomic_Persistent_Data::class, 'set' ) ) {
+			\Atomic_Persistent_Data::set( $key, $value );
+			return true;
+		}
+		if ( property_exists( \Atomic_Persistent_Data::class, 'data' ) ) {
+			\Atomic_Persistent_Data::$data[ $key ] = $value;
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Helper to delete APD value, works with both mock and environments with static $data.
+	 *
+	 * @param string $key Key to delete.
+	 * @return bool True if delete was possible, false otherwise.
+	 */
+	private function delete_apd_value( $key ) {
+		if ( method_exists( \Atomic_Persistent_Data::class, 'delete' ) ) {
+			\Atomic_Persistent_Data::delete( $key );
+			return true;
+		}
+		if ( property_exists( \Atomic_Persistent_Data::class, 'data' ) ) {
+			unset( \Atomic_Persistent_Data::$data[ $key ] );
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Check if APD manipulation is available for testing.
+	 *
+	 * @return bool True if we can manipulate APD for testing.
+	 */
+	private function can_manipulate_apd() {
+		return method_exists( \Atomic_Persistent_Data::class, 'set' )
+			|| property_exists( \Atomic_Persistent_Data::class, 'data' );
+	}
+
+	/**
 	 * Test handle_error_event suppresses empty errors when APD has values but no local user matches.
 	 *
 	 * When APD has email/secret configured but no local WordPress user matches,
 	 * this is an expected intermediate state handled by Protected_Owner_Error_Handler.
 	 */
 	public function test_handle_error_event_suppresses_when_apd_configured_but_no_user() {
+		if ( ! $this->can_manipulate_apd() ) {
+			$this->markTestSkipped( 'Test requires mock Atomic_Persistent_Data with set/delete methods.' );
+		}
+
 		// APD has values - this simulates "user changed email locally" scenario
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'abc.xyz' );
+		$this->set_apd_value( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
+		$this->set_apd_value( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'abc.xyz' );
 
 		// These should be suppressed - APD is configured, just no local user matches
 		$this->provider->handle_error_event( 'empty', 'master_user', '', 'woa' );
@@ -249,8 +300,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		$this->assertTrue( true );
 
 		// Cleanup
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
+		$this->delete_apd_value( 'JETPACK_CONNECTION_OWNER_EMAIL' );
+		$this->delete_apd_value( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
 	}
 
 	/**
@@ -260,9 +311,13 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * problem that should be logged.
 	 */
 	public function test_handle_error_event_logs_when_apd_truly_empty() {
+		if ( ! $this->can_manipulate_apd() ) {
+			$this->markTestSkipped( 'Test requires mock Atomic_Persistent_Data with set/delete methods.' );
+		}
+
 		// APD is empty - this is a real config problem
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
+		$this->delete_apd_value( 'JETPACK_CONNECTION_OWNER_EMAIL' );
+		$this->delete_apd_value( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
 
 		// These should proceed to logging (though WPCOMSH_Log doesn't exist in tests)
 		$this->provider->handle_error_event( 'empty', 'master_user', '', 'woa' );
@@ -276,9 +331,13 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test handle_error_event logs user_tokens when only email exists (no secret).
 	 */
 	public function test_handle_error_event_logs_user_tokens_when_secret_missing() {
+		if ( ! $this->can_manipulate_apd() ) {
+			$this->markTestSkipped( 'Test requires mock Atomic_Persistent_Data with set/delete methods.' );
+		}
+
 		// APD has email but no secret - incomplete config for user_tokens
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
+		$this->set_apd_value( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
+		$this->delete_apd_value( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
 
 		// master_user only needs email, so should be suppressed
 		$this->provider->handle_error_event( 'empty', 'master_user', '', 'woa' );
@@ -290,15 +349,19 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		$this->assertTrue( true );
 
 		// Cleanup
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
+		$this->delete_apd_value( 'JETPACK_CONNECTION_OWNER_EMAIL' );
 	}
 
 	/**
 	 * Test handle_error_event always logs actual error events (not just empty).
 	 */
 	public function test_handle_error_event_logs_error_events() {
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'abc.xyz' );
+		if ( ! $this->can_manipulate_apd() ) {
+			$this->markTestSkipped( 'Test requires mock Atomic_Persistent_Data with set/delete methods.' );
+		}
+
+		$this->set_apd_value( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
+		$this->set_apd_value( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'abc.xyz' );
 
 		// "error" events (exceptions, etc.) should always be logged regardless of APD state
 		$this->provider->handle_error_event( 'error', 'master_user', 'Some error', 'woa' );
@@ -308,8 +371,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		$this->assertTrue( true );
 
 		// Cleanup
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
+		$this->delete_apd_value( 'JETPACK_CONNECTION_OWNER_EMAIL' );
+		$this->delete_apd_value( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
 	}
 
 	/**
