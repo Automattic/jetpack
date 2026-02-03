@@ -17,13 +17,13 @@
 	<!-- Disable auto-fixing strict comparisons as they can change behavior -->
 	<!-- Changing == to === could break type coercion logic (e.g., '2' == 2 vs '2' === 2) -->
 	<rule ref="Universal.Operators.StrictComparisons">
-		<exclude name="Universal.Operators.StrictComparisons.LooseEqual"/>
-		<exclude name="Universal.Operators.StrictComparisons.LooseNotEqual"/>
+		<exclude phpcbf-only="true" name="Universal.Operators.StrictComparisons.LooseEqual"/>
+		<exclude phpcbf-only="true" name="Universal.Operators.StrictComparisons.LooseNotEqual"/>
 	</rule>
 
 	<!-- Don't auto-add strict parameter to in_array() -->
 	<rule ref="WordPress.PHP.StrictInArray">
-		<exclude name="WordPress.PHP.StrictInArray.MissingTrueStrict"/>
+		<exclude phpcbf-only="true" name="WordPress.PHP.StrictInArray.MissingTrueStrict"/>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
