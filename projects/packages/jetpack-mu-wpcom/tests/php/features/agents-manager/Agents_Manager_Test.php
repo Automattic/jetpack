@@ -1557,4 +1557,245 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
+
+	/**
+	 * Helper to set up the admin context and register the agents-manager script
+	 * so enqueue_scripts proceeds past its early checks.
+	 */
+	private function set_up_enqueue_context() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = null;
+		$wp_styles  = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Helper to tear down enqueue context filters.
+	 */
+	private function tear_down_enqueue_context() {
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		delete_transient( 'image-studio-asset.asset.json' );
+	}
+
+	/**
+	 * Tests that the image-studio script is enqueued with correct dependencies from the asset file.
+	 */
+	public function test_enqueue_image_studio_script_is_enqueued_with_correct_dependencies() {
+		$this->set_up_enqueue_context();
+
+		// Pre-populate the transient so enqueue_image_studio skips the HTTP request.
+		set_transient(
+			'image-studio-asset.asset.json',
+			array(
+				'version'      => '1.2.3',
+				'dependencies' => array( 'wp-element', 'wp-components' ),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		global $wp_scripts;
+		$this->assertTrue( wp_script_is( 'image-studio', 'enqueued' ), 'image-studio script should be enqueued' );
+
+		$registered = $wp_scripts->registered['image-studio'];
+		$this->assertSame( 'https://widgets.wp.com/agents-manager/image-studio.min.js', $registered->src );
+		$this->assertContains( 'wp-element', $registered->deps );
+		$this->assertContains( 'wp-components', $registered->deps );
+
+		$this->tear_down_enqueue_context();
+	}
+
+	/**
+	 * Tests that the inline script sets the expected window.imageStudio property.
+	 */
+	public function test_enqueue_image_studio_inline_script_sets_window_properties() {
+		$this->set_up_enqueue_context();
+
+		set_transient(
+			'image-studio-asset.asset.json',
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		global $wp_scripts;
+		$inline_scripts = $wp_scripts->registered['image-studio']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( 'window.imageStudio', $inline_script );
+		$this->assertStringContainsString( 'enabled: true', $inline_script );
+
+		$this->tear_down_enqueue_context();
+	}
+
+	/**
+	 * Tests that the image-studio style is enqueued with wp-components dependency.
+	 */
+	public function test_enqueue_image_studio_style_is_enqueued_with_wp_components_dependency() {
+		$this->set_up_enqueue_context();
+
+		set_transient(
+			'image-studio-asset.asset.json',
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		global $wp_styles;
+		$this->assertTrue( wp_style_is( 'image-studio-style', 'enqueued' ), 'image-studio-style should be enqueued' );
+
+		$registered = $wp_styles->registered['image-studio-style'];
+		$this->assertContains( 'wp-components', $registered->deps );
+		$this->assertStringContainsString( 'image-studio', $registered->src );
+		// In non-RTL context the src should not contain .rtl.
+		$this->assertStringNotContainsString( '.rtl.css', $registered->src );
+
+		$this->tear_down_enqueue_context();
+	}
+
+	/**
+	 * Tests that enqueue_image_studio does not enqueue anything when the asset file is unavailable.
+	 */
+	public function test_enqueue_image_studio_skips_when_asset_file_unavailable() {
+		$this->set_up_enqueue_context();
+
+		// No transient set, and mock HTTP to return an error.
+		add_filter(
+			'pre_http_request',
+			function ( $response, $args, $url ) {
+				if ( strpos( $url, 'image-studio.asset.json' ) !== false ) {
+					return new \WP_Error( 'http_request_failed', 'Connection failed' );
+				}
+				return $response;
+			},
+			10,
+			3
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse( wp_script_is( 'image-studio', 'enqueued' ), 'image-studio script should not be enqueued when asset file is unavailable' );
+		$this->assertFalse( wp_style_is( 'image-studio-style', 'enqueued' ), 'image-studio-style should not be enqueued when asset file is unavailable' );
+
+		remove_all_filters( 'pre_http_request' );
+		$this->tear_down_enqueue_context();
+	}
+
+	/**
+	 * Tests that enqueue_image_studio caches the asset file in a transient after fetching it.
+	 */
+	public function test_enqueue_image_studio_caches_asset_file_in_transient() {
+		$this->set_up_enqueue_context();
+
+		$asset_data = array(
+			'version'      => '2.0.0',
+			'dependencies' => array( 'wp-element' ),
+		);
+
+		// No transient set — mock HTTP to return asset data.
+		add_filter(
+			'pre_http_request',
+			function ( $response, $args, $url ) use ( $asset_data ) {
+				if ( strpos( $url, 'image-studio.asset.json' ) !== false ) {
+					return array(
+						'body'     => wp_json_encode( $asset_data, JSON_UNESCAPED_SLASHES ),
+						'response' => array(
+							'code'    => 200,
+							'message' => 'OK',
+						),
+						'headers'  => array(
+							'content-type' => 'application/json',
+						),
+					);
+				}
+				return $response;
+			},
+			10,
+			3
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		// Verify the transient was set.
+		$cached = get_transient( 'image-studio-asset.asset.json' );
+		$this->assertIsArray( $cached );
+		$this->assertSame( '2.0.0', $cached['version'] );
+		$this->assertContains( 'wp-element', $cached['dependencies'] );
+
+		remove_all_filters( 'pre_http_request' );
+		$this->tear_down_enqueue_context();
+	}
+
+	/**
+	 * Tests that enqueue_image_studio uses the cached transient and does not make an HTTP request.
+	 */
+	public function test_enqueue_image_studio_uses_cached_transient_without_http_request() {
+		$this->set_up_enqueue_context();
+
+		set_transient(
+			'image-studio-asset.asset.json',
+			array(
+				'version'      => '3.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$http_request_count = 0;
+		$count_callback     = function ( $response, $args, $url ) use ( &$http_request_count ) {
+			if ( strpos( $url, 'image-studio.asset.json' ) !== false ) {
+				++$http_request_count;
+			}
+			return $response;
+		};
+
+		add_filter( 'pre_http_request', $count_callback, 10, 3 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertSame( 0, $http_request_count, 'No HTTP request should be made when transient is cached' );
+		$this->assertTrue( wp_script_is( 'image-studio', 'enqueued' ), 'image-studio should still be enqueued from cache' );
+
+		remove_filter( 'pre_http_request', $count_callback, 10 );
+		$this->tear_down_enqueue_context();
+	}
+
+	/**
+	 * Tests that the image-studio script version comes from the asset file.
+	 */
+	public function test_enqueue_image_studio_uses_version_from_asset_file() {
+		$this->set_up_enqueue_context();
+
+		set_transient(
+			'image-studio-asset.asset.json',
+			array(
+				'version'      => '4.5.6',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		global $wp_scripts;
+		$registered = $wp_scripts->registered['image-studio'];
+		$this->assertSame( '4.5.6', $registered->ver );
+
+		$this->tear_down_enqueue_context();
+	}
 }
