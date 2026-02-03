@@ -116,7 +116,7 @@ jobs:
 
           # There will probably be a bunch of duplicate vendor files. Try to deduplicate them.
           echo "::group::Deduplicating files"
-          xargs -d '\n' sha256sum < /tmp/changed.txt | perl -nwe '
+          xargs -d '\n' sha256sum < /tmp/changed.txt | sort | perl -nwe '
             BEGIN { $h = ""; $f = ""; }
             die "WTF? $_" unless /^([0-9a-f]{64})  (\S.*)$/;
             if ( $h ne $1 ) {
