@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.6.0] - 2026-02-02
+### Added
+- Display star/heart rating icons on submission confirmation page. [#46679]
+- Add filter counts to wp-build inbox. [#46869]
+- Add form DataViews table to wp-build dashboard. [#46837]
+- Add forms list to wp-build dashboard. [#46830]
+- Add item click handler for DataViews on dashboards. [#46752]
+- Add new field preview component for response view with improved field type rendering and styling. [#46706]
+- Add single form screen. [#46767]
+- Auto-create synced form when inserting a field block outside a form (when central form management is enabled). [#46831]
+- Display uploaded files with icon, filename, and size on confirmation page. [#46764]
+
+### Changed
+- Extract Forms logo and product name into a shared FormsLogo component and use it in both the responses and forms wp-build dashboard stage headers. [#46849]
+- Format number field values in the response field preview component using formatNumber() for proper locale-specific formatting (e.g., thousands separators). [#46872]
+- Include wp-build watch in regular watch command. [#46857]
+- Refactor actions for wp build dashboard. [#46635]
+- Update copy from "submissions" to "responses" for consistency. [#46771]
+- Update dashboard default view and tab labels - rename "All responses" to "Responses", set "Responses" as the default landing page instead of Forms, and reorder tabs to show Responses first. [#46792]
+- Update wp-build dashboard to use `useInboxData`. [#46808]
+- Gate the Forms Integrations feature. [#46829]
+- Improve country flag and text display consistency across the dashboard. [#46786]
+- Response view: display phone numbers with country flags and international formatting. [#46765]
+- Share response header via component for new and old dashboard. [#46773]
+- Simplify labels for form responses. [#46873]
+- Update package dependencies. [#46430] [#46759] [#46851] [#46853] [#46854] [#46880]
+- Update unread badge styles for the new dashboard. [#46774]
+- Use Page component from package for WP Build dashboard. [#46704]
+
+### Fixed
+- Announce form submission and errors to VoiceOver. [#46707]
+- Contact Form: Fix Edit Form button in the Site Editor by navigating directly to the form editor. [#46790]
+- Ensure form block is selected and locked when editing forms, and restrict available blocks to form-related blocks only. [#46770]
+- Form Editor: Stop hiding editor toolbar and sidebar panel tabs. [#46839]
+- Ensure first step is selected when switching to or loading a multistep form. [#46813]
+- Fix dashboard inspector "mark as read/unread" action. [#46769]
+- Fix data normalization on dashboard. [#46828]
+- Fix filters alignment and spacing in the new wp-build dashboard responses view so the filters row matches the Inbox layout. [#46797]
+- Multi-step forms: Fix submit button spinner CSS selector to target the correct element. [#46807]
+
 ## [7.5.0] - 2026-01-26
 ### Added
 - Add an "Edit Form" button that takes you to edit the form via the form editor. [#46582]
@@ -2106,6 +2146,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.6.0]: https://github.com/automattic/jetpack-forms/compare/v7.5.0...v7.6.0
 [7.5.0]: https://github.com/automattic/jetpack-forms/compare/v7.4.0...v7.5.0
 [7.4.0]: https://github.com/automattic/jetpack-forms/compare/v7.3.0...v7.4.0
 [7.3.0]: https://github.com/automattic/jetpack-forms/compare/v7.2.0...v7.3.0
