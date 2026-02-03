@@ -11,7 +11,8 @@ import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 type ParsedBlock = ReturnType< typeof parse >[ number ];
 interface JetpackForm {
 	content?: { raw: string } | undefined;
-	status?: string;
+	status: string;
+	date: string;
 }
 
 interface UseSyncedFormResult {

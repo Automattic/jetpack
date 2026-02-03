@@ -1,0 +1,154 @@
+import { Button, Notice } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useDispatch } from '@wordpress/data';
+import { dateI18n } from '@wordpress/date';
+import { useState, useCallback } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
+import { FORM_POST_TYPE } from '../../shared/util/constants.js';
+
+type SyncedForm = {
+	status?: string;
+	date?: string;
+};
+
+type FormStatusNoticeProps = {
+	syncedForm: SyncedForm | null;
+	formRef: number | undefined;
+	isVisible: boolean;
+};
+
+const STATUS_CONFIG: Record<
+	string,
+	{ status: 'error' | 'warning' | 'info'; getMessage: ( form: SyncedForm | null ) => string }
+> = {
+	trash: {
+		status: 'error',
+		getMessage: () =>
+			__(
+				'This form has been trashed and will not be displayed on the frontend.',
+				'jetpack-forms'
+			),
+	},
+	draft: {
+		status: 'warning',
+		getMessage: () =>
+			__(
+				'This form is a draft and will not be displayed on the frontend until published.',
+				'jetpack-forms'
+			),
+	},
+	pending: {
+		status: 'warning',
+		getMessage: () =>
+			__(
+				'This form is pending review and will not be displayed on the frontend until approved and published.',
+				'jetpack-forms'
+			),
+	},
+	future: {
+		status: 'info',
+		getMessage: form =>
+			form?.date
+				? sprintf(
+						/* translators: %s: scheduled publish date */
+						__(
+							'This form is scheduled for %s and will not be displayed until then.',
+							'jetpack-forms'
+						),
+						dateI18n( 'F j, Y g:i a', form.date )
+				  )
+				: __(
+						'This form is scheduled and will not be displayed until its publish date.',
+						'jetpack-forms'
+				  ),
+	},
+	private: {
+		status: 'warning',
+		getMessage: () =>
+			__(
+				'This form is private and will not be displayed on the frontend. To make it visible, change its status to published.',
+				'jetpack-forms'
+			),
+	},
+};
+
+export default function FormStatusNotice( {
+	syncedForm,
+	formRef,
+	isVisible,
+}: FormStatusNoticeProps ) {
+	const [ isPublishing, setIsPublishing ] = useState( false );
+
+	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
+	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
+
+	const handlePublish = useCallback( async () => {
+		if ( ! formRef ) {
+			return;
+		}
+		setIsPublishing( true );
+		try {
+			await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, { status: 'publish' } );
+			await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, formRef );
+			createSuccessNotice( __( 'Form published successfully.', 'jetpack-forms' ), {
+				type: 'snackbar',
+			} );
+		} catch {
+			createErrorNotice(
+				__(
+					'Failed to publish form. Please try again or check your permissions.',
+					'jetpack-forms'
+				),
+				{ type: 'snackbar' }
+			);
+		} finally {
+			setIsPublishing( false );
+		}
+	}, [
+		formRef,
+		editEntityRecord,
+		saveEditedEntityRecord,
+		createSuccessNotice,
+		createErrorNotice,
+	] );
+
+	const formStatus = syncedForm?.status;
+
+	if ( ! isVisible || ! formRef || ! formStatus || formStatus === 'publish' ) {
+		return null;
+	}
+
+	const config = STATUS_CONFIG[ formStatus ];
+	const noticeStatus = config?.status || 'warning';
+	const message =
+		config?.getMessage( syncedForm ) ||
+		sprintf(
+			/* translators: %s: form status */
+			__(
+				'This form has status "%s" and will not be displayed on the frontend until it is published.',
+				'jetpack-forms'
+			),
+			formStatus
+		);
+
+	return (
+		<Notice
+			status={ noticeStatus }
+			isDismissible={ false }
+			className="jetpack-contact-form__status-notice"
+		>
+			{ message }
+			{ formStatus !== 'trash' && (
+				<Button
+					variant="link"
+					onClick={ handlePublish }
+					isBusy={ isPublishing }
+					disabled={ isPublishing }
+				>
+					{ __( 'Publish now', 'jetpack-forms' ) }
+				</Button>
+			) }
+		</Notice>
+	);
+}

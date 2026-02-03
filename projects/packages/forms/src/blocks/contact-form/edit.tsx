@@ -16,7 +16,6 @@ import {
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
-	Button,
 	ExternalLink,
 	Notice,
 	PanelBody,
@@ -28,11 +27,9 @@ import {
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { dateI18n } from '@wordpress/date';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices';
+import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -52,6 +49,7 @@ import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.j
 import { CORE_BLOCKS, FORM_POST_TYPE } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
 import { ConvertFormToolbar } from './components/convert-form-toolbar.tsx';
+import FormStatusNotice from './components/form-status-notice.tsx';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
@@ -345,8 +343,7 @@ function JetpackContactFormEdit( {
 	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
 		useDispatch( blockEditorStore );
 
-	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
-	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
+	const { editEntityRecord } = useDispatch( coreStore );
 	const { setActiveStep } = useDispatch( singleStepStore );
 
 	const currentInnerBlocks = useSelect(
@@ -375,34 +372,6 @@ function JetpackContactFormEdit( {
 		isSyncingRef,
 		editEntityRecord,
 	} );
-
-	// State for publishing synced forms
-	const [ isPublishingForm, setIsPublishingForm ] = useState( false );
-
-	// Handler to publish a synced form
-	const handlePublishForm = useCallback( async () => {
-		if ( ! ref ) {
-			return;
-		}
-		setIsPublishingForm( true );
-		try {
-			await editEntityRecord( 'postType', FORM_POST_TYPE, ref, { status: 'publish' } );
-			await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, ref );
-			createSuccessNotice( __( 'Form published successfully.', 'jetpack-forms' ), {
-				type: 'snackbar',
-			} );
-		} catch {
-			createErrorNotice(
-				__(
-					'Failed to publish form. Please try again or check your permissions.',
-					'jetpack-forms'
-				),
-				{ type: 'snackbar' }
-			);
-		} finally {
-			setIsPublishingForm( false );
-		}
-	}, [ ref, editEntityRecord, saveEditedEntityRecord, createSuccessNotice, createErrorNotice ] );
 
 	// Note: We don't clear attributes in memory when ref is set, as they're needed
 	// for the form to work properly in the editor. The save() method ensures that
@@ -899,71 +868,8 @@ function JetpackContactFormEdit( {
 		stepBlock,
 	] );
 
-	// Status notice messages for synced forms with non-publish status
-	const statusNoticeConfig: Record<
-		string,
-		{ status: 'error' | 'warning' | 'info'; message: string }
-	> = {
-		trash: {
-			status: 'error',
-			message: __( 'Trashed — not visible to visitors.', 'jetpack-forms' ),
-		},
-		draft: {
-			status: 'warning',
-			message: __( 'Draft form — not visible to visitors.', 'jetpack-forms' ),
-		},
-		pending: {
-			status: 'warning',
-			message: __( 'Pending Review - not visible to visitors.', 'jetpack-forms' ),
-		},
-		future: {
-			status: 'info',
-			message: syncedForm?.date
-				? sprintf(
-						/* translators: %s: scheduled publish date */
-						__( 'Hidden until publication on %s.', 'jetpack-forms' ),
-						dateI18n( 'F j, Y g:i a', syncedForm.date )
-				  )
-				: __( 'Hidden until publication date.', 'jetpack-forms' ),
-		},
-		private: {
-			status: 'warning',
-			message: __( 'Private form — not visible to visitors.', 'jetpack-forms' ),
-		},
-	};
-
-	// Render status notice for synced forms with non-publish status (only when form or child is selected)
-	const formStatus = syncedForm?.status;
+	// Determine if form or any child is selected for status notice visibility
 	const isFormOrChildSelected = isSelected || hasChildSelected;
-	const statusNotice = isFormOrChildSelected && ref && formStatus && formStatus !== 'publish' && (
-		<Notice
-			status={ statusNoticeConfig[ formStatus ]?.status || 'warning' }
-			isDismissible={ false }
-			className="jetpack-contact-form__status-notice"
-		>
-			{ statusNoticeConfig[ formStatus ]?.message ||
-				sprintf(
-					/* translators: %s: form status */
-					__(
-						'This form has status "%s" and will not be displayed on the frontend until it is published.',
-						'jetpack-forms'
-					),
-					formStatus
-				) }
-			{ formStatus !== 'trash' && (
-				<Button
-					variant="secondary"
-					size="small"
-					__next40pxDefaultSize={ true }
-					onClick={ handlePublishForm }
-					isBusy={ isPublishingForm }
-					disabled={ isPublishingForm }
-				>
-					{ __( 'Publish now', 'jetpack-forms' ) }
-				</Button>
-			) }
-		</Notice>
-	);
 
 	let elt;
 
@@ -1177,7 +1083,11 @@ function JetpackContactFormEdit( {
 		<SyncedAttributeProvider>
 			<ThemeProvider targetDom={ wrapperRef.current }>
 				<div { ...blockProps }>
-					{ statusNotice }
+					<FormStatusNotice
+						syncedForm={ syncedForm }
+						formRef={ ref }
+						isVisible={ isFormOrChildSelected }
+					/>
 					{ elt }
 				</div>
 			</ThemeProvider>
