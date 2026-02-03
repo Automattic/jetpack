@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+NavigatorModal: Prevent scrolling for navigator screen for large content.
