@@ -42,6 +42,7 @@ return [
         'imports/playground/class-sql-importer.php' => ['PhanUndeclaredConstant'],
         'safeguard/utils.php' => ['PhanTypeMismatchArgument'],
         'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
+        'tests/AtomicStorageProviderTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
