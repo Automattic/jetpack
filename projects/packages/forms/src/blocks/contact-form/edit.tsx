@@ -31,6 +31,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -335,6 +336,7 @@ function JetpackContactFormEdit( {
 		useDispatch( blockEditorStore );
 
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
+	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
 	const { setActiveStep } = useDispatch( singleStepStore );
 
 	const currentInnerBlocks = useSelect(
@@ -376,10 +378,21 @@ function JetpackContactFormEdit( {
 		try {
 			await editEntityRecord( 'postType', FORM_POST_TYPE, ref, { status: 'publish' } );
 			await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, ref );
+			createSuccessNotice( __( 'Form published successfully.', 'jetpack-forms' ), {
+				type: 'snackbar',
+			} );
+		} catch {
+			createErrorNotice(
+				__(
+					'Failed to publish form. Please try again or check your permissions.',
+					'jetpack-forms'
+				),
+				{ type: 'snackbar' }
+			);
 		} finally {
 			setIsPublishingForm( false );
 		}
-	}, [ ref, editEntityRecord, saveEditedEntityRecord ] );
+	}, [ ref, editEntityRecord, saveEditedEntityRecord, createSuccessNotice, createErrorNotice ] );
 
 	// Note: We don't clear attributes in memory when ref is set, as they're needed
 	// for the form to work properly in the editor. The save() method ensures that
@@ -898,7 +911,7 @@ function JetpackContactFormEdit( {
 		pending: {
 			status: 'warning',
 			message: __(
-				'This form is pending review and will not be displayed on the frontend.',
+				'This form is pending review and will not be displayed on the frontend until approved and published.',
 				'jetpack-forms'
 			),
 		},
@@ -910,9 +923,9 @@ function JetpackContactFormEdit( {
 			),
 		},
 		private: {
-			status: 'info',
+			status: 'warning',
 			message: __(
-				'This form is private and will not be displayed on the frontend until published.',
+				'This form is private and will not be displayed on the frontend. To make it visible, change its status to published.',
 				'jetpack-forms'
 			),
 		},
