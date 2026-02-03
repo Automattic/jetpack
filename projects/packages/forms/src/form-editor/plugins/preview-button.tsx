@@ -2,7 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginPreviewMenuItem } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -26,12 +26,22 @@ import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 const FormPreviewMenuItem = () => {
 	const [ isLoading, setIsLoading ] = useState( false );
 
-	const { postId, postType } = useSelect( select => ( {
-		postId: ( select( 'core/editor' ) as { getCurrentPostId: () => number } ).getCurrentPostId(),
-		postType: (
-			select( 'core/editor' ) as { getCurrentPostType: () => string }
-		 ).getCurrentPostType(),
-	} ) );
+	const { postId, postType, isDirty, isAutosaveable } = useSelect( select => {
+		const editor = select( 'core/editor' ) as {
+			getCurrentPostId: () => number;
+			getCurrentPostType: () => string;
+			isEditedPostDirty: () => boolean;
+			isEditedPostAutosaveable: () => boolean;
+		};
+		return {
+			postId: editor.getCurrentPostId(),
+			postType: editor.getCurrentPostType(),
+			isDirty: editor.isEditedPostDirty(),
+			isAutosaveable: editor.isEditedPostAutosaveable(),
+		};
+	} );
+
+	const { autosave } = useDispatch( 'core/editor' );
 
 	const handlePreview = useCallback( async () => {
 		if ( isLoading ) {
@@ -40,6 +50,11 @@ const FormPreviewMenuItem = () => {
 
 		setIsLoading( true );
 		try {
+			// Autosave if there are unsaved changes.
+			if ( isDirty && isAutosaveable ) {
+				await autosave();
+			}
+
 			const response = await apiFetch< { preview_url: string } >( {
 				path: `/wp/v2/jetpack-forms/${ postId }/preview-url`,
 			} );
@@ -50,7 +65,7 @@ const FormPreviewMenuItem = () => {
 		} finally {
 			setIsLoading( false );
 		}
-	}, [ postId, isLoading ] );
+	}, [ postId, isLoading, isDirty, isAutosaveable, autosave ] );
 
 	// Only show for jetpack_form post type.
 	if ( postType !== FORM_POST_TYPE ) {
@@ -65,7 +80,7 @@ const FormPreviewMenuItem = () => {
 	return (
 		<PluginPreviewMenuItem icon={ external } onClick={ handlePreview }>
 			{ isLoading
-				? __( 'Opening preview…', 'jetpack-forms' )
+				? __( 'Saving & opening…', 'jetpack-forms' )
 				: __( 'Preview form', 'jetpack-forms' ) }
 		</PluginPreviewMenuItem>
 	);

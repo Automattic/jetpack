@@ -189,6 +189,13 @@ class Form_Preview {
 			);
 		}
 
+		// Check for autosave and use its content if available.
+		// This ensures the preview shows the latest unsaved changes.
+		$autosave = wp_get_post_autosave( $form_id, get_current_user_id() );
+		if ( $autosave && strtotime( $autosave->post_modified ) > strtotime( $form->post_modified ) ) {
+			$form = $autosave;
+		}
+
 		// Set preview mode flag.
 		self::$is_preview_mode = true;
 
