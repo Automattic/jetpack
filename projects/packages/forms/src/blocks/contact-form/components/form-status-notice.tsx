@@ -24,17 +24,33 @@ const STATUS_CONFIG: Record<
 > = {
 	trash: {
 		status: 'error',
-		getMessage: () => __( 'Trashed form. Currently hidden from site visitors.', 'jetpack-forms' ),
+		getMessage: () =>
+			__(
+				'Trashed form. Currently hidden from site visitors and not accepting any responses.',
+				'jetpack-forms'
+			),
 	},
 	draft: {
 		status: 'warning',
-		getMessage: () => __( 'Draft form. Currently hidden from site visitors.', 'jetpack-forms' ),
+		getMessage: () =>
+			__(
+				'Draft form. Currently hidden from site visitors and not accepting any responses.',
+				'jetpack-forms'
+			),
 	},
 	pending: {
 		status: 'warning',
 		getMessage: () =>
 			__(
 				'Pending review form. Currently hidden from site visitors until approved and published.',
+				'jetpack-forms'
+			),
+	},
+	private: {
+		status: 'warning',
+		getMessage: () =>
+			__(
+				'Private form. Currently hidden from site visitors and not accepting any responses.',
 				'jetpack-forms'
 			),
 	},
@@ -60,10 +76,6 @@ const STATUS_CONFIG: Record<
 			return message;
 		},
 	},
-	private: {
-		status: 'warning',
-		getMessage: () => __( 'Private form. Currently hidden from site visitors.', 'jetpack-forms' ),
-	},
 };
 
 export default function FormStatusNotice( {
@@ -84,15 +96,12 @@ export default function FormStatusNotice( {
 		try {
 			await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, { status: 'publish' } );
 			await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, formRef );
-			createSuccessNotice( __( 'Form published successfully.', 'jetpack-forms' ), {
+			createSuccessNotice( __( 'Form is live and ready to accept responses.', 'jetpack-forms' ), {
 				type: 'snackbar',
 			} );
 		} catch {
 			createErrorNotice(
-				__(
-					'Failed to publish form. Please try again or check your permissions.',
-					'jetpack-forms'
-				),
+				__( 'Failed to publish form. Refresh this page and try again.', 'jetpack-forms' ),
 				{ type: 'snackbar' }
 			);
 		} finally {
