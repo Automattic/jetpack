@@ -130,7 +130,7 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Creating artifact"
-          sed 's!^!./!' /tmp/changed.txt /tmp/changedl.txt | tar -cvvf build-cache.tar.xz
+          sed 's!^!./!' /tmp/changed.txt /tmp/changedl.txt | tar -cvvf build-cache.tar.xz --verbatim-files-from --files-from=-
           echo "::endgroup::"
 
       - name: Save ${{ matrix.buildGroup }} build cache
