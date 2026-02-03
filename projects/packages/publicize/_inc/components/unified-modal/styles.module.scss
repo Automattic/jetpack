@@ -8,5 +8,10 @@
 			max-width: gb.$wide-content-width;
 			max-height: 64rem;
 		}
+
+		// Override default bottom margin for full screen modals
+		:global(:where(.components-modal__content)) {
+			margin-bottom: 0;
+		}
 	}
 }
