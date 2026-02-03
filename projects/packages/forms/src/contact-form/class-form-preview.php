@@ -50,6 +50,22 @@ class Form_Preview {
 	public static function init() {
 		add_filter( 'query_vars', array( __CLASS__, 'register_query_vars' ) );
 		add_filter( 'template_include', array( __CLASS__, 'maybe_render_preview' ), 99 );
+		add_filter( 'jetpack_is_frontend', array( __CLASS__, 'filter_is_frontend' ) );
+	}
+
+	/**
+	 * Filter jetpack_is_frontend to return true during preview mode.
+	 *
+	 * This ensures the form block renders properly instead of showing a fallback.
+	 *
+	 * @param bool $is_frontend Whether the current request is for the frontend.
+	 * @return bool True if in preview mode, otherwise the original value.
+	 */
+	public static function filter_is_frontend( $is_frontend ) {
+		if ( self::$is_preview_mode ) {
+			return true;
+		}
+		return $is_frontend;
 	}
 
 	/**
@@ -182,10 +198,15 @@ class Form_Preview {
 		$wp_query->is_home     = false;
 		$wp_query->is_archive  = false;
 		$wp_query->is_category = false;
+		$wp_query->is_404      = false;
+		$wp_query->is_feed     = false;
 
 		// Create a fake post object for the page.
+		// Use the form's ID as the fake post ID to ensure proper form context.
+		// Note: Using 0 as the ID causes issues because '0' is falsy in PHP,
+		// which breaks the form ID validation in Contact_Form::parse().
 		$fake_post                = new \stdClass();
-		$fake_post->ID            = 0;
+		$fake_post->ID            = $form_id;
 		$fake_post->post_author   = get_current_user_id();
 		$fake_post->post_date     = current_time( 'mysql' );
 		$fake_post->post_date_gmt = current_time( 'mysql', 1 );
@@ -194,8 +215,8 @@ class Form_Preview {
 			__( 'Preview: %s', 'jetpack-forms' ),
 			$form->post_title ? $form->post_title : __( 'Untitled Form', 'jetpack-forms' )
 		);
-		$fake_post->post_content  = '';
-		$fake_post->post_status   = 'publish';
+		$fake_post->post_content   = '';
+		$fake_post->post_status    = 'publish';
 		$fake_post->comment_status = 'closed';
 		$fake_post->ping_status    = 'closed';
 		$fake_post->post_name      = 'form-preview';
@@ -203,14 +224,14 @@ class Form_Preview {
 		$fake_post->filter         = 'raw';
 
 		// Set up query vars.
-		$wp_query->post                 = new WP_Post( $fake_post );
-		$wp_query->posts                = array( $wp_query->post );
-		$wp_query->post_count           = 1;
-		$wp_query->found_posts          = 1;
-		$wp_query->max_num_pages        = 1;
-		$wp_query->queried_object       = $wp_query->post;
-		$wp_query->queried_object_id    = 0;
-		$GLOBALS['post']                = $wp_query->post;
+		$wp_query->post              = new WP_Post( $fake_post );
+		$wp_query->posts             = array( $wp_query->post );
+		$wp_query->post_count        = 1;
+		$wp_query->found_posts       = 1;
+		$wp_query->max_num_pages     = 1;
+		$wp_query->queried_object    = $wp_query->post;
+		$wp_query->queried_object_id = $form_id;
+		$GLOBALS['post']             = $wp_query->post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Necessary to set up fake post context for preview.
 
 		// Enqueue preview styles.
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_preview_styles' ) );
@@ -219,21 +240,30 @@ class Form_Preview {
 		add_action( 'wp_head', array( __CLASS__, 'add_preview_mode_script' ) );
 
 		// Hook the_content filter to render the form.
-		add_filter( 'the_content', function ( $content ) use ( $form ) {
-			return self::render_form_preview_content( $form );
-		}, 999 );
+		add_filter(
+			'the_content',
+			function ( $_content ) use ( $form ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- We replace the content entirely.
+				return self::render_form_preview_content( $form );
+			},
+			999
+		);
 
 		// Hook the_title filter to show preview title.
-		add_filter( 'the_title', function ( $title, $id = null ) use ( $form, $fake_post ) {
-			if ( $id === 0 || ( isset( $GLOBALS['post'] ) && $GLOBALS['post'] === $fake_post ) ) {
-				return sprintf(
+		add_filter(
+			'the_title',
+			function ( $title, $id = null ) use ( $form, $form_id ) {
+				if ( $id === $form_id || ( isset( $GLOBALS['post'] ) && $GLOBALS['post']->ID === $form_id ) ) {
+					return sprintf(
 					/* translators: %s: Form title */
-					__( 'Preview: %s', 'jetpack-forms' ),
-					$form->post_title ? $form->post_title : __( 'Untitled Form', 'jetpack-forms' )
-				);
-			}
-			return $title;
-		}, 10, 2 );
+						__( 'Preview: %s', 'jetpack-forms' ),
+						$form->post_title ? $form->post_title : __( 'Untitled Form', 'jetpack-forms' )
+					);
+				}
+				return $title;
+			},
+			10,
+			2
+		);
 
 		// Use page template.
 		$page_template = get_page_template();
