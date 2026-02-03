@@ -245,10 +245,16 @@ function JetpackContactFormEdit( {
 		selectedBlockClientId,
 		onlySubmitBlock,
 		isJetpackFormEditor,
+		hasChildSelected,
 	} = useSelect(
 		select => {
-			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
-				select( blockEditorStore );
+			const {
+				getBlocks,
+				getBlock,
+				getSelectedBlockClientId,
+				getBlockParentsByBlockName,
+				hasSelectedInnerBlock,
+			} = select( blockEditorStore );
 			const { getEditedPostAttribute, getCurrentPostType } = select( editorStore );
 			const selectedBlockId = getSelectedBlockClientId();
 			const selectedBlock = getBlock( selectedBlockId );
@@ -280,6 +286,7 @@ function JetpackContactFormEdit( {
 				selectedBlockClientId: selectedStepBlockId,
 				onlySubmitBlock: isSingleButtonBlock,
 				isJetpackFormEditor: getCurrentPostType() === FORM_POST_TYPE,
+				hasChildSelected: hasSelectedInnerBlock( clientId, true ),
 			};
 		},
 		[ clientId ]
@@ -965,9 +972,10 @@ function JetpackContactFormEdit( {
 		},
 	};
 
-	// Render status notice for synced forms with non-publish status (only when selected)
+	// Render status notice for synced forms with non-publish status (only when form or child is selected)
 	const formStatus = syncedForm?.status;
-	const statusNotice = isSelected && ref && formStatus && formStatus !== 'publish' && (
+	const isFormOrChildSelected = isSelected || hasChildSelected;
+	const statusNotice = isFormOrChildSelected && ref && formStatus && formStatus !== 'publish' && (
 		<Notice
 			status={ statusNoticeConfig[ formStatus ]?.status || 'warning' }
 			isDismissible={ false }
