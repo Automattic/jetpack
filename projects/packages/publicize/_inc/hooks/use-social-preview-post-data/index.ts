@@ -14,7 +14,7 @@ import { getMediaSourceUrl, getPostImageUrl } from './utils';
  * @return The post data.
  */
 export function useSocialPreviewPostData(): PostData {
-	const { attachedMedia, imageGeneratorSettings } = usePostMeta();
+	const { attachedMedia, imageGeneratorSettings, mediaSource } = usePostMeta();
 
 	const { getEditedPostAttribute } = useSelect( editorStore, [] );
 
@@ -75,8 +75,12 @@ export function useSocialPreviewPostData(): PostData {
 
 	const image = useSelect(
 		select => {
-			const { getEntityRecord } = select( coreStore );
+			// Don't use featured image if media source is explicitly set to 'none'
+			if ( mediaSource === 'none' ) {
+				return '';
+			}
 
+			const { getEntityRecord } = select( coreStore );
 			const featuredImageId = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 
 			// Use the featured image by default, if it's available.
@@ -103,7 +107,7 @@ export function useSocialPreviewPostData(): PostData {
 
 			return _image;
 		},
-		[ imageGeneratorSettings.enabled, imageGeneratorSettings.token ]
+		[ imageGeneratorSettings.enabled, imageGeneratorSettings.token, mediaSource ]
 	);
 
 	return useMemo( () => {

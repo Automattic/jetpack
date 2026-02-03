@@ -70,10 +70,14 @@ export function useConnectionPreviewData( connection: Connection ) {
 				break;
 		}
 
+		// Don't show image when media source is explicitly 'none'
+		const image = connection.media_source === 'none' ? '' : postData.image;
+
 		return {
 			...postData,
 			message: ( connection.message ?? globalMessage ).trim(),
 			media,
+			image,
 		};
 	}, [
 		connection,
