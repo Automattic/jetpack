@@ -1,26 +1,24 @@
 /**
  * External dependencies
  */
-import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
+import { formatNumber } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import '@automattic/ui/style.css';
 /**
  * WordPress dependencies
  */
 import { Page } from '@wordpress/admin-ui';
-import apiFetch from '@wordpress/api-fetch';
 import {
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
 	ExternalLink,
 } from '@wordpress/components';
-import { useEntityRecords } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { download, plus } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
@@ -32,13 +30,14 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import EmptySpamButton from '../../src/dashboard/components/empty-spam-button';
 import EmptyTrashButton from '../../src/dashboard/components/empty-trash-button';
+import FormsLogo from '../../src/dashboard/components/forms-logo';
 import Gravatar from '../../src/dashboard/components/gravatar';
-import * as Tabs from '../../src/dashboard/components/tabs';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
+import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import { getPath } from '../../src/dashboard/inbox/utils';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
-import { store as dashboardStore } from '../../src/dashboard/store';
+import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
 import { getActions } from './actions';
@@ -46,9 +45,8 @@ import './style.scss';
 /**
  * Types
  */
-import type { SelectActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
-import type { View, Field, Action } from '@wordpress/dataviews';
+import type { View, Field, Action, Operator } from '@wordpress/dataviews';
 
 type FeedbackFilterDate = {
 	month: number;
@@ -65,47 +63,6 @@ type FeedbackFilters = {
 	date: FeedbackFilterDate[];
 	source: FeedbackFilterSource[];
 };
-
-/**
- * Hook to fetch filter options for date and source fields.
- *
- * @return Object containing date and source filter options.
- */
-function useFilterOptions() {
-	const [ filterOptions, setFilterOptions ] = useState< FeedbackFilters >( {
-		date: [],
-		source: [],
-	} );
-
-	useEffect( () => {
-		apiFetch< FeedbackFilters >( { path: '/wp/v2/feedback/filters' } ).then( response => {
-			setFilterOptions( {
-				date: response.date || [],
-				source: response.source || [],
-			} );
-		} );
-	}, [] );
-
-	return filterOptions;
-}
-
-/**
- * Returns a formatted tab label with count badge.
- *
- * @param label - The label for the tab.
- * @param count - The count to display.
- * @return The formatted label with count badge.
- */
-function getTabLabel( label: string, count: number ): JSX.Element {
-	return (
-		<Stack align="center" gap="2xs">
-			{ label }
-			<Badge intent="default" style={ { backgroundColor: '#f0f0f0' } }>
-				{ count.toString() }
-			</Badge>
-		</Stack>
-	);
-}
 
 const EMPTY_ARRAY = [];
 
@@ -183,22 +140,17 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
  *
  * @return The stage component.
  */
-function Stage() {
+function StageInner() {
 	const params = useParams( { from: '/responses/$view' } );
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
-	const counts = useSelect(
-		select => ( select( dashboardStore ) as unknown as SelectActions ).getCounts(),
-		[]
-	);
+	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
+	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
 
-	const filterOptions = useFilterOptions();
-	let status = 'publish';
-	if ( params.view === 'spam' ) {
-		status = 'spam';
-	} else if ( params.view === 'trash' ) {
-		status = 'trash';
-	}
+	const sourceIdValue = ( searchParams as { sourceId?: string | number } )?.sourceId;
+	const sourceIdNumber =
+		typeof sourceIdValue === 'number' ? sourceIdValue : Number( sourceIdValue );
+	const isSingleFormView = Number.isFinite( sourceIdNumber ) && sourceIdNumber > 0;
 
 	const [ isIntegrationsModalOpen, setIsIntegrationsModalOpen ] = useState( false );
 	const integrations = useSelect(
@@ -214,7 +166,20 @@ function Stage() {
 		search: searchParams?.search || '',
 	} ) );
 
-	const selection = searchParams?.responseIds ?? [];
+	const selection = useMemo( () => searchParams?.responseIds ?? [], [ searchParams?.responseIds ] );
+
+	const {
+		setCurrentQuery,
+		setSelectedResponses,
+		filterOptions,
+		records,
+		isLoadingData,
+		totalItems,
+		totalPages,
+		totalItemsInbox,
+		totalItemsSpam,
+		totalItemsTrash,
+	} = useInboxData( { status: statusView } );
 
 	useEffect( () => {
 		const urlSearch = searchParams?.search || '';
@@ -225,6 +190,26 @@ function Stage() {
 
 	const onChangeView = useCallback(
 		( newView: View ) => {
+			if ( ! isSingleFormView ) {
+				// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
+				const folderValue =
+					newView.filters?.find( filter => filter.field === 'folder' )?.value || 'inbox';
+
+				if ( folderValue !== statusView ) {
+					// Clear selection when changing folder to avoid mismatched inspector state.
+					navigate( {
+						to: '/responses/$view',
+						params: { view: folderValue },
+						search: {
+							...searchParams,
+							responseIds: undefined,
+						},
+					} );
+					setView( { ...newView, page: 1 } );
+					return;
+				}
+			}
+
 			setView( newView );
 
 			if ( newView.search !== view.search ) {
@@ -236,7 +221,7 @@ function Stage() {
 				} );
 			}
 		},
-		[ navigate, searchParams, view.search ]
+		[ isSingleFormView, navigate, searchParams, statusView, view.search ]
 	);
 
 	const onChangeSelection = useCallback(
@@ -251,9 +236,45 @@ function Stage() {
 		[ searchParams, navigate ]
 	);
 
+	const onStatusChange = useCallback(
+		( nextStatus: 'inbox' | 'spam' | 'trash' ) => {
+			navigate( {
+				to: '/responses/$view',
+				params: { view: nextStatus },
+				search: {
+					...searchParams,
+					responseIds: undefined,
+					sourceId: isSingleFormView ? String( sourceIdNumber ) : undefined,
+				},
+			} );
+		},
+		[ isSingleFormView, navigate, searchParams, sourceIdNumber ]
+	);
+
+	// Keep the Folder filter in sync with the route param (CFM-on behavior).
+	useEffect( () => {
+		if ( isSingleFormView ) {
+			return;
+		}
+		setView( previousView => {
+			const previousFilters = previousView.filters || [];
+			const existing = previousFilters.find( filter => filter.field === 'folder' );
+			if ( existing?.value === statusView ) {
+				return previousView;
+			}
+			return {
+				...previousView,
+				filters: [
+					{ field: 'folder', operator: 'is', value: statusView },
+					...previousFilters.filter( filter => filter.field !== 'folder' ),
+				],
+			};
+		} );
+	}, [ isSingleFormView, setView, statusView ] );
+
 	const queryParams = useMemo( () => {
 		const queryArgs: QueryParams = {
-			status,
+			status: statusFilter,
 			per_page: view.perPage,
 			page: view.page || 1,
 			orderby: view.sort?.field || 'date',
@@ -264,6 +285,10 @@ function Stage() {
 			queryArgs.search = view.search;
 		}
 
+		if ( isSingleFormView ) {
+			queryArgs.parent = String( sourceIdNumber );
+		}
+
 		view.filters?.forEach( filter => {
 			if ( ! filter.value ) {
 				return;
@@ -271,7 +296,7 @@ function Stage() {
 			if ( filter.field === 'read_status' ) {
 				queryArgs.is_unread = filter.value === 'unread';
 			}
-			if ( filter.field === 'source' ) {
+			if ( ! isSingleFormView && filter.field === 'source' ) {
 				queryArgs.parent = filter.value;
 			}
 			if ( filter.field === 'date' ) {
@@ -282,16 +307,65 @@ function Stage() {
 		} );
 
 		return queryArgs;
-	}, [ status, view ] );
+	}, [ isSingleFormView, sourceIdNumber, statusFilter, view ] );
 
-	const { records, isResolving, totalItems, totalPages } = useEntityRecords(
-		'postType',
-		'feedback',
-		queryParams
-	);
+	// Keep dashboard store query in sync so core-data fetches include fields_format=collection.
+	useEffect( () => {
+		setCurrentQuery( queryParams );
+	}, [ queryParams, setCurrentQuery ] );
+
+	// Keep selected responses in store for shared dashboard behavior (e.g., export).
+	useEffect( () => {
+		const validSelectedIds = ( selection || [] ).filter( id => {
+			return records?.some( record => getItemId( record ) === id );
+		} );
+
+		setSelectedResponses( validSelectedIds );
+	}, [ records, selection, setSelectedResponses ] );
 
 	const fields: Field< FormResponse >[] = useMemo(
 		() => [
+			...( isSingleFormView
+				? []
+				: [
+						{
+							id: 'folder',
+							label: __( 'Folder', 'jetpack-forms' ),
+							elements: [
+								{
+									label: sprintf(
+										/* translators: %s is the number of inbox responses. */
+										__( 'Inbox (%s)', 'jetpack-forms' ),
+										formatNumber( totalItemsInbox ?? 0 )
+									),
+									value: 'inbox',
+								},
+								{
+									label: sprintf(
+										/* translators: %s is the number of spam responses. */
+										__( 'Spam (%s)', 'jetpack-forms' ),
+										formatNumber( totalItemsSpam ?? 0 )
+									),
+									value: 'spam',
+								},
+								{
+									label: sprintf(
+										/* translators: %s is the number of trash responses. */
+										__( 'Trash (%s)', 'jetpack-forms' ),
+										formatNumber( totalItemsTrash ?? 0 )
+									),
+									value: 'trash',
+								},
+							],
+							// Primary so the filter UI (and its pill) is visible by default.
+							filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
+							enableSorting: false,
+							enableHiding: false,
+							// Filter-only field; not shown as a column.
+							render: () => null,
+							getValue: () => null,
+						},
+				  ] ),
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
@@ -357,7 +431,7 @@ function Stage() {
 					} );
 					return styleUnreadValue( dateStr, item.is_unread );
 				},
-				elements: ( filterOptions?.date || [] ).map( filter => {
+				elements: ( ( filterOptions as unknown as FeedbackFilters )?.date || [] ).map( filter => {
 					const date = new Date();
 					date.setDate( 1 );
 					date.setMonth( filter.month - 1 );
@@ -367,29 +441,36 @@ function Stage() {
 						value: `${ filter.year }/${ filter.month }`,
 					};
 				} ),
-				filterBy: { operators: [ 'is' ] },
+				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
-			{
-				id: 'source',
-				label: __( 'Source', 'jetpack-forms' ),
-				render: ( { item } ) => {
-					const source = item.entry_title || getPath( item ) || __( '(no title)', 'jetpack-forms' );
-					if ( item.entry_permalink ) {
-						return styleUnreadValue(
-							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
-							item.is_unread
-						);
-					}
-					return styleUnreadValue( source, item.is_unread );
-				},
-				elements: ( filterOptions?.source || [] ).map( source => ( {
-					value: source.id.toString(),
-					label: decodeEntities( source.title ) || source.url,
-				} ) ),
-				filterBy: { operators: [ 'is' ] },
-				enableSorting: false,
-			},
+			...( isSingleFormView
+				? []
+				: [
+						{
+							id: 'source',
+							label: __( 'Source', 'jetpack-forms' ),
+							render: ( { item } ) => {
+								const source =
+									item.entry_title || getPath( item ) || __( '(no title)', 'jetpack-forms' );
+								if ( item.entry_permalink ) {
+									return styleUnreadValue(
+										<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+										item.is_unread
+									);
+								}
+								return styleUnreadValue( source, item.is_unread );
+							},
+							elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
+								source => ( {
+									value: source.id.toString(),
+									label: decodeEntities( source.title ) || source.url,
+								} )
+							),
+							filterBy: { operators: [ 'is' ] as Operator[] },
+							enableSorting: false,
+						},
+				  ] ),
 			{
 				id: 'read_status',
 				label: __( 'Status', 'jetpack-forms' ),
@@ -397,7 +478,7 @@ function Stage() {
 					{ label: __( 'Unread', 'jetpack-forms' ), value: 'unread' },
 					{ label: __( 'Read', 'jetpack-forms' ), value: 'read' },
 				],
-				filterBy: { operators: [ 'is' ] },
+				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 				render: ( { item } ) => {
 					return (
@@ -423,7 +504,7 @@ function Stage() {
 				enableSorting: false,
 			},
 		],
-		[ filterOptions ]
+		[ filterOptions, isSingleFormView, totalItemsInbox, totalItemsSpam, totalItemsTrash ]
 	);
 
 	const actions = useMemo(
@@ -431,9 +512,9 @@ function Stage() {
 			getActions( {
 				navigate,
 				searchParams,
-				view: params.view,
+				view: statusView,
 			} ),
-		[ navigate, searchParams, params.view ]
+		[ navigate, searchParams, statusView ]
 	);
 
 	const paginationInfo = useMemo(
@@ -442,22 +523,6 @@ function Stage() {
 			totalPages: totalPages || 1,
 		} ),
 		[ totalItems, totalPages ]
-	);
-
-	const statusTabs = [
-		{ slug: 'inbox', label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), counts.inbox ) },
-		{ slug: 'spam', label: getTabLabel( __( 'Spam', 'jetpack-forms' ), counts.spam ) },
-		{ slug: 'trash', label: getTabLabel( __( 'Trash', 'jetpack-forms' ), counts.trash ) },
-	];
-
-	const handleTabChange = useCallback(
-		newView => {
-			navigate( {
-				to: '/responses/$view',
-				params: { view: newView },
-			} );
-		},
-		[ navigate ]
 	);
 
 	const { openNewForm } = useCreateForm();
@@ -478,11 +543,7 @@ function Stage() {
 		const actionsArray: React.ReactNode[] = [];
 
 		// Show integrations button on inbox when feature flags are enabled
-		if (
-			( params.view === 'inbox' || ! params.view ) &&
-			isIntegrationsEnabled &&
-			showDashboardIntegrations
-		) {
+		if ( statusView === 'inbox' && isIntegrationsEnabled && showDashboardIntegrations ) {
 			actionsArray.push(
 				<Button
 					key="integrations"
@@ -495,7 +556,7 @@ function Stage() {
 			);
 		}
 
-		if ( params.view === 'inbox' || ! params.view ) {
+		if ( statusView === 'inbox' ) {
 			actionsArray.push(
 				<Button
 					key="create"
@@ -512,7 +573,7 @@ function Stage() {
 		actionsArray.push(
 			<Button
 				key="export"
-				variant={ params.view === 'inbox' ? 'primary' : 'secondary' }
+				variant={ statusView === 'inbox' ? 'primary' : 'secondary' }
 				size="compact"
 				icon={ download }
 			>
@@ -520,21 +581,21 @@ function Stage() {
 			</Button>
 		);
 
-		if ( params.view === 'trash' ) {
+		if ( statusView === 'trash' ) {
 			actionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		}
 
-		if ( params.view === 'spam' ) {
+		if ( statusView === 'spam' ) {
 			actionsArray.push( <EmptySpamButton key="empty-spam" /> );
 		}
 
 		return actionsArray;
 	}, [
-		params.view,
 		handleIntegrations,
 		handleCreateForm,
 		isIntegrationsEnabled,
 		showDashboardIntegrations,
+		statusView,
 	] );
 
 	// Check if read_status filter is applied
@@ -548,82 +609,67 @@ function Stage() {
 	);
 
 	return (
-		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
-			<Page
-				showSidebarToggle={ false }
-				title={
-					<Stack align="center" gap="xs">
-						<JetpackLogo showText={ false } width={ 20 } />
-						{ __( 'Forms', 'jetpack-forms' ) }
-					</Stack>
+		<Page
+			showSidebarToggle={ false }
+			title={ <FormsLogo /> }
+			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
+			actions={ headerActions }
+			hasPadding={ false }
+		>
+			<DataViews
+				empty={
+					<EmptyResponses
+						status={ statusView }
+						isSearch={ !! view.search }
+						readStatusFilter={ readStatusFilter }
+					/>
 				}
-				subTitle={ __(
-					'View and manage all your form submissions in one place.',
-					'jetpack-forms'
-				) }
-				actions={ headerActions }
-				hasPadding={ false }
+				data={ records || EMPTY_ARRAY }
+				fields={ fields as Field< unknown >[] }
+				view={ view }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				isLoading={ isLoadingData }
+				getItemId={ getItemId }
+				defaultLayouts={ defaultLayouts }
+				selection={ selection }
+				onChangeSelection={ onChangeSelection }
+				onClickItem={ onClickItem }
+				actions={ actions as Action< unknown >[] }
 			>
-				<DataViews
-					empty={
-						<EmptyResponses
-							status={ params.view }
-							isSearch={ !! view.search }
-							readStatusFilter={ readStatusFilter }
-						/>
-					}
-					data={ records || EMPTY_ARRAY }
-					fields={ fields as Field< unknown >[] }
-					view={ view }
-					onChangeView={ onChangeView }
-					paginationInfo={ paginationInfo }
-					isLoading={ isResolving }
-					getItemId={ getItemId }
-					defaultLayouts={ defaultLayouts }
-					selection={ selection }
-					onChangeSelection={ onChangeSelection }
-					onClickItem={ onClickItem }
-					actions={ actions as Action< unknown >[] }
-				>
-					<Stack
-						align="center"
-						className="jp-forms-dataviews__view-actions"
-						gap="sm"
-						justify="space-between"
-					>
-						<Stack align="center" gap="sm">
-							<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
-								<Tabs.List density="compact">
-									{ statusTabs.map( tab => (
-										<Tabs.Tab value={ tab.slug } key={ tab.slug }>
-											{ tab.label }
-										</Tabs.Tab>
-									) ) }
-								</Tabs.List>
-							</Tabs.Root>
-						</Stack>
-						<Stack align="center" gap="sm">
-							<DataViews.Search />
-							<DataViews.FiltersToggle />
-							<DataViews.ViewConfig />
-						</Stack>
-					</Stack>
-					<DataViews.Filters className="dataviews-filters__container" />
-					<DataViews.Layout />
-					<DataViews.Footer />
-				</DataViews>
-				<IntegrationsModal
-					isOpen={ isIntegrationsModalOpen }
-					onClose={ closeIntegrationsModal }
-					attributes={ undefined }
-					setAttributes={ undefined }
-					integrationsData={ integrations }
-					refreshIntegrations={ refreshIntegrations }
-					context="dashboard"
+				<DataViewsHeaderRow
+					activeTab="responses"
+					isSingleFormView={ isSingleFormView }
+					activeStatus={ statusView }
+					statusCounts={ {
+						inbox: totalItemsInbox ?? 0,
+						spam: totalItemsSpam ?? 0,
+						trash: totalItemsTrash ?? 0,
+					} }
+					onStatusChange={ onStatusChange }
 				/>
-			</Page>
-		</WpRouteDashboardSearchParamsProvider>
+				<DataViews.Layout />
+				<DataViews.Footer />
+			</DataViews>
+			<IntegrationsModal
+				isOpen={ isIntegrationsModalOpen }
+				onClose={ closeIntegrationsModal }
+				attributes={ undefined }
+				setAttributes={ undefined }
+				integrationsData={ integrations }
+				refreshIntegrations={ refreshIntegrations }
+				context="dashboard"
+			/>
+		</Page>
 	);
 }
+
+const Stage = () => {
+	return (
+		<WpRouteDashboardSearchParamsProvider from="/responses/$view">
+			<StageInner />
+		</WpRouteDashboardSearchParamsProvider>
+	);
+};
 
 export { Stage as stage };

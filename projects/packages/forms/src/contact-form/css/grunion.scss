@@ -230,6 +230,11 @@ that needs to mimic the input element styles */
 	max-width: 600px;
 }
 
+.contact-form-submission:focus {
+	outline: none;
+	border: none;
+}
+
 .contact-form-submission p {
 	margin: 0 auto;
 	word-wrap: break-word;
@@ -1510,8 +1515,8 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 // use new ::after approach for animated spinner inside forms
-.contact-form .wp-block-jetpack-button button[type="submit"].is-submitting:last-of-type,
-.contact-form .wp-block-button button[type="submit"].is-submitting:last-of-type {
+.contact-form .wp-block-jetpack-button .is-submitting:not(.disable-spinner),
+.contact-form .wp-block-button .is-submitting:not(.disable-spinner) {
 
 	&::after {
 

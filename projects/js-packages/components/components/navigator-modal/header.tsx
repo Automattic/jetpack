@@ -3,7 +3,6 @@ import { __, isRTL } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, close } from '@wordpress/icons';
 import { useCallback, useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
-import styles from './styles.module.scss';
 
 export type HeaderProps = {
 	/**
@@ -35,8 +34,8 @@ export function Header( { icon, title, isScreenLocked }: HeaderProps ) {
 	}, [ navigator ] );
 
 	return (
-		<div className={ styles.header }>
-			<div className={ styles[ 'title-wrap' ] }>
+		<div className="jp-navigator-modal__header">
+			<div className="jp-navigator-modal__title-wrap">
 				{ ! isScreenLocked ? (
 					<Button
 						label={ __( 'Go back', 'jetpack-components' ) }

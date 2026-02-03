@@ -3,7 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
-import { Icon, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { seen, unseen, trash, backup, commentContent } from '@wordpress/icons';
@@ -164,7 +164,7 @@ export const BULK_ACTIONS = {
 export const viewAction: Action = {
 	id: 'view-response',
 	isPrimary: true,
-	icon: <Icon icon={ commentContent } />,
+	icon: commentContent,
 	label: __( 'View', 'jetpack-forms' ),
 	modalHeader: __( 'Response', 'jetpack-forms' ),
 };
@@ -172,7 +172,7 @@ export const viewAction: Action = {
 export const editFormAction: Action = {
 	id: 'edit-form',
 	isPrimary: false,
-	icon: <Icon icon={ backup } />,
+	icon: backup,
 	label: __( 'Edit form', 'jetpack-forms' ),
 	isEligible: item => !! item?.edit_form_url,
 	supportsBulk: false,
@@ -195,7 +195,7 @@ export const editFormAction: Action = {
 export const markAsSpamAction: Action = {
 	id: 'mark-as-spam',
 	isPrimary: true,
-	icon: <Icon icon={ spam } />,
+	icon: spam,
 	label: __( 'Spam', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'spam',
 	supportsBulk: true,
@@ -337,7 +337,7 @@ export const markAsSpamAction: Action = {
 export const markAsNotSpamAction: Action = {
 	id: 'mark-as-not-spam',
 	isPrimary: true,
-	icon: <Icon icon={ notSpam } />,
+	icon: notSpam,
 	label: __( 'Not spam', 'jetpack-forms' ),
 	isEligible: item => item.status === 'spam',
 	supportsBulk: true,
@@ -472,7 +472,7 @@ export const markAsNotSpamAction: Action = {
 export const restoreAction: Action = {
 	id: 'restore',
 	isPrimary: true,
-	icon: <Icon icon={ backup } />,
+	icon: backup,
 	label: __( 'Restore', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
@@ -598,7 +598,7 @@ export const restoreAction: Action = {
 export const moveToTrashAction: Action = {
 	id: 'move-to-trash',
 	isPrimary: true,
-	icon: <Icon icon={ trash } />,
+	icon: trash,
 	label: __( 'Trash', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'trash',
 	supportsBulk: true,
@@ -743,7 +743,7 @@ export const moveToTrashAction: Action = {
 export const deleteAction: Action = {
 	id: 'delete',
 	isPrimary: true,
-	icon: <Icon icon={ trash } />,
+	icon: trash,
 	label: __( 'Delete', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
@@ -830,7 +830,7 @@ export const deleteAction: Action = {
 export const markAsReadAction: Action = {
 	id: 'mark-as-read',
 	isPrimary: false,
-	icon: <Icon icon={ seen } />,
+	icon: seen,
 	label: __( 'Mark as read', 'jetpack-forms' ),
 	isEligible: item => item.is_unread,
 	supportsBulk: true,
@@ -945,7 +945,7 @@ export const markAsReadAction: Action = {
 export const markAsUnreadAction: Action = {
 	id: 'mark-as-unread',
 	isPrimary: false,
-	icon: <Icon icon={ unseen } />,
+	icon: unseen,
 	label: __( 'Mark as unread', 'jetpack-forms' ),
 	isEligible: item => ! item.is_unread,
 	supportsBulk: true,

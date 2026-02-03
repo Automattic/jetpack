@@ -4,15 +4,13 @@
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Modal,
-	Spinner,
 	Tip,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -22,92 +20,11 @@ import { useMarkAsSpam } from '../../hooks/use-mark-as-spam.ts';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils.js';
 import { store as dashboardStore } from '../../store/index.js';
 import FeedbackComments from '../feedback-comments/index.tsx';
-import FieldEmail from '../response-view/field-email/index.tsx';
-import FieldFile from '../response-view/field-file/index.tsx';
-import FieldImageSelect from '../response-view/field-image-select/index.tsx';
-import FieldPreview from '../response-view/field-preview/index.tsx';
-import ResponseMeta from './response-meta/index.tsx';
-import type { FormResponse, ResponseField } from '../../../types/index.ts';
+import PreviewFile from './preview-file';
+import ResponseFieldsIterator from './response-fields/index.tsx';
+import ResponseMeta from './response-meta';
+import type { FormResponse } from '../../../types/index.ts';
 import './style.scss';
-
-const isFileUploadField = value => {
-	return value && typeof value === 'object' && 'files' in value;
-};
-
-const isImageSelectField = value => {
-	return value?.type === 'image-select';
-};
-
-const isLikelyPhoneNumber = value => {
-	// Only operate on strings to avoid coercing numbers (e.g., 2024) into strings that could match
-	if ( typeof value !== 'string' ) {
-		return false;
-	}
-
-	const normalizedValue = value.trim();
-
-	// Allow only digits, spaces, parentheses, hyphens, dots, plus
-	if ( ! /^[\d+\-\s().]+$/.test( normalizedValue ) ) {
-		return false;
-	}
-
-	// Exclude common date formats to avoid false positives
-	// - ISO-like: 2025-11-01 or 2025/11/01
-	if ( /^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test( normalizedValue ) ) {
-		return false;
-	}
-	// - Locale-like: 01/11/2025, 1/11/25, 11-01-2025
-	if ( /^\d{1,2}[-/]\d{1,2}[-/]\d{2,4}$/.test( normalizedValue ) ) {
-		return false;
-	}
-
-	// Strip non-digits and validate digit count within a typical global range
-	const digits = normalizedValue.replace( /\D/g, '' );
-	if ( digits.length < 7 || digits.length > 15 ) {
-		return false;
-	}
-
-	return true;
-};
-
-/**
- * Check if a field object is in the new collection format (has label, value, and key properties).
- * @param item - The item to check.
- * @return Whether the item is a collection format field.
- */
-const isCollectionFormatField = ( item: unknown ): item is ResponseField => {
-	return (
-		item !== null && typeof item === 'object' && 'label' in item && 'value' in item && 'key' in item
-	);
-};
-
-const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
-	const imageClass = clsx( 'jp-forms__inbox-file-preview-container', {
-		'is-loading': isLoading,
-	} );
-
-	return (
-		<div className="jp-forms__inbox-file-preview-shell">
-			{ isLoading && (
-				<div className="jp-forms__inbox-file-loading">
-					<Spinner className="jp-forms__inbox-file-spinner" />
-					<div className="jp-forms__inbox-file-loading-message ">
-						{ __( 'Loading preview…', 'jetpack-forms' ) }
-					</div>
-				</div>
-			) }
-
-			<div className={ imageClass }>
-				<img
-					src={ file.url }
-					alt={ decodeEntities( file.name ) }
-					onLoad={ onImageLoaded }
-					className="jp-forms__inbox-file-preview-image"
-				/>
-			</div>
-		</div>
-	);
-};
 
 export type ResponseViewBodyProps = {
 	response: FormResponse;
@@ -132,7 +49,7 @@ const ResponseViewBody = ( {
 }: ResponseViewBodyProps ): import('react').JSX.Element => {
 	const { currentQuery } = useInboxData();
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
-	const [ previewFile, setPreviewFile ] = useState< null | object >( null );
+	const [ previewFile, setPreviewFile ] = useState< { url: string; name: string } | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( 0 );
 
@@ -175,51 +92,6 @@ const ResponseViewBody = ( {
 			onModalStateChange( false );
 		}
 	}, [ onModalStateChange, setIsPreviewModalOpen, setIsImageLoading ] );
-
-	const renderFieldValue = value => {
-		if ( isImageSelectField( value ) ) {
-			return <FieldImageSelect choices={ value.choices } handleFilePreview={ handleFilePreview } />;
-		}
-
-		// File uploads
-		if ( isFileUploadField( value ) ) {
-			return <FieldFile files={ value?.files } handleFilePreview={ handleFilePreview } />;
-		}
-
-		// Emails
-		const emailRegEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-		if ( emailRegEx.test( value ) ) {
-			return <FieldEmail email={ value } />;
-		}
-
-		// Phone numbers
-		if ( isLikelyPhoneNumber( value ) ) {
-			return <a href={ `tel:${ value }` }>{ value }</a>;
-		}
-
-		return value;
-	};
-
-	// Determine format synchronously to avoid render timing issues.
-	// Handles both true arrays and objects with numeric keys (from PHP JSON encoding).
-	const fieldsAreNewFormat = useMemo( () => {
-		if ( Array.isArray( response.fields ) ) {
-			// Any array value represents the new format, even when empty.
-			if ( response.fields.length === 0 ) {
-				return true;
-			}
-			return isCollectionFormatField( response.fields[ 0 ] );
-		}
-
-		// Guard against null/undefined and non-object values before using Object.values.
-		if ( ! response.fields || typeof response.fields !== 'object' ) {
-			return false;
-		}
-
-		// Object with numeric keys - check first value.
-		const values = Object.values( response.fields );
-		return values.length > 0 && isCollectionFormatField( values[ 0 ] );
-	}, [ response.fields ] );
 
 	useEffect( () => {
 		if ( ! ref.current ) {
@@ -293,11 +165,8 @@ const ResponseViewBody = ( {
 		return null;
 	}
 
-	const responseDataClass = clsx( 'jp-forms__inbox-response-data', {
-		'is-collection-format': fieldsAreNewFormat,
-	} );
-
-	if ( isPreviewModalOpen && ! onModalStateChange ) {
+	// Mobile doesn't render a modal, so we render the preview file directly.
+	if ( isPreviewModalOpen && ! onModalStateChange && previewFile ) {
 		return (
 			<PreviewFile
 				file={ previewFile }
@@ -312,29 +181,14 @@ const ResponseViewBody = ( {
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<ResponseMeta response={ response } />
 
-				<div className={ responseDataClass }>
-					{ ! fieldsAreNewFormat &&
-						Object.entries( response.fields ).map( ( [ key, value ] ) => (
-							<div key={ key } className="jp-forms__inbox-response-item">
-								<div className="jp-forms__inbox-response-data-label">
-									{ key.endsWith( '?' ) ? key : `${ key }:` }
-								</div>
-								<div className="jp-forms__inbox-response-data-value">
-									{ renderFieldValue( value ) }
-								</div>
-							</div>
-						) ) }
-					{ fieldsAreNewFormat &&
-						( Array.isArray( response.fields )
-							? response.fields
-							: ( Object.values( response.fields ) as ResponseField[] )
-						).map( field => (
-							<FieldPreview key={ field.key } field={ field } onFilePreview={ handleFilePreview } />
-						) ) }
-				</div>
+				<ResponseFieldsIterator
+					fields={ response.fields }
+					onFilePreview={ handleFilePreview }
+					className="jp-forms__inbox-response-data"
+				/>
 				{ isPreviewModalOpen && previewFile && onModalStateChange && (
 					<Modal
-						title={ decodeEntities( ( previewFile as { name: string } ).name ) }
+						title={ decodeEntities( previewFile.name ) }
 						onRequestClose={ closePreviewModal }
 						className="jp-forms__inbox-file-preview-modal"
 					>

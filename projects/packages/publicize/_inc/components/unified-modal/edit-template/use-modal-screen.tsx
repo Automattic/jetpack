@@ -14,7 +14,7 @@ import { LocalState } from './types';
  *
  * @return screen details
  */
-export function useModalScreen(): ScreenDetails {
+export function useModalScreen() {
 	const isScreenLocked = useSelect(
 		select => select( socialStore ).isUnifiedModalScreenLocked(),
 		[]
@@ -42,7 +42,7 @@ export function useModalScreen(): ScreenDetails {
 		} );
 	}, [ localState, updateSettings ] );
 
-	return useMemo(
+	return useMemo< ScreenDetails >(
 		() => ( {
 			path: '/edit-template',
 			title: __( 'Edit social image template', 'jetpack-publicize-pkg' ),

@@ -1,6 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import type { FC, ReactNode, MouseEvent } from 'react';
+import type { IconType } from '@wordpress/components';
+import type { FC, MouseEvent } from 'react';
 
 export type SecondaryButtonProps = {
 	href?: string;
@@ -9,9 +10,9 @@ export type SecondaryButtonProps = {
 	weight?: 'bold' | 'regular';
 	label?: string;
 	shouldShowButton?: () => boolean;
-	onClick?: ( () => void ) | ( ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => void );
+	onClick?: ( () => void ) | ( ( e: MouseEvent< HTMLButtonElement > ) => void );
 	isExternalLink?: boolean;
-	icon?: ReactNode;
+	icon?: IconType;
 	iconSize?: number;
 	disabled?: boolean;
 	isLoading?: boolean;
@@ -22,9 +23,9 @@ export type SecondaryButtonProps = {
 // SecondaryButton component
 const SecondaryButton: FC< SecondaryButtonProps > = props => {
 	const { shouldShowButton = () => true, ...buttonProps } = {
-		size: 'small',
-		variant: 'secondary',
-		weight: 'regular',
+		size: 'small' as const,
+		variant: 'secondary' as const,
+		weight: 'regular' as const,
 		label: __( 'Learn more', 'jetpack-my-jetpack' ),
 		...props,
 	};

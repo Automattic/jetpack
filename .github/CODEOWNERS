@@ -9,6 +9,9 @@
 
 # Packages
 /projects/packages/search/src/wpes @Automattic/prometheus
+/projects/packages/connection/src @Automattic/jetpack-vulcan
+/projects/packages/connection/legacy @Automattic/jetpack-vulcan
+/projects/packages/sync/src @Automattic/jetpack-vulcan
 
 # Plugins
 

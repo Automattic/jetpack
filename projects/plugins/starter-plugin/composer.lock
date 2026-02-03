@@ -126,7 +126,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "e17ebd5fdf1a5c46f2326c420ca2e9485384feff"
+                "reference": "116afa785e69beb00f93503b12e0b0f4a0753ebb"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -137,7 +137,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0 || ^4.0",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
@@ -520,7 +520,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "49e680704ce5f0d9d25b596ff82e3b5a2a164ae0"
+                "reference": "edf81c3f58a099722b99708031ba674c9311606d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -556,7 +556,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.20.x-dev"
+                    "dev-trunk": "7.0.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -662,7 +662,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "0f0dac123b94a4c9a94e3f97071c3c4c1a180ed5"
+                "reference": "40cbfeb8412019423305cb3d071d1cd8ec5fccc3"
             },
             "require": {
                 "php": ">=7.2"
@@ -683,7 +683,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.3.x-dev"
+                    "dev-trunk": "3.4.x-dev"
                 }
             },
             "autoload": {
@@ -1629,7 +1629,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "bd1c96ab8c4f09f4dcfddae31dc4d3ca3414ce8c"
+                "reference": "ab5882ed0922c5a98b1b36b7f30b898888be0775"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1663,7 +1663,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.25.x-dev"
+                    "dev-trunk": "4.26.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1704,7 +1704,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "30dd97f47c89ca7ec88c3659ef92464965a8e5e8"
+                "reference": "b5353c88e04d5fae32ee501b1a0a4234ee968e56"
             },
             "require": {
                 "composer-runtime-api": "^2.2.0",
@@ -1714,7 +1714,7 @@
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0 || ^4.0",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
             "bin": [

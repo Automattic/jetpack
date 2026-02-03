@@ -3,112 +3,61 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Button, ExternalLink, Modal, Spinner, Tip } from '@wordpress/components';
-import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
+import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, _n } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import * as React from 'react';
 /**
  * Internal dependencies
  */
 import CopyClipboardButton from '../../../src/dashboard/components/copy-clipboard-button';
+import PreviewFile from '../../../src/dashboard/components/inspector/preview-file';
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
+import {
+	isFileUploadField,
+	isImageSelectField,
+	isLikelyPhoneNumber,
+} from '../../../src/dashboard/components/inspector/utils';
+import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
+import useConfigValue from '../../../src/hooks/use-config-value.ts';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
-/**
- * Types
- */
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../../src/types/index.ts';
+import '../../../src/dashboard/components/inspector/style.scss';
 
-const isFileUploadField = ( value: unknown ): boolean => {
-	return !! value && typeof value === 'object' && 'files' in value;
+type DisplayField = {
+	label: string;
+	value: unknown;
+	key: string;
 };
 
-const isImageSelectField = ( value: unknown ): boolean => {
-	return !! value && typeof value === 'object' && 'type' in value && value.type === 'image-select';
+const getDisplayFields = (
+	fields: FormResponse[ 'fields' ] | undefined | null
+): DisplayField[] => {
+	if ( ! fields ) {
+		return [];
+	}
+
+	// New collection format: [{ label, value, key, ... }]
+	if ( Array.isArray( fields ) ) {
+		return fields.map( ( field, index ) => ( {
+			label: field.label || field.key || String( index ),
+			value: field.value,
+			key: field.key || field.id || `${ index }-${ field.label }`,
+		} ) );
+	}
+
+	// Legacy format: { [label]: value }
+	return Object.entries( fields ).map( ( [ label, value ] ) => ( {
+		label,
+		value,
+		key: label,
+	} ) );
 };
-
-const isLikelyPhoneNumber = ( value: unknown ): boolean => {
-	if ( typeof value !== 'string' ) {
-		return false;
-	}
-
-	const normalizedValue = value.trim();
-
-	if ( ! /^[\d+\-\s().]+$/.test( normalizedValue ) ) {
-		return false;
-	}
-
-	if ( /^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test( normalizedValue ) ) {
-		return false;
-	}
-	if ( /^\d{1,2}[-/]\d{1,2}[-/]\d{2,4}$/.test( normalizedValue ) ) {
-		return false;
-	}
-
-	const digits = normalizedValue.replace( /\D/g, '' );
-	if ( digits.length < 7 || digits.length > 15 ) {
-		return false;
-	}
-
-	return true;
-};
-
-/**
- * Renders a preview of an image file.
- *
- * @param props               - Props used while rendering the preview.
- * @param props.file          - The image file object.
- * @param props.file.url      - The URL of the image file.
- * @param props.file.name     - The name of the image file.
- * @param props.isLoading     - Whether the preview is currently loading.
- * @param props.onImageLoaded - Callback fired when the image finishes loading.
- *
- * @return                    - Element containing the file preview.
- */
-function PreviewFile( {
-	file,
-	isLoading,
-	onImageLoaded,
-}: {
-	file: { url: string; name: string };
-	isLoading: boolean;
-	onImageLoaded: () => void;
-} ) {
-	return (
-		<div style={ { position: 'relative', minHeight: '200px' } }>
-			{ isLoading && (
-				<div
-					style={ {
-						position: 'absolute',
-						inset: 0,
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						flexDirection: 'column',
-						gap: '8px',
-					} }
-				>
-					<Spinner />
-					<span>{ __( 'Loading preview…', 'jetpack-forms' ) }</span>
-				</div>
-			) }
-			<img
-				src={ file.url }
-				alt={ decodeEntities( file.name ) }
-				onLoad={ onImageLoaded }
-				style={ {
-					maxWidth: '100%',
-					opacity: isLoading ? 0 : 1,
-					transition: 'opacity 0.2s',
-				} }
-			/>
-		</div>
-	);
-}
 
 type UploadedFile = {
 	url: string;
@@ -260,6 +209,8 @@ function SingleResponseView( {
 	const [ previewFile, setPreviewFile ] = useState< { url: string; name: string } | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 	const [ hasMarkedAsRead, setHasMarkedAsRead ] = useState< number | null >( null );
+
+	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 
 	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
 
@@ -419,6 +370,8 @@ function SingleResponseView( {
 		return String( value );
 	};
 
+	const displayFields = useMemo( () => getDisplayFields( response?.fields ), [ response?.fields ] );
+
 	if ( isLoading ) {
 		return (
 			<div style={ { display: 'flex', justifyContent: 'center', padding: '40px' } }>
@@ -461,9 +414,9 @@ function SingleResponseView( {
 			<div style={ { padding: '20px', overflowY: 'auto' } }>
 				<ResponseMeta response={ response } />
 
-				{ response.fields && Object.keys( response.fields ).length > 0 && (
+				{ displayFields.length > 0 && (
 					<div>
-						{ Object.entries( response.fields ).map( ( [ key, value ] ) => (
+						{ displayFields.map( ( { label, value, key } ) => (
 							<div
 								key={ key }
 								style={ {
@@ -480,7 +433,7 @@ function SingleResponseView( {
 										fontSize: '13px',
 									} }
 								>
-									{ key.endsWith( '?' ) ? key : `${ key }:` }
+									{ label.endsWith( '?' ) ? label : `${ label }:` }
 								</div>
 								<div style={ { color: '#3c434a', fontSize: '14px' } }>
 									{ renderFieldValue( value ) }
@@ -491,21 +444,35 @@ function SingleResponseView( {
 				) }
 
 				{ response.status === 'spam' && (
-					<div style={ { marginTop: '20px' } }>
+					<div className="jp-forms__inbox__tip-container">
 						<Tip>
-							{ __( 'Spam responses are permanently deleted after 15 days.', 'jetpack-forms' ) }
+							{ sprintf(
+								/* translators: %d number of days. */
+								_n(
+									'Spam responses are permanently deleted after %d day.',
+									'Spam responses are permanently deleted after %d days.',
+									15,
+									'jetpack-forms'
+								),
+								// Number from https://github.com/Automattic/jetpack/blob/bde3cf9a89ce0d02e50469df173a6253383bd276/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L132
+								15
+							) }
 						</Tip>
 					</div>
 				) }
 
 				{ response.status === 'trash' && (
-					<div style={ { marginTop: '20px' } }>
+					<div className="jp-forms__inbox__tip-container">
 						<Tip>
-							{ _n(
-								'Items in trash are permanently deleted after 30 days.',
-								'Items in trash are permanently deleted after 30 days.',
-								30,
-								'jetpack-forms'
+							{ sprintf(
+								/* translators: %d number of days. */
+								_n(
+									'Items in trash are permanently deleted after %d day.',
+									'Items in trash are permanently deleted after %d days.',
+									emptyTrashDays,
+									'jetpack-forms'
+								),
+								emptyTrashDays
 							) }
 						</Tip>
 					</div>
@@ -535,26 +502,9 @@ export default function Response() {
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
 	const responseIds = searchParams?.responseIds || [];
+	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
 
-	// Determine the status based on the current view
-	let status = 'publish';
-	if ( params.view === 'spam' ) {
-		status = 'spam';
-	} else if ( params.view === 'trash' ) {
-		status = 'trash';
-	}
-
-	// Fetch all visible records using the same query as the stage
-	// This leverages core-data's cache, so records loaded by stage are reused
-	const { records } = useEntityRecords< FormResponse >( 'postType', 'feedback', {
-		status,
-		per_page: 20,
-		page: 1,
-		orderby: 'date',
-		order: 'desc',
-	} );
-
-	// Get all record IDs for navigation
+	const { records } = useInboxData( { status: statusView } );
 	const allRecordIds = records?.map( record => record.id ) ?? [];
 
 	const handleClose = useCallback( () => {
