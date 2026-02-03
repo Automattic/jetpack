@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use dynamic number values for spam and trash tip in response sidebar, and add styles.

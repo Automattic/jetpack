@@ -673,6 +673,13 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 			if ( wpcom_site_has_personal_plan( $blog_id ) ) {
 				return true;
 			} else {
+				Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_record_tracks_event(
+					'jetpack_mu_wpcom_global_styles_personal_plan_option_removed',
+					array(
+						'blog_id'   => $blog_id,
+						'purchases' => wp_json_encode( wpcom_get_site_purchases( $blog_id ), JSON_UNESCAPED_SLASHES ),
+					)
+				);
 				delete_option( 'wpcom-global-styles-personal-plan' );
 				return false;
 			}
@@ -689,6 +696,13 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 		if ( function_exists( 'remove_blog_sticker' ) ) {
 			$note = 'Automated sticker. See https://wp.me/paYJgx-3yE';
 			$user = 'a8c'; // A non-empty string avoids storing the current user as author of the sticker change.
+			Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_record_tracks_event(
+				'jetpack_mu_wpcom_global_styles_personal_plan_option_removed',
+				array(
+					'blog_id'   => $blog_id,
+					'purchases' => wp_json_encode( wpcom_get_site_purchases( $blog_id ), JSON_UNESCAPED_SLASHES ),
+				)
+			);
 			remove_blog_sticker( 'wpcom-global-styles-personal-plan', $note, $user, $blog_id );
 		}
 

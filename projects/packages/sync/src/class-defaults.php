@@ -1385,4 +1385,13 @@ class Defaults {
 	 * @var int Bool-ish. Default 1.
 	 */
 	public static $default_wpcom_rest_api_enabled = 1;
+
+	/**
+	 * A list of 'jetpack_options' specific keys we want to ignore.
+	 *
+	 * @var array
+	 */
+	public static $jetpack_options_blacklist = array(
+		'last_heartbeat',
+	);
 }

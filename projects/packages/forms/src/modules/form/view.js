@@ -12,6 +12,8 @@ import {
  * Internal dependencies
  */
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
+import { getRating } from '../field-rating/view.js';
+import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
 import { focusNextInput, submitForm } from './shared.ts';
 
 const withSyncEvent =
@@ -53,6 +55,7 @@ const setSubmissionData = ( data = [] ) => {
 		const images = getImages( item.value );
 		const url = getUrl( item.value );
 		const files = getFiles( item.value );
+		const rating = getRating( item.value );
 
 		return {
 			label: maybeAddColonToLabel( item.label ),
@@ -60,8 +63,12 @@ const setSubmissionData = ( data = [] ) => {
 			images,
 			url,
 			files,
+			rating,
 			showPlainValue:
-				! url && ( ! images || images.length === 0 ) && ( ! files || files.length === 0 ),
+				! url &&
+				! rating &&
+				( ! images || images.length === 0 ) &&
+				( ! files || files.length === 0 ),
 		};
 	} );
 };
@@ -106,80 +113,6 @@ const getError = field => {
 	}
 
 	return config.error_types && config.error_types[ field.error ];
-};
-
-const maybeAddColonToLabel = label => {
-	const formattedLabel = label ? label : null;
-
-	if ( ! formattedLabel ) {
-		return null;
-	}
-	// Special case for the Terms consent field block which has a period at the end of the text.
-	return formattedLabel.endsWith( '?' )
-		? formattedLabel
-		: formattedLabel.replace( /[.:]$/, '' ) + ':';
-};
-
-const maybeTransformValue = value => {
-	// For image select fields, we want to show the perceived values, as the choices can be shuffled.
-	if ( value?.type === 'image-select' ) {
-		return value.choices
-			.map( choice => {
-				let transformedValue = choice.perceived;
-
-				if ( choice.showLabels && choice.label != null && choice.label !== '' ) {
-					transformedValue += ' - ' + choice.label;
-				}
-
-				return transformedValue;
-			} )
-			.join( ', ' );
-	}
-
-	// For URL fields, extract the URL text value.
-	if ( value?.type === 'url' && value?.url ) {
-		return value.url;
-	}
-
-	// For file upload fields, we want to show the file name and size
-	if ( value?.name && value?.size ) {
-		return value.name + ' (' + value.size + ')';
-	}
-
-	return value;
-};
-
-const getImages = value => {
-	if ( value?.type === 'image-select' ) {
-		return value.choices.map( choice => {
-			const letterCode = choice.perceived ?? '';
-			const label =
-				choice.showLabels && choice.label != null && choice.label !== '' ? choice.label : '';
-
-			return {
-				src: choice.image?.src ?? '',
-				letterCode,
-				label,
-			};
-		} );
-	}
-
-	return null;
-};
-
-const getUrl = value => {
-	if ( value?.type === 'url' && value?.url ) {
-		let url = value.url;
-
-		// Prepend https:// if no protocol is specified.
-		if ( ! /^https?:\/\//i.test( url ) ) {
-			url = 'https://' + url;
-		}
-
-		return url;
-	}
-
-	return null;
 };
 
 /**
@@ -313,6 +246,12 @@ const { state, actions } = store( NAMESPACE, {
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
 		},
 
+		get fieldAriaInvalid() {
+			// Return 'true' for invalid fields, null to remove the attribute entirely.
+			// Using null instead of false prevents VoiceOver from announcing "invalid" for valid fields.
+			return state.fieldHasErrors ? 'true' : null;
+		},
+
 		get isFormEmpty() {
 			const context = getContext();
 			// If this is a multistep form (identified by the presence of `maxSteps` in context),
@@ -353,6 +292,11 @@ const { state, actions } = store( NAMESPACE, {
 
 		get isAriaDisabled() {
 			return state.isSubmitting;
+		},
+
+		get isSuccessMessageAriaHidden() {
+			const context = getContext();
+			return context.submissionSuccess ? null : 'true';
 		},
 
 		get errorMessage() {
@@ -702,7 +646,60 @@ const { state, actions } = store( NAMESPACE, {
 			if ( context.submissionSuccess || context.hasClickedBack ) {
 				const wrapperElement = document.getElementById( `contact-form-${ context.formId }` );
 				wrapperElement?.scrollIntoView( { behavior: 'smooth' } );
+
+				// Move focus to the success wrapper for screen reader announcement.
+				// The wrapper has aria-labelledby pointing to the heading, so VoiceOver
+				// will read the heading content without announcing "heading level 4".
+				if ( context.submissionSuccess && ! context.hasClickedBack ) {
+					const successWrapper = document.getElementById(
+						`contact-form-success-${ context.formHash }`
+					);
+					successWrapper?.focus();
+				}
+
 				context.hasClickedBack = false;
+			}
+		},
+
+		focusOnValidationError() {
+			const context = getContext();
+
+			if ( state.showFormErrors ) {
+				// Only move focus once per error episode to avoid trapping keyboard users.
+				if ( context.didFocusValidationError ) {
+					return;
+				}
+
+				const { ref } = getElement();
+
+				if ( ref ) {
+					ref.focus();
+					context.didFocusValidationError = true;
+				}
+			} else if ( context.didFocusValidationError ) {
+				// Reset when errors clear so future errors can move focus again.
+				context.didFocusValidationError = false;
+			}
+		},
+
+		focusOnSubmissionError() {
+			const context = getContext();
+
+			if ( state.showSubmissionError ) {
+				// Only move focus once per error episode to avoid trapping keyboard users.
+				if ( context.didFocusSubmissionError ) {
+					return;
+				}
+
+				const { ref } = getElement();
+
+				if ( ref ) {
+					ref.focus();
+					context.didFocusSubmissionError = true;
+				}
+			} else if ( context.didFocusSubmissionError ) {
+				// Reset when errors clear so future errors can move focus again.
+				context.didFocusSubmissionError = false;
 			}
 		},
 
@@ -737,6 +734,20 @@ const { state, actions } = store( NAMESPACE, {
 				'style',
 				style + `--jetpack-input-image-option--outline-color: ${ borderColor }`
 			);
+		},
+
+		watchSubmissionValueVisibility() {
+			const context = getContext();
+
+			// If context.submission is not available (hydration), preserve server-rendered state.
+			if ( ! context.submission ) {
+				return;
+			}
+
+			// For AJAX submissions, show/hide based on whether url or rating is present.
+			const { ref } = getElement();
+			const shouldHide = !! ( context.submission.url || context.submission.rating );
+			ref.hidden = shouldHide;
 		},
 	},
 } );

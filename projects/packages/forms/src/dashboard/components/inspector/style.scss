@@ -15,19 +15,20 @@
 	background-color: #fff;
 	position: relative;
 	flex-grow: 2;
-}
 
-.jp-forms__inbox-response-header {
-	margin: 24px 0 0;
-	padding: 0 16px 0 0;
+	.jp-forms__inbox-response-header {
+		margin: 24px 0 0;
+		padding: 0 16px 0 0;
 
-	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		padding: 0 16px;
+		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+			padding: 0 16px;
+		}
 	}
-}
 
-.jp-forms__inbox-response-header-title {
-	min-height: 48px; // Same as avatar to middle-align single lines
+	.jp-forms__inbox-response-meta {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
 }
 
 .jp-forms-response-actions {
@@ -57,55 +58,6 @@
 	}
 }
 
-// Reset margins and padding for response header elements
-.jp-forms__inbox-response-name,
-.jp-forms__inbox-response-email {
-	margin: 0;
-	padding: 0;
-}
-
-.jp-forms__inbox-response-name {
-	font-size: 24px;
-	font-weight: 700;
-	line-height: 24px;
-}
-
-.jp-forms__inbox-response-email {
-
-	@include mixins.flex-center;
-	flex-shrink: 0;
-	font-size: 14px;
-	font-weight: 500;
-	gap: 4px;
-	line-height: 24px;
-	max-width: 100%;
-	min-height: 24px;
-	word-break: break-word;
-}
-
-.jp-forms__inbox-response-meta {
-	color: var(--jp-gray-80);
-	font-size: 12px;
-	padding: 12px 16px 24px;
-
-	table {
-		text-align: left;
-		width: fit-content;
-
-		td,
-		th {
-			padding: 0;
-		}
-
-		th {
-			font-weight: 400;
-			padding-right: variables.$grid-unit-10;
-			vertical-align: top;
-			white-space: nowrap;
-		}
-	}
-}
-
 .jp-forms__inbox-response-data {
 	border-top: 1px solid var(--jp-forms-border-color);
 	font-size: var(--jp-forms-font-size-regular);
@@ -127,19 +79,6 @@
 		.jp-forms__inbox-response-data-value {
 			white-space: pre-wrap;
 		}
-	}
-}
-
-
-.jp-forms__inbox-response-country-flag {
-	font-size: 16px;
-	display: inline;
-	padding-right: 4px;
-	vertical-align: middle;
-
-	svg {
-		fill: currentColor;
-		vertical-align: text-top;
 	}
 }
 
@@ -197,44 +136,3 @@
 	}
 }
 
-/*
- * File preview
- */
-.jp-forms__inbox-file-preview-shell {
-	max-height: 70vh;
-	overflow: hidden;
-}
-
-.jp-forms__inbox-file-preview-container {
-	margin-bottom: 16px;
-	max-height: 70vh;
-	aspect-ratio: 16 / 9;
-}
-
-.jp-forms__inbox-file-preview-container.is-loading {
-	display: none;
-}
-
-.jp-forms__inbox-file-preview-image {
-	height: 100%;
-	width: 100%;
-	max-height: 66vh;
-	object-fit: contain;
-}
-
-// Ensure backdrop is below the file preview modal but above the response modal
-.components-modal__screen-overlay:nth-of-type(2) {
-	z-index: var(--jp-forms-z-modal-backdrop);
-}
-
-.jp-forms__inbox-file-loading {
-	display: flex;
-	align-content: center;
-	justify-content: center;
-	height: 150px;
-	flex-wrap: wrap;
-}
-
-.jp-forms__inbox-file-spinner.jp-forms__inbox-file-spinner {
-	margin-top: 0;
-}

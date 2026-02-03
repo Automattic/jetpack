@@ -18,7 +18,7 @@ permissions:
 
 env:
   FORCE_COLOR: 1
-  USE_CLOUDFLARE_TUNNEL: ${{ vars.E2E_TUNNEL_TYPE == 'cloudflare' && '1' || '' }}
+  USE_CLOUDFLARE_TUNNEL: ${{ case( vars.E2E_TUNNEL_TYPE == 'cloudflare', '1', '' ) }}
 
 jobs:
   create-test-matrix:

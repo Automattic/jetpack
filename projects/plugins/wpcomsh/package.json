@@ -20,8 +20,8 @@
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true",
 		"test": "jest --bail --ci --verbose --config=tests/jest.config.cjs",
-		"test-coverage": "pnpm run test --coverage",
-		"test:watch": "jest --verbose --watchAll --config=tests/jest.config.cjs"
+		"test:watch": "jest --verbose --watchAll --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.5.5",

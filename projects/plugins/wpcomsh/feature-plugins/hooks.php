@@ -382,6 +382,16 @@ function wpcomsh_gate_footer_credit_feature() {
 add_filter( 'wpcom_better_footer_credit_can_customize', 'wpcomsh_gate_footer_credit_feature' );
 
 /**
+ * Controls whether Jetpack Forms integrations feature is enabled based on site plan.
+ *
+ * @return bool
+ */
+function wpcomsh_gate_jetpack_forms_integrations() {
+	return wpcom_site_has_feature( WPCOM_Features::FORM_INTEGRATIONS );
+}
+add_filter( 'jetpack_forms_is_integrations_enabled', 'wpcomsh_gate_jetpack_forms_integrations' );
+
+/**
  * Remove the Jetpack > Dashboard menu if the site doesn't have the required feature.
  */
 function wpcomsh_maybe_remove_jetpack_dashboard_menu_item() {

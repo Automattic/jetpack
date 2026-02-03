@@ -115,7 +115,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 				// is there a special media (print, screen, etc) for this? if not, default to 'all'
 				$media = 'all';
 				if ( isset( $wp_styles->registered[ $handle ]->args ) ) {
-					$media = esc_attr( $wp_styles->registered[ $handle ]->args );
+					$media = esc_attr( (string) $wp_styles->registered[ $handle ]->args );
 				}
 
 				// add to an array so we can return all this info

@@ -266,7 +266,6 @@ export default function Highlight() {
 					anchor={ virtual }
 					placement={ feature === LONG_SENTENCES.name ? 'bottom' : 'bottom-start' }
 					className="jetpack-ai-breve__highlight-popover"
-					variant="tooltip"
 					animate={ false }
 					focusOnMount={ false }
 					onMouseEnter={ handleMouseEnter }
