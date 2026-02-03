@@ -9,4 +9,9 @@
 	@include gb.break-small {
 		width: calc(100vw - 40px);
 	}
+
+	// Override global .components-button svg fill causing blue close icon
+	:global(.components-button svg) {
+		fill: inherit;
+	}
 }
