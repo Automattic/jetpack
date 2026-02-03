@@ -47,7 +47,7 @@ describe( 'Reader', () => {
 			modules: {
 				items: {
 					reader: {
-						module: 'reader',
+						module: 'wpcom-reader',
 						activated: true,
 					},
 				},

@@ -18,7 +18,7 @@ function Reader( props ) {
 		return null;
 	}
 
-	const moduleName = 'reader';
+	const moduleName = 'wpcom-reader';
 	const foundReader = isModuleFound( moduleName );
 
 	if ( ! foundReader ) {
