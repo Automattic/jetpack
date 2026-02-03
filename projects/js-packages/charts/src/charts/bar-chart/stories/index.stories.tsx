@@ -89,6 +89,21 @@ export const Default: Story = {
 	},
 };
 
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 600,
+		height: 300,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.3,
+	},
+};
+
 // Story with single data series
 export const SingleSeries: Story = {
 	args: {
@@ -138,35 +153,6 @@ export const TimeSeries: Story = {
 		docs: {
 			description: {
 				story: 'Bar chart with a time series.',
-			},
-		},
-	},
-};
-
-export const FixedDimensions: Story = {
-	args: {
-		...Default.args,
-		width: 800,
-		height: 300,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with fixed dimensions that override the responsive behavior.',
-			},
-		},
-	},
-};
-
-export const AspectRatio: Story = {
-	args: {
-		...Default.args,
-		aspectRatio: 0.3,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with an aspect ratio that overrides the responsive behavior.',
 			},
 		},
 	},

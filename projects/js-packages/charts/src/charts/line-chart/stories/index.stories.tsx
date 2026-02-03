@@ -105,6 +105,19 @@ Default.args = {
 	...lineChartStoryArgs,
 };
 
+export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
+FixedDimensions.args = {
+	...lineChartStoryArgs,
+	width: 600,
+	height: 300,
+};
+
+export const AspectRatio: StoryObj< typeof LineChart > = Template.bind( {} );
+AspectRatio.args = {
+	...lineChartStoryArgs,
+	aspectRatio: 0.3,
+};
+
 // Story with single data series
 export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
 SingleSeries.args = {
@@ -190,34 +203,6 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 			description: {
 				story: 'Legend used with LineChart using the composition API, positioned below the chart.',
 			},
-		},
-	},
-};
-
-export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
-FixedDimensions.args = {
-	...lineChartStoryArgs,
-	width: 600,
-	height: 300,
-};
-
-FixedDimensions.parameters = {
-	docs: {
-		description: {
-			story: 'Line chart with fixed dimensions that override the responsive behavior.',
-		},
-	},
-};
-
-export const AspectRatio: StoryObj< typeof LineChart > = Template.bind( {} );
-AspectRatio.args = {
-	...lineChartStoryArgs,
-	aspectRatio: 0.3,
-};
-AspectRatio.parameters = {
-	docs: {
-		description: {
-			story: 'Line chart with an aspect ratio that overrides the responsive behavior.',
 		},
 	},
 };

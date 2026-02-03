@@ -15,15 +15,21 @@ type Story = StoryObj< typeof GeoChart >;
 export const Default: Story = {
 	args: {
 		...geoChartStoryArgs,
-		containerHeight: '400px',
 	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Default responsive behavior. The chart fills its parent container. Resize the container to see how the chart adapts to any aspect ratio.',
-			},
-		},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 600,
+		height: 300,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.5,
 	},
 };
 
@@ -59,20 +65,5 @@ export const EuropeanCountries: Story = {
 		region: '150',
 		resolution: 'countries',
 		data: viewsByEuropeanCountry,
-	},
-};
-
-export const WithAspectRatio: Story = {
-	args: {
-		...Default.args,
-		aspectRatio: 0.5,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'When `aspectRatio` is provided, the chart height is calculated as `width * aspectRatio`. This maintains a consistent shape regardless of container size.',
-			},
-		},
 	},
 };

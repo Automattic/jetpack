@@ -85,6 +85,28 @@ export const Default: Story = {
 };
 
 /**
+ * Responsive sparkline that fills the container.
+ * Drag the corner of the container to resize and see the sparkline adapt.
+ */
+export const Responsive: Story = {
+	args: {
+		data: Default.args?.data,
+		color: '#9C27B0',
+	},
+};
+
+/**
+ * Sparkline with an aspect ratio.
+ */
+export const AspectRatio: Story = {
+	args: {
+		data: Default.args?.data,
+		color: '#9C27B0',
+		aspectRatio: 0.3,
+	},
+};
+
+/**
  * Empty data renders an empty container gracefully.
  */
 export const EmptyData: Story = {
@@ -117,20 +139,6 @@ export const TwoPoints: Story = {
 		width: 120,
 		height: 48,
 	},
-};
-
-/**
- * Responsive sparkline that fills the container.
- * Drag the corner of the container to resize and see the sparkline adapt.
- */
-export const Responsive: Story = {
-	render: () => <Sparkline data={ [ 10, 15, 12, 18, 22, 25 ] } color="#9C27B0" />,
-};
-
-export const AspectRatio: Story = {
-	render: () => (
-		<Sparkline data={ [ 10, 15, 12, 18, 22, 25 ] } color="#9C27B0" aspectRatio={ 0.3 } />
-	),
 };
 
 /**
