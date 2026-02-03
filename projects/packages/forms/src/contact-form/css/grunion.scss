@@ -1594,33 +1594,26 @@ on production builds, the attributes are being reordered, causing side-effects
 		font-weight: 500;
 	}
 
+	.jetpack-form-status-notice__edit-link {
+		color: #1e1e1e;
+
+		&:hover,
+		&:focus {
+			color: #000;
+		}
+	}
+
 	&--warning {
 		background-color: #fcf9e8;
 		border-left: 4px solid #dba617;
 		color: #1e1e1e;
 
-		.jetpack-form-status-notice__edit-link {
-			color: #996800;
 
-			&:hover,
-			&:focus {
-				color: #6e4b00;
-			}
-		}
 	}
 
 	&--info {
 		background-color: #e7f5fe;
 		border-left: 4px solid #0675c4;
 		color: #1e1e1e;
-
-		.jetpack-form-status-notice__edit-link {
-			color: #0675c4;
-
-			&:hover,
-			&:focus {
-				color: #044b7a;
-			}
-		}
 	}
 }
