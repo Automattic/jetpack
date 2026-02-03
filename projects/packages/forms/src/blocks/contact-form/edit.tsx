@@ -28,6 +28,7 @@ import {
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { dateI18n } from '@wordpress/date';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -958,10 +959,19 @@ function JetpackContactFormEdit( {
 		},
 		future: {
 			status: 'info',
-			message: __(
-				'This form is scheduled and will not be displayed until its publish date.',
-				'jetpack-forms'
-			),
+			message: syncedForm?.date
+				? sprintf(
+						/* translators: %s: scheduled publish date */
+						__(
+							'This form is scheduled for %s and will not be displayed until then.',
+							'jetpack-forms'
+						),
+						dateI18n( 'F j, Y g:i a', syncedForm.date )
+				  )
+				: __(
+						'This form is scheduled and will not be displayed until its publish date.',
+						'jetpack-forms'
+				  ),
 		},
 		private: {
 			status: 'warning',
