@@ -164,6 +164,22 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 					'isVideoPressUnlimitedSupported' => false,
 				),
 			),
+			'Atomic videopress/video feature' => array(
+				'active_features' => array( 'videopress/video' ),
+				'expected'        => array(
+					'isVideoPressSupported'          => true,
+					'isVideoPress1TBSupported'       => true,
+					'isVideoPressUnlimitedSupported' => false,
+				),
+			),
+			'both 1TB and videopress/video'   => array(
+				'active_features' => array( 'videopress-1tb-storage', 'videopress/video' ),
+				'expected'        => array(
+					'isVideoPressSupported'          => true,
+					'isVideoPress1TBSupported'       => true,
+					'isVideoPressUnlimitedSupported' => false,
+				),
+			),
 		);
 	}
 

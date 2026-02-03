@@ -186,7 +186,9 @@ class Admin_UI {
 			'adminUri'               => 'admin.php?page=' . self::ADMIN_PAGE_SLUG,
 			'paidFeatures'           => array(
 				'isVideoPressSupported'          => Current_Plan::supports( 'videopress' ),
-				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' ),
+				// Check both features - videopress-1tb-storage (Jetpack) and videopress/video (Atomic).
+				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' )
+					|| Current_Plan::supports( 'videopress/video' ),
 				'isVideoPressUnlimitedSupported' => Current_Plan::supports( 'videopress-unlimited-storage' ),
 			),
 			'siteSuffix'             => ( new Status() )->get_site_suffix(),
