@@ -94,10 +94,11 @@ class Video_Block_Email_Renderer {
 		);
 
 		// Wrap with spacing if email_attrs are present.
-		if ( ! empty( $parsed_block['email_attrs']['padding'] ) ) {
+		$email_attrs = $parsed_block['email_attrs'] ?? array();
+		if ( ! empty( $email_attrs['padding'] ) ) {
 			$link_html = sprintf(
 				'<p style="padding: %s;">%s</p>',
-				esc_attr( $parsed_block['email_attrs']['padding'] ),
+				esc_attr( $email_attrs['padding'] ),
 				$link_html
 			);
 		}
