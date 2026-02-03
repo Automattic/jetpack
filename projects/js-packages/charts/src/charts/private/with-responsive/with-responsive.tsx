@@ -1,6 +1,12 @@
 import { useParentSize } from '@visx/responsive';
-import type { BaseChartProps, Optional } from '../../../types';
+import type { BaseChartProps } from '../../../types';
 import type { ComponentType } from 'react';
+
+type DimensionProps = {
+	width?: number;
+	height?: number;
+	size?: number;
+};
 
 export type ResponsiveConfig = {
 	/**
@@ -58,12 +64,15 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		resizeDebounceTime = 300,
 		maxWidth = 1200,
 		aspectRatio,
+		size,
+		width,
+		height,
 		...chartProps
-	}: Optional< T, 'width' | 'height' | 'size' > & ResponsiveConfig ) {
+	}: Omit< T, 'width' | 'height' | 'size' > & DimensionProps & ResponsiveConfig ) {
 		const {
 			parentRef,
-			width: containerWidth,
-			height: containerHeight,
+			width: measuredWidth,
+			height: measuredHeight,
 			hasAspectRatio,
 		} = useResponsiveDimensions( {
 			resizeDebounceTime,
@@ -76,16 +85,14 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				ref={ parentRef }
 				data-testid="responsive-wrapper"
 				style={ {
-					width: chartProps.size ?? chartProps.width ?? '100%',
-					height: hasAspectRatio
-						? chartProps.size ?? chartProps.height ?? 'auto'
-						: chartProps.size ?? chartProps.height ?? '100%',
+					width: size ?? width ?? '100%',
+					height: hasAspectRatio ? size ?? height ?? 'auto' : size ?? height ?? '100%',
 				} }
 			>
 				<WrappedComponent
-					width={ containerWidth }
-					height={ containerHeight }
-					size={ containerWidth }
+					width={ measuredWidth }
+					height={ measuredHeight }
+					size={ measuredWidth }
 					{ ...( chartProps as T ) }
 				/>
 			</div>
