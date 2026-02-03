@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensure form block is selected and locked when editing forms, and restrict available blocks to form-related blocks only.
