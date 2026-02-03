@@ -116,7 +116,7 @@ jobs:
           # This can give errors if the previous state was broken, so ignore them
           ssh jpwpcomsh "wp --skip-plugins --skip-themes dereferenced freshen > /dev/null 2>&1" || echo "wp dereferenced freshen has exited with code $?"
           ssh jpwpcomsh "rm -rf /tmp/old-* > /dev/null 2>&1"
-          scp -r wpcomsh jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh
+          rsync -azKPv --prune-empty-dirs --delete --delete-after --delete-excluded --copy-links wpcomsh/. jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/.
           echo "::endgroup::"
 
           # Do a basic check to verify the site is loading
