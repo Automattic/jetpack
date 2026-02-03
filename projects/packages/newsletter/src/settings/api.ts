@@ -83,7 +83,11 @@ async function fetchSettingsViaWpcomApi( blogId: number ): Promise< Record< stri
 		method: 'GET',
 	} ) ) as { settings?: Record< string, unknown > };
 
-	return result.settings || result;
+	const settings = result.settings || result;
+
+	// WordPress.com Simple sites don't return a `subscriptions` key,
+	// but subscriptions are always enabled on Simple sites.
+	return { subscriptions: true, ...settings };
 }
 
 /**
