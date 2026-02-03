@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { JetpackLogo } from '@automattic/jetpack-components';
+import apiFetch from '@wordpress/api-fetch';
 import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
@@ -210,6 +211,28 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					const editUrl = item.editUrl || fallbackEditUrl;
 					const url = new URL( editUrl, window.location.origin );
 					window.location.href = url.toString();
+				},
+			},
+			{
+				id: 'preview-form',
+				isPrimary: false,
+				label: __( 'Preview', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					try {
+						const response = await apiFetch< { preview_url: string } >( {
+							path: `/wp/v2/jetpack-forms/${ item.id }/preview-url`,
+						} );
+						window.open( response.preview_url, '_blank' );
+					} catch ( error ) {
+						// eslint-disable-next-line no-console
+						console.error( 'Failed to get preview URL:', error );
+					}
 				},
 			},
 		];

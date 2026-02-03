@@ -510,6 +510,24 @@ const { state, actions } = store( NAMESPACE, {
 		onFormSubmit: withSyncEvent( function* ( event ) {
 			const context = getContext();
 
+			// Check if we're in preview mode and block submission.
+			if ( window.jetpackFormsPreviewMode ) {
+				event.preventDefault();
+				event.stopPropagation();
+				context.submissionError =
+					config.error_types?.preview_mode || 'Form submissions are disabled in preview mode.';
+
+				if ( errorTimeout ) {
+					clearTimeout( errorTimeout );
+				}
+
+				errorTimeout = setTimeout( () => {
+					context.submissionError = null;
+				}, 5000 );
+
+				return;
+			}
+
 			if ( ! state.isFormValid ) {
 				context.showErrors = true;
 				event.preventDefault();
