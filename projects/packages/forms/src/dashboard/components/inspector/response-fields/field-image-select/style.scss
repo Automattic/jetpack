@@ -12,6 +12,14 @@
 
 	}
 
+	.jp-forms__image-select-preview-image-wrapper {
+		padding: 8px;
+
+		.jp-forms__image-select-preview-image {
+			object-fit: cover;
+		}
+	}
+
 	.jp-forms__image-select-preview-label-wrapper {
 		max-width: 138px; // Same as the image width
 		align-items: baseline;

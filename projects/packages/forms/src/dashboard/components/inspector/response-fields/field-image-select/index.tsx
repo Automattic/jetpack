@@ -51,15 +51,15 @@ const ImageSelectButton2 = ( { choice, handleFilePreview } ) => {
 			className={ `jp-forms__image-select-preview ${ hasImage ? 'has-image' : '' }` }
 		>
 			<CardMedia>
-				<div className="jp-forms__image-select-preview-image" style={ { padding: '8px' } }>
+				<div className="jp-forms__image-select-preview-image-wrapper">
 					{ hasImage ? (
 						<img
+							className="jp-forms__image-select-preview-image"
 							width={ 138 }
 							height={ 144 }
 							alt={ choice.selected }
 							loading="lazy"
 							src={ photonSafeUrl( choice.image.src ) }
-							style={ { objectFit: 'cover' } }
 						/>
 					) : (
 						<Icon icon={ imageIcon } size={ 144 } />
