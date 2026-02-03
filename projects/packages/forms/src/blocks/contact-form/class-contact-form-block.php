@@ -807,10 +807,39 @@ class Contact_Form_Block {
 			return '';
 		}
 
-		// Only render published forms statuses.
-		if ( ! in_array( $synced_form->post_status, array( 'publish' ), true ) ) {
+		$status = $synced_form->post_status;
+
+		// Trashed forms are always hidden.
+		if ( 'trash' === $status ) {
 			return '';
 		}
+
+		// Published forms render normally for everyone.
+		if ( 'publish' === $status ) {
+			return self::render_synced_form_content( $ref_id, $synced_form );
+		}
+
+		// For non-published statuses (draft, pending, future, private), only show preview to users who can edit the form.
+		if ( ! current_user_can( 'edit_post', $ref_id ) ) {
+			return '';
+		}
+
+		// Render the form with a status notice for editors.
+		$notice       = self::render_frontend_status_notice( $synced_form );
+		$form_content = self::render_synced_form_content( $ref_id, $synced_form );
+
+		return $notice . $form_content;
+	}
+
+	/**
+	 * Render the actual form content for a synced form.
+	 *
+	 * @param int      $ref_id The jetpack_form post ID.
+	 * @param \WP_Post $synced_form The synced form post object.
+	 * @return string Rendered form HTML.
+	 */
+	private static function render_synced_form_content( $ref_id, $synced_form ) {
+		static $seen_refs = array();
 
 		// Mark as seen for circular reference prevention.
 		$seen_refs[ $ref_id ] = true;
@@ -828,6 +857,52 @@ class Contact_Form_Block {
 			Contact_Form::clear_ref_id();
 		}
 		return $output;
+	}
+
+	/**
+	 * Render a frontend status notice for non-published forms.
+	 *
+	 * @param \WP_Post $synced_form The synced form post object.
+	 * @return string Notice HTML.
+	 */
+	private static function render_frontend_status_notice( $synced_form ) {
+		$status = $synced_form->post_status;
+
+		$status_config = array(
+			'draft'   => array(
+				'type'    => 'warning',
+				'message' => __( 'This form is a draft and is only visible to you. Publish it to make it visible to site visitors.', 'jetpack-forms' ),
+			),
+			'pending' => array(
+				'type'    => 'warning',
+				'message' => __( 'This form is pending review and is only visible to you. It will be visible to site visitors once approved and published.', 'jetpack-forms' ),
+			),
+			'future'  => array(
+				'type'    => 'info',
+				'message' => sprintf(
+					/* translators: %s: scheduled publish date */
+					__( 'This form is scheduled for %s and is only visible to you until then.', 'jetpack-forms' ),
+					wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $synced_form->post_date ) )
+				),
+			),
+			'private' => array(
+				'type'    => 'warning',
+				'message' => __( 'This form is private and is only visible to you. Change its status to published to make it visible to site visitors.', 'jetpack-forms' ),
+			),
+		);
+
+		if ( ! isset( $status_config[ $status ] ) ) {
+			return '';
+		}
+
+		$config     = $status_config[ $status ];
+		$type_class = 'info' === $config['type'] ? 'jetpack-form-status-notice--info' : 'jetpack-form-status-notice--warning';
+
+		return sprintf(
+			'<div class="jetpack-form-status-notice %s" role="alert"><p>%s</p></div>',
+			esc_attr( $type_class ),
+			esc_html( $config['message'] )
+		);
 	}
 
 	/**
