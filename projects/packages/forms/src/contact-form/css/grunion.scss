@@ -230,6 +230,11 @@ that needs to mimic the input element styles */
 	max-width: 600px;
 }
 
+.contact-form-submission:focus {
+	outline: none;
+	border: none;
+}
+
 .contact-form-submission p {
 	margin: 0 auto;
 	word-wrap: break-word;
@@ -303,37 +308,190 @@ that needs to mimic the input element styles */
 		display: none;
 	}
 
-	.field-image {
+	.field-image-option {
 		width: 196px;
-		height: 196px;
+		box-sizing: border-box;
+		border: 1px solid var(--jetpack--contact-form--primary-color);
+		border-radius: var(--jetpack--contact-form--border-radius, 4px);
+		padding: 8px;
 
 		&.is-empty {
-			position: relative;
 
-			&::before {
+			.field-image-option__image {
+				position: relative;
+				height: 180px;
 
-				@extend %empty-image-option-background;
-			}
+				&::before {
 
-			&::after {
+					@extend %empty-image-option-background;
+				}
 
-				@extend %empty-image-option-icon;
+				&::after {
+
+					@extend %empty-image-option-icon;
+				}
 			}
 		}
+	}
+
+	.field-image-option__image {
+		margin: 0;
+		overflow: hidden;
 
 		img {
 			width: 100%;
 			aspect-ratio: 1/1;
 			object-fit: cover;
+			display: block;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+	}
+
+	.field-image-option__label-wrapper {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+		padding-top: 8px;
+	}
+
+	.field-image-option__label-code {
+		display: flex;
+		justify-content: center;
+		align-self: baseline;
+		padding: 3px 6px;
+		background-color: var(--jetpack--contact-form--input-background, field);
+		border-radius: 2px;
+		border: 1px solid var(--jetpack--contact-form--border-color, currentColor);
+		line-height: 1;
+		color: var(--jetpack--contact-form--text-color, FieldText);
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+
+	.field-image-option__label {
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: inherit;
+		opacity: 0.8;
+		min-width: 1px;
+		overflow-wrap: break-word;
+
+		&[hidden] {
+			display: none;
 		}
 	}
 }
 
+.contact-form-submission .field-files {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 8px;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.contact-form-submission .field-file {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: auto auto;
+	gap: 0 8px;
+	align-items: start;
+}
+
+.contact-form-submission .field-file__thumbnail {
+	grid-row: span 2;
+	align-self: center;
+	width: 46px;
+	min-width: 46px;
+	height: 46px;
+	border-radius: 50%;
+	aspect-ratio: 1 / 1;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	// For non-image files, use mask-image with the icon
+	mask-size: auto;
+	mask-position: center;
+	mask-repeat: no-repeat;
+	background-color: currentColor;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.contact-form-submission .field-file__icon {
+	grid-row: span 2;
+	align-self: center;
+	flex-shrink: 0;
+	color: inherit;
+	opacity: 0.6;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.contact-form-submission .field-file__name {
+	color: inherit;
+	font-weight: 600;
+	font-size: 1rem;
+}
+
+.contact-form-submission .field-file__size {
+	color: inherit;
+	opacity: 0.6;
+	font-size: 0.875rem;
+}
+
 .contact-form-submission .field-value {
-	margin-bottom: 0;
+	margin-block-end: 0;
 	font-size: 1rem;
 	font-weight: 600;
 	white-space: pre-wrap;
+}
+
+.contact-form-submission .field-rating {
+	display: flex;
+	gap: 4px;
+	margin-block-end: 0;
+
+	&[hidden] {
+		display: none;
+	}
+
+	.field-rating__icon {
+		width: 24px;
+		height: 24px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linejoin: round;
+
+		&.is-filled {
+			fill: currentColor;
+		}
+	}
+}
+
+// Screen reader only text - visually hidden but accessible.
+.contact-form-submission .screen-reader-text {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
 }
 
 .form-errors .form-error-message {
@@ -1357,8 +1515,8 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 // use new ::after approach for animated spinner inside forms
-.contact-form .wp-block-jetpack-button button[type="submit"].is-submitting:last-of-type,
-.contact-form .wp-block-button button[type="submit"].is-submitting:last-of-type {
+.contact-form .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button:last-of-type button[type="submit"].is-submitting,
+.contact-form .wp-block-jetpack-form-step-navigation .wp-block-button:last-of-type button[type="submit"].is-submitting {
 
 	&::after {
 

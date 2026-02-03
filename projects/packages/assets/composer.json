@@ -12,7 +12,7 @@
 		"brain/monkey": "^2.6.2",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-changelogger": "@dev",
-		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
+		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0 || ^4.0",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {

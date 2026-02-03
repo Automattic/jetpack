@@ -37,6 +37,19 @@ body.jetpack_page_jetpack-forms-admin {
 
 	@include mixins.flex-center;
 	gap: 8px;
+
+	&__link {
+		font: inherit;
+		color: inherit;
+
+		&:hover {
+			text-decoration: underline;
+		}
+
+		&:focus-visible {
+			text-decoration: underline;
+		}
+	}
 }
 
 .jp-forms-layout__surface {

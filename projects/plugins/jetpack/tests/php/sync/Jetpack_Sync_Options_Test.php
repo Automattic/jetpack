@@ -343,6 +343,18 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 		);
 	}
 
+	public function test_don_t_sync_jetpack_options_if_changed_key_is_blacklisted() {
+		$this->setSyncClientDefaults();
+
+		$this->server_replica_storage->reset();
+
+		Jetpack_Options::update_option( 'last_heartbeat', microtime( true ) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_replica_storage->get_option( 'jetpack_options' ) );
+	}
+
 	public function assertOptionIsSynced( $option_name, $value ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' didn\'t have the expected value of ' . wp_json_encode( $value, JSON_UNESCAPED_SLASHES ) );
 	}

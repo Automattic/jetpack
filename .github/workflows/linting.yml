@@ -92,13 +92,18 @@ jobs:
             js:
               # If any JS file changed, they need checking.
               - added|modified:
-                - '**.cjs'
                 - '**.js'
                 - '**.jsx'
+                - '**.cjs'
                 - '**.mjs'
                 - '**.ts'
                 - '**.tsx'
+                - '**.cts'
+                - '**.mts'
                 - '**.svelte'
+                - '**.json'
+                - '**.jsonc'
+                - '**.json5'
             css:
               # If any style file changed, they need checking.
               - added|modified:
@@ -108,9 +113,19 @@ jobs:
               # If any PHP or JS file changed or was deleted, we need to check the excludelist.
               - modified|deleted:
                 - '**.php'
+                - '**.ts'
                 - '**.js'
                 - '**.jsx'
+                - '**.cjs'
+                - '**.mjs'
                 - '**.ts'
+                - '**.tsx'
+                - '**.cts'
+                - '**.mts'
+                - '**.svelte'
+                - '**.json'
+                - '**.jsonc'
+                - '**.json5'
             lockfiles:
               - 'composer.json'
               - 'composer.lock'

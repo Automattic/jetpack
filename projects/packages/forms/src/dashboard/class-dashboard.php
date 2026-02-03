@@ -125,12 +125,13 @@ class Dashboard {
 		// Preload Forms endpoints needed in dashboard context.
 		// Pre-fetch the first inbox page so the UI renders instantly on first load.
 		$preload_params = array(
-			'context'  => 'edit',
-			'order'    => 'desc',
-			'orderby'  => 'date',
-			'page'     => 1,
-			'per_page' => 20,
-			'status'   => 'draft,publish',
+			'context'       => 'edit',
+			'fields_format' => 'collection',
+			'order'         => 'desc',
+			'orderby'       => 'date',
+			'page'          => 1,
+			'per_page'      => 20,
+			'status'        => 'draft,publish',
 		);
 		\ksort( $preload_params );
 		$initial_responses_path        = \add_query_arg( $preload_params, '/wp/v2/feedback' );
@@ -316,5 +317,21 @@ class Dashboard {
 		* @param bool $enabled Should the form notes feature be enabled? Defaults to false.
 		*/
 		return apply_filters( 'jetpack_forms_notes_enable', false );
+	}
+
+	/**
+	 * Get admin URL for given screen ID.
+	 *
+	 * @param string $screen_id Screen ID.
+	 * @return string|null Admin URL or null if not found.
+	 */
+	public static function get_admin_url( $screen_id ) {
+		switch ( $screen_id ) {
+			case 'edit-jetpack_form':
+				return admin_url( 'admin.php?page=' . self::ADMIN_SLUG . '#/forms' );
+			case 'edit-feedback':
+				return admin_url( 'admin.php?page=' . self::ADMIN_SLUG . '#/responses' );
+		}
+		return null;
 	}
 }

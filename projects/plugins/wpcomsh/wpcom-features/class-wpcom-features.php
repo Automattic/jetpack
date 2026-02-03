@@ -417,6 +417,7 @@ class WPCOM_Features {
 	public const EMAIL_SUBSCRIPTION                = 'email-subscription';
 	public const EMAIL_FORWARDS_EXTENDED_LIMIT     = 'email-forwards-extended-limit';
 	public const FIELD_FILE                        = 'field-file';
+	public const FORM_INTEGRATIONS                 = 'form-integrations';
 	public const FORM_WEBHOOKS                     = 'form-webhooks';
 	public const FREE_BLOG                         = 'free-blog';
 	public const FULL_ACTIVITY_LOG                 = 'full-activity-log';
@@ -815,6 +816,15 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
+		self::FORM_INTEGRATIONS                 => array(
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			),
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
+		),
 		self::FORM_WEBHOOKS                     => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
@@ -1046,6 +1056,10 @@ class WPCOM_Features {
 				'sticker_not_present' => 'gating-business-q1',
 				self::WPCOM_ALL_SITES,
 			),
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			),
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
@@ -1053,6 +1067,10 @@ class WPCOM_Features {
 			array(
 				'sticker_not_present' => 'gating-business-q1',
 				self::WPCOM_ALL_SITES,
+			),
+			array(
+				'sticker_not_present' => 'gating-business-q1',
+				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			),
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,

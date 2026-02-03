@@ -70,6 +70,16 @@ export type SharePostFormProps = {
 	 * Whether the form is disabled.
 	 */
 	disabled?: boolean;
+
+	/**
+	 * Whether to force media as attachment.
+	 */
+	forceMediaAsAttachment?: boolean;
+
+	/**
+	 * Optional upgrade notice depending on where the form is rendered.
+	 */
+	upgradeNotice?: React.ReactNode;
 };
 
 /**
@@ -88,6 +98,8 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 	mediaSource,
 	onMediaChange,
 	disabled = false,
+	forceMediaAsAttachment,
+	upgradeNotice,
 } ) => {
 	const {
 		message: storeMessage,
@@ -96,6 +108,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 	} = useSocialMediaMessage();
 	const isSocialNote = useIsSocialNote();
 	const postCanUseSig = usePostCanUseSig();
+	const hasPaidFeatures = hasSocialPaidFeatures();
 
 	// Use props if provided, otherwise fall back to store values
 	const message = messageProp !== undefined ? messageProp : storeMessage;
@@ -137,8 +150,8 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 							[ styles[ 'share-post-form-disabled' ] ]: disabled,
 						} ) }
 					>
-						{ ! hasSocialPaidFeatures() ? (
-							<UpgradeNotice />
+						{ ! hasPaidFeatures ? (
+							upgradeNotice ?? <UpgradeNotice />
 						) : (
 							<MediaSectionV2
 								analyticsData={ analyticsData }
@@ -148,13 +161,14 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 									imageGeneratorSettings,
 									mediaSource,
 									onMediaChange,
+									forceAsAttachment: forceMediaAsAttachment,
 								} ) }
 							/>
 						) }
 					</div>
 				) : (
 					<>
-						{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
+						{ hasPaidFeatures && (
 							<div>
 								<MediaSection
 									analyticsData={ analyticsData }

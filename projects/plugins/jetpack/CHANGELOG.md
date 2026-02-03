@@ -2,6 +2,51 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.5-beta - 2026-02-02
+### Major Enhancements
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Enhancements
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- Forms: Add single forms screen. [#46767]
+- Forms: Display star and heart rating icons on form submission confirmation page. [#46679]
+- Social: Gate per-network customization behind paid features. [#46740]
+- Likes: Add minified build for CSS. [#46750]
+- Likes: Display a notice to block theme users explaining they can add the Like block directly in the site editor instead of enabling the legacy feature. [#46726]
+- Social: Mark new connections as shared by default for privileged users. [#46796]
+
+### Bug fixes
+- Forms: Improve VoiceOver for form submissions. [#46707]
+- Site Switcher: Fix partial keyword matching so typing 'swit' shows 'Switch to...' results in the command palette. [#46766]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Disable buttons on VideoPress block renders that require an upgrade to function. [#46822]
+- Podcast player email rendering: Use audio block rendering and link to post. [#46768]
+- Remove experimental Math (LaTeX) block. [#45746]
+- Social: Update social post preview modal height. [#46882]
+- Switch Site command: Disable for now - note this was never included in a jetpack-plugin release. [#46855]
+- Update package dependencies. [#46785] [#46854]
+
+## 15.5-a.5 - 2026-01-26
+### Enhancements
+- Forms: Update DataViews header and filters. [#46732]
+- Likes: Enable CSS inlining. [#46745]
+- Social: Refactor share status UI to use Notice component. [#46673]
+- Social: Show a snackbar while sharing is in progress. [#46672]
+- Social: Use fallback avatar for Jetpack Social connection icons. [#46677]
+
+### Bug fixes
+- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting. [#46718]
+- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts. [#46715]
+- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts. [#46734]
+- Social Previews: Use fallback image when social preview profile picture fails. [#46674]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Forms: Fix block styles not loading in CIAB environment. [#46643]
+- Newsletters: More work on the WIP new settings screen. [#46471]
+- Render slideshow block as core gallery block in emails. [#46624]
+- Update package dependencies. [#46691] [#46716]
+
 ## 15.5-a.3 - 2026-01-19
 ### Enhancements
 - Command Palette: Add site switcher command to quickly switch between WordPress.com connected sites. [#46342]
