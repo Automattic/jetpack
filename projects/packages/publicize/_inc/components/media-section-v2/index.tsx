@@ -114,6 +114,18 @@ export default function MediaSectionV2( {
 
 	const [ mediaDetails ] = useMediaDetails( mediaId );
 
+	// Determine if media is currently loading
+	const isMediaLoading = useMemo( () => {
+		if ( currentSource === 'sig' ) {
+			return sigIsLoading;
+		}
+		if ( currentSource === 'featured-image' && featuredImageId ) {
+			// Media details are loading if we have an ID but no data yet
+			return ! mediaDetails?.mediaData;
+		}
+		return false;
+	}, [ currentSource, sigIsLoading, featuredImageId, mediaDetails ] );
+
 	const previewData: MediaPreviewData | null = useMemo( () => {
 		// Use SIG preview URL when SIG is selected
 		// Always return an object (even with empty URL) so the loading spinner can show
@@ -125,6 +137,7 @@ export default function MediaSectionV2( {
 			};
 		}
 
+		// Return null if no media or still loading media details
 		if ( ! mediaId || ! mediaDetails?.mediaData ) {
 			return null;
 		}
@@ -299,7 +312,7 @@ export default function MediaSectionV2( {
 								{ ( { open } ) => (
 									<MediaPreview
 										media={ previewData }
-										isLoading={ currentSource === 'sig' && sigIsLoading }
+										isLoading={ isMediaLoading }
 										onReplace={ open }
 										onRemove={ handleRemove }
 										disabled={ disabled }
