@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button, DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { Button, DropdownMenu } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
@@ -204,17 +204,15 @@ export function ResponseActions( {
 				className: 'jp-forms-response-actions-dropdown',
 				size: 'compact',
 			} }
-		>
-			{ ( { onClose } ) => (
-				<MenuGroup>
-					<MenuItem onClick={ handleToggleRead } onClose={ onClose }>
-						{ response.is_unread
-							? __( 'Mark as read', 'jetpack-forms' )
-							: __( 'Mark as unread', 'jetpack-forms' ) }
-					</MenuItem>
-				</MenuGroup>
-			) }
-		</DropdownMenu>
+			controls={ [
+				{
+					onClick: handleToggleRead,
+					title: response.is_unread
+						? __( 'Mark as read', 'jetpack-forms' )
+						: __( 'Mark as unread', 'jetpack-forms' ),
+				},
+			] }
+		/>
 	);
 
 	const trashButton = (
