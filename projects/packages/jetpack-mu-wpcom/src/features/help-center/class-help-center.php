@@ -637,7 +637,7 @@ class Help_Center {
 		if ( ! is_user_logged_in() && function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
 			$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages' );
 		}
-		if ( ! is_user_logged_in() && ! self::is_proxied() && ! get_option( 'dotcom_support_enable_odie_answers', false ) && $experiment_variation !== 'treatment' ) {
+		if ( $this->is_support_site && ! is_user_logged_in() && ! self::is_proxied() && ! get_option( 'dotcom_support_enable_odie_answers', false ) && $experiment_variation !== 'treatment' ) {
 			return;
 		}
 
