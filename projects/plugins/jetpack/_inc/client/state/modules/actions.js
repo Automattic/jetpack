@@ -341,11 +341,11 @@ export const regeneratePostByEmailAddress = () => {
 };
 
 /**
- * Reload the page if the option values are jetpack_testimonial or jetpack_portfolio.
+ * Reload the page if the option values are jetpack_testimonial, jetpack_portfolio, or wpcom-reader.
  * @param { object } newOptionValue - The new option value.
  */
 export function maybeReloadAfterAction( newOptionValue ) {
-	const reloadForOptionValues = [ 'jetpack_testimonial', 'jetpack_portfolio' ];
+	const reloadForOptionValues = [ 'jetpack_testimonial', 'jetpack_portfolio', 'wpcom-reader' ];
 
 	if ( reloadForOptionValues.some( optionValue => optionValue in newOptionValue ) ) {
 		window.location.reload();
