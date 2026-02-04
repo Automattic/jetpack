@@ -1552,11 +1552,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	}
 
 	&__edit-link {
-		margin-inline-start: 8px;
 		font-weight: 500;
 	}
 
 	.jetpack-form-status-notice__edit-link {
+		white-space: nowrap;
 		color: #1e1e1e;
 
 		&:hover,
