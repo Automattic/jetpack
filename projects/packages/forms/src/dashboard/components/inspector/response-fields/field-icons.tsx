@@ -7,21 +7,21 @@
  */
 
 import { envelope, globe, mobile, unseen, upload } from '@wordpress/icons';
-import checkboxIcon from '../blocks/field-checkbox/icon.jsx';
-import consentIcon from '../blocks/field-consent/icon.jsx';
-import dateIcon from '../blocks/field-date/icon.jsx';
-import imageSelectIcon from '../blocks/field-image-select/icon.tsx';
-import multipleChoiceIcon from '../blocks/field-multiple-choice/icon.jsx';
-import nameIcon from '../blocks/field-name/icon.jsx';
-import numberIcon from '../blocks/field-number/icon.jsx';
-import ratingIcon from '../blocks/field-rating/icon.jsx';
-import selectIcon from '../blocks/field-select/icon.jsx';
-import singleChoiceIcon from '../blocks/field-single-choice/icon.jsx';
-import sliderIcon from '../blocks/field-slider/icon.jsx';
-import textIcon from '../blocks/field-text/icon.jsx';
-import textareaIcon from '../blocks/field-textarea/icon.jsx';
-import timeIcon from '../blocks/field-time/icon.jsx';
-import type { FieldType } from '../types/index.ts';
+import checkboxIcon from '../../../../blocks/field-checkbox/icon.jsx';
+import consentIcon from '../../../../blocks/field-consent/icon.jsx';
+import dateIcon from '../../../../blocks/field-date/icon.jsx';
+import imageSelectIcon from '../../../../blocks/field-image-select/icon.tsx';
+import multipleChoiceIcon from '../../../../blocks/field-multiple-choice/icon.jsx';
+import nameIcon from '../../../../blocks/field-name/icon.jsx';
+import numberIcon from '../../../../blocks/field-number/icon.jsx';
+import ratingIcon from '../../../../blocks/field-rating/icon.jsx';
+import selectIcon from '../../../../blocks/field-select/icon.jsx';
+import singleChoiceIcon from '../../../../blocks/field-single-choice/icon.jsx';
+import sliderIcon from '../../../../blocks/field-slider/icon.jsx';
+import textIcon from '../../../../blocks/field-text/icon.jsx';
+import textareaIcon from '../../../../blocks/field-textarea/icon.jsx';
+import timeIcon from '../../../../blocks/field-time/icon.jsx';
+import type { FieldType } from '../../../../types/index.ts';
 
 /**
  * Map of field types to their icon definitions.

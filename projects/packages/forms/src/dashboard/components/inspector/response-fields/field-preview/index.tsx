@@ -12,9 +12,9 @@ import {
 /**
  * Internal dependencies
  */
-import { fieldIcons } from '../../../../field-icons.tsx';
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
+import { fieldIcons } from '../field-icons.tsx';
 import FieldImageSelect from '../field-image-select/index.tsx';
 import FieldPhone from '../field-phone/index.tsx';
 import FieldRating from '../field-rating/index.tsx';
