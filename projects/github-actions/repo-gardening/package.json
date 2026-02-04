@@ -13,7 +13,7 @@
 	"type": "module",
 	"main": "src/index.ts",
 	"scripts": {
-		"build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+		"build": "ncc build src/index.ts -o dist --source-map --license licenses.txt -t",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
