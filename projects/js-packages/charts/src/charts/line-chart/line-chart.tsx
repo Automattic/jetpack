@@ -249,7 +249,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			data,
 			chartId: providedChartId,
 			width,
-			height = 400,
+			height,
 			className,
 			margin,
 			withTooltips = true,
@@ -293,10 +293,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const [ isNavigating, setIsNavigating ] = useState( false );
 		const internalChartRef = useRef< SingleChartRef >( null );
 
-		// Use the measured SVG wrapper height, falling back to the passed height initially.
+		// Use the measured SVG wrapper height, falling back to the passed height if provided.
 		// We only render the chart once we have a valid height to prevent layout shift/flicker.
 		const chartHeight = svgWrapperHeight > 0 ? svgWrapperHeight : height;
-		const isWaitingForMeasurement = chartHeight === 0;
+		const isWaitingForMeasurement = ! chartHeight;
 
 		// Forward the external ref to the internal ref
 		useImperativeHandle(
