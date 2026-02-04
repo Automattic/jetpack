@@ -68,9 +68,9 @@ class VideoPress_Rest_Api_V1_Features {
 		return rest_ensure_response(
 			array(
 				'isVideoPressSupported'          => true, // Always true due to free tier.
-				// Check both features - videopress-1tb-storage (Jetpack) and videopress/video (Atomic).
+				// Check videopress-1tb-storage (Jetpack) or videopress (WordPress.com).
 				'isVideoPress1TBSupported'       => in_array( 'videopress-1tb-storage', $active, true )
-					|| in_array( 'videopress/video', $active, true ),
+					|| ( function_exists( 'wpcom_site_has_feature' ) && in_array( 'videopress', $active, true ) ),
 				'isVideoPressUnlimitedSupported' => in_array( 'videopress-unlimited-storage', $active, true ),
 			)
 		);

@@ -124,7 +124,7 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 	 */
 	public static function feature_flag_mapping_provider(): array {
 		return array(
-			'free tier - no paid features'    => array(
+			'free tier - no paid features'             => array(
 				'active_features' => array(),
 				'expected'        => array(
 					'isVideoPressSupported'          => true,
@@ -132,7 +132,7 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 					'isVideoPressUnlimitedSupported' => false,
 				),
 			),
-			'paid 1TB plan'                   => array(
+			'paid 1TB plan'                            => array(
 				'active_features' => array( 'videopress-1tb-storage' ),
 				'expected'        => array(
 					'isVideoPressSupported'          => true,
@@ -140,7 +140,7 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 					'isVideoPressUnlimitedSupported' => false,
 				),
 			),
-			'unlimited plan (Complete)'       => array(
+			'unlimited plan (Complete)'                => array(
 				'active_features' => array( 'videopress-1tb-storage', 'videopress-unlimited-storage' ),
 				'expected'        => array(
 					'isVideoPressSupported'          => true,
@@ -148,7 +148,7 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 					'isVideoPressUnlimitedSupported' => true,
 				),
 			),
-			'only unlimited (edge case)'      => array(
+			'only unlimited (edge case)'               => array(
 				'active_features' => array( 'videopress-unlimited-storage' ),
 				'expected'        => array(
 					'isVideoPressSupported'          => true,
@@ -156,7 +156,7 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 					'isVideoPressUnlimitedSupported' => true,
 				),
 			),
-			'other features do not affect VP' => array(
+			'other features do not affect VP'          => array(
 				'active_features' => array( 'some-other-feature', 'another-feature' ),
 				'expected'        => array(
 					'isVideoPressSupported'          => true,
@@ -164,16 +164,23 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 					'isVideoPressUnlimitedSupported' => false,
 				),
 			),
-			'Atomic videopress/video feature' => array(
-				'active_features' => array( 'videopress/video' ),
+
+			/*
+			 * Note: The 'videopress' feature check is guarded by function_exists('wpcom_site_has_feature').
+			 * In this test environment (non-wpcom), that function doesn't exist, so 'videopress'
+			 * alone won't trigger isVideoPress1TBSupported. On actual WordPress.com sites,
+			 * wpcom_site_has_feature exists and the 'videopress' feature would work.
+			 */
+			'wpcom videopress feature (non-wpcom env)' => array(
+				'active_features' => array( 'videopress' ),
 				'expected'        => array(
 					'isVideoPressSupported'          => true,
-					'isVideoPress1TBSupported'       => true,
+					'isVideoPress1TBSupported'       => false,
 					'isVideoPressUnlimitedSupported' => false,
 				),
 			),
-			'both 1TB and videopress/video'   => array(
-				'active_features' => array( 'videopress-1tb-storage', 'videopress/video' ),
+			'both 1TB and wpcom videopress'            => array(
+				'active_features' => array( 'videopress-1tb-storage', 'videopress' ),
 				'expected'        => array(
 					'isVideoPressSupported'          => true,
 					'isVideoPress1TBSupported'       => true,
