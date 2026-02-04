@@ -70,14 +70,15 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 						</HStack>
 					) }
 				</VStack>
-				<Text variant="muted" className="jp-forms__inbox-response-meta-date">
-					{ dateI18n( dateSettings.formats.datetime, response.date ) }
-				</Text>
 			</HStack>
 
 			<div className="jp-forms__inbox-response-meta-data">
 				<table>
 					<tbody>
+						<tr>
+							<th>{ __( 'Date:', 'jetpack-forms' ) }</th>
+							<td>{ dateI18n( dateSettings.formats.datetime, response.date ) }</td>
+						</tr>
 						<tr>
 							<th>{ __( 'Source:', 'jetpack-forms' ) }</th>
 							<td>
