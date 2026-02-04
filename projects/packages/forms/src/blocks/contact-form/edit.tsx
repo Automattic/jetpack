@@ -558,11 +558,12 @@ function JetpackContactFormEdit( {
 			const preparedButton = button;
 			// Add the form-button-submit and is-submit classes for identification and CSS visibility
 			const existingClassName = preparedButton.attributes.className || '';
+			const existingClassTokens = existingClassName.split( /\s+/ ).filter( Boolean );
 			const classesToAdd = [];
-			if ( ! existingClassName.includes( 'form-button-submit' ) ) {
+			if ( ! existingClassTokens.includes( 'form-button-submit' ) ) {
 				classesToAdd.push( 'form-button-submit' );
 			}
-			if ( ! existingClassName.includes( 'is-submit' ) ) {
+			if ( ! existingClassTokens.includes( 'is-submit' ) ) {
 				classesToAdd.push( 'is-submit' );
 			}
 			if ( classesToAdd.length > 0 ) {
