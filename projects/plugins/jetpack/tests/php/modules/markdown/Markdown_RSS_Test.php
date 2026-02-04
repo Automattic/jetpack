@@ -8,6 +8,7 @@
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\Group;
 
+require_once JETPACK__PLUGIN_DIR . 'modules/markdown/easy-markdown.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown/rss.php';
 
 /**
@@ -32,7 +33,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 				'post_content_filtered' => $markdown,
 			)
 		);
-		update_post_meta( $post_id, '_wpcom_is_markdown', true );
+		update_post_meta( $post_id, WPCom_Markdown::IS_MD_META, true );
 
 		$this->go_to( '/?p=' . $post_id );
 		setup_postdata( get_post( $post_id ) );
@@ -81,7 +82,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 				'post_content_filtered' => '',
 			)
 		);
-		update_post_meta( $post_id, '_wpcom_is_markdown', true );
+		update_post_meta( $post_id, WPCom_Markdown::IS_MD_META, true );
 
 		$this->go_to( '/?p=' . $post_id );
 		setup_postdata( get_post( $post_id ) );
@@ -106,7 +107,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 				'post_content_filtered' => $markdown,
 			)
 		);
-		update_post_meta( $post_id, '_wpcom_is_markdown', true );
+		update_post_meta( $post_id, WPCom_Markdown::IS_MD_META, true );
 
 		$this->go_to( '/?p=' . $post_id );
 		setup_postdata( get_post( $post_id ) );
@@ -118,6 +119,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( ']]&gt;', $output );
 		// Ensure the raw ]]> does not appear between CDATA markers.
 		$cdata_content = $this->get_cdata_content( $output );
+		$this->assertNotEmpty( $cdata_content, 'CDATA content should have been extracted from the output.' );
 		$this->assertStringNotContainsString( ']]>', $cdata_content );
 
 		wp_reset_postdata();

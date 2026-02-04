@@ -23,17 +23,16 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return void
  */
 function jetpack_markdown_rss_output_source_markdown() {
-	$post_id = get_the_ID();
-	if ( ! $post_id ) {
+	$post = get_post();
+	if ( ! $post ) {
 		return;
 	}
 
-	if ( ! get_post_meta( $post_id, '_wpcom_is_markdown', true ) ) {
+	if ( ! get_post_meta( $post->ID, WPCom_Markdown::IS_MD_META, true ) ) {
 		return;
 	}
 
-	$post = get_post( $post_id );
-	if ( ! $post || empty( $post->post_content_filtered ) ) {
+	if ( empty( $post->post_content_filtered ) ) {
 		return;
 	}
 
