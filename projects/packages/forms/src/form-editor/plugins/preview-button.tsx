@@ -88,7 +88,7 @@ const FormPreviewMenuItem = () => {
 	return (
 		<PluginPreviewMenuItem icon={ external } onClick={ handlePreview }>
 			{ isLoading
-				? __( 'Saving & opening…', 'jetpack-forms' )
+				? __( 'Saving & opening', 'jetpack-forms' )
 				: __( 'Preview form', 'jetpack-forms' ) }
 		</PluginPreviewMenuItem>
 	);
