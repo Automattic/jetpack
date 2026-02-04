@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Multi-step Forms: Replace jetpack/button with core/button for navigation buttons, with backwards compatibility for existing forms.
