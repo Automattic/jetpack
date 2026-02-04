@@ -4,7 +4,6 @@ import { LinearGradient } from '@visx/gradient';
 import { scaleTime } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
-import '@wordpress/theme/design-tokens.css';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { differenceInHours, differenceInYears } from 'date-fns';

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add @wordpress/theme design tokens for charts library Storybook previews.

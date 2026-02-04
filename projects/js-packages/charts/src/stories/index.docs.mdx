@@ -56,6 +56,18 @@ yarn add @automattic/charts
 
 />
 
+### Design Tokens
+
+Some chart components use WordPress design tokens for consistent spacing and styling. If your application doesn't already include the WordPress theme package, you'll need to import the design tokens CSS:
+
+<Source
+	language="jsx"
+	code={`// Add this import to your app's entry point if tokens aren't already available
+import '@wordpress/theme/design-tokens.css';`}
+/>
+
+In WordPress environments (wp-admin, Gutenberg editor), these tokens are typically already loaded. For standalone applications or Storybook, you may need to add this import explicitly.
+
 ## Available Chart Types
 
 ### [Bar Chart](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs)

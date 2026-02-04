@@ -2,7 +2,6 @@ import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
-import '@wordpress/theme/design-tokens.css';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';

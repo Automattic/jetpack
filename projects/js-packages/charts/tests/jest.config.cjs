@@ -14,7 +14,5 @@ module.exports = {
 	transformIgnorePatterns: [ '/node_modules/(?!(\\.pnpm/(d3-|internmap)|d3-|internmap))' ],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
-		// Mock @wordpress/theme CSS import
-		'@wordpress/theme/design-tokens\\.css$': '<rootDir>/tests/__mocks__/styleMock.js',
 	},
 };
