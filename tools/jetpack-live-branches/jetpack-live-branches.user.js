@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.36
+// @version      1.37
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      betadownload.jetpack.me
@@ -88,11 +88,38 @@
 		}
 
 		const host = 'https://jurassic.ninja';
-		const currentBranch = jQuery( '.head-ref:first' ).text();
-		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
+		const prdatatag = document.querySelector( '[data-target="react-app.embeddedData"]' );
+		if ( ! prdatatag ) {
+			appendHtml(
+				markdownBody,
+				'<p><strong>Failed to find PR data tag. The Jetpack Live Branches script may need updating.</strong></p>'
+			);
+			return;
+		}
+		let prdata;
+		try {
+			prdata = JSON.parse( prdatatag.textContent );
+		} catch ( e ) {
+			appendHtml(
+				markdownBody,
+				'<p><strong>Failed to parse PR data. The Jetpack Live Branches script may need updating.</strong></p>'
+			);
+			throw e;
+		}
+
+		const currentBranch = prdata?.payload?.pullRequestsLayoutRoute?.pullRequest?.headBranch;
+		const branchStatus = prdata?.payload?.pullRequestsLayoutRoute?.pullRequest?.state;
+		if ( ! currentBranch || ! branchStatus ) {
+			appendHtml(
+				markdownBody,
+				'<p><strong>Failed to find PR data. The Jetpack Live Branches script may need updating.</strong></p>'
+			);
+			return;
+		}
+
 		const repo = determineRepo();
 
-		if ( branchStatus === 'Merged' ) {
+		if ( branchStatus === 'MERGED' ) {
 			const contents = `
 				<p><strong>This branch is already merged.</strong></p>
 				<p><a target="_blank" rel="nofollow noopener" href="${ getLink()[ 0 ] }">
