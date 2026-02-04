@@ -633,7 +633,8 @@ class Help_Center {
 		}
 
 		// Support sites only support logged-out users when the Odie answers feature is enabled.
-		if ( ! is_user_logged_in() && ! self::is_proxied() && ! get_option( 'dotcom_support_enable_odie_answers', false ) ) {
+		$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages' );
+		if ( ! is_user_logged_in() && ! self::is_proxied() && ! get_option( 'dotcom_support_enable_odie_answers', false ) && $experiment_variation !== 'treatment' ) {
 			return;
 		}
 
