@@ -42,7 +42,7 @@ describe( 'useSocialUserPreferences', () => {
 
 	it( 'should return the initial preference values', () => {
 		const registry = createRegistryWithPreferencesStore( {
-			pre_publish_confirmation: true,
+			show_pre_publish_confirmation: true,
 			review_prompt_dismissed: false,
 		} );
 
@@ -80,7 +80,7 @@ describe( 'useSocialUserPreferences', () => {
 
 	it( 'should toggle a boolean preference value', () => {
 		const registry = createRegistryWithPreferencesStore( {
-			pre_publish_confirmation: false,
+			show_pre_publish_confirmation: false,
 		} );
 
 		const { result } = renderHook( () => useSocialUserPreferences(), {
