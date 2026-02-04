@@ -95,7 +95,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		};
 
 		// For changes to these options we need to reload the page in order for them to take effect.
-		const reloadForOptionValues = [ 'jetpack_testimonial', 'jetpack_portfolio' ];
+		const reloadForOptionValues = [ 'wpcom-reader', 'jetpack_testimonial', 'jetpack_portfolio' ];
 
 		// Adapt message for above options, since it needs to reload.
 		if (
