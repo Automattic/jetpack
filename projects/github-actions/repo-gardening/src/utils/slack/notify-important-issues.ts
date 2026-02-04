@@ -2,7 +2,7 @@ import debug from '../debug.js';
 import getLabels from '../labels/get-labels.js';
 import formatSlackMessage from './format-slack-message.js';
 import sendSlackMessage from './send-slack-message.js';
-import type { OctokitClient, IssuePayload } from '../../types.js';
+import type { OctokitClient, IssuesEvent } from '../../types.js';
 
 /**
  * Check for a label showing that it was already escalated.
@@ -43,7 +43,7 @@ async function hasEscalatedLabel(
  */
 async function notifyImportantIssues(
 	octokit: OctokitClient,
-	payload: IssuePayload,
+	payload: IssuesEvent,
 	channel: string,
 	recipients: string = 'devs'
 ): Promise< void > {

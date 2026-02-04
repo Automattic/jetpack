@@ -1,9 +1,9 @@
 import { getInput, setFailed } from '@actions/core';
 import { WebClient, ErrorCode } from '@slack/web-api';
-import type { PullRequestPayload, IssuePayload, IssueCommentPayload } from '../../types.js';
+import type { PullRequestEvent, IssuesEvent, IssueCommentEvent } from '../../types.js';
 import type { ChatPostMessageArguments } from '@slack/web-api';
 
-type SlackPayload = PullRequestPayload | IssuePayload | IssueCommentPayload;
+type SlackPayload = PullRequestEvent | IssuesEvent | IssueCommentEvent;
 
 /**
  * Send a message to a Slack channel using the Slack API.

@@ -1,4 +1,4 @@
-import type { IssuePayload } from '../../types.js';
+import type { IssuesEvent } from '../../types.js';
 import type { ChatPostMessageArguments } from '@slack/web-api';
 
 /**
@@ -11,7 +11,7 @@ import type { ChatPostMessageArguments } from '@slack/web-api';
  * @return Object containing the slack message and its formatting.
  */
 function formatSlackMessage(
-	payload: IssuePayload,
+	payload: IssuesEvent,
 	channel: string,
 	message: string
 ): ChatPostMessageArguments {

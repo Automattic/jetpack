@@ -4,7 +4,7 @@ import debug from '../../utils/debug.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import notifyImportantIssues from '../../utils/slack/notify-important-issues.js';
 import { automatticAssignments } from './automattic-label-team-assignments.js';
-import type { OctokitClient, IssuePayload, TeamAssignment } from '../../types.js';
+import type { OctokitClient, IssuesEvent, TeamAssignment } from '../../types.js';
 
 interface FieldOption {
 	id: string;
@@ -213,7 +213,7 @@ async function getIssueProjectItemId(
  * @return Info about the project item id that was created.
  */
 async function addIssueToBoard(
-	payload: IssuePayload,
+	payload: IssuesEvent,
 	octokit: OctokitClient,
 	projectInfo: ProjectInfo
 ): Promise< string > {
@@ -607,7 +607,7 @@ async function loadTeamAssignments(
  */
 async function assignTeam(
 	octokit: OctokitClient,
-	payload: IssuePayload,
+	payload: IssuesEvent,
 	projectInfo: ProjectInfo,
 	projectItemId: string,
 	isBug: boolean,
@@ -719,7 +719,7 @@ async function assignTeam(
  * @param priorityLabels - Array of Priority Labels matching this issue.
  */
 async function updateBoard(
-	payload: IssuePayload,
+	payload: IssuesEvent,
 	octokit: OctokitClient,
 	issueType: string,
 	priorityLabels: string[]

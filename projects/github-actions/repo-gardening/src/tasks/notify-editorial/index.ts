@@ -2,7 +2,7 @@ import { getInput, setFailed } from '@actions/core';
 import debug from '../../utils/debug.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, PullRequestPayload } from '../../types.js';
+import type { OctokitClient, PullRequestEvent } from '../../types.js';
 
 /**
  * Check for an Copy Review status label on a PR.
@@ -71,7 +71,7 @@ async function hasEditorialInputRequestedLabel(
  * @param octokit - Initialized Octokit REST client.
  */
 async function notifyEditorial(
-	payload: PullRequestPayload,
+	payload: PullRequestEvent,
 	octokit: OctokitClient
 ): Promise< void > {
 	const { number, repository } = payload;

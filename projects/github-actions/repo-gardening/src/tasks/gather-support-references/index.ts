@@ -3,7 +3,7 @@ import debug from '../../utils/debug.js';
 import getComments from '../../utils/get-comments.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, IssuePayload, IssueCommentPayload } from '../../types.js';
+import type { OctokitClient, IssuesEvent, IssueCommentEvent } from '../../types.js';
 
 /**
  * Represents the info extracted from a previous bot comment.
@@ -170,7 +170,7 @@ ${ issueReferences
  * @return Object containing the slack message and its formatting.
  */
 function formatSlackMessage(
-	payload: IssuePayload | IssueCommentPayload,
+	payload: IssuesEvent | IssueCommentEvent,
 	channel: string,
 	message: string
 ) {
@@ -231,7 +231,7 @@ async function checkForEscalation(
 	issueReferences: string[],
 	commentBody: string,
 	escalationNote: string,
-	payload: IssuePayload | IssueCommentPayload
+	payload: IssuesEvent | IssueCommentEvent
 ): Promise< boolean > {
 	// No Slack tokens, we won't be able to escalate. Bail.
 	const slackToken = getInput( 'slack_token' );
@@ -362,7 +362,7 @@ async function addOrUpdateInteractionCountLabel(
  * @param issueComments   - Array of all comments on that issue.
  */
 async function createOrUpdateComment(
-	payload: IssuePayload | IssueCommentPayload,
+	payload: IssuesEvent | IssueCommentEvent,
 	octokit: OctokitClient,
 	issueReferences: string[],
 	issueComments: IssueComment[]
@@ -445,7 +445,7 @@ async function createOrUpdateComment(
  * @param octokit - Initialized Octokit REST client.
  */
 async function addHappinessLabel(
-	payload: IssuePayload | IssueCommentPayload,
+	payload: IssuesEvent | IssueCommentEvent,
 	octokit: OctokitClient
 ): Promise< void > {
 	const {
@@ -495,7 +495,7 @@ async function addHappinessLabel(
  * @param octokit - Initialized Octokit REST client.
  */
 async function gatherSupportReferences(
-	payload: IssuePayload | IssueCommentPayload,
+	payload: IssuesEvent | IssueCommentEvent,
 	octokit: OctokitClient
 ): Promise< void > {
 	const {

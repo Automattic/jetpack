@@ -1,7 +1,7 @@
 import { getInput, setFailed } from '@actions/core';
 import debug from '../../utils/debug.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, PullRequestPayload } from '../../types.js';
+import type { OctokitClient, PullRequestEvent } from '../../types.js';
 
 /**
  * Adds the OSS Citizen label to all PRs opened from a fork, and send a slack message.
@@ -9,7 +9,7 @@ import type { OctokitClient, PullRequestPayload } from '../../types.js';
  * @param payload - Pull request event payload.
  * @param octokit - Initialized Octokit REST client.
  */
-async function flagOss( payload: PullRequestPayload, octokit: OctokitClient ): Promise< void > {
+async function flagOss( payload: PullRequestEvent, octokit: OctokitClient ): Promise< void > {
 	const { number, repository, pull_request } = payload;
 	const { head, base } = pull_request;
 	const { owner, name } = repository;

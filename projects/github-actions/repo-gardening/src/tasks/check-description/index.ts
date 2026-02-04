@@ -9,7 +9,7 @@ import getNextValidMilestone from '../../utils/get-next-valid-milestone.js';
 import getPluginNames from '../../utils/get-plugin-names.js';
 import getPrWorkspace from '../../utils/get-pr-workspace.js';
 import getLabels from '../../utils/labels/get-labels.js';
-import type { OctokitClient, PullRequestPayload } from '../../types.js';
+import type { OctokitClient, PullRequestEvent } from '../../types.js';
 
 /**
  * Milestone information used by getMilestoneDates.
@@ -296,7 +296,7 @@ async function getChangelogEntries(
  * @return Status checks object with check results.
  */
 async function getStatusChecks(
-	payload: PullRequestPayload,
+	payload: PullRequestEvent,
 	octokit: OctokitClient
 ): Promise< StatusChecks > {
 	const { body, number, head, base } = payload.pull_request;
@@ -424,7 +424,7 @@ Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automat
  * @param comment - Comment string.
  */
 async function postComment(
-	payload: PullRequestPayload,
+	payload: PullRequestEvent,
 	octokit: OctokitClient,
 	comment: string
 ): Promise< void > {
@@ -462,10 +462,7 @@ async function postComment(
  * @param payload - Pull request event payload.
  * @param octokit - Initialized Octokit REST client.
  */
-async function updateLabels(
-	payload: PullRequestPayload,
-	octokit: OctokitClient
-): Promise< void > {
+async function updateLabels( payload: PullRequestEvent, octokit: OctokitClient ): Promise< void > {
 	const { number } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
@@ -504,7 +501,7 @@ async function updateLabels(
  * @param octokit - Initialized Octokit REST client.
  */
 async function checkDescription(
-	payload: PullRequestPayload,
+	payload: PullRequestEvent,
 	octokit: OctokitClient
 ): Promise< void > {
 	const {

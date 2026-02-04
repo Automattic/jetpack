@@ -2,7 +2,7 @@ import { getInput, setFailed } from '@actions/core';
 import debug from '../../utils/debug.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, PullRequestPayload } from '../../types.js';
+import type { OctokitClient, PullRequestEvent } from '../../types.js';
 
 /**
  * Check for a Design Review status label on a PR.
@@ -70,10 +70,7 @@ async function hasDesignInputRequestedLabel(
  * @param payload - Pull request event payload.
  * @param octokit - Initialized Octokit REST client.
  */
-async function notifyDesign(
-	payload: PullRequestPayload,
-	octokit: OctokitClient
-): Promise< void > {
+async function notifyDesign( payload: PullRequestEvent, octokit: OctokitClient ): Promise< void > {
 	const { number, repository } = payload;
 	const { owner, name: repo } = repository;
 	const ownerLogin = owner.login;

@@ -20,7 +20,7 @@ import type { OctokitClient, TaskPayload } from './types.js';
 interface Automation {
 	event: string;
 	action?: string[];
-	// Each task function accepts a specific payload subtype (PullRequestPayload, IssuePayload, etc.)
+	// Each task function accepts a specific payload subtype (PullRequestEvent, IssuesEvent, etc.)
 	// but at runtime the correct payload is guaranteed by event-name matching.
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	task: ( payload: any, octokit: OctokitClient ) => Promise< void > | void;

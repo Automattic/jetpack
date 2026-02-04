@@ -1,6 +1,6 @@
 import debug from '../../utils/debug.js';
 import getLabels from '../../utils/labels/get-labels.js';
-import type { OctokitClient, PullRequestPayload, IssuePayload } from '../../types.js';
+import type { OctokitClient, PullRequestEvent, IssuesEvent } from '../../types.js';
 
 /**
  * Manage labels when a PR or issue gets closed.
@@ -9,7 +9,7 @@ import type { OctokitClient, PullRequestPayload, IssuePayload } from '../../type
  * @param octokit - Initialized Octokit REST client.
  */
 async function cleanLabels(
-	payload: PullRequestPayload | IssuePayload,
+	payload: PullRequestEvent | IssuesEvent,
 	octokit: OctokitClient
 ): Promise< void > {
 	const prOrIssue = 'pull_request' in payload ? payload.pull_request : payload.issue;

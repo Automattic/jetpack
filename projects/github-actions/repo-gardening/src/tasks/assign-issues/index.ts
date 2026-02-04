@@ -1,5 +1,5 @@
 import debug from '../../utils/debug.js';
-import type { OctokitClient, PullRequestPayload } from '../../types.js';
+import type { OctokitClient, PullRequestEvent } from '../../types.js';
 
 /**
  * Assigns any issues that are being worked to the author of the matching PR.
@@ -7,10 +7,7 @@ import type { OctokitClient, PullRequestPayload } from '../../types.js';
  * @param payload - Pull request event payload.
  * @param octokit - Initialized Octokit REST client.
  */
-async function assignIssues(
-	payload: PullRequestPayload,
-	octokit: OctokitClient
-): Promise< void > {
+async function assignIssues( payload: PullRequestEvent, octokit: OctokitClient ): Promise< void > {
 	const regex =
 		/(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved):? +(?:#{1}|https?:\/\/github\.com\/automattic\/jetpack\/issues\/)(\d+)/gi;
 

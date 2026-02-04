@@ -3,7 +3,7 @@ import debug from '../../utils/debug.js';
 import getAvailableLabels from '../../utils/labels/get-available-labels.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendOpenAiRequest from '../../utils/openai/send-request.js';
-import type { OctokitClient, IssuePayload } from '../../types.js';
+import type { OctokitClient, IssuesEvent } from '../../types.js';
 
 /**
  * Request a list of matching labels from Open AI that can be applied to the issue,
@@ -142,7 +142,7 @@ function cleanIssueContent( content: string ): string {
  *
  * @return Promise resolving to an array of all the labels on the issue after the task is over.
  */
-async function aiLabeling( payload: IssuePayload, octokit: OctokitClient ): Promise< string[] > {
+async function aiLabeling( payload: IssuesEvent, octokit: OctokitClient ): Promise< string[] > {
 	const { issue, repository } = payload;
 	const { number, body, title } = issue;
 	const { owner, name } = repository;

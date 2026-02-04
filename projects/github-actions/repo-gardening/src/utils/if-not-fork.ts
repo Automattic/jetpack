@@ -1,8 +1,8 @@
 import debug from './debug.js';
-import type { OctokitClient, PullRequestPayload } from '../types.js';
+import type { OctokitClient, PullRequestEvent } from '../types.js';
 
 type PullRequestTask = (
-	payload: PullRequestPayload,
+	payload: PullRequestEvent,
 	octokit: OctokitClient
 ) => Promise< void > | void;
 
@@ -16,7 +16,7 @@ type PullRequestTask = (
  */
 function ifNotFork( handler: PullRequestTask ): PullRequestTask {
 	const newHandler = (
-		payload: PullRequestPayload,
+		payload: PullRequestEvent,
 		octokit: OctokitClient
 	): Promise< void > | void => {
 		if ( payload.pull_request.head.repo.full_name === payload.pull_request.base.repo.full_name ) {

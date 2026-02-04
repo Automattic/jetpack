@@ -3,7 +3,7 @@ import { getInput } from '@actions/core';
 import debug from '../../utils/debug.js';
 import getFiles from '../../utils/get-files.js';
 import getLabels from '../../utils/labels/get-labels.js';
-import type { OctokitClient, PullRequestPayload } from '../../types.js';
+import type { OctokitClient, PullRequestEvent } from '../../types.js';
 
 const __filename = fileURLToPath( import.meta.url );
 
@@ -330,7 +330,7 @@ async function getFileDerivedLabels(
  * @param payload - Pull request event payload.
  * @param octokit - Initialized Octokit REST client.
  */
-async function addLabels( payload: PullRequestPayload, octokit: OctokitClient ): Promise< void > {
+async function addLabels( payload: PullRequestEvent, octokit: OctokitClient ): Promise< void > {
 	const { number, repository, pull_request } = payload;
 	const { owner, name } = repository;
 	const { draft, title } = pull_request;

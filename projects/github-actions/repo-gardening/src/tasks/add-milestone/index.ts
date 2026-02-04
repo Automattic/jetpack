@@ -2,7 +2,7 @@ import debug from '../../utils/debug.js';
 import getAssociatedPullRequest from '../../utils/get-associated-pull-request.js';
 import getNextValidMilestone from '../../utils/get-next-valid-milestone.js';
 import getPluginNames from '../../utils/get-plugin-names.js';
-import type { OctokitClient, PushPayload } from '../../types.js';
+import type { OctokitClient, PushEvent } from '../../types.js';
 
 /**
  * Assigns any issues that are being worked to the author of the matching PR.
@@ -10,7 +10,7 @@ import type { OctokitClient, PushPayload } from '../../types.js';
  * @param payload - Push event payload.
  * @param octokit - Initialized Octokit REST client.
  */
-async function addMilestone( payload: PushPayload, octokit: OctokitClient ): Promise< void > {
+async function addMilestone( payload: PushEvent, octokit: OctokitClient ): Promise< void > {
 	const { commits, ref, repository } = payload;
 	const { name: repo, owner } = repository;
 	const ownerLogin = owner.login;

@@ -10,7 +10,7 @@ import sendSlackMessage from '../../utils/slack/send-slack-message.js';
 import aiLabeling from './ai-labeling.js';
 import getIssuePriority from './get-issue-priority.js';
 import updateBoard from './update-board.js';
-import type { OctokitClient, IssuePayload } from '../../types.js';
+import type { OctokitClient, IssuesEvent } from '../../types.js';
 
 /**
  * If we could not add labels via OpenAI, let's add a comment to ask the issue author to add their own labels.
@@ -72,7 +72,7 @@ async function addCommentAskLabels(
  * @param payload - Issue event payload.
  * @param octokit - Initialized Octokit REST client.
  */
-async function triageIssues( payload: IssuePayload, octokit: OctokitClient ): Promise< void > {
+async function triageIssues( payload: IssuesEvent, octokit: OctokitClient ): Promise< void > {
 	const { action, issue, repository } = payload;
 	const {
 		user: { login: authorLogin },

@@ -1,7 +1,7 @@
 import debug from '../../utils/debug.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import findPriority from '../../utils/parse-content/find-priority.js';
-import type { OctokitClient, IssuePayload } from '../../types.js';
+import type { OctokitClient, IssuesEvent } from '../../types.js';
 
 /**
  * Try to figure out the priority of the issue based off its contents and existing labels.
@@ -12,7 +12,7 @@ import type { OctokitClient, IssuePayload } from '../../types.js';
  * @return Promise resolving to an object with labels array and inferred boolean.
  */
 async function getIssuePriority(
-	payload: IssuePayload,
+	payload: IssuesEvent,
 	octokit: OctokitClient
 ): Promise< { labels: string[]; inferred: boolean } > {
 	const {

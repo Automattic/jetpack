@@ -4,7 +4,7 @@ import getComments from '../../utils/get-comments.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import hasManySupportReferences from '../../utils/parse-content/has-many-support-references.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, IssuePayload } from '../../types.js';
+import type { OctokitClient, IssuesEvent } from '../../types.js';
 
 /**
  * Check for a High or Blocker Priority label on an issue.
@@ -34,7 +34,7 @@ async function hasHighPriorityLabel(
  * @param message - Basic message (without the formatting).
  * @return Object containing the slack message and its formatting.
  */
-function formatSlackMessage( payload: IssuePayload, channel: string, message: string ) {
+function formatSlackMessage( payload: IssuesEvent, channel: string, message: string ) {
 	const { issue, repository } = payload;
 	const { html_url, title } = issue;
 
@@ -102,7 +102,7 @@ function formatSlackMessage( payload: IssuePayload, channel: string, message: st
  * @param octokit - Initialized Octokit REST client.
  */
 async function replyToCustomersReminder(
-	payload: IssuePayload,
+	payload: IssuesEvent,
 	octokit: OctokitClient
 ): Promise< void > {
 	const { issue, repository } = payload;

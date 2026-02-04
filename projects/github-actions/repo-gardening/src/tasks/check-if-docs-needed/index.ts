@@ -4,7 +4,7 @@ import getDiff from '../../utils/get-diff.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendOpenAiRequest from '../../utils/openai/send-request.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, PullRequestPayload } from '../../types.js';
+import type { OctokitClient, PullRequestEvent } from '../../types.js';
 
 /**
  * Clean up the PR body content for AI processing.
@@ -135,7 +135,7 @@ Respond with a JSON object in this exact format:
  * @param octokit - Initialized Octokit REST client.
  */
 async function checkIfDocsNeeded(
-	payload: PullRequestPayload,
+	payload: PullRequestEvent,
 	octokit: OctokitClient
 ): Promise< void > {
 	const {
