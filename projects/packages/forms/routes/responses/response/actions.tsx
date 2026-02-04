@@ -2,11 +2,12 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button } from '@wordpress/components';
+import { Button, DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { moreVertical } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
@@ -196,11 +197,24 @@ export function ResponseActions( {
 	};
 
 	const readUnreadButtons = (
-		<Button onClick={ handleToggleRead } { ...sharedProps }>
-			{ response.is_unread
-				? __( 'Mark as read', 'jetpack-forms' )
-				: __( 'Mark as unread', 'jetpack-forms' ) }
-		</Button>
+		<DropdownMenu
+			icon={ moreVertical }
+			label={ __( 'Actions', 'jetpack-forms' ) }
+			toggleProps={ {
+				className: 'jp-forms-response-actions-dropdown',
+				size: 'compact',
+			} }
+		>
+			{ ( { onClose } ) => (
+				<MenuGroup>
+					<MenuItem onClick={ handleToggleRead } onClose={ onClose }>
+						{ response.is_unread
+							? __( 'Mark as read', 'jetpack-forms' )
+							: __( 'Mark as unread', 'jetpack-forms' ) }
+					</MenuItem>
+				</MenuGroup>
+			) }
+		</DropdownMenu>
 	);
 
 	const trashButton = (
@@ -237,16 +251,16 @@ export function ResponseActions( {
 		<Stack direction="row" gap="xs" align="center" justify="start" wrap="wrap">
 			{ response.status === 'publish' && (
 				<>
-					{ readUnreadButtons }
 					{ spamButton }
 					{ trashButton }
+					{ readUnreadButtons }
 				</>
 			) }
 			{ response.status === 'trash' && (
 				<>
-					{ readUnreadButtons }
 					{ restoreButton }
 					{ deleteButton }
+					{ readUnreadButtons }
 				</>
 			) }
 			{ response.status === 'spam' && (
