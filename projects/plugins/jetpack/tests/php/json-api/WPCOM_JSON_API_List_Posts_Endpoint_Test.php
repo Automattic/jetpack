@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
-use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -32,7 +31,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint_Test extends WP_UnitTestCase {
 	private static $admin_user_id;
 
 	/**
-	 * A author user ID.
+	 * An author user ID.
 	 *
 	 * @var int
 	 */
@@ -95,16 +94,14 @@ class WPCOM_JSON_API_List_Posts_Endpoint_Test extends WP_UnitTestCase {
 
 	/**
 	 * Clean up after each test.
-	 *
-	 * @after
 	 */
-	#[After]
 	public function tear_down() {
 		parent::tear_down();
 
 		$_SERVER = $this->pre_globals;
 
 		WPCOM_JSON_API::init()->token_details = array();
+		WPCOM_JSON_API::init()->query         = array();
 		wp_set_current_user( 0 );
 	}
 
@@ -741,7 +738,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint_Test extends WP_UnitTestCase {
 		$found_ids = wp_list_pluck( $response['posts'], 'ID' );
 		$this->assertEquals( array( $post_id ), $found_ids );
 
-		$this->assertEquals( htmlentities( $post_content ), $response['posts'][0]['content'] );
+		$this->assertEquals( htmlentities( $post_content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $response['posts'][0]['content'] );
 		$this->assertStringContainsString( $post_content, $response_display['posts'][0]['content'] );
 	}
 
