@@ -293,8 +293,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const [ isNavigating, setIsNavigating ] = useState( false );
 		const internalChartRef = useRef< SingleChartRef >( null );
 
-		// Use the measured SVG wrapper height, falling back to the passed height initially
+		// Use the measured SVG wrapper height, falling back to the passed height initially.
+		// We only render the chart once we have a valid height to prevent layout shift/flicker.
 		const chartHeight = svgWrapperHeight > 0 ? svgWrapperHeight : height;
+		const isWaitingForMeasurement = chartHeight === 0;
 
 		// Forward the external ref to the internal ref
 		useImperativeHandle(
@@ -495,8 +497,9 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						onFocus={ onChartFocus }
 						onBlur={ onChartBlur }
 					>
-						<div ref={ chartRef }>
-							<XYChart
+						{ ! isWaitingForMeasurement && (
+							<div ref={ chartRef }>
+								<XYChart
 								theme={ theme }
 								width={ width }
 								height={ chartHeight }
@@ -639,8 +642,9 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 									height={ height }
 									margin={ margin }
 								/>
-							</XYChart>
-						</div>
+								</XYChart>
+							</div>
+						) }
 					</div>
 
 					{ legendPosition === 'bottom' && legendElement }
