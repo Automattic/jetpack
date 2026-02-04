@@ -141,7 +141,13 @@ export default function usePageHeaderDetails(
 			return [
 				<BackToFormsButton key="back-to-forms" />,
 				...( sourceIdNumber
-					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
+					? [
+							<EditFormButton
+								key="edit-form"
+								formId={ sourceIdNumber }
+								sourceId={ sourceIdNumber }
+							/>,
+					  ]
 					: [] ),
 				<ExportResponsesButton key="export" isPrimary={ false } />,
 				...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),

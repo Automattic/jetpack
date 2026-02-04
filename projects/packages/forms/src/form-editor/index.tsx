@@ -10,6 +10,7 @@
 import { subscribe, select, dispatch } from '@wordpress/data';
 import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
+import EditorBackButton from './components/editor-back-button';
 import {
 	activateBlockCategoryOverrides,
 	deactivateBlockCategoryOverrides,
@@ -422,3 +423,8 @@ const setupFormEditorSubscription = () => {
 };
 
 setupFormEditorSubscription();
+
+registerPlugin( 'jetpack-forms-editor-back-button', {
+	render: EditorBackButton,
+	icon: null,
+} );
