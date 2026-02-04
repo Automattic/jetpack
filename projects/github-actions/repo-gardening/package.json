@@ -11,9 +11,10 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"type": "module",
-	"main": "src/index.js",
+	"main": "src/index.ts",
 	"scripts": {
-		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt"
+		"build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@actions/core": "2.0.2",
@@ -25,6 +26,8 @@
 		"openai": "5.3.0"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "0.36.1"
+		"@types/node": "^22.0.0",
+		"@vercel/ncc": "0.36.1",
+		"typescript": "^5.7.0"
 	}
 }

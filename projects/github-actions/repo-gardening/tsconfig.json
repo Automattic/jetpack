@@ -1,0 +1,12 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"strict": true,
+		"noEmit": true,
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"target": "es2022"
+	},
+	"include": [ "src/**/*" ],
+	"exclude": [ "node_modules", "dist" ]
+}
