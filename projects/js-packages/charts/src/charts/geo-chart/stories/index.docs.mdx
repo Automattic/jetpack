@@ -1,7 +1,8 @@
-import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import { Meta, Canvas, Source } from '@storybook/addon-docs/blocks';
 import * as GeoChartStories from './index.stories';
+import * as TooltipStories from './tooltip.stories';
 
-<Meta title="JS Packages/Charts/Types/Geo Chart" of={ GeoChartStories } />
+<Meta title="JS Packages/Charts Library/Charts/Geo Chart" of={ GeoChartStories } />
 
 # Geo Chart
 
@@ -22,6 +23,7 @@ The Geo Chart component provides a clean, accessible solution for displaying cou
 		width={ 800 }
 		height={ 500 }
 	/>` }
+
 />
 
 ## API Reference
@@ -78,7 +80,7 @@ The Geo Chart supports the full Google Charts data format, enabling powerful cus
 
 You can customize tooltip content using column roles. Add a tooltip column to your data with `{ type: 'string', role: 'tooltip' }`:
 
-<Canvas of={ GeoChartStories.WithTextTooltips } />
+<Canvas of={ TooltipStories.PlainText } />
 
 <Source
 	language="tsx"
@@ -98,7 +100,7 @@ You can customize tooltip content using column roles. Add a tooltip column to yo
 
 For rich tooltip content with HTML formatting, add `p: { html: true }` to the tooltip column:
 
-<Canvas of={ GeoChartStories.WithCustomTooltip } />
+<Canvas of={ TooltipStories.HTML } />
 
 <Source
 	language="tsx"
@@ -116,11 +118,12 @@ For rich tooltip content with HTML formatting, add `p: { html: true }` to the to
 #### Security Considerations
 
 When using HTML tooltips via `p: { html: true }`, any HTML in the tooltip content will be rendered by the browser. If tooltip strings come from user-generated input or external data sources, you **must** sanitize them first to prevent cross-site scripting (XSS) attacks.
+
 ### Formatted Values
 
 Separate the display format from the actual value using cell objects with `v` (value) and `f` (formatted) properties:
 
-<Canvas of={ GeoChartStories.WithFormattedValues } />
+<Canvas of={ TooltipStories.FormattedValues } />
 
 <Source
 	language="tsx"
@@ -142,7 +145,7 @@ This ensures proper data scaling while displaying user-friendly labels.
 
 Combine HTML tooltips with custom styling for rich, interactive experiences:
 
-<Canvas of={ GeoChartStories.WithComplexTooltips } />
+<Canvas of={ TooltipStories.Complex } />
 
 <Source
 	language="tsx"
@@ -268,11 +271,12 @@ Geo Charts integrate seamlessly with the chart theming system. The default theme
 
 	<GlobalChartsProvider theme={customTheme}>
 		<GeoChart
-			data={ordersByCountry}
-			width={800}
-			height={500}
+			data={ ordersByCountry }
+			width={ 800 }
+			height={ 500 }
 		/>
 	</GlobalChartsProvider>` }
+
 />
 
 The chart uses the following theme properties:
@@ -298,6 +302,7 @@ Add custom styles using the `className` prop:
 		height={ 500 }
 		className="custom-geo-chart"
 	/>` }
+
 />
 
 ## Map Projection

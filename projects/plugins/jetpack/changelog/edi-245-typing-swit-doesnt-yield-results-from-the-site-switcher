@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Site Switcher: fix partial keyword matching so typing 'swit' shows 'Switch to...' results in the command palette.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-NavigatorModal: Allow passing all the props supported by underlying components.

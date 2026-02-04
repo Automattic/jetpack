@@ -1,8 +1,10 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
+import { formatNumberCompact } from '@automattic/number-formatters';
+import { Badge } from '@automattic/ui';
 import { useCallback, useMemo } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -22,27 +24,28 @@ type Props = {
 	onChange: ( nextStatus: Status ) => void;
 };
 
-const getLabel = ( status: Status, count: number ): string => {
+const getLabel = ( status: Status, count: number ): JSX.Element => {
+	let label: string;
 	switch ( status ) {
 		case 'inbox':
-			return sprintf(
-				/* translators: %d is the number of inbox responses. */
-				__( 'Inbox (%d)', 'jetpack-forms' ),
-				count
-			);
+			label = __( 'Inbox', 'jetpack-forms' );
+			break;
 		case 'spam':
-			return sprintf(
-				/* translators: %d is the number of spam responses. */
-				__( 'Spam (%d)', 'jetpack-forms' ),
-				count
-			);
+			label = __( 'Spam', 'jetpack-forms' );
+			break;
 		case 'trash':
-			return sprintf(
-				/* translators: %d is the number of trash responses. */
-				__( 'Trash (%d)', 'jetpack-forms' ),
-				count
-			);
+			label = _x( 'Trash', 'noun', 'jetpack-forms' );
+			break;
 	}
+
+	return (
+		<span>
+			{ label }
+			<Badge intent="default" className="jp-forms-count-badge">
+				{ formatNumberCompact( count || 0 ) }
+			</Badge>
+		</span>
+	);
 };
 
 /**
@@ -69,7 +72,7 @@ export default function InboxStatusToggle( {
 		[ activeStatus, onChange ]
 	);
 
-	const statusTabs: Array< { value: Status; label: string } > = useMemo(
+	const statusTabs: Array< { value: Status; label: JSX.Element } > = useMemo(
 		() => [
 			{ value: 'inbox', label: getLabel( 'inbox', counts.inbox ) },
 			{ value: 'spam', label: getLabel( 'spam', counts.spam ) },

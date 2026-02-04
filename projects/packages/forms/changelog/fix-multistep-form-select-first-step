@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: ensure first step is selected when switching to or loading a multistep form.
