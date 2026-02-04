@@ -52,27 +52,71 @@ export const NAVIGATION_TEMPLATE = [
 
 const ALLOWED_BLOCKS = [ 'core/button' ];
 
-/**
- * Check if a block's className contains a specific button type class.
- *
- * @param {object} block     - The block to check.
- * @param {string} typeClass - The class to look for (e.g., 'form-button-previous').
- * @return {boolean} Whether the block has the specified class.
- */
-const hasButtonTypeClass = ( block, typeClass ) => {
-	const className = block?.attributes?.className || '';
-	return className.split( /\s+/ ).includes( typeClass );
+// Map button types to their templates
+const BUTTON_TEMPLATES = {
+	previous: PREVIOUS_BUTTON_TEMPLATE,
+	next: NEXT_BUTTON_TEMPLATE,
+	submit: SUBMIT_BUTTON_TEMPLATE,
 };
 
 /**
- * Get the button type identifier from a template's className.
+ * Identify the button type from a block.
+ * Supports both legacy jetpack/button and new core/button formats.
  *
- * @param {string} className - The className string from template attributes.
- * @return {string|null} The button type (e.g., 'form-button-previous') or null.
+ * @param {object} block - The block to identify.
+ * @return {string|null} Button type ('previous', 'next', 'submit') or null.
  */
-const getButtonTypeFromClassName = className => {
-	const classes = ( className || '' ).split( /\s+/ );
-	return classes.find( cls => cls.startsWith( 'form-button-' ) ) || null;
+export const getButtonType = block => {
+	// New format: core/button with form-button-* class
+	if ( block.name === 'core/button' ) {
+		const className = block.attributes?.className || '';
+		const classes = className.split( /\s+/ );
+		if ( classes.includes( 'form-button-previous' ) ) {
+			return 'previous';
+		}
+		if ( classes.includes( 'form-button-next' ) ) {
+			return 'next';
+		}
+		if ( classes.includes( 'form-button-submit' ) ) {
+			return 'submit';
+		}
+	}
+
+	// Legacy format: jetpack/button with uniqueId matching data-id-attr values
+	if ( block.name === 'jetpack/button' ) {
+		const uniqueId = block.attributes?.uniqueId || '';
+		if ( uniqueId === 'previous-step' ) {
+			return 'previous';
+		}
+		if ( uniqueId === 'next-step' ) {
+			return 'next';
+		}
+		if ( uniqueId === 'submit-step' ) {
+			return 'submit';
+		}
+	}
+
+	return null;
+};
+
+/**
+ * Migrate a legacy jetpack/button to core/button, preserving custom text.
+ *
+ * @param {object} legacyBlock - The legacy jetpack/button block.
+ * @param {string} buttonType  - The button type ('previous', 'next', 'submit').
+ * @return {object} A new core/button block with preserved customizations.
+ */
+export const migrateLegacyButton = ( legacyBlock, buttonType ) => {
+	const template = BUTTON_TEMPLATES[ buttonType ];
+	const [ blockName, templateAttributes ] = template;
+
+	// Preserve custom text from the legacy button
+	const customText = legacyBlock.attributes?.text;
+
+	return createBlock( blockName, {
+		...templateAttributes,
+		...( customText && { text: customText } ),
+	} );
 };
 
 export default function Edit( { clientId } ) {
@@ -139,75 +183,52 @@ export default function Edit( { clientId } ) {
 		if ( typeof currentIndex === 'undefined' ) {
 			return;
 		}
-		let shouldReplaceInnerBlocks = false;
 
-		// First identify existing buttons in the navigation by their class names
+		// Identify existing buttons (supports both legacy jetpack/button and new core/button)
 		const existingButtons = {
-			'form-button-previous': navigationBlocks.find(
-				block => block.name === 'core/button' && hasButtonTypeClass( block, 'form-button-previous' )
-			),
-			'form-button-next': navigationBlocks.find(
-				block => block.name === 'core/button' && hasButtonTypeClass( block, 'form-button-next' )
-			),
-			'form-button-submit': navigationBlocks.find(
-				block => block.name === 'core/button' && hasButtonTypeClass( block, 'form-button-submit' )
-			),
+			previous: null,
+			next: null,
+			submit: null,
 		};
 
-		// Create a map of button types to track required changes
-		const buttonUpdates = {
-			'form-button-previous': {
-				needed: false,
-				existing: existingButtons[ 'form-button-previous' ],
-			},
-			'form-button-next': {
-				needed: false,
-				existing: existingButtons[ 'form-button-next' ],
-			},
-			'form-button-submit': {
-				needed: false,
-				existing: existingButtons[ 'form-button-submit' ],
-			},
-		};
-
-		// Flag needed buttons based on template
-		NAVIGATION_TEMPLATE.forEach( ( [ , blockAttributes ] ) => {
-			const buttonType = getButtonTypeFromClassName( blockAttributes.className );
-			if ( buttonType ) {
-				buttonUpdates[ buttonType ].needed = true;
-
-				// If button doesn't exist but is needed, we'll need to replace inner blocks
-				if ( ! buttonUpdates[ buttonType ].existing ) {
-					shouldReplaceInnerBlocks = true;
-				}
+		navigationBlocks.forEach( block => {
+			const buttonType = getButtonType( block );
+			if ( buttonType && ! existingButtons[ buttonType ] ) {
+				existingButtons[ buttonType ] = block;
 			}
 		} );
 
-		// Build the updated button collection
-		const replacementInnerBlocks = NAVIGATION_TEMPLATE.map( ( [ blockName, blockAttributes ] ) => {
-			const buttonType = getButtonTypeFromClassName( blockAttributes.className );
-			return buttonUpdates[ buttonType ]?.existing || createBlock( blockName, blockAttributes );
-		} );
+		// Check if we need to make any changes
+		const hasMissingButtons =
+			! existingButtons.previous || ! existingButtons.next || ! existingButtons.submit;
+		const hasLegacyButtons = navigationBlocks.some( block => block.name === 'jetpack/button' );
 
-		if ( shouldReplaceInnerBlocks ) {
-			__unstableMarkNextChangeAsNotPersistent();
-			replaceInnerBlocks( clientId, replacementInnerBlocks, false );
+		// Only proceed if buttons are missing or need migration
+		if ( ! hasMissingButtons && ! hasLegacyButtons ) {
 			return;
 		}
 
-		navigationBlocks.forEach( block => {
-			const buttonType = getButtonTypeFromClassName( block.attributes?.className );
-			// If a button exists but isn't needed in the new template, we need to update
-			if ( buttonType && ! buttonUpdates[ buttonType ]?.needed ) {
-				shouldReplaceInnerBlocks = true;
+		// Build the button collection: preserve existing core/buttons, migrate legacy, create missing
+		const replacementBlocks = [ 'previous', 'next', 'submit' ].map( buttonType => {
+			const existing = existingButtons[ buttonType ];
+
+			if ( ! existing ) {
+				// Button is missing - create from template
+				const [ blockName, blockAttributes ] = BUTTON_TEMPLATES[ buttonType ];
+				return createBlock( blockName, blockAttributes );
 			}
+
+			if ( existing.name === 'jetpack/button' ) {
+				// Legacy button - migrate to core/button preserving text
+				return migrateLegacyButton( existing, buttonType );
+			}
+
+			// Existing core/button - keep as-is
+			return existing;
 		} );
 
-		// Only update blocks if needed
-		if ( shouldReplaceInnerBlocks ) {
-			__unstableMarkNextChangeAsNotPersistent();
-			replaceInnerBlocks( clientId, replacementInnerBlocks, false );
-		}
+		__unstableMarkNextChangeAsNotPersistent();
+		replaceInnerBlocks( clientId, replacementBlocks, false );
 	}, [
 		navigationBlocks,
 		replaceInnerBlocks,
