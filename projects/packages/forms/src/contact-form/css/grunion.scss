@@ -1553,9 +1553,6 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	&__edit-link {
 		font-weight: 500;
-	}
-
-	.jetpack-form-status-notice__edit-link {
 		white-space: nowrap;
 		color: #1e1e1e;
 
@@ -1567,7 +1564,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	&--warning {
 		background-color: #fcf9e8;
-		border-left: 4px solid #dba617;
+		border-inline-start: 4px solid #dba617;
 		color: #1e1e1e;
 
 
@@ -1575,7 +1572,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	&--info {
 		background-color: #e7f5fe;
-		border-left: 4px solid #0675c4;
+		border-inline-start: 4px solid #0675c4;
 		color: #1e1e1e;
 	}
 }
