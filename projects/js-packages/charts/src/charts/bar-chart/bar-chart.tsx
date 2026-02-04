@@ -362,115 +362,122 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					className
 				) }
 				data-testid="bar-chart"
-				role="grid"
-				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 				style={ {
 					width,
 					height,
 				} }
-				tabIndex={ 0 }
-				onKeyDown={ onChartKeyDown }
-				onFocus={ onChartFocus }
-				onBlur={ onChartBlur }
-				ref={ chartRef }
 				data-chart-id={ `bar-chart-${ chartId }` }
 			>
 				{ legendPosition === 'top' && legendElement }
 
-				<div className={ styles[ 'bar-chart__svg-wrapper' ] } ref={ svgWrapperRef }>
+				<div
+					className={ styles[ 'bar-chart__svg-wrapper' ] }
+					ref={ svgWrapperRef }
+					role="grid"
+					aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
+					tabIndex={ 0 }
+					onKeyDown={ onChartKeyDown }
+					onFocus={ onChartFocus }
+					onBlur={ onChartBlur }
+				>
 					{ ! isWaitingForMeasurement && (
-						<XYChart
-							theme={ theme }
-							width={ width }
-							height={ chartHeight }
-							margin={ {
-								...defaultMargin,
-								...margin,
-							} }
-							xScale={ chartOptions.xScale }
-							yScale={ chartOptions.yScale }
-							horizontal={ horizontal }
-							pointerEventsDataKey="nearest"
-						>
-							<Grid
-								columns={ gridVisibility.includes( 'y' ) }
-								rows={ gridVisibility.includes( 'x' ) }
-								numTicks={ 4 }
-							/>
-
-							{ withPatterns && (
-								<>
-									<defs data-testid="bar-chart-patterns">
-										{ dataSorted.map( ( seriesData, index ) =>
-											renderPattern( index, getElementStyles( { data: seriesData, index } ).color )
-										) }
-									</defs>
-									<style>
-										{ dataSorted.map( ( seriesData, index ) =>
-											createPatternBorderStyle(
-												index,
-												getElementStyles( { data: seriesData, index } ).color
-											)
-										) }
-									</style>
-								</>
-							) }
-
-							{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
-
-							{ allSeriesHidden ? (
-								<text
-									x={ width / 2 }
-									y={ chartHeight / 2 }
-									textAnchor="middle"
-									fill={ providerTheme.gridStyles?.stroke || '#ccc' }
-									fontSize="14"
-									fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
-								>
-									{ __(
-										'All series are hidden. Click legend items to show data.',
-										'jetpack-charts'
-									) }
-								</text>
-							) : null }
-
-							<BarGroup padding={ chartOptions.barGroup.padding }>
-								{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
-									// Skip rendering invisible series
-									if ( ! isVisible ) {
-										return null;
-									}
-
-									return (
-										<BarSeries
-											key={ seriesData?.label }
-											dataKey={ seriesData?.label }
-											data={ seriesData.data as DataPointDate[] }
-											yAccessor={ chartOptions.accessors.yAccessor }
-											xAccessor={ chartOptions.accessors.xAccessor }
-											colorAccessor={ getBarBackground( index ) }
-										/>
-									);
-								} ) }
-							</BarGroup>
-
-							<Axis { ...chartOptions.axis.x } />
-							<Axis { ...chartOptions.axis.y } />
-
-							{ withTooltips && (
-								<AccessibleTooltip
-									detectBounds
-									snapTooltipToDatumX
-									snapTooltipToDatumY
-									renderTooltip={ renderTooltip || renderDefaultTooltip }
-									selectedIndex={ selectedIndex }
-									tooltipRef={ tooltipRef }
-									keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
-									series={ data }
-									mode="individual"
+						<div ref={ chartRef }>
+							<XYChart
+								theme={ theme }
+								width={ width }
+								height={ chartHeight }
+								margin={ {
+									...defaultMargin,
+									...margin,
+								} }
+								xScale={ chartOptions.xScale }
+								yScale={ chartOptions.yScale }
+								horizontal={ horizontal }
+								pointerEventsDataKey="nearest"
+							>
+								<Grid
+									columns={ gridVisibility.includes( 'y' ) }
+									rows={ gridVisibility.includes( 'x' ) }
+									numTicks={ 4 }
 								/>
-							) }
-						</XYChart>
+
+								{ withPatterns && (
+									<>
+										<defs data-testid="bar-chart-patterns">
+											{ dataSorted.map( ( seriesData, index ) =>
+												renderPattern(
+													index,
+													getElementStyles( { data: seriesData, index } ).color
+												)
+											) }
+										</defs>
+										<style>
+											{ dataSorted.map( ( seriesData, index ) =>
+												createPatternBorderStyle(
+													index,
+													getElementStyles( { data: seriesData, index } ).color
+												)
+											) }
+										</style>
+									</>
+								) }
+
+								{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
+
+								{ allSeriesHidden ? (
+									<text
+										x={ width / 2 }
+										y={ chartHeight / 2 }
+										textAnchor="middle"
+										fill={ providerTheme.gridStyles?.stroke || '#ccc' }
+										fontSize="14"
+										fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+									>
+										{ __(
+											'All series are hidden. Click legend items to show data.',
+											'jetpack-charts'
+										) }
+									</text>
+								) : null }
+
+								<BarGroup padding={ chartOptions.barGroup.padding }>
+									{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
+										// Skip rendering invisible series
+										if ( ! isVisible ) {
+											return null;
+										}
+
+										return (
+											<BarSeries
+												key={ seriesData?.label }
+												dataKey={ seriesData?.label }
+												data={ seriesData.data as DataPointDate[] }
+												yAccessor={ chartOptions.accessors.yAccessor }
+												xAccessor={ chartOptions.accessors.xAccessor }
+												colorAccessor={ getBarBackground( index ) }
+											/>
+										);
+									} ) }
+								</BarGroup>
+
+								<Axis { ...chartOptions.axis.x } />
+								<Axis { ...chartOptions.axis.y } />
+
+								{ withTooltips && (
+									<AccessibleTooltip
+										detectBounds
+										snapTooltipToDatumX
+										snapTooltipToDatumY
+										renderTooltip={ renderTooltip || renderDefaultTooltip }
+										selectedIndex={ selectedIndex }
+										tooltipRef={ tooltipRef }
+										keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
+										series={ data }
+										mode="individual"
+									/>
+								) }
+							</XYChart>
+						</div>
 					) }
 				</div>
 
