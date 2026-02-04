@@ -1,20 +1,33 @@
-/* global GitHub */
 import debug from '../debug.js';
+import type { OctokitClient } from '../../types.js';
+
+/**
+ * Represents a label in a GitHub repository.
+ */
+interface RepoLabel {
+	name: string;
+	[ key: string ]: unknown;
+}
 
 // Cache for getLabels.
-const cache = {};
+const cache: Record< string, RepoLabel[] > = {};
 
 /**
  * Get all the labels available in the repo.
  *
- * @param {GitHub}        octokit - Initialized Octokit REST client.
- * @param {string}        owner   - Repository owner.
- * @param {string}        repo    - Repository name.
- * @param {RegExp|string} filter  - Optionally filter to only return a subset of labels. Use a regex pattern.
- * @return {Promise<Array>} Promise resolving to an array of all labels in the repo.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param filter  - Optionally filter to only return a subset of labels. Use a regex pattern.
+ * @return Promise resolving to an array of all labels in the repo.
  */
-async function getAvailableLabels( octokit, owner, repo, filter = '' ) {
-	let labelList;
+async function getAvailableLabels(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	filter: RegExp | string = ''
+): Promise< RepoLabel[] > {
+	let labelList: RepoLabel[];
 	const cacheKey = `${ owner }/${ repo }`;
 	if ( cache[ cacheKey ] ) {
 		debug( `get-all-labels: Using list of labels for ${ cacheKey } from cache.` );
@@ -31,7 +44,7 @@ async function getAvailableLabels( octokit, owner, repo, filter = '' ) {
 			}
 		) ) {
 			for ( const label of response.data ) {
-				labelList.push( label );
+				labelList.push( label as RepoLabel );
 			}
 		}
 		cache[ cacheKey ] = labelList;

@@ -1,8 +1,8 @@
-/* global GitHub */
 import debug from './debug.js';
+import type { OctokitClient } from '../types.js';
 
 // Cache for getDiff.
-const cache = {};
+const cache: Record< string, string > = {};
 
 /**
  * Remove unwanted file diffs (e.g., lockfiles) from a GitHub diff string.
@@ -10,10 +10,10 @@ const cache = {};
  * GitHub diffs are composed of per-file blocks starting with:
  * `diff --git a/<path> b/<path>`
  *
- * @param {string} diff - Full diff string from GitHub.
- * @return {string} Filtered diff string.
+ * @param diff - Full diff string from GitHub.
+ * @return Filtered diff string.
  */
-function filterDiff( diff ) {
+function filterDiff( diff: string ): string {
 	if ( ! diff ) {
 		return '';
 	}
@@ -28,10 +28,10 @@ function filterDiff( diff ) {
 	] );
 
 	const lines = diff.split( '\n' );
-	const keptLines = [];
+	const keptLines: string[] = [];
 
-	let currentFileHeader = null;
-	let currentBlock = [];
+	let currentFileHeader: string | null = null;
+	let currentBlock: string[] = [];
 
 	const flushBlock = () => {
 		if ( ! currentBlock.length ) {
@@ -56,7 +56,7 @@ function filterDiff( diff ) {
 		const filenameA = pathA.split( '/' ).pop();
 		const filenameB = pathB.split( '/' ).pop();
 
-		const shouldIgnore = ignoredFilenames.has( filenameA ) || ignoredFilenames.has( filenameB );
+		const shouldIgnore = ignoredFilenames.has( filenameA! ) || ignoredFilenames.has( filenameB! );
 
 		if ( shouldIgnore ) {
 			debug( `get-diff: Removing diff block for ignored file "${ filenameB || filenameA }".` );
@@ -88,15 +88,21 @@ function filterDiff( diff ) {
  * removes diffs for lock files (noise for code analysis),
  * and truncates the result to maxSize characters.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {number} number  - PR number.
- * @param {number} maxSize - Maximum size of diff to return (default 50000 characters).
- * @return {Promise<string>} Promise resolving to the PR diff as a string, truncated to maxSize.
+ * @param  octokit - Initialized Octokit REST client.
+ * @param  owner   - Repository owner.
+ * @param  repo    - Repository name.
+ * @param  number  - PR number.
+ * @param  maxSize - Maximum size of diff to return (default 50000 characters).
+ * @return Promise resolving to the PR diff as a string, truncated to maxSize.
  * @throws {Error} Throws an error if the API request fails or if the PR cannot be fetched.
  */
-async function getDiff( octokit, owner, repo, number, maxSize = 50000 ) {
+async function getDiff(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number,
+	maxSize: number = 50000
+): Promise< string > {
 	const cacheKey = `${ owner }/${ repo } #${ number }`;
 	if ( cache[ cacheKey ] ) {
 		debug( `get-diff: Returning diff for ${ cacheKey } from cache.` );
@@ -108,13 +114,15 @@ async function getDiff( octokit, owner, repo, number, maxSize = 50000 ) {
 	const response = await octokit.rest.pulls.get( {
 		owner,
 		repo,
-		pull_number: +number,
+		pull_number: number,
 		mediaType: {
 			format: 'diff',
 		},
 	} );
 
-	let diff = response.data;
+	// When using mediaType diff format, response.data is a string at runtime,
+	// but Octokit types declare it as an object.
+	let diff = response.data as unknown as string;
 
 	if ( typeof diff !== 'string' ) {
 		debug(

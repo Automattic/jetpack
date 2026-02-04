@@ -3,15 +3,15 @@ import { glob } from 'glob';
 import getPrWorkspace from './get-pr-workspace.js';
 
 /**
- * Returns a list of Projects that use changelogger package
+ * Returns a list of Projects that use changelogger package.
  *
- * @return {Array} list of changelogger packages
+ * @return List of changelogger packages.
  */
-function getChangeloggerProjects() {
-	const projects = [];
+function getChangeloggerProjects(): string[] {
+	const projects: string[] = [];
 	const composerFiles = glob.sync( getPrWorkspace() + '/projects/*/*/composer.json' );
 	composerFiles.forEach( file => {
-		const json = JSON.parse( fs.readFileSync( file ) );
+		const json = JSON.parse( fs.readFileSync( file ).toString() );
 		if (
 			// include changelogger package and any other packages that use changelogger package.
 			file.endsWith( '/projects/packages/changelogger/composer.json' ) ||
@@ -26,14 +26,16 @@ function getChangeloggerProjects() {
 }
 
 /**
- * Returns an object with project type and name
+ * Returns an object with project type and name.
  *
- * @param {string} file - File path
- * @return {object} Project type and name
+ * @param file - File path.
+ * @return Project type and name.
  */
-function getProject( file ) {
+function getProject(
+	file: string
+): { type: string; name: string; fullName: string } | Record< string, never > {
 	const project = file.match( /projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
-	if ( project && project.groups.ptype && project.groups.pname ) {
+	if ( project?.groups?.ptype && project.groups.pname ) {
 		return {
 			type: project.groups.ptype,
 			name: project.groups.pname,
@@ -44,12 +46,12 @@ function getProject( file ) {
 }
 
 /**
- * Returns a list of affected projects
+ * Returns a list of affected projects.
  *
- * @param {Array} files - List of files
- * @return {Array} List of affected projects
+ * @param files - List of files.
+ * @return List of affected projects.
  */
-function getAffectedChangeloggerProjects( files ) {
+function getAffectedChangeloggerProjects( files: string[] ): string[] {
 	const changeloggerProjects = getChangeloggerProjects();
 	const projects = files.reduce( ( acc, file ) => {
 		const project = getProject( file ).fullName;
@@ -57,7 +59,7 @@ function getAffectedChangeloggerProjects( files ) {
 			acc.add( project );
 		}
 		return acc;
-	}, new Set() );
+	}, new Set< string >() );
 
 	return [ ...projects ];
 }

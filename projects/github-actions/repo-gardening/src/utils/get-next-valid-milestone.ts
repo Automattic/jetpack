@@ -1,21 +1,31 @@
 import { compareVersions } from 'compare-versions';
 import moment from 'moment';
+import type { OctokitClient } from '../types.js';
 
-/* global GitHub, OktokitIssuesListMilestonesForRepoResponseItem */
+interface Milestone {
+	title: string;
+	description?: string | null;
+	due_on?: string | null;
+	[ key: string ]: unknown;
+}
 
 // Cache for getOpenMilestones.
-const cache = {};
+const cache: Record< string, Milestone[] > = {};
 
 /**
  * Fetch all open milestones.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @return {Promise<Array>} Promise resolving to an array of all open milestones.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @return Promise resolving to an array of all open milestones.
  */
-async function getOpenMilestones( octokit, owner, repo ) {
-	const milestones = [];
+async function getOpenMilestones(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string
+): Promise< Milestone[] > {
+	const milestones: Milestone[] = [];
 	const cacheKey = `${ owner }/${ repo }`;
 	if ( cache[ cacheKey ] ) {
 		return cache[ cacheKey ];
@@ -41,13 +51,18 @@ async function getOpenMilestones( octokit, owner, repo ) {
 /**
  * Returns a promise resolving to the next valid milestone, if exists.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} plugin  - Plugin slug.
- * @return {Promise<OktokitIssuesListMilestonesForRepoResponseItem|void>} Promise resolving to milestone, if exists.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param plugin  - Plugin slug.
+ * @return Promise resolving to milestone, if exists.
  */
-async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' ) {
+async function getNextValidMilestone(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	plugin: string = 'jetpack'
+): Promise< Milestone | undefined > {
 	// Find all valid milestones for the specified plugin.
 	const reg = new RegExp( '^' + plugin + '\\/\\d+\\.\\d' );
 	const milestones = ( await getOpenMilestones( octokit, owner, repo ) )

@@ -1,17 +1,24 @@
 import debug from './debug.js';
+import type { OctokitClient, PullRequestPayload } from '../types.js';
 
-/* global WPAutomationTask */
+type PullRequestTask = (
+	payload: PullRequestPayload,
+	octokit: OctokitClient
+) => Promise< void > | void;
 
 /**
  * Higher-order function which executes and returns the result of the given
  * handler only if the enhanced function is called with a payload indicating a
  * pull request event which did not originate from a forked repository.
  *
- * @param {WPAutomationTask} handler - Original task.
- * @return {WPAutomationTask} Enhanced task.
+ * @param handler - Original task.
+ * @return Enhanced task.
  */
-function ifNotFork( handler ) {
-	const newHandler = ( payload, octokit ) => {
+function ifNotFork( handler: PullRequestTask ): PullRequestTask {
+	const newHandler = (
+		payload: PullRequestPayload,
+		octokit: OctokitClient
+	): Promise< void > | void => {
 		if ( payload.pull_request.head.repo.full_name === payload.pull_request.base.repo.full_name ) {
 			return handler( payload, octokit );
 		}

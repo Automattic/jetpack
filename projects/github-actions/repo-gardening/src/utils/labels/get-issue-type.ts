@@ -1,7 +1,6 @@
 import getLabels from './get-labels.js';
 import { TYPE_LABELS_WITHOUT_PREFIX } from './type-labels.js';
-
-/* global GitHub */
+import type { OctokitClient } from '../../types.js';
 
 /**
  * Extract the type of the issue.
@@ -13,13 +12,18 @@ import { TYPE_LABELS_WITHOUT_PREFIX } from './type-labels.js';
  * If multiple Type labels from the hardcoded list are found, or if no clear type can be determined,
  * we will return an empty string.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - Issue number.
- * @return {Promise<string>} Promise resolving to a string, the type of the issue, extracted from the label.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - Issue number.
+ * @return Promise resolving to a string, the type of the issue, extracted from the label.
  */
-async function getIssueType( octokit, owner, repo, number ) {
+async function getIssueType(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< string > {
 	const labels = await getLabels( octokit, owner, repo, number );
 
 	// Extract type labels without prefix.

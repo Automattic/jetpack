@@ -2,21 +2,26 @@ import debug from '../debug.js';
 import getLabels from '../labels/get-labels.js';
 import formatSlackMessage from './format-slack-message.js';
 import sendSlackMessage from './send-slack-message.js';
-
-/* global GitHub, WebhookPayloadIssue */
+import type { OctokitClient, IssuePayload } from '../../types.js';
 
 /**
  * Check for a label showing that it was already escalated.
  * The label name changes based on the team that was warned.
  *
- * @param {GitHub} octokit        - Initialized Octokit REST client.
- * @param {string} owner          - Repository owner.
- * @param {string} repo           - Repository name.
- * @param {string} number         - Issue number.
- * @param {string} escalatedLabel - Label used to escalate the issue.
- * @return {Promise<boolean>} Promise resolving to boolean.
+ * @param octokit        - Initialized Octokit REST client.
+ * @param owner          - Repository owner.
+ * @param repo           - Repository name.
+ * @param number         - Issue number.
+ * @param escalatedLabel - Label used to escalate the issue.
+ * @return Promise resolving to boolean.
  */
-async function hasEscalatedLabel( octokit, owner, repo, number, escalatedLabel ) {
+async function hasEscalatedLabel(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number,
+	escalatedLabel: string
+): Promise< boolean > {
 	const labels = await getLabels( octokit, owner, repo, number );
 	return labels.includes( escalatedLabel );
 }
@@ -31,12 +36,17 @@ async function hasEscalatedLabel( octokit, owner, repo, number, escalatedLabel )
  * - The issue is either a high priority or a blocker (inferred from the existing labels or from the issue body)
  * - The issue is not already set to another priority label (no "[Pri] High", "[Pri] BLOCKER", or "[Pri] TBD" label)
  *
- * @param {GitHub}              octokit    - Initialized Octokit REST client.
- * @param {WebhookPayloadIssue} payload    - Issue event payload.
- * @param {string}              channel    - Slack channel ID to send the message to.
- * @param {string}              recipients - Name of the group getting the notification. Can be 'devs' (default) or 'product-ambassadors'.
+ * @param octokit    - Initialized Octokit REST client.
+ * @param payload    - Issue event payload.
+ * @param channel    - Slack channel ID to send the message to.
+ * @param recipients - Name of the group getting the notification. Can be 'devs' (default) or 'product-ambassadors'.
  */
-async function notifyImportantIssues( octokit, payload, channel, recipients = 'devs' ) {
+async function notifyImportantIssues(
+	octokit: OctokitClient,
+	payload: IssuePayload,
+	channel: string,
+	recipients: string = 'devs'
+): Promise< void > {
 	const {
 		issue: { number },
 		repository: {

@@ -1,16 +1,23 @@
 import debug from './debug.js';
+import type { OctokitClient, PullRequestPayload } from '../types.js';
 
-/* global WPAutomationTask */
+type PullRequestTask = (
+	payload: PullRequestPayload,
+	octokit: OctokitClient
+) => Promise< void > | void;
 
 /**
  * Higher-order function which executes and returns the result of the given
  * handler only if the PR is not currently closed.
  *
- * @param {WPAutomationTask} handler - Original task.
- * @return {WPAutomationTask} Enhanced task.
+ * @param handler - Original task.
+ * @return Enhanced task.
  */
-function ifNotClosed( handler ) {
-	const newHandler = ( payload, octokit ) => {
+function ifNotClosed( handler: PullRequestTask ): PullRequestTask {
+	const newHandler = (
+		payload: PullRequestPayload,
+		octokit: OctokitClient
+	): Promise< void > | void => {
 		if ( payload.pull_request.state !== 'closed' ) {
 			return handler( payload, octokit );
 		}

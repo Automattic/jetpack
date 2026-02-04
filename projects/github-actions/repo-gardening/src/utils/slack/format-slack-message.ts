@@ -1,15 +1,20 @@
-/* global WebhookPayloadIssue */
+import type { IssuePayload } from '../../types.js';
+import type { ChatPostMessageArguments } from '@slack/web-api';
 
 /**
  * Build an object containing the slack message and its formatting to send to Slack.
  * This is a basic message. For more complex messages, you can build your own object and pass it to the sendSlackMessage function.
  *
- * @param {WebhookPayloadIssue} payload - Issue event payload.
- * @param {string}              channel - Slack channel ID.
- * @param {string}              message - Basic message (without the formatting).
- * @return {object} Object containing the slack message and its formatting.
+ * @param payload - Issue event payload.
+ * @param channel - Slack channel ID.
+ * @param message - Basic message (without the formatting).
+ * @return Object containing the slack message and its formatting.
  */
-function formatSlackMessage( payload, channel, message ) {
+function formatSlackMessage(
+	payload: IssuePayload,
+	channel: string,
+	message: string
+): ChatPostMessageArguments {
 	const { issue } = payload;
 	const { html_url, title } = issue;
 
