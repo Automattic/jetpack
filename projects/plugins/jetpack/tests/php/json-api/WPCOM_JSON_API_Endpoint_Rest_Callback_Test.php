@@ -422,6 +422,8 @@ class WPCOM_JSON_API_Endpoint_Rest_Callback_Test extends WP_UnitTestCase {
 
 		// Decode and verify error is serialized.
 		$decoded = json_decode( $response[0], true );
+		$this->assertIsArray( $decoded );
+		$this->assertIsArray( $decoded['errors'] );
 		$this->assertSame( 'test_error', $decoded['errors']['error'] );
 		$this->assertSame( 'Something went wrong', $decoded['errors']['message'] );
 	}
@@ -455,6 +457,7 @@ class WPCOM_JSON_API_Endpoint_Rest_Callback_Test extends WP_UnitTestCase {
 
 		// Decode and verify envelope structure.
 		$decoded = json_decode( $response[0], true );
+		$this->assertIsArray( $decoded );
 		$this->assertArrayHasKey( 'code', $decoded );
 		$this->assertSame( 200, $decoded['code'] );
 		$this->assertArrayHasKey( 'body', $decoded );
@@ -490,6 +493,8 @@ class WPCOM_JSON_API_Endpoint_Rest_Callback_Test extends WP_UnitTestCase {
 
 		// Decode and verify error response.
 		$decoded = json_decode( $response[0], true );
+		$this->assertIsArray( $decoded );
+		$this->assertIsArray( $decoded['errors'] );
 		$this->assertSame( 'empty_response', $decoded['errors']['error'] );
 	}
 
