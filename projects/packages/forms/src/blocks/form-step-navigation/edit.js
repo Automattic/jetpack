@@ -37,6 +37,7 @@ const SUBMIT_BUTTON_TEMPLATE = [
 	'core/button',
 	{
 		tagName: 'button',
+		type: 'submit',
 		text: __( 'Submit', 'jetpack-forms' ),
 		className: 'form-button-submit is-submit',
 		metadata: { name: __( 'Submit button', 'jetpack-forms' ) },
