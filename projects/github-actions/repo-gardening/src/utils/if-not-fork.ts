@@ -19,7 +19,7 @@ function ifNotFork( handler: PullRequestTask ): PullRequestTask {
 		payload: PullRequestEvent,
 		octokit: OctokitClient
 	): Promise< void > | void => {
-		if ( payload.pull_request.head.repo.full_name === payload.pull_request.base.repo.full_name ) {
+		if ( payload.pull_request.head.repo?.full_name === payload.pull_request.base.repo.full_name ) {
 			return handler( payload, octokit );
 		}
 		debug( `main: Skipping ${ handler.name } because we are in a fork.` );

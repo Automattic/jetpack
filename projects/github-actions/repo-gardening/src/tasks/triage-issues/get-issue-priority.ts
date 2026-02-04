@@ -43,7 +43,7 @@ async function getIssuePriority(
 	debug(
 		`triage-issues > issue priority: Finding priority for issue #${ number } based off the issue contents.`
 	);
-	const priority = findPriority( body );
+	const priority = findPriority( body ?? '' );
 	debug(
 		`triage-issues > issue priority: Priority inferred from the issue contents for issue #${ number } is ${ priority }`
 	);

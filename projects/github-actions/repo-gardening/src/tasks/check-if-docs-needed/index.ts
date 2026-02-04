@@ -195,7 +195,7 @@ async function checkIfDocsNeeded(
 	}
 
 	// Clean the PR body and build the prompt.
-	const cleanedBody = cleanContent( body );
+	const cleanedBody = cleanContent( body ?? '' );
 	const prompt = buildPrompt( title, cleanedBody, diff );
 
 	debug( `check-if-docs-needed: Sending PR #${ number } to OpenAI for analysis.` );

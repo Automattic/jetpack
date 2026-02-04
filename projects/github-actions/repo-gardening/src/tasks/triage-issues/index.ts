@@ -97,7 +97,7 @@ async function triageIssues( payload: IssuesEvent, octokit: OctokitClient ): Pro
 	// If this is a new issue, add labels.
 	if ( action === 'opened' || action === 'reopened' ) {
 		// Find impacted plugins, and add labels.
-		const impactedPlugins = findPlugins( body );
+		const impactedPlugins = findPlugins( body ?? '' );
 		if ( impactedPlugins.length > 0 ) {
 			debug( `triage-issues: Adding plugin labels to issue #${ number }` );
 
@@ -112,7 +112,7 @@ async function triageIssues( payload: IssuesEvent, octokit: OctokitClient ): Pro
 		}
 
 		// Find platform info, and add labels.
-		const impactedPlatforms = findPlatforms( body );
+		const impactedPlatforms = findPlatforms( body ?? '' );
 		if ( impactedPlatforms.length > 0 ) {
 			debug( `triage-issues: Adding platform labels to issue #${ number }` );
 

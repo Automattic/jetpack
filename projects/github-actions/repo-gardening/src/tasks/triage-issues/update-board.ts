@@ -616,9 +616,9 @@ async function assignTeam(
 	const {
 		action,
 		issue: { number },
-		label,
 		repository: { owner, name },
 	} = payload;
+	const label = 'label' in payload ? payload.label : undefined;
 	const ownerLogin = owner.login;
 
 	const teamAssignments = await loadTeamAssignments( ownerLogin );

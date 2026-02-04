@@ -15,7 +15,7 @@ async function flagOss( payload: PullRequestEvent, octokit: OctokitClient ): Pro
 	const { owner, name } = repository;
 
 	// Assume PR author is org member if the PR isn't from a fork.
-	if ( head.repo.full_name === base.repo.full_name ) {
+	if ( head.repo?.full_name === base.repo.full_name ) {
 		return;
 	}
 

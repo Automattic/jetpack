@@ -12,7 +12,7 @@ async function assignIssues( payload: PullRequestEvent, octokit: OctokitClient )
 		/(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved):? +(?:#{1}|https?:\/\/github\.com\/automattic\/jetpack\/issues\/)(\d+)/gi;
 
 	let match;
-	while ( ( match = regex.exec( payload.pull_request.body ) ) ) {
+	while ( ( match = regex.exec( payload.pull_request.body ?? '' ) ) ) {
 		const [ , issue ] = match;
 
 		debug( `assign-issues: Assigning issue #${ issue } to @${ payload.pull_request.user.login }` );

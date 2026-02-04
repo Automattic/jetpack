@@ -168,7 +168,7 @@ async function aiLabeling( payload: IssuesEvent, octokit: OctokitClient ): Promi
 		! issueLabels.includes( '[Experiment] AI labels added' ) &&
 		! issueLabels.some( label => label === '[Type] Task' || label === 'Task' )
 	) {
-		const issueContents = cleanIssueContent( body );
+		const issueContents = cleanIssueContent( body ?? '' );
 
 		// Only process issues that have enough content to analyze (more than 100 characters).
 		if ( issueContents.length < 150 ) {
