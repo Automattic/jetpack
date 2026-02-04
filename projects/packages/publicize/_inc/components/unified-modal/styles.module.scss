@@ -14,4 +14,9 @@
 			margin-bottom: 0;
 		}
 	}
+
+	// Override global .components-button svg fill causing blue close icon
+	:global(.jp-navigator-modal__header .components-button svg) {
+		fill: inherit;
+	}
 }
