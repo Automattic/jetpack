@@ -514,8 +514,7 @@ const { state, actions } = store( NAMESPACE, {
 			if ( window.jetpackFormsPreviewMode ) {
 				event.preventDefault();
 				event.stopPropagation();
-				context.submissionError =
-					config.error_types?.preview_mode || 'Form submissions are disabled in preview mode.';
+				context.submissionError = config.error_types?.preview_mode;
 
 				if ( errorTimeout ) {
 					clearTimeout( errorTimeout );
