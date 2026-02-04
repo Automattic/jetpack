@@ -148,7 +148,12 @@ class zeroBS__Metabox_Company extends zeroBS__Metabox {
 				if ( $show_id === 1 && $companyID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					?>
 							<div class="jpcrm-form-group">
-								<label class="jpcrm-form-label"><?php echo esc_html( $this->coOrgLabel ) . ' '; esc_html_e( 'ID', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase, Squiz.PHP.EmbeddedPhp.MultipleStatements ?>:</label>
+								<label class="jpcrm-form-label">
+								<?php
+								echo esc_html( $this->coOrgLabel ) . ' ';
+								esc_html_e( 'ID', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase, Squiz.PHP.EmbeddedPhp.MultipleStatements
+								?>
+								:</label>
 								<b>#<?php echo isset( $companyID ) ? esc_html( $companyID ) : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></b>
 							</div>
 							<div class="jpcrm-form-group">

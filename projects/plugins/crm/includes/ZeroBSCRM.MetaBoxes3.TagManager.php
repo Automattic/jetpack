@@ -160,21 +160,33 @@ class zeroBS__Metabox_TagList extends zeroBS__Metabox {
 							$link = jpcrm_esc_link( 'listtagged', -1, $this->postType, -1, $tag['id'] );
 							?>
 							<tr>
-										<td><?php if ( isset( $tag['name'] ) ) echo '<a href="' . esc_url( $link ) . '" class="ui large label">' . esc_html( $tag['name'] ) . '</a>'; ?></td>
 								<td>
-								<?php
-								if ( isset( $tag['slug'] ) ) {
-									echo esc_html( $tag['slug'] );}
-								?>
+									<?php
+									if ( isset( $tag['name'] ) ) {
+										echo '<a href="' . esc_url( $link ) . '" class="ui large label">' . esc_html( $tag['name'] ) . '</a>';
+									}
+									?>
+								</td>
+								<td>
+									<?php
+									if ( isset( $tag['slug'] ) ) {
+										echo esc_html( $tag['slug'] );
+									}
+									?>
 								</td>
 								<?php /* this shows 1 date as DAL2 migration... <td><?php if (isset($tag['created']) && !empty($tag['created']) && $tag['created'] !== -1) echo zeroBSCRM_locale_utsToDate($tag['created']); ?></td> */ ?>
 								<td class="center aligned">
-								<?php
-								if ( isset( $tag['count'] ) ) {
-									echo '<a href="' . esc_url( $link ) . '">' . esc_html( zeroBSCRM_prettifyLongInts( $tag['count'] ) ) . '</a>';}
-								?>
+									<?php
+									if ( isset( $tag['count'] ) ) {
+										echo '<a href="' . esc_url( $link ) . '">' . esc_html( zeroBSCRM_prettifyLongInts( $tag['count'] ) ) . '</a>';}
+									?>
 								</td>
-										<td class="center aligned"><button type="button" class="ui mini button black zbs-delete-tag" data-tagid="<?php echo esc_attr( $tag['id'] ); ?>"><i class="trash alternate icon"></i> <?php esc_html_e( 'Delete', 'zero-bs-crm' ); ?></button></td>
+								<td class="center aligned">
+									<button type="button" class="ui mini button black zbs-delete-tag" data-tagid="<?php echo esc_attr( $tag['id'] ); ?>">
+										<i class="trash alternate icon"></i>
+										<?php esc_html_e( 'Delete', 'zero-bs-crm' ); ?>
+									</button>
+								</td>
 							</tr>
 							<?php
 						}

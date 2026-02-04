@@ -53,79 +53,79 @@ function zeroBSCRM_scriptStyles_initStyleRegister() {
 				);
 				wp_localize_script( 'zerobscrmlistviewjs', 'zbs_lang', $zbs_translation_array );
 
-			// Single view
-			wp_register_style( 'zerobscrmsingleview', plugins_url( '/css/ZeroBSCRM.admin.singleview' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
-			wp_register_script( 'zerobscrmsingleview', plugins_url( '/js/ZeroBSCRM.admin.singleview' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+				// Single view
+				wp_register_style( 'zerobscrmsingleview', plugins_url( '/css/ZeroBSCRM.admin.singleview' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+				wp_register_script( 'zerobscrmsingleview', plugins_url( '/js/ZeroBSCRM.admin.singleview' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-			// edit view
-			wp_register_style( 'zerobscrmeditview', plugins_url( '/css/ZeroBSCRM.admin.editview' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
-			wp_register_script( 'zerobscrmeditviewjs', plugins_url( '/js/ZeroBSCRM.admin.editview' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
-			wp_register_script( 'zerobscrmtagmetaboxjs', plugins_url( '/js/ZeroBSCRM.admin.tags.metabox' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+				// edit view
+				wp_register_style( 'zerobscrmeditview', plugins_url( '/css/ZeroBSCRM.admin.editview' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+				wp_register_script( 'zerobscrmeditviewjs', plugins_url( '/js/ZeroBSCRM.admin.editview' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+				wp_register_script( 'zerobscrmtagmetaboxjs', plugins_url( '/js/ZeroBSCRM.admin.tags.metabox' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-			// Metabox manager (rearrange them)
-			wp_register_script( 'zerobscrmmm', plugins_url( '/js/ZeroBSCRM.admin.metabox.manager' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+				// Metabox manager (rearrange them)
+				wp_register_script( 'zerobscrmmm', plugins_url( '/js/ZeroBSCRM.admin.metabox.manager' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-			// Segment Editor
-			wp_register_style( 'zbs-segmentedit-css', plugins_url( '/css/ZeroBSCRM.admin.segmentedit' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
-			wp_register_script( 'zbs-segmentedit-js', ZEROBSCRM_URL . '/js/ZeroBSCRM.admin.segmentedit' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
+				// Segment Editor
+				wp_register_style( 'zbs-segmentedit-css', plugins_url( '/css/ZeroBSCRM.admin.segmentedit' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+				wp_register_script( 'zbs-segmentedit-js', ZEROBSCRM_URL . '/js/ZeroBSCRM.admin.segmentedit' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
 
-			// home dash
-			wp_register_style( 'zerobscrmhomedash', plugins_url( '/css/ZeroBSCRM.admin.homedash' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'zbs-wp-semanticui' ), $zbs::VERSION );
+				// home dash
+				wp_register_style( 'zerobscrmhomedash', plugins_url( '/css/ZeroBSCRM.admin.homedash' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'zbs-wp-semanticui' ), $zbs::VERSION );
 
-			// settings page
-			wp_register_style( 'zerobscrmsettings', plugins_url( '/css/ZeroBSCRM.admin.settings' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+				// settings page
+				wp_register_style( 'zerobscrmsettings', plugins_url( '/css/ZeroBSCRM.admin.settings' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
-			// mail delivery wizard
-			wp_register_style( 'zerobscrmmaildeliverywizard', plugins_url( '/css/ZeroBSCRM.admin.maildeliverywizard' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+				// mail delivery wizard
+				wp_register_style( 'zerobscrmmaildeliverywizard', plugins_url( '/css/ZeroBSCRM.admin.maildeliverywizard' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
-			// systems page:
-			wp_register_script( 'jpcrmadminsystem', plugins_url( '/js/jpcrm-admin-system' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+				// systems page:
+				wp_register_script( 'jpcrmadminsystem', plugins_url( '/js/jpcrm-admin-system' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-		// ============ / Page-specific ==============
-		// ===========================================
+				// ============ / Page-specific ==============
+				// ===========================================
 
-		// ===========================================
-		// ============  Libs  =======================
+				// ===========================================
+				// ============  Libs  =======================
 
-			// jq ui
-			wp_register_script( 'zerobscrmadmjqui', plugins_url( '/js/lib/jquery-ui.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
-			// above didn't seem to include all libs req for draggable, this does, specific build for listviews
-			// 29/07/2017 http://jqueryui.com/download/#!version=1.12.1&components=111111111111111110000000010000000000000000000000
-			wp_register_script( 'zerobscrmadmjquidraggable', plugins_url( '/js/lib/jquery-ui.1.12.1.dragdrop.listview.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+				// jq ui
+				wp_register_script( 'zerobscrmadmjqui', plugins_url( '/js/lib/jquery-ui.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+				// above didn't seem to include all libs req for draggable, this does, specific build for listviews
+				// 29/07/2017 http://jqueryui.com/download/#!version=1.12.1&components=111111111111111110000000010000000000000000000000
+				wp_register_script( 'zerobscrmadmjquidraggable', plugins_url( '/js/lib/jquery-ui.1.12.1.dragdrop.listview.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-			// jq modal
-			wp_register_style( 'jpcrm-jquery-modal', plugins_url( '/build/lib/jquery-modal/jquery.modal.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
-			wp_register_script( 'jpcrm-jquery-modal', plugins_url( '/build/lib/jquery-modal/jquery.modal.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+				// jq modal
+				wp_register_style( 'jpcrm-jquery-modal', plugins_url( '/build/lib/jquery-modal/jquery.modal.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+				wp_register_script( 'jpcrm-jquery-modal', plugins_url( '/build/lib/jquery-modal/jquery.modal.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-			// font awesome
-			wp_register_style( 'jpcrm-fontawesome', plugins_url( '/build/lib/font-awesome/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+				// font awesome
+				wp_register_style( 'jpcrm-fontawesome', plugins_url( '/build/lib/font-awesome/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
-			// chart.js
-			wp_register_script( 'jpcrm-chartjs', plugins_url( '/build/lib/chart.js/chart.umd.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION, true );
+				// chart.js
+				wp_register_script( 'jpcrm-chartjs', plugins_url( '/build/lib/chart.js/chart.umd.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION, true );
 
-			// SweetAlert2
-			wp_register_style( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
-			wp_enqueue_script( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+				// SweetAlert2
+				wp_register_style( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+				wp_enqueue_script( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-			// typeahead.js
-			wp_enqueue_script( 'jpcrm-typeahead', plugins_url( '/build/lib/typeahead.js/typeahead.bundle.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+				// typeahead.js
+				wp_enqueue_script( 'jpcrm-typeahead', plugins_url( '/build/lib/typeahead.js/typeahead.bundle.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-		// ============ / Libs =======================
-		// ===========================================
+				// ============ / Libs =======================
+				// ===========================================
 
-		// ===========================================
-		// ============  Whitelabel  =================
+				// ===========================================
+				// ============  Whitelabel  =================
 
-			// WL css overrides (3/11/18 ++)
-			// if the file exists, this registers + enqueues css
+				// WL css overrides (3/11/18 ++)
+				// if the file exists, this registers + enqueues css
 				if ( file_exists( dirname( ZBS_ROOTFILE ) . '/css/wl.adm.override.css' ) ) {
 					wp_enqueue_style( 'zbswladmcss', plugins_url( '/css/wl.adm.override.css', ZBS_ROOTFILE ), array( 'zerobscrmadmcss', 'zerobscrmlistview', 'zerobscrmeditview' ), $zbs::VERSION );
 				}
 
-		// ============ / Whitelabel =================
-		// ===========================================
+				// ============ / Whitelabel =================
+				// ===========================================
 
-		// LEGACY SUPPORT for ext's with menus
+				// LEGACY SUPPORT for ext's with menus
 				if ( zeroBSCRM_isAdminPage() ) {
 					zeroBSCRM_global_admin_styles();
 				}
@@ -337,7 +337,7 @@ function zeroBSCRM_global_admin_styles() {
 	// Ideally need to stop it firing twice
 	if ( ! defined( 'ZBS_GAS' ) ) {
 
-	// enqueue these (via the admin_print_styles-{$page})
+		// enqueue these (via the admin_print_styles-{$page})
 
 		// prev core
 		wp_enqueue_style( 'zerobscrmadmcss' );
@@ -360,12 +360,12 @@ function zeroBSCRM_global_admin_styles() {
 
 		// DEFINE ZBS page :)
 		if ( ! defined( 'ZBS_PAGE' ) ) {
-define( 'ZBS_PAGE', true );
+			define( 'ZBS_PAGE', true );
 		}
 
 		// DEFINE ZBS styles fired / dupe check protection
 		if ( ! defined( 'ZBS_GAS' ) ) {
-define( 'ZBS_GAS', true );
+			define( 'ZBS_GAS', true );
 		}
 	} // / dupe check protection
 }
@@ -531,7 +531,7 @@ function zeroBSCRM_add_admin_styles( $hook ) {
 	global $post;
 	$zeroBSCRM_custom_slug = '';
 	if ( isset( $_GET['zbsslug'] ) ) {
-$zeroBSCRM_custom_slug = sanitize_text_field( $_GET['zbsslug'] );
+		$zeroBSCRM_custom_slug = sanitize_text_field( $_GET['zbsslug'] );
 	}
 
 	if ( $hook == 'post-new.php' || $hook == 'post.php' || $hook == 'edit-tags.php' || 'edit.php' ) { // || $hook == 'edit.php'
@@ -625,7 +625,7 @@ function zeroBSCRM_mailTemplatesEnqueue() {
 
 	$slug = '';
 	if ( isset( $_GET['page'] ) ) {
-$slug = sanitize_text_field( $_GET['page'] );
+		$slug = sanitize_text_field( $_GET['page'] );
 	}
 	if ( $slug != $zbs->slugs['email-templates'] ) {
 		return;

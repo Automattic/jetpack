@@ -337,64 +337,68 @@ class zeroBS__Metabox_Quote extends zeroBS__Metabox {
 						zeroBSCRM_html_editFields( $quote, $fields, 'zbscq_' );
 
 						#} if enabled, and new quote, or one which hasn't had the 'templated' meta key added.
-						if ( $useQuoteBuilder == 1 && ! isset( $quote['template'] ) ) {
-
+						if ( $useQuoteBuilder == 1 && ! isset( $quote['template'] ) ) { 
 							?>
-								<div class="jpcrm-form-group jpcrm-form-group-span-2">
-								<div class="zbs-move-on-wrap">
+							<div class="jpcrm-form-group jpcrm-form-group-span-2">
+							<div class="zbs-move-on-wrap">
 
-									<!-- infoz -->
-									<h3><?php esc_html_e( 'Publish this Quote', 'zero-bs-crm' ); ?></h3>
-									<p><?php esc_html_e( 'Do you want to use the Quote Builder to publish this quote? (This lets you email it to a client directly, for approval)', 'zero-bs-crm' ); ?></p>
+								<!-- infoz -->
+								<h3><?php esc_html_e( 'Publish this Quote', 'zero-bs-crm' ); ?></h3>
+								<p><?php esc_html_e( 'Do you want to use the Quote Builder to publish this quote? (This lets you email it to a client directly, for approval)', 'zero-bs-crm' ); ?></p>
 
-									<input type="hidden" name="zbs_quote_template_id_used" id="zbs_quote_template_id_used" value="
+								<input type="hidden" name="zbs_quote_template_id_used" id="zbs_quote_template_id_used" value="
+								<?php
+								if ( isset( $templateUsed ) && ! empty( $templateUsed ) ) {
+									echo esc_attr( $templateUsed );}
+								?>
+								" />
+								<select class="form-control" name="zbs_quote_template_id" id="zbs_quote_template_id">
+									<option value="" disabled="disabled"><?php esc_html_e( 'Select a template', 'zero-bs-crm' ); ?>:</option>
 									<?php
-									if ( isset( $templateUsed ) && ! empty( $templateUsed ) ) {
-										echo esc_attr( $templateUsed );}
-									?>
-									" />
-									<select class="form-control" name="zbs_quote_template_id" id="zbs_quote_template_id">
-										<option value="" disabled="disabled"><?php esc_html_e( 'Select a template', 'zero-bs-crm' ); ?>:</option>
-										<?php
 
-											$templates = zeroBS_getQuoteTemplates( true, 100, 0 );
+										$templates = zeroBS_getQuoteTemplates( true, 100, 0 );
 
-											#} If this quote has already selected a template it'll be stored in the meta under 'templateid'
-											#} But if it's not the first, we never need to show this anyway...
+										#} If this quote has already selected a template it'll be stored in the meta under 'templateid'
+										#} But if it's not the first, we never need to show this anyway...
 
-										if ( count( $templates ) > 0 ) {
-											foreach ( $templates as $template ) {
+									if ( count( $templates ) > 0 ) {
+										foreach ( $templates as $template ) {
 
-												$templateName = __( 'Template', 'zero-bs-crm' ) . ' ' . $template['id'];
-												if ( isset( $template['title'] ) && ! empty( $template['title'] ) ) {
-													$templateName = $template['title'] . ' (' . $template['id'] . ')';
-												}
-
-												echo '<option value="' . esc_attr( $template['id'] ) . '"';
-												#if (isset())
-												echo '>' . esc_html( $templateName ) . '</option>';
-
+											$templateName = __( 'Template', 'zero-bs-crm' ) . ' ' . $template['id'];
+											if ( isset( $template['title'] ) && ! empty( $template['title'] ) ) {
+												$templateName = $template['title'] . ' (' . $template['id'] . ')';
 											}
+
+											echo '<option value="' . esc_attr( $template['id'] ) . '"';
+											#if (isset())
+											echo '>' . esc_html( $templateName ) . '</option>';
+
 										}
+									}
 
-										?>
-										<option value=""><?php esc_html_e( 'Blank Template', 'zero-bs-crm' ); ?></option>
-									</select>
-									<br />
-									<p><?php esc_html_e( 'Create additional quote templates', 'zero-bs-crm' ); ?> <a href="<?php echo jpcrm_esc_link( $zbs->slugs['quote-templates'] ); ?>"><?php esc_html_e( 'here', 'zero-bs-crm' ); ?></a></p>
-												<button type="button" id="zbsQuoteBuilderStep2" class="ui button button-primary black button-large xl"<?php if ( $quoteContactID <= 0 ) { echo ' disabled="disabled"'; } ?>><?php esc_html_e( 'Use Quote Builder', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></button>
-								<?php if ( $quoteContactID <= 0 ) { /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>
+									?>
+									<option value=""><?php esc_html_e( 'Blank Template', 'zero-bs-crm' ); ?></option>
+								</select>
+								<br />
+								<p>
+									<?php esc_html_e( 'Create additional quote templates', 'zero-bs-crm' ); ?>
+									<a href="<?php echo jpcrm_esc_link( $zbs->slugs['quote-templates'] ); ?>">
+										<?php esc_html_e( 'here', 'zero-bs-crm' ); ?>
+									</a>
+								</p>
+								<button type="button" id="zbsQuoteBuilderStep2" class="ui button button-primary black button-large xl"
+									<?php if ( $quoteContactID <= 0 ) { echo ' disabled="disabled"'; } /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace */ ?>><?php esc_html_e( 'Use Quote Builder', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>
+								</button>
+								<?php if ( $quoteContactID <= 0 ) { /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace */ ?>
 									<p id="zbsQuoteBuilderStep2info">(<?php esc_html_e( "You'll need to assign this Quote to a contact to use this", 'zero-bs-crm' ); ?>);</p>
-									<?php } ?>
+								<?php } ?>
 
-								</div>
-									</div>
-									<?php
+							</div>
+						</div>
+						<?php } ?>
 
-						}
-						?>
-
-				</div></div>
+						</div>
+					</div>
 				<?php
 	}
 

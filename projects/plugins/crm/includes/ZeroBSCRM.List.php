@@ -391,7 +391,7 @@ class zeroBSCRM_list {
 					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error retrieving %s', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There has been a problem retrieving your %s. If this issue persists, please contact support.', 'zero-bs-crm' ), $this->plural ), 'disabled warning sign', 'zbsCantLoadData' );
 					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your column configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveCols' );
 					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your filter button configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveButtons' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					echo zeroBSCRM_UI2_messageHTML( 'info hidden', sprintf( __( 'No %s Found', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There are no %s here. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), $this->plural, jpcrm_esc_link( 'create', -1, $this->postType ) ), 'disabled warning sign', 'zbsNoResults' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					echo zeroBSCRM_UI2_messageHTML( 'info hidden', sprintf( __( 'No %s Found', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There are no %1$s here. Do you want to <a href="%2$s">create one</a>?', 'zero-bs-crm' ), $this->plural, jpcrm_esc_link( 'create', -1, $this->postType ) ), 'disabled warning sign', 'zbsNoResults' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 					// any additional messages?
 					if ( isset( $this->messages ) && is_array( $this->messages ) && count( $this->messages ) > 0 ) {
@@ -420,13 +420,8 @@ class zeroBSCRM_list {
 			?>
 
 		<script type="text/javascript">
-					<?php
-					?>
 			// expose log types (For columns)
-			var zbsLogTypes = <?php
-			global $zeroBSCRM_logTypes;
-			echo json_encode( $zeroBSCRM_logTypes );
-			?>;
+			var zbsLogTypes = <?php global $zeroBSCRM_logTypes; echo json_encode( $zeroBSCRM_logTypes ); ?>;
 
 			<?php
 
@@ -504,7 +499,8 @@ class zeroBSCRM_list {
 			// Vars for zbs list view drawer
 			var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters ); ?>;
 
-			var zbsSortables = [<?php
+			var zbsSortables = [
+			<?php
 
 				$c = 0; if ( count( $this->sortables ) > 0 ) {
 				foreach ( $this->sortables as $sortableStr ) {
@@ -520,8 +516,10 @@ class zeroBSCRM_list {
 				}
 				}
 
-				?>]; // for v2.2 this is only lot that will show sort, until we redo db this'll be hard
-			var zbsBulkActions = [<?php
+				?>
+				]; // for v2.2 this is only lot that will show sort, until we redo db this'll be hard
+			var zbsBulkActions = [
+			<?php
 			$bulkCount = 0; if ( count( $this->bulkActions ) > 0 ) {
 				foreach ( $this->bulkActions as $bulkActionStr ) {
 
@@ -535,19 +533,22 @@ class zeroBSCRM_list {
 
 				}
 			}
-			?>]; // :D
+			?>
+			]; // :D
 			var zbsListViewData = []; var zbsListViewCount = 0;
 			var zbsDrawListViewBlocker = false;
 			var zbsDrawListViewAJAXBlocker = false;
 			var zbsDrawListViewColUpdateBlocker = false;
 			var zbsDrawListViewColUpdateAJAXBlocker = false;
 
-			var zbsObjectEmailLinkPrefix = '<?php
+			var zbsObjectEmailLinkPrefix = '
+			<?php
 
 				// this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol)
 				echo jpcrm_esc_link( 'email', -1, 'zerobs_customer', true );
 
-			?>';
+			?>
+			';
 			var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
 			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
 			var zbsObjectViewLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ); ?>';
@@ -623,7 +624,8 @@ class zeroBSCRM_list {
 			}
 			?>
 			var zbsListViewLangLabels = <?php echo wp_json_encode( $jpcrm_listview_lang_labels ); ?>;
-			var zbsTagsForBulkActions = <?php
+			var zbsTagsForBulkActions = 
+			<?php
 				$tags = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					array(
 						'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -636,46 +638,48 @@ class zeroBSCRM_list {
 				// make simplified
 				$simple_tags = array();
 				if ( is_array( $tags ) && count( $tags ) > 0 ) {
-											foreach ( $tags as $t ) {
-												$simple_tags[] = array(
-													'id'   => $t['id'],
-													'name' => $t['name'],
-													'slug' => $t['slug'],
-												);
-																	}
+					foreach ( $tags as $t ) {
+						$simple_tags[] = array(
+							'id'   => $t['id'],
+							'name' => $t['name'],
+							'slug' => $t['slug'],
+						);
+					}
 				}
 
 				$zbs_tags_for_bulk_actions = wp_json_encode( $simple_tags );
 				echo ( $zbs_tags_for_bulk_actions ? $zbs_tags_for_bulk_actions : '[]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-				?>;
+			?>;
 				var zbsListViewIcos = {};
 				// gives data used by inline editor
 				var zbsListViewInlineEdit = {
 
 					// for now just put contacts in here
 					customer: {
-						statuses: <?php
+						statuses: 
+						<?php
 							// MUST be a better way than this to get customer statuses...
 							// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							global $zbsCustomerFields;
 							if ( is_array( $zbsCustomerFields['status'][3] ) ) {
-							echo wp_json_encode( $zbsCustomerFields['status'][3] );
+								echo wp_json_encode( $zbsCustomerFields['status'][3] );
 							} else {
-							echo '[]';
+								echo '[]';
 							}
 							// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						?>
 					},
 
-					owners: <?php
+					owners: 
+					<?php
 
 						// hardcoded customer perms atm
 						$possible_owners = zeroBS_getPossibleOwners( array( 'zerobs_admin', 'zerobs_customermgr' ), true );
 						if ( ! is_array( $possible_owners ) ) {
-						echo wp_json_encode( array() );
+							echo wp_json_encode( array() );
 						} else {
-						echo wp_json_encode( $possible_owners );
+							echo wp_json_encode( $possible_owners );
 						}
 
 					?>
@@ -825,7 +829,7 @@ function jpcrm_listview_language_labels( $language_array ) { // phpcs:ignore Uni
 		'couldntupdate'      => esc_html__( 'Could not update', 'zero-bs-crm' ),
 		'couldntupdatedeets' => esc_html__( 'This record could not be updated. Please try again, if this persists please let admin know.', 'zero-bs-crm' ),
 		/* translators: Placeholders are the range of the current record result and the total object count. */
-		'listview_counts'    => esc_html__( 'Showing %s of %s items', 'zero-bs-crm' ),
+		'listview_counts'    => esc_html__( 'Showing %1$s of %2$s items', 'zero-bs-crm' ),
 	);
 
 	return array_merge( $language_array, $jpcrm_listview_lang_labels );

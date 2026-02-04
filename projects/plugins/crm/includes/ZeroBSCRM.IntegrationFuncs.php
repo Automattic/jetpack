@@ -11,9 +11,10 @@
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-/* ======================================================
-  Integration specific extension functions (#MIKELOOK)
-   ====================================================== */
+/*
+======================================================
+	Integration specific extension functions (#MIKELOOK)
+	====================================================== */
 
 /*
 	|=======================================
@@ -55,7 +56,6 @@ function zeroBS_integrations_getCustomer( $externalSource = '', $externalID = ''
 
 	#} If it gets here, it failed
 	return false;
-
 }
 
 /*
@@ -234,26 +234,24 @@ function zeroBS_integrations_addOrUpdateCustomer( $externalSource = '', $externa
 				#} So we have a customer with this email...
 				switch ( $emailAlreadyExistsAction ) {
 
-					/* not built out yet...
+					/*
+					not built out yet...
 					case 'addextsrc':
 
 						#} Just add the external source
 
 						break; */
 					case 'update':
-
 						#} Just let it roll on...
 						$usualUpdate = true;
 
 						break;
 					case 'skip':
-
 						#} don't do nothin :)
 						$usualUpdate = false;
 
 						break;
 					case 'notifyexit':
-
 						#} Notify + exit
 						echo esc_html( 'Contact Add/Update Issue: A contact already exists with the email "' . $customerFields['zbsc_email'] . '" (ID: ' . $potentialCustomerIDfromEmail . '), user could not be processed!' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						exit( 0 );
@@ -324,12 +322,11 @@ function zeroBS_integrations_addOrUpdateCustomer( $externalSource = '', $externa
 			$customerID = zeroBS_addUpdateCustomer( $potentialCustomerID, $customerFields, $externalSource, $externalID, $customerDate, $fallbackLogToPass, $extraMeta, $automatorPassthrough, -1, $fieldPrefix );
 			return $customerID;
 
-	} #} / usual update
+		} #} / usual update
 
 	} else {
 		return false;
 	}
-
 }
 
 /*
@@ -505,15 +502,15 @@ function zeroBS_integrations_addOrUpdateCompany(
 	if ( ! empty( $externalSource ) && ! empty( $externalID ) && is_array( $companyFields ) && count( $companyFields ) > 0 ) {
 
 		$potentialCompanyIDfromName = false;
-		$potentialCoName = '';
+		$potentialCoName            = '';
 
 		// <3.0
-		if ( isset( $companyFields[$fieldPrefix . 'coname'] ) && ! empty( $companyFields[$fieldPrefix . 'coname'] ) ) {
-			$potentialCoName = $companyFields[$fieldPrefix . 'coname'];
+		if ( isset( $companyFields[ $fieldPrefix . 'coname' ] ) && ! empty( $companyFields[ $fieldPrefix . 'coname' ] ) ) {
+			$potentialCoName = $companyFields[ $fieldPrefix . 'coname' ];
 		}
 		// 3.0
-		if ( isset( $companyFields[$fieldPrefix . 'name'] ) && ! empty( $companyFields[$fieldPrefix . 'name'] ) ) {
-			$potentialCoName = $companyFields[$fieldPrefix . 'name'];
+		if ( isset( $companyFields[ $fieldPrefix . 'name' ] ) && ! empty( $companyFields[ $fieldPrefix . 'name' ] ) ) {
+			$potentialCoName = $companyFields[ $fieldPrefix . 'name' ];
 		}
 
 		if ( $potentialCoName !== '' ) {
@@ -527,26 +524,24 @@ function zeroBS_integrations_addOrUpdateCompany(
 				#} So we have a customer with this email...
 				switch ( $conameAlreadyExistsAction ) {
 
-					/* not built out yet...
+					/*
+					not built out yet...
 					case 'addextsrc':
 
 						#} Just add the external source
 
 						break; */
 					case 'update':
-
 						#} Just let it roll on...
 						$usualUpdate = true;
 
 						break;
 					case 'skip':
-
 						#} don't do nothin :)
 						$usualUpdate = false;
 
 						break;
 					case 'notifyexit':
-
 						#} Notify + exit
 						echo esc_html( __( jpcrm_label_company() . ' Add/Update Issue: A ' . jpcrm_label_company() . ' already exists with the name "', 'zero-bs-crm' ) . $potentialCoName . '" (ID: ' . $potentialCompanyIDfromName . '), ' . __( 'could not be processed!', 'zero-bs-crm' ) );
 						exit( 0 );
@@ -608,12 +603,11 @@ function zeroBS_integrations_addOrUpdateCompany(
 
 			return $companyID;
 
-	} #} / usual update
+		} #} / usual update
 
 	} else {
 		return false;
 	}
-
 }
 
 /*
@@ -650,7 +644,6 @@ function zeroBS_integrations_getCompany( $externalSource = '', $externalID = '' 
 
 	#} If it gets here, it failed
 	return false;
-
 }
 
 /*
@@ -790,7 +783,7 @@ function zeroBS_integrations_addOrUpdateTransaction(
 			( isset( $transactionFields['ref'] ) && ! empty( $transactionFields['ref'] ) )
 
 		) &&
-		//isset($transactionFields['customer']) && !empty($transactionFields['customer']) &&
+		// isset($transactionFields['customer']) && !empty($transactionFields['customer']) &&
 		isset( $transactionFields['status'] ) && ! empty( $transactionFields['status'] ) &&
 		isset( $transactionFields['total'] ) && ! empty( $transactionFields['total'] )
 	) {
@@ -841,7 +834,6 @@ function zeroBS_integrations_addOrUpdateTransaction(
 		return false;
 
 	}
-
 }
 
 /**
@@ -910,7 +902,6 @@ function zeroBS_integrations_getTransaction( $transactionExternalSource = '', $t
 
 	#} If it gets here, it failed
 	return false;
-
 }
 
 /*
@@ -930,11 +921,11 @@ function zeroBS_integrations_getAllCategories( $incEmpty = false ) {
 				'ignoreowner'  => true,
 				// sort
 				'sortByField'  => 'zbstag_name',
-				'sortOrder'    => 'ASC'
+				'sortOrder'    => 'ASC',
 
 			)
-		) );
-
+		),
+	);
 }
 
 #} For now just a wrapper
@@ -945,7 +936,6 @@ function zeroBS_integrations_searchCustomers( $args = array() ) {
 	}
 
 	return array();
-
 }
 
 /**
@@ -975,14 +965,13 @@ function zeroBS_integrations_addLog(
 	}
 
 	return false;
-
 }
 
 // WH added, backward compat:
 // only works DAL2 +
 function zeroBS_integrations_getCustomFields( $objTypeID = -1 ) {
 
-	$objTypeID = (int)$objTypeID;
+	$objTypeID = (int) $objTypeID;
 
 	if ( $objTypeID > 0 ) {
 
@@ -995,6 +984,7 @@ function zeroBS_integrations_getCustomFields( $objTypeID = -1 ) {
 	return array();
 }
 
-/* ======================================================
-  / Integration specific extension functions
-   ====================================================== */
+/*
+======================================================
+	/ Integration specific extension functions
+	====================================================== */
