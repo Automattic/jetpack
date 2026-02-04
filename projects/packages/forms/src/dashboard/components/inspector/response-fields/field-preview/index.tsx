@@ -22,16 +22,11 @@ import { EMAIL_REGEX, inferFieldTypeFromLabel } from './field-preview-utils.ts';
 import type { ResponseField, FieldType, FileItem } from '../../../../../types/index.ts';
 import './style.scss';
 
-/**
- * Returns the appropriate icon for the field type.
- *
- * @param {FieldType} fieldType - The field type.
- * @return {React.ReactNode} The icon element.
- */
 const getFieldIcon = ( fieldType: FieldType ): React.ReactNode => {
-	const icon = fieldIcons[ fieldType ] ?? fieldIcons.text;
-	return <Icon icon={ icon } />;
+	return <Icon icon={ fieldIcons[ fieldType ] ?? fieldIcons.text } />;
 };
+
+const BADGED_VALUE_FIELDS: FieldType[] = [ 'consent', 'checkbox', 'radio', 'select' ];
 
 type FieldPreviewProps = {
 	field: ResponseField;
@@ -90,10 +85,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 			return '-';
 		}
 
-		// These fields carry a single string as value and
-		// design option is to show a badge with the value
-		const badgedValueFields = [ 'consent', 'checkbox', 'radio', 'select' ];
-		if ( badgedValueFields.includes( fieldType ) ) {
+		if ( BADGED_VALUE_FIELDS.includes( fieldType ) ) {
 			return <Badge>{ stringValue }</Badge>;
 		}
 

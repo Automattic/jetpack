@@ -58,15 +58,6 @@ const nameIcon = (
 	</SVG>
 );
 
-const numberIcon = (
-	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-		<Path
-			fillRule="evenodd"
-			d="M6.125 6H17.875C17.944 6 18 6.05596 18 6.125V17.875C18 17.944 17.944 18 17.875 18H6.125C6.05596 18 6 17.944 6 17.875V6.125C6 6.05596 6.05596 6 6.125 6ZM4.5 6.125C4.5 5.22754 5.22754 4.5 6.125 4.5H17.875C18.7725 4.5 19.5 5.22754 19.5 6.125V17.875C19.5 18.7725 18.7725 19.5 17.875 19.5H6.125C5.22754 19.5 4.5 18.7725 4.5 17.875V6.125ZM10.5171 16.4421L16.5897 8.71335L15.4103 7.78662L10.4828 14.0579L8.57616 11.7698L7.42383 12.7301L10.5171 16.4421Z"
-		/>
-	</SVG>
-);
-
 const ratingIcon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 		<Path d="M4.90821 9.05978C4.91669 9.04183 4.92977 9.02672 4.94599 9.01616C4.96221 9.0056 4.98091 9 5 9C5.01909 9 5.03779 9.0056 5.05401 9.01616C5.07023 9.02672 5.08331 9.04183 5.09179 9.05978L5.93962 10.8628C5.94695 10.8785 5.95779 10.892 5.97121 10.9023C5.98463 10.9125 6.00023 10.9192 6.01666 10.9217L7.91228 11.2108C7.93118 11.2137 7.94893 11.222 7.96354 11.2349C7.97814 11.2478 7.98902 11.2648 7.99495 11.2838C8.00087 11.3029 8.0016 11.3233 7.99706 11.3428C7.99252 11.3622 7.98288 11.38 7.96924 11.394L6.59731 12.7975C6.58536 12.8097 6.57643 12.8247 6.57129 12.8414C6.56615 12.858 6.56495 12.8757 6.5678 12.893L6.89153 14.8745C6.89467 14.8942 6.89251 14.9144 6.8853 14.9329C6.87809 14.9514 6.86611 14.9675 6.8507 14.9792C6.8353 14.991 6.81707 14.998 6.79808 14.9995C6.77909 15.0009 6.76008 14.9968 6.74319 14.9876L5.04753 14.0521C5.03287 14.044 5.01656 14.0398 5 14.0398C4.98344 14.0398 4.96713 14.044 4.95247 14.0521L3.25681 14.9876C3.23991 14.997 3.22085 15.0012 3.20179 14.9997C3.18273 14.9983 3.16443 14.9913 3.14896 14.9795C3.13348 14.9678 3.12145 14.9517 3.11423 14.9331C3.107 14.9146 3.10487 14.8943 3.10806 14.8745L3.43178 12.893C3.43469 12.8758 3.43356 12.8581 3.42849 12.8414C3.42342 12.8248 3.41456 12.8097 3.40269 12.7975L2.03076 11.394C2.01712 11.38 2.00748 11.3622 2.00294 11.3428C1.9984 11.3233 1.99913 11.3029 2.00505 11.2838C2.01098 11.2648 2.02185 11.2478 2.03646 11.2349C2.05107 11.222 2.06882 11.2137 2.08772 11.2108L3.98334 10.9217C3.99977 10.9192 4.01537 10.9125 4.02879 10.9023C4.04221 10.892 4.05305 10.8785 4.06038 10.8628L4.90821 9.05978Z" />
@@ -120,39 +111,31 @@ const timeIcon = (
 	</SVG>
 );
 
-// -- @wordpress/icons re-exports --
-// These blocks use standard WordPress icons, no @svgr/webpack needed.
-
-const emailIcon = envelope;
-const fileIcon = upload;
-const hiddenIcon = unseen;
-const telephoneIcon = mobile;
-const urlIcon = globe;
-
 /**
  * Map of field types to their icon definitions.
- * Compatible with `<Icon icon={ fieldIcons[ type ] } />`.
+ * Custom SVG icons are defined above; `@wordpress/icons` are referenced directly.
  */
-export const fieldIcons: Record< FieldType | string, JSX.Element > = {
+export const fieldIcons: Partial< Record< FieldType, JSX.Element > > = {
 	checkbox: checkboxIcon,
 	'checkbox-multiple': multipleChoiceIcon,
 	consent: consentIcon,
 	date: dateIcon,
-	email: emailIcon,
-	file: fileIcon,
-	hidden: hiddenIcon,
+	email: envelope,
+	file: upload,
+	hidden: unseen,
 	'image-select': imageSelectIcon,
 	name: nameIcon,
-	number: numberIcon,
-	phone: telephoneIcon,
+	// number intentionally reuses textIcon (see src/blocks/field-number/icon.svg).
+	number: textIcon,
+	phone: mobile,
 	radio: singleChoiceIcon,
 	range: sliderIcon,
 	rating: ratingIcon,
 	select: selectIcon,
 	slider: sliderIcon,
-	telephone: telephoneIcon,
+	telephone: mobile,
 	text: textIcon,
 	textarea: textareaIcon,
 	time: timeIcon,
-	url: urlIcon,
+	url: globe,
 };
