@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Clarify error messages when video uploads fail due to plan limitations.
