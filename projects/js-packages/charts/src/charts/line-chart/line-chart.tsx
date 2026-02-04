@@ -15,6 +15,7 @@ import {
 	useChartDataTransform,
 	useChartMargin,
 	useElementHeight,
+	useHasLegendChild,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -293,10 +294,15 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const [ isNavigating, setIsNavigating ] = useState( false );
 		const internalChartRef = useRef< SingleChartRef >( null );
 
+		// Check if children contain a Legend component (composition pattern)
+		const hasLegendChild = useHasLegendChild( children );
+
 		// Use the measured SVG wrapper height, falling back to the passed height if provided.
-		// We only render the chart once we have a valid height to prevent layout shift/flicker.
+		// When there's a legend (via prop or composition), we must wait for measurement because
+		// the legend takes space and the svg-wrapper height will be less than the total height.
 		const chartHeight = svgWrapperHeight > 0 ? svgWrapperHeight : height;
-		const isWaitingForMeasurement = ! chartHeight;
+		const hasLegend = showLegend || hasLegendChild;
+		const isWaitingForMeasurement = hasLegend ? svgWrapperHeight === 0 : ! chartHeight;
 
 		// Forward the external ref to the internal ref
 		useImperativeHandle(
@@ -483,6 +489,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					style={ {
 						width,
 						height,
+						visibility: isWaitingForMeasurement ? 'hidden' : 'visible',
 					} }
 				>
 					{ legendPosition === 'top' && legendElement }

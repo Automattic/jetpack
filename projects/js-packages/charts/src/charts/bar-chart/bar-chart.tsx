@@ -13,6 +13,7 @@ import {
 	useZeroValueDisplay,
 	useChartMargin,
 	useElementHeight,
+	useHasLegendChild,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -127,10 +128,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const [ svgWrapperRef, svgWrapperHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 
+	// Check if children contain a Legend component (composition pattern)
+	const hasLegendChild = useHasLegendChild( children );
+
 	// Use the measured SVG wrapper height, falling back to the passed height if provided.
-	// We only render the chart once we have a valid height to prevent layout shift/flicker.
+	// When there's a legend (via prop or composition), we must wait for measurement because
+	// the legend takes space and the svg-wrapper height will be less than the total height.
 	const chartHeight = svgWrapperHeight > 0 ? svgWrapperHeight : height;
-	const isWaitingForMeasurement = ! chartHeight;
+	const hasLegend = showLegend || hasLegendChild;
+	const isWaitingForMeasurement = hasLegend ? svgWrapperHeight === 0 : ! chartHeight;
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
@@ -365,6 +371,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				style={ {
 					width,
 					height,
+					visibility: isWaitingForMeasurement ? 'hidden' : 'visible',
 				} }
 				data-chart-id={ `bar-chart-${ chartId }` }
 			>

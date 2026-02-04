@@ -256,23 +256,19 @@ export const WithInteractiveLegend: Story = {
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 	render: args => (
-		<div style={ { width: '800px', height: '420px' } }>
-			<BarChart
-				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
-				withTooltips={ true }
-				gridVisibility="x"
-				maxWidth={ 1200 }
-				height={ 400 }
-			>
-				<BarChart.Legend
-					orientation={ args.legendOrientation || 'horizontal' }
-					alignment={ args.legendAlignment || 'center' }
-					position={ args.legendPosition || 'bottom' }
-					maxWidth={ args.legendMaxWidth }
-					textOverflow={ args.legendTextOverflow || 'wrap' }
-				/>
-			</BarChart>
-		</div>
+		<BarChart
+			data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
+			withTooltips={ true }
+			gridVisibility="x"
+		>
+			<BarChart.Legend
+				orientation={ args.legendOrientation || 'horizontal' }
+				alignment={ args.legendAlignment || 'center' }
+				position={ args.legendPosition || 'bottom' }
+				maxWidth={ args.legendMaxWidth }
+				textOverflow={ args.legendTextOverflow || 'wrap' }
+			/>
+		</BarChart>
 	),
 	argTypes: {
 		legendInteractive: {
