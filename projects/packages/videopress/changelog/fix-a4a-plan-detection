@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix upgrade notice incorrectly showing for A4A (Automattic for Agencies) VideoPress customers by using dynamic features API instead of hardcoded plan slugs.

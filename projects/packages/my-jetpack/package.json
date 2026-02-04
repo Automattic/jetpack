@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "5.31.0",
+	"version": "5.31.1",
 	"private": true,
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
