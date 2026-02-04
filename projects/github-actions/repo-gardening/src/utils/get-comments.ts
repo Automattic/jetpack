@@ -1,15 +1,6 @@
 import debug from './debug.js';
 import type { OctokitClient } from '../types.js';
-
-/**
- * Represents a comment on an issue or pull request.
- */
-interface IssueComment {
-	user: { login: string };
-	body: string;
-	html_url: string;
-	[ key: string ]: unknown;
-}
+import type { IssueComment } from '@octokit/webhooks-types';
 
 // Cache for getComments.
 const cache: Record< string, IssueComment[] > = {};

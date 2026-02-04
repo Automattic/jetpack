@@ -4,6 +4,7 @@ import getComments from '../../utils/get-comments.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
 import type { OctokitClient, IssuesEvent, IssueCommentEvent } from '../../types.js';
+import type { IssueComment } from '@octokit/webhooks-types';
 
 /**
  * Represents the info extracted from a previous bot comment.
@@ -11,16 +12,6 @@ import type { OctokitClient, IssuesEvent, IssueCommentEvent } from '../../types.
 interface ListCommentInfo {
 	id?: number;
 	body?: string;
-}
-
-/**
- * Represents a comment on an issue.
- */
-interface IssueComment {
-	user: { login: string };
-	body: string;
-	id?: number;
-	[ key: string ]: unknown;
 }
 
 /**

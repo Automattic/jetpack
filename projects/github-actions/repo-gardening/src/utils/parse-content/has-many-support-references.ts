@@ -1,11 +1,5 @@
 import { getInput } from '@actions/core';
-
-interface IssueComment {
-	user: {
-		login: string;
-	};
-	body: string;
-}
+import type { IssueComment } from '@octokit/webhooks-types';
 
 /**
  * Check if the issue has a comment with a list of support references,
