@@ -1,6 +1,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { useShareMessageMaxLength } from '../../utils';
 
 /**
@@ -66,18 +66,24 @@ export function usePostMeta() {
 		updateMeta( 'jetpack_publicize_feature_enabled', ! metaValues.isPublicizeEnabled );
 	}, [ metaValues.isPublicizeEnabled, updateMeta ] );
 
+	// Use a ref to always have the latest jetpackSocialOptions value
+	// This prevents stale closure issues when async operations (like SIG token fetch)
+	// call updateJetpackSocialOptions after user has made other changes
+	const jetpackSocialOptionsRef = useRef( metaValues.jetpackSocialOptions );
+	jetpackSocialOptionsRef.current = metaValues.jetpackSocialOptions;
+
 	const updateJetpackSocialOptions = useCallback(
 		( keyOrUpdates, value ) => {
 			// Support both single key-value and object of updates
 			const updates = typeof keyOrUpdates === 'string' ? { [ keyOrUpdates ]: value } : keyOrUpdates;
 
 			updateMeta( 'jetpack_social_options', {
-				...metaValues.jetpackSocialOptions,
+				...jetpackSocialOptionsRef.current,
 				...updates,
 				version: 2,
 			} );
 		},
-		[ metaValues.jetpackSocialOptions, updateMeta ]
+		[ updateMeta ]
 	);
 
 	return useMemo(
