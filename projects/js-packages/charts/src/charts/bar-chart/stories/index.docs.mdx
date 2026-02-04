@@ -60,15 +60,27 @@ The simplest bar chart requires only a `data` prop with categorical data:
 
 ### Optional Props
 
-- **`width`**: Chart width in pixels (responsive by default)
-- **`height`**: Chart height in pixels (responsive by default, defaults to 400)
+**Layout & Dimensions:**
+- **`width`**: Chart width in pixels. When omitted, fills parent container width
+- **`height`**: Chart height in pixels (defaults to 400). When omitted, fills parent container height
+- **`margin`**: Custom chart margins
+- **`aspectRatio`**: Height as a fraction of width (e.g., `0.5` = 50% height). When omitted, fills parent container height
+- **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
+- **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
+
+**Visual Styling:**
 - **`orientation`**: Bar orientation (`'vertical'` or `'horizontal'`, defaults to `'vertical'`)
-- **`withTooltips`**: Enable interactive tooltips (`false` by default)
 - **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
+- **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
+
+**Interactivity:**
+- **`withTooltips`**: Enable interactive tooltips (`false` by default)
+
+**Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
 - **`legendInteractive`**: Enable interactive legend with series toggle (`false` by default, requires `chartId`)
-- **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
-- **`margin`**: Custom chart margins
+
+**Advanced:**
 - **`options`**: Advanced axis and scale configuration
 
 ## Chart Orientations

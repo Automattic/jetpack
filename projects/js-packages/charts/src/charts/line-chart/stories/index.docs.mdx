@@ -70,6 +70,9 @@ The simplest line chart requires only a `data` prop with time-series data:
 - **`margin`**: Custom chart margins
 - **`className`**: Additional CSS class name for the chart container
 - **`chartId`**: Unique identifier for the chart (auto-generated if not provided)
+- **`aspectRatio`**: Height as a fraction of width (e.g., `0.5` = 50% height). When omitted, fills parent container height
+- **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
+- **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
 **Visual Styling:**
 - **`curveType`**: Line curve style (`'smooth'`, `'linear'`, `'monotone'`)

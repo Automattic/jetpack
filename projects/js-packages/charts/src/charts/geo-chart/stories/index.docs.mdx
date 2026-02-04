@@ -62,11 +62,17 @@ The simplest geo chart requires data, width, and height. The `data` prop uses Go
 ### Required Props
 
 - **`data`**: Array in Google Charts format - first row is headers, subsequent rows are data. Countries can be identified by full name (e.g., 'United States', 'Canada') or ISO 3166-1 alpha-2 codes (e.g., 'US', 'CA')
-- **`width`**: Width of the chart in pixels
-- **`height`**: Height of the chart in pixels
 
 ### Optional Props
 
+**Layout & Dimensions:**
+- **`width`**: Width of the chart in pixels. When omitted, fills parent container width
+- **`height`**: Height of the chart in pixels. When omitted, fills parent container height (parent must have explicit height)
+- **`aspectRatio`**: Height as a fraction of width (e.g., `0.625` = 62.5% height). When provided, height is calculated from width
+- **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
+- **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
+
+**Styling & Customization:**
 - **`className`**: Additional CSS class name for custom styling
 - **`renderPlaceholder`**: Custom render function for the loading placeholder
 
