@@ -3,10 +3,10 @@ import debug from '../debug.js';
 /**
  * Find platform info, based off issue contents.
  *
- * @param {string} body - The issue content.
- * @return {Array} Platforms impacted by issue.
+ * @param body - The issue content.
+ * @return Platforms impacted by issue.
  */
-function findPlatforms( body ) {
+function findPlatforms( body: string ): string[] {
 	const regex = /###\sPlatform\s\(Simple\sand\/or Atomic\)\n\n([a-zA-Z ,-]*)\n\n/gm;
 
 	const match = regex.exec( body );

@@ -1,18 +1,25 @@
 import { getInput, setFailed } from '@actions/core';
 import { WebClient, ErrorCode } from '@slack/web-api';
+import type { PullRequestPayload, IssuePayload } from '../../types.js';
+import type { ChatPostMessageArguments } from '@slack/web-api';
 
-/* global WebhookPayloadPullRequest, WebhookPayloadIssue */
+type SlackPayload = PullRequestPayload | IssuePayload;
 
 /**
  * Send a message to a Slack channel using the Slack API.
  *
- * @param {string}                                        message             - Message to post to Slack
- * @param {string}                                        channel             - Slack channel ID.
- * @param {WebhookPayloadPullRequest|WebhookPayloadIssue} payload             - Pull request event payload.
- * @param {object}                                        customMessageFormat - Custom message formatting. If defined, takes over from message completely.
- * @return {Promise<boolean>} Promise resolving to a boolean, whether message was successfully posted or not.
+ * @param message             - Message to post to Slack.
+ * @param channel             - Slack channel ID.
+ * @param payload             - Pull request or issue event payload.
+ * @param customMessageFormat - Custom message formatting. If defined, takes over from message completely.
+ * @return Promise resolving to a boolean, whether message was successfully posted or not.
  */
-async function sendSlackMessage( message, channel, payload, customMessageFormat = {} ) {
+async function sendSlackMessage(
+	message: string,
+	channel: string,
+	payload: SlackPayload,
+	customMessageFormat: ChatPostMessageArguments | Record< string, never > = {}
+): Promise< boolean | undefined > {
 	const token = getInput( 'slack_token' );
 	if ( ! token ) {
 		setFailed( 'triage-issues: Input slack_token is required but missing. Aborting.' );
@@ -21,14 +28,15 @@ async function sendSlackMessage( message, channel, payload, customMessageFormat 
 
 	const slackApi = new WebClient( token );
 
-	let slackMessage = '';
+	let slackMessage: ChatPostMessageArguments;
 
 	// If we have a custom message format, use it.
 	if ( Object.keys( customMessageFormat ).length > 0 ) {
-		slackMessage = customMessageFormat;
+		slackMessage = customMessageFormat as ChatPostMessageArguments;
 	} else {
 		const { repository } = payload;
-		const { html_url, title, user } = payload?.pull_request ?? payload.issue;
+		const prOrIssue = 'pull_request' in payload ? payload.pull_request : payload.issue;
+		const { html_url, title, user } = prOrIssue;
 
 		slackMessage = {
 			channel,
@@ -82,29 +90,31 @@ async function sendSlackMessage( message, channel, payload, customMessageFormat 
 	try {
 		const slackRequest = await slackApi.chat.postMessage( slackMessage );
 		return !! slackRequest.ok;
-	} catch ( error ) {
+	} catch ( error: unknown ) {
 		// The request failed.
 		// At this point, we want to log specific types of errors (let's avoid noise by logging temporary errors for example).
-		if ( error.code !== ErrorCode.PlatformError ) {
+		const slackError = error as { code?: string; data?: { error?: string } };
+		if ( slackError.code !== ErrorCode.PlatformError ) {
 			return false;
 		}
 
 		// See the list of error messages here: https://api.slack.com/methods/chat.postMessage#errors
-		const errorMessage = error?.data?.error ?? 'Unknown error';
+		const errorMessage = slackError?.data?.error ?? 'Unknown error';
 
 		// Let's send a direct message to @jeherve about it, so we can investigate.
 		// For folks outside of Automattic, let's use the Quality team channel.
 		const {
 			repository: { owner },
 		} = payload;
-		const { html_url, title } = payload?.pull_request ?? payload.issue;
+		const prOrIssue = 'pull_request' in payload ? payload.pull_request : payload.issue;
+		const { html_url, title } = prOrIssue;
 
 		const reportingChannel =
-			owner === 'automattic' ? 'D1KN8VCCA' : getInput( 'slack_quality_channel' );
+			owner.login === 'automattic' ? 'D1KN8VCCA' : getInput( 'slack_quality_channel' );
 		if ( ! reportingChannel ) {
 			return false;
 		}
-		const reportMessage = {
+		const reportMessage: ChatPostMessageArguments = {
 			channel: reportingChannel,
 			blocks: [
 				{

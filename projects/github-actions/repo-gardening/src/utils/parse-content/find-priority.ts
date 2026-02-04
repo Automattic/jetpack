@@ -4,10 +4,10 @@ import debug from '../debug.js';
  * Figure out the priority of the issue, based off issue contents.
  * Logic follows this priority matrix: pfVjQF-su-p2
  *
- * @param {string} body - The issue content.
- * @return {string} Priority of issue.
+ * @param body - The issue content.
+ * @return Priority of issue.
  */
-function findPriority( body ) {
+function findPriority( body: string ): string {
 	let priority = 'TBD';
 
 	debug( `find-priority: Looking for priority indicators in issue body: ${ body }` );
@@ -41,7 +41,7 @@ function findPriority( body ) {
 			}
 		}
 
-		const impactIndicators = {
+		const impactIndicators: Record< string, string > = {
 			isolated: 'Fewer than 20% of the total website/platform users',
 			scattered: 'Between 20% and 60% of the total website/platform users',
 			widespread: 'More than 60% of the total website/platform users',

@@ -3,10 +3,10 @@ import debug from '../debug.js';
 /**
  * Find list of plugins impacted by issue, based off issue contents.
  *
- * @param {string} body - The issue content.
- * @return {Array} Plugins concerned by issue.
+ * @param body - The issue content.
+ * @return Plugins concerned by issue.
  */
-function findPlugins( body ) {
+function findPlugins( body: string ): string[] {
 	const regex = /###\sImpacted\splugin\n\n([a-zA-Z ,]*)\n\n/gm;
 
 	const match = regex.exec( body );

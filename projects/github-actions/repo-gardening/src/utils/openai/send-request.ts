@@ -5,12 +5,14 @@ import debug from '../debug.js';
 /**
  * Send a message to OpenAI.
  *
- * @param {string} message        - Message to send to OpenAI.
- * @param {string} responseFormat - Response format to use (plain by default, can be 'json_object').
- *
- * @return {Promise<string|undefined>} Promise resolving to the response from OpenAI, or undefined if an error occurred.
+ * @param message        - Message to send to OpenAI.
+ * @param responseFormat - Response format to use (plain by default, can be 'json_object').
+ * @return Promise resolving to the response from OpenAI, or undefined if an error occurred.
  */
-async function sendOpenAiRequest( message, responseFormat = 'plain' ) {
+async function sendOpenAiRequest(
+	message: string,
+	responseFormat: string = 'plain'
+): Promise< string | undefined > {
 	const apiKey = getInput( 'openai_api_key' );
 	if ( ! apiKey ) {
 		setFailed( 'openai: Input openai_api_key is required but missing.' );
@@ -35,7 +37,7 @@ async function sendOpenAiRequest( message, responseFormat = 'plain' ) {
 		} );
 
 		return completion?.choices?.[ 0 ]?.message?.content ?? '';
-	} catch ( error ) {
+	} catch ( error: unknown ) {
 		setFailed( `openai: Error sending message to OpenAI: ${ error }` );
 	}
 }
