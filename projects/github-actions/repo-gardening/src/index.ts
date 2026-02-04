@@ -15,8 +15,18 @@ import triageIssues from './tasks/triage-issues/index.js';
 import debug from './utils/debug.js';
 import ifNotClosed from './utils/if-not-closed.js';
 import ifNotFork from './utils/if-not-fork.js';
+import type { OctokitClient, TaskPayload } from './types.js';
 
-const automations = [
+interface Automation {
+	event: string;
+	action?: string[];
+	// Each task function accepts a specific payload subtype (PullRequestPayload, IssuePayload, etc.)
+	// but at runtime the correct payload is guaranteed by event-name matching.
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	task: ( payload: any, octokit: OctokitClient ) => Promise< void > | void;
+}
+
+const automations: Automation[] = [
 	{
 		event: 'pull_request_target',
 		action: [ 'opened', 'synchronize', 'edited' ],
@@ -96,8 +106,7 @@ const automations = [
 		return;
 	}
 
-	// eslint-disable-next-line new-cap
-	const octokit = new getOctokit( token );
+	const octokit = getOctokit( token );
 
 	// Get info about the event.
 	const eventPayload = context.payload;
@@ -105,7 +114,7 @@ const automations = [
 
 	debug( `main: Received event = '${ context.eventName }', action = '${ eventPayload.action }'` );
 
-	const taskList = ( getInput( 'tasks' ) || 'all' ).split( ',' ).map( v => v.trim() );
+	const taskList = ( getInput( 'tasks' ) || 'all' ).split( ',' ).map( ( v: string ) => v.trim() );
 
 	for ( const { event, action, task } of automations ) {
 		// If the action provided a custom list of tasks to run
@@ -116,12 +125,12 @@ const automations = [
 
 		if (
 			event === context.eventName &&
-			( action === undefined || action.includes( eventAction ) )
+			( action === undefined || action.includes( eventAction ?? '' ) )
 		) {
 			try {
 				debug( `main: Starting task ${ task.name }` );
-				await task( eventPayload, octokit );
-			} catch ( error ) {
+				await task( eventPayload as TaskPayload, octokit );
+			} catch ( error: unknown ) {
 				setFailed( `main: Task ${ task.name } failed with error: ${ error }` );
 			}
 		}
