@@ -11,10 +11,10 @@ import { useSocialUserPreferences } from '../../../hooks/use-social-user-prefere
 export function ConfirmationConfig(): JSX.Element {
 	const preferences = useSocialUserPreferences();
 
-	const isChecked = preferences.data.prePublishConfirmation ?? true;
+	const isChecked = preferences.data.showPrePublishConfirmation ?? true;
 
 	const onChange = useCallback( () => {
-		preferences.set( 'prePublishConfirmation', ! isChecked );
+		preferences.set( 'showPrePublishConfirmation', ! isChecked );
 	}, [ preferences, isChecked ] );
 
 	return (

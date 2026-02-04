@@ -36,7 +36,7 @@ describe( 'useSocialUserPreferences', () => {
 			),
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBeUndefined();
+		expect( result.current.data.showPrePublishConfirmation ).toBeUndefined();
 		expect( result.current.data.reviewPromptDismissed ).toBeUndefined();
 	} );
 
@@ -52,7 +52,7 @@ describe( 'useSocialUserPreferences', () => {
 			),
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( true );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
 		expect( result.current.data.reviewPromptDismissed ).toBe( false );
 	} );
 
@@ -66,10 +66,10 @@ describe( 'useSocialUserPreferences', () => {
 		} );
 
 		act( () => {
-			result.current.set( 'prePublishConfirmation', true );
+			result.current.set( 'showPrePublishConfirmation', true );
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( true );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
 
 		act( () => {
 			result.current.set( 'reviewPromptDismissed', true );
@@ -89,18 +89,18 @@ describe( 'useSocialUserPreferences', () => {
 			),
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( false );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( false );
 
 		act( () => {
-			result.current.toggle( 'prePublishConfirmation' );
+			result.current.toggle( 'showPrePublishConfirmation' );
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( true );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
 
 		act( () => {
-			result.current.toggle( 'prePublishConfirmation' );
+			result.current.toggle( 'showPrePublishConfirmation' );
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( false );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( false );
 	} );
 } );

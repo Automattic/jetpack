@@ -23,7 +23,7 @@ export function PrePublishPreview() {
 		// there are connections,
 		hasConnections &&
 		// and the user has not opted-out to pre-publish confirmation.
-		preferences.data.prePublishConfirmation !== false;
+		preferences.data.showPrePublishConfirmation !== false;
 
 	useEffect( () => {
 		if ( showPreview ) {
