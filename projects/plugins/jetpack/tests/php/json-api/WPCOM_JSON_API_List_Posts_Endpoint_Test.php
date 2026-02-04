@@ -115,6 +115,8 @@ class WPCOM_JSON_API_List_Posts_Endpoint_Test extends WP_UnitTestCase {
 	 * so we look it up from the API's registered endpoints by path and method.
 	 *
 	 * @return WPCOM_JSON_API_List_Posts_Endpoint
+	 *
+	 * @phan-suppress PhanTypeArraySuspicious
 	 */
 	private function get_endpoint() {
 		$api = WPCOM_JSON_API::init();
