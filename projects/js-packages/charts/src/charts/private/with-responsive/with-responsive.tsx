@@ -90,13 +90,15 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		const effectiveWidth = measuredWidth || size || width || 0;
 		const effectiveHeight = measuredHeight || size || height || 0;
 
+		const defaultHeight = hasAspectRatio ? 'auto' : '100%';
+
 		return (
 			<div
 				ref={ parentRef }
 				data-testid="responsive-wrapper"
 				style={ {
 					width: size ?? width ?? '100%',
-					height: hasAspectRatio ? size ?? height ?? 'auto' : size ?? height ?? '100%',
+					height: size ?? height ?? defaultHeight,
 				} }
 			>
 				<WrappedComponent
