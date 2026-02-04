@@ -461,7 +461,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			if ( isset( $identity_crisis['home'] ) && isset( $identity_crisis['wpcom_home'] ) && $identity_crisis['home'] !== $identity_crisis['wpcom_home'] ) {
 				$messages[] = sprintf(
 					/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
-					__( 'Your home url is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`.', 'jetpack' ),
+					__( 'Your home URL is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`.', 'jetpack' ),
 					$identity_crisis['home'],
 					$identity_crisis['wpcom_home']
 				);
@@ -470,7 +470,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			if ( isset( $identity_crisis['siteurl'] ) && isset( $identity_crisis['wpcom_siteurl'] ) && $identity_crisis['siteurl'] !== $identity_crisis['wpcom_siteurl'] ) {
 				$messages[] = sprintf(
 					/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
-					__( 'Your site url is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`.', 'jetpack' ),
+					__( 'Your site URL is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`.', 'jetpack' ),
 					$identity_crisis['siteurl'],
 					$identity_crisis['wpcom_siteurl']
 				);
