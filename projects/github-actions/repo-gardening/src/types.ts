@@ -1,4 +1,13 @@
 import { GitHub } from '@actions/github/lib/utils.js';
+import type {
+	PullRequestEvent,
+	PushEvent,
+	IssuesEvent,
+	IssueCommentEvent,
+} from '@octokit/webhooks-types';
+
+// Re-export webhook payload types from the canonical source.
+export type { PullRequestEvent, PushEvent, IssuesEvent, IssueCommentEvent };
 
 /**
  * The Octokit instance type returned by getOctokit().
@@ -6,138 +15,9 @@ import { GitHub } from '@actions/github/lib/utils.js';
 export type OctokitClient = InstanceType< typeof GitHub >;
 
 /**
- * A webhook payload that includes a pull_request field.
- * Used by PR-related tasks.
- */
-export interface PullRequestPayload {
-	action?: string;
-	number: number;
-	pull_request: {
-		number: number;
-		state: string;
-		draft: boolean;
-		title: string;
-		body: string;
-		head: {
-			ref: string;
-			repo: {
-				full_name: string;
-			};
-			user: {
-				login: string;
-			};
-		};
-		base: {
-			repo: {
-				full_name: string;
-			};
-		};
-		html_url: string;
-		user: {
-			login: string;
-		};
-		merged?: boolean;
-	};
-	repository: {
-		name: string;
-		full_name: string;
-		html_url: string;
-		owner: {
-			login: string;
-		};
-	};
-	sender?: {
-		login: string;
-	};
-}
-
-/**
- * A webhook payload for push events.
- * Used by the add-milestone task.
- */
-export interface PushPayload {
-	ref: string;
-	commits: Array< {
-		message: string;
-	} >;
-	repository: {
-		name: string;
-		full_name: string;
-		html_url: string;
-		owner: {
-			login: string;
-		};
-	};
-}
-
-/**
- * A webhook payload that includes an issue field.
- * Used by issue-related tasks.
- */
-export interface IssuePayload {
-	action?: string;
-	issue: {
-		number: number;
-		body: string;
-		title: string;
-		state: string;
-		html_url: string;
-		node_id: string;
-		pull_request?: unknown;
-		user: {
-			login: string;
-		};
-	};
-	label?: {
-		name: string;
-	};
-	repository: {
-		name: string;
-		full_name: string;
-		html_url: string;
-		owner: {
-			login: string;
-		};
-	};
-}
-
-/**
- * A webhook payload for issue_comment events.
- */
-export interface IssueCommentPayload {
-	action?: string;
-	comment: {
-		body: string;
-		html_url: string;
-		user: {
-			login: string;
-		};
-	};
-	issue: {
-		number: number;
-		body: string;
-		title: string;
-		state: string;
-		html_url: string;
-		pull_request?: unknown;
-		user: {
-			login: string;
-		};
-	};
-	repository: {
-		name: string;
-		full_name: string;
-		html_url: string;
-		owner: {
-			login: string;
-		};
-	};
-}
-
-/**
  * Union type for any payload that task functions may receive.
  */
-export type TaskPayload = PullRequestPayload | PushPayload | IssuePayload | IssueCommentPayload;
+export type TaskPayload = PullRequestEvent | PushEvent | IssuesEvent | IssueCommentEvent;
 
 /**
  * The function signature for an automation task.
