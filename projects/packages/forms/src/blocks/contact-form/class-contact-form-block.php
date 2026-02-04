@@ -839,10 +839,7 @@ class Contact_Form_Block {
 	 * @return string Rendered form HTML.
 	 */
 	private static function render_synced_form_content( $ref_id, $synced_form ) {
-		static $seen_refs = array();
-
 		// Mark as seen for circular reference prevention.
-		$seen_refs[ $ref_id ] = true;
 		Contact_Form::set_ref_id( $ref_id );
 		$output = '';
 		try {
@@ -853,7 +850,6 @@ class Contact_Form_Block {
 			}
 		} finally {
 			// Clean up.
-			unset( $seen_refs[ $ref_id ] );
 			Contact_Form::clear_ref_id();
 		}
 		return $output;
