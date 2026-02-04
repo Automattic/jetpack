@@ -57,12 +57,24 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 					key={ gravatarEmail }
 				/>
 				<VStack spacing="0" className="jp-forms__inbox-response-meta-from">
-					<Text weight="600" className="jp-forms__inbox-response-meta-from-name">
+					<Text
+						className="jp-forms__inbox-response-meta-from-name"
+						lineHeight="20px"
+						size="15px"
+						weight="600"
+					>
 						{ displayName }
 					</Text>
 					{ response.author_email && displayName !== response.author_email && (
 						<HStack alignment="center" className="jp-forms__inbox-response-meta-from-email">
-							<Text as="a" variant="muted" href={ `mailto:${ response.author_email }` }>
+							<Text
+								as="a"
+								href={ `mailto:${ response.author_email }` }
+								lineHeight="20px"
+								size="13px"
+								variant="muted"
+								weight="400"
+							>
 								{ responseAuthorEmailParts[ 0 ] }
 								<wbr />@{ responseAuthorEmailParts[ 1 ] }
 							</Text>

@@ -10,6 +10,7 @@
 
 .jp-forms__inbox-response-meta-from {
 	min-height: 48px; // Same as avatar to middle-align single lines
+	word-break: break-word;
 }
 
 // Reset margins and padding for response header elements
@@ -19,30 +20,10 @@
 	padding: 0;
 }
 
-.jp-forms__inbox-response-meta-from-name {
-	font-size: 24px;
-	font-weight: 700;
-	line-height: 24px;
-}
-
-.jp-forms__inbox-response-meta-from-email {
-	display: flex;
-	align-items: center;
-	flex-shrink: 0;
-	font-size: 14px;
-	font-weight: 500;
-	gap: 4px;
-	line-height: 24px;
-	max-width: 100%;
-	min-height: 24px;
-	word-break: break-word;
-}
-
 .jp-forms__inbox-response-meta-data {
 	color: var(--jp-gray-80);
 	font-size: 12px;
 	padding-top: 12px;
-	padding-bottom: 24px;
 
 	table {
 		text-align: left;
