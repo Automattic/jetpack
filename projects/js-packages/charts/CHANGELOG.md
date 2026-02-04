@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.55.0] - 2026-02-04
+### Changed
+- Update package dependencies. [#46933]
+
+### Fixed
+- Fix Sparkline component export paths in package.json and update documentation to include GeoChart, Sparkline, and TrendIndicator components. [#46842]
+
 ## [0.54.3] - 2026-02-03
 ### Changed
 - Update package dependencies. [#46905]
@@ -651,6 +658,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.55.0]: https://github.com/Automattic/charts/compare/v0.54.3...v0.55.0
 [0.54.3]: https://github.com/Automattic/charts/compare/v0.54.2...v0.54.3
 [0.54.2]: https://github.com/Automattic/charts/compare/v0.54.1...v0.54.2
 [0.54.1]: https://github.com/Automattic/charts/compare/v0.54.0...v0.54.1
