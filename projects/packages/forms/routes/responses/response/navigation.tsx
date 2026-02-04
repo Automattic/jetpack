@@ -57,12 +57,12 @@ export function ResponseNavigation( {
 			/>
 			<span
 				style={ {
-					display: 'inline-block',
-					width: '1px',
-					height: '20px',
 					backgroundColor: 'var(--wp-admin-theme-color-darker-10, #135e96)',
+					display: 'inline-block',
+					height: '20px',
+					margin: '6px 4px 6px 0',
 					opacity: 0.2,
-					marginLeft: '4px',
+					width: '1px',
 				} }
 			/>
 			<Button
