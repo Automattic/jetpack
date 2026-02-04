@@ -16,12 +16,10 @@
 	&.has-image {
 		cursor: pointer;
 
+		&:hover {
+			background-color: var(--jp-forms--image-select-border-color);
+		}
 	}
-
-	&:hover {
-		background-color: var(--jp-forms--image-select-border-color);
-	}
-
 	.jp-forms__image-select-preview-image-wrapper {
 		padding: 8px;
 
