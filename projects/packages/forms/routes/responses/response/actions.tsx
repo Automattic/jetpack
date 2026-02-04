@@ -265,9 +265,9 @@ export function ResponseActions( {
 			) }
 			{ response.status === 'spam' && (
 				<>
-					{ readUnreadButtons }
 					{ notSpamButton }
 					{ trashButton }
+					{ readUnreadButtons }
 				</>
 			) }
 		</Stack>
