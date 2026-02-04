@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Slideshow: fix an issue with sizing when images are lazily loaded.

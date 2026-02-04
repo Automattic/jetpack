@@ -1,9 +1,9 @@
-const assert = require( 'assert' );
-const core = require( '@actions/core' );
-const github = require( '@actions/github' );
-const { SError } = require( 'error' );
-const picomatch = require( 'picomatch' );
-const fetchTeamMembers = require( './team-members.js' );
+import assert from 'assert';
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { SError } from 'error';
+import picomatch from 'picomatch';
+import { fetchTeamMembers } from './team-members.js';
 
 class RequirementError extends SError {}
 
@@ -162,7 +162,7 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 /**
  * Class representing an individual requirement.
  */
-class Requirement {
+export class Requirement {
 	/**
 	 * Constructor.
 	 *
@@ -273,5 +273,3 @@ class Requirement {
 		return checkNeededTeams.neededTeams;
 	}
 }
-
-module.exports = Requirement;

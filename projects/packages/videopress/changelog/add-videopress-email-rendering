@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add email rendering support for the videopress/video block.

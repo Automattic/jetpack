@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "1.4.30",
+	"version": "1.4.31",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -56,7 +56,7 @@
 		"jest": "30.2.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"storybook": "10.1.10",
+		"storybook": "10.2.3",
 		"typescript": "5.9.3"
 	},
 	"peerDependencies": {

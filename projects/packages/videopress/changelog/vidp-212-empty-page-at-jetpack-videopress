@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix compatibility with Gutenberg 22.4 by removing invalid null timezone argument from dateI18n calls.
