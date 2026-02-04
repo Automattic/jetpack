@@ -135,7 +135,6 @@ class Form_Preview_Test extends BaseTestCase {
 	private function reset_preview_mode() {
 		$reflection = new \ReflectionClass( Form_Preview::class );
 		$property   = $reflection->getProperty( 'is_preview_mode' );
-		$property->setAccessible( true );
 		$property->setValue( null, false );
 	}
 
@@ -147,7 +146,6 @@ class Form_Preview_Test extends BaseTestCase {
 	private function set_preview_mode( $value ) {
 		$reflection = new \ReflectionClass( Form_Preview::class );
 		$property   = $reflection->getProperty( 'is_preview_mode' );
-		$property->setAccessible( true );
 		$property->setValue( null, $value );
 	}
 
