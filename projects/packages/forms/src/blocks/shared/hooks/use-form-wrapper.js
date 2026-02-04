@@ -3,7 +3,7 @@ import { createBlock } from '@wordpress/blocks';
 import { store as coreStore } from '@wordpress/core-data';
 import { resolveSelect, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useConfigValue from '../../../hooks/use-config-value.ts';
 import { createSyncedForm } from '../../contact-form/util/create-synced-form.ts';
@@ -69,6 +69,22 @@ export async function convertFormToSynced(
 }
 
 /**
+ * Checks if we're in a block preview context (e.g., block inserter preview).
+ * Block previews are typically rendered in an iframe.
+ *
+ * @return {boolean} Whether we're in a preview context.
+ */
+export function isBlockPreviewContext() {
+	try {
+		// Block previews are rendered in an iframe
+		return window.self !== window.top;
+	} catch {
+		// If we can't access window.top due to cross-origin restrictions, we're likely in an iframe
+		return true;
+	}
+}
+
+/**
  * Determines if a field block should be wrapped in a form.
  *
  * @param {string} currentPostType - The current post type being edited.
@@ -76,6 +92,11 @@ export async function convertFormToSynced(
  * @return {boolean} Whether the field should be wrapped.
  */
 export function shouldWrapFieldInForm( currentPostType, parentForms ) {
+	// Don't wrap in preview context (block inserter preview is rendered in an iframe)
+	if ( isBlockPreviewContext() ) {
+		return false;
+	}
+
 	// Don't wrap fields when editing a jetpack_form post type directly
 	if ( currentPostType === FORM_POST_TYPE ) {
 		return false;
@@ -121,10 +142,20 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 			[ clientId ]
 		);
 
+	// Guard against StrictMode double-invocation and re-renders
+	const hasAttemptedWrap = useRef( false );
+
 	useEffect( () => {
+		// Prevent double execution from React StrictMode
+		if ( hasAttemptedWrap.current ) {
+			return;
+		}
+
 		if ( ! shouldWrapFieldInForm( currentPostType, parentForms ) ) {
 			return;
 		}
+
+		hasAttemptedWrap.current = true;
 
 		const { formBlock, fieldBlock, submitButton } = createFormBlockStructure(
 			name,

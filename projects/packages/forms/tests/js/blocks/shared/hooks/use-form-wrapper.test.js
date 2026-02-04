@@ -1,10 +1,18 @@
 import {
 	shouldWrapFieldInForm,
 	shouldCreateSyncedForm,
+	isBlockPreviewContext,
 } from '../../../../../src/blocks/shared/hooks/use-form-wrapper.js';
 import { FORM_POST_TYPE } from '../../../../../src/blocks/shared/util/constants.js';
 
 describe( 'use-form-wrapper helpers', () => {
+	describe( 'isBlockPreviewContext', () => {
+		it( 'should return false when not in iframe (Jest default environment)', () => {
+			// In Jest/jsdom, window.self === window.top by default (not in iframe)
+			expect( isBlockPreviewContext() ).toBe( false );
+		} );
+	} );
+
 	describe( 'shouldWrapFieldInForm', () => {
 		it( 'should return false when editing a jetpack_form post type', () => {
 			expect( shouldWrapFieldInForm( FORM_POST_TYPE, [] ) ).toBe( false );
