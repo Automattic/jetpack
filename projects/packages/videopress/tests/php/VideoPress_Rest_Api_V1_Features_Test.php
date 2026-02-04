@@ -166,10 +166,10 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 			),
 
 			/*
-			 * Note: The 'videopress' feature check is guarded by function_exists('wpcom_site_has_feature').
-			 * In this test environment (non-wpcom), that function doesn't exist, so 'videopress'
+			 * Note: The 'videopress' feature check is guarded by Host::is_wpcom_platform().
+			 * In this test environment (non-wpcom), that returns false, so 'videopress'
 			 * alone won't trigger isVideoPress1TBSupported. On actual WordPress.com sites,
-			 * wpcom_site_has_feature exists and the 'videopress' feature would work.
+			 * is_wpcom_platform() returns true and the 'videopress' feature would work.
 			 */
 			'wpcom videopress feature (non-wpcom env)' => array(
 				'active_features' => array( 'videopress' ),

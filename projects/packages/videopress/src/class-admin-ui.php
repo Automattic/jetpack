@@ -14,6 +14,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 
@@ -188,7 +189,7 @@ class Admin_UI {
 				'isVideoPressSupported'          => Current_Plan::supports( 'videopress' ),
 				// Check videopress-1tb-storage (Jetpack) or videopress (WordPress.com).
 				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' )
-					|| ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'videopress' ) ),
+					|| ( ( new Host() )->is_wpcom_platform() && wpcom_site_has_feature( 'videopress' ) ),
 				'isVideoPressUnlimitedSupported' => Current_Plan::supports( 'videopress-unlimited-storage' ),
 			),
 			'siteSuffix'             => ( new Status() )->get_site_suffix(),

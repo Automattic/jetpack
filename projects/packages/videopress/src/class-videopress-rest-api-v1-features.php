@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * VideoPress REST API class for fetching site features from WPCOM.
@@ -70,7 +71,7 @@ class VideoPress_Rest_Api_V1_Features {
 				'isVideoPressSupported'          => true, // Always true due to free tier.
 				// Check videopress-1tb-storage (Jetpack) or videopress (WordPress.com).
 				'isVideoPress1TBSupported'       => in_array( 'videopress-1tb-storage', $active, true )
-					|| ( function_exists( 'wpcom_site_has_feature' ) && in_array( 'videopress', $active, true ) ),
+					|| ( ( new Host() )->is_wpcom_platform() && in_array( 'videopress', $active, true ) ),
 				'isVideoPressUnlimitedSupported' => in_array( 'videopress-unlimited-storage', $active, true ),
 			)
 		);
