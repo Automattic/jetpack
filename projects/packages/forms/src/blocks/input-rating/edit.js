@@ -1,5 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { RatingIcon } from '../field-rating/rating-icon.js';
+import { RatingIcon } from '../field-rating/rating-icon.jsx';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
 
 export default function RatingInputEdit( { context, clientId } ) {
