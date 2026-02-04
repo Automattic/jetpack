@@ -8,7 +8,7 @@
  *
  * Date: 06/02/18
  */
-// phpcs:disable WordPress.WP.EnqueuedResourceParameters.NotInFooter,Generic.WhiteSpace.ScopeIndent.Incorrect
+// phpcs:disable WordPress.WP.EnqueuedResourceParameters.NotInFooter
 
 #} ===============================================================================
 #} === INIT registration & Global Style & Script setups

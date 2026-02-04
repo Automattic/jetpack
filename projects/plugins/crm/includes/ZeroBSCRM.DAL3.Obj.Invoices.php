@@ -973,21 +973,33 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
 			}
 
-			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 			// quick addition for mike
 			#} olderThan
-			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsi_created', '<=', '%d', $olderThan );
+			if ( ! empty( $olderThan ) && $olderThan > 0 ) {
+				$wheres['olderThan'] = array( 'zbsi_created', '<=', '%d', $olderThan );
+			}
 			#} newerThan
-			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsi_created', '>=', '%d', $newerThan );
+			if ( ! empty( $newerThan ) && $newerThan > 0 ) {
+				$wheres['newerThan'] = array( 'zbsi_created', '>=', '%d', $newerThan );
+			}
 
 			// status
-			if ( ! empty( $hasStatus ) ) $wheres['hasStatus']     = array( 'zbsi_status', '=', '%s', $hasStatus );
-			if ( ! empty( $otherStatus ) ) $wheres['otherStatus'] = array( 'zbsi_status', '<>', '%s', $otherStatus );
+			if ( ! empty( $hasStatus ) ) {
+				$wheres['hasStatus'] = array( 'zbsi_status', '=', '%s', $hasStatus );
+			}
+			if ( ! empty( $otherStatus ) ) {
+				$wheres['otherStatus'] = array( 'zbsi_status', '<>', '%s', $otherStatus );
+			}
 
 			// assignedContact + assignedCompany
-			if ( ! empty( $assignedContact ) && $assignedContact > 0 ) $wheres['assignedContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
-			if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) $wheres['assignedCompany'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
-			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+			if ( ! empty( $assignedContact ) && $assignedContact > 0 ) {
+				$wheres['assignedContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
+			}
+			if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) {
+				$wheres['assignedCompany'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
+			}
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 
 			#} Quick filters - adapted from DAL1 (probs can be slicker)

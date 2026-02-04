@@ -673,13 +673,17 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
 
 		}
 
-			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 			// quick addition for mike
 			#} olderThan
-			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsf_created', '<=', '%d', $olderThan );
+		if ( ! empty( $olderThan ) && $olderThan > 0 ) {
+			$wheres['olderThan'] = array( 'zbsf_created', '<=', '%d', $olderThan );
+		}
 			#} newerThan
-			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsf_created', '>=', '%d', $newerThan );
-			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+		if ( ! empty( $newerThan ) && $newerThan > 0 ) {
+			$wheres['newerThan'] = array( 'zbsf_created', '>=', '%d', $newerThan );
+		}
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 			#} Is Tagged (expects 1 tag ID OR array)
 

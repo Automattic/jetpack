@@ -382,7 +382,7 @@ class zeroBS__Metabox_Quote extends zeroBS__Metabox {
 									</select>
 									<br />
 									<p><?php esc_html_e( 'Create additional quote templates', 'zero-bs-crm' ); ?> <a href="<?php echo jpcrm_esc_link( $zbs->slugs['quote-templates'] ); ?>"><?php esc_html_e( 'here', 'zero-bs-crm' ); ?></a></p>
-												<button type="button" id="zbsQuoteBuilderStep2" class="ui button button-primary black button-large xl"<?php if ( $quoteContactID <= 0 ) { echo ' disabled="disabled"'; } ?>><?php esc_html_e( 'Use Quote Builder', 'zero-bs-crm' ); // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></button>
+												<button type="button" id="zbsQuoteBuilderStep2" class="ui button button-primary black button-large xl"<?php if ( $quoteContactID <= 0 ) { echo ' disabled="disabled"'; } ?>><?php esc_html_e( 'Use Quote Builder', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></button>
 								<?php if ( $quoteContactID <= 0 ) { /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>
 									<p id="zbsQuoteBuilderStep2info">(<?php esc_html_e( "You'll need to assign this Quote to a contact to use this", 'zero-bs-crm' ); ?>);</p>
 									<?php } ?>

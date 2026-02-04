@@ -94,721 +94,721 @@ function zeroBSCRM_createTables() {
 
 	// Contacts
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['contacts'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsc_status` VARCHAR(100) NULL,
-  `zbsc_email` VARCHAR(200) NULL,
-  `zbsc_prefix` VARCHAR(30) NULL,
-  `zbsc_fname` VARCHAR(100) NULL,
-  `zbsc_lname` VARCHAR(100) NULL,
-  `zbsc_addr1` VARCHAR(200) NULL,
-  `zbsc_addr2` VARCHAR(200) NULL,
-  `zbsc_city` VARCHAR(200) NULL,
-  `zbsc_county` VARCHAR(200) NULL,
-  `zbsc_country` VARCHAR(200) NULL,
-  `zbsc_postcode` VARCHAR(50) NULL,
-  `zbsc_secaddr1` VARCHAR(200) NULL,
-  `zbsc_secaddr2` VARCHAR(200) NULL,
-  `zbsc_seccity` VARCHAR(200) NULL,
-  `zbsc_seccounty` VARCHAR(200) NULL,
-  `zbsc_seccountry` VARCHAR(200) NULL,
-  `zbsc_secpostcode` VARCHAR(50) NULL,
-  `zbsc_hometel` VARCHAR(40) NULL,
-  `zbsc_worktel` VARCHAR(40) NULL,
-  `zbsc_mobtel` VARCHAR(40) NULL,    
-  `zbsc_wpid` INT NULL DEFAULT NULL,
-  `zbsc_avatar` VARCHAR(300) NULL,
-  `zbsc_tw` VARCHAR(100) NULL,
-  `zbsc_li` VARCHAR(300) NULL,
-  `zbsc_fb` VARCHAR(200) NULL,
-  `zbsc_created` INT(14) NOT NULL,
-  `zbsc_lastupdated` INT(14) NOT NULL,
-  `zbsc_lastcontacted` INT(14) NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX (`zbsc_email`, `zbsc_wpid`),
-  KEY `zbsc_status` (`zbsc_status`) USING BTREE)
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsc_status` VARCHAR(100) NULL,
+	`zbsc_email` VARCHAR(200) NULL,
+	`zbsc_prefix` VARCHAR(30) NULL,
+	`zbsc_fname` VARCHAR(100) NULL,
+	`zbsc_lname` VARCHAR(100) NULL,
+	`zbsc_addr1` VARCHAR(200) NULL,
+	`zbsc_addr2` VARCHAR(200) NULL,
+	`zbsc_city` VARCHAR(200) NULL,
+	`zbsc_county` VARCHAR(200) NULL,
+	`zbsc_country` VARCHAR(200) NULL,
+	`zbsc_postcode` VARCHAR(50) NULL,
+	`zbsc_secaddr1` VARCHAR(200) NULL,
+	`zbsc_secaddr2` VARCHAR(200) NULL,
+	`zbsc_seccity` VARCHAR(200) NULL,
+	`zbsc_seccounty` VARCHAR(200) NULL,
+	`zbsc_seccountry` VARCHAR(200) NULL,
+	`zbsc_secpostcode` VARCHAR(50) NULL,
+	`zbsc_hometel` VARCHAR(40) NULL,
+	`zbsc_worktel` VARCHAR(40) NULL,
+	`zbsc_mobtel` VARCHAR(40) NULL,    
+	`zbsc_wpid` INT NULL DEFAULT NULL,
+	`zbsc_avatar` VARCHAR(300) NULL,
+	`zbsc_tw` VARCHAR(100) NULL,
+	`zbsc_li` VARCHAR(300) NULL,
+	`zbsc_fb` VARCHAR(200) NULL,
+	`zbsc_created` INT(14) NOT NULL,
+	`zbsc_lastupdated` INT(14) NOT NULL,
+	`zbsc_lastcontacted` INT(14) NULL DEFAULT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX (`zbsc_email`, `zbsc_wpid`),
+	KEY `zbsc_status` (`zbsc_status`) USING BTREE)
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Custom Fields
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['customfields'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbscf_objtype` INT(4) NOT NULL,
-  `zbscf_objid` INT(32) NOT NULL,
-  `zbscf_objkey` VARCHAR(100) NOT NULL,
-  `zbscf_objval` VARCHAR(2000) NULL DEFAULT NULL,
-  `zbscf_created` INT(14) NOT NULL,
-  `zbscf_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX `TYPEIDKEY` (`zbscf_objtype` ASC, `zbscf_objid` ASC, `zbscf_objkey` ASC))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbscf_objtype` INT(4) NOT NULL,
+	`zbscf_objid` INT(32) NOT NULL,
+	`zbscf_objkey` VARCHAR(100) NOT NULL,
+	`zbscf_objval` VARCHAR(2000) NULL DEFAULT NULL,
+	`zbscf_created` INT(14) NOT NULL,
+	`zbscf_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `TYPEIDKEY` (`zbscf_objtype` ASC, `zbscf_objid` ASC, `zbscf_objkey` ASC))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Tags
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['tags'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbstag_objtype` INT NOT NULL,
-  `zbstag_name` VARCHAR(200) NOT NULL,
-  `zbstag_slug` VARCHAR(200) NOT NULL,
-  `zbstag_created` INT(14) NOT NULL,
-  `zbstag_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbstag_objtype` INT NOT NULL,
+	`zbstag_name` VARCHAR(200) NOT NULL,
+	`zbstag_slug` VARCHAR(200) NOT NULL,
+	`zbstag_created` INT(14) NOT NULL,
+	`zbstag_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Tag Relationships (Links)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['taglinks'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbstl_objtype` INT(4) NOT NULL,
-  `zbstl_objid` INT NOT NULL,
-  `zbstl_tagid` INT NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX (`zbstl_objid`),
-  INDEX (`zbstl_tagid`),
-  KEY `zbstl_tagid+zbstl_objtype` (`zbstl_tagid`,`zbstl_objtype`) USING BTREE)
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbstl_objtype` INT(4) NOT NULL,
+	`zbstl_objid` INT NOT NULL,
+	`zbstl_tagid` INT NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX (`zbstl_objid`),
+	INDEX (`zbstl_tagid`),
+	KEY `zbstl_tagid+zbstl_objtype` (`zbstl_tagid`,`zbstl_objtype`) USING BTREE)
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Settings
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['settings'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsset_key` VARCHAR(100) NOT NULL DEFAULT -1,
-  `zbsset_val` LONGTEXT NULL DEFAULT NULL,
-  `zbsset_created` INT(14) NOT NULL,
-  `zbsset_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX `zbsset_key` (`zbsset_key`),
-  INDEX (`zbs_owner`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsset_key` VARCHAR(100) NOT NULL DEFAULT -1,
+	`zbsset_val` LONGTEXT NULL DEFAULT NULL,
+	`zbsset_created` INT(14) NOT NULL,
+	`zbsset_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `zbsset_key` (`zbsset_key`),
+	INDEX (`zbs_owner`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Meta Key-Value pairs
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['meta'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsm_objtype` INT NOT NULL,
-  `zbsm_objid` INT NOT NULL,
-  `zbsm_key` VARCHAR(255) NOT NULL,
-  `zbsm_val` LONGTEXT NULL DEFAULT NULL,
-  `zbsm_created` INT(14) NOT NULL,
-  `zbsm_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `zbsm_objid+zbsm_key+zbsm_objtype` (`zbsm_objid`,`zbsm_key`,`zbsm_objtype`) USING BTREE)
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsm_objtype` INT NOT NULL,
+	`zbsm_objid` INT NOT NULL,
+	`zbsm_key` VARCHAR(255) NOT NULL,
+	`zbsm_val` LONGTEXT NULL DEFAULT NULL,
+	`zbsm_created` INT(14) NOT NULL,
+	`zbsm_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	KEY `zbsm_objid+zbsm_key+zbsm_objtype` (`zbsm_objid`,`zbsm_key`,`zbsm_objtype`) USING BTREE)
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	#} Segments
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['segments'] . "(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsseg_name` VARCHAR(120) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NOT NULL,
-  `zbsseg_slug` VARCHAR(45) NOT NULL,
-  `zbsseg_matchtype` VARCHAR(10) NOT NULL,
-  `zbsseg_created` INT(14) NOT NULL,
-  `zbsseg_lastupdated` INT(14) NOT NULL,
-  `zbsseg_compilecount` INT NULL DEFAULT 0,
-  `zbsseg_lastcompiled` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`))
-  " . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsseg_name` VARCHAR(120) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NOT NULL,
+	`zbsseg_slug` VARCHAR(45) NOT NULL,
+	`zbsseg_matchtype` VARCHAR(10) NOT NULL,
+	`zbsseg_created` INT(14) NOT NULL,
+	`zbsseg_lastupdated` INT(14) NOT NULL,
+	`zbsseg_compilecount` INT NULL DEFAULT 0,
+	`zbsseg_lastcompiled` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`))
+	" . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Segments: Conditions
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['segmentsconditions'] . "(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbscondition_segmentid` INT NOT NULL,
-  `zbscondition_type` VARCHAR(50) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NOT NULL,
-  `zbscondition_op` VARCHAR(50) NULL,
-  `zbscondition_val` VARCHAR(250) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NULL,
-  `zbscondition_val_secondary` VARCHAR(250) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NULL,
-  PRIMARY KEY (`ID`))
-  " . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbscondition_segmentid` INT NOT NULL,
+	`zbscondition_type` VARCHAR(50) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NOT NULL,
+	`zbscondition_op` VARCHAR(50) NULL,
+	`zbscondition_val` VARCHAR(250) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NULL,
+	`zbscondition_val_secondary` VARCHAR(250) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NULL,
+	PRIMARY KEY (`ID`))
+	" . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Admin Logs
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['adminlog'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsadmlog_status` INT(3) NOT NULL,
-  `zbsadmlog_cat` VARCHAR(20) NULL DEFAULT NULL,
-  `zbsadmlog_str` VARCHAR(500) NULL DEFAULT NULL,
-  `zbsadmlog_time` INT(14) NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsadmlog_status` INT(3) NOT NULL,
+	`zbsadmlog_cat` VARCHAR(20) NULL DEFAULT NULL,
+	`zbsadmlog_str` VARCHAR(500) NULL DEFAULT NULL,
+	`zbsadmlog_time` INT(14) NULL DEFAULT NULL,
+	PRIMARY KEY (`ID`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Temporary Hashes
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['temphash'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbstemphash_status` INT NULL DEFAULT -1,
-  `zbstemphash_objtype` VARCHAR(50) NOT NULL,
-  `zbstemphash_objid` INT NULL DEFAULT NULL,
-  `zbstemphash_objhash` VARCHAR(256) NULL DEFAULT NULL,
-  `zbstemphash_created` INT(14) NOT NULL,
-  `zbstemphash_lastupdated` INT(14) NOT NULL,
-  `zbstemphash_expiry` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbstemphash_status` INT NULL DEFAULT -1,
+	`zbstemphash_objtype` VARCHAR(50) NOT NULL,
+	`zbstemphash_objid` INT NULL DEFAULT NULL,
+	`zbstemphash_objhash` VARCHAR(256) NULL DEFAULT NULL,
+	`zbstemphash_created` INT(14) NOT NULL,
+	`zbstemphash_lastupdated` INT(14) NOT NULL,
+	`zbstemphash_expiry` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Object Relationships (Links)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['objlinks'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsol_objtype_from` INT(4) NOT NULL,
-  `zbsol_objtype_to` INT(4) NOT NULL,
-  `zbsol_objid_from` INT NOT NULL,
-  `zbsol_objid_to` INT NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX (`zbsol_objid_from`),
-  INDEX (`zbsol_objid_to`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsol_objtype_from` INT(4) NOT NULL,
+	`zbsol_objtype_to` INT(4) NOT NULL,
+	`zbsol_objid_from` INT NOT NULL,
+	`zbsol_objid_to` INT NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX (`zbsol_objid_from`),
+	INDEX (`zbsol_objid_to`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	#} AKA (Aliases)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['aka'] . "(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `aka_type` INT NULL,
-  `aka_id` INT NOT NULL,
-  `aka_alias` VARCHAR(200) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NOT NULL,
-  `aka_created` INT(14) NULL,
-  `aka_lastupdated` INT(14) NULL,
-  PRIMARY KEY (`ID`),
-  INDEX (`aka_id`, `aka_alias`))
-  " . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`aka_type` INT NULL,
+	`aka_id` INT NOT NULL,
+	`aka_alias` VARCHAR(200) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NOT NULL,
+	`aka_created` INT(14) NULL,
+	`aka_lastupdated` INT(14) NULL,
+	PRIMARY KEY (`ID`),
+	INDEX (`aka_id`, `aka_alias`))
+	" . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	#} External sources
 	// NOTE:! Modified in 2.97.5 migration
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['externalsources'] . "(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbss_objtype` INT(3) NOT NULL DEFAULT '-1',
-  `zbss_objid` INT(32) NOT NULL,
-  `zbss_source` VARCHAR(20) NOT NULL,
-  `zbss_uid` VARCHAR(300) NOT NULL,
-  `zbss_origin` VARCHAR(400) NULL DEFAULT NULL,
-  `zbss_created` INT(14) NOT NULL,
-  `zbss_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX (`zbss_objid`),
-  INDEX (`zbss_origin`),
-  KEY `zbss_uid+zbss_source+zbss_objtype` (`zbss_uid`,`zbss_source`,`zbss_objtype`) USING BTREE)
-  " . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbss_objtype` INT(3) NOT NULL DEFAULT '-1',
+	`zbss_objid` INT(32) NOT NULL,
+	`zbss_source` VARCHAR(20) NOT NULL,
+	`zbss_uid` VARCHAR(300) NOT NULL,
+	`zbss_origin` VARCHAR(400) NULL DEFAULT NULL,
+	`zbss_created` INT(14) NOT NULL,
+	`zbss_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX (`zbss_objid`),
+	INDEX (`zbss_origin`),
+	KEY `zbss_uid+zbss_source+zbss_objtype` (`zbss_uid`,`zbss_source`,`zbss_objtype`) USING BTREE)
+	" . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	#} Tracking (web hit info)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['tracking'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbst_contactid` INT NOT NULL,
-  `zbst_action` VARCHAR(50) NOT NULL,
-  `zbst_action_detail` LONGTEXT NOT NULL,
-  `zbst_referrer` VARCHAR(300) NOT NULL,
-  `zbst_utm_source` VARCHAR(200) NOT NULL,
-  `zbst_utm_medium` VARCHAR(200) NOT NULL,
-  `zbst_utm_name` VARCHAR(200) NOT NULL,
-  `zbst_utm_term` VARCHAR(200) NOT NULL,
-  `zbst_utm_content` VARCHAR(200) NOT NULL,
-  `zbst_created` INT(14) NOT NULL,
-  `zbst_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbst_contactid` INT NOT NULL,
+	`zbst_action` VARCHAR(50) NOT NULL,
+	`zbst_action_detail` LONGTEXT NOT NULL,
+	`zbst_referrer` VARCHAR(300) NOT NULL,
+	`zbst_utm_source` VARCHAR(200) NOT NULL,
+	`zbst_utm_medium` VARCHAR(200) NOT NULL,
+	`zbst_utm_name` VARCHAR(200) NOT NULL,
+	`zbst_utm_term` VARCHAR(200) NOT NULL,
+	`zbst_utm_content` VARCHAR(200) NOT NULL,
+	`zbst_created` INT(14) NOT NULL,
+	`zbst_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	#} Logs
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['logs'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsl_objtype` INT NOT NULL,
-  `zbsl_objid` INT NOT NULL,
-  `zbsl_type` VARCHAR(200) NOT NULL,
-  `zbsl_shortdesc` VARCHAR(300) NULL,
-  `zbsl_longdesc` LONGTEXT NULL,
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsl_objtype` INT NOT NULL,
+	`zbsl_objid` INT NOT NULL,
+	`zbsl_type` VARCHAR(200) NOT NULL,
+	`zbsl_shortdesc` VARCHAR(300) NULL,
+	`zbsl_longdesc` LONGTEXT NULL,
 	`zbsl_pinned` INT(1) NULL,
-  `zbsl_created` INT(14) NOT NULL,
-  `zbsl_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX (`zbsl_objid`),
-  INDEX `zbsl_created` (`zbsl_created`) USING BTREE)
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`zbsl_created` INT(14) NOT NULL,
+	`zbsl_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX (`zbsl_objid`),
+	INDEX `zbsl_created` (`zbsl_created`) USING BTREE)
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// System Email Templates
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['system_mail_templates'] . "(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsmail_active` INT NOT NULL,
-  `zbsmail_id` INT NOT NULL,
-  `zbsmail_deliverymethod` VARCHAR(200) NOT NULL,
-  `zbsmail_fromname` VARCHAR(200) NULL,
-  `zbsmail_fromaddress` VARCHAR(200) NULL,
-  `zbsmail_replyto` VARCHAR(200) NULL,
-  `zbsmail_ccto` VARCHAR(200) NULL,
-  `zbsmail_bccto` VARCHAR(200) NULL,
-  `zbsmail_subject` VARCHAR(200) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NULL DEFAULT NULL,
-  `zbsmail_body` LONGTEXT NULL DEFAULT NULL,
-  `zbsmail_created` INT(14) NOT NULL,
-  `zbsmail_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`))
-  " . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsmail_active` INT NOT NULL,
+	`zbsmail_id` INT NOT NULL,
+	`zbsmail_deliverymethod` VARCHAR(200) NOT NULL,
+	`zbsmail_fromname` VARCHAR(200) NULL,
+	`zbsmail_fromaddress` VARCHAR(200) NULL,
+	`zbsmail_replyto` VARCHAR(200) NULL,
+	`zbsmail_ccto` VARCHAR(200) NULL,
+	`zbsmail_bccto` VARCHAR(200) NULL,
+	`zbsmail_subject` VARCHAR(200) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NULL DEFAULT NULL,
+	`zbsmail_body` LONGTEXT NULL DEFAULT NULL,
+	`zbsmail_created` INT(14) NOT NULL,
+	`zbsmail_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`))
+	" . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// System Email History
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['system_mail_hist'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` int(11) DEFAULT NULL,
-  `zbs_team` int(11) DEFAULT NULL,
-  `zbs_owner` int(11) NOT NULL,
-  `zbsmail_type` int(11) NOT NULL,
-  `zbsmail_sender_thread` int(11) NOT NULL,
-  `zbsmail_sender_email` varchar(200) NOT NULL,
-  `zbsmail_sender_wpid` int(11) NOT NULL,
-  `zbsmail_sender_mailbox_id` int(11) NOT NULL,
-  `zbsmail_sender_mailbox_name` varchar(200) DEFAULT NULL,
-  `zbsmail_receiver_email` varchar(200) NOT NULL,
-  `zbsmail_sent` int(11) NOT NULL,
-  `zbsmail_target_objid` int(11) NOT NULL,
-  `zbsmail_assoc_objid` int(11) NOT NULL,
-  `zbsmail_subject` varchar(200) DEFAULT NULL,
-  `zbsmail_content` longtext,
-  `zbsmail_hash` varchar(128) DEFAULT NULL,
-  `zbsmail_status` varchar(120) DEFAULT NULL,
-  `zbsmail_sender_maildelivery_key` varchar(200) DEFAULT NULL,
-  `zbsmail_starred` int(11) DEFAULT NULL,
-  `zbsmail_opened` int(11) NOT NULL,
-  `zbsmail_clicked` int(11) NOT NULL,
-  `zbsmail_firstopened` int(14) NOT NULL,
-  `zbsmail_lastopened` int(14) NOT NULL,
-  `zbsmail_lastclicked` int(14) NOT NULL,
-  `zbsmail_created` int(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX (`zbsmail_sender_wpid`),
-  INDEX (`zbsmail_sender_mailbox_id`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` int(11) DEFAULT NULL,
+	`zbs_team` int(11) DEFAULT NULL,
+	`zbs_owner` int(11) NOT NULL,
+	`zbsmail_type` int(11) NOT NULL,
+	`zbsmail_sender_thread` int(11) NOT NULL,
+	`zbsmail_sender_email` varchar(200) NOT NULL,
+	`zbsmail_sender_wpid` int(11) NOT NULL,
+	`zbsmail_sender_mailbox_id` int(11) NOT NULL,
+	`zbsmail_sender_mailbox_name` varchar(200) DEFAULT NULL,
+	`zbsmail_receiver_email` varchar(200) NOT NULL,
+	`zbsmail_sent` int(11) NOT NULL,
+	`zbsmail_target_objid` int(11) NOT NULL,
+	`zbsmail_assoc_objid` int(11) NOT NULL,
+	`zbsmail_subject` varchar(200) DEFAULT NULL,
+	`zbsmail_content` longtext,
+	`zbsmail_hash` varchar(128) DEFAULT NULL,
+	`zbsmail_status` varchar(120) DEFAULT NULL,
+	`zbsmail_sender_maildelivery_key` varchar(200) DEFAULT NULL,
+	`zbsmail_starred` int(11) DEFAULT NULL,
+	`zbsmail_opened` int(11) NOT NULL,
+	`zbsmail_clicked` int(11) NOT NULL,
+	`zbsmail_firstopened` int(14) NOT NULL,
+	`zbsmail_lastopened` int(14) NOT NULL,
+	`zbsmail_lastclicked` int(14) NOT NULL,
+	`zbsmail_created` int(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX (`zbsmail_sender_wpid`),
+	INDEX (`zbsmail_sender_mailbox_id`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// cron Manager Logs
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['cronmanagerlogs'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` int(11) DEFAULT NULL,
-  `zbs_team` int(11) DEFAULT NULL,
-  `zbs_owner` int(11) NOT NULL,
-  `job` VARCHAR(100) NOT NULL,
-  `jobstatus` INT(3) NULL,
-  `jobstarted` INT(14) NOT NULL,
-  `jobfinished` INT(14) NOT NULL,
-  `jobnotes` LONGTEXT NULL,
-  PRIMARY KEY (`ID`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` int(11) DEFAULT NULL,
+	`zbs_team` int(11) DEFAULT NULL,
+	`zbs_owner` int(11) NOT NULL,
+	`job` VARCHAR(100) NOT NULL,
+	`jobstatus` INT(3) NULL,
+	`jobstarted` INT(14) NOT NULL,
+	`jobfinished` INT(14) NOT NULL,
+	`jobnotes` LONGTEXT NULL,
+	PRIMARY KEY (`ID`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Tax Table
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['tax'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` int(11) DEFAULT NULL,
-  `zbs_team` int(11) DEFAULT NULL,
-  `zbs_owner` int(11) NOT NULL,
-  `zbsc_tax_name` VARCHAR(100) NULL,
-  `zbsc_rate` DECIMAL(20,10) NOT NULL DEFAULT 0.0000000000,
-  `zbsc_created` INT(14) NOT NULL,
-  `zbsc_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` int(11) DEFAULT NULL,
+	`zbs_team` int(11) DEFAULT NULL,
+	`zbs_owner` int(11) NOT NULL,
+	`zbsc_tax_name` VARCHAR(100) NULL,
+	`zbsc_rate` DECIMAL(20,10) NOT NULL DEFAULT 0.0000000000,
+	`zbsc_created` INT(14) NOT NULL,
+	`zbsc_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Companies (DB3.0+)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['companies'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsco_status` VARCHAR(50) NULL DEFAULT NULL,
-  `zbsco_name` VARCHAR(100) NULL DEFAULT NULL,
-  `zbsco_email` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_addr1` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_addr2` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_city` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_county` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_country` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_postcode` VARCHAR(50) NULL DEFAULT NULL,
-  `zbsco_secaddr1` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_secaddr2` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_seccity` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_seccounty` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_seccountry` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsco_secpostcode` VARCHAR(50) NULL DEFAULT NULL,
-  `zbsco_maintel` VARCHAR(40) NULL DEFAULT NULL,
-  `zbsco_sectel` VARCHAR(40) NULL DEFAULT NULL,
-  `zbsco_wpid` INT NULL DEFAULT NULL,
-  `zbsco_avatar` VARCHAR(300) NULL DEFAULT NULL,
-  `zbsco_tw` VARCHAR(100) NULL,
-  `zbsco_li` VARCHAR(300) NULL,
-  `zbsco_fb` VARCHAR(200) NULL,
-  `zbsco_created` INT(14) NOT NULL,
-  `zbsco_lastupdated` INT(14) NOT NULL,
-  `zbsco_lastcontacted` INT(14) NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX `wpid` (`zbsco_wpid` ASC),
-  INDEX `name` (`zbsco_name` ASC),
-  INDEX `email` (`zbsco_email` ASC),
-  INDEX `created` (`zbsco_created` ASC))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsco_status` VARCHAR(50) NULL DEFAULT NULL,
+	`zbsco_name` VARCHAR(100) NULL DEFAULT NULL,
+	`zbsco_email` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_addr1` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_addr2` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_city` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_county` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_country` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_postcode` VARCHAR(50) NULL DEFAULT NULL,
+	`zbsco_secaddr1` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_secaddr2` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_seccity` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_seccounty` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_seccountry` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsco_secpostcode` VARCHAR(50) NULL DEFAULT NULL,
+	`zbsco_maintel` VARCHAR(40) NULL DEFAULT NULL,
+	`zbsco_sectel` VARCHAR(40) NULL DEFAULT NULL,
+	`zbsco_wpid` INT NULL DEFAULT NULL,
+	`zbsco_avatar` VARCHAR(300) NULL DEFAULT NULL,
+	`zbsco_tw` VARCHAR(100) NULL,
+	`zbsco_li` VARCHAR(300) NULL,
+	`zbsco_fb` VARCHAR(200) NULL,
+	`zbsco_created` INT(14) NOT NULL,
+	`zbsco_lastupdated` INT(14) NOT NULL,
+	`zbsco_lastcontacted` INT(14) NULL DEFAULT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `wpid` (`zbsco_wpid` ASC),
+	INDEX `name` (`zbsco_name` ASC),
+	INDEX `email` (`zbsco_email` ASC),
+	INDEX `created` (`zbsco_created` ASC))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Tasks (DB3.0+)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['events'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbse_title` VARCHAR(255) NULL DEFAULT NULL,
-  `zbse_desc` LONGTEXT NULL DEFAULT NULL,
-  `zbse_start` INT(14) NOT NULL,
-  `zbse_end` INT(14) NOT NULL,
-  `zbse_complete` TINYINT(1) NOT NULL DEFAULT -1,
-  `zbse_show_on_portal` TINYINT(1) NOT NULL DEFAULT -1,
-  `zbse_show_on_cal` TINYINT(1) NOT NULL DEFAULT -1,
-  `zbse_created` INT(14) NOT NULL,
-  `zbse_lastupdated` INT(14) NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX `title` (`zbse_title` ASC),
-  INDEX `startint` (`zbse_start` ASC),
-  INDEX `endint` (`zbse_end` ASC),
-  INDEX `created` (`zbse_created` ASC))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbse_title` VARCHAR(255) NULL DEFAULT NULL,
+	`zbse_desc` LONGTEXT NULL DEFAULT NULL,
+	`zbse_start` INT(14) NOT NULL,
+	`zbse_end` INT(14) NOT NULL,
+	`zbse_complete` TINYINT(1) NOT NULL DEFAULT -1,
+	`zbse_show_on_portal` TINYINT(1) NOT NULL DEFAULT -1,
+	`zbse_show_on_cal` TINYINT(1) NOT NULL DEFAULT -1,
+	`zbse_created` INT(14) NOT NULL,
+	`zbse_lastupdated` INT(14) NULL DEFAULT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `title` (`zbse_title` ASC),
+	INDEX `startint` (`zbse_start` ASC),
+	INDEX `endint` (`zbse_end` ASC),
+	INDEX `created` (`zbse_created` ASC))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Task Reminders (DB3.0+)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['eventreminders'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbser_event` INT NOT NULL,
-  `zbser_remind_at` INT NOT NULL DEFAULT -1,
-  `zbser_sent` TINYINT NOT NULL DEFAULT -1,
-  `zbser_created` INT(14) NOT NULL,
-  `zbser_lastupdated` INT(14) NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbser_event` INT NOT NULL,
+	`zbser_remind_at` INT NOT NULL DEFAULT -1,
+	`zbser_sent` TINYINT NOT NULL DEFAULT -1,
+	`zbser_created` INT(14) NOT NULL,
+	`zbser_lastupdated` INT(14) NULL DEFAULT NULL,
+	PRIMARY KEY (`ID`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Forms
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['forms'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsf_title` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsf_style` VARCHAR(20) NOT NULL,
-  `zbsf_views` INT(10) NULL DEFAULT 0,
-  `zbsf_conversions` INT(10) NULL DEFAULT 0,
-  `zbsf_label_header` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsf_label_subheader` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsf_label_firstname` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsf_label_lastname` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsf_label_email` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsf_label_message` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsf_label_button` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsf_label_successmsg` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsf_label_spammsg` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsf_include_terms_check` TINYINT(1) NOT NULL DEFAULT -1,
-  `zbsf_terms_url` VARCHAR(300) NULL DEFAULT NULL,
-  `zbsf_redir_url` VARCHAR(300) NULL DEFAULT NULL,
-  `zbsf_font` VARCHAR(100) NULL DEFAULT NULL,
-  `zbsf_colour_bg` VARCHAR(100) NULL DEFAULT NULL,
-  `zbsf_colour_font` VARCHAR(100) NULL DEFAULT NULL,
-  `zbsf_colour_emphasis` VARCHAR(100) NULL DEFAULT NULL,
-  `zbsf_created` INT(14) NOT NULL,
-  `zbsf_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX `title` (`zbsf_title` ASC),
-  INDEX `created` (`zbsf_created` ASC))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsf_title` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsf_style` VARCHAR(20) NOT NULL,
+	`zbsf_views` INT(10) NULL DEFAULT 0,
+	`zbsf_conversions` INT(10) NULL DEFAULT 0,
+	`zbsf_label_header` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsf_label_subheader` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsf_label_firstname` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsf_label_lastname` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsf_label_email` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsf_label_message` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsf_label_button` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsf_label_successmsg` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsf_label_spammsg` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsf_include_terms_check` TINYINT(1) NOT NULL DEFAULT -1,
+	`zbsf_terms_url` VARCHAR(300) NULL DEFAULT NULL,
+	`zbsf_redir_url` VARCHAR(300) NULL DEFAULT NULL,
+	`zbsf_font` VARCHAR(100) NULL DEFAULT NULL,
+	`zbsf_colour_bg` VARCHAR(100) NULL DEFAULT NULL,
+	`zbsf_colour_font` VARCHAR(100) NULL DEFAULT NULL,
+	`zbsf_colour_emphasis` VARCHAR(100) NULL DEFAULT NULL,
+	`zbsf_created` INT(14) NOT NULL,
+	`zbsf_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `title` (`zbsf_title` ASC),
+	INDEX `created` (`zbsf_created` ASC))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Invoices
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['invoices'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsi_id_override` VARCHAR(128) NULL DEFAULT NULL,
-  `zbsi_parent` INT NULL DEFAULT NULL,
-  `zbsi_status` VARCHAR(50) NOT NULL,
-  `zbsi_hash` VARCHAR(64) NULL DEFAULT NULL,
-  `zbsi_send_attachments` TINYINT(1) NOT NULL DEFAULT -1,
-  `zbsi_pdf_template` VARCHAR(128) NULL DEFAULT NULL,
-  `zbsi_portal_template` VARCHAR(128) NULL DEFAULT NULL,
-  `zbsi_email_template` VARCHAR(128) NULL DEFAULT NULL,
-  `zbsi_invoice_frequency` INT(4) NULL DEFAULT -1,
-  `zbsi_currency` VARCHAR(4) NOT NULL DEFAULT -1,
-  `zbsi_pay_via` INT(4) NULL DEFAULT NULL,
-  `zbsi_logo_url` VARCHAR(300) NULL DEFAULT NULL,
-  `zbsi_address_to_objtype` INT(2) NOT NULL DEFAULT -1,
-  `zbsi_addressed_from` VARCHAR(600) NULL DEFAULT NULL,
-  `zbsi_addressed_to` VARCHAR(600) NULL DEFAULT NULL,
-  `zbsi_allow_partial` TINYINT(1) NOT NULL DEFAULT -1,
-  `zbsi_allow_tip` TINYINT(1) NOT NULL DEFAULT -1,
-  `zbsi_hours_or_quantity` TINYINT(1) NOT NULL DEFAULT 1,
-  `zbsi_date` INT(14) NOT NULL,
-  `zbsi_due_date` INT(14) NULL DEFAULT NULL,
-  `zbsi_paid_date` INT(14) NULL DEFAULT -1,
-  `zbsi_hash_viewed` INT(14) NULL DEFAULT -1,
-  `zbsi_hash_viewed_count` INT(10) NULL DEFAULT 0,
-  `zbsi_portal_viewed` INT(14) NULL DEFAULT -1,
-  `zbsi_portal_viewed_count` INT(10) NULL DEFAULT 0,
-  `zbsi_net` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
-  `zbsi_discount` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsi_discount_type` VARCHAR(20) NULL DEFAULT NULL,
-  `zbsi_shipping` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsi_shipping_taxes` VARCHAR(40) NULL DEFAULT NULL,
-  `zbsi_shipping_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsi_taxes` VARCHAR(40) NULL DEFAULT NULL,
-  `zbsi_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsi_total` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
-  `zbsi_created` INT(14) NOT NULL,
-  `zbsi_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX `idoverride` (`zbsi_id_override` ASC),
-  INDEX `parent` (`zbsi_parent` ASC),
-  INDEX `status` (`zbsi_status` ASC),
-  INDEX `hash` (`zbsi_hash` ASC),
-  INDEX `created` (`zbsi_created` ASC))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsi_id_override` VARCHAR(128) NULL DEFAULT NULL,
+	`zbsi_parent` INT NULL DEFAULT NULL,
+	`zbsi_status` VARCHAR(50) NOT NULL,
+	`zbsi_hash` VARCHAR(64) NULL DEFAULT NULL,
+	`zbsi_send_attachments` TINYINT(1) NOT NULL DEFAULT -1,
+	`zbsi_pdf_template` VARCHAR(128) NULL DEFAULT NULL,
+	`zbsi_portal_template` VARCHAR(128) NULL DEFAULT NULL,
+	`zbsi_email_template` VARCHAR(128) NULL DEFAULT NULL,
+	`zbsi_invoice_frequency` INT(4) NULL DEFAULT -1,
+	`zbsi_currency` VARCHAR(4) NOT NULL DEFAULT -1,
+	`zbsi_pay_via` INT(4) NULL DEFAULT NULL,
+	`zbsi_logo_url` VARCHAR(300) NULL DEFAULT NULL,
+	`zbsi_address_to_objtype` INT(2) NOT NULL DEFAULT -1,
+	`zbsi_addressed_from` VARCHAR(600) NULL DEFAULT NULL,
+	`zbsi_addressed_to` VARCHAR(600) NULL DEFAULT NULL,
+	`zbsi_allow_partial` TINYINT(1) NOT NULL DEFAULT -1,
+	`zbsi_allow_tip` TINYINT(1) NOT NULL DEFAULT -1,
+	`zbsi_hours_or_quantity` TINYINT(1) NOT NULL DEFAULT 1,
+	`zbsi_date` INT(14) NOT NULL,
+	`zbsi_due_date` INT(14) NULL DEFAULT NULL,
+	`zbsi_paid_date` INT(14) NULL DEFAULT -1,
+	`zbsi_hash_viewed` INT(14) NULL DEFAULT -1,
+	`zbsi_hash_viewed_count` INT(10) NULL DEFAULT 0,
+	`zbsi_portal_viewed` INT(14) NULL DEFAULT -1,
+	`zbsi_portal_viewed_count` INT(10) NULL DEFAULT 0,
+	`zbsi_net` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+	`zbsi_discount` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsi_discount_type` VARCHAR(20) NULL DEFAULT NULL,
+	`zbsi_shipping` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsi_shipping_taxes` VARCHAR(40) NULL DEFAULT NULL,
+	`zbsi_shipping_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsi_taxes` VARCHAR(40) NULL DEFAULT NULL,
+	`zbsi_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsi_total` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+	`zbsi_created` INT(14) NOT NULL,
+	`zbsi_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `idoverride` (`zbsi_id_override` ASC),
+	INDEX `parent` (`zbsi_parent` ASC),
+	INDEX `status` (`zbsi_status` ASC),
+	INDEX `hash` (`zbsi_hash` ASC),
+	INDEX `created` (`zbsi_created` ASC))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Line Items (DB3.0+)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['lineitems'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsli_order` INT NULL DEFAULT NULL,
-  `zbsli_title` VARCHAR(300) NULL DEFAULT NULL,
-  `zbsli_desc` VARCHAR(300) NULL DEFAULT NULL,
-  `zbsli_quantity` decimal(18,2) NULL DEFAULT NULL,
-  `zbsli_price` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
-  `zbsli_currency` VARCHAR(4) NOT NULL DEFAULT -1,
-  `zbsli_net` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
-  `zbsli_discount` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsli_fee` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsli_shipping` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsli_shipping_taxes` VARCHAR(40) NULL DEFAULT NULL,
-  `zbsli_shipping_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsli_taxes` VARCHAR(40) NULL DEFAULT NULL,
-  `zbsli_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsli_total` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
-  `zbsli_created` INT(14) NOT NULL,
-  `zbsli_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX `order` (`zbsli_order` ASC),
-  INDEX `created` (`zbsli_created` ASC))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsli_order` INT NULL DEFAULT NULL,
+	`zbsli_title` VARCHAR(300) NULL DEFAULT NULL,
+	`zbsli_desc` VARCHAR(300) NULL DEFAULT NULL,
+	`zbsli_quantity` decimal(18,2) NULL DEFAULT NULL,
+	`zbsli_price` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+	`zbsli_currency` VARCHAR(4) NOT NULL DEFAULT -1,
+	`zbsli_net` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+	`zbsli_discount` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsli_fee` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsli_shipping` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsli_shipping_taxes` VARCHAR(40) NULL DEFAULT NULL,
+	`zbsli_shipping_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsli_taxes` VARCHAR(40) NULL DEFAULT NULL,
+	`zbsli_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsli_total` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+	`zbsli_created` INT(14) NOT NULL,
+	`zbsli_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `order` (`zbsli_order` ASC),
+	INDEX `created` (`zbsli_created` ASC))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Quotes (DB3.0+)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['quotes'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsq_id_override` VARCHAR(128) NULL DEFAULT NULL,
-  `zbsq_title` VARCHAR(255) NULL DEFAULT NULL,
-  `zbsq_currency` VARCHAR(4) NOT NULL DEFAULT -1,
-  `zbsq_value` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsq_date` INT(14) NOT NULL,
-  `zbsq_template` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsq_content` LONGTEXT NULL DEFAULT NULL,
-  `zbsq_notes` LONGTEXT NULL DEFAULT NULL,
-  `zbsq_hash` VARCHAR(64) NULL DEFAULT NULL,
-  `zbsq_send_attachments` TINYINT(1) NOT NULL DEFAULT -1,
-  `zbsq_lastviewed` INT(14) NULL DEFAULT -1,
-  `zbsq_viewed_count` INT(10) NULL DEFAULT 0,
-  `zbsq_accepted` INT(14) NULL DEFAULT -1,
-  `zbsq_acceptedsigned` VARCHAR(200) NULL DEFAULT NULL,
-  `zbsq_acceptedip` VARCHAR(64) NULL DEFAULT NULL,
-  `zbsq_created` INT(14) NOT NULL,
-  `zbsq_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX `title` (`zbsq_title` ASC),
-  INDEX `dateint` (`zbsq_date` ASC),
-  INDEX `hash` (`zbsq_hash` ASC),
-  INDEX `created` (`zbsq_created` ASC),
-  INDEX `accepted` (`zbsq_accepted` ASC))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsq_id_override` VARCHAR(128) NULL DEFAULT NULL,
+	`zbsq_title` VARCHAR(255) NULL DEFAULT NULL,
+	`zbsq_currency` VARCHAR(4) NOT NULL DEFAULT -1,
+	`zbsq_value` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsq_date` INT(14) NOT NULL,
+	`zbsq_template` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsq_content` LONGTEXT NULL DEFAULT NULL,
+	`zbsq_notes` LONGTEXT NULL DEFAULT NULL,
+	`zbsq_hash` VARCHAR(64) NULL DEFAULT NULL,
+	`zbsq_send_attachments` TINYINT(1) NOT NULL DEFAULT -1,
+	`zbsq_lastviewed` INT(14) NULL DEFAULT -1,
+	`zbsq_viewed_count` INT(10) NULL DEFAULT 0,
+	`zbsq_accepted` INT(14) NULL DEFAULT -1,
+	`zbsq_acceptedsigned` VARCHAR(200) NULL DEFAULT NULL,
+	`zbsq_acceptedip` VARCHAR(64) NULL DEFAULT NULL,
+	`zbsq_created` INT(14) NOT NULL,
+	`zbsq_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `title` (`zbsq_title` ASC),
+	INDEX `dateint` (`zbsq_date` ASC),
+	INDEX `hash` (`zbsq_hash` ASC),
+	INDEX `created` (`zbsq_created` ASC),
+	INDEX `accepted` (`zbsq_accepted` ASC))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Quote Templates (DB3.0+)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['quotetemplates'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsqt_title` VARCHAR(255) NULL DEFAULT NULL,
-  `zbsqt_value` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbsqt_date_str` VARCHAR(20) NULL DEFAULT NULL,
-  `zbsqt_date` INT(14) NULL DEFAULT NULL,
-  `zbsqt_content` LONGTEXT NULL DEFAULT NULL,
-  `zbsqt_notes` LONGTEXT NULL DEFAULT NULL,
-  `zbsqt_currency` VARCHAR(4) NOT NULL DEFAULT -1,
-  `zbsqt_created` INT(14) NOT NULL,
-  `zbsqt_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX `title` (`zbsqt_title` ASC),
-  INDEX `created` (`zbsqt_created` ASC))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbsqt_title` VARCHAR(255) NULL DEFAULT NULL,
+	`zbsqt_value` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbsqt_date_str` VARCHAR(20) NULL DEFAULT NULL,
+	`zbsqt_date` INT(14) NULL DEFAULT NULL,
+	`zbsqt_content` LONGTEXT NULL DEFAULT NULL,
+	`zbsqt_notes` LONGTEXT NULL DEFAULT NULL,
+	`zbsqt_currency` VARCHAR(4) NOT NULL DEFAULT -1,
+	`zbsqt_created` INT(14) NOT NULL,
+	`zbsqt_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `title` (`zbsqt_title` ASC),
+	INDEX `created` (`zbsqt_created` ASC))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Transactions (DB3.0+)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['transactions'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbst_status` VARCHAR(50) NOT NULL,
-  `zbst_type` VARCHAR(50) DEFAULT NULL,
-  `zbst_ref` VARCHAR(120) NOT NULL,
-  `zbst_origin` VARCHAR(100) NULL DEFAULT NULL,
-  `zbst_parent` INT NULL DEFAULT NULL,
-  `zbst_hash` VARCHAR(64) NULL DEFAULT NULL,
-  `zbst_title` VARCHAR(200) NULL DEFAULT NULL,
-  `zbst_desc` VARCHAR(200) NULL DEFAULT NULL,
-  `zbst_date` INT(14) NULL DEFAULT NULL,
-  `zbst_customer_ip` VARCHAR(45) NULL DEFAULT NULL,
-  `zbst_currency` VARCHAR(4) NOT NULL DEFAULT -1,
-  `zbst_net` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
-  `zbst_fee` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
-  `zbst_discount` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbst_shipping` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbst_shipping_taxes` VARCHAR(40) NULL DEFAULT NULL,
-  `zbst_shipping_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbst_taxes` VARCHAR(40) NULL DEFAULT NULL,
-  `zbst_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
-  `zbst_total` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
-  `zbst_date_paid` INT(14) NULL DEFAULT NULL,
-  `zbst_date_completed` INT(14) NULL DEFAULT NULL,
-  `zbst_created` INT(14) NOT NULL,
-  `zbst_lastupdated` INT(14) NOT NULL,
-  PRIMARY KEY (`ID`),
-  INDEX `status` (`zbst_status` ASC),
-  INDEX `ref` (`zbst_ref` ASC),
-  INDEX `transtype` (`zbst_type` ASC),
-  INDEX `transorigin` (`zbst_origin` ASC),
-  INDEX `parent` (`zbst_parent` ASC),
-  INDEX `hash` (`zbst_hash` ASC),
-  INDEX `date` (`zbst_date` ASC),
-  INDEX `title` (`zbst_title` ASC),
-  INDEX `created` (`zbst_created` ASC))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbst_status` VARCHAR(50) NOT NULL,
+	`zbst_type` VARCHAR(50) DEFAULT NULL,
+	`zbst_ref` VARCHAR(120) NOT NULL,
+	`zbst_origin` VARCHAR(100) NULL DEFAULT NULL,
+	`zbst_parent` INT NULL DEFAULT NULL,
+	`zbst_hash` VARCHAR(64) NULL DEFAULT NULL,
+	`zbst_title` VARCHAR(200) NULL DEFAULT NULL,
+	`zbst_desc` VARCHAR(200) NULL DEFAULT NULL,
+	`zbst_date` INT(14) NULL DEFAULT NULL,
+	`zbst_customer_ip` VARCHAR(45) NULL DEFAULT NULL,
+	`zbst_currency` VARCHAR(4) NOT NULL DEFAULT -1,
+	`zbst_net` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+	`zbst_fee` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+	`zbst_discount` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbst_shipping` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbst_shipping_taxes` VARCHAR(40) NULL DEFAULT NULL,
+	`zbst_shipping_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbst_taxes` VARCHAR(40) NULL DEFAULT NULL,
+	`zbst_tax` DECIMAL(18,2) NULL DEFAULT 0.00,
+	`zbst_total` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+	`zbst_date_paid` INT(14) NULL DEFAULT NULL,
+	`zbst_date_completed` INT(14) NULL DEFAULT NULL,
+	`zbst_created` INT(14) NOT NULL,
+	`zbst_lastupdated` INT(14) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `status` (`zbst_status` ASC),
+	INDEX `ref` (`zbst_ref` ASC),
+	INDEX `transtype` (`zbst_type` ASC),
+	INDEX `transorigin` (`zbst_origin` ASC),
+	INDEX `parent` (`zbst_parent` ASC),
+	INDEX `hash` (`zbst_hash` ASC),
+	INDEX `date` (`zbst_date` ASC),
+	INDEX `title` (`zbst_title` ASC),
+	INDEX `created` (`zbst_created` ASC))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Security logs (used to stop repeat brute-forcing quote/inv hashes etc.)
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['security_log'] . '(
-  `ID` INT NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbssl_reqtype` VARCHAR(20) NOT NULL,
-  `zbssl_ip` VARCHAR(200) NULL DEFAULT NULL,
-  `zbssl_reqhash` VARCHAR(128) NULL DEFAULT NULL,
-  `zbssl_reqid` INT(11) NULL DEFAULT NULL,
-  `zbssl_loggedin_id` INT(11) NULL DEFAULT NULL,
-  `zbssl_reqstatus` INT(1) NULL DEFAULT NULL,
-  `zbssl_reqtime` INT(14) NULL DEFAULT NULL,
-  PRIMARY KEY (`ID`))
-  ' . $storageEngineLine . '
-  DEFAULT CHARACTER SET = ' . $characterSet . '
-  COLLATE = ' . $collation . ';';
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NULL DEFAULT NULL,
+	`zbs_team` INT NULL DEFAULT NULL,
+	`zbs_owner` INT NOT NULL,
+	`zbssl_reqtype` VARCHAR(20) NOT NULL,
+	`zbssl_ip` VARCHAR(200) NULL DEFAULT NULL,
+	`zbssl_reqhash` VARCHAR(128) NULL DEFAULT NULL,
+	`zbssl_reqid` INT(11) NULL DEFAULT NULL,
+	`zbssl_loggedin_id` INT(11) NULL DEFAULT NULL,
+	`zbssl_reqstatus` INT(1) NULL DEFAULT NULL,
+	`zbssl_reqtime` INT(14) NULL DEFAULT NULL,
+	PRIMARY KEY (`ID`))
+	' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
 	zeroBSCRM_db_runDelta( $sql );
 
 	// Add table to store automation workflows.
@@ -1042,23 +1042,23 @@ function jpcrm_create_notifications_table() {
 	// Table creation SQL
 	// phpcs:disable
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['notifications'] . "(
-    `id` INT(32) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `zbs_site` INT NULL DEFAULT NULL,
-    `zbs_team` INT NULL DEFAULT NULL,
-    `zbs_owner` INT NOT NULL,
-    `zbsnotify_recipient_id` INT(32) NOT NULL,
-    `zbsnotify_sender_id` INT(32) NOT NULL,
-    `zbsnotify_unread` TINYINT(1) NOT NULL DEFAULT '1',
-    `zbsnotify_emailed` TINYINT(1) NOT NULL DEFAULT '0',
-    `zbsnotify_type` VARCHAR(255) NOT NULL DEFAULT '',
-    `zbsnotify_parameters` TEXT NOT NULL,
-    `zbsnotify_reference_id` INT(32) NOT NULL,
-    `zbsnotify_created_at` INT(18) NOT NULL,
-    PRIMARY KEY (`id`))
-    " . $storageEngineLine . '
-    DEFAULT CHARACTER SET = ' . $characterSet . "
-    COLLATE = " . $collation . ";";
-    // phpcs:enable
+		`id` INT(32) UNSIGNED NOT NULL AUTO_INCREMENT,
+		`zbs_site` INT NULL DEFAULT NULL,
+		`zbs_team` INT NULL DEFAULT NULL,
+		`zbs_owner` INT NOT NULL,
+		`zbsnotify_recipient_id` INT(32) NOT NULL,
+		`zbsnotify_sender_id` INT(32) NOT NULL,
+		`zbsnotify_unread` TINYINT(1) NOT NULL DEFAULT '1',
+		`zbsnotify_emailed` TINYINT(1) NOT NULL DEFAULT '0',
+		`zbsnotify_type` VARCHAR(255) NOT NULL DEFAULT '',
+		`zbsnotify_parameters` TEXT NOT NULL,
+		`zbsnotify_reference_id` INT(32) NOT NULL,
+		`zbsnotify_created_at` INT(18) NOT NULL,
+		PRIMARY KEY (`id`))
+		" . $storageEngineLine . '
+		DEFAULT CHARACTER SET = ' . $characterSet . "
+		COLLATE = " . $collation . ";";
+		// phpcs:enable
 
 	// Run the query
 	zeroBSCRM_db_runDelta( $sql );
@@ -1152,7 +1152,7 @@ function zeroBSCRM_database_reset( $check_permissions = true ) {
 				$wpdb->query( 'TRUNCATE TABLE ' . $v ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				}
 	}
-	// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 }
 
 // dangerous, brutal, savage removal of all ZBS signs

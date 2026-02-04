@@ -242,7 +242,7 @@ class zeroBS__Metabox_Transaction extends zeroBS__Metabox {
 					</div>
 
 					<div class="jpcrm-form-group jpcrm-form-group-span-2">
-						<label class="jpcrm-form-label" for="total"><?php echo esc_html( __( 'Transaction Value', 'zero-bs-crm' ) ); ?><?php echo ' (' . esc_html( zeroBSCRM_getCurrencyChr() ) . "):"; // phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired ?></label></th>
+						<label class="jpcrm-form-label" for="total"><?php echo esc_html( __( 'Transaction Value', 'zero-bs-crm' ) ); ?><?php echo ' (' . esc_html( zeroBSCRM_getCurrencyChr() ) . '):'; ?></label></th>
 						<input class="form-control" type="text" id="total" name="zbst_total" value="<?php echo esc_attr( isset( $transaction['total'] ) ? $transaction['total'] : '0.00' ); ?>" class="form-control numbersOnly" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 					</div>
 

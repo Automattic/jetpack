@@ -160,7 +160,7 @@ class zeroBS__Metabox_TagList extends zeroBS__Metabox {
 							$link = jpcrm_esc_link( 'listtagged', -1, $this->postType, -1, $tag['id'] );
 							?>
 							<tr>
-										<td><?php if ( isset( $tag['name'] ) ) echo '<a href="' . esc_url( $link ) . '" class="ui large label">' . esc_html( $tag['name'] ) . '</a>'; // phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed ?></td>
+										<td><?php if ( isset( $tag['name'] ) ) echo '<a href="' . esc_url( $link ) . '" class="ui large label">' . esc_html( $tag['name'] ) . '</a>'; ?></td>
 								<td>
 								<?php
 								if ( isset( $tag['slug'] ) ) {

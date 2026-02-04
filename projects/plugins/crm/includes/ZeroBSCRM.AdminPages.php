@@ -1000,22 +1000,22 @@ function zeroBSCRM_pages_admin_system_emails() {
 							if ( $form->zbsmail_active ) {
 								// 1 = active, 0 = inactive..
 								echo '<div class="ui buttons tiny" style="float: right;
-                                        position: absolute;
-                                        top: 19px;
-                                        right: 20px;">
-                                        <button class="ui positive button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
-                                        <div class="or"></div>
-                                        <button class="ui button zbs-turn-inactive" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
-                                      </div>';
+										position: absolute;
+										top: 19px;
+										right: 20px;">
+										<button class="ui positive button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
+										<div class="or"></div>
+										<button class="ui button zbs-turn-inactive" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
+									  </div>';
 							} else {
 								echo '<div class="ui buttons tiny" style="float: right;
-                                        position: absolute;
-                                        top: 19px;
-                                        right: 20px;">
-                                        <button class="ui button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
-                                        <div class="or"></div>
-                                        <button class="ui button zbs-turn-inactive negative" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
-                                      </div>';
+										position: absolute;
+										top: 19px;
+										right: 20px;">
+										<button class="ui button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
+										<div class="or"></div>
+										<button class="ui button zbs-turn-inactive negative" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
+									  </div>';
 							}
 						}
 

@@ -177,7 +177,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 	$zeroBSCRM_columns_quote['default'] = array(
 		'id'    => array( 'ID', false, 'basefield' ),
 		'title' => array( __( 'Quote Title', 'zero-bs-crm' ), false, 'basefield' ),
-													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
+													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
 													'status' => array( __( 'Status', 'zero-bs-crm' ), false, 'basefield' ),
 													'value' => array( __( 'Quote Value', 'zero-bs-crm' ), false, 'basefield' ),
 													'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
@@ -187,7 +187,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 	$zeroBSCRM_columns_quote['all'] = array(
 		'id'    => array( 'ID', false, 'basefield' ),
 		'title' => array( __( 'Quote Title', 'zero-bs-crm' ), false, 'basefield' ),
-													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
+													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
 													'status' => array( __( 'Status', 'zero-bs-crm' ), false, 'basefield' ),
 													'value' => array( __( 'Quote Value', 'zero-bs-crm' ), false, 'basefield' ),
 													'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
@@ -212,17 +212,17 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 		'id'  => array( 'ID', false, 'basefield' ),
 
 		'ref' => array( __( 'Reference', 'zero-bs-crm' ), false, 'basefield' ),
-														'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
+														'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
 														'status' => array( __( 'Status', 'zero-bs-crm' ), false, 'basefield' ),
 														'value' => array( __( 'Value', 'zero-bs-crm' ), false, 'basefield' ),
 														'date' => array( __( 'Date', 'zero-bs-crm' ), false, 'basefield' ),
 														'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
 	);
 
-	$zeroBSCRM_columns_invoice['all'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Generic.WhiteSpace.ScopeIndent.Incorrect
+	$zeroBSCRM_columns_invoice['all'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 														'id' => array( 'ID', false, 'basefield' ),
 														'ref' => array( __( 'Reference', 'zero-bs-crm' ), false, 'basefield' ),
-														'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
+														'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
 														'status' => array( __( 'Status', 'zero-bs-crm' ), false, 'basefield' ),
 														'value' => array( __( 'Value', 'zero-bs-crm' ), false, 'basefield' ),
 														'date' => array( __( 'Date', 'zero-bs-crm' ), false, 'basefield' ),
@@ -250,7 +250,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 	$zeroBSCRM_columns_transaction                = array();
 		$zeroBSCRM_columns_transaction['default'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 													'id'   => array( 'ID', 'zbsDefault_column_customerid', 'basefield' ),
-													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
+													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
 													'status' => array( __( 'Status', 'zero-bs-crm' ), false, 'basefield' ),
 													'total' => array( __( 'Value', 'zero-bs-crm' ), false, 'basefield' ),
 													'item' => array( __( 'Item', 'zero-bs-crm' ), false, 'basefield' ),
@@ -261,7 +261,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 		$zeroBSCRM_columns_transaction['all'] = array(
 			'id'                                           => array( 'ID', 'zbsDefault_column_customerid', 'basefield' ),
-													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
+													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
 													'customeremail' => array( __( 'Email', 'zero-bs-crm' ) ),
 													'tagged' => array( __( __( 'Tagged', 'zero-bs-crm' ), 'zero-bs-crm' ) ),
 													'status' => array( __( 'Status', 'zero-bs-crm' ), false, 'basefield' ),
@@ -414,7 +414,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 		======================== / Tasks
 		===================================================================================================== */
 
-// phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect, Generic.WhiteSpace.ScopeIndent.IncorrectExact
 /**
  * Unpacks listview settings
  */
@@ -511,5 +510,3 @@ function zeroBSCRM_unpackListViewSettings() {
 
 						}
 	}
-
-// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect, Generic.WhiteSpace.ScopeIndent.IncorrectExact

@@ -36,7 +36,6 @@ function zeroBSCRM_LogsMetaboxSetup() {
 global $zeroBSCRM_logTypes; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 $zeroBSCRM_logTypes = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-	// // phpcs:disable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 	'zerobs_customer' => array(
 
 		'note'                                  => array( 'label' => __( 'Note', 'zero-bs-crm' ), 'ico' => 'fa-sticky-note-o' ),
@@ -90,7 +89,6 @@ $zeroBSCRM_logTypes = array( // phpcs:ignore WordPress.NamingConventions.ValidVa
 
 	),
 
-	// // phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 );
 
 function zeroBSCRM_permifyLogType( $logTypeStr = '' ) {
@@ -418,1204 +416,1202 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 				} else {
 					echo json_encode( array() );
 				}
-                // phpcs:disable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed
-                ?>
-                ;
+				?>
+				;
 
-                var zbsLogEditing = -1;
+				var zbsLogEditing = -1;
 
-                // def ico
-                var zbsLogDefIco = 'fa-sticky-note-o'; 
+				// def ico
+				var zbsLogDefIco = 'fa-sticky-note-o'; 
 
-                jQuery(function(){
+				jQuery(function(){
 
-                    // build log ui
-                    zbscrmjs_buildLogs();
+					// build log ui
+					zbscrmjs_buildLogs();
 
-                    // if url has addlogs=1, init open addlogs :)
-                    // passed down from php via var higher up in this file
-                    setTimeout(function(){
-                        if (typeof window.initialiseAddLog != "undefined"){
-                            jQuery('#zbscrmAddLog').trigger( 'click' );
-                        }
-                    },500);
+					// if url has addlogs=1, init open addlogs :)
+					// passed down from php via var higher up in this file
+					setTimeout(function(){
+						if (typeof window.initialiseAddLog != "undefined"){
+							jQuery('#zbscrmAddLog').trigger( 'click' );
+						}
+					},500);
 
-                    // add log button
-                    jQuery('#zbscrmAddLog').on( 'click', function(){
+					// add log button
+					jQuery('#zbscrmAddLog').on( 'click', function(){
 
 
-                        if (jQuery(this).css('display') == 'block'){
+						if (jQuery(this).css('display') == 'block'){
 
-                            jQuery('#zbsAddLogFormTR').slideDown('400', function() {
-                                
-                            });
+							jQuery('#zbsAddLogFormTR').slideDown('400', function() {
+								
+							});
 
-                            jQuery(this).hide();
+							jQuery(this).hide();
 
-                        } else {
+						} else {
 
-                            jQuery('#zbsAddLogFormTR').hide();
+							jQuery('#zbsAddLogFormTR').hide();
 
-                            jQuery(this).show();
+							jQuery(this).show();
 
-                        }
+						}
 
 
-                    });
+					});
 
-                    // cancel
-                    jQuery('#zbscrmAddLogCancel').on( 'click', function(){
+					// cancel
+					jQuery('#zbscrmAddLogCancel').on( 'click', function(){
 
-                            jQuery('#zbsAddLogFormTR').hide();
+							jQuery('#zbsAddLogFormTR').hide();
 
-                            jQuery('#zbscrmAddLog').show();
+							jQuery('#zbscrmAddLog').show();
 
-                    });
+					});
 
-                    // save
-                    jQuery('#zbscrmAddLogSave').on( 'click', function(){
+					// save
+					jQuery('#zbscrmAddLogSave').on( 'click', function(){
 
-                            //jQuery('#zbsAddLogFormTR').hide();
+							//jQuery('#zbsAddLogFormTR').hide();
 
-                            //jQuery('#zbscrmAddLog').show();
+							//jQuery('#zbscrmAddLog').show();
 
-                            /* 
-                            zbsnagainstid
-                            zbsntype
-                            zbsnshortdesc
-                            zbsnlongdesc
-                            zbsnoverwriteid
-                            pinned
-                            */
+							/* 
+							zbsnagainstid
+							zbsntype
+							zbsnshortdesc
+							zbsnlongdesc
+							zbsnoverwriteid
+							pinned
+							*/
 
-                            // get / check data
-                            var data = {sec:window.zbscrmjs_logsSecToken,zbsnobjtype:'<?php echo esc_html( $this->postType ); ?>'}; var errs = 0;
-                            if ((jQuery('#zbsAddLogType').val()).length > 0) data.zbsntype = jQuery('#zbsAddLogType').val();
-                            if ((jQuery('#zbsAddLogMainDesc').val()).length > 0) data.zbsnshortdesc = jQuery('#zbsAddLogMainDesc').val();
-                            if ((jQuery('#zbsAddLogDetailedDesc').val()).length > 0) 
-                                data.zbsnlongdesc = jQuery('#zbsAddLogDetailedDesc').val();
-                            else
-                                data.zbsnlongdesc = '';
+							// get / check data
+							var data = {sec:window.zbscrmjs_logsSecToken,zbsnobjtype:'<?php echo esc_html( $this->postType ); ?>'}; var errs = 0;
+							if ((jQuery('#zbsAddLogType').val()).length > 0) data.zbsntype = jQuery('#zbsAddLogType').val();
+							if ((jQuery('#zbsAddLogMainDesc').val()).length > 0) data.zbsnshortdesc = jQuery('#zbsAddLogMainDesc').val();
+							if ((jQuery('#zbsAddLogDetailedDesc').val()).length > 0) 
+								data.zbsnlongdesc = jQuery('#zbsAddLogDetailedDesc').val();
+							else
+								data.zbsnlongdesc = '';
 
-                            if (jQuery('#zbsAddLogPinNote').is(':checked')) {
-                                data.pinned = true;
-                            }
+							if (jQuery('#zbsAddLogPinNote').is(':checked')) {
+								data.pinned = true;
+							}
 
-                            // post id & no need for overwrite id as is new
-                            data.zbsnagainstid = parseInt(window.zbsLogAgainstID);
+							// post id & no need for overwrite id as is new
+							data.zbsnagainstid = parseInt(window.zbsLogAgainstID);
 
-                            // debug console.log('posting new note: ',data);
+							// debug console.log('posting new note: ',data);
 
-                            // validate
-                            var msgOut = '';
-                            if (typeof data.zbsntype == "undefined" || data.zbsntype == '') {
-                                errs++;
-                                msgOut = 'Note Type is required!'; 
-                                jQuery('#zbsAddLogType').css('border','2px solid orange');
-                                setTimeout(function(){
+							// validate
+							var msgOut = '';
+							if (typeof data.zbsntype == "undefined" || data.zbsntype == '') {
+								errs++;
+								msgOut = 'Note Type is required!'; 
+								jQuery('#zbsAddLogType').css('border','2px solid orange');
+								setTimeout(function(){
 
-                                    jQuery('#zbsAddLogUpdateMsg').html('');
-                                    jQuery('#zbsAddLogType').css('border','1px solid #ddd');
+									jQuery('#zbsAddLogUpdateMsg').html('');
+									jQuery('#zbsAddLogType').css('border','1px solid #ddd');
 
-                                },1500);
-                            }
-                            if (typeof data.zbsnshortdesc == "undefined" || data.zbsnshortdesc == '') {
-                                errs++;
-                                if (msgOut == 'Note Type is required!') 
-                                    msgOut = 'Note Type and Description are required!'; 
-                                else
-                                    msgOut += 'Note Description is required!'; 
-                                jQuery('#zbsAddLogMainDesc').css('border','2px solid orange');
-                                setTimeout(function(){
+								},1500);
+							}
+							if (typeof data.zbsnshortdesc == "undefined" || data.zbsnshortdesc == '') {
+								errs++;
+								if (msgOut == 'Note Type is required!') 
+									msgOut = 'Note Type and Description are required!'; 
+								else
+									msgOut += 'Note Description is required!'; 
+								jQuery('#zbsAddLogMainDesc').css('border','2px solid orange');
+								setTimeout(function(){
 
-                                    jQuery('#zbsAddLogUpdateMsg').html('');
-                                    jQuery('#zbsAddLogMainDesc').css('border','1px solid #ddd');
+									jQuery('#zbsAddLogUpdateMsg').html('');
+									jQuery('#zbsAddLogMainDesc').css('border','1px solid #ddd');
 
-                                },1500);
-                            }
+								},1500);
+							}
 
-                            if (errs === 0){
+							if (errs === 0){
 
-                                // add action
-                                data.action = 'zbsaddlog';
+								// add action
+								data.action = 'zbsaddlog';
 
-                                zbscrmjs_addNewNote(data,function(newLog){
+								zbscrmjs_addNewNote(data,function(newLog){
 
-                                    // success
+									// success
 
-                                        // msg
-                                        jQuery('#zbsAddLogUpdateMsg').html('Saved!');
+										// msg
+										jQuery('#zbsAddLogUpdateMsg').html('Saved!');
 
-                                        // then hide form, build new log gui, clear form
+										// then hide form, build new log gui, clear form
 
-                                            // hide + clear form
-                                            jQuery('#zbsAddLogFormTR').hide();
-                                            jQuery('#zbscrmAddLog').show();
-                                            jQuery('#zbsAddLogType').val('note');
-                                            jQuery('#zbsAddLogMainDesc').val('');
-                                            jQuery('#zbsAddLogDetailedDesc').val('');
-                                            jQuery('#zbsAddLogPinNote').prop('checked', false);
-                                            jQuery('#zbsAddLogUpdateMsg').html('');
+											// hide + clear form
+											jQuery('#zbsAddLogFormTR').hide();
+											jQuery('#zbscrmAddLog').show();
+											jQuery('#zbsAddLogType').val('note');
+											jQuery('#zbsAddLogMainDesc').val('');
+											jQuery('#zbsAddLogDetailedDesc').val('');
+											jQuery('#zbsAddLogPinNote').prop('checked', false);
+											jQuery('#zbsAddLogUpdateMsg').html('');
 
-                                        // add it (build example obj)
-                                        var newLogObj = {
-                                            id: newLog.logID,
-                                            created: '', //moment(),
-                                            type: newLog.zbsntype,
-                                            shortdesc: newLog.zbsnshortdesc,
-                                            longdesc: zbscrmjs_nl2br(newLog.zbsnlongdesc)
-                                        }
-                                        if (newLog.pinned) {
-                                            newLogObj.pinned = true;
-                                        }
-                                        zbscrmjs_addNewNoteLine(newLogObj,true);
+										// add it (build example obj)
+										var newLogObj = {
+											id: newLog.logID,
+											created: '', //moment(),
+											type: newLog.zbsntype,
+											shortdesc: newLog.zbsnshortdesc,
+											longdesc: zbscrmjs_nl2br(newLog.zbsnlongdesc)
+										}
+										if (newLog.pinned) {
+											newLogObj.pinned = true;
+										}
+										zbscrmjs_addNewNoteLine(newLogObj,true);
 
-                                        // also add to window obj
-                                        window.zbsLogIndex.push(newLogObj);
+										// also add to window obj
+										window.zbsLogIndex.push(newLogObj);
 
 
-                                        // bind ui
-                                        setTimeout(function(){
-                                            zbscrmjs_bindNoteUIJS();
-                                            zbscrmjs_updateLogCount();
-                                        },0);
+										// bind ui
+										setTimeout(function(){
+											zbscrmjs_bindNoteUIJS();
+											zbscrmjs_updateLogCount();
+										},0);
 
 
-                                },function(){
+								},function(){
 
-                                    // failure
+									// failure
 
-                                        // msg + do nothing
-                                        jQuery('#zbsAddLogUpdateMsg').html('There was an error when saving this note!');
+										// msg + do nothing
+										jQuery('#zbsAddLogUpdateMsg').html('There was an error when saving this note!');
 
-                                });
+								});
 
-                            } else {
-                                if (typeof msgOut !== "undefined" && msgOut != '') jQuery('#zbsAddLogUpdateMsg').html(msgOut); 
-                            }
+							} else {
+								if (typeof msgOut !== "undefined" && msgOut != '') jQuery('#zbsAddLogUpdateMsg').html(msgOut); 
+							}
 
-                    });
+					});
 
 
-                    // note ico - works for both edit + add
-                    jQuery('#zbsAddLogType, #zbsEditLogType').on( 'change', function(){
+					// note ico - works for both edit + add
+					jQuery('#zbsAddLogType, #zbsEditLogType').on( 'change', function(){
 
-                        // get perm
-                        var logPerm = zbscrmjs_permify(jQuery(this).val()); // jQuery('#zbsAddLogType').val()
+						// get perm
+						var logPerm = zbscrmjs_permify(jQuery(this).val()); // jQuery('#zbsAddLogType').val()
 
-                        var thisIco = window.zbsLogDefIco;
-                        // find ico
-                        if (typeof window.zbsLogTypes[logPerm] != "undefined") thisIco = window.zbsLogTypes[logPerm].ico;
+						var thisIco = window.zbsLogDefIco;
+						// find ico
+						if (typeof window.zbsLogTypes[logPerm] != "undefined") thisIco = window.zbsLogTypes[logPerm].ico;
 
-                        // override all existing classes with ones we want:
-                        if (jQuery(this).hasClass('zbsUpdateTypeAdd')) jQuery('#zbsAddLogIco i').attr('class','fa ' + thisIco);
-                        if (jQuery(this).hasClass('zbsUpdateTypeEdit')) jQuery('#zbsEditLogIco i').attr('class','fa ' + thisIco);
+						// override all existing classes with ones we want:
+						if (jQuery(this).hasClass('zbsUpdateTypeAdd')) jQuery('#zbsAddLogIco i').attr('class','fa ' + thisIco);
+						if (jQuery(this).hasClass('zbsUpdateTypeEdit')) jQuery('#zbsEditLogIco i').attr('class','fa ' + thisIco);
 
-                    });
+					});
 
 
-                });
+				});
 
-                function zbscrmjs_updateLogCount(){
+				function zbscrmjs_updateLogCount(){
 
-                    var count = 0; 
-                    if (window.zbsLogIndex.length > 0) count = parseInt(window.zbsLogIndex.length);
-                    jQuery('#zbsActiveLogCount').html(zbscrmjs_prettifyLongInts(count));
+					var count = 0; 
+					if (window.zbsLogIndex.length > 0) count = parseInt(window.zbsLogIndex.length);
+					jQuery('#zbsActiveLogCount').html(zbscrmjs_prettifyLongInts(count));
 
-                }
+				}
 
-                // build log ui
-                function zbscrmjs_buildLogs(){
+				// build log ui
+				function zbscrmjs_buildLogs(){
 
-                    // get from obj
-                    var theseLogs = window.zbsLogIndex;
+					// get from obj
+					var theseLogs = window.zbsLogIndex;
 
 
-                    jQuery.each(theseLogs,function(ind,ele){
+					jQuery.each(theseLogs,function(ind,ele){
 
-                        zbscrmjs_addNewNoteLine(ele);
+						zbscrmjs_addNewNoteLine(ele);
 
-                    });
+					});
 
-                    // bind ui
-                    setTimeout(function(){
-                        zbscrmjs_bindNoteUIJS();
-                        zbscrmjs_updateLogCount();
-                    },0);
+					// bind ui
+					setTimeout(function(){
+						zbscrmjs_bindNoteUIJS();
+						zbscrmjs_updateLogCount();
+					},0);
 
-                }
+				}
 
-                function zbscrmjs_addNewNoteLine(ele,prepflag,replaceExisting){
+				function zbscrmjs_addNewNoteLine(ele,prepflag,replaceExisting){
 
-                        // localise
-                        var logMeta = ele; if (typeof ele.meta != "undefined") logMeta = ele.meta;
+						// localise
+						var logMeta = ele; if (typeof ele.meta != "undefined") logMeta = ele.meta;
 
-                        // get perm
-                        var logPerm = zbscrmjs_permify(logMeta.type);
+						// get perm
+						var logPerm = zbscrmjs_permify(logMeta.type);
 
-                        // classes (pinned)
-                        var classes = '';
-                        if ( typeof ele.pinned !== "undefined" && ele.pinned ){
-                            classes = ' jpcrm-pinned';
-                        }
+						// classes (pinned)
+						var classes = '';
+						if ( typeof ele.pinned !== "undefined" && ele.pinned ){
+							classes = ' jpcrm-pinned';
+						}
 
-                        // build it
-                        var thisLogHTML = '<div class="zbsLogOut' + classes + '" data-logid="' + ele.id + '" id="zbsLogOutLine' + ele.id + '" data-logtype="' + logPerm + '">';
+						// build it
+						var thisLogHTML = '<div class="zbsLogOut' + classes + '" data-logid="' + ele.id + '" id="zbsLogOutLine' + ele.id + '" data-logtype="' + logPerm + '">';
 
 
-                            // type ico
-                                
-                                var thisIco = window.zbsLogDefIco;
-                                // find ico
-                                if (typeof window.zbsLogTypes[logPerm] != "undefined") thisIco = window.zbsLogTypes[logPerm].ico;
+							// type ico
+								
+								var thisIco = window.zbsLogDefIco;
+								// find ico
+								if (typeof window.zbsLogTypes[logPerm] != "undefined") thisIco = window.zbsLogTypes[logPerm].ico;
 
-                                // output
-                                thisLogHTML += '<div class="zbsLogOutIco"><i class="fa ' + thisIco + '" aria-hidden="true"></i></div>';
+								// output
+								thisLogHTML += '<div class="zbsLogOutIco"><i class="fa ' + thisIco + '" aria-hidden="true"></i></div>';
 
 
-                            // created date
-                            if (typeof ele.created !== "undefined" && ele.created !== '') {
-                                
-                                // not req: var offsetStr = zbscrmjs_getTimeZoneOffset();
-                                // date, inc any timezone offset as set in wp: window.zbs_root.timezone_offset
-                                //console.log("Creating moment bare",[moment(ele.created + ' ' + offsetStr, 'YYYY-MM-DD HH:mm:ss Z'), moment(ele.created + ' ' + offsetStr, 'YYYY-MM-DD HH:mm:ss Z','en'), offsetStr, moment(ele.created, 'YYYY-MM-DD HH:mm:ss').utcOffset(offsetStr)]);
-                                //var createdMoment = moment(ele.created + ' ' + offsetStr, 'YYYY-MM-DD HH:mm:ss Z', 'en');
-                                //var createdMoment = moment(ele.created, 'YYYY-MM-DD HH:mm:ss').utcOffset(offsetStr);
-                                //var nowAdjusted = moment(); //.utcOffset(offsetStr);
-                                //console.log("compare",[createdMoment.format(),nowAdjusted.format(),createdMoment.from(nowAdjusted),createdMoment.fromNow()]);
+							// created date
+							if (typeof ele.created !== "undefined" && ele.created !== '') {
+								
+								// not req: var offsetStr = zbscrmjs_getTimeZoneOffset();
+								// date, inc any timezone offset as set in wp: window.zbs_root.timezone_offset
+								//console.log("Creating moment bare",[moment(ele.created + ' ' + offsetStr, 'YYYY-MM-DD HH:mm:ss Z'), moment(ele.created + ' ' + offsetStr, 'YYYY-MM-DD HH:mm:ss Z','en'), offsetStr, moment(ele.created, 'YYYY-MM-DD HH:mm:ss').utcOffset(offsetStr)]);
+								//var createdMoment = moment(ele.created + ' ' + offsetStr, 'YYYY-MM-DD HH:mm:ss Z', 'en');
+								//var createdMoment = moment(ele.created, 'YYYY-MM-DD HH:mm:ss').utcOffset(offsetStr);
+								//var nowAdjusted = moment(); //.utcOffset(offsetStr);
+								//console.log("compare",[createdMoment.format(),nowAdjusted.format(),createdMoment.from(nowAdjusted),createdMoment.fromNow()]);
 
-                                // this works best in the end, just add / - any offset
-                                var createdMoment = moment.unix(ele.createduts);
-                                thisLogHTML += '<div class="zbsLogOutCreated" data-zbscreated="' + ele.created + '" title="' + createdMoment.format('lll') + '">' + createdMoment.fromNow() + '</div>';
+								// this works best in the end, just add / - any offset
+								var createdMoment = moment.unix(ele.createduts);
+								thisLogHTML += '<div class="zbsLogOutCreated" data-zbscreated="' + ele.created + '" title="' + createdMoment.format('lll') + '">' + createdMoment.fromNow() + '</div>';
 
-                            } else {
+							} else {
 
-                                // empty created means just created obj
-                                var createdMoment = moment();
-                                thisLogHTML += '<div class="zbsLogOutCreated" data-zbscreated="' + createdMoment + '" title="' + createdMoment.format('lll') + '">' + createdMoment.fromNow() + '</div>';
+								// empty created means just created obj
+								var createdMoment = moment();
+								thisLogHTML += '<div class="zbsLogOutCreated" data-zbscreated="' + createdMoment + '" title="' + createdMoment.format('lll') + '">' + createdMoment.fromNow() + '</div>';
 
-                            }
+							}
 
-                            // title
+							// title
 
-                                var thisTitle = '';
+								var thisTitle = '';
 
-                                // find type
-                                var thisType = ucwords(logMeta.type);
-                                if (typeof window.zbsLogTypes[logPerm] != "undefined") thisType = window.zbsLogTypes[logPerm].label;
+								// find type
+								var thisType = ucwords(logMeta.type);
+								if (typeof window.zbsLogTypes[logPerm] != "undefined") thisType = window.zbsLogTypes[logPerm].label;
 
-                                // type
-                                if (typeof thisType !== "undefined") thisTitle += '<span>' + thisType + '</span>';
+								// type
+								if (typeof thisType !== "undefined") thisTitle += '<span>' + thisType + '</span>';
 
-                                // desc
-                                if (typeof logMeta.shortdesc !== "undefined") {
+								// desc
+								if (typeof logMeta.shortdesc !== "undefined") {
 
-                                    if (thisTitle != '') thisTitle += ': ';
-                                    thisTitle += jpcrm_strip_scripts(logMeta.shortdesc);
+									if (thisTitle != '') thisTitle += ': ';
+									thisTitle += jpcrm_strip_scripts(logMeta.shortdesc);
 
-                                }
+								}
 
-                                var logEditElements = '<div class="zbsLogOutEdits"><i class="fa fa-pencil-square-o zbsLogActionEdit" title="<?php esc_attr_e( 'Edit Log', 'zero-bs-crm' ); ?>"></i><i class="fa fa-thumb-tack jpcrm_log_pin" title="<?php esc_attr_e( 'Pin log to contact', 'zero-bs-crm' ); ?>"></i><i class="fa fa-thumb-tack jpcrm_log_unpin" title="<?php esc_attr_e( 'Unpin log from contact', 'zero-bs-crm' ); ?>"></i><i class="fa fa-trash-o zbsLogActionRemove last" title="<?php esc_attr_e( 'Delete Log', 'zero-bs-crm' ); ?>"></i><span></span></div>';
-                                thisLogHTML += '<div class="zbsLogOutTitle">' + thisTitle + logEditElements + '</div>';
+								var logEditElements = '<div class="zbsLogOutEdits"><i class="fa fa-pencil-square-o zbsLogActionEdit" title="<?php esc_attr_e( 'Edit Log', 'zero-bs-crm' ); ?>"></i><i class="fa fa-thumb-tack jpcrm_log_pin" title="<?php esc_attr_e( 'Pin log to contact', 'zero-bs-crm' ); ?>"></i><i class="fa fa-thumb-tack jpcrm_log_unpin" title="<?php esc_attr_e( 'Unpin log from contact', 'zero-bs-crm' ); ?>"></i><i class="fa fa-trash-o zbsLogActionRemove last" title="<?php esc_attr_e( 'Delete Log', 'zero-bs-crm' ); ?>"></i><span></span></div>';
+								thisLogHTML += '<div class="zbsLogOutTitle">' + thisTitle + logEditElements + '</div>';
 
-                            // desc
-                            if (typeof logMeta.longdesc !== "undefined" && logMeta.longdesc !== '' && logMeta.longdesc !== null) thisLogHTML += '<div class="zbsLogOutDesc">' + jpcrm_strip_scripts(logMeta.longdesc) + '</div>';
+							// desc
+							if (typeof logMeta.longdesc !== "undefined" && logMeta.longdesc !== '' && logMeta.longdesc !== null) thisLogHTML += '<div class="zbsLogOutDesc">' + jpcrm_strip_scripts(logMeta.longdesc) + '</div>';
 
-                            thisLogHTML += '</div>';                            
+							thisLogHTML += '</div>';                            
 
 
-                        if (typeof replaceExisting == "undefined"){
+						if (typeof replaceExisting == "undefined"){
 
-                            // normal
+							// normal
 
-                            // add it
-                            if (typeof prepflag !== "undefined")
-                                jQuery('#zbsAddLogOutputWrap').prepend(thisLogHTML);
-                            else
-                                jQuery('#zbsAddLogOutputWrap').append(thisLogHTML);
+							// add it
+							if (typeof prepflag !== "undefined")
+								jQuery('#zbsAddLogOutputWrap').prepend(thisLogHTML);
+							else
+								jQuery('#zbsAddLogOutputWrap').append(thisLogHTML);
 
 
-                        } else {
+						} else {
 
-                            // replace existing
-                            jQuery('#zbsLogOutLine' + ele.id).replaceWith(thisLogHTML);
+							// replace existing
+							jQuery('#zbsLogOutLine' + ele.id).replaceWith(thisLogHTML);
 
-                        }
+						}
 
-                }
+				}
 
-                function zbscrmjs_bindNoteUIJS(){
+				function zbscrmjs_bindNoteUIJS(){
 
-                    // show hide edit controls
-                    jQuery('.zbsLogOut').on( 'mouseenter', function(){
+					// show hide edit controls
+					jQuery('.zbsLogOut').on( 'mouseenter', function(){
 
-                        var logType = jQuery(this).attr('data-logtype');
+						var logType = jQuery(this).attr('data-logtype');
 
-                        // only if not editing another :) + Log Type is not one we don't have in our set
-                        if (window.zbsLogEditing == -1 && typeof window.zbsLogTypes[logType] != "undefined"){
+						// only if not editing another :) + Log Type is not one we don't have in our set
+						if (window.zbsLogEditing == -1 && typeof window.zbsLogTypes[logType] != "undefined"){
 
-                            // check if locked log or not! 
-                            if (typeof logType == "undefined") logType = '';
+							// check if locked log or not! 
+							if (typeof logType == "undefined") logType = '';
 
-                            // if log type empty, or has a key in window.zbsLogsLocked, don't allow edits
-                            // ... and finally check perms too 
-                            if (
-                                logType != '' && !window.zbsLogsLocked.hasOwnProperty(logType) && 
-                                window.zbsLogPerms.addedit // can add edit
-                                ){
+							// if log type empty, or has a key in window.zbsLogsLocked, don't allow edits
+							// ... and finally check perms too 
+							if (
+								logType != '' && !window.zbsLogsLocked.hasOwnProperty(logType) && 
+								window.zbsLogPerms.addedit // can add edit
+								){
 
-                                    // check if can delete
-                                    if (window.zbsLogPerms.delete){
-                                        // can
-                                        jQuery('.zbsLogActionRemove',jQuery(this)).css('display','inline-block');
+									// check if can delete
+									if (window.zbsLogPerms.delete){
+										// can
+										jQuery('.zbsLogActionRemove',jQuery(this)).css('display','inline-block');
 
-                                    } else {
-                                        // can't
-                                        jQuery('.zbsLogActionRemove',jQuery(this)).css('display','none');
-                                    }
-                                    
-                                // yep (overall)
-                                jQuery('.zbsLogOutEdits',jQuery(this)).css('display','inline-block');
+									} else {
+										// can't
+										jQuery('.zbsLogActionRemove',jQuery(this)).css('display','none');
+									}
+									
+								// yep (overall)
+								jQuery('.zbsLogOutEdits',jQuery(this)).css('display','inline-block');
 
-                            }
+							}
 
-                        }
+						}
 
-                    }).on( 'mouseleave', function(){
+					}).on( 'mouseleave', function(){
 
-                        jQuery('.zbsLogOutEdits',jQuery(this)).not('.stayhovered').css('display','none');
+						jQuery('.zbsLogOutEdits',jQuery(this)).not('.stayhovered').css('display','none');
 
-                    });
+					});
 
-                    // bind del
-                    jQuery('.zbsLogOutEdits .zbsLogActionRemove').off('click').on( 'click', function(){
+					// bind del
+					jQuery('.zbsLogOutEdits .zbsLogActionRemove').off('click').on( 'click', function(){
 
-                        if (window.zbsLogPerms.delete){
+						if (window.zbsLogPerms.delete){
 
-                            // append "deleting"
-                            jQuery(this).closest('.zbsLogOutEdits').addClass('stayhovered');
-                            jQuery('span',jQuery(this).closest('.zbsLogOutEdits')).html('<?php esc_html_e( 'Deleting', 'zero-bs-crm' ); ?>...');
+							// append "deleting"
+							jQuery(this).closest('.zbsLogOutEdits').addClass('stayhovered');
+							jQuery('span',jQuery(this).closest('.zbsLogOutEdits')).html('<?php esc_html_e( 'Deleting', 'zero-bs-crm' ); ?>...');
 
-                            var noteID = parseInt(jQuery(this).closest('.zbsLogOut').attr('data-logid'));
+							var noteID = parseInt(jQuery(this).closest('.zbsLogOut').attr('data-logid'));
 
-                            if (noteID > 0){
+							if (noteID > 0){
 
-                                var thisEle = this;
+								var thisEle = this;
 
-                                zbscrmjs_deleteNote(noteID,function(){
+								zbscrmjs_deleteNote(noteID,function(){
 
-                                    // success
+									// success
 
-                                        // localise
-                                        var nID = noteID;
+										// localise
+										var nID = noteID;
 
-                                        // append "deleted" and then vanish
-                                        jQuery('span',jQuery(thisEle).closest('.zbsLogOutEdits')).html('Deleted!...');
+										// append "deleted" and then vanish
+										jQuery('span',jQuery(thisEle).closest('.zbsLogOutEdits')).html('Deleted!...');
 
-                                        var that = thisEle;
-                                        setTimeout(function(){
+										var that = thisEle;
+										setTimeout(function(){
 
-                                            // localise
-                                            var thisNoteID = nID;
+											// localise
+											var thisNoteID = nID;
 
-                                            // also del from window obj
-                                            zbscrmjs_removeItemFromLogIndx(thisNoteID);
+											// also del from window obj
+											zbscrmjs_removeItemFromLogIndx(thisNoteID);
 
-                                            // update count span
-                                            zbscrmjs_updateLogCount();
+											// update count span
+											zbscrmjs_updateLogCount();
 
-                                            // slide up
-                                            jQuery(that).closest('.zbsLogOut').slideUp(400,function(){
+											// slide up
+											jQuery(that).closest('.zbsLogOut').slideUp(400,function(){
 
-                                                // and remove itself?
+												// and remove itself?
 
-                                            });
-                                        },500);
+											});
+										},500);
 
-                                },function(){
+								},function(){
 
-                                    //TODO: proper error msg
-                                    console.error('There was an issue retrieving this note for editing/deleting'); 
+									//TODO: proper error msg
+									console.error('There was an issue retrieving this note for editing/deleting'); 
 
-                                });
+								});
 
-                            } else console.error('There was an issue retrieving this note for editing/deleting'); //TODO: proper error msg
+							} else console.error('There was an issue retrieving this note for editing/deleting'); //TODO: proper error msg
 
-                        } // if perms
+						} // if perms
 
-                    });
+					});
 
-                    // bind pin
-                    jQuery('.zbsLogOutEdits .jpcrm_log_pin').off('click').on( 'click', function(){
+					// bind pin
+					jQuery('.zbsLogOutEdits .jpcrm_log_pin').off('click').on( 'click', function(){
 
-                        // append "pinning"
-                        jQuery(this).closest('.zbsLogOutEdits').addClass('stayhovered');
-                        jQuery('span',jQuery(this).closest('.zbsLogOutEdits')).html('<?php esc_html_e( 'Pinning', 'zero-bs-crm' ); ?>...');
+						// append "pinning"
+						jQuery(this).closest('.zbsLogOutEdits').addClass('stayhovered');
+						jQuery('span',jQuery(this).closest('.zbsLogOutEdits')).html('<?php esc_html_e( 'Pinning', 'zero-bs-crm' ); ?>...');
 
-                        var noteID = parseInt(jQuery(this).closest('.zbsLogOut').attr('data-logid'));
+						var noteID = parseInt(jQuery(this).closest('.zbsLogOut').attr('data-logid'));
 
-                        if (noteID > 0){
+						if (noteID > 0){
 
-                            var thisEle = this;
+							var thisEle = this;
 
-                            jpcrm_js_pin_note( noteID, function(){
+							jpcrm_js_pin_note( noteID, function(){
 
-                                // success
+								// success
 
-                                    // localise
-                                    var nID = noteID;
+									// localise
+									var nID = noteID;
 
-                                    // append "pinned"
-                                    jQuery('span',jQuery(thisEle).closest('.zbsLogOutEdits')).html('<?php esc_html_e( 'Pinned', 'zero-bs-crm' ); ?>');
+									// append "pinned"
+									jQuery('span',jQuery(thisEle).closest('.zbsLogOutEdits')).html('<?php esc_html_e( 'Pinned', 'zero-bs-crm' ); ?>');
 
-                                    var that = thisEle;
-                                    setTimeout(function(){
+									var that = thisEle;
+									setTimeout(function(){
 
-                                        // add pinned
-                                        jQuery(that).closest('.zbsLogOut').addClass( 'jpcrm-pinned' );
-                                        jQuery('span',jQuery(that).closest('.zbsLogOutEdits')).html('');
-                                        jQuery(that).closest('.zbsLogOutEdits').removeClass( 'stayhovered' );
-                                        jQuery(that).closest('.zbsLogOutEdits').css('display','none');
+										// add pinned
+										jQuery(that).closest('.zbsLogOut').addClass( 'jpcrm-pinned' );
+										jQuery('span',jQuery(that).closest('.zbsLogOutEdits')).html('');
+										jQuery(that).closest('.zbsLogOutEdits').removeClass( 'stayhovered' );
+										jQuery(that).closest('.zbsLogOutEdits').css('display','none');
 
 
-                                    },500);
+									},500);
 
-                            },function(){
+							},function(){
 
-                                //TODO: proper error msg
-                                console.error('There was an issue pinning this log'); 
+								//TODO: proper error msg
+								console.error('There was an issue pinning this log'); 
 
-                            });
+							});
 
-                        } else console.error('There was an issue pinning this log'); //TODO: proper error msg
+						} else console.error('There was an issue pinning this log'); //TODO: proper error msg
 
-                    });
+					});
 
 
-                    // bind unpin
-                    jQuery('.zbsLogOutEdits .jpcrm_log_unpin').off('click').on( 'click', function(){
+					// bind unpin
+					jQuery('.zbsLogOutEdits .jpcrm_log_unpin').off('click').on( 'click', function(){
 
-                        // append "pinning"
-                        jQuery(this).closest('.zbsLogOutEdits').addClass('stayhovered');
-                        jQuery('span',jQuery(this).closest('.zbsLogOutEdits')).html('<?php esc_html_e( 'Removing Pin', 'zero-bs-crm' ); ?>...');
+						// append "pinning"
+						jQuery(this).closest('.zbsLogOutEdits').addClass('stayhovered');
+						jQuery('span',jQuery(this).closest('.zbsLogOutEdits')).html('<?php esc_html_e( 'Removing Pin', 'zero-bs-crm' ); ?>...');
 
-                        var noteID = parseInt(jQuery(this).closest('.zbsLogOut').attr('data-logid'));
+						var noteID = parseInt(jQuery(this).closest('.zbsLogOut').attr('data-logid'));
 
-                        if (noteID > 0){
+						if (noteID > 0){
 
-                            var thisEle = this;
+							var thisEle = this;
 
-                            jpcrm_js_unpin_note( noteID, function(){
+							jpcrm_js_unpin_note( noteID, function(){
 
-                                // success
+								// success
 
-                                    // localise
-                                    var nID = noteID;
+									// localise
+									var nID = noteID;
 
-                                    // append "pinned"
-                                    jQuery('span',jQuery(thisEle).closest('.zbsLogOutEdits')).html('<?php esc_html_e( 'Unpinned', 'zero-bs-crm' ); ?>');
+									// append "pinned"
+									jQuery('span',jQuery(thisEle).closest('.zbsLogOutEdits')).html('<?php esc_html_e( 'Unpinned', 'zero-bs-crm' ); ?>');
 
-                                    var that = thisEle;
-                                    setTimeout(function(){
+									var that = thisEle;
+									setTimeout(function(){
 
-                                        // remove pinned
-                                        jQuery(that).closest('.zbsLogOut').removeClass( 'jpcrm-pinned' );
-                                        jQuery('span',jQuery(that).closest('.zbsLogOutEdits')).html('');
-                                        jQuery(that).closest('.zbsLogOutEdits').removeClass( 'stayhovered' );
-                                        jQuery(that).closest('.zbsLogOutEdits').css('display','none');
+										// remove pinned
+										jQuery(that).closest('.zbsLogOut').removeClass( 'jpcrm-pinned' );
+										jQuery('span',jQuery(that).closest('.zbsLogOutEdits')).html('');
+										jQuery(that).closest('.zbsLogOutEdits').removeClass( 'stayhovered' );
+										jQuery(that).closest('.zbsLogOutEdits').css('display','none');
 
 
-                                    },500);
+									},500);
 
-                            },function(){
+							},function(){
 
-                                //TODO: proper error msg
-                                console.error('There was an issue pinning this log'); 
+								//TODO: proper error msg
+								console.error('There was an issue pinning this log'); 
 
-                            });
+							});
 
-                        } else console.error('There was an issue pinning this log'); //TODO: proper error msg
+						} else console.error('There was an issue pinning this log'); //TODO: proper error msg
 
-                    });
+					});
 
-                    // bind edit
-                    jQuery('.zbsLogOutEdits .zbsLogActionEdit').off('click').on( 'click', function(){
+					// bind edit
+					jQuery('.zbsLogOutEdits .zbsLogActionEdit').off('click').on( 'click', function(){
 
-                        if (window.zbsLogPerms.addedit){
+						if (window.zbsLogPerms.addedit){
 
-                            // one at a time please sir...
-                            if (window.zbsLogEditing == -1){
+							// one at a time please sir...
+							if (window.zbsLogEditing == -1){
 
-                                // get edit id
-                                var noteID = parseInt(jQuery(this).closest('.zbsLogOut').attr('data-logid'));
+								// get edit id
+								var noteID = parseInt(jQuery(this).closest('.zbsLogOut').attr('data-logid'));
 
-                                // get edit obj
-                                var editObj = zbscrmjs_retrieveItemFromIndex(noteID);
+								// get edit obj
+								var editObj = zbscrmjs_retrieveItemFromIndex(noteID);
 
-                                // move edit box to before here
-                                jQuery('#zbsEditLogForm').insertBefore('#zbsLogOutLine' + noteID);
+								// move edit box to before here
+								jQuery('#zbsEditLogForm').insertBefore('#zbsLogOutLine' + noteID);
 
-                                setTimeout(function(){
+								setTimeout(function(){
 
-                                    var lObj = editObj;
-                                    if (typeof lObj.meta != "undefined") lObj = lObj.meta; // pre dal2
+									var lObj = editObj;
+									if (typeof lObj.meta != "undefined") lObj = lObj.meta; // pre dal2
 
-                                    // update edit box texts etc.
-                                    jQuery('#zbsEditLogMainDesc').val(lObj.shortdesc);
-                                    jQuery('#zbsEditLogDetailedDesc').val(zbscrmjs_reversenl2br(lObj.longdesc));
-                                    jQuery('#zbsEditLogPinNote').prop('checked', lObj.pinned);
-                                    jQuery('#zbsEditLogType option').each(function(){
-                                        if (zbscrmjs_permify(jQuery(this).text()) == lObj.type) {
-                                            jQuery(this).attr('selected', 'selected');
-                                            return false;
-                                        }
-                                        return true;
-                                    });
-                                
-                                    // type ico
+									// update edit box texts etc.
+									jQuery('#zbsEditLogMainDesc').val(lObj.shortdesc);
+									jQuery('#zbsEditLogDetailedDesc').val(zbscrmjs_reversenl2br(lObj.longdesc));
+									jQuery('#zbsEditLogPinNote').prop('checked', lObj.pinned);
+									jQuery('#zbsEditLogType option').each(function(){
+										if (zbscrmjs_permify(jQuery(this).text()) == lObj.type) {
+											jQuery(this).attr('selected', 'selected');
+											return false;
+										}
+										return true;
+									});
+								
+									// type ico
 
-                                        // get perm
-                                        var logPerm = zbscrmjs_permify(lObj.type);
-                                    
-                                        var thisIco = window.zbsLogDefIco;
-                                        // find ico
-                                        if (typeof window.zbsLogTypes[logPerm] != "undefined") thisIco = window.zbsLogTypes[logPerm].ico;
+										// get perm
+										var logPerm = zbscrmjs_permify(lObj.type);
+									
+										var thisIco = window.zbsLogDefIco;
+										// find ico
+										if (typeof window.zbsLogTypes[logPerm] != "undefined") thisIco = window.zbsLogTypes[logPerm].ico;
 
-                                        // update
-                                        jQuery('#zbsEditLogIco i').attr('class','fa ' + thisIco);
+										// update
+										jQuery('#zbsEditLogIco i').attr('class','fa ' + thisIco);
 
 
-                                },10);
+								},10);
 
-                                // set edit vars
-                                window.zbsLogEditing = noteID;
+								// set edit vars
+								window.zbsLogEditing = noteID;
 
-                                // hide line / show edit
-                                jQuery('#zbsLogOutLine' + noteID).slideUp();
-                                jQuery('#zbsEditLogForm').slideDown();
+								// hide line / show edit
+								jQuery('#zbsLogOutLine' + noteID).slideUp();
+								jQuery('#zbsEditLogForm').slideDown();
 
-                                // bind
-                                zbscrmjs_bindEditNote();
+								// bind
+								zbscrmjs_bindEditNote();
 
-                            }
-                       
-                        } // if perms
+							}
+					   
+						} // if perms
 
-                    });
+					});
 
-                }
+				}
 
-                function zbscrmjs_bindEditNote(){
+				function zbscrmjs_bindEditNote(){
 
 
-                        // cancel
-                        jQuery('#zbscrmEditLogCancel').on( 'click', function(){
+						// cancel
+						jQuery('#zbscrmEditLogCancel').on( 'click', function(){
 
-                                // get note id
-                                var noteID = window.zbsLogEditing;
+								// get note id
+								var noteID = window.zbsLogEditing;
 
-                                // hide edit from
-                                jQuery('#zbsEditLogForm').hide();
+								// hide edit from
+								jQuery('#zbsEditLogForm').hide();
 
-                                // show back log
-                                jQuery('#zbsLogOutLine' + noteID).show();
+								// show back log
+								jQuery('#zbsLogOutLine' + noteID).show();
 
-                                // unset noteID
-                                window.zbsLogEditing = -1;
+								// unset noteID
+								window.zbsLogEditing = -1;
 
-                        });
+						});
 
-                        // save
-                        jQuery('#zbscrmEditLogSave').on( 'click', function(){
+						// save
+						jQuery('#zbscrmEditLogSave').on( 'click', function(){
 
-                                if (window.zbsLogEditing > -1){
+								if (window.zbsLogEditing > -1){
 
-                                        // get note id
-                                        var noteID = window.zbsLogEditing;
+										// get note id
+										var noteID = window.zbsLogEditing;
 
-                                        //jQuery('#zbsEditLogFormTR').hide();
+										//jQuery('#zbsEditLogFormTR').hide();
 
-                                        //jQuery('#zbscrmEditLog').show();
+										//jQuery('#zbscrmEditLog').show();
 
-                                        /* 
-                                        zbsnagainstid
-                                        zbsntype
-                                        zbsnshortdesc            
-                                        zbsnlongdesc
-                                        zbsnoverwriteid
-                                        */
+										/* 
+										zbsnagainstid
+										zbsntype
+										zbsnshortdesc            
+										zbsnlongdesc
+										zbsnoverwriteid
+										*/
 
-                                        // get / check data
-                                        var data = {sec:window.zbscrmjs_logsSecToken,zbsnobjtype:'<?php echo $this->postType; ?>'}; var errs = 0;
+										// get / check data
+										var data = {sec:window.zbscrmjs_logsSecToken,zbsnobjtype:'<?php echo $this->postType; ?>'}; var errs = 0;
 
-                                        // same as add code, but with note id:
-                                        data.zbsnprevid = noteID;
+										// same as add code, but with note id:
+										data.zbsnprevid = noteID;
 
-                                        if ((jQuery('#zbsEditLogType').val()).length > 0) data.zbsntype = jQuery('#zbsEditLogType').val();
-                                        if ((jQuery('#zbsEditLogMainDesc').val()).length > 0) data.zbsnshortdesc = jQuery('#zbsEditLogMainDesc').val();
-                                        if ((jQuery('#zbsEditLogDetailedDesc').val()).length > 0) 
-                                            data.zbsnlongdesc = jQuery('#zbsEditLogDetailedDesc').val();
-                                        else
-                                            data.zbsnlongdesc = '';
+										if ((jQuery('#zbsEditLogType').val()).length > 0) data.zbsntype = jQuery('#zbsEditLogType').val();
+										if ((jQuery('#zbsEditLogMainDesc').val()).length > 0) data.zbsnshortdesc = jQuery('#zbsEditLogMainDesc').val();
+										if ((jQuery('#zbsEditLogDetailedDesc').val()).length > 0) 
+											data.zbsnlongdesc = jQuery('#zbsEditLogDetailedDesc').val();
+										else
+											data.zbsnlongdesc = '';
 
-                                        if (jQuery('#zbsEditLogPinNote').is(':checked')) {
-                                            data.pinned = true;
-                                        }
+										if (jQuery('#zbsEditLogPinNote').is(':checked')) {
+											data.pinned = true;
+										}
 
-                                        // post id & no need for overwrite id as is new
-                                        data.zbsnagainstid = parseInt(window.zbsLogAgainstID);
+										// post id & no need for overwrite id as is new
+										data.zbsnagainstid = parseInt(window.zbsLogAgainstID);
 
-                                        // validate
-                                        var msgOut = '';
-                                        if (typeof data.zbsntype == "undefined" || data.zbsntype == '') {
-                                            errs++;
-                                            msgOut = 'Note Type is required!'; 
-                                            jQuery('#zbsEditLogType').css('border','2px solid orange');
-                                            setTimeout(function(){
+										// validate
+										var msgOut = '';
+										if (typeof data.zbsntype == "undefined" || data.zbsntype == '') {
+											errs++;
+											msgOut = 'Note Type is required!'; 
+											jQuery('#zbsEditLogType').css('border','2px solid orange');
+											setTimeout(function(){
 
-                                                jQuery('#zbsEditLogUpdateMsg').html('');
-                                                jQuery('#zbsEditLogType').css('border','1px solid #ddd');
+												jQuery('#zbsEditLogUpdateMsg').html('');
+												jQuery('#zbsEditLogType').css('border','1px solid #ddd');
 
-                                            },1500);
-                                        }
-                                        if (typeof data.zbsnshortdesc == "undefined" || data.zbsnshortdesc == '') {
-                                            errs++;
-                                            if (msgOut == 'Note Type is required!') 
-                                                msgOut = 'Note Type and Description are required!'; 
-                                            else
-                                                msgOut += 'Note Description is required!'; 
-                                            jQuery('#zbsEditLogMainDesc').css('border','2px solid orange');
-                                            setTimeout(function(){
+											},1500);
+										}
+										if (typeof data.zbsnshortdesc == "undefined" || data.zbsnshortdesc == '') {
+											errs++;
+											if (msgOut == 'Note Type is required!') 
+												msgOut = 'Note Type and Description are required!'; 
+											else
+												msgOut += 'Note Description is required!'; 
+											jQuery('#zbsEditLogMainDesc').css('border','2px solid orange');
+											setTimeout(function(){
 
-                                                jQuery('#zbsEditLogUpdateMsg').html('');
-                                                jQuery('#zbsEditLogMainDesc').css('border','1px solid #ddd');
+												jQuery('#zbsEditLogUpdateMsg').html('');
+												jQuery('#zbsEditLogMainDesc').css('border','1px solid #ddd');
 
-                                            },1500);
-                                        }
+											},1500);
+										}
 
 
-                                        if (errs === 0){
+										if (errs === 0){
 
-                                            // add action
-                                            data.action = 'zbsupdatelog';
-                                            zbscrmjs_updateNote(data,function(newLog){
+											// add action
+											data.action = 'zbsupdatelog';
+											zbscrmjs_updateNote(data,function(newLog){
 
-                                                // success
+												// success
 
-                                                    // msg
-                                                    jQuery('#zbsEditLogUpdateMsg').html('Changes Saved!');
+													// msg
+													jQuery('#zbsEditLogUpdateMsg').html('Changes Saved!');
 
-                                                    // then hide form, build new log gui, clear form
+													// then hide form, build new log gui, clear form
 
-                                                        // hide + clear form
-                                                        jQuery('#zbsEditLogForm').hide();
-                                                        jQuery('#zbsEditLogType').val('Note');
-                                                        jQuery('#zbsEditLogMainDesc').val('');
-                                                        jQuery('#zbsEditLogDetailedDesc').val('');
-                                                        jQuery('#zbsEditLogPinNote').prop('checked', false);
-                                                        jQuery('#zbsEditLogUpdateMsg').html('');
+														// hide + clear form
+														jQuery('#zbsEditLogForm').hide();
+														jQuery('#zbsEditLogType').val('Note');
+														jQuery('#zbsEditLogMainDesc').val('');
+														jQuery('#zbsEditLogDetailedDesc').val('');
+														jQuery('#zbsEditLogPinNote').prop('checked', false);
+														jQuery('#zbsEditLogUpdateMsg').html('');
 
-                                                    // update it (build example obj)
-                                                    var newLogObj = {
-                                                        id: newLog.logID,
-                                                        created: '',
-                                                        meta: {
+													// update it (build example obj)
+													var newLogObj = {
+														id: newLog.logID,
+														created: '',
+														meta: {
 
-                                                            type: newLog.zbsntype,
-                                                            shortdesc: newLog.zbsnshortdesc,
-                                                            // have to replace the nl2br for long desc:
-                                                            longdesc: zbscrmjs_nl2br(newLog.zbsnlongdesc)
+															type: newLog.zbsntype,
+															shortdesc: newLog.zbsnshortdesc,
+															// have to replace the nl2br for long desc:
+															longdesc: zbscrmjs_nl2br(newLog.zbsnlongdesc)
 
-                                                        }
-                                                    }
-                                                    if (newLog.pinned) {
-                                                        newLogObj.pinned = true;
-                                                    }
-                                                    zbscrmjs_addNewNoteLine(newLogObj,true,true); // third param here is "replace existing"
+														}
+													}
+													if (newLog.pinned) {
+														newLogObj.pinned = true;
+													}
+													zbscrmjs_addNewNoteLine(newLogObj,true,true); // third param here is "replace existing"
 
-                                                    // also add to window obj in prev place
-                                                    //window.zbsLogIndex.push(newLogObj);
-                                                    zbscrmjs_replaceItemInLogIndx(newLog.logID,newLogObj);
+													// also add to window obj in prev place
+													//window.zbsLogIndex.push(newLogObj);
+													zbscrmjs_replaceItemInLogIndx(newLog.logID,newLogObj);
 
-                                                    // unset noteID
-                                                    window.zbsLogEditing = -1;
+													// unset noteID
+													window.zbsLogEditing = -1;
 
-                                                    // bind ui
-                                                    setTimeout(function(){
-                                                        zbscrmjs_bindNoteUIJS();
-                                                        zbscrmjs_updateLogCount();
-                                                    },0);
+													// bind ui
+													setTimeout(function(){
+														zbscrmjs_bindNoteUIJS();
+														zbscrmjs_updateLogCount();
+													},0);
 
 
-                                            },function(){
+											},function(){
 
-                                                // failure
+												// failure
 
-                                                    // msg + do nothing
-                                                    jQuery('#zbsEditLogUpdateMsg').html('There was an error when saving this note!');
+													// msg + do nothing
+													jQuery('#zbsEditLogUpdateMsg').html('There was an error when saving this note!');
 
-                                            });
+											});
 
-                                        } else {
-                                            if (typeof msgOut !== "undefined" && msgOut != '') jQuery('#zbsEditLogUpdateMsg').html(msgOut); 
-                                        }
+										} else {
+											if (typeof msgOut !== "undefined" && msgOut != '') jQuery('#zbsEditLogUpdateMsg').html(msgOut); 
+										}
 
 
-                                } // if note id
+								} // if note id
 
-                        });
+						});
 
 
-                }
+				}
 
-                function zbscrmjs_removeItemFromLogIndx(noteID){
+				function zbscrmjs_removeItemFromLogIndx(noteID){
 
-                    var logIndex = window.zbsLogIndex;
-                    var newLogIndex = [];
+					var logIndex = window.zbsLogIndex;
+					var newLogIndex = [];
 
-                    jQuery.each(logIndex,function(ind,ele){
+					jQuery.each(logIndex,function(ind,ele){
 
-                        if (typeof ele.id != "undefined" && ele.id != noteID) newLogIndex.push(ele);
+						if (typeof ele.id != "undefined" && ele.id != noteID) newLogIndex.push(ele);
 
-                    });
+					});
 
-                    window.zbsLogIndex = newLogIndex;
+					window.zbsLogIndex = newLogIndex;
 
-                    // fini
-                    return window.zbsLogIndex;
+					// fini
+					return window.zbsLogIndex;
 
-                }
+				}
 
-                function zbscrmjs_replaceItemInLogIndx(noteIDToReplace,newObj){
+				function zbscrmjs_replaceItemInLogIndx(noteIDToReplace,newObj){
 
-                    var logIndex = window.zbsLogIndex;
-                    var newLogIndex = [];
+					var logIndex = window.zbsLogIndex;
+					var newLogIndex = [];
 
-                    jQuery.each(logIndex,function(ind,ele){
+					jQuery.each(logIndex,function(ind,ele){
 
-                        if (typeof ele.id != "undefined")
-                            if (ele.id != noteIDToReplace) 
-                                newLogIndex.push(ele);
-                            else
-                                // is to replace
-                                newLogIndex.push(newObj);
+						if (typeof ele.id != "undefined")
+							if (ele.id != noteIDToReplace) 
+								newLogIndex.push(ele);
+							else
+								// is to replace
+								newLogIndex.push(newObj);
 
-                    });
+					});
 
-                    window.zbsLogIndex = newLogIndex;
+					window.zbsLogIndex = newLogIndex;
 
-                    // fini
-                    return window.zbsLogIndex;
+					// fini
+					return window.zbsLogIndex;
 
-                }
+				}
 
-                function zbscrmjs_retrieveItemFromIndex(noteID){
+				function zbscrmjs_retrieveItemFromIndex(noteID){
 
-                    var logIndex = window.zbsLogIndex;
-                    var logObj = -1;
+					var logIndex = window.zbsLogIndex;
+					var logObj = -1;
 
-                    jQuery.each(logIndex,function(ind,ele){
+					jQuery.each(logIndex,function(ind,ele){
 
-                        if (typeof ele.id != "undefined" && ele.id == noteID) logObj = ele;
+						if (typeof ele.id != "undefined" && ele.id == noteID) logObj = ele;
 
-                    });
+					});
 
-                    return logObj;
-                }
+					return logObj;
+				}
 
-                
+				
 
-                // function assumes a legit dataArr :) (validate above)
-                function zbscrmjs_addNewNote(dataArr,cb,errcb){
-                    
-                    // needs nonce. <!--#NONCENEEDED -->
+				// function assumes a legit dataArr :) (validate above)
+				function zbscrmjs_addNewNote(dataArr,cb,errcb){
+					
+					// needs nonce. <!--#NONCENEEDED -->
 
-                    if (!window.zbsLogProcessingBlocker){
-                        
-                        // blocker
-                        window.zbsLogProcessingBlocker = true;
+					if (!window.zbsLogProcessingBlocker){
+						
+						// blocker
+						window.zbsLogProcessingBlocker = true;
 
-                        // msg
-                        jQuery('#zbsAddLogUpdateMsg').html('<?php esc_html_e( 'Saving...', 'zero-bs-crm' ); ?>');
+						// msg
+						jQuery('#zbsAddLogUpdateMsg').html('<?php esc_html_e( 'Saving...', 'zero-bs-crm' ); ?>');
 
-                        // Send 
-                            jQuery.ajax({
-                                    type: "POST",
-                                    url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-                                    "data": dataArr,
-                                    dataType: 'json',
-                                    timeout: 20000,
-                                    success: function(response) {
+						// Send 
+							jQuery.ajax({
+									type: "POST",
+									url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+									"data": dataArr,
+									dataType: 'json',
+									timeout: 20000,
+									success: function(response) {
 
-                                    // Debug  console.log("RESPONSE",response);
+									// Debug  console.log("RESPONSE",response);
 
-                                    // blocker
-                                    window.zbsLogProcessingBlocker = false;
+									// blocker
+									window.zbsLogProcessingBlocker = false;
 
-                                    // this also has true/false on update... 
-                                    if (typeof response.processed != "undefined" && response.processed){
+									// this also has true/false on update... 
+									if (typeof response.processed != "undefined" && response.processed){
 
-                                        // callback
-                                        // make a merged item... 
-                                        var retArr = dataArr; dataArr.logID = response.processed;
-                                        if (typeof cb == "function") cb(retArr);
+										// callback
+										// make a merged item... 
+										var retArr = dataArr; dataArr.logID = response.processed;
+										if (typeof cb == "function") cb(retArr);
 
-                                    } else {
+									} else {
 
-                                        // .. was an error :)
+										// .. was an error :)
 
-                                        // callback
-                                        if (typeof errcb == "function") errcb(response);
+										// callback
+										if (typeof errcb == "function") errcb(response);
 
-                                    }
+									}
 
 
-                                    },
-                                    error: function(response){ 
+									},
+									error: function(response){ 
 
-                                    // Debug  console.error("RESPONSE",response);
+									// Debug  console.error("RESPONSE",response);
 
-                                    // blocker
-                                    window.zbsLogProcessingBlocker = false;
+									// blocker
+									window.zbsLogProcessingBlocker = false;
 
-                                    // callback
-                                    if (typeof errcb == "function") errcb(response);
+									// callback
+									if (typeof errcb == "function") errcb(response);
 
 
 
-                                    }
+									}
 
-                            });
+							});
 
 
-                    } else {
-                        
-                        // end of blocker
-                        jQuery('#zbsAddLogUpdateMsg').html('... already processing!');
-                        setTimeout(function(){
+					} else {
+						
+						// end of blocker
+						jQuery('#zbsAddLogUpdateMsg').html('... already processing!');
+						setTimeout(function(){
 
-                            jQuery('#zbsAddLogUpdateMsg').html('');
+							jQuery('#zbsAddLogUpdateMsg').html('');
 
-                        },2000);
+						},2000);
 
-                    }
+					}
 
-                }
+				}
 
-                // function assumes a legit dataArr :) (validate above)
-                // is almost a clone of _addNote (homogenise later)
-                function zbscrmjs_updateNote(dataArr,cb,errcb){
-                    
-                    // needs nonce. <!--#NONCENEEDED -->
+				// function assumes a legit dataArr :) (validate above)
+				// is almost a clone of _addNote (homogenise later)
+				function zbscrmjs_updateNote(dataArr,cb,errcb){
+					
+					// needs nonce. <!--#NONCENEEDED -->
 
-                    if (!window.zbsLogProcessingBlocker){
-                        
-                        // blocker
-                        window.zbsLogProcessingBlocker = true;
+					if (!window.zbsLogProcessingBlocker){
+						
+						// blocker
+						window.zbsLogProcessingBlocker = true;
 
-                        // msg
-                        jQuery('#zbsEditLogUpdateMsg').html('<?php esc_html_e( 'Saving...', 'zero-bs-crm' ); ?>');
+						// msg
+						jQuery('#zbsEditLogUpdateMsg').html('<?php esc_html_e( 'Saving...', 'zero-bs-crm' ); ?>');
 
-                        // Send 
-                            jQuery.ajax({
-                                    type: "POST",
-                                    url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-                                    "data": dataArr,
-                                    dataType: 'json',
-                                    timeout: 20000,
-                                    success: function(response) {
+						// Send 
+							jQuery.ajax({
+									type: "POST",
+									url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+									"data": dataArr,
+									dataType: 'json',
+									timeout: 20000,
+									success: function(response) {
 
-                                    // Debug  console.log("RESPONSE",response);
+									// Debug  console.log("RESPONSE",response);
 
-                                    // blocker
-                                    window.zbsLogProcessingBlocker = false;
+									// blocker
+									window.zbsLogProcessingBlocker = false;
 
-                                    // this also has true/false on update... 
-                                    if (typeof response.processed != "undefined" && response.processed){
+									// this also has true/false on update... 
+									if (typeof response.processed != "undefined" && response.processed){
 
-                                        // callback
-                                        // make a merged item... 
-                                        var retArr = dataArr; dataArr.logID = response.processed;
-                                        if (typeof cb == "function") cb(retArr);
+										// callback
+										// make a merged item... 
+										var retArr = dataArr; dataArr.logID = response.processed;
+										if (typeof cb == "function") cb(retArr);
 
-                                    } else {
+									} else {
 
-                                        // .. was an error :)
+										// .. was an error :)
 
-                                        // callback
-                                        if (typeof errcb == "function") errcb(response);
+										// callback
+										if (typeof errcb == "function") errcb(response);
 
-                                    }
+									}
 
 
-                                    },
-                                    error: function(response){ 
+									},
+									error: function(response){ 
 
-                                    // Debug  console.error("RESPONSE",response);
+									// Debug  console.error("RESPONSE",response);
 
-                                    // blocker
-                                    window.zbsLogProcessingBlocker = false;
+									// blocker
+									window.zbsLogProcessingBlocker = false;
 
-                                    // callback
-                                    if (typeof errcb == "function") errcb(response);
+									// callback
+									if (typeof errcb == "function") errcb(response);
 
 
 
-                                    }
+									}
 
-                            });
+							});
 
 
-                    } else {
-                        
-                        // end of blocker
-                        jQuery('#zbsEditLogUpdateMsg').html('... already processing!');
-                        setTimeout(function(){
+					} else {
+						
+						// end of blocker
+						jQuery('#zbsEditLogUpdateMsg').html('... already processing!');
+						setTimeout(function(){
 
-                            jQuery('#zbsEditLogUpdateMsg').html('');
+							jQuery('#zbsEditLogUpdateMsg').html('');
 
-                        },2000);
+						},2000);
 
-                    }
+					}
 
-                }
+				}
 
 
-                // function assumes a legit noteID + perms :) (validate above)
-                function zbscrmjs_deleteNote(noteID,cb,errcb){
-                    
-                    // needs nonce. <!--#NONCENEEDED -->
+				// function assumes a legit noteID + perms :) (validate above)
+				function zbscrmjs_deleteNote(noteID,cb,errcb){
+					
+					// needs nonce. <!--#NONCENEEDED -->
 
-                    if (!window.zbsLogProcessingBlocker){
-                        
-                        // blocker
-                        window.zbsLogProcessingBlocker = true;
+					if (!window.zbsLogProcessingBlocker){
+						
+						// blocker
+						window.zbsLogProcessingBlocker = true;
 
-                        // -package
-                        var dataArr = {
-                            action : 'zbsdellog',
-                            zbsnid : noteID,
-                            sec:window.zbscrmjs_logsSecToken
-                        };
+						// -package
+						var dataArr = {
+							action : 'zbsdellog',
+							zbsnid : noteID,
+							sec:window.zbscrmjs_logsSecToken
+						};
 
-                        // Send 
-                            jQuery.ajax({
-                                    type: "POST",
-                                    url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-                                    "data": dataArr,
-                                    dataType: 'json',
-                                    timeout: 20000,
-                                    success: function(response) {
+						// Send 
+							jQuery.ajax({
+									type: "POST",
+									url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+									"data": dataArr,
+									dataType: 'json',
+									timeout: 20000,
+									success: function(response) {
 
-                                    // Debug  console.log("RESPONSE",response);
+									// Debug  console.log("RESPONSE",response);
 
-                                    // blocker
-                                    window.zbsLogProcessingBlocker = false;
+									// blocker
+									window.zbsLogProcessingBlocker = false;
 
-                                    // this also has true/false on update... 
-                                    if (typeof response.processed != "undefined" && response.processed){
+									// this also has true/false on update... 
+									if (typeof response.processed != "undefined" && response.processed){
 
-                                        // Debug console.log("SUCCESS");
+										// Debug console.log("SUCCESS");
 
-                                        // callback
-                                        if (typeof cb == "function") cb(response);
+										// callback
+										if (typeof cb == "function") cb(response);
 
-                                    } else {
+									} else {
 
-                                        // .. was an error :)
-                                        // Debug console.log("ERRZ");                                    
+										// .. was an error :)
+										// Debug console.log("ERRZ");                                    
 
-                                        // callback
-                                        if (typeof errcb == "function") errcb(response);
+										// callback
+										if (typeof errcb == "function") errcb(response);
 
-                                    }
+									}
 
 
-                                    },
-                                    error: function(response){ 
+									},
+									error: function(response){ 
 
-                                    // Debug  console.error("RESPONSE",response);
+									// Debug  console.error("RESPONSE",response);
 
-                                    // blocker
-                                    window.zbsLogProcessingBlocker = false;
+									// blocker
+									window.zbsLogProcessingBlocker = false;
 
-                                    // callback
-                                    if (typeof errcb == "function") errcb(response);
+									// callback
+									if (typeof errcb == "function") errcb(response);
 
 
 
-                                    }
+									}
 
-                            });
+							});
 
 
-                    } else {
-                        
-                        // end of blocker
+					} else {
+						
+						// end of blocker
 
-                    }
+					}
 
-                }
+				}
 
 
 
 
-                // function assumes a legit noteID + perms :) (validate above)
-                function jpcrm_js_pin_note(noteID,cb,errcb){
-                    
-                    // needs nonce. <!--#NONCENEEDED -->
+				// function assumes a legit noteID + perms :) (validate above)
+				function jpcrm_js_pin_note(noteID,cb,errcb){
+					
+					// needs nonce. <!--#NONCENEEDED -->
 
-                    if (!window.zbsLogProcessingBlocker){
-                        
-                        // blocker
-                        window.zbsLogProcessingBlocker = true;
+					if (!window.zbsLogProcessingBlocker){
+						
+						// blocker
+						window.zbsLogProcessingBlocker = true;
 
-                        // -package
-                        var dataArr = {
-                            action : 'jpcrmpinlog',
-                            zbsnid : noteID,
-                            sec:window.zbscrmjs_logsSecToken
-                        };
+						// -package
+						var dataArr = {
+							action : 'jpcrmpinlog',
+							zbsnid : noteID,
+							sec:window.zbscrmjs_logsSecToken
+						};
 
-                        // Send 
-                            jQuery.ajax({
-                                    type: "POST",
-                                    url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-                                    "data": dataArr,
-                                    dataType: 'json',
-                                    timeout: 20000,
-                                    success: function(response) {
+						// Send 
+							jQuery.ajax({
+									type: "POST",
+									url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+									"data": dataArr,
+									dataType: 'json',
+									timeout: 20000,
+									success: function(response) {
 
-                                    // Debug  console.log("RESPONSE",response);
+									// Debug  console.log("RESPONSE",response);
 
-                                    // blocker
-                                    window.zbsLogProcessingBlocker = false;
+									// blocker
+									window.zbsLogProcessingBlocker = false;
 
-                                    // this also has true/false on update... 
-                                    if (typeof response.processed != "undefined" && response.processed){
+									// this also has true/false on update... 
+									if (typeof response.processed != "undefined" && response.processed){
 
-                                        // Debug console.log("SUCCESS");
+										// Debug console.log("SUCCESS");
 
-                                        // callback
-                                        if (typeof cb == "function") cb(response);
+										// callback
+										if (typeof cb == "function") cb(response);
 
-                                    } else {
+									} else {
 
-                                        // .. was an error :)
-                                        // Debug console.log("ERRZ");                                    
+										// .. was an error :)
+										// Debug console.log("ERRZ");                                    
 
-                                        // callback
-                                        if (typeof errcb == "function") errcb(response);
+										// callback
+										if (typeof errcb == "function") errcb(response);
 
-                                    }
+									}
 
 
-                                    },
-                                    error: function(response){ 
+									},
+									error: function(response){ 
 
-                                    // Debug  console.error("RESPONSE",response);
+									// Debug  console.error("RESPONSE",response);
 
-                                    // blocker
-                                    window.zbsLogProcessingBlocker = false;
+									// blocker
+									window.zbsLogProcessingBlocker = false;
 
-                                    // callback
-                                    if (typeof errcb == "function") errcb(response);
+									// callback
+									if (typeof errcb == "function") errcb(response);
 
 
 
-                                    }
+									}
 
-                            });
+							});
 
 
-                    } else {
-                        
-                        // end of blocker
+					} else {
+						
+						// end of blocker
 
-                    }
+					}
 
-                }
+				}
 
 
-                // function assumes a legit noteID + perms :) (validate above)
-                function jpcrm_js_unpin_note(noteID,cb,errcb){
-                    
-                    // needs nonce. <!--#NONCENEEDED -->
+				// function assumes a legit noteID + perms :) (validate above)
+				function jpcrm_js_unpin_note(noteID,cb,errcb){
+					
+					// needs nonce. <!--#NONCENEEDED -->
 
-                    if (!window.zbsLogProcessingBlocker){
-                        
-                        // blocker
-                        window.zbsLogProcessingBlocker = true;
+					if (!window.zbsLogProcessingBlocker){
+						
+						// blocker
+						window.zbsLogProcessingBlocker = true;
 
-                        // -package
-                        var dataArr = {
-                            action : 'jpcrmunpinlog',
-                            zbsnid : noteID,
-                            sec:window.zbscrmjs_logsSecToken
-                        };
+						// -package
+						var dataArr = {
+							action : 'jpcrmunpinlog',
+							zbsnid : noteID,
+							sec:window.zbscrmjs_logsSecToken
+						};
 
-                        // Send 
-                            jQuery.ajax({
-                                    type: "POST",
-                                    url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-                                    "data": dataArr,
-                                    dataType: 'json',
-                                    timeout: 20000,
-                                    success: function(response) {
+						// Send 
+							jQuery.ajax({
+									type: "POST",
+									url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+									"data": dataArr,
+									dataType: 'json',
+									timeout: 20000,
+									success: function(response) {
 
-                                    // Debug  console.log("RESPONSE",response);
+									// Debug  console.log("RESPONSE",response);
 
-                                    // blocker
-                                    window.zbsLogProcessingBlocker = false;
+									// blocker
+									window.zbsLogProcessingBlocker = false;
 
-                                    // this also has true/false on update... 
-                                    if (typeof response.processed != "undefined" && response.processed){
+									// this also has true/false on update... 
+									if (typeof response.processed != "undefined" && response.processed){
 
-                                        // Debug console.log("SUCCESS");
+										// Debug console.log("SUCCESS");
 
-                                        // callback
-                                        if (typeof cb == "function") cb(response);
+										// callback
+										if (typeof cb == "function") cb(response);
 
-                                    } else {
+									} else {
 
-                                        // .. was an error :)
-                                        // Debug console.log("ERRZ");                                    
+										// .. was an error :)
+										// Debug console.log("ERRZ");                                    
 
-                                        // callback
-                                        if (typeof errcb == "function") errcb(response);
+										// callback
+										if (typeof errcb == "function") errcb(response);
 
-                                    }
+									}
 
 
-                                    },
-                                    error: function(response){ 
+									},
+									error: function(response){ 
 
-                                    // Debug  console.error("RESPONSE",response);
+									// Debug  console.error("RESPONSE",response);
 
-                                    // blocker
-                                    window.zbsLogProcessingBlocker = false;
+									// blocker
+									window.zbsLogProcessingBlocker = false;
 
-                                    // callback
-                                    if (typeof errcb == "function") errcb(response);
+									// callback
+									if (typeof errcb == "function") errcb(response);
 
 
 
-                                    }
+									}
 
-                            });
+							});
 
 
-                    } else {
-                        
-                        // end of blocker
+					} else {
+						
+						// end of blocker
 
-                    }
+					}
 
-                }
-                
-                </script>
-                <?php
-                // phpcs:enable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed
+				}
+				
+				</script>
+				<?php
 
 		} // / if post type
 	}

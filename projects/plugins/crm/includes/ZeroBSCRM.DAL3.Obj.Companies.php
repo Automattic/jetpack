@@ -110,7 +110,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 			'placeholder' => 'e.g. New York',
 			'area'        => 'Main Address',
 			'migrate'     => 'addresses',
-            'max_len' => 200, // phpcs:ignore Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed, WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
+			'max_len'     => 200,
 		),
 		'county'        => array(
 			// db model:
@@ -188,7 +188,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 			'area'        => 'Second Address',
 			'migrate'     => 'addresses',
 			'opt'         => 'secondaddress',
-            'max_len' => 200, // phpcs:ignore Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed, WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
+			'max_len'     => 200,
 			'dal1key'     => 'secaddr_city', // previous field name
 		),
 		'seccounty'     => array(
@@ -1397,16 +1397,24 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
 		}
 
-		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		// quick addition for mike
 		#} olderThan
-		if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsco_created', '<=', '%d', $olderThan );
+		if ( ! empty( $olderThan ) && $olderThan > 0 ) {
+			$wheres['olderThan'] = array( 'zbsco_created', '<=', '%d', $olderThan );
+		}
 		#} newerThan
-		if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsco_created', '>=', '%d', $newerThan );
+		if ( ! empty( $newerThan ) && $newerThan > 0 ) {
+			$wheres['newerThan'] = array( 'zbsco_created', '>=', '%d', $newerThan );
+		}
 
 		// status
-		if ( ! empty( $hasStatus ) ) $wheres['hasStatus']     = array( 'zbsco_status', '=', '%s', $hasStatus );
-		if ( ! empty( $otherStatus ) ) $wheres['otherStatus'] = array( 'zbsco_status', '<>', '%s', $otherStatus );
+		if ( ! empty( $hasStatus ) ) {
+			$wheres['hasStatus'] = array( 'zbsco_status', '=', '%s', $hasStatus );
+		}
+		if ( ! empty( $otherStatus ) ) {
+			$wheres['otherStatus'] = array( 'zbsco_status', '<>', '%s', $otherStatus );
+		}
 
 		#} inCounty
 		if ( ! empty( $inCounty ) ) {
@@ -1440,7 +1448,13 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 		}
 
 		// has contact associated with it
-		if ( ! empty( $hasContact ) && $hasContact > 0 ) $wheres['hasContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = company.ID)' );
+		if ( ! empty( $hasContact ) && $hasContact > 0 ) {
+			$wheres['hasContact'] = array(
+				'ID',
+				'IN',
+				'(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = company.ID)',
+			);
+		}
 
 		// generic obj links, e.g. quotes, invs, trans
 		// e.g. contact(s) assigned to inv 123
@@ -1458,7 +1472,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 			$wheres['isLinkedToObjID'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objtype_to = %d AND zbsol_objid_from = company.ID AND zbsol_objid_to = %d)', array( $isLinkedToObjType, $isLinkedToObjID ) );
 
 		}
-		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 			#} Quick filters - adapted from DAL1 (probs can be slicker)
 		if ( is_array( $quickFilters ) && count( $quickFilters ) > 0 ) {

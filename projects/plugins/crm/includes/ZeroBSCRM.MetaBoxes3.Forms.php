@@ -587,7 +587,7 @@ class zeroBS__Metabox_FormSettings extends zeroBS__Metabox {
 
 
 			</div>
-            <?php /* phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>
+			<?php /* phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>
 
 
 			<script type="text/javascript">

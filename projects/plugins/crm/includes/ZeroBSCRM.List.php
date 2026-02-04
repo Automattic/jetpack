@@ -387,7 +387,7 @@ class zeroBSCRM_list {
 				<div id="zbs-list-warnings-wrap">
 					<?php
 					// Preloaded error messages
-					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment,WordPress.WP.I18n.UnorderedPlaceholdersText
+					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment
 					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error retrieving %s', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There has been a problem retrieving your %s. If this issue persists, please contact support.', 'zero-bs-crm' ), $this->plural ), 'disabled warning sign', 'zbsCantLoadData' );
 					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your column configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveCols' );
 					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your filter button configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveButtons' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -400,7 +400,7 @@ class zeroBSCRM_list {
 							echo zeroBSCRM_UI2_messageHTML( $message[0], $message[1], $message[2], $message[3], $message[4] );
 						}
 					}
-					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment,WordPress.WP.I18n.UnorderedPlaceholdersText
+					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment
 					?>
 				</div>
 			</div>
@@ -421,8 +421,6 @@ class zeroBSCRM_list {
 
 		<script type="text/javascript">
 					<?php
-					// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
-					// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
 					?>
 			// expose log types (For columns)
 			var zbsLogTypes = <?php
@@ -626,8 +624,6 @@ class zeroBSCRM_list {
 			?>
 			var zbsListViewLangLabels = <?php echo wp_json_encode( $jpcrm_listview_lang_labels ); ?>;
 			var zbsTagsForBulkActions = <?php
-				// the linter was having issues with these indents, so disabling for this block
-				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect
 				$tags = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					array(
 						'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -693,13 +689,10 @@ class zeroBSCRM_list {
 					if ( isset( $this->extraJS ) && ! empty( $this->extraJS ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 						echo $this->extraJS; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.Security.EscapeOutput.OutputNotEscaped
 					}
-					// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect
 					?>
 					</script>
 
 					<?php
-					// phpcs:enable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
-					// phpcs:enable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
 	} // /draw func
 
 	/**
@@ -832,7 +825,7 @@ function jpcrm_listview_language_labels( $language_array ) { // phpcs:ignore Uni
 		'couldntupdate'      => esc_html__( 'Could not update', 'zero-bs-crm' ),
 		'couldntupdatedeets' => esc_html__( 'This record could not be updated. Please try again, if this persists please let admin know.', 'zero-bs-crm' ),
 		/* translators: Placeholders are the range of the current record result and the total object count. */
-		'listview_counts'    => esc_html__( 'Showing %s of %s items', 'zero-bs-crm' ), // phpcs:ignore WordPress.WP.I18n.UnorderedPlaceholdersText
+		'listview_counts'    => esc_html__( 'Showing %s of %s items', 'zero-bs-crm' ),
 	);
 
 	return array_merge( $language_array, $jpcrm_listview_lang_labels );

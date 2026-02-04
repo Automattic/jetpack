@@ -1595,7 +1595,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 		}
 
-		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 		// quick addition for mike
 		#} olderThan
@@ -1676,7 +1676,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 					! empty( $isLinkedToObjType ) && $isLinkedToObjType > 0 ) {
 			$wheres['isLinkedToObjID'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = %d AND zbsol_objid_from = contact.ID AND zbsol_objid_to = %d)', array( $isLinkedToObjType, $isLinkedToObjID ) );
 		}
-		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 		// Any additionalWhereArr?
 		if ( is_array( $additionalWhereArr ) && count( $additionalWhereArr ) > 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase

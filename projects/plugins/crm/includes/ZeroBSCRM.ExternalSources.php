@@ -94,7 +94,6 @@ function zeroBS_baseExternalSources() {
 
 	$external_sources = apply_filters( 'jpcrm_register_external_sources', $external_sources );
 	return $external_sources;
-	// phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 }
 
 /*

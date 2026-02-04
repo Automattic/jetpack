@@ -373,7 +373,7 @@ class JPCRM_Fonts {
 
 				$dest = $dompdf->getOptions()->get( 'fontDir' ) . '/' . basename( $src );
 
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, Generic.WhiteSpace.ScopeIndent.IncorrectExact -- TODO: Fix these.
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- TODO: Fix these.
 				if ( ! is_writable( dirname( $dest ) ) ) {
 					throw new Exception( "Unable to write to destination '$dest'." );
 				}

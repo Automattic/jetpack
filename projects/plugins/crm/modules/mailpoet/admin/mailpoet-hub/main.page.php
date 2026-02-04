@@ -151,7 +151,7 @@ function jpcrm_mailpoet_render_hub_page() {
 								<?php esc_html_e( 'Setup Type:', 'zero-bs-crm' ); ?> 
 								<?php esc_html_e( 'Local', 'zero-bs-crm' ); ?><br />
 								<?php echo '<span id="jpcrm-mailpoet-stat-contacts-synced">' . esc_html( $jpcrm_mailpoet_latest_stats['subscribers_synced'] ) . '</span> ' . esc_html__( 'Subscribers Synced', 'zero-bs-crm' ); ?>
-								<a href="<?php echo jpcrm_esc_link( 'manage-customers&quickfilters=mailpoet_subscriber' ); ?>" id="jpcrm-mailpoet-recap-link-to-contacts" class="ui tiny black button<?php if ( $jpcrm_mailpoet_latest_stats['subscribers_synced'] <= 0 ) { echo ' hidden'; } ?>" style="margin-left:10px"><?php esc_html_e( 'View Subscribers in CRM', 'zero-bs-crm' ); // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace ?></a>
+								<a href="<?php echo jpcrm_esc_link( 'manage-customers&quickfilters=mailpoet_subscriber' ); ?>" id="jpcrm-mailpoet-recap-link-to-contacts" class="ui tiny black button<?php if ( $jpcrm_mailpoet_latest_stats['subscribers_synced'] <= 0 ) { echo ' hidden'; } // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace ?>" style="margin-left:10px"><?php esc_html_e( 'View Subscribers in CRM', 'zero-bs-crm' ); ?></a>
 							</p>
 							<br>
 							<span id="jpcrm-mailpoet-status-long-text"><?php esc_html_e( 'MailPoet Sync is importing subscribers...', 'zero-bs-crm' ); ?></span>

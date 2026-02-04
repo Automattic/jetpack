@@ -95,7 +95,7 @@ class Invoices_Endpoint extends Client_Portal_Endpoint {
 					}
 
 					// skip drafts if not an admin with invoice access
-	if ( $inv_status === 'Draft' && ! $is_invoice_admin ) { // phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact
+					if ( $inv_status === 'Draft' && ! $is_invoice_admin ) {
 						continue;
 					}
 
