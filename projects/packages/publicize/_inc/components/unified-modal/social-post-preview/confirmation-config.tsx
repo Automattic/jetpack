@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -10,12 +11,21 @@ import { useSocialUserPreferences } from '../../../hooks/use-social-user-prefere
  */
 export function ConfirmationConfig(): JSX.Element {
 	const preferences = useSocialUserPreferences();
+	const { recordEvent } = useAnalytics();
 
 	const isChecked = preferences.data.showPrePublishConfirmation ?? true;
 
 	const onChange = useCallback( () => {
-		preferences.set( 'showPrePublishConfirmation', ! isChecked );
-	}, [ preferences, isChecked ] );
+		const showConfirmation = ! isChecked;
+
+		preferences.set( 'showPrePublishConfirmation', showConfirmation );
+
+		recordEvent( 'jetpack_social_pre_publish_confirmation_toggled', {
+			showConfirmation,
+			// Let us also store what the previous preference was.
+			previousPreference: preferences.data.showPrePublishConfirmation,
+		} );
+	}, [ preferences, isChecked, recordEvent ] );
 
 	return (
 		<CheckboxControl
