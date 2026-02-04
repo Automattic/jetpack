@@ -1,4 +1,4 @@
-const { getInput } = require( '@actions/core' );
+import { getInput } from '@actions/core';
 
 /**
  * Check if the issue has a comment with a list of support references,
@@ -28,4 +28,4 @@ async function hasManySupportReferences( issueComments ) {
 	return false;
 }
 
-module.exports = hasManySupportReferences;
+export default hasManySupportReferences;

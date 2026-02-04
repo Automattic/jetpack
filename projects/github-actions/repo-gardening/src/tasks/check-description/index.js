@@ -1,14 +1,14 @@
-const fs = require( 'fs' );
-const path = require( 'path' );
-const moment = require( 'moment' );
-const debug = require( '../../utils/debug' );
-const getAffectedChangeloggerProjects = require( '../../utils/get-affected-changelogger-projects' );
-const getComments = require( '../../utils/get-comments' );
-const getFiles = require( '../../utils/get-files' );
-const getNextValidMilestone = require( '../../utils/get-next-valid-milestone' );
-const getPluginNames = require( '../../utils/get-plugin-names' );
-const getPrWorkspace = require( '../../utils/get-pr-workspace' );
-const getLabels = require( '../../utils/labels/get-labels' );
+import fs from 'fs';
+import path from 'path';
+import moment from 'moment';
+import debug from '../../utils/debug.js';
+import getAffectedChangeloggerProjects from '../../utils/get-affected-changelogger-projects.js';
+import getComments from '../../utils/get-comments.js';
+import getFiles from '../../utils/get-files.js';
+import getNextValidMilestone from '../../utils/get-next-valid-milestone.js';
+import getPluginNames from '../../utils/get-plugin-names.js';
+import getPrWorkspace from '../../utils/get-pr-workspace.js';
+import getLabels from '../../utils/labels/get-labels.js';
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -510,4 +510,4 @@ If you have questions about anything, reach out in #jetpack-developers for guida
 	}
 }
 
-module.exports = checkDescription;
+export default checkDescription;

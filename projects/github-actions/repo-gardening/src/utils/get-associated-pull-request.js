@@ -13,4 +13,4 @@ function getAssociatedPullRequest( commit ) {
 	return match && Number( match[ 1 ] );
 }
 
-module.exports = getAssociatedPullRequest;
+export default getAssociatedPullRequest;

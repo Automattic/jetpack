@@ -10,6 +10,7 @@
 	],
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"type": "module",
 	"main": "src/index.js",
 	"scripts": {
 		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt"

@@ -1,5 +1,5 @@
-const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/labels/get-labels' );
+import debug from '../../utils/debug.js';
+import getLabels from '../../utils/labels/get-labels.js';
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -65,4 +65,4 @@ async function cleanLabels( payload, octokit ) {
 	}
 }
 
-module.exports = cleanLabels;
+export default cleanLabels;

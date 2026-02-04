@@ -1,5 +1,5 @@
-const { compareVersions } = require( 'compare-versions' );
-const moment = require( 'moment' );
+import { compareVersions } from 'compare-versions';
+import moment from 'moment';
 
 /* global GitHub, OktokitIssuesListMilestonesForRepoResponseItem */
 
@@ -73,4 +73,4 @@ async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' )
 	);
 }
 
-module.exports = getNextValidMilestone;
+export default getNextValidMilestone;

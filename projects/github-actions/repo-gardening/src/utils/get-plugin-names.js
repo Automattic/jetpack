@@ -1,6 +1,6 @@
 /* global GitHub */
 
-const getLabels = require( './labels/get-labels' );
+import getLabels from './labels/get-labels.js';
 
 /**
  * Get the name of the plugin concerned by this PR.
@@ -24,4 +24,4 @@ async function getPluginNames( octokit, owner, repo, number ) {
 	return plugins;
 }
 
-module.exports = getPluginNames;
+export default getPluginNames;

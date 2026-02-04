@@ -41,4 +41,4 @@ function formatSlackMessage( payload, channel, message ) {
 	};
 }
 
-module.exports = formatSlackMessage;
+export default formatSlackMessage;

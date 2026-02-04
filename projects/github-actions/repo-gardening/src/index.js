@@ -1,20 +1,20 @@
-const { setFailed, getInput } = require( '@actions/core' );
-const { context, getOctokit } = require( '@actions/github' );
-const addLabels = require( './tasks/add-labels' );
-const addMilestone = require( './tasks/add-milestone' );
-const assignIssues = require( './tasks/assign-issues' );
-const checkDescription = require( './tasks/check-description' );
-const checkIfDocsNeeded = require( './tasks/check-if-docs-needed' );
-const cleanLabels = require( './tasks/clean-labels' );
-const flagOss = require( './tasks/flag-oss' );
-const gatherSupportReferences = require( './tasks/gather-support-references' );
-const notifyDesign = require( './tasks/notify-design' );
-const notifyEditorial = require( './tasks/notify-editorial' );
-const replyToCustomersReminder = require( './tasks/reply-to-customers-reminder' );
-const triageIssues = require( './tasks/triage-issues' );
-const debug = require( './utils/debug' );
-const ifNotClosed = require( './utils/if-not-closed' );
-const ifNotFork = require( './utils/if-not-fork' );
+import { setFailed, getInput } from '@actions/core';
+import { context, getOctokit } from '@actions/github';
+import addLabels from './tasks/add-labels/index.js';
+import addMilestone from './tasks/add-milestone/index.js';
+import assignIssues from './tasks/assign-issues/index.js';
+import checkDescription from './tasks/check-description/index.js';
+import checkIfDocsNeeded from './tasks/check-if-docs-needed/index.js';
+import cleanLabels from './tasks/clean-labels/index.js';
+import flagOss from './tasks/flag-oss/index.js';
+import gatherSupportReferences from './tasks/gather-support-references/index.js';
+import notifyDesign from './tasks/notify-design/index.js';
+import notifyEditorial from './tasks/notify-editorial/index.js';
+import replyToCustomersReminder from './tasks/reply-to-customers-reminder/index.js';
+import triageIssues from './tasks/triage-issues/index.js';
+import debug from './utils/debug.js';
+import ifNotClosed from './utils/if-not-closed.js';
+import ifNotFork from './utils/if-not-fork.js';
 
 const automations = [
 	{

@@ -1,5 +1,5 @@
 /* global GitHub */
-const debug = require( './debug' );
+import debug from './debug.js';
 
 // Cache for getComments.
 const cache = {};
@@ -38,4 +38,4 @@ async function getComments( octokit, owner, repo, number ) {
 	return issueComments;
 }
 
-module.exports = getComments;
+export default getComments;

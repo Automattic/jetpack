@@ -1,5 +1,5 @@
-const { getInput, setFailed } = require( '@actions/core' );
-const { WebClient, ErrorCode } = require( '@slack/web-api' );
+import { getInput, setFailed } from '@actions/core';
+import { WebClient, ErrorCode } from '@slack/web-api';
 
 /* global WebhookPayloadPullRequest, WebhookPayloadIssue */
 
@@ -146,4 +146,4 @@ async function sendSlackMessage( message, channel, payload, customMessageFormat 
 	}
 }
 
-module.exports = sendSlackMessage;
+export default sendSlackMessage;

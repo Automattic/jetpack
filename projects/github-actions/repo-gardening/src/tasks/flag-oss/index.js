@@ -1,6 +1,6 @@
-const { getInput, setFailed } = require( '@actions/core' );
-const debug = require( '../../utils/debug' );
-const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
+import { getInput, setFailed } from '@actions/core';
+import debug from '../../utils/debug.js';
+import sendSlackMessage from '../../utils/slack/send-slack-message.js';
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -52,4 +52,4 @@ async function flagOss( payload, octokit ) {
 	}
 }
 
-module.exports = flagOss;
+export default flagOss;

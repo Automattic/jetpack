@@ -1,6 +1,6 @@
-const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/labels/get-labels' );
-const findPriority = require( '../../utils/parse-content/find-priority' );
+import debug from '../../utils/debug.js';
+import getLabels from '../../utils/labels/get-labels.js';
+import findPriority from '../../utils/parse-content/find-priority.js';
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -54,4 +54,4 @@ async function getIssuePriority( payload, octokit ) {
 	};
 }
 
-module.exports = getIssuePriority;
+export default getIssuePriority;

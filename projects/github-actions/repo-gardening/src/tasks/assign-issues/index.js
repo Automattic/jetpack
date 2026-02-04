@@ -1,4 +1,4 @@
-const debug = require( '../../utils/debug' );
+import debug from '../../utils/debug.js';
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -27,4 +27,4 @@ async function assignIssues( payload, octokit ) {
 	}
 }
 
-module.exports = assignIssues;
+export default assignIssues;

@@ -1,7 +1,10 @@
-const { getInput } = require( '@actions/core' );
-const debug = require( '../../utils/debug' );
-const getFiles = require( '../../utils/get-files' );
-const getLabels = require( '../../utils/labels/get-labels' );
+import { fileURLToPath } from 'url';
+import { getInput } from '@actions/core';
+import debug from '../../utils/debug.js';
+import getFiles from '../../utils/get-files.js';
+import getLabels from '../../utils/labels/get-labels.js';
+
+const __filename = fileURLToPath( import.meta.url );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -411,4 +414,4 @@ async function addLabels( payload, octokit ) {
 	} );
 }
 
-module.exports = addLabels;
+export default addLabels;

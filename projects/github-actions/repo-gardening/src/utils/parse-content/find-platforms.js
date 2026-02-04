@@ -1,4 +1,5 @@
-const debug = require( '../debug' );
+import debug from '../debug.js';
+
 /**
  * Find platform info, based off issue contents.
  *
@@ -20,4 +21,4 @@ function findPlatforms( body ) {
 	return [];
 }
 
-module.exports = findPlatforms;
+export default findPlatforms;

@@ -1,8 +1,8 @@
-const { getInput } = require( '@actions/core' );
-const debug = require( '../../utils/debug' );
-const getAvailableLabels = require( '../../utils/labels/get-available-labels' );
-const getLabels = require( '../../utils/labels/get-labels' );
-const sendOpenAiRequest = require( '../../utils/openai/send-request' );
+import { getInput } from '@actions/core';
+import debug from '../../utils/debug.js';
+import getAvailableLabels from '../../utils/labels/get-available-labels.js';
+import getLabels from '../../utils/labels/get-labels.js';
+import sendOpenAiRequest from '../../utils/openai/send-request.js';
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -226,4 +226,5 @@ If you have feedback about the labels suggested, please let us know in #repo-gar
 
 	return issueLabels;
 }
-module.exports = aiLabeling;
+
+export default aiLabeling;

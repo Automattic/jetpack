@@ -1,15 +1,15 @@
-const { getInput } = require( '@actions/core' );
-const debug = require( '../../utils/debug' );
-const getIssueType = require( '../../utils/labels/get-issue-type' );
-const { TYPE_LABELS_WITHOUT_PREFIX } = require( '../../utils/labels/type-labels' );
-const findPlatforms = require( '../../utils/parse-content/find-platforms' );
-const findPlugins = require( '../../utils/parse-content/find-plugins' );
-const formatSlackMessage = require( '../../utils/slack/format-slack-message' );
-const notifyImportantIssues = require( '../../utils/slack/notify-important-issues' );
-const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
-const aiLabeling = require( './ai-labeling' );
-const getIssuePriority = require( './get-issue-priority' );
-const updateBoard = require( './update-board' );
+import { getInput } from '@actions/core';
+import debug from '../../utils/debug.js';
+import getIssueType from '../../utils/labels/get-issue-type.js';
+import { TYPE_LABELS_WITHOUT_PREFIX } from '../../utils/labels/type-labels.js';
+import findPlatforms from '../../utils/parse-content/find-platforms.js';
+import findPlugins from '../../utils/parse-content/find-plugins.js';
+import formatSlackMessage from '../../utils/slack/format-slack-message.js';
+import notifyImportantIssues from '../../utils/slack/notify-important-issues.js';
+import sendSlackMessage from '../../utils/slack/send-slack-message.js';
+import aiLabeling from './ai-labeling.js';
+import getIssuePriority from './get-issue-priority.js';
+import updateBoard from './update-board.js';
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -180,4 +180,5 @@ async function triageIssues( payload, octokit ) {
 		await notifyImportantIssues( octokit, payload, qualityChannel, 'product-ambassadors' );
 	}
 }
-module.exports = triageIssues;
+
+export default triageIssues;

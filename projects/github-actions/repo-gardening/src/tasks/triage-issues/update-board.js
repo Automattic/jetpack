@@ -1,9 +1,9 @@
-const { getInput, setFailed } = require( '@actions/core' );
-const { getOctokit } = require( '@actions/github' );
-const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/labels/get-labels' );
-const notifyImportantIssues = require( '../../utils/slack/notify-important-issues' );
-const { automatticAssignments } = require( './automattic-label-team-assignments' );
+import { getInput, setFailed } from '@actions/core';
+import { getOctokit } from '@actions/github';
+import debug from '../../utils/debug.js';
+import getLabels from '../../utils/labels/get-labels.js';
+import notifyImportantIssues from '../../utils/slack/notify-important-issues.js';
+import { automatticAssignments } from './automattic-label-team-assignments.js';
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -761,4 +761,5 @@ async function updateBoard( payload, octokit, issueType, priorityLabels ) {
 		);
 	}
 }
-module.exports = updateBoard;
+
+export default updateBoard;

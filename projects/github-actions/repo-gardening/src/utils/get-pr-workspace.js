@@ -11,4 +11,4 @@ function getPrWorkspace() {
 	throw new Error( 'Environment variable PR_WORKSPACE is not defined.' );
 }
 
-module.exports = getPrWorkspace;
+export default getPrWorkspace;

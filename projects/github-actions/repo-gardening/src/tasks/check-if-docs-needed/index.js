@@ -1,9 +1,9 @@
-const { getInput } = require( '@actions/core' );
-const debug = require( '../../utils/debug' );
-const getDiff = require( '../../utils/get-diff' );
-const getLabels = require( '../../utils/labels/get-labels' );
-const sendOpenAiRequest = require( '../../utils/openai/send-request' );
-const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
+import { getInput } from '@actions/core';
+import debug from '../../utils/debug.js';
+import getDiff from '../../utils/get-diff.js';
+import getLabels from '../../utils/labels/get-labels.js';
+import sendOpenAiRequest from '../../utils/openai/send-request.js';
+import sendSlackMessage from '../../utils/slack/send-slack-message.js';
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -290,4 +290,4 @@ async function checkIfDocsNeeded( payload, octokit ) {
 	}
 }
 
-module.exports = checkIfDocsNeeded;
+export default checkIfDocsNeeded;

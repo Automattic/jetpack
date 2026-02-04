@@ -1,5 +1,5 @@
 /* global GitHub */
-const debug = require( './debug' );
+import debug from './debug.js';
 
 // Cache for getDiff.
 const cache = {};
@@ -174,4 +174,4 @@ async function getDiff( octokit, owner, repo, number, maxSize = 50000 ) {
 	return diff;
 }
 
-module.exports = getDiff;
+export default getDiff;

@@ -1,7 +1,7 @@
-const { getInput, setFailed } = require( '@actions/core' );
-const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/labels/get-labels' );
-const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
+import { getInput, setFailed } from '@actions/core';
+import debug from '../../utils/debug.js';
+import getLabels from '../../utils/labels/get-labels.js';
+import sendSlackMessage from '../../utils/slack/send-slack-message.js';
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -113,4 +113,4 @@ async function notifyDesign( payload, octokit ) {
 	}
 }
 
-module.exports = notifyDesign;
+export default notifyDesign;

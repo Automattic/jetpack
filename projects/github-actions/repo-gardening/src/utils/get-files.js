@@ -1,5 +1,5 @@
 /* global GitHub */
-const debug = require( './debug' );
+import debug from './debug.js';
 
 // Cache for getFiles.
 const cache = {};
@@ -41,4 +41,4 @@ async function getFiles( octokit, owner, repo, number ) {
 	return fileList;
 }
 
-module.exports = getFiles;
+export default getFiles;

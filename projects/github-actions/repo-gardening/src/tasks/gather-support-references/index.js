@@ -1,8 +1,8 @@
-const { getInput } = require( '@actions/core' );
-const debug = require( '../../utils/debug' );
-const getComments = require( '../../utils/get-comments' );
-const getLabels = require( '../../utils/labels/get-labels' );
-const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
+import { getInput } from '@actions/core';
+import debug from '../../utils/debug.js';
+import getComments from '../../utils/get-comments.js';
+import getLabels from '../../utils/labels/get-labels.js';
+import sendSlackMessage from '../../utils/slack/send-slack-message.js';
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -479,4 +479,4 @@ async function gatherSupportReferences( payload, octokit ) {
 	}
 }
 
-module.exports = gatherSupportReferences;
+export default gatherSupportReferences;

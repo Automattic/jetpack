@@ -1,4 +1,4 @@
-const debug = require( './debug' );
+import debug from './debug.js';
 
 /* global WPAutomationTask */
 
@@ -20,4 +20,4 @@ function ifNotClosed( handler ) {
 	return newHandler;
 }
 
-module.exports = ifNotClosed;
+export default ifNotClosed;

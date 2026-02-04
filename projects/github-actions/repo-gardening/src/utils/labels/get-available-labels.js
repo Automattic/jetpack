@@ -1,5 +1,5 @@
 /* global GitHub */
-const debug = require( '../debug' );
+import debug from '../debug.js';
 
 // Cache for getLabels.
 const cache = {};
@@ -40,4 +40,4 @@ async function getAvailableLabels( octokit, owner, repo, filter = '' ) {
 	return filter ? labelList.filter( label => label.name.match( filter ) ) : labelList;
 }
 
-module.exports = getAvailableLabels;
+export default getAvailableLabels;

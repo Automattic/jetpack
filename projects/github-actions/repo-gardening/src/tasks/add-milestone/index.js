@@ -1,7 +1,7 @@
-const debug = require( '../../utils/debug' );
-const getAssociatedPullRequest = require( '../../utils/get-associated-pull-request' );
-const getNextValidMilestone = require( '../../utils/get-next-valid-milestone' );
-const getPluginNames = require( '../../utils/get-plugin-names' );
+import debug from '../../utils/debug.js';
+import getAssociatedPullRequest from '../../utils/get-associated-pull-request.js';
+import getNextValidMilestone from '../../utils/get-next-valid-milestone.js';
+import getPluginNames from '../../utils/get-plugin-names.js';
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -69,4 +69,4 @@ async function addMilestone( payload, octokit ) {
 	} );
 }
 
-module.exports = addMilestone;
+export default addMilestone;

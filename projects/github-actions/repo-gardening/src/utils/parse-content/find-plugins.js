@@ -1,4 +1,4 @@
-const debug = require( '../debug' );
+import debug from '../debug.js';
 
 /**
  * Find list of plugins impacted by issue, based off issue contents.
@@ -19,4 +19,4 @@ function findPlugins( body ) {
 	return [];
 }
 
-module.exports = findPlugins;
+export default findPlugins;

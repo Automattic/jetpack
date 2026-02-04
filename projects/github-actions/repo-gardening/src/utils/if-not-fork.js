@@ -1,4 +1,4 @@
-const debug = require( './debug' );
+import debug from './debug.js';
 
 /* global WPAutomationTask */
 
@@ -21,4 +21,4 @@ function ifNotFork( handler ) {
 	return newHandler;
 }
 
-module.exports = ifNotFork;
+export default ifNotFork;

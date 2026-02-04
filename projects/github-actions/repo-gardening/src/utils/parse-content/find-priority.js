@@ -1,4 +1,4 @@
-const debug = require( '../debug' );
+import debug from '../debug.js';
 
 /**
  * Figure out the priority of the issue, based off issue contents.
@@ -80,4 +80,4 @@ function findPriority( body ) {
 	return priority;
 }
 
-module.exports = findPriority;
+export default findPriority;

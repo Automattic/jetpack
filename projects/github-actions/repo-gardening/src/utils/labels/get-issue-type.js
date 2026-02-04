@@ -1,5 +1,5 @@
-const getLabels = require( './get-labels' );
-const { TYPE_LABELS_WITHOUT_PREFIX } = require( './type-labels' );
+import getLabels from './get-labels.js';
+import { TYPE_LABELS_WITHOUT_PREFIX } from './type-labels.js';
 
 /* global GitHub */
 
@@ -52,4 +52,4 @@ async function getIssueType( octokit, owner, repo, number ) {
 	return '';
 }
 
-module.exports = getIssueType;
+export default getIssueType;

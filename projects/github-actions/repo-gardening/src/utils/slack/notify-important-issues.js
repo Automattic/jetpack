@@ -1,7 +1,7 @@
-const debug = require( '../debug' );
-const getLabels = require( '../labels/get-labels' );
-const formatSlackMessage = require( './format-slack-message' );
-const sendSlackMessage = require( './send-slack-message' );
+import debug from '../debug.js';
+import getLabels from '../labels/get-labels.js';
+import formatSlackMessage from './format-slack-message.js';
+import sendSlackMessage from './send-slack-message.js';
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -71,4 +71,4 @@ async function notifyImportantIssues( octokit, payload, channel, recipients = 'd
 	}
 }
 
-module.exports = notifyImportantIssues;
+export default notifyImportantIssues;

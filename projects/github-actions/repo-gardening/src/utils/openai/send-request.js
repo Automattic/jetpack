@@ -1,6 +1,6 @@
-const { getInput, setFailed } = require( '@actions/core' );
-const OpenAI = require( 'openai' );
-const debug = require( '../debug' );
+import { getInput, setFailed } from '@actions/core';
+import OpenAI from 'openai';
+import debug from '../debug.js';
 
 /**
  * Send a message to OpenAI.
@@ -40,4 +40,4 @@ async function sendOpenAiRequest( message, responseFormat = 'plain' ) {
 	}
 }
 
-module.exports = sendOpenAiRequest;
+export default sendOpenAiRequest;

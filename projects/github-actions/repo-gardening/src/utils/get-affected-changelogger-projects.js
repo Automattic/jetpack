@@ -1,6 +1,6 @@
-const fs = require( 'fs' );
-const { glob } = require( 'glob' );
-const getPrWorkspace = require( './get-pr-workspace' );
+import fs from 'fs';
+import { glob } from 'glob';
+import getPrWorkspace from './get-pr-workspace.js';
 
 /**
  * Returns a list of Projects that use changelogger package
@@ -62,4 +62,4 @@ function getAffectedChangeloggerProjects( files ) {
 	return [ ...projects ];
 }
 
-module.exports = getAffectedChangeloggerProjects;
+export default getAffectedChangeloggerProjects;

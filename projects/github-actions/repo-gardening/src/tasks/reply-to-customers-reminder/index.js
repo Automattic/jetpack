@@ -1,9 +1,9 @@
-const { getInput, setFailed } = require( '@actions/core' );
-const debug = require( '../../utils/debug' );
-const getComments = require( '../../utils/get-comments' );
-const getLabels = require( '../../utils/labels/get-labels' );
-const hasManySupportReferences = require( '../../utils/parse-content/has-many-support-references' );
-const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
+import { getInput, setFailed } from '@actions/core';
+import debug from '../../utils/debug.js';
+import getComments from '../../utils/get-comments.js';
+import getLabels from '../../utils/labels/get-labels.js';
+import hasManySupportReferences from '../../utils/parse-content/has-many-support-references.js';
+import sendSlackMessage from '../../utils/slack/send-slack-message.js';
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -146,4 +146,4 @@ Before you send follow-up replies, you'll want to make sure the fix has been dep
 	await sendSlackMessage( message, channel, payload, slackMessageFormat );
 }
 
-module.exports = replyToCustomersReminder;
+export default replyToCustomersReminder;
