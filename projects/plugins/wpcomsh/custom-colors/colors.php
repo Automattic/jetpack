@@ -196,6 +196,14 @@ class Colors_Manager_Common {
 
 			add_filter( 'tonesque_image_url', array( __CLASS__, 'gravatar_image_url' ) );
 		}
+
+		if ( self::is_gutenberg() ) {
+			// If colors are set, print them in the Block Editor as well.
+			if ( self::theme_has_set_colors() ) {
+				self::override_themecolors();
+				add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'print_theme_css' ), 20 );
+			}
+		}
 	}
 
 	/**
