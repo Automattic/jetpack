@@ -15,16 +15,7 @@ import triageIssues from './tasks/triage-issues/index.js';
 import debug from './utils/debug.js';
 import ifNotClosed from './utils/if-not-closed.js';
 import ifNotFork from './utils/if-not-fork.js';
-import type { OctokitClient, TaskPayload } from './types.js';
-
-interface Automation {
-	event: string;
-	action?: string[];
-	// Each task function accepts a specific payload subtype (PullRequestEvent, IssuesEvent, etc.)
-	// but at runtime the correct payload is guaranteed by event-name matching.
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	task: ( payload: any, octokit: OctokitClient ) => Promise< void > | void;
-}
+import type { Automation, TaskPayload } from './types.js';
 
 const automations: Automation[] = [
 	{

@@ -199,7 +199,7 @@ async function getCheckComment(
 			comment.user.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Thank you for your PR!**' )
 		) {
-			commentID = comment.id as number;
+			commentID = comment.id;
 		}
 	}
 

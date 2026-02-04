@@ -20,17 +20,16 @@ export type OctokitClient = InstanceType< typeof GitHub >;
 export type TaskPayload = PullRequestEvent | PushEvent | IssuesEvent | IssueCommentEvent;
 
 /**
- * The function signature for an automation task.
- */
-export type TaskFunction = ( payload: TaskPayload, octokit: OctokitClient ) => Promise< void >;
-
-/**
  * An automation definition used in the main index.
+ *
+ * Each task function accepts a specific payload subtype (PullRequestEvent, IssuesEvent, etc.)
+ * but at runtime the correct payload is guaranteed by event-name matching.
  */
 export interface Automation {
 	event: string;
 	action?: string[];
-	task: TaskFunction;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	task: ( payload: any, octokit: OctokitClient ) => Promise< void > | void;
 }
 
 /**
