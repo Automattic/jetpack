@@ -26,9 +26,9 @@
 		"openai": "5.3.0"
 	},
 	"devDependencies": {
-		"@octokit/webhooks-types": "^7.6.1",
-		"@types/node": "^22.0.0",
+		"@octokit/webhooks-types": "7.6.1",
+		"@types/node": "^20.4.2",
 		"@vercel/ncc": "0.36.1",
-		"typescript": "^5.7.0"
+		"typescript": "5.9.3"
 	}
 }
