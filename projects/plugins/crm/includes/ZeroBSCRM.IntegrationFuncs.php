@@ -494,7 +494,8 @@ function zeroBS_integrations_addOrUpdateCompany(
 	$extraMeta = false,
 	$automatorPassthroughArray = false,
 	$conameAlreadyExistsAction = 'update',
-	$fieldPrefix = 'zbsc_'){
+	$fieldPrefix = 'zbsc_'
+) {
 
 	global $zbs;
 
@@ -766,17 +767,15 @@ function zeroBS_integrations_getCompany( $externalSource = '', $externalID = '' 
 	|=======================================
 */
 function zeroBS_integrations_addOrUpdateTransaction(
-
-	$transactionExternalSource = '', /* Req, e.g. 'str' */
-	$transactionExternalID = '',  /* Req, e.g. 'ch_1DqSxpBy0i6Hd9AL4noH4Yhx' */
-	$transactionFields = array(),  /* Req: array(orderid,customer,status,total) */
-	$transactionTags = array(), /* optional extra tags */
+	$transactionExternalSource = '', // Required, e.g. 'str'.
+	$transactionExternalID = '', // Required, e.g. 'ch_1DqSxpBy0i6Hd9AL4noH4Yhx'.
+	$transactionFields = array(), // Required keys: orderid, customer, status, total.
+	$transactionTags = array(),
 	$transactionDate = '',
 	$fallbackLog = 'auto',
 	$extraMeta = false,
 	$automatorPassthroughArray = false,
 	$fieldPrefix = 'zbst_'
-
 ) {
 
 	#} Check req.
@@ -845,11 +844,17 @@ function zeroBS_integrations_addOrUpdateTransaction(
 
 }
 
-// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+/**
+ * Adds or updates a task via integrations.
+ *
+ * @param int   $task_id        Task ID.
+ * @param array $data_array     Task data. Required keys: 'title', 'to', 'from'.
+ * @param array $task_reminders Task reminders. Keys: 'remind_at', 'sent' (v3+).
+ */
 function zeroBS_integrations_addOrUpdateTask(
-	$task_id = -1, /* Req - the task ID */
-	$data_array = array(), /* Req: title,to, from */
-	$task_reminders = array() /* Req: remind_at,sent (v3+) */
+	$task_id = -1,
+	$data_array = array(),
+	$task_reminders = array()
 ) {
 
 	#} Check req.
@@ -943,32 +948,21 @@ function zeroBS_integrations_searchCustomers( $args = array() ) {
 
 }
 
-#} Add log (currently a wrapper)
+/**
+ * Adds a log entry (currently a wrapper for zeroBS_addUpdateLog).
+ *
+ * @param int    $objID      Object ID.
+ * @param int    $logDate    Log date timestamp.
+ * @param array  $noteFields Note fields array. May include 'meta_assoc_id'
+ *                           (e.g. campaign ID for 'email sent' logs) and 'meta_assoc_src'
+ *                           (e.g. 'mailcamp').
+ * @param string $objType    Object type, e.g. 'zerobs_customer' or a ZBS_TYPE_* constant.
+ */
 function zeroBS_integrations_addLog(
-
 	$objID = -1,
-	/* - is add, doesn't need this:
-		$logID = -1,
-	*/
 	$logDate = -1,
-
-	/*
-
-		NOTE!: as of 31/05/17 WOODY started putting
-		'meta_assoc_id' in these - e.g. if it's an 'email sent' log, this meta_assoc_id will be the CAMPAIGN id
-		'meta_assoc_src' would then be mailcamp
-
-	*/
-
 	$noteFields = array(),
-
-	/*
-	DB2 requires obj type,
-	for now we use zerobs_customer etc. but later we will make these interchangable with TYPES e.g. ZBS_TYPE_CONTACT
-	*/
-
 	$objType = ''
-
 ) {
 
 	if ( ! empty( $objID ) ) {
