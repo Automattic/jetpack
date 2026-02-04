@@ -51234,14 +51234,15 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const debug_js_1 = __importDefault(__nccwpck_require__(3279));
 const get_labels_js_1 = __importDefault(__nccwpck_require__(9124));
 /**
- * Manage labels when a PR gets merged.
+ * Manage labels when a PR or issue gets closed.
  *
- * @param payload - Pull Request event payload.
+ * @param payload - Pull Request or Issue event payload.
  * @param octokit - Initialized Octokit REST client.
  */
 async function cleanLabels(payload, octokit) {
-    const { pull_request, repository, action } = payload;
-    const { number } = pull_request;
+    const prOrIssue = 'pull_request' in payload ? payload.pull_request : payload.issue;
+    const { number } = prOrIssue;
+    const { repository, action } = payload;
     const { name: repo, owner } = repository;
     const ownerLogin = owner.login;
     // Normally this only gets triggered when PRs get closed, but let's be sure.
@@ -53154,7 +53155,7 @@ async function updateBoard(payload, octokit, issueType, priorityLabels) {
     }
     // For this task, we need octokit to have extra permissions not provided by the default GitHub token.
     // Let's create a new octokit instance using our own custom token.
-    const projectOctokit = new github_1.getOctokit(projectToken);
+    const projectOctokit = (0, github_1.getOctokit)(projectToken);
     // Get details about our project board, to use in our requests.
     const projectInfo = await getProjectDetails(projectOctokit, projectBoardLink);
     if (Object.keys(projectInfo).length === 0 || !projectInfo.projectNodeId) {

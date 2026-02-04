@@ -751,9 +751,7 @@ async function updateBoard(
 	// For this task, we need octokit to have extra permissions not provided by the default GitHub token.
 	// Let's create a new octokit instance using our own custom token.
 
-	const projectOctokit = new ( getOctokit as unknown as new ( token: string ) => OctokitClient )(
-		projectToken
-	);
+	const projectOctokit = getOctokit( projectToken );
 
 	// Get details about our project board, to use in our requests.
 	const projectInfo = await getProjectDetails( projectOctokit, projectBoardLink );

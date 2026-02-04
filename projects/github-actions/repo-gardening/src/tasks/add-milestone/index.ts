@@ -64,7 +64,7 @@ async function addMilestone( payload: PushPayload, octokit: OctokitClient ): Pro
 		owner: ownerLogin,
 		repo,
 		issue_number: prNumber,
-		milestone: nextMilestone.number as number,
+		milestone: nextMilestone.number,
 	} );
 }
 

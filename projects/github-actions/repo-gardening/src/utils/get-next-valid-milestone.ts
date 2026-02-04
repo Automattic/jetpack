@@ -3,6 +3,7 @@ import moment from 'moment';
 import type { OctokitClient } from '../types.js';
 
 interface Milestone {
+	number: number;
 	title: string;
 	description?: string | null;
 	due_on?: string | null;
