@@ -16,6 +16,7 @@ type FormStatusNoticeProps = {
 	syncedForm: SyncedForm | null;
 	formRef: number | undefined;
 	isVisible: boolean;
+	clientId: string;
 };
 
 const STATUS_CONFIG: Record<
@@ -82,11 +83,15 @@ export default function FormStatusNotice( {
 	syncedForm,
 	formRef,
 	isVisible,
+	clientId,
 }: FormStatusNoticeProps ) {
 	const [ isPublishing, setIsPublishing ] = useState( false );
+	const [ isDeleting, setIsDeleting ] = useState( false );
 
-	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
+	const { editEntityRecord, saveEditedEntityRecord, deleteEntityRecord } = useDispatch( coreStore );
 	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
+
+	const { removeBlocks } = useDispatch( 'core/block-editor' );
 
 	const handleUndo = useCallback(
 		async ( previousStatus: string ) => {
@@ -94,6 +99,9 @@ export default function FormStatusNotice( {
 				return;
 			}
 			try {
+				if ( previousStatus === 'trash' ) {
+					previousStatus = 'draft'; // Moving to trash from publish to draft can't be undone directly.
+				}
 				await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, {
 					status: previousStatus,
 				} );
@@ -146,6 +154,37 @@ export default function FormStatusNotice( {
 		handleUndo,
 	] );
 
+	const handleDeletePermanently = useCallback( async () => {
+		if ( ! formRef ) {
+			return;
+		}
+		setIsDeleting( true );
+		try {
+			// delete the entry permanently
+			await deleteEntityRecord( 'postType', FORM_POST_TYPE, formRef, { force: true } );
+			createSuccessNotice( __( 'Form deleted permanently.', 'jetpack-forms' ), {
+				type: 'snackbar',
+			} );
+		} catch {
+			createErrorNotice(
+				__(
+					'Failed to delete form permanently. Refresh this page and try again.',
+					'jetpack-forms'
+				),
+				{ type: 'snackbar' }
+			);
+		} finally {
+			setIsDeleting( false );
+			removeBlocks( [ clientId ] );
+		}
+	}, [
+		formRef,
+		createSuccessNotice,
+		createErrorNotice,
+		removeBlocks,
+		deleteEntityRecord,
+		clientId,
+	] );
 	const formStatus = syncedForm?.status;
 
 	if ( ! isVisible || ! formRef || ! formStatus || formStatus === 'publish' ) {
@@ -172,6 +211,19 @@ export default function FormStatusNotice( {
 			onClick: handlePublish,
 			variant: 'secondary',
 			disabled: isPublishing,
+		} );
+	} else {
+		actions.push( {
+			label: __( 'Restore', 'jetpack-forms' ),
+			onClick: handlePublish,
+			variant: 'secondary',
+			disabled: isPublishing,
+		} );
+		actions.push( {
+			label: __( 'Delete Permanently', 'jetpack-forms' ),
+			onClick: handleDeletePermanently,
+			variant: 'secondary',
+			disabled: isDeleting,
 		} );
 	}
 

@@ -1088,6 +1088,7 @@ function JetpackContactFormEdit( {
 							syncedForm={ syncedForm }
 							formRef={ ref }
 							isVisible={ isFormOrChildSelected }
+							clientId={ clientId }
 						/>
 					) }
 					{ elt }
