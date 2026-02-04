@@ -186,13 +186,7 @@ function SingleResponseView( {
 
 	return (
 		<>
-			<Stack
-				align="center"
-				className="jp-forms-response-navigation"
-				direction="row"
-				gap="xs"
-				justify="space-between"
-			>
+			<Stack className="jp-forms-response-header" direction="row" gap="xs" justify="space-between">
 				<ResponseActions response={ response } onActionComplete={ handleActionComplete } />
 				<ResponseNavigation
 					hasNext={ hasNext }

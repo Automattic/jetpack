@@ -7,15 +7,13 @@
 
 $inspector-padding: 16px;
 
-.jp-forms-response-actions {
-	padding: 8px $inspector-padding;
-	gap: 0;
+.jp-forms-response-header {
+	padding: 8px;
 	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
 }
 
-.jp-forms-response-navigation {
-	padding: 8px 0;
-	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+.jp-forms-response-header-actions {
+	gap: 0 !important;
 }
 
 .jp-forms__inbox-response-data {

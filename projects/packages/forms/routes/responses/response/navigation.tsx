@@ -40,14 +40,7 @@ export function ResponseNavigation( {
 	};
 
 	return (
-		<Stack
-			align="center"
-			direction="row"
-			gap="xs"
-			justify="end"
-			style={ { flexShrink: 0 } }
-			wrap="wrap"
-		>
+		<Stack direction="row" gap="xs" justify="end" style={ { flexShrink: 0 } } wrap="wrap">
 			<Button
 				{ ...sharedProps }
 				disabled={ ! hasPrevious }

@@ -234,7 +234,13 @@ export function ResponseActions( {
 	);
 
 	return (
-		<Stack direction="row" gap="xs" align="center" justify="start" wrap="wrap">
+		<Stack
+			direction="row"
+			gap="xs"
+			justify="start"
+			wrap="wrap"
+			className="jp-forms-response-header-actions"
+		>
 			{ response.status === 'publish' && (
 				<>
 					{ readUnreadButtons }
