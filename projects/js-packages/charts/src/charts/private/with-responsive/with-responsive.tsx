@@ -46,6 +46,11 @@ const useResponsiveDimensions = ( {
 		parentRef,
 		width: containerWidth,
 		height: containerHeight,
+		/**
+		 * Whether an aspectRatio was provided. Used to determine container
+		 * height styling: 'auto' when true (height derived from width),
+		 * '100%' when false (fill parent container).
+		 */
 		hasAspectRatio: aspectRatio !== undefined,
 	};
 };
