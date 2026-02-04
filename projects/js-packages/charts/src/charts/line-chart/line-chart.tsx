@@ -250,7 +250,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			data,
 			chartId: providedChartId,
 			width,
-			height,
+			height = 400,
 			className,
 			margin,
 			withTooltips = true,
