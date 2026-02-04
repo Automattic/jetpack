@@ -14,6 +14,9 @@ import { registerPlugin } from '@wordpress/plugins';
  */
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 
+const savingAndOpeningMessage = __( 'Saving & opening', 'jetpack-forms' );
+const previewFormMessage = __( 'Preview form', 'jetpack-forms' );
+
 /**
  * Form Preview Menu Item component.
  *
@@ -87,9 +90,7 @@ const FormPreviewMenuItem = () => {
 
 	return (
 		<PluginPreviewMenuItem icon={ external } onClick={ handlePreview }>
-			{ isLoading
-				? __( 'Saving & opening', 'jetpack-forms' )
-				: __( 'Preview form', 'jetpack-forms' ) }
+			{ isLoading ? savingAndOpeningMessage : previewFormMessage }
 		</PluginPreviewMenuItem>
 	);
 };
