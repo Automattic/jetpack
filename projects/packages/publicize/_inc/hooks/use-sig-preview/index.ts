@@ -95,6 +95,11 @@ export default function useSigPreview(
 	const imageTitleRef = useRef( imageTitle );
 	const generatedImageUrlRef = useRef( generatedImageUrl );
 
+	// Ref to track current enabled state, used to prevent stale closure issues
+	// when async fetch completes after user has disabled SIG
+	const enabledRef = useRef( enabled );
+	enabledRef.current = enabled;
+
 	useEffect( () => {
 		generatedImageUrlRef.current = generatedImageUrl;
 	} );
@@ -122,6 +127,13 @@ export default function useSigPreview(
 						font,
 					},
 				} );
+
+				// Check if SIG is still enabled before updating token
+				// This prevents race conditions where user disabled SIG while fetch was in progress
+				if ( ! enabledRef.current ) {
+					setIsLoading( false );
+					return;
+				}
 
 				setToken?.( sigToken );
 				onNewToken?.( sigToken );
