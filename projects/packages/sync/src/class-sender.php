@@ -501,7 +501,9 @@ class Sender {
 				$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY, $queue->id );
 			}
 		} elseif ( $exceeded_sync_wait_threshold && ! Settings::is_doing_cron() ) {
-			// If we actually sent data and it took a while, wait before sending again.
+			// If a send was slow, briefly pause before the next one.
+			// Applies only to Dedicated/Normal Sync to avoid impacting user traffic;
+			// cron jobs are exempt.
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time(), $queue->id );
 		}
 
