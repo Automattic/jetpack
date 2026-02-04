@@ -31,7 +31,7 @@ function photonSafeUrl( url: string = '' ): string | null {
 		return url;
 	}
 
-	return photon( url.split( '?', 1 )[ 0 ], { width: 120, height: 120 } );
+	return photon( url.split( '?', 1 )[ 0 ], { width: 138, height: 144 } );
 }
 
 const ImageSelectButton = ( { choice, handleFilePreview } ) => {
