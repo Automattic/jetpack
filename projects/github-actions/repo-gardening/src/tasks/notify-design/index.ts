@@ -2,19 +2,23 @@ import { getInput, setFailed } from '@actions/core';
 import debug from '../../utils/debug.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-
-/* global GitHub, WebhookPayloadPullRequest */
+import type { OctokitClient, PullRequestPayload } from '../../types.js';
 
 /**
  * Check for a Design Review status label on a PR.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Promise<boolean>} Promise resolving to boolean.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return Promise resolving to boolean.
  */
-async function hasNeedsDesignReviewLabel( octokit, owner, repo, number ) {
+async function hasNeedsDesignReviewLabel(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< boolean > {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Needs Design Review label.
 	return labels.includes( '[Status] Needs Design Review' );
@@ -23,13 +27,18 @@ async function hasNeedsDesignReviewLabel( octokit, owner, repo, number ) {
 /**
  * Check for a Needs Design label on a PR.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Promise<boolean>} Promise resolving to boolean.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return Promise resolving to boolean.
  */
-async function hasNeedsDesignLabel( octokit, owner, repo, number ) {
+async function hasNeedsDesignLabel(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< boolean > {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Needs Design label.
 	return labels.includes( '[Status] Needs Design' );
@@ -38,13 +47,18 @@ async function hasNeedsDesignLabel( octokit, owner, repo, number ) {
 /**
  * Check for a Design Input Requested label on a PR.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Promise<boolean>} Promise resolving to boolean.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return Promise resolving to boolean.
  */
-async function hasDesignInputRequestedLabel( octokit, owner, repo, number ) {
+async function hasDesignInputRequestedLabel(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< boolean > {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Design Input Requested label.
 	return labels.includes( '[Status] Design Input Requested' );
@@ -53,10 +67,13 @@ async function hasDesignInputRequestedLabel( octokit, owner, repo, number ) {
 /**
  * Send a Slack notification about a label to the Design team.
  *
- * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param payload - Pull request event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function notifyDesign( payload, octokit ) {
+async function notifyDesign(
+	payload: PullRequestPayload,
+	octokit: OctokitClient
+): Promise< void > {
 	const { number, repository } = payload;
 	const { owner, name: repo } = repository;
 	const ownerLogin = owner.login;

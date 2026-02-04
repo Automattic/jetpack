@@ -3,17 +3,34 @@ import debug from '../../utils/debug.js';
 import getComments from '../../utils/get-comments.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
+import type { OctokitClient, IssuePayload, IssueCommentPayload } from '../../types.js';
 
-/* global GitHub, WebhookPayloadIssue */
+/**
+ * Represents the info extracted from a previous bot comment.
+ */
+interface ListCommentInfo {
+	id?: number;
+	body?: string;
+}
+
+/**
+ * Represents a comment on an issue.
+ */
+interface IssueComment {
+	user: { login: string };
+	body: string;
+	id?: number;
+	[ key: string ]: unknown;
+}
 
 /**
  * Search for a previous comment from this task in our issue.
  *
- * @param {Array} issueComments - Array of all comments on that issue.
- * @return {Promise<object>} Promise resolving to an object of information about our comment.
+ * @param issueComments - Array of all comments on that issue.
+ * @return Promise resolving to an object of information about our comment.
  */
-async function getListComment( issueComments ) {
-	let commentInfo = {};
+async function getListComment( issueComments: IssueComment[] ): Promise< ListCommentInfo > {
+	let commentInfo: ListCommentInfo = {};
 
 	debug( `gather-support-references: Looking for a previous comment from this task in our issue.` );
 
@@ -44,15 +61,22 @@ async function getListComment( issueComments ) {
  * - https://wordpress.com/forums/topic/xxx
  * - https://wordpress.com/xxx/forums/topic/xxx (for non-English forums)
  *
- * @param {GitHub} octokit       - Initialized Octokit REST client.
- * @param {string} owner         - Repository owner.
- * @param {string} repo          - Repository name.
- * @param {string} number        - Issue number.
- * @param {Array}  issueComments - Array of all comments on that issue.
- * @return {Promise<Array>} Promise resolving to an array.
+ * @param octokit       - Initialized Octokit REST client.
+ * @param owner         - Repository owner.
+ * @param owner.login   - Repository owner login.
+ * @param repo          - Repository name.
+ * @param number        - Issue number.
+ * @param issueComments - Array of all comments on that issue.
+ * @return Promise resolving to an array of unique support references.
  */
-async function getIssueReferences( octokit, owner, repo, number, issueComments ) {
-	const ticketReferences = [];
+async function getIssueReferences(
+	octokit: OctokitClient,
+	owner: { login: string },
+	repo: string,
+	number: number,
+	issueComments: IssueComment[]
+): Promise< string[] > {
+	const ticketReferences: RegExpMatchArray[] = [];
 	const referencesRegexP =
 		/[0-9]*-(?:zen|zd)|https:\/\/wordpress\.com\/(?:[a-z]+\/)?forums\/topic\/(?:[a-zA-Z0-9-]+)/gim;
 
@@ -62,7 +86,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 	} = await octokit.rest.issues.get( {
 		owner: owner.login,
 		repo,
-		issue_number: +number,
+		issue_number: number,
 	} );
 
 	if ( body ) {
@@ -80,7 +104,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 	}
 
 	// Let's build a array with unique and correct support IDs, formatted properly.
-	const correctedSupportIds = new Set();
+	const correctedSupportIds = new Set< string >();
 	for ( const reference of ticketReferences ) {
 		let supportId = reference[ 0 ];
 
@@ -105,18 +129,18 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 /**
  * Build a comment body with a to-do list of all support references on that issue.
  *
- * @param {Array}   issueReferences     - Array of support references.
- * @param {Set}     checkedRefs         - Set of support references already checked.
- * @param {boolean} needsEscalationNote - Whether the issue needs an escalation note.
- * @param {string}  escalationNote      - String that indicates an issue was escalated.
- * @return {string} Comment body.
+ * @param issueReferences     - Array of support references.
+ * @param checkedRefs         - Set of support references already checked.
+ * @param needsEscalationNote - Whether the issue needs an escalation note.
+ * @param escalationNote      - String that indicates an issue was escalated.
+ * @return Comment body.
  */
 function buildCommentBody(
-	issueReferences,
-	checkedRefs = new Set(),
+	issueReferences: string[],
+	checkedRefs: Set< string > = new Set(),
 	needsEscalationNote = false,
 	escalationNote = ''
-) {
+): string {
 	let commentBody = `**Support References**
 
 *This comment is automatically generated. Please do not edit it.*
@@ -140,12 +164,16 @@ ${ issueReferences
 /**
  * Build an object containing the slack message and its formatting to send to Slack.
  *
- * @param {WebhookPayloadIssue} payload - Issue event payload.
- * @param {string}              channel - Slack channel ID.
- * @param {string}              message - Basic message (without the formatting).
- * @return {object} Object containing the slack message and its formatting.
+ * @param payload - Issue event payload.
+ * @param channel - Slack channel ID.
+ * @param message - Basic message (without the formatting).
+ * @return Object containing the slack message and its formatting.
  */
-function formatSlackMessage( payload, channel, message ) {
+function formatSlackMessage(
+	payload: IssuePayload | IssueCommentPayload,
+	channel: string,
+	message: string
+) {
 	const { issue, repository } = payload;
 	const { html_url, title } = issue;
 
@@ -193,13 +221,18 @@ function formatSlackMessage( payload, channel, message ) {
  * let's send a Slack message to warn the triage team,
  * and make a note so we don't send it again.
  *
- * @param {Array}               issueReferences - Array of support references.
- * @param {string}              commentBody     - Previous comment ID.
- * @param {string}              escalationNote  - String that indicates an issue was escalated.
- * @param {WebhookPayloadIssue} payload         - Issue event payload.
- * @return {Promise<boolean>} Was the issue escalated?
+ * @param issueReferences - Array of support references.
+ * @param commentBody     - Previous comment body.
+ * @param escalationNote  - String that indicates an issue was escalated.
+ * @param payload         - Issue event payload.
+ * @return Was the issue escalated?
  */
-async function checkForEscalation( issueReferences, commentBody, escalationNote, payload ) {
+async function checkForEscalation(
+	issueReferences: string[],
+	commentBody: string,
+	escalationNote: string,
+	payload: IssuePayload | IssueCommentPayload
+): Promise< boolean > {
 	// No Slack tokens, we won't be able to escalate. Bail.
 	const slackToken = getInput( 'slack_token' );
 	const channel = getInput( 'slack_quality_channel' );
@@ -242,20 +275,19 @@ async function checkForEscalation( issueReferences, commentBody, escalationNote,
  * Add or update a label on the issue to indicate a number range of support references,
  * once it has gathered more than 10 support references.
  *
- * @param {GitHub} octokit              - Initialized Octokit REST client.
- * @param {string} repo                 - Repository name.
- * @param {string} ownerLogin           - Owner of the repository.
- * @param {number} number               - Issue number.
- * @param {number} issueReferencesCount - Number of support references gathered in this issue.
- * @return {Promise<void>}
+ * @param octokit              - Initialized Octokit REST client.
+ * @param repo                 - Repository name.
+ * @param ownerLogin           - Owner of the repository.
+ * @param number               - Issue number.
+ * @param issueReferencesCount - Number of support references gathered in this issue.
  */
 async function addOrUpdateInteractionCountLabel(
-	octokit,
-	repo,
-	ownerLogin,
-	number,
-	issueReferencesCount
-) {
+	octokit: OctokitClient,
+	repo: string,
+	ownerLogin: string,
+	number: number,
+	issueReferencesCount: number
+): Promise< void > {
 	let ranges = [ 50, 20, 10 ];
 
 	if ( 'Automattic/sensei' === repo ) {
@@ -295,7 +327,7 @@ async function addOrUpdateInteractionCountLabel(
 					await octokit.rest.issues.removeLabel( {
 						owner: ownerLogin,
 						repo,
-						issue_number: +number,
+						issue_number: number,
 						name: existingInteractionCountLabel,
 					} );
 				}
@@ -316,7 +348,7 @@ async function addOrUpdateInteractionCountLabel(
 	await octokit.rest.issues.addLabels( {
 		owner: ownerLogin,
 		repo,
-		issue_number: +number,
+		issue_number: number,
 		labels: [ interactionCountLabel ],
 	} );
 }
@@ -324,12 +356,17 @@ async function addOrUpdateInteractionCountLabel(
 /**
  * Creates or updates a comment on issue.
  *
- * @param {WebhookPayloadIssue} payload         - Issue event payload.
- * @param {GitHub}              octokit         - Initialized Octokit REST client.
- * @param {Array}               issueReferences - Array of support references.
- * @param {Array}               issueComments   - Array of all comments on that issue.
+ * @param payload         - Issue event payload.
+ * @param octokit         - Initialized Octokit REST client.
+ * @param issueReferences - Array of support references.
+ * @param issueComments   - Array of all comments on that issue.
  */
-async function createOrUpdateComment( payload, octokit, issueReferences, issueComments ) {
+async function createOrUpdateComment(
+	payload: IssuePayload | IssueCommentPayload,
+	octokit: OctokitClient,
+	issueReferences: string[],
+	issueComments: IssueComment[]
+): Promise< void > {
 	const { issue, repository } = payload;
 	const { number } = issue;
 	const { name: repo, owner } = repository;
@@ -348,7 +385,7 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 		const listWithStatusMatch = existingComment.body.matchAll( /^-\s\[x\]\s(\S+)/gm );
 
 		// Extract the checked ticket references.
-		const checkedRefs = new Set();
+		const checkedRefs = new Set< string >();
 		for ( const referenceStatus of listWithStatusMatch ) {
 			checkedRefs.add( referenceStatus[ 1 ] );
 		}
@@ -384,7 +421,7 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 			owner: ownerLogin,
 			repo,
 			body: updatedComment,
-			comment_id: +existingComment.id,
+			comment_id: existingComment.id,
 		} );
 	} else {
 		// If no comment was published before, publish one now.
@@ -396,7 +433,7 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 			owner: ownerLogin,
 			repo,
 			body: comment,
-			issue_number: +number,
+			issue_number: number,
 		} );
 	}
 }
@@ -404,11 +441,13 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 /**
  * Add a label to the issue, if it does not exist yet.
  *
- * @param {WebhookPayloadIssue} payload - Issue or issue comment event payload.
- * @param {GitHub}              octokit - Initialized Octokit REST client.
- * @return {Promise<void>}
+ * @param payload - Issue or issue comment event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function addHappinessLabel( payload, octokit ) {
+async function addHappinessLabel(
+	payload: IssuePayload | IssueCommentPayload,
+	octokit: OctokitClient
+): Promise< void > {
 	const {
 		issue: { number, state },
 		repository: {
@@ -441,7 +480,7 @@ async function addHappinessLabel( payload, octokit ) {
 	const slackToken = getInput( 'slack_token' );
 	const channel = getInput( 'slack_quality_channel' );
 	if ( ! slackToken || ! channel || state === 'closed' ) {
-		return false;
+		return;
 	}
 
 	const message = `This issue has been labeled as a Customer Report. Please complete first-line triage within 24 hours.`;
@@ -452,10 +491,13 @@ async function addHappinessLabel( payload, octokit ) {
 /**
  * Post or update a comment with a to-do list of all support references on that issue.
  *
- * @param {WebhookPayloadIssue} payload - Issue or issue comment event payload.
- * @param {GitHub}              octokit - Initialized Octokit REST client.
+ * @param payload - Issue or issue comment event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function gatherSupportReferences( payload, octokit ) {
+async function gatherSupportReferences(
+	payload: IssuePayload | IssueCommentPayload,
+	octokit: OctokitClient
+): Promise< void > {
 	const {
 		issue: { number, pull_request },
 		repository,

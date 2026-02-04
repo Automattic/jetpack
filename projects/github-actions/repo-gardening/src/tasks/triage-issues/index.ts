@@ -10,23 +10,28 @@ import sendSlackMessage from '../../utils/slack/send-slack-message.js';
 import aiLabeling from './ai-labeling.js';
 import getIssuePriority from './get-issue-priority.js';
 import updateBoard from './update-board.js';
-
-/* global GitHub, WebhookPayloadIssue */
+import type { OctokitClient, IssuePayload } from '../../types.js';
 
 /**
  * If we could not add labels via OpenAI, let's add a comment to ask the issue author to add their own labels.
  *
  * We only want to do this if the author can actually add labels to the issue, i.e. if they're part of the organization.
  *
- * @param {GitHub} octokit     - Initialized Octokit REST client.
- * @param {string} ownerLogin  - Owner of the repository.
- * @param {string} authorLogin - Author of the issue.
- * @param {string} repo        - Repository name.
- * @param {number} issueNumber - Issue number.
+ * @param octokit     - Initialized Octokit REST client.
+ * @param ownerLogin  - Owner of the repository.
+ * @param authorLogin - Author of the issue.
+ * @param repo        - Repository name.
+ * @param issueNumber - Issue number.
  *
- * @return {Promise<void>} Promise resolving when the comment is added.
+ * @return Promise resolving when the comment is added.
  */
-async function addCommentAskLabels( octokit, ownerLogin, authorLogin, repo, issueNumber ) {
+async function addCommentAskLabels(
+	octokit: OctokitClient,
+	ownerLogin: string,
+	authorLogin: string,
+	repo: string,
+	issueNumber: number
+): Promise< void > {
 	debug(
 		`triage-issues > auto-label: Issue #${ issueNumber } created by ${ authorLogin }, lacking label suggestions by OpenAI. Asking the author to add labels.`
 	);
@@ -64,10 +69,10 @@ async function addCommentAskLabels( octokit, ownerLogin, authorLogin, repo, issu
  * - If an issue is determined as High or Blocker priority,
  * - If no priority is determined.
  *
- * @param {WebhookPayloadIssue} payload - Issue event payload.
- * @param {GitHub}              octokit - Initialized Octokit REST client.
+ * @param payload - Issue event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function triageIssues( payload, octokit ) {
+async function triageIssues( payload: IssuePayload, octokit: OctokitClient ): Promise< void > {
 	const { action, issue, repository } = payload;
 	const {
 		user: { login: authorLogin },

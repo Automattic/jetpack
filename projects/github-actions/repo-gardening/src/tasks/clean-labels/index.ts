@@ -1,17 +1,16 @@
 import debug from '../../utils/debug.js';
 import getLabels from '../../utils/labels/get-labels.js';
-
-/* global GitHub, WebhookPayloadPullRequest */
+import type { OctokitClient, PullRequestPayload } from '../../types.js';
 
 /**
  * Manage labels when a PR gets merged.
  *
- * @param {WebhookPayloadPullRequest} payload - Pull Request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param payload - Pull Request event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function cleanLabels( payload, octokit ) {
-	const { pull_request, issue, repository, action } = payload;
-	const { number } = pull_request || issue;
+async function cleanLabels( payload: PullRequestPayload, octokit: OctokitClient ): Promise< void > {
+	const { pull_request, repository, action } = payload;
+	const { number } = pull_request;
 	const { name: repo, owner } = repository;
 	const ownerLogin = owner.login;
 

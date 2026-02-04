@@ -1,20 +1,20 @@
 import debug from '../../utils/debug.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import findPriority from '../../utils/parse-content/find-priority.js';
-
-/* global GitHub, WebhookPayloadIssue */
+import type { OctokitClient, IssuePayload } from '../../types.js';
 
 /**
  * Try to figure out the priority of the issue based off its contents and existing labels.
  *
- * @param {WebhookPayloadIssue} payload - Issue event payload.
- * @param {GitHub}              octokit - Initialized Octokit REST client.
+ * @param payload - Issue event payload.
+ * @param octokit - Initialized Octokit REST client.
  *
- * @return {Promise<object>} Promise resolving to an object, with 2 keys:
- * - labels is an array of priority Labels matching this issue,
- * - inferred is a boolean, returns true if the priority was inferred from the issue contents.
+ * @return Promise resolving to an object with labels array and inferred boolean.
  */
-async function getIssuePriority( payload, octokit ) {
+async function getIssuePriority(
+	payload: IssuePayload,
+	octokit: OctokitClient
+): Promise< { labels: string[]; inferred: boolean } > {
 	const {
 		issue: { number, body },
 		repository: {

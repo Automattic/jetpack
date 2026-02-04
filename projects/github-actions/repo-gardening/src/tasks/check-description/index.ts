@@ -9,19 +9,46 @@ import getNextValidMilestone from '../../utils/get-next-valid-milestone.js';
 import getPluginNames from '../../utils/get-plugin-names.js';
 import getPrWorkspace from '../../utils/get-pr-workspace.js';
 import getLabels from '../../utils/labels/get-labels.js';
+import type { OctokitClient, PullRequestPayload } from '../../types.js';
 
-/* global GitHub, WebhookPayloadPullRequest */
+/**
+ * Milestone information used by getMilestoneDates.
+ */
+interface MilestoneInfo {
+	description?: string | null;
+	due_on?: string | null;
+	[ key: string ]: unknown;
+}
+
+/**
+ * Status check results from getStatusChecks.
+ */
+interface StatusChecks {
+	hasLongDescription: boolean;
+	hasStatusLabels: boolean;
+	hasTesting: boolean;
+	hasPrivacy: boolean;
+	projectsWithoutChangelog: string[];
+	hasChangelogEntries: boolean;
+	isFromContributor: boolean;
+	[ key: string ]: unknown;
+}
 
 /**
  * Check for a "Need Review" label on a PR.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Promise<boolean>} Promise resolving to boolean.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return Promise resolving to boolean.
  */
-async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
+async function hasNeedsReviewLabel(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< boolean > {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're really only interested in the Needs review label.
 	return !! labels.find( label => label.includes( '[Status] Needs Review' ) );
@@ -30,13 +57,18 @@ async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
 /**
  * Check for a "In Progress" status label on a PR.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Promise<boolean>} Promise resolving to boolean.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return Promise resolving to boolean.
  */
-async function hasProgressLabel( octokit, owner, repo, number ) {
+async function hasProgressLabel(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< boolean > {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're really only interested in the In Progress label.
 	return labels.includes( '[Status] In Progress' );
@@ -45,19 +77,22 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
 /**
  * Build some info about a specific plugin's release dates.
  *
- * @param {string} plugin        - Plugin name.
- * @param {object} nextMilestone - Information about next milestone as returnde by GitHub.
- * @return {Promise<string>} Promise resolving to info about the release (code freeze, release date).
+ * @param plugin        - Plugin name.
+ * @param nextMilestone - Information about next milestone as returned by GitHub.
+ * @return Promise resolving to info about the release (code freeze, release date).
  */
-async function getMilestoneDates( plugin, nextMilestone ) {
-	let releaseDate;
-	let codeFreezeDate;
+async function getMilestoneDates(
+	plugin: string,
+	nextMilestone: MilestoneInfo | undefined
+): Promise< string > {
+	let releaseDate: string | undefined;
+	let codeFreezeDate: string | undefined;
 	if ( nextMilestone && Object.hasOwn( nextMilestone, 'due_on' ) && nextMilestone.due_on ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
 
 		// Look for a code freeze date in the milestone description.
 		const dateRegex = /^(?:Code Freeze|Branch Cut): (\d{4}-\d{2}-\d{2})\s*$/m;
-		const freezeDateDescription = nextMilestone.description.match( dateRegex );
+		const freezeDateDescription = nextMilestone.description?.match( dateRegex );
 
 		// If we have a date and it is valid, use it, otherwise set code freeze to a week before the release.
 		if ( freezeDateDescription && moment( freezeDateDescription[ 1 ] ).isValid() ) {
@@ -107,13 +142,18 @@ If you have any questions about the release process, please ask in the #jetpack-
 /**
  * Build a string with info about the next milestone.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Promise<string>} Promise resolving to info about the next release for that plugin.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return Promise resolving to info about the next release for that plugin.
  */
-async function buildMilestoneInfo( octokit, owner, repo, number ) {
+async function buildMilestoneInfo(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< string > {
 	const plugins = await getPluginNames( octokit, owner, repo, number );
 	let pluginInfo = '';
 
@@ -137,13 +177,18 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
 /**
  * Search for a previous comment from this task in our PR.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Promise<number>} Promise resolving to boolean.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return Promise resolving to the comment ID, or 0 if not found.
  */
-async function getCheckComment( octokit, owner, repo, number ) {
+async function getCheckComment(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< number > {
 	let commentID = 0;
 
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
@@ -154,7 +199,7 @@ async function getCheckComment( octokit, owner, repo, number ) {
 			comment.user.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Thank you for your PR!**' )
 		) {
-			commentID = comment.id;
+			commentID = comment.id as number;
 		}
 	}
 
@@ -164,13 +209,17 @@ async function getCheckComment( octokit, owner, repo, number ) {
 /**
  * Compose a list item with appropriate status check and passed message
  *
- * @param {boolean} isFailure    - Boolean condition to determine if check failed.
- * @param {string}  checkMessage - Sentence describing successful check.
- * @param {string}  severity     - Optional. Check severity. Could be one of `error`, `warning`, `notice`
- * @return {string} - List item with status emoji and a sentence describing check.
+ * @param isFailure    - Boolean condition to determine if check failed.
+ * @param checkMessage - Sentence describing successful check.
+ * @param severity     - Optional. Check severity. Could be one of `error`, `warning`, `notice`.
+ * @return List item with status emoji and a sentence describing check.
  */
-function statusEntry( isFailure, checkMessage, severity = 'error' ) {
-	const severityMap = {
+function statusEntry(
+	isFailure: boolean,
+	checkMessage: string,
+	severity: string = 'error'
+): string {
+	const severityMap: Record< string, string > = {
 		error: ':red_circle:',
 		warning: ':warning:',
 		notice: ':spiral_notepad:',
@@ -184,21 +233,26 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 /**
  * Returns list of projects with missing changelog entries
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Array} - list of affected projects without changelog entry
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return List of affected projects without changelog entry.
  */
-async function getChangelogEntries( octokit, owner, repo, number ) {
+async function getChangelogEntries(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< string[] > {
 	const baseDir = getPrWorkspace();
 	const files = await getFiles( octokit, owner, repo, number );
 	const affectedProjects = getAffectedChangeloggerProjects( files );
 	debug( `check-description: affected changelogger projects: ${ affectedProjects }` );
 
-	return affectedProjects.reduce( ( acc, project ) => {
+	return affectedProjects.reduce( ( acc: string[], project: string ) => {
 		const composerFile = `${ baseDir }/projects/${ project }/composer.json`;
-		const json = JSON.parse( fs.readFileSync( composerFile ) );
+		const json = JSON.parse( fs.readFileSync( composerFile ).toString() );
 		// Changelog directory could be customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
 		const changelogDir =
 			path.relative(
@@ -237,11 +291,14 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
  *
  * Note: All the checks should be truthy to resolve as success check.
  *
- * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
- * @return {string} List of checks with appropriate status emojis.
+ * @param payload - Pull request event payload.
+ * @param octokit - Initialized Octokit REST client.
+ * @return Status checks object with check results.
  */
-async function getStatusChecks( payload, octokit ) {
+async function getStatusChecks(
+	payload: PullRequestPayload,
+	octokit: OctokitClient
+): Promise< StatusChecks > {
 	const { body, number, head, base } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
@@ -272,10 +329,10 @@ async function getStatusChecks( payload, octokit ) {
 /**
  * Compose a list of checks for the PR
  *
- * @param {object} statusChecks - Map of all checks with boolean as a value
- * @return {string} part of the comment with list of checks
+ * @param statusChecks - Map of all checks with boolean as a value.
+ * @return Part of the comment with list of checks.
  */
-function renderStatusChecks( statusChecks ) {
+function renderStatusChecks( statusChecks: StatusChecks ): string {
 	// No PR is too small to include a description of why you made a change
 	let checks = statusEntry(
 		! statusChecks.hasLongDescription,
@@ -317,11 +374,11 @@ function renderStatusChecks( statusChecks ) {
 /**
  * Compose a list of recommendations based on failed checks
  *
- * @param {object} statusChecks - Map of all checks with boolean as a value
- * @return {string} part of the comment with recommendations
+ * @param statusChecks - Map of all checks with boolean as a value.
+ * @return Part of the comment with recommendations.
  */
-function renderRecommendations( statusChecks ) {
-	const recommendations = {
+function renderRecommendations( statusChecks: StatusChecks ): string {
+	const recommendations: Record< string, string > = {
 		hasLongDescription:
 			'Please edit your PR description and explain what functional changes your PR includes, and why those changes are needed.',
 		hasPrivacy: `We would recommend that you add a section to the PR description to specify whether this PR includes any changes to data or privacy, like so:
@@ -347,7 +404,7 @@ Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automat
 	};
 
 	// If some of the tests are failing, display list of things that could be updated in the PR description to fix things.
-	return Object.keys( statusChecks ).reduce( ( output, check ) => {
+	return Object.keys( statusChecks ).reduce( ( output: string, check: string ) => {
 		// If some of the checks have failed, lets recommend some next steps.
 		if ( ! statusChecks[ check ] && recommendations[ check ] ) {
 			output += `
@@ -362,11 +419,15 @@ Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automat
 /**
  * Creates or updates a comment on PR.
  *
- * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
- * @param {string}                    comment - Comment string
+ * @param payload - Pull request event payload.
+ * @param octokit - Initialized Octokit REST client.
+ * @param comment - Comment string.
  */
-async function postComment( payload, octokit, comment ) {
+async function postComment(
+	payload: PullRequestPayload,
+	octokit: OctokitClient,
+	comment: string
+): Promise< void > {
 	const { number } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
@@ -383,14 +444,14 @@ async function postComment( payload, octokit, comment ) {
 		debug( `check-description: update comment ID ${ existingComment } with our new remarks` );
 		await octokit.rest.issues.updateComment( {
 			...commentOpts,
-			comment_id: +existingComment,
+			comment_id: existingComment,
 		} );
 	} else {
 		// If no comment was published before, publish one now.
 		debug( `check-description: Posting comment to PR #${ number }` );
 		await octokit.rest.issues.createComment( {
 			...commentOpts,
-			issue_number: +number,
+			issue_number: number,
 		} );
 	}
 }
@@ -398,17 +459,20 @@ async function postComment( payload, octokit, comment ) {
 /**
  * Update labels for PRs with failing checks
  *
- * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param payload - Pull request event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function updateLabels( payload, octokit ) {
+async function updateLabels(
+	payload: PullRequestPayload,
+	octokit: OctokitClient
+): Promise< void > {
 	const { number } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
 	const labelOpts = {
 		owner: ownerLogin,
 		repo,
-		issue_number: +number,
+		issue_number: number,
 	};
 
 	debug( `check-description: some of the checks are failing. Update labels accordingly.` );
@@ -436,10 +500,13 @@ async function updateLabels( payload, octokit ) {
 /**
  * Checks the contents of a PR description.
  *
- * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param payload - Pull request event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function checkDescription( payload, octokit ) {
+async function checkDescription(
+	payload: PullRequestPayload,
+	octokit: OctokitClient
+): Promise< void > {
 	const {
 		number,
 		user: { login: author },

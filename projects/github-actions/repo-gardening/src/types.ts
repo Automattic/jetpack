@@ -13,6 +13,7 @@ export interface PullRequestPayload {
 	action?: string;
 	number: number;
 	pull_request: {
+		number: number;
 		state: string;
 		draft: boolean;
 		title: string;
@@ -21,6 +22,9 @@ export interface PullRequestPayload {
 			ref: string;
 			repo: {
 				full_name: string;
+			};
+			user: {
+				login: string;
 			};
 		};
 		base: {
@@ -78,9 +82,14 @@ export interface IssuePayload {
 		title: string;
 		state: string;
 		html_url: string;
+		node_id: string;
+		pull_request?: unknown;
 		user: {
 			login: string;
 		};
+	};
+	label?: {
+		name: string;
 	};
 	repository: {
 		name: string;
@@ -110,6 +119,7 @@ export interface IssueCommentPayload {
 		title: string;
 		state: string;
 		html_url: string;
+		pull_request?: unknown;
 		user: {
 			login: string;
 		};

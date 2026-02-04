@@ -4,19 +4,23 @@ import getComments from '../../utils/get-comments.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import hasManySupportReferences from '../../utils/parse-content/has-many-support-references.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-
-/* global GitHub, WebhookPayloadIssue */
+import type { OctokitClient, IssuePayload } from '../../types.js';
 
 /**
  * Check for a High or Blocker Priority label on an issue.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - Issue number.
- * @return {Promise<boolean>} Promise resolving to boolean.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - Issue number.
+ * @return Promise resolving to boolean.
  */
-async function hasHighPriorityLabel( octokit, owner, repo, number ) {
+async function hasHighPriorityLabel(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< boolean > {
 	const labels = await getLabels( octokit, owner, repo, number );
 
 	return labels.some( label => label === '[Pri] High' || label === '[Pri] BLOCKER' );
@@ -25,12 +29,12 @@ async function hasHighPriorityLabel( octokit, owner, repo, number ) {
 /**
  * Build an object containing the slack message and its formatting to send to Slack.
  *
- * @param {WebhookPayloadIssue} payload - Issue event payload.
- * @param {string}              channel - Slack channel ID.
- * @param {string}              message - Basic message (without the formatting).
- * @return {object} Object containing the slack message and its formatting.
+ * @param payload - Issue event payload.
+ * @param channel - Slack channel ID.
+ * @param message - Basic message (without the formatting).
+ * @return Object containing the slack message and its formatting.
  */
-function formatSlackMessage( payload, channel, message ) {
+function formatSlackMessage( payload: IssuePayload, channel: string, message: string ) {
 	const { issue, repository } = payload;
 	const { html_url, title } = issue;
 
@@ -94,10 +98,13 @@ function formatSlackMessage( payload, channel, message ) {
  * Send a Slack message about high priority closed issues impacting a lot of customers,
  * to remind Automatticians to update customers.
  *
- * @param {WebhookPayloadIssue} payload - Issue event payload.
- * @param {GitHub}              octokit - Initialized Octokit REST client.
+ * @param payload - Issue event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function replyToCustomersReminder( payload, octokit ) {
+async function replyToCustomersReminder(
+	payload: IssuePayload,
+	octokit: OctokitClient
+): Promise< void > {
 	const { issue, repository } = payload;
 	const { number } = issue;
 	const { full_name, owner, name: repo } = repository;

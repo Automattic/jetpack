@@ -1,14 +1,16 @@
 import debug from '../../utils/debug.js';
-
-/* global GitHub, WebhookPayloadPullRequest */
+import type { OctokitClient, PullRequestPayload } from '../../types.js';
 
 /**
  * Assigns any issues that are being worked to the author of the matching PR.
  *
- * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param payload - Pull request event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function assignIssues( payload, octokit ) {
+async function assignIssues(
+	payload: PullRequestPayload,
+	octokit: OctokitClient
+): Promise< void > {
 	const regex =
 		/(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved):? +(?:#{1}|https?:\/\/github\.com\/automattic\/jetpack\/issues\/)(\d+)/gi;
 
@@ -21,7 +23,7 @@ async function assignIssues( payload, octokit ) {
 		await octokit.rest.issues.addAssignees( {
 			owner: payload.repository.owner.login,
 			repo: payload.repository.name,
-			issue_number: +issue,
+			issue_number: Number( issue ),
 			assignees: [ payload.pull_request.user.login ],
 		} );
 	}

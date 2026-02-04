@@ -3,23 +3,31 @@ import debug from '../../utils/debug.js';
 import getAvailableLabels from '../../utils/labels/get-available-labels.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendOpenAiRequest from '../../utils/openai/send-request.js';
-
-/* global GitHub, WebhookPayloadIssue */
+import type { OctokitClient, IssuePayload } from '../../types.js';
 
 /**
  * Request a list of matching labels from Open AI that can be applied to the issue,
  * based on the issue contents.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} title   - Issue title.
- * @param {string} body    - Issue body.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param title   - Issue title.
+ * @param body    - Issue body.
  *
- * @return {Promise<Object>} Promise resolving to an object of labels to apply to the issue, and their explanations.
+ * @return Promise resolving to an object of labels to apply to the issue, and their explanations.
  */
-async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body ) {
-	const suggestions = { labels: [], explanations: {} };
+async function fetchOpenAiLabelsSuggestions(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	title: string,
+	body: string
+): Promise< { labels: string[]; explanations: Record< string, string > } > {
+	const suggestions: { labels: string[]; explanations: Record< string, string > } = {
+		labels: [],
+		explanations: {},
+	};
 
 	// Get all the Feature, Feature Group labels, and Plugin feature labels in the repo.
 	const pattern = /^\[[^\]]*Feature/;
@@ -76,10 +84,15 @@ Example response format:
 	const response = await sendOpenAiRequest( prompt, 'json_object' );
 	debug( `triage-issues > auto-label: OpenAI response: ${ response }` );
 
-	let parsedResponse;
+	if ( ! response ) {
+		debug( 'triage-issues > auto-label: No response from OpenAI. Aborting.' );
+		return suggestions;
+	}
+
+	let parsedResponse: Record< string, string >;
 	try {
 		parsedResponse = JSON.parse( response );
-	} catch ( error ) {
+	} catch ( error: unknown ) {
 		debug(
 			`triage-issues > auto-label: OpenAI did not send back the expected JSON-formatted response. Error: ${ error }`
 		);
@@ -99,11 +112,11 @@ Example response format:
  * Clean up the issue content for OpenAI processing.
  * Remove links from the issue content.
  *
- * @param {string} content - Issue body content.
+ * @param content - Issue body content.
  *
- * @return {string} Cleaned up issue content.
+ * @return Cleaned up issue content.
  */
-function cleanIssueContent( content ) {
+function cleanIssueContent( content: string ): string {
 	// Remove links in the format [link text](url), but keep the link text.
 	content = content.replace( /\[(.*?)\](?:\([^)]+\))?/g, '$1' );
 
@@ -124,12 +137,12 @@ function cleanIssueContent( content ) {
  * During testing, we'll only run it for issues that are not labeled as task.
  * When we auto-label, we'll add a label to note that the issue was processed.
  *
- * @param {WebhookPayloadIssue} payload - Issue event payload.
- * @param {GitHub}              octokit - Initialized Octokit REST client.
+ * @param payload - Issue event payload.
+ * @param octokit - Initialized Octokit REST client.
  *
- * @return {Promise<Array>} Promise resolving to an array of all the labels on the issue after the task is over.
+ * @return Promise resolving to an array of all the labels on the issue after the task is over.
  */
-async function aiLabeling( payload, octokit ) {
+async function aiLabeling( payload: IssuePayload, octokit: OctokitClient ): Promise< string[] > {
 	const { issue, repository } = payload;
 	const { number, body, title } = issue;
 	const { owner, name } = repository;

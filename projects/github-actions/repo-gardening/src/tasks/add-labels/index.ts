@@ -3,10 +3,9 @@ import { getInput } from '@actions/core';
 import debug from '../../utils/debug.js';
 import getFiles from '../../utils/get-files.js';
 import getLabels from '../../utils/labels/get-labels.js';
+import type { OctokitClient, PullRequestPayload } from '../../types.js';
 
 const __filename = fileURLToPath( import.meta.url );
-
-/* global GitHub, WebhookPayloadPullRequest */
 
 /**
  * Clean up a feature name:
@@ -14,11 +13,11 @@ const __filename = fileURLToPath( import.meta.url );
  * - Replace dashes by spaces.
  * - Capitalize.
  *
- * @param {string} name - Feature name.
- * @return {string} Cleaned up feature name.
+ * @param name - Feature name.
+ * @return Cleaned up feature name.
  */
-function cleanName( name ) {
-	const name_exceptions = {
+function cleanName( name: string ): string {
+	const name_exceptions: Record< string, string > = {
 		'custom-post-types': 'Custom Content Types', // We name our CPTs "Custom Content Types" to avoid confusion with WordPress's CPT.
 		'instagram-gallery': 'Latest Instagram Posts', // Latest Instagram Posts used to be named "Instagram Gallery".
 		'mu-wpcom-plugin': 'mu-wpcom', // [Plugin] mu wpcom plugin is a bit too long.
@@ -55,16 +54,23 @@ function cleanName( name ) {
 /**
  * Build a list of labels to add to the pull request, based off our file list.
  *
- * @param {GitHub}  octokit  - Initialized Octokit REST client.
- * @param {string}  owner    - Repository owner.
- * @param {string}  repo     - Repository name.
- * @param {string}  number   - PR number.
- * @param {boolean} isDraft  - Whether the pull request is a draft.
- * @param {boolean} isRevert - Whether the pull request is a revert.
- * @return {Promise<Array>} Promise resolving to an array of keywords we'll search for.
+ * @param octokit  - Initialized Octokit REST client.
+ * @param owner    - Repository owner.
+ * @param repo     - Repository name.
+ * @param number   - PR number.
+ * @param isDraft  - Whether the pull request is a draft.
+ * @param isRevert - Whether the pull request is a revert.
+ * @return Promise resolving to an array of keywords we'll search for.
  */
-async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRevert ) {
-	const keywords = new Set();
+async function getFileDerivedLabels(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number,
+	isDraft: boolean,
+	isRevert: boolean
+): Promise< string[] > {
+	const keywords = new Set< string >();
 
 	// Get next valid milestone.
 	const files = await getFiles( octokit, owner, repo, number );
@@ -78,19 +84,19 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 	for ( const file of files ) {
 		// Projects.
 		const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
-		if ( project && project.groups.ptype && project.groups.pname ) {
+		if ( project?.groups?.ptype && project.groups.pname ) {
 			const prefix = {
 				'github-actions': 'Action',
 				packages: 'Package',
 				plugins: 'Plugin',
 				'js-packages': 'JS Package',
-			}[ project.groups.ptype ];
+			}[ project.groups.ptype ] as string | undefined;
 			if ( prefix === undefined ) {
 				const err = new Error(
 					`Cannot determine label prefix for plugin type "${ project.groups.ptype }"`
 				);
 				// Produce a GitHub error annotation pointing here.
-				const line = err.stack.split( '\n' )[ 1 ].split( ':' )[ 1 ] - 2;
+				const line = Number( err.stack?.split( '\n' )[ 1 ]?.split( ':' )[ 1 ] ) - 2;
 				debug( `::error file=${ __filename },line=${ line }::${ err.message }` );
 				throw err;
 			}
@@ -110,7 +116,7 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 		const addLabelsString = getInput( 'add_labels' );
 		if ( addLabelsString ) {
 			debug( `GOT addLabelsString: ${ addLabelsString }` );
-			const addedLabels = JSON.parse( addLabelsString );
+			const addedLabels: Array< { path: string; label: string } > = JSON.parse( addLabelsString );
 			addedLabels.forEach( passed => {
 				if ( file.startsWith( passed.path ) ) {
 					debug( `passing: ${ passed.label } for ${ passed.path }` );
@@ -121,7 +127,7 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 
 		// Modules.
 		const module = file.match( /^projects\/plugins\/jetpack\/modules\/(?<module>[^/]*)\// );
-		const moduleName = module && module.groups.module;
+		const moduleName = module?.groups?.module;
 		if ( moduleName ) {
 			keywords.add( `[Feature] ${ cleanName( moduleName ) }` );
 		}
@@ -136,7 +142,7 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 		const contactForm = file.match( /^projects\/packages\/forms\/(?<blocks>src\/blocks)?/ );
 		if ( contactForm !== null ) {
 			keywords.add( '[Feature] Contact Form' );
-			if ( contactForm.groups.blocks ) {
+			if ( contactForm?.groups?.blocks ) {
 				keywords.add( '[Block] Contact Form' );
 			}
 		}
@@ -208,7 +214,8 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 			/^projects\/plugins\/jetpack\/extensions\/(?<type>blocks|plugins)\/(?<block>[^/]*)\//
 		);
 		if ( blocks !== null ) {
-			const { groups: { type: blockType, block: blockName } = {} } = blocks;
+			const blockType = blocks?.groups?.type;
+			const blockName = blocks?.groups?.block;
 			if ( blockType && blockName ) {
 				keywords.add(
 					`[${ 'plugins' === blockType ? 'Extension' : 'Block' }] ${ cleanName( blockName ) }`
@@ -248,7 +255,7 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 
 		// CRM elements.
 		const crmModules = file.match( /^projects\/plugins\/crm\/modules\/(?<crmModule>[^/]*)\// );
-		const crmModuleName = crmModules && crmModules.groups.crmModule;
+		const crmModuleName = crmModules?.groups?.crmModule;
 		if ( crmModuleName ) {
 			keywords.add( `[CRM] ${ cleanName( crmModuleName ) } Module` );
 		}
@@ -262,7 +269,7 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 		const muWpcomFeatures = file.match(
 			/^projects\/packages\/jetpack-mu-wpcom\/src\/features\/(?<muWpcomFeature>[^/]*)\//
 		);
-		const muWpcomFeatureName = muWpcomFeatures && muWpcomFeatures.groups.muWpcomFeature;
+		const muWpcomFeatureName = muWpcomFeatures?.groups?.muWpcomFeature;
 		if ( muWpcomFeatureName ) {
 			keywords.add( `[mu wpcom Feature] ${ cleanName( muWpcomFeatureName ) }` );
 		}
@@ -271,7 +278,7 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 		const boostModules = file.match(
 			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?:optimizations\/)?(?<boostModule>[^/]*)\//
 		);
-		const boostModuleName = boostModules && boostModules.groups.boostModule;
+		const boostModuleName = boostModules?.groups?.boostModule;
 		if ( boostModuleName ) {
 			keywords.add( `[Boost Feature] ${ cleanName( boostModuleName ) }` );
 		}
@@ -320,10 +327,10 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 /**
  * Adds appropriate labels to the specified PR.
  *
- * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param payload - Pull request event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function addLabels( payload, octokit ) {
+async function addLabels( payload: PullRequestPayload, octokit: OctokitClient ): Promise< void > {
 	const { number, repository, pull_request } = payload;
 	const { owner, name } = repository;
 	const { draft, title } = pull_request;

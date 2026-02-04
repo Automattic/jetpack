@@ -4,17 +4,41 @@ import debug from '../../utils/debug.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import notifyImportantIssues from '../../utils/slack/notify-important-issues.js';
 import { automatticAssignments } from './automattic-label-team-assignments.js';
+import type { OctokitClient, IssuePayload, TeamAssignment } from '../../types.js';
 
-/* global GitHub, WebhookPayloadIssue */
+interface FieldOption {
+	id: string;
+	name: string;
+}
+
+interface ProjectField {
+	id: string;
+	name: string;
+	options?: FieldOption[];
+}
+
+interface ProjectInfo {
+	ownerType?: string;
+	ownerName?: string;
+	projectNumber?: number;
+	projectNodeId?: string;
+	priority?: ProjectField;
+	status?: ProjectField;
+	team?: ProjectField;
+	type?: ProjectField;
+}
 
 /**
  * Get Information about a project board.
  *
- * @param {GitHub} octokit          - Initialized Octokit REST client.
- * @param {string} projectBoardLink - The link to the project board.
- * @return {Promise<Object>} - Project board information.
+ * @param octokit          - Initialized Octokit REST client.
+ * @param projectBoardLink - The link to the project board.
+ * @return Project board information.
  */
-async function getProjectDetails( octokit, projectBoardLink ) {
+async function getProjectDetails(
+	octokit: OctokitClient,
+	projectBoardLink: string
+): Promise< ProjectInfo > {
 	const projectRegex =
 		/^(?:https:\/\/)?github\.com\/(?<ownerType>orgs|users)\/(?<ownerName>[^/]+)\/projects\/(?<projectNumber>\d+)/;
 	const matches = projectBoardLink.match( projectRegex );
@@ -27,9 +51,11 @@ async function getProjectDetails( octokit, projectBoardLink ) {
 
 	const {
 		groups: { ownerType, ownerName, projectNumber },
-	} = matches;
+	} = matches as RegExpMatchArray & {
+		groups: { ownerType: string; ownerName: string; projectNumber: string };
+	};
 
-	const projectInfo = {
+	const projectInfo: ProjectInfo = {
 		ownerType: ownerType === 'orgs' ? 'organization' : 'user', // GitHub API requests require 'organization' or 'user'.
 		ownerName,
 		projectNumber: parseInt( projectNumber, 10 ),
@@ -69,14 +95,19 @@ async function getProjectDetails( octokit, projectBoardLink ) {
 		}
 	);
 
+	const details = projectDetails as Record<
+		string,
+		{ projectV2: { id: string; fields: { nodes: ProjectField[] } } }
+	>;
+
 	// Extract the project node ID.
-	const projectNodeId = projectDetails[ projectInfo.ownerType ]?.projectV2.id;
+	const projectNodeId = details[ projectInfo.ownerType as string ]?.projectV2.id;
 	if ( projectNodeId ) {
 		projectInfo.projectNodeId = projectNodeId; // Project board node ID. String.
 	}
 
 	// Extract the ID of the Priority field.
-	const priorityField = projectDetails[ projectInfo.ownerType ]?.projectV2.fields.nodes.find(
+	const priorityField = details[ projectInfo.ownerType as string ]?.projectV2.fields.nodes.find(
 		field => field.name === 'Priority'
 	);
 	if ( priorityField ) {
@@ -84,7 +115,7 @@ async function getProjectDetails( octokit, projectBoardLink ) {
 	}
 
 	// Extract the ID of the Status field.
-	const statusField = projectDetails[ projectInfo.ownerType ]?.projectV2.fields.nodes.find(
+	const statusField = details[ projectInfo.ownerType as string ]?.projectV2.fields.nodes.find(
 		field => field.name === 'Status'
 	);
 	if ( statusField ) {
@@ -92,7 +123,7 @@ async function getProjectDetails( octokit, projectBoardLink ) {
 	}
 
 	// Extract the ID of the Team field.
-	const teamField = projectDetails[ projectInfo.ownerType ]?.projectV2.fields.nodes.find(
+	const teamField = details[ projectInfo.ownerType as string ]?.projectV2.fields.nodes.find(
 		field => field.name === 'Team'
 	);
 	if ( teamField ) {
@@ -100,7 +131,7 @@ async function getProjectDetails( octokit, projectBoardLink ) {
 	}
 
 	// Extract the ID of the Type field.
-	const typeField = projectDetails[ projectInfo.ownerType ]?.projectV2.fields.nodes.find(
+	const typeField = details[ projectInfo.ownerType as string ]?.projectV2.fields.nodes.find(
 		field => field.name === 'Type'
 	);
 	if ( typeField ) {
@@ -114,13 +145,18 @@ async function getProjectDetails( octokit, projectBoardLink ) {
  * Check if an issue is on our project board.
  * If it is, return the ID of the project item.
  *
- * @param {GitHub} octokit     - Initialized Octokit REST client.
- * @param {object} projectInfo - Info about our project board.
- * @param {string} repoName    - The name of the repository.
- * @param {string} issueId     - The ID of the issue.
- * @return {Promise<string>}  - The ID of the project item, or an empty string if not found.
+ * @param octokit     - Initialized Octokit REST client.
+ * @param projectInfo - Info about our project board.
+ * @param repoName    - The name of the repository.
+ * @param issueId     - The ID of the issue.
+ * @return The ID of the project item, or an empty string if not found.
  */
-async function getIssueProjectItemId( octokit, projectInfo, repoName, issueId ) {
+async function getIssueProjectItemId(
+	octokit: OctokitClient,
+	projectInfo: ProjectInfo,
+	repoName: string,
+	issueId: number
+): Promise< string > {
 	const { ownerName, projectNumber } = projectInfo;
 
 	// First, use the GraphQL API to request the project item IDs for each of the boards this issue belongs to.
@@ -150,8 +186,18 @@ async function getIssueProjectItemId( octokit, projectInfo, repoName, issueId ) 
 		}
 	);
 
+	const details = projectItemDetails as {
+		repository: {
+			issue: {
+				projectItems: {
+					nodes: Array< { id: string; project: { number: number } } >;
+				};
+			};
+		};
+	};
+
 	// Only keep the project item ID for the project board we're interested in.
-	const projectItemId = projectItemDetails.repository.issue.projectItems.nodes.find(
+	const projectItemId = details.repository.issue.projectItems.nodes.find(
 		item => item.project.number === projectNumber
 	)?.id;
 
@@ -161,12 +207,16 @@ async function getIssueProjectItemId( octokit, projectInfo, repoName, issueId ) 
 /**
  * Add Issue to our project board.
  *
- * @param {object} payload     - Issue event payload.
- * @param {GitHub} octokit     - Initialized Octokit REST client.
- * @param {object} projectInfo - Info about our project board.
- * @return {Promise<string>} - Info about the project item id that was created.
+ * @param payload     - Issue event payload.
+ * @param octokit     - Initialized Octokit REST client.
+ * @param projectInfo - Info about our project board.
+ * @return Info about the project item id that was created.
  */
-async function addIssueToBoard( payload, octokit, projectInfo ) {
+async function addIssueToBoard(
+	payload: IssuePayload,
+	octokit: OctokitClient,
+	projectInfo: ProjectInfo
+): Promise< string > {
 	const {
 		issue: { number, node_id },
 		repository: {
@@ -193,7 +243,11 @@ async function addIssueToBoard( payload, octokit, projectInfo ) {
 		}
 	);
 
-	const projectItemId = projectItemDetails.addProjectV2ItemById.item.id;
+	const details = projectItemDetails as {
+		addProjectV2ItemById: { item: { id: string } };
+	};
+
+	const projectItemId = details.addProjectV2ItemById.item.id;
 	if ( ! projectItemId ) {
 		debug( `triage-issues > update-board: Failed to add issue to project board.` );
 		return '';
@@ -215,20 +269,25 @@ async function addIssueToBoard( payload, octokit, projectInfo ) {
 /**
  * Set custom priority field for a project item.
  *
- * @param {GitHub} octokit       - Initialized Octokit REST client.
- * @param {object} projectInfo   - Info about our project board.
- * @param {string} projectItemId - The ID of the project item.
- * @param {string} priorityText  - Priority of our issue (must match an existing column in the project board).
- * @return {Promise<string>} - The new project item id.
+ * @param octokit       - Initialized Octokit REST client.
+ * @param projectInfo   - Info about our project board.
+ * @param projectItemId - The ID of the project item.
+ * @param priorityText  - Priority of our issue (must match an existing column in the project board).
+ * @return The new project item id.
  */
-async function setPriorityField( octokit, projectInfo, projectItemId, priorityText ) {
+async function setPriorityField(
+	octokit: OctokitClient,
+	projectInfo: ProjectInfo,
+	projectItemId: string,
+	priorityText: string
+): Promise< string > {
 	const {
 		projectNodeId, // Project board node ID.
 		priority: {
 			id: priorityFieldId, // ID of the priority field.
 			options,
 		},
-	} = projectInfo;
+	} = projectInfo as ProjectInfo & { priority: ProjectField & { options: FieldOption[] } };
 
 	// Find the ID of the priority option that matches our PR priority.
 	const priorityOptionId = options.find( option => option.name === priorityText )?.id;
@@ -259,7 +318,11 @@ async function setPriorityField( octokit, projectInfo, projectItemId, priorityTe
 		}
 	);
 
-	const newProjectItemId = projectNewItemDetails.set_priority.projectV2Item.id;
+	const details = projectNewItemDetails as {
+		set_priority: { projectV2Item: { id: string } };
+	};
+
+	const newProjectItemId = details.set_priority.projectV2Item.id;
 	if ( ! newProjectItemId ) {
 		debug(
 			`triage-issues > update-board: Failed to set the "${ priorityText }" priority for this project item.`
@@ -277,20 +340,25 @@ async function setPriorityField( octokit, projectInfo, projectItemId, priorityTe
 /**
  * Set the Type field for a project item, to match the Type label if it exists.
  *
- * @param {GitHub} octokit       - Initialized Octokit REST client.
- * @param {object} projectInfo   - Info about our project board.
- * @param {string} projectItemId - The ID of the project item.
- * @param {string} typeText      - Type of our issue (must match an existing column in the project board).
- * @return {Promise<string>} - The new project item id.
+ * @param octokit       - Initialized Octokit REST client.
+ * @param projectInfo   - Info about our project board.
+ * @param projectItemId - The ID of the project item.
+ * @param typeText      - Type of our issue (must match an existing column in the project board).
+ * @return The new project item id.
  */
-async function setTypeField( octokit, projectInfo, projectItemId, typeText ) {
+async function setTypeField(
+	octokit: OctokitClient,
+	projectInfo: ProjectInfo,
+	projectItemId: string,
+	typeText: string
+): Promise< string > {
 	const {
 		projectNodeId, // Project board node ID.
 		type: {
 			id: typeFieldId, // ID of the type field.
 			options,
 		},
-	} = projectInfo;
+	} = projectInfo as ProjectInfo & { type: ProjectField & { options: FieldOption[] } };
 
 	// Find the ID of the Type option that matches our issue type label.
 	const typeOptionId = options.find( option => option.name === typeText )?.id;
@@ -321,7 +389,11 @@ async function setTypeField( octokit, projectInfo, projectItemId, typeText ) {
 		}
 	);
 
-	const newProjectItemId = projectNewItemDetails.set_type.projectV2Item.id;
+	const details = projectNewItemDetails as {
+		set_type: { projectV2Item: { id: string } };
+	};
+
+	const newProjectItemId = details.set_type.projectV2Item.id;
 	if ( ! newProjectItemId ) {
 		debug(
 			`triage-issues > update-board: Failed to set the "${ typeText }" type for this project item.`
@@ -339,20 +411,25 @@ async function setTypeField( octokit, projectInfo, projectItemId, typeText ) {
 /**
  * Update the "Status" field in our project board.
  *
- * @param {GitHub} octokit       - Initialized Octokit REST client.
- * @param {object} projectInfo   - Info about our project board.
- * @param {string} projectItemId - The ID of the project item.
- * @param {string} statusText    - Status of our issue (must match an existing column in the project board).
- * @return {Promise<string>} - The new project item id.
+ * @param octokit       - Initialized Octokit REST client.
+ * @param projectInfo   - Info about our project board.
+ * @param projectItemId - The ID of the project item.
+ * @param statusText    - Status of our issue (must match an existing column in the project board).
+ * @return The new project item id.
  */
-async function setStatusField( octokit, projectInfo, projectItemId, statusText ) {
+async function setStatusField(
+	octokit: OctokitClient,
+	projectInfo: ProjectInfo,
+	projectItemId: string,
+	statusText: string
+): Promise< string > {
 	const {
 		projectNodeId, // Project board node ID.
 		status: {
 			id: statusFieldId, // ID of the status field.
 			options,
 		},
-	} = projectInfo;
+	} = projectInfo as ProjectInfo & { status: ProjectField & { options: FieldOption[] } };
 
 	// Find the ID of the status option that matches our issue status.
 	const statusOptionId = options.find( option => option.name === statusText )?.id;
@@ -383,7 +460,11 @@ async function setStatusField( octokit, projectInfo, projectItemId, statusText )
 		}
 	);
 
-	const newProjectItemId = projectNewItemDetails.set_status.projectV2Item.id;
+	const details = projectNewItemDetails as {
+		set_status: { projectV2Item: { id: string } };
+	};
+
+	const newProjectItemId = details.set_status.projectV2Item.id;
 	if ( ! newProjectItemId ) {
 		debug(
 			`triage-issues > update-board: Failed to set the "${ statusText }" status for this project item.`
@@ -401,20 +482,25 @@ async function setStatusField( octokit, projectInfo, projectItemId, statusText )
 /**
  * Update the "Team" field in our project board.
  *
- * @param {GitHub} octokit       - Initialized Octokit REST client.
- * @param {object} projectInfo   - Info about our project board.
- * @param {string} projectItemId - The ID of the project item.
- * @param {string} team          - Team that should be assigned to our issue (must match an existing column in the project board).
- * @return {Promise<string>} - The new project item id.
+ * @param octokit       - Initialized Octokit REST client.
+ * @param projectInfo   - Info about our project board.
+ * @param projectItemId - The ID of the project item.
+ * @param team          - Team that should be assigned to our issue (must match an existing column in the project board).
+ * @return The new project item id.
  */
-async function setTeamField( octokit, projectInfo, projectItemId, team ) {
+async function setTeamField(
+	octokit: OctokitClient,
+	projectInfo: ProjectInfo,
+	projectItemId: string,
+	team: string
+): Promise< string > {
 	const {
 		projectNodeId, // Project board node ID.
 		team: {
 			id: teamFieldID, // ID of the status field.
 			options,
 		},
-	} = projectInfo;
+	} = projectInfo as ProjectInfo & { team: ProjectField & { options: FieldOption[] } };
 
 	// Find the ID of the team option that matches our issue team.
 	const teamOptionId = options.find( option => option.name === team )?.id;
@@ -445,7 +531,11 @@ async function setTeamField( octokit, projectInfo, projectItemId, team ) {
 		}
 	);
 
-	const newProjectItemId = projectNewItemDetails.set_team.projectV2Item.id;
+	const details = projectNewItemDetails as {
+		set_team: { projectV2Item: { id: string } };
+	};
+
+	const newProjectItemId = details.set_team.projectV2Item.id;
 	if ( ! newProjectItemId ) {
 		debug(
 			`triage-issues > update-board: Failed to set the "${ team }" team for this project item.`
@@ -463,11 +553,13 @@ async function setTeamField( octokit, projectInfo, projectItemId, team ) {
 /**
  * Load a mapping of teams <> labels from a file.
  *
- * @param {string} ownerLogin - Repository owner login.
+ * @param ownerLogin - Repository owner login.
  *
- * @return {Promise<Object>} - Mapping of teams <> labels.
+ * @return Mapping of teams <> labels.
  */
-async function loadTeamAssignments( ownerLogin ) {
+async function loadTeamAssignments(
+	ownerLogin: string
+): Promise< Record< string, TeamAssignment > > {
 	// If we're in an Automattic repo, we can use the team assignments file that ships with this action.
 	if ( 'automattic' === ownerLogin.toLowerCase() ) {
 		return automatticAssignments;
@@ -481,7 +573,7 @@ async function loadTeamAssignments( ownerLogin ) {
 		return {};
 	}
 
-	const teamAssignments = JSON.parse( teamAssignmentsString );
+	const teamAssignments: Record< string, TeamAssignment > = JSON.parse( teamAssignmentsString );
 	// Check if it is a valid object and includes information about teams and labels.
 	if (
 		! teamAssignments ||
@@ -505,19 +597,26 @@ async function loadTeamAssignments( ownerLogin ) {
  * It could be an existing label,
  * or it could be that it's being added as part of the event that triggers this action.
  *
- * @param {GitHub}  octokit        - Initialized Octokit REST client.
- * @param {object}  payload        - Issue event payload.
- * @param {object}  projectInfo    - Info about our project board.
- * @param {string}  projectItemId  - The ID of the project item.
- * @param {boolean} isBug          - Is the issue a bug?
- * @param {Array}   priorityLabels - Array of priority labels.
- * @return {Promise<string>} - The new project item id.
+ * @param octokit        - Initialized Octokit REST client.
+ * @param payload        - Issue event payload.
+ * @param projectInfo    - Info about our project board.
+ * @param projectItemId  - The ID of the project item.
+ * @param isBug          - Is the issue a bug?
+ * @param priorityLabels - Array of priority labels.
+ * @return The new project item id.
  */
-async function assignTeam( octokit, payload, projectInfo, projectItemId, isBug, priorityLabels ) {
+async function assignTeam(
+	octokit: OctokitClient,
+	payload: IssuePayload,
+	projectInfo: ProjectInfo,
+	projectItemId: string,
+	isBug: boolean,
+	priorityLabels: string[]
+): Promise< string > {
 	const {
 		action,
 		issue: { number },
-		label = {},
+		label,
 		repository: { owner, name },
 	} = payload;
 	const ownerLogin = owner.login;
@@ -532,14 +631,14 @@ async function assignTeam( octokit, payload, projectInfo, projectItemId, isBug, 
 
 	// Get the list of labels associated with this issue.
 	const labels = await getLabels( octokit, ownerLogin, name, number );
-	if ( 'labeled' === action && label.name ) {
+	if ( 'labeled' === action && label?.name ) {
 		labels.push( label.name );
 	}
 
 	// Check if any of the labels on this issue match a team.
 	// Loop through all the mappings in team assignments,
 	// and find the first one that includes a label that matches one present in the issue.
-	const [ featureName, { team, slack_id, board_id } = {} ] =
+	const [ featureName, { team, slack_id, board_id } = {} as TeamAssignment ] =
 		Object.entries( teamAssignments ).find( ( [ , assignment ] ) =>
 			labels.some( mappedLabel => assignment.labels.includes( mappedLabel ) )
 		) || [];
@@ -567,7 +666,7 @@ async function assignTeam( octokit, payload, projectInfo, projectItemId, isBug, 
 		debug(
 			`triage-issues > update-board: Issue #${ number } has the following priority labels: ${ priorityLabels.join(
 				', '
-			) }. The ${ team } team is interested in getting Slack updates for important issues. Let’s notify them.`
+			) }. The ${ team } team is interested in getting Slack updates for important issues. Let's notify them.`
 		);
 		await notifyImportantIssues( octokit, payload, slack_id, 'devs' );
 	}
@@ -575,7 +674,7 @@ async function assignTeam( octokit, payload, projectInfo, projectItemId, isBug, 
 	// Does the team have a Project board where they track work for this feature? We can add the issue to that board.
 	if ( board_id ) {
 		debug(
-			`triage-issues > update-board: Issue #${ number } is associated with the "${ featureName }" feature, and the ${ team } team has a dedicated project board for this feature. Let’s add the issue to that board.`
+			`triage-issues > update-board: Issue #${ number } is associated with the "${ featureName }" feature, and the ${ team } team has a dedicated project board for this feature. Let's add the issue to that board.`
 		);
 
 		// Get details about our project board, to use in our requests.
@@ -596,7 +695,7 @@ async function assignTeam( octokit, payload, projectInfo, projectItemId, isBug, 
 		);
 		if ( ! featureIssueItemId ) {
 			debug(
-				`triage-issues > update-board: Issue #${ number } is not on our project board. Let’s add it.`
+				`triage-issues > update-board: Issue #${ number } is not on our project board. Let's add it.`
 			);
 
 			featureIssueItemId = await addIssueToBoard( payload, octokit, featureProjectInfo );
@@ -614,12 +713,17 @@ async function assignTeam( octokit, payload, projectInfo, projectItemId, isBug, 
  * Automatically update specific columns in our common GitHub project board,
  * to match labels applied to issues.
  *
- * @param {WebhookPayloadIssue} payload        - Issue event payload.
- * @param {GitHub}              octokit        - Initialized Octokit REST client.
- * @param {string}              issueType      - Type of the issue, defined by a "[Type]" label on the issue.
- * @param {Array}               priorityLabels - Array of Priority Labels matching this issue.
+ * @param payload        - Issue event payload.
+ * @param octokit        - Initialized Octokit REST client.
+ * @param issueType      - Type of the issue, defined by a "[Type]" label on the issue.
+ * @param priorityLabels - Array of Priority Labels matching this issue.
  */
-async function updateBoard( payload, octokit, issueType, priorityLabels ) {
+async function updateBoard(
+	payload: IssuePayload,
+	octokit: OctokitClient,
+	issueType: string,
+	priorityLabels: string[]
+): Promise< void > {
 	const {
 		issue: { number },
 		repository: { owner, name },
@@ -646,8 +750,10 @@ async function updateBoard( payload, octokit, issueType, priorityLabels ) {
 
 	// For this task, we need octokit to have extra permissions not provided by the default GitHub token.
 	// Let's create a new octokit instance using our own custom token.
-	// eslint-disable-next-line new-cap
-	const projectOctokit = new getOctokit( projectToken );
+
+	const projectOctokit = new ( getOctokit as unknown as new ( token: string ) => OctokitClient )(
+		projectToken
+	);
 
 	// Get details about our project board, to use in our requests.
 	const projectInfo = await getProjectDetails( projectOctokit, projectBoardLink );
@@ -689,7 +795,7 @@ async function updateBoard( payload, octokit, issueType, priorityLabels ) {
 	// We do need info about the type column in the board to be able to do that.
 	if ( issueType && projectInfo.type && projectItemId ) {
 		debug(
-			`triage-issues > update-board: Issue #${ number } has a type label set, ${ issueType }. Let’s ensure the Type field of the project board matches that.`
+			`triage-issues > update-board: Issue #${ number } has a type label set, ${ issueType }. Let's ensure the Type field of the project board matches that.`
 		);
 
 		// So far, our project board only supports the following types: 'Bug', 'Enhancement', and 'Task'

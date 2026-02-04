@@ -2,19 +2,23 @@ import { getInput, setFailed } from '@actions/core';
 import debug from '../../utils/debug.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-
-/* global GitHub, WebhookPayloadPullRequest */
+import type { OctokitClient, PullRequestPayload } from '../../types.js';
 
 /**
  * Check for an Copy Review status label on a PR.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Promise<boolean>} Promise resolving to boolean.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return Promise resolving to boolean.
  */
-async function hasNeedsCopyReviewLabel( octokit, owner, repo, number ) {
+async function hasNeedsCopyReviewLabel(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< boolean > {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Needs Copy Review label.
 	return labels.includes( '[Status] Needs Copy Review' );
@@ -23,13 +27,18 @@ async function hasNeedsCopyReviewLabel( octokit, owner, repo, number ) {
 /**
  * Check for a Needs Copy label on a PR.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Promise<boolean>} Promise resolving to boolean.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return Promise resolving to boolean.
  */
-async function hasNeedsCopyLabel( octokit, owner, repo, number ) {
+async function hasNeedsCopyLabel(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< boolean > {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Needs Copy label.
 	return labels.includes( '[Status] Needs Copy' );
@@ -38,13 +47,18 @@ async function hasNeedsCopyLabel( octokit, owner, repo, number ) {
 /**
  * Check for an Editorial Input Requested label on a PR.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @return {Promise<boolean>} Promise resolving to boolean.
+ * @param octokit - Initialized Octokit REST client.
+ * @param owner   - Repository owner.
+ * @param repo    - Repository name.
+ * @param number  - PR number.
+ * @return Promise resolving to boolean.
  */
-async function hasEditorialInputRequestedLabel( octokit, owner, repo, number ) {
+async function hasEditorialInputRequestedLabel(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number
+): Promise< boolean > {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Editorial Input Requested label.
 	return labels.includes( '[Status] Editorial Input Requested' );
@@ -53,10 +67,13 @@ async function hasEditorialInputRequestedLabel( octokit, owner, repo, number ) {
 /**
  * Send a Slack notification about a label to the Editorial team.
  *
- * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param payload - Pull request event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function notifyEditorial( payload, octokit ) {
+async function notifyEditorial(
+	payload: PullRequestPayload,
+	octokit: OctokitClient
+): Promise< void > {
 	const { number, repository } = payload;
 	const { owner, name: repo } = repository;
 	const ownerLogin = owner.login;

@@ -1,3 +1,5 @@
+import type { TeamAssignment } from '../../types.js';
+
 /**
  * Map specific teams to one or more labels that may be added to issues.
  * The key is a feature name.
@@ -7,7 +9,7 @@
  * - a Slack channel ID if the team wants to be notified of high/blocker priority issues in a specific Slack channel.
  * - a project board ID if the team would like issues to be automatically added to a specific project board.
  */
-export const automatticAssignments = {
+export const automatticAssignments: Record< string, TeamAssignment > = {
 	// WordPress.com Division.
 	'Blogging Prompts': {
 		team: 'Loop',

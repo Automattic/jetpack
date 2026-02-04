@@ -2,16 +2,15 @@ import debug from '../../utils/debug.js';
 import getAssociatedPullRequest from '../../utils/get-associated-pull-request.js';
 import getNextValidMilestone from '../../utils/get-next-valid-milestone.js';
 import getPluginNames from '../../utils/get-plugin-names.js';
-
-/* global GitHub, WebhookPayloadPullRequest */
+import type { OctokitClient, PushPayload } from '../../types.js';
 
 /**
  * Assigns any issues that are being worked to the author of the matching PR.
  *
- * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param payload - Push event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function addMilestone( payload, octokit ) {
+async function addMilestone( payload: PushPayload, octokit: OctokitClient ): Promise< void > {
 	const { commits, ref, repository } = payload;
 	const { name: repo, owner } = repository;
 	const ownerLogin = owner.login;
@@ -65,7 +64,7 @@ async function addMilestone( payload, octokit ) {
 		owner: ownerLogin,
 		repo,
 		issue_number: prNumber,
-		milestone: nextMilestone.number,
+		milestone: nextMilestone.number as number,
 	} );
 }
 

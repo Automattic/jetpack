@@ -4,17 +4,16 @@ import getDiff from '../../utils/get-diff.js';
 import getLabels from '../../utils/labels/get-labels.js';
 import sendOpenAiRequest from '../../utils/openai/send-request.js';
 import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-
-/* global GitHub, WebhookPayloadPullRequest */
+import type { OctokitClient, PullRequestPayload } from '../../types.js';
 
 /**
  * Clean up the PR body content for AI processing.
  * Remove links and HTML from the content.
  *
- * @param {string} content - PR body content.
- * @return {string} Cleaned up content.
+ * @param content - PR body content.
+ * @return Cleaned up content.
  */
-function cleanContent( content ) {
+function cleanContent( content: string ): string {
 	if ( ! content ) {
 		return '';
 	}
@@ -51,10 +50,10 @@ function cleanContent( content ) {
  * Instead, you use more backticks for the fence than appear in the content.
  * We use 4 backticks for our fences, so we replace any sequence of 4+ backticks.
  *
- * @param {string} content - Content to sanitize.
- * @return {string} Sanitized content.
+ * @param content - Content to sanitize.
+ * @return Sanitized content.
  */
-function sanitizeForPrompt( content ) {
+function sanitizeForPrompt( content: string ): string {
 	if ( ! content ) {
 		return '';
 	}
@@ -67,12 +66,12 @@ function sanitizeForPrompt( content ) {
 /**
  * Build the prompt for the AI to analyze the PR.
  *
- * @param {string} title - PR title.
- * @param {string} body  - PR body (cleaned).
- * @param {string} diff  - PR diff (cleaned).
- * @return {string} The prompt for the AI.
+ * @param title - PR title.
+ * @param body  - PR body (cleaned).
+ * @param diff  - PR diff (cleaned).
+ * @return The prompt for the AI.
  */
-function buildPrompt( title, body, diff ) {
+function buildPrompt( title: string, body: string, diff: string ): string {
 	const sanitizedTitle = sanitizeForPrompt( title || '' );
 	const sanitizedBody = sanitizeForPrompt( body || '' );
 	const sanitizedDiff = sanitizeForPrompt( diff || '' );
@@ -132,10 +131,13 @@ Respond with a JSON object in this exact format:
  * Check if a PR contains user-facing changes using AI analysis.
  * If user-facing with medium/high confidence, add the [Status] UI Changes label.
  *
- * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param payload - Pull request event payload.
+ * @param octokit - Initialized Octokit REST client.
  */
-async function checkIfDocsNeeded( payload, octokit ) {
+async function checkIfDocsNeeded(
+	payload: PullRequestPayload,
+	octokit: OctokitClient
+): Promise< void > {
 	const {
 		pull_request: { number, body, title, merged },
 		repository: {
@@ -178,10 +180,10 @@ async function checkIfDocsNeeded( payload, octokit ) {
 	}
 
 	// Fetch the diff.
-	let diff;
+	let diff: string | undefined;
 	try {
 		diff = await getDiff( octokit, ownerLogin, name, number );
-	} catch ( error ) {
+	} catch ( error: unknown ) {
 		debug( `check-if-docs-needed: Failed to fetch diff for PR #${ number }: ${ error }` );
 		return;
 	}
@@ -211,10 +213,10 @@ async function checkIfDocsNeeded( payload, octokit ) {
 	debug( `check-if-docs-needed: OpenAI response for PR #${ number }: ${ response }` );
 
 	// Parse the response.
-	let result;
+	let result: { is_user_facing?: unknown; confidence?: unknown; reason?: unknown } | undefined;
 	try {
 		result = JSON.parse( response );
-	} catch ( error ) {
+	} catch ( error: unknown ) {
 		debug(
 			`check-if-docs-needed: Failed to parse OpenAI response for PR #${ number }: ${ error }. Response was: ${ response }`
 		);
@@ -273,7 +275,7 @@ async function checkIfDocsNeeded( payload, octokit ) {
 					slackProductAmbassadorsChannel,
 					payload
 				);
-			} catch ( error ) {
+			} catch ( error: unknown ) {
 				debug(
 					`check-if-docs-needed: Failed to send Slack notification for PR #${ number }: ${ error }`
 				);
