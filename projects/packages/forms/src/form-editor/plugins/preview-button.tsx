@@ -7,6 +7,7 @@ import { PluginPreviewMenuItem } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
 /**
  * Internal dependencies
@@ -42,6 +43,7 @@ const FormPreviewMenuItem = () => {
 	} );
 
 	const { autosave } = useDispatch( 'core/editor' );
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const handlePreview = useCallback( async () => {
 		if ( isLoading ) {
@@ -60,12 +62,18 @@ const FormPreviewMenuItem = () => {
 			} );
 			window.open( response.preview_url, '_blank' );
 		} catch ( error ) {
+			createErrorNotice(
+				__( 'Failed to generate preview URL. Please try again.', 'jetpack-forms' ),
+				{
+					type: 'snackbar',
+				}
+			);
 			// eslint-disable-next-line no-console
 			console.error( 'Failed to get preview URL:', error );
 		} finally {
 			setIsLoading( false );
 		}
-	}, [ postId, isLoading, isDirty, isAutosaveable, autosave ] );
+	}, [ postId, isLoading, isDirty, isAutosaveable, autosave, createErrorNotice ] );
 
 	// Only show for jetpack_form post type.
 	if ( postType !== FORM_POST_TYPE ) {

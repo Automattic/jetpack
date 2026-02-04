@@ -4,10 +4,12 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
@@ -79,6 +81,8 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		recordsLength: records?.length ?? 0,
 		statusQuery,
 	} );
+
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ pendingPermanentDeleteCount, setPendingPermanentDeleteCount ] = useState( 0 );
@@ -230,6 +234,10 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						} );
 						window.open( response.preview_url, '_blank' );
 					} catch ( error ) {
+						createErrorNotice(
+							__( 'Failed to generate preview URL. Please try again.', 'jetpack-forms' ),
+							{ type: 'snackbar' }
+						);
 						// eslint-disable-next-line no-console
 						console.error( 'Failed to get preview URL:', error );
 					}
@@ -291,6 +299,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 		return actionsList;
 	}, [
+		createErrorNotice,
 		isDeleting,
 		isViewingTrash,
 		navigate,

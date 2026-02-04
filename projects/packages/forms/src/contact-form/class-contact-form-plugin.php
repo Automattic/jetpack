@@ -1558,10 +1558,7 @@ class Contact_Form_Plugin {
 	public function process_form_submission() {
 		// Block submissions in preview mode.
 		if ( Form_Preview::is_preview_mode() ) {
-			return new \WP_Error(
-				'preview_mode',
-				__( 'Form submissions are disabled in preview mode.', 'jetpack-forms' )
-			);
+			return;
 		}
 
 		// Add a filter to replace tokens in the subject field with sanitized field values.

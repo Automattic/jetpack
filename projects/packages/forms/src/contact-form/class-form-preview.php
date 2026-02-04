@@ -320,11 +320,14 @@ class Form_Preview {
 	 * Enqueue preview styles.
 	 */
 	public static function enqueue_preview_styles() {
+		$css_file = __DIR__ . '/css/form-preview.css';
+		$version  = file_exists( $css_file ) ? (string) filemtime( $css_file ) : JETPACK_FORMS_VERSION;
+
 		wp_enqueue_style(
 			'jetpack-form-preview',
 			plugins_url( 'css/form-preview.css', __FILE__ ),
 			array(),
-			filemtime( __DIR__ . '/css/form-preview.css' )
+			$version
 		);
 	}
 
