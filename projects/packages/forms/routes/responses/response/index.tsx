@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
+import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -22,7 +23,7 @@ import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../../src/types/index.ts';
-import '../../../src/dashboard/components/inspector/style.scss';
+import './style.scss';
 
 /**
  * Renders a single response.
@@ -169,33 +170,23 @@ function SingleResponseView( {
 
 	if ( isLoading ) {
 		return (
-			<div style={ { display: 'flex', justifyContent: 'center', padding: '40px' } }>
+			<Stack direction="row" justify="center" style={ { padding: '40px' } }>
 				<Spinner />
-			</div>
+			</Stack>
 		);
 	}
 
 	if ( ! response ) {
 		return (
-			<div style={ { padding: '20px' } }>
+			<Stack direction="row" justify="center" style={ { padding: '40px' } }>
 				<p>{ __( 'Response not found.', 'jetpack-forms' ) }</p>
-			</div>
+			</Stack>
 		);
 	}
 
 	return (
 		<>
-			<div
-				style={ {
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					padding: '8px 16px',
-					borderBottom: '1px solid #e0e0e0',
-					gap: '8px',
-					flexWrap: 'wrap',
-				} }
-			>
+			<Stack className="jp-forms-response-header" direction="row" gap="xs" justify="space-between">
 				<ResponseActions response={ response } onActionComplete={ handleActionComplete } />
 				<ResponseNavigation
 					hasNext={ hasNext }
@@ -204,52 +195,52 @@ function SingleResponseView( {
 					onPrevious={ handlePrevious }
 					onClose={ onClose }
 				/>
-			</div>
+			</Stack>
 
-			<div style={ { padding: '20px', overflowY: 'auto' } }>
-				<ResponseMeta response={ response } />
+			<ResponseMeta response={ response } />
 
+			<div className="jp-forms__inbox-response-data">
 				<ResponseFieldsIterator
 					fields={ response.fields }
 					onFilePreview={ handleFilePreview }
 					className="jp-forms__inbox-response-data"
 				/>
-
-				{ response.status === 'spam' && (
-					<div className="jp-forms__inbox__tip-container">
-						<Tip>
-							{ sprintf(
-								/* translators: %d number of days. */
-								_n(
-									'Spam responses are permanently deleted after %d day.',
-									'Spam responses are permanently deleted after %d days.',
-									15,
-									'jetpack-forms'
-								),
-								// Number from https://github.com/Automattic/jetpack/blob/bde3cf9a89ce0d02e50469df173a6253383bd276/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L132
-								15
-							) }
-						</Tip>
-					</div>
-				) }
-
-				{ response.status === 'trash' && (
-					<div className="jp-forms__inbox__tip-container">
-						<Tip>
-							{ sprintf(
-								/* translators: %d number of days. */
-								_n(
-									'Items in trash are permanently deleted after %d day.',
-									'Items in trash are permanently deleted after %d days.',
-									emptyTrashDays,
-									'jetpack-forms'
-								),
-								emptyTrashDays
-							) }
-						</Tip>
-					</div>
-				) }
 			</div>
+
+			{ response.status === 'spam' && (
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>
+						{ sprintf(
+							/* translators: %d number of days. */
+							_n(
+								'Spam responses are permanently deleted after %d day.',
+								'Spam responses are permanently deleted after %d days.',
+								15,
+								'jetpack-forms'
+							),
+							// Number from https://github.com/Automattic/jetpack/blob/bde3cf9a89ce0d02e50469df173a6253383bd276/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L132
+							15
+						) }
+					</Tip>
+				</div>
+			) }
+
+			{ response.status === 'trash' && (
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>
+						{ sprintf(
+							/* translators: %d number of days. */
+							_n(
+								'Items in trash are permanently deleted after %d day.',
+								'Items in trash are permanently deleted after %d days.',
+								emptyTrashDays,
+								'jetpack-forms'
+							),
+							emptyTrashDays
+						) }
+					</Tip>
+				</div>
+			) }
 
 			{ previewFile && (
 				<Modal title={ decodeEntities( previewFile.name ) } onRequestClose={ closePreviewModal }>

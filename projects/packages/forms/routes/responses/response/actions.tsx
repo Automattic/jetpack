@@ -7,6 +7,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -189,62 +190,78 @@ export function ResponseActions( {
 		}
 	}, [ response, editEntityRecord, onActionComplete ] );
 
-	const containerStyle = {
-		display: 'flex',
-		gap: '4px',
-		alignItems: 'center',
-		marginLeft: '-12px', // Compensate for button internal padding
+	const sharedProps = {
+		isBusy: isLoading,
+		size: 'compact' as const,
 	};
 
-	if ( response.status === 'trash' ) {
-		return (
-			<div style={ containerStyle }>
-				<Button onClick={ handleToggleRead } isBusy={ isLoading } size="compact">
-					{ response.is_unread
-						? __( 'Mark as read', 'jetpack-forms' )
-						: __( 'Mark as unread', 'jetpack-forms' ) }
-				</Button>
-				<Button onClick={ handleRestore } isBusy={ isLoading } size="compact">
-					{ __( 'Restore', 'jetpack-forms' ) }
-				</Button>
-				<Button onClick={ handleDelete } isBusy={ isLoading } size="compact">
-					{ __( 'Delete', 'jetpack-forms' ) }
-				</Button>
-			</div>
-		);
-	}
+	const readUnreadButtons = (
+		<Button onClick={ handleToggleRead } { ...sharedProps }>
+			{ response.is_unread
+				? __( 'Mark as read', 'jetpack-forms' )
+				: __( 'Mark as unread', 'jetpack-forms' ) }
+		</Button>
+	);
 
-	if ( response.status === 'spam' ) {
-		return (
-			<div style={ containerStyle }>
-				<Button onClick={ handleToggleRead } isBusy={ isLoading } size="compact">
-					{ response.is_unread
-						? __( 'Mark as read', 'jetpack-forms' )
-						: __( 'Mark as unread', 'jetpack-forms' ) }
-				</Button>
-				<Button onClick={ handleMarkAsNotSpam } isBusy={ isLoading } size="compact">
-					{ __( 'Not spam', 'jetpack-forms' ) }
-				</Button>
-				<Button onClick={ handleMoveToTrash } isBusy={ isLoading } size="compact">
-					{ __( 'Trash', 'jetpack-forms' ) }
-				</Button>
-			</div>
-		);
-	}
+	const trashButton = (
+		<Button onClick={ handleMoveToTrash } { ...sharedProps }>
+			{ __( 'Trash', 'jetpack-forms' ) }
+		</Button>
+	);
+
+	const spamButton = (
+		<Button onClick={ handleMarkAsSpam } { ...sharedProps }>
+			{ __( 'Spam', 'jetpack-forms' ) }
+		</Button>
+	);
+
+	const notSpamButton = (
+		<Button onClick={ handleMarkAsNotSpam } { ...sharedProps }>
+			{ __( 'Not spam', 'jetpack-forms' ) }
+		</Button>
+	);
+
+	const deleteButton = (
+		<Button onClick={ handleDelete } { ...sharedProps }>
+			{ __( 'Delete', 'jetpack-forms' ) }
+		</Button>
+	);
+
+	const restoreButton = (
+		<Button onClick={ handleRestore } { ...sharedProps }>
+			{ __( 'Restore', 'jetpack-forms' ) }
+		</Button>
+	);
 
 	return (
-		<div style={ containerStyle }>
-			<Button onClick={ handleToggleRead } isBusy={ isLoading } size="compact">
-				{ response.is_unread
-					? __( 'Mark as read', 'jetpack-forms' )
-					: __( 'Mark as unread', 'jetpack-forms' ) }
-			</Button>
-			<Button onClick={ handleMarkAsSpam } isBusy={ isLoading } size="compact">
-				{ __( 'Spam', 'jetpack-forms' ) }
-			</Button>
-			<Button onClick={ handleMoveToTrash } isBusy={ isLoading } size="compact">
-				{ __( 'Trash', 'jetpack-forms' ) }
-			</Button>
-		</div>
+		<Stack
+			direction="row"
+			gap="xs"
+			justify="start"
+			wrap="wrap"
+			className="jp-forms-response-header-actions"
+		>
+			{ response.status === 'publish' && (
+				<>
+					{ readUnreadButtons }
+					{ spamButton }
+					{ trashButton }
+				</>
+			) }
+			{ response.status === 'trash' && (
+				<>
+					{ readUnreadButtons }
+					{ restoreButton }
+					{ deleteButton }
+				</>
+			) }
+			{ response.status === 'spam' && (
+				<>
+					{ readUnreadButtons }
+					{ notSpamButton }
+					{ trashButton }
+				</>
+			) }
+		</Stack>
 	);
 }
