@@ -69,22 +69,6 @@ export async function convertFormToSynced(
 }
 
 /**
- * Checks if we're in a block preview context (e.g., block inserter preview).
- * Block previews are typically rendered in an iframe.
- *
- * @return {boolean} Whether we're in a preview context.
- */
-export function isBlockPreviewContext() {
-	try {
-		// Block previews are rendered in an iframe
-		return window.self !== window.top;
-	} catch {
-		// If we can't access window.top due to cross-origin restrictions, we're likely in an iframe
-		return true;
-	}
-}
-
-/**
  * Determines if a field block should be wrapped in a form.
  *
  * @param {string} currentPostType - The current post type being edited.
@@ -92,11 +76,6 @@ export function isBlockPreviewContext() {
  * @return {boolean} Whether the field should be wrapped.
  */
 export function shouldWrapFieldInForm( currentPostType, parentForms ) {
-	// Don't wrap in preview context (block inserter preview is rendered in an iframe)
-	if ( isBlockPreviewContext() ) {
-		return false;
-	}
-
 	// Don't wrap fields when editing a jetpack_form post type directly
 	if ( currentPostType === FORM_POST_TYPE ) {
 		return false;
@@ -107,16 +86,14 @@ export function shouldWrapFieldInForm( currentPostType, parentForms ) {
 }
 
 /**
- * Determines if a synced form should be created.
  *
- * @param {boolean} isCentralFormManagementEnabled - Whether the feature flag is enabled.
- * @param {boolean} wasBlockJustInserted           - Whether the block was just inserted.
- * @return {boolean} Whether a synced form should be created.
+ * Custom hook to wrap a field block in a form block when conditions are met.
+ *
+ * @param {*}      param0            - The parameters object.
+ * @param {object} param0.attributes - The block attributes.
+ * @param {string} param0.clientId   - The block client ID.
+ * @param {string} param0.name       - The block name.
  */
-export function shouldCreateSyncedForm( isCentralFormManagementEnabled, wasBlockJustInserted ) {
-	return isCentralFormManagementEnabled && wasBlockJustInserted;
-}
-
 export default function useFormWrapper( { attributes, clientId, name } ) {
 	const { replaceBlock, updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
 		useDispatch( blockEditorStore );
@@ -169,7 +146,7 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 		replaceBlock( clientId, formBlock );
 
 		// Convert to synced form (async) - only if conditions are met
-		if ( shouldCreateSyncedForm( isCentralFormManagementEnabled, wasBlockJustInserted ) ) {
+		if ( isCentralFormManagementEnabled && wasBlockJustInserted ) {
 			convertFormToSynced(
 				formBlock,
 				fieldBlock,
