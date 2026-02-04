@@ -906,26 +906,26 @@ function zeroBSCRM_updateCustomerFiles( $cID = -1, $filesArray = false ) {
 	// ... in array like ('lead')
 #} 2.52+ AVOID using this, call getContacts directly plz, this is just for backward compatibility :)
 function zeroBS_getCustomers(
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$withInvoices = false,
-		$withQuotes = false,
-		$searchPhrase = '',
-		$withTransactions = false,
-		$argsOverride = false,
-		$companyID = false,
-		$hasTagIDs = '',
-		$inArr = '',
-		$withTags = false,
-		$withAssigned = false,
-		$withLastLog = false,
-		$sortByField = 'ID',
-		$sortOrder = 'DESC',
-		$quickFilters = false,
-		$ownedByID = false,
-		$withValues = false
-		) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$withInvoices = false,
+	$withQuotes = false,
+	$searchPhrase = '',
+	$withTransactions = false,
+	$argsOverride = false,
+	$companyID = false,
+	$hasTagIDs = '',
+	$inArr = '',
+	$withTags = false,
+	$withAssigned = false,
+	$withLastLog = false,
+	$sortByField = 'ID',
+	$sortOrder = 'DESC',
+	$quickFilters = false,
+	$ownedByID = false,
+	$withValues = false
+) {
 	/* DAL3.0: $withValues */
 
 	#} Query Performance index
@@ -1034,7 +1034,8 @@ function zeroBS_getCustomersCountIncParams(
 	$companyID = false,
 	$hasTagIDs = '',
 	$inArr = '',
-	$quickFilters = ''){
+	$quickFilters = ''
+) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	// $argsOverride CAN NO LONGER WORK :)
@@ -1801,22 +1802,17 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ) {
 }
 
 function zeroBS_addUpdateCustomer(
-
-		$cID = -1,
-		$cFields = array(),
-
-		$externalSource = '',
-		$externalID = '',
-		$customerDate = '',
-
-		$fallBackLog = false,
-		$extraMeta = false,
-		$automatorPassthrough = false,
-		$owner = -1,
-
-		$metaBuilderPrefix = 'zbsc_'
-
-		) {
+	$cID = -1,
+	$cFields = array(),
+	$externalSource = '',
+	$externalID = '',
+	$customerDate = '',
+	$fallBackLog = false,
+	$extraMeta = false,
+	$automatorPassthrough = false,
+	$owner = -1,
+	$metaBuilderPrefix = 'zbsc_'
+) {
 
 	#} return
 	$ret = false;
@@ -2367,32 +2363,27 @@ function zeroBS_allLogs() {
 	);
 }
 
+/**
+ * Adds or updates a log entry.
+ *
+ * @param int    $cID        Contact ID.
+ * @param int    $logID      Log ID.
+ * @param int    $logDate    Log date timestamp.
+ * @param array  $noteFields Note fields array. Expected keys: zbsNoteAgainstPostID, zbsNoteType,
+ *                           zbsNoteShortDesc, zbsNoteLongDesc. May also include 'meta_assoc_id'
+ *                           (e.g. campaign ID for 'email sent' logs) and 'meta_assoc_src'
+ *                           (e.g. 'mailcamp').
+ * @param string $objType    Object type — e.g. 'contact' or 'zerobs_customer'.
+ * @param int    $owner      Owner ID.
+ */
 function zeroBS_addUpdateLog(
-
-		$cID = -1,
-		$logID = -1,
-		$logDate = -1,
-
-		/*
-		#} Process with metaboxes.php funcs, is easier :)
-
-			$zbsNoteAgainstPostID
-			$zbsNoteType
-			$zbsNoteShortDesc
-			$zbsNoteLongDesc
-
-			NOTE!: as of 31/05/17 WOODY started putting
-			'meta_assoc_id' in these - e.g. if it's an 'email sent' log, this meta_assoc_id will be the CAMPAIGN id
-			'meta_assoc_src' would then be mailcamp
-
-		*/
-
-		$noteFields = array(),
-
-		$objType = '', /* contact or 'zerobs_contact' */
-		$owner = -1
-
-		) {
+	$cID = -1,
+	$logID = -1,
+	$logDate = -1,
+	$noteFields = array(),
+	$objType = '',
+	$owner = -1
+) {
 
 			global $zbs;
 
@@ -2421,12 +2412,12 @@ function zeroBS_addUpdateLog(
 }
 // really should just be calling direct at this point, or zeroBS_addUpdateObjLog at least
 function zeroBS_addUpdateContactLog(
-		$cID = -1,
-		$logID = -1,
-		$logDate = -1,
-		$noteFields = array(),
-		$owner = -1
-		) {
+	$cID = -1,
+	$logID = -1,
+	$logDate = -1,
+	$noteFields = array(),
+	$owner = -1
+) {
 
 		// wrapper for this:
 		return zeroBS_addUpdateObjLog( ZBS_TYPE_CONTACT, $cID, $logID, $logDate, $noteFields, $owner );
@@ -2435,13 +2426,13 @@ function zeroBS_addUpdateContactLog(
 
 // generic add obj log
 function zeroBS_addUpdateObjLog(
-		$objTypeID = -1,
-		$objID = -1,
-		$logID = -1,
-		$logDate = -1,
-		$noteFields = array(),
-		$owner = -1
-		) {
+	$objTypeID = -1,
+	$objID = -1,
+	$logID = -1,
+	$logDate = -1,
+	$noteFields = array(),
+	$owner = -1
+) {
 
 	if ( $objTypeID > 0 ) {
 
@@ -3179,21 +3170,19 @@ function zeroBS_getCompany( $coID = -1, $withObjs = false ) {
 	// note: $withStatus returns with specific status  (added for logReporter for Miguel (custom extension WH))
 	#} Adapted for 3.0+, note deprecated really, should be using DAL->companies->getCompanies directly
 function zeroBS_getCompanies(
-
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$searchPhrase = '',
-		$argsOverride = false,
-		$withInvoices = false,
-		$withQuotes = false,
-		$withTransactions = false,
-		$inCountry = false,
-		$ownedByID = false,
-		$withStatus = false,
-		$inArr = false
-
-		) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$searchPhrase = '',
+	$argsOverride = false,
+	$withInvoices = false,
+	$withQuotes = false,
+	$withTransactions = false,
+	$inCountry = false,
+	$ownedByID = false,
+	$withStatus = false,
+	$inArr = false
+) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	// $argsOverride CAN NO LONGER WORK :)
@@ -3357,22 +3346,17 @@ function zeroBS_getCompanyIDWithEmail( $custEmail = '' ) {
 
 	#} Add or Update a Company - ideally use $zbs->DAL->companies->addUpdateCompany() rather than this wrapper, in proper code now :)
 function zeroBS_addUpdateCompany(
-
-		$coID = -1,
-
-		$coFields = array(),
-		$externalSource = '',
-		$externalID = '',
-		$companyDate = '',
-
-		$fallBackLog = false,
-		$extraMeta = false,
-		$automatorPassthrough = false,
-
-		$owner = -1,
-		$metaBuilderPrefix = 'zbsc_'
-
-		) {
+	$coID = -1,
+	$coFields = array(),
+	$externalSource = '',
+	$externalID = '',
+	$companyDate = '',
+	$fallBackLog = false,
+	$extraMeta = false,
+	$automatorPassthrough = false,
+	$owner = -1,
+	$metaBuilderPrefix = 'zbsc_'
+) {
 
 	#} Basics - /--needs status
 	#} 27/09/16 - WH - Removed need for zeroBS_addUpdateCustomer to have a "status" passed with customer (defaults to lead for now if not present)
@@ -3898,19 +3882,17 @@ function zeroBS_markQuoteUnAccepted( $qID = -1 ) {
 
 // Please use direct dal calls in future work.
 function zeroBS_getQuotes(
-
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$withCustomerDeets = false,
-		$searchPhrase = '',
-		$inArray = array(),
-		$sortByField = '',
-		$sortOrder = 'DESC',
-		$quickFilters = array(),
-		$hasTagIDs = array()
-
-		) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$withCustomerDeets = false,
+	$searchPhrase = '',
+	$inArray = array(),
+	$sortByField = '',
+	$sortOrder = 'DESC',
+	$quickFilters = array(),
+	$hasTagIDs = array()
+) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
@@ -3945,19 +3927,17 @@ function zeroBS_getQuotes(
 
 // Please use direct dal calls in future work.
 function zeroBS_getQuotesCountIncParams(
-
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$withCustomerDeets = false,
-		$searchPhrase = '',
-		$inArray = array(),
-		$sortByField = '',
-		$sortOrder = 'DESC',
-		$quickFilters = array(),
-		$hasTagIDs = array()
-
-		) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$withCustomerDeets = false,
+	$searchPhrase = '',
+	$inArray = array(),
+	$sortByField = '',
+	$sortOrder = 'DESC',
+	$quickFilters = array(),
+	$hasTagIDs = array()
+) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
@@ -3994,15 +3974,13 @@ function zeroBS_getQuotesCountIncParams(
 
 // Please use direct dal calls in future work.
 function zeroBS_getQuotesForCustomer(
-
-		$customerID = -1,
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$withCustomerDeets = false,
-		$withQuoteBuilderData = true
-
-		) {
+	$customerID = -1,
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$withCustomerDeets = false,
+	$withQuoteBuilderData = true // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- legacy API parameter.
+) {
 
 	global $zbs;
 
@@ -4154,19 +4132,17 @@ function zeroBSCRM_getInvoiceOffset() {
 
 	// outdated, outmoded, use proper ->DAL calls not this in fresh code
 function zeroBS_getInvoices(
-
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$withCustomerDeets = false,
-		$searchPhrase = '',
-		$inArray = array(),
-		$sortByField = '',
-		$sortOrder = 'DESC',
-		$quickFilters = array(),
-		$hasTagIDs = array()
-
-		) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$withCustomerDeets = false,
+	$searchPhrase = '',
+	$inArray = array(),
+	$sortByField = '',
+	$sortOrder = 'DESC',
+	$quickFilters = array(),
+	$hasTagIDs = array()
+) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
@@ -4202,19 +4178,17 @@ function zeroBS_getInvoices(
 
 	// outdated, outmoded, use proper ->DAL calls not this in fresh code
 function zeroBS_getInvoicesCountIncParams(
-
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$withCustomerDeets = false,
-		$searchPhrase = '',
-		$inArray = array(),
-		$sortByField = '',
-		$sortOrder = 'DESC',
-		$quickFilters = array(),
-		$hasTagIDs = array()
-
-		) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$withCustomerDeets = false,
+	$searchPhrase = '',
+	$inArray = array(),
+	$sortByField = '',
+	$sortOrder = 'DESC',
+	$quickFilters = array(),
+	$hasTagIDs = array()
+) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
@@ -4266,16 +4240,14 @@ function zeroBS_getInvoice( $invoiceID = -1 ) {
 
 	// just do direct call in future, plz
 function zeroBS_getInvoicesForCustomer(
-
-		$customerID = -1,
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$withCustomerDeets = false,
-		$orderBy = 'ID',
-		$order = 'DESC'
-
-		) {
+	$customerID = -1,
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$withCustomerDeets = false,
+	$orderBy = 'ID',
+	$order = 'DESC'
+) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
@@ -4932,20 +4904,19 @@ function zeroBS_getTransaction( $tID = -1 ) {
 
 // Please use direct dal calls in future work.
 function zeroBS_getTransactions(
-
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$withCustomerDeets = false,
-		$searchPhrase = '',
-		$hasTagIDs = array(),
-		$inArray = array(),
-		$sortByField = '',
-		$sortOrder = 'DESC',
-		$withTags = false,
-		$quickFilters = array(),
-		$external_source_uid = false
-		) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$withCustomerDeets = false,
+	$searchPhrase = '',
+	$hasTagIDs = array(),
+	$inArray = array(),
+	$sortByField = '',
+	$sortOrder = 'DESC',
+	$withTags = false,
+	$quickFilters = array(),
+	$external_source_uid = false
+) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
@@ -4984,20 +4955,18 @@ function zeroBS_getTransactions(
 
 // Please use direct dal calls in future work.
 function zeroBS_getTransactionsCountIncParams(
-
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$withCustomerDeets = false,
-		$searchPhrase = '',
-		$hasTagIDs = array(),
-		$inArray = array(),
-		$sortByField = '',
-		$sortOrder = 'DESC',
-		$withTags = false,
-		$quickFilters = array()
-
-		) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$withCustomerDeets = false,
+	$searchPhrase = '',
+	$hasTagIDs = array(),
+	$inArray = array(),
+	$sortByField = '',
+	$sortOrder = 'DESC',
+	$withTags = false,
+	$quickFilters = array()
+) {
 
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
@@ -5035,14 +5004,12 @@ function zeroBS_getTransactionsCountIncParams(
 
 	// Please use direct dal calls in future work.
 function zeroBS_getTransactionsForCustomer(
-
-		$customerID = -1,
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$withCustomerDeets = false
-
-		) {
+	$customerID = -1,
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$withCustomerDeets = false
+) {
 	// $withFullDetails = irrelevant with new DB2 (always returns)
 	global $zbs;
 
@@ -5099,51 +5066,36 @@ function zeroBS_getTransactionIDWithExternalSource( $transactionExternalSource =
 
 }
 
-	// v3.0 + avoid using these centralised funcs (this + zeroBS_integrations_addOrUpdateTransaction)
-	// ... direct calls all the way :D
+/**
+ * Adds or updates a transaction.
+ *
+ * Deprecated in v3.0+ — avoid using these centralised funcs, use direct DAL calls instead.
+ *
+ * @param int    $tID                       Transaction ID.
+ * @param array  $tFields                   Transaction fields array. Required keys: 'orderid', 'customer',
+ *                                          'status', 'total'. Recommended keys: 'date', 'currency', 'item',
+ *                                          'net', 'tax', 'fee', 'discount', 'tax_rate'.
+ * @param string $transactionExternalSource External source identifier.
+ * @param string $transactionExternalID     External ID.
+ * @param string $transactionDate           Transaction date.
+ * @param array  $transactionTags           Transaction tags.
+ * @param bool   $fallBackLog               Whether to create a fallback log.
+ * @param bool   $extraMeta                 Extra metadata.
+ * @param bool   $automatorPassthrough      Automator passthrough flag.
+ * @param string $arrBuilderPrefix          Array builder prefix.
+ */
 function zeroBS_addUpdateTransaction(
-
-			$tID = -1,
-
-			/*
-
-			example:
-				$tFields = array(
-
-					REQUIRED:
-					'orderid' => 'UNIQUEID',
-					'customer' => CustomerID,
-					'status' => 'Completed', 'Refunded' similar.
-					'total' => 123.99,
-
-					RECOMMENDED:
-					'date' => 12345TIME,
-					'currency' => 'USD',
-					'item' => 'TITLE',
-					'net' => 0,
-					'tax' => 0,
-					'fee' => 0,
-					'discount' => 0,
-					'tax_rate' => 0,
-
-				);
-
-			*/
-
-			$tFields = array(),
-
-			$transactionExternalSource = '',
-			$transactionExternalID = '',
-			$transactionDate = '',
-			$transactionTags = array(), /* extra */
-
-			$fallBackLog = false,
-			$extraMeta = false,
-			$automatorPassthrough = false,
-
-			$arrBuilderPrefix = 'zbst_'
-
-			) {
+	$tID = -1,
+	$tFields = array(),
+	$transactionExternalSource = '',
+	$transactionExternalID = '',
+	$transactionDate = '',
+	$transactionTags = array(),
+	$fallBackLog = false,
+	$extraMeta = false,
+	$automatorPassthrough = false,
+	$arrBuilderPrefix = 'zbst_'
+) {
 
 	// zeroBSCRM_DEPRECATEDMSG('ZBS Function Deprecated in v3.0+. zeroBS_addUpdateTransaction should now be replaced with proper zbs->DAL->calls');
 
@@ -5418,15 +5370,15 @@ function zeroBSCRM_getTaskList( $cID = -1 ) {
 	// NOTE: as with all dal3 translations, objs no longer have ['meta'] etc.
 	// USE direct DAL calls in code, not this, for future proofing
 function zeroBS_getEvents(
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$ownedByID = false,
-		$search_term = '',
-		$sortByField = '',
-		$sortOrder = 'DESC',
-		$hasTagIDs = array()
-	) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$ownedByID = false,
+	$search_term = '',
+	$sortByField = '',
+	$sortOrder = 'DESC',
+	$hasTagIDs = array()
+) {
 
 	global $zbs;
 
@@ -5616,18 +5568,16 @@ function zeroBS_getForm( $formID = -1 ) {
 
 	// Please use direct dal calls in future work.
 function zeroBS_getForms(
-
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$searchPhrase = '',
-		$inArray = array(),
-		$sortByField = '',
-		$sortOrder = 'DESC',
-		$quickFilters = array(),
-		$hasTagIDs = array()
-
-		) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$searchPhrase = '',
+	$inArray = array(),
+	$sortByField = '',
+	$sortOrder = 'DESC',
+	$quickFilters = array(),
+	$hasTagIDs = array()
+) {
 
 	// quickFilters not used for forms :) *yet
 
@@ -5662,18 +5612,16 @@ function zeroBS_getForms(
 
 	// Please use direct dal calls in future work.
 function zeroBS_getFormsCountIncParams(
-
-		$withFullDetails = false,
-		$perPage = 10,
-		$page = 0,
-		$searchPhrase = '',
-		$inArray = array(),
-		$sortByField = '',
-		$sortOrder = 'DESC',
-		$quickFilters = array(),
-		$hasTagIDs = array()
-
-		) {
+	$withFullDetails = false,
+	$perPage = 10,
+	$page = 0,
+	$searchPhrase = '',
+	$inArray = array(),
+	$sortByField = '',
+	$sortOrder = 'DESC',
+	$quickFilters = array(),
+	$hasTagIDs = array()
+) {
 
 	// quickFilters not used for forms :) *yet
 
