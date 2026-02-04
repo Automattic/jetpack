@@ -20,6 +20,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Require the markdown class file.
 require __DIR__ . '/markdown/easy-markdown.php';
 
+// Add source:markdown element to RSS feeds for Markdown posts.
+require JETPACK__PLUGIN_DIR . '_inc/lib/markdown/rss.php';
+foreach ( array( 'rss_item', 'rss1_item', 'rss2_item' ) as $rss_item_action ) {
+	add_action( $rss_item_action, 'jetpack_markdown_rss_output_source_markdown' );
+}
+
 /**
  * Remove checkbox set in modules/markdown/easy-markdown.php.
  * We don't just remove the register_setting call there because the checkbox is
