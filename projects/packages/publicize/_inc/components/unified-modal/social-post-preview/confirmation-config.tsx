@@ -15,17 +15,18 @@ export function ConfirmationConfig(): JSX.Element {
 
 	const isChecked = preferences.data.showPrePublishConfirmation ?? true;
 
-	const onChange = useCallback( () => {
-		const showConfirmation = ! isChecked;
+	const onChange = useCallback(
+		( showConfirmation: boolean ) => {
+			preferences.set( 'showPrePublishConfirmation', showConfirmation );
 
-		preferences.set( 'showPrePublishConfirmation', showConfirmation );
-
-		recordEvent( 'jetpack_social_pre_publish_confirmation_toggled', {
-			showConfirmation,
-			// Let us also store what the previous preference was.
-			previousPreference: preferences.data.showPrePublishConfirmation,
-		} );
-	}, [ preferences, isChecked, recordEvent ] );
+			recordEvent( 'jetpack_social_pre_publish_confirmation_toggled', {
+				showConfirmation,
+				// Let us also pass on the previous preference.
+				previousPreference: preferences.data.showPrePublishConfirmation,
+			} );
+		},
+		[ preferences, recordEvent ]
+	);
 
 	return (
 		<CheckboxControl
