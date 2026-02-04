@@ -56,7 +56,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		$post_id = self::factory()->post->create(
 			array(
 				'post_content'          => '<p>Regular post.</p>',
-				'post_content_filtered' => '',
+				'post_content_filtered' => '# Some markdown content',
 			)
 		);
 
@@ -121,6 +121,31 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		$cdata_content = $this->get_cdata_content( $output );
 		$this->assertNotEmpty( $cdata_content, 'CDATA content should have been extracted from the output.' );
 		$this->assertStringNotContainsString( ']]>', $cdata_content );
+
+		wp_reset_postdata();
+	}
+
+	/**
+	 * Test that Markdown content containing printf format specifiers is output correctly.
+	 */
+	public function test_printf_format_specifiers_preserved() {
+		$markdown = 'Use `sprintf( "%s is %d", $name, $age )` for formatting.';
+		$post_id  = self::factory()->post->create(
+			array(
+				'post_content'          => '<p>Use <code>sprintf( "%s is %d", $name, $age )</code> for formatting.</p>',
+				'post_content_filtered' => $markdown,
+			)
+		);
+		update_post_meta( $post_id, WPCom_Markdown::IS_MD_META, true );
+
+		$this->go_to( '/?p=' . $post_id );
+		setup_postdata( get_post( $post_id ) );
+
+		ob_start();
+		jetpack_markdown_rss_output_source_markdown();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( $markdown, $output );
 
 		wp_reset_postdata();
 	}

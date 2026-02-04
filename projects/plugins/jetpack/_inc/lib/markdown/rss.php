@@ -38,7 +38,6 @@ function jetpack_markdown_rss_output_source_markdown() {
 
 	$markdown = str_replace( ']]>', ']]&gt;', $post->post_content_filtered );
 
-	echo "\t\t";
-	printf( '<source:markdown><![CDATA[%s]]></source:markdown>', $markdown ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is wrapped in CDATA with ]]> escaped.
-	echo "\n";
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is wrapped in CDATA with ]]> escaped.
+	echo "\t\t<source:markdown><![CDATA[" . $markdown . "]]></source:markdown>\n";
 }
