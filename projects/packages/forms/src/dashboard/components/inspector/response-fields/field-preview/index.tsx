@@ -12,32 +12,13 @@ import {
 /**
  * Internal dependencies
  */
-// Field block icons
-import CheckboxFieldIcon from '../../../../../blocks/field-checkbox/icon.jsx';
-import ConsentFieldIcon from '../../../../../blocks/field-consent/icon.jsx';
-import DateFieldIcon from '../../../../../blocks/field-date/icon.jsx';
-import EmailFieldIcon from '../../../../../blocks/field-email/icon.jsx';
-import FileFieldIcon from '../../../../../blocks/field-file/icon.jsx';
-import HiddenFieldIcon from '../../../../../blocks/field-hidden/icon.jsx';
-import ImageSelectFieldIcon from '../../../../../blocks/field-image-select/icon.tsx';
-import MultipleChoiceFieldIcon from '../../../../../blocks/field-multiple-choice/icon.jsx';
-import NameFieldIcon from '../../../../../blocks/field-name/icon.jsx';
-import NumberFieldIcon from '../../../../../blocks/field-number/icon.jsx';
-import RatingFieldIcon from '../../../../../blocks/field-rating/icon.jsx';
-import SelectFieldIcon from '../../../../../blocks/field-select/icon.jsx';
-import SingleChoiceFieldIcon from '../../../../../blocks/field-single-choice/icon.jsx';
-import SliderFieldIcon from '../../../../../blocks/field-slider/icon.jsx';
-import TelephoneFieldIcon from '../../../../../blocks/field-telephone/icon.jsx';
-import TextFieldIcon from '../../../../../blocks/field-text/icon.jsx';
-import TextareaFieldIcon from '../../../../../blocks/field-textarea/icon.jsx';
-import TimeFieldIcon from '../../../../../blocks/field-time/icon.jsx';
-import UrlFieldIcon from '../../../../../blocks/field-url/icon.jsx';
+import { fieldIcons } from '../../../../field-icons.tsx';
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
 import FieldImageSelect from '../field-image-select/index.tsx';
 import FieldPhone from '../field-phone/index.tsx';
 import FieldRating from '../field-rating/index.tsx';
-import { EMAIL_REGEX, getIconSource, inferFieldTypeFromLabel } from './field-preview-utils.ts';
+import { EMAIL_REGEX, inferFieldTypeFromLabel } from './field-preview-utils.ts';
 import type { ResponseField, FieldType, FileItem } from '../../../../../types/index.ts';
 import './style.scss';
 
@@ -48,49 +29,8 @@ import './style.scss';
  * @return {React.ReactNode} The icon element.
  */
 const getFieldIcon = ( fieldType: FieldType ): React.ReactNode => {
-	switch ( fieldType ) {
-		case 'name':
-			return <Icon icon={ getIconSource( NameFieldIcon ) } />;
-		case 'email':
-			return <Icon icon={ getIconSource( EmailFieldIcon ) } />;
-		case 'phone':
-		case 'telephone':
-			return <Icon icon={ getIconSource( TelephoneFieldIcon ) } />;
-		case 'url':
-			return <Icon icon={ getIconSource( UrlFieldIcon ) } />;
-		case 'file':
-			return <Icon icon={ getIconSource( FileFieldIcon ) } />;
-		case 'image-select':
-			return <Icon icon={ getIconSource( ImageSelectFieldIcon ) } />;
-		case 'date':
-			return <Icon icon={ getIconSource( DateFieldIcon ) } />;
-		case 'time':
-			return <Icon icon={ getIconSource( TimeFieldIcon ) } />;
-		case 'hidden':
-			return <Icon icon={ getIconSource( HiddenFieldIcon ) } />;
-		case 'select':
-			return <Icon icon={ getIconSource( SelectFieldIcon ) } />;
-		case 'checkbox':
-			return <Icon icon={ getIconSource( CheckboxFieldIcon ) } />;
-		case 'checkbox-multiple':
-			return <Icon icon={ getIconSource( MultipleChoiceFieldIcon ) } />;
-		case 'radio':
-			return <Icon icon={ getIconSource( SingleChoiceFieldIcon ) } />;
-		case 'textarea':
-			return <Icon icon={ getIconSource( TextareaFieldIcon ) } />;
-		case 'number':
-			return <Icon icon={ getIconSource( NumberFieldIcon ) } />;
-		case 'slider':
-		case 'range':
-			return <Icon icon={ getIconSource( SliderFieldIcon ) } />;
-		case 'rating':
-			return <Icon icon={ getIconSource( RatingFieldIcon ) } />;
-		case 'consent':
-			return <Icon icon={ getIconSource( ConsentFieldIcon ) } />;
-		case 'text':
-		default:
-			return <Icon icon={ getIconSource( TextFieldIcon ) } />;
-	}
+	const icon = fieldIcons[ fieldType ] ?? fieldIcons.text;
+	return <Icon icon={ icon } />;
 };
 
 type FieldPreviewProps = {
