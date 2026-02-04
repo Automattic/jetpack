@@ -50529,7 +50529,7 @@ const debug_js_1 = __importDefault(__nccwpck_require__(3279));
 async function assignIssues(payload, octokit) {
     const regex = /(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved):? +(?:#{1}|https?:\/\/github\.com\/automattic\/jetpack\/issues\/)(\d+)/gi;
     let match;
-    while ((match = regex.exec(payload.pull_request.body))) {
+    while ((match = regex.exec(payload.pull_request.body ?? ''))) {
         const [, issue] = match;
         (0, debug_js_1.default)(`assign-issues: Assigning issue #${issue} to @${payload.pull_request.user.login}`);
         await octokit.rest.issues.addAssignees({
@@ -50766,11 +50766,11 @@ async function getStatusChecks(payload, octokit) {
     const { body, number, head, base } = payload.pull_request;
     const { name: repo, owner } = payload.repository;
     const ownerLogin = owner.login;
-    const hasLongDescription = body?.length > 200;
+    const hasLongDescription = (body?.length ?? 0) > 200;
     const hasTesting = !!body?.includes('Testing instructions');
     const hasPrivacy = !!body?.includes('data or activity we track or use');
     const projectsWithoutChangelog = await getChangelogEntries(octokit, ownerLogin, repo, number);
-    const isFromContributor = head.repo.full_name === base.repo.full_name;
+    const isFromContributor = head.repo?.full_name === base.repo.full_name;
     const prLabels = await (0, get_labels_js_1.default)(octokit, ownerLogin, repo, number);
     // We're only interested in status labels, but not the "Needs Reply" label since it can be added by the action.
     const hasStatusLabels = prLabels.some(label => label.match(/^\[Status\].*(?<!Author Reply)$/));
@@ -51153,7 +51153,7 @@ async function checkIfDocsNeeded(payload, octokit) {
         return;
     }
     // Clean the PR body and build the prompt.
-    const cleanedBody = cleanContent(body);
+    const cleanedBody = cleanContent(body ?? '');
     const prompt = buildPrompt(title, cleanedBody, diff);
     (0, debug_js_1.default)(`check-if-docs-needed: Sending PR #${number} to OpenAI for analysis.`);
     // Call OpenAI.
@@ -51312,7 +51312,7 @@ async function flagOss(payload, octokit) {
     const { head, base } = pull_request;
     const { owner, name } = repository;
     // Assume PR author is org member if the PR isn't from a fork.
-    if (head.repo.full_name === base.repo.full_name) {
+    if (head.repo?.full_name === base.repo.full_name) {
         return;
     }
     // Check if PR author is org member
@@ -52208,7 +52208,7 @@ async function aiLabeling(payload, octokit) {
     }
     if (!issueLabels.includes('[Experiment] AI labels added') &&
         !issueLabels.some(label => label === '[Type] Task' || label === 'Task')) {
-        const issueContents = cleanIssueContent(body);
+        const issueContents = cleanIssueContent(body ?? '');
         // Only process issues that have enough content to analyze (more than 100 characters).
         if (issueContents.length < 150) {
             (0, debug_js_1.default)(`triage-issues > auto-label: Issue #${number} doesn't have enough content. Skipping OpenAI analysis.`);
@@ -52517,7 +52517,7 @@ async function getIssuePriority(payload, octokit) {
     }
     // If the issue does not have Priority labels yet, let's try to infer one from the issue contents.
     (0, debug_js_1.default)(`triage-issues > issue priority: Finding priority for issue #${number} based off the issue contents.`);
-    const priority = (0, find_priority_js_1.default)(body);
+    const priority = (0, find_priority_js_1.default)(body ?? '');
     (0, debug_js_1.default)(`triage-issues > issue priority: Priority inferred from the issue contents for issue #${number} is ${priority}`);
     return {
         labels: [`[Pri] ${priority}`],
@@ -52613,7 +52613,7 @@ async function triageIssues(payload, octokit) {
     // If this is a new issue, add labels.
     if (action === 'opened' || action === 'reopened') {
         // Find impacted plugins, and add labels.
-        const impactedPlugins = (0, find_plugins_js_1.default)(body);
+        const impactedPlugins = (0, find_plugins_js_1.default)(body ?? '');
         if (impactedPlugins.length > 0) {
             (0, debug_js_1.default)(`triage-issues: Adding plugin labels to issue #${number}`);
             const pluginLabels = impactedPlugins.map(plugin => `[Plugin] ${plugin}`);
@@ -52625,7 +52625,7 @@ async function triageIssues(payload, octokit) {
             });
         }
         // Find platform info, and add labels.
-        const impactedPlatforms = (0, find_platforms_js_1.default)(body);
+        const impactedPlatforms = (0, find_platforms_js_1.default)(body ?? '');
         if (impactedPlatforms.length > 0) {
             (0, debug_js_1.default)(`triage-issues: Adding platform labels to issue #${number}`);
             const platformLabels = impactedPlatforms.map(platform => `[Platform] ${platform}`);
@@ -53077,7 +53077,8 @@ async function loadTeamAssignments(ownerLogin) {
  * @return The new project item id.
  */
 async function assignTeam(octokit, payload, projectInfo, projectItemId, isBug, priorityLabels) {
-    const { action, issue: { number }, label, repository: { owner, name }, } = payload;
+    const { action, issue: { number }, repository: { owner, name }, } = payload;
+    const label = 'label' in payload ? payload.label : undefined;
     const ownerLogin = owner.login;
     const teamAssignments = await loadTeamAssignments(ownerLogin);
     if (!teamAssignments) {
@@ -53770,7 +53771,7 @@ const debug_js_1 = __importDefault(__nccwpck_require__(3279));
  */
 function ifNotFork(handler) {
     const newHandler = (payload, octokit) => {
-        if (payload.pull_request.head.repo.full_name === payload.pull_request.base.repo.full_name) {
+        if (payload.pull_request.head.repo?.full_name === payload.pull_request.base.repo.full_name) {
             return handler(payload, octokit);
         }
         (0, debug_js_1.default)(`main: Skipping ${handler.name} because we are in a fork.`);
