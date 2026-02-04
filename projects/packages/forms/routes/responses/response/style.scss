@@ -5,11 +5,11 @@
 @use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/variables";
 
-// Main response container
+$inspector-padding: 16px;
 
 .jp-forms-response-actions {
-	padding: 8px 16px;
-	border-bottom: 1px solid var(--jp-forms-border-color);
+	padding: 8px $inspector-padding;
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
 }
 
 .jp-forms-response-navigation {
@@ -35,10 +35,9 @@
 }
 
 .jp-forms__inbox-response-data {
-	border-top: 1px solid var(--jp-forms-border-color);
 	font-size: var(--jp-forms-font-size-regular);
 	line-height: 24px;
-	padding: 0 16px;
+	padding: 0 $inspector-padding;
 
 	// old field format renders without .jp-forms__field-preview
 	&:not(.is-collection-format) {
@@ -60,9 +59,9 @@
 }
 
 .jp-forms__inbox__tip-container {
-	border-top: 1px solid var(--jp-forms-border-color);
-	margin: 8px 0 0 0;
-	padding: 16px 0;
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+	margin: auto 0 0 0;
+	padding: $inspector-padding;
 	text-wrap: pretty;
 
 	// https://wordpress.github.io/gutenberg/?path=/docs/components-tip--docs

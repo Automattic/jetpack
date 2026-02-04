@@ -101,7 +101,6 @@
 
 	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 		padding: 16px 16px;
-		margin-bottom: 57px; // Compensate for fixed footer from DataViews
 	}
 }
 
@@ -127,6 +126,14 @@
 	.jp-forms__inbox-response-data {
 		padding-left: 0;
 		padding-right: 0;
+	}
+
+	.jp-forms__inbox-response-meta {
+		background-color: transparent;
+	}
+
+	.jp-forms__inbox__tip-container {
+		border-top: none;
 	}
 
 	.jp-forms__inbox-file-preview-modal {

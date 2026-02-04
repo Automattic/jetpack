@@ -209,48 +209,48 @@ function SingleResponseView( {
 
 			<ResponseMeta response={ response } />
 
-			<div style={ { padding: '20px', overflowY: 'auto' } }>
+			<div className="jp-forms__inbox-response-data">
 				<ResponseFieldsIterator
 					fields={ response.fields }
 					onFilePreview={ handleFilePreview }
 					className="jp-forms__inbox-response-data"
 				/>
-
-				{ response.status === 'spam' && (
-					<div className="jp-forms__inbox__tip-container">
-						<Tip>
-							{ sprintf(
-								/* translators: %d number of days. */
-								_n(
-									'Spam responses are permanently deleted after %d day.',
-									'Spam responses are permanently deleted after %d days.',
-									15,
-									'jetpack-forms'
-								),
-								// Number from https://github.com/Automattic/jetpack/blob/bde3cf9a89ce0d02e50469df173a6253383bd276/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L132
-								15
-							) }
-						</Tip>
-					</div>
-				) }
-
-				{ response.status === 'trash' && (
-					<div className="jp-forms__inbox__tip-container">
-						<Tip>
-							{ sprintf(
-								/* translators: %d number of days. */
-								_n(
-									'Items in trash are permanently deleted after %d day.',
-									'Items in trash are permanently deleted after %d days.',
-									emptyTrashDays,
-									'jetpack-forms'
-								),
-								emptyTrashDays
-							) }
-						</Tip>
-					</div>
-				) }
 			</div>
+
+			{ response.status === 'spam' && (
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>
+						{ sprintf(
+							/* translators: %d number of days. */
+							_n(
+								'Spam responses are permanently deleted after %d day.',
+								'Spam responses are permanently deleted after %d days.',
+								15,
+								'jetpack-forms'
+							),
+							// Number from https://github.com/Automattic/jetpack/blob/bde3cf9a89ce0d02e50469df173a6253383bd276/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L132
+							15
+						) }
+					</Tip>
+				</div>
+			) }
+
+			{ response.status === 'trash' && (
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>
+						{ sprintf(
+							/* translators: %d number of days. */
+							_n(
+								'Items in trash are permanently deleted after %d day.',
+								'Items in trash are permanently deleted after %d days.',
+								emptyTrashDays,
+								'jetpack-forms'
+							),
+							emptyTrashDays
+						) }
+					</Tip>
+				</div>
+			) }
 
 			{ previewFile && (
 				<Modal title={ decodeEntities( previewFile.name ) } onRequestClose={ closePreviewModal }>

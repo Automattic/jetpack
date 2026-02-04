@@ -66,7 +66,11 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 						{ displayName }
 					</Text>
 					{ response.author_email && displayName !== response.author_email && (
-						<HStack alignment="center" className="jp-forms__inbox-response-meta-from-email">
+						<HStack
+							alignment="center"
+							className="jp-forms__inbox-response-meta-from-email"
+							justify="start"
+						>
 							<Text
 								as="a"
 								href={ `mailto:${ response.author_email }` }
@@ -83,48 +87,45 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 					) }
 				</VStack>
 			</HStack>
-
-			<div className="jp-forms__inbox-response-meta-data">
-				<table>
-					<tbody>
-						<tr>
-							<th>{ __( 'Date:', 'jetpack-forms' ) }</th>
-							<td>{ dateI18n( dateSettings.formats.datetime, response.date ) }</td>
-						</tr>
-						<tr>
-							<th>{ __( 'Source:', 'jetpack-forms' ) }</th>
-							<td>
-								{ response.entry_permalink && (
-									<ExternalLink href={ response.entry_permalink }>
-										{ decodeEntities( response.entry_title ) || getPath( response ) }
+			<table className="jp-forms__inbox-response-meta-table">
+				<tbody>
+					<tr>
+						<th>{ __( 'Date:', 'jetpack-forms' ) }</th>
+						<td>{ dateI18n( dateSettings.formats.datetime, response.date ) }</td>
+					</tr>
+					<tr>
+						<th>{ __( 'Source:', 'jetpack-forms' ) }</th>
+						<td>
+							{ response.entry_permalink && (
+								<ExternalLink href={ response.entry_permalink }>
+									{ decodeEntities( response.entry_title ) || getPath( response ) }
+								</ExternalLink>
+							) }
+							{ ! response.entry_permalink && decodeEntities( response.entry_title ) }
+						</td>
+					</tr>
+					<tr>
+						<th>{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;</th>
+						<td>
+							<TextWithFlag countryCode={ response.country_code }>
+								<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
+									<ExternalLink
+										href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=/${ response.ip }` }
+									>
+										{ response.ip }
 									</ExternalLink>
-								) }
-								{ ! response.entry_permalink && decodeEntities( response.entry_title ) }
-							</td>
-						</tr>
+								</Tooltip>
+							</TextWithFlag>
+						</td>
+					</tr>
+					{ response.browser && (
 						<tr>
-							<th>{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;</th>
-							<td>
-								<TextWithFlag countryCode={ response.country_code }>
-									<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
-										<ExternalLink
-											href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=/${ response.ip }` }
-										>
-											{ response.ip }
-										</ExternalLink>
-									</Tooltip>
-								</TextWithFlag>
-							</td>
+							<th>{ __( 'Browser:', 'jetpack-forms' ) }&nbsp;</th>
+							<td>{ response.browser }</td>
 						</tr>
-						{ response.browser && (
-							<tr>
-								<th>{ __( 'Browser:', 'jetpack-forms' ) }&nbsp;</th>
-								<td>{ response.browser }</td>
-							</tr>
-						) }
-					</tbody>
-				</table>
-			</div>
+					) }
+				</tbody>
+			</table>
 		</div>
 	);
 };
