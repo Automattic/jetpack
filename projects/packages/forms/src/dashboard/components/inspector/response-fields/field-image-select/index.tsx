@@ -59,7 +59,7 @@ const ImageSelectButton = ( { choice, handleFilePreview } ) => {
 							height={ 144 }
 							alt={ choice.selected }
 							loading="lazy"
-							src={ photonSafeUrl( choice.image.src ) }
+							src={ photonSafeUrl( choice.image.src ) ?? undefined }
 						/>
 					) : (
 						<Icon icon={ imageIcon } size={ 144 } />
