@@ -1,10 +1,12 @@
-@use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/colors";
 
 .jp-forms__image-select-preview-wrapper {
 	padding-block-start: 8px;
 }
 
 .jp-forms__image-select-preview {
+	--jp-forms--image-select-border-color: rgba(0, 0, 0, 0.1);
+
 	// Without display: block, image/svg will display a blank space.
 	img,
 	svg {
@@ -14,6 +16,10 @@
 	&.has-image {
 		cursor: pointer;
 
+	}
+
+	&:hover {
+		background-color: var(--jp-forms--image-select-border-color);
 	}
 
 	.jp-forms__image-select-preview-image-wrapper {
@@ -30,11 +36,13 @@
 
 		.jp-forms__image-select-preview-selected {
 			flex-shrink: 0;
-			box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+			box-shadow: 0 0 0 1px var(--jp-forms--image-select-border-color);
 			border-radius: 2px;
 			padding: 4px;
 			min-width: 1em;
 			text-align: center;
+			background-color: colors.$white;
+			color: colors.$black;
 		}
 
 		.jp-forms__image-select-preview-label {
