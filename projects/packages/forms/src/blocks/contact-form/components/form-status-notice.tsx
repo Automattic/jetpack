@@ -1,4 +1,4 @@
-import { Notice } from '@wordpress/components';
+import { Button, Modal, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
@@ -87,6 +87,7 @@ export default function FormStatusNotice( {
 }: FormStatusNoticeProps ) {
 	const [ isPublishing, setIsPublishing ] = useState( false );
 	const [ isDeleting, setIsDeleting ] = useState( false );
+	const [ showDeleteConfirmation, setShowDeleteConfirmation ] = useState( false );
 
 	const { editEntityRecord, saveEditedEntityRecord, deleteEntityRecord } = useDispatch( coreStore );
 	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
@@ -205,36 +206,69 @@ export default function FormStatusNotice( {
 		);
 
 	const actions = [];
-	if ( formStatus !== 'trash' ) {
+
+	actions.push( {
+		label: __( 'Publish', 'jetpack-forms' ),
+		onClick: handlePublish,
+		variant: 'secondary',
+		disabled: isPublishing,
+	} );
+	if ( formStatus === 'trash' ) {
 		actions.push( {
-			label: __( 'Publish', 'jetpack-forms' ),
-			onClick: handlePublish,
-			variant: 'secondary',
-			disabled: isPublishing,
-		} );
-	} else {
-		actions.push( {
-			label: __( 'Restore', 'jetpack-forms' ),
-			onClick: handlePublish,
-			variant: 'secondary',
-			disabled: isPublishing,
-		} );
-		actions.push( {
-			label: __( 'Delete Permanently', 'jetpack-forms' ),
-			onClick: handleDeletePermanently,
+			label: __( 'Delete', 'jetpack-forms' ),
+			onClick: () => setShowDeleteConfirmation( true ),
 			variant: 'secondary',
 			disabled: isDeleting,
 		} );
 	}
 
 	return (
-		<Notice
-			status={ noticeStatus }
-			isDismissible={ false }
-			className="jetpack-contact-form__status-notice"
-			actions={ actions }
-		>
-			{ message }
-		</Notice>
+		<>
+			<Notice
+				status={ noticeStatus }
+				isDismissible={ false }
+				className="jetpack-contact-form__status-notice"
+				actions={ actions }
+			>
+				{ message }
+			</Notice>
+			{ showDeleteConfirmation && (
+				<Modal
+					title={ __( 'Delete form permanently?', 'jetpack-forms' ) }
+					onRequestClose={ () => setShowDeleteConfirmation( false ) }
+					size="small"
+				>
+					<p>
+						{ __(
+							'Are you sure you want to delete this form? This action cannot be undone.',
+							'jetpack-forms'
+						) }
+					</p>
+					<div
+						style={ {
+							display: 'flex',
+							justifyContent: 'flex-end',
+							gap: '8px',
+							marginTop: '16px',
+						} }
+					>
+						<Button variant="tertiary" onClick={ () => setShowDeleteConfirmation( false ) }>
+							{ __( 'Cancel', 'jetpack-forms' ) }
+						</Button>
+						<Button
+							variant="primary"
+							isDestructive
+							isBusy={ isDeleting }
+							onClick={ () => {
+								setShowDeleteConfirmation( false );
+								handleDeletePermanently();
+							} }
+						>
+							{ __( 'Delete Permanently', 'jetpack-forms' ) }
+						</Button>
+					</div>
+				</Modal>
+			) }
+		</>
 	);
 }
