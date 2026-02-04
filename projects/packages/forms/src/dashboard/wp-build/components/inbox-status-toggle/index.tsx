@@ -1,13 +1,10 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-/**
- * External dependencies
- */
 /**
  * Internal dependencies
  */

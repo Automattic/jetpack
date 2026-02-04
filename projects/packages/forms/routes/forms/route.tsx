@@ -1,7 +1,4 @@
 /**
- * WordPress dependencies
- */
-/**
  * Internal dependencies
  */
 import { preloadGlobalTabCounts } from '../../src/dashboard/wp-build/utils/preload';
