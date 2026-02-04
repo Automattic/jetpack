@@ -2,9 +2,9 @@
  * WordPress dependencies
  */
 import { Button } from '@wordpress/components';
-import { Stack } from '@wordpress/ui';
 import { __ } from '@wordpress/i18n';
 import { chevronUp, chevronDown, close } from '@wordpress/icons';
+import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 
 /**
@@ -40,33 +40,38 @@ export function ResponseNavigation( {
 	};
 
 	return (
-		<Stack direction="row" align="center" gap="xs" style={ { flexShrink: 0 } }>
-			<Stack direction="row" align="center">
-				<Button
-					{ ...sharedProps }
-					disabled={ ! hasPrevious }
-					icon={ chevronUp }
-					label={ __( 'Previous', 'jetpack-forms' ) }
-					onClick={ onPrevious }
-				/>
-				<Button
-					{ ...sharedProps }
-					disabled={ ! hasNext }
-					icon={ chevronDown }
-					label={ __( 'Next', 'jetpack-forms' ) }
-					onClick={ onNext }
-				/>
-				<span
-					style={ {
-						display: 'inline-block',
-						width: '1px',
-						height: '20px',
-						backgroundColor: 'var(--wp-admin-theme-color-darker-10, #135e96)',
-						opacity: 0.2,
-						marginLeft: '4px',
-					} }
-				/>
-			</Stack>
+		<Stack
+			align="center"
+			direction="row"
+			gap="xs"
+			justify="end"
+			style={ { flexShrink: 0 } }
+			wrap="wrap"
+		>
+			<Button
+				{ ...sharedProps }
+				disabled={ ! hasPrevious }
+				icon={ chevronUp }
+				label={ __( 'Previous', 'jetpack-forms' ) }
+				onClick={ onPrevious }
+			/>
+			<Button
+				{ ...sharedProps }
+				disabled={ ! hasNext }
+				icon={ chevronDown }
+				label={ __( 'Next', 'jetpack-forms' ) }
+				onClick={ onNext }
+			/>
+			<span
+				style={ {
+					display: 'inline-block',
+					width: '1px',
+					height: '20px',
+					backgroundColor: 'var(--wp-admin-theme-color-darker-10, #135e96)',
+					opacity: 0.2,
+					marginLeft: '4px',
+				} }
+			/>
 			<Button
 				{ ...sharedProps }
 				iconSize={ 20 }

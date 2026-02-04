@@ -13,25 +13,18 @@ $inspector-padding: 16px;
 }
 
 .jp-forms-response-navigation {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-
-	.jp-forms-response-navigation__arrows {
-		display: flex;
-		align-items: center;
-
-		// Add separator after the arrows group (before close button)
-		&::after {
-			content: "";
-			display: inline-block;
-			width: 1px;
-			height: 20px;
-			background-color: var(--wp-admin-theme-color-darker-10, #135e96);
-			opacity: 0.2;
-			margin-left: 4px;
-		}
-	}
+	padding: 8px 0;
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+}
+// Add separator after the arrows group (before close button)
+.jp-forms-response-navigation__arrows::after {
+	content: "";
+	display: inline-block;
+	width: 1px;
+	height: 20px;
+	background-color: var(--wp-admin-theme-color-darker-10, #135e96);
+	opacity: 0.2;
+	margin-left: 4px;
 }
 
 .jp-forms__inbox-response-data {

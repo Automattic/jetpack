@@ -187,15 +187,11 @@ function SingleResponseView( {
 	return (
 		<>
 			<Stack
-				direction="row"
-				justify="space-between"
 				align="center"
+				className="jp-forms-response-navigation"
+				direction="row"
 				gap="xs"
-				wrap="wrap"
-				style={ {
-					padding: '8px 16px',
-					borderBottom: '1px solid #e0e0e0',
-				} }
+				justify="space-between"
 			>
 				<ResponseActions response={ response } onActionComplete={ handleActionComplete } />
 				<ResponseNavigation
