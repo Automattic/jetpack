@@ -3,7 +3,7 @@
 @use "@wordpress/base-styles/variables";
 
 .jp-forms__inbox-response-meta {
-	background-color: #fcfcfc; // TODO: use wpds variable
+	background-color: var(--wpds-color-bg-surface-neutral, #f8f8f8);
 	padding: variables.$grid-unit-30 variables.$grid-unit-20;
 
 	// Multiple variables as fallback until style tokens are available everywhere.
