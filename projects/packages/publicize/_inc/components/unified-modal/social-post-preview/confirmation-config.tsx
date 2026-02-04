@@ -11,15 +11,17 @@ import { useSocialUserPreferences } from '../../../hooks/use-social-user-prefere
 export function ConfirmationConfig(): JSX.Element {
 	const preferences = useSocialUserPreferences();
 
+	const isChecked = preferences.data.prePublishConfirmation ?? true;
+
 	const onChange = useCallback( () => {
-		preferences.toggle( 'prePublishConfirmation' );
-	}, [ preferences ] );
+		preferences.set( 'prePublishConfirmation', ! isChecked );
+	}, [ preferences, isChecked ] );
 
 	return (
 		<CheckboxControl
 			__nextHasNoMarginBottom
 			label={ __( 'Always confirm before publishing', 'jetpack-publicize-pkg' ) }
-			checked={ preferences.data.prePublishConfirmation }
+			checked={ isChecked }
 			onChange={ onChange }
 		/>
 	);
