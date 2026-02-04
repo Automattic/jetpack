@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { RatingIcon } from '../../../../../blocks/field-rating/rating-icon.js';
+import { RatingIcon } from '../../../../../blocks/field-rating/rating-icon.jsx';
 import { MAX_RATING_ICONS } from '../../../../../blocks/field-rating/rating-icons.js';
 
 type FieldRatingProps = {

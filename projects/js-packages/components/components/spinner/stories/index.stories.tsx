@@ -1,4 +1,4 @@
-import Spinner from '../index.jsx';
+import Spinner from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Spinner',

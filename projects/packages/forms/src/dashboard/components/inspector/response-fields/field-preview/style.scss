@@ -12,6 +12,7 @@
 
 	.jp-forms__field-preview-content {
 		min-width: 0; // Prevents flex item from overflowing
+		word-break: break-word;
 	}
 
 	.jp-forms__field-preview-label {
