@@ -1,12 +1,17 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .unified-modal {
-	max-width: gb.$wide-content-width;
-	width: 100%;
-	height: calc(100vh - 3rem);
-	max-height: 64rem;
 
-	@include gb.break-small {
-		width: calc(100vw - 40px);
+	&:global(.components-modal__frame.is-full-screen) {
+
+		@include gb.break-medium() {
+			max-width: gb.$wide-content-width;
+			max-height: 64rem;
+		}
+
+		// Override default bottom margin for full screen modals
+		:global(:where(.components-modal__content)) {
+			margin-bottom: 0;
+		}
 	}
 }
