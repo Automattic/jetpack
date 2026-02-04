@@ -216,7 +216,7 @@ class Form_Preview {
 		$fake_post->ID            = $form_id;
 		$fake_post->post_author   = get_current_user_id();
 		$fake_post->post_date     = current_time( 'mysql' );
-		$fake_post->post_date_gmt = current_time( 'mysql', 1 );
+		$fake_post->post_date_gmt = current_time( 'mysql', true );
 		$fake_post->post_title    = sprintf(
 			/* translators: %s: Form title */
 			__( 'Preview: %s', 'jetpack-forms' ),
@@ -295,10 +295,14 @@ class Form_Preview {
 	/**
 	 * Render the form preview content.
 	 *
-	 * @param WP_Post $form The form post.
+	 * @param WP_Post|null $form The form post.
 	 * @return string The rendered content.
 	 */
-	private static function render_form_preview_content( $form ) {
+	private static function render_form_preview_content( ?WP_Post $form ) {
+		if ( ! $form ) {
+			return '';
+		}
+
 		$output = '';
 
 		// Add preview banner.
@@ -321,7 +325,7 @@ class Form_Preview {
 	 */
 	public static function enqueue_preview_styles() {
 		$css_file = __DIR__ . '/css/form-preview.css';
-		$version  = file_exists( $css_file ) ? (string) filemtime( $css_file ) : JETPACK_FORMS_VERSION;
+		$version  = file_exists( $css_file ) ? (string) filemtime( $css_file ) : \Automattic\Jetpack\Forms\Jetpack_Forms::PACKAGE_VERSION;
 
 		wp_enqueue_style(
 			'jetpack-form-preview',
