@@ -16,6 +16,7 @@ import { Stack } from '@wordpress/ui';
  * Internal dependencies
  */
 import * as Tabs from '../../../components/tabs';
+import { NON_TRASH_FORM_STATUSES } from '../../../constants.ts';
 import useFormsData from '../../../hooks/use-forms-data.ts';
 import { store as dashboardStore } from '../../../store/index.js';
 import InboxStatusToggle from '../inbox-status-toggle';
@@ -31,8 +32,6 @@ type DataViewsHeaderRowProps = {
 	statusCounts?: { inbox: number; spam: number; trash: number };
 	onStatusChange?: ( nextStatus: StatusTab ) => void;
 };
-
-const NON_TRASH_FORM_STATUSES = 'publish,draft,pending,future,private';
 
 /**
  * Shared wp-build DataViews header row:

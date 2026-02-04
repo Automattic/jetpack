@@ -16,6 +16,7 @@ import CreateFormButton from '../components/create-form-button/index.tsx';
 import DataViewsHeaderRow from '../components/dataviews-header-row/index.tsx';
 import { EmptyWrapper } from '../components/empty-responses/index.tsx';
 import Page from '../components/page/index.tsx';
+import { NON_TRASH_FORM_STATUSES } from '../constants.ts';
 import useDeleteForm from '../hooks/use-delete-form.ts';
 import useFormsData from '../hooks/use-forms-data.ts';
 import { defaultLayouts, useView } from './views.ts';
@@ -40,14 +41,12 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
 
 		// Default: show all non-trash forms (matches WP core list behavior).
-		const nonTrashStatuses = 'publish,draft,pending,future,private';
-
 		if ( ! statusFilterValue ) {
-			return nonTrashStatuses;
+			return NON_TRASH_FORM_STATUSES;
 		}
 
 		if ( statusFilterValue === 'all' ) {
-			return nonTrashStatuses;
+			return NON_TRASH_FORM_STATUSES;
 		}
 
 		return statusFilterValue;
