@@ -2,9 +2,6 @@
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
 		"strict": true,
-		"noEmit": true,
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
 		"target": "es2022"
 	},
 	"files": [],
