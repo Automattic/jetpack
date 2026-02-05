@@ -1592,8 +1592,8 @@ importers:
         specifier: 5.39.0
         version: 5.39.0(postcss@8.5.6)
       '@wordpress/theme':
-        specifier: 0.5.0
-        version: 0.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+        specifier: 0.6.0
+        version: 0.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -10763,17 +10763,6 @@ packages:
   '@wordpress/sync@1.39.0':
     resolution: {integrity: sha512-oYNxhMaNf2ZYOIuPmxkBgFNvqiSnnT8uTHrFgim09aN2fxA8Mu1G86EBokqHfAXBfx/NTiYOLbCy4bhGsjdbQg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/theme@0.5.0':
-    resolution: {integrity: sha512-6V14snLXUqVs3fBPmGJhWkgtWcrwEe7vUS04nTl7hyI5uyL+N7LXRldWTjnzwaQL0ywBIx4u13gJU/GZqOc8dQ==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-      stylelint: ^16.8.2
-    peerDependenciesMeta:
-      stylelint:
-        optional: true
 
   '@wordpress/theme@0.6.0':
     resolution: {integrity: sha512-n/O1djUn+jny46JyqCwD77nPV4zCUBIn+0ICp8fDYLXpQ7FfCfCrEfhlkQkcVB45KC1iu6IMAsLOA/9hzavHoQ==}
@@ -26310,17 +26299,6 @@ snapshots:
       lib0: 0.2.85
       y-protocols: 1.0.7(yjs@13.6.29)
       yjs: 13.6.29
-
-  '@wordpress/theme@0.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)':
-    dependencies:
-      '@wordpress/element': 6.39.0
-      '@wordpress/private-apis': 1.39.0
-      colorjs.io: 0.6.1
-      memize: 2.1.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    optionalDependencies:
-      stylelint: 16.26.1
 
   '@wordpress/theme@0.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1(typescript@5.9.3))':
     dependencies:
