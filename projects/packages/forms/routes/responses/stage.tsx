@@ -528,8 +528,7 @@ function StageInner() {
 					if ( typeof item.date !== 'string' ) {
 						return '';
 					}
-					const [ datePart ] = item.date.split( 'T' );
-					return datePart;
+					return item.date;
 				},
 				elements: ( ( filterOptions as unknown as FeedbackFilters )?.date || [] ).map( filter => {
 					const date = new Date();
