@@ -568,11 +568,11 @@ export function customizeConnectionById(
 	data: Omit< EditorConnection, 'enabled' >,
 	syncToMeta = true
 ) {
-	return function ( { dispatch } ) {
-		dispatch( customizeConnection( connectionId, data ) );
+	return async function ( { dispatch } ) {
+		await dispatch( customizeConnection( connectionId, data ) );
 
 		if ( syncToMeta ) {
-			dispatch( syncConnectionsToPostMeta() );
+			await dispatch( syncConnectionsToPostMeta() );
 		}
 	};
 }

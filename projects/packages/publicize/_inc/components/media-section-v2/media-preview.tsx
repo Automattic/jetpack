@@ -24,6 +24,7 @@ export default function MediaPreview( {
 	onReplace,
 	onRemove,
 	disabled = false,
+	showRemove = true,
 }: MediaPreviewProps ) {
 	if ( ! media && ! isLoading ) {
 		return null;
@@ -57,14 +58,16 @@ export default function MediaPreview( {
 					>
 						{ __( 'Replace', 'jetpack-publicize-pkg' ) }
 					</Button>
-					<Button
-						__next40pxDefaultSize
-						className={ styles.action }
-						onClick={ onRemove }
-						disabled={ disabled }
-					>
-						{ __( 'Remove', 'jetpack-publicize-pkg' ) }
-					</Button>
+					{ showRemove && (
+						<Button
+							__next40pxDefaultSize
+							className={ styles.action }
+							onClick={ onRemove }
+							disabled={ disabled }
+						>
+							{ __( 'Remove', 'jetpack-publicize-pkg' ) }
+						</Button>
+					) }
 				</HStack>
 			) }
 		</div>

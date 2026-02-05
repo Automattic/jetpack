@@ -1,5 +1,5 @@
 <?php
-/*!
+/*
 * Jetpack CRM
 * https://jetpackcrm.com
 *
@@ -11,24 +11,23 @@ namespace Automattic\JetpackCRM;
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
- * 
+ *
  * Client Portal class that helps rendering the Client Portal HTML.
- * 
  */
 class Client_Portal_Render_Helper {
 	public $parent_portal;
 
-	public function __construct($parent) {
+	public function __construct( $parent ) {
 		$this->parent_portal = $parent;
 	}
 
 	/**
-	* Shows an object load error and dies.
-	*/
+	 * Shows an object load error and dies.
+	 */
 	function show_single_obj_error_and_die() {
-		$err = '<center>';
-		$err .= '<h3>'.__('Error loading object','zero-bs-crm').'</h3>';
-		$err .= __('Either this object does not exist or you do not have permission to view it.', 'zero-bs-crm');
+		$err  = '<center>';
+		$err .= '<h3>' . __( 'Error loading object', 'zero-bs-crm' ) . '</h3>';
+		$err .= __( 'Either this object does not exist or you do not have permission to view it.', 'zero-bs-crm' );
 		$err .= '</center>';
 		echo $err;
 		die( 0 );
@@ -79,18 +78,18 @@ class Client_Portal_Render_Helper {
 
 		</div>
 		<?php
-
 	}
 
 	// upsell shown to admins across whole portal as they view as admin
-	function admin_message(){
+	function admin_message() {
 
 		global $zbs;
 
 		// temp fix
-		if (current_user_can( 'admin_zerobs_manage_options' ) && !function_exists('zeroBSCRM_cpp_register_endpoints')){// !zeroBSCRM_isExtensionInstalled('clientportalpro')){
+		if ( current_user_can( 'admin_zerobs_manage_options' ) && ! function_exists( 'zeroBSCRM_cpp_register_endpoints' ) ) {// !zeroBSCRM_isExtensionInstalled('clientportalpro')){
 
-		##WLREMOVE ?>
+			##WLREMOVE
+			?>
 
 		<script type="text/javascript">
 			jQuery(function(){
@@ -99,12 +98,12 @@ class Client_Portal_Render_Helper {
 				});
 			});
 		</script>
-		<?php ##/WLREMOVE
+			<?php
+			##/WLREMOVE
 
 		}
 
 		return '';
-
 	}
 
 	function portal_nav( $selected_item = 'dashboard', $do_echo = true ) {
@@ -112,7 +111,7 @@ class Client_Portal_Render_Helper {
 
 		$nav_html        = '';
 		$zbsWarn         = '';
-		$dash_link       = zeroBS_portal_link('dash');
+		$dash_link       = zeroBS_portal_link( 'dash' );
 		$portal_root_url = \jpcrm_get_client_portal_root_url();
 		$nav_html       .= '	<ul id="zbs-nav-tabs">';
 
@@ -122,18 +121,18 @@ class Client_Portal_Render_Helper {
 			}
 			$link  = $endpoint->slug == 'dashboard' ? esc_url( $portal_root_url ) : esc_url( $portal_root_url . $endpoint->slug );
 			$class = $endpoint->slug == $selected_item ? 'active' : '';
-			//produce the menu from the array of menu items (easier to extend :-) ).
+			// produce the menu from the array of menu items (easier to extend :-) ).
 			// WH: this assumes icon, otehrwise it'll break! :o
-			$nav_html .= "<li class='" . $class . "'><a href='" . $link . "'><i class='fa " . $endpoint->icon . "'></i>" . $endpoint->name . "</a></li>";
+			$nav_html .= "<li class='" . $class . "'><a href='" . $link . "'><i class='fa " . $endpoint->icon . "'></i>" . $endpoint->name . '</a></li>';
 		}
 
-		$zbs_logout_text = __('Log out',"zero-bs-crm");
-		$zbs_logout_text = apply_filters('zbs_portal_logout_text', $zbs_logout_text);
+		$zbs_logout_text = __( 'Log out', 'zero-bs-crm' );
+		$zbs_logout_text = apply_filters( 'zbs_portal_logout_text', $zbs_logout_text );
 
 		$zbs_logout_icon = 'fa-sign-out';
-		$zbs_logout_icon = apply_filters('zbs_portal_logout_icon', $zbs_logout_icon);
+		$zbs_logout_icon = apply_filters( 'zbs_portal_logout_icon', $zbs_logout_icon );
 
-		$nav_html .= "<li><a href='". wp_logout_url( $dash_link ) . "'><i class='fa ".$zbs_logout_icon."' aria-hidden='true'></i>" . $zbs_logout_text . "</a></li>";
+		$nav_html .= "<li><a href='" . wp_logout_url( $dash_link ) . "'><i class='fa " . $zbs_logout_icon . "' aria-hidden='true'></i>" . $zbs_logout_text . '</a></li>';
 		$nav_html .= '</ul>';
 
 		// echo or return nav HTML depending on flag; defaults to echo (legacy support)

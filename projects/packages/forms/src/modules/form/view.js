@@ -246,6 +246,12 @@ const { state, actions } = store( NAMESPACE, {
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
 		},
 
+		get fieldAriaInvalid() {
+			// Return 'true' for invalid fields, null to remove the attribute entirely.
+			// Using null instead of false prevents VoiceOver from announcing "invalid" for valid fields.
+			return state.fieldHasErrors ? 'true' : null;
+		},
+
 		get isFormEmpty() {
 			const context = getContext();
 			// If this is a multistep form (identified by the presence of `maxSteps` in context),
@@ -286,6 +292,11 @@ const { state, actions } = store( NAMESPACE, {
 
 		get isAriaDisabled() {
 			return state.isSubmitting;
+		},
+
+		get isSuccessMessageAriaHidden() {
+			const context = getContext();
+			return context.submissionSuccess ? null : 'true';
 		},
 
 		get errorMessage() {
@@ -499,6 +510,23 @@ const { state, actions } = store( NAMESPACE, {
 		onFormSubmit: withSyncEvent( function* ( event ) {
 			const context = getContext();
 
+			// Check if we're in preview mode and block submission.
+			if ( window.jetpackFormsPreviewMode ) {
+				event.preventDefault();
+				event.stopPropagation();
+				context.submissionError = config.error_types?.preview_mode;
+
+				if ( errorTimeout ) {
+					clearTimeout( errorTimeout );
+				}
+
+				errorTimeout = setTimeout( () => {
+					context.submissionError = null;
+				}, 5000 );
+
+				return;
+			}
+
 			if ( ! state.isFormValid ) {
 				context.showErrors = true;
 				event.preventDefault();
@@ -635,7 +663,60 @@ const { state, actions } = store( NAMESPACE, {
 			if ( context.submissionSuccess || context.hasClickedBack ) {
 				const wrapperElement = document.getElementById( `contact-form-${ context.formId }` );
 				wrapperElement?.scrollIntoView( { behavior: 'smooth' } );
+
+				// Move focus to the success wrapper for screen reader announcement.
+				// The wrapper has aria-labelledby pointing to the heading, so VoiceOver
+				// will read the heading content without announcing "heading level 4".
+				if ( context.submissionSuccess && ! context.hasClickedBack ) {
+					const successWrapper = document.getElementById(
+						`contact-form-success-${ context.formHash }`
+					);
+					successWrapper?.focus();
+				}
+
 				context.hasClickedBack = false;
+			}
+		},
+
+		focusOnValidationError() {
+			const context = getContext();
+
+			if ( state.showFormErrors ) {
+				// Only move focus once per error episode to avoid trapping keyboard users.
+				if ( context.didFocusValidationError ) {
+					return;
+				}
+
+				const { ref } = getElement();
+
+				if ( ref ) {
+					ref.focus();
+					context.didFocusValidationError = true;
+				}
+			} else if ( context.didFocusValidationError ) {
+				// Reset when errors clear so future errors can move focus again.
+				context.didFocusValidationError = false;
+			}
+		},
+
+		focusOnSubmissionError() {
+			const context = getContext();
+
+			if ( state.showSubmissionError ) {
+				// Only move focus once per error episode to avoid trapping keyboard users.
+				if ( context.didFocusSubmissionError ) {
+					return;
+				}
+
+				const { ref } = getElement();
+
+				if ( ref ) {
+					ref.focus();
+					context.didFocusSubmissionError = true;
+				}
+			} else if ( context.didFocusSubmissionError ) {
+				// Reset when errors clear so future errors can move focus again.
+				context.didFocusSubmissionError = false;
 			}
 		},
 

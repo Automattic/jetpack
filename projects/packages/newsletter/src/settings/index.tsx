@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import restApi from '@automattic/jetpack-api';
 import { Notice, Snackbar } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { fetchSettings, updateSettings } from './api';
 import { Header } from './components/header';
 import {
 	EmailContentSection,
@@ -89,14 +89,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	// Load settings on mount
 	useEffect( () => {
-		// Initialize the REST API with settings from PHP
-		if ( jetpackSettings?.restApiRoot && jetpackSettings?.restApiNonce ) {
-			restApi.setApiRoot( jetpackSettings.restApiRoot );
-			restApi.setApiNonce( jetpackSettings.restApiNonce );
-		}
-
-		restApi
-			.fetchSettings()
+		fetchSettings( jetpackSettings )
 			.then( ( settings: Record< string, unknown > ) => {
 				setData( normalizeSettings( settings ) );
 				setIsLoading( false );
@@ -107,7 +100,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
 				setIsLoading( false );
 			} );
-	}, [ jetpackSettings?.restApiRoot, jetpackSettings?.restApiNonce ] );
+	}, [ jetpackSettings ] );
 
 	// Handle auto-save for newsletter toggle and email settings
 	const handleAutoSave = useCallback(
@@ -120,8 +113,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			setData( prev => ( { ...prev, ...updates } ) );
 
 			// Save to backend
-			restApi
-				.updateSettings( updates )
+			updateSettings( updates, jetpackSettings )
 				.then( () => {
 					setError( null );
 				} )
@@ -133,7 +125,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					setData( data );
 				} );
 		},
-		[ data ]
+		[ data, jetpackSettings ]
 	);
 
 	// Handle sender name changes (staged, not auto-saved)
@@ -153,8 +145,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		setIsSavingSenderName( true );
 		setError( null );
 
-		restApi
-			.updateSettings( senderNameChanges )
+		updateSettings( senderNameChanges, jetpackSettings )
 			.then( () => {
 				setError( null );
 				setSenderNameChanges( {} );
@@ -168,7 +159,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingSenderName( false );
 			} );
-	}, [ senderNameChanges, data ] );
+	}, [ senderNameChanges, data, jetpackSettings ] );
 
 	// Handle subscription settings changes (staged, not auto-saved)
 	const handleSubscriptionChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
@@ -187,8 +178,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		setIsSavingSubscriptions( true );
 		setError( null );
 
-		restApi
-			.updateSettings( subscriptionChanges )
+		updateSettings( subscriptionChanges, jetpackSettings )
 			.then( () => {
 				setError( null );
 				setSubscriptionChanges( {} );
@@ -204,7 +194,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingSubscriptions( false );
 			} );
-	}, [ subscriptionChanges, data ] );
+	}, [ subscriptionChanges, data, jetpackSettings ] );
 
 	// Handle newsletter categories changes (staged, not auto-saved)
 	const handleNewsletterCategoriesChange = useCallback(
@@ -244,8 +234,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			}
 		}
 
-		restApi
-			.updateSettings( apiUpdates )
+		updateSettings( apiUpdates, jetpackSettings )
 			.then( () => {
 				setError( null );
 				setNewsletterCategoriesChanges( {} );
@@ -261,7 +250,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingNewsletterCategories( false );
 			} );
-	}, [ newsletterCategoriesChanges, data ] );
+	}, [ newsletterCategoriesChanges, data, jetpackSettings ] );
 
 	// Handle welcome email changes (staged, not auto-saved)
 	const handleWelcomeEmailChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
@@ -280,8 +269,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		setIsSavingWelcomeEmail( true );
 		setError( null );
 
-		restApi
-			.updateSettings( welcomeEmailChanges )
+		updateSettings( welcomeEmailChanges, jetpackSettings )
 			.then( () => {
 				setError( null );
 				setWelcomeEmailChanges( {} );
@@ -297,7 +285,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingWelcomeEmail( false );
 			} );
-	}, [ welcomeEmailChanges, data ] );
+	}, [ welcomeEmailChanges, data, jetpackSettings ] );
 
 	if ( isLoading ) {
 		return (

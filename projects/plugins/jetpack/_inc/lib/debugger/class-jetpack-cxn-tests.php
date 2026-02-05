@@ -455,15 +455,36 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( ! $identity_crisis ) {
 			$result = self::passing_test( array( 'name' => $name ) );
 		} else {
+			$messages = array();
+
+			// Check each URL pair and add a message for any that mismatch.
+			if ( isset( $identity_crisis['home'] ) && isset( $identity_crisis['wpcom_home'] ) && $identity_crisis['home'] !== $identity_crisis['wpcom_home'] ) {
+				$messages[] = sprintf(
+					/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
+					__( 'Your home URL is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`.', 'jetpack' ),
+					$identity_crisis['home'],
+					$identity_crisis['wpcom_home']
+				);
+			}
+
+			if ( isset( $identity_crisis['siteurl'] ) && isset( $identity_crisis['wpcom_siteurl'] ) && $identity_crisis['siteurl'] !== $identity_crisis['wpcom_siteurl'] ) {
+				$messages[] = sprintf(
+					/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
+					__( 'Your site URL is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`.', 'jetpack' ),
+					$identity_crisis['siteurl'],
+					$identity_crisis['wpcom_siteurl']
+				);
+			}
+
+			// Fallback if no specific mismatch was detected (shouldn't happen, but be safe).
+			if ( empty( $messages ) ) {
+				$messages[] = __( 'A URL mismatch was detected between your site and WordPress.com.', 'jetpack' );
+			}
+
 			$result = self::failing_test(
 				array(
 					'name'              => $name,
-					'short_description' => sprintf(
-						/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
-						__( 'Your url is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`!', 'jetpack' ),
-						$identity_crisis['home'],
-						$identity_crisis['wpcom_home']
-					),
+					'short_description' => implode( ' ', $messages ),
 					'action_label'      => $this->helper_get_support_text(),
 					'action'            => $this->helper_get_support_url(),
 				)
