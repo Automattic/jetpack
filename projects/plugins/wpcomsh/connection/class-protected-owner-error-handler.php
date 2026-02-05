@@ -440,6 +440,14 @@ class Protected_Owner_Error_Handler {
 			return;
 		}
 
+		// Define allowed HTML for the warning message (only safe link attributes)
+		$allowed_html = array(
+			'a' => array(
+				'href'   => array(),
+				'target' => array(),
+			),
+		);
+
 		$wpcom_account_link = '<a href="https://wordpress.com/me/account" target="_blank">WordPress.com account</a>';
 
 		if ( 'email_match' === $status['match_type'] ) {
@@ -464,6 +472,9 @@ class Protected_Owner_Error_Handler {
 				$wpcom_account_link
 			);
 		}
+
+		// Sanitize HTML to only allow safe tags
+		$warning_text  = wp_kses( $warning_text, $allowed_html );
 		$warning_label = __( 'Warning:', 'wpcomsh' );
 		?>
 		<script type="text/javascript">
