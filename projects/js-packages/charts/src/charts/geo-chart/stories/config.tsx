@@ -26,5 +26,4 @@ export const geoChartMetaArgs: Meta< StoryArgs > = {
 export const geoChartStoryArgs = {
 	data: viewsByCountry,
 	withPadding: false,
-	height: 500,
 };
