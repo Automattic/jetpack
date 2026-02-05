@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Form Notifications: Add new HTML email template structure with respondent info section, metadata section (date, source, device, IP), and updated action buttons.
