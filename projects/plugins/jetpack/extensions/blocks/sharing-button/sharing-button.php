@@ -85,7 +85,7 @@ function render_block( $attr, $content, $block ) {
 
 	$accessible_name = sprintf(
 		/* translators: %s refers to a string representation of sharing service, e.g. Facebook */
-		esc_html__( 'Click to share on %s', 'jetpack' ),
+		esc_html__( 'Share on %s', 'jetpack' ),
 		esc_html( $title )
 	);
 

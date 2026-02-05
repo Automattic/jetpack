@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.1] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.27.0] - 2026-01-26
+### Added
+- Improve post promotion speed by handling the Blaze “advise campaign” endpoint locally, reducing the initial sync delay. [#46623]
+- Improve post promotion speed by handling the Blaze “create campaign” endpoint locally, reducing the initial sync delay. [#46642]
+- Improve post promotion speed by handling the Blaze “get article” endpoint locally, reducing the initial sync delay. [#46578]
+
+### Changed
+- Reduce time-to-first-use by querying local database when Jetpack Sync is not ready. [#46500]
+
+## [0.26.24] - 2026-01-19
+### Changed
+- Update package dependencies. [#46552] [#46647]
+
+## [0.26.23] - 2026-01-09
+### Changed
+- Update package dependencies. [#46456]
+
+## [0.26.22] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [0.26.21] - 2025-12-15
+### Changed
+- Update dependencies. [#46271]
+
+## [0.26.20] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
 ## [0.26.19] - 2025-12-01
 ### Changed
 - Update package dependencies. [#46143]
@@ -736,6 +769,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.27.1]: https://github.com/automattic/jetpack-blaze/compare/v0.27.0...v0.27.1
+[0.27.0]: https://github.com/automattic/jetpack-blaze/compare/v0.26.24...v0.27.0
+[0.26.24]: https://github.com/automattic/jetpack-blaze/compare/v0.26.23...v0.26.24
+[0.26.23]: https://github.com/automattic/jetpack-blaze/compare/v0.26.22...v0.26.23
+[0.26.22]: https://github.com/automattic/jetpack-blaze/compare/v0.26.21...v0.26.22
+[0.26.21]: https://github.com/automattic/jetpack-blaze/compare/v0.26.20...v0.26.21
+[0.26.20]: https://github.com/automattic/jetpack-blaze/compare/v0.26.19...v0.26.20
 [0.26.19]: https://github.com/automattic/jetpack-blaze/compare/v0.26.18...v0.26.19
 [0.26.18]: https://github.com/automattic/jetpack-blaze/compare/v0.26.17...v0.26.18
 [0.26.17]: https://github.com/automattic/jetpack-blaze/compare/v0.26.16...v0.26.17

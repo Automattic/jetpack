@@ -50,10 +50,6 @@ class Social_Admin_Page {
 	 */
 	public function add_menu() {
 
-		if ( ! Publicize_Script_Data::has_feature_flag( 'admin-page' ) ) {
-			return;
-		}
-
 		// Remove the old Social menu item, if it exists.
 		Admin_Menu::remove_menu( 'jetpack-social' );
 

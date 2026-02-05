@@ -24,7 +24,25 @@ $stubs = strtr(
 	)
 );
 
+// PHPunit now has a TestDoubleBuilder, which is not itself generic but is extended by MockBuilder and falls to the same bug. Sigh.
+// Make it pretend to be generic, then the bit below will apply to it too.
+$stubs = preg_replace(
+	'#^\s*\*/\s+abstract class TestDoubleBuilder\s#ms',
+	" * @template MockedType\n$0",
+	$stubs
+);
+if ( $stubs === null ) {
+	throw new RuntimeException( preg_last_error_msg() );
+}
+
+// Also it seems to get confused by TestStubBuilder using "StubbedType" rather than "MockedType". `@inherits` doesn't seem to help.
+$stubs = preg_replace( '/\bStubbedType\b/', 'MockedType', $stubs );
+if ( $stubs === null ) {
+	throw new RuntimeException( preg_last_error_msg() );
+}
+
 // Phan doesn't track generics across `@return $this` properly. Rewrite them.
+// Possibly fixed in Phan v6? https://github.com/phan/phan/issues/4849
 $stubs = preg_replace_callback(
 	'#^\s*+(/\*(?>.*?\*/))\s+(?:final |abstract |readonly )*+class [A-Za-z_][A-Za-z0-9_]*+\s*+{(?:[^{}]*+{\s*+})*+[^{}]*+}#ms',
 	function ( $m ) {
@@ -35,13 +53,6 @@ $stubs = preg_replace_callback(
 	},
 	$stubs
 );
-if ( $stubs === null ) {
-	throw new RuntimeException( preg_last_error_msg() );
-}
-
-// Phan silently fails on PHP 8.3 typed class constants (at least when running with PHP 8.2).
-// https://github.com/phan/phan/issues/4829
-$stubs = preg_replace( '/^(\s*+public const) (?:int|string) /m', '$1 ', $stubs );
 if ( $stubs === null ) {
 	throw new RuntimeException( preg_last_error_msg() );
 }

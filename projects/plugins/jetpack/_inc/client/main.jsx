@@ -143,6 +143,7 @@ const settingsRoutes = [
 	'/discussion',
 	'/earn',
 	'/newsletter',
+	'/reader',
 	'/traffic',
 	'/privacy',
 ];
@@ -329,6 +330,7 @@ class Main extends Component {
 			case '/discussion':
 			case '/earn':
 			case '/newsletter':
+			case '/reader':
 			case '/traffic':
 			case '/privacy':
 				return (
@@ -542,6 +544,7 @@ class Main extends Component {
 			case '/discussion':
 			case '/earn':
 			case '/newsletter':
+			case '/reader':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (

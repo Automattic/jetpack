@@ -1,11 +1,13 @@
 import { Button, Flex, FlexBlock, FlexItem, useNavigator } from '@wordpress/components';
-import { useContext } from 'react';
+import clsx from 'clsx';
+import { useCallback, useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
-import styles from './styles.module.scss';
-import { SharedProps } from './types.ts';
 
-export type FooterProps = SharedProps & {
-	actions?: Array< React.ComponentProps< typeof Button > >;
+export type FooterProps = React.HTMLAttributes< HTMLDivElement > & {
+	actions?: Array<
+		| ( ( props: { navigate: VoidFunction } ) => React.ReactElement )
+		| React.ComponentProps< typeof Button >
+	>;
 	isScreenLocked?: boolean;
 };
 
@@ -16,32 +18,41 @@ export type FooterProps = SharedProps & {
  *
  * @return The rendered footer.
  */
-export function Footer( { children, actions, isScreenLocked }: FooterProps ) {
+export function Footer( { children, actions, isScreenLocked, className, ...props }: FooterProps ) {
 	const navigator = useNavigator();
 	const context = useContext( NavigatorModalContext );
 
+	const navigate = useCallback( () => {
+		if ( ! isScreenLocked ) {
+			navigator.goBack();
+		} else {
+			context.onClose?.();
+		}
+	}, [ isScreenLocked, navigator, context ] );
+
 	return (
-		<Flex className={ styles.footer }>
+		<Flex className={ clsx( 'jp-navigator-modal__footer', className ) } { ...props }>
 			<FlexBlock>{ children }</FlexBlock>
 			{ actions ? (
 				<FlexItem>
 					<Flex>
-						{ actions.map( ( { onClick, ...actionProps }, index ) => (
-							<Button
-								// eslint-disable-next-line react/jsx-no-bind
-								onClick={ event => {
-									onClick?.( event );
+						{ actions.map( ( action, index ) => {
+							if ( typeof action === 'function' ) {
+								return action( { navigate } );
+							}
 
-									if ( ! isScreenLocked ) {
-										navigator.goBack();
-									} else {
-										context.onClose?.();
-									}
-								} }
-								key={ index }
-								{ ...actionProps }
-							/>
-						) ) }
+							return (
+								<Button
+									key={ index }
+									{ ...action }
+									// eslint-disable-next-line react/jsx-no-bind
+									onClick={ event => {
+										action.onClick?.( event );
+										navigate();
+									} }
+								/>
+							);
+						} ) }
 					</Flex>
 				</FlexItem>
 			) : null }

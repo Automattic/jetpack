@@ -5,6 +5,87 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.72.1] - 2026-02-02
+### Added
+- Add "View" action to the scheduled post snackbar. [#46772]
+- Add "View scheduled" link in share preview modal. [#46776]
+- Gate per-network customization behind paid features. [#46740]
+- Sync media to connections for per network customizations. [#46744]
+
+### Changed
+- Adjust connection toggle UI and remove redundant "Preview" heading. [#46889]
+- Convert upgrade and demo buttons to links that open in new tab. [#46891]
+- Mark new connections as shared by default for privileged users. [#46796]
+- Preview Modal: Clarify disabled account state with icon and simple text. [#46885]
+- Social Preview: Retain previously selected preview tab on navigation. [#46886]
+- Update social post preview modal height. [#46882]
+- Update package dependencies. [#46430] [#46853] [#46854]
+
+### Fixed
+- Fix the social preview modal UX. [#46856]
+
+## [0.72.0] - 2026-01-26
+### Added
+- Add sharing activity modal with tabs for All shares, Shared, and Scheduled views. [#46633]
+- Add HMR support by wiring up webpack dev server. [#46686]
+- Unify shared and scheduled sharing activity in Dataviews table. [#46724]
+- Wire up media customization per network. [#46699]
+- Wire up per-network customization form. [#46678]
+
+### Changed
+- Refactor share status UI to use Notice component. [#46673]
+- Show a snackbar while sharing is in progress. [#46672]
+- Update the customization toggle and save the flag to post meta. [#46654]
+- Use fallback avatar for Jetpack Social connection icons. [#46677]
+
+## [0.71.0] - 2026-01-19
+### Added
+- Add per-network customization with global toggle and per-connection message/media overrides. [#46563]
+
+### Changed
+- Disable customization form when connection is disabled. [#46588]
+- Update package dependencies. [#46647]
+
+## [0.70.0] - 2026-01-14
+### Changed
+- Decouple `SharePostForm` component from the store by adding optional props for controlled mode. [#46545]
+- Move publicize-components into publicize package. [#46516]
+- Update package dependencies. [#46552]
+- Use tab panel for preview and customization in the preview modal. [#46584]
+
+## [0.69.2] - 2026-01-12
+### Changed
+- Update package dependencies. [#46456]
+
+### Removed
+- Remove the obsolete share limits logic. [#46468]
+
+## [0.69.1] - 2026-01-06
+### Removed
+- Remove the unused Dismissed_Notices class. [#46398]
+- Remove unused feature flag logic. [#46386]
+
+## [0.69.0] - 2025-12-22
+### Added
+- Added Share post action to the post list screen. Shows automatically for plans with republicize support, and supports the `jetpack_post_list_display_share_action` filter for custom overrides. [#46323]
+
+### Changed
+- Update dependencies. [#46381]
+
+## [0.68.1] - 2025-12-15
+### Changed
+- Replace use of confusing `esc_js` with `wp_json_encode`. [#46229]
+
+### Removed
+- Social: Remove the usage of useAdminUiV1 feature flag. [#46280]
+
+## [0.68.0] - 2025-12-08
+### Added
+- Added new media selector UI. [#46085]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
 ## [0.67.7] - 2025-12-01
 ### Changed
 - Update package dependencies. [#46143]
@@ -1167,6 +1248,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.72.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.0...v0.72.1
+[0.72.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.71.0...v0.72.0
+[0.71.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.70.0...v0.71.0
+[0.70.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.2...v0.70.0
+[0.69.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.1...v0.69.2
+[0.69.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.0...v0.69.1
+[0.69.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.68.1...v0.69.0
+[0.68.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.68.0...v0.68.1
+[0.68.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.7...v0.68.0
 [0.67.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.6...v0.67.7
 [0.67.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.5...v0.67.6
 [0.67.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.4...v0.67.5

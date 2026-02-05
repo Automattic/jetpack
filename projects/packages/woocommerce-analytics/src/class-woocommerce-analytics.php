@@ -21,7 +21,7 @@ class Woocommerce_Analytics {
 	/**
 	 * Package version.
 	 */
-	const PACKAGE_VERSION = '0.13.0';
+	const PACKAGE_VERSION = '0.15.2';
 
 	/**
 	 * Proxy speed module version.
@@ -174,6 +174,19 @@ class Woocommerce_Analytics {
 	 * Maybe add proxy speed module.
 	 */
 	public static function maybe_add_proxy_speed_module() {
+		/**
+		 * Filter to control auto-installation of the proxy speed module mu-plugin.
+		 *
+		 * When this filter returns false, the mu-plugin file can't be added automatically.
+		 *
+		 * @since 0.15.0
+		 *
+		 * @param bool $auto_install Whether to auto-install the mu-plugin. Default true.
+		 */
+		if ( ! apply_filters( 'woocommerce_analytics_auto_install_proxy_speed_module', true ) ) {
+			return;
+		}
+
 		if ( ! self::init_filesystem() ) {
 			return;
 		}

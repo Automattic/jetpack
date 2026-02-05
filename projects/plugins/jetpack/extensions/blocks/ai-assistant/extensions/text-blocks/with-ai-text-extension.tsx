@@ -223,12 +223,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
-			( suggestion: string, skipRequestCount?: boolean, modelUsed?: AiModelTypeProp ) => {
+			( suggestion: string, modelUsed?: AiModelTypeProp ) => {
 				disableAutoScroll();
 				onBlockDone( suggestion );
-				if ( ! skipRequestCount ) {
-					increaseRequestsCount();
-				}
+				increaseRequestsCount();
 				setAction( '' );
 
 				tracks.recordEvent( 'jetpack_ai_assistant_toolbar_extension_generate', {

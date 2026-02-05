@@ -81,6 +81,34 @@ export type Pattern = {
 };
 
 /**
+ * Represents a single field in a form response (new collection format).
+ */
+export interface ResponseField {
+	/** The field label displayed to users. */
+	label: string;
+	/** The field value. */
+	value: unknown;
+	/** The field type (e.g., 'name', 'email', 'text', 'file', etc.). 'basic' is a legacy value for older responses. */
+	type?: FieldType | 'basic';
+	/** The form field ID from the form schema. */
+	id?: string;
+	/** The field key. */
+	key: string;
+	/** Additional metadata for the field. */
+	meta?: Record< string, unknown >;
+}
+
+/**
+ * Legacy format for fields (label-value pairs).
+ */
+export type LegacyResponseFields = Record< string, unknown >;
+
+/**
+ * Fields can be either the new collection format (array) or the legacy format (object).
+ */
+export type ResponseFields = ResponseField[] | LegacyResponseFields;
+
+/**
  * Represents a form response.
  */
 export interface FormResponse {
@@ -114,10 +142,48 @@ export interface FormResponse {
 	has_file: boolean;
 	/** Whether the response is unread. */
 	is_unread: boolean;
-	/** The fields of the response. */
-	fields: Record< string, unknown >;
+	/** The fields of the response (can be new collection format or legacy format). */
+	fields: ResponseFields;
 	/** The URL to edit the form that the response was submitted to. */
 	edit_form_url: string;
+}
+
+/**
+ * Comment on a feedback post.
+ * Based on WordPress wp/v2/comments REST API response.
+ */
+export interface FeedbackComment {
+	/** The unique identifier for the comment. */
+	id: number;
+	/** The ID of the associated post. */
+	post: number;
+	/** The ID of the parent comment (0 for top-level comments). */
+	parent: number;
+	/** Display name of the comment author. */
+	author_name: string;
+	/** URL of the comment author. */
+	author_url: string;
+	/** The date the comment was published. */
+	date: string;
+	/** The date the comment was published, in GMT. */
+	date_gmt: string;
+	/** The content of the comment. */
+	content: {
+		/** The rendered HTML content. */
+		rendered: string;
+		/** The raw content. */
+		raw?: string;
+	};
+	/** Status of the comment (e.g., 'approved', 'hold', 'spam'). */
+	status: string;
+	/** Type of comment (usually 'comment'). */
+	type: string;
+	/** Avatar URLs for the comment author. */
+	author_avatar_urls?: {
+		24?: string;
+		48?: string;
+		96?: string;
+	};
 }
 
 /**
@@ -232,6 +298,8 @@ export type BlockEditorStoreSelect = {
  * Forms script data exposed via JetpackScriptData.forms
  */
 export interface FormsConfigData {
+	/** Whether the central form management feature is enabled (feature-flagged). */
+	isCentralFormManagementEnabled?: boolean;
 	/** Whether MailPoet integration is enabled across contexts. */
 	isMailPoetEnabled?: boolean;
 	/** Whether Hostinger Reach integration is enabled across contexts. */
@@ -252,6 +320,8 @@ export interface FormsConfigData {
 	canActivatePlugins?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
+	/** Whether form notes are enabled. */
+	isNotesEnabled?: boolean;
 	/** The URL of the Forms responses list in wp-admin. */
 	formsResponsesUrl?: string;
 	/** Current site blog ID. */
@@ -270,4 +340,40 @@ export interface FormsConfigData {
 	newFormNonce?: string;
 	/** Number of days before WordPress permanently deletes trash. See https://developer.wordpress.org/advanced-administration/wordpress/wp-config/#empty-trash */
 	emptyTrashDays?: number;
+	/** The base admin URL for the site. */
+	adminUrl?: string;
+	/** The admin-ajax.php URL for the site. */
+	ajaxUrl?: string;
 }
+
+export type FieldType =
+	| 'name'
+	| 'email'
+	| 'phone'
+	| 'telephone'
+	| 'url'
+	| 'file'
+	| 'image-select'
+	| 'date'
+	| 'select'
+	| 'checkbox'
+	| 'checkbox-multiple'
+	| 'radio'
+	| 'textarea'
+	| 'text'
+	| 'number'
+	| 'slider'
+	| 'range'
+	| 'rating'
+	| 'consent'
+	| 'time'
+	| 'hidden';
+
+export type FileItem = {
+	file_id: number;
+	name: string;
+	url: string;
+	size: string;
+	type?: string;
+	is_previewable?: boolean;
+};

@@ -4,11 +4,11 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 15.3.1
+ * Version: 15.5
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 6.7
+ * Requires at least: 6.8
  * Requires PHP: 7.2
  *
  * @package automattic/jetpack
@@ -26,8 +26,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
@@ -38,9 +37,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! defined( 'JETPACK__VERSION' ) ) {
 	// This breaks the project version checks when a one-liner.
-	define( 'JETPACK__VERSION', '15.3.1' );
+	define( 'JETPACK__VERSION', '15.5' );
 }
-defined( 'JETPACK__MINIMUM_WP_VERSION' ) || define( 'JETPACK__MINIMUM_WP_VERSION', '6.7' );
+defined( 'JETPACK__MINIMUM_WP_VERSION' ) || define( 'JETPACK__MINIMUM_WP_VERSION', '6.8' );
 defined( 'JETPACK__MINIMUM_PHP_VERSION' ) || define( 'JETPACK__MINIMUM_PHP_VERSION', '7.2' );
 
 /**

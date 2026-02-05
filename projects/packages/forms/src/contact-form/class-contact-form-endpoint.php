@@ -345,6 +345,49 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			)
 		);
 	}
+	/**
+	 * Get source array from post IDs
+	 *
+	 * @param array $post_ids Array of post IDs.
+	 *
+	 * @return array Array of sources.
+	 */
+	private static function get_source_array( $post_ids ) {
+		if ( empty( $post_ids ) ) {
+			return array();
+		}
+
+		$source_query = new WP_Query(
+			array(
+				'post__in'       => $post_ids,
+				'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private', 'inherit', 'trash' ),
+				'post_type'      => 'any',
+				'orderby'        => 'post_title',
+				'order'          => 'ASC',
+				'posts_per_page' => count( $post_ids ), // Retrieve all in the post_ids array but no more than that.
+			)
+		);
+
+		return array_map(
+			static function ( $post ) {
+				$permalink = get_permalink( $post->ID );
+				if ( $permalink === false ) {
+					$permalink = '';
+				}
+				$status = get_post_status( $post );
+				$title  = get_the_title( $post->ID );
+				if ( 'trash' === $status ) {
+					$title = sprintf( /* translators: %s: post title */ __( '(trashed) %s', 'jetpack-forms' ), $title );
+				}
+				return array(
+					'id'    => $post->ID,
+					'title' => $title,
+					'url'   => $permalink,
+				);
+			},
+			$source_query->posts
+		);
+	}
 
 	/**
 	 * Retrieves all distinct sources (posts) and all the distinct available dates that
@@ -367,6 +410,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
 			array_diff_key( array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) ), array( 'post_parent' => '' ) )
 		);
+
 		return rest_ensure_response(
 			array(
 				'date'   => array_map(
@@ -378,16 +422,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					},
 					$months
 				),
-				'source' => array_map(
-					static function ( $post_id ) {
-						return array(
-							'id'    => $post_id,
-							'title' => get_the_title( $post_id ),
-							'url'   => get_permalink( $post_id ),
-						);
-					},
-					$source_ids
-				),
+				'source' => self::get_source_array( $source_ids ),
 			)
 		);
 	}
@@ -860,7 +895,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$data['fields'] = $feedback_response->get_compiled_fields( 'api', 'label-value' );
+			$fields_format  = $request->get_param( 'fields_format' ) ?? 'label-value';
+			$data['fields'] = $feedback_response->get_compiled_fields( 'api', $fields_format );
 		}
 
 		if ( rest_is_field_included( 'has_file', $fields ) ) {
@@ -993,6 +1029,14 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'sanitize_callback' => function ( $param ) {
 				return array_map( 'absint', (array) $param );
 			},
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+		$query_params['fields_format']  = array(
+			'description'       => __( 'Format for the fields data in the response.', 'jetpack-forms' ),
+			'type'              => 'string',
+			'enum'              => array( 'label-value', 'collection' ),
+			'default'           => 'label-value',
+			'sanitize_callback' => 'sanitize_text_field',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		return $query_params;
@@ -1369,7 +1413,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$status['isInstalled'] = $is_installed;
 		$status['isActive']    = $is_active;
 		$status['version']     = $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null;
-		$status['settingsUrl'] = $is_active ? admin_url( $plugin_config['settings_url'] ) : null;
+		$status['settingsUrl'] = ( $is_active && ! empty( $plugin_config['settings_url'] ) )
+			? admin_url( $plugin_config['settings_url'] )
+			: null;
 
 		// Override base shape for specific plugins.
 		switch ( $plugin_slug ) {
@@ -1493,28 +1539,34 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	public function get_forms_config( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$config = array(
+			// Feature flags.
+			'isCentralFormManagementEnabled' => Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ),
 			// From jpFormsBlocks in class-contact-form-block.php.
-			'formsResponsesUrl'         => Forms_Dashboard::get_forms_admin_url(),
-			'isMailPoetEnabled'         => Jetpack_Forms::is_mailpoet_enabled(),
-			'isHostingerReachEnabled'   => Jetpack_Forms::is_hostinger_reach_enabled(),
+			'formsResponsesUrl'              => Forms_Dashboard::get_forms_admin_url(),
+			'isMailPoetEnabled'              => Jetpack_Forms::is_mailpoet_enabled(),
+			'isHostingerReachEnabled'        => Jetpack_Forms::is_hostinger_reach_enabled(),
 			// From config in class-dashboard.php.
-			'blogId'                    => get_current_blog_id(),
-			'gdriveConnectSupportURL'   => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
-			'pluginAssetsURL'           => Jetpack_Forms::assets_url(),
-			'siteURL'                   => ( new Status() )->get_site_suffix(),
-			'hasFeedback'               => ( new Forms_Dashboard() )->has_feedback(),
-			'isIntegrationsEnabled'     => Jetpack_Forms::is_integrations_enabled(),
-			'isWebhooksEnabled'         => Jetpack_Forms::is_webhooks_enabled(),
-			'showDashboardIntegrations' => Jetpack_Forms::show_dashboard_integrations(),
-			'showBlockIntegrations'     => Jetpack_Forms::show_block_integrations(),
-			'showIntegrationIcons'      => Jetpack_Forms::show_integration_icons(),
-			'dashboardURL'              => Forms_Dashboard::get_forms_admin_url(),
+			'blogId'                         => get_current_blog_id(),
+			'gdriveConnectSupportURL'        => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
+			'pluginAssetsURL'                => Jetpack_Forms::assets_url(),
+			'siteURL'                        => ( new Status() )->get_site_suffix(),
+			'hasFeedback'                    => ( new Forms_Dashboard() )->has_feedback(),
+			'isNotesEnabled'                 => Forms_Dashboard::is_notes_enabled(),
+			'isIntegrationsEnabled'          => Jetpack_Forms::is_integrations_enabled(),
+			'isWebhooksEnabled'              => Jetpack_Forms::is_webhooks_enabled(),
+			'showDashboardIntegrations'      => Jetpack_Forms::show_dashboard_integrations(),
+			'showBlockIntegrations'          => Jetpack_Forms::show_block_integrations(),
+			'showIntegrationIcons'           => Jetpack_Forms::show_integration_icons(),
+			'dashboardURL'                   => Forms_Dashboard::get_forms_admin_url(),
 			// New data.
-			'canInstallPlugins'         => current_user_can( 'install_plugins' ),
-			'canActivatePlugins'        => current_user_can( 'activate_plugins' ),
-			'exportNonce'               => wp_create_nonce( 'feedback_export' ),
-			'newFormNonce'              => wp_create_nonce( 'create_new_form' ),
-			'emptyTrashDays'            => defined( 'EMPTY_TRASH_DAYS' ) ? EMPTY_TRASH_DAYS : 0,
+			'canInstallPlugins'              => current_user_can( 'install_plugins' ),
+			'canActivatePlugins'             => current_user_can( 'activate_plugins' ),
+			'exportNonce'                    => wp_create_nonce( 'feedback_export' ),
+			'newFormNonce'                   => wp_create_nonce( 'create_new_form' ),
+			'emptyTrashDays'                 => defined( 'EMPTY_TRASH_DAYS' ) ? EMPTY_TRASH_DAYS : 0,
+			// Admin URLs for external admin contexts.
+			'adminUrl'                       => admin_url(),
+			'ajaxUrl'                        => admin_url( 'admin-ajax.php' ),
 		);
 
 		return rest_ensure_response( $config );

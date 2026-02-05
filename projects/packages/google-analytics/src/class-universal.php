@@ -289,7 +289,7 @@ class Universal {
 
 		// @phan-suppress-next-line PhanUndeclaredFunction
 		\wc_enqueue_js(
-			"$( '" . esc_js( $selector ) . "' ).click( function() {
+			'$( ' . wp_json_encode( $selector, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . " ).click( function() {
 				var productDetails = {
 					'id': '" . esc_js( $product_sku_or_id ) . "',
 					'name' : '" . esc_js( $product->get_title() ) . "',
@@ -324,7 +324,7 @@ class Universal {
 
 		// @phan-suppress-next-line PhanUndeclaredFunction
 		\wc_enqueue_js(
-			"$( '" . esc_js( $selector ) . "' ).click( function() {
+			'$( ' . wp_json_encode( $selector, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . " ).click( function() {
 				var productSku = $( this ).data( 'product_sku' );
 				var productID = $( this ).data( 'product_id' );
 				var productDetails = {
@@ -448,7 +448,7 @@ class Universal {
 		global $product, $woocommerce_loop;
 		$product_sku_or_id = Utils::get_product_sku_or_id( $product );
 
-		$selector = '.products .post-' . esc_js( $product->get_id() ) . ' a';
+		$selector = '.products .post-' . $product->get_id() . ' a';
 
 		$item_details = array(
 			'id'       => $product_sku_or_id,
@@ -459,7 +459,7 @@ class Universal {
 
 		// @phan-suppress-next-line PhanUndeclaredFunction
 		\wc_enqueue_js(
-			"$( '" . esc_js( $selector ) . "' ).click( function() {
+			'$( ' . wp_json_encode( $selector, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . " ).click( function() {
 				if ( true === $( this ).hasClass( 'add_to_cart_button' ) ) {
 					return;
 				}

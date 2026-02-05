@@ -1,0 +1,12 @@
+@use "../../variables" as vars;
+
+.bluesky-preview__body {
+	margin-bottom: 1rem;
+
+	color: vars.$bluesky-body-text-color;
+
+	> p {
+		margin-bottom: 1.25rem;
+	}
+}
+

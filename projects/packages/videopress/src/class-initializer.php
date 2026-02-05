@@ -127,6 +127,7 @@ class Initializer {
 		VideoPress_Rest_Api_V1_Stats::init();
 		VideoPress_Rest_Api_V1_Site::init();
 		VideoPress_Rest_Api_V1_Settings::init();
+		VideoPress_Rest_Api_V1_Features::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
 		self::register_oembed_providers();
@@ -320,8 +321,8 @@ class Initializer {
 		$maybe_premium_script     = '';
 		if ( $is_premium_content_child ) {
 			Access_Control::instance()->set_guid_subscription( $guid, $premium_block_plan_id );
-			$escaped_guid         = esc_js( $guid );
-			$script_content       = "if ( ! window.__guidsToPlanIds ) { window.__guidsToPlanIds = {}; }; window.__guidsToPlanIds['$escaped_guid'] = $premium_block_plan_id;";
+			$escaped_guid         = wp_json_encode( $guid, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+			$script_content       = "if ( ! window.__guidsToPlanIds ) { window.__guidsToPlanIds = {}; }; window.__guidsToPlanIds[$escaped_guid] = $premium_block_plan_id;";
 			$maybe_premium_script = '<script>' . $script_content . '</script>';
 		}
 
@@ -382,8 +383,9 @@ class Initializer {
 		$registration = register_block_type(
 			$videopress_video_metadata_file,
 			array(
-				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
-				'uses_context'    => array( 'premium-content/planId', 'isPremiumContentChild', 'selectedPlanId' ),
+				'render_callback'       => array( __CLASS__, 'render_videopress_video_block' ),
+				'render_email_callback' => array( Video_Block_Email_Renderer::class, 'render' ),
+				'uses_context'          => array( 'premium-content/planId', 'isPremiumContentChild', 'selectedPlanId' ),
 			)
 		);
 

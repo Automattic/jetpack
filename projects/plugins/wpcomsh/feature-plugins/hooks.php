@@ -315,11 +315,17 @@ function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
 		$disallowed_mimes          = array_merge( $disallowed_mimes, explode( ' ', $upgraded_upload_filetypes ) );
 	}
 
-	if ( ! wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS ) ) {
+	// Allow video uploads if site has either VIDEOPRESS or UPLOAD_VIDEO_FILES feature.
+	// Sites with UPLOAD_VIDEO_FILES can upload videos without VideoPress (e.g. Premium plans with gating-business-q1 sticker).
+	if ( ! wpcom_site_can_upload_videos() ) {
 		// Copied from WPCOM (see `WPCOM_UPLOAD_FILETYPES_FOR_VIDEOS` in `.config/wpcom-options.php`).
-		// The `ttml` extension is set by `wp-content/mu-plugins/videopress/subtitles.php`.
-		$video_upload_filetypes = 'ogv mp4 m4v mov wmv avi mpg 3gp 3g2 ttml';
+		$video_upload_filetypes = 'ogv mp4 m4v mov wmv avi mpg 3gp 3g2';
 		$disallowed_mimes       = array_merge( $disallowed_mimes, explode( ' ', $video_upload_filetypes ) );
+	}
+
+	// TTML subtitles require VideoPress specifically (not just video upload capability).
+	if ( ! wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS ) ) {
+		$disallowed_mimes[] = 'ttml';
 	}
 
 	foreach ( $disallowed_mimes as $disallowed_mime ) {
@@ -374,6 +380,16 @@ function wpcomsh_gate_footer_credit_feature() {
 	return wpcom_site_has_feature( WPCOM_Features::NO_WPCOM_BRANDING );
 }
 add_filter( 'wpcom_better_footer_credit_can_customize', 'wpcomsh_gate_footer_credit_feature' );
+
+/**
+ * Controls whether Jetpack Forms integrations feature is enabled based on site plan.
+ *
+ * @return bool
+ */
+function wpcomsh_gate_jetpack_forms_integrations() {
+	return wpcom_site_has_feature( WPCOM_Features::FORM_INTEGRATIONS );
+}
+add_filter( 'jetpack_forms_is_integrations_enabled', 'wpcomsh_gate_jetpack_forms_integrations' );
 
 /**
  * Remove the Jetpack > Dashboard menu if the site doesn't have the required feature.

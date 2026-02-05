@@ -84,7 +84,7 @@ class REST_Contacts_Controller_Test extends REST_Base_TestCase {
 		};
 
 		// Mock contacts DAL service.
-		$dal_mock = $this->createMock( zbsDAL_contacts::class );
+		$dal_mock = $this->createStub( zbsDAL_contacts::class );
 		$dal_mock->method( 'getContact' )->willReturnCallback( $func );
 
 		$GLOBALS['zbs']->DAL           = new \stdClass();

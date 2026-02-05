@@ -384,4 +384,206 @@ class Feedback_Field_Test extends BaseTestCase {
 	public function return_url() {
 		return 'https://example.com/file1.jpg';
 	}
+
+	/**
+	 * Test phone field with UK number displays flag.
+	 */
+	public function test_phone_field_with_uk_number_displays_flag() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+44 7911 123456', 'phone' );
+		$this->assertEquals( '🇬🇧 +44 7911 123456', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with US number displays flag.
+	 */
+	public function test_phone_field_with_us_number_displays_flag() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+1 555 123 4567', 'phone' );
+		$this->assertEquals( '🇺🇸 +1 555 123 4567', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with German number displays flag.
+	 */
+	public function test_phone_field_with_german_number_displays_flag() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+49 30 12345678', 'phone' );
+		$this->assertEquals( '🇩🇪 +49 30 12345678', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with 4-digit prefix (Anguilla) displays correct flag.
+	 */
+	public function test_phone_field_with_4_digit_prefix_displays_correct_flag() {
+		// Anguilla has +1264 prefix, should not be confused with US +1.
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+1264 123 4567', 'phone' );
+		$this->assertEquals( '🇦🇮 +1264 123 4567', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with Kazakhstan number (ambiguous +7 prefix) displays correct flag.
+	 */
+	public function test_phone_field_with_kazakhstan_number_displays_correct_flag() {
+		// Kazakhstan has +77 prefix, should not be confused with Russia +7.
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+77 123 456 7890', 'phone' );
+		$this->assertEquals( '🇰🇿 +77 123 456 7890', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with Russia number displays flag.
+	 */
+	public function test_phone_field_with_russia_number_displays_flag() {
+		// Russia has +7 prefix (but not +77).
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+7 495 123 4567', 'phone' );
+		$this->assertEquals( '🇷🇺 +7 495 123 4567', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field without country code returns number as-is.
+	 */
+	public function test_phone_field_without_country_code_returns_number_as_is() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '07911 123456', 'phone' );
+		$this->assertSame( '07911 123456', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with empty value returns empty string.
+	 */
+	public function test_phone_field_with_empty_value_returns_empty() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '', 'phone' );
+		$this->assertSame( '', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with telephone type also displays flag.
+	 */
+	public function test_telephone_field_type_displays_flag() {
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+33 1 23 45 67 89', 'telephone' );
+		$this->assertEquals( '🇫🇷 +33 1 23 45 67 89', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test phone field with invalid prefix returns number without flag.
+	 */
+	public function test_phone_field_with_invalid_prefix_returns_number_without_flag() {
+		// +999 is not a valid country prefix.
+		$field = new Feedback_Field( 'phone_key', 'Phone', '+999 123 456', 'phone' );
+		$this->assertEquals( '+999 123 456', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test non-phone field type does not get flag treatment.
+	 */
+	public function test_non_phone_field_does_not_get_flag() {
+		$field = new Feedback_Field( 'text_key', 'Text', '+44 7911 123456', 'text' );
+		$this->assertEquals( '+44 7911 123456', $field->get_render_value( 'web' ) );
+	}
+
+	/**
+	 * Test rating field returns structured array for web context.
+	 */
+	public function test_rating_field_returns_structured_array_for_web() {
+		$field = new Feedback_Field(
+			'rating_key',
+			'Rating',
+			'3/5',
+			'rating',
+			array(
+				'iconStyle' => 'stars',
+				'maxRating' => 5,
+			)
+		);
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 'rating', $value['type'] );
+		$this->assertEquals( 3, $value['rating'] );
+		$this->assertEquals( 5, $value['maxRating'] );
+		$this->assertEquals( 'stars', $value['iconStyle'] );
+		$this->assertEquals( '3/5', $value['displayValue'] );
+	}
+
+	/**
+	 * Test rating field with hearts icon style.
+	 */
+	public function test_rating_field_with_hearts_icon_style() {
+		$field = new Feedback_Field(
+			'rating_key',
+			'Rating',
+			'4/5',
+			'rating',
+			array(
+				'iconStyle' => 'hearts',
+				'maxRating' => 5,
+			)
+		);
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 'hearts', $value['iconStyle'] );
+		$this->assertEquals( 4, $value['rating'] );
+	}
+
+	/**
+	 * Test rating field with custom max rating.
+	 */
+	public function test_rating_field_with_custom_max_rating() {
+		$field = new Feedback_Field(
+			'rating_key',
+			'Rating',
+			'7/10',
+			'rating',
+			array(
+				'iconStyle' => 'stars',
+				'maxRating' => 10,
+			)
+		);
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 7, $value['rating'] );
+		$this->assertEquals( 10, $value['maxRating'] );
+		$this->assertEquals( '7/10', $value['displayValue'] );
+	}
+
+	/**
+	 * Test rating field defaults to stars when no icon style provided.
+	 */
+	public function test_rating_field_defaults_to_stars() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '2/5', 'rating' );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertEquals( 'stars', $value['iconStyle'] );
+	}
+
+	/**
+	 * Test rating field with empty value returns empty string.
+	 */
+	public function test_rating_field_with_empty_value() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '', 'rating' );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Test rating field with invalid format returns original value.
+	 */
+	public function test_rating_field_with_invalid_format() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', 'invalid', 'rating' );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertEquals( 'invalid', $value );
+	}
+
+	/**
+	 * Test rating field with zero rating.
+	 */
+	public function test_rating_field_with_zero_rating() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '0/5', 'rating', array( 'iconStyle' => 'stars' ) );
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertSame( 0, $value['rating'] );
+		$this->assertEquals( 5, $value['maxRating'] );
+	}
 }

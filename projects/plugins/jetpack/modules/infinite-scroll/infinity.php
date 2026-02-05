@@ -934,7 +934,7 @@ class The_Neverending_Home_Page {
 			'footer'           => is_string( $settings->footer ) ? esc_js( $settings->footer ) : $settings->footer,
 			'click_handle'     => esc_js( $settings->click_handle ),
 			'text'             => esc_js( $click_handle_text ),
-			'totop'            => esc_js( __( 'Scroll back to top', 'jetpack' ) ),
+			'totop'            => __( 'Scroll back to top', 'jetpack' ),
 			'currentday'       => $currentday,
 			'order'            => 'DESC',
 			'scripts'          => array(),
@@ -951,7 +951,7 @@ class The_Neverending_Home_Page {
 			'query_before'     => current_time( 'mysql' ),
 			'last_post_date'   => self::get_last_post_date(),
 			'body_class'       => self::body_class(),
-			'loading_text'     => esc_js( __( 'Loading new page', 'jetpack' ) ),
+			'loading_text'     => __( 'Loading new page', 'jetpack' ),
 		);
 
 		// Optional order param
@@ -1573,7 +1573,9 @@ class The_Neverending_Home_Page {
 			 * @param array $query_args Array of main query arguments.
 			 * @param WP_Query $wp_query WP Query.
 			 */
-			apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() )
+			apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() ),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 

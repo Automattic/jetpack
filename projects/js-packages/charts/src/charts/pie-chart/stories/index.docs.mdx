@@ -1,0 +1,322 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as PieChartStories from './index.stories';
+import * as DonutStories from './donut.stories';
+
+<Meta title="JS Packages/Charts Library/Charts/Pie Chart" of={ PieChartStories } />
+
+# Pie Chart
+
+Pie Charts visualize proportional data as circular segments, making it easy to understand parts of a whole. They excel at showing percentage breakdowns and comparative relationships between categories.
+
+<Canvas of={ PieChartStories.Default } />
+
+## Overview
+
+The Pie Chart component provides a flexible, accessible, and highly customizable solution for displaying proportional data. Built on `@visx/shape`, it supports both pie and donut chart variations, interactive tooltips, legends, and customizable styling with gap control, corner rounding, and thickness adjustment:
+
+<Source
+	language="jsx"
+	code={ `import { PieChart } from '@automattic/charts';
+
+    <PieChart
+    	data={ data }
+    	withTooltips={ true }
+    	showLegend={ true }
+    />` }
+
+/>
+
+## API Reference
+
+For detailed information about component props, types, compound components, and theme properties, see the [Pie Chart API Reference](./?path=/docs/js-packages-charts-library-charts-pie-chart-api-reference--docs).
+
+## Basic Usage
+
+### Simple Pie Chart
+
+The simplest pie chart requires only a `data` prop with percentage-based data:
+
+<Canvas of={ PieChartStories.Default } />
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		size={ 400 }
+		data={[
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 23 },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 17 },
+			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 60 },
+		]}
+	/>` }
+/>
+
+### Required Props
+
+- **`data`**: Array of `DataPointPercentage` objects containing label, value, and percentage
+- **`size`**: Diameter of the chart in pixels (when not using responsive mode)
+
+### Optional Props
+
+- **`padding`** (default: `20`): Padding around the chart in pixels
+- **`withTooltips`** (default: `false`): Enables interactive tooltips on hover
+- **`showLegend`** (default: `false`): Shows a legend for the chart data
+- **`thickness`** (default: `1`): Thickness of the pie chart segments (0-1). Values less than 1 create donut charts
+- **`gapScale`** (default: `0`): Scale of gaps between segments (0-1)
+- **`cornerScale`** (default: `0`): Scale of corner rounding for segments (0-1)
+- **`children`**: Optional React node to render inside the chart center (useful for donut charts)
+
+For detailed prop information, compound components, and type definitions, see the [Pie Chart API Reference](./?path=/docs/js-packages-charts-library-charts-pie-chart-api-reference--docs).
+
+## Composition API
+
+The Pie Chart now supports a compound component pattern for advanced customization:
+
+<Canvas of={ PieChartStories.CompositionAPI } />
+
+### Using Compound Components
+
+The composition API allows you to add custom SVG and HTML elements to your charts:
+
+<Source
+	language="jsx"
+	code={ `<PieChart data={ data } size={ 400 }>
+	{/* HTML elements rendered outside the SVG */}
+	<PieChart.HTML>
+		<h3>Chart Title</h3>
+	</PieChart.HTML>
+
+	{/* SVG elements rendered inside the chart */}
+	<PieChart.SVG>
+		<text x={ 0 } y={ 0 } textAnchor="middle">
+			Center Text
+		</text>
+	</PieChart.SVG>
+
+	{/* More HTML elements */}
+	<PieChart.HTML>
+		<PieChart.Legend position="bottom" />
+		<p>Additional information</p>
+	</PieChart.HTML>
+</PieChart>` }
+/>
+
+### Benefits of Composition API
+
+- **Clear Intent**: Use `PieChart.SVG` for SVG elements and `PieChart.HTML` for HTML elements
+- **Type Safety**: TypeScript knows where each element type belongs
+- **Flexibility**: Add custom visualizations, annotations, or UI elements
+- **Backward Compatible**: Existing implementations continue to work unchanged
+
+For detailed information about compound components (`PieChart.SVG`, `PieChart.HTML`, `PieChart.Legend`), see the [Pie Chart API Reference](./?path=/docs/js-packages-charts-library-charts-pie-chart-api-reference--docs).
+
+## Interactive Features
+
+### Tooltips
+
+Enable interactive tooltips that display data information on hover:
+
+<Canvas of={ PieChartStories.WithTooltips } />
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		size={ 400 }
+		data={ data }
+		withTooltips={ true }
+	/>` }
+/>
+
+### Responsive Behavior
+
+The Pie Chart component supports responsive sizing by omitting the `size` prop:
+
+<Canvas of={ PieChartStories.Responsiveness } />
+
+<Source
+	language="jsx"
+	code={ `// Responsive - fills parent container
+	<PieChart
+		data={ data }
+		maxWidth={ 600 }
+		aspectRatio={ 1 }
+	/>
+
+    // Fixed size
+    <PieChart
+    	size={ 400 }
+    	data={ data }
+    />` }
+
+/>
+
+### Data Validation and Error Handling
+
+The component includes built-in data validation with helpful error states:
+
+<Canvas of={ PieChartStories.ErrorStates } />
+
+The chart validates:
+
+- **Empty data**: Shows appropriate message when no data is provided
+- **Percentage totals**: Ensures percentages sum to 100%
+- **Negative values**: Prevents invalid negative values
+- **Single data points**: Handles edge cases gracefully
+
+### Legend Positioning
+
+Control legend alignment and positioning:
+
+<Canvas of={ PieChartStories.CustomLegendPositioning } />
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		size={ 400 }
+		data={ data }
+		showLegend={ true }
+		legendAlignment="end"
+		legendPosition="top"
+	/>` }
+/>
+
+### Vertical Legend
+
+Use vertical orientation for space-efficient legend placement:
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		size={ 400 }
+		data={ data }
+		showLegend={ true }
+		legendOrientation="vertical"
+		legendAlignment="end"
+		legendPosition="top"
+	/>` }
+/>
+
+## Styling and Customization
+
+### Visual Styling Options
+
+The Pie Chart supports various visual customizations:
+
+#### Gaps Between Segments
+
+Use `gapScale` to add spacing between chart segments:
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		data={ data }
+		gapScale={ 0.05 } // 5% gap scale
+	/>` }
+/>
+
+### Custom Colors
+
+Override theme colors by providing color values in data:
+
+<Source
+	language="jsx"
+	code={ `const dataWithColors = [
+		{
+			label: 'MacOS',
+			value: 30000,
+			valueDisplay: '30K',
+			percentage: 23,
+			color: '#007cba' // Custom blue
+		},
+		{
+			label: 'Linux',
+			value: 22000,
+			valueDisplay: '22K',
+			percentage: 17,
+			color: '#f56565' // Custom red
+		},
+		{
+			label: 'Windows',
+			value: 80000,
+			valueDisplay: '80K',
+			percentage: 60,
+			color: '#48bb78' // Custom green
+		},
+	];
+
+    <PieChart data={ dataWithColors } />` }
+
+/>
+
+### Label Colors and Styling
+
+<Canvas of={ PieChartStories.CustomLabelColors } />
+
+The Pie Chart supports customizable label colors through the theme system:
+
+<Source
+	language="jsx"
+	code={ `import { GlobalChartsProvider } from '@automattic/charts';
+
+const customTheme = {
+	...defaultTheme,
+	labelTextColor: '#FFFFFF', // White text for labels
+	labelBackgroundColor: 'rgba(0, 0, 0, 0.8)', // Enable dark background (transparent by default)
+};
+
+<GlobalChartsProvider theme={ customTheme }>
+	<PieChart data={ data } />
+</GlobalChartsProvider>` }
+/>
+
+**Label Color Properties:**
+
+- **`labelTextColor`** - Controls the color of text displayed on pie chart segments. Defaults to `#FFFFFF` (white) to match original behavior.
+- **`labelBackgroundColor`** - Controls the background color of labels. Defaults to `transparent` (no background). When set to any color value, creates a rounded rectangle behind each label for enhanced readability. Supports any CSS color including transparency (e.g., `rgba(0, 0, 0, 0.7)`).
+
+**Best Practices:**
+- Use high contrast between `labelTextColor` and `labelBackgroundColor` for optimal readability
+- Consider semi-transparent backgrounds (`rgba()`) to maintain visual connection to segment colors
+- Test with different segment colors to ensure labels remain visible
+- Use `labelBackgroundColor` when segment colors are too varied or bright for consistent text visibility
+- Consider accessibility guidelines when choosing color combinations
+
+## Theming Integration
+
+Pie Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, PieChart, type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<PieChart data={data} />
+	</GlobalChartsProvider>` }
+/>
+
+## Animation
+
+The Pie Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ PieChartStories.Animation } />
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		data={ data }
+		size={ 400 }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a radial wipe reveal effect that sweeps clockwise from the top, progressively revealing the chart segments
+- **Duration**: 1000ms (1 second)
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.

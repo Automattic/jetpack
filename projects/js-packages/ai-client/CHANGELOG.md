@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.32] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.33.31] - 2026-01-26
+### Changed
+- Update dependencies. [#46741]
+
+## [0.33.30] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [0.33.29] - 2026-01-14
+### Changed
+- Internal updates.
+
+## [0.33.28] - 2026-01-12
+### Changed
+- Update package dependencies. [#46456]
+
+## [0.33.27] - 2026-01-06
+### Added
+- Add site language code to AI request. [#46410]
+
+## [0.33.26] - 2025-12-22
+### Changed
+- Update package dependencies. [#46362] [#46363]
+
+## [0.33.25] - 2025-12-15
+### Changed
+- Update package dependencies. [#46244]
+
+### Fixed
+- Fix minification issue with production build. [#46147]
+
+## [0.33.24] - 2025-12-08
+### Changed
+- Update dependencies. [#45553]
+
 ## [0.33.23] - 2025-12-01
 ### Changed
 - Update package dependencies. [#46143]
@@ -751,6 +790,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.33.32]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.31...v0.33.32
+[0.33.31]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.30...v0.33.31
+[0.33.30]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.29...v0.33.30
+[0.33.29]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.28...v0.33.29
+[0.33.28]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.27...v0.33.28
+[0.33.27]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.26...v0.33.27
+[0.33.26]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.25...v0.33.26
+[0.33.25]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.24...v0.33.25
+[0.33.24]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.23...v0.33.24
 [0.33.23]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.22...v0.33.23
 [0.33.22]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.21...v0.33.22
 [0.33.21]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.20...v0.33.21

@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { setJetpackSettings } from '../../actions/jetpack-settings';
 import reducer from '../jetpack-settings';
 

@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.26.0] - 2026-02-02
+### Added
+- Introduce Sync blacklist for `jetpack_options`. [#46852]
+
+### Changed
+- Stop syncing deleted_post_meta actions when deleting posts. [#46775]
+
+### Removed
+- Stop syncing `updating_jetpack_version` actions to WordPress.com. [#46762]
+
+## [4.25.2] - 2026-01-26
+### Changed
+- Move installation and update failure actions to shutdown to decrease their associated lag. [#46723]
+- Search Sync Settings: Add some more meta fields for WooCommerce.com products to allow list. [#46739]
+- Stats Module: Send Heartbeat data immediately. [#46725]
+- Stop sending redundant actions when Dedicated Sync fails to enable. [#46700]
+
+### Fixed
+- Prevent warnings when unexpected data is passed into filters or added meta consumed by Sync. [#46637]
+
+## [4.25.1] - 2026-01-19
+### Added
+- Add _wpas_connection_overrides and _wpas_customize_per_network to post meta whitelist for Jetpack Social. [#46563]
+
+## [4.25.0] - 2026-01-14
+### Added
+- Instant Search: Add 'guest' custom taxonomy for Sync. [#46562]
+- Introduce Sync actions blacklist. [#46496]
+
+### Fixed
+- Prevent attempting to sync modules that we are not ready to sync. [#46475]
+
+## [4.24.2] - 2025-12-22
+### Changed
+- Search Sync Settings: Add WooCommerce.com product search keywords meta to allow list. [#46290]
+- General cleanup and clarity added in a couple of module files. [#46318]
+
+### Removed
+- Remove an option from the sync whitelist as it is not in use. [#46305]
+
+## [4.24.1] - 2025-12-15
+### Changed
+- Internal updates.
+
+## [4.24.0] - 2025-12-11
+### Deprecated
+- Jetpack Sync: Deprecate WooCommerce_Products module [#46222]
+
+## [4.23.0] - 2025-12-08
+### Changed
+- Jetpack Sync: Update Dedicated Sync locking logic for spawning requests. [#45813]
+
+### Removed
+- Jetpack Sync: Stop syncing `woocommerce_update_order_item` WooCommerce action. [#46217]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
 ## [4.22.6] - 2025-12-01
 ### Changed
 - Sync: Only send a single updated_post_meta action per attachment metadata request. [#45921]
@@ -1590,6 +1648,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.26.0]: https://github.com/Automattic/jetpack-sync/compare/v4.25.2...v4.26.0
+[4.25.2]: https://github.com/Automattic/jetpack-sync/compare/v4.25.1...v4.25.2
+[4.25.1]: https://github.com/Automattic/jetpack-sync/compare/v4.25.0...v4.25.1
+[4.25.0]: https://github.com/Automattic/jetpack-sync/compare/v4.24.2...v4.25.0
+[4.24.2]: https://github.com/Automattic/jetpack-sync/compare/v4.24.1...v4.24.2
+[4.24.1]: https://github.com/Automattic/jetpack-sync/compare/v4.24.0...v4.24.1
+[4.24.0]: https://github.com/Automattic/jetpack-sync/compare/v4.23.0...v4.24.0
+[4.23.0]: https://github.com/Automattic/jetpack-sync/compare/v4.22.6...v4.23.0
 [4.22.6]: https://github.com/Automattic/jetpack-sync/compare/v4.22.5...v4.22.6
 [4.22.5]: https://github.com/Automattic/jetpack-sync/compare/v4.22.4...v4.22.5
 [4.22.4]: https://github.com/Automattic/jetpack-sync/compare/v4.22.3...v4.22.4

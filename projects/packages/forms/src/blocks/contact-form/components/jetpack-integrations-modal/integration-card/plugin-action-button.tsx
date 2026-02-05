@@ -7,8 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../../../../../hooks/use-config-value.ts';
-import { usePluginInstallation } from '../hooks/use-plugin-installation.ts';
+import { usePluginInstallation } from '../../../../../hooks/use-plugin-installation.ts';
 
 type PluginActionButtonProps = {
 	slug: string;
@@ -27,22 +26,24 @@ const PluginActionButton = ( {
 	refreshStatus,
 	trackEventName,
 }: PluginActionButtonProps ) => {
-	const { isInstalling, installPlugin } = usePluginInstallation(
-		slug,
-		pluginFile,
-		isInstalled,
-		trackEventName
-	);
+	const trackEventProps = {
+		screen: 'block-editor',
+	};
 
-	// Permissions from consolidated Forms config (shared across editor and dashboard)
-	const canUserInstallPlugins = useConfigValue( 'canInstallPlugins' );
-	const canUserActivatePlugins = useConfigValue( 'canActivatePlugins' );
+	const { isInstalling, installPlugin, canInstallPlugins, canActivatePlugins } =
+		usePluginInstallation( {
+			slug,
+			pluginPath: pluginFile,
+			isInstalled,
+			trackEventName,
+			trackEventProps,
+		} );
 
-	const canPerformAction = isInstalled ? canUserActivatePlugins : canUserInstallPlugins;
+	const canPerformAction = isInstalled ? canActivatePlugins : canInstallPlugins;
 	const [ isReconcilingStatus, setIsReconcilingStatus ] = useState( false );
 	const isDisabled = isInstalling || isReconcilingStatus || ! canPerformAction;
 
-	const handleAction = async ( event: MouseEvent ) => {
+	const handleAction = async ( event: React.MouseEvent< HTMLButtonElement > ) => {
 		event.stopPropagation();
 		if ( isDisabled ) {
 			return;
@@ -84,10 +85,10 @@ const PluginActionButton = ( {
 	);
 
 	const getTooltipText = (): string => {
-		if ( isInstalled && ! canUserActivatePlugins ) {
+		if ( isInstalled && ! canActivatePlugins ) {
 			return tooltipTextNoActivatePerms;
 		}
-		if ( ! isInstalled && ! canUserInstallPlugins ) {
+		if ( ! isInstalled && ! canInstallPlugins ) {
 			return tooltipTextNoInstallPerms;
 		}
 		return String( isInstalled ? tooltipTextActivate : tooltipTextInstall );

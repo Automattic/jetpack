@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sniffs\PHPUnit;
 
 use Automattic\Jetpack\Codesniffer\Utils\AddDocBlockTagsTrait;
 use Automattic\Jetpack\Codesniffer\Utils\DocBlocks;
+use Automattic\Jetpack\Codesniffer\Utils\IsTestClassTrait;
 use Automattic\Jetpack\Codesniffer\Utils\Navigation;
 use Automattic\Jetpack\Codesniffer\Utils\RemoveDocBlockIfEmptyTrait;
 use PHP_CodeSniffer\Exceptions\RuntimeException;
@@ -19,8 +20,8 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  * Sniff for PHPUnit's deprecation of test-method-level coverage.
  */
 class TestMethodCoversSniff implements Sniff {
-	use \MediaWiki\Sniffs\PHPUnit\PHPUnitTestTrait;
 	use AddDocBlockTagsTrait;
+	use IsTestClassTrait;
 	use RemoveDocBlockIfEmptyTrait;
 
 	/**

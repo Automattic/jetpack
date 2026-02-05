@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.9] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.4.8] - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
+## [0.4.7] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [0.4.6] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## [0.4.5] - 2026-01-06
+### Changed
+- Update package dependencies. [#46427]
+
+## [0.4.4] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [0.4.3] - 2025-12-11
+### Changed
+- Update package dependencies. [#46244]
+
+## [0.4.2] - 2025-12-08
+### Changed
+- Update dependencies. [#43068]
+
 ## [0.4.1] - 2025-12-01
 ### Changed
 - Update package dependencies. [#46143]
@@ -254,6 +286,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ExPlat: add condition to prevent fetching the experiment assignment if there's not anon id (meaning that Tracks is likely disabled) [#38327]
 - Updated package dependencies. [#38132]
 
+[0.4.9]: https://github.com/Automattic/jetpack-explat/compare/v0.4.8...v0.4.9
+[0.4.8]: https://github.com/Automattic/jetpack-explat/compare/v0.4.7...v0.4.8
+[0.4.7]: https://github.com/Automattic/jetpack-explat/compare/v0.4.6...v0.4.7
+[0.4.6]: https://github.com/Automattic/jetpack-explat/compare/v0.4.5...v0.4.6
+[0.4.5]: https://github.com/Automattic/jetpack-explat/compare/v0.4.4...v0.4.5
+[0.4.4]: https://github.com/Automattic/jetpack-explat/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/Automattic/jetpack-explat/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-explat/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/Automattic/jetpack-explat/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-explat/compare/v0.3.14...v0.4.0
 [0.3.14]: https://github.com/Automattic/jetpack-explat/compare/v0.3.13...v0.3.14

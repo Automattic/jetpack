@@ -8,6 +8,7 @@ import type { ScaleInput, ScaleType } from '@visx/scale';
 import type { TextProps } from '@visx/text/lib/Text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
+import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
 
 type ValueOf< T > = T[ keyof T ];
 
@@ -29,6 +30,39 @@ export type DataPoint = {
 	label: string;
 	value: number;
 };
+
+/**
+ * Data format for GeoChart - uses Google Charts native data format for maximum flexibility.
+ * First element is the header row, subsequent elements are data rows.
+ *
+ * Country identifiers can be either full country names or ISO 3166-1 alpha-2 codes (e.g., 'United States' or 'US').
+ * Full names are recommended for better readability in tooltips.
+ *
+ * @example Basic usage with country names:
+ * [['Country', 'Value'], ['United States', 100], ['Canada', 50], ['United Kingdom', 75]]
+ *
+ * @example With custom HTML tooltips:
+ * [
+ *   ['Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } }],
+ *   ['United States', 100, '<b>United States</b><br/>100 visitors'],
+ *   ['Canada', 50, '<b>Canada</b><br/>50 visitors']
+ * ]
+ *
+ * @example With formatted values (v = value, f = formatted):
+ * [
+ *   ['Country', 'Value'],
+ *   ['United States', { v: 100, f: '100 visitors' }],
+ *   ['Canada', { v: 50, f: '50 visitors' }]
+ * ]
+ *
+ * @example With multiple columns:
+ * [
+ *   ['Country', 'Population', 'Area'],
+ *   ['United States', 331000000, 9834000],
+ *   ['Canada', 38000000, 9985000]
+ * ]
+ */
+export type GeoData = [ GoogleDataTableColumn[], ...GoogleDataTableRow[] ];
 
 export type DataPointDate = {
 	date?: Date;
@@ -186,6 +220,11 @@ export type ChartTheme = {
 	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
+	/** GeoChart specific settings */
+	geoChart?: {
+		/** Default fill color for a geo chart feature (e.g. country) with no data */
+		featureFillColor?: string;
+	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
 		/** Gap between rows in the leaderboard grid */
@@ -215,6 +254,18 @@ export type ChartTheme = {
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
+	/** Sparkline specific settings */
+	sparkline?: {
+		/** Margin around the sparkline chart */
+		margin?: {
+			top?: number;
+			right?: number;
+			bottom?: number;
+			left?: number;
+		};
+		/** Stroke width for the sparkline line */
+		strokeWidth?: number;
+	};
 };
 
 /**
@@ -235,6 +286,9 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
+	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
+		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
+	};
 };
 
 declare type AxisOptions = {
@@ -246,9 +300,25 @@ declare type AxisOptions = {
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
 	/**
+	 * Whether to display this axis. Defaults to true.
+	 */
+	display?: boolean;
+	/**
 	 * For more control over rendering or to add event handlers to datum, pass a function as children.
 	 */
 	children?: ( renderProps: AxisRendererProps< AxisScale > ) => ReactNode;
+	/**
+	 * Controls tick label overflow (bar charts only):
+	 *
+	 * - 'ellipsis': Truncate with ellipsis and fit to available space. Labels show full text
+	 * on hover via native tooltip. Note: A minimum width (20px) is enforced for readability.
+	 * On very dense charts (bandwidth < 20px), adjacent labels may overlap. To mitigate, use `numTicks`
+	 * to reduce labels or `tickFormat` to abbreviate text.
+	 * - undefined: No truncation; labels may overlap.
+	 *
+	 * Default: No truncation; labels may overlap.
+	 */
+	labelOverflow?: 'ellipsis';
 };
 
 export type ScaleOptions = {

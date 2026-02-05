@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.55.2] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.55.1] - 2026-01-26
+### Changed
+- Update dependencies. [#46741]
+
+## [0.55.0] - 2026-01-19
+### Added
+- Add a "Show price" option to allow prices to be shown or hidden in Jetpack Instant Search results. [#46454]
+
+### Changed
+- Show WooCommerce product filters in filter widget. [#46373]
+- Update package dependencies. [#46552] [#46647]
+
+## [0.54.10] - 2026-01-12
+### Changed
+- Update package dependencies. [#46456] [#46491]
+
+## [0.54.9] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [0.54.8] - 2025-12-15
+### Changed
+- Update dependencies. [#46271]
+
+## [0.54.7] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
 ## [0.54.6] - 2025-12-01
 ### Changed
 - Update package dependencies. [#46143]
@@ -1398,6 +1430,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.55.2]: https://github.com/Automattic/jetpack-search/compare/v0.55.1...v0.55.2
+[0.55.1]: https://github.com/Automattic/jetpack-search/compare/v0.55.0...v0.55.1
+[0.55.0]: https://github.com/Automattic/jetpack-search/compare/v0.54.10...v0.55.0
+[0.54.10]: https://github.com/Automattic/jetpack-search/compare/v0.54.9...v0.54.10
+[0.54.9]: https://github.com/Automattic/jetpack-search/compare/v0.54.8...v0.54.9
+[0.54.8]: https://github.com/Automattic/jetpack-search/compare/v0.54.7...v0.54.8
+[0.54.7]: https://github.com/Automattic/jetpack-search/compare/v0.54.6...v0.54.7
 [0.54.6]: https://github.com/Automattic/jetpack-search/compare/v0.54.5...v0.54.6
 [0.54.5]: https://github.com/Automattic/jetpack-search/compare/v0.54.4...v0.54.5
 [0.54.4]: https://github.com/Automattic/jetpack-search/compare/v0.54.3...v0.54.4

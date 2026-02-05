@@ -1,6 +1,6 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import edit from './edit.js';
 import save from './save.js';
 
@@ -11,7 +11,7 @@ const settings = {
 	description: __( 'A dropzone for file uploads.', 'jetpack-forms' ),
 	parent: [ 'jetpack/field-file' ],
 	allowedBlocks: [
-		'core/buttons',
+		'core/button',
 		'core/heading',
 		'core/image',
 		'core/list',

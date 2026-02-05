@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+### Removed
+- Remove support for WordPress <6.8. [#46843]
+
+## [0.7.5] - 2026-01-26
+### Changed
+- Update package dependencies. [#46716]
+
+## [0.7.4] - 2026-01-19
+### Changed
+- Update package dependencies. [#46552] [#46647]
+
+## [0.7.3] - 2026-01-12
+### Changed
+- Update package dependencies. [#46456]
+
+## [0.7.2] - 2026-01-06
+### Changed
+- Update dependencies. [#46383]
+
+## [0.7.1] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [0.7.0] - 2025-12-15
+### Added
+- Support external media in replace flow. [#45841]
+
+## [0.6.0] - 2025-12-08
+### Added
+- Add filter for adding custom sources to the media sources dropdown. [#46131]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
 ## [0.5.14] - 2025-12-01
 ### Changed
 - Update package dependencies. [#46143]
@@ -231,6 +269,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the button size in the editor for Gutenberg 18 or below. [#41619]
 - Media Library: Fix the Import Media button color in some color schemes. [#41664]
 
+[0.8.0]: https://github.com/Automattic/jetpack-external-media/compare/v0.7.5...v0.8.0
+[0.7.5]: https://github.com/Automattic/jetpack-external-media/compare/v0.7.4...v0.7.5
+[0.7.4]: https://github.com/Automattic/jetpack-external-media/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/Automattic/jetpack-external-media/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/Automattic/jetpack-external-media/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/Automattic/jetpack-external-media/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/Automattic/jetpack-external-media/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.14...v0.6.0
 [0.5.14]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.13...v0.5.14
 [0.5.13]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.12...v0.5.13
 [0.5.12]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.11...v0.5.12

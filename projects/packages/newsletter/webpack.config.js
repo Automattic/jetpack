@@ -58,16 +58,20 @@ export default {
 	},
 	module: {
 		rules: [
-			// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
-			// https://github.com/WordPress/gutenberg/issues/73362
-			{
-				test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
-				resolve: { fullySpecified: false },
-			},
-
 			// Transpile JavaScript and TypeScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
+				babelOpts: {
+					configFile: false,
+					plugins: [
+						[
+							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+							{
+								textdomain: 'jetpack-newsletter',
+							},
+						],
+					],
+				},
 			} ),
 
 			// Transpile @automattic/* in node_modules too.

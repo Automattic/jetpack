@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/i18n-loader-webpack-plugin",
-	"version": "2.0.87",
+	"version": "2.0.90",
 	"description": "A Webpack plugin to load WordPress i18n when Webpack lazy-loads a bundle.",
 	"keywords": [
 		"webpack",
@@ -33,8 +33,8 @@
 		"debug": "^4.3.2"
 	},
 	"devDependencies": {
-		"@wordpress/dependency-extraction-webpack-plugin": "6.36.0",
-		"@wordpress/i18n": "6.9.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.39.0",
+		"@wordpress/i18n": "6.12.0",
 		"jest": "30.2.0",
 		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"

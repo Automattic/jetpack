@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.4] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.9.3] - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
+## [0.9.2] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [0.9.1] - 2026-01-12
+### Changed
+- Update package dependencies. [#46456]
+
+## [0.9.0] - 2025-12-22
+### Changed
+- Moved Share post action to the Publicize package for better discoverability. The `jetpack_post_list_display_share_action` filter is now handled by Publicize. [#46323]
+- Update dependencies. [#46381]
+
+## [0.8.36] - 2025-12-15
+### Changed
+- Update dependencies. [#46271]
+
+## [0.8.35] - 2025-12-08
+### Changed
+- Update dependencies. [#45745]
+
 ## [0.8.34] - 2025-12-01
 ### Changed
 - Update package dependencies. [#46143]
@@ -277,6 +306,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the default columns displayed on the post and page list screens
 - Refactored thumbnail preview to function server side. All javascript removed.
 
+[0.9.4]: https://github.com/automattic/jetpack-post-list/compare/v0.9.3...v0.9.4
+[0.9.3]: https://github.com/automattic/jetpack-post-list/compare/v0.9.2...v0.9.3
+[0.9.2]: https://github.com/automattic/jetpack-post-list/compare/v0.9.1...v0.9.2
+[0.9.1]: https://github.com/automattic/jetpack-post-list/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/automattic/jetpack-post-list/compare/v0.8.36...v0.9.0
+[0.8.36]: https://github.com/automattic/jetpack-post-list/compare/v0.8.35...v0.8.36
+[0.8.35]: https://github.com/automattic/jetpack-post-list/compare/v0.8.34...v0.8.35
 [0.8.34]: https://github.com/automattic/jetpack-post-list/compare/v0.8.33...v0.8.34
 [0.8.33]: https://github.com/automattic/jetpack-post-list/compare/v0.8.32...v0.8.33
 [0.8.32]: https://github.com/automattic/jetpack-post-list/compare/v0.8.31...v0.8.32

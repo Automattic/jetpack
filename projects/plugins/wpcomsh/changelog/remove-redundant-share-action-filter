@@ -1,0 +1,3 @@
+Significance: patch
+Type: removed
+Comment: Remove redundant jetpack_post_list_display_share_action filter hook.

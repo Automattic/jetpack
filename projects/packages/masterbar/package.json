@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-masterbar",
-	"version": "0.27.3",
+	"version": "0.27.10",
 	"private": true,
 	"description": "The WordPress.com Toolbar feature replaces the default admin bar and offers quick links to the Reader, all your sites, your WordPress.com profile, and notifications.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/masterbar/#readme",
@@ -33,12 +33,12 @@
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@babel/core": "7.28.4",
 		"@csstools/postcss-global-data": "2.1.1",
-		"@wordpress/browserslist-config": "6.36.0",
+		"@wordpress/browserslist-config": "6.39.0",
 		"autoprefixer": "10.4.20",
-		"glob": "11.1.0",
+		"glob": "13.0.0",
 		"postcss": "8.5.6",
 		"postcss-loader": "8.2.0",
-		"sass-embedded": "1.87.0",
+		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
 		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"

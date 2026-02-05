@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -16,6 +17,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Connection\REST_Authentication
  */
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 #[CoversClass( REST_Authentication::class )]
 class REST_Authentication_Test extends TestCase {
 
@@ -109,8 +111,7 @@ class REST_Authentication_Test extends TestCase {
 			$_SERVER['REQUEST_METHOD'] = $test_inputs['request_method'];
 		}
 
-		$this->manager->expects( $this->any() )
-			->method( 'verify_xml_rpc_signature' )
+		$this->manager->method( 'verify_xml_rpc_signature' )
 			->willReturn( $test_inputs['verified'] );
 
 		$this->assertEquals( $expected_outputs['authenticate'], $this->rest_authentication->wp_rest_authenticate( '' ) );
@@ -319,8 +320,7 @@ class REST_Authentication_Test extends TestCase {
 			$_SERVER['REQUEST_METHOD'] = $test_inputs['request_method'];
 		}
 
-		$this->manager->expects( $this->any() )
-			->method( 'verify_xml_rpc_signature' )
+		$this->manager->method( 'verify_xml_rpc_signature' )
 			->willReturn( $test_inputs['verified'] );
 
 		$this->rest_authentication->wp_rest_authenticate( '' );

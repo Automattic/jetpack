@@ -885,7 +885,16 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertTrue( isset( $result[ $prefix_meta . 'Consent' ] ) );
 		$this->assertTrue( isset( $result[ $prefix_meta . 'IP Address' ] ) );
 		$this->assertTrue( isset( $result[ $prefix_meta . 'Browser' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Country code' ] ) );
 
+		// check that none of the fields are null
+		$fields = array_keys( $result );
+
+		foreach ( $fields as $field ) {
+			foreach ( $result[ $field ] as $index => $value ) {
+				$this->assertNotNull( $value, "Field {$field}[{$index}] should not be null." );
+			}
+		}
 		$equals = array(
 			'Name'    => array( 'Test "Quotes" User' ),
 			'Text'    => array( 'test@example.com' ),
@@ -971,6 +980,45 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
 	}
 
+	public function test_personal_data_search_filter_v2_unicode_search() {
+
+		$email_with_emoji = 'test🎉@example.com';
+
+		// Test the conversion function
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->set_pde_email_address( $email_with_emoji );
+
+		$search = '..PDE..AUTHOR EMAIL:..PDE..';
+		$result = $plugin->personal_data_search_filter( $search );
+
+		// Should search for both original AND V2 corrupted version
+		$this->assertStringContainsString( $email_with_emoji, $result, 'Should search for original email' );
+		$this->assertStringContainsString( 'testud83cudf89@example.com', $result, 'Should ALSO search for V2 corrupted version' );
+	}
+
+	public function test_personal_data_search_filter_includes_v2_v3_json_patterns() {
+		// Test that the filter generates the correct SQL pattern for V2/V3 JSON formats
+		$test_email = 'user+test@example.com'; // Email with + sign
+		$plugin     = Contact_Form_Plugin::init();
+		$plugin->set_pde_email_address( $test_email );
+
+		// Call the filter with a mock search string
+		$search = '..PDE..AUTHOR EMAIL:..PDE..';
+		$result = $plugin->personal_data_search_filter( $search );
+
+		// Verify JSON format pattern: \"value\":\"email
+		// The pattern should contain the escaped quotes and the email
+		$this->assertStringContainsString( $test_email, $result, 'Should include email address in pattern' );
+
+		// Verify it contains multiple OR conditions (for legacy + JSON patterns)
+		$or_count = substr_count( $result, ' OR ' );
+		$this->assertGreaterThanOrEqual( 3, $or_count, 'Should have at least 3 OR clauses (legacy LF, legacy CR, JSON escaped, JSON unescaped)' );
+		$this->assertStringContainsString( 'AND (', $result, 'Should start with AND (' );
+		$this->assertStringContainsString( 'post_content LIKE', $result, 'Should include LIKE clause' );
+		$this->assertStringContainsString( '\"value\":\"' . $test_email, $result, 'Should include JSON value pattern with single-escaped quotes' );
+		$this->assertStringContainsString( '\\"value\\":\\"' . $test_email, $result, 'Should include JSON value pattern' );
+	}
+
 	public function test_get_unread_count_zero() {
 		delete_option( 'jetpack_feedback_unread_count' );
 		$this->assertIsInt( Contact_Form_Plugin::get_unread_count() );
@@ -988,6 +1036,63 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
 		Contact_Form_Plugin::recalculate_unread_count();
 		$this->assertSame( 0, Contact_Form_Plugin::get_unread_count() );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns true when flag is enabled
+	 */
+	public function test_has_editor_feature_flag_enabled() {
+		add_filter(
+			'jetpack_block_editor_feature_flags',
+			function ( $flags ) {
+				$flags['central-form-management'] = true;
+				return $flags;
+			}
+		);
+
+		$this->assertTrue( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) );
+
+		remove_all_filters( 'jetpack_block_editor_feature_flags' );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns false when flag is disabled
+	 */
+	public function test_has_editor_feature_flag_disabled() {
+		add_filter(
+			'jetpack_block_editor_feature_flags',
+			function ( $flags ) {
+				$flags['central-form-management'] = false;
+				return $flags;
+			}
+		);
+
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) );
+
+		remove_all_filters( 'jetpack_block_editor_feature_flags' );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns false when flag does not exist
+	 */
+	public function test_has_editor_feature_flag_not_set() {
+		add_filter(
+			'jetpack_block_editor_feature_flags',
+			function ( $flags ) {
+				return $flags;
+			}
+		);
+
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'non-existent-flag' ) );
+
+		remove_all_filters( 'jetpack_block_editor_feature_flags' );
+	}
+
+	/**
+	 * Test has_editor_feature_flag returns false when no filter is applied
+	 */
+	public function test_has_editor_feature_flag_no_filter() {
+		$this->assertFalse( Contact_Form_Plugin::has_editor_feature_flag( 'any-flag' ) );
 	}
 
 	/**
@@ -1104,5 +1209,301 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertSame( '', $result['Question (3)'][1], 'Second feedback should have empty Question (3)' );
 
 		Utility::destroy_post_context( $current_post );
+	}
+
+	/**
+	 * Test that feedback post type supports comments
+	 */
+	public function test_feedback_post_type_supports_comments() {
+		$this->assertTrue( post_type_supports( 'feedback', 'comments' ), 'Feedback post type should support comments' );
+	}
+
+	/**
+	 * Test that feedback posts have default comment status 'open'
+	 */
+	public function test_feedback_default_comment_status() {
+		$post_type_object = get_post_type_object( 'feedback' );
+		$this->assertEquals( 'open', $post_type_object->default_comment_status, 'Feedback should have default comment status "open"' );
+	}
+
+	/**
+	 * Test that non-logged-in users cannot comment on feedback
+	 */
+	public function test_comments_restricted_to_logged_in_users() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type' => 'feedback',
+			)
+		);
+
+		wp_set_current_user( 0 ); // Log out
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $feedback_id );
+
+		$this->assertFalse( $comments_open, 'Comments should be closed for non-logged-in users on feedback posts' );
+	}
+
+	/**
+	 * Test that logged-in users can comment on feedback
+	 */
+	public function test_logged_in_users_can_comment() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type' => 'feedback',
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser3',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $feedback_id );
+
+		$this->assertTrue( $comments_open, 'Comments should be open for logged-in users on feedback posts' );
+	}
+
+	/**
+	 * Test that logged-in editor can comment even when comment_status is 'closed' (read posts)
+	 */
+	public function test_logged_in_editor_can_comment_on_read_feedback() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'comment_status' => 'closed', // Marked as read
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser2',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		// Pass false to simulate that comment_status is 'closed'
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( false, $feedback_id );
+
+		$this->assertTrue( $comments_open, 'Comments should be open for logged-in users even when feedback is marked as read (comment_status=closed)' );
+	}
+
+	/**
+	 * Test that logged-in subscribers cannot comment even when comment_status is 'closed' (read posts)
+	 */
+	public function test_logged_in_subscriber_cannot_comment_on_read_feedback() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'comment_status' => 'closed', // Marked as read
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'testuser1',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		// Pass false to simulate that comment_status is 'closed'
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( false, $feedback_id );
+
+		$this->assertFalse( $comments_open, 'Comments should be closed for logged-in subscribers when feedback is marked as read (comment_status=closed)' );
+	}
+
+	/**
+	 * Test that filter doesn't affect other post types
+	 */
+	public function test_comment_filter_only_affects_feedback_posts() {
+		$regular_post_id = wp_insert_post(
+			array(
+				'post_type' => 'post',
+			)
+		);
+
+		wp_set_current_user( 0 ); // Log out
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $regular_post_id );
+
+		$this->assertTrue( $comments_open, 'Comment filter should not affect non-feedback posts' );
+	}
+
+	/**
+	 * Test track_feedback_status_change sets spam meta when transitioning to spam
+	 */
+	public function test_track_feedback_status_change_sets_spam_meta() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'publish',
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from publish to spam
+		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
+
+		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
+		$this->assertNotEmpty( $spam_meta, 'Spam meta should be set when transitioning to spam' );
+	}
+
+	/**
+	 * Test track_feedback_status_change removes spam meta when transitioning from spam
+	 */
+	public function test_track_feedback_status_change_removes_spam_meta() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'spam',
+			)
+		);
+
+		// Set spam meta
+		update_post_meta( $feedback_id, '_spam_status_changed_gmt', current_time( 'mysql', true ) );
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from spam to publish
+		$plugin->track_feedback_status_change( 'publish', 'spam', $post );
+
+		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
+		$this->assertEmpty( $spam_meta, 'Spam meta should be removed when transitioning from spam' );
+	}
+	/**
+	 * Helper that calls shutdown actions to simulate end of request.
+	 */
+	private function mock_shutdown_recalculate() {
+		if ( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ) ) {
+			Contact_Form_Plugin::recalculate_unread_count();
+		}
+		remove_all_actions( 'shutdown' );
+		remove_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) );
+	}
+
+	/**
+	 * Test track_feedback_status_change recalculates unread count when status changes to publish
+	 */
+	public function test_track_feedback_status_change_recalculates_on_publish() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'draft',
+				'comment_status' => Feedback::STATUS_UNREAD,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+		// Transition from draft to publish
+		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
+		$this->assertEquals( 10, has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Count should be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		// Since this test mocking can't do a proper recount, just check that it was reset to 0.
+		$this->assertSame( 0, $count, 'Unread count should be recalculated when status changes from publish' );
+	}
+
+	/**
+	 * Test track_feedback_status_change recalculates unread count when status changes from publish
+	 */
+	public function test_track_feedback_status_change_recalculates_on_unpublish() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'comment_status' => Feedback::STATUS_UNREAD,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from publish to draft
+		$plugin->track_feedback_status_change( 'draft', 'publish', $post );
+		$this->assertEquals( 10, has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Count should be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		// Since this test mocking can't do a proper recount, just check that it was reset to 0.
+		$this->assertSame( 0, $count, 'Unread count should be recalculated when status changes from publish' );
+	}
+
+	/**
+	 * Test track_feedback_status_change does not recalculate when comment_status is read
+	 */
+	public function test_track_feedback_status_change_skips_recount_when_read() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'draft',
+				'comment_status' => Feedback::STATUS_READ,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from draft to publish
+		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
+		$this->assertFalse( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Count should NOT be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		$this->assertEquals( 999, $count, 'Unread count should not be recalculated when comment_status is read' );
+	}
+
+	/**
+	 * Test track_feedback_status_change ignores non-feedback posts
+	 */
+	public function test_track_feedback_status_change_ignores_non_feedback() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$post   = get_post( $post_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition to spam
+		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
+		$this->assertFalse( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should NOT be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Spam meta should NOT be set for non-feedback posts
+		$spam_meta = get_post_meta( $post_id, '_spam_status_changed_gmt', true );
+		$this->assertEmpty( $spam_meta, 'Spam meta should not be set for non-feedback posts' );
 	}
 }

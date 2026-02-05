@@ -1,0 +1,72 @@
+{
+	"name": "@automattic/social-previews",
+	"version": "3.0.5",
+	"description": "A suite of components to generate previews for a post for both social and search engines.",
+	"keywords": [
+		"wordpress",
+		"social",
+		"seo",
+		"search"
+	],
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-previews/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Social Previews"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/social-previews"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"exports": {
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.js"
+		},
+		"./style.css": "./dist/index.css"
+	},
+	"main": "dist/index.js",
+	"module": "dist/index.mjs",
+	"scripts": {
+		"build": "pnpm run build:prod",
+		"build:prod": "tsup",
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@wordpress/components": "32.1.0",
+		"@wordpress/element": "6.39.0",
+		"@wordpress/i18n": "6.12.0",
+		"clsx": "2.1.1"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.28.4",
+		"@testing-library/dom": "10.4.1",
+		"@testing-library/jest-dom": "6.9.1",
+		"@testing-library/react": "16.3.0",
+		"@types/jest": "30.0.0",
+		"@types/react": "18.3.26",
+		"@types/react-dom": "18.3.7",
+		"babel-jest": "30.2.0",
+		"esbuild": "0.25.9",
+		"esbuild-sass-plugin": "3.3.1",
+		"jest": "30.2.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"sass": "npm:sass-embedded@^1.97.2",
+		"tsup": "8.5.1",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0"
+	}
+}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Handle deleted or missing form source in responses filter.

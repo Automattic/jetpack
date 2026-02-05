@@ -12,7 +12,7 @@ All chart documentation should follow this standardized structure:
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as [FeatureName]Stories from './[feature-name].stories';
 
-<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
+<Meta title="JS Packages/Charts Library/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
 ```
 
 ### 2. Title & Introduction
@@ -61,7 +61,7 @@ Immediately after the overview, include a link to the separate API reference doc
 ```mdx
 ## API Reference
 
-For detailed information about component props, types, and method signatures, see the [[Component] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-api-reference--docs).
+For detailed information about component props, types, and method signatures, see the [[Component] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-api-reference--docs).
 ```
 
 #### Creating the Separate API Reference Document
@@ -71,7 +71,7 @@ The API reference should be created as a separate MDX document using the `featur
 ```mdx
 import { Meta } from '@storybook/addon-docs/blocks';
 
-<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]/API Reference" />
+<Meta title="JS Packages/Charts Library/[Category]/[Component]/[Feature]/API Reference" />
 
 # [Feature Name] API Reference
 
@@ -120,7 +120,7 @@ Description of simplest implementation:
 
 ### Optional Props
 
-For detailed information about all optional props, see the [[Component] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-api-reference--docs).
+For detailed information about all optional props, see the [[Component] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-api-reference--docs).
 ```
 
 ### 6. Feature Variations
@@ -174,9 +174,32 @@ Controls [what this category affects]:
 - `property`: Description and possible values
 - `anotherProperty`: Description
 
-### Theme Integration
+## Theming Integration
 
-Explanation of how feature integrates with chart themes.
+For the Theming Integration section, use the standardized format from the `feature-documentation.mdx.template`. This section should be a top-level `##` heading (not nested under Styling) and include:
+
+- A description explaining that the chart integrates seamlessly with the theming system
+- An explanation that the default theme has neutral colors and styling
+- A code example showing how to wrap the chart in `GlobalChartsProvider` with a custom theme
+
+See the template for the complete section structure.
+
+## Animation
+
+Only include this section if the chart component supports animation (check the implementation for an `animation` prop). If animation is not supported, remove this section entirely.
+
+When documenting animation:
+
+- Show the Animation story with a Canvas example
+- Include a basic code example with `animation={true}`
+- Document animation behavior in a bulleted list covering:
+  - Opt-in nature (disabled by default)
+  - Accessibility (respects `prefers-reduced-motion`)
+  - Effect description (e.g., "radial wipe reveal effect")
+  - Duration in milliseconds
+- Note that animation plays once on initial render and does not repeat
+
+See the `feature-documentation.mdx.template` for the complete section structure.
 ```
 
 ### 8. Advanced Usage
@@ -313,6 +336,7 @@ Before considering documentation complete, verify both main docs and API referen
 - [ ] Visual examples for all major variations in main docs
 - [ ] Code examples are complete and runnable in main docs
 - [ ] Accessibility considerations covered in main docs
+- [ ] Animation section included if chart supports animation (check for `animation` prop)
 - [ ] Browser compatibility notes included where relevant
 - [ ] Both documents created using appropriate templates
 

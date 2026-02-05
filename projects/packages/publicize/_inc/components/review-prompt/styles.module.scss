@@ -1,0 +1,9 @@
+.reviewPrompt {
+
+	// This is here temporarily to support older WP versions
+	// See https://github.com/Automattic/jetpack/pull/46398#pullrequestreview-3609018005
+	// This can be removed once WP >= 6.9.3 is the minimum requirement for Jetpack.
+	:global(.components-notice__actions) {
+		gap: 12px;
+	}
+}

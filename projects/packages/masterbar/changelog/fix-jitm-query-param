@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin Menu: fix passing JSON string instead of array to JITM get_messages().

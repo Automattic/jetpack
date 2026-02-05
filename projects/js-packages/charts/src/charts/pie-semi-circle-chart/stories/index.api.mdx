@@ -1,0 +1,47 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Pie Semi Circle Chart/API Reference" />
+
+# Pie Semi Circle Chart API Reference
+
+## PieSemiCircleChart
+
+Main component for rendering semi-circular pie charts.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `DataPointPercentage[]` | - | **Required.** Array of data points to display |
+| `width` | `number` | `400` | Width of the chart in pixels (height is automatically half of width) |
+| `thickness` | `number` | `0.4` | Thickness of the pie segments (0-1, where 1 is full thickness) |
+| `clockwise` | `boolean` | `true` | Direction of segment rendering |
+| `label` | `string` | - | Text displayed above the chart |
+| `note` | `string` | - | Additional text displayed below the label |
+| `withTooltips` | `boolean` | `false` | Enable interactive tooltips on hover |
+| `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a radial wipe reveal effect. Automatically respects user's `prefers-reduced-motion` system setting |
+| `showLegend` | `boolean` | `false` | Display legend below the chart |
+| `legendInteractive` | `boolean` | `false` | Enable clickable legend items to show/hide segments. Requires `chartId` and `GlobalChartsProvider`. When segments are hidden, percentages recalculate so visible segments total 100% |
+| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout direction |
+| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
+| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
+| `legendShape` | `'circle' \| 'rect' \| 'line'` | `'circle'` | Shape of legend indicators |
+| `className` | `string` | - | Additional CSS class for the container |
+| `chartId` | `string` | - | Optional unique identifier (auto-generated if not provided) |
+
+## DataPointPercentage Type
+
+```typescript
+type DataPointPercentage = {
+	/** Label for the data point */
+	label: string;
+	/** Numerical value */
+	value: number;
+	/** Formatted value for display in tooltips and legends */
+	valueDisplay?: string;
+	/** Percentage value (must be positive, doesn't need to sum to 100) */
+	percentage: number;
+	/** Optional custom color override */
+	color?: string;
+};
+```

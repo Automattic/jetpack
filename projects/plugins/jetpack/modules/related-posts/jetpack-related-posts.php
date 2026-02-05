@@ -1317,7 +1317,8 @@ EOT;
 			$response['items'] = $related_posts;
 		}
 
-		wp_send_json( $response );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**

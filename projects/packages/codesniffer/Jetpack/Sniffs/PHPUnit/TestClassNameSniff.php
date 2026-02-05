@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack\Sniffs\PHPUnit;
 
+use Automattic\Jetpack\Codesniffer\Utils\IsTestClassTrait;
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 
@@ -18,7 +19,7 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  * Sniff for PHPUnit's class name requirements.
  */
 class TestClassNameSniff implements Sniff {
-	use \MediaWiki\Sniffs\PHPUnit\PHPUnitTestTrait;
+	use IsTestClassTrait;
 
 	/**
 	 * Returns the token types that this sniff is interested in.

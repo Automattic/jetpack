@@ -7,11 +7,11 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
 import useInboxData from '../../hooks/use-inbox-data.ts';
+import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 import * as Tabs from '../tabs/index.ts';
 
 /**
@@ -31,7 +31,7 @@ function getTabLabel( label: string, count: number ): JSX.Element {
 }
 
 type InboxStatusToggleProps = {
-	onChange: ( status: string ) => void;
+	onChange?: ( status: string ) => void;
 };
 
 /**
@@ -41,7 +41,7 @@ type InboxStatusToggleProps = {
  * @return {JSX.Element} The status toggle component.
  */
 export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps ): JSX.Element {
-	const [ searchParams, setSearchParams ] = useSearchParams();
+	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
 	const status = searchParams.get( 'status' ) || 'inbox';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
@@ -71,7 +71,7 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 				return params;
 			} );
 			setSelectedResponses( [] );
-			onChange( newStatus );
+			onChange?.( newStatus );
 		},
 		[ isSm, status, setSearchParams, onChange, setSelectedResponses ]
 	);

@@ -1108,7 +1108,8 @@ class Jetpack_Carousel {
 		if ( ! $attachment_id ) {
 			wp_send_json_error(
 				__( 'Missing attachment ID.', 'jetpack' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 			return;
 		}
@@ -1118,7 +1119,8 @@ class Jetpack_Carousel {
 		if ( ! ( $attachment_post instanceof WP_Post ) ) {
 			wp_send_json_error(
 				__( 'Missing attachment info.', 'jetpack' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 			return;
 		}
@@ -1127,7 +1129,8 @@ class Jetpack_Carousel {
 		if ( 'attachment' !== $attachment_post->post_type ) {
 			wp_send_json_error(
 				__( 'You aren’t authorized to do that.', 'jetpack' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 			return;
 		}
@@ -1149,7 +1152,8 @@ class Jetpack_Carousel {
 			if ( ! ( $current_user instanceof WP_User ) ) {
 				wp_send_json_error(
 					__( 'Missing user info.', 'jetpack' ),
-					403
+					403,
+					JSON_UNESCAPED_SLASHES
 				);
 				return;
 			}
@@ -1165,7 +1169,8 @@ class Jetpack_Carousel {
 			) {
 				wp_send_json_error(
 					__( 'You aren’t authorized to do that.', 'jetpack' ),
-					403
+					403,
+					JSON_UNESCAPED_SLASHES
 				);
 				return;
 			}
@@ -1203,7 +1208,7 @@ class Jetpack_Carousel {
 			);
 		}
 
-		die( wp_json_encode( $out, JSON_UNESCAPED_SLASHES ) );
+		wp_send_json( $out, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-plugin-deactivation",
-	"version": "0.3.20",
+	"version": "0.3.24",
 	"private": true,
 	"description": "Intercept plugin deactivation with a dialog",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/plugin-deactivation/#readme",
@@ -23,7 +23,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"sass-embedded": "1.87.0",
+		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
 		"tslib": "2.8.1",
 		"typescript": "5.9.3",

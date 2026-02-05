@@ -32,7 +32,6 @@ const {
 	__experimentalGetElementClassName,
 	BlockControls,
 	InspectorControls,
-	PlainText,
 	useBlockProps,
 	withColors,
 }: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
@@ -43,15 +42,33 @@ const LINE_NUMBER_START_MIN = 0;
 const LINE_NUMBER_START_MAX = 10_000;
 
 type Props = EditBlockProps | SaveBlockProps;
+const plainLanguageName = __( 'Plain text', 'jetpack-mu-wpcom' ) as string;
 
-const emptyLanguageOption = {
-	value: '',
-	label: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
-};
-const selectLanguageOptions: {
+interface LanguageOption {
 	readonly value: string;
 	readonly label: string;
-}[] = [ emptyLanguageOption ];
+}
+const emptyLanguageOption: LanguageOption = {
+	value: '',
+	label: plainLanguageName,
+};
+
+/**
+ * Modify language names for display.
+ *
+ * @param language - Original language name.
+ * @return Display language name.
+ */
+function languageNameDisplay( language: string ): string {
+	switch ( language ) {
+		case 'Brainfuck':
+			return 'Brainf***';
+	}
+
+	return language;
+}
+
+const selectLanguageOptions: ReadonlyArray< LanguageOption > = [];
 {
 	const langNames = new Set< string >();
 	extensionToLang.forEach( ( [ , lang ] ) => {
@@ -60,11 +77,32 @@ const selectLanguageOptions: {
 	const sortedLangNames = Array.of( ...langNames );
 	sortedLangNames.sort( ( a, b ) => a.localeCompare( b ) );
 	sortedLangNames.forEach( lang =>
-		selectLanguageOptions.push( {
+		( selectLanguageOptions as LanguageOption[] ).push( {
 			value: lang,
-			label: lang,
+			label: languageNameDisplay( lang ),
 		} )
 	);
+}
+
+const selectPopularLanguageOptions: ReadonlyArray< LanguageOption > = [];
+{
+	const popularLanguages = new Set< string >( [
+		'JavaScript',
+		'HTML',
+		'CSS',
+		'SQL',
+		'Python',
+		'Java',
+		'C++',
+		'PHP',
+		'TypeScript',
+		'Bash',
+	] );
+	for ( const opt of selectLanguageOptions ) {
+		if ( popularLanguages.has( opt.value ) ) {
+			( selectPopularLanguageOptions as LanguageOption[] ).push( opt );
+		}
+	}
 }
 
 /**
@@ -116,6 +154,16 @@ function filterBlockRegistration( settings: any ) {
 		settings.transforms.to = [ ...transforms.to, ...settings.transforms.to ];
 	}
 
+	// Disable the contrast checker warning for the enhanced Code block.
+	// The block uses custom syntax highlighting colors that may trigger false positive warnings.
+	if ( ! settings.supports ) {
+		settings.supports = {};
+	}
+	if ( ! settings.supports.color ) {
+		settings.supports.color = {};
+	}
+	settings.supports.color.enableContrastChecker = false;
+
 	return settings;
 }
 
@@ -139,6 +187,11 @@ const blockEdit = withColors(
 )( ( props: EditBlockProps ) => {
 	const { setAttributes, attributes } = props;
 
+	const placeholderExtension =
+		extensionToLang.find(
+			( [ , languageName ] ) => props.attributes.language === languageName
+		)?.[ 0 ] ?? 'txt';
+
 	return (
 		<>
 			<BlockControls>
@@ -151,12 +204,26 @@ const blockEdit = withColors(
 						} }
 						renderToggle={ ( { isOpen, onToggle }: { isOpen: boolean; onToggle: () => void } ) => (
 							<Button onClick={ onToggle } aria-expanded={ isOpen } aria-haspopup="true">
-								{ props.attributes.language || emptyLanguageOption.label }
+								{ languageNameDisplay( props.attributes.language || emptyLanguageOption.label ) }
 							</Button>
 						) }
 						renderContent={ ( { onClose }: { onClose: () => void } ) => (
-							<NavigableMenu role="menu" stopNavigationEvents>
+							<NavigableMenu role="menu">
 								<MenuGroup>
+									<MenuItem
+										key={ emptyLanguageOption.value }
+										role="menuitemradio"
+										isSelected={ emptyLanguageOption.value === props.attributes.language }
+										onClick={ () => {
+											props.setAttributes( {
+												language: emptyLanguageOption.value,
+												languageConfidence: 'certain',
+											} );
+											onClose();
+										} }
+									>
+										{ emptyLanguageOption.label }
+									</MenuItem>
 									{ selectLanguageOptions.map( option => (
 										<MenuItem
 											key={ option.value }
@@ -187,7 +254,6 @@ const blockEdit = withColors(
 					<SelectControl
 						label={ __( 'Language', 'jetpack-mu-wpcom' ) }
 						value={ attributes.language }
-						options={ selectLanguageOptions }
 						onChange={ ( newLanguage: string ) => {
 							setAttributes( {
 								language: newLanguage,
@@ -196,20 +262,42 @@ const blockEdit = withColors(
 						} }
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
+					>
+						<option value="">{ languageNameDisplay( plainLanguageName ) }</option>
+						<optgroup label={ __( 'Popular Languages', 'jetpack-mu-wpcom' ) }>
+							{ selectPopularLanguageOptions.map( option => (
+								<option key={ option.value } value={ option.value }>
+									{ option.label }
+								</option>
+							) ) }
+						</optgroup>
+						<optgroup label={ __( 'All Languages', 'jetpack-mu-wpcom' ) }>
+							{ selectLanguageOptions.map( option => (
+								<option key={ option.value } value={ option.value }>
+									{ option.label }
+								</option>
+							) ) }
+						</optgroup>
+					</SelectControl>
+					<TextControl
+						label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
+						value={ attributes.filename }
+						onChange={ ( nextValue: string ) => {
+							setAttributes( { filename: nextValue.trim() } );
+						} }
+						placeholder={ sprintf(
+							/* translators: Placeholder for a filename input. %s is a file extension, like "txt". */
+							__( 'filename.%s', 'jetpack-mu-wpcom' ),
+							placeholderExtension
+						) }
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
 						label={ __( 'Show language name', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showLanguageName }
 						onChange={ ( next: boolean ) => {
 							setAttributes( { showLanguageName: next } );
-						} }
-						__nextHasNoMarginBottom
-					/>
-					<ToggleControl
-						label={ __( 'Show filename', 'jetpack-mu-wpcom' ) }
-						checked={ attributes.showFileName }
-						onChange={ ( next: boolean ) => {
-							setAttributes( { showFileName: next } );
 						} }
 						__nextHasNoMarginBottom
 					/>
@@ -339,9 +427,8 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 };
 
 const BlockHeader = ( props: Props ) => {
-	const showLanguage = props.attributes.showLanguageName && props.attributes.language;
-
-	if ( ! props.attributes.showFileName && ! props.attributes.showCopyButton && ! showLanguage ) {
+	const showRightSection = props.attributes.showCopyButton || props.attributes.showLanguageName;
+	if ( ! props.attributes.filename && ! showRightSection ) {
 		return null;
 	}
 
@@ -350,18 +437,27 @@ const BlockHeader = ( props: Props ) => {
 			? __experimentalGetElementClassName( 'button' )
 			: 'wp-element-button';
 
-	const showRight = props.attributes.showCopyButton || showLanguage;
+	const onClick = () => {
+		navigator.clipboard.writeText( props.attributes.content.toPlainText() ).catch();
+	};
+
 	return (
 		<div className="a8c/code__header">
 			<Filename { ...props } />
-			{ showRight && (
+			{ showRightSection && (
 				<div className="a8c/code__header-right">
 					{ props.attributes.showCopyButton && (
-						<button className={ `${ wpElementButtonClass } a8c/code__btn-copy` } type="button">
+						<button
+							className={ `${ wpElementButtonClass } a8c/code__btn-copy` }
+							type="button"
+							onClick={ onClick }
+						>
 							{ __( 'Copy', 'jetpack-mu-wpcom' ) }
 						</button>
 					) }
-					{ showLanguage ? <span>{ props.attributes.language }</span> : null }
+					{ props.attributes.showLanguageName ? (
+						<span>{ languageNameDisplay( props.attributes.language || plainLanguageName ) }</span>
+					) : null }
 				</div>
 			) }
 		</div>
@@ -369,40 +465,10 @@ const BlockHeader = ( props: Props ) => {
 };
 
 const Filename = ( props: Props ) => {
-	if ( ! props.attributes.showFileName ) {
+	if ( ! props.attributes.filename ) {
 		return null;
 	}
-	const { setAttributes, isSelected = false } = props;
-	const { filename } = props.attributes;
-
-	if ( isSelected ) {
-		const placeholderExtension =
-			extensionToLang.find(
-				( [ , languageName ] ) => props.attributes.language === languageName
-			)?.[ 0 ] ?? 'txt';
-
-		return (
-			<PlainText
-				__experimentalVersion={ 2 }
-				value={ filename }
-				onChange={ ( nextValue: string ) => {
-					setAttributes!( { filename: nextValue } );
-				} }
-				disableLineBreaks
-				className="a8c/code__filename"
-				placeholder={ sprintf(
-					/* translators: Placeholder for a filename input. %s is a file extension, like "txt". */
-					__( 'filename.%s', 'jetpack-mu-wpcom' ),
-					placeholderExtension
-				) }
-			/>
-		);
-	}
-
-	if ( filename ) {
-		return <span className="a8c/code__filename">{ filename }</span>;
-	}
-	return null;
+	return <span className="a8c/code__filename">{ props.attributes.filename }</span>;
 };
 
 /**

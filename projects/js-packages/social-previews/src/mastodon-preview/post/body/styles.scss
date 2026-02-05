@@ -1,0 +1,12 @@
+@use "../../variables" as vars;
+
+.mastodon-preview__body {
+	margin-bottom: 1rem;
+
+	color: vars.$mastodon-body-text-color;
+
+	> p {
+		margin-bottom: 1.25rem;
+	}
+}
+

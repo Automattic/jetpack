@@ -1,6 +1,6 @@
 {
 	"name": "social-logos",
-	"version": "3.3.4",
+	"version": "3.3.6",
 	"description": "A repository of all the social logos used on WordPress.com.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-logos/",
 	"bugs": {
@@ -36,7 +36,7 @@
 	"devDependencies": {
 		"@types/react": "18.3.26",
 		"@types/react-dom": "18.3.7",
-		"glob": "11.1.0",
+		"glob": "13.0.0",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"svg2ttf": "^6.0.3",
