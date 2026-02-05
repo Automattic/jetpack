@@ -49,8 +49,6 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 
 	const responseAuthorEmailParts = response.author_email?.split( '@' ) ?? [];
 
-	const dateSettings = getDateSettings();
-
 	// Logged-in user row content: either shows display name and ID, username and ID, or just the ID.
 	const loggedInUser = response?.logged_in_user?.id ? response.logged_in_user : null;
 	const loggedInUserName = loggedInUser?.display_name || loggedInUser?.username || null;
