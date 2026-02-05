@@ -624,7 +624,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			title={
 				<div className="jp-forms-page-header-title">
 					<JetpackLogo showText={ false } width={ 20 } />
-					{ pageTitle ? pageTitle : __( 'Forms', 'jetpack-forms' ) }
+					{ pageTitle ? pageTitle : __( 'Forms test', 'jetpack-forms' ) }
 				</div>
 			}
 			subTitle={
