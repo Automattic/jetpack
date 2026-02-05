@@ -69,6 +69,8 @@ allowBuilds:
   '@swc/core': false
   esbuild: false
   unrs-resolver: false
+  # Native image processing for SVG rasterization tooling.
+  sharp: true
   # Attempt to show "remember to install other stuff" spam.
   svelte-preprocess: false
   # Attempt to show "support me" spam.
