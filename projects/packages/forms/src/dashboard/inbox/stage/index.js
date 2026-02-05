@@ -441,7 +441,10 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					return wrapperUnread( item.is_unread, dateI18n( dateSettings.formats.date, item.date ) );
+					return wrapperUnread(
+						item.is_unread,
+						dateI18n( dateSettings.formats.datetime, item.date )
+					);
 				},
 				elements: ( filterOptions?.date || [] ).map( _filter => {
 					const date = new Date();
@@ -495,7 +498,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			filterOptions?.source,
 			isMobileViewport,
 			openResponseModal,
-			dateSettings.formats.date,
+			dateSettings.formats.datetime,
 			isInboxStatusToggleView,
 			isSingleFormView,
 		]
