@@ -292,4 +292,279 @@ describe( 'migrateLegacyButton', () => {
 			} )
 		);
 	} );
+
+	test( 'should preserve palette-based backgroundColor and textColor', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'next-step',
+				text: 'Next',
+				backgroundColor: 'vivid-red',
+				textColor: 'white',
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'next' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				backgroundColor: 'vivid-red',
+				textColor: 'white',
+			} )
+		);
+	} );
+
+	test( 'should map custom colors to style.color object', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'submit-step',
+				text: 'Send',
+				customBackgroundColor: '#ff0000',
+				customTextColor: '#ffffff',
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'submit' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				style: expect.objectContaining( {
+					color: {
+						background: '#ff0000',
+						text: '#ffffff',
+					},
+				} ),
+			} )
+		);
+	} );
+
+	test( 'should preserve gradient attribute', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'next-step',
+				text: 'Next',
+				gradient: 'vivid-cyan-blue-to-vivid-purple',
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'next' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				gradient: 'vivid-cyan-blue-to-vivid-purple',
+			} )
+		);
+	} );
+
+	test( 'should map customGradient to style.color.gradient', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'next-step',
+				text: 'Next',
+				customGradient: 'linear-gradient(135deg,#12c2e9 0%,#c471ed 50%,#f64f59 100%)',
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'next' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				style: expect.objectContaining( {
+					color: {
+						gradient: 'linear-gradient(135deg,#12c2e9 0%,#c471ed 50%,#f64f59 100%)',
+					},
+				} ),
+			} )
+		);
+	} );
+
+	test( 'should map borderRadius to style.border.radius', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'previous-step',
+				text: 'Back',
+				borderRadius: 10,
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'previous' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				style: expect.objectContaining( {
+					border: {
+						radius: '10px',
+					},
+				} ),
+			} )
+		);
+	} );
+
+	test( 'should preserve all style attributes together with custom text', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'submit-step',
+				text: 'Send Form',
+				backgroundColor: 'vivid-red',
+				customTextColor: '#ffffff',
+				borderRadius: 5,
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'submit' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				text: 'Send Form',
+				backgroundColor: 'vivid-red',
+				style: {
+					color: { text: '#ffffff' },
+					border: { radius: '5px' },
+				},
+			} )
+		);
+	} );
+
+	test( 'should not include style object when no custom values exist', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'next-step',
+				text: 'Continue',
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'next' );
+
+		const callArgs = createBlock.mock.calls[ 0 ][ 1 ];
+		expect( callArgs ).not.toHaveProperty( 'style' );
+	} );
+
+	test( 'should preserve border width from style attribute', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'next-step',
+				text: 'Next',
+				style: {
+					border: { width: '3px', style: 'solid', color: '#000000' },
+				},
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'next' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				style: expect.objectContaining( {
+					border: { width: '3px', style: 'solid', color: '#000000' },
+				} ),
+			} )
+		);
+	} );
+
+	test( 'should preserve font size from style.typography', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'submit-step',
+				text: 'Submit',
+				style: {
+					typography: { fontSize: '22px' },
+				},
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'submit' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				style: expect.objectContaining( {
+					typography: { fontSize: '22px' },
+				} ),
+			} )
+		);
+	} );
+
+	test( 'should preserve preset fontSize attribute', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'next-step',
+				text: 'Next',
+				fontSize: 'large',
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'next' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				fontSize: 'large',
+			} )
+		);
+	} );
+
+	test( 'should convert width from string to number', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'next-step',
+				text: 'Next',
+				width: '75',
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'next' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				width: 75,
+			} )
+		);
+	} );
+
+	test( 'should merge explicit attributes with existing style object', () => {
+		const legacyBlock = {
+			name: 'jetpack/button',
+			attributes: {
+				uniqueId: 'submit-step',
+				text: 'Send',
+				customBackgroundColor: '#ff0000',
+				borderRadius: 8,
+				style: {
+					border: { width: '2px', style: 'dashed' },
+					typography: { fontSize: '18px', fontFamily: 'serif' },
+				},
+			},
+		};
+
+		migrateLegacyButton( legacyBlock, 'submit' );
+
+		expect( createBlock ).toHaveBeenCalledWith(
+			'core/button',
+			expect.objectContaining( {
+				style: {
+					color: { background: '#ff0000' },
+					border: { width: '2px', style: 'dashed', radius: '8px' },
+					typography: { fontSize: '18px', fontFamily: 'serif' },
+				},
+			} )
+		);
+	} );
 } );

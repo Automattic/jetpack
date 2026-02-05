@@ -100,7 +100,81 @@ export const getButtonType = block => {
 };
 
 /**
- * Migrate a legacy jetpack/button to core/button, preserving custom text.
+ * Extract style attributes from a legacy jetpack/button block and map them
+ * to core/button format.
+ *
+ * @param {object} attrs - The legacy block attributes.
+ * @return {object} Mapped attributes for core/button.
+ */
+const mapLegacyStyleAttributes = attrs => {
+	const mapped = {};
+
+	// Direct palette-based attributes (same name in both blocks)
+	if ( attrs.backgroundColor ) {
+		mapped.backgroundColor = attrs.backgroundColor;
+	}
+	if ( attrs.textColor ) {
+		mapped.textColor = attrs.textColor;
+	}
+	if ( attrs.gradient ) {
+		mapped.gradient = attrs.gradient;
+	}
+
+	// Width: jetpack/button stores as string, core/button expects number
+	if ( attrs.width ) {
+		const numWidth = parseInt( attrs.width, 10 );
+		if ( ! isNaN( numWidth ) ) {
+			mapped.width = numWidth;
+		}
+	}
+
+	// Preset font size (e.g. "small", "medium") is a direct attribute
+	if ( attrs.fontSize ) {
+		mapped.fontSize = attrs.fontSize;
+	}
+
+	// Start from the existing style object (block supports store typography,
+	// border width, etc. here) and layer explicit attribute mappings on top.
+	const existingStyle = attrs.style || {};
+
+	// Custom color values map to style.color
+	const colorStyle = {
+		...( existingStyle.color || {} ),
+	};
+	if ( attrs.customBackgroundColor ) {
+		colorStyle.background = attrs.customBackgroundColor;
+	}
+	if ( attrs.customTextColor ) {
+		colorStyle.text = attrs.customTextColor;
+	}
+	if ( attrs.customGradient ) {
+		colorStyle.gradient = attrs.customGradient;
+	}
+
+	// Border radius from the explicit attribute maps to style.border.radius
+	const borderStyle = {
+		...( existingStyle.border || {} ),
+	};
+	if ( attrs.borderRadius !== undefined ) {
+		borderStyle.radius = `${ attrs.borderRadius }px`;
+	}
+
+	// Build the style object merging existing block support values with mapped attributes
+	const style = {
+		...existingStyle,
+		...( Object.keys( colorStyle ).length && { color: colorStyle } ),
+		...( Object.keys( borderStyle ).length && { border: borderStyle } ),
+	};
+
+	if ( Object.keys( style ).length ) {
+		mapped.style = style;
+	}
+
+	return mapped;
+};
+
+/**
+ * Migrate a legacy jetpack/button to core/button, preserving custom text and styles.
  *
  * @param {object} legacyBlock - The legacy jetpack/button block.
  * @param {string} buttonType  - The button type ('previous', 'next', 'submit').
@@ -110,11 +184,17 @@ export const migrateLegacyButton = ( legacyBlock, buttonType ) => {
 	const template = BUTTON_TEMPLATES[ buttonType ];
 	const [ blockName, templateAttributes ] = template;
 
+	const attrs = legacyBlock.attributes || {};
+
 	// Preserve custom text from the legacy button
-	const customText = legacyBlock.attributes?.text;
+	const customText = attrs.text;
+
+	// Map style attributes from jetpack/button to core/button format
+	const styleAttributes = mapLegacyStyleAttributes( attrs );
 
 	return createBlock( blockName, {
 		...templateAttributes,
+		...styleAttributes,
 		...( customText && { text: customText } ),
 	} );
 };
