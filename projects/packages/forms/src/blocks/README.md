@@ -69,16 +69,6 @@ Each block has an `icon.svg` file that serves as the single source of truth for 
 
 Most blocks (field-checkbox, field-consent, field-date, field-image-select, field-multiple-choice, field-name, field-number, field-rating, field-select, field-single-choice, field-slider, field-text, field-textarea, field-time, fieldset-image-options, form-step, form-step-container, input-image-option, input-range) use custom SVG icons. These were originally defined as inline JSX via `renderMaterialIcon()` and have been extracted into standalone `.svg` files with JSX attributes converted to standard SVG (e.g., `fillRule` → `fill-rule`, `clipRule` → `clip-rule`).
 
-Their `icon.jsx` (or `icon.tsx`) imports the SVG directly:
-
-```js
-import Icon from './icon.svg?component';
-
-export default {
-	src: Icon,
-};
-```
-
 ### WordPress icons
 
 Five blocks use icons from the `@wordpress/icons` package: field-email, field-file, field-hidden, field-telephone, and field-url. For these blocks, the `icon.jsx` continues to import from `@wordpress/icons` for use in the editor:
