@@ -17,8 +17,6 @@ $inspector-padding: 16px;
 }
 
 .jp-forms__inbox-response-data {
-	font-size: var(--jp-forms-font-size-regular);
-	line-height: 24px;
 	padding: 0 $inspector-padding;
 
 	// old field format renders without .jp-forms__field-preview
