@@ -5,6 +5,7 @@ import { resolveSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { getJetpackFormCanvasData } from '../../src/dashboard/wp-build/utils/canvas-editor';
 import { preloadGlobalTabCounts } from '../../src/dashboard/wp-build/utils/preload';
 
 export const route = {
@@ -65,18 +66,8 @@ export const route = {
 	 * @param props.search.editFormId - Form ID to edit.
 	 * @return Canvas data or undefined.
 	 */
-	canvas: ( { search }: { search: { editFormId?: number | string } } ) => {
-		const editFormId =
-			typeof search.editFormId === 'number' ? search.editFormId : Number( search.editFormId );
-		if ( ! Number.isFinite( editFormId ) || editFormId <= 0 ) {
-			return;
-		}
-
-		return {
-			postType: 'jetpack_form',
-			postId: String( editFormId ),
-		};
-	},
+	canvas: ( { search }: { search: { editFormId?: number | string } } ) =>
+		getJetpackFormCanvasData( search.editFormId ),
 
 	/**
 	 * Validates that the route can be accessed.

@@ -17,11 +17,11 @@ import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import CreateFormButton from '../../components/create-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptyTrashButton from '../../components/empty-trash-button';
 import ExportResponsesButton from '../../components/export-responses/button';
 import BackToFormsButton from '../components/back-to-forms-button';
+import CreateFormButton from '../components/create-form-button';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import type { ReactNode } from 'react';
 
@@ -147,7 +147,7 @@ export default function usePageHeaderDetails(
 				...( isIntegrationsEnabled && showDashboardIntegrations
 					? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
 					: [] ),
-				<CreateFormButton key="create" />,
+				<CreateFormButton key="create" from="/forms" />,
 			];
 		}
 
@@ -173,7 +173,7 @@ export default function usePageHeaderDetails(
 				? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
 				: [] ),
 			...( statusView === 'inbox'
-				? [ <CreateFormButton key="create" variant="secondary" showPatterns={ false } /> ]
+				? [ <CreateFormButton key="create" from="/responses/$view" variant="secondary" /> ]
 				: [] ),
 			<ExportResponsesButton key="export" isPrimary={ statusView === 'inbox' } />,
 			...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
