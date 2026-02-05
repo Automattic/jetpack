@@ -386,9 +386,8 @@ class zeroBS__Metabox_Quote extends zeroBS__Metabox {
 										<?php esc_html_e( 'here', 'zero-bs-crm' ); ?>
 									</a>
 								</p>
-								<?php $disabled_attr = ( $quoteContactID <= 0 ) ? ' disabled="disabled"' : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>
 								<button type="button" id="zbsQuoteBuilderStep2" class="ui button button-primary black button-large xl"
-									<?php echo $disabled_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static string ?>><?php esc_html_e( 'Use Quote Builder', 'zero-bs-crm' ); ?>
+									<?php disabled( $quoteContactID <= 0 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>><?php esc_html_e( 'Use Quote Builder', 'zero-bs-crm' ); ?>
 								</button>
 								<?php if ( $quoteContactID <= 0 ) { /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace */ ?>
 									<p id="zbsQuoteBuilderStep2info">(<?php esc_html_e( "You'll need to assign this Quote to a contact to use this", 'zero-bs-crm' ); ?>);</p>
