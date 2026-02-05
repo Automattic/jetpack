@@ -445,6 +445,19 @@ class Form_Field_Registry {
 			'attributes'      => $block_attributes,
 		);
 
+		// Register and attach editor style if provided.
+		// This ensures styles are loaded in the block editor iframe.
+		if ( ! empty( $args['editor_style'] ) ) {
+			$style_handle = 'jetpack-forms-field-' . $field_type . '-editor';
+			wp_register_style(
+				$style_handle,
+				$args['editor_style'],
+				$args['editor_style_deps'],
+				$args['editor_style_ver']
+			);
+			$block_args['editor_style'] = $style_handle;
+		}
+
 		// Add label support configuration.
 		if ( ! empty( $args['supports']['label'] ) ) {
 			$block_args['provides_context'] = array(
@@ -763,15 +776,8 @@ class Form_Field_Registry {
 				);
 			}
 
-			// Enqueue editor style if provided.
-			if ( ! empty( $args['editor_style'] ) ) {
-				wp_enqueue_style(
-					'jetpack-forms-field-' . $field_type . '-editor',
-					$args['editor_style'],
-					$args['editor_style_deps'],
-					$args['editor_style_ver']
-				);
-			}
+			// Editor styles are handled via register_block_type() in register_block().
+			// This ensures they load properly in the block editor iframe.
 		}
 
 		// Add inline script to register label parent blocks filter.

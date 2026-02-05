@@ -2,6 +2,115 @@
 
 This guide provides templates for creating custom Jetpack Forms fields. Use this as a reference to create new field types.
 
+---
+
+## LLM Prompt Template
+
+Use this prompt to have an AI assistant create a complete custom field. Copy, customize the bracketed sections, and paste to your AI assistant.
+
+````markdown
+Create a custom Jetpack Forms field plugin with the following specifications:
+
+## Field Details
+- **Field type identifier**: [e.g., "rating", "signature", "date-range", "file-upload"]
+- **Display name**: [e.g., "Star Rating", "Signature Pad", "Date Range Picker"]
+- **Default label**: [e.g., "Rate your experience", "Sign here", "Select date range"]
+- **Description**: [Describe what the field does and how users interact with it]
+
+## Field Behavior
+- **Value format**: [What data format is stored/submitted? e.g., "number 1-5", "base64 image", "ISO date string", "JSON object {start, end}"]
+- **Required validation**: [How should empty/missing values be handled?]
+- **Custom validation rules**: [e.g., "must be between 1 and 5", "signature must have at least 10 points", "end date must be after start date"]
+
+## Editor Experience
+- **Preview**: [How should the field appear in the block editor? Interactive or static preview?]
+- **Settings panel options**: [What settings should appear in the sidebar? e.g., "min/max values", "allowed file types", "date format"]
+- **Default values**: [Should users be able to set a default value? How?]
+
+## Frontend Experience
+- **Interaction model**: [How do users interact? Click, drag, type, select, etc.]
+- **Accessibility requirements**: [Keyboard navigation, screen reader support, ARIA labels]
+- **Mobile considerations**: [Touch interactions, responsive layout]
+
+## Output Rendering
+- **Email display**: [How should the value appear in notification emails?]
+- **Dashboard display**: [How should it render in the form responses dashboard?]
+- **CSV export**: [What format for CSV export?]
+
+## Technical Requirements
+Follow these Jetpack Forms conventions:
+
+1. **Use WordPress Interactivity API** for all frontend JavaScript reactivity
+   - Import from `@wordpress/interactivity`: `store`, `getContext`
+   - Use `data-wp-*` attributes for bindings
+   - Store field state in the form's shared context
+
+2. **Use WordPress core components** in the editor where possible
+   - `@wordpress/components`: TextControl, RangeControl, ToggleControl, ColorPicker, etc.
+   - `@wordpress/block-editor`: useBlockProps, InspectorControls, etc.
+
+3. **File structure** (all files required):
+   ```
+   jetpack-forms-{type}-field/
+   ├── jetpack-forms-{type}-field.php   # Registration + render_field + validate
+   ├── package.json                      # Build dependencies
+   ├── webpack.config.js                 # Webpack config (use provided template)
+   └── src/
+       ├── index.js          # Block registration + editor UI
+       ├── editor.scss       # Editor-only styles
+       ├── view.js           # Interactivity API store extensions
+       ├── view.scss         # Frontend styles
+       └── dashboard.js      # Dashboard column rendering (optional)
+   ```
+
+4. **PHP registration** must include:
+   - `'plugin_file' => __FILE__` for auto asset resolution
+   - `'supports' => array('label' => true)` for label block support
+   - `validate_callback` for server-side validation
+   - `render_field` returning HTML with `$data['wrapper_attrs']`, `$data['label_html']`, `$data['error_html']`
+   - `render_value` for email/CSV/dashboard output
+   - `error_messages` array for frontend validation keys
+
+5. **Hidden input pattern**: Always include a hidden input with:
+   - `id` and `name` from `$data['id']`
+   - `data-type="{field_type}"` for validation routing
+   - `data-wp-bind--value` for Interactivity API binding
+
+6. **Validation flow**:
+   - Frontend: Register validator in `view.js` via `state.validators.{type}`
+   - Return error key string (maps to `error_messages`) or `'yes'` for valid
+   - Backend: `validate_callback` returns `true` or error message string
+
+## Edge Cases to Handle
+- [ ] Empty/null values (both required and optional fields)
+- [ ] Invalid data format submitted (malicious or corrupted input)
+- [ ] Very long values (truncation, max length)
+- [ ] Special characters and XSS prevention (proper escaping)
+- [ ] Form submission without JavaScript (graceful degradation)
+- [ ] Multiple instances of this field in one form (unique IDs)
+- [ ] Field inside repeater/nested form structures (if applicable)
+
+## Reference
+Read the full API documentation and templates in this file, and reference these working examples:
+- NPS field (0-10 scale selector): `tools/docker/wordpress/wp-content/plugins/jetpack-forms-nps-field/`
+- Color field (color picker): `tools/docker/wordpress/wp-content/plugins/jetpack-forms-color-field/`
+
+Generate all files with complete, production-ready code. Use the templates from the documentation as the starting point.
+````
+
+### Example Prompts
+
+**Star Rating Field:**
+> Create a custom Jetpack Forms field: A 5-star rating field where users click stars to rate. Store as integer 1-5. Show filled/empty stars in editor preview. In emails, show "★★★☆☆ (3/5)". Allow configuring max stars (3-10) in settings panel.
+
+**Signature Field:**
+> Create a custom Jetpack Forms field: A signature pad where users draw their signature with mouse/touch. Store as base64 PNG. Show canvas in editor with placeholder text. Validate that signature has content (not empty canvas). In emails, show inline image. Clear button to reset.
+
+**Date Range Picker:**
+> Create a custom Jetpack Forms field: Two date inputs for start/end date. Store as JSON {start: "YYYY-MM-DD", end: "YYYY-MM-DD"}. Validate end >= start. Settings for min/max allowed dates. In emails, show "Jan 1, 2025 - Jan 15, 2025" formatted.
+
+---
+
 ## Quick Start Template
 
 Use these templates to create a new field. Replace `{FIELD_TYPE}` with your field name (e.g., `rating`, `signature`).
