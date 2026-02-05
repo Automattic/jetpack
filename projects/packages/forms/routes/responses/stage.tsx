@@ -512,11 +512,11 @@ function StageInner() {
 				type: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
 				filterBy: {
-					operators: [ 'on', 'between', 'before', 'after' ],
+					operators: [ 'on', 'between', 'before', 'after' ] as Operator[],
 				},
 				render: ( { item } ) => {
-					const date = dateI18n( dateSettings.formats.date, item.date );
-					return styleUnreadValue( date, item.is_unread );
+					const datetime = dateI18n( dateSettings.formats.datetime, item.date );
+					return styleUnreadValue( datetime, item.is_unread );
 				},
 				getValue: ( { item } ) => {
 					if ( typeof item.date !== 'string' ) {
@@ -598,7 +598,7 @@ function StageInner() {
 			},
 		],
 		[
-			dateSettings.formats.date,
+			dateSettings.formats.datetime,
 			filterOptions,
 			isSingleFormView,
 			totalItemsInbox,
