@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
 
@@ -87,6 +88,10 @@ class Social_Admin_Page {
 	 * Initialize the admin resources.
 	 */
 	public function admin_init() {
+		// Clear plan cache when the plugin settings page is loaded.
+		// This ensures fresh purchase data is displayed after completing a purchase.
+		Current_Plan::refresh_from_wpcom();
+
 		/**
 		 * Use priority 20 to ensure that we can dequeue the old Social assets.
 		 */
