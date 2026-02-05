@@ -52,12 +52,13 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a post without Markdown meta produces no output.
+	 * Test that a post without Markdown meta falls back to post_content.
 	 */
-	public function test_no_output_without_markdown_meta() {
-		$post_id = self::factory()->post->create(
+	public function test_falls_back_to_post_content_without_markdown_meta() {
+		$html_content = '<p>Regular post.</p>';
+		$post_id      = self::factory()->post->create(
 			array(
-				'post_content'          => '<p>Regular post.</p>',
+				'post_content'          => $html_content,
 				'post_content_filtered' => '# Some markdown content',
 			)
 		);
@@ -69,22 +70,48 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		jetpack_markdown_rss_output_source_markdown();
 		$output = ob_get_clean();
 
-		$this->assertEmpty( $output );
+		$this->assertStringContainsString( '<source:markdown><![CDATA[', $output );
+		$this->assertStringContainsString( $html_content, $output );
 
 		wp_reset_postdata();
 	}
 
 	/**
-	 * Test that a Markdown post with empty post_content_filtered produces no output.
+	 * Test that a Markdown post with empty post_content_filtered falls back to post_content.
 	 */
-	public function test_no_output_with_empty_content_filtered() {
-		$post_id = self::factory()->post->create(
+	public function test_falls_back_to_post_content_with_empty_content_filtered() {
+		$html_content = '<p>Some HTML.</p>';
+		$post_id      = self::factory()->post->create(
 			array(
-				'post_content'          => '<p>Some HTML.</p>',
+				'post_content'          => $html_content,
 				'post_content_filtered' => '',
 			)
 		);
 		update_post_meta( $post_id, WPCom_Markdown::IS_MD_META, true );
+
+		$this->go_to( '/?p=' . $post_id );
+		setup_postdata( get_post( $post_id ) );
+
+		ob_start();
+		jetpack_markdown_rss_output_source_markdown();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<source:markdown><![CDATA[', $output );
+		$this->assertStringContainsString( $html_content, $output );
+
+		wp_reset_postdata();
+	}
+
+	/**
+	 * Test that a post with both empty post_content and post_content_filtered produces no output.
+	 */
+	public function test_no_output_with_empty_content() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content'          => '',
+				'post_content_filtered' => '',
+			)
+		);
 
 		$this->go_to( '/?p=' . $post_id );
 		setup_postdata( get_post( $post_id ) );

@@ -2,8 +2,9 @@
 /**
  * Markdown RSS feed support.
  *
- * Outputs a <source:markdown> element in RSS feed items
- * for posts that have Markdown source content.
+ * Outputs a <source:markdown> element in RSS feed items.
+ * Uses raw Markdown from post_content_filtered when available,
+ * otherwise falls back to the regular post_content.
  *
  * @package automattic/jetpack
  * @since $$next-version$$
@@ -26,8 +27,9 @@ function jetpack_markdown_rss_namespace() {
 /**
  * Output a source:markdown element for the current post in an RSS feed.
  *
- * Only outputs when the current post was written with Markdown
- * and has content stored in post_content_filtered.
+ * Uses raw Markdown from post_content_filtered when the post was written
+ * with the Markdown module. Falls back to post_content for all other posts,
+ * so the element is always present for RSS readers to consume.
  *
  * @since $$next-version$$
  * @return void
@@ -38,16 +40,21 @@ function jetpack_markdown_rss_output_source_markdown() {
 		return;
 	}
 
-	if ( ! get_post_meta( $post->ID, WPCom_Markdown::IS_MD_META, true ) ) {
+	if (
+		get_post_meta( $post->ID, WPCom_Markdown::IS_MD_META, true )
+		&& ! empty( $post->post_content_filtered )
+	) {
+		$content = $post->post_content_filtered;
+	} else {
+		$content = $post->post_content;
+	}
+
+	if ( empty( $content ) ) {
 		return;
 	}
 
-	if ( empty( $post->post_content_filtered ) ) {
-		return;
-	}
-
-	$markdown = str_replace( ']]>', ']]&gt;', $post->post_content_filtered );
+	$content = str_replace( ']]>', ']]&gt;', $content );
 
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is wrapped in CDATA with ]]> escaped.
-	echo "\t\t<source:markdown><![CDATA[" . $markdown . "]]></source:markdown>\n";
+	echo "\t\t<source:markdown><![CDATA[" . $content . "]]></source:markdown>\n";
 }
