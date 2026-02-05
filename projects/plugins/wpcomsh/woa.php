@@ -442,7 +442,7 @@ add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_store_woocomm
 
 /**
  * Ensures that specific Jetpack modules are activated after a transfer.
- * Addresses the issue where certain modules like blocks, account-protection, blaze, and reader
+ * Addresses the issue where certain modules like blocks, account-protection, blaze, and wpcom-reader
  * may be disabled during the transfer process.
  *
  * @param array $args       Arguments.
