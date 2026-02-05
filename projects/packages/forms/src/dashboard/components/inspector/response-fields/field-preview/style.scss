@@ -7,7 +7,7 @@
 		.jp-forms__field-preview {
 			padding-top: 24px;
 			padding-bottom: 24px;
-			// Multiple variables as fallback until style tokens are available everywhere.
+			// Multiple variables as fallback until style tokens are fully available.
 			border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, var(--jp-forms-border-color, #e0e0e0));
 		}
 
