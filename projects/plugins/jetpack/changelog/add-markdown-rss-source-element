@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Markdown: add source:markdown element to RSS feeds for posts written with the Markdown module.
+Markdown: add source:markdown element to RSS feeds for posts written with the Markdown module or the Markdown block.
