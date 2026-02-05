@@ -181,26 +181,6 @@ class Woocommerce_Analytics {
 	}
 
 	/**
-	 * Handle plugin upgrade to update proxy speed module immediately.
-	 *
-	 * @param \WP_Upgrader $upgrader The upgrader instance.
-	 * @param array        $options  Array of update data.
-	 */
-	public static function on_plugin_upgrade( $upgrader, $options ) {
-		if ( ! isset( $options['action'] ) || ! isset( $options['type'] ) ) {
-			return;
-		}
-
-		if ( $options['action'] !== 'update' || $options['type'] !== 'plugin' ) {
-			return;
-		}
-
-		// Clear the transient so the update check runs immediately.
-		delete_transient( self::PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT );
-		self::maybe_add_proxy_speed_module();
-	}
-
-	/**
 	 * Maybe update proxy speed module.
 	 */
 	public static function maybe_update_proxy_speed_module() {
@@ -351,7 +331,6 @@ class Woocommerce_Analytics {
 	 * Register admin hooks for MU-plugin management.
 	 */
 	public static function register_admin_hooks() {
-		add_action( 'upgrader_process_complete', array( __CLASS__, 'on_plugin_upgrade' ), 10, 2 );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_update_proxy_speed_module' ) );
 	}
 }
