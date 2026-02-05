@@ -21,6 +21,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return void
  */
 function jetpack_markdown_rss_namespace() {
+	static $output = false;
+	if ( $output ) {
+		return;
+	}
+	$output = true;
 	echo 'xmlns:source="https://source.scripting.com/"';
 }
 

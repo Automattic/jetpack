@@ -7,6 +7,8 @@
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/markdown/easy-markdown.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown/rss.php';
@@ -183,9 +185,31 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that the RSS2 namespace declaration is output.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_rss_namespace_outputs_source_xmlns() {
 		ob_start();
+		jetpack_markdown_rss_namespace();
+		$output = ob_get_clean();
+
+		$this->assertSame( 'xmlns:source="https://source.scripting.com/"', $output );
+	}
+
+	/**
+	 * Test that the namespace function only outputs once even if called multiple times.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_rss_namespace_outputs_only_once() {
+		ob_start();
+		jetpack_markdown_rss_namespace();
 		jetpack_markdown_rss_namespace();
 		$output = ob_get_clean();
 
