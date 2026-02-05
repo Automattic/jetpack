@@ -17,10 +17,12 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown/rss.php';
  * @group markdown
  * @covers ::jetpack_markdown_rss_output_source_markdown
  * @covers ::jetpack_markdown_rss_namespace
+ * @covers ::jetpack_markdown_rss_post_has_markdown_block
  */
 #[Group( 'markdown' )]
 #[CoversFunction( 'jetpack_markdown_rss_output_source_markdown' )]
 #[CoversFunction( 'jetpack_markdown_rss_namespace' )]
+#[CoversFunction( 'jetpack_markdown_rss_post_has_markdown_block' )]
 class Markdown_RSS_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -188,6 +190,41 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		$this->assertSame( 'xmlns:source="https://source.scripting.com/"', $output );
+	}
+
+	/**
+	 * Test that the helper detects a jetpack/markdown block.
+	 */
+	public function test_has_markdown_block_returns_true_when_block_present() {
+		if ( ! class_exists( 'WP_Block_Processor' ) ) {
+			$this->markTestSkipped( 'WP_Block_Processor not available.' );
+		}
+
+		$content = '<!-- wp:jetpack/markdown {"source":"# Hello"} --><div class="wp-block-jetpack-markdown"><h1>Hello</h1></div><!-- /wp:jetpack/markdown -->';
+		$this->assertTrue( jetpack_markdown_rss_post_has_markdown_block( $content ) );
+	}
+
+	/**
+	 * Test that the helper returns false when no markdown block is present.
+	 */
+	public function test_has_markdown_block_returns_false_when_no_block() {
+		if ( ! class_exists( 'WP_Block_Processor' ) ) {
+			$this->markTestSkipped( 'WP_Block_Processor not available.' );
+		}
+
+		$content = '<!-- wp:paragraph --><p>Regular post.</p><!-- /wp:paragraph -->';
+		$this->assertFalse( jetpack_markdown_rss_post_has_markdown_block( $content ) );
+	}
+
+	/**
+	 * Test that the helper returns false for empty content.
+	 */
+	public function test_has_markdown_block_returns_false_for_empty_content() {
+		if ( ! class_exists( 'WP_Block_Processor' ) ) {
+			$this->markTestSkipped( 'WP_Block_Processor not available.' );
+		}
+
+		$this->assertFalse( jetpack_markdown_rss_post_has_markdown_block( '' ) );
 	}
 
 	/**

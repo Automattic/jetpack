@@ -25,6 +25,21 @@ function jetpack_markdown_rss_namespace() {
 }
 
 /**
+ * Check if post content contains any jetpack/markdown blocks.
+ *
+ * Uses WP_Block_Processor for efficient streaming detection
+ * without parsing the full block tree.
+ *
+ * @since $$next-version$$
+ * @param string $post_content The post content to check.
+ * @return bool True if at least one jetpack/markdown block is found.
+ */
+function jetpack_markdown_rss_post_has_markdown_block( $post_content ) {
+	$processor = new WP_Block_Processor( $post_content );
+	return $processor->next_block( 'jetpack/markdown' );
+}
+
+/**
  * Output a source:markdown element for the current post in an RSS feed.
  *
  * Uses raw Markdown from post_content_filtered when the post was written
