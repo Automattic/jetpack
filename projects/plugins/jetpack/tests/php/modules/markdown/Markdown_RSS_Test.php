@@ -20,11 +20,13 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown/rss.php';
  * @covers ::jetpack_markdown_rss_output_source_markdown
  * @covers ::jetpack_markdown_rss_namespace
  * @covers ::jetpack_markdown_rss_post_has_markdown_block
+ * @covers ::jetpack_markdown_block_rss_output_source_markdown
  */
 #[Group( 'markdown' )]
 #[CoversFunction( 'jetpack_markdown_rss_output_source_markdown' )]
 #[CoversFunction( 'jetpack_markdown_rss_namespace' )]
 #[CoversFunction( 'jetpack_markdown_rss_post_has_markdown_block' )]
+#[CoversFunction( 'jetpack_markdown_block_rss_output_source_markdown' )]
 class Markdown_RSS_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
