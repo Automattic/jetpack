@@ -1,5 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
-/*!
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -1308,12 +1308,12 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ) {
 				// where detail not present?
 				// into second address?
 
-				$masterNewMeta           = false;
-				$masterHasSecondAddr     = false;  // this'll let us copy over first from slave if empty :)
-				$slaveHasFirstAddr       = false;
-				$slaveHasSecondAddr      = false;
-				$slaveFirstAddrStr       = '';
-				$slaveSecondAddrStr      = '';
+				$masterNewMeta       = false;
+				$masterHasSecondAddr = false;  // this'll let us copy over first from slave if empty :)
+				$slaveHasFirstAddr   = false;
+				$slaveHasSecondAddr  = false;
+				$slaveFirstAddrStr   = '';
+				$slaveSecondAddrStr  = '';
 
 				// if this gets filled, it'll be added as aka below
 				$slaveEmailAddress = false;

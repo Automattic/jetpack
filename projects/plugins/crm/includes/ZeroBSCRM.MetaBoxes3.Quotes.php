@@ -337,7 +337,7 @@ class zeroBS__Metabox_Quote extends zeroBS__Metabox {
 						zeroBSCRM_html_editFields( $quote, $fields, 'zbscq_' );
 
 						#} if enabled, and new quote, or one which hasn't had the 'templated' meta key added.
-						if ( $useQuoteBuilder == 1 && ! isset( $quote['template'] ) ) { 
+						if ( $useQuoteBuilder == 1 && ! isset( $quote['template'] ) ) {
 							?>
 							<div class="jpcrm-form-group jpcrm-form-group-span-2">
 							<div class="zbs-move-on-wrap">
@@ -386,8 +386,9 @@ class zeroBS__Metabox_Quote extends zeroBS__Metabox {
 										<?php esc_html_e( 'here', 'zero-bs-crm' ); ?>
 									</a>
 								</p>
+								<?php $disabled_attr = ( $quoteContactID <= 0 ) ? ' disabled="disabled"' : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>
 								<button type="button" id="zbsQuoteBuilderStep2" class="ui button button-primary black button-large xl"
-									<?php if ( $quoteContactID <= 0 ) { echo ' disabled="disabled"'; } /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace */ ?>><?php esc_html_e( 'Use Quote Builder', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>
+									<?php echo $disabled_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static string ?>><?php esc_html_e( 'Use Quote Builder', 'zero-bs-crm' ); ?>
 								</button>
 								<?php if ( $quoteContactID <= 0 ) { /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace */ ?>
 									<p id="zbsQuoteBuilderStep2info">(<?php esc_html_e( "You'll need to assign this Quote to a contact to use this", 'zero-bs-crm' ); ?>);</p>

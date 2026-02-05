@@ -419,6 +419,7 @@ class zeroBSCRM_list {
 
 			?>
 
+		<?php // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact, Generic.Formatting.DisallowMultipleStatements.SameLine, Squiz.PHP.EmbeddedPhp -- mixed PHP/JS context ?>
 		<script type="text/javascript">
 			// expose log types (For columns)
 			var zbsLogTypes = <?php global $zeroBSCRM_logTypes; echo json_encode( $zeroBSCRM_logTypes ); ?>;
@@ -695,6 +696,7 @@ class zeroBSCRM_list {
 					}
 					?>
 					</script>
+					<?php // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact, Generic.Formatting.DisallowMultipleStatements.SameLine, Squiz.PHP.EmbeddedPhp ?>
 
 					<?php
 	} // /draw func

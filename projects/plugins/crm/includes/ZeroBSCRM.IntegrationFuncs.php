@@ -1,5 +1,5 @@
 <?php
-/*!
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20

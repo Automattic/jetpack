@@ -220,13 +220,13 @@ $zeroBSCRM_columns_invoice['default'] = array(
 );
 
 $zeroBSCRM_columns_invoice['all'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	'id' => array( 'ID', false, 'basefield' ),
-	'ref' => array( __( 'Reference', 'zero-bs-crm' ), false, 'basefield' ),
+	'id'       => array( 'ID', false, 'basefield' ),
+	'ref'      => array( __( 'Reference', 'zero-bs-crm' ), false, 'basefield' ),
 	'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
-	'status' => array( __( 'Status', 'zero-bs-crm' ), false, 'basefield' ),
-	'value' => array( __( 'Value', 'zero-bs-crm' ), false, 'basefield' ),
-	'date' => array( __( 'Date', 'zero-bs-crm' ), false, 'basefield' ),
-	'due' => array( __( 'Due date', 'zero-bs-crm' ), false, 'basefield' ),
+	'status'   => array( __( 'Status', 'zero-bs-crm' ), false, 'basefield' ),
+	'value'    => array( __( 'Value', 'zero-bs-crm' ), false, 'basefield' ),
+	'date'     => array( __( 'Date', 'zero-bs-crm' ), false, 'basefield' ),
+	'due'      => array( __( 'Due date', 'zero-bs-crm' ), false, 'basefield' ),
 
 	'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
 
@@ -246,14 +246,14 @@ $zeroBSCRM_columns_invoice['all'] = array( // phpcs:ignore WordPress.NamingConve
 
 global $zeroBSCRM_columns_transaction;
 
-$zeroBSCRM_columns_transaction                = array();
+$zeroBSCRM_columns_transaction            = array();
 $zeroBSCRM_columns_transaction['default'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	'id'   => array( 'ID', 'zbsDefault_column_customerid', 'basefield' ),
+	'id'       => array( 'ID', 'zbsDefault_column_customerid', 'basefield' ),
 	'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
-	'status' => array( __( 'Status', 'zero-bs-crm' ), false, 'basefield' ),
-	'total' => array( __( 'Value', 'zero-bs-crm' ), false, 'basefield' ),
-	'item' => array( __( 'Item', 'zero-bs-crm' ), false, 'basefield' ),
-	'added' => array( __( 'Added', 'zero-bs-crm' ), false, 'basefield' ),
+	'status'   => array( __( 'Status', 'zero-bs-crm' ), false, 'basefield' ),
+	'total'    => array( __( 'Value', 'zero-bs-crm' ), false, 'basefield' ),
+	'item'     => array( __( 'Item', 'zero-bs-crm' ), false, 'basefield' ),
+	'added'    => array( __( 'Added', 'zero-bs-crm' ), false, 'basefield' ),
 	'editlink' => array( __( 'Edit Link', 'zero-bs-crm' ) ),
 );
 
