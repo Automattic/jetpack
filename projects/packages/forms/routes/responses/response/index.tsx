@@ -202,7 +202,6 @@ function SingleResponseView( {
 			<ResponseFieldsIterator
 				fields={ response.fields }
 				onFilePreview={ handleFilePreview }
-				className="jp-forms__inbox-response-data"
 			/>
 
 			{ response.status === 'spam' && (
