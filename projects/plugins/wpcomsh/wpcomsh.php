@@ -433,6 +433,24 @@ function wpcomsh_make_content_clickable( $content ) {
 	// don't look in <a></a>, <pre></pre>, <script></script> and <style></style>
 	// use <div class="skip-make-clickable"> in support docs where linkifying
 	// breaks shortcodes, etc.
+
+	// Protect content inside script tags before splitting.
+	// Script tags can contain < and > characters (e.g., JavaScript comparison operators)
+	// that would break the regex split below, causing content after the script to be lost.
+	$script_placeholders = array();
+	$placeholder_id      = 0;
+
+	$content = preg_replace_callback(
+		'/(<script\b[^>]*>)(.*?)(<\/script>)/si',
+		function ( $matches ) use ( &$script_placeholders, &$placeholder_id ) {
+			$placeholder                         = '<!--WPCOMSH_SCRIPT_PLACEHOLDER_' . $placeholder_id . '-->';
+			$script_placeholders[ $placeholder ] = $matches[0];
+			++$placeholder_id;
+			return $placeholder;
+		},
+		$content
+	);
+
 	$_split  = preg_split( '/(<[^>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
 	$end     = '';
 	$out     = '';
@@ -521,6 +539,11 @@ function wpcomsh_make_content_clickable( $content ) {
 		} else {
 			$out .= $chunk;
 		}
+	}
+
+	// Restore protected script content.
+	if ( $script_placeholders ) {
+		$out = strtr( $out, $script_placeholders );
 	}
 
 	return $out;

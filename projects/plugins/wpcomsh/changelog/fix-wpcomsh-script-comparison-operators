@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed content rendering after Custom HTML blocks containing JavaScript with comparison operators

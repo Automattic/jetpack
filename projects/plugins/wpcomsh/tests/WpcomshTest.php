@@ -62,6 +62,25 @@ class WpcomshTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that JavaScript comparison operators in script tags don't break content rendering.
+	 *
+	 * Script tags containing < or > operators (e.g., `if (x < 10)`) would previously
+	 * cause the regex split to misinterpret the < as an HTML tag start, resulting in
+	 * content after the script being lost.
+	 *
+	 * @return void
+	 */
+	public function test_wpcomsh_make_content_clickable_with_js_comparison_operators() {
+		$content = '<script>if (chartHeight < 500 && width > 100) { doSomething(); }</script>' .
+			'<p>https://wp.com should be linkified</p>';
+
+		$expected = '<script>if (chartHeight < 500 && width > 100) { doSomething(); }</script>' .
+			'<p><a href="https://wp.com" rel="nofollow">https://wp.com</a> should be linkified</p>';
+
+		$this->assertEquals( $expected, wpcomsh_make_content_clickable( $content ) );
+	}
+
+	/**
 	 * Tests if Jetpack Boost plugin is active, to test the integreation setup.
 	 *
 	 * This is for the `jp docker phpunit-integration` command to verify it works.
