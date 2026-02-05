@@ -13,6 +13,8 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 	accentColor?: string;
 	containerWidth?: string;
 	containerHeight?: string;
+	containerOffsetX?: number;
+	containerOffsetY?: number;
 	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
 	withPadding?: boolean;
 };
@@ -30,6 +32,10 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 	const args = context.args as ChartStoryArgs;
 	const withPadding = args.withPadding !== false;
 
+	const offsetX = args.containerOffsetX || 0;
+	const offsetY = args.containerOffsetY || 0;
+	const hasOffset = offsetX !== 0 || offsetY !== 0;
+
 	const StoryWithContainer = () => (
 		<div
 			style={ {
@@ -41,6 +47,7 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 				maxWidth: '1200px',
 				border: '1px dashed #ccc',
 				display: 'inline-block',
+				transform: hasOffset ? `translate(${ offsetX }px, ${ offsetY }px)` : undefined,
 			} }
 		>
 			<Story />
@@ -174,6 +181,16 @@ export const sharedChartArgTypes = {
 	containerHeight: {
 		control: { type: 'text' },
 		description: 'CSS height value for the chart container (e.g., "400px", "100%")',
+	},
+	containerOffsetX: {
+		control: { type: 'range', min: -300, max: 300, step: 10 },
+		description: 'Horizontal offset to test tooltip positioning after container movement',
+		table: { category: 'Testing' },
+	},
+	containerOffsetY: {
+		control: { type: 'range', min: -300, max: 300, step: 10 },
+		description: 'Vertical offset to test tooltip positioning after container movement',
+		table: { category: 'Testing' },
 	},
 	resize: {
 		control: { type: 'select' },
