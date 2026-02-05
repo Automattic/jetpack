@@ -4,7 +4,7 @@
  *
  * Outputs a <source:markdown> element in RSS feed items.
  * Uses raw Markdown from post_content_filtered when available,
- * otherwise falls back to the regular post_content.
+ * otherwise falls back to the rendered post content.
  *
  * @package automattic/jetpack
  * @since $$next-version$$
@@ -45,11 +45,10 @@ function jetpack_markdown_rss_output_source_markdown() {
 		&& ! empty( $post->post_content_filtered )
 	) {
 		$content = $post->post_content_filtered;
+	} elseif ( ! empty( $post->post_content ) ) {
+		// Apply the_content filters to render Gutenberg blocks and shortcodes into clean HTML.
+		$content = apply_filters( 'the_content', $post->post_content );
 	} else {
-		$content = $post->post_content;
-	}
-
-	if ( empty( $content ) ) {
 		return;
 	}
 

@@ -52,13 +52,12 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a post without Markdown meta falls back to post_content.
+	 * Test that a post without Markdown meta falls back to rendered post_content.
 	 */
-	public function test_falls_back_to_post_content_without_markdown_meta() {
-		$html_content = '<p>Regular post.</p>';
-		$post_id      = self::factory()->post->create(
+	public function test_falls_back_to_rendered_content_without_markdown_meta() {
+		$post_id = self::factory()->post->create(
 			array(
-				'post_content'          => $html_content,
+				'post_content'          => '<!-- wp:paragraph --><p>Regular post.</p><!-- /wp:paragraph -->',
 				'post_content_filtered' => '# Some markdown content',
 			)
 		);
@@ -71,19 +70,19 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<source:markdown><![CDATA[', $output );
-		$this->assertStringContainsString( $html_content, $output );
+		$this->assertStringContainsString( '<p>Regular post.</p>', $output );
+		$this->assertStringNotContainsString( '<!-- wp:paragraph -->', $output );
 
 		wp_reset_postdata();
 	}
 
 	/**
-	 * Test that a Markdown post with empty post_content_filtered falls back to post_content.
+	 * Test that a Markdown post with empty post_content_filtered falls back to rendered post_content.
 	 */
-	public function test_falls_back_to_post_content_with_empty_content_filtered() {
-		$html_content = '<p>Some HTML.</p>';
-		$post_id      = self::factory()->post->create(
+	public function test_falls_back_to_rendered_content_with_empty_content_filtered() {
+		$post_id = self::factory()->post->create(
 			array(
-				'post_content'          => $html_content,
+				'post_content'          => '<!-- wp:paragraph --><p>Some HTML.</p><!-- /wp:paragraph -->',
 				'post_content_filtered' => '',
 			)
 		);
@@ -97,7 +96,8 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<source:markdown><![CDATA[', $output );
-		$this->assertStringContainsString( $html_content, $output );
+		$this->assertStringContainsString( '<p>Some HTML.</p>', $output );
+		$this->assertStringNotContainsString( '<!-- wp:paragraph -->', $output );
 
 		wp_reset_postdata();
 	}
