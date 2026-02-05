@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: fix tooltip positioning when container bounds become stale after dashboard customization.
