@@ -632,14 +632,17 @@ class Help_Center {
 			return;
 		}
 
-		// Do not load Help Center for logged-out users on support sites when the experiment variation is not the treatment.
-		if ( $this->is_support_site && ! is_user_logged_in() && ! self::is_proxied() ) {
-			$experiment_variation = null;
-
-			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
-				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'calypso_help_center_load_on_logged_out_support_sites' );
+		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
+		if ( ! is_user_logged_in() && ! self::is_proxied() ) {
+			if ( ! $this->is_support_site ) {
+				return;
 			}
-			if ( $experiment_variation !== 'treatment' ) {
+
+			$experiment_variation = null;
+			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
+				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages' );
+			}
+			if ( ! $experiment_variation === 'treatment' ) {
 				return;
 			}
 		}
