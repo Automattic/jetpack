@@ -1,5 +1,4 @@
 import { formatNumber } from '@automattic/number-formatters';
-import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -10,6 +9,17 @@ import { partialOsUsageData as data } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { PieSemiCircleChart, PieSemiCircleChartRenderTooltipParams } from '../index';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
+
+const emojiMap: Record< string, string > = {
+	Windows: '🪟',
+	MacOS: '🍎',
+	Linux: '🐧',
+	Other: '🖥️',
+};
+
+const getEmoji = ( label: string ) => {
+	return emojiMap[ label ] || '📊';
+};
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart > >;
 
@@ -158,16 +168,6 @@ export const CustomWithEmoji: StoryObj< typeof PieSemiCircleChart > = Template.b
 CustomWithEmoji.args = {
 	...tooltipStoryArgs,
 	renderTooltip: ( { tooltipData }: PieSemiCircleChartRenderTooltipParams ) => {
-		const getEmoji = ( label: string ) => {
-			const emojiMap: Record< string, string > = {
-				Windows: '🪟',
-				MacOS: '🍎',
-				Linux: '🐧',
-				Other: '🖥️',
-			};
-			return emojiMap[ label ] || '📊';
-		};
-
 		return (
 			<div
 				style={ {
@@ -257,30 +257,28 @@ CustomTableTooltip.parameters = {
 
 export const TooltipOffset: StoryObj< typeof PieSemiCircleChart > = {
 	render: () => (
-		<GlobalChartsProvider>
-			<div
-				style={ {
-					display: 'grid',
-					gap: '2rem',
-					gridTemplateColumns: 'repeat(2, 1fr)',
-					alignItems: 'start',
-				} }
-			>
-				<div>
-					<h3>Default Offset (0, -15)</h3>
-					<PieSemiCircleChart { ...tooltipStoryArgs } width={ 350 } />
-				</div>
-				<div>
-					<h3>Custom Offset (20, -30)</h3>
-					<PieSemiCircleChart
-						{ ...tooltipStoryArgs }
-						width={ 350 }
-						tooltipOffsetX={ 20 }
-						tooltipOffsetY={ -30 }
-					/>
-				</div>
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				alignItems: 'start',
+			} }
+		>
+			<div>
+				<h3>Default Offset (0, -15)</h3>
+				<PieSemiCircleChart { ...tooltipStoryArgs } width={ 350 } />
 			</div>
-		</GlobalChartsProvider>
+			<div>
+				<h3>Custom Offset (20, -30)</h3>
+				<PieSemiCircleChart
+					{ ...tooltipStoryArgs }
+					width={ 350 }
+					tooltipOffsetX={ 20 }
+					tooltipOffsetY={ -30 }
+				/>
+			</div>
+		</div>
 	),
 	args: {
 		containerWidth: '800px',
