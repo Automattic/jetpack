@@ -5,33 +5,37 @@
  * Rasterize SVG block icons into PNG images for use in email templates.
  *
  * Finds all icon.svg files in src/blocks/field-* directories and converts
- * them to 48x48 PNG files (2x retina for 24x24 display) with white background.
- * Uses palette mode and max compression for minimal file size.
+ * them to 48x48 PNG files (2x retina for 24x24 display) with white background,
+ * output to src/contact-form/images/field-icons/. Uses palette mode and max
+ * compression for minimal file size.
  *
  * Usage: node tools/rasterize-icons.mjs
  */
 
-import { unlink } from 'fs/promises';
-import { dirname, join, relative } from 'path';
+import { mkdir } from 'fs/promises';
+import { basename, dirname, join, relative } from 'path';
 import { fileURLToPath } from 'url';
 import { glob } from 'glob';
 import sharp from 'sharp';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
-const blocksDir = join( __dirname, '..', 'src', 'blocks' );
+const formsRoot = join( __dirname, '..' );
+const blocksDir = join( formsRoot, 'src', 'blocks' );
+const outputDir = join( formsRoot, 'src', 'contact-form', 'images', 'field-icons' );
 
 const svgFiles = await glob( join( blocksDir, 'field-*', 'icon.svg' ) );
 
 if ( svgFiles.length > 0 ) {
 	console.log( `Found ${ svgFiles.length } SVG icons. Rasterizing...\n` );
 
+	await mkdir( outputDir, { recursive: true } );
+
 	let failed = 0;
 
 	for ( const svgFile of svgFiles ) {
-		const blockDir = dirname( svgFile );
-		const outputFile = join( blockDir, 'icon@2x.png' );
-		const oldJpgFile = join( blockDir, 'icon@2x.jpg' );
-		const relativePath = relative( join( __dirname, '..' ), outputFile );
+		const blockName = basename( dirname( svgFile ) );
+		const outputFile = join( outputDir, `${ blockName }@2x.png` );
+		const relativePath = relative( formsRoot, outputFile );
 
 		try {
 			await sharp( svgFile, { density: 96 } )
@@ -43,13 +47,6 @@ if ( svgFiles.length > 0 ) {
 					colors: 16,
 				} )
 				.toFile( outputFile );
-
-			// Remove legacy JPG if it exists
-			try {
-				await unlink( oldJpgFile );
-			} catch {
-				// Ignore if file doesn't exist
-			}
 
 			console.log( `  ✓ ${ relativePath }` );
 		} catch ( err ) {

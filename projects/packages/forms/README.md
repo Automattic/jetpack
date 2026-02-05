@@ -15,7 +15,7 @@ All things forms. This package currently contains the implementation for Jetpack
 │
 └── tools/                                           - Webpack configuration for all bundles in the package.
     ├── extract-icons.mjs                              - React → SVG icon extractor (see below).
-    └── rasterize-icons.mjs                            - SVG → JPG icon rasterizer (see below).
+    └── rasterize-icons.mjs                            - SVG → PNG icon rasterizer (see below).
 ```
 
 See the individual subdirectories for more information.
