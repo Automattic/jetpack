@@ -6,13 +6,13 @@ import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import { __, _x } from '@wordpress/i18n';
+import { Tabs } from '@wordpress/ui';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import useInboxData from '../../hooks/use-inbox-data.ts';
 import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
-import * as Tabs from '../tabs/index.ts';
 
 /**
  * Returns a formatted tab label with count badge.
@@ -78,7 +78,7 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 
 	return (
 		<Tabs.Root value={ status } onValueChange={ handleChange }>
-			<Tabs.List density="compact">
+			<Tabs.List variant="minimal">
 				{ statusTabs.map( option => (
 					<Tabs.Tab key={ option.value } value={ option.value }>
 						{ option.label }
