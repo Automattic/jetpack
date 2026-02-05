@@ -17,7 +17,6 @@
 	flex-grow: 2;
 
 	.jp-forms__inbox-response-header {
-		margin: 24px 0 0;
 		padding: 0 16px 0 0;
 
 		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
@@ -59,7 +58,7 @@
 }
 
 .jp-forms__inbox-response-data {
-	border-top: 1px solid var(--jp-forms-border-color);
+
 	font-size: var(--jp-forms-font-size-regular);
 	line-height: 24px;
 	padding: 0 16px;
@@ -101,7 +100,6 @@
 
 	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 		padding: 16px 16px;
-		margin-bottom: 57px; // Compensate for fixed footer from DataViews
 	}
 }
 
@@ -129,6 +127,14 @@
 		padding-right: 0;
 	}
 
+	.jp-forms__inbox-response-meta {
+		background-color: transparent;
+	}
+
+	.jp-forms__inbox__tip-container {
+		border-top: none;
+	}
+
 	.jp-forms__inbox-file-preview-modal {
 		max-width: 90vw;
 		width: auto;
@@ -136,44 +142,3 @@
 	}
 }
 
-/*
- * File preview
- */
-.jp-forms__inbox-file-preview-shell {
-	max-height: 70vh;
-	overflow: hidden;
-}
-
-.jp-forms__inbox-file-preview-container {
-	margin-bottom: 16px;
-	max-height: 70vh;
-	aspect-ratio: 16 / 9;
-}
-
-.jp-forms__inbox-file-preview-container.is-loading {
-	display: none;
-}
-
-.jp-forms__inbox-file-preview-image {
-	height: 100%;
-	width: 100%;
-	max-height: 66vh;
-	object-fit: contain;
-}
-
-// Ensure backdrop is below the file preview modal but above the response modal
-.components-modal__screen-overlay:nth-of-type(2) {
-	z-index: var(--jp-forms-z-modal-backdrop);
-}
-
-.jp-forms__inbox-file-loading {
-	display: flex;
-	align-content: center;
-	justify-content: center;
-	height: 150px;
-	flex-wrap: wrap;
-}
-
-.jp-forms__inbox-file-spinner.jp-forms__inbox-file-spinner {
-	margin-top: 0;
-}

@@ -31,6 +31,9 @@ use WP_Post;
 // Load the Form_Submission_Error class.
 require_once __DIR__ . '/class-form-submission-error.php';
 
+// Load the Form_Preview class.
+require_once __DIR__ . '/class-form-preview.php';
+
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  */
@@ -377,6 +380,7 @@ class Contact_Form_Plugin {
 		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
 			Contact_Form::register_post_type();
 			Form_Editor::init();
+			Form_Preview::init();
 		}
 	}
 
@@ -1552,6 +1556,11 @@ class Contact_Form_Plugin {
 	 * Conditionally attached to `template_redirect`
 	 */
 	public function process_form_submission() {
+		// Block submissions in preview mode.
+		if ( Form_Preview::is_preview_mode() ) {
+			return;
+		}
+
 		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 

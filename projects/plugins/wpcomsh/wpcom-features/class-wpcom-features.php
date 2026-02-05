@@ -1520,6 +1520,11 @@ class WPCOM_Features {
 				self::WPCOM_BUSINESS_PLANS,
 				self::WPCOM_ECOMMERCE_PLANS,
 			),
+			array(
+				'required_sticker' => 'legacy-200gb-storage',
+				self::WPCOM_BUSINESS_PLANS,
+				self::WPCOM_ECOMMERCE_PLANS,
+			),
 		),
 		self::UPLOAD_SPACE_UNLIMITED            => array(
 			array(
