@@ -848,24 +848,6 @@ class Jetpack_Gutenberg {
 
 		// Adds Connection package initial state.
 		Connection_Initial_State::render_script( 'jetpack-blocks-editor' );
-
-		/*
-		 * Chrome AI Origin Trial tokens script.
-		 *
-		 * This script registration must be kept even though Chrome AI experiment code was removed.
-		 * Removing it breaks P2 blocks on wpcom due to script concatenation/bundling behavior.
-		 * The tokens will quietly expire and do nothing harmful.
-		 *
-		 * @see https://github.com/Automattic/jetpack/pull/46896
-		 */
-		wp_register_script(
-			'jetpack-chrome-ai-token',
-			'https://widgets.wp.com/jetpack-chrome-ai/v1/3p-token.js',
-			array(),
-			gmdate( 'Ymd' ) . floor( (int) gmdate( 'G' ) / 12 ),
-			true
-		);
-		wp_enqueue_script( 'jetpack-chrome-ai-token' );
 	}
 
 	/**

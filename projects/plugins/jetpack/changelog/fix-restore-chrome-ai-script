@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Restore Chrome AI script registration to fix P2 block breakage on wpcom.
