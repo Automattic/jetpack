@@ -1,9 +1,5 @@
-/**
- * External dependencies
- */
-import { Icon } from '@wordpress/components';
-import { gallery } from '@wordpress/icons';
+import Icon from './icon.svg?component';
 
 export default {
-	src: <Icon icon={ gallery } />,
+	src: Icon,
 };
