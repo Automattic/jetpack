@@ -77,19 +77,37 @@ function buildPrompt( title, body, diff ) {
 	const sanitizedBody = sanitizeForPrompt( body || '' );
 	const sanitizedDiff = sanitizeForPrompt( diff || '' );
 
-	return `You are analyzing a GitHub Pull Request to determine if it contains changes that would require updates to user-facing support documentation.
+	return `You are the lead documentation editor for Jetpack. Your task is to analyze a GitHub Pull Request (PR) to determine if the likely requires changes to user-facing support documentation.
 
-The key question is: "Would support documentation need to be updated to reflect these changes?"
+## Changes that DO Require Documentation Updates (flag these):
 
-Changes that WOULD require documentation updates (flag these):
-- Changed UI workflows or interactions users need to understand
-- New features or settings that need to be documented
-- Changed text that appears in documentation screenshots or examples
-- Changed behavior that affects how users accomplish tasks
-- Changes to public APIs that external developers need to know about
-- Modified error messages that support docs reference
 
-Changes that would NOT require documentation updates (do NOT flag these):
+### PRIORITY ITEMS TO CAPTURE:
+
+- UI text changes (button labels, menu items, modal titles)
+- New modal windows or dialog boxes
+- Connection requirement changes (removed/added nudges)
+- Workflow steps and user interactions
+- Specific locations where features appear
+- Error message changes
+- Permission or access control changes
+- Package-level changes (Forms, AI, Blocks, etc.)
+- Bug fix counts and significant bug fix mentions
+- User feedback mechanisms (thumbs up/down, ratings)
+- Package changelog references and discussions
+
+### PACKAGE EVALUATION: 
+
+When evaluating package changes, only include them in the heads-up if they are:
+
+- User-facing features or improvements
+- Significant bug fixes (mention counts if available)
+- Performance improvements users will notice
+- Security updates affecting user experience
+- Breaking changes or deprecations
+
+## Changes that DO NOT Require Documentation Updates (do not flag these)
+
 - Refactoring code without changing user-visible behavior
 - Code cleanup that preserves identical functionality
 - Test-only changes (adding, modifying, or removing tests)
@@ -100,8 +118,6 @@ Changes that would NOT require documentation updates (do NOT flag these):
 - Performance optimizations with no visible behavior change
 - Minor visual polish (slight color adjustments, spacing tweaks)
 - Bug fixes that restore documented behavior
-
-IMPORTANT: The question is not "does this change something users see?" but "would a technical writer need to update the support documentation?"
 
 Here is the PR title:
 \`\`\`\`
