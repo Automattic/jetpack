@@ -142,6 +142,14 @@ function jetpack_markdown_rss_output_source_markdown() {
 		return;
 	}
 
+	// If the post contains Markdown blocks, let the block function handle it.
+	if (
+		class_exists( 'WP_Block_Processor' )
+		&& jetpack_markdown_rss_post_has_markdown_block( $post->post_content )
+	) {
+		return;
+	}
+
 	if (
 		get_post_meta( $post->ID, WPCom_Markdown::IS_MD_META, true )
 		&& ! empty( $post->post_content_filtered )
