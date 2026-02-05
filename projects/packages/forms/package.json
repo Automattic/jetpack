@@ -24,6 +24,8 @@
 		"build:wp-build": "wp-build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf dist/ build/ .cache/",
+		"extract-icons": "node tools/extract-icons.mjs",
+		"generate-icons": "pnpm run extract-icons && pnpm run rasterize-icons",
 		"module:build": "webpack --config ./tools/webpack.config.modules.js",
 		"module:watch": "webpack --watch --config ./tools/webpack.config.modules.js",
 		"rasterize-icons": "node tools/rasterize-icons.mjs",

@@ -14,20 +14,33 @@ All things forms. This package currently contains the implementation for Jetpack
 │   ├── class-jetpack-forms.php                      - Package entrypoint.
 │
 └── tools/                                           - Webpack configuration for all bundles in the package.
-    └── rasterize-icons.mjs                            - SVG to JPG icon rasterizer (see below).
+    ├── extract-icons.mjs                              - React → SVG icon extractor (see below).
+    └── rasterize-icons.mjs                            - SVG → JPG icon rasterizer (see below).
 ```
 
 See the individual subdirectories for more information.
 
-## Rasterizing block icons
+## Generating block icons for email templates
 
-Block field icons (`src/blocks/field-*/icon.svg`) can be rasterized to JPG for use in email templates. The output files are 48x48 pixels (2x retina for 24x24 display) with a white background, named `icon@2x.jpg`.
+Block field icons are defined as React components (`src/blocks/field-*/icon.{jsx,tsx}`) but need to be available as standalone files for email templates. Two scripts handle this:
+
+1. **`extract-icons`** — Renders each React icon component to static SVG markup and writes `icon.svg` files.
+2. **`rasterize-icons`** — Converts each `icon.svg` to a 48x48 retina JPG (`icon@2x.jpg`) with a white background.
+
+Run the full pipeline:
 
 ```bash
-pnpm rasterize-icons
+pnpm generate-icons
 ```
 
-Run this after adding or modifying any `icon.svg` file in a `field-*` block directory.
+Or run each step individually:
+
+```bash
+pnpm extract-icons     # React components → icon.svg
+pnpm rasterize-icons   # icon.svg → icon@2x.jpg
+```
+
+Run these after adding or modifying any icon component in a `field-*` block directory.
 
 ## Using this package in your WordPress plugin
 
