@@ -32,7 +32,7 @@ const PricingPage = ( { onRedirecting } ) => {
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		siteSuffix: getSiteData().suffix,
+		siteSuffix: getSiteData()?.suffix,
 		productSlug: yearlyPrice?.slug,
 		redirectUrl: ADMIN_PAGE_URI,
 	} );

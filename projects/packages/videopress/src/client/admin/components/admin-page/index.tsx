@@ -335,7 +335,7 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 	const hasPurchase = hasVideoPressPurchase();
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { run } = useProductCheckoutWorkflow( {
-		siteSuffix: getSiteData().suffix,
+		siteSuffix: getSiteData()?.suffix,
 		productSlug: productData?.product_slug,
 		redirectUrl: ADMIN_PAGE_URI,
 		useBlogIdSuffix: true,

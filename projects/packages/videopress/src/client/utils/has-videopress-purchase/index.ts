@@ -1,11 +1,10 @@
 import { siteHasFeature, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 
 /**
- * Check if the site has a VideoPress purchase (1TB or unlimited).
+ * Check if the site has a VideoPress purchase.
  *
- * On Jetpack sites, checks for the 'videopress-1tb-storage' feature.
- * On WordPress.com sites, also checks for the 'videopress' feature
- * which is equivalent to 1TB storage.
+ * On Jetpack sites, checks for 'videopress-1tb-storage' feature.
+ * On WordPress.com sites, checks for the 'videopress' feature.
  *
  * @return {boolean} Whether the site has a VideoPress purchase.
  */
