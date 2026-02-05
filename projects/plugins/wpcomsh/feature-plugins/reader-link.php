@@ -1,6 +1,6 @@
 <?php
 /**
- * Add a link to the WordPress.com Reader to the admin bar.
+ * Add a WordPress.com Reader link to the admin bar.
  * We want that feature to always be available on Atomic sites.
  *
  * @package wpcomsh
