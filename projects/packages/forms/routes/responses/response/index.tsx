@@ -53,6 +53,7 @@ function SingleResponseView( {
 	const [ hasMarkedAsRead, setHasMarkedAsRead ] = useState< number | null >( null );
 
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
+	const isNotesEnabled = useConfigValue( 'isNotesEnabled' ) ?? false;
 
 	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
 
@@ -201,6 +202,8 @@ function SingleResponseView( {
 			<ResponseMeta response={ response } />
 
 			<ResponseFieldsIterator fields={ response.fields } onFilePreview={ handleFilePreview } />
+
+			{ isNotesEnabled && <FeedbackComments postId={ response.id } /> }
 
 			{ response.status === 'spam' && (
 				<div className="jp-forms__inbox__tip-container">
