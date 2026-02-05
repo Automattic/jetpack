@@ -325,17 +325,6 @@ class Protected_Owner_Error_Handler {
 	}
 
 	/**
-	 * Check if a user is the protected owner based on APD email or token
-	 *
-	 * @param int $user_id User ID to check.
-	 * @return bool True if user is the protected owner.
-	 */
-	private function is_protected_owner( $user_id ) {
-		$status = $this->get_protected_owner_status( $user_id );
-		return 'no_match' !== $status['match_type'];
-	}
-
-	/**
 	 * Get the protected owner match status for a user
 	 *
 	 * Returns information about how (or if) the user matches the protected owner:
