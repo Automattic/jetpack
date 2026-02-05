@@ -16,9 +16,11 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown/rss.php';
  *
  * @group markdown
  * @covers ::jetpack_markdown_rss_output_source_markdown
+ * @covers ::jetpack_markdown_rss_namespace
  */
 #[Group( 'markdown' )]
 #[CoversFunction( 'jetpack_markdown_rss_output_source_markdown' )]
+#[CoversFunction( 'jetpack_markdown_rss_namespace' )]
 class Markdown_RSS_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -148,6 +150,17 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( $markdown, $output );
 
 		wp_reset_postdata();
+	}
+
+	/**
+	 * Test that the RSS2 namespace declaration is output.
+	 */
+	public function test_rss_namespace_outputs_source_xmlns() {
+		ob_start();
+		jetpack_markdown_rss_namespace();
+		$output = ob_get_clean();
+
+		$this->assertSame( 'xmlns:source="https://source.scripting.com/"', $output );
 	}
 
 	/**

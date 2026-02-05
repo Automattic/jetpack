@@ -6,11 +6,21 @@
  * for posts that have Markdown source content.
  *
  * @package automattic/jetpack
- * @since ___
+ * @since $$next-version$$
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
+}
+
+/**
+ * Output the source namespace declaration for RSS2 feeds.
+ *
+ * @since $$next-version$$
+ * @return void
+ */
+function jetpack_markdown_rss_namespace() {
+	echo 'xmlns:source="https://source.scripting.com/"';
 }
 
 /**
@@ -19,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Only outputs when the current post was written with Markdown
  * and has content stored in post_content_filtered.
  *
- * @since ___
+ * @since $$next-version$$
  * @return void
  */
 function jetpack_markdown_rss_output_source_markdown() {

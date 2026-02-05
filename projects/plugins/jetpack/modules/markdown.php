@@ -22,6 +22,7 @@ require __DIR__ . '/markdown/easy-markdown.php';
 
 // Add source:markdown element to RSS feeds for Markdown posts.
 require JETPACK__PLUGIN_DIR . '_inc/lib/markdown/rss.php';
+add_action( 'rss2_ns', 'jetpack_markdown_rss_namespace' );
 foreach ( array( 'rss_item', 'rss1_item', 'rss2_item' ) as $rss_item_action ) {
 	add_action( $rss_item_action, 'jetpack_markdown_rss_output_source_markdown' );
 }
