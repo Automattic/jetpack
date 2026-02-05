@@ -1,306 +1,180 @@
 # Custom Form Fields Developer Guide
 
-This guide explains how to extend Jetpack Forms with custom field types. The extensibility system allows external developers to register new form fields that integrate seamlessly with the Jetpack Forms editor, validation system, response handling, and dashboard.
+This guide provides templates for creating custom Jetpack Forms fields. Use this as a reference to create new field types.
 
-## Table of Contents
+## Quick Start Template
 
-1. [Overview](#overview)
-2. [Getting Started](#getting-started)
-3. [PHP API Reference](#php-api-reference)
-4. [JavaScript Block Registration](#javascript-block-registration)
-5. [Frontend Interactivity](#frontend-interactivity)
-6. [Dashboard Integration](#dashboard-integration)
-7. [Complete Example: Color Picker Field](#complete-example-color-picker-field)
-8. [Testing Your Custom Fields](#testing-your-custom-fields)
+Use these templates to create a new field. Replace `{FIELD_TYPE}` with your field name (e.g., `rating`, `signature`).
 
-## Overview
-
-The Jetpack Forms extensibility system provides a unified API similar to WordPress's `register_post_type()`. With a single function call, you can register:
-
-- Block type for the editor
-- Server-side validation
-- Frontend field rendering with Interactivity API support
-- Response value rendering (email, CSV, API, dashboard)
-- Error messages
-- Editor, view, and dashboard scripts
-- Automatic Name/ID control in the Advanced panel
-- Label support with the `jetpack/label` block
-
-### Architecture
+### File Structure
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                  register_jetpack_form_field()                   │
-│                                                                  │
-│  Single function call that handles:                              │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ • Block registration (register_block_type)                  ││
-│  │ • Field type registration (jetpack_forms_field_types)       ││
-│  │ • Validation (jetpack_forms_validate_field)                 ││
-│  │ • Field rendering (jetpack_forms_render_field)              ││
-│  │ • Value rendering (jetpack_forms_render_field_value)        ││
-│  │ • Error messages (jetpack_forms_error_types)                ││
-│  │ • Script enqueueing (editor, view, dashboard)               ││
-│  │ • Automatic Name/ID control injection                       ││
-│  │ • Label block parent registration (with supports.label)     ││
-│  └─────────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────────┘
+jetpack-forms-{FIELD_TYPE}-field/
+├── jetpack-forms-{FIELD_TYPE}-field.php   # Main plugin file
+├── package.json                            # Build configuration
+├── webpack.config.js                       # Webpack config
+└── src/
+    ├── index.js                            # Editor block
+    ├── editor.scss                         # Editor styles
+    ├── view.js                             # Frontend interactivity
+    ├── view.scss                           # Frontend styles
+    └── dashboard.js                        # Dashboard integration
 ```
 
-## Getting Started
+---
 
-### Prerequisites
+## File Templates
 
-- WordPress 6.5+ (for Interactivity API support)
-- Jetpack Forms plugin active
-- Basic knowledge of WordPress block development
-
-### Quick Start
-
-1. **Create a WordPress plugin** to contain your custom field
-2. **Register the field** using `register_jetpack_form_field()` on the `init` hook
-3. **Create the editor block** in JavaScript using `registerBlockType()`
-4. **Create the view script** for frontend interactivity (optional)
-5. **Create the dashboard script** for custom value rendering (optional)
-
-### Minimal Example
+### 1. Main Plugin File (`jetpack-forms-{FIELD_TYPE}-field.php`)
 
 ```php
+<?php
+/**
+ * Plugin Name: Jetpack Forms {FIELD_TITLE} Field
+ * Description: Adds a {FIELD_TITLE} field to Jetpack Forms.
+ * Version: 1.0.0
+ * Requires at least: 6.5
+ * Requires PHP: 7.4
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 add_action( 'init', function() {
     if ( ! function_exists( 'register_jetpack_form_field' ) ) {
         return;
     }
 
-    register_jetpack_form_field( 'color', array(
+    register_jetpack_form_field( '{FIELD_TYPE}', array(
+        // Pass plugin file - assets are auto-resolved from conventional paths.
+        'plugin_file' => __FILE__,
+
+        // Enable label support (provides label_html, error_html, wrapper_attrs in render_field).
         'supports' => array(
-            'label' => true, // Enable jetpack/label as inner block
+            'label' => true,
         ),
+
+        // Field-specific block attributes (in addition to standard: required, width, id, etc.).
+        'block_attributes' => array(
+            // Add custom attributes here, e.g.:
+            // 'minValue' => array( 'type' => 'number', 'default' => 1 ),
+            // 'maxValue' => array( 'type' => 'number', 'default' => 5 ),
+        ),
+
+        // Server-side validation.
         'validate_callback' => function( $value, $label, $field ) {
-            if ( empty( $value ) && $field->get_attribute( 'required' ) ) {
-                return sprintf( '%s is required.', $label );
+            // Required check.
+            if ( $field->get_attribute( 'required' ) && ( $value === '' || $value === null ) ) {
+                return sprintf( __( '%s is required.', 'jetpack-forms-{FIELD_TYPE}-field' ), $label );
             }
+
+            // Add field-specific validation here.
+            // Return error message string if invalid, true if valid.
+
             return true;
         },
-        'editor_script' => plugin_dir_url( __FILE__ ) . 'build/index.js',
+
+        // Frontend HTML rendering.
+        'render_field' => function( $data ) {
+            $id       = esc_attr( $data['id'] );
+            $value    = esc_attr( $data['value'] ?? '' );
+            $required = $data['required'] ? 'required aria-required="true"' : '';
+
+            return sprintf(
+                '<div class="grunion-field-wrap grunion-field-{FIELD_TYPE}-wrap" %s>
+                    %s
+                    <div class="{FIELD_TYPE}-field">
+                        <!-- Your field HTML here -->
+                        <input type="hidden" id="%s" name="%s" value="%s" data-type="{FIELD_TYPE}" %s />
+                    </div>
+                    %s
+                </div>',
+                $data['wrapper_attrs'],  // Required: Interactivity API attributes
+                $data['label_html'],     // Required: Pre-rendered label
+                $id,
+                $id,
+                $value,
+                $required,
+                $data['error_html']      // Required: Validation error container
+            );
+        },
+
+        // Value rendering for emails, CSV, dashboard, etc.
+        'render_value' => function( $context, $value, $field ) {
+            if ( $value === '' || $value === null ) {
+                return '';
+            }
+
+            // $context is: 'email', 'web', 'ajax', 'csv', 'api'
+            switch ( $context ) {
+                case 'email':
+                    // Rich HTML for emails.
+                    return esc_html( $value );
+                default:
+                    // Plain value for other contexts.
+                    return $value;
+            }
+        },
+
+        // Frontend validation error messages (keys used in view.js validator).
+        'error_messages' => array(
+            '{FIELD_TYPE}_is_required' => __( 'Please select a value.', 'jetpack-forms-{FIELD_TYPE}-field' ),
+            '{FIELD_TYPE}_invalid'     => __( 'Please enter a valid value.', 'jetpack-forms-{FIELD_TYPE}-field' ),
+        ),
+
+        // Assets are auto-resolved from plugin_file when files exist at conventional paths.
+        // To disable an asset, set it to false. To override, set the full URL.
     ) );
 } );
 ```
 
-## PHP API Reference
+---
 
-### register_jetpack_form_field()
-
-The main function for registering a custom form field type.
-
-```php
-register_jetpack_form_field( string $field_type, array $args = array() );
-```
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$field_type` | string | Unique identifier for the field (e.g., 'color', 'rating'). |
-| `$args` | array | Configuration arguments (see below). |
-
-**Configuration Arguments:**
-
-| Argument | Type | Default | Description |
-|----------|------|---------|-------------|
-| `block_name` | string | `'jetpack/field-{type}'` | WordPress block name. |
-| `block_attributes` | array | `[]` | Additional block attributes. |
-| `supports` | array | `[]` | Feature support flags (see below). |
-| `render_callback` | callable | Auto-generated | Block render callback. |
-| `validate_callback` | callable | `null` | Server-side validation callback. |
-| `render_field` | callable | `null` | Frontend field HTML render callback. |
-| `render_value` | callable | `null` | Value render callback for contexts. |
-| `error_messages` | array | `[]` | Error key => message pairs for frontend validation. |
-| `editor_script` | string | `''` | URL to the editor script. |
-| `editor_script_deps` | array | `['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n']` | Editor script dependencies. |
-| `editor_script_ver` | string | `'1.0.0'` | Editor script version. |
-| `editor_style` | string | `''` | URL to the editor stylesheet. |
-| `editor_style_deps` | array | `[]` | Editor style dependencies. |
-| `editor_style_ver` | string | `'1.0.0'` | Editor style version. |
-| `view_script` | string | `''` | URL to the frontend view script (ES module). |
-| `view_script_deps` | array | `['@wordpress/interactivity', 'jp-forms-view']` | View script module dependencies. |
-| `view_script_ver` | string | `'1.0.0'` | View script version. |
-| `view_style` | string | `''` | URL to the frontend stylesheet. |
-| `view_style_deps` | array | `[]` | View style dependencies. |
-| `view_style_ver` | string | `'1.0.0'` | View style version. |
-| `dashboard_script` | string | `''` | URL to the dashboard script. |
-| `dashboard_script_deps` | array | `['wp-hooks', 'wp-element', 'jp-forms-dashboard']` | Dashboard script dependencies. |
-| `dashboard_script_ver` | string | `'1.0.0'` | Dashboard script version. |
-| `dashboard_style` | string | `''` | URL to the dashboard stylesheet. |
-| `dashboard_style_deps` | array | `[]` | Dashboard style dependencies. |
-| `dashboard_style_ver` | string | `'1.0.0'` | Dashboard style version. |
-
-**Supports Flags:**
-
-| Flag | Type | Description |
-|------|------|-------------|
-| `label` | bool | Enable `jetpack/label` as inner block. Provides pre-rendered `label_html` in render_field data. |
-
-### Callback Signatures
-
-#### validate_callback
-
-Server-side validation that runs when the form is submitted.
-
-```php
-/**
- * @param mixed              $value The submitted field value.
- * @param string             $label The field label.
- * @param Contact_Form_Field $field The field instance.
- * @return bool|string True if valid, error message string if invalid.
- */
-function( $value, $label, $field ) {
-    if ( empty( $value ) && $field->get_attribute( 'required' ) ) {
-        return sprintf( '%s is required.', $label );
-    }
-    if ( $value && ! preg_match( '/^#[0-9A-Fa-f]{6}$/', $value ) ) {
-        return sprintf( '%s must be a valid hex color.', $label );
-    }
-    return true;
-}
-```
-
-#### render_field
-
-Renders the field HTML on the frontend. When `supports.label` is enabled, you receive pre-rendered label and error HTML.
-
-```php
-/**
- * @param array $data Field data with keys:
- *   - id: Field ID
- *   - label: Field label text
- *   - value: Current/default value
- *   - required: Whether field is required
- *   - placeholder: Placeholder text
- *   - class: CSS classes
- *   - field: Contact_Form_Field instance
- *   - wrapper_attrs: Interactivity API attributes for wrapper div
- *   - label_html: Pre-rendered label HTML (when supports.label is true)
- *   - error_html: Pre-rendered error HTML for validation messages
- * @return string HTML to render.
- */
-function( $data ) {
-    return sprintf(
-        '<div class="grunion-field-wrap" %s>
-            %s
-            <input type="color" id="%s" name="%s" value="%s" data-type="color" />
-            %s
-        </div>',
-        $data['wrapper_attrs'],
-        $data['label_html'],
-        esc_attr( $data['id'] ),
-        esc_attr( $data['id'] ),
-        esc_attr( $data['value'] ?? '' ),
-        $data['error_html']
-    );
-}
-```
-
-#### render_value
-
-Renders the field value in different contexts (email notifications, dashboard, CSV export, API).
-
-```php
-/**
- * @param string         $context The render context: 'email', 'web', 'ajax', 'csv', 'api'.
- * @param mixed          $value   The raw field value.
- * @param Feedback_Field $field   The field instance.
- * @return mixed Rendered value.
- */
-function( $context, $value, $field ) {
-    if ( empty( $value ) ) {
-        return '';
-    }
-
-    if ( $context === 'email' ) {
-        return sprintf(
-            '<span style="display:inline-block;width:16px;height:16px;background-color:%s;border:1px solid #ccc;margin-right:8px;"></span>%s',
-            esc_attr( $value ),
-            esc_html( $value )
-        );
-    }
-
-    return $value; // Raw value for csv, api, web, ajax
-}
-```
-
-### Helper Functions
-
-```php
-// Check if a field type is registered
-if ( jetpack_form_field_exists( 'color' ) ) {
-    // Field is registered
-}
-
-// Get field configuration
-$config = get_jetpack_form_field( 'color' );
-```
-
-## JavaScript Block Registration
-
-Create a JavaScript file that registers the block in the editor using `registerBlockType()`.
-
-### Key Points
-
-1. **Block name must match** the `block_name` in PHP (defaults to `'jetpack/field-{type}'`)
-2. **Use `parent: ['jetpack/contact-form']`** to restrict the field to forms
-3. **Include an `id` attribute** - the Name/ID control is automatically injected
-4. **Don't auto-generate IDs** - leave `id` empty and the server will generate unique IDs based on the label
-
-### Modern Block with Label Support
-
-When `supports.label` is enabled, use `jetpack/label` as an inner block for the label:
+### 2. Editor Block (`src/index.js`)
 
 ```javascript
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, ColorPicker } from '@wordpress/components';
+import { PanelBody, ToggleControl } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import './editor.scss';
 
 const ALLOWED_INNER_BLOCKS = [ 'jetpack/label' ];
 
-registerBlockType( 'jetpack/field-color', {
+// Field icon SVG.
+const FieldIcon = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" fill="none" stroke="currentColor" strokeWidth="2"/>
+    </svg>
+);
+
+registerBlockType( 'jetpack/field-{FIELD_TYPE}', {
     apiVersion: 3,
-    title: __( 'Color Picker', 'my-plugin' ),
-    icon: 'color-picker',
+    title: __( '{FIELD_TITLE}', 'jetpack-forms-{FIELD_TYPE}-field' ),
+    icon: FieldIcon,
     category: 'contact-form',
     parent: [ 'jetpack/contact-form' ],
+
     attributes: {
-        required: {
-            type: 'boolean',
-            default: false,
-        },
-        requiredIndicator: {
-            type: 'boolean',
-            default: true,
-        },
-        defaultValue: {
-            type: 'string',
-            default: '',
-        },
-        width: {
-            enum: [ 25, 33, 50, 75, 100, 'auto' ],
-            default: 100,
-        },
-        // Optional custom ID - leave empty for auto-generation
-        id: {
-            type: 'string',
-        },
-        shareFieldAttributes: {
-            type: 'boolean',
-            default: true,
-        },
+        // Standard attributes (always include these).
+        required: { type: 'boolean', default: false },
+        requiredIndicator: { type: 'boolean', default: true },
+        width: { enum: [ 25, 33, 50, 75, 100, 'auto' ], default: 100 },
+        id: { type: 'string' },
+        shareFieldAttributes: { type: 'boolean', default: true },
+
+        // Field-specific attributes.
+        // defaultValue: { type: 'string', default: '' },
     },
-    // Provide context to jetpack/label
+
+    // Context for jetpack/label inner block.
     providesContext: {
         'jetpack/field-required': 'required',
         'jetpack/field-share-attributes': 'shareFieldAttributes',
     },
+
     supports: {
         reusable: false,
         html: false,
@@ -308,15 +182,16 @@ registerBlockType( 'jetpack/field-color', {
     },
 
     edit: function( { attributes, setAttributes } ) {
-        const { required, requiredIndicator, defaultValue, width, shareFieldAttributes } = attributes;
+        const { required, requiredIndicator, width, shareFieldAttributes } = attributes;
 
         const blockProps = useBlockProps( {
-            className: `jetpack-field jetpack-field-color jetpack-field__width-${ width }`,
+            className: `jetpack-field jetpack-field-{FIELD_TYPE} jetpack-field__width-${ width }`,
         } );
 
+        // Template for the label inner block.
         const template = useMemo( () => [
             [ 'jetpack/label', {
-                label: __( 'Favorite Color', 'my-plugin' ),
+                label: __( '{DEFAULT_LABEL}', 'jetpack-forms-{FIELD_TYPE}-field' ),
                 required,
             } ],
         ], [ required ] );
@@ -330,37 +205,33 @@ registerBlockType( 'jetpack/field-color', {
         return (
             <>
                 <InspectorControls>
-                    <PanelBody title={ __( 'Field Settings', 'my-plugin' ) }>
+                    <PanelBody title={ __( 'Field Settings', 'jetpack-forms-{FIELD_TYPE}-field' ) }>
                         <ToggleControl
-                            label={ __( 'Field is required', 'my-plugin' ) }
+                            label={ __( 'Field is required', 'jetpack-forms-{FIELD_TYPE}-field' ) }
                             checked={ required }
                             onChange={ ( value ) => setAttributes( { required: value } ) }
                         />
                         { required && (
                             <ToggleControl
-                                label={ __( 'Show required text', 'my-plugin' ) }
+                                label={ __( 'Show required text', 'jetpack-forms-{FIELD_TYPE}-field' ) }
                                 checked={ requiredIndicator }
                                 onChange={ ( value ) => setAttributes( { requiredIndicator: value } ) }
                             />
                         ) }
                         <ToggleControl
-                            label={ __( 'Sync fields style', 'my-plugin' ) }
+                            label={ __( 'Sync fields style', 'jetpack-forms-{FIELD_TYPE}-field' ) }
                             checked={ shareFieldAttributes }
                             onChange={ ( value ) => setAttributes( { shareFieldAttributes: value } ) }
                         />
                     </PanelBody>
-                    <PanelBody title={ __( 'Default Value', 'my-plugin' ) } initialOpen={ false }>
-                        <ColorPicker
-                            color={ defaultValue }
-                            onChange={ ( value ) => setAttributes( { defaultValue: value } ) }
-                            enableAlpha={ false }
-                        />
-                    </PanelBody>
+                    {/* Add field-specific settings panels here */}
                 </InspectorControls>
 
                 <div { ...blockProps }>
                     <div { ...innerBlocksProps } />
-                    { /* Your field preview UI here */ }
+                    <div className="{FIELD_TYPE}-field">
+                        {/* Your field preview UI here */}
+                    </div>
                 </div>
             </>
         );
@@ -373,112 +244,157 @@ registerBlockType( 'jetpack/field-color', {
 } );
 ```
 
-### Automatic Name/ID Control
+---
 
-The Name/ID control is automatically injected into the Advanced panel for all custom fields. Users can:
-- Leave it empty (recommended) - a unique ID is auto-generated from the label
-- Set a custom ID for specific use cases
+### 3. Editor Styles (`src/editor.scss`)
 
-You don't need to add any code for this - just include the `id` attribute in your block registration.
+```scss
+.jetpack-field-{FIELD_TYPE} {
+    .{FIELD_TYPE}-field {
+        margin-top: 8px;
+        // Add your editor styles here.
+    }
+}
+```
 
-## Frontend Interactivity
+---
 
-For dynamic frontend behavior, create a view script that extends the `jetpack/form` Interactivity API store.
-
-### View Script Structure
+### 4. Frontend Interactivity (`src/view.js`)
 
 ```javascript
-// src/view.js
 import { store, getContext } from '@wordpress/interactivity';
 
 const NAMESPACE = 'jetpack/form';
 
-// Get reference to the form's actions for validation integration
-const { actions: formActions } = store( NAMESPACE );
-
+// Extend the form store with field-specific functionality.
 store( NAMESPACE, {
     state: {
-        // Register your validator so the form can use it
+        // Register validator for this field type.
         validators: {
-            color: ( value, isRequired ) => {
-                if ( isRequired && ! value ) {
-                    return 'is_required';
+            {FIELD_TYPE}: ( value, isRequired ) => {
+                if ( isRequired && ( value === '' || value === null || value === undefined ) ) {
+                    return '{FIELD_TYPE}_is_required';
                 }
-                if ( value && ! /^#[0-9A-Fa-f]{6}$/i.test( value ) ) {
-                    return 'invalid_color';
-                }
+                // Add field-specific validation.
                 return 'yes';
             },
-        },
-
-        // Custom state getters for your field
-        get getColorValue() {
-            const context = getContext();
-            return context.fieldValue || '';
-        },
-
-        get hasColorValue() {
-            const context = getContext();
-            return !! context.fieldValue;
         },
     },
 
     actions: {
-        // Handle value changes - update both local state and form registry
-        onColorChange( event ) {
+        // Handle field value changes.
+        on{FIELD_TYPE_PASCAL}Change( event ) {
             const context = getContext();
             const value = event.target.value;
 
-            // Update local fieldValue for UI reactivity
+            // Update context for UI reactivity.
             context.fieldValue = value;
 
-            // Update form's field registry for validation
-            if ( formActions.updateField ) {
-                formActions.updateField( context.fieldId, value );
-            }
-        },
-
-        // Handle blur to show validation errors
-        onColorBlur( event ) {
-            const context = getContext();
-            const value = event.target.value;
-
-            // Pass true to show field errors
-            if ( formActions.updateField ) {
-                formActions.updateField( context.fieldId, value, true );
+            // Find and update the hidden input.
+            const wrapper = event.target.closest( '.grunion-field-{FIELD_TYPE}-wrap' );
+            if ( wrapper ) {
+                const hiddenInput = wrapper.querySelector( 'input[type="hidden"]' );
+                if ( hiddenInput ) {
+                    hiddenInput.value = value;
+                    hiddenInput.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+                }
             }
         },
     },
 } );
 ```
 
-### Webpack Configuration for View Scripts and Styles
+---
 
-View scripts must be built as ES modules. Styles can be built using SCSS:
+### 5. Frontend Styles (`src/view.scss`)
+
+```scss
+.grunion-field-{FIELD_TYPE}-wrap {
+    .{FIELD_TYPE}-field {
+        margin-top: 8px;
+        // Add your frontend styles here.
+    }
+}
+```
+
+---
+
+### 6. Dashboard Integration (`src/dashboard.js`)
 
 ```javascript
-// webpack.config.js
+( function() {
+    const { addFilter } = wp.hooks;
+    const { createElement: el } = wp.element;
+
+    // Custom value rendering in the dashboard.
+    addFilter(
+        'jetpack.forms.dashboard.fieldValue',
+        'jetpack-forms-{FIELD_TYPE}-field/field-value',
+        function( element, fieldType, value ) {
+            if ( fieldType !== '{FIELD_TYPE}' ) {
+                return element;
+            }
+
+            if ( value === '' || value === null || value === undefined ) {
+                return '-';
+            }
+
+            // Return custom rendering.
+            return el( 'span', {}, value );
+        }
+    );
+
+    // Custom field icon.
+    addFilter(
+        'jetpack.forms.dashboard.fieldIcon',
+        'jetpack-forms-{FIELD_TYPE}-field/field-icon',
+        function( icon, fieldType ) {
+            if ( fieldType !== '{FIELD_TYPE}' ) {
+                return icon;
+            }
+
+            return el( 'svg', { viewBox: '0 0 24 24', width: 24, height: 24 },
+                el( 'path', { d: 'M12 2L2 7l10 5 10-5-10-5z', fill: 'currentColor' } )
+            );
+        }
+    );
+} )();
+```
+
+---
+
+### 7. Webpack Configuration (`webpack.config.js`)
+
+```javascript
 const defaultConfig = require( '@wordpress/scripts/config/webpack.config' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
-const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const path = require( 'path' );
 
-// Editor script and style (standard build with SCSS support)
+// Remove CleanWebpackPlugin to avoid conflicts.
+const defaultPlugins = ( defaultConfig.plugins || [] ).filter(
+    plugin => plugin.constructor.name !== 'CleanWebpackPlugin'
+);
+
+// Editor config: builds index.js and SCSS files.
 const editorConfig = {
     ...defaultConfig,
     entry: {
         index: './src/index.js',
         'editor-style': './src/editor.scss',
+        'view-style': './src/view.scss',
     },
     output: {
         ...defaultConfig.output,
         path: path.resolve( __dirname, 'build' ),
+        clean: false,
     },
+    plugins: defaultPlugins,
 };
 
-// View script (ES module for Interactivity API)
+// View config: ES module for Interactivity API.
 const viewConfig = {
     mode: defaultConfig.mode,
+    devtool: defaultConfig.devtool,
     entry: { view: './src/view.js' },
     output: {
         path: path.resolve( __dirname, 'build' ),
@@ -486,345 +402,166 @@ const viewConfig = {
         module: true,
         chunkFormat: 'module',
         library: { type: 'module' },
+        clean: false,
     },
     experiments: { outputModule: true },
     externalsType: 'module',
-    externals: {
-        '@wordpress/interactivity': '@wordpress/interactivity',
-    },
+    externals: { '@wordpress/interactivity': '@wordpress/interactivity' },
+    resolve: { extensions: [ '.js' ] },
     module: {
-        rules: [
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: [ '@babel/preset-env' ],
-                    },
-                },
+        rules: [ {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: {
+                loader: 'babel-loader',
+                options: { presets: [ '@babel/preset-env' ] },
             },
-        ],
+        } ],
     },
     plugins: [
-        new DependencyExtractionWebpackPlugin( {
-            outputFormat: 'php',
-        } ),
+        new DependencyExtractionWebpackPlugin( { outputFormat: 'php' } ),
     ],
 };
 
-// View style (standalone CSS for frontend)
-const viewStyleConfig = {
-    mode: defaultConfig.mode,
-    entry: { 'view-style': './src/view.scss' },
-    output: {
-        path: path.resolve( __dirname, 'build' ),
+module.exports = [ editorConfig, viewConfig ];
+```
+
+---
+
+### 8. Package Configuration (`package.json`)
+
+```json
+{
+    "name": "jetpack-forms-{FIELD_TYPE}-field",
+    "version": "1.0.0",
+    "description": "Adds a {FIELD_TITLE} field to Jetpack Forms",
+    "scripts": {
+        "build": "webpack --mode=production",
+        "start": "webpack --mode=development --watch"
     },
-    module: {
-        rules: [
-            {
-                test: /\.scss$/,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    'css-loader',
-                    'sass-loader',
-                ],
-            },
-        ],
-    },
-    plugins: [
-        new MiniCssExtractPlugin( {
-            filename: '[name].css',
-        } ),
-    ],
-};
-
-module.exports = [ editorConfig, viewConfig, viewStyleConfig ];
-```
-
-### Using Interactivity Directives in PHP
-
-In your `render_field` callback, use Interactivity API directives:
-
-```php
-'render_field' => function( $data ) {
-    return sprintf(
-        '<div class="grunion-field-wrap" %s>
-            %s
-            <input
-                type="color"
-                id="%s"
-                name="%s"
-                value="%s"
-                data-type="color"
-                data-wp-bind--value="state.getColorValue"
-                data-wp-on--input="actions.onColorChange"
-                data-wp-on--change="actions.onColorBlur"
-            />
-            %s
-        </div>',
-        $data['wrapper_attrs'], // Contains interactivity context
-        $data['label_html'],
-        esc_attr( $data['id'] ),
-        esc_attr( $data['id'] ),
-        esc_attr( $data['value'] ?? '' ),
-        $data['error_html']
-    );
-},
-```
-
-The `wrapper_attrs` includes:
-- `data-wp-interactive="jetpack/form"`
-- `data-wp-context` with field data (fieldId, fieldValue, fieldType, fieldIsRequired, etc.)
-- `data-wp-init="callbacks.initializeField"` to register the field
-- `data-wp-on--jetpack-form-reset="callbacks.initializeField"` for form reset handling
-
-## Dashboard Integration
-
-The Jetpack Forms dashboard uses React to display form responses. Custom fields can provide custom rendering using WordPress hooks.
-
-### Dashboard Script
-
-```javascript
-// src/dashboard.js
-( function() {
-    const { addFilter } = wp.hooks;
-    const { createElement: el } = wp.element;
-
-    // Custom field value rendering
-    addFilter(
-        'jetpack.forms.dashboard.fieldValue',
-        'my-plugin/color-field-value',
-        function( element, fieldType, value ) {
-            if ( fieldType !== 'color' ) {
-                return element;
-            }
-
-            if ( ! value ) {
-                return '-';
-            }
-
-            return el(
-                'span',
-                { style: { display: 'inline-flex', alignItems: 'center', gap: '8px' } },
-                el( 'span', {
-                    style: {
-                        display: 'inline-block',
-                        width: '20px',
-                        height: '20px',
-                        backgroundColor: value,
-                        border: '1px solid #ccc',
-                        borderRadius: '3px',
-                    },
-                } ),
-                el( 'span', { style: { fontFamily: 'monospace' } }, value )
-            );
-        }
-    );
-
-    // Custom field icon
-    addFilter(
-        'jetpack.forms.dashboard.fieldIcon',
-        'my-plugin/color-field-icon',
-        function( icon, fieldType ) {
-            if ( fieldType !== 'color' ) {
-                return icon;
-            }
-
-            return el(
-                'svg',
-                { viewBox: '0 0 24 24', width: 24, height: 24 },
-                el( 'path', {
-                    d: 'M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.2-.64-1.67-.08-.1-.13-.21-.13-.33 0-.28.22-.5.5-.5H16c3.31 0 6-2.69 6-6 0-4.96-4.49-9-10-9z',
-                    fill: 'currentColor',
-                } )
-            );
-        }
-    );
-} )();
-```
-
-## Complete Example: Color Picker Field
-
-Here's the complete plugin structure for a color picker field:
-
-### Plugin Structure
-
-```
-jetpack-forms-color-field/
-├── jetpack-forms-color-field.php    # Main plugin file
-├── package.json                      # Build configuration
-├── webpack.config.js                 # Webpack config for scripts and styles
-├── src/
-│   ├── index.js                      # Editor block
-│   ├── editor.scss                   # Editor styles
-│   ├── view.js                       # Frontend interactivity
-│   ├── view.scss                     # Frontend styles
-│   └── dashboard.js                  # Dashboard integration
-└── build/
-    ├── index.js                      # Compiled editor
-    ├── index.asset.php
-    ├── editor-style.css              # Compiled editor styles
-    ├── view.js                       # Compiled view module
-    ├── view.asset.php
-    └── view-style.css                # Compiled frontend styles
-```
-
-### Main Plugin File
-
-```php
-<?php
-/**
- * Plugin Name: Jetpack Forms Color Field
- * Description: Adds a color picker field to Jetpack Forms.
- * Version: 1.0.0
- */
-
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-}
-
-add_action( 'init', function() {
-    if ( ! function_exists( 'register_jetpack_form_field' ) ) {
-        return;
+    "devDependencies": {
+        "@babel/core": "^7.24.0",
+        "@babel/preset-env": "^7.24.0",
+        "@wordpress/dependency-extraction-webpack-plugin": "^5.0.0",
+        "@wordpress/scripts": "^28.0.0",
+        "babel-loader": "^9.1.3",
+        "webpack": "^5.90.0",
+        "webpack-cli": "^5.1.4"
     }
-
-    register_jetpack_form_field( 'color', array(
-        'supports' => array(
-            'label' => true,
-        ),
-
-        'block_attributes' => array(
-            'defaultValue' => array(
-                'type'    => 'string',
-                'default' => '',
-            ),
-        ),
-
-        'validate_callback' => function( $value, $label, $field ) {
-            if ( empty( $value ) && $field->get_attribute( 'required' ) ) {
-                return sprintf( __( '%s is required.', 'my-plugin' ), $label );
-            }
-            if ( $value && ! preg_match( '/^#[0-9A-Fa-f]{6}$/', $value ) ) {
-                return sprintf( __( '%s must be a valid hex color.', 'my-plugin' ), $label );
-            }
-            return true;
-        },
-
-        'render_field' => function( $data ) {
-            return sprintf(
-                '<div class="grunion-field-wrap" %s>
-                    %s
-                    <input type="color" id="%s" name="%s" value="%s" data-type="color"
-                        data-wp-bind--value="state.getColorValue"
-                        data-wp-on--input="actions.onColorChange"
-                        data-wp-on--change="actions.onColorBlur"
-                    />
-                    %s
-                </div>',
-                $data['wrapper_attrs'],
-                $data['label_html'],
-                esc_attr( $data['id'] ),
-                esc_attr( $data['id'] ),
-                esc_attr( $data['value'] ?? '' ),
-                $data['error_html']
-            );
-        },
-
-        'render_value' => function( $context, $value, $field ) {
-            if ( empty( $value ) ) {
-                return '';
-            }
-            if ( $context === 'email' ) {
-                return sprintf(
-                    '<span style="display:inline-block;width:16px;height:16px;background-color:%s;border:1px solid #ccc;margin-right:8px;"></span>%s',
-                    esc_attr( $value ),
-                    esc_html( $value )
-                );
-            }
-            return $value;
-        },
-
-        'error_messages' => array(
-            'invalid_color' => __( 'Please enter a valid hex color (e.g., #FF0000).', 'my-plugin' ),
-        ),
-
-        'editor_script' => plugin_dir_url( __FILE__ ) . 'build/index.js',
-        'editor_style'  => plugin_dir_url( __FILE__ ) . 'build/editor-style.css',
-        'view_script'   => plugin_dir_url( __FILE__ ) . 'build/view.js',
-        'view_style'    => plugin_dir_url( __FILE__ ) . 'build/view-style.css',
-        'dashboard_script' => plugin_dir_url( __FILE__ ) . 'src/dashboard.js',
-    ) );
-} );
-```
-
-## Testing Your Custom Fields
-
-### Manual Testing Checklist
-
-1. **Block Registration**
-   - [ ] Field appears in block inserter under "Contact Form" category
-   - [ ] Field can only be inserted within a form block
-   - [ ] Field settings panel shows expected controls
-   - [ ] Name/ID control appears in Advanced panel
-
-2. **Frontend Rendering**
-   - [ ] Field renders correctly on the frontend
-   - [ ] Label displays with proper styles
-   - [ ] Default value is pre-filled
-   - [ ] Multiple instances work independently
-
-3. **Validation**
-   - [ ] Required field shows error when empty
-   - [ ] Custom validation (e.g., format) works
-   - [ ] Error messages display correctly
-   - [ ] Server-side validation catches invalid submissions
-
-4. **Form Submission**
-   - [ ] Field value is submitted correctly
-   - [ ] Email notifications display field value
-   - [ ] Dashboard response viewer shows custom rendering
-   - [ ] CSV export includes field value
-
-## Troubleshooting
-
-### Common Issues
-
-**Field doesn't appear in inserter:**
-- Ensure `parent: ['jetpack/contact-form']` is set in JavaScript
-- Check browser console for JavaScript errors
-- Verify Jetpack Forms plugin is active
-
-**Validation errors not showing:**
-- Ensure `view_script` is registered
-- Check that validators are registered in `state.validators`
-- Verify `wrapper_attrs` is included in render output
-- Check that `error_html` is included in render output
-
-**Multiple fields share the same value:**
-- Don't auto-generate IDs in the editor
-- Use `context.fieldValue` (field-level) not `context.fields` (form-level)
-- Delete and re-add fields after fixing ID issues
-
-**View script not loading:**
-- Check that `view_script` URL is correct
-- Verify the script is built as an ES module
-- Check browser console for module loading errors
-
-### Debug Tips
-
-```php
-// Check if your field is registered
-if ( jetpack_form_field_exists( 'color' ) ) {
-    $config = get_jetpack_form_field( 'color' );
-    error_log( print_r( $config, true ) );
 }
 ```
 
-```javascript
-// Debug in view script
-console.log( '[MyField] Context:', getContext() );
+---
 
-// Debug dashboard hooks
-console.log( 'Registered filters:', wp.hooks.filters );
+## API Reference
+
+### register_jetpack_form_field()
+
+```php
+register_jetpack_form_field( string $field_type, array $args );
 ```
+
+| Argument | Type | Required | Description |
+|----------|------|----------|-------------|
+| `$field_type` | string | Yes | Unique identifier (e.g., `'rating'`, `'signature'`). |
+| `$args` | array | Yes | Configuration (see below). |
+
+#### Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `plugin_file` | string | `''` | **Recommended.** Path to plugin's main file (`__FILE__`). Auto-resolves all assets. |
+| `supports` | array | `[]` | Feature flags. Set `'label' => true` to enable label support. |
+| `block_attributes` | array | `[]` | Custom block attributes. |
+| `validate_callback` | callable | `null` | Server-side validation. Return `true` or error string. |
+| `render_field` | callable | `null` | Frontend HTML. Receives `$data` array. |
+| `render_value` | callable | `null` | Value display for email/CSV/dashboard. |
+| `error_messages` | array | `[]` | Error key => message pairs. |
+
+#### Asset Options (auto-resolved when `plugin_file` is set)
+
+When `plugin_file` is provided, assets are auto-resolved from conventional paths if the files exist:
+
+| Asset | Conventional Path | Override Option |
+|-------|------------------|-----------------|
+| Editor script | `build/index.js` | `editor_script` |
+| Editor style | `build/editor-style.css` | `editor_style` |
+| View script | `build/view.js` | `view_script` |
+| View style | `build/view-style.css` | `view_style` |
+| Dashboard script | `src/dashboard.js` | `dashboard_script` |
+
+Dependencies and version are loaded from `build/index.asset.php` (generated by `@wordpress/scripts`).
+
+**To disable an asset:** Set it to `false` (e.g., `'dashboard_script' => false`).
+
+**To override an asset:** Set the full URL (e.g., `'editor_script' => plugin_dir_url( __FILE__ ) . 'custom/path.js'`).
+
+<details>
+<summary>Manual asset configuration (if not using plugin_file)</summary>
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `editor_script` | string | `''` | Editor JS URL. |
+| `editor_script_deps` | array | `[...]` | Editor JS dependencies. |
+| `editor_script_ver` | string | `'1.0.0'` | Editor JS version. |
+| `editor_style` | string | `''` | Editor CSS URL. |
+| `editor_style_deps` | array | `[]` | Editor CSS dependencies. |
+| `editor_style_ver` | string | `'1.0.0'` | Editor CSS version. |
+| `view_script` | string | `''` | Frontend JS URL (ES module). |
+| `view_script_deps` | array | `[...]` | Frontend JS dependencies. |
+| `view_script_ver` | string | `'1.0.0'` | Frontend JS version. |
+| `view_style` | string | `''` | Frontend CSS URL. |
+| `view_style_deps` | array | `[]` | Frontend CSS dependencies. |
+| `view_style_ver` | string | `'1.0.0'` | Frontend CSS version. |
+| `dashboard_script` | string | `''` | Dashboard JS URL. |
+| `dashboard_script_deps` | array | `[...]` | Dashboard JS dependencies. |
+| `dashboard_script_ver` | string | `'1.0.0'` | Dashboard JS version. |
+| `dashboard_style` | string | `''` | Dashboard CSS URL. |
+| `dashboard_style_deps` | array | `[]` | Dashboard CSS dependencies. |
+| `dashboard_style_ver` | string | `'1.0.0'` | Dashboard CSS version. |
+
+</details>
+
+#### render_field Data Array
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `id` | string | Field ID (use for `id` and `name` attributes). |
+| `label` | string | Label text. |
+| `value` | string | Current/default value. |
+| `required` | bool | Whether field is required. |
+| `class` | string | CSS classes. |
+| `wrapper_attrs` | string | **Required.** Interactivity API attributes for wrapper div. |
+| `label_html` | string | **Required.** Pre-rendered label (when `supports.label` is true). |
+| `error_html` | string | **Required.** Pre-rendered error container. |
+| `field` | object | Field instance (access with `$data['field']->get_attribute('x')`). |
+
+---
+
+## Checklist for New Fields
+
+- [ ] Create plugin directory with all files from templates above
+- [ ] Replace all `{FIELD_TYPE}` placeholders with your field type (lowercase, e.g., `rating`)
+- [ ] Replace all `{FIELD_TITLE}` placeholders with display name (e.g., `Star Rating`)
+- [ ] Replace all `{FIELD_TYPE_PASCAL}` placeholders with PascalCase (e.g., `Rating`)
+- [ ] Replace all `{DEFAULT_LABEL}` placeholders with default label text
+- [ ] Add field-specific attributes to `block_attributes` in PHP and `attributes` in JS
+- [ ] Implement `validate_callback` with field-specific validation
+- [ ] Implement `render_field` with field HTML (include `wrapper_attrs`, `label_html`, `error_html`)
+- [ ] Implement `render_value` for email/CSV display
+- [ ] Add error messages to `error_messages` array
+- [ ] Implement editor preview UI in `src/index.js`
+- [ ] Implement frontend interactivity in `src/view.js`
+- [ ] Style editor in `src/editor.scss`
+- [ ] Style frontend in `src/view.scss`
+- [ ] Implement dashboard rendering in `src/dashboard.js`
+- [ ] Run `npm install && npm run build`
+- [ ] Test: field appears in editor, saves correctly, validates, displays in dashboard
+
+---
+
+## Examples
+
+See working examples in the monorepo:
+- `tools/docker/wordpress/wp-content/plugins/jetpack-forms-nps-field/` - NPS (0-10 scale) field
+- `tools/docker/wordpress/wp-content/plugins/jetpack-forms-color-field/` - Color picker field
