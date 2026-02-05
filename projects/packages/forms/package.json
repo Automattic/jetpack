@@ -15,6 +15,10 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"type": "module",
+	"exports": {
+		".": "./src/api/index.js",
+		"./field-api": "./dist/blocks/field-api.js"
+	},
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build:blocks && pnpm run build:contact-form && pnpm run build:dashboard && pnpm run build:wp-build && pnpm run build:boot-asset && pnpm run build:form-editor && pnpm run module:build",
 		"build:blocks": "webpack --config ./tools/webpack.config.blocks.js",

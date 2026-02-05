@@ -27,6 +27,7 @@ const sharedWebpackConfig = {
 		'field-rating/style': './src/blocks/field-rating/style.scss',
 		'field-image-select/style': './src/blocks/field-image-select/style.scss',
 		'input-range/style': './src/blocks/input-range/style.scss',
+		'field-api': './src/api/index.js',
 	},
 	output: {
 		...jetpackWebpackConfig.output,
