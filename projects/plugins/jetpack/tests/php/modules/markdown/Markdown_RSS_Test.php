@@ -228,6 +228,147 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a post with a single Markdown block outputs source:markdown with raw Markdown.
+	 */
+	public function test_block_outputs_source_markdown_for_single_block() {
+		if ( ! class_exists( 'WP_Block_Processor' ) ) {
+			$this->markTestSkipped( 'WP_Block_Processor not available.' );
+		}
+
+		$markdown     = "# Hello World\n\nThis is **bold** text.";
+		$rendered     = "<h1>Hello World</h1>\n<p>This is <strong>bold</strong> text.</p>\n";
+		$json_attrs   = wp_json_encode( array( 'source' => $markdown ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG );
+		$post_content = '<!-- wp:jetpack/markdown ' . $json_attrs . ' -->'
+			. '<div class="wp-block-jetpack-markdown">' . $rendered . '</div>'
+			. '<!-- /wp:jetpack/markdown -->';
+
+		$post_id = self::factory()->post->create(
+			array( 'post_content' => wp_slash( $post_content ) )
+		);
+
+		$this->go_to( '/?p=' . $post_id );
+		setup_postdata( get_post( $post_id ) );
+
+		ob_start();
+		jetpack_markdown_block_rss_output_source_markdown();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<source:markdown><![CDATA[', $output );
+		$this->assertStringContainsString( $markdown, $output );
+		$this->assertStringContainsString( ']]></source:markdown>', $output );
+
+		wp_reset_postdata();
+	}
+
+	/**
+	 * Test that a post with Markdown blocks interleaved with other blocks outputs hybrid content.
+	 */
+	public function test_block_outputs_hybrid_content_for_mixed_blocks() {
+		if ( ! class_exists( 'WP_Block_Processor' ) ) {
+			$this->markTestSkipped( 'WP_Block_Processor not available.' );
+		}
+
+		$md1 = '# First heading';
+		$md2 = '## Second heading';
+
+		$post_content = '<!-- wp:jetpack/markdown {"source":"' . $md1 . '"} -->'
+			. '<div class="wp-block-jetpack-markdown"><h1>First heading</h1></div>'
+			. '<!-- /wp:jetpack/markdown -->'
+			. '<!-- wp:paragraph --><p>A regular paragraph.</p><!-- /wp:paragraph -->'
+			. '<!-- wp:jetpack/markdown {"source":"' . $md2 . '"} -->'
+			. '<div class="wp-block-jetpack-markdown"><h2>Second heading</h2></div>'
+			. '<!-- /wp:jetpack/markdown -->';
+
+		$post_id = self::factory()->post->create(
+			array( 'post_content' => $post_content )
+		);
+
+		$this->go_to( '/?p=' . $post_id );
+		setup_postdata( get_post( $post_id ) );
+
+		ob_start();
+		jetpack_markdown_block_rss_output_source_markdown();
+		$output = ob_get_clean();
+
+		$cdata = $this->get_cdata_content( $output );
+		$this->assertNotEmpty( $cdata, 'CDATA content should have been extracted.' );
+
+		// Raw Markdown should appear for the Markdown blocks.
+		$this->assertStringContainsString( $md1, $cdata );
+		$this->assertStringContainsString( $md2, $cdata );
+
+		// Rendered HTML should appear for the paragraph.
+		$this->assertStringContainsString( '<p>A regular paragraph.</p>', $cdata );
+
+		// Verify order: md1 before paragraph before md2.
+		$pos_md1  = strpos( $cdata, $md1 );
+		$pos_para = strpos( $cdata, '<p>A regular paragraph.</p>' );
+		$pos_md2  = strpos( $cdata, $md2 );
+		$this->assertLessThan( $pos_para, $pos_md1, 'First markdown should appear before the paragraph.' );
+		$this->assertLessThan( $pos_md2, $pos_para, 'Paragraph should appear before the second markdown.' );
+
+		wp_reset_postdata();
+	}
+
+	/**
+	 * Test that the block function produces no output for a post without Markdown blocks.
+	 */
+	public function test_block_no_output_without_markdown_blocks() {
+		if ( ! class_exists( 'WP_Block_Processor' ) ) {
+			$this->markTestSkipped( 'WP_Block_Processor not available.' );
+		}
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => '<!-- wp:paragraph --><p>No markdown here.</p><!-- /wp:paragraph -->',
+			)
+		);
+
+		$this->go_to( '/?p=' . $post_id );
+		setup_postdata( get_post( $post_id ) );
+
+		ob_start();
+		jetpack_markdown_block_rss_output_source_markdown();
+		$output = ob_get_clean();
+
+		$this->assertEmpty( $output );
+
+		wp_reset_postdata();
+	}
+
+	/**
+	 * Test that CDATA closing sequence is escaped in block-sourced Markdown.
+	 */
+	public function test_block_cdata_closing_sequence_is_escaped() {
+		if ( ! class_exists( 'WP_Block_Processor' ) ) {
+			$this->markTestSkipped( 'WP_Block_Processor not available.' );
+		}
+
+		$markdown     = 'Code: ]]> needs escaping';
+		$post_content = '<!-- wp:jetpack/markdown {"source":"' . $markdown . '"} -->'
+			. '<div class="wp-block-jetpack-markdown"><p>Code: ]]&gt; needs escaping</p></div>'
+			. '<!-- /wp:jetpack/markdown -->';
+
+		$post_id = self::factory()->post->create(
+			array( 'post_content' => $post_content )
+		);
+
+		$this->go_to( '/?p=' . $post_id );
+		setup_postdata( get_post( $post_id ) );
+
+		ob_start();
+		jetpack_markdown_block_rss_output_source_markdown();
+		$output = ob_get_clean();
+
+		$cdata = $this->get_cdata_content( $output );
+		$this->assertNotEmpty( $cdata );
+		$this->assertStringNotContainsString( ']]>', $cdata );
+		$this->assertStringContainsString( ']]&gt;', $cdata );
+
+		wp_reset_postdata();
+	}
+
+	/**
 	 * Extract the content between CDATA markers.
 	 *
 	 * @param string $output The full XML output.
