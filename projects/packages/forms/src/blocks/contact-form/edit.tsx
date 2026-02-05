@@ -14,7 +14,7 @@ import {
 	BlockControls,
 	BlockContextProvider,
 } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, getBlockTypes } from '@wordpress/blocks';
 import {
 	ExternalLink,
 	Notice,
@@ -29,6 +29,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 /*
@@ -87,7 +88,44 @@ const validFields = childBlocks.filter( childBlock => {
 	);
 } );
 
-const ALLOWED_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
+const CORE_ALLOWED_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
+
+/**
+ * Get all allowed blocks for the form, including externally registered blocks.
+ * This function checks all registered blocks to find ones that declare
+ * jetpack/contact-form as their parent.
+ *
+ * @return {string[]} Array of allowed block names.
+ */
+function getAllowedFormBlocks(): string[] {
+	const allBlocks = getBlockTypes();
+	const externalFormBlocks = allBlocks
+		.filter( block => {
+			// Skip blocks already in our core list
+			if ( CORE_ALLOWED_BLOCKS.includes( block.name ) ) {
+				return false;
+			}
+			// Check if this block declares contact-form as parent
+			const parent = block.parent as string | string[] | undefined;
+			return (
+				parent === 'jetpack/contact-form' ||
+				( Array.isArray( parent ) && parent.includes( 'jetpack/contact-form' ) )
+			);
+		} )
+		.map( block => block.name );
+
+	const allAllowedBlocks = [ ...CORE_ALLOWED_BLOCKS, ...externalFormBlocks ];
+
+	/**
+	 * Filter the list of allowed blocks in a Jetpack Form.
+	 *
+	 * This filter allows external plugins to add their custom field blocks
+	 * to the list of blocks that can be inserted into a Jetpack Form.
+	 *
+	 * @param {string[]} allowedBlocks - Array of block names allowed in the form.
+	 */
+	return applyFilters( 'jetpack.forms.allowedBlocks', allAllowedBlocks ) as string[];
+}
 
 // At the top level of a multistep form we allow navigation, progress indicator
 // and the step-container itself (users may add it manually before steps are
@@ -105,9 +143,17 @@ const REMOVE_FIELDS_FROM_FORM = [
 	'jetpack/form-step-container',
 ];
 
-const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
-	block => ! REMOVE_FIELDS_FROM_FORM.includes( block )
-);
+/**
+ * Get the allowed blocks for a standard (non-multistep) form.
+ * This is computed dynamically to include externally registered blocks.
+ *
+ * @return {string[]} Array of allowed block names for non-multistep forms.
+ */
+function getAllowedFormBlocksFiltered(): string[] {
+	return getAllowedFormBlocks()
+		.concat( CORE_BLOCKS )
+		.filter( block => ! REMOVE_FIELDS_FROM_FORM.includes( block ) );
+}
 
 const PRIORITIZED_INSERTER_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
 
@@ -386,7 +432,7 @@ function JetpackContactFormEdit( {
 		},
 		{
 			allowedBlocks:
-				variationName === 'multistep' ? ALLOWED_MULTI_STEP_BLOCKS : ALLOWED_FORM_BLOCKS,
+				variationName === 'multistep' ? ALLOWED_MULTI_STEP_BLOCKS : getAllowedFormBlocksFiltered(),
 			prioritizedInserterBlocks: PRIORITIZED_INSERTER_BLOCKS,
 			templateInsertUpdatesSelection: false,
 		}

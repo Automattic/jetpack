@@ -1,4 +1,5 @@
 import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
+import { applyFilters } from '@wordpress/hooks';
 import DeprecatedOptionCheckbox from '../deprecated/field-option-checkbox/index.js';
 import DeprecatedOptionRadio from '../deprecated/field-option-radio/index.js';
 import JetpackDropzone from '../dropzone/index.js';
@@ -36,7 +37,11 @@ import JetpackLabel from '../label/index.js';
 import JetpackOption from '../option/index.js';
 import JetpackOptions from '../options/index.js';
 
-export const childBlocks = [
+/**
+ * Core child blocks for Jetpack Forms.
+ * These are the built-in field types provided by Jetpack Forms.
+ */
+const coreChildBlocks = [
 	JetpackLabel,
 	JetpackDropzone,
 	JetpackInput,
@@ -82,3 +87,23 @@ export const childBlocks = [
 		  ]
 		: [] ),
 ];
+
+/**
+ * Filter to allow external plugins to add custom field blocks to Jetpack Forms.
+ *
+ * External developers can use this filter to register their custom field block
+ * configurations alongside the core Jetpack Forms fields.
+ *
+ * @param {Array} childBlocks - Array of block configuration objects.
+ *
+ * @example
+ * // Add a custom color picker field
+ * import { addFilter } from '@wordpress/hooks';
+ *
+ * addFilter(
+ *     'jetpack.forms.childBlocks',
+ *     'my-plugin/custom-fields',
+ *     (blocks) => [...blocks, MyColorPickerField]
+ * );
+ */
+export const childBlocks = applyFilters( 'jetpack.forms.childBlocks', coreChildBlocks );
