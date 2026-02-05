@@ -13,3 +13,5 @@ Remember that we have a custom changelog management system. Every PR touching `/
 - Use a component/feature prefix when the change is specific to a component/feature within the project (e.g., "Connection: Fix timeout issue with site registration.").
 - Do not use the package/project name as a prefix for entries in that same package (e.g., for entries in `projects/packages/forms/`, do not use a `Forms:` prefix).
 - Describe the change from a user's perspective, not the implementation details.
+
+When writing or reviewing PR descriptions, commit messages, code comments, or any public-facing text, never include private WordPress.com URLs (e.g., `*.wordpress.com` internal sites). Use the p2 shorthand syntax instead (e.g., `peKye1-1Z1-p2`). This is a public repository and private URLs must not appear in its history.

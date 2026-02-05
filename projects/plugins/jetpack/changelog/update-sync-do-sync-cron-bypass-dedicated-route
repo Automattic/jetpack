@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Tests: Updating sync tests to consider that we now allow syncing directly during cron.
+
+

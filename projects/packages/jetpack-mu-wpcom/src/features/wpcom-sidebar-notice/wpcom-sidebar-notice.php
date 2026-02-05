@@ -79,7 +79,7 @@ function wpcom_get_sidebar_notice() {
 		$message = $jitm_engine->get_top_messages( $message_path, $user_id, $user_roles, $query_string );
 	} else {
 		$jitm    = \Automattic\Jetpack\JITMS\JITM::get_instance();
-		$message = $jitm->get_messages( $message_path, wp_json_encode( array( 'message_path' => $message_path ), JSON_UNESCAPED_SLASHES ), false );
+		$message = $jitm->get_messages( $message_path, array( 'message_path' => $message_path ), false );
 	}
 
 	$cache_loaded = true;

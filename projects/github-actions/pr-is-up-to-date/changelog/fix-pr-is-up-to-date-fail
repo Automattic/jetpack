@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fail the workflow if updating the GitHub status fails.

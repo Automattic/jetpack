@@ -1,8 +1,10 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { Page } from '@wordpress/admin-ui';
+import apiFetch from '@wordpress/api-fetch';
 import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
@@ -12,12 +14,16 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
+import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
 import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/index.tsx';
-import FormsLogo from '../../src/dashboard/components/forms-logo';
+import { NON_TRASH_FORM_STATUSES } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
+import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
+import useConfigValue from '../../src/hooks/use-config-value';
+import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
 import type { FormListItem } from '../../src/dashboard/hooks/use-forms-data.ts';
 import type { Action, Operator, View } from '@wordpress/dataviews';
 
@@ -51,6 +57,14 @@ function StageInner() {
 	const searchParams = useSearch( { from: '/forms' } );
 
 	const dateSettings = getDateSettings();
+	const [ isIntegrationsModalOpen, setIsIntegrationsModalOpen ] = useState( false );
+	const integrations = useSelect(
+		select => ( select( INTEGRATIONS_STORE ) as IntegrationsSelectors ).getIntegrations?.() ?? [],
+		[]
+	);
+	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
+	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
+	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 
 	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
@@ -69,10 +83,8 @@ function StageInner() {
 		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
 
 		// Default: show all non-trash forms (matches WP core list behavior).
-		const nonTrashStatuses = 'publish,draft,pending,future,private';
-
 		if ( ! statusFilterValue || statusFilterValue === 'all' ) {
-			return nonTrashStatuses;
+			return NON_TRASH_FORM_STATUSES;
 		}
 
 		return statusFilterValue as string;
@@ -237,6 +249,28 @@ function StageInner() {
 					window.location.href = url.toString();
 				},
 			},
+			{
+				id: 'preview-form',
+				isPrimary: false,
+				label: __( 'Preview', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					try {
+						const response = await apiFetch< { preview_url: string } >( {
+							path: `/wp/v2/jetpack-forms/${ item.id }/preview-url`,
+						} );
+						window.open( response.preview_url, '_blank' );
+					} catch ( error ) {
+						// eslint-disable-next-line no-console
+						console.error( 'Failed to get preview URL:', error );
+					}
+				},
+			},
 		];
 
 		if ( isViewingTrash ) {
@@ -326,7 +360,23 @@ function StageInner() {
 		[ navigate, searchParams, view.search ]
 	);
 
-	const headerActions = useMemo( () => [ <CreateFormButton key="create" /> ], [] );
+	const openIntegrationsModal = useCallback( () => {
+		setIsIntegrationsModalOpen( true );
+	}, [] );
+	const closeIntegrationsModal = useCallback( () => {
+		setIsIntegrationsModalOpen( false );
+	}, [] );
+
+	const {
+		breadcrumbs,
+		subtitle,
+		actions: headerActions,
+	} = usePageHeaderDetails( {
+		screen: 'forms',
+		isIntegrationsEnabled: !! isIntegrationsEnabled,
+		showDashboardIntegrations: !! showDashboardIntegrations,
+		onOpenIntegrations: openIntegrationsModal,
+	} );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
 		( item: FormListItem ) => {
@@ -338,8 +388,8 @@ function StageInner() {
 	return (
 		<Page
 			showSidebarToggle={ false }
-			title={ <FormsLogo /> }
-			subTitle={ __( 'View and manage all your forms in one place.', 'jetpack-forms' ) }
+			breadcrumbs={ breadcrumbs }
+			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
 		>
@@ -401,6 +451,15 @@ function StageInner() {
 				<DataViews.Layout />
 				<DataViews.Footer />
 			</DataViews>
+			<IntegrationsModal
+				isOpen={ isIntegrationsModalOpen }
+				onClose={ closeIntegrationsModal }
+				attributes={ undefined }
+				setAttributes={ undefined }
+				integrationsData={ integrations }
+				refreshIntegrations={ refreshIntegrations }
+				context="dashboard"
+			/>
 		</Page>
 	);
 }
