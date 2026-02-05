@@ -77,7 +77,7 @@ function buildPrompt( title, body, diff ) {
 	const sanitizedBody = sanitizeForPrompt( body || '' );
 	const sanitizedDiff = sanitizeForPrompt( diff || '' );
 
-	return `You are the lead documentation editor for Jetpack. Your task is to analyze a GitHub Pull Request (PR) to determine if the likely requires changes to user-facing support documentation.
+	return `You are the lead documentation editor for Jetpack. Your task is to analyze a GitHub Pull Request (PR) to determine if the PR likely requires changes to user-facing support documentation.
 
 ## Changes that DO Require Documentation Updates (flag these):
 
@@ -96,7 +96,7 @@ function buildPrompt( title, body, diff ) {
 - User feedback mechanisms (thumbs up/down, ratings)
 - Package changelog references and discussions
 
-### PACKAGE EVALUATION: 
+### PACKAGE EVALUATION:
 
 When evaluating package changes, only include them in the heads-up if they are:
 
