@@ -12,6 +12,7 @@ Instead of having to manually add labels for each feature that is touched in a g
 - Optionally pass custom path to label mappings as a JSON array of `{"path": "...", "label": "..." }` objects. Paths are matched as prefixes, no wild cards or regular expressions are supported.
 
 Example:
+
 ```
   ...
   with:
