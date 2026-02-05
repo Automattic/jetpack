@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { Notice, Snackbar } from '@wordpress/components';
+import { GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
+import { Notice } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -64,9 +65,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	);
 	const [ isSavingSenderName, setIsSavingSenderName ] = useState( false );
 
-	// Snackbar notification state
-	const [ snackbarMessage, setSnackbarMessage ] = useState< string | null >( null );
-
 	// Newsletter categories state (for manual save)
 	const [ newsletterCategoriesChanges, setNewsletterCategoriesChanges ] = useState<
 		Partial< NewsletterSettings >
@@ -84,8 +82,8 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		window as Window & { jetpackNewsletterSettings?: JetpackNewsletterSettings }
 	 ).jetpackNewsletterSettings;
 
-	// Callback to clear snackbar
-	const clearSnackbar = useCallback( () => setSnackbarMessage( null ), [] );
+	// Global notices for success messages
+	const { createSuccessNotice } = useGlobalNotices();
 
 	// Load settings on mount
 	useEffect( () => {
@@ -116,6 +114,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			updateSettings( updates, jetpackSettings )
 				.then( () => {
 					setError( null );
+					createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 				} )
 				.catch( ( err: Error ) => {
 					// eslint-disable-next-line no-console
@@ -125,7 +124,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					setData( data );
 				} );
 		},
-		[ data, jetpackSettings ]
+		[ createSuccessNotice, data, jetpackSettings ]
 	);
 
 	// Handle sender name changes (staged, not auto-saved)
@@ -149,7 +148,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.then( () => {
 				setError( null );
 				setSenderNameChanges( {} );
-				setSnackbarMessage( __( 'Sender name saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Sender name saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -159,7 +158,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingSenderName( false );
 			} );
-	}, [ senderNameChanges, data, jetpackSettings ] );
+	}, [ createSuccessNotice, senderNameChanges, data, jetpackSettings ] );
 
 	// Handle subscription settings changes (staged, not auto-saved)
 	const handleSubscriptionChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
@@ -182,7 +181,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.then( () => {
 				setError( null );
 				setSubscriptionChanges( {} );
-				setSnackbarMessage( __( 'Settings saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -194,7 +193,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingSubscriptions( false );
 			} );
-	}, [ subscriptionChanges, data, jetpackSettings ] );
+	}, [ createSuccessNotice, subscriptionChanges, data, jetpackSettings ] );
 
 	// Handle newsletter categories changes (staged, not auto-saved)
 	const handleNewsletterCategoriesChange = useCallback(
@@ -238,7 +237,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.then( () => {
 				setError( null );
 				setNewsletterCategoriesChanges( {} );
-				setSnackbarMessage( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -250,7 +249,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingNewsletterCategories( false );
 			} );
-	}, [ newsletterCategoriesChanges, data, jetpackSettings ] );
+	}, [ createSuccessNotice, newsletterCategoriesChanges, data, jetpackSettings ] );
 
 	// Handle welcome email changes (staged, not auto-saved)
 	const handleWelcomeEmailChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
@@ -273,7 +272,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.then( () => {
 				setError( null );
 				setWelcomeEmailChanges( {} );
-				setSnackbarMessage( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -285,7 +284,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingWelcomeEmail( false );
 			} );
-	}, [ welcomeEmailChanges, data, jetpackSettings ] );
+	}, [ createSuccessNotice, welcomeEmailChanges, data, jetpackSettings ] );
 
 	if ( isLoading ) {
 		return (
@@ -391,7 +390,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 
-			{ snackbarMessage && <Snackbar onRemove={ clearSnackbar }>{ snackbarMessage }</Snackbar> }
+			<GlobalNotices />
 		</div>
 	);
 }
