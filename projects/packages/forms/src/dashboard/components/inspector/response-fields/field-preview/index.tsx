@@ -8,6 +8,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { applyFilters } from '@wordpress/hooks';
 import { Badge } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -23,7 +24,24 @@ import type { ResponseField, FieldType, FileItem } from '../../../../../types/in
 import './style.scss';
 
 const getFieldIcon = ( fieldType: FieldType ): React.ReactNode => {
-	return <Icon icon={ fieldIcons[ fieldType ] ?? fieldIcons.text } />;
+	/**
+	 * Filter to allow custom field icons.
+	 *
+	 * @param {JSX.Element|null} icon      - The icon element, or null for default.
+	 * @param {string}           fieldType - The field type.
+	 * @return {JSX.Element|null} The icon element or null.
+	 */
+	const customIcon = applyFilters(
+		'jetpack.forms.dashboard.fieldIcon',
+		null,
+		fieldType
+	) as JSX.Element | null;
+
+	if ( customIcon ) {
+		return customIcon;
+	}
+
+	return <Icon icon={ fieldIcons[ fieldType as keyof typeof fieldIcons ] ?? fieldIcons.text } />;
 };
 
 const BADGED_VALUE_FIELDS: FieldType[] = [ 'consent', 'checkbox', 'radio', 'select' ];
@@ -42,6 +60,31 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	const typeClassName = `is-field-type-${ fieldType }`;
 
 	const renderFieldValue = () => {
+		/**
+		 * Filter to allow custom field value rendering.
+		 *
+		 * External plugins can use this filter to provide custom rendering
+		 * for their field types. Return a React element to override the default rendering,
+		 * or null/undefined to use the default.
+		 *
+		 * @param {React.ReactNode|null} element   - The custom element, or null for default.
+		 * @param {string}               fieldType - The field type.
+		 * @param {unknown}              value     - The field value.
+		 * @param {ResponseField}        field     - The full field object.
+		 * @return {React.ReactNode|null} The custom element or null.
+		 */
+		const customRender = applyFilters(
+			'jetpack.forms.dashboard.fieldValue',
+			null,
+			fieldType,
+			value,
+			field
+		) as React.ReactNode | null;
+
+		if ( customRender !== null && customRender !== undefined ) {
+			return customRender;
+		}
+
 		// Image select fields
 		if ( fieldType === 'image-select' ) {
 			const choices = ( value as { choices?: unknown[] } )?.choices;
