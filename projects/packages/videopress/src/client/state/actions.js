@@ -38,8 +38,6 @@ import {
 	SET_VIDEO_UPLOADING_ERROR,
 	SET_VIDEO_PROCESSING,
 	SET_VIDEO_UPLOADED,
-	SET_IS_FETCHING_FEATURES,
-	SET_FEATURES,
 	UPDATE_VIDEO_PRIVACY,
 	WP_REST_API_VIDEOPRESS_ENDPOINT,
 	UPDATE_VIDEO_POSTER,
@@ -323,14 +321,6 @@ const uploadVideoFromLibrary =
 		dispatch( { type: SET_VIDEO_UPLOADED, video } );
 	};
 
-const setIsFetchingFeatures = isFetching => {
-	return { type: SET_IS_FETCHING_FEATURES, isFetching };
-};
-
-const setFeatures = features => {
-	return { type: SET_FEATURES, features };
-};
-
 const updateVideoPoster =
 	( id, guid, data ) =>
 	async ( { dispatch, select, resolveSelect } ) => {
@@ -521,9 +511,6 @@ const actions = {
 
 	uploadVideo,
 	uploadVideoFromLibrary,
-
-	setIsFetchingFeatures,
-	setFeatures,
 
 	updateVideoPoster,
 

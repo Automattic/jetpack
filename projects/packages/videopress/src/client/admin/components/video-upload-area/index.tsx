@@ -8,8 +8,8 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { hasVideoPressPurchase } from '../../../utils/has-videopress-purchase';
 import { fileInputExtensions } from '../../../utils/video-extensions';
-import { usePlan } from '../../hooks/use-plan';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
@@ -23,7 +23,7 @@ import { VideoUploadAreaProps } from './types';
 const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { inputRef, handleFileInputChangeEvent } = useSelectVideoFiles( { onSelectFiles } );
-	const { hasVideoPressPurchase } = usePlan();
+	const hasPurchase = hasVideoPressPurchase();
 
 	const handleClickEvent = () => {
 		inputRef.current.click();
@@ -41,7 +41,7 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 				accept={ fileInputExtensions }
 				className={ clsx( styles[ 'file-input' ] ) }
 				onChange={ handleFileInputChangeEvent }
-				multiple={ hasVideoPressPurchase }
+				multiple={ hasPurchase }
 			/>
 			<Icon icon={ captureVideo } size={ 32 } className={ clsx( styles.icon ) } />
 			<Text variant="title-small">

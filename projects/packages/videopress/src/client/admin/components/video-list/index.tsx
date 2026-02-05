@@ -15,7 +15,7 @@ import {
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 } from '../../../state/constants';
-import { usePlan } from '../../hooks/use-plan';
+import { hasVideoPressPurchase } from '../../../utils/has-videopress-purchase';
 import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
 import ConnectVideoRow, { LocalVideoRow, Stats } from '../video-row';
@@ -120,7 +120,7 @@ export const LocalVideoList = ( {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
 	const showCheckbox = false; // TODO: implement bulk actions
-	const { hasVideoPressPurchase } = usePlan();
+	const hasPurchase = hasVideoPressPurchase();
 	const { uploadedVideoCount, isFetching } = useVideos();
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
 
@@ -208,7 +208,7 @@ export const LocalVideoList = ( {
 						onActionClick={ handleClickWithIndex( index ) }
 						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
 						disabled={ video?.isUploadedToVideoPress || video?.readError != null }
-						disableActionButton={ ( hasVideos && ! hasVideoPressPurchase ) || uploading }
+						disableActionButton={ ( hasVideos && ! hasPurchase ) || uploading }
 						titleAdornment={ getTitleAdornment( video ) }
 					/>
 				);

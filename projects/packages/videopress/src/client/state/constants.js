@@ -14,8 +14,6 @@ export const WP_REST_API_VIDEOPRESS_META_ENDPOINT = 'wpcom/v2/videopress/meta';
 export const WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT = 'wpcom/v2/videopress/playback-jwt';
 export const WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT = 'videopress/v1/settings';
 export const REST_API_SITE_INFO_ENDPOINT = 'videopress/v1/site';
-export const REST_API_FEATURES_ENDPOINT = 'videopress/v1/features';
-
 /*
  * Actions
  */
@@ -49,9 +47,6 @@ export const SET_VIDEO_UPLOADING_ERROR = 'SET_VIDEO_UPLOADING_ERROR';
 export const SET_VIDEO_PROCESSING = 'SET_VIDEO_PROCESSING';
 export const SET_VIDEO_UPLOADED = 'SET_VIDEO_UPLOADED';
 export const SET_VIDEO_UPLOAD_PROGRESS = 'SET_VIDEO_UPLOAD_PROGRESS';
-
-export const SET_IS_FETCHING_FEATURES = 'SET_IS_FETCHING_FEATURES';
-export const SET_FEATURES = 'SET_FEATURES';
 
 export const SET_IS_FETCHING_PLAYBACK_TOKEN = 'SET_IS_FETCHING_PLAYBACK_TOKEN';
 export const SET_PLAYBACK_TOKEN = 'SET_PLAYBACK_TOKEN';

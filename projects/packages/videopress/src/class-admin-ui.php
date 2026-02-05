@@ -14,7 +14,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 
@@ -159,9 +158,25 @@ class Admin_UI {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
+		// Ensure plan data is available in JetpackScriptData for siteHasFeature().
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_plan_script_data' ) );
+
 		// Initial JS state including JP Connection data.
 		Connection_Initial_State::render_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
 		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, self::render_initial_state(), 'before' );
+	}
+
+	/**
+	 * Populate plan data in JetpackScriptData so siteHasFeature() works on the VideoPress admin page.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function set_plan_script_data( $data ) {
+		if ( empty( $data['site']['plan']['product_slug'] ) ) {
+			$data['site']['plan'] = Current_Plan::get();
+		}
+		return $data;
 	}
 
 	/**
@@ -185,13 +200,6 @@ class Admin_UI {
 			'registrationNonce'      => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'adminUrl'               => self::get_admin_page_url(),
 			'adminUri'               => 'admin.php?page=' . self::ADMIN_PAGE_SLUG,
-			'paidFeatures'           => array(
-				'isVideoPressSupported'          => Current_Plan::supports( 'videopress' ),
-				// Check videopress-1tb-storage (Jetpack) or videopress (WordPress.com).
-				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' )
-					|| ( ( new Host() )->is_wpcom_platform() && wpcom_site_has_feature( 'videopress' ) ),
-				'isVideoPressUnlimitedSupported' => Current_Plan::supports( 'videopress-unlimited-storage' ),
-			),
 			'siteSuffix'             => ( new Status() )->get_site_suffix(),
 			'productData'            => Plan::get_product(),
 			'productPrice'           => Plan::get_product_price(),

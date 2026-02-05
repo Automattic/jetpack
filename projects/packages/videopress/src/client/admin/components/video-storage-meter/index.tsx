@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { ProgressBar, Text } from '@automattic/jetpack-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filesize } from 'filesize';
 /**
  * Internal dependencies
  */
-import { usePlan } from '../../hooks/use-plan';
 import { useVideoPressSettings } from '../../hooks/use-videopress-settings';
 import useVideos from '../../hooks/use-videos';
 import { SITE_TYPE_ATOMIC } from '../site-settings-section/constants';
@@ -59,8 +59,6 @@ const VideoStorageMeter: FC< VideoStorageMeterProps > = ( {
 
 export const ConnectVideoStorageMeter = props => {
 	const { storageUsed, uploadedVideoCount } = useVideos();
-	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
-	const { features } = usePlan();
 	const { settings } = useVideoPressSettings();
 	const { siteType } = settings;
 
@@ -72,7 +70,7 @@ export const ConnectVideoStorageMeter = props => {
 	}
 
 	// Do not show storage meter for unlimited storage plans.
-	if ( features?.isVideoPressUnlimitedSupported ) {
+	if ( siteHasFeature( 'videopress-unlimited-storage' ) ) {
 		return null;
 	}
 

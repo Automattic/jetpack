@@ -23,8 +23,6 @@ import {
 	SET_VIDEO_UPLOADING_ERROR,
 	SET_VIDEO_PROCESSING,
 	SET_VIDEO_UPLOADED,
-	SET_IS_FETCHING_FEATURES,
-	SET_FEATURES,
 	UPDATE_VIDEO_PRIVACY,
 	SET_LOCAL_VIDEOS,
 	SET_LOCAL_VIDEOS_QUERY,
@@ -728,28 +726,6 @@ const users = ( state, action ) => {
 	}
 };
 
-const features = ( state, action ) => {
-	switch ( action.type ) {
-		case SET_IS_FETCHING_FEATURES: {
-			return {
-				...state,
-				isFetching: action.isFetching,
-			};
-		}
-
-		case SET_FEATURES: {
-			return {
-				...state,
-				...action.features,
-				isFetching: false,
-			};
-		}
-
-		default:
-			return state;
-	}
-};
-
 const playbackTokens = ( state, action ) => {
 	switch ( action.type ) {
 		case SET_IS_FETCHING_PLAYBACK_TOKEN: {
@@ -823,7 +799,6 @@ const siteSettings = ( state, action ) => {
 const reducers = combineReducers( {
 	videos,
 	localVideos,
-	features,
 	users,
 	playbackTokens,
 	siteSettings,

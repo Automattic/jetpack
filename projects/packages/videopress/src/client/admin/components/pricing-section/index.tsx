@@ -15,11 +15,12 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import { usePlan } from '../../hooks/use-plan';
+import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
 
 const PricingPage = ( { onRedirecting } ) => {
-	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
-	const { siteProduct, productPrice } = usePlan();
+	const { siteSuffix, adminUri, registrationNonce, siteProductData, productPrice } =
+		window.jetpackVideoPressInitialState;
+	const siteProduct = mapObjectKeysToCamel( siteProductData, true );
 	const { yearly: yearlyPrice } = productPrice;
 
 	const { handleRegisterSite, userIsConnecting } = useConnection( {

@@ -79,26 +79,6 @@ export const getVideoStateMetadata = ( state, id ) => {
 	return _metaVideo;
 };
 
-export const isFetchingFeatures = state => {
-	return state?.features?.isFetching;
-};
-
-export const getFeatures = state => {
-	const features = state?.features;
-
-	// Return undefined when features haven't been loaded yet,
-	// so usePlan can fall back to static paidFeatures from initial state.
-	if ( features?.isVideoPressSupported === undefined ) {
-		return undefined;
-	}
-
-	return {
-		isVideoPressSupported: features.isVideoPressSupported ?? false,
-		isVideoPress1TBSupported: features.isVideoPress1TBSupported ?? false,
-		isVideoPressUnlimitedSupported: features.isVideoPressUnlimitedSupported ?? false,
-	};
-};
-
 export const getLocalVideos = state => {
 	return state?.localVideos?.items || [];
 };
@@ -165,9 +145,6 @@ const selectors = {
 
 	getUsers,
 	getUsersPagination,
-
-	getFeatures,
-	isFetchingFeatures,
 
 	getPlaybackToken,
 	isFetchingPlaybackToken,

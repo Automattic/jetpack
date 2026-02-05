@@ -240,7 +240,6 @@ export type VideoPressSettings = {
 };
 
 export type VideopressSelectors = {
-	isFetchingFeatures: () => boolean;
 	getVideo: ( id: number | string, addAtEnd: boolean ) => VideoPressVideo;
 	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
@@ -249,13 +248,6 @@ export type VideopressSelectors = {
 	getFirstVideoProcessed: () => boolean;
 	getDismissedFirstVideoPopover: () => boolean;
 	getIsFetching: () => boolean;
-	getFeatures: () =>
-		| {
-				isVideoPressSupported: boolean;
-				isVideoPress1TBSupported: boolean;
-				isVideoPressUnlimitedSupported: boolean;
-		  }
-		| undefined;
 
 	getPlaybackToken: ( guid: string ) => { guid: string; token: string };
 	isFetchingPlaybackToken: () => boolean;

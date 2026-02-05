@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace custom features REST endpoint and usePlan hook with jetpack-script-data API for plan feature checks.

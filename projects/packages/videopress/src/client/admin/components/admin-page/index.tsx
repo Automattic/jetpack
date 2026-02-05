@@ -27,11 +27,11 @@ import { useEffect, useRef, useState } from 'react';
  * Internal dependencies
  */
 import { STORE_ID } from '../../../state';
+import { hasVideoPressPurchase } from '../../../utils/has-videopress-purchase';
 import uid from '../../../utils/uid';
 import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePermission } from '../../hooks/use-permission';
-import { usePlan } from '../../hooks/use-plan';
 import { useSearchParams } from '../../hooks/use-search-params';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
@@ -57,7 +57,7 @@ const useDashboardVideos = () => {
 		total,
 	} = useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
-	const { hasVideoPressPurchase } = usePlan();
+	const hasPurchase = hasVideoPressPurchase();
 
 	// Use a tempPage to catch changes in page from store and not URL
 	const tempPage = useRef( page );
@@ -119,7 +119,7 @@ const useDashboardVideos = () => {
 	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
 	const handleFilesUpload = ( files: File[] ) => {
-		if ( hasVideoPressPurchase ) {
+		if ( hasPurchase ) {
 			files.forEach( file => {
 				uploadVideo( file );
 			} );
@@ -153,7 +153,7 @@ const useDashboardVideos = () => {
 		handleLocalVideoUpload,
 		loading: isFetching,
 		uploading: uploading?.length > 0 || uploadErrors?.length > 0,
-		hasVideoPressPurchase,
+		hasVideoPressPurchase: hasPurchase,
 	};
 };
 
@@ -169,7 +169,7 @@ const Admin = () => {
 		handleLocalVideoUpload,
 		loading,
 		uploading,
-		hasVideoPressPurchase,
+		hasVideoPressPurchase: hasPurchase,
 	} = useDashboardVideos();
 
 	const { canPerformAction, isRegistered, hasConnectedOwner, isUserConnected } = usePermission();
@@ -179,7 +179,7 @@ const Admin = () => {
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const canUpload = ( hasVideoPressPurchase || ! hasVideos ) && canPerformAction;
+	const canUpload = ( hasPurchase || ! hasVideos ) && canPerformAction;
 
 	const { isDraggingOver, inputRef, handleFileInputChangeEvent, filterVideoFiles } =
 		useSelectVideoFiles( {
@@ -249,7 +249,7 @@ const Admin = () => {
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
 
-								{ hasVideoPressPurchase && (
+								{ hasPurchase && (
 									<ConnectVideoStorageMeter
 										className={ styles[ 'storage-meter' ] }
 										progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
@@ -262,7 +262,7 @@ const Admin = () => {
 											handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
 										}
 										accept={ fileInputExtensions }
-										multiple={ hasVideoPressPurchase }
+										multiple={ hasPurchase }
 										render={ ( { openFileDialog } ) => (
 											<Button
 												fullWidth={ isSm }
@@ -281,7 +281,7 @@ const Admin = () => {
 									</Text>
 								) }
 
-								{ ! hasVideoPressPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
+								{ ! hasPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 							</Col>
 						</Container>
 					</AdminSectionHero>
@@ -328,13 +328,13 @@ const Admin = () => {
 export default Admin;
 
 const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
-	const { adminUri, siteSuffix } = window.jetpackVideoPressInitialState;
+	const { adminUri, siteSuffix, productData } = window.jetpackVideoPressInitialState;
 
-	const { product, hasVideoPressPurchase, isFetchingFeatures } = usePlan();
+	const hasPurchase = hasVideoPressPurchase();
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { run } = useProductCheckoutWorkflow( {
 		siteSuffix,
-		productSlug: product.productSlug,
+		productSlug: productData?.product_slug,
 		redirectUrl: adminUri,
 		useBlogIdSuffix: true,
 		from: 'jetpack-videopress',
@@ -343,7 +343,7 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { recordEventHandler } = useAnalyticsTracks( {} );
 
-	if ( hasVideoPressPurchase || isFetchingFeatures ) {
+	if ( hasPurchase ) {
 		return null;
 	}
 
