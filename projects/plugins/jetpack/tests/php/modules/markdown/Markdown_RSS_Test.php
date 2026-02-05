@@ -10,7 +10,6 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
-require_once JETPACK__PLUGIN_DIR . 'modules/markdown/easy-markdown.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown/rss.php';
 
 /**
@@ -41,7 +40,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 				'post_content_filtered' => $markdown,
 			)
 		);
-		update_post_meta( $post_id, WPCom_Markdown::IS_MD_META, true );
+		update_post_meta( $post_id, '_wpcom_is_markdown', true );
 
 		$this->go_to( '/?p=' . $post_id );
 		setup_postdata( get_post( $post_id ) );
@@ -92,7 +91,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 				'post_content_filtered' => '',
 			)
 		);
-		update_post_meta( $post_id, WPCom_Markdown::IS_MD_META, true );
+		update_post_meta( $post_id, '_wpcom_is_markdown', true );
 
 		$this->go_to( '/?p=' . $post_id );
 		setup_postdata( get_post( $post_id ) );
@@ -142,7 +141,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 				'post_content_filtered' => $markdown,
 			)
 		);
-		update_post_meta( $post_id, WPCom_Markdown::IS_MD_META, true );
+		update_post_meta( $post_id, '_wpcom_is_markdown', true );
 
 		$this->go_to( '/?p=' . $post_id );
 		setup_postdata( get_post( $post_id ) );
@@ -171,7 +170,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 				'post_content_filtered' => $markdown,
 			)
 		);
-		update_post_meta( $post_id, WPCom_Markdown::IS_MD_META, true );
+		update_post_meta( $post_id, '_wpcom_is_markdown', true );
 
 		$this->go_to( '/?p=' . $post_id );
 		setup_postdata( get_post( $post_id ) );
@@ -412,7 +411,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 				'post_content_filtered' => '# Hello',
 			)
 		);
-		update_post_meta( $post_id, WPCom_Markdown::IS_MD_META, true );
+		update_post_meta( $post_id, '_wpcom_is_markdown', true );
 
 		$this->go_to( '/?p=' . $post_id );
 		setup_postdata( get_post( $post_id ) );

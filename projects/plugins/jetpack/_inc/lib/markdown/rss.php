@@ -156,7 +156,7 @@ function jetpack_markdown_rss_output_source_markdown() {
 	}
 
 	if (
-		get_post_meta( $post->ID, WPCom_Markdown::IS_MD_META, true )
+		get_post_meta( $post->ID, '_wpcom_is_markdown', true )
 		&& ! empty( $post->post_content_filtered )
 	) {
 		$content = $post->post_content_filtered;
