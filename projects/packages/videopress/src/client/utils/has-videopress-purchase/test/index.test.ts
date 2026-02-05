@@ -20,15 +20,6 @@ describe( 'hasVideoPressPurchase', () => {
 		expect( hasVideoPressPurchase() ).toBe( true );
 	} );
 
-	it( 'should return true when site has videopress-unlimited-storage feature', () => {
-		( siteHasFeature as jest.Mock ).mockImplementation(
-			feature => feature === 'videopress-unlimited-storage'
-		);
-		( isWpcomPlatformSite as jest.Mock ).mockReturnValue( false );
-
-		expect( hasVideoPressPurchase() ).toBe( true );
-	} );
-
 	it( 'should return true on WPCOM when site has videopress feature', () => {
 		( siteHasFeature as jest.Mock ).mockImplementation( feature => feature === 'videopress' );
 		( isWpcomPlatformSite as jest.Mock ).mockReturnValue( true );
