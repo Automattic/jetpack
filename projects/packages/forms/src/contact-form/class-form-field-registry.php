@@ -51,12 +51,24 @@ class Form_Field_Registry {
 	 *
 	 *     @type string   $block_name           Block name. Defaults to 'jetpack/field-{$field_type}'.
 	 *     @type array    $block_attributes     Block attributes definition.
+	 *     @type array    $supports             Feature support flags. {
+	 *         @type bool $label                Enable label support with automatic syncing. Default false.
+	 *                                          When true, automatically:
+	 *                                          - Adds jetpack/label as valid inner block
+	 *                                          - Sets up context for label syncing
+	 *                                          - Handles label rendering with styles on frontend
+	 *     }
 	 *     @type callable $render_callback      Block render callback. Receives ($atts, $content, $block).
 	 *                                          If not provided, uses default that calls Contact_Form::parse_contact_field().
 	 *     @type callable $validate_callback    Validation callback. Receives ($value, $label, $field).
 	 *                                          Return true for valid, string error message for invalid.
 	 *     @type callable $render_field         Frontend field render callback. Receives ($data).
 	 *                                          Return HTML string or null for default rendering.
+	 *                                          $data always includes 'wrapper_attrs' with interactivity attributes
+	 *                                          that should be added to the field's wrapper div for validation errors.
+	 *                                          $data includes 'error_html' with pre-rendered error message container.
+	 *                                          When supports.label is true, $data includes 'label_html' with
+	 *                                          pre-rendered label markup including styles.
 	 *     @type callable $render_value         Value render callback. Receives ($context, $value, $field).
 	 *                                          Context is 'email', 'web', 'ajax', 'csv', 'api'.
 	 *                                          Return rendered value or null for default.
@@ -67,6 +79,9 @@ class Form_Field_Registry {
 	 *     @type string   $dashboard_script     URL to the dashboard script.
 	 *     @type array    $dashboard_script_deps Dashboard script dependencies.
 	 *     @type string   $dashboard_script_ver Dashboard script version.
+	 *     @type string   $view_script          URL to the frontend view script (ES module for Interactivity API).
+	 *     @type array    $view_script_deps     View script module dependencies.
+	 *     @type string   $view_script_ver      View script version.
 	 * }
 	 * @return bool True on success, false on failure.
 	 */
@@ -99,6 +114,7 @@ class Form_Field_Registry {
 		$defaults = array(
 			'block_name'            => 'jetpack/field-' . $field_type,
 			'block_attributes'      => array(),
+			'supports'              => array(),
 			'render_callback'       => null,
 			'validate_callback'     => null,
 			'render_field'          => null,
@@ -110,9 +126,18 @@ class Form_Field_Registry {
 			'dashboard_script'      => '',
 			'dashboard_script_deps' => array( 'wp-hooks', 'wp-element', 'jp-forms-dashboard' ),
 			'dashboard_script_ver'  => '1.0.0',
+			'view_script'           => '',
+			'view_script_deps'      => array( '@wordpress/interactivity', 'jp-forms-view' ),
+			'view_script_ver'       => '1.0.0',
 		);
 
 		$args = wp_parse_args( $args, $defaults );
+
+		// Parse supports with defaults.
+		$supports_defaults = array(
+			'label' => false,
+		);
+		$args['supports']  = wp_parse_args( $args['supports'], $supports_defaults );
 
 		// Store the field configuration.
 		self::$registered_fields[ $field_type ] = $args;
@@ -203,6 +228,24 @@ class Form_Field_Registry {
 
 		// Dashboard scripts.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_dashboard_assets' ), 20 );
+
+		// Add label parent blocks filter for fields with label support.
+		add_filter( 'jetpack.forms.label.parentBlocks', array( __CLASS__, 'filter_label_parent_blocks' ) );
+	}
+
+	/**
+	 * Filter: Add custom field blocks as valid parents for the label block.
+	 *
+	 * @param array $parents Existing parent blocks.
+	 * @return array Modified parent blocks.
+	 */
+	public static function filter_label_parent_blocks( $parents ) {
+		foreach ( self::$registered_fields as $args ) {
+			if ( ! empty( $args['supports']['label'] ) ) {
+				$parents[] = $args['block_name'];
+			}
+		}
+		return $parents;
 	}
 
 	/**
@@ -271,16 +314,37 @@ class Form_Field_Registry {
 			),
 		);
 
+		// Add label support attributes if enabled.
+		if ( ! empty( $args['supports']['label'] ) ) {
+			$default_attributes['shareFieldAttributes'] = array(
+				'type'    => 'boolean',
+				'default' => true,
+			);
+		}
+
 		$block_attributes = array_merge( $default_attributes, $args['block_attributes'] );
 
-		register_block_type(
-			$block_name,
-			array(
-				'api_version'     => 3,
-				'render_callback' => $render_callback,
-				'attributes'      => $block_attributes,
-			)
+		// Build block registration args.
+		$block_args = array(
+			'api_version'     => 3,
+			'render_callback' => $render_callback,
+			'attributes'      => $block_attributes,
 		);
+
+		// Add label support configuration.
+		if ( ! empty( $args['supports']['label'] ) ) {
+			$block_args['provides_context'] = array(
+				'jetpack/field-required'         => 'required',
+				'jetpack/field-share-attributes' => 'shareFieldAttributes',
+			);
+			$block_args['supports']         = array(
+				'reusable'                               => false,
+				'html'                                   => false,
+				'__experimentalExposeControlsToChildren' => true,
+			);
+		}
+
+		register_block_type( $block_name, $block_args );
 	}
 
 	/**
@@ -322,6 +386,16 @@ class Form_Field_Registry {
 					// Check if required indicator should be shown.
 					if ( isset( $inner_block['attrs']['requiredIndicator'] ) ) {
 						$atts['requiredIndicator'] = $inner_block['attrs']['requiredIndicator'];
+					}
+
+					// Extract label style attributes using WordPress block support functions.
+					$label_attrs          = Contact_Form_Plugin::get_label_block_support_classes_and_styles( $inner_block['attrs'] );
+					$atts['labelclasses'] = 'wp-block-jetpack-label';
+					if ( ! empty( $label_attrs['class'] ) ) {
+						$atts['labelclasses'] .= ' ' . $label_attrs['class'];
+					}
+					if ( ! empty( $label_attrs['style'] ) ) {
+						$atts['labelstyles'] = $label_attrs['style'];
 					}
 				}
 			}
@@ -385,11 +459,112 @@ class Form_Field_Registry {
 
 		$args = self::$registered_fields[ $type ];
 
+		// Enqueue the view script if provided (ES module for Interactivity API).
+		if ( ! empty( $args['view_script'] ) ) {
+			wp_enqueue_script_module(
+				'jetpack-forms-field-' . $type . '-view',
+				$args['view_script'],
+				$args['view_script_deps'],
+				$args['view_script_ver']
+			);
+		}
+
+		// Add error state first (needed for label rendering).
+		if ( isset( $data['field'] ) ) {
+			$data['is_error']   = $data['field']->is_error();
+			$data['error_html'] = self::render_error_html( $data, $type );
+		}
+
+		// If label support is enabled, add pre-rendered label HTML to data.
+		if ( ! empty( $args['supports']['label'] ) && isset( $data['field'] ) ) {
+			$data['label_html'] = self::render_label_html( $data );
+		}
+
 		if ( ! is_callable( $args['render_field'] ) ) {
 			return $html;
 		}
 
 		return call_user_func( $args['render_field'], $data );
+	}
+
+	/**
+	 * Render error HTML for validation errors.
+	 *
+	 * This generates the error message container that displays validation errors.
+	 * Uses the WordPress Interactivity API for dynamic error state.
+	 *
+	 * @param array  $data       Field data including 'field' instance.
+	 * @param string $field_type The field type.
+	 * @return string Rendered error HTML.
+	 */
+	private static function render_error_html( $data, $field_type ) {
+		$id = esc_attr( $data['id'] );
+
+		return '
+			<div id="' . $id . '-' . esc_attr( $field_type ) . '-error" class="contact-form__input-error" data-wp-class--has-errors="state.fieldHasErrors">
+				<span class="contact-form__warning-icon" aria-hidden="true">
+					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z" />
+						<path d="M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z" />
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z" />
+					</svg>
+				</span>
+				<span data-wp-text="state.errorMessage" id="' . $id . '-' . esc_attr( $field_type ) . '-error-message"></span>
+			</div>';
+	}
+
+	/**
+	 * Render label HTML with proper classes and styles.
+	 *
+	 * This generates the label HTML including all styling from the inner jetpack/label block.
+	 * Developers using supports.label can use $data['label_html'] in their render_field callback.
+	 *
+	 * @param array $data Field data including 'field' instance.
+	 * @return string Rendered label HTML.
+	 */
+	private static function render_label_html( $data ) {
+		$field_instance = $data['field'];
+		$label          = esc_html( $data['label'] );
+		$id             = esc_attr( $data['id'] );
+		$required       = $data['required'];
+		$is_error       = ! empty( $data['is_error'] );
+
+		// Build label classes.
+		$label_classes = 'grunion-field-label';
+		if ( $is_error ) {
+			$label_classes .= ' form-error';
+		}
+		if ( ! empty( $field_instance->label_classes ) ) {
+			$label_classes .= ' ' . esc_attr( $field_instance->label_classes );
+		}
+
+		// Build label styles.
+		$label_style_attr = '';
+		if ( ! empty( $field_instance->label_styles ) ) {
+			$label_style_attr = ' style="' . esc_attr( $field_instance->label_styles ) . '"';
+		}
+
+		// Build required indicator.
+		$required_markup = '';
+		if ( $required ) {
+			$required_text = $field_instance->get_attribute( 'requiredtext' );
+			if ( empty( $required_text ) ) {
+				$required_text = __( '(required)', 'jetpack-forms' );
+			}
+			$show_required_text = $field_instance->get_attribute( 'requiredindicator' );
+			if ( $show_required_text ) {
+				$required_markup = '<span class="required">' . esc_html( $required_text ) . '</span>';
+			}
+		}
+
+		return sprintf(
+			'<label class="%s" for="%s"%s>%s%s</label>',
+			esc_attr( $label_classes ),
+			$id,
+			$label_style_attr,
+			$label,
+			$required_markup
+		);
 	}
 
 	/**
@@ -440,7 +615,19 @@ class Form_Field_Registry {
 			return;
 		}
 
+		// Collect blocks with label support and all custom field blocks.
+		$label_support_blocks = array();
+		$custom_field_blocks  = array();
+
 		foreach ( self::$registered_fields as $field_type => $args ) {
+			// Track all custom field blocks for ID control injection.
+			$custom_field_blocks[] = $args['block_name'];
+
+			// Track blocks with label support.
+			if ( ! empty( $args['supports']['label'] ) ) {
+				$label_support_blocks[] = $args['block_name'];
+			}
+
 			if ( empty( $args['editor_script'] ) ) {
 				continue;
 			}
@@ -455,6 +642,135 @@ class Form_Field_Registry {
 				true
 			);
 		}
+
+		// Add inline script to register label parent blocks filter.
+		if ( ! empty( $label_support_blocks ) ) {
+			self::enqueue_label_support_script( $label_support_blocks );
+		}
+
+		// Add inline script to inject ID control for custom field blocks.
+		if ( ! empty( $custom_field_blocks ) ) {
+			self::enqueue_field_id_control_script( $custom_field_blocks );
+		}
+	}
+
+	/**
+	 * Enqueue inline script to add label parent blocks filter.
+	 *
+	 * @param array $block_names Array of block names with label support.
+	 */
+	private static function enqueue_label_support_script( $block_names ) {
+		// We need to add this filter before the label block is registered.
+		// Use wp-hooks as dependency since we need addFilter.
+		$script = sprintf(
+			'(function() {
+				var blocks = %s;
+				if (window.wp && window.wp.hooks && window.wp.hooks.addFilter) {
+					window.wp.hooks.addFilter(
+						"jetpack.forms.label.parentBlocks",
+						"jetpack-forms-field-registry/label-parents",
+						function(parents) {
+							return parents.concat(blocks);
+						}
+					);
+				}
+			})();',
+			wp_json_encode( $block_names, JSON_UNESCAPED_SLASHES )
+		);
+
+		wp_add_inline_script( 'wp-hooks', $script, 'after' );
+	}
+
+	/**
+	 * Enqueue inline script to add ID control to custom field blocks.
+	 *
+	 * This automatically injects the Name/ID field in the Advanced panel
+	 * for all custom form fields registered via register_jetpack_form_field().
+	 *
+	 * @param array $block_names Array of block names to add ID control to.
+	 */
+	private static function enqueue_field_id_control_script( $block_names ) {
+		$script = sprintf(
+			'(function() {
+				var customFieldBlocks = %s;
+				var reservedAttributes = ["accept","action","autocomplete","enctype","method","name","novalidate","target","type","value"];
+				var wp = window.wp;
+
+				if (!wp || !wp.hooks || !wp.element || !wp.blockEditor || !wp.components || !wp.i18n) {
+					return;
+				}
+
+				var addFilter = wp.hooks.addFilter;
+				var createElement = wp.element.createElement;
+				var Fragment = wp.element.Fragment;
+				var useState = wp.element.useState;
+				var useCallback = wp.element.useCallback;
+				var InspectorAdvancedControls = wp.blockEditor.InspectorAdvancedControls;
+				var TextControl = wp.components.TextControl;
+				var __ = wp.i18n.__;
+
+				// Higher Order Component to add ID control
+				var withFieldIdControl = function(BlockEdit) {
+					return function(props) {
+						if (customFieldBlocks.indexOf(props.name) === -1) {
+							return createElement(BlockEdit, props);
+						}
+
+						var id = props.attributes.id || "";
+						var setAttributes = props.setAttributes;
+
+						var errorState = useState("");
+						var idError = errorState[0];
+						var setIdError = errorState[1];
+
+						var setId = useCallback(function(value) {
+							var newValue = value.replace(/[^a-zA-Z0-9_-]/g, "");
+
+							// Check for reserved attribute names
+							var isReserved = reservedAttributes.some(function(attr) {
+								return attr.toLowerCase() === newValue.toLowerCase();
+							});
+
+							if (isReserved) {
+								setIdError(__("This is a reserved word. Please use a different name.", "jetpack-forms"));
+								return;
+							}
+
+							setIdError("");
+							setAttributes({ id: newValue });
+						}, [setAttributes]);
+
+						return createElement(
+							Fragment,
+							null,
+							createElement(BlockEdit, props),
+							createElement(
+								InspectorAdvancedControls,
+								null,
+								createElement(TextControl, {
+									label: __("Name/ID", "jetpack-forms"),
+									value: id,
+									onChange: setId,
+									help: idError || __("Customize the input\'s name/ID. Only alphanumeric, dash and underscore characters are allowed", "jetpack-forms"),
+									className: idError ? "jetpack-forms-field-controls__input-error" : "",
+									__nextHasNoMarginBottom: true,
+									__next40pxDefaultSize: true
+								})
+							)
+						);
+					};
+				};
+
+				addFilter(
+					"editor.BlockEdit",
+					"jetpack-forms-field-registry/field-id-control",
+					withFieldIdControl
+				);
+			})();',
+			wp_json_encode( $block_names, JSON_UNESCAPED_SLASHES )
+		);
+
+		wp_add_inline_script( 'wp-hooks', $script, 'after' );
 	}
 
 	/**
