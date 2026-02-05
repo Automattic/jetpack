@@ -15,4 +15,8 @@ module.exports = {
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
 	},
+	setupFilesAfterEnv: [
+		...( baseConfig.setupFilesAfterEnv || [] ),
+		path.join( __dirname, 'setup-visx-tooltip-mock.js' ),
+	],
 };

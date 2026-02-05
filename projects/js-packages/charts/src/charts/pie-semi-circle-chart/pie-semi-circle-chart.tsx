@@ -164,6 +164,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const handleMouseMove = useCallback(
 		( event: MouseEvent< SVGElement >, arc: ArcData ) => {
+			// Don't show tooltip until container bounds are measured
+			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+				return;
+			}
+
 			// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
 			// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
 			// By passing (clientX - containerBounds.left), we get:
@@ -175,7 +180,15 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				tooltipTop: event.clientY - containerBounds.top + tooltipOffsetY,
 			} );
 		},
-		[ containerBounds.left, containerBounds.top, showTooltip, tooltipOffsetX, tooltipOffsetY ]
+		[
+			containerBounds.width,
+			containerBounds.height,
+			containerBounds.left,
+			containerBounds.top,
+			showTooltip,
+			tooltipOffsetX,
+			tooltipOffsetY,
+		]
 	);
 
 	const handleMouseLeave = useCallback( () => {

@@ -338,6 +338,11 @@ const PieChartInternal = ( {
 												return;
 											}
 
+											// Don't show tooltip until container bounds are measured
+											if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+												return;
+											}
+
 											// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
 											// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
 											// By passing (clientX - containerBounds.left), we get:

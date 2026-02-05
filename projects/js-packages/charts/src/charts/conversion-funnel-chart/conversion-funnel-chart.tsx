@@ -97,25 +97,35 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	// regardless of whether bounds are stale (e.g., after dashboard customization).
 	const getMouseTooltipCoords = useCallback(
 		( event: React.MouseEvent ) => {
+			// Don't return coords until container bounds are measured
+			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+				return null;
+			}
+
 			return {
 				x: event.clientX - containerBounds.left,
 				y: event.clientY - containerBounds.top,
 			};
 		},
-		[ containerBounds.left, containerBounds.top ]
+		[ containerBounds.width, containerBounds.height, containerBounds.left, containerBounds.top ]
 	);
 
 	// Helper function to get tooltip coordinates for keyboard events
 	// Use fresh getBoundingClientRect() and subtract containerBounds to cancel out stale offset.
 	const getKeyboardTooltipCoords = useCallback(
 		( event: React.KeyboardEvent ) => {
+			// Don't return coords until container bounds are measured
+			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+				return null;
+			}
+
 			const rect = event.currentTarget.getBoundingClientRect();
 			// Calculate center of element in viewport coordinates, then subtract containerBounds
 			const x = rect.left + rect.width / 2 - containerBounds.left;
 			const y = rect.top - containerBounds.top;
 			return { x, y };
 		},
-		[ containerBounds.left, containerBounds.top ]
+		[ containerBounds.width, containerBounds.height, containerBounds.left, containerBounds.top ]
 	);
 
 	// Helper function to handle step interaction (both click and keyboard)
