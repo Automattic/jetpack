@@ -651,8 +651,8 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 				rejectPort( err );
 			} );
 
-			// Listen on a random port (0 = OS assigns a free port)
-			tcpServer.listen( 0, '0.0.0.0', () => {
+			// Listen on localhost (0 = OS assigns a free port)
+			tcpServer.listen( 0, '127.0.0.1', () => {
 				const addr = tcpServer.address();
 				resolvePort( addr.port );
 			} );
