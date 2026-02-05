@@ -368,11 +368,11 @@ importers:
         specifier: ^6.0.0
         version: 6.12.0
       '@wordpress/theme':
-        specifier: 0.5.0
-        version: 0.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+        specifier: 0.6.0
+        version: 0.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/ui':
-        specifier: 0.5.0
-        version: 0.5.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 0.6.0
+        version: 0.6.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -10789,13 +10789,6 @@ packages:
   '@wordpress/token-list@3.39.0':
     resolution: {integrity: sha512-p8lVv2wPJ76CqGnwRCeQcho6MPDlBdcdyCmAtgrIe5BGS19Tvp+EpsSkfvKrFa9JkAWtOSmAiKVqIHW/LqkujA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/ui@0.5.0':
-    resolution: {integrity: sha512-D/sxkPIzptHEGEWWNh9UEdz6ySAmK3LBsqGO2dhom2kJ8RCsZMYwHXNOv2zYD1M+6rjfIthYWXAXNbDzb365Rg==}
-    engines: {node: '>=20.10.0', npm: '>=10.2.3'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
 
   '@wordpress/ui@0.6.0':
     resolution: {integrity: sha512-KV7JkQ4bvuCWZ2+82jnhzthomCIS7wO8+6cSrkhQUgeVbp0TdGCXCFHwKXfw1O/P/S6IClqpTFgInXFz/gA1DQ==}
@@ -26352,20 +26345,6 @@ snapshots:
       stylelint: 16.26.1
 
   '@wordpress/token-list@3.39.0': {}
-
-  '@wordpress/ui@0.5.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@base-ui/react': 1.1.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/a11y': 4.39.0
-      '@wordpress/element': 6.39.0
-      '@wordpress/i18n': 6.12.0
-      '@wordpress/icons': 11.6.0(react@18.3.1)
-      '@wordpress/primitives': 4.39.0(react@18.3.1)
-      clsx: 2.1.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
 
   '@wordpress/ui@0.6.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)':
     dependencies:
