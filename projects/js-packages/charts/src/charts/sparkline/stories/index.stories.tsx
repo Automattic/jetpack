@@ -81,6 +81,7 @@ export const Default: Story = {
 		width: 120,
 		height: 48,
 		color: '#4CAF50',
+		containerHeight: 100,
 	},
 };
 
@@ -111,9 +112,8 @@ export const AspectRatio: Story = {
  */
 export const EmptyData: Story = {
 	args: {
+		...Default.args,
 		data: [],
-		width: 120,
-		height: 48,
 	},
 };
 
@@ -122,10 +122,9 @@ export const EmptyData: Story = {
  */
 export const SinglePoint: Story = {
 	args: {
+		...Default.args,
 		data: [ 42 ],
 		color: '#9C27B0',
-		width: 120,
-		height: 48,
 	},
 };
 
@@ -134,10 +133,9 @@ export const SinglePoint: Story = {
  */
 export const TwoPoints: Story = {
 	args: {
+		...Default.args,
 		data: [ 10, 20 ],
 		color: '#3F51B5',
-		width: 120,
-		height: 48,
 	},
 };
 
@@ -195,6 +193,9 @@ export const Dashboard: Story = {
 			</div>
 		);
 	},
+	args: {
+		containerHeight: 150,
+	},
 };
 
 /**
@@ -203,10 +204,7 @@ export const Dashboard: Story = {
  */
 export const Animation: Story = {
 	args: {
-		data: defaultData,
-		width: 120,
-		height: 48,
-		color: '#4CAF50',
+		...Default.args,
 		animation: true,
 	},
 };
