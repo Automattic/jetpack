@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Identity Crisis status is now included in heartbeat stats for all connected plugins.
