@@ -751,6 +751,24 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
+		// Build interactivity context for custom fields.
+		$interactivity_context = array(
+			'fieldId'           => $field_id,
+			'fieldType'         => $field_type,
+			'fieldLabel'        => $field_label,
+			'fieldValue'        => $field_value,
+			'fieldPlaceholder'  => $field_placeholder,
+			'fieldIsRequired'   => $field_required,
+			'fieldErrorMessage' => '',
+			'fieldExtra'        => $this->get_field_extra( $field_type, $extra_attrs ),
+			'formHash'          => $this->form->hash,
+		);
+
+		$wrapper_attrs = sprintf(
+			'data-wp-interactive="jetpack/form" %s data-wp-init="callbacks.initializeField" data-wp-on--jetpack-form-reset="callbacks.initializeField"',
+			wp_interactivity_data_wp_context( $interactivity_context )
+		);
+
 		/**
 		 * Filter to allow custom rendering for form fields.
 		 *
@@ -761,21 +779,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 *
 		 * @param string|null        $custom_render    The custom HTML to render, or null for default.
 		 * @param string             $field_type       The type of the field.
-		 * @param array              $field_data       Array containing field data (id, label, value, required, placeholder, field instance).
+		 * @param array              $field_data       Array containing field data (id, label, value, required, placeholder, field instance, wrapper_attrs).
 		 */
 		$custom_render = apply_filters(
 			'jetpack_forms_render_field',
 			null,
 			$field_type,
 			array(
-				'id'          => $field_id,
-				'label'       => $field_label,
-				'value'       => $field_value,
-				'required'    => $field_required,
-				'placeholder' => $field_placeholder,
-				'class'       => $field_class,
-				'extra_attrs' => $extra_attrs,
-				'field'       => $this,
+				'id'            => $field_id,
+				'label'         => $field_label,
+				'value'         => $field_value,
+				'required'      => $field_required,
+				'placeholder'   => $field_placeholder,
+				'class'         => $field_class,
+				'extra_attrs'   => $extra_attrs,
+				'field'         => $this,
+				'wrapper_attrs' => $wrapper_attrs,
 			)
 		);
 

@@ -450,6 +450,20 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Get block support classes and styles for the jetpack/label block.
+	 *
+	 * This is a public helper method for the Form_Field_Registry to use
+	 * when extracting label styles from inner blocks.
+	 *
+	 * @param array $attrs - the label block attributes.
+	 *
+	 * @return array Array with 'class' and 'style' keys.
+	 */
+	public static function get_label_block_support_classes_and_styles( $attrs ) {
+		return self::get_block_support_classes_and_styles( 'jetpack/label', $attrs );
+	}
+
+	/**
 	 * Generate block support CSS classes and inline styles for block supports
 	 * via the style engine.
 	 *
