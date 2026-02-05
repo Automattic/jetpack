@@ -632,13 +632,16 @@ class Help_Center {
 			return;
 		}
 
-		// Support sites only support logged-out users when the Odie answers feature is enabled.
-		$experiment_variation = null;
-		if ( ! is_user_logged_in() && function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
-			$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages' );
-		}
-		if ( $this->is_support_site && ! is_user_logged_in() && ! self::is_proxied() && ! get_option( 'dotcom_support_enable_odie_answers', false ) && $experiment_variation !== 'treatment' ) {
-			return;
+		// Do not load Help Center for logged-out users on support sites when the experiment variation is not the treatment.
+		if ( $this->is_support_site && ! is_user_logged_in() && ! self::is_proxied() ) {
+			$experiment_variation = null;
+
+			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
+				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'calypso_help_center_load_on_logged_out_support_sites' );
+			}
+			if ( $experiment_variation !== 'treatment' ) {
+				return;
+			}
 		}
 
 		if ( $is_next_admin ) {
