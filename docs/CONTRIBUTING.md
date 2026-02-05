@@ -6,7 +6,7 @@ Developers of all levels can help — whether you can barely recognize a filter 
 
 ## Beta Testing
 
-We're always interested in hearing your feedback about existing and upcoming Jetpack features. The easiest way to help test Jetpack is to [join our Beta group.](/docs/testing/beta-testing.md)
+We're always interested in hearing your feedback about existing and upcoming Jetpack features. The easiest way to help test Jetpack is to [join our Beta group.](/docs/testing/beta-testing.md).
 
 ## Create Bug Reports
 
