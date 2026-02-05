@@ -3,6 +3,8 @@ import {
 	validateField,
 	validateDate,
 	isEmptyValue,
+	registerFieldValidator,
+	getCustomValidators,
 } from '../../../src/contact-form/js/validate-helper';
 
 // To run these test:
@@ -294,6 +296,76 @@ describe( 'validateField', () => {
 		test( 'returns false for functions', () => {
 			expect( isEmptyValue( function () {} ) ).toBe( false );
 			expect( isEmptyValue( () => {} ) ).toBe( false );
+		} );
+	} );
+
+	describe( 'custom validator registration', () => {
+		test( 'registerFieldValidator adds a custom validator', () => {
+			const colorValidator = ( value, isRequired ) => {
+				if ( isRequired && ! value ) {
+					return 'is_required';
+				}
+				if ( value && ! /^#[0-9A-Fa-f]{6}$/.test( value ) ) {
+					return 'invalid_color';
+				}
+				return 'yes';
+			};
+
+			registerFieldValidator( 'color', colorValidator );
+
+			const validators = getCustomValidators();
+			expect( validators.color ).toBe( colorValidator );
+		} );
+
+		test( 'custom validators are called during validateField', () => {
+			const customValidator = jest.fn( () => 'yes' );
+			registerFieldValidator( 'custom-test', customValidator );
+
+			validateField( 'custom-test', 'test value', true, { extra: 'data' } );
+
+			expect( customValidator ).toHaveBeenCalledWith( 'test value', true, { extra: 'data' } );
+		} );
+
+		test( 'custom validator validates required fields correctly', () => {
+			registerFieldValidator( 'color', ( value, isRequired ) => {
+				if ( isRequired && ! value ) {
+					return 'is_required';
+				}
+				if ( value && ! /^#[0-9A-Fa-f]{6}$/.test( value ) ) {
+					return 'invalid_color';
+				}
+				return 'yes';
+			} );
+
+			expect( validateField( 'color', '', true ) ).toBe( 'is_required' );
+			expect( validateField( 'color', '', false ) ).toBe( 'yes' );
+		} );
+
+		test( 'custom validator validates format correctly', () => {
+			registerFieldValidator( 'color', ( value, isRequired ) => {
+				if ( isRequired && ! value ) {
+					return 'is_required';
+				}
+				if ( value && ! /^#[0-9A-Fa-f]{6}$/.test( value ) ) {
+					return 'invalid_color';
+				}
+				return 'yes';
+			} );
+
+			expect( validateField( 'color', '#FF0000', false ) ).toBe( 'yes' );
+			expect( validateField( 'color', '#ff0000', false ) ).toBe( 'yes' );
+			expect( validateField( 'color', 'red', false ) ).toBe( 'invalid_color' );
+			expect( validateField( 'color', '#FFF', false ) ).toBe( 'invalid_color' );
+			expect( validateField( 'color', 'invalid', true ) ).toBe( 'invalid_color' );
+		} );
+
+		test( 'getCustomValidators returns a copy of the registry', () => {
+			const validators = getCustomValidators();
+			const validators2 = getCustomValidators();
+
+			// Should be equal in content but not the same object
+			expect( validators ).toEqual( validators2 );
+			expect( validators ).not.toBe( validators2 );
 		} );
 	} );
 } );
