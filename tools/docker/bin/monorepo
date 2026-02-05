@@ -91,7 +91,7 @@ fi
   # Pass rsync proxy port if set (for SSH proxy through host.docker.internal)
   RSYNC_ENV=""
   if [[ -n "${RSYNC_PROXY_PORT:-}" ]]; then
-      RSYNC_ENV="-e RSYNC_PROXY_PORT=$RSYNC_PROXY_PORT"
+      RSYNC_ENV="-e RSYNC_PROXY_PORT=$RSYNC_PROXY_PORT --add-host=host.docker.internal:host-gateway"
   fi
 
   docker run --rm $TTY_FLAG \
