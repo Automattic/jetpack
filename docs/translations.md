@@ -17,3 +17,4 @@ You'll find options to create a .PO file and export translations at the bottom o
 ## I found a missing translation, but I can’t find the string in GlotPress
 
 Some Jetpack modules, like Comments, Subscriptions, or Likes, are hosted on WordPress.com. Thus, you will have to look in [the WordPress.com GlotPress project](http://translate.wordpress.com/projects/wpcom/) to find the strings to translate.
+
