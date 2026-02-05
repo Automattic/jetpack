@@ -146,7 +146,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 		updateSettings( senderNameChanges, jetpackSettings )
 			.then( () => {
-				setError( null );
 				setSenderNameChanges( {} );
 				createSuccessNotice( __( 'Sender name saved', 'jetpack-newsletter' ) );
 			} )
@@ -179,7 +178,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 		updateSettings( subscriptionChanges, jetpackSettings )
 			.then( () => {
-				setError( null );
 				setSubscriptionChanges( {} );
 				createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 			} )
@@ -235,7 +233,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 		updateSettings( apiUpdates, jetpackSettings )
 			.then( () => {
-				setError( null );
 				setNewsletterCategoriesChanges( {} );
 				createSuccessNotice( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
 			} )
@@ -270,7 +267,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 		updateSettings( welcomeEmailChanges, jetpackSettings )
 			.then( () => {
-				setError( null );
 				setWelcomeEmailChanges( {} );
 				createSuccessNotice( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
 			} )
