@@ -641,6 +641,13 @@ class Help_Center {
 			$experiment_variation = null;
 			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
 				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages' );
+			} else {
+				log2logstash(
+					array(
+						'feature' => 'help-center',
+						'message' => 'ExPlat\assign_maybe_anon_user function is unavailable',
+					)
+				);
 			}
 			if ( $experiment_variation !== 'treatment' ) {
 				return;
