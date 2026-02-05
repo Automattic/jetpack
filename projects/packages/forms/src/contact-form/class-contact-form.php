@@ -1243,14 +1243,30 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$version = $asset['version'];
 		}
 
+		$core_error_types = array(
+			'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
+			'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
+			'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
+			'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
+			'preview_mode'       => __( 'Form submissions are disabled in preview mode.', 'jetpack-forms' ),
+		);
+
+		/**
+		 * Filter to register custom error types for form validation.
+		 *
+		 * This filter allows external developers to add custom error messages
+		 * that will be displayed when their custom field validators return
+		 * specific error keys. Error keys follow the pattern 'invalid_{field_type}'
+		 * or custom keys as needed.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $error_types Associative array of error keys to error messages.
+		 */
+		$error_types = apply_filters( 'jetpack_forms_error_types', $core_error_types );
+
 		$config = array(
-			'error_types'    => array(
-				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
-				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
-				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
-				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
-				'preview_mode'       => __( 'Form submissions are disabled in preview mode.', 'jetpack-forms' ),
-			),
+			'error_types'    => $error_types,
 			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
 		);
 		wp_interactivity_config( 'jetpack/form', $config );
