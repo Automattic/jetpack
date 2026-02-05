@@ -10,7 +10,6 @@ import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import * as dotenv from 'dotenv';
 import prompts from 'prompts';
-import { parse as shellParse } from 'shell-quote';
 import updateNotifier from 'update-notifier';
 
 // Get package.json path relative to this file
@@ -545,81 +544,77 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 	 * @param {net.Socket} socket - The incoming TCP connection
 	 */
 	const handleConnection = socket => {
-		let sshCommand = '';
-		let sshProcess = null;
-		let commandReceived = false;
+		const chunks = [];
 
-		socket.on( 'data', data => {
-			if ( ! commandReceived ) {
-				// Accumulate data until we see a newline (end of command)
-				sshCommand += data.toString();
-				const newlineIndex = sshCommand.indexOf( '\n' );
+		const onReadable = () => {
+			let chunk;
+			while ( ( chunk = socket.read() ) !== null ) {
+				chunks.push( chunk );
+				const combined = Buffer.concat( chunks );
+				const newlineIndex = combined.indexOf( 0x0a ); // '\n'
 
-				if ( newlineIndex !== -1 ) {
-					// Extract the command and any remaining data
-					const command = sshCommand.substring( 0, newlineIndex ).trim();
-					const remainingData = sshCommand.substring( newlineIndex + 1 );
-					commandReceived = true;
-
-					// Parse the command safely using shell-quote
-					// The command comes from our rsync-rsh-proxy.sh and should be "ssh <args>"
-					const parsedArgs = shellParse( command );
-
-					// Validate that this is an SSH command (security check)
-					if ( parsedArgs.length === 0 || parsedArgs[ 0 ] !== 'ssh' ) {
-						console.error( chalk.red( 'Invalid command received: expected ssh command' ) );
-						socket.destroy();
-						return;
-					}
-
-					// Spawn SSH directly with parsed arguments (safer than bash -c)
-					const sshArgs = parsedArgs.slice( 1 );
-					sshProcess = spawn( 'ssh', sshArgs, {
-						stdio: [ 'pipe', 'pipe', 'inherit' ],
-					} );
-
-					// Proxy stdout from SSH to socket
-					sshProcess.stdout.on( 'data', chunk => {
-						socket.write( chunk );
-					} );
-
-					sshProcess.on( 'close', () => {
-						// Signal end of writing but keep socket readable
-						// This allows the container to close the connection when ready
-						socket.end();
-					} );
-
-					sshProcess.on( 'error', err => {
-						console.error( chalk.yellow( `SSH process error: ${ err.message }` ) );
-						socket.destroy();
-					} );
-
-					// Send any data that came after the command
-					if ( remainingData.length > 0 ) {
-						sshProcess.stdin.write( remainingData );
-					}
+				if ( newlineIndex === -1 ) {
+					continue;
 				}
-			} else if ( sshProcess ) {
-				// Command already received, proxy data to SSH stdin
-				sshProcess.stdin.write( data );
-			}
-		} );
 
-		socket.on( 'end', () => {
-			if ( sshProcess ) {
-				sshProcess.stdin.end();
-			}
-		} );
+				const commandLine = combined.subarray( 0, newlineIndex ).toString();
+				const remaining = combined.subarray( newlineIndex + 1 );
 
-		socket.on( 'error', err => {
-			// Connection errors are expected when rsync closes the connection
-			if ( err.code !== 'ECONNRESET' ) {
-				console.error( chalk.yellow( `Socket error: ${ err.message }` ) );
+				socket.off( 'readable', onReadable );
+
+				// Parse the JSON array of args from rsync-rsh-proxy.sh
+				let parsedArgs;
+				try {
+					parsedArgs = JSON.parse( commandLine );
+				} catch {
+					console.error( chalk.red( 'Invalid JSON received from proxy' ) );
+					socket.destroy();
+					return;
+				}
+
+				// Validate that this is an SSH command (security check)
+				if (
+					! Array.isArray( parsedArgs ) ||
+					parsedArgs.length === 0 ||
+					parsedArgs[ 0 ] !== 'ssh'
+				) {
+					console.error( chalk.red( 'Invalid command received: expected ssh command' ) );
+					socket.destroy();
+					return;
+				}
+
+				// Spawn SSH with parsed arguments
+				const sshProcess = spawn( 'ssh', parsedArgs.slice( 1 ), {
+					stdio: [ 'pipe', 'pipe', 'inherit' ],
+				} );
+
+				// Put back any data that arrived after the newline
+				if ( remaining.length > 0 ) {
+					socket.unshift( remaining );
+				}
+
+				// Bidirectional pipe handles backpressure and end propagation
+				sshProcess.stdout.pipe( socket );
+				socket.pipe( sshProcess.stdin );
+
+				sshProcess.on( 'error', err => {
+					console.error( chalk.yellow( `SSH process error: ${ err.message }` ) );
+					socket.destroy();
+				} );
+
+				socket.on( 'error', err => {
+					// Connection errors are expected when rsync closes the connection
+					if ( err.code !== 'ECONNRESET' ) {
+						console.error( chalk.yellow( `Socket error: ${ err.message }` ) );
+					}
+					sshProcess.kill();
+				} );
+
+				return;
 			}
-			if ( sshProcess ) {
-				sshProcess.kill();
-			}
-		} );
+		};
+
+		socket.on( 'readable', onReadable );
 	};
 
 	// Set up cleanup handlers
@@ -658,19 +653,11 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 			} );
 		} );
 
-		// Build the command args, adding --non-interactive if not already present
-		// This is necessary because interactive prompts don't work properly when stdin
-		// is being proxied through the TCP connection
-		const rsyncArgs = [ ...args ];
-		if ( ! rsyncArgs.includes( '--non-interactive' ) && ! rsyncArgs.includes( '-n' ) ) {
-			rsyncArgs.push( '--non-interactive' );
-		}
-
 		// Run the monorepo script with RSYNC_PROXY_PORT set
 		const result = await new Promise( ( resolvePromise, rejectPromise ) => {
 			dockerProcess = spawn(
 				resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
-				[ 'pnpm', 'jetpack', ...rsyncArgs ],
+				[ 'pnpm', 'jetpack', ...args ],
 				{
 					stdio: 'inherit',
 					cwd: monorepoRoot,
