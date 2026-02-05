@@ -3,6 +3,7 @@ import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, cautionFilled as warning, info, check } from '@wordpress/icons';
 import clsx from 'clsx';
+import { ADMIN_PAGE_URI } from '../../../state/constants';
 import styles from './styles.module.scss';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -75,10 +76,10 @@ export default function GlobalNotice( {
 }
 
 export const NeedUserConnectionGlobalNotice = () => {
-	const { adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
+	const { registrationNonce } = window.jetpackVideoPressInitialState;
 
 	const { hasConnectedOwner, handleRegisterSite } = useConnection( {
-		redirectUri: adminUri,
+		redirectUri: ADMIN_PAGE_URI,
 		from: 'jetpack-videopress',
 		registrationNonce,
 	} );

@@ -1,8 +1,3 @@
-import {
-	productOriginalProps,
-	productPriceOriginalProps,
-	siteProductOriginalProps,
-} from '../../hooks/use-plan/types';
 import { LocalVideo, MetadataVideo, VideoPressVideo } from '../../types';
 
 declare global {
@@ -11,20 +6,13 @@ declare global {
 		__REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any;
 		jetpackVideoPressInitialState?: {
 			allowedVideoExtensions: Record< string, string >;
-			apiNonce: string;
-			apiRoot: string;
 			registrationNonce: string;
-			paidFeatures: {
-				isVideoPressSupported: boolean;
-				isVideoPress1TBSupported: boolean;
-				isVideoPressUnlimitedSupported: boolean;
-			};
-			siteProductData: siteProductOriginalProps;
-			productData?: productOriginalProps;
-			productPrice?: productPriceOriginalProps;
-			adminUrl: string;
-			adminUri: string;
-			siteSuffix: string;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			siteProductData: any;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			productData?: any;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			productPrice?: any;
 			contentNonce: string;
 			initialState: {
 				videos?: {

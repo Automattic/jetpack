@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 /**
@@ -26,7 +27,7 @@ import {
 	mapVideosFromWPV2MediaEndpoint,
 } from './utils/map-videos';
 
-const { apiRoot } = window?.jetpackVideoPressInitialState || {};
+const { rest_root: apiRoot } = getSiteData() || {};
 
 /**
  * Helper function to populate some video data

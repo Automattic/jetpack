@@ -10,30 +10,31 @@ import {
 	ProductPrice,
 } from '@automattic/jetpack-components';
 import { useConnection, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { getSiteData } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import { ADMIN_PAGE_URI } from '../../../state/constants';
 import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
 
 const PricingPage = ( { onRedirecting } ) => {
-	const { siteSuffix, adminUri, registrationNonce, siteProductData, productPrice } =
-		window.jetpackVideoPressInitialState;
+	const { registrationNonce, siteProductData, productPrice } = window.jetpackVideoPressInitialState;
 	const siteProduct = mapObjectKeysToCamel( siteProductData, true );
 	const { yearly: yearlyPrice } = productPrice;
 
 	const { handleRegisterSite, userIsConnecting } = useConnection( {
-		redirectUri: adminUri,
+		redirectUri: ADMIN_PAGE_URI,
 		from: 'jetpack-videopress',
 		registrationNonce,
 	} );
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		siteSuffix,
+		siteSuffix: getSiteData().suffix,
 		productSlug: yearlyPrice?.slug,
-		redirectUrl: adminUri,
+		redirectUrl: ADMIN_PAGE_URI,
 	} );
 
 	const pricingItems = siteProduct.features.map( feature => ( { name: feature } ) );

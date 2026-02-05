@@ -195,12 +195,7 @@ class Admin_UI {
 	 */
 	public static function initial_state() {
 		return array(
-			'apiRoot'                => esc_url_raw( rest_url() ),
-			'apiNonce'               => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'      => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'adminUrl'               => self::get_admin_page_url(),
-			'adminUri'               => 'admin.php?page=' . self::ADMIN_PAGE_SLUG,
-			'siteSuffix'             => ( new Status() )->get_site_suffix(),
 			'productData'            => Plan::get_product(),
 			'productPrice'           => Plan::get_product_price(),
 			'siteProductData'        => My_Jetpack_Products::get_product( 'videopress' ),
