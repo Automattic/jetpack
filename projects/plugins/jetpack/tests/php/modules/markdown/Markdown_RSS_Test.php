@@ -427,6 +427,40 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the block function handles a post with both legacy Markdown meta and Markdown blocks.
+	 */
+	public function test_block_function_handles_post_with_legacy_meta_and_blocks() {
+		if ( ! class_exists( 'WP_Block_Processor' ) ) {
+			$this->markTestSkipped( 'WP_Block_Processor not available.' );
+		}
+
+		$markdown     = '# Hello';
+		$post_content = '<!-- wp:jetpack/markdown {"source":"# Hello"} -->'
+			. '<div class="wp-block-jetpack-markdown"><h1>Hello</h1></div>'
+			. '<!-- /wp:jetpack/markdown -->';
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content'          => $post_content,
+				'post_content_filtered' => $markdown,
+			)
+		);
+		update_post_meta( $post_id, '_wpcom_is_markdown', true );
+
+		$this->go_to( '/?p=' . $post_id );
+		setup_postdata( get_post( $post_id ) );
+
+		ob_start();
+		jetpack_markdown_block_rss_output_source_markdown();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<source:markdown><![CDATA[', $output );
+		$this->assertStringContainsString( $markdown, $output );
+
+		wp_reset_postdata();
+	}
+
+	/**
 	 * Extract the content between CDATA markers.
 	 *
 	 * @param string $output The full XML output.
