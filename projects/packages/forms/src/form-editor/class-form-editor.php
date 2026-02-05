@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\Editor;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
+use Automattic\Jetpack\Forms\ContactForm\Form_Field_Registry;
 
 /**
  * Class Form_Editor
@@ -52,7 +53,7 @@ class Form_Editor {
 
 		// Allow only field blocks, button, and core blocks.
 		// Visual wrapping is handled by JavaScript DOM manipulation.
-		return array(
+		$allowed_blocks = array(
 			// Field blocks.
 			'jetpack/field-name',
 			'jetpack/field-email',
@@ -118,6 +119,21 @@ class Form_Editor {
 			'core/subhead',
 			'core/video',
 		);
+
+		// Add custom registered field blocks.
+		$custom_field_blocks = Form_Field_Registry::get_registered_block_names();
+		$allowed_blocks      = array_merge( $allowed_blocks, $custom_field_blocks );
+
+		/**
+		 * Filter the allowed blocks in the Jetpack Form editor.
+		 *
+		 * Allows plugins to add additional blocks to the form editor.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array $allowed_blocks Array of allowed block names.
+		 */
+		return apply_filters( 'jetpack_form_editor_allowed_blocks', $allowed_blocks );
 	}
 
 	/**
