@@ -2,14 +2,16 @@
 /* eslint-disable no-console */
 
 /**
- * Rasterize SVG block icons into JPG images for use in email templates.
+ * Rasterize SVG block icons into PNG images for use in email templates.
  *
  * Finds all icon.svg files in src/blocks/field-* directories and converts
- * them to 48x48 JPG files (2x retina for 24x24 display) with white background.
+ * them to 48x48 PNG files (2x retina for 24x24 display) with white background.
+ * Uses palette mode and max compression for minimal file size.
  *
  * Usage: node tools/rasterize-icons.mjs
  */
 
+import { unlink } from 'fs/promises';
 import { dirname, join, relative } from 'path';
 import { fileURLToPath } from 'url';
 import { glob } from 'glob';
@@ -26,15 +28,28 @@ if ( svgFiles.length > 0 ) {
 	let failed = 0;
 
 	for ( const svgFile of svgFiles ) {
-		const outputFile = join( dirname( svgFile ), 'icon@2x.jpg' );
+		const blockDir = dirname( svgFile );
+		const outputFile = join( blockDir, 'icon@2x.png' );
+		const oldJpgFile = join( blockDir, 'icon@2x.jpg' );
 		const relativePath = relative( join( __dirname, '..' ), outputFile );
 
 		try {
 			await sharp( svgFile, { density: 96 } )
 				.resize( 48, 48 )
 				.flatten( { background: '#ffffff' } )
-				.jpeg( { quality: 90 } )
+				.png( {
+					compressionLevel: 9,
+					palette: true,
+					colors: 16,
+				} )
 				.toFile( outputFile );
+
+			// Remove legacy JPG if it exists
+			try {
+				await unlink( oldJpgFile );
+			} catch {
+				// Ignore if file doesn't exist
+			}
 
 			console.log( `  ✓ ${ relativePath }` );
 		} catch ( err ) {
