@@ -37,7 +37,7 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 				overflow: 'auto',
 				padding: withPadding ? '1rem' : undefined,
 				width: args.containerWidth || '800px',
-				height: args.containerHeight,
+				height: args.containerHeight || '400px',
 				maxWidth: '1200px',
 				border: '1px dashed #ccc',
 				display: 'inline-block',

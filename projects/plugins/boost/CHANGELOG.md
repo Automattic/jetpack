@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.5.7-beta] - 2026-02-03
+## [4.5.7] - 2026-02-04
 ### Added
 - Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
 
@@ -902,7 +902,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[4.5.7-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.6...4.5.7-beta
+[4.5.7]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.6...4.5.7
 [4.5.6]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.5...4.5.6
 [4.5.5]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.4...4.5.5
 [4.5.4]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.3...4.5.4

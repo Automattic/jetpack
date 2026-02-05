@@ -28,7 +28,7 @@ Main component for rendering minimal trend visualizations.
 | `chartId` | `string` | - | Custom chart identifier for unique gradient/element identification |
 | `margin` | `object` | `{2,2,2,2}` | Margin around the chart |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a rising effect where the line scales up from the bottom. Automatically respects user's `prefers-reduced-motion` system setting |
-| `aspectRatio` | `number` | `0.5` | Aspect ratio for responsive charts (responsive variant only) |
+| `aspectRatio` | `number` | - | Aspect ratio for responsive charts. When omitted, fills parent height (responsive variant only) |
 | `maxWidth` | `number` | `1200` | Maximum width for responsive charts (responsive variant only) |
 | `resizeDebounceTime` | `number` | `300` | Debounce time for resize events in ms (responsive variant only) |
 
@@ -135,28 +135,27 @@ The component uses BEM-style CSS classes for styling:
 
 ## Responsive Behavior
 
-The default `Sparkline` export includes responsive sizing:
+The default `Sparkline` export includes responsive sizing. By default, it **fills its parent container's dimensions**:
 
 ```typescript
-// Responsive (default export)
-<Sparkline
-	data={data}
-	aspectRatio={0.3}
-	maxWidth={400}
-/>
+// Fill parent container (default) - parent needs explicit height
+<div style={{ width: '200px', height: '60px' }}>
+	<Sparkline data={data} />
+</div>
+
+// Use aspect ratio - height calculated from width
+<div style={{ width: '100%', maxWidth: '200px' }}>
+	<Sparkline data={data} aspectRatio={0.3} />
+</div>
 
 // Fixed size (named export)
-<SparklineUnresponsive
-	data={data}
-	width={120}
-	height={48}
-/>
+<SparklineUnresponsive data={data} width={120} height={48} />
 ```
 
 **Responsive Props:**
-- `aspectRatio`: Height as a fraction of width (e.g., 0.3 = 30% height)
-- `maxWidth`: Maximum width constraint
-- `resizeDebounceTime`: Debounce delay for window resize events
+- `aspectRatio`: Height as a fraction of width (e.g., 0.3 = 30% height). When omitted, fills parent height.
+- `maxWidth`: Maximum width constraint (default: 1200)
+- `resizeDebounceTime`: Debounce delay for resize events (default: 300ms)
 
 ## Edge Case Handling
 

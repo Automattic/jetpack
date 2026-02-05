@@ -3,7 +3,6 @@
  */
 import { formatNumber } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
-import '@automattic/ui/style.css';
 /**
  * WordPress dependencies
  */

@@ -9,7 +9,6 @@ import {
 	EMAIL_REGEX,
 	FIELD_TYPE_LABEL_PREFIXES,
 	inferFieldTypeFromLabel,
-	getIconSource,
 } from '../../../../../src/dashboard/components/inspector/response-fields/field-preview/field-preview-utils.ts';
 
 describe( 'field-preview-utils', () => {
@@ -182,43 +181,6 @@ describe( 'field-preview-utils', () => {
 			it( 'handles empty string', () => {
 				expect( inferFieldTypeFromLabel( '' ) ).toBeNull();
 			} );
-		} );
-	} );
-
-	describe( 'getIconSource', () => {
-		it( 'returns icon directly when it is a React element', () => {
-			const mockElement = { type: 'svg', props: {} };
-
-			expect( getIconSource( mockElement ) ).toBe( mockElement );
-		} );
-
-		it( 'returns icon directly when icon is a function', () => {
-			const mockElement = { type: 'svg', props: {} };
-			const iconFn = () => mockElement;
-
-			expect( getIconSource( iconFn ) ).toBe( iconFn );
-		} );
-
-		it( 'extracts src from icon when icon is an object with src property', () => {
-			const mockElement = { type: 'svg', props: {} };
-			const iconWithSrc = { src: mockElement };
-
-			expect( getIconSource( iconWithSrc ) ).toBe( mockElement );
-		} );
-
-		it( 'extracts src function when icon.src is a function', () => {
-			const srcFn = () => ( { type: 'svg', props: {} } );
-			const iconWithSrc = { src: srcFn };
-
-			expect( getIconSource( iconWithSrc ) ).toBe( srcFn );
-		} );
-
-		it( 'handles null icon', () => {
-			expect( getIconSource( null ) ).toBeNull();
-		} );
-
-		it( 'handles undefined icon', () => {
-			expect( getIconSource( undefined ) ).toBeUndefined();
 		} );
 	} );
 } );

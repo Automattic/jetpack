@@ -70,6 +70,9 @@ The simplest line chart requires only a `data` prop with time-series data:
 - **`margin`**: Custom chart margins
 - **`className`**: Additional CSS class name for the chart container
 - **`chartId`**: Unique identifier for the chart (auto-generated if not provided)
+- **`aspectRatio`**: Height as a fraction of width (e.g., `0.5` = 50% height). When omitted, fills parent container height
+- **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
+- **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
 **Visual Styling:**
 - **`curveType`**: Line curve style (`'smooth'`, `'linear'`, `'monotone'`)
@@ -546,22 +549,25 @@ Customize axes with formatting, orientation, and tick options:
 
 ### Responsive Behavior
 
-Charts automatically resize based on container size:
-
-<Canvas of={ LineChartStories.FixedDimensions } />
+By default, charts **fill their parent container's dimensions**. The parent must have an explicit height:
 
 <Source
 	language="jsx"
-	code={ `// Responsive (default)
-	<LineChart data={data} />
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<LineChart data={data} />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%' }}>
+		<LineChart data={data} aspectRatio={0.5} />
+	</div>
 
 	// Fixed dimensions
-	<LineChart
-		data={data}
-		width={800}
-		height={400}
-	/>` }
+	<LineChart data={data} width={800} height={400} />` }
 />
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ### Custom Margins
 

@@ -12,4 +12,7 @@ module.exports = {
 	},
 	// Transform d3-* ESM packages (pattern accounts for pnpm .pnpm directory structure)
 	transformIgnorePatterns: [ '/node_modules/(?!(\\.pnpm/(d3-|internmap)|d3-|internmap))' ],
+	moduleNameMapper: {
+		...baseConfig.moduleNameMapper,
+	},
 };
