@@ -1921,13 +1921,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 				if ( ! empty( $safe_display_label ) ) {
 					$compiled_form[ $key ] = sprintf(
-						'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
-						self::maybe_add_colon_to_label( $safe_display_label ),
+						'<div class="form-field" style="padding: 16px 0; border-bottom: 1px solid #e0e0e0;">
+							<div class="field-label" style="font-size: 12px; color: #50575e; margin: 0 0 4px 0;">%1$s</div>
+							<div class="field-value" style="font-size: 14px; color: #1e1e1e; margin: 0;">%2$s</div>
+						</div>',
+						$safe_display_label,
 						$safe_display_value
 					);
 				} else {
 					$compiled_form[ $key ] = sprintf(
-						'<p><span>%s</span></p>',
+						'<div class="form-field" style="padding: 16px 0; border-bottom: 1px solid #e0e0e0;">
+							<div class="field-value" style="font-size: 14px; color: #1e1e1e; margin: 0;">%s</div>
+						</div>',
 						$safe_display_value
 					);
 				}
@@ -3223,6 +3228,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$name   = isset( $respondent_info['name'] ) ? esc_html( $respondent_info['name'] ) : '';
 		$email  = isset( $respondent_info['email'] ) ? esc_html( $respondent_info['email'] ) : '';
 		$avatar = isset( $respondent_info['avatar'] ) ? esc_url( $respondent_info['avatar'] ) : '';
+
+		// Don't show section if there's no name or email.
+		if ( empty( $name ) && empty( $email ) ) {
+			return '';
+		}
 
 		// Get initials for avatar fallback.
 		$initials = '';

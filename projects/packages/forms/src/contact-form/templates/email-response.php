@@ -41,9 +41,6 @@ $template = '
 					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
 						<tr>
 							<td class="wrapper">
-								<!-- Header -->
-								<h1 class="email-header">%1$s</h1>
-
 								<!-- Respondent Info -->
 								%10$s
 
