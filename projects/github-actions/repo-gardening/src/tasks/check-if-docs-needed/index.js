@@ -96,7 +96,7 @@ function buildPrompt( title, body, diff ) {
 - User feedback mechanisms (thumbs up/down, ratings)
 - Package changelog references and discussions
 
-### PACKAGE EVALUATION: 
+### PACKAGE EVALUATION:
 
 When evaluating package changes, only include them in the heads-up if they are:
 
