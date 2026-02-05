@@ -12,6 +12,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\ContactForm\Form_Preview;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
@@ -758,11 +759,13 @@ class Contact_Form_Block {
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
 		// We should not render block if the module is disabled on a site using the Jetpack plugin.
-		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) ) {
+		// Exception: allow rendering in preview mode so form previews work.
+		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) && ! Form_Preview::is_preview_mode() ) {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
-		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// Exception: allow rendering in preview mode.
+		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) && ! Form_Preview::is_preview_mode() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return self::render_fallback( $atts );
 		}
 

@@ -7,6 +7,7 @@
 		"@base-ui-components/react": "^1.0.0-beta.4",
 		"@types/react": "18.3.26",
 		"@wordpress/admin-ui": "1.7.0",
+		"@wordpress/api-fetch": "7.39.0",
 		"@wordpress/components": "32.1.0",
 		"@wordpress/core-data": "7.39.0",
 		"@wordpress/data": "10.39.0",
