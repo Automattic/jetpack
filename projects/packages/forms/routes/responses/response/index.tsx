@@ -199,13 +199,7 @@ function SingleResponseView( {
 
 			<ResponseMeta response={ response } />
 
-			<div className="jp-forms__inbox-response-data">
-				<ResponseFieldsIterator
-					fields={ response.fields }
-					onFilePreview={ handleFilePreview }
-					className="jp-forms__inbox-response-data"
-				/>
-			</div>
+			<ResponseFieldsIterator fields={ response.fields } onFilePreview={ handleFilePreview } />
 
 			{ response.status === 'spam' && (
 				<div className="jp-forms__inbox__tip-container">
