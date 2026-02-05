@@ -211,7 +211,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 	public function test_rss_namespace_outputs_only_once() {
 		ob_start();
 		jetpack_markdown_rss_namespace();
-		jetpack_markdown_rss_namespace();
+		jetpack_markdown_rss_namespace(); // @phan-suppress-current-line PhanPluginDuplicateAdjacentStatement -- Intentional: testing deduplication.
 		$output = ob_get_clean();
 
 		$this->assertSame( 'xmlns:source="https://source.scripting.com/"', $output );
