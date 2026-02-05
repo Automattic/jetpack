@@ -40,8 +40,12 @@ function jetpack_markdown_rss_namespace() {
  * @return bool True if at least one jetpack/markdown block is found.
  */
 function jetpack_markdown_rss_post_has_markdown_block( $post_content ) {
-	$processor = new WP_Block_Processor( $post_content );
-	return $processor->next_block( 'jetpack/markdown' );
+	if ( ! class_exists( 'WP_Block_Processor' ) ) {
+		return false;
+	}
+
+	$processor = new WP_Block_Processor( $post_content ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
+	return $processor->next_block( 'jetpack/markdown' ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
 }
 
 /**
@@ -69,25 +73,25 @@ function jetpack_markdown_block_rss_output_source_markdown() {
 	}
 
 	// First pass: find Markdown blocks, extract sources, record byte offsets.
-	$processor = new WP_Block_Processor( $post->post_content );
+	$processor = new WP_Block_Processor( $post->post_content ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
 	$sources   = array();
 	$regions   = array(); // Each entry: array( 'start' => int, 'end' => int ).
 	$index     = 0;
 
-	while ( $processor->next_block( 'jetpack/markdown' ) ) {
-		$span        = $processor->get_span();
+	while ( $processor->next_block( 'jetpack/markdown' ) ) { // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
+		$span        = $processor->get_span(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
 		$block_start = $span->start;
-		$attrs       = $processor->allocate_and_return_parsed_attributes();
+		$attrs       = $processor->allocate_and_return_parsed_attributes(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
 		$source      = ( is_array( $attrs ) && isset( $attrs['source'] ) ) ? $attrs['source'] : '';
 
 		$sources[ $index ] = $source;
 
 		// Advance past the full block (opener + innerHTML + closer).
-		$processor->extract_full_block_and_advance();
+		$processor->extract_full_block_and_advance(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
 
 		// After extraction, get_span() returns the span of the closer token.
 		// Use start + length to find the byte offset right after the block.
-		$next_span = $processor->get_span();
+		$next_span = $processor->get_span(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
 		$block_end = $next_span ? $next_span->start + $next_span->length : strlen( $post->post_content );
 
 		$regions[ $index ] = array(
