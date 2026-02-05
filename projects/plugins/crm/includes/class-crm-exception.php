@@ -2,7 +2,6 @@
 /**
  * Jetpack CRM Exception Class
  * Extends Exception to provide additional data.
- *
  */
 
 namespace Automattic\JetpackCRM;
@@ -32,7 +31,7 @@ class CRM_Exception extends \Exception {
 	 * Setup exception.
 	 *
 	 * @param string $code             Machine-readable error code, e.g `segment_condition_produces_no_args`.
-	 * @param string $message          User-friendly translated error message, e.g. 'Segment Condition produces no filtering arguments'.	 
+	 * @param string $message          User-friendly translated error message, e.g. 'Segment Condition produces no filtering arguments'.
 	 * @param array  $data             Extra error data.
 	 */
 	public function __construct( $code, $message, $data = array() ) {
@@ -41,7 +40,6 @@ class CRM_Exception extends \Exception {
 		$this->error_data = $data;
 
 		parent::__construct( $message . ' (' . $code . ')', 0, null );
-
 	}
 
 	/**
