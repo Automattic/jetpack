@@ -6,17 +6,18 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
  * WordPress dependencies
  */
 import { Breadcrumbs } from '@wordpress/admin-ui';
+import { Button } from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
+import { useNavigate, useSearch } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import CreateFormButton from '../../components/create-form-button';
-import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptyTrashButton from '../../components/empty-trash-button';
 import ExportResponsesButton from '../../components/export-responses/button';
@@ -56,6 +57,10 @@ export default function usePageHeaderDetails(
 	const { screen, sourceId, isIntegrationsEnabled, showDashboardIntegrations, onOpenIntegrations } =
 		props;
 	const statusView: ResponsesStatusView = props.statusView ?? 'inbox';
+	const navigate = useNavigate();
+	const responsesSearchParams = useSearch( {
+		from: screen === 'responses' ? '/responses/$view' : '/forms',
+	} );
 	const sourceIdNumber = useMemo( () => {
 		const value = sourceId;
 		const numberValue = typeof value === 'number' ? value : Number( value );
@@ -127,6 +132,15 @@ export default function usePageHeaderDetails(
 		return __( 'View and manage all your form submissions in one place.', 'jetpack-forms' );
 	}, [ formTitle, isFormsScreen, isSingleFormScreen ] );
 
+	const onEditForm = useCallback( () => {
+		navigate( {
+			search: {
+				...responsesSearchParams,
+				editFormId: String( sourceIdNumber ),
+			},
+		} );
+	}, [ navigate, responsesSearchParams, sourceIdNumber ] );
+
 	const actions = useMemo( () => {
 		if ( isFormsScreen ) {
 			return [
@@ -141,7 +155,11 @@ export default function usePageHeaderDetails(
 			return [
 				<BackToFormsButton key="back-to-forms" />,
 				...( sourceIdNumber
-					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
+					? [
+							<Button key="edit-form" size="compact" variant="secondary" onClick={ onEditForm }>
+								{ __( 'Edit form', 'jetpack-forms' ) }
+							</Button>,
+					  ]
 					: [] ),
 				<ExportResponsesButton key="export" isPrimary={ false } />,
 				...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
@@ -164,6 +182,7 @@ export default function usePageHeaderDetails(
 	}, [
 		isIntegrationsEnabled,
 		onOpenIntegrations,
+		onEditForm,
 		showDashboardIntegrations,
 		sourceIdNumber,
 		isFormsScreen,

@@ -243,10 +243,12 @@ function StageInner() {
 					if ( ! item ) {
 						return;
 					}
-					const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
-					const editUrl = item.editUrl || fallbackEditUrl;
-					const url = new URL( editUrl, window.location.origin );
-					window.location.href = url.toString();
+					navigate( {
+						search: {
+							...searchParams,
+							editFormId: String( item.id ),
+						},
+					} );
 				},
 			},
 			{
@@ -329,9 +331,11 @@ function StageInner() {
 	}, [
 		isDeleting,
 		isViewingTrash,
+		navigate,
 		onOpenPermanentDeleteConfirm,
 		openSingleFormView,
 		restoreForms,
+		searchParams,
 		trashForms,
 	] );
 
