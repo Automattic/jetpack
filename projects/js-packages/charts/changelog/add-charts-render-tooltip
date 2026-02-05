@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add renderTooltip prop for custom tooltip rendering in pie charts
+Add renderTooltip prop for custom tooltip rendering in pie charts.
