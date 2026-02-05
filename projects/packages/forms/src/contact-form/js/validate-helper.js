@@ -1,4 +1,37 @@
 /**
+ * Registry for custom field validators.
+ *
+ * External developers can register custom validators using registerFieldValidator().
+ * Validators are functions that receive (value, isRequired, extra) and return
+ * 'yes' for valid, or an error key string for invalid (e.g., 'is_required', 'invalid_color').
+ *
+ * @type {Object.<string, Function>}
+ */
+const customValidators = {};
+
+/**
+ * Register a custom field validator for a specific field type.
+ *
+ * @param {string}   type      The field type to validate (e.g., 'color', 'custom-field').
+ * @param {Function} validator Validation function: (value, isRequired, extra) => 'yes' | errorKey
+ */
+export const registerFieldValidator = ( type, validator ) => {
+	if ( typeof validator !== 'function' ) {
+		// eslint-disable-next-line no-console
+		console.error( `Jetpack Forms: Validator for type "${ type }" must be a function.` );
+		return;
+	}
+	customValidators[ type ] = validator;
+};
+
+/**
+ * Get all registered custom validators.
+ *
+ * @returns {Object.<string, Function>} The custom validators registry.
+ */
+export const getCustomValidators = () => ( { ...customValidators } );
+
+/**
  * Validate the date Value based on the format of the date field.
  *
  * @param {string} value  Date value
@@ -97,15 +130,24 @@ export const isEmptyValue = value => {
 };
 
 /**
- * return true or the field error.
- * @param  type
- * @param  value
- * @param  isRequired
- * @param  extra
+ * Validate a form field value.
  *
- * @returns {string}
+ * Returns 'yes' for valid fields, or an error key string for invalid fields.
+ * Error keys can be used to look up localized error messages.
+ *
+ * @param {string}  type       The field type (e.g., 'email', 'url', 'text', 'color').
+ * @param {*}       value      The field value to validate.
+ * @param {boolean} isRequired Whether the field is required.
+ * @param {*}       extra      Extra validation context (e.g., date format, min/max for numbers).
+ *
+ * @returns {string} 'yes' if valid, or an error key string (e.g., 'is_required', 'invalid_email').
  */
 export const validateField = ( type, value, isRequired, extra = null ) => {
+	// Check if there's a custom validator registered for this type
+	if ( customValidators[ type ] ) {
+		return customValidators[ type ]( value, isRequired, extra );
+	}
+
 	if ( isEmptyValue( value ) && isRequired ) {
 		return 'is_required';
 	}
