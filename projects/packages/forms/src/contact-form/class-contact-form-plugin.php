@@ -34,6 +34,10 @@ require_once __DIR__ . '/class-form-submission-error.php';
 // Load the Form_Preview class.
 require_once __DIR__ . '/class-form-preview.php';
 
+// Load the Form_Field_Registry class and global functions.
+require_once __DIR__ . '/class-form-field-registry.php';
+require_once __DIR__ . '/form-field-functions.php';
+
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  */
