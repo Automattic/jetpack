@@ -309,6 +309,24 @@ class Form_Field_Registry {
 			unset( $atts['className'] );
 		}
 
+		// Extract attributes from inner blocks (label, input, etc.).
+		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
+			foreach ( $block->parsed_block['innerBlocks'] as $inner_block ) {
+				$block_name = $inner_block['blockName'] ?? '';
+
+				// Extract label from jetpack/label inner block.
+				if ( 'jetpack/label' === $block_name ) {
+					$atts['label']        = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
+					$atts['requiredText'] = $inner_block['attrs']['requiredText'] ?? null;
+
+					// Check if required indicator should be shown.
+					if ( isset( $inner_block['attrs']['requiredIndicator'] ) ) {
+						$atts['requiredIndicator'] = $inner_block['attrs']['requiredIndicator'];
+					}
+				}
+			}
+		}
+
 		// Call the forms system to parse and render the field.
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
