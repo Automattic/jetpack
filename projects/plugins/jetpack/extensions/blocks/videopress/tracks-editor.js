@@ -22,7 +22,7 @@ import { upload } from '@wordpress/icons';
 
 const DEFAULT_KIND = 'subtitles';
 
-const ACCEPTED_FILE_TYPES = '.vtt,text/vtt';
+const ACCEPTED_FILE_TYPES = '.vtt,.srt,text/vtt,application/x-subrip';
 
 const KIND_OPTIONS = [
 	{ label: __( 'Subtitles', 'jetpack' ), value: 'subtitles' },
@@ -283,10 +283,7 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 						</MediaUploadCheck>
 					</div>
 					<div className="videopress-block-tracks-editor__single-track-editor-upload-file-help">
-						{
-							/* translators: %s: The allowed file types to be uploaded as a video text track." */
-							sprintf( __( 'Allowed formats: %s', 'jetpack' ), ACCEPTED_FILE_TYPES )
-						}
+						{ __( 'Supported formats: VTT, SRT', 'jetpack' ) }
 					</div>
 				</div>
 				<div className="videopress-block-tracks-editor__single-track-editor-label-language">

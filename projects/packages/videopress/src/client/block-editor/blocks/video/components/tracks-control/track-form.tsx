@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Types
@@ -24,7 +24,7 @@ import type { ReactElement } from 'react';
 
 const DEFAULT_KIND = 'subtitles';
 
-const ACCEPTED_FILE_TYPES = '.vtt,text/vtt';
+const ACCEPTED_FILE_TYPES = '.vtt,.srt,text/vtt,application/x-subrip';
 
 const KIND_OPTIONS = [
 	{ label: __( 'Subtitles', 'jetpack-videopress-pkg' ), value: 'subtitles' },
@@ -120,11 +120,7 @@ export default function TrackForm( {
 		return null;
 	}
 
-	const help = sprintf(
-		/* translators: %s: The allowed file types to be uploaded as a video text track." */
-		__( 'Add a new text track to the video. Allowed formats: %s', 'jetpack-videopress-pkg' ),
-		ACCEPTED_FILE_TYPES
-	);
+	const help = __( 'Supported formats: VTT, SRT', 'jetpack-videopress-pkg' );
 	debug( 'error', error );
 
 	return (
