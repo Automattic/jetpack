@@ -66,12 +66,22 @@ $template = '
 								<div class="actions">
 									%8$s
 								</div>
-
-								<!-- Powered By -->
-								%9$s
 							</td>
 						</tr>
 					</table>
+
+					<!-- START FOOTER -->
+					<div class="footer">
+						<table role="presentation" border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="content-block wrapper footer-content">
+									<!-- footer -->
+									<p>%5$s</p>
+								</td>
+							</tr>
+						</table>
+						%9$s
+					</div>
 				</div>
 			</td>
 			<td class="collapse">&nbsp;</td>
@@ -517,6 +527,13 @@ $style = '<style media="all" type="text/css">
 		font-weight: normal;
 		margin: 0;
 		margin-bottom: 16px;
+	}
+
+	/* Email client table layout for respondent info */
+	.respondent-table {
+		margin-bottom: 24px;
+		padding-bottom: 20px;
+		border-bottom: 1px solid #e0e0e0;
 	}
 
 	.respondent-avatar-cell {

@@ -2910,6 +2910,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
+		// Build the actions with both Mark as spam and View in dashboard buttons.
 		$actions = '';
 		if ( $dashboard_url ) {
 			$actions = sprintf(
@@ -2930,17 +2931,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 
+		// Build respondent info for the new email template.
 		$respondent_info = array(
 			'name'   => $comment_author,
 			'email'  => $comment_author_email,
 			'avatar' => $response->get_author_avatar(),
 		);
 
+		// Get the form title for source metadata.
 		$form_title = $this->get_attribute( 'formTitle' );
 		if ( empty( $form_title ) && $this->current_post ) {
 			$form_title = self::get_post_property( $this->current_post, 'post_title' );
 		}
 
+		// Build metadata for the new email template.
 		$metadata = array(
 			'date'       => $time,
 			'source'     => $form_title,
@@ -3321,8 +3325,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
+		// Generate respondent info HTML.
 		$respondent_html = self::generate_respondent_info_html( $respondent_info );
-		$metadata_html   = self::generate_metadata_html( $metadata );
+
+		// Generate metadata HTML.
+		$metadata_html = self::generate_metadata_html( $metadata );
 
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
@@ -3385,6 +3392,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			? '<img src="' . $avatar . '" alt="" width="48" height="48" style="border-radius: 24px;">'
 			: esc_html( $initials );
 
+		// Use table layout for better email client compatibility.
 		$html = '
 		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="respondent-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 16px;">
 			<tr>
@@ -3426,10 +3434,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$rows = array();
 
+		// Date row.
 		if ( ! empty( $metadata['date'] ) ) {
 			$rows[] = self::generate_metadata_row( __( 'Date', 'jetpack-forms' ), esc_html( $metadata['date'] ) );
 		}
 
+		// Source row.
 		if ( ! empty( $metadata['source'] ) ) {
 			$source_value = esc_html( $metadata['source'] );
 			if ( ! empty( $metadata['source_url'] ) ) {
@@ -3438,10 +3448,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$rows[] = self::generate_metadata_row( __( 'Source', 'jetpack-forms' ), $source_value );
 		}
 
+		// Device row.
 		if ( ! empty( $metadata['device'] ) ) {
 			$rows[] = self::generate_metadata_row( __( 'Device', 'jetpack-forms' ), esc_html( $metadata['device'] ) );
 		}
 
+		// IP Address row.
 		if ( ! empty( $metadata['ip'] ) ) {
 			$ip_value = '';
 			if ( ! empty( $metadata['ip_flag'] ) ) {
