@@ -1,7 +1,6 @@
 # Check PR description
 
 Checks the contents of a PR, and post a comment on the PR with feedback to help the PR author improve. That comment is then updated as the PR is updated.
-
 The comment offers feedback on multiple things, all listed in the `getStatusChecks()` function.
 
 ## Usage
