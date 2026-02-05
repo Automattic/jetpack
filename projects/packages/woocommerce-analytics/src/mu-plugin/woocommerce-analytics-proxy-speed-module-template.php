@@ -14,6 +14,8 @@
  * the full WordPress plugin initialization.
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * WooCommerce Analytics Proxy Speed Module
  */
