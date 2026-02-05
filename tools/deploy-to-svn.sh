@@ -149,6 +149,12 @@ git fetch --depth=1 origin "$TAG"
 git checkout -q FETCH_HEAD
 success "Done!"
 
+info "Checking that $TAG is actually $TAG"
+PLUGINVER=$( "$BASE"/tools/plugin-version.sh "$PWD" )
+if [[ "$PLUGINVER" != "$TAG" ]]; then
+	proceed_p "Plugin version is $PLUGINVER, which is not $TAG." "Continue anyway?" N
+fi
+
 info "Removing .git files and empty directories"
 find . -name '.git*' -print -exec rm -rf {} +
 find . -type d -empty -print -delete
