@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "1.4.9",
+	"version": "1.4.11",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -36,9 +36,10 @@
 		}
 	},
 	"scripts": {
-		"build": "pnpm run clean && pnpm run compile-ts",
+		"build": "pnpm run clean && pnpm run compile-ts && pnpm run copy-scss",
 		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty --project tsconfig.build.json",
+		"copy-scss": "node ./tools/copy-scss-to-build.mjs",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit"

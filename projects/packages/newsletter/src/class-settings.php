@@ -70,6 +70,16 @@ class Settings {
 		if ( ! $this->expose_to_users() ) {
 			return;
 		}
+
+		$host = new Host();
+
+		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php,
+		// which will call add_wp_admin_submenu() directly. Skip adding the menu here to avoid
+		// trying to add a submenu before the parent menu exists.
+		if ( $host->is_wpcom_simple() ) {
+			return;
+		}
+
 		// Add admin menu item.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 1000 );
 
@@ -84,23 +94,28 @@ class Settings {
 	}
 
 	/**
-	 * Add the newsletter settings menu to the Jetpack menu.
+	 * Add the newsletter settings submenu to the Jetpack menu.
+	 *
+	 * Note: This method is NOT called on wpcom Simple sites. Simple sites use
+	 * add_wp_admin_submenu() called from wpcom-admin-menu.php instead.
+	 *
+	 * Menu visibility rules:
+	 * - wpcom Atomic: Show under 'jetpack' if module active, hidden if inactive.
+	 * - Standalone Jetpack: Show under 'jetpack' if module active, hidden if inactive.
 	 */
 	public function add_wp_admin_menu() {
-		$is_module_active = $this->is_subscriptions_active();
-		$host             = new Host();
-
-		// Determine parent slug and menu registration method.
-		// - wpcom simple: Always show in Jetpack menu (module always active).
-		// - wpcom atomic: Show in Jetpack menu if active, hidden page if inactive.
-		// - Jetpack: Show in Jetpack menu if active, hidden page if inactive.
-		if ( $host->is_wpcom_platform() ) {
-			$parent_slug      = ( $host->is_wpcom_simple() || $is_module_active ) ? 'jetpack' : '';
-			$use_jetpack_menu = false; // Use add_submenu_page for all wpcom sites.
-		} else {
-			$parent_slug      = $is_module_active ? 'jetpack' : '';
-			$use_jetpack_menu = $is_module_active;
+		if ( ! $this->expose_to_users() ) {
+			return;
 		}
+
+		$host             = new Host();
+		$is_module_active = $this->is_subscriptions_active();
+
+		// Show in Jetpack menu if module active, hidden page if inactive.
+		$parent_slug = $is_module_active ? 'jetpack' : '';
+
+		// On Atomic, use add_submenu_page. On standalone Jetpack, use Admin_Menu when active.
+		$use_jetpack_menu = ! $host->is_woa_site() && $is_module_active;
 
 		// Register menu item.
 		if ( $use_jetpack_menu ) {
@@ -124,6 +139,34 @@ class Settings {
 				array( $this, 'render' )
 			);
 		}
+
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		}
+	}
+
+	/**
+	 * Add the newsletter settings submenu directly under the Jetpack menu.
+	 *
+	 * This method is called from wpcom-admin-menu.php on Simple sites at late priority
+	 * (999999) when the Jetpack menu already exists.
+	 *
+	 * Similar to Subscribers_Dashboard::add_wp_admin_submenu().
+	 */
+	public function add_wp_admin_submenu() {
+		if ( ! $this->expose_to_users() ) {
+			return;
+		}
+
+		$page_suffix = add_submenu_page(
+			'jetpack',
+			/** "Newsletter" is a product name, do not translate. */
+			'Newsletter',
+			'Newsletter',
+			'manage_options',
+			'jetpack-newsletter',
+			array( $this, 'render' )
+		);
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );

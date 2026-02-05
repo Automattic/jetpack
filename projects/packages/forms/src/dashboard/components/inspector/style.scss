@@ -17,7 +17,6 @@
 	flex-grow: 2;
 
 	.jp-forms__inbox-response-header {
-		margin: 24px 0 0;
 		padding: 0 16px 0 0;
 
 		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
@@ -58,30 +57,6 @@
 	}
 }
 
-.jp-forms__inbox-response-data {
-	border-top: 1px solid var(--jp-forms-border-color);
-	font-size: var(--jp-forms-font-size-regular);
-	line-height: 24px;
-	padding: 0 16px;
-
-	// old field format renders without .jp-forms__field-preview
-	&:not(.is-collection-format) {
-
-		@include mixins.flex-column;
-		row-gap: 24px;
-		padding-top: 24px;
-		padding-bottom: 24px;
-
-		.jp-forms__inbox-response-data-label {
-			font-weight: 600;
-		}
-
-		.jp-forms__inbox-response-data-value {
-			white-space: pre-wrap;
-		}
-	}
-}
-
 .jp-forms-response-content {
 	display: flex;
 	flex-direction: column;
@@ -101,7 +76,6 @@
 
 	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 		padding: 16px 16px;
-		margin-bottom: 57px; // Compensate for fixed footer from DataViews
 	}
 }
 
@@ -127,6 +101,14 @@
 	.jp-forms__inbox-response-data {
 		padding-left: 0;
 		padding-right: 0;
+	}
+
+	.jp-forms__inbox-response-meta {
+		background-color: transparent;
+	}
+
+	.jp-forms__inbox__tip-container {
+		border-top: none;
 	}
 
 	.jp-forms__inbox-file-preview-modal {

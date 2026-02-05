@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.54.2",
+	"version": "0.55.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -220,6 +220,8 @@
 		"@visx/vendor": "^3.12.0",
 		"@visx/xychart": "^3.12.0",
 		"@wordpress/i18n": "^6.0.0",
+		"@wordpress/theme": "0.6.0",
+		"@wordpress/ui": "0.6.0",
 		"clsx": "2.1.1",
 		"date-fns": "^4.1.0",
 		"deepmerge": "4.3.1",
@@ -254,11 +256,14 @@
 		"react-dom": "18.3.1",
 		"sass-embedded": "1.97.2",
 		"storybook": "10.2.3",
-		"tsup": "8.5.0",
+		"tsup": "8.5.1",
 		"typescript": "5.9.3"
 	},
 	"peerDependencies": {
 		"react": "^17.0.0 || ^18.0.0",
 		"react-dom": "^17.0.0 || ^18.0.0"
+	},
+	"engines": {
+		"node": ">=20.10.0"
 	}
 }

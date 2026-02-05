@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
+import '@wordpress/theme/design-tokens.css';
 
 // import '@wordpress/components/build-style/style.css';
 

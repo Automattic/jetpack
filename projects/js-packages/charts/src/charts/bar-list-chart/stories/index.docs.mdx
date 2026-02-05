@@ -17,19 +17,19 @@ The BarListChart component extends the BarChart component to create a list-style
 	language="jsx"
 	code={ `import { BarListChart } from '@automattic/charts';
 
-const data = [
-	{
-		group: 'primary',
-		label: 'Sales By Product',
-		data: [
-			{ label: 'Product A', value: 32400 },
-			{ label: 'Product B', value: 20000 },
-			{ label: 'Product C', value: 15000 },
-		],
-	},
-];
+	const data = [
+		{
+			group: 'primary',
+			label: 'Sales By Product',
+			data: [
+				{ label: 'Product A', value: 32400 },
+				{ label: 'Product B', value: 20000 },
+				{ label: 'Product C', value: 15000 },
+			],
+		},
+	];
 
-<BarListChart data={ data } />` }
+	<BarListChart data={ data } />` }
 />
 
 Key features:
@@ -54,22 +54,22 @@ The simplest implementation displays a single series of data with automatic form
 <Source
 	language="jsx"
 	code={ `const singleSeriesData = [
-	{
-		group: 'primary',
-		label: 'Sales By Product',
-		data: [
-			{ label: 'Behemoth hat', value: 32400 },
-			{ label: 'Margarita top', value: 20000 },
-			{ label: 'Berlioz dress', value: 15000 },
-			{ label: 'Woland shirt', value: 16000 },
-		],
-	},
-];
+		{
+			group: 'primary',
+			label: 'Sales By Product',
+			data: [
+				{ label: 'Behemoth hat', value: 32400 },
+				{ label: 'Margarita top', value: 20000 },
+				{ label: 'Berlioz dress', value: 15000 },
+				{ label: 'Woland shirt', value: 16000 },
+			],
+		},
+	];
 
-<BarListChart
-	data={ singleSeriesData }
-	withTooltips={ true }
-/>` }
+	<BarListChart
+		data={ singleSeriesData }
+		withTooltips={ true }
+	/>` }
 />
 
 ### Multi-Series Data
@@ -81,27 +81,27 @@ Compare data across different time periods or categories:
 <Source
 	language="jsx"
 	code={ `const multiSeriesData = [
-	{
-		group: 'primary',
-		label: 'Jan 21-Aug 8, 2024',
-		data: [
-			{ label: 'Organic search', value: 30000 },
-			{ label: 'Affiliates', value: 19000 },
-			{ label: 'Display', value: 18000 },
-		],
-	},
-	{
-		group: 'comparison',
-		label: 'Jan 21-Aug 8, 2023',
-		data: [
-			{ label: 'Organic search', value: 20000 },
-			{ label: 'Affiliates', value: 15000 },
-			{ label: 'Display', value: 19900 },
-		],
-	},
-];
+		{
+			group: 'primary',
+			label: 'Jan 21-Aug 8, 2024',
+			data: [
+				{ label: 'Organic search', value: 30000 },
+				{ label: 'Affiliates', value: 19000 },
+				{ label: 'Display', value: 18000 },
+			],
+		},
+		{
+			group: 'comparison',
+			label: 'Jan 21-Aug 8, 2023',
+			data: [
+				{ label: 'Organic search', value: 20000 },
+				{ label: 'Affiliates', value: 15000 },
+				{ label: 'Display', value: 19900 },
+			],
+		},
+	];
 
-<BarListChart data={ multiSeriesData } />` }
+	<BarListChart data={ multiSeriesData } />` }
 />
 
 ### Required Props
@@ -147,27 +147,27 @@ Create custom label rendering with icons or enhanced styling:
 <Source
 	language="jsx"
 	code={ `import { Circle } from '@visx/shape';
-import { Text } from '@visx/text';
+	import { Text } from '@visx/text';
 
-<BarListChart
-	data={ data }
-	options={ {
-		labelComponent: ( { textProps, x, y, label, formatter } ) => (
-			<>
-				<Circle cx={ x + 6 } cy={ y } r={ 8 } />
-				<Text
-					{ ...textProps }
-					textAnchor="start"
-					x={ x + 24 }
-					y={ y }
-					fontWeight={ 500 }
-				>
-					{ formatter( label ) }
-				</Text>
-			</>
-		),
-	} }
-/>` }
+	<BarListChart
+		data={ data }
+		options={ {
+			labelComponent: ( { textProps, x, y, label, formatter } ) => (
+				<>
+					<Circle cx={ x + 6 } cy={ y } r={ 8 } />
+					<Text
+						{ ...textProps }
+						textAnchor="start"
+						x={ x + 24 }
+						y={ y }
+						fontWeight={ 500 }
+					>
+						{ formatter( label ) }
+					</Text>
+				</>
+			),
+		} }
+	/>` }
 />
 
 ### Custom Value Components
@@ -179,43 +179,43 @@ Display additional information alongside values:
 <Source
 	language="jsx"
 	code={ `<BarListChart
-	data={ data }
-	options={ {
-		valueComponent: ( { textProps, x, y, value, formatter, data, index } ) => {
-			const currentValue = data[0].data[index].value;
-			const previousValue = data[1].data[index].value;
-			const percentage = previousValue === 0 ? 0 :
-				(((currentValue - previousValue) / previousValue) * 100).toFixed(0);
+		data={ data }
+		options={ {
+			valueComponent: ( { textProps, x, y, value, formatter, data, index } ) => {
+				const currentValue = data[0].data[index].value;
+				const previousValue = data[1].data[index].value;
+				const percentage = previousValue === 0 ? 0 :
+					(((currentValue - previousValue) / previousValue) * 100).toFixed(0);
 
-			return (
-				<>
-					<Text
-						{ ...textProps }
-						textAnchor="end"
-						x={ x }
-						y={ y }
-						dx={ -50 }
-						fontWeight={ 500 }
-					>
-						{ formatter( value ) }
-					</Text>
-					<Text
-						{ ...textProps }
-						textAnchor="end"
-						x={ x }
-						y={ y }
-						dx={ -10 }
-						fill="#008A20"
-						fontWeight={ 500 }
-					>
-						{ \`\${ Number( percentage ) > 0 ? '+' : '' }\${ percentage }%\` }
-					</Text>
-				</>
-			);
-		},
-		valueFormatter: ( value ) => \`$\${ formatNumberCompact( value ) }\`,
-	} }
-/>` }
+				return (
+					<>
+						<Text
+							{ ...textProps }
+							textAnchor="end"
+							x={ x }
+							y={ y }
+							dx={ -50 }
+							fontWeight={ 500 }
+						>
+							{ formatter( value ) }
+						</Text>
+						<Text
+							{ ...textProps }
+							textAnchor="end"
+							x={ x }
+							y={ y }
+							dx={ -10 }
+							fill="#008A20"
+							fontWeight={ 500 }
+						>
+							{ \`\${ Number( percentage ) > 0 ? '+' : '' }\${ percentage }%\` }
+						</Text>
+					</>
+				);
+			},
+			valueFormatter: ( value ) => \`$\${ formatNumberCompact( value ) }\`,
+		} }
+	/>` }
 />
 
 ### Formatting Options
@@ -293,6 +293,28 @@ The Bar List Chart component supports an optional entry animation that creates a
 
 **Note**: The animation plays once when the chart initially renders and does not repeat.
 
+## Responsive Behavior
+
+By default, BarListChart **fills its parent container's dimensions**. The parent must have an explicit height:
+
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '300px' }}>
+		<BarListChart data={data} />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%' }}>
+		<BarListChart data={data} aspectRatio={0.4} />
+	</div>
+
+	// Fixed dimensions
+	<BarListChart data={data} width={600} height={300} />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
 ## Advanced Features
 
 ### Scale Configuration
@@ -302,17 +324,17 @@ Customize the chart scales for precise control over bar sizing and spacing:
 <Source
 	language="jsx"
 	code={ `<BarListChart
-	data={ data }
-	options={ {
-		yScale: {
-			paddingInner: 0.4,  // Space between bars
-			padding: 0.2,       // Outer padding
-		},
-		xScale: {
-			zero: true,         // Always start from zero
-		},
-	} }
-/>` }
+		data={ data }
+		options={ {
+			yScale: {
+				paddingInner: 0.4,  // Space between bars
+				padding: 0.2,       // Outer padding
+			},
+			xScale: {
+				zero: true,         // Always start from zero
+			},
+		} }
+	/>` }
 />
 
 ### Automatic Layout Calculation
@@ -334,13 +356,13 @@ Override automatic positioning when needed:
 <Source
 	language="jsx"
 	code={ `<BarListChart
-	data={ data }
-	options={ {
-		yOffset: -20,          // Vertical offset for text
-		labelPosition: 10,     // Fixed label position
-		valuePosition: 380,    // Fixed value position
-	} }
-/>` }
+		data={ data }
+		options={ {
+			yOffset: -20,          // Vertical offset for text
+			labelPosition: 10,     // Fixed label position
+			valuePosition: 380,    // Fixed value position
+		} }
+	/>` }
 />
 
 ## Accessibility
@@ -352,22 +374,23 @@ BarListChart inherits accessibility features from the underlying BarChart compon
 If you're currently using a horizontal BarChart for list-style data, BarListChart provides a more optimized experience:
 
 <Source language="jsx" code={`
-// Old approach with BarChart
-<BarChart
-	orientation="horizontal"
-	data={ data }
-	// Complex custom axis configuration needed
-	options={ {
-		axis: {
-			y: { /* complex custom renderer */ },
-			x: { children: () => null }
-		}
-	} }
-/>
+	// Old approach with BarChart
+	<BarChart
+		orientation="horizontal"
+		data={ data }
+		// Complex custom axis configuration needed
+		options={ {
+			axis: {
+				y: { /* complex custom renderer */ },
+				x: { children: () => null }
+			}
+		} }
+	/>
 
-// New approach with BarListChart
-<BarListChart data={ data } />
-`} />
+	// New approach with BarListChart
+	<BarListChart data={ data } />
+	`}
+/>
 
 Benefits of migration:
 - Automatic label and value positioning
