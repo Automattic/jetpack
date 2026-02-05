@@ -118,12 +118,21 @@ register_jetpack_form_field( string $field_type, array $args = array() );
 | `editor_script` | string | `''` | URL to the editor script. |
 | `editor_script_deps` | array | `['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n']` | Editor script dependencies. |
 | `editor_script_ver` | string | `'1.0.0'` | Editor script version. |
+| `editor_style` | string | `''` | URL to the editor stylesheet. |
+| `editor_style_deps` | array | `[]` | Editor style dependencies. |
+| `editor_style_ver` | string | `'1.0.0'` | Editor style version. |
 | `view_script` | string | `''` | URL to the frontend view script (ES module). |
 | `view_script_deps` | array | `['@wordpress/interactivity', 'jp-forms-view']` | View script module dependencies. |
 | `view_script_ver` | string | `'1.0.0'` | View script version. |
+| `view_style` | string | `''` | URL to the frontend stylesheet. |
+| `view_style_deps` | array | `[]` | View style dependencies. |
+| `view_style_ver` | string | `'1.0.0'` | View style version. |
 | `dashboard_script` | string | `''` | URL to the dashboard script. |
 | `dashboard_script_deps` | array | `['wp-hooks', 'wp-element', 'jp-forms-dashboard']` | Dashboard script dependencies. |
 | `dashboard_script_ver` | string | `'1.0.0'` | Dashboard script version. |
+| `dashboard_style` | string | `''` | URL to the dashboard stylesheet. |
+| `dashboard_style_deps` | array | `[]` | Dashboard style dependencies. |
+| `dashboard_style_ver` | string | `'1.0.0'` | Dashboard style version. |
 
 **Supports Flags:**
 
@@ -443,19 +452,24 @@ store( NAMESPACE, {
 } );
 ```
 
-### Webpack Configuration for View Scripts
+### Webpack Configuration for View Scripts and Styles
 
-View scripts must be built as ES modules:
+View scripts must be built as ES modules. Styles can be built using SCSS:
 
 ```javascript
 // webpack.config.js
 const defaultConfig = require( '@wordpress/scripts/config/webpack.config' );
+const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
+const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const path = require( 'path' );
 
-// Editor script (standard)
+// Editor script and style (standard build with SCSS support)
 const editorConfig = {
     ...defaultConfig,
-    entry: { index: './src/index.js' },
+    entry: {
+        index: './src/index.js',
+        'editor-style': './src/editor.scss',
+    },
     output: {
         ...defaultConfig.output,
         path: path.resolve( __dirname, 'build' ),
@@ -492,9 +506,40 @@ const viewConfig = {
             },
         ],
     },
+    plugins: [
+        new DependencyExtractionWebpackPlugin( {
+            outputFormat: 'php',
+        } ),
+    ],
 };
 
-module.exports = [ editorConfig, viewConfig ];
+// View style (standalone CSS for frontend)
+const viewStyleConfig = {
+    mode: defaultConfig.mode,
+    entry: { 'view-style': './src/view.scss' },
+    output: {
+        path: path.resolve( __dirname, 'build' ),
+    },
+    module: {
+        rules: [
+            {
+                test: /\.scss$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    'sass-loader',
+                ],
+            },
+        ],
+    },
+    plugins: [
+        new MiniCssExtractPlugin( {
+            filename: '[name].css',
+        } ),
+    ],
+};
+
+module.exports = [ editorConfig, viewConfig, viewStyleConfig ];
 ```
 
 ### Using Interactivity Directives in PHP
@@ -609,16 +654,20 @@ Here's the complete plugin structure for a color picker field:
 jetpack-forms-color-field/
 ├── jetpack-forms-color-field.php    # Main plugin file
 ├── package.json                      # Build configuration
-├── webpack.config.js                 # Webpack config for both scripts
+├── webpack.config.js                 # Webpack config for scripts and styles
 ├── src/
 │   ├── index.js                      # Editor block
+│   ├── editor.scss                   # Editor styles
 │   ├── view.js                       # Frontend interactivity
+│   ├── view.scss                     # Frontend styles
 │   └── dashboard.js                  # Dashboard integration
 └── build/
     ├── index.js                      # Compiled editor
     ├── index.asset.php
+    ├── editor-style.css              # Compiled editor styles
     ├── view.js                       # Compiled view module
-    └── view.asset.php
+    ├── view.asset.php
+    └── view-style.css                # Compiled frontend styles
 ```
 
 ### Main Plugin File
@@ -701,7 +750,9 @@ add_action( 'init', function() {
         ),
 
         'editor_script' => plugin_dir_url( __FILE__ ) . 'build/index.js',
+        'editor_style'  => plugin_dir_url( __FILE__ ) . 'build/editor-style.css',
         'view_script'   => plugin_dir_url( __FILE__ ) . 'build/view.js',
+        'view_style'    => plugin_dir_url( __FILE__ ) . 'build/view-style.css',
         'dashboard_script' => plugin_dir_url( __FILE__ ) . 'src/dashboard.js',
     ) );
 } );

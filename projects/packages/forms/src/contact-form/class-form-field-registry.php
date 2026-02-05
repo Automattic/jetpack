@@ -76,12 +76,21 @@ class Form_Field_Registry {
 	 *     @type string   $editor_script        URL to the editor script.
 	 *     @type array    $editor_script_deps   Editor script dependencies.
 	 *     @type string   $editor_script_ver    Editor script version.
+	 *     @type string   $editor_style         URL to the editor stylesheet.
+	 *     @type array    $editor_style_deps    Editor style dependencies.
+	 *     @type string   $editor_style_ver     Editor style version.
 	 *     @type string   $dashboard_script     URL to the dashboard script.
 	 *     @type array    $dashboard_script_deps Dashboard script dependencies.
 	 *     @type string   $dashboard_script_ver Dashboard script version.
+	 *     @type string   $dashboard_style      URL to the dashboard stylesheet.
+	 *     @type array    $dashboard_style_deps Dashboard style dependencies.
+	 *     @type string   $dashboard_style_ver  Dashboard style version.
 	 *     @type string   $view_script          URL to the frontend view script (ES module for Interactivity API).
 	 *     @type array    $view_script_deps     View script module dependencies.
 	 *     @type string   $view_script_ver      View script version.
+	 *     @type string   $view_style           URL to the frontend stylesheet.
+	 *     @type array    $view_style_deps      View style dependencies.
+	 *     @type string   $view_style_ver       View style version.
 	 * }
 	 * @return bool True on success, false on failure.
 	 */
@@ -120,15 +129,30 @@ class Form_Field_Registry {
 			'render_field'          => null,
 			'render_value'          => null,
 			'error_messages'        => array(),
+			// Editor scripts.
 			'editor_script'         => '',
 			'editor_script_deps'    => array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ),
 			'editor_script_ver'     => '1.0.0',
+			// Editor styles.
+			'editor_style'          => '',
+			'editor_style_deps'     => array(),
+			'editor_style_ver'      => '1.0.0',
+			// Dashboard scripts.
 			'dashboard_script'      => '',
 			'dashboard_script_deps' => array( 'wp-hooks', 'wp-element', 'jp-forms-dashboard' ),
 			'dashboard_script_ver'  => '1.0.0',
+			// Dashboard styles.
+			'dashboard_style'       => '',
+			'dashboard_style_deps'  => array(),
+			'dashboard_style_ver'   => '1.0.0',
+			// View/frontend scripts.
 			'view_script'           => '',
 			'view_script_deps'      => array( '@wordpress/interactivity', 'jp-forms-view' ),
 			'view_script_ver'       => '1.0.0',
+			// View/frontend styles.
+			'view_style'            => '',
+			'view_style_deps'       => array(),
+			'view_style_ver'        => '1.0.0',
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -469,6 +493,16 @@ class Form_Field_Registry {
 			);
 		}
 
+		// Enqueue the view style if provided.
+		if ( ! empty( $args['view_style'] ) ) {
+			wp_enqueue_style(
+				'jetpack-forms-field-' . $type . '-view',
+				$args['view_style'],
+				$args['view_style_deps'],
+				$args['view_style_ver']
+			);
+		}
+
 		// Add error state first (needed for label rendering).
 		if ( isset( $data['field'] ) ) {
 			$data['is_error']   = $data['field']->is_error();
@@ -628,19 +662,26 @@ class Form_Field_Registry {
 				$label_support_blocks[] = $args['block_name'];
 			}
 
-			if ( empty( $args['editor_script'] ) ) {
-				continue;
+			// Enqueue editor script if provided.
+			if ( ! empty( $args['editor_script'] ) ) {
+				wp_enqueue_script(
+					'jetpack-forms-field-' . $field_type . '-editor',
+					$args['editor_script'],
+					$args['editor_script_deps'],
+					$args['editor_script_ver'],
+					true
+				);
 			}
 
-			$handle = 'jetpack-forms-field-' . $field_type . '-editor';
-
-			wp_enqueue_script(
-				$handle,
-				$args['editor_script'],
-				$args['editor_script_deps'],
-				$args['editor_script_ver'],
-				true
-			);
+			// Enqueue editor style if provided.
+			if ( ! empty( $args['editor_style'] ) ) {
+				wp_enqueue_style(
+					'jetpack-forms-field-' . $field_type . '-editor',
+					$args['editor_style'],
+					$args['editor_style_deps'],
+					$args['editor_style_ver']
+				);
+			}
 		}
 
 		// Add inline script to register label parent blocks filter.
@@ -774,7 +815,7 @@ class Form_Field_Registry {
 	}
 
 	/**
-	 * Enqueue dashboard scripts for registered fields.
+	 * Enqueue dashboard scripts and styles for registered fields.
 	 */
 	public static function enqueue_dashboard_assets() {
 		// Only load if the Jetpack Forms dashboard script is registered.
@@ -783,19 +824,26 @@ class Form_Field_Registry {
 		}
 
 		foreach ( self::$registered_fields as $field_type => $args ) {
-			if ( empty( $args['dashboard_script'] ) ) {
-				continue;
+			// Enqueue dashboard script if provided.
+			if ( ! empty( $args['dashboard_script'] ) ) {
+				wp_enqueue_script(
+					'jetpack-forms-field-' . $field_type . '-dashboard',
+					$args['dashboard_script'],
+					$args['dashboard_script_deps'],
+					$args['dashboard_script_ver'],
+					true
+				);
 			}
 
-			$handle = 'jetpack-forms-field-' . $field_type . '-dashboard';
-
-			wp_enqueue_script(
-				$handle,
-				$args['dashboard_script'],
-				$args['dashboard_script_deps'],
-				$args['dashboard_script_ver'],
-				true
-			);
+			// Enqueue dashboard style if provided.
+			if ( ! empty( $args['dashboard_style'] ) ) {
+				wp_enqueue_style(
+					'jetpack-forms-field-' . $field_type . '-dashboard',
+					$args['dashboard_style'],
+					$args['dashboard_style_deps'],
+					$args['dashboard_style_ver']
+				);
+			}
 		}
 	}
 }
