@@ -28,7 +28,6 @@ import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import Gravatar from '../../src/dashboard/components/gravatar';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
-import { getPath } from '../../src/dashboard/inbox/utils';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
@@ -127,6 +126,21 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
 
 	// Fallback: wrap in span for other types
 	return <span style={ { fontWeight: 600 } }>{ element }</span>;
+}
+
+/**
+ * Get the path from a URL string.
+ *
+ * @param url - The URL string.
+ * @return The pathname from the URL, or null if the URL is invalid.
+ */
+function getUrlPath( url: string ): string | null {
+	try {
+		const parsedUrl = new URL( url );
+		return parsedUrl.pathname;
+	} catch {
+		return null;
+	}
 }
 
 /**
@@ -446,7 +460,9 @@ function StageInner() {
 							label: __( 'Source', 'jetpack-forms' ),
 							render: ( { item } ) => {
 								const source =
-									item.entry_title || getPath( item ) || __( '(no title)', 'jetpack-forms' );
+									item.entry_title ||
+									getUrlPath( item.entry_permalink ) ||
+									__( '(no title)', 'jetpack-forms' );
 								if ( item.entry_permalink ) {
 									return styleUnreadValue(
 										<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
@@ -458,7 +474,10 @@ function StageInner() {
 							elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
 								source => ( {
 									value: source.id.toString(),
-									label: decodeEntities( source.title ) || source.url,
+									label:
+										decodeEntities( source.title ) ||
+										getUrlPath( source.url ) ||
+										__( '(no title)', 'jetpack-forms' ),
 								} )
 							),
 							filterBy: { operators: [ 'is' ] as Operator[] },
