@@ -2719,8 +2719,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @param string the title of the email
 		 */
-		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
-		$message = self::get_compiled_form_for_email( $post_id, $this );
+		$default_email_title = __( 'Hey, a new form response just came in!', 'jetpack-forms' );
+		$title               = (string) apply_filters( 'jetpack_forms_response_email_title', $default_email_title );
+		$message             = self::get_compiled_form_for_email( $post_id, $this );
 
 		if ( is_user_logged_in() ) {
 			$sent_by_text = sprintf(
@@ -2768,6 +2769,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Build the dashboard URL with the status and the feedback's post id if we have a post id
 		$dashboard_url           = '';
+		$mark_as_spam_url        = '';
 		$footer_mark_as_spam_url = '';
 		if ( $feedback_status !== 'jp-temp-feedback' ) {
 			$dashboard_url           = Forms_Dashboard::get_forms_admin_url( $status ) . '&r=' . $post_id;
@@ -2807,29 +2809,49 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
-		// Build the actions url if we have a dashboard url
+		// Build the actions with both Mark as spam and View in dashboard buttons.
 		$actions = '';
 		if ( $dashboard_url ) {
 			$actions = sprintf(
-				'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
+				'<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
 					<tr>
-						<td class="pad" align="center">
-							<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
-								<!--[if mso]>
-								<i style="mso-text-raise: 30pt;">&nbsp;</i>
-								<![endif]-->
-								<span>%2$s</span>
-								<!--[if mso]>
-								<i>&nbsp;</i>
-								<![endif]-->
-							</a>
+						<td align="center" style="padding: 0 8px;">
+							<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; padding: 12px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; background-color: transparent; color: #1e1e1e; border: 1px solid #1e1e1e;">%2$s</a>
+						</td>
+						<td align="center" style="padding: 0 8px;">
+							<a href="%3$s" class="action-button action-button-primary" style="display: inline-block; padding: 12px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; background-color: #3858e9; color: #ffffff;">%4$s</a>
 						</td>
 					</tr>
 				</table>',
+				esc_url( $mark_as_spam_url ),
+				__( 'Mark as spam', 'jetpack-forms' ),
 				esc_url( $dashboard_url ),
 				__( 'View in dashboard', 'jetpack-forms' )
 			);
 		}
+
+		// Build respondent info for the new email template.
+		$respondent_info = array(
+			'name'   => $comment_author,
+			'email'  => $comment_author_email,
+			'avatar' => $response->get_author_avatar(),
+		);
+
+		// Get the form title for source metadata.
+		$form_title = $this->get_attribute( 'formTitle' );
+		if ( empty( $form_title ) && $this->current_post ) {
+			$form_title = self::get_post_property( $this->current_post, 'post_title' );
+		}
+
+		// Build metadata for the new email template.
+		$metadata = array(
+			'date'       => $time,
+			'source'     => $form_title,
+			'source_url' => $url,
+			'device'     => $response->get_browser(),
+			'ip'         => $comment_author_ip,
+			'ip_flag'    => $response->get_country_flag(),
+		);
 
 		/**
 		 * Filters the message sent via email after a successful form submission.
@@ -2844,7 +2866,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
 
 		// This is called after `contact_form_message`, in order to preserve back-compat
-		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions );
+		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions, $respondent_info, $metadata );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
@@ -3132,10 +3154,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $body - the message body.
 	 * @param string $footer - the footer containing meta information.
 	 * @param string $actions - HTML for actions displayed in the email.
+	 * @param array  $respondent_info - Optional. Respondent information array with 'name', 'email', 'avatar'.
+	 * @param array  $metadata - Optional. Metadata array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag'.
 	 *
 	 * @return string
 	 */
-	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '' ) {
+	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '', $respondent_info = array(), $metadata = array() ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
 		if ( str_contains( $body, '<html' ) ) {
@@ -3196,6 +3220,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
+		// Generate respondent info HTML.
+		$respondent_html = self::generate_respondent_info_html( $respondent_info );
+
+		// Generate metadata HTML.
+		$metadata_html = self::generate_metadata_html( $metadata );
+
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
 			// They're removed so that they don't affect the final message sent to users
@@ -3204,7 +3234,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'',
 				$template
 			),
-			( $title !== '' ? '<h1>' . $title . '</h1>' : '' ),
+			esc_html( $title ),
 			$body,
 			'',
 			'',
@@ -3212,10 +3242,134 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$style,
 			$tracking_pixel,
 			$actions,
-			$powered_by_html
+			$powered_by_html,
+			$respondent_html,
+			$metadata_html
 		);
 
 		return $html_message;
+	}
+
+	/**
+	 * Generate HTML for respondent info section in email.
+	 *
+	 * @param array $respondent_info Array with 'name', 'email', 'avatar' keys.
+	 * @return string HTML for respondent info section.
+	 */
+	private static function generate_respondent_info_html( $respondent_info ) {
+		if ( empty( $respondent_info ) ) {
+			return '';
+		}
+
+		$name   = isset( $respondent_info['name'] ) ? esc_html( $respondent_info['name'] ) : '';
+		$email  = isset( $respondent_info['email'] ) ? esc_html( $respondent_info['email'] ) : '';
+		$avatar = isset( $respondent_info['avatar'] ) ? esc_url( $respondent_info['avatar'] ) : '';
+
+		// Get initials for avatar fallback.
+		$initials = '';
+		if ( ! empty( $name ) ) {
+			$name_parts = explode( ' ', $name );
+			$initials   = strtoupper( substr( $name_parts[0], 0, 1 ) );
+			if ( count( $name_parts ) > 1 ) {
+				$initials .= strtoupper( substr( end( $name_parts ), 0, 1 ) );
+			}
+		} elseif ( ! empty( $email ) ) {
+			$initials = strtoupper( substr( $email, 0, 1 ) );
+		}
+
+		// Avatar content - either image or initials.
+		$avatar_content = ! empty( $avatar )
+			? '<img src="' . $avatar . '" alt="" width="48" height="48" style="border-radius: 24px;">'
+			: esc_html( $initials );
+
+		// Use table layout for better email client compatibility.
+		$html = '
+		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="respondent-table" style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0;">
+			<tr>
+				<td class="respondent-avatar-cell" style="width: 64px; vertical-align: top;">
+					<div class="respondent-avatar-wrapper" style="width: 48px; height: 48px; border-radius: 24px; background-color: #f0f0f0; text-align: center; line-height: 48px; font-size: 18px; font-weight: 600; color: #50575e;">
+						' . $avatar_content . '
+					</div>
+				</td>
+				<td class="respondent-details-cell" style="vertical-align: middle;">
+					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0;">' . $name . '</div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; color: #50575e; margin: 0;">' . $email . '</div>' : '' ) . '
+				</td>
+			</tr>
+		</table>';
+
+		return str_replace( "\t", '', $html );
+	}
+
+	/**
+	 * Generate HTML for metadata section in email.
+	 *
+	 * @param array $metadata Array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag' keys.
+	 * @return string HTML for metadata section.
+	 */
+	private static function generate_metadata_html( $metadata ) {
+		if ( empty( $metadata ) ) {
+			return '';
+		}
+
+		$rows = array();
+
+		// Date row.
+		if ( ! empty( $metadata['date'] ) ) {
+			$rows[] = self::generate_metadata_row( __( 'Date', 'jetpack-forms' ), esc_html( $metadata['date'] ) );
+		}
+
+		// Source row.
+		if ( ! empty( $metadata['source'] ) ) {
+			$source_value = esc_html( $metadata['source'] );
+			if ( ! empty( $metadata['source_url'] ) ) {
+				$source_value = '<a href="' . esc_url( $metadata['source_url'] ) . '" style="color: #3858e9; text-decoration: none;">' . $source_value . '</a>';
+			}
+			$rows[] = self::generate_metadata_row( __( 'Source', 'jetpack-forms' ), $source_value );
+		}
+
+		// Device row.
+		if ( ! empty( $metadata['device'] ) ) {
+			$rows[] = self::generate_metadata_row( __( 'Device', 'jetpack-forms' ), esc_html( $metadata['device'] ) );
+		}
+
+		// IP Address row.
+		if ( ! empty( $metadata['ip'] ) ) {
+			$ip_value = '';
+			if ( ! empty( $metadata['ip_flag'] ) ) {
+				$ip_value .= $metadata['ip_flag'] . ' ';
+			}
+			$ip_value .= esc_html( $metadata['ip'] );
+			$rows[]    = self::generate_metadata_row( __( 'IP address', 'jetpack-forms' ), $ip_value );
+		}
+
+		if ( empty( $rows ) ) {
+			return '';
+		}
+
+		$html = '
+		<div class="metadata-section" style="background-color: #f6f7f7; border-radius: 4px; padding: 16px; margin-bottom: 24px;">
+			<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" style="width: 100%;">
+				' . implode( '', $rows ) . '
+			</table>
+		</div>';
+
+		return str_replace( "\t", '', $html );
+	}
+
+	/**
+	 * Generate a single metadata row.
+	 *
+	 * @param string $label The label text.
+	 * @param string $value The value (can contain HTML).
+	 * @return string HTML for the row.
+	 */
+	private static function generate_metadata_row( $label, $value ) {
+		return '
+			<tr>
+				<td class="metadata-label" style="color: #50575e; width: 100px; padding: 4px 12px 4px 0; font-size: 13px; vertical-align: top;">' . esc_html( $label ) . '</td>
+				<td class="metadata-value" style="color: #1e1e1e; padding: 4px 0; font-size: 13px; vertical-align: top;">' . $value . '</td>
+			</tr>';
 	}
 
 	/**
