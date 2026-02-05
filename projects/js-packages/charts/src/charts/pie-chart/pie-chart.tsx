@@ -172,6 +172,7 @@ const PieChartInternal = ( {
 	const { containerRef, TooltipInPortal, containerBounds } = useTooltipInPortal( {
 		detectBounds: true,
 		scroll: true,
+		debounce: 0,
 	} );
 
 	const onMouseLeave = useCallback( () => {

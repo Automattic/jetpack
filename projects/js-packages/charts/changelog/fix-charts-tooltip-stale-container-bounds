@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Charts: prevent tooltips from appearing outside container boundaries on page refresh by checking container bounds before positioning.
+Fix tooltip positioning when container moves without triggering containerBounds refresh.

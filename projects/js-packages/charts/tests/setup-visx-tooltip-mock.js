@@ -21,6 +21,8 @@ jest.mock( '@visx/tooltip', () => {
 					...result.containerBounds,
 					width: result.containerBounds.width || 500,
 					height: result.containerBounds.height || 500,
+					left: result.containerBounds.left || 0,
+					top: result.containerBounds.top || 0,
 				},
 			};
 		},

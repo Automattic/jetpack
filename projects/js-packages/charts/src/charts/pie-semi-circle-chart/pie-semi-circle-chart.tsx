@@ -160,6 +160,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const { containerRef, TooltipInPortal, containerBounds } = useTooltipInPortal( {
 		detectBounds: true,
 		scroll: true,
+		debounce: 0,
 	} );
 
 	const handleMouseMove = useCallback(
