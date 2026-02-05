@@ -519,6 +519,37 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				}
 				break;
 			default:
+				/**
+				 * Filter to allow custom validation for form fields.
+				 *
+				 * This filter enables external developers to add validation logic for custom field types.
+				 * Return a string error message to indicate validation failure, true for success,
+				 * or null to fall through to the default validation.
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @param mixed                $result      The validation result. Return string for error, true for success, null for default.
+				 * @param string               $field_type  The type of the field being validated.
+				 * @param mixed                $field_value The submitted value of the field.
+				 * @param string               $field_label The label of the field.
+				 * @param Contact_Form_Field   $field       The field instance.
+				 */
+				$custom_validation = apply_filters(
+					'jetpack_forms_validate_field',
+					null,
+					$field_type,
+					$field_value,
+					$field_label,
+					$this
+				);
+
+				if ( $custom_validation !== null ) {
+					if ( is_string( $custom_validation ) ) {
+						$this->add_error( $custom_validation );
+					}
+					return;
+				}
+
 				// Just check for presence of any text
 				if ( ! is_string( $field_value ) || ! strlen( trim( $field_value ) ) ) {
 					/* translators: %s is the name of a form field */
@@ -718,6 +749,49 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			if ( null !== $maxlabel && '' !== $maxlabel ) {
 				$extra_attrs['maxLabel'] = $maxlabel;
 			}
+		}
+
+		/**
+		 * Filter to allow custom rendering for form fields.
+		 *
+		 * This filter enables external developers to provide custom HTML rendering for their field types.
+		 * Return a string with the HTML to render, or null to fall through to the default rendering.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string|null        $custom_render    The custom HTML to render, or null for default.
+		 * @param string             $field_type       The type of the field.
+		 * @param array              $field_data       Array containing field data (id, label, value, required, placeholder, field instance).
+		 */
+		$custom_render = apply_filters(
+			'jetpack_forms_render_field',
+			null,
+			$field_type,
+			array(
+				'id'          => $field_id,
+				'label'       => $field_label,
+				'value'       => $field_value,
+				'required'    => $field_required,
+				'placeholder' => $field_placeholder,
+				'class'       => $field_class,
+				'extra_attrs' => $extra_attrs,
+				'field'       => $this,
+			)
+		);
+
+		if ( $custom_render !== null ) {
+			/**
+			 * Filter the HTML of the Contact Form.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 2.6.0
+			 *
+			 * @param string $rendered_field Contact Form HTML output.
+			 * @param string $field_label Field label.
+			 * @param int|null $id Post ID.
+			 */
+			return apply_filters( 'grunion_contact_form_field_html', $custom_render, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
 		}
 
 		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required, $field_required_text, $extra_attrs, $field_required_indicator );
@@ -3418,5 +3492,53 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		return array_slice( $options, 0, $last_valid_index + 1 );
+	}
+
+	/**
+	 * Get the list of registered field types.
+	 *
+	 * This method returns all known field types, including custom ones registered via filter.
+	 * External developers can use the 'jetpack_forms_field_types' filter to register
+	 * their custom field types.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array List of registered field type strings.
+	 */
+	public static function get_registered_field_types() {
+		$core_field_types = array(
+			'text',
+			'email',
+			'url',
+			'telephone',
+			'textarea',
+			'checkbox',
+			'checkbox-multiple',
+			'radio',
+			'select',
+			'date',
+			'time',
+			'number',
+			'file',
+			'rating',
+			'consent',
+			'hidden',
+			'name',
+			'image-select',
+			'slider',
+		);
+
+		/**
+		 * Filter to register custom field types.
+		 *
+		 * This filter allows external developers to register their custom field types.
+		 * Custom field types should also implement validation via 'jetpack_forms_validate_field'
+		 * and rendering via 'jetpack_forms_render_field'.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $field_types List of field type strings.
+		 */
+		return apply_filters( 'jetpack_forms_field_types', $core_field_types );
 	}
 }
