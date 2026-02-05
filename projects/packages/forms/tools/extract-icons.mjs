@@ -219,6 +219,9 @@ function postProcessSvg( svg ) {
 
 	// Ensure width/height (insert before viewBox to match conventional attribute order)
 	if ( ! svgTag.includes( 'width=' ) ) {
+		if ( ! svgTag.includes( 'viewBox=' ) ) {
+			throw new Error( 'SVG is missing a viewBox attribute; cannot infer width/height.' );
+		}
 		svg = svg.replace( /viewBox=/, 'width="24" height="24" viewBox=' );
 	}
 
