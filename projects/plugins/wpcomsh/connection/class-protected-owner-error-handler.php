@@ -447,7 +447,7 @@ class Protected_Owner_Error_Handler {
 			$warning_text = sprintf(
 				/* translators: %s is a link to the WordPress.com account settings page */
 				__(
-					'This account is the WordPress.com plan owner. Changing the email address here can affect the connection between the site and the hosting platform. If you need to change your email, update it both on your %s and here to keep them synchronized.',
+					'This account is the WordPress.com plan owner. Changing the email address here can affect the connection between the site and WordPress.com. If you need to change your email, update it on both your %s and here to keep them synchronized.',
 					'wpcomsh'
 				),
 				$wpcom_account_link
