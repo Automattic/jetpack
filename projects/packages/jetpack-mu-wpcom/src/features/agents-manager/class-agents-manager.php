@@ -307,7 +307,7 @@ class Agents_Manager {
 	 * Enqueue Image Studio script and styles.
 	 */
 	private function enqueue_image_studio() {
-		$cache_key  = 'image-studio-asset.asset.json';
+		$cache_key  = 'image-studio.asset.json';
 		$asset_file = get_transient( $cache_key );
 
 		if ( ! $asset_file ) {
