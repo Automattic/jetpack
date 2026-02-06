@@ -1613,7 +1613,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the inline script sets the expected window.imageStudio property.
+	 * Tests that the inline script outputs the expected imageStudioData configuration.
 	 */
 	public function test_enqueue_image_studio_inline_script_sets_window_properties() {
 		$this->set_up_enqueue_context();
