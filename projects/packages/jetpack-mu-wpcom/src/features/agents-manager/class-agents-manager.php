@@ -373,7 +373,7 @@ class Agents_Manager {
 		);
 
 		foreach ( $extensions as $extension ) {
-			\Jetpack_Gutenberg::set_extension_unavailable( $extension, 'image_studio_enabled' );
+			\Jetpack_Gutenberg::set_extension_unavailable( $extension, 'image_studio_enabled' ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- Guarded by class_exists check above.
 		}
 	}
 
