@@ -25,21 +25,26 @@ export function useModalScreen() {
 		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
 	}, [] );
 
-	let title: string = __( 'Preview and customize', 'jetpack-publicize-pkg' );
+	// useMemo not really needed but it encapsulates the logic.
+	const title = useMemo( () => {
+		if ( isPrePublishScreen ) {
+			return _x(
+				'Confirm social sharing',
+				'Modal title for pre-publish confimation',
+				'jetpack-publicize-pkg'
+			);
+		}
 
-	if ( isPrePublishScreen ) {
-		title = _x(
-			'Confirm social sharing',
-			'Share here is imperative verb',
+		if ( isPostPublished ) {
+			return __( 'Customize and share to social media', 'jetpack-publicize-pkg' );
+		}
+
+		return _x(
+			'Preview and customize',
+			'Title for social post preview modal',
 			'jetpack-publicize-pkg'
 		);
-	} else if ( isPostPublished ) {
-		title = _x(
-			'Customize and share to social media',
-			'Share here is imperative verb',
-			'jetpack-publicize-pkg'
-		);
-	}
+	}, [ isPrePublishScreen, isPostPublished ] );
 
 	return useMemo< ScreenDetails >(
 		() => ( {
