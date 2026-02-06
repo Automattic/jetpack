@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: Fix LinkedIn sharing by updating to the current share URL endpoint.
