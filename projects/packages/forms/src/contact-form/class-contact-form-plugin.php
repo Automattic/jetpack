@@ -381,7 +381,28 @@ class Contact_Form_Plugin {
 			Contact_Form::register_post_type();
 			Form_Editor::init();
 			Form_Preview::init();
+			add_action( 'admin_bar_menu', array( __CLASS__, 'add_form_to_admin_bar_new_content_menu' ), 72 );
 		}
+	}
+
+	/**
+	 * Add "Form" to the "+ New" admin bar menu.
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar The admin bar object.
+	 */
+	public static function add_form_to_admin_bar_new_content_menu( $wp_admin_bar ) {
+		if ( ! current_user_can( 'publish_posts' ) ) {
+			return;
+		}
+
+		$wp_admin_bar->add_node(
+			array(
+				'parent' => 'new-content',
+				'id'     => 'new-jetpack_form',
+				'title'  => _x( 'Form', 'Admin bar menu item for creating a new form', 'jetpack-forms' ),
+				'href'   => admin_url( 'post-new.php?post_type=' . Contact_Form::POST_TYPE ),
+			)
+		);
 	}
 
 	/**
