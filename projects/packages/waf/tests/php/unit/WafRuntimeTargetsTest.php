@@ -201,11 +201,19 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			if ( $k === 'TX' || $k === 'IP' ) {
 				continue;
 			}
-			// change this data item key from ARGS to ARGS_NAMES
-			$names_k = $k . '_NAMES';
+
+			// Use singular only for matched_var
+			$is_singular = ( $k === 'MATCHED_VAR' );
+			$key_suffix  = $is_singular ? '_NAME' : '_NAMES';
+			$val_suffix  = $is_singular ? '_name' : '_names';
+
+			// change this data item key from ARGS to ARGS_NAMES (or *_NAME for matched_var)
+			$names_k = $k . $key_suffix;
 			$names_v = $v;
-			// change the target name from args to args_names;
-			$names_v[1] .= '_names';
+
+			// change the target name from args to args_names (or *_name for matched_var)
+			$names_v[1] .= $val_suffix;
+
 			// change the expected values from a tuple of [name,value] to just an array of `name`
 			$expected = array();
 			foreach ( $names_v[2] as list( $expected_name ) ) {
@@ -377,6 +385,41 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
 		};
 		yield 'FILES' => array( $runtimeFactory, 'files', $expected, '/^file(AA|1)$/' );
+
+		// MATCHED_VARS
+		$runtimeFactory = function () {
+			$runtime                     = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
+			$runtime->matched_vars_names = array(
+				'scalar',
+				'array[0]',
+				'array[1]',
+				'assoc[key0]',
+				'assoc[key1][key1a]',
+			);
+			$runtime->matched_var_name   = end( $runtime->matched_vars_names );
+			$runtime->matched_vars       = array(
+				'scalar_val',
+				'array_val_0',
+				'array_val_1',
+				'value0',
+				'val1a',
+			);
+			$runtime->matched_var        = end( $runtime->matched_vars );
+			return $runtime;
+		};
+		// @phan-suppress-next-line PhanPluginRedundantAssignment -- same value as before but restated for clarity
+		$expected = array(
+			array( 'scalar', 'scalar_val' ),
+			array( 'array[0]', 'array_val_0' ),
+			array( 'array[1]', 'array_val_1' ),
+			array( 'assoc[key0]', 'value0' ),
+			array( 'assoc[key1][key1a]', 'val1a' ),
+		);
+		yield 'MATCHED_VARS' => array( $runtimeFactory, 'matched_vars', $expected, '/^scalar/' );
+
+		// MATCHED_VAR
+		$expected = array( array( 'assoc[key1][key1a]', 'val1a' ) );
+		yield 'MATCHED_VAR' => array( $runtimeFactory, 'matched_var', $expected, '/1a\]?$/' );
 	}
 
 	/**
