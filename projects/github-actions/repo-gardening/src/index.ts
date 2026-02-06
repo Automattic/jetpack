@@ -120,7 +120,9 @@ const automations: Automation[] = [
 		) {
 			try {
 				debug( `main: Starting task ${ task.name }` );
-				await task( eventPayload as TaskPayload, octokit );
+				// Event-name matching above guarantees the payload type matches the task.
+				const dispatch = task as ( p: TaskPayload, o: typeof octokit ) => Promise< void > | void;
+				await dispatch( eventPayload as TaskPayload, octokit );
 			} catch ( error: unknown ) {
 				setFailed( `main: Task ${ task.name } failed with error: ${ error }` );
 			}

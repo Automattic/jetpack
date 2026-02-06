@@ -20,17 +20,28 @@ export type OctokitClient = InstanceType< typeof GitHub >;
 export type TaskPayload = PullRequestEvent | PushEvent | IssuesEvent | IssueCommentEvent;
 
 /**
+ * Maps GitHub event names to their corresponding webhook payload types.
+ */
+interface EventPayloadMap {
+	pull_request_target: PullRequestEvent;
+	push: PushEvent;
+	issues: IssuesEvent;
+	issue_comment: IssueCommentEvent;
+}
+
+/**
  * An automation definition used in the main index.
  *
- * Each task function accepts a specific payload subtype (PullRequestEvent, IssuesEvent, etc.)
- * but at runtime the correct payload is guaranteed by event-name matching.
+ * Uses a mapped type to pair each event name with its corresponding
+ * payload type, ensuring type safety across the event–task boundary.
  */
-export interface Automation {
-	event: string;
-	action?: string[];
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	task: ( payload: any, octokit: OctokitClient ) => Promise< void > | void;
-}
+export type Automation = {
+	[ E in keyof EventPayloadMap ]: {
+		event: E;
+		action?: string[];
+		task: ( payload: EventPayloadMap[ E ], octokit: OctokitClient ) => Promise< void > | void;
+	};
+}[ keyof EventPayloadMap ];
 
 /**
  * Team assignment entry in the automattic-label-team-assignments mapping.
