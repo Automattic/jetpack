@@ -1124,7 +1124,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$response = Feedback::get( (int) $_GET['contact-form-sent'] );
 
 			if ( $response ) {
-				$submission_data = $response->get_compiled_fields( 'web', 'label|value' );
+				$submission_data = $response->get_compiled_fields( 'web', 'collection' );
 			}
 		}
 
@@ -1451,7 +1451,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper function to format the submission data for the success message.
 	 *
-	 * @param array $data The submission data.
+	 * @param array $data The submission data (in 'collection' format with type).
 	 *
 	 * @return array The formatted submission data.
 	 */
@@ -1463,6 +1463,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$images = self::get_images( $field_data['value'] );
 			$files  = self::get_files( $field_data['value'] );
 			$rating = self::get_rating( $field_data['value'] );
+			$type   = isset( $field_data['type'] ) ? $field_data['type'] : 'text';
 
 			$formatted_submission_data[] = array(
 				'label'          => self::maybe_add_colon_to_label( $field_data['label'] ),
@@ -1471,6 +1472,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'url'            => $url,
 				'files'          => $files,
 				'rating'         => $rating,
+				'type'           => $type,
 				'showPlainValue' => empty( $url ) && empty( $images ) && empty( $files ) && empty( $rating ),
 			);
 		}
@@ -1528,6 +1530,47 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 		return null;
+	}
+
+	/**
+	 * Get the SVG icon for a field type.
+	 *
+	 * @param string $field_type The field type.
+	 *
+	 * @return string The SVG icon HTML.
+	 */
+	private static function get_field_type_icon( $field_type ) {
+		// Map field types that don't follow the 'field-{type}' naming convention.
+		static $type_exceptions = array(
+			'phone'             => 'field-telephone',
+			'telephone'         => 'field-telephone',
+			'radio'             => 'field-single-choice',
+			'checkbox-multiple' => 'field-multiple-choice',
+		);
+
+		$block_dir = $type_exceptions[ $field_type ] ?? 'field-' . $field_type;
+
+		// Cache loaded SVG content to avoid re-reading files.
+		static $icon_cache = array();
+
+		if ( ! isset( $icon_cache[ $block_dir ] ) ) {
+			$svg_file = dirname( __DIR__ ) . '/blocks/' . $block_dir . '/icon.svg';
+			$svg      = '';
+
+			if ( file_exists( $svg_file ) ) {
+				$svg = file_get_contents( $svg_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local package file, not a remote URL.
+			}
+
+			if ( $svg ) {
+				$svg = trim( $svg );
+
+				$icon_cache[ $block_dir ] = $svg;
+			} else {
+				$icon_cache[ $block_dir ] = '';
+			}
+		}
+
+		return $icon_cache[ $block_dir ];
 	}
 
 	/**
@@ -1615,7 +1658,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( ! $disable_summary ) {
 				$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
 					<div class="jetpack_forms_contact-form-success-summary">
-						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
+						<div class="field-name-wrapper">
+							<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon"></div>
+							<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
+						</div>
 						<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.showPlainValue"></div>
 						<a class="field-url" data-wp-bind--href="context.submission.url" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.url" target="_blank" rel="noopener noreferrer"></a>
 						<div class="field-rating" data-wp-bind--hidden="!context.submission.rating" data-wp-watch="callbacks.watchRatingIcons"></div>
@@ -1656,11 +1702,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$has_files      = ! empty( $submission['files'] );
 					$has_rating     = ! empty( $submission['rating'] );
 					$show_plain_val = ! $has_url && ! $has_images && ! $has_files && ! $has_rating;
+					$field_type     = isset( $submission['type'] ) ? $submission['type'] : 'text';
 
 					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">';
 
+					// field-name-wrapper: contains icon and label.
+					$html .= '<div class="field-name-wrapper">';
+					// field-type-icon: rendered based on field type.
+					// The data-rendered-type attribute enables hydration optimization by allowing
+					// the JS callback to skip re-rendering when the icon is already correct.
+					$html .= '<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon" data-rendered-type="' . esc_attr( $field_type ) . '">' . self::get_field_type_icon( $field_type ) . '</div>';
 					// field-name: always present.
 					$html .= '<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
+					$html .= '</div>'; // Close field-name-wrapper.
 
 					// field-value: always present, hidden when URL, images, or files exist.
 					$html .= '<div class="field-value" data-wp-text="context.submission.value" data-wp-bind--hidden="!context.submission.showPlainValue"';
@@ -2910,7 +2964,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $this->is_response_without_reload_enabled && $accepts_json ) {
 			$data = array();
 			if ( $response instanceof Feedback ) {
-				$data = $response->get_compiled_fields( 'ajax', 'label|value' );
+				$data = $response->get_compiled_fields( 'ajax', 'collection' );
 			}
 			wp_send_json(
 				array(
