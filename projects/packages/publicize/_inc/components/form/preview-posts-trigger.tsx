@@ -33,7 +33,7 @@ export function PreviewPostsTrigger() {
 	const buttonLabel = isPostPublished
 		? _x(
 				'Preview and share',
-				'Verb: The button label for the preview modal trigger',
+				'Verb: The button label for the preview modal button',
 				'jetpack-publicize-pkg'
 		  )
 		: _x(
