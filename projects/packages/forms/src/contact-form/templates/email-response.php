@@ -59,22 +59,12 @@ $template = '
 								<div class="actions">
 									%8$s
 								</div>
+
+								<!-- Powered By -->
+								%9$s
 							</td>
 						</tr>
 					</table>
-
-					<!-- START FOOTER -->
-					<div class="footer">
-						<table role="presentation" border="0" cellpadding="0" cellspacing="0">
-							<tr>
-								<td class="content-block wrapper footer-content">
-									<!-- footer -->
-									<p>%5$s</p>
-								</td>
-							</tr>
-							%9$s
-						</table>
-					</div>
 				</div>
 			</td>
 			<td class="collapse">&nbsp;</td>
@@ -123,17 +113,17 @@ $style = '<style media="all" type="text/css">
 
 	.container {
 		margin: 0 auto !important;
-		max-width: 600px;
+		max-width: 830px;
 		padding: 0;
 		padding-top: 24px;
-		width: 600px;
+		width: 830px;
 	}
 
 	.content {
 		box-sizing: border-box;
 		display: block;
 		margin: 0 auto;
-		max-width: 600px;
+		max-width: 830px;
 		padding: 0;
 	}
 
@@ -145,7 +135,7 @@ $style = '<style media="all" type="text/css">
 
 	.wrapper {
 		box-sizing: border-box;
-		padding: 32px;
+		padding: 40px 48px;
 	}
 
 	.content-block {
@@ -232,6 +222,8 @@ $style = '<style media="all" type="text/css">
 
 	.metadata-table {
 		width: 100%;
+		padding-bottom: 20px;
+		border-bottom: 1px solid #e0e0e0;
 	}
 
 	.metadata-table td {
@@ -519,9 +511,7 @@ $style = '<style media="all" type="text/css">
 
 	/* Email client table layout for respondent info */
 	.respondent-table {
-		margin-bottom: 24px;
-		padding-bottom: 20px;
-		border-bottom: 1px solid #e0e0e0;
+		margin-bottom: 16px;
 	}
 
 	.respondent-avatar-cell {

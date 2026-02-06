@@ -2777,16 +2777,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$actions = '';
 		if ( $dashboard_url ) {
 			$actions = sprintf(
-				'<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
-					<tr>
-						<td align="center" style="padding: 0 8px;">
-							<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; padding: 12px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; background-color: transparent; color: #1e1e1e; border: 1px solid #1e1e1e;">%2$s</a>
-						</td>
-						<td align="center" style="padding: 0 8px;">
-							<a href="%3$s" class="action-button action-button-primary" style="display: inline-block; padding: 12px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; background-color: #3858e9; color: #ffffff;">%4$s</a>
-						</td>
-					</tr>
-				</table>',
+				'<div style="text-align: center;">
+					<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; height: 40px; line-height: 40px; padding: 0 24px; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; background-color: transparent; color: #1e1e1e; border: 1px solid #1e1e1e; margin-right: 8px;">%2$s</a>
+					<a href="%3$s" class="action-button action-button-primary" style="display: inline-block; height: 40px; line-height: 40px; padding: 0 24px; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; background-color: #3858e9; color: #ffffff;">%4$s</a>
+				</div>',
 				esc_url( $mark_as_spam_url ),
 				__( 'Mark as spam', 'jetpack-forms' ),
 				esc_url( $dashboard_url ),
@@ -3171,16 +3165,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 				"\t",
 				'',
 				'
-				<tr>
-					<td class="content-block powered-by">
-					' .
+				<div class="powered-by" style="text-align: center; padding: 24px 0 0 0; margin-top: 24px;">
+					<!-- TODO: Replace this placeholder logo with a proper Jetpack logo hosted on a CDN for email use -->
+					<img src="https://jetpack.com/wp-content/uploads/2022/06/cropped-jp-favicon-new-3.png?w=40" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px;">
+					<span style="font-size: 13px; color: #50575e;">' .
 					sprintf(
 						// translators: %1$s is a link to the Jetpack Forms page.
 						__( 'Powered by %1$s', 'jetpack-forms' ),
-						'<a href="https://jetpack.com/forms/?utm_source=jetpack-forms&utm_medium=email&utm_campaign=form-submissions">Jetpack Forms</a>'
-					) . '
-					</td>
-				</tr>'
+						'<a href="https://jetpack.com/forms/?utm_source=jetpack-forms&utm_medium=email&utm_campaign=form-submissions" style="color: #50575e; text-decoration: none;">Jetpack Forms</a>'
+					) . '</span>
+				</div>'
 			)
 		);
 
@@ -3262,7 +3256,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</td>
 				<td class="respondent-details-cell" style="vertical-align: middle;">
 					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; color: #50575e; margin: 0;">' . $email . '</div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; color: #50575e; margin: 0;"><a href="mailto:' . $email . '" style="color: #3858e9; text-decoration: none;">' . $email . '</a></div>' : '' ) . '
 				</td>
 			</tr>
 		</table>';
@@ -3334,7 +3328,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static function generate_metadata_row( $label, $value ) {
 		return '
 			<tr>
-				<td class="metadata-label" style="color: #50575e; width: 100px; padding: 4px 12px 4px 0; font-size: 13px; vertical-align: top;">' . esc_html( $label ) . '</td>
+				<td class="metadata-label" style="color: #50575e; width: 100px; padding: 4px 12px 4px 0; font-size: 13px; vertical-align: top;">' . esc_html( $label ) . ':</td>
 				<td class="metadata-value" style="color: #1e1e1e; padding: 4px 0; font-size: 13px; vertical-align: top;">' . $value . '</td>
 			</tr>';
 	}
