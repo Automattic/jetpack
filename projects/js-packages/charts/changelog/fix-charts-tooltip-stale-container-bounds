@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix tooltip positioning when container moves without triggering containerBounds refresh.

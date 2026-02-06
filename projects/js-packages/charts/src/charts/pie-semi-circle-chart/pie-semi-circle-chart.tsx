@@ -1,4 +1,3 @@
-import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
@@ -157,7 +156,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		useTooltip< DataPointPercentage >();
 
 	// Set up portal tooltip for better z-index handling
-	const { containerRef, TooltipInPortal } = useTooltipInPortal( {
+	// We get containerBounds to cancel out stale offsets in the position calculation
+	const { containerRef, TooltipInPortal, containerBounds } = useTooltipInPortal( {
 		detectBounds: true,
 		scroll: true,
 		debounce: 0,
@@ -165,19 +165,31 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const handleMouseMove = useCallback(
 		( event: MouseEvent< SVGElement >, arc: ArcData ) => {
-			// Get coordinates relative to the current target element
-			const coords = localPoint( event );
-			if ( coords ) {
-				// Account for legend offset when legend is on top
-				const legendOffset = showLegend && legendPosition === 'top' ? legendHeight : 0;
-				showTooltip( {
-					tooltipData: arc.data,
-					tooltipLeft: coords.x + tooltipOffsetX,
-					tooltipTop: coords.y + legendOffset + tooltipOffsetY,
-				} );
+			// Don't show tooltip until container bounds are measured
+			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+				return;
 			}
+
+			// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
+			// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
+			// By passing (clientX - containerBounds.left), we get:
+			// (clientX - containerBounds.left) + containerBounds.left + scrollX = clientX + scrollX
+			// This gives correct page coordinates regardless of stale bounds.
+			showTooltip( {
+				tooltipData: arc.data,
+				tooltipLeft: event.clientX - containerBounds.left + tooltipOffsetX,
+				tooltipTop: event.clientY - containerBounds.top + tooltipOffsetY,
+			} );
 		},
-		[ showTooltip, tooltipOffsetX, tooltipOffsetY, showLegend, legendPosition, legendHeight ]
+		[
+			containerBounds.width,
+			containerBounds.height,
+			containerBounds.left,
+			containerBounds.top,
+			showTooltip,
+			tooltipOffsetX,
+			tooltipOffsetY,
+		]
 	);
 
 	const handleMouseLeave = useCallback( () => {
