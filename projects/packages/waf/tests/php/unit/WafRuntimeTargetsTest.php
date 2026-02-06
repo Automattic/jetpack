@@ -26,10 +26,10 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 * @param callable(WafRuntimeTargetsTest):Waf_Runtime $runtimeFactory             Factory to create a Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
 	 * @param string                                      $target_name                The modsecurity target name being tested, lowercase (examples: 'request_headers', 'tx', 'args', etc).
 	 * @param array{0: string, 1: scalar}[]               $expected_names_and_values  Array of key/value tuples, where `key` is the name of one of the three mocked items, and `value` is its value.
-	 * @param string                                      $second_name_regex          RegEx pattern that will match only the second item in the list.
+	 * @param string                                      $first_name_regex           RegEx pattern that will match only the first item in the list.
 	 */
 	#[DataProvider( 'provideArrayTargets' )]
-	public function testArrayTargets( $runtimeFactory, $target_name, $expected_names_and_values, $second_name_regex ) {
+	public function testArrayTargets( $runtimeFactory, $target_name, $expected_names_and_values, $first_name_regex ) {
 		$runtime = $runtimeFactory( $this );
 
 		$expected_count = count( $expected_names_and_values );
@@ -49,14 +49,14 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			$this->assertContains( $exp, $values, "$target_name 'all' test did not contain " . json_encode( $exp, JSON_UNESCAPED_SLASHES ) . ' in ' . json_encode( $values, JSON_UNESCAPED_SLASHES ) );
 		}
 		// test "only" filter
-		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $expected[1]['name'] ) ) ) );
+		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $expected[0]['name'] ) ) ) );
 		$this->assertCount( 1, $values, "$target_name 'only' test returned incorrect number of values" );
-		$this->assertContains( $expected[1], $values, "$target_name 'only' test did not include value for '{$expected[1]['name']}'" );
+		$this->assertContains( $expected[0], $values, "$target_name 'only' test did not include value for '{$expected[0]['name']}'" );
 
 		// test "only" filter with regex pattern
-		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $second_name_regex ) ) ) );
+		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $first_name_regex ) ) ) );
 		$this->assertCount( 1, $values, "$target_name 'only regex' test returned incorrect number of values" );
-		$this->assertContains( $expected[1], $values, "$target_name 'only regex' test did not include value for '{$expected[1]['name']}'" );
+		$this->assertContains( $expected[0], $values, "$target_name 'only regex' test did not include value for '{$expected[0]['name']}'" );
 
 		// test "except" filter
 		$values = $runtime->normalize_targets( array( $target_name => array( 'except' => array( $expected[0]['name'] ) ) ) );
@@ -70,10 +70,10 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		}
 
 		// test "except" filter with regex pattern
-		$values = $runtime->normalize_targets( array( $target_name => array( 'except' => array( $second_name_regex ) ) ) );
+		$values = $runtime->normalize_targets( array( $target_name => array( 'except' => array( $first_name_regex ) ) ) );
 		$this->assertCount( $expected_count - 1, $values, "$target_name 'except regex' test returned incorrect number of values" );
 		foreach ( $expected as $i => $exp ) {
-			if ( 1 === $i ) {
+			if ( 0 === $i ) {
 				$this->assertNotContains( $exp, $values );
 			} else {
 				$this->assertContains( $exp, $values );
@@ -110,13 +110,13 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @dataProvider provideArrayTargetsNames
 	 *
-	 * @param callable(WafRuntimeTargetsTest):Waf_Runtime $runtimeFactory             Factory to create a Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
+	 * @param callable(WafRuntimeTargetsTest):Waf_Runtime $runtimeFactory      Factory to create a Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
 	 * @param string                                      $target_name        The modsecurity target name being tested, lowercase (examples: 'request_headers_names', 'args_names', etc).
 	 * @param string[]                                    $expected_names     Array of names that are expected to be found in the target.
-	 * @param string                                      $second_name_regex  RegEx pattern that will match only the second item in the list.
+	 * @param string                                      $first_name_regex   RegEx pattern that will match only the first item in the list.
 	 */
 	#[DataProvider( 'provideArrayTargetsNames' )]
-	public function testArrayTargetsNames( $runtimeFactory, $target_name, $expected_names, $second_name_regex ) {
+	public function testArrayTargetsNames( $runtimeFactory, $target_name, $expected_names, $first_name_regex ) {
 		$runtime = $runtimeFactory( $this );
 
 		$expected_count = count( $expected_names );
@@ -137,14 +137,14 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		}
 
 		// test "only" filter
-		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $expected[1]['value'] ) ) ) );
+		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $expected[0]['value'] ) ) ) );
 		$this->assertCount( 1, $values );
-		$this->assertContains( $expected[1], $values );
+		$this->assertContains( $expected[0], $values );
 
 		// test "only" filter with regex pattern
-		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $second_name_regex ) ) ) );
+		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $first_name_regex ) ) ) );
 		$this->assertCount( 1, $values );
-		$this->assertContains( $expected[1], $values );
+		$this->assertContains( $expected[0], $values );
 
 		// test "except" filter
 		$values = $runtime->normalize_targets( array( $target_name => array( 'except' => array( $expected[0]['value'] ) ) ) );
@@ -158,10 +158,10 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		}
 
 		// test "except" filter with regex pattern
-		$values = $runtime->normalize_targets( array( $target_name => array( 'except' => array( $second_name_regex ) ) ) );
+		$values = $runtime->normalize_targets( array( $target_name => array( 'except' => array( $first_name_regex ) ) ) );
 		$this->assertCount( $expected_count - 1, $values );
 		foreach ( $expected as $i => $exp ) {
-			if ( 1 === $i ) {
+			if ( 0 === $i ) {
 				$this->assertNotContains( $exp, $values );
 			} else {
 				$this->assertContains( $exp, $values );
@@ -234,7 +234,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			);
 			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
 		};
-		yield 'REQUEST_HEADERS' => array( $runtimeFactory, 'request_headers', $expected, '/-b$/' );
+		yield 'REQUEST_HEADERS' => array( $runtimeFactory, 'request_headers', $expected, '/a$/' );
 
 		// TX
 		$expected       = array(
@@ -249,7 +249,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			}
 			return $runtime;
 		};
-		yield 'TX' => array( $runtimeFactory, 'tx', $expected, '/_b$/' );
+		yield 'TX' => array( $runtimeFactory, 'tx', $expected, '/_a$/' );
 
 		// IP
 		// @phan-suppress-next-line PhanPluginRedundantAssignment -- same value as before but restated for clarity
@@ -265,7 +265,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			}
 			return $runtime;
 		};
-		yield 'IP' => array( $runtimeFactory, 'ip', $expected, '/_b$/' );
+		yield 'IP' => array( $runtimeFactory, 'ip', $expected, '/_a$/' );
 
 		// REQUEST_COOKIES
 		$expected       = array(
@@ -281,7 +281,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			);
 			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
 		};
-		yield 'REQUEST_COOKIES' => array( $runtimeFactory, 'request_cookies', $expected, '/_b$/' );
+		yield 'REQUEST_COOKIES' => array( $runtimeFactory, 'request_cookies', $expected, '/_a$/' );
 
 		// ARGS
 		$runtimeFactory = function ( $that ) {
@@ -301,7 +301,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			array( 'get_var', 'get_val' ),
 			array( 'post_var', 'post_val' ),
 		);
-		yield 'ARGS' => array( $runtimeFactory, 'args', $expected, '/^post_/' );
+		yield 'ARGS' => array( $runtimeFactory, 'args', $expected, '/^get_/' );
 
 		// ARGS_GET
 		$runtimeFactory = function ( $that ) {
@@ -325,7 +325,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			array( 'assoc[key0]', 'value0' ),
 			array( 'assoc[key1][key1a]', 'val1a' ),
 		);
-		yield 'ARGS_GET' => array( $runtimeFactory, 'args_get', $expected, '/\[0\]$/' );
+		yield 'ARGS_GET' => array( $runtimeFactory, 'args_get', $expected, '/^scalar/' );
 
 		// ARGS_POST
 		$runtimeFactory = function ( $that ) {
@@ -350,7 +350,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			array( 'assoc[key0]', 'value0' ),
 			array( 'assoc[key1][key1a]', 'val1a' ),
 		);
-		yield 'ARGS_POST' => array( $runtimeFactory, 'args_post', $expected, '/\[0\]$/' );
+		yield 'ARGS_POST' => array( $runtimeFactory, 'args_post', $expected, '/^scalar/' );
 
 		// FILES
 		$expected       = array(
@@ -376,7 +376,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			);
 			return new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
 		};
-		yield 'FILES' => array( $runtimeFactory, 'files', $expected, '/^fileBB$/' );
+		yield 'FILES' => array( $runtimeFactory, 'files', $expected, '/^file(AA|1)$/' );
 	}
 
 	/**
