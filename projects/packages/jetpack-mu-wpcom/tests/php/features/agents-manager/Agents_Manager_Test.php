@@ -1633,8 +1633,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_scripts = $wp_scripts->registered['image-studio']->extra['before'] ?? array();
 		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
 
-		$this->assertStringContainsString( 'window.imageStudio', $inline_script );
-		$this->assertStringContainsString( 'enabled: true', $inline_script );
+		$this->assertStringContainsString( 'const imageStudioData', $inline_script );
+		$this->assertStringContainsString( '"enabled":true', $inline_script );
 
 		$this->tear_down_enqueue_context();
 	}

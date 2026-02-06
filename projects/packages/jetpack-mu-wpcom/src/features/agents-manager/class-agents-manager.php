@@ -30,6 +30,9 @@ class Agents_Manager {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
 		add_action( 'next_admin_init', array( $this, 'enqueue_scripts' ), 1001 );
 		add_filter( 'agents_manager_use_unified_experience', array( $this, 'should_use_unified_experience' ) );
+
+		// Disable Jetpack AI image extensions early, before Jetpack builds its editor state.
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'disable_jetpack_ai_image_extensions' ), 99 );
 	}
 
 	/**
@@ -330,7 +333,12 @@ class Agents_Manager {
 
 		wp_add_inline_script(
 			'image-studio',
-			'window.imageStudio = window.imageStudio || { enabled: true };',
+			'const imageStudioData = ' . wp_json_encode(
+				array(
+					'enabled' => true,
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) . ';',
 			'before'
 		);
 
@@ -340,6 +348,29 @@ class Agents_Manager {
 			array( 'wp-components' ),
 			$version
 		);
+	}
+
+	/**
+	 * Disable Jetpack AI image generation extensions when Image Studio is active.
+	 *
+	 * Hooked into `jetpack_register_gutenberg_extensions` at priority 99 to run
+	 * after Jetpack registers its extensions but before the editor state is built.
+	 */
+	public function disable_jetpack_ai_image_extensions() {
+		if ( ! class_exists( 'Jetpack_Gutenberg' ) ) {
+			return;
+		}
+
+		$extensions = array(
+			'ai-featured-image-generator',
+			'ai-assistant-image-extension',
+			'ai-general-purpose-image-generator',
+			'ai-assistant-experimental-image-generation-support',
+		);
+
+		foreach ( $extensions as $extension ) {
+			\Jetpack_Gutenberg::set_extension_unavailable( $extension, 'image_studio_enabled' );
+		}
 	}
 
 	/**
