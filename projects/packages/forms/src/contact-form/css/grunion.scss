@@ -1533,8 +1533,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: block;
 }
 
-.contact-form.is-ajax-form.submission-success {
-	display: none;
+.contact-form.submission-success {
+	display: none; // hide the form when the submission is successful, and show the success message instead
 }
 
 .contact-form-ajax-submission:not(.submission-success) {
