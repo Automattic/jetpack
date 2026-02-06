@@ -45,7 +45,11 @@ export function PreviewPostsTrigger() {
 			disabled={ ! isPublicizeEnabled }
 		>
 			{ isPostPublished
-				? _x( 'Preview & share', 'The button label for the modal trigger', 'jetpack-publicize-pkg' )
+				? _x(
+						'Preview and share',
+						'The button label for the modal trigger',
+						'jetpack-publicize-pkg'
+				  )
 				: __( 'Preview and customize', 'jetpack-publicize-pkg' ) }
 		</Button>
 	);
