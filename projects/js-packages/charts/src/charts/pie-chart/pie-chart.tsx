@@ -27,6 +27,27 @@ import type { BaseChartProps, DataPointPercentage, Optional } from '../../types'
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
+/**
+ * Parameters passed to the renderTooltip function for pie charts.
+ */
+export type PieChartRenderTooltipParams = {
+	/**
+	 * The data point being hovered, including label, value, and percentage.
+	 */
+	tooltipData: DataPointPercentage;
+};
+
+/**
+ * Default tooltip renderer for pie charts.
+ * Renders a BaseTooltip with the hovered segment's data.
+ *
+ * @param {PieChartRenderTooltipParams} params - The tooltip parameters containing the hovered data point
+ * @return {ReactNode} The rendered tooltip content
+ */
+const renderDefaultPieTooltip = ( { tooltipData }: PieChartRenderTooltipParams ): ReactNode => {
+	return <BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />;
+};
+
 export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
@@ -92,6 +113,12 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 * Vertical offset for tooltip positioning in pixels (default: -15)
 	 */
 	tooltipOffsetY?: number;
+
+	/**
+	 * Custom render function for tooltip content.
+	 * When provided, replaces the default BaseTooltip with custom content.
+	 */
+	renderTooltip?: ( params: PieChartRenderTooltipParams ) => ReactNode;
 }
 
 // Base props type with optional responsive properties
@@ -160,6 +187,7 @@ const PieChartInternal = ( {
 	children = null,
 	tooltipOffsetX = 0,
 	tooltipOffsetY = -15,
+	renderTooltip = renderDefaultPieTooltip,
 }: PieChartProps ) => {
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
@@ -435,9 +463,7 @@ const PieChartInternal = ( {
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-						<div role="tooltip">
-							<BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />
-						</div>
+						<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
 					</TooltipInPortal>
 				) }
 
