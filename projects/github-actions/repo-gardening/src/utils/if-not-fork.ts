@@ -1,5 +1,5 @@
-import debug from './debug.js';
-import type { OctokitClient, PullRequestEvent } from '../types.js';
+import debug from './debug.ts';
+import type { OctokitClient, PullRequestEvent } from '../types.ts';
 
 type PullRequestTask = (
 	payload: PullRequestEvent,

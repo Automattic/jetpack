@@ -1,4 +1,4 @@
-import type { IssuesEvent } from '../../types.js';
+import type { IssuesEvent } from '../../types.ts';
 import type { ChatPostMessageArguments } from '@slack/web-api';
 
 /**

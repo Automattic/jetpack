@@ -1,4 +1,4 @@
-import cleanName from '../src/utils/clean-name.js';
+import cleanName from '../src/utils/clean-name.ts';
 
 describe( 'cleanName', () => {
 	test( 'capitalizes simple name', () => {

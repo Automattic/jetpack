@@ -1,4 +1,4 @@
-import type { TeamAssignment } from '../../types.js';
+import type { TeamAssignment } from '../../types.ts';
 
 /**
  * Map specific teams to one or more labels that may be added to issues.

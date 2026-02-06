@@ -1,5 +1,5 @@
-import formatSlackMessage from '../src/utils/slack/format-slack-message.js';
-import type { IssuesEvent } from '../src/types.js';
+import formatSlackMessage from '../src/utils/slack/format-slack-message.ts';
+import type { IssuesEvent } from '../src/types.ts';
 
 describe( 'formatSlackMessage', () => {
 	const mockPayload: IssuesEvent = {

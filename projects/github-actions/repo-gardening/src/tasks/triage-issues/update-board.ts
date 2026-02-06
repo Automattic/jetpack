@@ -1,10 +1,10 @@
 import { getInput, setFailed } from '@actions/core';
 import { getOctokit } from '@actions/github';
-import debug from '../../utils/debug.js';
-import getLabels from '../../utils/labels/get-labels.js';
-import notifyImportantIssues from '../../utils/slack/notify-important-issues.js';
-import { automatticAssignments } from './automattic-label-team-assignments.js';
-import type { OctokitClient, IssuesEvent, TeamAssignment } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getLabels from '../../utils/labels/get-labels.ts';
+import notifyImportantIssues from '../../utils/slack/notify-important-issues.ts';
+import { automatticAssignments } from './automattic-label-team-assignments.ts';
+import type { OctokitClient, IssuesEvent, TeamAssignment } from '../../types.ts';
 
 interface FieldOption {
 	id: string;

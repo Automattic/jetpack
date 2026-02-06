@@ -1,9 +1,9 @@
 import { getInput } from '@actions/core';
-import debug from '../../utils/debug.js';
-import getAvailableLabels from '../../utils/labels/get-available-labels.js';
-import getLabels from '../../utils/labels/get-labels.js';
-import sendOpenAiRequest from '../../utils/openai/send-request.js';
-import type { OctokitClient, IssuesEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getAvailableLabels from '../../utils/labels/get-available-labels.ts';
+import getLabels from '../../utils/labels/get-labels.ts';
+import sendOpenAiRequest from '../../utils/openai/send-request.ts';
+import type { OctokitClient, IssuesEvent } from '../../types.ts';
 
 /**
  * Request a list of matching labels from Open AI that can be applied to the issue,

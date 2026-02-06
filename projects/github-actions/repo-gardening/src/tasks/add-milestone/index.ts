@@ -1,8 +1,8 @@
-import debug from '../../utils/debug.js';
-import getAssociatedPullRequest from '../../utils/get-associated-pull-request.js';
-import getNextValidMilestone from '../../utils/get-next-valid-milestone.js';
-import getPluginNames from '../../utils/get-plugin-names.js';
-import type { OctokitClient, PushEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getAssociatedPullRequest from '../../utils/get-associated-pull-request.ts';
+import getNextValidMilestone from '../../utils/get-next-valid-milestone.ts';
+import getPluginNames from '../../utils/get-plugin-names.ts';
+import type { OctokitClient, PushEvent } from '../../types.ts';
 
 /**
  * Assigns any issues that are being worked to the author of the matching PR.

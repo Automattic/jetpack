@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { glob } from 'glob';
-import getPrWorkspace from './get-pr-workspace.js';
+import getPrWorkspace from './get-pr-workspace.ts';
 
 /**
  * Returns a list of Projects that use changelogger package.

@@ -1,4 +1,4 @@
-import findPriority from '../src/utils/parse-content/find-priority.js';
+import findPriority from '../src/utils/parse-content/find-priority.ts';
 
 /**
  * Build an issue body with the expected markdown format for priority parsing.

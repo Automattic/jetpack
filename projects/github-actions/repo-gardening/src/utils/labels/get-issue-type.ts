@@ -1,6 +1,6 @@
-import getLabels from './get-labels.js';
-import { TYPE_LABELS_WITHOUT_PREFIX } from './type-labels.js';
-import type { OctokitClient } from '../../types.js';
+import getLabels from './get-labels.ts';
+import { TYPE_LABELS_WITHOUT_PREFIX } from './type-labels.ts';
+import type { OctokitClient } from '../../types.ts';
 
 /**
  * Extract the type of the issue.

@@ -1,8 +1,8 @@
 import { getInput, setFailed } from '@actions/core';
-import debug from '../../utils/debug.js';
-import getLabels from '../../utils/labels/get-labels.js';
-import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, PullRequestEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getLabels from '../../utils/labels/get-labels.ts';
+import sendSlackMessage from '../../utils/slack/send-slack-message.ts';
+import type { OctokitClient, PullRequestEvent } from '../../types.ts';
 
 /**
  * Check for a Design Review status label on a PR.

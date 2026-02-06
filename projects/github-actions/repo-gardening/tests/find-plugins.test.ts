@@ -1,4 +1,4 @@
-import findPlugins from '../src/utils/parse-content/find-plugins.js';
+import findPlugins from '../src/utils/parse-content/find-plugins.ts';
 
 describe( 'findPlugins', () => {
 	test( 'returns empty array when no plugin section found', () => {

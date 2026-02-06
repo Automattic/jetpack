@@ -1,9 +1,9 @@
 import { getInput } from '@actions/core';
-import debug from '../../utils/debug.js';
-import getComments from '../../utils/get-comments.js';
-import getLabels from '../../utils/labels/get-labels.js';
-import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, IssuesEvent, IssueCommentEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getComments from '../../utils/get-comments.ts';
+import getLabels from '../../utils/labels/get-labels.ts';
+import sendSlackMessage from '../../utils/slack/send-slack-message.ts';
+import type { OctokitClient, IssuesEvent, IssueCommentEvent } from '../../types.ts';
 import type { IssueComment } from '@octokit/webhooks-types';
 
 /**

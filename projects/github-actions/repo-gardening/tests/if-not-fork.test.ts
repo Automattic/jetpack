@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
-import ifNotFork from '../src/utils/if-not-fork.js';
-import type { OctokitClient, PullRequestEvent } from '../src/types.js';
+import ifNotFork from '../src/utils/if-not-fork.ts';
+import type { OctokitClient, PullRequestEvent } from '../src/types.ts';
 
 describe( 'ifNotFork', () => {
 	const mockOctokit = {} as OctokitClient;

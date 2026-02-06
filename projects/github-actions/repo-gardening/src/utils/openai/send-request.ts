@@ -1,6 +1,6 @@
 import { getInput, setFailed } from '@actions/core';
 import OpenAI from 'openai';
-import debug from '../debug.js';
+import debug from '../debug.ts';
 
 /**
  * Send a message to OpenAI.

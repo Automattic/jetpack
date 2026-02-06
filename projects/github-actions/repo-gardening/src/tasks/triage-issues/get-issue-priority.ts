@@ -1,7 +1,7 @@
-import debug from '../../utils/debug.js';
-import getLabels from '../../utils/labels/get-labels.js';
-import findPriority from '../../utils/parse-content/find-priority.js';
-import type { OctokitClient, IssuesEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getLabels from '../../utils/labels/get-labels.ts';
+import findPriority from '../../utils/parse-content/find-priority.ts';
+import type { OctokitClient, IssuesEvent } from '../../types.ts';
 
 /**
  * Try to figure out the priority of the issue based off its contents and existing labels.

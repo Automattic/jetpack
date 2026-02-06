@@ -1,16 +1,16 @@
 import { getInput } from '@actions/core';
-import debug from '../../utils/debug.js';
-import getIssueType from '../../utils/labels/get-issue-type.js';
-import { TYPE_LABELS_WITHOUT_PREFIX } from '../../utils/labels/type-labels.js';
-import findPlatforms from '../../utils/parse-content/find-platforms.js';
-import findPlugins from '../../utils/parse-content/find-plugins.js';
-import formatSlackMessage from '../../utils/slack/format-slack-message.js';
-import notifyImportantIssues from '../../utils/slack/notify-important-issues.js';
-import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import aiLabeling from './ai-labeling.js';
-import getIssuePriority from './get-issue-priority.js';
-import updateBoard from './update-board.js';
-import type { OctokitClient, IssuesEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getIssueType from '../../utils/labels/get-issue-type.ts';
+import { TYPE_LABELS_WITHOUT_PREFIX } from '../../utils/labels/type-labels.ts';
+import findPlatforms from '../../utils/parse-content/find-platforms.ts';
+import findPlugins from '../../utils/parse-content/find-plugins.ts';
+import formatSlackMessage from '../../utils/slack/format-slack-message.ts';
+import notifyImportantIssues from '../../utils/slack/notify-important-issues.ts';
+import sendSlackMessage from '../../utils/slack/send-slack-message.ts';
+import aiLabeling from './ai-labeling.ts';
+import getIssuePriority from './get-issue-priority.ts';
+import updateBoard from './update-board.ts';
+import type { OctokitClient, IssuesEvent } from '../../types.ts';
 
 /**
  * If we could not add labels via OpenAI, let's add a comment to ask the issue author to add their own labels.

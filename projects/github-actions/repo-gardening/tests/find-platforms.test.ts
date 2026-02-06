@@ -1,4 +1,4 @@
-import findPlatforms from '../src/utils/parse-content/find-platforms.js';
+import findPlatforms from '../src/utils/parse-content/find-platforms.ts';
 
 describe( 'findPlatforms', () => {
 	test( 'returns empty array when no platform section found', () => {

@@ -1,4 +1,4 @@
-import debug from '../debug.js';
+import debug from '../debug.ts';
 
 /**
  * Figure out the priority of the issue, based off issue contents.

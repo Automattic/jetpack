@@ -1,5 +1,5 @@
-import debug from '../debug.js';
-import type { OctokitClient } from '../../types.js';
+import debug from '../debug.ts';
+import type { OctokitClient } from '../../types.ts';
 
 // Cache for getLabels.
 const cache: Record< string, string[] > = {};

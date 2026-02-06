@@ -1,5 +1,5 @@
-import getLabels from './labels/get-labels.js';
-import type { OctokitClient } from '../types.js';
+import getLabels from './labels/get-labels.ts';
+import type { OctokitClient } from '../types.ts';
 
 /**
  * Get the name of the plugin concerned by this PR.

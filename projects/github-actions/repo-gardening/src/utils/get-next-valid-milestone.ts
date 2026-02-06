@@ -1,6 +1,6 @@
 import { compareVersions } from 'compare-versions';
 import moment from 'moment';
-import type { OctokitClient } from '../types.js';
+import type { OctokitClient } from '../types.ts';
 
 interface Milestone {
 	number: number;

@@ -1,5 +1,5 @@
-import debug from '../../utils/debug.js';
-import type { OctokitClient, PullRequestEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import type { OctokitClient, PullRequestEvent } from '../../types.ts';
 
 /**
  * Assigns any issues that are being worked to the author of the matching PR.

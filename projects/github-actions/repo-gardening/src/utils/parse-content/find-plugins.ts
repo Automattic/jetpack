@@ -1,4 +1,4 @@
-import debug from '../debug.js';
+import debug from '../debug.ts';
 
 /**
  * Find list of plugins impacted by issue, based off issue contents.

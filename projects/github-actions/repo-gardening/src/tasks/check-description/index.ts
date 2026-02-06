@@ -1,15 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import moment from 'moment';
-import debug from '../../utils/debug.js';
-import getAffectedChangeloggerProjects from '../../utils/get-affected-changelogger-projects.js';
-import getComments from '../../utils/get-comments.js';
-import getFiles from '../../utils/get-files.js';
-import getNextValidMilestone from '../../utils/get-next-valid-milestone.js';
-import getPluginNames from '../../utils/get-plugin-names.js';
-import getPrWorkspace from '../../utils/get-pr-workspace.js';
-import getLabels from '../../utils/labels/get-labels.js';
-import type { OctokitClient, PullRequestEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getAffectedChangeloggerProjects from '../../utils/get-affected-changelogger-projects.ts';
+import getComments from '../../utils/get-comments.ts';
+import getFiles from '../../utils/get-files.ts';
+import getNextValidMilestone from '../../utils/get-next-valid-milestone.ts';
+import getPluginNames from '../../utils/get-plugin-names.ts';
+import getPrWorkspace from '../../utils/get-pr-workspace.ts';
+import getLabels from '../../utils/labels/get-labels.ts';
+import type { OctokitClient, PullRequestEvent } from '../../types.ts';
 
 /**
  * Milestone information used by getMilestoneDates.

@@ -1,6 +1,6 @@
 import { getInput, setFailed } from '@actions/core';
 import { WebClient, ErrorCode } from '@slack/web-api';
-import type { PullRequestEvent, IssuesEvent, IssueCommentEvent } from '../../types.js';
+import type { PullRequestEvent, IssuesEvent, IssueCommentEvent } from '../../types.ts';
 import type { ChatPostMessageArguments } from '@slack/web-api';
 
 type SlackPayload = PullRequestEvent | IssuesEvent | IssueCommentEvent;

@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'url';
 import { getInput } from '@actions/core';
-import cleanName from '../../utils/clean-name.js';
-import debug from '../../utils/debug.js';
-import getFiles from '../../utils/get-files.js';
-import getLabels from '../../utils/labels/get-labels.js';
-import type { OctokitClient, PullRequestEvent } from '../../types.js';
+import cleanName from '../../utils/clean-name.ts';
+import debug from '../../utils/debug.ts';
+import getFiles from '../../utils/get-files.ts';
+import getLabels from '../../utils/labels/get-labels.ts';
+import type { OctokitClient, PullRequestEvent } from '../../types.ts';
 
 const __filename = fileURLToPath( import.meta.url );
 

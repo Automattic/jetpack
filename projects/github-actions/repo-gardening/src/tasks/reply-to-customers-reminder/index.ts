@@ -1,10 +1,10 @@
 import { getInput, setFailed } from '@actions/core';
-import debug from '../../utils/debug.js';
-import getComments from '../../utils/get-comments.js';
-import getLabels from '../../utils/labels/get-labels.js';
-import hasManySupportReferences from '../../utils/parse-content/has-many-support-references.js';
-import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, IssuesEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getComments from '../../utils/get-comments.ts';
+import getLabels from '../../utils/labels/get-labels.ts';
+import hasManySupportReferences from '../../utils/parse-content/has-many-support-references.ts';
+import sendSlackMessage from '../../utils/slack/send-slack-message.ts';
+import type { OctokitClient, IssuesEvent } from '../../types.ts';
 
 /**
  * Check for a High or Blocker Priority label on an issue.

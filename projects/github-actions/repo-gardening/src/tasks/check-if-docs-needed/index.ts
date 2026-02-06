@@ -1,10 +1,10 @@
 import { getInput } from '@actions/core';
-import debug from '../../utils/debug.js';
-import getDiff from '../../utils/get-diff.js';
-import getLabels from '../../utils/labels/get-labels.js';
-import sendOpenAiRequest from '../../utils/openai/send-request.js';
-import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, PullRequestEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getDiff from '../../utils/get-diff.ts';
+import getLabels from '../../utils/labels/get-labels.ts';
+import sendOpenAiRequest from '../../utils/openai/send-request.ts';
+import sendSlackMessage from '../../utils/slack/send-slack-message.ts';
+import type { OctokitClient, PullRequestEvent } from '../../types.ts';
 
 /**
  * Clean up the PR body content for AI processing.

@@ -1,8 +1,8 @@
-import debug from '../debug.js';
-import getLabels from '../labels/get-labels.js';
-import formatSlackMessage from './format-slack-message.js';
-import sendSlackMessage from './send-slack-message.js';
-import type { OctokitClient, IssuesEvent } from '../../types.js';
+import debug from '../debug.ts';
+import getLabels from '../labels/get-labels.ts';
+import formatSlackMessage from './format-slack-message.ts';
+import sendSlackMessage from './send-slack-message.ts';
+import type { OctokitClient, IssuesEvent } from '../../types.ts';
 
 /**
  * Check for a label showing that it was already escalated.

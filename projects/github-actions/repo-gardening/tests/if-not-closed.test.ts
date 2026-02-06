@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
-import ifNotClosed from '../src/utils/if-not-closed.js';
-import type { OctokitClient, PullRequestEvent } from '../src/types.js';
+import ifNotClosed from '../src/utils/if-not-closed.ts';
+import type { OctokitClient, PullRequestEvent } from '../src/types.ts';
 
 describe( 'ifNotClosed', () => {
 	const mockOctokit = {} as OctokitClient;

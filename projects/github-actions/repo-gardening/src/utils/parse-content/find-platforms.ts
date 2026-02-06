@@ -1,4 +1,4 @@
-import debug from '../debug.js';
+import debug from '../debug.ts';
 
 /**
  * Find platform info, based off issue contents.

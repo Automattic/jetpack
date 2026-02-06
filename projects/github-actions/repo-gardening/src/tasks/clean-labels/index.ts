@@ -1,6 +1,6 @@
-import debug from '../../utils/debug.js';
-import getLabels from '../../utils/labels/get-labels.js';
-import type { OctokitClient, PullRequestEvent, IssuesEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import getLabels from '../../utils/labels/get-labels.ts';
+import type { OctokitClient, PullRequestEvent, IssuesEvent } from '../../types.ts';
 
 /**
  * Manage labels when a PR or issue gets closed.

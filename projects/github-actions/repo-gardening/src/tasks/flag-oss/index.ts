@@ -1,7 +1,7 @@
 import { getInput, setFailed } from '@actions/core';
-import debug from '../../utils/debug.js';
-import sendSlackMessage from '../../utils/slack/send-slack-message.js';
-import type { OctokitClient, PullRequestEvent } from '../../types.js';
+import debug from '../../utils/debug.ts';
+import sendSlackMessage from '../../utils/slack/send-slack-message.ts';
+import type { OctokitClient, PullRequestEvent } from '../../types.ts';
 
 /**
  * Adds the OSS Citizen label to all PRs opened from a fork, and send a slack message.

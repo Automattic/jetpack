@@ -16,9 +16,6 @@ module.exports = {
 	],
 	testPathIgnorePatterns: [ '/node_modules/', '<rootDir>/vendor/', '<rootDir>/jetpack_vendor/' ],
 	extensionsToTreatAsEsm: [ '.ts' ],
-	moduleNameMapper: {
-		'^(\\.{1,2}/.*)\\.js$': '$1',
-	},
 	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
 	clearMocks: true,
 	resetModules: true,
