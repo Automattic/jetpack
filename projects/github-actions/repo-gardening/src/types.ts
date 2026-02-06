@@ -1,4 +1,4 @@
-import { GitHub } from '@actions/github/lib/utils.js';
+import { GitHub } from '@actions/github/lib/utils';
 import type {
 	PullRequestEvent,
 	PushEvent,
