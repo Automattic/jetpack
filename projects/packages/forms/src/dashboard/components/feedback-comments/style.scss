@@ -18,10 +18,6 @@
 	}
 }
 
-.jp-single-response-view .jp-forms__feedback-comments {
-	padding: 0;
-}
-
 .jp-forms__feedback-comments-heading {
 	font-size: 16px;
 	font-weight: 600;
@@ -55,7 +51,7 @@
 
 // Individual comment (item)
 .jp-forms__feedback-comments-comment {
-	background-color: var(--jp-forms-white-off, var(--wpds-color-stroke-surface-neutral-weak, #e7e7e7));
+	background-color: var(--jp-forms-white-off, var(--wpds-color-bg-surface-neutral-weak, #e7e7e7));
 	border-radius: var(--jp-forms-border-radius, 4px);
 	padding: 12px;
 
@@ -172,7 +168,7 @@
 .jp-forms__feedback-comments-error {
 	background-color: #f8d7da;
 	border: 1px solid #f5c2c7;
-	border-radius: var(--jp-forms-border-radius);
+	border-radius: var(--jp-forms-border-radius, 4px);
 	color: #842029;
 	font-size: 14px;
 	padding: 12px;
