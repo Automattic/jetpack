@@ -15,7 +15,7 @@ export default defineConfig( {
 	dts: true,
 	format: [ 'esm', 'cjs' ],
 	outDir: 'dist',
-	noExternal: [ '@wordpress/ui', '@wordpress/theme' ],
+	noExternal: [ '@wordpress/ui' ],
 	loader: {
 		'.jpg': 'file',
 		'.gif': 'file',
