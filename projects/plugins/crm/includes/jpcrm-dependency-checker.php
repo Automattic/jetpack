@@ -2,10 +2,9 @@
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
- * 
+ *
  * The JPCRMDependencyChecker class provides various functions that
  * can be used to verify dependencies for features and extensions
- * 
  */
 
 class JPCRM_DependencyChecker {
@@ -55,16 +54,18 @@ class JPCRM_DependencyChecker {
 	 *
 	 * @return bool
 	 */
-  public function check_all_reqs( $feature_name='', $core_reqs=array() , $plugin_reqs=array(), $is_silent=false ) {
-    $meets_core_reqs = $this->check_core_reqs($feature_name, $core_reqs, $is_silent);
-    $meets_plug_reqs = $this->check_plugin_reqs($feature_name, $plugin_reqs, $is_silent);
-    
-    // everything checks out
-    if ( $meets_core_reqs && $meets_plug_reqs ) return true;
+	public function check_all_reqs( $feature_name = '', $core_reqs = array(), $plugin_reqs = array(), $is_silent = false ) {
+		$meets_core_reqs = $this->check_core_reqs( $feature_name, $core_reqs, $is_silent );
+		$meets_plug_reqs = $this->check_plugin_reqs( $feature_name, $plugin_reqs, $is_silent );
 
-    // something didn't pass
-    return false;
-  }
+		// everything checks out
+		if ( $meets_core_reqs && $meets_plug_reqs ) {
+			return true;
+		}
+
+		// something didn't pass
+		return false;
+	}
 
 	/**
 	 * Checks if feature meets core dependency requirements
@@ -76,24 +77,24 @@ class JPCRM_DependencyChecker {
 	 *
 	 * @return bool
 	 */
-  public function check_core_reqs( $feature_name='', $args=array(), $is_silent=false ) {
-    $req_core_ver = !empty( $args['req_core_ver'] ) ? $args['req_core_ver'] : 1e6; //high version number
-    $is_good_core_ver = version_compare( $this->core_ver, $req_core_ver, '>=' );
-    $req_DAL_ver = !empty( $args['req_DAL_ver'] ) ? $args['req_DAL_ver'] : false;
-    $is_good_DAL_ver = version_compare( $this->dal_ver, $req_DAL_ver, '>=' );
+	public function check_core_reqs( $feature_name = '', $args = array(), $is_silent = false ) {
+		$req_core_ver     = ! empty( $args['req_core_ver'] ) ? $args['req_core_ver'] : 1e6; // high version number
+		$is_good_core_ver = version_compare( $this->core_ver, $req_core_ver, '>=' );
+		$req_DAL_ver      = ! empty( $args['req_DAL_ver'] ) ? $args['req_DAL_ver'] : false;
+		$is_good_DAL_ver  = version_compare( $this->dal_ver, $req_DAL_ver, '>=' );
 
-    // return true if everything checks out
-    if ( $is_good_core_ver && $is_good_DAL_ver) {
-      return true;
-    }
-    // return false if silent check
-    elseif ($is_silent) {
-      return false;
-    }
+		// return true if everything checks out
+		if ( $is_good_core_ver && $is_good_DAL_ver ) {
+			return true;
+		}
+		// return false if silent check
+		elseif ( $is_silent ) {
+			return false;
+		}
 
-    global $zbs;
-    // otherwise, proceed to trigger an admin notice
-    $feature_name = !empty( $feature_name ) ? $feature_name : __( 'CRM feature', 'zero-bs-crm' );
+		global $zbs;
+		// otherwise, proceed to trigger an admin notice
+		$feature_name = ! empty( $feature_name ) ? $feature_name : __( 'CRM feature', 'zero-bs-crm' );
 
 		if ( empty( $this->core_ver ) || empty( $this->dal_ver ) ) {
 			$error_msg = __( 'Your CRM install appears to have issues. Please verify the CRM is fully installed and any notices are properly handled before trying again.', 'zero-bs-crm' );
@@ -101,22 +102,21 @@ class JPCRM_DependencyChecker {
 			$error_msg = __( 'Your Jetpack CRM install appears to have issues. Please verify the CRM is fully installed and any notices are properly handled before trying again.', 'zero-bs-crm' );
 			##/WLREMOVE
 		} elseif ( ! $is_good_core_ver ) {
-      $error_msg = sprintf( __( '%s requires CRM version %s or greater, but version %s is currently installed. Please update your CRM to use this feature.', 'zero-bs-crm' ), $feature_name, $req_core_ver, $this->core_ver );
-      ##WLREMOVE
-      $error_msg = sprintf( __( '%s requires Jetpack CRM version %s or greater, but version %s is currently installed. Please update Jetpack CRM to use this feature.', 'zero-bs-crm' ), $feature_name, $req_core_ver, $this->core_ver );
-      ##/WLREMOVE
-    }
-    else if ( !$is_good_DAL_ver ) {
-      $error_msg = sprintf( __( '%s requires your CRM database to be updated. Please visit <a href="%s">your CRM dashboard</a> for more information.', 'zero-bs-crm' ), $feature_name, zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) );
-    }
+			$error_msg = sprintf( __( '%1$s requires CRM version %2$s or greater, but version %3$s is currently installed. Please update your CRM to use this feature.', 'zero-bs-crm' ), $feature_name, $req_core_ver, $this->core_ver );
+			##WLREMOVE
+			$error_msg = sprintf( __( '%1$s requires Jetpack CRM version %2$s or greater, but version %3$s is currently installed. Please update Jetpack CRM to use this feature.', 'zero-bs-crm' ), $feature_name, $req_core_ver, $this->core_ver );
+			##/WLREMOVE
+		} elseif ( ! $is_good_DAL_ver ) {
+			$error_msg = sprintf( __( '%1$s requires your CRM database to be updated. Please visit <a href="%2$s">your CRM dashboard</a> for more information.', 'zero-bs-crm' ), $feature_name, zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) );
+		}
 
-    $error_fn = function() use( $error_msg ) {
-      $this->show_dependency_error( $error_msg );
-    };
-    add_action( 'admin_notices', $error_fn );
+		$error_fn = function () use ( $error_msg ) {
+			$this->show_dependency_error( $error_msg );
+		};
+		add_action( 'admin_notices', $error_fn );
 
-    return false;
-  }
+		return false;
+	}
 
 	/**
 	 * Checks if a plugin is installed
@@ -125,12 +125,12 @@ class JPCRM_DependencyChecker {
 	 *
 	 * @return bool
 	 */
-  private function is_plugin_installed( $slug='' ){
-    if ( array_key_exists( $slug, $this->all_plugins ) ) {
-      return true;
-    }
-    return false;
-  }
+	private function is_plugin_installed( $slug = '' ) {
+		if ( array_key_exists( $slug, $this->all_plugins ) ) {
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Gets plugin version
@@ -139,12 +139,12 @@ class JPCRM_DependencyChecker {
 	 *
 	 * @return string|bool plugin version or false if slug is not found
 	 */
-  private function get_plugin_version( $slug='' ) {
-    if ( $this->is_plugin_installed( $slug ) ) {
-      return $this->all_plugins[$slug]['Version'];
-    }
-    return false;
-  }
+	private function get_plugin_version( $slug = '' ) {
+		if ( $this->is_plugin_installed( $slug ) ) {
+			return $this->all_plugins[ $slug ]['Version'];
+		}
+		return false;
+	}
 
 	/**
 	 * Checks if feature's plugin dependency requirements are met
@@ -157,91 +157,87 @@ class JPCRM_DependencyChecker {
 	 *
 	 * @return bool
 	 */
-  public function check_plugin_reqs( $feature_name='', $plugins=array(), $is_silent=false, $error_msg='' ) {
-    $everything_is_fine = true;
-    $feature_name = !empty( $feature_name ) ? $feature_name : __( 'CRM feature', 'zero-bs-crm' );
+	public function check_plugin_reqs( $feature_name = '', $plugins = array(), $is_silent = false, $error_msg = '' ) {
+		$everything_is_fine = true;
+		$feature_name       = ! empty( $feature_name ) ? $feature_name : __( 'CRM feature', 'zero-bs-crm' );
 
-    // if we don't have an array of arrays (e.g. only one plugin is passed), make one
-    if ( !isset( $plugins[0] ) ) {
-      $plugins = array( $plugins );
-    }
-    foreach ( $plugins as $args ) {
-      $slug = !empty( $args['slug'] ) ? $args['slug'] : '';
-      $cur_ver = $this->get_plugin_version( $slug );
-      $req_ver = !empty( $args['req_ver'] ) ? $args['req_ver'] : 1e6; //high version number
-      $is_good_ver = version_compare($cur_ver, $req_ver, '>=');
-      $is_active = is_plugin_active( $slug );
+		// if we don't have an array of arrays (e.g. only one plugin is passed), make one
+		if ( ! isset( $plugins[0] ) ) {
+			$plugins = array( $plugins );
+		}
+		foreach ( $plugins as $args ) {
+			$slug        = ! empty( $args['slug'] ) ? $args['slug'] : '';
+			$cur_ver     = $this->get_plugin_version( $slug );
+			$req_ver     = ! empty( $args['req_ver'] ) ? $args['req_ver'] : 1e6; // high version number
+			$is_good_ver = version_compare( $cur_ver, $req_ver, '>=' );
+			$is_active   = is_plugin_active( $slug );
 
-      // move to next plugin check if everything checks out
-      if ( $is_active && $is_good_ver ) {
-        continue;
-      }
+			// move to next plugin check if everything checks out
+			if ( $is_active && $is_good_ver ) {
+				continue;
+			}
 
-      $everything_is_fine = false;
+			$everything_is_fine = false;
 
-      // short-circuit if silent check
-      if ( $is_silent || ! current_user_can( 'activate_plugins' ) ) {
-        break;
-      }
+			// short-circuit if silent check
+			if ( $is_silent || ! current_user_can( 'activate_plugins' ) ) {
+				break;
+			}
 
-      // otherwise, proceed to trigger an admin notice
-      $plugin_name = !empty( $args['name'] ) ? $args['name'] : $slug; //use slug if no name
-      $plugin_link = !empty( $args['link'] ) ? $args['link'] : false;
-      $is_installed = $this->is_plugin_installed( $slug );
+			// otherwise, proceed to trigger an admin notice
+			$plugin_name  = ! empty( $args['name'] ) ? $args['name'] : $slug; // use slug if no name
+			$plugin_link  = ! empty( $args['link'] ) ? $args['link'] : false;
+			$is_installed = $this->is_plugin_installed( $slug );
 
-      if ( empty( $slug ) ) {
-        $error_msg = __( 'A CRM feature has an unknown missing dependency. Please contact support!' );
-        ##WLREMOVE
-        $error_msg = __( 'A Jetpack CRM feature has an unknown missing dependency. Please contact support!' );
-        ##/WLREMOVE
-      }
-      else if ( empty( $error_msg ) ) {
-        if ( !$is_installed ) {
-          $error_msg = sprintf( __( '%s requires %s version %s or greater. Please install and activate %s to use this feature.', 'zero-bs-crm' ), $feature_name, $plugin_link?'<a target="_blank" href="'.$plugin_link.'">'.$plugin_name.'</a>':$plugin_name, $req_ver, $plugin_name );
-        }
-        else if ( $is_installed && !$is_good_ver ) {
-          $error_msg = sprintf( __( '%s requires %s version %s or greater, but version %s is currently installed. Please update %s to use this feature.', 'zero-bs-crm' ), $feature_name, $plugin_name, $req_ver, $cur_ver, $plugin_name );
-        }
-        else if ( !$is_active ) {
-          $error_msg = sprintf( __( '%s requires the %s plugin to be active. Please activate %s to use this feature.', 'zero-bs-crm' ), $feature_name, $plugin_name, $plugin_name );
-          ##WLREMOVE
-          if ( !empty( $args['kb_link'] ) ) {
-            $error_msg .= '<br><br>';
-            $error_msg .= sprintf( __( 'To learn more about how this feature works, click <a href="%s" target="_blank">here</a>.', 'zero-bs-crm' ), $args['kb_link'] );
-          }
-          ##/WLREMOVE
-        }
-      }
+			if ( empty( $slug ) ) {
+				$error_msg = __( 'A CRM feature has an unknown missing dependency. Please contact support!' );
+				##WLREMOVE
+				$error_msg = __( 'A Jetpack CRM feature has an unknown missing dependency. Please contact support!' );
+				##/WLREMOVE
+			} elseif ( empty( $error_msg ) ) {
+				if ( ! $is_installed ) {
+					$error_msg = sprintf( __( '%1$s requires %2$s version %3$s or greater. Please install and activate %4$s to use this feature.', 'zero-bs-crm' ), $feature_name, $plugin_link ? '<a target="_blank" href="' . $plugin_link . '">' . $plugin_name . '</a>' : $plugin_name, $req_ver, $plugin_name );
+				} elseif ( $is_installed && ! $is_good_ver ) {
+					$error_msg = sprintf( __( '%1$s requires %2$s version %3$s or greater, but version %4$s is currently installed. Please update %5$s to use this feature.', 'zero-bs-crm' ), $feature_name, $plugin_name, $req_ver, $cur_ver, $plugin_name );
+				} elseif ( ! $is_active ) {
+					$error_msg = sprintf( __( '%1$s requires the %2$s plugin to be active. Please activate %3$s to use this feature.', 'zero-bs-crm' ), $feature_name, $plugin_name, $plugin_name );
+					##WLREMOVE
+					if ( ! empty( $args['kb_link'] ) ) {
+						$error_msg .= '<br><br>';
+						$error_msg .= sprintf( __( 'To learn more about how this feature works, click <a href="%s" target="_blank">here</a>.', 'zero-bs-crm' ), $args['kb_link'] );
+					}
+					##/WLREMOVE
+				}
+			}
 
-      $error_fn = function() use( $error_msg ) {
-        $this->show_dependency_error( $error_msg );
-      };
-      add_action( 'admin_notices', $error_fn );
-    }
-    return $everything_is_fine;
-  }
+			$error_fn = function () use ( $error_msg ) {
+				$this->show_dependency_error( $error_msg );
+			};
+			add_action( 'admin_notices', $error_fn );
+		}
+		return $everything_is_fine;
+	}
 
 	/**
 	 * Show error message if feature's dependency requirements are not met
 	 *
 	 * @param string $error_msg Error message.
 	 */
-  private function show_dependency_error( $error_msg ) {
-    if ( zeroBSCRM_isAdminPage() ) {
-      ?>
-      <div class="ui segment jpcrm-error">
-        <div class="content">
-          <b><?php esc_html_e( 'CRM dependency error', 'zero-bs-crm' ) ?></b><br>
-          <p><?php echo $error_msg; ?></p>
-        </div>
-      </div>
-      <?php
-    }
-    else {
-      ?>
-      <div class="error"><p><?php echo $error_msg; ?></p></div>
-      <?php
-    }
-  }
+	private function show_dependency_error( $error_msg ) {
+		if ( zeroBSCRM_isAdminPage() ) {
+			?>
+		<div class="ui segment jpcrm-error">
+		<div class="content">
+			<b><?php esc_html_e( 'CRM dependency error', 'zero-bs-crm' ); ?></b><br>
+			<p><?php echo $error_msg; ?></p>
+		</div>
+		</div>
+			<?php
+		} else {
+			?>
+		<div class="error"><p><?php echo $error_msg; ?></p></div>
+			<?php
+		}
+	}
 }
 

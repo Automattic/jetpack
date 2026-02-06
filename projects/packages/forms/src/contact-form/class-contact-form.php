@@ -239,7 +239,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'customThankyouHeading'  => self::get_default_thank_you_heading(), // The text to show above customThankyouMessage.
 			'customThankyouMessage'  => '', // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when confirmationType is set to 'redirect'.
-			'confirmationType'       => null, // The type of confirmation to show after submitting a form. 'text' for a text message, 'redirect' for a redirect link.
+			'confirmationType'       => 'text', // The type of confirmation to show after submitting a form. 'text' for a text message, 'redirect' for a redirect link.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
 			'mailpoet'               => null,
 			'hostingerReach'         => null,
@@ -3620,13 +3620,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The confirmation type of the contact form.
 	 */
 	public function get_confirmation_type() {
-		$confirmation_type = $this->get_attribute( 'confirmationType' );
-
-		if ( '' === $confirmation_type ) {
-			$confirmation_type = 'redirect' === $this->get_attribute( 'customThankyou' ) ? 'redirect' : 'text';
+		// Backward compat: customThankyou 'redirect' takes precedence for old forms
+		if ( 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
+			return 'redirect';
 		}
 
-		return $confirmation_type;
+		return $this->get_attribute( 'confirmationType' );
 	}
 
 	/**

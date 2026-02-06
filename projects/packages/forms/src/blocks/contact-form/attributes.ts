@@ -33,6 +33,7 @@ export default {
 	},
 	confirmationType: {
 		enum: [ 'text', 'redirect' ],
+		default: 'text',
 	},
 	jetpackCRM: {
 		type: 'boolean',
