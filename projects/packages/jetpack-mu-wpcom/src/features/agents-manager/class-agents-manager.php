@@ -357,6 +357,10 @@ class Agents_Manager {
 	 * after Jetpack registers its extensions but before the editor state is built.
 	 */
 	public function disable_jetpack_ai_image_extensions() {
+		if ( ! $this->should_use_unified_experience() ) {
+			return;
+		}
+
 		if ( ! class_exists( 'Jetpack_Gutenberg' ) ) {
 			return;
 		}
