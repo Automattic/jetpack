@@ -291,27 +291,38 @@ type SearchParams = {
 	[ key: string ]: string | string[] | undefined;
 };
 
-type GetActionsParams = {
-	navigate: NavigateFunction;
-	searchParams: SearchParams;
-	view: string | undefined;
-};
-
 type ActionWithDestructive = Action & {
 	isDestructive?: boolean;
 };
 
+type GetActionsParams = {
+	navigate: NavigateFunction;
+	searchParams: SearchParams;
+};
+
+type getActionsReturn = {
+	viewAction: Action;
+	editFormAction: Action;
+	markAsSpamAction: Action;
+	markAsNotSpamAction: Action;
+	restoreAction: Action;
+	moveToTrashAction: Action;
+	deleteAction: ActionWithDestructive;
+	markAsReadAction: Action;
+	markAsUnreadAction: Action;
+};
+
+type GetRowActionsParams = GetActionsParams & {
+	view: string | undefined;
+};
+
 /**
- * Get actions configuration for form responses DataViews.
+ * Get the actions for the form responses DataViews.
  *
  * @param {GetActionsParams} params - Parameters for generating actions.
- * @return {ActionWithDestructive[]} Array of action configurations.
+ * @return {getActionsReturn} Object containing the actions.
  */
-export function getActions( {
-	navigate,
-	searchParams,
-	view,
-}: GetActionsParams ): ActionWithDestructive[] {
+export function getActions( { navigate, searchParams }: GetActionsParams ): getActionsReturn {
 	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
@@ -1207,6 +1218,45 @@ export function getActions( {
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		},
 	};
+
+	return {
+		viewAction,
+		editFormAction,
+		markAsSpamAction,
+		markAsNotSpamAction,
+		restoreAction,
+		moveToTrashAction,
+		deleteAction,
+		markAsReadAction,
+		markAsUnreadAction,
+	};
+}
+
+/**
+ * Get actions configuration for form responses DataViews.
+ *
+ * @param {GetRowActionsParams} params - Parameters for generating actions.
+ * @return {ActionWithDestructive[]} Array of action configurations.
+ */
+export function getRowActions( {
+	navigate,
+	searchParams,
+	view,
+}: GetRowActionsParams ): ActionWithDestructive[] {
+	const {
+		viewAction,
+		editFormAction,
+		markAsSpamAction,
+		markAsNotSpamAction,
+		restoreAction,
+		moveToTrashAction,
+		deleteAction,
+		markAsReadAction,
+		markAsUnreadAction,
+	} = getActions( {
+		navigate,
+		searchParams,
+	} );
 
 	switch ( view ) {
 		case 'trash':
