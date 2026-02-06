@@ -48,12 +48,8 @@ const STATUS_CONFIG: Record<
 			),
 	},
 	private: {
-		status: 'warning',
-		getMessage: () =>
-			__(
-				'Private form. Currently hidden from site visitors and not accepting any responses.',
-				'jetpack-forms'
-			),
+		status: 'info',
+		getMessage: () => __( 'Private form. Currently hidden from site visitors.', 'jetpack-forms' ),
 	},
 	future: {
 		status: 'info',
@@ -166,6 +162,7 @@ export default function FormStatusNotice( {
 			createSuccessNotice( __( 'Form deleted permanently.', 'jetpack-forms' ), {
 				type: 'snackbar',
 			} );
+			removeBlocks( [ clientId ] );
 		} catch {
 			createErrorNotice(
 				__(
@@ -176,7 +173,6 @@ export default function FormStatusNotice( {
 			);
 		} finally {
 			setIsDeleting( false );
-			removeBlocks( [ clientId ] );
 		}
 	}, [
 		formRef,
