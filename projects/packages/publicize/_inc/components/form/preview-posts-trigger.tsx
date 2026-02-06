@@ -63,11 +63,9 @@ export function PreviewPostsTrigger() {
 			</Button>
 			{ perNetworkMode.isEnabled ? (
 				<p className={ styles[ 'per-network-customization-notice' ] }>
-					{ __( 'Customizing per account.', 'jetpack-publicize-pkg' ) }
-					&nbsp;
 					{ sprintf(
 						/* translators: %s: button/section label like "Preview and customize" */
-						__( 'Manage in "%s" above.', 'jetpack-publicize-pkg' ),
+						__( 'Customizing per account. Manage in "%s" above.', 'jetpack-publicize-pkg' ),
 						buttonLabel
 					) }
 				</p>
