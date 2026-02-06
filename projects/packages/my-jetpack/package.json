@@ -85,7 +85,7 @@
 		"sass-loader": "16.0.5",
 		"storybook": "10.2.3",
 		"typescript": "5.9.3",
-		"webpack": "5.101.3",
+		"webpack": "5.104.1",
 		"webpack-cli": "6.0.1",
 		"webpack-dev-server": "5.2.3"
 	}
