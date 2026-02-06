@@ -882,12 +882,8 @@ class Contact_Form_Block {
 				'message' => sprintf(
 					/* translators: %s: scheduled publish date */
 					__( 'This form is scheduled for %s and is only visible to you until then.', 'jetpack-forms' ),
-					wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $synced_form->post_date ) )
+					wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), get_post_time( 'U', true, $synced_form ) )
 				),
-			),
-			'private' => array(
-				'type'    => 'warning',
-				'message' => __( 'This form is private and is only visible to you. Change its status to published to make it visible to site visitors.', 'jetpack-forms' ),
 			),
 		);
 
