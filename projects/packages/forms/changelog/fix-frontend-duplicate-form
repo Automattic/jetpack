@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Contact Form: fix duplicate form display on frontend when submission is successful.
+Contact Form: Prevent duplicate form display on the frontend after a successful submission.
