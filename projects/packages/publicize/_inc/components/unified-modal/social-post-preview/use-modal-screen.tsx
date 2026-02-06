@@ -25,16 +25,26 @@ export function useModalScreen() {
 		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
 	}, [] );
 
+	let title: string = __( 'Preview and customize', 'jetpack-publicize-pkg' );
+
+	if ( isPrePublishScreen ) {
+		title = _x(
+			'Confirm social sharing',
+			'Share here is imperative verb',
+			'jetpack-publicize-pkg'
+		);
+	} else if ( isPostPublished ) {
+		title = _x(
+			'Customize and share to social media',
+			'Share here is imperative verb',
+			'jetpack-publicize-pkg'
+		);
+	}
+
 	return useMemo< ScreenDetails >(
 		() => ( {
 			path: '/',
-			title: ! isPostPublished
-				? __( 'Preview and customize', 'jetpack-publicize-pkg' )
-				: _x(
-						'Customize and share to social media',
-						'Share here is imperative verb',
-						'jetpack-publicize-pkg'
-				  ),
+			title,
 			isScreenLocked: true,
 			headerIcon: isPrePublishScreen ? <JetpackLogo /> : null,
 			content: <Content />,
@@ -43,6 +53,6 @@ export function useModalScreen() {
 			className: styles[ 'social-post-preview-screen' ],
 			'data-plan': hasSocialPaidFeatures() ? 'paid' : 'free',
 		} ),
-		[ isPostPublished, isPrePublishScreen, footerActions ]
+		[ isPrePublishScreen, footerActions, title ]
 	);
 }
