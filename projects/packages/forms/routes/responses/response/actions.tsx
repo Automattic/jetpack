@@ -11,12 +11,12 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
-import { getActions } from '../actions';
+import { getActions } from '../actions.tsx';
 /**
  * Types
  */
 import type { Registry } from '../../../src/dashboard/inbox/stage/types.tsx';
-import type { FormResponse } from '../../../src/types/index';
+import type { FormResponse } from '../../../src/types/index.ts';
 
 /**
  * Renders the actions for a response.

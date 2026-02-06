@@ -300,7 +300,7 @@ type GetActionsParams = {
 	searchParams: SearchParams;
 };
 
-type getActionsReturn = {
+type GetActionsReturn = {
 	viewAction: Action;
 	editFormAction: Action;
 	markAsSpamAction: Action;
@@ -320,9 +320,9 @@ type GetRowActionsParams = GetActionsParams & {
  * Get the actions for the form responses DataViews.
  *
  * @param {GetActionsParams} params - Parameters for generating actions.
- * @return {getActionsReturn} Object containing the actions.
+ * @return {GetActionsReturn} Object containing the actions.
  */
-export function getActions( { navigate, searchParams }: GetActionsParams ): getActionsReturn {
+export function getActions( { navigate, searchParams }: GetActionsParams ): GetActionsReturn {
 	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
