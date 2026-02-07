@@ -257,13 +257,18 @@ const enforceBlockNesting = () => {
 	// Check if form was empty (placeholder state)
 	const wasEmpty = formBlock.innerBlocks.length === 0;
 
-	const { replaceInnerBlocks, removeBlocks } = dispatch( 'core/block-editor' ) as {
+	const {
+		replaceInnerBlocks,
+		removeBlocks,
+		__unstableMarkNextChangeAsNotPersistent,
+	} = dispatch( 'core/block-editor' ) as {
 		replaceInnerBlocks: (
 			rootClientId: string,
 			blocks: ReturnType< typeof createBlock >[],
 			updateSelection?: boolean
 		) => void;
 		removeBlocks: ( clientIds: string[] ) => void;
+		__unstableMarkNextChangeAsNotPersistent: () => void;
 	};
 
 	const { selectBlock } = dispatch( 'core/block-editor' ) as {
@@ -279,7 +284,8 @@ const enforceBlockNesting = () => {
 			.find( b => b.name !== 'jetpack/button' && b.name !== 'core/button' );
 
 		if ( lastNonButtonBlock && isEmptyParagraph( lastNonButtonBlock ) ) {
-			// Just remove the stray paragraph and select the existing empty one
+			// Just remove the stray paragraph and select the existing empty one (mark as non-persistent)
+			__unstableMarkNextChangeAsNotPersistent();
 			removeBlocks( [ blocksToMove[ 0 ].clientId ] );
 			selectBlock( lastNonButtonBlock.clientId );
 			return;
@@ -309,11 +315,13 @@ const enforceBlockNesting = () => {
 		newInnerBlocks = existingBlocks;
 	}
 
-	// First remove the original blocks from root level
+	// First remove the original blocks from root level (mark as non-persistent)
 	const clientIdsToRemove = blocksToMove.map( block => block.clientId );
+	__unstableMarkNextChangeAsNotPersistent();
 	removeBlocks( clientIdsToRemove );
 
-	// Then use replaceInnerBlocks to set the form's inner blocks
+	// Then use replaceInnerBlocks to set the form's inner blocks (mark as non-persistent)
+	__unstableMarkNextChangeAsNotPersistent();
 	replaceInnerBlocks(
 		state.formBlockClientId,
 		newInnerBlocks,
