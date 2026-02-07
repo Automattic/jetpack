@@ -21,7 +21,7 @@
 				guid: event.data.guid,
 				requestId: event.data.requestId,
 			},
-			'*'
+			event.origin
 		);
 
 		const fetchData = {
@@ -50,7 +50,7 @@
 							jwt: jsonResponse.data.jwt,
 							requestId: event.data.requestId,
 						},
-						'*'
+						event.origin
 					);
 				} else {
 					event.source.postMessage(
@@ -59,7 +59,7 @@
 							guid: fetchData.guid,
 							requestId: event.data.requestId,
 						},
-						'*'
+						event.origin
 					);
 				}
 			} );
