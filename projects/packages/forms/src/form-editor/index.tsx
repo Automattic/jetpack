@@ -16,6 +16,7 @@ import {
 	activateBlockCategoryOverrides,
 	deactivateBlockCategoryOverrides,
 } from './utils/block-category-override';
+import { determineBlockNestingAction } from './utils/block-nesting-logic';
 import {
 	BlockLock,
 	findFormBlock,
@@ -24,7 +25,6 @@ import {
 	getBlocksToMove,
 	isEmptyParagraph,
 } from './utils/block-utils';
-import { determineBlockNestingAction } from './utils/block-nesting-logic';
 import {
 	moveContactFormCategoryToFront as moveCategoryToFront,
 	moveContactFormCategoryToBack as moveCategoryToBack,
@@ -258,13 +258,16 @@ const enforceBlockNesting = () => {
 	// Determine what action to take based on form state and blocks to move
 	const action = determineBlockNestingAction( formBlock, blocksToMove );
 
-	const { replaceInnerBlocks, removeBlocks } = dispatch( 'core/block-editor' ) as {
+	const { replaceInnerBlocks, removeBlocks, __unstableMarkNextChangeAsNotPersistent } = dispatch(
+		'core/block-editor'
+	) as {
 		replaceInnerBlocks: (
 			rootClientId: string,
 			blocks: ReturnType< typeof createBlock >[],
 			updateSelection?: boolean
 		) => void;
 		removeBlocks: ( clientIds: string[] ) => void;
+		__unstableMarkNextChangeAsNotPersistent: () => void;
 	};
 
 	const { selectBlock } = dispatch( 'core/block-editor' ) as {
@@ -300,11 +303,13 @@ const enforceBlockNesting = () => {
 		newInnerBlocks = existingBlocks;
 	}
 
-	// First remove the original blocks from root level
+	// First remove the original blocks from root level (mark as non-persistent)
 	const clientIdsToRemove = blocksToMove.map( block => block.clientId );
+	__unstableMarkNextChangeAsNotPersistent();
 	removeBlocks( clientIdsToRemove );
 
-	// Then use replaceInnerBlocks to set the form's inner blocks
+	// Then use replaceInnerBlocks to set the form's inner blocks (mark as non-persistent)
+	__unstableMarkNextChangeAsNotPersistent();
 	replaceInnerBlocks(
 		state.formBlockClientId,
 		newInnerBlocks,
