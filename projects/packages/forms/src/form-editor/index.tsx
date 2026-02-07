@@ -24,6 +24,7 @@ import {
 	getBlocksToMove,
 	isEmptyParagraph,
 } from './utils/block-utils';
+import { determineBlockNestingAction } from './utils/block-nesting-logic';
 import {
 	moveContactFormCategoryToFront as moveCategoryToFront,
 	moveContactFormCategoryToBack as moveCategoryToBack,
@@ -254,8 +255,8 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	// Check if form was empty (placeholder state)
-	const wasEmpty = formBlock.innerBlocks.length === 0;
+	// Determine what action to take based on form state and blocks to move
+	const action = determineBlockNestingAction( formBlock, blocksToMove );
 
 	const { replaceInnerBlocks, removeBlocks } = dispatch( 'core/block-editor' ) as {
 		replaceInnerBlocks: (
@@ -270,29 +271,20 @@ const enforceBlockNesting = () => {
 		selectBlock: ( clientId: string ) => void;
 	};
 
-	// If the only block to move is an empty paragraph and the form already has an empty
-	// paragraph at the end (before the submit button), just select the existing one
-	if ( ! wasEmpty && blocksToMove.length === 1 && isEmptyParagraph( blocksToMove[ 0 ] ) ) {
-		// Find the last non-button block in the form
-		const lastNonButtonBlock = [ ...formBlock.innerBlocks ]
-			.reverse()
-			.find( b => b.name !== 'jetpack/button' && b.name !== 'core/button' );
-
-		if ( lastNonButtonBlock && isEmptyParagraph( lastNonButtonBlock ) ) {
-			// Just remove the stray paragraph and select the existing empty one
-			removeBlocks( [ blocksToMove[ 0 ].clientId ] );
-			selectBlock( lastNonButtonBlock.clientId );
-			return;
-		}
+	// Handle dedupe-empty-paragraph case: just remove the stray paragraph and select the existing one
+	if ( action.type === 'dedupe-empty-paragraph' ) {
+		removeBlocks( [ blocksToMove[ 0 ].clientId ] );
+		selectBlock( action.existingEmptyParagraphId! );
+		return;
 	}
 
-	// Clone blocks so they have new clientIds (originals will be removed from root)
+	// Handle move-blocks case: clone blocks and insert them into the form
 	const clonedBlocks = blocksToMove.map( block => cloneBlock( block ) );
 
 	// Build the new inner blocks array
 	let newInnerBlocks: ReturnType< typeof createBlock >[];
 
-	if ( wasEmpty ) {
+	if ( action.addSubmitButton ) {
 		// Form was empty, add a submit button after the moved blocks
 		const submitButton = createBlock( 'jetpack/button', {
 			element: 'button',
@@ -303,9 +295,8 @@ const enforceBlockNesting = () => {
 		newInnerBlocks = [ ...clonedBlocks, submitButton ];
 	} else {
 		// Form already has blocks, insert new blocks at the target index
-		const targetIndex = getInsertionIndex( formBlock );
 		const existingBlocks = [ ...formBlock.innerBlocks ];
-		existingBlocks.splice( targetIndex, 0, ...clonedBlocks );
+		existingBlocks.splice( action.insertionIndex!, 0, ...clonedBlocks );
 		newInnerBlocks = existingBlocks;
 	}
 
