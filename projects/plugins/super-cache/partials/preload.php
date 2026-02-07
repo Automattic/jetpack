@@ -1,6 +1,6 @@
 <div class="wpsc-settings-inner">
 <?php
-global $wp_cache_preload_posts;
+global $wp_cache_preload_posts, $preload_schedule_type, $preload_scheduled_time, $preload_schedule_interval;
 
 echo '<a name="preload"></a>';
 if ( ! $cache_enabled || ! $super_cache_enabled || true === defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
@@ -17,6 +17,17 @@ $count = wpsc_post_count();
 
 $min_refresh_interval = wpsc_get_minimum_preload_interval();
 
+// Set defaults for preload scheduler variables if not set.
+if ( ! isset( $preload_schedule_type ) ) {
+	$preload_schedule_type = 'interval';
+}
+if ( ! isset( $preload_scheduled_time ) ) {
+	$preload_scheduled_time = '00:00';
+}
+if ( ! isset( $preload_schedule_interval ) ) {
+	$preload_schedule_interval = 'daily';
+}
+
 echo '<div class="wpsc-card">';
 echo '<p>' . __( 'This will cache every published post and page on your site. It will create supercache static files so unknown visitors (including bots) will hit a cached page. This will probably help your Google ranking as they are using speed as a metric when judging websites now.', 'wp-super-cache' ) . '</p>';
 echo '<p>' . __( 'Preloading creates lots of files however. Caching is done from the newest post to the oldest so please consider only caching the newest if you have lots (10,000+) of posts. This is especially important on shared hosting.', 'wp-super-cache' ) . '</p>';
@@ -26,7 +37,6 @@ echo '<input type="hidden" name="action" value="preload" />';
 echo '<input type="hidden" name="page" value="wpsupercache" />';
 echo '</div>';
 echo '<div class="wpsc-card">';
-echo '<p>' . sprintf( __( 'Refresh preloaded cache files every %s minutes. (0 to disable, minimum %d minutes.)', 'wp-super-cache' ), "<input type='text' size=4 name='wp_cache_preload_interval' value='" . (int) $wp_cache_preload_interval . "' />", $min_refresh_interval ) . '</p>';
 if ( $count > 100 ) {
 	$step = (int)( $count / 10 );
 
@@ -65,6 +75,36 @@ if ( $count > 100 ) {
 } else {
 	echo '<input type="hidden" name="wp_cache_preload_posts" value="' . $count . '" />';
 }
+
+// Preload Scheduler UI
+echo "<script type='text/javascript'>";
+echo "jQuery(function () {
+	jQuery('#preload_interval_time').on('click',function () {
+		jQuery('#preload_schedule_interval_radio').attr('checked', true);
+	});
+	jQuery('#preload_scheduled_time').on('click',function () {
+		jQuery('#preload_schedule_time_radio').attr('checked', true);
+	});
+	jQuery('#preload_scheduled_select').on('click',function () {
+		jQuery('#preload_schedule_time_radio').attr('checked', true);
+	});
+	});";
+echo "</script>";
+
+echo '<table class="form-table">';
+echo '<tr><td valign="top"><strong>' . esc_html__( 'Scheduler', 'wp-super-cache' ) . '</strong></td><td><table cellpadding=0 cellspacing=0><tr><td valign="top"><input type="radio" id="preload_schedule_interval_radio" name="preload_schedule_type" value="interval" ' . checked( 'interval', $preload_schedule_type, false ) . ' /></td><td valign="top"><label for="preload_schedule_interval_radio">' . esc_html__( 'Timer:', 'wp-super-cache' ) . '</label></td>';
+echo "<td><input type='text' id='preload_interval_time' size=6 name='wp_cache_preload_interval' value='" . esc_attr( $wp_cache_preload_interval ) . "' /> " . esc_html__( 'minutes', 'wp-super-cache' ) . '<br />' . sprintf( esc_html__( 'Refresh preloaded cache files at this interval. (0 to disable, minimum %d minutes)', 'wp-super-cache' ), $min_refresh_interval ) . '</td></tr>';
+echo '<tr><td valign="top"><input type="radio" id="preload_schedule_time_radio" name="preload_schedule_type" value="time" ' . checked( 'time', $preload_schedule_type, false ) . ' /></td><td valign="top"><label for="preload_schedule_time_radio">' . esc_html__( 'Clock:', 'wp-super-cache' ) . '</label></td>';
+echo "<td><input type=\"text\" size=5 id='preload_scheduled_time' name='preload_scheduled_time' value=\"" . esc_attr( $preload_scheduled_time ) . "\" /> " . esc_html__( "HH:MM", 'wp-super-cache' ) . "<br />" . esc_html__( 'Start preloading at this time (UTC) or starting at this time every interval below.', 'wp-super-cache' ) . "</td></tr>";
+$schedules = wp_get_schedules();
+echo "<tr><td><br /></td><td><label for='preload_scheduled_select'>" . esc_html__( 'Interval:', 'wp-super-cache' ) . "</label></td><td><select id='preload_scheduled_select' name='preload_schedule_interval' size=1>";
+foreach( $schedules as $desc => $details ) {
+	echo "<option value='$desc' " . selected( $desc, $preload_schedule_interval, false ) . " /> {$details[ 'display' ]}</option>";
+}
+echo "</select></td></tr>";
+echo '</table></td></tr>';
+echo '</table>';
+
 
 echo '<input type="checkbox" name="wp_cache_preload_on" value="1" ';
 echo $wp_cache_preload_on == 1 ? 'checked=1' : '';
