@@ -303,12 +303,12 @@ const enforceBlockNesting = () => {
 		newInnerBlocks = existingBlocks;
 	}
 
-	// First remove the original blocks from root level (mark as non-persistent)
+	// First remove the original blocks from root level
 	const clientIdsToRemove = blocksToMove.map( block => block.clientId );
 	__unstableMarkNextChangeAsNotPersistent();
 	removeBlocks( clientIdsToRemove );
 
-	// Then use replaceInnerBlocks to set the form's inner blocks (mark as non-persistent)
+	// Then use replaceInnerBlocks to set the form's inner blocks
 	__unstableMarkNextChangeAsNotPersistent();
 	replaceInnerBlocks(
 		state.formBlockClientId,
