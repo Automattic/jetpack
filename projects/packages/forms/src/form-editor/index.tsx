@@ -7,7 +7,9 @@
  * It also locks the form block to prevent it from being moved or removed.
  */
 
+import { createBlock, cloneBlock } from '@wordpress/blocks';
 import { subscribe, select, dispatch } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 import {
@@ -20,6 +22,7 @@ import {
 	getInsertionIndex,
 	shouldLockBlock,
 	getBlocksToMove,
+	isEmptyParagraph,
 } from './utils/block-utils';
 import {
 	moveContactFormCategoryToFront as moveCategoryToFront,
@@ -247,26 +250,80 @@ const enforceBlockNesting = () => {
 
 	// Get the form block to determine where to insert the blocks
 	const formBlock = rootBlocks.find( b => b.clientId === state.formBlockClientId );
-	const targetIndex = formBlock ? getInsertionIndex( formBlock ) : 0;
+	if ( ! formBlock ) {
+		return;
+	}
 
-	// Collect all client IDs to move
-	const clientIdsToMove = blocksToMove.map( block => block.clientId );
+	// Check if form was empty (placeholder state)
+	const wasEmpty = formBlock.innerBlocks.length === 0;
 
-	const { moveBlocksToPosition } = dispatch( 'core/block-editor' ) as {
-		moveBlocksToPosition: (
-			clientIds: string[],
-			source: string,
-			destination: string,
-			index: number
+	const { replaceInnerBlocks, removeBlocks } = dispatch( 'core/block-editor' ) as {
+		replaceInnerBlocks: (
+			rootClientId: string,
+			blocks: ReturnType< typeof createBlock >[],
+			updateSelection?: boolean
 		) => void;
+		removeBlocks: ( clientIds: string[] ) => void;
 	};
-	// Move all blocks at once to avoid state conflicts
-	moveBlocksToPosition(
-		clientIdsToMove,
-		'', // From root
-		state.formBlockClientId, // To form block
-		targetIndex
+
+	const { selectBlock } = dispatch( 'core/block-editor' ) as {
+		selectBlock: ( clientId: string ) => void;
+	};
+
+	// If the only block to move is an empty paragraph and the form already has an empty
+	// paragraph at the end (before the submit button), just select the existing one
+	if ( ! wasEmpty && blocksToMove.length === 1 && isEmptyParagraph( blocksToMove[ 0 ] ) ) {
+		// Find the last non-button block in the form
+		const lastNonButtonBlock = [ ...formBlock.innerBlocks ]
+			.reverse()
+			.find( b => b.name !== 'jetpack/button' && b.name !== 'core/button' );
+
+		if ( lastNonButtonBlock && isEmptyParagraph( lastNonButtonBlock ) ) {
+			// Just remove the stray paragraph and select the existing empty one
+			removeBlocks( [ blocksToMove[ 0 ].clientId ] );
+			selectBlock( lastNonButtonBlock.clientId );
+			return;
+		}
+	}
+
+	// Clone blocks so they have new clientIds (originals will be removed from root)
+	const clonedBlocks = blocksToMove.map( block => cloneBlock( block ) );
+
+	// Build the new inner blocks array
+	let newInnerBlocks: ReturnType< typeof createBlock >[];
+
+	if ( wasEmpty ) {
+		// Form was empty, add a submit button after the moved blocks
+		const submitButton = createBlock( 'jetpack/button', {
+			element: 'button',
+			text: __( 'Submit', 'jetpack-forms' ),
+			lock: { move: false, remove: true },
+		} );
+
+		newInnerBlocks = [ ...clonedBlocks, submitButton ];
+	} else {
+		// Form already has blocks, insert new blocks at the target index
+		const targetIndex = getInsertionIndex( formBlock );
+		const existingBlocks = [ ...formBlock.innerBlocks ];
+		existingBlocks.splice( targetIndex, 0, ...clonedBlocks );
+		newInnerBlocks = existingBlocks;
+	}
+
+	// First remove the original blocks from root level
+	const clientIdsToRemove = blocksToMove.map( block => block.clientId );
+	removeBlocks( clientIdsToRemove );
+
+	// Then use replaceInnerBlocks to set the form's inner blocks
+	replaceInnerBlocks(
+		state.formBlockClientId,
+		newInnerBlocks,
+		false // Don't update selection
 	);
+
+	// Select the first of the newly added blocks
+	if ( clonedBlocks.length > 0 ) {
+		selectBlock( clonedBlocks[ 0 ].clientId );
+	}
 };
 
 let unsubscribe: ( () => void ) | null = null;
