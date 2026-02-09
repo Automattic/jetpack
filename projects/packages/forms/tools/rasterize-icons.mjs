@@ -14,16 +14,21 @@
 
 import { mkdir } from 'fs/promises';
 import { basename, dirname, join, relative } from 'path';
-import { fileURLToPath } from 'url';
 import { glob } from 'glob';
 import sharp from 'sharp';
+import { iconPipelineConfig } from './webpack.config.extract-icons.js';
 
-const __dirname = dirname( fileURLToPath( import.meta.url ) );
-const formsRoot = join( __dirname, '..' );
-const blocksDir = join( formsRoot, 'src', 'blocks' );
-const outputDir = join( formsRoot, 'src', 'contact-form', 'images', 'field-icons' );
+const {
+	formsRoot,
+	blocksDir,
+	blockDirPattern,
+	svgFilename,
+	rasterOutputDir: outputDir,
+	rasterSuffix,
+} = iconPipelineConfig;
 
-const svgFiles = await glob( join( blocksDir, 'field-*', 'icon.svg' ) );
+// Find all SVG icon files matching the configured block pattern.
+const svgFiles = await glob( join( blocksDir, blockDirPattern, svgFilename ) );
 
 if ( svgFiles.length > 0 ) {
 	console.log( `Found ${ svgFiles.length } SVG icons. Rasterizing...\n` );
@@ -34,7 +39,7 @@ if ( svgFiles.length > 0 ) {
 
 	for ( const svgFile of svgFiles ) {
 		const blockName = basename( dirname( svgFile ) );
-		const outputFile = join( outputDir, `${ blockName }@2x.png` );
+		const outputFile = join( outputDir, `${ blockName }${ rasterSuffix }.png` );
 		const relativePath = relative( formsRoot, outputFile );
 
 		try {

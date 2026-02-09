@@ -14,6 +14,22 @@ import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 
 const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
+/**
+ * Icon pipeline configuration.
+ *
+ * Shared by extract-icons.mjs and rasterize-icons.mjs — centralises all
+ * directory paths and file-matching rules so the scripts stay generic.
+ */
+export const iconPipelineConfig = {
+	formsRoot: path.join( __dirname, '..' ),
+	blocksDir: path.join( __dirname, '..', 'src', 'blocks' ),
+	blockDirPattern: 'field-*',
+	iconFilenames: [ 'icon.jsx', 'icon.tsx', 'icon.js' ],
+	svgFilename: 'icon.svg',
+	rasterOutputDir: path.join( __dirname, '..', 'src', 'contact-form', 'images', 'field-icons' ),
+	rasterSuffix: '@2x',
+};
+
 export default {
 	mode: 'production',
 	devtool: false,

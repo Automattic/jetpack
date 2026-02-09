@@ -11,33 +11,29 @@
  * Usage: node tools/extract-icons.mjs
  */
 
-import { existsSync, readdirSync, statSync, unlinkSync, writeFileSync } from 'fs';
+import { unlinkSync, writeFileSync } from 'fs';
 import { createRequire } from 'module';
-import { dirname, join, relative } from 'path';
+import { basename, dirname, join, relative } from 'path';
 import { fileURLToPath } from 'url';
+import { glob } from 'glob';
+import { iconPipelineConfig } from './webpack.config.extract-icons.js';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
-const formsRoot = join( __dirname, '..' );
-const blocksDir = join( formsRoot, 'src', 'blocks' );
+const { formsRoot, blocksDir, blockDirPattern, iconFilenames } = iconPipelineConfig;
 
 // ---------------------------------------------------------------------------
 // Step 1: Discover icon files
 // ---------------------------------------------------------------------------
 
-const ICON_EXTENSIONS = [ 'icon.jsx', 'icon.tsx', 'icon.js' ];
-
-const blockDirs = readdirSync( blocksDir )
-	.filter( name => {
-		if ( ! name.startsWith( 'field-' ) ) {
-			return false;
-		}
-		const fullPath = join( blocksDir, name );
-		if ( ! statSync( fullPath ).isDirectory() ) {
-			return false;
-		}
-		return ICON_EXTENSIONS.some( f => existsSync( join( fullPath, f ) ) );
-	} )
+// Glob for each supported extension to find all icon component files.
+const iconFiles = (
+	await Promise.all( iconFilenames.map( ext => glob( join( blocksDir, blockDirPattern, ext ) ) ) )
+)
+	.flat()
 	.sort();
+
+// Extract unique block directory names, preserving the sort order.
+const blockDirs = [ ...new Set( iconFiles.map( f => basename( dirname( f ) ) ) ) ];
 
 if ( blockDirs.length === 0 ) {
 	console.log( 'No icon components found.' );
@@ -49,9 +45,14 @@ console.log( `Found ${ blockDirs.length } icon components.\n` );
 // Step 2: Generate the runner module
 // ---------------------------------------------------------------------------
 
+// Map each block directory to its icon import, using the first matching extension.
 const iconEntries = blockDirs.map( ( dir, i ) => {
-	const ext = ICON_EXTENSIONS.find( f => existsSync( join( blocksDir, dir, f ) ) );
-	return { dir, varName: `icon${ i }`, importPath: `../src/blocks/${ dir }/${ ext }` };
+	const iconFile = iconFiles.find( f => basename( dirname( f ) ) === dir );
+	return {
+		dir,
+		varName: `icon${ i }`,
+		importPath: `../src/blocks/${ dir }/${ basename( iconFile ) }`,
+	};
 } );
 
 const imports = iconEntries
