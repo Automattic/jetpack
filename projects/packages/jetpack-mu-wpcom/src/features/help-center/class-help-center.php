@@ -640,7 +640,7 @@ class Help_Center {
 		}
 
 		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
-		if ( ! is_user_logged_in() ) {
+		if ( ! is_user_logged_in() && ! self::is_proxied() ) {
 			if ( ! $this->is_support_site ) {
 				return;
 			}
