@@ -93,11 +93,11 @@ importers:
   projects/github-actions/test-results-to-slack:
     dependencies:
       '@actions/core':
-        specifier: 2.0.2
-        version: 2.0.2
+        specifier: 3.0.0
+        version: 3.0.0
       '@actions/github':
-        specifier: 7.0.0
-        version: 7.0.0
+        specifier: 9.0.0
+        version: 9.0.0
       '@slack/web-api':
         specifier: 7.12.0
         version: 7.12.0
