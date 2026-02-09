@@ -88,9 +88,12 @@ class Social_Admin_Page {
 	 * Initialize the admin resources.
 	 */
 	public function admin_init() {
-		// Clear plan cache when the plugin settings page is loaded.
-		// This ensures fresh purchase data is displayed after completing a purchase.
-		Current_Plan::refresh_from_wpcom();
+		// Refresh data if coming from purchase to ensure it is up to date
+		// without making API calls on every admin page load.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['from_purchase'] ) ) {
+			Current_Plan::refresh_from_wpcom();
+		}
 
 		/**
 		 * Use priority 20 to ensure that we can dequeue the old Social assets.

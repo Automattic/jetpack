@@ -97,7 +97,7 @@ const SocialModuleToggle: FC = () => {
 					cta={ __( 'Power up Jetpack Social', 'jetpack-publicize-pkg' ) }
 					href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
 						site: `${ wpcom.blog_id ?? siteSuffix }`,
-						query: 'redirect_to=admin.php?page=jetpack-social',
+						query: 'redirect_to=admin.php?page=jetpack-social&from_purchase=1',
 					} ) }
 					tooltipText={ __(
 						'Share custom images and videos that capture attention, use our powerful Social Image Generator to create stunning visuals, and access priority support for expert help whenever you need it.',

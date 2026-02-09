@@ -120,7 +120,7 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 					<Button
 						href={ getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
 							site: blogID ? blogID.toString() : siteSuffix,
-							query: 'redirect_to=admin.php?page=jetpack-social',
+							query: 'redirect_to=admin.php?page=jetpack-social&from_purchase=1',
 						} ) }
 						fullWidth
 					>
