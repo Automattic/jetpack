@@ -5,12 +5,7 @@
  */
 import QueryControls from '../../components/query-controls';
 import { postsBlockSelector, postsBlockDispatch, isBlogPrivate, shouldReflow } from './utils';
-import {
-	getBylineHTML,
-	formatSponsorLogos,
-	formatSponsorByline,
-	getPostStatusLabel,
-} from '../../shared/js/utils';
+import { getBylineHTML, formatSponsorLogos, formatSponsorByline, getPostStatusLabel } from '../../shared/js/utils';
 import { PostTypesPanel, PostStatusesPanel } from '../../components/editor-panels';
 
 /**
@@ -19,85 +14,38 @@ import { PostTypesPanel, PostStatusesPanel } from '../../components/editor-panel
 import classNames from 'classnames';
 
 /**
+ * Newspack dependencies
+ */
+import { aspectLandscape, aspectPortrait, aspectSquare } from 'newspack-icons';
+
+/**
  * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { Component, Fragment, RawHTML } from '@wordpress/element';
+import { BlockControls, InspectorControls, PanelColorSettings, RichText, withColors, AlignmentControl } from '@wordpress/block-editor';
 import {
-	BlockControls,
-	InspectorControls,
-	PanelColorSettings,
-	RichText,
-	withColors,
-	AlignmentControl,
-} from '@wordpress/block-editor';
-import {
-	BaseControl,
-	Button,
-	ButtonGroup,
 	PanelBody,
-	Path,
 	Placeholder,
 	RangeControl,
 	Spinner,
-	SVG,
 	Toolbar,
 	ToggleControl,
 	TextControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 import { decodeEntities } from '@wordpress/html-entities';
-import {
-	fullscreen,
-	grid,
-	image,
-	list,
-	postFeaturedImage,
-	pullLeft,
-	pullRight,
-	sidesAll,
-	textColor as typeScaleIcon,
-} from '@wordpress/icons';
+import { fullscreen, grid, image, list, postFeaturedImage, pullLeft, pullRight, sidesAll, textColor as typeScaleIcon } from '@wordpress/icons';
 
 let IS_SUBTITLE_SUPPORTED_IN_THEME: boolean;
-if (
-	typeof window === 'object' &&
-	window.newspack_blocks_data &&
-	window.newspack_blocks_data.post_subtitle
-) {
+if ( typeof window === 'object' && window.newspack_blocks_data && window.newspack_blocks_data.post_subtitle ) {
 	IS_SUBTITLE_SUPPORTED_IN_THEME = true;
 }
-
-const landscapeIcon = (
-	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-		<Path
-			clipRule="evenodd"
-			d="M18.714 7.5H5.286a.786.786 0 00-.786.786v7.428c0 .434.352.786.786.786h13.428a.786.786 0 00.786-.786V8.286a.786.786 0 00-.786-.786zM5.286 6A2.286 2.286 0 003 8.286v7.428A2.286 2.286 0 005.286 18h13.428A2.286 2.286 0 0021 15.714V8.286A2.286 2.286 0 0018.714 6H5.286z"
-			fillRule="evenodd"
-		/>
-	</SVG>
-);
-
-const portraitIcon = (
-	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-		<Path
-			clipRule="evenodd"
-			d="M15.714 4.5H8.286a.786.786 0 00-.786.786v13.428c0 .434.352.786.786.786h7.428a.786.786 0 00.786-.786V5.286a.786.786 0 00-.786-.786zM8.286 3A2.286 2.286 0 006 5.286v13.428A2.286 2.286 0 008.286 21h7.428A2.286 2.286 0 0018 18.714V5.286A2.286 2.286 0 0015.714 3H8.286z"
-			fillRule="evenodd"
-		/>
-	</SVG>
-);
-
-const squareIcon = (
-	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-		<Path
-			clipRule="evenodd"
-			d="M18.714 4.5H5.286a.786.786 0 00-.786.786v13.428c0 .434.352.786.786.786h13.428a.786.786 0 00.786-.786V5.286a.786.786 0 00-.786-.786zM5.286 3A2.286 2.286 0 003 5.286v13.428A2.286 2.286 0 005.286 21h13.428A2.286 2.286 0 0021 18.714V5.286A2.286 2.286 0 0018.714 3H5.286z"
-			fillRule="evenodd"
-		/>
-	</SVG>
-);
 
 class Edit extends Component< HomepageArticlesProps > {
 	renderPost = ( post: Post ) => {
@@ -122,18 +70,8 @@ class Edit extends Component< HomepageArticlesProps > {
 		} = attributes;
 
 		const styles = {
-			minHeight:
-				( mediaPosition === 'behind' &&
-					showImage &&
-					post.newspack_featured_image_src &&
-					minHeight + 'vh' ) ||
-				undefined,
-			paddingTop:
-				( mediaPosition === 'behind' &&
-					showImage &&
-					post.newspack_featured_image_src &&
-					minHeight / 5 + 'vh' ) ||
-				undefined,
+			minHeight: ( mediaPosition === 'behind' && showImage && post.newspack_featured_image_src && minHeight + 'vh' ) || undefined,
+			paddingTop: ( mediaPosition === 'behind' && showImage && post.newspack_featured_image_src && minHeight / 5 + 'vh' ) || undefined,
 		};
 
 		const postClasses = classNames(
@@ -151,18 +89,10 @@ class Edit extends Component< HomepageArticlesProps > {
 				{ showImage && post.newspack_featured_image_src && (
 					<figure className="post-thumbnail" key="thumbnail">
 						<a href="#">
-							{ imageShape === 'landscape' && (
-								<img src={ post.newspack_featured_image_src.landscape } alt="" />
-							) }
-							{ imageShape === 'portrait' && (
-								<img src={ post.newspack_featured_image_src.portrait } alt="" />
-							) }
-							{ imageShape === 'square' && (
-								<img src={ post.newspack_featured_image_src.square } alt="" />
-							) }
-							{ imageShape === 'uncropped' && (
-								<img src={ post.newspack_featured_image_src.uncropped } alt="" />
-							) }
+							{ imageShape === 'landscape' && <img src={ post.newspack_featured_image_src.landscape } alt="" /> }
+							{ imageShape === 'portrait' && <img src={ post.newspack_featured_image_src.portrait } alt="" /> }
+							{ imageShape === 'square' && <img src={ post.newspack_featured_image_src.square } alt="" /> }
+							{ imageShape === 'uncropped' && <img src={ post.newspack_featured_image_src.uncropped } alt="" /> }
 						</a>
 						{ ( showCaption || showCredit ) && (
 							<div
@@ -175,16 +105,10 @@ class Edit extends Component< HomepageArticlesProps > {
 				) }
 
 				<div className="entry-wrapper">
-					{ ( post.newspack_post_sponsors ||
-						( showCategory && 0 < post.newspack_category_info.length ) ) && (
-						<div
-							className={ 'cat-links' + ( post.newspack_post_sponsors ? ' sponsor-label' : '' ) }
-						>
-							{ post.newspack_post_sponsors && (
-								<span className="flag">{ post.newspack_post_sponsors[ 0 ].flag }</span>
-							) }
-							{ showCategory &&
-								( ! post.newspack_post_sponsors || post.newspack_sponsors_show_categories ) && (
+					{ ( post.newspack_post_sponsors || ( showCategory && 0 < post.newspack_category_info.length ) ) && (
+						<div className={ 'cat-links' + ( post.newspack_post_sponsors ? ' sponsor-label' : '' ) }>
+							{ post.newspack_post_sponsors && <span className="flag">{ post.newspack_post_sponsors[ 0 ].flag }</span> }
+							{ showCategory && ( ! post.newspack_post_sponsors || post.newspack_sponsors_show_categories ) && (
 								<RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML>
 							) }
 						</div>
@@ -199,10 +123,7 @@ class Edit extends Component< HomepageArticlesProps > {
 						</h3>
 					) }
 					{ IS_SUBTITLE_SUPPORTED_IN_THEME && showSubtitle && (
-						<RawHTML
-							key="subtitle"
-							className="newspack-post-subtitle newspack-post-subtitle--in-homepage-block"
-						>
+						<RawHTML key="subtitle" className="newspack-post-subtitle newspack-post-subtitle--in-homepage-block">
 							{ post.meta.newspack_post_subtitle || '' }
 						</RawHTML>
 					) }
@@ -223,11 +144,7 @@ class Edit extends Component< HomepageArticlesProps > {
 					) }
 					<div className="entry-meta">
 						{ post.newspack_post_sponsors && (
-							<span
-								className={ `entry-sponsors ${
-									post.newspack_sponsors_show_author ? 'plus-author' : ''
-								}` }
-							>
+							<span className={ `entry-sponsors ${ post.newspack_sponsors_show_author ? 'plus-author' : '' }` }>
 								{ formatSponsorLogos( post.newspack_post_sponsors ) }
 								{ formatSponsorByline( post.newspack_post_sponsors ) }
 							</span>
@@ -235,9 +152,9 @@ class Edit extends Component< HomepageArticlesProps > {
 
 						{ showAuthor &&
 							! post.newspack_listings_hide_author &&
-							( ! post.newspack_post_sponsors || post.newspack_sponsors_show_author ) &&
-							<RawHTML className="byline-container">{ getBylineHTML( post, showAvatar ) }</RawHTML>
-						}
+							( ! post.newspack_post_sponsors || post.newspack_sponsors_show_author ) && (
+								<RawHTML className="byline-container">{ getBylineHTML( post, showAvatar ) }</RawHTML>
+							) }
 
 						{ showDate && ! post.newspack_listings_hide_publish_date && (
 							<time className="entry-date published" key="pub-date">
@@ -318,19 +235,12 @@ class Edit extends Component< HomepageArticlesProps > {
 			},
 			{
 				value: 4,
-				label: /* translators: label for extra large size option */ __(
-					'Extra Large',
-					'jetpack-mu-wpcom'
-				),
-				shortName: /* translators: abbreviation for extra large size */ __(
-					'XL',
-					'jetpack-mu-wpcom'
-				),
+				label: /* translators: label for extra large size option */ __( 'Extra Large', 'jetpack-mu-wpcom' ),
+				shortName: /* translators: abbreviation for extra large size */ __( 'XL', 'jetpack-mu-wpcom' ),
 			},
 		];
 
-		const handleAttributeChange = ( key: HomepageArticlesAttributesKey ) => ( value: any ) =>
-			setAttributes( { [ key ]: value } );
+		const handleAttributeChange = ( key: HomepageArticlesAttributesKey ) => ( value: any ) => setAttributes( { [ key ]: value } );
 
 		return (
 			<Fragment>
@@ -347,12 +257,10 @@ class Edit extends Component< HomepageArticlesProps > {
 						/>
 					</PanelBody>
 				) }
-				<PanelBody title={ __( 'Content', 'jetpack-mu-wpcom' ) } className="newspack-block__panel is-content">
+				<PanelBody title={ __( 'Settings', 'jetpack-mu-wpcom' ) } className="newspack-block__panel is-content">
 					<QueryControls
 						numberOfItems={ postsToShow }
-						onNumberOfItemsChange={ ( _postsToShow: number ) =>
-							setAttributes( { postsToShow: _postsToShow || 1 } )
-						}
+						onNumberOfItemsChange={ ( _postsToShow: number ) => setAttributes( { postsToShow: _postsToShow || 1 } ) }
 						specificMode={ specificMode }
 						onSpecificModeChange={ () => setAttributes( { specificMode: true } ) }
 						onLoopModeChange={ () => setAttributes( { specificMode: false } ) }
@@ -379,11 +287,8 @@ class Edit extends Component< HomepageArticlesProps > {
 						postType={ postType }
 					/>
 					<ToggleControl
-						label={ __( 'Allow duplicate stories', 'jetpack-mu-wpcom' ) }
-						help={ __(
-							"Exclude this block from the page's deduplication logic.",
-							'jetpack-mu-wpcom'
-						) }
+						label={ __( 'Allow duplicate content', 'jetpack-mu-wpcom' ) }
+						help={ __( "Exclude this block from the page's deduplication logic.", 'jetpack-mu-wpcom' ) }
 						checked={ ! attributes.deduplicate }
 						onChange={ ( value: boolean ) => setAttributes( { deduplicate: ! value } ) }
 					/>
@@ -419,50 +324,30 @@ class Edit extends Component< HomepageArticlesProps > {
 					) }
 				</PanelBody>
 				<PanelBody title={ __( 'Display', 'jetpack-mu-wpcom' ) } className="newspack-block__panel">
-					<BaseControl
+					<ToggleGroupControl
 						label={ __( 'Text', 'jetpack-mu-wpcom' ) }
-						id="newspack-block__content-display"
-						className="newspack-block__button-group"
+						value={ ( () => {
+							if ( showFullContent ) {
+								return 'full';
+							}
+							if ( showExcerpt ) {
+								return 'excerpt';
+							}
+							return 'none';
+						} )() }
+						onChange={ ( value: string ) => {
+							setAttributes( {
+								showExcerpt: value === 'excerpt',
+								showFullContent: value === 'full',
+							} );
+						} }
+						isBlock
+						__next40pxDefaultSize
 					>
-						<ButtonGroup>
-							<Button
-								variant={ ! showExcerpt && ! showFullContent && 'primary' }
-								aria-pressed={ ! showExcerpt && ! showFullContent }
-								onClick={ () => {
-									setAttributes( {
-										showExcerpt: false,
-										showFullContent: false
-									} )
-								} }
-							>
-								{ __( 'None', 'jetpack-mu-wpcom' ) }
-							</Button>
-							<Button
-								variant={ showExcerpt && ! showFullContent && 'primary' }
-								aria-pressed={ showExcerpt && ! showFullContent }
-								onClick={ () => {
-									setAttributes( {
-										showExcerpt: ! showExcerpt,
-										showFullContent: showFullContent ? false : showFullContent
-									} )
-								} }
-							>
-								{ __( 'Excerpt', 'jetpack-mu-wpcom' ) }
-							</Button>
-							<Button
-								variant={ ! showExcerpt && showFullContent && 'primary' }
-								aria-pressed={ ! showExcerpt && showFullContent }
-								onClick={ () => {
-									setAttributes( {
-										showFullContent: ! showFullContent,
-										showExcerpt: showExcerpt ? false : showExcerpt
-									} )
-								} }
-							>
-								{ __( 'Full Post', 'jetpack-mu-wpcom' ) }
-							</Button>
-						</ButtonGroup>
-					</BaseControl>
+						<ToggleGroupControlOption label={ __( 'None', 'jetpack-mu-wpcom' ) } value="none" />
+						<ToggleGroupControlOption label={ __( 'Excerpt', 'jetpack-mu-wpcom' ) } value="excerpt" />
+						<ToggleGroupControlOption label={ __( 'Full Post', 'jetpack-mu-wpcom' ) } value="full" />
+					</ToggleGroupControl>
 					{ showExcerpt && (
 						<RangeControl
 							label={ __( 'Max number of words in excerpt', 'jetpack-mu-wpcom' ) }
@@ -475,26 +360,22 @@ class Edit extends Component< HomepageArticlesProps > {
 					) }
 					{ ! showFullContent && (
 						<ToggleControl
-							label={
-								sprintf(
-									// translators: %s is the read more label'.
-									__( 'Show "%s" link', 'jetpack-mu-wpcom' ),
-									readMoreLabel ? readMoreLabel : __( 'Keep reading', 'jetpack-mu-wpcom' )
-								)
-							}
+							label={ sprintf(
+								// translators: %s is the read more label'.
+								__( 'Show "%s" link', 'jetpack-mu-wpcom' ),
+								readMoreLabel ? readMoreLabel : __( 'Keep reading', 'jetpack-mu-wpcom' )
+							) }
 							checked={ showReadMore }
 							onChange={ () => setAttributes( { showReadMore: ! showReadMore } ) }
 						/>
 					) }
 					{ ! showFullContent && showReadMore && (
 						<TextControl
-							label={
-								sprintf(
-									// translators: %s is the read more label'.
-									__( '"%s" link text', 'jetpack-mu-wpcom' ),
-									readMoreLabel ? readMoreLabel : __( 'Keep reading', 'jetpack-mu-wpcom' )
-								)
-							}
+							label={ sprintf(
+								// translators: %s is the read more label'.
+								__( '"%s" link text', 'jetpack-mu-wpcom' ),
+								readMoreLabel ? readMoreLabel : __( 'Keep reading', 'jetpack-mu-wpcom' )
+							) }
 							hideLabelFromVision={ true }
 							value={ readMoreLabel }
 							placeholder={ readMoreLabel }
@@ -528,28 +409,22 @@ class Edit extends Component< HomepageArticlesProps > {
 								checked={ mobileStack }
 								onChange={ () => setAttributes( { mobileStack: ! mobileStack } ) }
 							/>
-							<BaseControl
+							<ToggleGroupControl
 								label={ __( 'Size', 'jetpack-mu-wpcom' ) }
-								id="newspack-block__featured-image-size"
-								className="newspack-block__button-group"
+								value={ String( imageScale ) }
+								onChange={ ( value: string ) => setAttributes( { imageScale: parseInt( value ) } ) }
+								isBlock
+								__next40pxDefaultSize
 							>
-								<ButtonGroup>
-									{ imageSizeOptions.map( option => {
-										const isCurrent = imageScale === option.value;
-										return (
-											<Button
-												variant={ isCurrent && 'primary' }
-												aria-pressed={ isCurrent }
-												aria-label={ option.label }
-												key={ option.value }
-												onClick={ () => setAttributes( { imageScale: option.value } ) }
-											>
-												{ option.shortName }
-											</Button>
-										);
-									} ) }
-								</ButtonGroup>
-							</BaseControl>
+								{ imageSizeOptions.map( option => (
+									<ToggleGroupControlOption
+										key={ option.value }
+										label={ option.shortName }
+										title={ option.label }
+										value={ String( option.value ) }
+									/>
+								) ) }
+							</ToggleGroupControl>
 						</>
 					) }
 					{ showImage && mediaPosition === 'behind' && (
@@ -621,10 +496,7 @@ class Edit extends Component< HomepageArticlesProps > {
 						},
 					] }
 				/>
-				<PanelBody
-					title={ __( 'Typography', 'jetpack-mu-wpcom' ) }
-					className="newpack-block__panel"
-				>
+				<PanelBody title={ __( 'Typography', 'jetpack-mu-wpcom' ) } className="newpack-block__panel">
 					<RangeControl
 						label={ __( 'Type Scale', 'jetpack-mu-wpcom' ) }
 						beforeIcon={ typeScaleIcon }
@@ -677,8 +549,7 @@ class Edit extends Component< HomepageArticlesProps > {
 		 * Constants
 		 */
 
-		const { attributes, className, setAttributes, isSelected, latestPosts, textColor, error } =
-			this.props;
+		const { attributes, className, setAttributes, isSelected, latestPosts, textColor, error } = this.props;
 
 		const {
 			showImage,
@@ -760,19 +631,19 @@ class Edit extends Component< HomepageArticlesProps > {
 
 		const blockControlsImageShape = [
 			{
-				icon: landscapeIcon,
+				icon: aspectLandscape,
 				title: __( 'Landscape image shape', 'jetpack-mu-wpcom' ),
 				isActive: imageShape === 'landscape',
 				onClick: () => setAttributes( { imageShape: 'landscape' } ),
 			},
 			{
-				icon: portraitIcon,
+				icon: aspectPortrait,
 				title: __( 'portrait image shape', 'jetpack-mu-wpcom' ),
 				isActive: imageShape === 'portrait',
 				onClick: () => setAttributes( { imageShape: 'portrait' } ),
 			},
 			{
-				icon: squareIcon,
+				icon: aspectSquare,
 				title: __( 'Square image shape', 'jetpack-mu-wpcom' ),
 				isActive: imageShape === 'square',
 				onClick: () => setAttributes( { imageShape: 'square' } ),
@@ -806,13 +677,9 @@ class Edit extends Component< HomepageArticlesProps > {
 						{ latestPosts && ! latestPosts.length && (
 							<Placeholder>{ __( 'Sorry, no posts were found.', 'jetpack-mu-wpcom' ) }</Placeholder>
 						) }
-						{ ! latestPosts && ! error && (
-							<Placeholder icon={ <Spinner /> } className="component-placeholder__align-center" />
-						) }
+						{ ! latestPosts && ! error && <Placeholder icon={ <Spinner /> } className="component-placeholder__align-center" /> }
 						{ ! latestPosts && error && (
-							<Placeholder className="component-placeholder__align-center newspack-block--error">
-								{ error }
-							</Placeholder>
+							<Placeholder className="component-placeholder__align-center newspack-block--error">{ error }</Placeholder>
 						) }
 
 						{ latestPosts && latestPosts.map( post => this.renderPost( post ) ) }
@@ -857,8 +724,6 @@ class Edit extends Component< HomepageArticlesProps > {
 	}
 }
 
-export default compose( [
-	withColors( { textColor: 'color' } ),
-	withSelect( postsBlockSelector ),
-	withDispatch( postsBlockDispatch ),
-] as any )( Edit );
+export default compose( [ withColors( { textColor: 'color' } ), withSelect( postsBlockSelector ), withDispatch( postsBlockDispatch ) ] as any )(
+	Edit
+);

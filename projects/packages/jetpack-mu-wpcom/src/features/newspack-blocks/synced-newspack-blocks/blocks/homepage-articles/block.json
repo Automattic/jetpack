@@ -240,7 +240,7 @@
 		},
 		"textAlign": {
 			"type": "string",
-			"default": "left"
+			"default": ""
 		},
 		"includedPostStatuses": {
 			"type": "array",

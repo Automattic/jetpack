@@ -18,12 +18,7 @@ export const formatSponsorLogos = sponsorInfo => (
 			<Fragment key={ sponsor.id }>
 				{ sponsor.src && (
 					<a href={ sponsor.sponsor_url }>
-						<img
-							src={ sponsor.src }
-							width={ sponsor.img_width }
-							height={ sponsor.img_height }
-							alt={ sponsor.sponsor_name }
-						/>
+						<img src={ sponsor.src } width={ sponsor.img_width } height={ sponsor.img_height } alt={ sponsor.sponsor_name } />
 					</a>
 				) }
 			</Fragment>
@@ -41,9 +36,7 @@ export const formatSponsorByline = sponsorInfo => (
 					<a href={ sponsor.author_link }>{ sponsor.sponsor_name }</a>
 				</span>,
 				index < sponsorInfo.length - 2 && ', ',
-				sponsorInfo.length > 1 &&
-					index === sponsorInfo.length - 2 &&
-					_x( ' and ', 'post author', 'jetpack-mu-wpcom' ),
+				sponsorInfo.length > 1 && index === sponsorInfo.length - 2 && _x( 'and', 'post author', 'jetpack-mu-wpcom' ),
 			];
 		}, [] ) }
 	</span>
@@ -52,10 +45,6 @@ export const formatSponsorByline = sponsorInfo => (
 export const getPostStatusLabel = ( post = {} ) =>
 	post.post_status !== 'publish' ? (
 		<div className="newspack-preview-label">
-			{
-				{ draft: __( 'Draft', 'jetpack-mu-wpcom' ), future: __( 'Scheduled', 'jetpack-mu-wpcom' ) }[
-					post.post_status
-				]
-			}
+			{ { draft: __( 'Draft', 'jetpack-mu-wpcom' ), future: __( 'Scheduled', 'jetpack-mu-wpcom' ) }[ post.post_status ] }
 		</div>
 	) : null;

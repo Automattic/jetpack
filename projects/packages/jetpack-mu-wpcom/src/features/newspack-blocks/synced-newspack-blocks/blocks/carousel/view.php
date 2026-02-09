@@ -13,6 +13,12 @@
  * @return string Returns the post content with latest posts added.
  */
 function newspack_blocks_render_block_carousel( $attributes ) {
+
+	// Don't output the block inside RSS feeds.
+	if ( is_feed() ) {
+		return;
+	}
+
 	static $newspack_blocks_carousel_id = 0;
 	global $newspack_blocks_post_id;
 

@@ -15,14 +15,15 @@ import { InspectorControls } from '@wordpress/block-editor';
 import { dateI18n, __experimentalGetSettings } from '@wordpress/date';
 import { Component, createRef, Fragment, RawHTML } from '@wordpress/element';
 import {
-	BaseControl,
-	Button,
-	ButtonGroup,
 	PanelBody,
 	Placeholder,
 	RangeControl,
 	Spinner,
 	ToggleControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
@@ -34,12 +35,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import QueryControls from '../../components/query-controls';
 import { PostTypesPanel, PostStatusesPanel } from '../../components/editor-panels';
 import createSwiper from './create-swiper';
-import {
-	getBylineHTML,
-	formatSponsorLogos,
-	formatSponsorByline,
-	getPostStatusLabel,
-} from '../../shared/js/utils';
+import { getBylineHTML, formatSponsorLogos, formatSponsorByline, getPostStatusLabel } from '../../shared/js/utils';
 // Use same posts store as Homepage Posts block.
 import { postsBlockSelector, postsBlockDispatch, shouldReflow } from '../homepage-articles/utils';
 
@@ -68,8 +64,7 @@ class Edit extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
-		const isVisible =
-			0 < this.carouselRef.current.offsetWidth && 0 < this.carouselRef.current.offsetHeight;
+		const isVisible = 0 < this.carouselRef.current.offsetWidth && 0 < this.carouselRef.current.offsetHeight;
 
 		// Bail early if the component is hidden.
 		if ( ! isVisible ) {
@@ -87,10 +82,7 @@ class Edit extends Component {
 
 		const { attributes, latestPosts } = this.props;
 
-		if (
-			! isEqual( prevProps.latestPosts, latestPosts ) ||
-			! isEqual( prevProps.attributes, attributes )
-		) {
+		if ( ! isEqual( prevProps.latestPosts, latestPosts ) || ! isEqual( prevProps.attributes, attributes ) ) {
 			let initialSlide = 0;
 
 			if ( this.swiperInstance ) {
@@ -187,58 +179,34 @@ class Edit extends Component {
 		const aspectRatioOptions = [
 			{
 				value: 1,
-				label: /* translators: label for square aspect ratio option */ __(
-					'Square',
-					'jetpack-mu-wpcom'
-				),
-				shortName: /* translators: abbreviation for 1:1 aspect ratio */ __(
-					'1:1',
-					'jetpack-mu-wpcom'
-				),
+				label: /* translators: label for square aspect ratio option */ __( 'Square', 'jetpack-mu-wpcom' ),
+				shortName: /* translators: abbreviation for 1:1 aspect ratio */ __( '1:1', 'jetpack-mu-wpcom' ),
 			},
 			{
 				value: 0.75,
 				label: /* translators: label for 4:3 aspect ratio option */ __( '4:3', 'jetpack-mu-wpcom' ),
-				shortName: /* translators: abbreviation for 4:3 aspect ratio */ __(
-					'4:3',
-					'jetpack-mu-wpcom'
-				),
+				shortName: /* translators: abbreviation for 4:3 aspect ratio */ __( '4:3', 'jetpack-mu-wpcom' ),
 			},
 			{
 				value: 0.5625,
-				label: /* translators: label for 16:9 aspect ratio option */ __(
-					'16:9',
-					'jetpack-mu-wpcom'
-				),
-				shortName: /* translators: abbreviation for 16:9 aspect ratio */ __(
-					'16:9',
-					'jetpack-mu-wpcom'
-				),
+				label: /* translators: label for 16:9 aspect ratio option */ __( '16:9', 'jetpack-mu-wpcom' ),
+				shortName: /* translators: abbreviation for 16:9 aspect ratio */ __( '16:9', 'jetpack-mu-wpcom' ),
 			},
 			{
 				value: 4 / 3,
 				label: /* translators: label for 3:4 aspect ratio option */ __( '3:4', 'jetpack-mu-wpcom' ),
-				shortName: /* translators: abbreviation for 3:4 aspect ratio */ __(
-					'3:4',
-					'jetpack-mu-wpcom'
-				),
+				shortName: /* translators: abbreviation for 3:4 aspect ratio */ __( '3:4', 'jetpack-mu-wpcom' ),
 			},
 			{
 				value: 16 / 9,
-				label: /* translators: label for 9:16 aspect ratio option */ __(
-					'9:16',
-					'jetpack-mu-wpcom'
-				),
-				shortName: /* translators: abbreviation for 9:16 aspect ratio */ __(
-					'9:16',
-					'jetpack-mu-wpcom'
-				),
+				label: /* translators: label for 9:16 aspect ratio option */ __( '9:16', 'jetpack-mu-wpcom' ),
+				shortName: /* translators: abbreviation for 9:16 aspect ratio */ __( '9:16', 'jetpack-mu-wpcom' ),
 			},
 		];
 
 		return (
-            <Fragment>
-                <div className={ classes } ref={ this.carouselRef }>
+			<Fragment>
+				<div className={ classes } ref={ this.carouselRef }>
 					{ hasNoPosts && (
 						<Placeholder className="component-placeholder__align-center">
 							<div style={ { margin: 'auto' } }>{ __( 'Sorry, no posts were found.', 'jetpack-mu-wpcom' ) }</div>
@@ -258,9 +226,7 @@ class Edit extends Component {
 							<div className="swiper-wrapper">
 								{ latestPosts.map( post => (
 									<article
-										className={ `post-has-image swiper-slide ${ post.post_type } ${
-											post.newspack_article_classes || ''
-										}` }
+										className={ `post-has-image swiper-slide ${ post.post_type } ${ post.newspack_article_classes || '' }` }
 										key={ post.id }
 									>
 										{ getPostStatusLabel( post ) }
@@ -285,21 +251,15 @@ class Edit extends Component {
 											showCaption ||
 											showCredit ) && (
 											<div className="entry-wrapper">
-												{ ( post.newspack_post_sponsors ||
-													( showCategory && 0 < post.newspack_category_info.length ) ) && (
-													<div
-														className={
-															'cat-links' + ( post.newspack_post_sponsors ? ' sponsor-label' : '' )
-														}
-													>
+												{ ( post.newspack_post_sponsors || ( showCategory && 0 < post.newspack_category_info.length ) ) && (
+													<div className={ 'cat-links' + ( post.newspack_post_sponsors ? ' sponsor-label' : '' ) }>
 														{ post.newspack_post_sponsors && (
-															<span className="flag">
-																{ post.newspack_post_sponsors[ 0 ].flag }
-															</span>
+															<span className="flag">{ post.newspack_post_sponsors[ 0 ].flag }</span>
 														) }
 														{ showCategory &&
-															( ! post.newspack_post_sponsors ||
-																post.newspack_sponsors_show_categories ) && ( <RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML> ) }
+															( ! post.newspack_post_sponsors || post.newspack_sponsors_show_categories ) && (
+																<RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML>
+															) }
 													</div>
 												) }
 												{ showTitle && (
@@ -320,9 +280,9 @@ class Edit extends Component {
 													) }
 													{ showAuthor &&
 														! post.newspack_listings_hide_author &&
-														( ! post.newspack_post_sponsors || post.newspack_sponsors_show_author ) &&
-														<RawHTML className="byline-container">{ getBylineHTML( post, showAvatar ) }</RawHTML>
-													}
+														( ! post.newspack_post_sponsors || post.newspack_sponsors_show_author ) && (
+															<RawHTML className="byline-container">{ getBylineHTML( post, showAvatar ) }</RawHTML>
+														) }
 													{ showDate && (
 														<time className="entry-date published" key="pub-date">
 															{ dateI18n( dateFormat, post.date ) }
@@ -346,35 +306,27 @@ class Edit extends Component {
 								<>
 									<button className="swiper-button swiper-button-prev" ref={ this.btnPrevRef } />
 									<button className="swiper-button swiper-button-next" ref={ this.btnNextRef } />
-									<div
-										className="swiper-pagination swiper-pagination-bullets"
-										ref={ this.paginationRef }
-									/>
+									<div className="swiper-pagination swiper-pagination-bullets" ref={ this.paginationRef } />
 								</>
 							) }
 						</Fragment>
 					) }
 				</div>
-                <InspectorControls>
-					<PanelBody title={ __( 'Content', 'jetpack-mu-wpcom' ) } className='newspack-block__panel is-content'>
+
+				<InspectorControls>
+					<PanelBody title={ __( 'Settings', 'jetpack-mu-wpcom' ) } className="newspack-block__panel is-content">
 						{ postsToShow && (
 							<QueryControls
 								numberOfItems={ postsToShow }
-								onNumberOfItemsChange={ value =>
-									setAttributes( { postsToShow: value ? value : 1 } )
-								}
+								onNumberOfItemsChange={ value => setAttributes( { postsToShow: value ? value : 1 } ) }
 								authors={ authors }
 								onAuthorsChange={ value => setAttributes( { authors: value } ) }
 								categories={ categories }
 								onCategoriesChange={ value => setAttributes( { categories: value } ) }
 								includeSubcategories={ includeSubcategories }
-								onIncludeSubcategoriesChange={ value =>
-									setAttributes( { includeSubcategories: value } )
-								}
+								onIncludeSubcategoriesChange={ value => setAttributes( { includeSubcategories: value } ) }
 								categoryJoinType={ categoryJoinType }
-								onCategoryJoinTypeChange={ value =>
-									setAttributes( { categoryJoinType: value } )
-								}
+								onCategoryJoinTypeChange={ value => setAttributes( { categoryJoinType: value } ) }
 								tags={ tags }
 								onTagsChange={ value => setAttributes( { tags: value } ) }
 								onCustomTaxonomiesChange={ value => setAttributes( { customTaxonomies: value } ) }
@@ -383,9 +335,7 @@ class Edit extends Component {
 								onSpecificModeChange={ () => setAttributes( { specificMode: true } ) }
 								onLoopModeChange={ () => setAttributes( { specificMode: false } ) }
 								specificPosts={ specificPosts }
-								onSpecificPostsChange={ _specificPosts =>
-									setAttributes( { specificPosts: _specificPosts } )
-								}
+								onSpecificPostsChange={ _specificPosts => setAttributes( { specificPosts: _specificPosts } ) }
 								postType={ postType }
 							/>
 						) }
@@ -429,9 +379,7 @@ class Edit extends Component {
 								} }
 								min={ 1 }
 								max={
-									specificMode
-										? Math.min( MAX_NUMBER_OF_SLIDES, latestPosts.length )
-										: Math.min( MAX_NUMBER_OF_SLIDES, maxPosts )
+									specificMode ? Math.min( MAX_NUMBER_OF_SLIDES, latestPosts.length ) : Math.min( MAX_NUMBER_OF_SLIDES, maxPosts )
 								}
 								help={ __( 'Choose how many slides appear on screen simultaneously.', 'jetpack-mu-wpcom' ) }
 								__next40pxDefaultSize
@@ -439,67 +387,33 @@ class Edit extends Component {
 						) }
 					</PanelBody>
 					<PanelBody title={ __( 'Featured Image', 'jetpack-mu-wpcom' ) } className="newspack-block__panel">
-					<BaseControl
+						<ToggleGroupControl
 							label={ __( 'Aspect ratio', 'jetpack-mu-wpcom' ) }
-							help={ __(
-								'All slides will share the same aspect ratio, for consistency.',
-								'jetpack-mu-wpcom'
-							) }
-							id="newspack-blocks__aspect-ratio-control"
-							className="newspack-block__button-group"
+							help={ __( 'All slides will share the same aspect ratio, for consistency.', 'jetpack-mu-wpcom' ) }
+							value={ String( aspectRatio ) }
+							onChange={ value => setAttributes( { aspectRatio: parseFloat( value ) } ) }
+							isBlock
+							__next40pxDefaultSize
 						>
-							<ButtonGroup>
-								{ aspectRatioOptions.map( option => {
-									const isCurrent = aspectRatio === option.value;
-									return (
-										<Button
-											isPrimary={ isCurrent }
-											aria-pressed={ isCurrent }
-											aria-label={ option.label }
-											key={ option.value }
-											onClick={ () => setAttributes( { aspectRatio: option.value } ) }
-										>
-											{ option.shortName }
-										</Button>
-									);
-								} ) }
-							</ButtonGroup>
-						</BaseControl>
-						<BaseControl
+							{ aspectRatioOptions.map( option => (
+								<ToggleGroupControlOption key={ option.value } label={ option.shortName } value={ String( option.value ) } />
+							) ) }
+						</ToggleGroupControl>
+						<ToggleGroupControl
 							label={ __( 'Fit', 'jetpack-mu-wpcom' ) }
 							help={
 								'cover' === imageFit
-									? __(
-										'The image will fill the entire slide and will be cropped if necessary.',
-										'jetpack-mu-wpcom'
-									) : __(
-                                    'The image will be resized to fit inside the slide without being cropped.',
-                                    'jetpack-mu-wpcom',
-                                    0
-                                )
+									? __( 'The image will fill the entire slide and will be cropped if necessary.', 'jetpack-mu-wpcom' )
+									: __( 'The image will be resized to fit inside the slide without being cropped.', 'jetpack-mu-wpcom' )
 							}
-							id="newspack-blocks__blocks__image-fit-control"
-							className="newspack-block__button-group"
+							value={ imageFit }
+							onChange={ value => setAttributes( { imageFit: value } ) }
+							isBlock
+							__next40pxDefaultSize
 						>
-							<ButtonGroup>
-								<Button
-									isPrimary={ 'cover' === imageFit }
-									aria-pressed={ 'cover' === imageFit }
-									aria-label={ __( 'Cover', 'jetpack-mu-wpcom' ) }
-									onClick={ () => setAttributes( { imageFit: 'cover' } ) }
-								>
-									{ __( 'Cover', 'jetpack-mu-wpcom' ) }
-								</Button>
-								<Button
-									isPrimary={ 'contain' === imageFit }
-									aria-pressed={ 'contain' === imageFit }
-									aria-label={ __( 'Contain', 'jetpack-mu-wpcom' ) }
-									onClick={ () => setAttributes( { imageFit: 'contain' } ) }
-								>
-									{ __( 'Contain', 'jetpack-mu-wpcom' ) }
-								</Button>
-							</ButtonGroup>
-						</BaseControl>
+							<ToggleGroupControlOption label={ __( 'Cover', 'jetpack-mu-wpcom' ) } value="cover" />
+							<ToggleGroupControlOption label={ __( 'Contain', 'jetpack-mu-wpcom' ) } value="contain" />
+						</ToggleGroupControl>
 						<ToggleControl
 							label={ __( 'Show caption', 'jetpack-mu-wpcom' ) }
 							checked={ showCaption }
@@ -542,11 +456,9 @@ class Edit extends Component {
 					<PostTypesPanel attributes={ attributes } setAttributes={ setAttributes } />
 					<PostStatusesPanel attributes={ attributes } setAttributes={ setAttributes } />
 				</InspectorControls>
-            </Fragment>
-        );
+			</Fragment>
+		);
 	}
 }
 
-export default compose( [ withSelect( postsBlockSelector ), withDispatch( postsBlockDispatch ) ] )(
-	Edit
-);
+export default compose( [ withSelect( postsBlockSelector ), withDispatch( postsBlockDispatch ) ] )( Edit );
