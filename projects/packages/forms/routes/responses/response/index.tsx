@@ -64,7 +64,7 @@ function SingleResponseView( {
 			}
 
 			return {
-				response: ( select( coreStore ) as unknown as SelectActions ).getEntityRecord(
+				response: select( coreStore ).getEditedEntityRecord(
 					'postType',
 					'feedback',
 					responseId
