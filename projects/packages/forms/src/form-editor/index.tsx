@@ -20,10 +20,8 @@ import { determineBlockNestingAction } from './utils/block-nesting-logic';
 import {
 	BlockLock,
 	findFormBlock,
-	getInsertionIndex,
 	shouldLockBlock,
 	getBlocksToMove,
-	isEmptyParagraph,
 } from './utils/block-utils';
 import {
 	moveContactFormCategoryToFront as moveCategoryToFront,
