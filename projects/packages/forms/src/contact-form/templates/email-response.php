@@ -227,9 +227,8 @@ $style = '<style media="all" type="text/css">
 
 	/* Metadata Section */
 	.metadata-section {
-		background-color: #f6f7f7;
-		border-radius: 4px;
-		padding: 16px;
+		border-bottom: 1px solid #e0e0e0;
+		padding: 16px 0;
 		margin-bottom: 24px;
 	}
 

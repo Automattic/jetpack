@@ -3691,7 +3691,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$html = '
-		<div class="metadata-section" style="background-color: #f6f7f7; border-radius: 4px; padding: 16px; margin-bottom: 24px;">
+		<div class="metadata-section" style="padding: 16px 0; margin-bottom: 24px;">
 			<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" style="width: 100%;">
 				' . implode( '', $rows ) . '
 			</table>
