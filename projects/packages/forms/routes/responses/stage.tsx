@@ -580,9 +580,10 @@ function StageInner() {
 			<DataViews
 				empty={
 					<EmptyResponses
-						status={ statusView }
 						isSearch={ !! view.search }
+						isSingleFormView={ isSingleFormView }
 						readStatusFilter={ readStatusFilter }
+						status={ statusView }
 					/>
 				}
 				data={ records || EMPTY_ARRAY }
