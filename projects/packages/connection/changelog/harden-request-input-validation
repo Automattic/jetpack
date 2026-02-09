@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Harden request input handling to prevent PHP warnings when malformed input is received during user deletion flows.
