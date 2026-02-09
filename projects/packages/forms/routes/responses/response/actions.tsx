@@ -112,22 +112,15 @@ export function ResponseActions( {
 		onActionComplete?.( { ...response, is_unread: true } );
 	}, [ onActionComplete, response, markAsUnreadAction, registry ] );
 
-	const sharedProps = useMemo(
-		() => ( {
-			size: 'compact' as const,
-		} ),
-		[]
-	);
-
 	const readUnreadButtons = (
 		<>
 			{ response.is_unread && (
-				<Button onClick={ handleMarkAsRead } { ...sharedProps } isBusy={ isTogglingReadStatus }>
+				<Button isBusy={ isTogglingReadStatus } onClick={ handleMarkAsRead } size="compact">
 					{ __( 'Mark as read', 'jetpack-forms' ) }
 				</Button>
 			) }
 			{ ! response.is_unread && (
-				<Button onClick={ handleMarkAsUnread } { ...sharedProps } isBusy={ isTogglingReadStatus }>
+				<Button isBusy={ isTogglingReadStatus } onClick={ handleMarkAsUnread } size="compact">
 					{ __( 'Mark as unread', 'jetpack-forms' ) }
 				</Button>
 			) }
@@ -135,31 +128,31 @@ export function ResponseActions( {
 	);
 
 	const trashButton = (
-		<Button onClick={ handleMoveToTrash } { ...sharedProps } isBusy={ isMovingToTrash }>
+		<Button isBusy={ isMovingToTrash } onClick={ handleMoveToTrash } size="compact">
 			{ __( 'Trash', 'jetpack-forms' ) }
 		</Button>
 	);
 
 	const spamButton = (
-		<Button onClick={ handleMarkAsSpam } { ...sharedProps } isBusy={ isMarkingAsSpam }>
+		<Button isBusy={ isMarkingAsSpam } onClick={ handleMarkAsSpam } size="compact">
 			{ __( 'Spam', 'jetpack-forms' ) }
 		</Button>
 	);
 
 	const notSpamButton = (
-		<Button onClick={ handleMarkAsNotSpam } { ...sharedProps } isBusy={ isMarkingAsNotSpam }>
+		<Button isBusy={ isMarkingAsNotSpam } onClick={ handleMarkAsNotSpam } size="compact">
 			{ __( 'Not spam', 'jetpack-forms' ) }
 		</Button>
 	);
 
 	const deleteButton = (
-		<Button onClick={ handleDelete } { ...sharedProps } isBusy={ isDeleting }>
+		<Button isBusy={ isDeleting } onClick={ handleDelete } size="compact">
 			{ __( 'Delete', 'jetpack-forms' ) }
 		</Button>
 	);
 
 	const restoreButton = (
-		<Button onClick={ handleRestore } { ...sharedProps } isBusy={ isRestoring }>
+		<Button isBusy={ isRestoring } onClick={ handleRestore } size="compact">
 			{ __( 'Restore', 'jetpack-forms' ) }
 		</Button>
 	);
