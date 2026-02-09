@@ -270,16 +270,41 @@ class Dashboard {
 	 * Returns url of forms admin page.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
+	 * @param string|null $post_id Post ID of response to open in the forms responses page.
 	 *
 	 * @return string
 	 */
-	public static function get_forms_admin_url( $tab = null ) {
-		if ( apply_filters( 'jetpack_forms_alpha', false ) ) {
-			$base_url = get_admin_url() . 'admin.php?page=' . self::FORMS_WPBUILD_ADMIN_SLUG;
-			$url      = $base_url . '&p=%2F' . $tab;
+	public static function get_forms_admin_url( $tab = null, $post_id = null ) {
+
+		$central_form_management_enabled = Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' );
+		$valid_tabs                      = array( 'spam', 'inbox', 'trash' );
+
+		// Base URL
+		$url = get_admin_url() . 'admin.php';
+
+		// Dashboard
+		if ( $central_form_management_enabled ) {
+			$url = get_admin_url() . '?page=jetpack-forms-responses-wp-admin';
 		} else {
-			$base_url = get_admin_url() . 'admin.php?page=' . self::ADMIN_SLUG;
-			$url      = self::append_tab_to_url( $base_url, $tab );
+			$url .= '?page=jetpack-forms-admin';
+		}
+
+		// Tab
+		if ( in_array( $tab, $valid_tabs, true ) ) {
+			if ( $central_form_management_enabled ) {
+				$url = '&p=%2Fresponses%2F' . $tab;
+			} else {
+				$url .= '#/responses?status=' . $tab;
+			}
+		}
+
+		// Response ID
+		if ( ! empty( $post_id ) ) {
+			if ( $central_form_management_enabled ) {
+				$url .= '?responseIds=["' . $post_id . '"]';
+			} else {
+				$url .= '&r=' . $post_id;
+			}
 		}
 
 		/**
@@ -290,10 +315,11 @@ class Dashboard {
 		 *
 		 * @param string      $url The Forms admin page URL.
 		 * @param string|null $tab Tab to open in the forms admin page.
+		 * @param string|null $post_id Post ID of response to open in the forms responses page.
 		 *
 		 * @return string The filtered Forms admin page URL.
 		 */
-		return apply_filters( 'jetpack_forms_admin_url', $url, $tab );
+		return apply_filters( 'jetpack_forms_admin_url', $url, $tab, $post_id );
 	}
 
 	/**
