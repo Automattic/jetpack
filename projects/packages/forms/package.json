@@ -33,7 +33,8 @@
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
-		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch' 'pnpm:module:watch' 'pnpm:build:form-editor --watch' 'pnpm:watch:wp-build'",
+		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch' 'pnpm:module:watch' 'pnpm:build:form-editor --watch' 'pnpm:watch:wp-build' 'pnpm:watch:icons'",
+		"watch:icons": "node tools/watch-icons.mjs",
 		"watch:wp-build": "wp-build --watch"
 	},
 	"browserslist": [
