@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Bundle @wordpress/ui into dist output to prevent runtime errors in consumers using wp-build.
