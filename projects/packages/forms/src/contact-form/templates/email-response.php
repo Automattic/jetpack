@@ -57,6 +57,9 @@ $template = '
 							%3$s
 							%4$s
 
+							<!-- Footer (legacy metadata) -->
+							%5$s
+
 							<!-- Actions -->
 							<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%%" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-top: 24px;">
 								<tr>

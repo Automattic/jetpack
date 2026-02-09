@@ -429,7 +429,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = Contact_Form::escape_and_sanitize_field_value( $file_upload_value );
 		$this->assertStringContainsString( 'test-document.pdf', $result );
 		$this->assertStringContainsString( 'another-document.docx', $result );
-		$this->assertStringContainsString( '<span class="jetpack-forms-file-size">', $result );
+		$this->assertStringContainsString( '<span style="color: #757575;">', $result );
 		$this->assertStringContainsString( '(1 KB)', $result );
 		$this->assertStringContainsString( '(2 KB)', $result );
 
@@ -722,12 +722,16 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 
-		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
-		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
-		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
-		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
-
-		$this->assertStringContainsString( $expected, $email['message'] );
+		// Check that field labels and values are present in the email (using new table-based format).
+		// Labels don't have colons in the new format - they're in separate styled divs.
+		$this->assertStringContainsString( '>Name<', $email['message'] );
+		$this->assertStringContainsString( 'John Doe', $email['message'] );
+		$this->assertStringContainsString( '>Dropdown<', $email['message'] );
+		$this->assertStringContainsString( 'First option', $email['message'] );
+		$this->assertStringContainsString( '>Radio<', $email['message'] );
+		$this->assertStringContainsString( 'Second option', $email['message'] );
+		$this->assertStringContainsString( '>Text<', $email['message'] );
+		$this->assertStringContainsString( 'Texty text', $email['message'] );
 	}
 
 	/**
@@ -771,12 +775,16 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertContains( 'john <john@example.com>', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
-		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
-		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
-		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
-		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
-
-		$this->assertStringContainsString( $expected, $args['message'] );
+		// Check that field labels and values are present in the email (using new table-based format).
+		// Labels don't have colons in the new format - they're in separate styled divs.
+		$this->assertStringContainsString( '>Name<', $args['message'] );
+		$this->assertStringContainsString( 'John Doe', $args['message'] );
+		$this->assertStringContainsString( '>Dropdown<', $args['message'] );
+		$this->assertStringContainsString( 'First option', $args['message'] );
+		$this->assertStringContainsString( '>Radio<', $args['message'] );
+		$this->assertStringContainsString( 'Second option', $args['message'] );
+		$this->assertStringContainsString( '>Text<', $args['message'] );
+		$this->assertStringContainsString( 'Texty text', $args['message'] );
 	}
 
 	/**
