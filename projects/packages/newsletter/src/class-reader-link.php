@@ -64,7 +64,7 @@ class Reader_Link {
 
 		wp_enqueue_style(
 			'jetpack-newsletter-reader-link',
-			plugins_url( 'build/reader-link.css', dirname( __DIR__ ) . '/package.json' ),
+			plugins_url( '../build/reader-link.css', __FILE__ ),
 			array(),
 			$version['version'] ?? filemtime( $build_path )
 		);
