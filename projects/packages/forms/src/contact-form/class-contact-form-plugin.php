@@ -391,7 +391,12 @@ class Contact_Form_Plugin {
 	 * @param \WP_Admin_Bar $wp_admin_bar The admin bar object.
 	 */
 	public static function add_form_to_admin_bar_new_content_menu( \WP_Admin_Bar $wp_admin_bar ) {
-		if ( ! current_user_can( 'publish_posts' ) ) {
+		$post_type = get_post_type_object( Contact_Form::POST_TYPE );
+		$create_cap = ( $post_type && isset( $post_type->cap, $post_type->cap->create_posts ) )
+			? $post_type->cap->create_posts
+			: 'publish_posts';
+
+		if ( ! current_user_can( $create_cap ) ) {
 			return;
 		}
 
