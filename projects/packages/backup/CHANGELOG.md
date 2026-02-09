@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.39] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [4.2.38] - 2026-01-26
+### Changed
+- Update dependencies. [#46741]
+
+## [4.2.37] - 2026-01-19
+### Changed
+- Update package dependencies. [#46552] [#46647]
+
+## [4.2.36] - 2026-01-12
+### Changed
+- Update package dependencies. [#46456]
+
+## [4.2.35] - 2025-12-22
+### Changed
+- Update package dependencies. [#46362]
+
+## [4.2.34] - 2025-12-15
+### Changed
+- Update dependencies. [#46271]
+
+## [4.2.33] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [4.2.32] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [4.2.31] - 2025-11-20
+### Changed
+- Update package dependencies. [#46022]
+
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
 ## [4.2.30] - 2025-11-18
 ### Changed
 - Update dependencies. [#45553]
@@ -979,6 +1018,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.2.39]: https://github.com/Automattic/jetpack-backup/compare/v4.2.38...v4.2.39
+[4.2.38]: https://github.com/Automattic/jetpack-backup/compare/v4.2.37...v4.2.38
+[4.2.37]: https://github.com/Automattic/jetpack-backup/compare/v4.2.36...v4.2.37
+[4.2.36]: https://github.com/Automattic/jetpack-backup/compare/v4.2.35...v4.2.36
+[4.2.35]: https://github.com/Automattic/jetpack-backup/compare/v4.2.34...v4.2.35
+[4.2.34]: https://github.com/Automattic/jetpack-backup/compare/v4.2.33...v4.2.34
+[4.2.33]: https://github.com/Automattic/jetpack-backup/compare/v4.2.32...v4.2.33
+[4.2.32]: https://github.com/Automattic/jetpack-backup/compare/v4.2.31...v4.2.32
+[4.2.31]: https://github.com/Automattic/jetpack-backup/compare/v4.2.30...v4.2.31
 [4.2.30]: https://github.com/Automattic/jetpack-backup/compare/v4.2.29...v4.2.30
 [4.2.29]: https://github.com/Automattic/jetpack-backup/compare/v4.2.28...v4.2.29
 [4.2.28]: https://github.com/Automattic/jetpack-backup/compare/v4.2.27...v4.2.28

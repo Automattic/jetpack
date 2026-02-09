@@ -521,7 +521,8 @@ class Share_Email_Block extends Sharing_Source_Block {
 		}
 
 		if ( $is_ajax ) {
-			wp_send_json_success();
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 		} else {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
 			exit( 0 );

@@ -122,7 +122,6 @@ export default function ToneToolbarDropdownMenu( {
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
-			disabled={ disabled }
 			onToggle={ toggleHandler }
 		>
 			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }

@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 7.4.0 - 2026-01-14
+### Added
+- Add the new media selection UI for Social. [#46085]
+- IDC: Add revalidation for IDCs. [#46268]
+- Reuse AI image generation in media section. [#46147]
+
+### Changed
+- Improve the sidebar by making titles more descriptive and combining sections. [#46007]
+- Unified social provider preview. [#46364]
+- Update composer lock following Publicize changes. [#46516]
+
+### Removed
+- Remove the obsolete share limits logic. [#46468]
+- Remove the unused dismiss review endpoint. [#46398]
+
+### Fixed
+- Fix connections management modal not opening from pre-publish panel. [#46316]
+- Fix e2e tests for link preview in the editor sidebar. [#46098]
+- UI: Prevent the modals in editor from stretching too wide on large screens. [#46400]
+
+## 7.3.0 - 2025-11-21
+### Added
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Don't translate product names. [#43961]
+- Improve auto-share UI in the editor by streamlining the notices and descriptions. [#45970]
+- Update package dependencies. [#45478] [#45652] [#45676] [#45756]
+- Update the connections list in the editor to a vertical toggle list with labels and icons. [#45939]
+
+### Fixed
+- Fix connection icon not reflecting the change when profile picture is updated. [#45937]
+- Jetpack: Remove getIconColor functions for block icons. [#45992]
+- My Jetpack: Fix expiring renewal prompt to show all products [#45995]
+- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
 ## 7.2.0 - 2025-10-10
 ### Added
 - Add typecheck support for E2E tests. [#44788]

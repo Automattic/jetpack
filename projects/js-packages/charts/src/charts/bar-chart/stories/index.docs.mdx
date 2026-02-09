@@ -1,0 +1,596 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as BarChartStories from './index.stories';
+
+<Meta title="JS Packages/Charts Library/Charts/Bar Chart" of={ BarChartStories } />
+
+# Bar Chart
+
+Bar Charts visualize categorical data using rectangular bars with heights or lengths proportional to the values they represent. They excel at comparing values across categories, showing distributions, and highlighting differences in data sets.
+
+<Canvas of={ BarChartStories.Default } />
+
+## Overview
+
+The Bar Chart component provides a flexible, accessible, and highly customizable solution for displaying categorical data. Built on `@visx/xychart`, it supports multiple data series, both vertical and horizontal orientations, interactive tooltips, legends, and advanced visual features like pattern fills:
+
+<Source
+	language="jsx"
+	code={ `import { BarChart } from '@automattic/charts';
+
+	<BarChart
+		data={ data }
+		orientation="vertical"
+		withTooltips={ true }
+		showLegend={ true }
+	/>` }
+/>
+
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Bar Chart API Reference](./?path=/docs/js-packages-charts-library-charts-bar-chart-api-reference--docs).
+
+## Basic Usage
+
+### Simple Bar Chart
+
+The simplest bar chart requires only a `data` prop with categorical data:
+
+<Canvas of={ BarChartStories.SingleSeries } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={[
+			{
+				label: 'Olympic Medals',
+				data: [
+					{ label: '2016', value: 121 },
+					{ label: '2020', value: 113 },
+					{ label: '2024', value: 126 },
+				],
+				options: {}
+			}
+		]}
+	/>` }
+/>
+
+### Required Props
+
+- **`data`**: Array of series data, each containing `label`, `data` array, and optional `options`
+
+### Optional Props
+
+**Layout & Dimensions:**
+- **`width`**: Chart width in pixels. When omitted, fills parent container width
+- **`height`**: Chart height in pixels (defaults to 400). When omitted, fills parent container height
+- **`margin`**: Custom chart margins
+- **`aspectRatio`**: Height as a fraction of width (e.g., `0.5` = 50% height). When omitted, fills parent container height
+- **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
+- **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
+
+**Visual Styling:**
+- **`orientation`**: Bar orientation (`'vertical'` or `'horizontal'`, defaults to `'vertical'`)
+- **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
+- **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
+
+**Interactivity:**
+- **`withTooltips`**: Enable interactive tooltips (`false` by default)
+
+**Legend:**
+- **`showLegend`**: Display chart legend (`false` by default)
+- **`legendInteractive`**: Enable interactive legend with series toggle (`false` by default, requires `chartId`)
+
+**Advanced:**
+- **`options`**: Advanced axis and scale configuration
+
+## Chart Orientations
+
+### Vertical Bars (Default)
+
+Standard vertical bar charts with categories on the x-axis and values on the y-axis:
+
+<Canvas of={ BarChartStories.Default } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		orientation="vertical"
+		gridVisibility="x"
+	/>` }
+/>
+
+### Horizontal Bars
+
+Horizontal bar charts with categories on the y-axis and values on the x-axis, ideal for long category names:
+
+<Canvas of={ BarChartStories.HorizontalBarChart } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		orientation="horizontal"
+		gridVisibility="y"
+	/>` }
+/>
+
+## Multiple Series
+
+### Multi-Series Charts
+
+Display multiple data series with automatic color differentiation and grouped bars:
+
+<Canvas of={ BarChartStories.Default } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={[
+			{
+				label: 'United States',
+				data: olympicData.usa,
+				options: {}
+			},
+			{
+				label: 'Great Britain',
+				data: olympicData.gb,
+				options: {}
+			},
+			{
+				label: 'Germany',
+				data: olympicData.germany,
+				options: {}
+			}
+		]}
+	/>` }
+/>
+
+### Many Data Series
+
+The component handles large numbers of series gracefully with automatic color cycling. Use the `seriesCount` control above to see how the chart handles many series:
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={allCountriesData}
+		withTooltips={true}
+		showLegend={true}
+	/>` }
+/>
+
+## Visual Features
+
+### Pattern Fills
+
+Add visual accessibility and distinction with pattern fills instead of solid colors:
+
+<Canvas of={ BarChartStories.WithPatterns } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		withPatterns={true}
+		withTooltips={true}
+	/>` }
+/>
+
+**Pattern types automatically cycle through:**
+- **Lines**: Diagonal line patterns
+- **Circles**: Circular dot patterns
+- **Waves**: Wave line patterns
+- **Hexagons**: Hexagonal patterns
+
+### Smart Formatting
+
+Automatic formatting handles large numbers with appropriate abbreviations:
+
+<Canvas of={ BarChartStories.SmartFormatting } />
+
+Values are automatically formatted as:
+- **1B and above**: "1.23B"
+- **1M and above**: "1.2M"
+- **1K and above**: "1k"
+- **Below 1K**: "1,234"
+
+## Data Formats
+
+### Time Series Data
+
+Bar charts support both categorical labels and time-series data:
+
+<Canvas of={ BarChartStories.TimeSeries } />
+
+<Source
+	language="jsx"
+	code={ `// Date objects
+	{ date: new Date('2024-01-01'), value: 2230 }
+
+	// Date strings (automatically parsed)
+	{ dateString: '2024-01-01', value: 2580 }
+	{ dateString: '2024-01-01 14:30:00', value: 3500 }
+
+	// Category labels
+	{ label: '2024', value: 126 }` }
+/>
+
+### Custom Axis Formatting
+
+Configure custom formatting for time-series or numerical axes:
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={timeSeriesData}
+		options={{
+			axis: {
+				x: {
+					tickFormat: (timestamp) => {
+						const date = new Date(timestamp);
+						return date.toLocaleDateString('en-US', { dateStyle: 'short' });
+					},
+				},
+			},
+		}}
+	/>` }
+/>
+
+## Interactive Features
+
+### Tooltips
+
+Enable rich interactive tooltips that display detailed information on hover:
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		withTooltips={true}
+		renderTooltip={({ tooltipData }) => {
+			const nearestDatum = tooltipData?.nearestDatum?.datum;
+			return (
+				<div>
+					<div>{tooltipData?.nearestDatum?.key}</div>
+					<div>{nearestDatum?.label}: {nearestDatum?.value}</div>
+				</div>
+			);
+		}}
+	/>` }
+/>
+
+### Keyboard Navigation
+
+Charts are fully keyboard accessible:
+- **Tab**: Focus the chart
+- **Arrow Keys**: Navigate between bars
+- **Enter/Space**: Activate tooltips
+- **Escape**: Close active tooltips
+
+## Zero Value Display
+
+### Visual Enhancement for Zero Values
+
+By default, bars with zero values have no visual height, making them difficult to identify. The `showZeroValues` feature provides better user experience by giving zero values a minimum visual height while preserving data integrity:
+
+<Canvas of={ BarChartStories.ZeroValueComparison } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={dataWithZeros}
+		showZeroValues={true}
+		withTooltips={true}
+	/>` }
+/>
+
+## Legends
+
+### Basic Legend
+
+Display series information with automatic color and pattern matching:
+
+<Canvas of={ BarChartStories.WithInteractiveLegend } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		showLegend={true}
+		legendOrientation="horizontal"
+		legendAlignment="center"
+		legendPosition="bottom"
+		legendShape="rect"
+	/>` }
+/>
+
+### Vertical Legend
+
+Display legends vertically for charts with many series:
+
+<Canvas of={ BarChartStories.CustomLegendPositioning } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		showLegend={true}
+		legendOrientation="vertical"
+		legendAlignment="start"
+		legendPosition="top"
+	/>` }
+/>
+
+### Composition API
+
+For more flexible legend positioning and future extensibility, use the composition API with `<BarChart.Legend />` as a child component:
+
+<Canvas of={ BarChartStories.WithCompositionLegend } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		withTooltips={true}
+		gridVisibility="x"
+	>
+		<BarChart.Legend
+			orientation="horizontal"
+			alignment="center"
+			position="bottom"
+		/>
+	</BarChart>` }
+/>
+
+**Benefits of the composition API:**
+- **Flexible positioning**: Place legends anywhere within the chart container
+- **Future extensibility**: Enables additional chart components like annotations
+- **Consistent API**: Same pattern as LineChart for a unified developer experience
+- **Backward compatibility**: Existing `showLegend` prop continues to work
+
+**Usage patterns:**
+
+<Source
+	language="jsx"
+	code={ `// Composition API (recommended for new code)
+	<BarChart data={data}>
+		<BarChart.Legend legendOrientation="vertical" alignment="end" />
+	</BarChart>
+
+	// Traditional prop-based approach (still supported)
+	<BarChart
+		data={data}
+		showLegend={true}
+		legendOrientation="vertical"
+		legendAlignment="end"
+	/>` }
+/>
+
+### Interactive Legend
+
+Enable interactive legend items that users can click to toggle series visibility. This feature requires a `chartId` and wrapping your chart in a `GlobalChartsProvider`:
+
+<Canvas of={ BarChartStories.WithInteractiveLegend } />
+
+<Source
+	language="jsx"
+	code={ `import { BarChart, GlobalChartsProvider } from '@automattic/charts';
+
+	<GlobalChartsProvider>
+		<BarChart
+			data={data}
+			chartId="my-chart"
+			showLegend={true}
+			legendInteractive={true}
+		/>
+	</GlobalChartsProvider>` }
+/>
+
+**Interactive legend features:**
+- **Click to toggle**: Click legend items to show/hide series
+- **Visual feedback**: Legend items visually indicate their active/inactive state
+- **Accessibility**: Full keyboard support with proper ARIA attributes
+- **Empty state**: When all series are hidden, a message prompts users to re-enable series
+- **State management**: Visibility state is managed through the global charts provider
+
+**Requirements:**
+- Set `legendInteractive={true}` to enable the feature
+- Provide a unique `chartId` prop for state tracking
+- Wrap the chart in a `<GlobalChartsProvider>` component
+
+## Advanced Customization
+
+### Grid Configuration
+
+Control grid line visibility and appearance:
+
+<Source
+	language="jsx"
+	code={ `// Show only horizontal grid lines (default for vertical bars)
+	<BarChart data={data} gridVisibility="x" />
+
+	// Show only vertical grid lines (default for horizontal bars)
+	<BarChart data={data} gridVisibility="y" />
+
+	// Show both grid lines
+	<BarChart data={data} gridVisibility="xy" />
+
+	// Hide all grid lines
+	<BarChart data={data} gridVisibility="none" />` }
+/>
+
+### Responsive Behavior
+
+By default, charts **fill their parent container's dimensions**. The parent must have an explicit height:
+
+<Canvas of={ BarChartStories.Default } />
+
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<BarChart data={data} />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%' }}>
+		<BarChart data={data} aspectRatio={0.5} />
+	</div>
+
+	// Fixed dimensions
+	<BarChart data={data} width={800} height={400} />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
+### Custom Margins
+
+Control chart layout with precise margin settings:
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		margin={{
+			top: 20,
+			right: 60,
+			bottom: 80,
+			left: 80
+		}}
+	/>` }
+/>
+
+### Scale and Axis Configuration
+
+Advanced configuration for scales and axes:
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		data={data}
+		options={{
+			yScale: {
+				type: 'linear',
+				zero: true,
+				nice: true
+			},
+			xScale: {
+				type: 'band',
+				padding: 0.1
+			},
+			axis: {
+				x: {
+					orientation: 'bottom',
+					numTicks: 5
+				},
+				y: {
+					orientation: 'left',
+					numTicks: 6,
+					tickFormat: (value) => '$' + value
+				}
+			}
+		}}
+	/>` }
+/>
+
+## Error Handling
+
+The chart gracefully handles various error states and edge cases:
+
+<Canvas of={ BarChartStories.ErrorStates } />
+
+**Supported scenarios:**
+- Empty data arrays
+- Invalid data values (null, NaN, undefined)
+- Missing data properties
+- Invalid date formats
+- Single data points
+
+## Accessibility
+
+### Keyboard Navigation
+
+- **Tab**: Focus the chart container
+- **Arrow Keys**: Navigate between individual bars
+- **Enter/Space**: Activate tooltips or interactive elements
+- **Escape**: Close active tooltips
+
+### Screen Reader Support
+
+- Chart container has `role="grid"` with descriptive `aria-label`
+- Individual bars are navigable and announced with their values
+- Interactive elements have appropriate ARIA attributes
+- Color information is supplemented with patterns when `withPatterns` is enabled
+
+### Focus Management
+
+- Clear visual focus indicators on chart and individual bars
+- Logical tab order through interactive elements
+- Focus restoration after modal interactions
+
+## Browser Compatibility
+
+### Modern Browser Support
+
+Full functionality in all modern browsers supporting:
+- SVG rendering and manipulation
+- CSS Grid and Flexbox layouts
+- ES6+ JavaScript features
+
+### Performance Considerations
+
+- Optimized rendering using `@visx/xychart` for efficient SVG generation
+- Automatic data validation and error boundaries
+- Efficient pattern generation for accessibility features
+
+## Performance Considerations
+
+### Built-in Optimizations
+
+- **Efficient rendering**: Built on `@visx/xychart` for optimized SVG rendering
+- **Data validation**: Automatic validation prevents rendering invalid data
+- **Responsive behavior**: Uses `ResizeObserver` for efficient chart resizing
+- **Pattern caching**: Pattern definitions are cached and reused for performance
+
+## Theming Integration
+
+Bar Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, BarChart, type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		gridColor: '#E0E0E0',
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<BarChart data={data} />
+	</GlobalChartsProvider>` }
+/>
+
+## Animation
+
+The Bar Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ BarChartStories.Animation } />
+
+<Source
+	language="tsx"
+	code={ `<BarChart
+		data={ data }
+		width={ 800 }
+		height={ 400 }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a growing effect where bars scale from zero to their full size. Vertical bars rise from the bottom, while horizontal bars stretch from the left
+- **Duration**: 1000ms (1 second) with ease-out timing
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.

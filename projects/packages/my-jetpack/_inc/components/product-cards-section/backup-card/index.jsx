@@ -1,4 +1,6 @@
 import { Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
@@ -75,9 +77,10 @@ const BackupCard = props => {
 	const { detail } = useProduct( productSlug );
 	const { status, doesModuleNeedAttention } = detail;
 	const lastBackupFailed = !! doesModuleNeedAttention;
-	const { status: lastBackupStatus } = doesModuleNeedAttention || {};
+	const lastBackupStatus = doesModuleNeedAttention?.data?.status || '';
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const noDescription = () => null;
+	const { siteUrl = '' } = getMyJetpackWindowInitialState();
 
 	const { reasonContent, isLoading: isBackupFailedReasonLoading } =
 		useGetReadableFailedBackupReason() || {};
@@ -87,11 +90,45 @@ const BackupCard = props => {
 		return <WithBackupsValueSection slug={ productSlug } { ...props } />;
 	}
 
+	// Check if backups are deactivated (INACTIVE status with info type).
+	const isDeactivated =
+		status === PRODUCT_STATUSES.INACTIVE && lastBackupStatus === 'backups-deactivated';
+
 	const isError = status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && lastBackupFailed;
 
+	// Build support URL with pre-filled subject and site URL
+	const supportUrl = getRedirectUrl( 'jetpack-backup-support-reactivate', {
+		site: siteUrl,
+		query: `subject=${ encodeURIComponent(
+			__( 'Please reactivate Backup on my site', 'jetpack-my-jetpack' )
+		) }`,
+	} );
+
 	return (
-		<ProductCard slug={ productSlug } Description={ isError && noDescription } { ...props }>
+		<ProductCard
+			{ ...props }
+			slug={ productSlug }
+			Description={ ( isError || isDeactivated ) && noDescription }
+			admin={ isDeactivated ? false : props.admin }
+		>
 			{ isBackupFailedReasonLoading && <LoadingBlock height="75px" width="100%" /> }
+			{ isDeactivated && ! isBackupFailedReasonLoading && (
+				<div className={ styles.backupErrorContainer }>
+					<div className={ styles.contentContainer }>
+						<Text variant="body-small">
+							{ createInterpolateElement(
+								__(
+									'Backup was manually turned off. Please <a>contact support</a> to reactivate it.',
+									'jetpack-my-jetpack'
+								),
+								{
+									a: <ExternalLink href={ supportUrl } />,
+								}
+							) }
+						</Text>
+					</div>
+				</div>
+			) }
 			{ isError && ! isBackupFailedReasonLoading && (
 				<div className={ styles.backupErrorContainer }>
 					<div className={ styles.iconContainer }>

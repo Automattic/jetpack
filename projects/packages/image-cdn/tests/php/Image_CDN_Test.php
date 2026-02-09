@@ -143,10 +143,10 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @return int Post ID (attachment) of the image.
 	 */
 	protected function helper_get_image( $size = 'large', $meta = true ) {
-		if ( 'large' === $size ) { // 1600x1200
-			$filename = __DIR__ . '/sample-content/test-image-large.png';
-		} elseif ( 'medium' === $size ) { // 1024x768
+		if ( 'medium' === $size ) { // 1024x768
 			$filename = __DIR__ . '/sample-content/test-image-medium.png';
+		} else { // 1600x1200 - default to 'large'
+			$filename = __DIR__ . '/sample-content/test-image-large.png';
 		}
 		// Add sizes that exist before uploading the file.
 		add_image_size( 'jetpack_soft_defined', 700, 500, false ); // Intentionally not a 1.33333 ratio.

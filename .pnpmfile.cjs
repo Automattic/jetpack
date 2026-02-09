@@ -25,6 +25,7 @@ const wpPkgs = {
 	],
 	'@wordpress/element': [ 'react-dom' ],
 	'@wordpress/data': [ 'use-memo-one' ],
+	'@wordpress/ui': [ '@base-ui/react' ],
 };
 const wpPkgFetches = {};
 
@@ -40,10 +41,12 @@ async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
 	if (
-		pkg.name === '@automattic/social-previews' ||
+		pkg.name === '@automattic/api-core' ||
 		pkg.name === '@automattic/components' ||
+		pkg.name === '@automattic/data-stores' ||
+		pkg.name === '@automattic/i18n-utils' ||
 		pkg.name === '@automattic/launchpad' ||
-		pkg.name === '@automattic/api-core'
+		pkg.name === '@automattic/ui'
 	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) ) {
@@ -65,20 +68,17 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency version causing dependabot warnings.
+	// Once we can drop @wordpress/icons v10 (see above), looks like this can go away.
 	// https://github.com/WordPress/gutenberg/issues/69557
-	if (
-		pkg.name.startsWith( '@wordpress/' ) &&
-		pkg.dependencies?.[ '@babel/runtime' ] === '7.25.7'
-	) {
+	if ( pkg.name === '@wordpress/icons' && pkg.dependencies?.[ '@babel/runtime' ] === '7.25.7' ) {
 		pkg.dependencies[ '@babel/runtime' ] = '^7.26.10';
 	}
 
 	// Missing dep or peer dep on react.
-	// https://github.com/WordPress/gutenberg/issues/73257
+	// https://github.com/WordPress/gutenberg/issues/73257 (fixed in @wordpress/icons v11, but see above)
+	// https://github.com/WordPress/gutenberg/issues/74394
 	if (
-		( pkg.name === '@wordpress/icons' ||
-			pkg.name === '@wordpress/media-utils' ||
-			pkg.name === '@wordpress/admin-ui' ) &&
+		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/image-cropper' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -90,12 +90,17 @@ async function fixDeps( pkg ) {
 	// @see https://github.com/WordPress/gutenberg/issues/67864
 	if ( pkg.name === '@wordpress/dataviews' ) {
 		for ( const fromPkg of Object.keys( wpPkgs ) ) {
+			if ( ! pkg.dependencies[ fromPkg ] ) {
+				// Old version of dataviews lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
+				continue;
+			}
+
 			if ( ! wpPkgFetches[ fromPkg ] ) {
 				wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
 					r.json()
 				);
 			}
-			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' );
+			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
 			const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
 			for ( const dep of wpPkgs[ fromPkg ] ) {
 				if ( deps[ dep ] === undefined ) {
@@ -134,6 +139,27 @@ async function fixDeps( pkg ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
 				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+	}
+
+	// Outdated dependency and unnecessarily explicit deps.
+	if ( pkg.name === '@wordpress/build' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+		if ( pkg.dependencies.cssnano === '^6.0.1' ) {
+			pkg.dependencies.cssnano = '^6 || ^7';
+		}
+	}
+
+	// Outdated dependency
+	if ( pkg.name === '@wordpress/jest-console' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( 'jest-' ) && ver.startsWith( '^29.' ) ) {
+				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
 			}
 		}
 	}
@@ -230,29 +256,31 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Hack-update Jest to v30 for ts-jest and @storybook/test-runner. Not sure if they'd 100% work, but they seem to work for us in CI.
-	// https://github.com/storybookjs/test-runner/issues/567
-	if ( pkg.name === '@storybook/test-runner' && pkg.dependencies.jest === '^29.6.4' ) {
-		pkg.dependencies.jest = '^30.0.0';
-		pkg.dependencies[ 'jest-circus' ] = '^30.0.0';
-		pkg.dependencies[ 'jest-environment-node' ] = '^30.0.0';
-		pkg.dependencies[ 'jest-runner' ] = '^30.0.0';
-		pkg.dependencies[ 'jest-watch-typeahead' ] = '^3.0.0';
+	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
+	// On the plus side, the net change from v10 to v13 is deleting the CLI from the package.
+	if ( pkg.dependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
+		pkg.dependencies.glob = '^13';
 	}
-	// https://github.com/playwright-community/jest-playwright/issues/824
-	if ( pkg.name === 'jest-playwright-preset' && pkg.peerDependencies.jest === '^29.3.1' ) {
-		pkg.peerDependencies.jest += ' || ^30.0.0';
-		pkg.peerDependencies[ 'jest-circus' ] += ' || ^30.0.0';
-		pkg.peerDependencies[ 'jest-environment-node' ] += ' || ^30.0.0';
-		pkg.peerDependencies[ 'jest-runner' ] += ' || ^30.0.0';
+	if ( pkg.peerDependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
+		pkg.dependencies.glob = '^13';
 	}
 
-	// Update all glob 10 deps for CVE-2025-64756. The only difference from 10.4.4→11.0.0 is dropping node <20 support.
-	if ( pkg.dependencies?.glob?.match( /^\^10(?:\.\d+)*$/ ) ) {
-		pkg.dependencies.glob += ' || ^11.0.0';
+	// CVE-2026-22036
+	// https://github.com/actions/toolkit/issues/2242
+	if (
+		( pkg.name === '@actions/http-client' || pkg.name === '@actions/github' ) &&
+		pkg.dependencies?.undici?.startsWith( '^5.' )
+	) {
+		pkg.dependencies.undici = '^6.23.0';
 	}
-	if ( pkg.peerDependencies?.glob?.match( /^\^10(?:\.\d+)*$/ ) ) {
-		pkg.peerDependencies.glob += ' || ^11.0.0';
+
+	// GHSA-73rr-hh4g-fpgx
+	// https://github.com/WordPress/gutenberg/issues/74669
+	if (
+		( pkg.name === '@wordpress/block-editor' || pkg.name === '@wordpress/sync' ) &&
+		( pkg.dependencies?.diff?.startsWith( '^4.' ) || pkg.dependencies?.diff?.startsWith( '4.' ) )
+	) {
+		pkg.dependencies.diff = '^8.0.3';
 	}
 
 	return pkg;
@@ -317,6 +345,15 @@ function fixPeerDeps( pkg ) {
 		delete pkg.dependencies.sass;
 	}
 
+	// 0.x versions treat `^` like `~`. Replace with `>=`.
+	if ( pkg.name === '@wordpress/build' && pkg.peerDependencies ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
+			if ( ver.startsWith( '^0.' ) ) {
+				pkg.peerDependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
+	}
+
 	return pkg;
 }
 
@@ -341,9 +378,10 @@ async function readPackage( pkg, context ) {
  *
  * @see https://pnpm.io/pnpmfile#hooksafterallresolvedlockfile-context-lockfile--promiselockfile
  * @param {object} lockfile - Lockfile data.
+ * @param {object} context  - Pnpm object of some sort.
  * @return {object} Modified lockfile.
  */
-function afterAllResolved( lockfile ) {
+function afterAllResolved( lockfile, context ) {
 	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
 	if ( Object.keys( lockfile.importers ).length === 1 ) {
 		return lockfile;
@@ -365,11 +403,27 @@ function afterAllResolved( lockfile ) {
 			);
 		}
 
+		// We want to use `@jest/environment-jsdom-abstract` instead to allow for using newer `jsdom`.
+		if ( k.startsWith( 'jest-environment-jsdom@' ) ) {
+			throw new Error(
+				// prettier-ignore
+				`You don't need \`jest-environment-jsdom\`. Our base config in \`tools/js-tools/jest/config.base.js\` already sets up a JSDOM environment from \`tools/js-tools/jest/fix-environment-jsdom.mjs\`, use that instead. pdWQjU-1vl-p2`
+			);
+		}
+
 		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
 		// https://github.com/pnpm/pnpm/issues/3935
 		if ( k.startsWith( 'webpack@' ) && ! v.optionalDependencies?.[ 'webpack-cli' ] ) {
 			throw new Error(
 				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report.\n"
+			);
+		}
+	}
+
+	for ( const fromPkg of Object.keys( wpPkgs ) ) {
+		if ( ! wpPkgFetches[ fromPkg ] ) {
+			context.log(
+				`pnpmfile hack needs updating: wpPkgs['${ fromPkg }'] was not used. Is it obsolete?`
 			);
 		}
 	}

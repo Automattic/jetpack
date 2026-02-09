@@ -48,6 +48,8 @@ export default function SidebarOptions() {
 		trigger,
 		postDate = false,
 		setPostDate,
+		productPrice = true,
+		setProductPrice,
 	} = useSearchOptions();
 
 	const { isSaving } = useEntityRecordState();
@@ -152,6 +154,16 @@ export default function SidebarOptions() {
 					onChange={ setSortEnabled }
 					__nextHasNoMarginBottom={ true }
 				/>
+				{ RESULT_FORMAT_PRODUCT === resultFormat && (
+					<ToggleControl
+						className="jp-search-configure-product-price-toggle"
+						checked={ productPrice }
+						disabled={ isDisabled }
+						label={ __( 'Show price', 'jetpack-search-pkg' ) }
+						onChange={ setProductPrice }
+						__nextHasNoMarginBottom={ true }
+					/>
+				) }
 				<ToggleControl
 					className="jp-search-configure-infinite-scroll-toggle"
 					checked={ infiniteScroll }

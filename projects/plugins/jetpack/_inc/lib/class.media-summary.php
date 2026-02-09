@@ -30,6 +30,8 @@ class Jetpack_Media_Summary {
 	 *      Optional. An array of arguments.
 	 *      @type int $max_words Maximum number of words.
 	 *      @type int $max_chars Maximum number of characters.
+	 *      @type bool $include_excerpt Whether to compute the excerpt and return it. Default true.
+	 *      @type bool $include_counts  Whether to compute word/link counts. Default true.
 	 * }
 	 *
 	 * @return array|mixed|void
@@ -38,8 +40,10 @@ class Jetpack_Media_Summary {
 		$post_id = (int) $post_id;
 
 		$defaults = array(
-			'max_words' => 16,
-			'max_chars' => 256,
+			'max_words'       => 16,
+			'max_chars'       => 256,
+			'include_excerpt' => true,
+			'include_counts'  => true,
 		);
 		$args     = wp_parse_args( $args, $defaults );
 
@@ -51,7 +55,8 @@ class Jetpack_Media_Summary {
 			$blog_id = get_current_blog_id();
 		}
 
-		$cache_key = "{$blog_id}_{$post_id}_{$args['max_words']}_{$args['max_chars']}";
+		$cache_key = "{$blog_id}_{$post_id}_{$args['max_words']}_{$args['max_chars']}_"
+			. (int) $args['include_excerpt'] . '_' . (int) $args['include_counts'];
 		if ( isset( self::$cache[ $cache_key ] ) ) {
 			if ( $switched ) {
 				restore_current_blog();
@@ -76,18 +81,26 @@ class Jetpack_Media_Summary {
 				'image' => '',
 			),
 			'count'      => array(
-				'image' => 0,
-				'video' => 0,
-				'word'  => 0,
-				'link'  => 0,
+				'image'          => 0,
+				'video'          => 0,
+				'word'           => 0,
+				'word_remaining' => 0,
+				'link'           => 0,
 			),
 		);
 
 		if ( $post instanceof WP_Post && empty( $post->post_password ) ) {
-			$return['excerpt']                 = self::get_excerpt( $post->post_content, $post->post_excerpt, $args['max_words'], $args['max_chars'], $post );
-			$return['count']['word']           = self::get_word_count( $post->post_content );
-			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, $return['excerpt'] );
-			$return['count']['link']           = self::get_link_count( $post->post_content );
+			if ( $args['include_excerpt'] ) {
+				$return['excerpt'] = self::get_excerpt( $post->post_content, $post->post_excerpt, $args['max_words'], $args['max_chars'], $post );
+			}
+			if ( $args['include_counts'] ) {
+				$return['count']['word'] = self::get_word_count( $post->post_content );
+				$return['count']['link'] = self::get_link_count( $post->post_content );
+				// Only compute word_remaining if we have an excerpt. If not, leave the default of 0.
+				if ( $args['include_excerpt'] && '' !== $return['excerpt'] ) {
+					$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, $return['excerpt'] );
+				}
+			}
 		}
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( $blog_id, $post_id, Jetpack_Media_Meta_Extractor::ALL );

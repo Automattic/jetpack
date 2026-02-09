@@ -47,8 +47,34 @@ function swiperResize( swiper ) {
 	if ( ! img ) {
 		return;
 	}
-	const aspectRatio = img.naturalWidth / img.naturalHeight;
+
+	let aspectRatio;
+	const hasNatural = img.naturalWidth > 0 && img.naturalHeight > 0;
+
+	// If the image element has `naturalWidth` and `naturalHeight` defined, we prefer using
+	// those numbers, because they're guaranteed to be up to date and correct, since they're
+	// taken from the actual image that the browser loaded.
+	//
+	// However, in some cases these numbers will be missing, due to e.g. lazy image loading.
+	// In those situations, we first fall back to the recorded aspect ratio in the HTML, and
+	// if that's missing as well, we fall back to a hardcoded 16:9.
+	if ( hasNatural ) {
+		aspectRatio = img.naturalWidth / img.naturalHeight;
+	} else {
+		if ( img.dataset.aspectRatio ) {
+			const matches = img.dataset.aspectRatio.match( /(\d+) \/ (\d+)/ );
+			if ( matches && matches[ 1 ] && matches[ 2 ] ) {
+				aspectRatio = parseInt( matches[ 1 ], 10 ) / parseInt( matches[ 2 ], 10 );
+			}
+		}
+		aspectRatio = aspectRatio || SIXTEEN_BY_NINE;
+	}
+
+	// After we have an aspect ratio, we run a final check to make sure it's within an
+	// acceptable range of values, and clamp it if necessary.
 	const sanityAspectRatio = Math.max( Math.min( aspectRatio, SIXTEEN_BY_NINE ), 1 );
+
+	// Finally, we also clamp the height to a sane maximum.
 	const sanityHeight =
 		typeof window !== 'undefined'
 			? window.innerHeight * MAX_HEIGHT_PERCENT_OF_WINDOW_HEIGHT

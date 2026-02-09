@@ -125,6 +125,8 @@ class Error_Handler {
 		'invalid_nonce',
 		'signature_mismatch',
 		'invalid_connection_owner',
+		// @deprecated 7.0.0 External storage error reporting moved to provider classes.
+		// These error codes will be removed in a future release.
 		'external_storage_empty',
 		'external_storage_error',
 	);
@@ -665,7 +667,7 @@ class Error_Handler {
 		try {
 			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			$encrypted_data = base64_encode( sodium_crypto_box_seal( wp_json_encode( $data ), base64_decode( JETPACK__ERRORS_PUBLIC_KEY ) ) );
+			$encrypted_data = base64_encode( sodium_crypto_box_seal( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ), base64_decode( JETPACK__ERRORS_PUBLIC_KEY ) ) );
 			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		} catch ( \SodiumException $e ) {

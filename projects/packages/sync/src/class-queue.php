@@ -121,7 +121,7 @@ class Queue {
 	}
 
 	/**
-	 * Get the front-most item on the queue without checking it out.
+	 * Get the front-most items on the queue without checking them out.
 	 *
 	 * @param int $count Number of items to return when looking at the items.
 	 *
@@ -129,6 +129,22 @@ class Queue {
 	 */
 	public function peek( $count = 1 ) {
 		$items = $this->fetch_items( $count );
+		if ( $items ) {
+			return Utils::get_item_values( $items );
+		}
+
+		return array();
+	}
+
+	/**
+	 * Get the last-added items on the queue without checking them out.
+	 *
+	 * @param int $count Number of items to return when looking at the items.
+	 *
+	 * @return array
+	 */
+	public function peek_newest( $count = 1 ) {
+		$items = $this->fetch_items( $count, 'DESC' );
 		if ( $items ) {
 			return Utils::get_item_values( $items );
 		}
@@ -245,14 +261,39 @@ class Queue {
 	}
 
 	/**
-	 * Pop elements from the queue.
+	 * Remove the oldest items from the queue.
 	 *
-	 * @param int $limit Number of items to pop from the queue.
+	 * @param int $limit Number of items to remove from the queue.
 	 *
 	 * @return array|object|null
 	 */
 	public function pop( $limit ) {
 		$items = $this->fetch_items( $limit );
+
+		if ( ! $items ) {
+			return array();
+		}
+
+		$ids = $this->get_ids( $items );
+
+		$this->delete( $ids );
+
+		return $items;
+	}
+
+	/**
+	 * Remove the newest items from the queue.
+	 *
+	 * @param int $limit Number of items to remove from the queue.
+	 *
+	 * @return array|object|null
+	 */
+	public function pop_newest( $limit ) {
+		$items = $this->fetch_items( $limit, 'DESC' );
+
+		if ( ! $items ) {
+			return array();
+		}
 
 		$ids = $this->get_ids( $items );
 
@@ -329,9 +370,8 @@ class Queue {
 			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			while ( ( $current_item = array_shift( $current_items ) ) !== null ) {
 				// @codingStandardsIgnoreStart
-				$current_item->value = unserialize( $current_item->value );
+				$current_item->value = @unserialize( $current_item->value );
 				// @codingStandardsIgnoreEnd
-
 				$items[] = $current_item;
 			}
 		}
@@ -610,11 +650,15 @@ class Queue {
 	 * Return the items in the queue.
 	 *
 	 * @param null|int $limit Limit to the number of items we fetch at once.
+	 * @param string   $order      Sort direction for the items. Accepts 'ASC' or 'DESC'.
+	 *                             Any other value will be treated as 'ASC'.
 	 *
 	 * @return array|object|null
 	 */
-	private function fetch_items( $limit = null ) {
-		$items = $this->queue_storage->fetch_items( $limit );
+	private function fetch_items( $limit = null, $order = 'ASC' ) {
+		$order = 'DESC' === $order ? 'DESC' : 'ASC';
+
+		$items = $this->queue_storage->fetch_items( $limit, $order );
 
 		return $this->unserialize_values( $items );
 	}

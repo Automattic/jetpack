@@ -196,6 +196,14 @@ class Colors_Manager_Common {
 
 			add_filter( 'tonesque_image_url', array( __CLASS__, 'gravatar_image_url' ) );
 		}
+
+		if ( self::is_gutenberg() ) {
+			// If colors are set, print them in the Block Editor as well.
+			if ( self::theme_has_set_colors() ) {
+				self::override_themecolors();
+				add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'print_theme_css' ), 20 );
+			}
+		}
 	}
 
 	/**
@@ -355,11 +363,11 @@ class Colors_Manager_Common {
 			'themeSupport'      => array( 'customBackground' => current_theme_supports( 'custom-background' ) ),
 			'defaultImage'      => get_theme_support( 'custom-background', 'default-image' ),
 			'topPatterns'       => self::get_patterns( array( 'limit' => 30 ) ),
-			'genPalette'        => esc_js( __( 'Generating...', 'wpcomsh' ) ),
-			'backgroundTitle'   => esc_js( __( 'Background', 'wpcomsh' ) ),
-			'colorsTitle'       => esc_js( __( 'Colors', 'wpcomsh' ) ),
-			'mediaTitle'        => esc_js( __( 'Select background image', 'wpcomsh' ) ),
-			'mediaSelectButton' => esc_js( __( 'Select', 'wpcomsh' ) ),
+			'genPalette'        => __( 'Generating...', 'wpcomsh' ),
+			'backgroundTitle'   => __( 'Background', 'wpcomsh' ),
+			'colorsTitle'       => __( 'Colors', 'wpcomsh' ),
+			'mediaTitle'        => __( 'Select background image', 'wpcomsh' ),
+			'mediaSelectButton' => __( 'Select', 'wpcomsh' ),
 		);
 
 		wp_localize_script( 'colors-tool', 'ColorsTool', $settings );
@@ -602,7 +610,8 @@ class Colors_Manager_Common {
 		$response = array( 'palettes' => $palettes );
 
 		header( 'Content-Type: text/javascript' );
-		wp_send_json( $response );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -613,7 +622,8 @@ class Colors_Manager_Common {
 	public static function ajax_generate_palette() {
 		$response = self::get_generated_palette( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
 		header( 'Content-Type: text/javascript' );
-		wp_send_json( $response );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -627,7 +637,8 @@ class Colors_Manager_Common {
 		$response = array( 'colors' => $colors );
 
 		header( 'Content-Type: text/javascript' );
-		wp_send_json( $response );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -641,7 +652,8 @@ class Colors_Manager_Common {
 		$response = array( 'patterns' => $patterns );
 
 		header( 'Content-Type: text/javascript' );
-		wp_send_json( $response );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**

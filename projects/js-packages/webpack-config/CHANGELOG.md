@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.7.21 - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## 3.7.20 - 2026-01-26
+### Added
+- Add HMR support by setting up dev server. [#46686]
+
+## 3.7.19 - 2026-01-19
+### Changed
+- Remove unused `wp-theme-slug` fallback. It can be added back (everywhere in monorepo tooling) if we ever do have themes in the monorepo. [#46601]
+- Use `beta-plugin-slug` as a fallback for plugin textdomains if `wp-plugin-slug` isn't set. [#46601]
+- Update package dependencies. [#46647]
+
+## 3.7.18 - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## 3.7.17 - 2025-12-22
+### Added
+- Add local name for css module classes for development for easier debugging. [#46300]
+
+## 3.7.16 - 2025-12-11
+### Changed
+- Update package dependencies. [#46246] [#46248]
+
+### Fixed
+- Pass correct targets to `@babel/helper-compilation-targets`. [#46248]
+
+## 3.7.15 - 2025-12-08
+### Changed
+- Internal updates.
+
+## 3.7.14 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
 ## 3.7.13 - 2025-11-17
 ### Changed
 - Update package dependencies. [#45915]

@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -8,12 +8,11 @@
  */
 
 // Require DOMPDF
-global $zbs; $zbs->libLoad('dompdf');
+global $zbs;
+$zbs->libLoad( 'dompdf' );
 use FontLib\Font;
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
-
-
 
 /*
 * Class encapsulating logic concerned with installing and using different fonts
@@ -25,7 +24,7 @@ class JPCRM_Fonts {
 	* @param: $cleaned_alphabetical bool - if true return the list with 'Noto' moved to back of string and re-ordered to be alphabetic
 	* ... e.g. 'Noto Kufi Arabic' => 'Kufi Arabic (Noto)'
 	*/
-	public function list_all_available( $cleaned_alphabetical=false ){
+	public function list_all_available( $cleaned_alphabetical = false ) {
 
 		// updated 17/04/24: Noto Sans, and added CJK fonts (JP, HK, TC, KR and SC)
 		$font_json =
@@ -33,10 +32,10 @@ class JPCRM_Fonts {
 
 		$return_array = json_decode( $font_json, true );
 
-		if ( $cleaned_alphabetical ){
+		if ( $cleaned_alphabetical ) {
 
 			$cleaned_array = array();
-			foreach ( $return_array as $zip_name => $font_name ){
+			foreach ( $return_array as $zip_name => $font_name ) {
 
 				$cleaned_name = $font_name;
 				if ( str_starts_with( $font_name, 'Noto Sans' ) ) {
@@ -46,7 +45,7 @@ class JPCRM_Fonts {
 				}
 
 				// special cases here (lets us keep our font array clean but show more info in UI)
-				switch ( $cleaned_name ){
+				switch ( $cleaned_name ) {
 
 					case 'Boku2':
 						$cleaned_name = 'Boku2 (JP)';
@@ -75,127 +74,114 @@ class JPCRM_Fonts {
 		}
 
 		return $return_array;
-
 	}
 
 	/*
 	* Converts a font-name to its zip filename
 	*/
-	public function zip_to_font_name( $zip_file_name='' ){
+	public function zip_to_font_name( $zip_file_name = '' ) {
 
-		return str_replace( '.zip', '',  jpcrm_string_split_at_caps( $zip_file_name ) );
-
+		return str_replace( '.zip', '', jpcrm_string_split_at_caps( $zip_file_name ) );
 	}
 
 	/*
 	* Converts a font-name to its zip filename
 	*/
-	public function font_name_to_zip( $font_name='' ){
+	public function font_name_to_zip( $font_name = '' ) {
 
-		return str_replace( ' ', '',  $font_name ) . '.zip';
-
+		return str_replace( ' ', '', $font_name ) . '.zip';
 	}
 
 	/*
 	* Converts a font-name to its *-Regular.ttf filename
 	*/
-	public function font_name_to_regular_ttf_name( $font_name='' ){
+	public function font_name_to_regular_ttf_name( $font_name = '' ) {
 
-		return str_replace( ' ', '',  $font_name ) . '-Regular.ttf';
-
+		return str_replace( ' ', '', $font_name ) . '-Regular.ttf';
 	}
 
 	/*
 	* Converts a font-name to its ultimate directory
 	*/
-	public function font_name_to_dir( $font_name='' ){
+	public function font_name_to_dir( $font_name = '' ) {
 
 		return str_replace( '.zip', '', $this->font_name_to_zip( $font_name ) );
-
 	}
 
 	/*
 	* Converts a slug to a font name
 	*/
-	public function font_slug_to_name( $font_slug='' ){
+	public function font_slug_to_name( $font_slug = '' ) {
 
 		return ucwords( str_replace( '-', ' ', $font_slug ) );
-
 	}
 
 	/*
 	* Converts a font-name to a slug equivalent
 	*/
-	public function font_name_to_slug( $font_name='' ){
+	public function font_name_to_slug( $font_name = '' ) {
 
 		global $zbs;
 		return $zbs->DAL->makeSlug( $font_name );
-
 	}
 
 	/*
 	* Checks a font is on our available list
 	*/
-	public function font_is_available( $font_name='' ){
+	public function font_is_available( $font_name = '' ) {
 
 		$fonts = $this->list_all_available();
 
 		if ( isset( $fonts[ $this->font_name_to_zip( $font_name ) ] ) ) {
-			
+
 			return true;
 
 		}
 
 		return false;
-
 	}
 
 	/*
 	* Checks a font is on our available list
 	*/
-	public function font_is_installed( $font_name='' ){
+	public function font_is_installed( $font_name = '' ) {
 
-		if ( $this->font_is_available( $font_name ) ){
+		if ( $this->font_is_available( $font_name ) ) {
 
 			// Available?
-			if ( file_exists( ZEROBSCRM_INCLUDE_PATH . 'lib/dompdf-fonts/' . $this->font_name_to_dir( $font_name ) ) ){
+			if ( file_exists( ZEROBSCRM_INCLUDE_PATH . 'lib/dompdf-fonts/' . $this->font_name_to_dir( $font_name ) ) ) {
 
 				// Installed? (check setting)
-				$font_install_setting = zeroBSCRM_getSetting('pdf_extra_fonts_installed');
-				if ( !is_array( $font_install_setting ) ){
+				$font_install_setting = zeroBSCRM_getSetting( 'pdf_extra_fonts_installed' );
+				if ( ! is_array( $font_install_setting ) ) {
 					$font_install_setting = array();
 				}
 
-				if ( array_key_exists( $this->font_name_to_slug( $font_name ), $font_install_setting ) ){
+				if ( array_key_exists( $this->font_name_to_slug( $font_name ), $font_install_setting ) ) {
 					return true;
 				}
-
-			} 
-
+			}
 		}
 
 		return false; // font doesn't exist or isn't installed
-
 	}
-
 
 	/*
 	* Installs fonts (which have already been downloaded, but are not marked installed)
 	*/
-	public function install_font( $font_name='', $force_reinstall=false ) {
+	public function install_font( $font_name = '', $force_reinstall = false ) {
 
 		// is available, and not installed (or $force_reinstall)
-		if ( 
-			$this->font_is_available( $font_name ) && 
-			( !$this->font_is_installed( $font_name ) || $force_reinstall )
+		if ( $this->font_is_available( $font_name ) &&
+			( ! $this->font_is_installed( $font_name ) || $force_reinstall )
 		) {
 
 			// get fonts dir
-			$fonts_dir = jpcrm_storage_fonts_dir_path();
+			$fonts_dir   = jpcrm_storage_fonts_dir_path();
 			$working_dir = zeroBSCRM_privatisedDirCheckWorks();
 
 			// Check if temp dir is valid
-			if ( empty( $working_dir['path'] ) || !$fonts_dir ) {
+			if ( empty( $working_dir['path'] ) || ! $fonts_dir ) {
 				return false;
 			}
 
@@ -204,35 +190,35 @@ class JPCRM_Fonts {
 			$font_directory_name = $this->font_name_to_dir( $font_name );
 
 			// Discern available variations
-			$font_regular_path = $working_dir . $this->font_name_to_regular_ttf_name( $font_name ); // 'NotoSans-Regular.ttf' - ALL variations have a `*-Regular.ttf` as at 01/12/21
-			$font_bold_path = null;
-			$font_italic_path = null;
+			$font_regular_path    = $working_dir . $this->font_name_to_regular_ttf_name( $font_name ); // 'NotoSans-Regular.ttf' - ALL variations have a `*-Regular.ttf` as at 01/12/21
+			$font_bold_path       = null;
+			$font_italic_path     = null;
 			$font_bolditalic_path = null;
 
-			if ( file_exists( $working_dir . $font_directory_name . '-Bold.ttf' ) ){
+			if ( file_exists( $working_dir . $font_directory_name . '-Bold.ttf' ) ) {
 				$font_bold_path = $working_dir . $font_directory_name . '-Bold.ttf';
 			}
-			if ( file_exists( $working_dir . $font_directory_name . '-Italic.ttf' ) ){
+			if ( file_exists( $working_dir . $font_directory_name . '-Italic.ttf' ) ) {
 				$font_italic_path = $working_dir . $font_directory_name . '-Italic.ttf';
 			}
-			if ( file_exists( $working_dir . $font_directory_name . '-BoldItalic.ttf' ) ){
+			if ( file_exists( $working_dir . $font_directory_name . '-BoldItalic.ttf' ) ) {
 				$font_bolditalic_path = $working_dir . $font_directory_name . '-BoldItalic.ttf';
 			}
 
 			// Attempt to install
-			if ($this->load_font(
-			    str_replace( ' ' ,'', $font_name ), // e.g. NotoSansJP
-			    $font_regular_path,
-			    $font_bold_path,
-			    $font_italic_path,
-			    $font_bolditalic_path
-			  )){
+			if ( $this->load_font(
+				str_replace( ' ', '', $font_name ), // e.g. NotoSansJP
+				$font_regular_path,
+				$font_bold_path,
+				$font_italic_path,
+				$font_bolditalic_path
+			) ) {
 
-			  	global $zbs;
+				global $zbs;
 
 				// Update setting
-				$font_install_setting = $zbs->settings->get('pdf_extra_fonts_installed');
-				if ( !is_array( $font_install_setting ) ){
+				$font_install_setting = $zbs->settings->get( 'pdf_extra_fonts_installed' );
+				if ( ! is_array( $font_install_setting ) ) {
 					$font_install_setting = array();
 				}
 				$font_install_setting[ $this->font_name_to_slug( $font_name ) ] = time();
@@ -241,28 +227,25 @@ class JPCRM_Fonts {
 				return true;
 
 			}
-
 		}
 
 		return false;
-
 	}
-
 
 	/*
 	* Installs default fonts (which are extracted, but are not marked installed)
 	* can use $this->extract_and_install_default_fonts() if from scratch (extracts + installs)
 	*/
-	public function install_default_fonts( $force_reinstall = false ){
+	public function install_default_fonts( $force_reinstall = false ) {
 
 		global $zbsExtensionInstallError;
 
 		// get fonts dir
-		$fonts_dir = jpcrm_storage_fonts_dir_path();
+		$fonts_dir   = jpcrm_storage_fonts_dir_path();
 		$working_dir = zeroBSCRM_privatisedDirCheckWorks();
 
 		// Check if temp dir is valid
-		if ( empty( $working_dir['path'] ) || !$fonts_dir ) {
+		if ( empty( $working_dir['path'] ) || ! $fonts_dir ) {
 			$zbsExtensionInstallError = __( 'Jetpack CRM was not able to create the directories it needs in order to install fonts for the PDF Engine.', 'zero-bs-crm' );
 			return false;
 		}
@@ -270,11 +253,11 @@ class JPCRM_Fonts {
 		$working_dir = $working_dir['path'] . '/';
 
 		// also install the font(s) if not already installed (if present)
-		$fontsInstalled = zeroBSCRM_getSetting('pdf_fonts_installed');
+		$fontsInstalled = zeroBSCRM_getSetting( 'pdf_fonts_installed' );
 		if (
 			( $fontsInstalled !== 1 && file_exists( $fonts_dir . 'fonts-info.txt' ) )
 			||
-			( !$this->default_fonts_installed() )
+			( ! $this->default_fonts_installed() )
 			||
 			$force_reinstall
 		) {
@@ -297,13 +280,10 @@ class JPCRM_Fonts {
 				$zbsExtensionInstallError = __( 'Jetpack CRM was not able to install fonts for the PDF engine.', 'zero-bs-crm' );
 				return false;
 			}
-
 		}
 
 		return true;
-
 	}
-
 
 	/**
 	 * Installs a new font family
@@ -323,100 +303,107 @@ class JPCRM_Fonts {
 	 *
 	 * @throws Exception
 	 */
-	public function install_font_family($dompdf, $fontname, $normal, $bold = null, $italic = null, $bold_italic = null, $debug = false) {
+	public function install_font_family( $dompdf, $fontname, $normal, $bold = null, $italic = null, $bold_italic = null, $debug = false ) {
 
-	  try {
+		try {
 
 			$fontMetrics = $dompdf->getFontMetrics();
 
 			// Check if the base filename is readable
-			if ( !is_readable($normal) ) {
-				throw new Exception("Unable to read '$normal'.");
+			if ( ! is_readable( $normal ) ) {
+				throw new Exception( "Unable to read '$normal'." );
 			}
 
-			$dir = dirname($normal);
-			$basename = basename($normal);
-			$last_dot = strrpos($basename, '.');
-			if ($last_dot !== false) {
-				$file = substr($basename, 0, $last_dot);
-				$ext = strtolower(substr($basename, $last_dot));
+			$dir      = dirname( $normal );
+			$basename = basename( $normal );
+			$last_dot = strrpos( $basename, '.' );
+			if ( $last_dot !== false ) {
+				$file = substr( $basename, 0, $last_dot );
+				$ext  = strtolower( substr( $basename, $last_dot ) );
 			} else {
 				$file = $basename;
-				$ext = '';
+				$ext  = '';
 			}
 
 			// dompdf will eventually support .otf, but for now limit to .ttf
-			if ( !in_array($ext, array(".ttf")) ) {
-				throw new Exception("Unable to process fonts of type '$ext'.");
+			if ( ! in_array( $ext, array( '.ttf' ) ) ) {
+				throw new Exception( "Unable to process fonts of type '$ext'." );
 			}
 
 			// Try $file_Bold.$ext etc.
 			$path = "$dir/$file";
 
 			$patterns = array(
-				"bold"        => array("_Bold", "b", "B", "bd", "BD"),
-				"italic"      => array("_Italic", "i", "I"),
-				"bold_italic" => array("_Bold_Italic", "bi", "BI", "ib", "IB"),
+				'bold'        => array( '_Bold', 'b', 'B', 'bd', 'BD' ),
+				'italic'      => array( '_Italic', 'i', 'I' ),
+				'bold_italic' => array( '_Bold_Italic', 'bi', 'BI', 'ib', 'IB' ),
 			);
 
-			foreach ($patterns as $type => $_patterns) {
-				if ( !isset($$type) || !is_readable($$type) ) {
-					foreach($_patterns as $_pattern) {
-						if ( is_readable("$path$_pattern$ext") ) {
+			foreach ( $patterns as $type => $_patterns ) {
+				if ( ! isset( $$type ) || ! is_readable( $$type ) ) {
+					foreach ( $_patterns as $_pattern ) {
+						if ( is_readable( "$path$_pattern$ext" ) ) {
 							$$type = "$path$_pattern$ext";
 							break;
 						}
 					}
 
-					if ( is_null($$type) )
-						if ($debug) echo ("Unable to find $type face file.\n");
+					if ( $$type === null ) {
+						if ( $debug ) {
+							echo ( "Unable to find $type face file.\n" );
+						}
+					}
 				}
 			}
 
-			$fonts = compact("normal", "bold", "italic", "bold_italic");
+			$fonts = compact( 'normal', 'bold', 'italic', 'bold_italic' );
 			$entry = array();
 
 			// Copy the files to the font directory.
-			foreach ($fonts as $var => $src) {
-				if ( is_null($src) ) {
-					$entry[$var] = $dompdf->getOptions()->get('fontDir') . '/' . mb_substr(basename($normal), 0, -4);
+			foreach ( $fonts as $var => $src ) {
+				if ( $src === null ) {
+					$entry[ $var ] = $dompdf->getOptions()->get( 'fontDir' ) . '/' . mb_substr( basename( $normal ), 0, -4 );
 					continue;
 				}
 
 				// Verify that the fonts exist and are readable
-				if ( !is_readable($src) ) {
-					throw new Exception("Requested font '$src' is not readable");
+				if ( ! is_readable( $src ) ) {
+					throw new Exception( "Requested font '$src' is not readable" );
 				}
 
-				$dest = $dompdf->getOptions()->get('fontDir') . '/' . basename($src);
+				$dest = $dompdf->getOptions()->get( 'fontDir' ) . '/' . basename( $src );
 
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, Generic.WhiteSpace.ScopeIndent.IncorrectExact -- TODO: Fix these.
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- TODO: Fix these.
 				if ( ! is_writable( dirname( $dest ) ) ) {
-					throw new Exception("Unable to write to destination '$dest'.");
+					throw new Exception( "Unable to write to destination '$dest'." );
 				}
 
-				if ($debug) echo "Copying $src to $dest...\n";
-
-				if ( !copy($src, $dest) ) {
-					throw new Exception("Unable to copy '$src' to '$dest'");
+				if ( $debug ) {
+					echo "Copying $src to $dest...\n";
 				}
 
-				$entry_name = mb_substr($dest, 0, -4);
-				
-				if ($debug) echo "Generating Adobe Font Metrics for $entry_name...\n";
-				
-				$font_obj = Font::load($dest);
-				$font_obj->saveAdobeFontMetrics("$entry_name.ufm");
+				if ( ! copy( $src, $dest ) ) {
+					throw new Exception( "Unable to copy '$src' to '$dest'" );
+				}
+
+				$entry_name = mb_substr( $dest, 0, -4 );
+
+				if ( $debug ) {
+					echo "Generating Adobe Font Metrics for $entry_name...\n";
+				}
+
+				$font_obj = Font::load( $dest );
+				$font_obj->saveAdobeFontMetrics( "$entry_name.ufm" );
 				$font_obj->close();
 
-				$entry[$var] = $entry_name;
+				$entry[ $var ] = $entry_name;
 
 				unlink( $src );
 
 			}
 
 			// Store the fonts in the lookup table
-			$fontMetrics->setFontFamily($fontname, $entry);
+			$fontMetrics->setFontFamily( $fontname, $entry );
 
 			// Save the changes
 			$fontMetrics->saveFontFamilies();
@@ -424,58 +411,57 @@ class JPCRM_Fonts {
 			// Fini
 			return true;
 
-		} catch (Exception $e){
+		} catch ( Exception $e ) {
 
 			// nada
 
 		}
 
 		return false;
-
 	}
 
 	/*
 	* Retrieves a font zip from our CDN and installs it locally
 	*/
-	public function retrieve_and_install_specific_font( $font_name='', $force_reinstall = false){
+	public function retrieve_and_install_specific_font( $font_name = '', $force_reinstall = false ) {
 
 		global $zbsExtensionInstallError;
 
 		// font exists?
-		if ( !$this->font_is_available( $font_name) ){
+		if ( ! $this->font_is_available( $font_name ) ) {
 
 			return false;
 
 		}
 
 		// font already installed?
-		if ( $this->font_is_installed( $font_name ) && !$force_reinstall ){
+		if ( $this->font_is_installed( $font_name ) && ! $force_reinstall ) {
 
 			return true;
 
 		}
 
 		// get fonts dir
-		$fonts_dir = jpcrm_storage_fonts_dir_path();
+		$fonts_dir   = jpcrm_storage_fonts_dir_path();
 		$working_dir = zeroBSCRM_privatisedDirCheckWorks();
 
 		// Check if temp dir is valid
-		if ( empty( $working_dir['path'] ) || !$fonts_dir ) {
+		if ( empty( $working_dir['path'] ) || ! $fonts_dir ) {
 			$zbsExtensionInstallError = __( 'Jetpack CRM was not able to create the directories it needs in order to install fonts for the PDF Engine.', 'zero-bs-crm' );
 			return false;
 		}
 
-		$working_dir = $working_dir['path'] . '/';
+		$working_dir    = $working_dir['path'] . '/';
 		$font_file_name = $this->font_name_to_regular_ttf_name( $font_name );
 
 		// Already downloaded, so proceed to install
-		if ( file_exists( $working_dir . $font_file_name) ) {
+		if ( file_exists( $working_dir . $font_file_name ) ) {
 			return $this->install_font( $font_name );
 		}
 
 		// Retrieve & install the font
 		$remote_zip_name = $this->font_name_to_zip( $font_name );
-		$temp_path = tempnam( sys_get_temp_dir(), 'crmfont' );
+		$temp_path       = tempnam( sys_get_temp_dir(), 'crmfont' );
 
 		// Several large font files may timeout when downloading. Increase the timeout for these files.
 		$large_font_files = array( ' Noto  Sans  Simplified  Chinese', ' Noto  Serif  Display', ' Noto  Sans', ' Noto  Sans  Display', ' Noto  Sans  Taiwan', ' Noto  Sans  Hong  Kong', ' Noto  Sans  Japanese', ' Noto  Sans  Korean', ' Noto  Sans  Mono' );
@@ -490,9 +476,9 @@ class JPCRM_Fonts {
 
 		// Retrieve zip
 		global $zbs;
-		if ( !zeroBSCRM_retrieveFile( $zbs->urls['extdlfonts'] . $remote_zip_name, $temp_path ) ) {
+		if ( ! zeroBSCRM_retrieveFile( $zbs->urls['extdlfonts'] . $remote_zip_name, $temp_path ) ) {
 			// Something failed
-			$zbsExtensionInstallError = __('Jetpack CRM was not able to download the fonts it needs for the PDF Engine.',"zero-bs-crm").' '.__('(fonts)','zero-bs-crm');
+			$zbsExtensionInstallError = __( 'Jetpack CRM was not able to download the fonts it needs for the PDF Engine.', 'zero-bs-crm' ) . ' ' . __( '(fonts)', 'zero-bs-crm' );
 			unlink( $temp_path );
 			return false;
 		}
@@ -502,12 +488,12 @@ class JPCRM_Fonts {
 		unlink( $temp_path );
 
 		// appears to have worked
-		if ( !$expanded || !file_exists( $working_dir . $font_file_name ) ) {
+		if ( ! $expanded || ! file_exists( $working_dir . $font_file_name ) ) {
 
 			// Add error msg
-			$zbsExtensionInstallError = __('CRM was not able to retrieve the requested font.',"zero-bs-crm") . ' ' . __('(Failed to install font.)',"zero-bs-crm");
+			$zbsExtensionInstallError = __( 'CRM was not able to retrieve the requested font.', 'zero-bs-crm' ) . ' ' . __( '(Failed to install font.)', 'zero-bs-crm' );
 			##WLREMOVE
-			$zbsExtensionInstallError = __('Jetpack CRM was not able to retrieve the requested font.',"zero-bs-crm") . ' ' . __('(Failed to install font.)',"zero-bs-crm");
+			$zbsExtensionInstallError = __( 'Jetpack CRM was not able to retrieve the requested font.', 'zero-bs-crm' ) . ' ' . __( '(Failed to install font.)', 'zero-bs-crm' );
 			##/WLREMOVE
 
 			return false;
@@ -516,25 +502,23 @@ class JPCRM_Fonts {
 
 		// install the font
 		return $this->install_font( $font_name, true );
-
 	}
-
 
 	/*
 	* Extract (and install) default fonts which dompdf uses to provide global lang supp
 	* This function is used if somebody were to delete these default fonts from jpcrm-storage.
 	* Instead, use retrieve_and_install() to retrieve locale specific fonts (from v4.7.0)
 	*/
-	public function extract_and_install_default_fonts(){
+	public function extract_and_install_default_fonts() {
 
 		global $zbsExtensionInstallError;
 
 		// get fonts dir
-		$fonts_dir = jpcrm_storage_fonts_dir_path();
+		$fonts_dir   = jpcrm_storage_fonts_dir_path();
 		$working_dir = zeroBSCRM_privatisedDirCheckWorks();
 
 		// Check if temp dir is valid
-		if ( empty( $working_dir['path'] ) || !$fonts_dir ) {
+		if ( empty( $working_dir['path'] ) || ! $fonts_dir ) {
 			$zbsExtensionInstallError = __( 'Jetpack CRM was not able to create the directories it needs in order to install fonts for the PDF Engine.', 'zero-bs-crm' );
 			return false;
 		}
@@ -551,10 +535,10 @@ class JPCRM_Fonts {
 		$expanded = zeroBSCRM_expandArchive( ZEROBSCRM_PATH . 'data/pdffonts.zip', $working_dir );
 
 		// Check success?
-		if ( !$expanded || !file_exists( $working_dir . 'fonts-info.txt' ) ) {
+		if ( ! $expanded || ! file_exists( $working_dir . 'fonts-info.txt' ) ) {
 
 			// Add error msg
-			$zbsExtensionInstallError = __('Jetpack CRM was not able to extract the fonts it needs for the PDF Engine.',"zero-bs-crm").' '.__('(fonts)','zero-bs-crm');
+			$zbsExtensionInstallError = __( 'Jetpack CRM was not able to extract the fonts it needs for the PDF Engine.', 'zero-bs-crm' ) . ' ' . __( '(fonts)', 'zero-bs-crm' );
 			// Return fail
 			return false;
 
@@ -564,8 +548,6 @@ class JPCRM_Fonts {
 
 		// install 'em
 		return $this->install_default_fonts( true );
-
-
 	}
 
 	/**
@@ -606,7 +588,7 @@ class JPCRM_Fonts {
 	/*
 	* Retrieves the font cache from dompdf and returns all loaded fonts
 	*/
-	public function loaded_fonts(){
+	public function loaded_fonts() {
 
 		$dompdf_font_cache_file = jpcrm_storage_fonts_dir_path() . 'installed-fonts.json';
 
@@ -619,17 +601,16 @@ class JPCRM_Fonts {
 		}
 
 		return array();
-
 	}
 
 	/*
 	* Returns bool whether or not our key font (Noto Sans global) is installed according to dompdf
 	*/
-	public function default_fonts_installed(){
+	public function default_fonts_installed() {
 
 		$existing_fonts = $this->loaded_fonts();
 
-		if ( isset( $existing_fonts->notosansglobal ) ){
+		if ( isset( $existing_fonts->notosansglobal ) ) {
 
 			return true;
 		}

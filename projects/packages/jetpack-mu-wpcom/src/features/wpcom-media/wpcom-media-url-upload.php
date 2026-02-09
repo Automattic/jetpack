@@ -35,7 +35,8 @@ function enqueue_wpcom_media_url_upload_form() {
 			'action'  => 'wpcom_media_url_upload',
 			'nonce'   => wp_create_nonce( 'wpcom_media_url_upload' ),
 			'page'    => $page,
-		)
+		),
+		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
 
 	wp_add_inline_script(
@@ -59,7 +60,8 @@ function wpcom_handle_media_url_upload() {
 
 	$tmp_file = download_url( $url );
 	if ( is_wp_error( $tmp_file ) ) {
-		return wp_send_json_error( $tmp_file );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		return wp_send_json_error( $tmp_file, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	if ( is_multisite() ) {
@@ -78,9 +80,11 @@ function wpcom_handle_media_url_upload() {
 	}
 
 	if ( is_wp_error( $attachment_id ) ) {
-		return wp_send_json_error( $attachment_id );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		return wp_send_json_error( $attachment_id, null, JSON_UNESCAPED_SLASHES );
 	} else {
-		return wp_send_json_success( array( 'attachment_id' => $attachment_id ) );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		return wp_send_json_success( array( 'attachment_id' => $attachment_id ), null, JSON_UNESCAPED_SLASHES );
 	}
 }
 

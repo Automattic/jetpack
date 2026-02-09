@@ -129,7 +129,6 @@ class WooCommerce extends Module {
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
 
 		// Blacklist Action Scheduler comment types.
@@ -170,7 +169,6 @@ class WooCommerce extends Module {
 
 		// Order items.
 		add_action( 'woocommerce_new_order_item', $callable, 10, 4 );
-		add_action( 'woocommerce_update_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_delete_order_item', $callable, 10, 1 );
 		add_action( 'woocommerce_remove_order_item_ids', $callable, 10, 1 );
 		$this->init_listeners_for_meta_type( 'order_item', $callable );
@@ -187,6 +185,7 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_grant_product_download_access', $callable, 10, 1 );
 
 		// Tax rates.
+		// These are ignored on WP.com: tax items are derived from order data via wc_order_tax_lookup, which isn’t present there.
 		add_action( 'woocommerce_tax_rate_added', $callable, 10, 2 );
 		add_action( 'woocommerce_tax_rate_updated', $callable, 10, 2 );
 		add_action( 'woocommerce_tax_rate_deleted', $callable, 10, 1 );
@@ -329,15 +328,13 @@ class WooCommerce extends Module {
 	 *
 	 * @access public
 	 *
-	 * @todo Refactor table name to use a $wpdb->prepare placeholder.
-	 *
 	 * @param int $order_item_id Order item ID.
 	 * @return object Order item.
 	 */
 	public function build_order_item( $order_item_id ) {
 		global $wpdb;
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $this->order_item_table_name WHERE order_item_id = %d", $order_item_id ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct database access is intentional; caching is not required for this query.
+		return $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE order_item_id = %d', $this->order_item_table_name, $order_item_id ) );
 	}
 
 	/**
@@ -504,7 +501,6 @@ class WooCommerce extends Module {
 		'woocommerce_api_enabled',
 		'woocommerce_allow_tracking',
 		'woocommerce_task_list_hidden',
-		'woocommerce_onboarding_profile',
 		'woocommerce_cod_settings',
 	);
 

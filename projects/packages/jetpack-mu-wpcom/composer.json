@@ -16,13 +16,15 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
+		"automattic/jetpack-newsletter": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-subscribers-dashboard": "@dev",
 		"automattic/scheduled-updates": "@dev",
-		"scssphp/scssphp": "2.0.1",
-		"symfony/filesystem": "^6.0.0"
+		"scssphp/scssphp": "2.1.0",
+		"symfony/filesystem": "^6.0.0",
+		"automattic/jetpack-explat": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
@@ -74,7 +76,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "6.8.x-dev"
+			"dev-trunk": "6.9.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

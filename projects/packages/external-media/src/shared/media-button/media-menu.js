@@ -2,7 +2,6 @@ import { Button, MenuItem, MenuGroup, Dropdown, NavigableMenu } from '@wordpress
 import { __ } from '@wordpress/i18n';
 import { Icon, media } from '@wordpress/icons';
 import { isGutenbergKit } from '../utils/is-gutenberg-kit';
-import { isSupportNext40pxDefaultSize } from '../utils/is-support-next-40px-default-size';
 import MediaSources from './media-sources';
 
 /**
@@ -24,6 +23,7 @@ function MediaButtonMenu( props ) {
 	if ( isReplace ) {
 		return (
 			<MediaSources
+				mediaProps={ mediaProps }
 				originalButton={ originalComponent }
 				open={ open }
 				setSource={ setSelectedSource }
@@ -62,7 +62,7 @@ function MediaButtonMenu( props ) {
 					}
 					return (
 						<Button
-							__next40pxDefaultSize={ isSupportNext40pxDefaultSize() }
+							__next40pxDefaultSize={ true }
 							variant="secondary"
 							className="jetpack-external-media-button-menu"
 							aria-haspopup="true"
@@ -88,6 +88,7 @@ function MediaButtonMenu( props ) {
 							</MenuItem>
 
 							<MediaSources
+								mediaProps={ mediaProps }
 								open={ open }
 								setSource={ setSelectedSource }
 								onClick={ onClose }

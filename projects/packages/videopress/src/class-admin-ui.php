@@ -14,6 +14,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 
@@ -169,7 +170,7 @@ class Admin_UI {
 	 * @return string
 	 */
 	public static function render_initial_state() {
-		return 'var jetpackVideoPressInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::initial_state() ) ) . '"));';
+		return 'var jetpackVideoPressInitialState=' . wp_json_encode( self::initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 	}
 
 	/**
@@ -186,7 +187,9 @@ class Admin_UI {
 			'adminUri'               => 'admin.php?page=' . self::ADMIN_PAGE_SLUG,
 			'paidFeatures'           => array(
 				'isVideoPressSupported'          => Current_Plan::supports( 'videopress' ),
-				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' ),
+				// Check videopress-1tb-storage (Jetpack) or videopress (WordPress.com).
+				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' )
+					|| ( ( new Host() )->is_wpcom_platform() && wpcom_site_has_feature( 'videopress' ) ),
 				'isVideoPressUnlimitedSupported' => Current_Plan::supports( 'videopress-unlimited-storage' ),
 			),
 			'siteSuffix'             => ( new Status() )->get_site_suffix(),

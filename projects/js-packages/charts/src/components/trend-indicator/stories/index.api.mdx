@@ -1,0 +1,107 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Components/Trend Indicator/API Reference" />
+
+# Trend Indicator API Reference
+
+Complete API documentation for the TrendIndicator component.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `direction` | `'up' \| 'down' \| 'neutral'` | **Required** | The direction of the trend |
+| `value` | `string \| number` | **Required** | The value to display |
+| `showIcon` | `boolean` | `true` | Whether to show the directional arrow icon |
+| `className` | `string` | - | Additional CSS class name |
+| `style` | `CSSProperties` | - | Inline CSS styles |
+
+## Type Definitions
+
+### TrendDirection
+
+<Source
+	language="typescript"
+	code={`type TrendDirection = 'up' | 'down' | 'neutral';`}
+/>
+
+### TrendIndicatorProps
+
+<Source
+	language="typescript"
+	code={`interface TrendIndicatorProps {
+	/** The direction of the trend (up, down, or neutral) */
+	direction: TrendDirection;
+
+	/** The value to display (e.g., "14%", "+$500", "2.5k") */
+	value: string | number;
+
+	/** Whether to show the directional icon */
+	showIcon?: boolean;
+
+	/** Additional CSS class name */
+	className?: string;
+
+	/** Inline styles */
+	style?: CSSProperties;
+}`}
+/>
+
+## Exports
+
+<Source
+	language="typescript"
+	code={`// Component export
+import { TrendIndicator } from '@automattic/charts';
+
+// Type exports
+import type { TrendIndicatorProps, TrendDirection } from '@automattic/charts';`}
+/>
+
+## CSS Classes
+
+The component uses CSS Modules with the following class structure:
+
+| Class | Description |
+|-------|-------------|
+| `.trend-indicator` | Root container element |
+| `.trend-indicator--up` | Applied when direction is `'up'` |
+| `.trend-indicator--down` | Applied when direction is `'down'` |
+| `.trend-indicator--neutral` | Applied when direction is `'neutral'` |
+| `.trend-indicator__icon` | The directional arrow SVG |
+| `.trend-indicator__value` | The value text container |
+
+## CSS Custom Properties
+
+The component exposes CSS custom properties for theming:
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `--charts-trend-up-color` | `#1a8917` | Color for upward trends (green) |
+| `--charts-trend-down-color` | `#d63638` | Color for downward trends (red) |
+| `--charts-trend-neutral-color` | `#646970` | Color for neutral trends (gray) |
+
+## Accessibility Attributes
+
+| Attribute | Value | Description |
+|-----------|-------|-------------|
+| `aria-label` | `"{Direction}: {value}"` | Describes the trend for screen readers |
+| `aria-hidden` | `true` (on icon) | Hides decorative icon from screen readers |
+
+### Generated aria-label Values
+
+| Direction | Example Value | aria-label |
+|-----------|---------------|------------|
+| `up` | `+14%` | `"Increase: +14%"` |
+| `down` | `-5%` | `"Decrease: -5%"` |
+| `neutral` | `0%` | `"No change: 0%"` |
+
+## Icon Behavior
+
+| Direction | Icon Displayed |
+|-----------|----------------|
+| `up` | Upward arrow (↑) |
+| `down` | Downward arrow (↓) |
+| `neutral` | No icon |
+
+When `showIcon={false}`, no icon is displayed regardless of direction.

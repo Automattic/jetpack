@@ -320,11 +320,24 @@ function do_create_prerelease_PR {
 	PLUGINS_CHANGED=
 	for PLUGIN in "${!PROJECTS[@]}"; do
 		PLUGINS_CHANGED+="$(basename "$PLUGIN") ${PROJECTS[$PLUGIN]}, "
+
+		# If the plugin has a readme.txt, update its stable tag to the release version.
+		README_FILE="$BASE/projects/$PLUGIN/readme.txt"
+		if [[ -f "$README_FILE" ]]; then
+			sed -i.bak -e "s/^Stable tag: .*/Stable tag: ${PROJECTS[$PLUGIN]}/" "$README_FILE"
+			rm -f "$README_FILE.bak"
+		fi
 	done
+
+	if [[ -n "$(git status --porcelain)" ]]; then
+		git commit -am 'Update stable tag in readme.txt'
+	fi
+	git push
+
 	# Remove the trailing comma and space
 	PLUGINS_CHANGED=${PLUGINS_CHANGED%, }
 	sed "s/%RELEASED_PLUGINS%/$PLUGINS_CHANGED/g" .github/files/BACKPORT_RELEASE_CHANGES.md > .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
-	gh pr create --title "Backport $PLUGINS_CHANGED Changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --label "[Type] Janitorial" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
+	gh pr create --title "Backport $PLUGINS_CHANGED changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --label "[Type] Janitorial" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
 	rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
 }
 
@@ -345,7 +358,7 @@ function do_final_instructions {
 			continue
 		fi
 
-		if ! jq -e '.extra["wp-plugin-slug"] // .extra["wp-theme-slug"] // false' "$F" &>/dev/null; then
+		if ! jq -e '.extra["wp-plugin-slug"] // false' "$F" &>/dev/null; then
 			if ! jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
 				MANUALTAGONLY+=( "$PLUGIN" )
 			fi

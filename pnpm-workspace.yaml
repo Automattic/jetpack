@@ -5,6 +5,7 @@ packages:
   - tools/cli
   - tools/e2e-commons
   - tools/js-tools
+  - tools/performance
   - .github/files/coverage-munger
 
 engineStrict: true
@@ -25,8 +26,12 @@ ignoreWorkspaceCycles: true
 # Package compromise avoidance: let new releases age a day, and don't allow trust downgrades unless explicitly excepted.
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
-  # Calypso packages and other Automattic-controlled things. We'll often want to immediately update these after releasing them.
+  # Packages we often want to immediately update after releasing them.
   - '@automattic/*'
+  - '@woocommerce/*'
+  - '@wordpress/*'
+  # GHSA-7h2j-956f-4vf2
+  - '@isaacs/brace-expansion@5.0.1'
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
@@ -38,7 +43,16 @@ trustPolicyExclude:
   # Packages where newer majors have provenance but we're still on an older one.
   - '@octokit/endpoint@9.0.6'
   - '@octokit/plugin-paginate-rest@9.2.2'
+  - '@oxc-parser/binding-darwin-arm64@0.78.0'
+  - '@oxc-parser/binding-darwin-x64@0.78.0'
+  - '@oxc-parser/binding-linux-arm64-gnu@0.78.0'
+  - '@oxc-parser/binding-linux-arm64-musl@0.78.0'
+  - '@oxc-parser/binding-linux-arm-gnueabihf@0.78.0'
   - '@oxc-parser/binding-linux-x64-gnu@0.78.0'
+  - '@oxc-parser/binding-linux-x64-musl@0.78.0'
+  - '@oxc-parser/binding-wasm32-wasi@0.78.0'
+  - '@oxc-parser/binding-win32-arm64-msvc@0.78.0'
+  - '@oxc-parser/binding-win32-x64-msvc@0.78.0'
   - rxjs@7.8.2
   - semver@6.3.1
   - svelte@4.2.19
@@ -48,85 +62,28 @@ trustPolicyExclude:
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
 verifyDepsBeforeRun: install
-ignoredBuiltDependencies:
-  - '@swc/core'
-  - core-js
-  - esbuild
-  - print-this
-  - svelte-preprocess
-  - unrs-resolver
+allowBuilds:
+  # Tries to download/install stuff if optional deps weren't installed.
+  '@swc/core': false
+  esbuild: false
+  unrs-resolver: false
+  # Attempt to show "remember to install other stuff" spam.
+  svelte-preprocess: false
+  # Attempt to show "support me" spam.
+  core-js: false
+  core-js-pure: false
+  print-this: false
+
+# Package compromise avoidance: Block odd protocols in subdeps
+blockExoticSubdeps: true
+
+# Some optional dependencies we don't actually need.
+ignoredOptionalDependencies:
+  - sass-embedded-all-unknown
+  - sass-embedded-unknown-all
 
 # Dependencies needing patching.
 patchedDependencies:
-
-  # Gutenberg packages all have their ESM files flagged as CommonJS.
-  # https://github.com/WordPress/gutenberg/issues/73363
-  "@wordpress/a11y": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/admin-ui": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/annotations": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/api-fetch": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/autop": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/blob": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/block-editor": .pnpm-patches/@wordpress__block-editor.patch
-  "@wordpress/block-library": .pnpm-patches/@wordpress__block-library.patch
-  "@wordpress/block-serialization-default-parser": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/blocks": .pnpm-patches/@wordpress__blocks.patch
-  "@wordpress/commands": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/components": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/compose": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/core-data": .pnpm-patches/@wordpress__core-data.patch
-  "@wordpress/data-controls": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/data": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/dataviews": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/date": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/deprecated": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/dom": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/dom-ready": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/editor": .pnpm-patches/@wordpress__editor.patch
-  "@wordpress/edit-post": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/element": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/escape-html": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/fields": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/format-library": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/global-styles-engine": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/global-styles-ui": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/hooks": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/html-entities": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/i18n": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/icons": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/interactivity": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/interactivity-router": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/interface": .pnpm-patches/@wordpress__interface.patch
-  "@wordpress/is-shallow-equal": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/jest-console": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/keyboard-shortcuts": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/keycodes": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/latex-to-mathml": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/media-utils": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/notices": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/patterns": .pnpm-patches/@wordpress__patterns.patch
-  "@wordpress/plugins": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/preferences": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/primitives": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/priority-queue": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/private-apis": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/react-i18n": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/redux-routine": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/reusable-blocks": .pnpm-patches/@wordpress__reusable-blocks.patch
-  "@wordpress/rich-text": .pnpm-patches/@wordpress__rich-text.patch
-  "@wordpress/router": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/server-side-render": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/shortcode": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/style-engine": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/sync": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/token-list": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/undo-manager": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/upload-media": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/url": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/viewport": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/warning": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/widgets": .pnpm-patches/@wordpress-build-modules.patch
-  "@wordpress/wordcount": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
 
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.

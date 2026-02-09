@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-external-connections",
-	"version": "0.1.6",
+	"version": "0.1.14",
 	"private": true,
 	"description": "Connect your site to external services.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/external-connections/#readme",
@@ -24,10 +24,10 @@
 	},
 	"dependencies": {
 		"@automattic/request-external-access": "1.0.1",
-		"@wordpress/dom-ready": "4.35.0",
-		"@wordpress/element": "6.35.0",
-		"@wordpress/hooks": "4.35.0",
-		"@wordpress/i18n": "6.8.0",
+		"@wordpress/dom-ready": "4.39.0",
+		"@wordpress/element": "6.39.0",
+		"@wordpress/hooks": "4.39.0",
+		"@wordpress/i18n": "6.12.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},
@@ -36,7 +36,7 @@
 		"@babel/core": "7.28.4",
 		"@babel/plugin-transform-react-jsx": "7.27.1",
 		"@babel/preset-react": "7.27.1",
-		"sass-embedded": "1.87.0",
+		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
 		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"

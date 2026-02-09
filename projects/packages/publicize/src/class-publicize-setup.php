@@ -139,7 +139,6 @@ class Publicize_Setup {
 			REST_API\Services_Controller::class,
 			REST_API\Share_Post_Controller::class,
 			REST_API\Share_Status_Controller::class,
-			REST_API\Shares_Data_Controller::class,
 			REST_API\Social_Image_Generator_Controller::class,
 			Jetpack_Social_Settings\Settings::class,
 		);
@@ -159,18 +158,8 @@ class Publicize_Setup {
 
 		// Things that should not happen on WPCOM.
 		if ( ! $is_wpcom_simple ) {
-			add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
-			add_action( 'admin_init', array( static::class, 'register_core_options' ) );
 			add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-			add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 		}
-	}
-
-	/**
-	 * Registers the core options for the Publicize package.
-	 */
-	public static function register_core_options() {
-		( new Jetpack_Social_Settings\Dismissed_Notices() )->register();
 	}
 
 	/**
@@ -183,9 +172,63 @@ class Publicize_Setup {
 			return;
 		}
 
-		if ( Current_Plan::supports( 'republicize' ) ) {
-			add_filter( 'jetpack_post_list_display_share_action', '__return_true' );
+		/**
+		 * Filter to enable/disable the Share action on the post list screen.
+		 *
+		 * The Share action allows users to reshare published posts via Jetpack Social.
+		 * It is automatically enabled for plans that support the 'republicize' feature,
+		 * but can be disabled via this filter.
+		 *
+		 * @since 0.2.0 Originally in jetpack-post-list package.
+		 * @since $$NEXT_VERSION$$ Moved to jetpack-publicize package.
+		 *
+		 * @param bool   $show_share Whether to show the share action. Default true.
+		 * @param string $post_type  The current post type.
+		 */
+		$show_share_action = Current_Plan::supports( 'republicize' )
+			&& apply_filters( 'jetpack_post_list_display_share_action', true, $current_screen->post_type );
+
+		if ( $show_share_action ) {
+			self::maybe_add_share_action( $current_screen->post_type );
 		}
+	}
+
+	/**
+	 * Add the Share action for post types that support publicize.
+	 *
+	 * @param string $post_type The post type.
+	 */
+	public static function maybe_add_share_action( $post_type ) {
+		if (
+			post_type_supports( $post_type, 'publicize' ) &&
+			use_block_editor_for_post_type( $post_type )
+		) {
+			add_filter( 'post_row_actions', array( self::class, 'add_share_action' ), 20, 2 );
+			add_filter( 'page_row_actions', array( self::class, 'add_share_action' ), 20, 2 );
+		}
+	}
+
+	/**
+	 * Add the Share action link to the post row actions.
+	 *
+	 * @param array    $post_actions The current post actions.
+	 * @param \WP_Post $post The post object.
+	 * @return array Modified post actions.
+	 */
+	public static function add_share_action( $post_actions, $post ) {
+		$edit_url = get_edit_post_link( $post->ID, 'raw' );
+		if ( ! $edit_url || 'publish' !== $post->post_status ) {
+			return $post_actions;
+		}
+
+		$url   = add_query_arg( 'jetpack-editor-action', 'share_post', $edit_url );
+		$text  = _x( 'Share', 'Share the post on social networks', 'jetpack-publicize-pkg' );
+		$title = _draft_or_post_title( $post );
+		/* translators: post title */
+		$label                 = sprintf( __( 'Share "%s" via Jetpack Social', 'jetpack-publicize-pkg' ), $title );
+		$post_actions['share'] = sprintf( '<a href="%s" aria-label="%s">%s</a>', esc_url( $url ), esc_attr( $label ), esc_html( $text ) );
+
+		return $post_actions;
 	}
 
 	/**
@@ -195,38 +238,5 @@ class Publicize_Setup {
 	 */
 	public static function get_blog_id() {
 		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
-	}
-
-	/**
-	 * Initialise share limits if they should be enabled.
-	 */
-	public static function init_sharing_limits() {
-		$current_screen = get_current_screen();
-
-		if ( empty( $current_screen ) || 'post' !== $current_screen->base ) {
-			return;
-		}
-
-		global $publicize;
-
-		if ( $publicize->has_paid_plan( self::$refresh_plan_info ) ) {
-			return;
-		}
-
-		$info = $publicize->get_publicize_shares_info( self::get_blog_id() );
-
-		if ( is_wp_error( $info ) ) {
-			return;
-		}
-
-		if ( empty( $info['is_share_limit_enabled'] ) ) {
-			return;
-		}
-
-		$connections      = $publicize->get_filtered_connection_data();
-		$shares_remaining = $info['shares_remaining'];
-
-		$share_limits = new Share_Limits( $connections, $shares_remaining, ! $current_screen->is_block_editor() );
-		$share_limits->enforce_share_limits();
 	}
 }

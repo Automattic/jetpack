@@ -13,7 +13,6 @@ use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Publicize\Services as Publicize_Services;
 use Automattic\Jetpack\Status\Host;
-use Jetpack_Options;
 
 /**
  * Publicize_Script_Data class.
@@ -115,9 +114,7 @@ class Publicize_Script_Data {
 			'api_paths'            => self::get_api_paths(),
 			'assets_url'           => plugins_url( '/build/', __DIR__ ),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
-			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
-			'shares_data'          => array(),
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
 			'plugin_info'          => self::get_plugin_info(),
@@ -138,7 +135,6 @@ class Publicize_Script_Data {
 			$basic_data,
 			array(
 				'supported_services'  => self::get_supported_services(),
-				'shares_data'         => self::get_shares_data(),
 				'urls'                => self::get_urls(),
 				'store_initial_state' => self::get_store_initial_state(),
 			)
@@ -208,71 +204,30 @@ class Publicize_Script_Data {
 		$share_status = array();
 
 		// get_post_share_status is not available on WPCOM yet.
-		if ( Utils::should_block_editor_have_social() && $post && self::has_feature_flag( 'share-status' ) ) {
+		if ( Utils::should_block_editor_have_social() && $post ) {
 			$share_status[ $post->ID ] = Share_Status::get_post_share_status( $post->ID );
 		}
 
-		$should_have_connections = self::has_feature_flag( 'connections-management' ) || self::has_feature_flag( 'editor-preview' );
-
 		return array(
 			'connectionData' => array(
-				'connections' => $should_have_connections ? Connections::get_all_for_user() : array(),
+				'connections' => Connections::get_all_for_user(),
 			),
 			'shareStatus'    => $share_status,
 		);
 	}
 
 	/**
-	 * Get the feature flags.
-	 *
-	 * @return array
-	 */
-	public static function get_feature_flags() {
-		$variable_to_feature_map = array(
-			'useAdminUiV1'     => 'connections-management',
-			'useEditorPreview' => 'editor-preview',
-			'useShareStatus'   => 'share-status',
-		);
-
-		$feature_flags = array();
-
-		foreach ( $variable_to_feature_map as $variable => $feature ) {
-			$feature_flags[ $variable ] = self::has_feature_flag( $feature );
-		}
-
-		return $feature_flags;
-	}
-
-	/**
 	 * Whether the site has the feature flag enabled.
+	 *
+	 * @deprecated 0.69.1 Use Current_Plan::supports() directly instead.
+	 *
+	 * @todo Remove this method After March 2026.
 	 *
 	 * @param string $feature The feature name to check for, without the "social-" prefix.
 	 * @return bool
 	 */
 	public static function has_feature_flag( $feature ): bool {
-		$flag_name = str_replace( '-', '_', $feature );
-
-		// If the option is set, use it.
-		if ( get_option( 'jetpack_social_has_' . $flag_name, false ) ) {
-			return true;
-		}
-
-		$constant_name = 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name );
-		// If the constant is set, use it.
-		if ( defined( $constant_name ) && constant( $constant_name ) ) {
-			return true;
-		}
-
 		return Current_Plan::supports( 'social-' . $feature );
-	}
-
-	/**
-	 * Get the shares data.
-	 *
-	 * @return ?array
-	 */
-	public static function get_shares_data() {
-		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ) ?? array();
 	}
 
 	/**

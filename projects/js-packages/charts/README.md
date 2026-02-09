@@ -4,6 +4,11 @@ A comprehensive charting library for displaying interactive data visualizations 
 
 Explore the available charts and their documentation in [Storybook](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts).
 
+## Requirements
+
+- **Node.js**: >= 20.10.0 (required by `@wordpress/ui` dependency)
+- **React**: 17.x or 18.x
+
 ## Quick Start
 
 ### Installation
@@ -36,11 +41,15 @@ For better bundle optimization, you can import components individually:
 import { LineChart } from '@automattic/charts/line-chart';
 import { BarChart } from '@automattic/charts/bar-chart';
 import { PieChart } from '@automattic/charts/pie-chart';
+import { GeoChart } from '@automattic/charts/geo-chart';
+import { Sparkline } from '@automattic/charts/sparkline';
 
 // Import individual component styles
 import '@automattic/charts/line-chart/style.css';
 import '@automattic/charts/bar-chart/style.css';
 import '@automattic/charts/pie-chart/style.css';
+import '@automattic/charts/geo-chart/style.css';
+import '@automattic/charts/sparkline/style.css';
 ```
 
 Individual entry exports also provide easier access to chart-specific types and helpers when available. This makes it simpler to find and leverage TypeScript types, utility functions, and other chart-specific tools that are exported alongside the main component.
@@ -52,12 +61,15 @@ The following components can be imported individually:
 - `@automattic/charts/bar-chart` - Bar Chart component
 - `@automattic/charts/bar-list-chart` - Bar List Chart component
 - `@automattic/charts/conversion-funnel-chart` - Conversion Funnel Chart component
+- `@automattic/charts/geo-chart` - Geo Chart component
 - `@automattic/charts/leaderboard-chart` - Leaderboard Chart component
 - `@automattic/charts/legend` - Legend component
 - `@automattic/charts/line-chart` - Line Chart component
 - `@automattic/charts/pie-chart` - Pie Chart component
 - `@automattic/charts/pie-semi-circle-chart` - Pie Semi-Circle Chart component
+- `@automattic/charts/sparkline` - Sparkline component
 - `@automattic/charts/tooltip` - Tooltip component
+- `@automattic/charts/trend-indicator` - Trend Indicator component
 - `@automattic/charts/hooks` - React hooks
 - `@automattic/charts/providers` - Context providers
 - `@automattic/charts/visx/group` - Visx group utilities
@@ -71,12 +83,15 @@ Each component has its own CSS file that can be imported individually:
 - `@automattic/charts/bar-chart/style.css`
 - `@automattic/charts/bar-list-chart/style.css`
 - `@automattic/charts/conversion-funnel-chart/style.css`
+- `@automattic/charts/geo-chart/style.css`
 - `@automattic/charts/leaderboard-chart/style.css`
 - `@automattic/charts/legend/style.css`
 - `@automattic/charts/line-chart/style.css`
 - `@automattic/charts/pie-chart/style.css`
 - `@automattic/charts/pie-semi-circle-chart/style.css`
+- `@automattic/charts/sparkline/style.css`
 - `@automattic/charts/tooltip/style.css`
+- `@automattic/charts/trend-indicator/style.css`
 
 ### Basic Usage Example
 

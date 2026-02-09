@@ -912,9 +912,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					id='" . esc_attr( $id ) . "'
 					value='" . esc_attr( $value ) . "'
 
-					data-wp-bind--aria-invalid='state.fieldHasErrors'
+					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='state.getFieldValue'
-					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
+					aria-describedby='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
 					data-wp-on--input='actions.onFieldChange'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-class--has-value='state.hasFieldValue'
@@ -941,13 +941,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 		return '
 			<div id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error" class="contact-form__input-error" data-wp-class--has-errors="state.fieldHasErrors">
-				<span class="contact-form__warning-icon">
+				<span class="contact-form__warning-icon" aria-hidden="true">
 					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z" />
 						<path d="M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z" />
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z" />
 					</svg>
-					<span class="visually-hidden">' . __( 'Warning', 'jetpack-forms' ) . '</span>
 				</span>
 				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
 			</div>';
@@ -1086,8 +1085,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 							data-wp-on--click="actions.phoneComboboxToggle"
 							data-wp-bind--aria-expanded="context.comboboxOpen">
 							<span
-								class="jetpack-combobox-selected"
-								data-wp-text="context.selectedCountry.flag"></span>
+								class="jetpack-combobox-selected wp-exclude-emoji"
+								data-wp-watch="callbacks.updateSelectedFlag">&#8203;</span>
 							<span
 								class="jetpack-combobox-trigger-arrow"
 								data-wp-class--is-open="context.comboboxOpen">
@@ -1119,7 +1118,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 										data-wp-key="context.filtered.code"
 										data-wp-class--jetpack-combobox-option-selected="context.filtered.selected"
 										data-wp-on--click="actions.phoneCountryChangeHandler">
-										<span class="jetpack-combobox-option-icon" data-wp-text="context.filtered.flag"></span>
+										<span class="jetpack-combobox-option-icon wp-exclude-emoji" data-wp-watch="callbacks.updateOptionFlag">&#8203;</span>
 										<span class="jetpack-combobox-option-value" data-wp-text="context.filtered.value"></span>
 										<span class="jetpack-combobox-option-description" data-wp-text="context.filtered.country"></span>
 									</div>
@@ -1140,9 +1139,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					id="<?php echo esc_attr( $link_label_id ); ?>"
 					name="<?php echo esc_attr( $link_label_id ); ?>"
 					data-wp-bind--disabled='state.isSubmitting'
-					data-wp-bind--aria-invalid='state.fieldHasErrors'
+					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='context.phoneNumber'
-					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
+					aria-describedby="<?php echo esc_attr( $id ); ?>-telephone-error-message"
 					data-wp-on--input='actions.phoneNumberInputHandler'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-on--focus='actions.phoneNumberFocusHandler'
@@ -1217,8 +1216,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-on--input='actions.onFieldChange'
 						data-wp-on--blur='actions.onFieldBlur'
 						data-wp-class--has-value='state.hasFieldValue'
-						data-wp-bind--aria-invalid='state.fieldHasErrors'
-						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
+						aria-describedby='" . esc_attr( $id ) . "-textarea-error-message'
+						data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 						"
 						. ( $this->get_attribute( 'labelhiddenbyblockvisibility' )
 							? "aria-label='" . esc_attr( $aria_label ) . "'"
@@ -1280,9 +1279,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
@@ -1312,7 +1311,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
-					$field .= "<p {$option_styles} class='{$option_classes}'>";
+					$field .= "<label {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
@@ -1323,10 +1322,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									. checked( $option_label, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
 									. '/> ';
-					$field .= "<label for='" . esc_attr( $radio_id ) . "' class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<span class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
+					$field .= '</span>';
 					$field .= '</label>';
-					$field .= '</p>';
 				}
 			}
 		} else {
@@ -1412,6 +1411,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$consent_message               = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
 		$label_class                   = 'grunion-field-label consent consent-' . esc_attr( $consent_type );
 		$label_class                  .= $this->option_classes ? ' ' . $this->option_classes : '';
+		$label_class                  .= $this->is_error() ? ' form-error' : '';
 		$has_inner_block_option_styles = ! empty( $this->get_attribute( 'optionstyles' ) );
 
 		$field = "<label class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
@@ -1419,12 +1419,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( 'implicit' === $consent_type ) {
 			$field .= "\t\t<input type='hidden' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' /> \n";
 		} else {
-			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . "/> \n";
+			$field .= "\t\t<input type='checkbox' data-wp-on--change='actions.onFieldChange' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . "/> \n";
 		}
 		$field .= "\t\t" . wp_kses_post( $consent_message );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
-		return $field;
+		return $field . $this->get_error_div( $id, 'checkbox' );
 	}
 
 	/**
@@ -1473,6 +1473,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'odt'             => 'application/vnd.oasis.opendocument.text',
 				'ppsx'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
 				'ppsm'            => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+				'csv'             => 'text/csv',
 				'xla|xls|xlt|xlw' => 'application/vnd.ms-excel',
 				'xlsx'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 				'xlsm'            => 'application/vnd.ms-excel.sheet.macroEnabled.12',
@@ -1721,9 +1722,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
+			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
@@ -1753,7 +1754,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
-					$field .= "<p {$option_styles} class='{$option_classes}'>";
+					$field .= "<label {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								type='checkbox'
@@ -1763,10 +1764,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								. $class
 								. checked( in_array( $option_label, (array) $value, true ), true, false )
 								. ' /> ';
-					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<span class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
+					$field .= '</span>';
 					$field .= '</label>';
-					$field .= '</p>';
 				}
 			}
 		} else {
@@ -1785,7 +1786,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 					$used_html_ids[ $checkbox_id ] = true;
 
-					$field .= "<p class='contact-form-field'>";
+					$field .= "<label class='contact-form-field'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								data-wp-on--change='actions.onMultipleFieldChange'
@@ -1795,10 +1796,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								. $class
 								. checked( in_array( $option, (array) $value, true ), true, false )
 								. ' /> ';
-					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<span {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option ) . '</span>';
+					$field .= '</span>';
 					$field .= '</label>';
-					$field .= '</p>';
 				}
 			}
 		}
@@ -1829,10 +1830,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$aria_label = ! empty( $this->get_attribute( 'togglelabel' ) )
 			? Contact_Form_Plugin::strip_tags( $this->get_attribute( 'togglelabel' ) )
 			: __( 'Select an option', 'jetpack-forms' ); // selects don't have a default label
-		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldHasErrors' " . ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ? "aria-label='" . esc_attr( $aria_label ) . "'" : '' ) . ">\n";
+		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' " . ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ? "aria-label='" . esc_attr( $aria_label ) . "'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
+		} elseif ( ! $this->get_attribute( 'default' ) ) {
+			// For select fields without an explicit togglelabel or default value (e.g., shortcode-based forms),
+			// add a placeholder option to ensure users must make an explicit selection.
+			$field .= "\t\t<option value=''>" . esc_html__( 'Select an option', 'jetpack-forms' ) . "</option>\n";
 		}
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
@@ -2022,7 +2027,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
 
-		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
@@ -2097,7 +2102,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						'id'  => $image_block['attrs']['id'] ?? null,
 						'src' => $image_src ?? null,
 					),
-				)
+				),
+				JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
 			);
 			$option_id                   = $id . '-' . $option_letter;
 			$used_html_ids[ $option_id ] = true;
@@ -2920,12 +2926,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<div class="jetpack-field-slider__input-row <?php echo esc_attr( $this->field_classes ); ?>"
 			data-wp-context='
 			<?php
-			echo wp_json_encode(
-				array(
-					'min'     => $min,
-					'max'     => $max,
-					'default' => $starting_value,
-					'step'    => $step,
+			echo esc_attr(
+				wp_json_encode(
+					array(
+						'min'     => $min,
+						'max'     => $max,
+						'default' => $starting_value,
+						'step'    => $step,
+					),
+					JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
 				)
 			);
 			?>
@@ -2948,7 +2957,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					required<?php endif; ?>
 					data-wp-bind--value="state.getSliderValue"
 					data-wp-on--input="actions.onSliderChange"
-					data-wp-bind--aria-invalid="state.fieldHasErrors"
+					data-wp-bind--aria-invalid="state.fieldAriaInvalid"
 				/>
 				<div
 					class="jetpack-field-slider__value-indicator"

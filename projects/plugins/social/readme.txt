@@ -1,10 +1,10 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
-Requires at least: 6.7
+Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 4.5.1
+Stable tag: 7.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,18 +104,25 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 7.2.0 - 2025-10-10
+### 7.4.0 - 2026-01-14
 #### Added
-- Add typecheck support for E2E tests.
+- Add the new media selection UI for Social.
+- IDC: Add revalidation for IDCs.
+- Reuse AI image generation in media section.
 
 #### Changed
-- Remove CRM installation nudge for Complete plan users.
-- My Jetpack: Fix multisite availability check for restricted products and modules.
-- Update dependencies.
-- Update package dependencies.
+- Improve the sidebar by making titles more descriptive and combining sections.
+- Unified social provider preview.
+- Update composer lock following Publicize changes.
+
+#### Removed
+- Remove the obsolete share limits logic.
+- Remove the unused dismiss review endpoint.
 
 #### Fixed
-- Fixes an issue with Social where default image id could not be cleared.
+- Fix connections management modal not opening from pre-publish panel.
+- Fix e2e tests for link preview in the editor sidebar.
+- UI: Prevent the modals in editor from stretching too wide on large screens.
 
 == Upgrade Notice ==
 

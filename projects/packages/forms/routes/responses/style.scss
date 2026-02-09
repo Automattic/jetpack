@@ -1,0 +1,44 @@
+@use "@wordpress/base-styles/variables";
+
+// Fix for sticky header on mobile in wp-admin
+// The header needs to account for the wp-admin bar
+// (46px on mobile, 32px on tablet+)
+.admin-ui-page__header {
+
+	@media (max-width: 782px) {
+		// On mobile, the admin bar is fixed, so sticky header needs to be below it
+		top: 46px;
+	}
+}
+
+.jp-forms-dataviews__view-actions {
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+	padding-inline: 20px;
+	overflow-x: auto;
+	width: 100%;
+	box-sizing: border-box;
+	container-type: inline-size;
+	flex-shrink: 0;
+
+	// On small screens, switch to column stacking
+	@container (width < 500px) {
+		--wp-ui-stack-justify: flex-start;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	> div:not(:empty) {
+		min-height: 48px;
+	}
+}
+
+// Filters "pills" row: collapse when empty (match Inbox behavior).
+.jp-forms-dataviews-filters__container,
+.jp-forms-dataviews-filters__container:not(:empty) {
+	padding: 0;
+}
+
+.jp-forms-dataviews-filters__container:not(:empty) {
+	padding-inline: variables.$grid-unit * 2.5;
+	padding-block: variables.$grid-unit * 1.5;
+}

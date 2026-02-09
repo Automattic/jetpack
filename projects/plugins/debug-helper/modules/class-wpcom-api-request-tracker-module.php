@@ -69,7 +69,7 @@ class WPCOM_API_Request_Tracker_Module {
 		$requests = WPCOM_API_Request_Tracker::init()->get_requests();
 
 		?>
-		<script>var wpcom_api_request_tracker_count = <?php echo esc_js( array_sum( $requests ) ); ?>;</script>
+		<script>var wpcom_api_request_tracker_count = <?php echo intval( array_sum( $requests ) ); ?>;</script>
 		<div id='wpcom-api-request-tracker'>
 
 			<div id="wpcom-api-request-tracker-actions">

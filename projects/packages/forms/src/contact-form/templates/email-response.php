@@ -10,6 +10,7 @@
  * %6$s style HTML tag.
  * %7$s tracking pixel
  * %8$s is the actions HTML.
+ * %9$s is powered by email logo.
  *
  * @package automattic/jetpack
  */
@@ -57,16 +58,7 @@ $template = '
 								<p>%5$s</p>
 							</td>
 						</tr>
-						<tr>
-							<td class="content-block powered-by">
-								' .
-								sprintf(
-									// translators: %1$s is a link to the Jetpack Forms page.
-									__( 'Powered by %1$s', 'jetpack-forms' ),
-									'<a href="https://jetpack.com/forms/?utm_source=jetpack-forms&utm_medium=email&utm_campaign=form-submissions">Jetpack Forms</a>'
-								) . '
-							</td>
-						</tr>
+						%9$s
 						</table>
 					</div>
 				</div>
@@ -122,6 +114,10 @@ $style = '<style media="all" type="text/css">
 		width: 640px;
 	}
 
+	.powered-by a {
+		text-decoration: none;
+	}
+
 	.content {
 		box-sizing: border-box;
 		display: block;
@@ -175,7 +171,7 @@ $style = '<style media="all" type="text/css">
 	.actions .button_block .pad a span {
 		mso-text-raise: 15pt;
 	}
-	
+
 	.actions .button_block .pad i {
 		letter-spacing: 25px;
 		mso-font-width: -100%;
@@ -207,10 +203,6 @@ $style = '<style media="all" type="text/css">
 		margin-bottom: 16px;
 	}
 
-	.powered-by a {
-		text-decoration: none;
-	}
-
 	@media only screen and (max-width: 640px) {
 		.main p,
 		.main td,
@@ -220,10 +212,6 @@ $style = '<style media="all" type="text/css">
 
 		.wrapper {
 			padding: 8px 16px !important;
-		}
-
-		.powered-by {
-			padding: 0 16px 16px!important;
 		}
 
 		.content {
@@ -245,6 +233,10 @@ $style = '<style media="all" type="text/css">
 		.collapse { display: none; }
 
 		h1 { padding:0 16px; }
+
+		.powered-by {
+			padding: 0 16px 16px!important;
+		}
 	}
 
 	@media all {

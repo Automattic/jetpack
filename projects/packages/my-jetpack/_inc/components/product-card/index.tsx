@@ -108,6 +108,13 @@ const ProductCard: FC< ProductCardProps > = props => {
 	const isLoading =
 		isActionLoading || ( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 
+	// Reset isActionLoading when admin becomes false to prevent stuck loading state
+	useEffect( () => {
+		if ( ! admin ) {
+			setIsActionLoading( false );
+		}
+	}, [ admin ] );
+
 	const manageHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
 			product: slug,
@@ -130,7 +137,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 	 * Calls the passed function onFixSiteConnection after firing Tracks event
 	 */
 	const fixSiteConnectionHandler = useCallback(
-		( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
+		( e: MouseEvent< HTMLButtonElement > ) => {
 			connectSite( e );
 		},
 		[ connectSite ]

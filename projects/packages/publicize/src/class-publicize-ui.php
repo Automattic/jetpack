@@ -170,7 +170,7 @@ class Publicize_UI {
 
 		Assets::register_script(
 			'jetpack-social-classic-editor-options',
-			'../build/classic-editor-connections.js',
+			'../build/classic-editor.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,
@@ -189,19 +189,20 @@ class Publicize_UI {
 					'refreshConnections'          => '/wpcom/v2/publicize/connections?test_connections=1',
 					'isReshareSupported'          => Current_Plan::supports( 'republicize' ),
 					'siteType'                    => $site_type,
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			),
 			'before'
 		);
 
 		$default_prefix = $this->publicize->default_prefix;
-		$default_prefix = preg_replace( '/%([0-9])\$s/', "' + %\\1\$s + '", esc_js( $default_prefix ) );
+		$default_prefix = preg_replace( '/%([0-9])\$s/', '" + %\\1$s + "', wp_json_encode( (string) $default_prefix, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) );
 
 		$default_message = $this->publicize->default_message;
-		$default_message = preg_replace( '/%([0-9])\$s/', "' + %\\1\$s + '", esc_js( $default_message ) );
+		$default_message = preg_replace( '/%([0-9])\$s/', '" + %\\1$s + "', wp_json_encode( (string) $default_message, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) );
 
 		$default_suffix = $this->publicize->default_suffix;
-		$default_suffix = preg_replace( '/%([0-9])\$s/', "' + %\\1\$s + '", esc_js( $default_suffix ) );
+		$default_suffix = preg_replace( '/%([0-9])\$s/', '" + %\\1$s + "', wp_json_encode( (string) $default_suffix, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) );
 
 		$max_length = defined( 'JETPACK_PUBLICIZE_TWITTER_LENGTH' ) ? JETPACK_PUBLICIZE_TWITTER_LENGTH : 280;
 		$max_length = $max_length - 24; // t.co link, space.
@@ -237,7 +238,7 @@ jQuery( function($) {
 	postTitle.on( 'keyup', function( e ) {
 		var url = $( '#sample-permalink' ).text();
 		<?php // phpcs:ignore ?>
-		var defaultMessage = $.trim( '<?php printf( $default_prefix, 'url' ); printf( $default_message, 'e.currentTarget.value', 'url' ); printf( $default_suffix, 'url' ); ?>' )
+		var defaultMessage = $.trim( <?php printf( $default_prefix, 'url' ); ?> + <?php printf( $default_message, 'e.currentTarget.value', 'url' ); ?> + <?php printf( $default_suffix, 'url' ); ?> )
 			.replace( /<[^>]+>/g,'');
 
 		wpasTitle.attr( 'placeholder', defaultMessage );

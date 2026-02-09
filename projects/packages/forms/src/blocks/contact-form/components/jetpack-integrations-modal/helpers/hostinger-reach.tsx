@@ -7,7 +7,6 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import HostingerReachIcon from '../../../../../icons/hostinger-reach.tsx';
-import ConsentToggle from '../components/consent-toggle.tsx';
 import type { CardItem, CardBuilderProps } from './types.ts';
 import type { Integration } from '../../../../../types/index.ts';
 
@@ -17,7 +16,9 @@ export function buildHostingerReachCard( {
 	context,
 	attributes,
 	setAttributes,
+	components,
 }: CardBuilderProps ): CardItem {
+	const ConsentToggle = components?.ConsentToggle;
 	const { isConnected = false, settingsUrl = '' } = integration || ( {} as Integration );
 	const enabledForForm = !! attributes?.hostingerReach?.enabledForForm;
 	const groupName = attributes?.hostingerReach?.groupName ?? '';
@@ -48,7 +49,11 @@ export function buildHostingerReachCard( {
 					'Add powerful email marketing to your forms with <a>Hostinger Reach</a>. Simply install the plugin to start sending emails.',
 					'jetpack-forms'
 				),
-				{ a: <ExternalLink href={ ( integration.marketingUrl as string ) || '' } /> }
+				{
+					a: (
+						<ExternalLink href={ ( integration.marketingUrl as string ) || '' } children={ null } />
+					),
+				}
 			),
 			notActivatedMessage: __(
 				'Hostinger Reach is installed. Just activate the plugin to start sending emails.',
@@ -105,12 +110,14 @@ export function buildHostingerReachCard( {
 						/>
 					</div>
 				) }
-				{ context === 'block-editor' && <ConsentToggle /> }
-				<p className="integration-card__description">
-					<ExternalLink href={ settingsUrl }>
-						{ __( 'View Hostinger Reach dashboard', 'jetpack-forms' ) }
-					</ExternalLink>
-				</p>
+				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
+				{ settingsUrl && (
+					<p className="integration-card__description">
+						<ExternalLink href={ settingsUrl }>
+							{ __( 'View Hostinger Reach dashboard', 'jetpack-forms' ) }
+						</ExternalLink>
+					</p>
+				) }
 			</>
 		),
 	};

@@ -1,4 +1,4 @@
-## Jetpack 15.3
+## Jetpack 15.6
 
 ### Before you start
 
@@ -10,4 +10,3 @@
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
-**Thank you for all your help!**

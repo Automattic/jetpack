@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Label management: support a hardcoded list of type labels on top of the existing [Type] labels.

@@ -69,7 +69,7 @@ class Connection_Notice_Test extends TestCase {
 		$notice = new Connection_Notice();
 
 		$this->expectOutputRegex( '#Set new connection owner#i' );
-		$this->expectOutputRegex( '#' . preg_quote( 'http:\/\/example.org\/index.php?rest_route=\/jetpack\/v4\/connection\/owner', '#' ) . '#i' );
+		$this->expectOutputRegex( '#' . preg_quote( 'http://example.org/index.php?rest_route=/jetpack/v4/connection/owner', '#' ) . '#i' );
 
 		$notice->delete_user_update_connection_owner_notice();
 	}

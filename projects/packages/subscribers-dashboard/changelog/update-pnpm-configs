@@ -1,5 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove unnecessary `resolve.alias` and `resolve.fallback` in webpack config.
-
-

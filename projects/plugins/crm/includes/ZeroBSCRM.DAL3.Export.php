@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -94,7 +93,8 @@ function zeroBSCRM_export_blockedFields() {
 /*
 ======================================================
 Export Tools UI
-====================================================== */
+======================================================
+*/
 
 // render export page
 function zeroBSCRM_page_exportRecords() {

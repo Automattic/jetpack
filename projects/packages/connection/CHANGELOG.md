@@ -5,6 +5,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.2] - 2026-02-04
+### Changed
+- Update package dependencies. [#46936]
+
+## [7.0.1] - 2026-02-03
+### Changed
+- Update dependencies. [#46383]
+
+## [7.0.0] - 2026-02-02
+### Changed
+- Remove error handling methods for external storage and add host agnostic error reporting. [#46646]
+- Update package dependencies. [#46854]
+
+## [6.20.5] - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
+## [6.20.4] - 2026-01-23
+### Added
+- IDC: Preserve re-validation parameters when new idc error is created. [#46613]
+
+## [6.20.3] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [6.20.2] - 2026-01-14
+### Changed
+- Update package dependencies. [#46552]
+
+## [6.20.1] - 2026-01-12
+### Changed
+- Add transients to prevent excessive remote calls. [#46503]
+
+## [6.20.0] - 2026-01-07
+### Added
+- IDC: Add revalidation for IDCs. [#46268]
+
+### Changed
+- Update package dependencies. [#46456]
+
+## [6.19.13] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [6.19.12] - 2025-12-15
+### Changed
+- Internal updates.
+
+## [6.19.11] - 2025-12-11
+### Removed
+- Development Mode: removed references to previously removed code [#46231]
+
+## [6.19.10] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [6.19.9] - 2025-12-01
+### Changed
+- SSO: Revised copy for flagging external collaborators. [#46108]
+- Update package dependencies. [#46143]
+
+## [6.19.8] - 2025-11-20
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
 ## [6.19.7] - 2025-11-18
 ### Changed
 - Update package dependencies. [#45961]
@@ -1647,6 +1712,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[7.0.2]: https://github.com/Automattic/jetpack-connection/compare/v7.0.1...v7.0.2
+[7.0.1]: https://github.com/Automattic/jetpack-connection/compare/v7.0.0...v7.0.1
+[7.0.0]: https://github.com/Automattic/jetpack-connection/compare/v6.20.5...v7.0.0
+[6.20.5]: https://github.com/Automattic/jetpack-connection/compare/v6.20.4...v6.20.5
+[6.20.4]: https://github.com/Automattic/jetpack-connection/compare/v6.20.3...v6.20.4
+[6.20.3]: https://github.com/Automattic/jetpack-connection/compare/v6.20.2...v6.20.3
+[6.20.2]: https://github.com/Automattic/jetpack-connection/compare/v6.20.1...v6.20.2
+[6.20.1]: https://github.com/Automattic/jetpack-connection/compare/v6.20.0...v6.20.1
+[6.20.0]: https://github.com/Automattic/jetpack-connection/compare/v6.19.13...v6.20.0
+[6.19.13]: https://github.com/Automattic/jetpack-connection/compare/v6.19.12...v6.19.13
+[6.19.12]: https://github.com/Automattic/jetpack-connection/compare/v6.19.11...v6.19.12
+[6.19.11]: https://github.com/Automattic/jetpack-connection/compare/v6.19.10...v6.19.11
+[6.19.10]: https://github.com/Automattic/jetpack-connection/compare/v6.19.9...v6.19.10
+[6.19.9]: https://github.com/Automattic/jetpack-connection/compare/v6.19.8...v6.19.9
+[6.19.8]: https://github.com/Automattic/jetpack-connection/compare/v6.19.7...v6.19.8
 [6.19.7]: https://github.com/Automattic/jetpack-connection/compare/v6.19.6...v6.19.7
 [6.19.6]: https://github.com/Automattic/jetpack-connection/compare/v6.19.5...v6.19.6
 [6.19.5]: https://github.com/Automattic/jetpack-connection/compare/v6.19.4...v6.19.5

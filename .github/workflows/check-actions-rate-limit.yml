@@ -6,6 +6,7 @@ jobs:
   check:
     name: Check Actions rate limit
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Check rate limit
         env:

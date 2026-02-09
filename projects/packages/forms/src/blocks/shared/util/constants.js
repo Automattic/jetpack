@@ -5,12 +5,14 @@ export const ALLOWED_INNER_BLOCKS = [ 'jetpack/label', 'jetpack/input' ];
 
 export const CORE_BLOCKS = [
 	'core/audio',
+	'core/code',
 	'core/columns',
 	'core/group',
 	'core/heading',
 	'core/html',
 	'core/image',
 	'core/list',
+	'core/math',
 	'core/paragraph',
 	'core/row',
 	'core/separator',
@@ -59,3 +61,15 @@ export const FORM_STYLE = {
 	DEFAULT: 'default',
 	OUTLINED: 'outlined',
 };
+
+/**
+ * The custom post type for jetpack forms.
+ * Matches Contact_Form::POST_TYPE in PHP.
+ */
+export const FORM_POST_TYPE = 'jetpack_form';
+
+/**
+ * Meta key for tracking the source post ID.
+ * Matches Contact_Form::SOURCE_META_KEY in PHP.
+ */
+export const FORM_SOURCE_META_KEY = '_jetpack_forms_source_post_id';

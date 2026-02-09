@@ -30,15 +30,15 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
-		"eslint": "9.38.0",
+		"eslint": "9.39.1",
 		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*",
-		"stylelint": "16.19.1"
+		"stylelint": "16.26.1"
 	},
-	"packageManager": "pnpm@10.22.0",
+	"packageManager": "pnpm@10.28.2",
 	"engines": {
 		"node": "^22.19.0",
-		"pnpm": "^10.22.0"
+		"pnpm": "^10.28.2"
 	}
 }

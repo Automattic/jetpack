@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -30,16 +29,21 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
  */
 function jpcrm_load_admin_page( $page_name, $alt_path = ZEROBSCRM_PATH ) {
 
-	$target_file = $alt_path . "admin/$page_name.page.php";
+	$base_dir = realpath( $alt_path . 'admin' );
 
-	if ( file_exists( $target_file ) ) {
+	if ( $base_dir === false ) {
+		echo wp_kses_post( zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'Could not load the requested page.', 'zero-bs-crm' ) ) );
+		return;
+	}
 
+	$base_dir    = rtrim( $base_dir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
+	$target_file = realpath( "{$base_dir}{$page_name}.page.php" );
+
+	// Check if resolved path exists and stays within allowed base directory.
+	if ( $target_file !== false && strpos( $target_file, $base_dir ) === 0 ) {
 		require_once $target_file;
-
 	} else {
-
-		echo zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'Could not load the requested page.', 'zero-bs-crm' ) );
-
+		echo wp_kses_post( zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'Could not load the requested page.', 'zero-bs-crm' ) ) );
 	}
 }
 
@@ -996,22 +1000,22 @@ function zeroBSCRM_pages_admin_system_emails() {
 							if ( $form->zbsmail_active ) {
 								// 1 = active, 0 = inactive..
 								echo '<div class="ui buttons tiny" style="float: right;
-                                        position: absolute;
-                                        top: 19px;
-                                        right: 20px;">
-                                        <button class="ui positive button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
-                                        <div class="or"></div>
-                                        <button class="ui button zbs-turn-inactive" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
-                                      </div>';
+										position: absolute;
+										top: 19px;
+										right: 20px;">
+										<button class="ui positive button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
+										<div class="or"></div>
+										<button class="ui button zbs-turn-inactive" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
+									  </div>';
 							} else {
 								echo '<div class="ui buttons tiny" style="float: right;
-                                        position: absolute;
-                                        top: 19px;
-                                        right: 20px;">
-                                        <button class="ui button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
-                                        <div class="or"></div>
-                                        <button class="ui button zbs-turn-inactive negative" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
-                                      </div>';
+										position: absolute;
+										top: 19px;
+										right: 20px;">
+										<button class="ui button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
+										<div class="or"></div>
+										<button class="ui button zbs-turn-inactive negative" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
+									  </div>';
 							}
 						}
 
@@ -2076,8 +2080,8 @@ function zeroBSCRM_html_extensions() {
 				usort(
 					$top_woo_extensions,
 					function (
-					$str1,
-					$str2
+						$str1,
+						$str2
 					) {
 						return strcasecmp( $str1->name, $str2->name );
 					}
@@ -2087,8 +2091,8 @@ function zeroBSCRM_html_extensions() {
 			usort(
 				$extensions_to_display,
 				function (
-				$str1,
-				$str2
+					$str1,
+					$str2
 				) {
 					return strcasecmp( $str1->name, $str2->name );
 				}

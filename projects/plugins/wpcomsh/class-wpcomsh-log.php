@@ -132,7 +132,7 @@ class WPCOMSH_Log {
 				'messages' => $this->log_queue,
 			);
 
-			wp_remote_post( self::$log_endpoint, array( 'body' => array( 'error' => wp_json_encode( $payload ) ) ) );
+			wp_remote_post( self::$log_endpoint, array( 'body' => array( 'error' => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ) ) ) );
 		}
 	}
 }

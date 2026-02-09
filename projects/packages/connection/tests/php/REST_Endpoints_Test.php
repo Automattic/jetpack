@@ -460,7 +460,7 @@ class REST_Endpoints_Test extends TestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
-		$request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
+		$request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -486,7 +486,7 @@ class REST_Endpoints_Test extends TestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
-		$request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
+		$request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -509,7 +509,7 @@ class REST_Endpoints_Test extends TestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
-		$request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
+		$request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -526,7 +526,7 @@ class REST_Endpoints_Test extends TestCase {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
-		$request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
+		$request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -567,7 +567,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		$user_token = 'test.test.1';
 
-		$request->set_body( wp_json_encode( array( 'user_token' => $user_token ) ) );
+		$request->set_body( wp_json_encode( array( 'user_token' => $user_token ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -599,7 +599,7 @@ class REST_Endpoints_Test extends TestCase {
 		$this->assertEquals( 'Missing parameter(s): owner', $response->get_data()['message'] );
 
 		// Attempt owner change with bad user.
-		$request->set_body( wp_json_encode( array( 'owner' => 999 ) ) );
+		$request->set_body( wp_json_encode( array( 'owner' => 999 ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'New owner is not admin', $response->get_data()['message'] );
@@ -607,7 +607,7 @@ class REST_Endpoints_Test extends TestCase {
 		// Change owner to valid user but XML-RPC request to WPCOM failed.
 		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_failure' ), 10, 3 );
 
-		$request->set_body( wp_json_encode( array( 'owner' => self::$secondary_user_id ) ) );
+		$request->set_body( wp_json_encode( array( 'owner' => self::$secondary_user_id ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 		$response = $this->server->dispatch( $request );
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_failure' ), 10 );
@@ -624,7 +624,7 @@ class REST_Endpoints_Test extends TestCase {
 		// Change owner to valid user.
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'owner' => self::$secondary_user_id ) ) );
+		$request->set_body( wp_json_encode( array( 'owner' => self::$secondary_user_id ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
@@ -659,7 +659,7 @@ class REST_Endpoints_Test extends TestCase {
 	public function test_disconnect_site_with_invalid_param() {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'isActive' => 'should_be_bool_false' ) ) );
+		$request->set_body( wp_json_encode( array( 'isActive' => 'should_be_bool_false' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
@@ -678,7 +678,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+		$request->set_body( wp_json_encode( array( 'isActive' => false ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response = $this->server->dispatch( $request );
 
@@ -692,7 +692,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+		$request->set_body( wp_json_encode( array( 'isActive' => false ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
@@ -707,7 +707,7 @@ class REST_Endpoints_Test extends TestCase {
 	public function test_disconnect_site_success() {
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+		$request->set_body( wp_json_encode( array( 'isActive' => false ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
@@ -739,7 +739,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+		$request->set_body( wp_json_encode( array( 'isActive' => false ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
@@ -765,7 +765,8 @@ class REST_Endpoints_Test extends TestCase {
 					'linked'               => false,
 					'force'                => true,
 					'disconnect-all-users' => true,
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			)
 		);
 
@@ -793,7 +794,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/user' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'linked' => false ) ) );
+		$request->set_body( wp_json_encode( array( 'linked' => false ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		// Mock non-admin user connected with no connection owner.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options_no_connection_owner' ), 10, 2 );
@@ -1040,7 +1041,7 @@ class REST_Endpoints_Test extends TestCase {
 			'local_user' => static::$user_id,
 			'nonce'      => 'foobar',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
@@ -1068,7 +1069,7 @@ class REST_Endpoints_Test extends TestCase {
 			'local_user' => -1,
 			'nonce'      => 'foobar',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
@@ -1097,7 +1098,7 @@ class REST_Endpoints_Test extends TestCase {
 			'local_user' => -1,
 			'nonce'      => 'foobar',
 		);
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
@@ -1118,7 +1119,7 @@ class REST_Endpoints_Test extends TestCase {
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$body = array( 'local_user' => static::$user_id );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
@@ -1149,7 +1150,7 @@ class REST_Endpoints_Test extends TestCase {
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$body = array( 'local_user' => -1 );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
@@ -1170,7 +1171,7 @@ class REST_Endpoints_Test extends TestCase {
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$body = array( 'local_user' => static::$user_id );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
@@ -1200,7 +1201,7 @@ class REST_Endpoints_Test extends TestCase {
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$body = array( 'local_user' => -1 );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
@@ -1388,7 +1389,8 @@ class REST_Endpoints_Test extends TestCase {
 					'jetpack_secret'              => 'sample_secret',
 					'allow_inplace_authorization' => $allow_inplace_authorization,
 					'alternate_authorization_url' => $alternate_authorization_url,
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			),
 			'response' => array(
 				'code'    => 200,
@@ -1464,7 +1466,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		return array(
 			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
-			'body'     => wp_json_encode( array( 'dummy_error' => true ) ),
+			'body'     => wp_json_encode( array( 'dummy_error' => true ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 			'response' => array(
 				'code'    => 500,
 				'message' => 'failed',
@@ -1507,7 +1509,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		return array(
 			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
-			'body'     => wp_json_encode( $body ),
+			'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 			'response' => array(
 				'code'    => 200,
 				'message' => 'OK',
@@ -1531,7 +1533,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		return array(
 			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
-			'body'     => wp_json_encode( array( 'jetpack_secret' => self::BLOG_TOKEN ) ),
+			'body'     => wp_json_encode( array( 'jetpack_secret' => self::BLOG_TOKEN ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 			'response' => array(
 				'code'    => 200,
 				'message' => 'OK',
@@ -1555,7 +1557,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		return array(
 			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
-			'body'     => wp_json_encode( array( 'jetpack_secret_missing' => true ) ), // Meaningless body.
+			'body'     => wp_json_encode( array( 'jetpack_secret_missing' => true ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), // Meaningless body.
 			'response' => array(
 				'code'    => 200,
 				'message' => 'OK',
@@ -1584,7 +1586,8 @@ class REST_Endpoints_Test extends TestCase {
 					'access_token' => 'mock.token',
 					'token_type'   => 'X_JETPACK',
 					'scope'        => ( new Manager() )->sign_role( 'administrator' ),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			),
 			'response' => array(
 				'code'    => 200,

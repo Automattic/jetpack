@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Forms: protect against invalid attrs when merging new values

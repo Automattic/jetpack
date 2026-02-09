@@ -102,25 +102,6 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( $order->get_id(), $create_order_item_event->args[2] );
 	}
 
-	public function test_updated_order_items_are_synced() {
-		$order       = $this->createOrderWithItem();
-		$order_items = $order->get_items();
-		$order_item  = reset( $order_items ); // first item
-
-		// trigger an update
-		$order_item->set_name( 'A new name' );
-		$order_item->save();
-
-		$this->sender->do_sync();
-
-		$update_order_item_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_update_order_item' );
-
-		$this->assertTrue( (bool) $update_order_item_event );
-		$this->assertEquals( $order_item->get_id(), $update_order_item_event->args[0] );
-		$this->assertHasOrderItemProperties( $update_order_item_event->args[1], $order_item );
-		$this->assertEquals( $order->get_id(), $update_order_item_event->args[2] );
-	}
-
 	public function test_updated_order_item_meta_is_synced() {
 		$order       = $this->createOrderWithItem();
 		$order_items = $order->get_items();

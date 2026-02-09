@@ -3,7 +3,7 @@ import {
 	type Action,
 	type ActionButton,
 	type Field,
-	type FieldType,
+	type FieldTypeName,
 	type Filter,
 	type SortDirection,
 	type SupportedLayouts,
@@ -315,7 +315,7 @@ export default function ThreatsDataViews( {
 						{
 							id: THREAT_FIELD_SEVERITY,
 							label: __( 'Severity', 'jetpack-scan' ),
-							type: 'integer' as FieldType,
+							type: 'integer' as FieldTypeName,
 							getValue( { item }: { item: Threat } ) {
 								return item.severity ?? 0;
 							},
@@ -343,7 +343,7 @@ export default function ThreatsDataViews( {
 						{
 							id: THREAT_FIELD_FIRST_DETECTED,
 							label: __( 'First Detected', 'jetpack-scan' ),
-							type: 'datetime' as FieldType,
+							type: 'datetime' as FieldTypeName,
 							getValue( { item }: { item: Threat } ) {
 								return item.firstDetected ? new Date( item.firstDetected ) : null;
 							},
@@ -362,7 +362,7 @@ export default function ThreatsDataViews( {
 						{
 							id: THREAT_FIELD_FIXED_ON,
 							label: __( 'Fixed On', 'jetpack-scan' ),
-							type: 'datetime' as FieldType,
+							type: 'datetime' as FieldTypeName,
 							getValue( { item }: { item: Threat } ) {
 								return item.fixedOn ? new Date( item.fixedOn ) : null;
 							},

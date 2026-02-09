@@ -37,7 +37,8 @@ import './editor.scss';
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
 		const { name } = useBlockEditContext();
-		if ( name !== 'core/video' ) {
+		// Apply to both core/video and videopress/video blocks
+		if ( name !== 'core/video' && name !== 'videopress/video' ) {
 			return <OriginalPlaceholder { ...props } />;
 		}
 
@@ -414,6 +415,61 @@ addFilter(
 );
 
 /**
+ * Handle videopress/video block unavailability.
+ * When the block is unavailable due to missing plan, add a filter to disable
+ * the upload buttons in the MediaPlaceholder.
+ *
+ * @param {object} settings - Block settings.
+ * @param {string} name     - Block name.
+ * @return {object} Modified block settings.
+ */
+function handleVideoPressVideoUnavailability( settings, name ) {
+	// Only apply to videopress/video block.
+	if ( name !== 'videopress/video' ) {
+		return settings;
+	}
+
+	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress/video' );
+
+	// If available, don't modify.
+	if ( available ) {
+		return settings;
+	}
+
+	// Check if unavailable due to missing plan on WPCOM.
+	const isUnavailableDueToMissingPlan =
+		isWpcomPlatformSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason );
+
+	if ( ! isUnavailableDueToMissingPlan ) {
+		return settings;
+	}
+
+	// Add the filter to disable upload buttons in the MediaPlaceholder for videopress/video blocks.
+	addFilter(
+		'editor.MediaPlaceholder',
+		'jetpack/videopress-video-no-plan',
+		videoPressNoPlanMediaPlaceholder
+	);
+
+	// Add the warning/interactive class names filter for visual consistency with core/video.
+	addFilter(
+		'editor.BlockListBlock',
+		'jetpack/videopress-video-with-has-warning-is-interactive-class-names',
+		withHasWarningIsInteractiveClassNames( 'videopress/video' )
+	);
+
+	return settings;
+}
+
+addFilter(
+	'blocks.registerBlockType',
+	'videopress/handle-unavailability',
+	handleVideoPressVideoUnavailability,
+	// Use priority 20 to run after the block is registered but before other modifications.
+	20
+);
+
+/**
  * Extend videopress/video transform to/from core/video block.
  *
  * @param {object} settings - Block settings.
@@ -539,7 +595,8 @@ function mapV6AttributesToV5( attributes ) {
  *
  * Blocks list:
  * - core/video
- * - core/embed is not auto-converted for the moment. @todo: consider to do it in the future.
+ * - core/embed is not auto-converted for the moment.
+ * @todo consider to do it in the future.
  */
 const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( BlockListBlock => {
 	return props => {

@@ -102,7 +102,7 @@ class Doc_Parser {
 		// Get data from the PHPDoc.
 		$json = $this->get_phpdoc_data( $directory );
 
-		$output = json_encode( $json );
+		$output = json_encode( $json, JSON_UNESCAPED_SLASHES );
 
 		// Write to $output_file.
 		$error = ! file_put_contents( $destination_path, $output );

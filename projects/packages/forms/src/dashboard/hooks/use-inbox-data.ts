@@ -5,21 +5,23 @@ import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useRef, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { isEmpty } from 'lodash';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import { isCollectionFormatField } from '../components/inspector/utils.ts';
+import { useDashboardSearchParams } from '../router/dashboard-search-params-context.tsx';
 import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
-import type { FormResponse } from '../../types/index.ts';
+import type { FormResponse, ResponseField, ResponseFields } from '../../types/index.ts';
 
 /**
  * Helper function to get the status filter to apply from the URL.
- * This is the only way to filter the data by `status` as intentionally
- * we don't want to have a `status` filter in the UI.
+ * This is the only way to filter the data by `status`.
+ *
+ * Note: When Central Form Management (CFM) is enabled, the UI can expose a
+ * "Folder" DataViews filter that syncs its value to the URL `status` param.
  *
  * @param {string} urlStatus - The current status from the URL.
  * @return {string} The status filter to apply.
@@ -38,13 +40,64 @@ const formatFieldName = fieldName => {
 	return fieldName;
 };
 
+// https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore?tab=readme-ov-file#_isempty
+const isEmpty = obj =>
+	[ Object, Array ].includes( ( obj || {} ).constructor ) && ! Object.entries( obj || {} ).length;
+
 const formatFieldValue = fieldValue => {
-	if ( isEmpty( fieldValue ) ) {
+	if ( ! fieldValue || isEmpty( fieldValue ) ) {
 		return '-';
-	} else if ( Array.isArray( fieldValue ) ) {
+	}
+	if ( Array.isArray( fieldValue ) ) {
 		return fieldValue.join( ', ' );
 	}
 	return fieldValue;
+};
+
+type UseInboxDataOptions = {
+	status?: 'inbox' | 'spam' | 'trash';
+};
+
+const decodeValue = ( value: unknown ): unknown => {
+	if ( typeof value === 'string' ) {
+		return decodeEntities( value );
+	}
+
+	if ( Array.isArray( value ) ) {
+		return value.map( v => ( typeof v === 'string' ? decodeEntities( v ) : v ) );
+	}
+
+	return value;
+};
+
+const hasOwn = ( obj: object, key: PropertyKey ): boolean =>
+	Object.prototype.hasOwnProperty.call( obj, key );
+
+const normalizeFieldsForDisplay = ( fields: ResponseField[] ): ResponseFields => {
+	if ( ! fields || ! Array.isArray( fields ) ) {
+		return Object.create( null ) as Record< string, unknown >;
+	}
+
+	if ( isCollectionFormatField( fields[ 0 ] ) ) {
+		return fields;
+	}
+
+	return Object.entries( fields || {} ).reduce(
+		( accumulator, [ key, value ] ) => {
+			let _key = formatFieldName( key );
+			let counter = 2;
+
+			while ( hasOwn( accumulator, _key ) ) {
+				_key = `${ formatFieldName( key ) } (${ counter })`;
+				counter++;
+			}
+
+			accumulator[ _key ] = formatFieldValue( decodeValue( value ) );
+
+			return accumulator;
+		},
+		Object.create( null ) as Record< string, unknown >
+	);
 };
 
 /**
@@ -70,25 +123,33 @@ interface UseInboxDataReturn {
 /**
  * Hook to get all inbox related data.
  *
+ * @param {UseInboxDataOptions} options - Optional configuration.
  * @return {UseInboxDataReturn} The inbox related data.
  */
-export default function useInboxData(): UseInboxDataReturn {
-	const [ searchParams ] = useSearchParams();
+export default function useInboxData( options: UseInboxDataOptions = {} ): UseInboxDataReturn {
+	const [ searchParams ] = useDashboardSearchParams();
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
-	const urlStatus = searchParams.get( 'status' );
+	const urlStatus = options.status ?? searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
-	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions, invalidRecords } =
-		useSelect(
-			select => ( {
-				selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
-				currentStatus: select( dashboardStore ).getCurrentStatus(),
-				currentQuery: select( dashboardStore ).getCurrentQuery(),
-				filterOptions: select( dashboardStore ).getFilters(),
-				invalidRecords: select( dashboardStore ).getInvalidRecords(),
-			} ),
-			[]
-		);
+	const {
+		selectedResponsesCount,
+		currentStatus,
+		currentQuery,
+		filterOptions,
+		invalidRecords,
+		hasPendingActions,
+	} = useSelect(
+		select => ( {
+			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
+			currentStatus: select( dashboardStore ).getCurrentStatus(),
+			currentQuery: select( dashboardStore ).getCurrentQuery(),
+			filterOptions: select( dashboardStore ).getFilters(),
+			invalidRecords: select( dashboardStore ).getInvalidRecords(),
+			hasPendingActions: select( dashboardStore ).hasPendingActions(),
+		} ),
+		[]
+	);
 
 	// Track the frozen invalid_ids for the current page
 	// This prevents re-fetching when new items are marked as invalid
@@ -147,19 +208,6 @@ export default function useInboxData(): UseInboxDataReturn {
 	);
 
 	/**
-	 * Helper function to determine the effective status of a record,
-	 * considering optimistic edits (status field in edits).
-	 *
-	 * @param {FormResponse} record - The record to check.
-	 * @return {string} The effective status of the record.
-	 */
-	const getEffectiveStatus = ( record: FormResponse ): string => {
-		// getEditedEntityRecord merges edits with the original record,
-		// so if status was edited, it will be in the edited record
-		return record.status || 'publish';
-	};
-
-	/**
 	 * Helper function to check if a status matches the current status filter.
 	 *
 	 * @param {string} status - The status to check.
@@ -178,28 +226,15 @@ export default function useInboxData(): UseInboxDataReturn {
 	const records = useMemo( () => {
 		// Filter records based on their effective status (considering optimistic edits)
 		const filteredRecords = ( editedRecords || [] ).filter( ( record: FormResponse ) => {
-			const effectiveStatus = getEffectiveStatus( record );
-
-			return statusMatchesFilter( effectiveStatus, statusFilter );
+			return statusMatchesFilter( record.status, statusFilter );
 		} );
 
 		return filteredRecords.map( record => {
 			const formResponse = record as FormResponse;
+
 			return {
 				...formResponse,
-				fields: Object.entries( formResponse.fields || {} ).reduce(
-					( accumulator, [ key, value ] ) => {
-						let _key = formatFieldName( key );
-						let counter = 2;
-						while ( accumulator[ _key ] ) {
-							_key = `${ formatFieldName( key ) } (${ counter })`;
-							counter++;
-						}
-						accumulator[ _key ] = formatFieldValue( decodeEntities( value as string ) );
-						return accumulator;
-					},
-					{}
-				),
+				fields: normalizeFieldsForDisplay( formResponse.fields as ResponseField[] ),
 			};
 		} ) as FormResponse[];
 	}, [ editedRecords, statusFilter ] );
@@ -243,7 +278,13 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ countsQueryParams ]
 	);
 
-	const isLoadingData = ! rawRecords?.length && ! hasResolved;
+	// Show loading if:
+	// 1. No records and query hasn't resolved yet (initial load)
+	// 2. No filtered records but there are pending actions (optimistic update removed all items from current view)
+	// Note: We check records.length (filtered) not rawRecords.length because optimistic updates
+	// change status, so items are filtered out of records but still exist in rawRecords
+	const isLoadingData =
+		( ! rawRecords?.length && ! hasResolved ) || ( ! records?.length && hasPendingActions );
 
 	return {
 		totalItemsInbox,

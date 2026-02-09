@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 4.0.6 - 2025-11-21
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
 ## 4.0.4 - 2025-11-12
 ### Added
 - Tested up to WordPress 6.9. [#45571]

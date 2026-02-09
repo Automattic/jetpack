@@ -1,5 +1,20 @@
-import { createContext, useCallback, useMemo, useState, useEffect } from 'react';
-import { getItemShapeStyles, getSeriesLineStyles, mergeThemes, hexToHsl } from '../../utils';
+import { hsl as d3Hsl } from '@visx/vendor/d3-color';
+import {
+	createContext,
+	useCallback,
+	useMemo,
+	useState,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+} from 'react';
+import {
+	getItemShapeStyles,
+	getSeriesLineStyles,
+	mergeThemes,
+	resolveCssVariable,
+	normalizeColorToHex,
+} from '../../utils';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
@@ -20,13 +35,31 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		() => new Map()
 	);
 
+	// Ref to the wrapper element for resolving scoped CSS variables
+	const wrapperRef = useRef< HTMLDivElement >( null );
+
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
 	}, [ theme ] );
 
 	// Cache expensive color computations that only change when theme colors change
-	const colorCache: ColorCache = useMemo( () => {
+	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
+	// in <style> tags are applied to the DOM before we try to resolve them
+	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
+		colors: [],
+		hues: [],
+		existingHslColors: [],
+		minHue: 360,
+		maxHue: 0,
+	} ) );
+
+	// Compute color cache after DOM is updated (so CSS variables are available)
+	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
+	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
+	// This is intentional, as wrapperRef is expected to be stable for the lifetime of the provider.
+	useLayoutEffect( () => {
 		const { colors } = providerTheme;
+		const resolvedColors: string[] = [];
 		const hues: number[] = [];
 		const existingHslColors: Array< [ number, number, number ] > = [];
 		let minHue = 360;
@@ -35,23 +68,50 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		// Process all colors once and cache the results
 		if ( Array.isArray( colors ) ) {
 			for ( const color of colors ) {
-				if ( color && typeof color === 'string' && color.startsWith( '#' ) ) {
-					const hslColor = hexToHsl( color );
-					hues.push( hslColor[ 0 ] );
-					existingHslColors.push( hslColor );
-					minHue = Math.min( minHue, hslColor[ 0 ] );
-					maxHue = Math.max( maxHue, hslColor[ 0 ] );
+				if ( color && typeof color === 'string' ) {
+					let colorValue = color;
+
+					// Handle CSS custom properties - resolve them to actual values
+					// Supports both '--var-name' and 'var(--var-name)' formats
+					// Use wrapper element to resolve scoped CSS variables
+					if ( color.startsWith( '--' ) || color.startsWith( 'var(' ) ) {
+						const resolved = resolveCssVariable( color, wrapperRef.current );
+
+						if ( resolved === null || resolved === '' ) {
+							continue;
+						}
+
+						colorValue = resolved;
+					}
+
+					// Process hex colors
+					if ( colorValue.startsWith( '#' ) ) {
+						resolvedColors.push( colorValue );
+						const hslColor = d3Hsl( colorValue );
+						// d3Hsl returns NaN values for invalid colors
+						if ( ! isNaN( hslColor.h ) ) {
+							const hslTuple: [ number, number, number ] = [
+								hslColor.h,
+								hslColor.s * 100,
+								hslColor.l * 100,
+							];
+							hues.push( hslTuple[ 0 ] );
+							existingHslColors.push( hslTuple );
+							minHue = Math.min( minHue, hslTuple[ 0 ] );
+							maxHue = Math.max( maxHue, hslTuple[ 0 ] );
+						}
+					}
 				}
 			}
 		}
 
-		return {
-			colors: colors || [],
+		setColorCache( {
+			colors: resolvedColors,
 			hues,
 			existingHslColors,
 			minHue,
 			maxHue,
-		};
+		} );
 	}, [ providerTheme ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
@@ -95,7 +155,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		} ): string => {
 			// Highest precedence: eg. explicit series stroke or chart color prop
 			if ( overrideColor ) {
-				return overrideColor;
+				return normalizeColorToHex( overrideColor, wrapperRef.current, resolveCssVariable );
 			}
 
 			// If group provided, maintain a stable assignment
@@ -106,15 +166,16 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 					return existing;
 				}
 
+				// Use map size as index to assign colors sequentially (0, 1, 2...)
+				// ensuring each new group gets the next available palette color
 				const assignedCount = groupToColorMap.size;
-				const color =
-					colorCache.colors.length > 0 ? getChartColor( assignedCount, colorCache ) : '#000000';
+				const color = getChartColor( assignedCount, colorCache );
 				groupToColorMap.set( group, color );
 
 				return color;
 			}
 
-			return colorCache.colors.length > 0 ? getChartColor( index, colorCache ) : '#000000';
+			return getChartColor( index, colorCache );
 		},
 		[ colorCache, groupToColorMap ]
 	);
@@ -207,5 +268,11 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		]
 	);
 
-	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;
+	return (
+		<GlobalChartsContext.Provider value={ value }>
+			<div ref={ wrapperRef } style={ { display: 'contents' } }>
+				{ children }
+			</div>
+		</GlobalChartsContext.Provider>
+	);
 };

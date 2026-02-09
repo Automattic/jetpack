@@ -1,4 +1,5 @@
 import type { FormResponse } from '../../../types/index.ts';
+import type { IconType } from '@wordpress/components';
 import type { StoreDescriptor } from '@wordpress/data';
 
 /**
@@ -12,6 +13,7 @@ export type QueryParams = {
 	is_unread?: boolean;
 	per_page?: number;
 	page?: number;
+	status?: string;
 };
 
 /**
@@ -21,6 +23,7 @@ export type NoticeOptions = {
 	type?: string;
 	id?: string;
 	actions?: { label: string; onClick: () => void }[];
+	icon?: React.ReactNode;
 };
 
 /**
@@ -30,6 +33,8 @@ export type DispatchActions = {
 	// Notices store actions
 	createSuccessNotice: ( message: string, options: NoticeOptions ) => void;
 	createErrorNotice: ( message: string, options: NoticeOptions ) => void;
+	createInfoNotice: ( message: string, options: NoticeOptions ) => void;
+	removeNotice: ( id: string ) => void;
 
 	// Core store actions
 	saveEntityRecord: (
@@ -41,7 +46,7 @@ export type DispatchActions = {
 		kind: string,
 		name: string,
 		recordId: number,
-		query: Record< string, unknown >,
+		query?: Record< string, unknown >,
 		options?: { throwOnError?: boolean }
 	) => Promise< void >;
 	editEntityRecord: (
@@ -56,20 +61,23 @@ export type DispatchActions = {
 		records: FormResponse[],
 		query?: QueryParams,
 		invalidateCache?: boolean
-	) => Promise< void >;
+	) => void;
+	invalidateResolution: ( selector: string, args: unknown[] ) => void;
 
 	// Dashboard store actions
 	updateCountsOptimistically: (
 		status: string,
 		newStatus: string,
 		count: number,
-		queryParams: QueryParams
+		queryParams?: QueryParams
 	) => void;
-	doBulkAction: ( ids: string[], action: string ) => void;
+	doBulkAction: ( ids: string[], action: string ) => Promise< void >;
 	invalidateFilters: () => void;
 	invalidateCounts: () => void;
 	markRecordsAsInvalid: ( ids: number[] ) => void;
 	setCurrentQuery: ( queryParams: QueryParams ) => void;
+	addPendingAction: ( actionId: string ) => void;
+	removePendingAction: ( actionId: string ) => void;
 };
 
 /**
@@ -81,6 +89,7 @@ export type SelectActions = {
 	getTrashCount: ( queryParams: QueryParams ) => number;
 	getSpamCount: ( queryParams: QueryParams ) => number;
 	getInboxCount: ( queryParams: QueryParams ) => number;
+	getCounts: () => { inbox: number; spam: number; trash: number };
 
 	// Core store select actions
 	getEntityRecord: (
@@ -88,6 +97,15 @@ export type SelectActions = {
 		name: string,
 		recordId: number
 	) => Record< string, unknown > | undefined;
+	isResolving: ( selector: string, args: unknown[] ) => boolean;
+};
+
+export type ResolveSelectActions = {
+	getEntityRecords: (
+		kind: string,
+		name: string,
+		query?: QueryParams
+	) => Promise< FormResponse[] | null >;
 };
 
 /**
@@ -96,12 +114,13 @@ export type SelectActions = {
 export type Registry = {
 	dispatch: ( store: StoreDescriptor ) => DispatchActions;
 	select: ( store: StoreDescriptor ) => SelectActions;
+	resolveSelect: ( store: StoreDescriptor ) => ResolveSelectActions;
 };
 
 export type Action = {
 	id: string;
 	isPrimary: boolean;
-	icon: React.ReactNode;
+	icon: IconType;
 	label: string;
 	modalHeader?: string;
 	isEligible?: ( item: FormResponse ) => boolean;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Atomic sites that have access to Global Styles can use Custom CSS

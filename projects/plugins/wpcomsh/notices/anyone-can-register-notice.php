@@ -144,11 +144,11 @@ function wpcomsh_anyone_register_warning() {
 			$( document ).ready( function() {
 				$( ".anyone-can-register-notice .notice-dismiss" ).on( "click", function() {
 					$.ajax( {
-						url: ' . wp_json_encode( esc_url_raw( admin_url( 'admin-ajax.php' ) ) ) . ',
+						url: ' . wp_json_encode( esc_url_raw( admin_url( 'admin-ajax.php' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ',
 						type: "POST",
 						data: {
 							action: "anyone_can_register_dismiss_notice",
-							_ajax_nonce: ' . wp_json_encode( $nonce ) . '
+							_ajax_nonce: ' . wp_json_encode( $nonce, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '
 						},
 						error: function( xhr, status, error ) {
 							alert( error );

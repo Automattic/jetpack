@@ -14,7 +14,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.8.1';
+	const PACKAGE_VERSION = '6.9.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -140,7 +140,8 @@ class Jetpack_Mu_Wpcom {
 					array(
 						'locales' => $locales,
 						'plugins' => $plugins_request_data,
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 				'headers' => array( 'Content-Type' => 'application/json' ),
 				'timeout' => 10,
@@ -259,6 +260,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
+		\Automattic\Jetpack\ExPlat::init();
 
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
@@ -311,15 +313,17 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that only apply to WordPress.com users.
 	 */
 	public static function load_wpcom_user_features() {
-		if ( ! is_wpcom_user() ) {
-			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
-
-			return;
-		}
-
 		// To avoid potential collisions with ETK.
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
+		}
+
+		if ( ! is_wpcom_user() ) {
+			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
+			return;
+		}
+		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
+			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
 		}
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
@@ -329,7 +333,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
-		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
@@ -431,6 +434,9 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+		} elseif ( isset( $pagenow ) && 'customize.php' === $pagenow ) {
+			// Load wpcom-global-styles on the customizer so access to additional css can be checked there.
+			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 		}
 	}
 
@@ -533,7 +539,8 @@ class Jetpack_Mu_Wpcom {
 		$data = wp_json_encode(
 			array(
 				'assetsUrl' => plugins_url( 'build/', self::BASE_FILE ),
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wp_add_inline_script(

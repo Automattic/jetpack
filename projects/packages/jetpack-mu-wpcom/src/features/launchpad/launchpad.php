@@ -37,9 +37,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'plan_selected',
-				'setup_general',
-				'first_post_published',
+				'domain_upsell',
 				'design_edited',
+				'mobile_app_installed',
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
@@ -759,7 +759,7 @@ function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
 		array(
 			'feature' => 'launchpad',
 			'message' => 'Launchpad enabled for e2e test site.',
-			'extra'   => wp_json_encode( $extra ),
+			'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
 		)
 	);
 }

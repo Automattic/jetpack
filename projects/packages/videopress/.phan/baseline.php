@@ -19,7 +19,6 @@ return [
     // PhanNonClassMethodCall : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 4 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
-    // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanUndeclaredExtendedClass : 2 occurrences
     // PhanUndeclaredMethod : 2 occurrences
@@ -53,7 +52,7 @@ return [
         'src/videopress-divi/class-videopress-divi-extension.php' => ['PhanCommentOverrideOnNonOverrideMethod', 'PhanUndeclaredClass', 'PhanUndeclaredClassMethod', 'PhanUndeclaredExtendedClass', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable'],
         'src/videopress-divi/class-videopress-divi-module.php' => ['PhanUndeclaredExtendedClass'],
         'tests/php/Uploader_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/VideoPress_Uploader_Test.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
+        'tests/php/VideoPress_Uploader_Test.php' => ['PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

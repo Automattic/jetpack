@@ -21,6 +21,7 @@ const IntegrationsList = ( {
 	handlers,
 	attributes,
 	setAttributes,
+	components,
 }: IntegrationsListProps ) => {
 	const items = useIntegrationCardsData( {
 		integrations,
@@ -29,6 +30,7 @@ const IntegrationsList = ( {
 		handlers,
 		attributes,
 		setAttributes,
+		components,
 	} );
 
 	const initialCardsExpandedState = useMemo( () => {
@@ -65,7 +67,6 @@ const IntegrationsList = ( {
 					key={ item.id }
 					title={ item.title }
 					description={ item.description }
-					icon={ item.icon }
 					isExpanded={ !! expandedCards[ item.id ] }
 					onToggle={ () => toggleCard( item.id ) }
 					cardData={ item.cardData }

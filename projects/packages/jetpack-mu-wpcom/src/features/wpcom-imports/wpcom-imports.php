@@ -152,7 +152,8 @@ function wpcom_imports_enqueue_script() {
 		'const wpcomImporterData = ' . wp_json_encode(
 			array(
 				'wpcomImporterUrl' => $url,
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		) . ';',
 		'before'
 	);

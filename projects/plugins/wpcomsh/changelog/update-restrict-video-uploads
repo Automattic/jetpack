@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Allow users with the UPLOAD_VIDEO_FILES feature to upload videos without VideoPress

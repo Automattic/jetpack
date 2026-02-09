@@ -17,10 +17,6 @@ class Util {
 	 * Registers all relevant actions and filters for this class.
 	 */
 	public static function init() {
-		if ( is_admin() ) {
-			Admin::init();
-		}
-
 		add_filter( 'template_include', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_attribute' );
 
 		add_action( 'render_block_core_template_part_post', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_part_id_global' );
@@ -56,7 +52,9 @@ class Util {
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-textarea /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Contact Us","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Contact us</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -69,7 +67,9 @@ class Util {
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-consent /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Subscribe","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Subscribe</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -83,7 +83,9 @@ class Util {
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-radio {"label":"Attending?","required":true,"options":["Yes","No"]} /-->
                         <!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send RSVP","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Send RSVP</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -98,7 +100,9 @@ class Util {
                         <!-- wp:jetpack/field-telephone {"label":"Phone Number"} /-->
                         <!-- wp:jetpack/field-select {"label":"How did you hear about us?","options":["Search Engine","Social Media","TV","Radio","Friend or Family"]} /-->
                         <!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Send</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -114,7 +118,9 @@ class Util {
                         <!-- wp:jetpack/field-date {"label":"Date","required":true} /-->
                         <!-- wp:jetpack/field-radio {"label":"Time","required":true,"options":["Morning","Afternoon"]} /-->
                         <!-- wp:jetpack/field-textarea {"label":"Notes"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Book Appointment","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Book Appointment</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -131,7 +137,9 @@ class Util {
 						<!-- wp:jetpack/input-rating /--></div>
 						<!-- /wp:jetpack/field-rating -->
                         <!-- wp:jetpack/field-textarea {"label":"How could we improve?"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send Feedback","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Send Feedback</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
@@ -147,7 +155,9 @@ class Util {
 						<!-- wp:jetpack/field-telephone {"label":"Phone","id":"phone"} /-->
 						<!-- wp:jetpack/field-text {"label":"Company","id":"company"} /-->
 						<!-- wp:jetpack/field-text {"label":"Job Title","id":"title"} /-->
-						<!-- wp:jetpack/button {"element":"button","text":"Submit","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Submit</button></div>
+						<!-- /wp:button -->
 					</div>
 					<!-- /wp:jetpack/contact-form -->',
 			),
@@ -242,14 +252,16 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt  = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', true );
+		// Use the spam status changed date if available, otherwise fall back to post_date_gmt for backward compatibility
 		$sql      = $wpdb->prepare(
 			"
-			SELECT `ID`
-			FROM $wpdb->posts
-			WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > `post_date_gmt`
-				AND `post_type` = 'feedback'
-				AND `post_status` = 'spam'
+			SELECT p.`ID`
+			FROM $wpdb->posts p
+			LEFT JOIN $wpdb->postmeta pm ON p.`ID` = pm.`post_id` AND pm.`meta_key` = '_spam_status_changed_gmt'
+			WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > COALESCE( pm.`meta_value`, p.`post_date_gmt` )
+				AND p.`post_type` = 'feedback'
+				AND p.`post_status` = 'spam'
 			LIMIT %d
 		",
 			$now_gmt,
@@ -294,7 +306,7 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', true );
 		$sql     = $wpdb->prepare(
 			"
 			SELECT `ID`
@@ -396,35 +408,45 @@ class Util {
 		if ( false === stripos( $content, 'wp:jetpack/contact-form' ) ) {
 			return $content;
 		}
-		return preg_replace_callback(
-			'/<!--\s+(?P<closer>\/)?wp:jetpack\/?contact-form\s+(?P<attrs>{(?:(?:[^}]+|}+(?=})|(?!}\s+\/?-->).)*+)?}\s+)?(?P<void>\/)?-->/s',
-			function ( $match ) use ( $new_attr ) {
-				// Ignore block closers.
-				if ( ! empty( $match['closer'] ) ) {
-					return $match[0];
-				}
-				// If block doesn't have attributes, add our own.
-				if ( empty( $match['attrs'] ) ) {
-					return str_replace(
-						'wp:jetpack/contact-form ',
-						'wp:jetpack/contact-form ' . wp_json_encode( $new_attr ) . ' ',
-						$match[0]
-					);
-				}
-				$attrs = json_decode( rtrim( $match['attrs'], ' ' ), true );
-				// Ensure $attrs is an array before merging (json_decode can return null on invalid JSON).
-				if ( ! is_array( $attrs ) ) {
-					$attrs = array();
-				}
-				$attrs = array_merge( $attrs, $new_attr );
-				return str_replace(
-					$match['attrs'],
-					wp_json_encode( $attrs ) . ' ',
-					$match[0]
+
+		// Parse blocks using WordPress core function.
+		$blocks = parse_blocks( $content );
+
+		// Recursively modify contact form blocks.
+		$modified_blocks = self::modify_contact_form_blocks_recursive( $blocks, $new_attr );
+
+		// Serialize back to block markup.
+		return serialize_blocks( $modified_blocks );
+	}
+
+	/**
+	 * Recursively modifies contact form blocks to add new attributes.
+	 *
+	 * @param array $blocks    Array of parsed blocks.
+	 * @param array $new_attr  New attributes to add.
+	 * @return array Modified blocks array.
+	 */
+	private static function modify_contact_form_blocks_recursive( $blocks, $new_attr ) {
+		foreach ( $blocks as &$block ) {
+			// Check if this is a contact form block.
+			if ( 'jetpack/contact-form' === $block['blockName'] ) {
+				// Merge new attributes with existing ones.
+				$block['attrs'] = array_merge(
+					$block['attrs'] ?? array(),
+					$new_attr
 				);
-			},
-			$content
-		);
+			}
+
+			// Recursively process inner blocks.
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$block['innerBlocks'] = self::modify_contact_form_blocks_recursive(
+					$block['innerBlocks'],
+					$new_attr
+				);
+			}
+		}
+
+		return $blocks;
 	}
 
 	/**
@@ -444,7 +466,7 @@ class Util {
 				/* translators: 1: Site title; 2: post title. Used to craft the export filename, eg "MySite - Jetpack Form Responses - Contact" */
 				__( '%1$s - Jetpack Form Responses - %2$s', 'jetpack-forms' ),
 				sanitize_file_name( get_bloginfo( 'name' ) ),
-				sanitize_file_name( $source )
+				sanitize_file_name( html_entity_decode( $source, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) )
 			);
 	}
 }

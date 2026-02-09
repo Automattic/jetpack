@@ -57,7 +57,6 @@
 	"extra": {
 		"mirror-repo": "Automattic/paypal-payment-buttons",
 		"release-branch-prefix": "paypal-payment-buttons",
-		"beta-plugin-slug": "paypal-payment-buttons",
 		"autorelease": true,
 		"autotagger": true,
 		"wp-plugin-slug": "paypal-payment-buttons"
@@ -68,6 +67,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_paypal_payment_buttonsⓥ0_3_1"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_paypal_payment_buttonsⓥ0_3_2"
 	}
 }

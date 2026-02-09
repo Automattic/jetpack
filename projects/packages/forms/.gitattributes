@@ -9,6 +9,7 @@ package.json      export-ignore
 /src/**/*.min.css production-include
 /src/**/*.rtl.css production-include
 dist/**           production-include
+build/**          production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.

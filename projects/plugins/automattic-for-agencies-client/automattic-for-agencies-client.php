@@ -4,7 +4,7 @@
  * Plugin Name: Automattic for Agencies Client
  * Plugin URI: https://wordpress.org/plugins/automattic-for-agencies-client
  * Description: Securely connect your clients’ sites to the Automattic for Agencies Sites Dashboard. Manage your sites from one place and see what needs attention.
- * Version: 0.7.1
+ * Version: 0.7.2
  * Author: Automattic
  * Author URI: https://automattic.com/for-agencies/
  * License: GPLv2 or later
@@ -25,8 +25,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
 if ( ! defined( 'ABSPATH' ) ) {

@@ -27,7 +27,7 @@ Once the installation is complete, continue onto the section [Running Jetpack lo
 Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to manage installations and [`nvm`](https://github.com/nvm-sh/nvm/) to manage Node.js versions. If you don't already have those installed, you can do so by copy/pasting each of the following commands and running them in your terminal:
 
 - Homebrew: `bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-- nvm: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash`
+- nvm: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash` (see [nvm releases](https://github.com/nvm-sh/nvm/releases) for the latest version)
 
 The Jetpack Monorepo requires various software to be installed on your machine.
 
@@ -56,8 +56,8 @@ tools/check-development-environment.sh
 
 Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development:
 
-- All green `YES` or `OK` messages mean you're ready to start
-- Red `NO` messages mean something is wrong or missing, and a link will be provided to help you with a fix.
+- All green `ok` or `yes` messages mean you're ready to start
+- Red `no` or similar messages mean something is wrong or missing, and a link will be provided to help you with a fix.
 - Yellow messages indicate something optional is broken or missing.
 
 ## Running Jetpack locally

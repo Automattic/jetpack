@@ -1,0 +1,233 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Sparkline/API Reference" />
+
+# Sparkline API Reference
+
+## Overview
+
+Sparkline is a preconfigured variant of [LineChart](?path=/docs/js-packages-charts-library-charts-line-chart--docs) optimized for compact, inline visualizations. It provides a simplified API while using LineChart's rendering engine internally.
+
+## Sparkline
+
+Main component for rendering minimal trend visualizations.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `number[]` | - | **Required.** Array of numeric values to plot |
+| `width` | `number` | `100` | Width of the sparkline in pixels |
+| `height` | `number` | `40` | Height of the sparkline in pixels |
+| `size` | `number` | - | Size for responsive variant (equivalent to width for square charts) |
+| `color` | `string` | theme color | Color for the line stroke (hex or CSS color) |
+| `strokeWidth` | `number` | `1.5` | Line stroke width in pixels |
+| `withGradientFill` | `boolean` | `true` | Whether to render the gradient fill beneath the line |
+| `gradient` | `GradientConfig` | auto | Gradient configuration for area fill |
+| `className` | `string` | - | Additional CSS class name |
+| `chartId` | `string` | - | Custom chart identifier for unique gradient/element identification |
+| `margin` | `object` | `{2,2,2,2}` | Margin around the chart |
+| `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a rising effect where the line scales up from the bottom. Automatically respects user's `prefers-reduced-motion` system setting |
+| `aspectRatio` | `number` | - | Aspect ratio for responsive charts. When omitted, fills parent height (responsive variant only) |
+| `maxWidth` | `number` | `1200` | Maximum width for responsive charts (responsive variant only) |
+| `resizeDebounceTime` | `number` | `300` | Debounce time for resize events in ms (responsive variant only) |
+
+## Types
+
+### SparklineDataPoint
+
+```typescript
+type SparklineDataPoint = number;
+```
+
+Simple numeric value for plotting.
+
+### GradientConfig
+
+```typescript
+type GradientConfig = {
+	/** Start color for gradient (defaults to color prop) */
+	from?: string;
+	/** End color for gradient (defaults to theme backgroundColor) */
+	to?: string;
+	/** Start opacity (0-1), defaults to 0.5 */
+	fromOpacity?: number;
+	/** End opacity (0-1), defaults to 0.0 */
+	toOpacity?: number;
+};
+```
+
+### SparklineProps
+
+```typescript
+interface SparklineProps {
+	/** Array of numeric values to plot */
+	data: SparklineDataPoint[];
+	/** Width of the sparkline in pixels */
+	width?: number;
+	/** Height of the sparkline in pixels */
+	height?: number;
+	/** Size (used by responsive variant, equivalent to width for square charts) */
+	size?: number;
+	/** Color for the line stroke (hex or CSS color) */
+	color?: string;
+	/** Line stroke width in pixels */
+	strokeWidth?: number;
+	/** Whether to render the gradient fill beneath the line */
+	withGradientFill?: boolean;
+	/** Gradient configuration for area fill */
+	gradient?: GradientConfig;
+	/** Additional CSS class name */
+	className?: string;
+	/** Chart ID for unique gradient/element identification */
+	chartId?: string;
+	/** Margin around the chart */
+	margin?: {
+		top?: number;
+		right?: number;
+		bottom?: number;
+		left?: number;
+	};
+}
+```
+
+## Exports
+
+### Default Export
+
+```typescript
+import { Sparkline } from '@automattic/charts';
+```
+
+The default export is the **responsive variant** that automatically adjusts to container width.
+
+### Named Exports
+
+```typescript
+import { SparklineUnresponsive } from '@automattic/charts/sparkline';
+```
+
+**SparklineUnresponsive**: Fixed-size variant without responsive behavior. Use this when you want explicit width/height control without automatic resizing.
+
+## CSS Classes
+
+The component uses BEM-style CSS classes for styling:
+
+| Class | Applied When | Description |
+| ----- | ------------ | ----------- |
+| `.sparkline` | Always | Base class applied to all sparklines |
+| `.sparkline--empty` | `data.length === 0` | Applied when data is empty. Use for custom empty state styling |
+| `.sparkline--single-point` | `data.length === 1` | Applied when rendering a single data point as a circle |
+
+### Custom Styling Example
+
+```css
+.sparkline--empty {
+	background: rgba(0, 0, 0, 0.02);
+	border: 1px dashed rgba(0, 0, 0, 0.1);
+	border-radius: 4px;
+}
+
+.sparkline {
+	/* Custom styles for all sparklines */
+}
+```
+
+## Responsive Behavior
+
+The default `Sparkline` export includes responsive sizing. By default, it **fills its parent container's dimensions**:
+
+```typescript
+// Fill parent container (default) - parent needs explicit height
+<div style={{ width: '200px', height: '60px' }}>
+	<Sparkline data={data} />
+</div>
+
+// Use aspect ratio - height calculated from width
+<div style={{ width: '100%', maxWidth: '200px' }}>
+	<Sparkline data={data} aspectRatio={0.3} />
+</div>
+
+// Fixed size (named export)
+<SparklineUnresponsive data={data} width={120} height={48} />
+```
+
+**Responsive Props:**
+- `aspectRatio`: Height as a fraction of width (e.g., 0.3 = 30% height). When omitted, fills parent height.
+- `maxWidth`: Maximum width constraint (default: 1200)
+- `resizeDebounceTime`: Debounce delay for resize events (default: 300ms)
+
+## Edge Case Handling
+
+| Scenario | Behavior |
+| -------- | -------- |
+| Empty data (`[]`) | Renders empty div with `sparkline--empty` class |
+| Single point (`[42]`) | Renders a circle at the center |
+| Two points (`[10, 20]`) | Renders minimal line between points |
+| Negative values | Fully supported, chart scales automatically |
+| Flat line (all same) | Renders horizontal line |
+| Missing data prop | Treated as empty array |
+
+## Theme Integration
+
+Sparklines use the global charts theme when available:
+
+```typescript
+import { GlobalChartsProvider } from '@automattic/charts';
+
+<GlobalChartsProvider theme={customTheme}>
+	<Sparkline data={data} />
+</GlobalChartsProvider>
+```
+
+**Theme Properties Used:**
+- `colors[0]`: Default line color (when `color` prop not provided)
+- `backgroundColor`: Default gradient `to` color
+
+## TypeScript Usage
+
+Full TypeScript support with exported types:
+
+```typescript
+import type {
+	SparklineProps,
+	GradientConfig,
+	SparklineDataPoint
+} from '@automattic/charts/sparkline';
+
+const config: GradientConfig = {
+	from: '#4CAF50',
+	to: '#ffffff',
+	fromOpacity: 0.8,
+	toOpacity: 0.1,
+};
+
+const data: SparklineDataPoint[] = [10, 15, 12, 18, 22, 25];
+
+<Sparkline data={data} gradient={config} />
+```
+
+## Relationship to LineChart
+
+Sparkline is built on LineChart with the following preconfigured settings:
+
+```typescript
+// Sparkline internally uses LineChart like this:
+<LineChart
+	data={transformedSeriesData}  // number[] → SeriesData[]
+	gridVisibility="none"
+	options={{
+		axis: {
+			x: { display: false },
+			y: { display: false }
+		}
+	}}
+	showLegend={false}
+	withTooltips={false}
+	withGradientFill={true}
+	curveType="monotone"
+	margin={{ top: 2, right: 2, bottom: 2, left: 2 }}
+/>
+```
+
+For more control over rendering, use LineChart directly with these props. See [LineChart API Reference](?path=/docs/js-packages-charts-library-charts-line-chart-api-reference--docs) for full documentation.

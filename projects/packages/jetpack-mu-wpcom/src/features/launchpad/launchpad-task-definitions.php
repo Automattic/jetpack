@@ -1107,7 +1107,7 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
 						array(
 							'feature' => 'launchpad',
 							'message' => 'Launchpad failed to add listener callback.',
-							'extra'   => wp_json_encode( $data ),
+							'extra'   => wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
 						)
 					);
 				}

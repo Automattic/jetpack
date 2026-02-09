@@ -1,7 +1,7 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as [FeatureName]Stories from './[feature-name].stories';
 
-<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
+<Meta title="JS Packages/Charts Library/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
 
 # [Component] [Feature Name]
 
@@ -30,7 +30,7 @@ The [Component] component supports [feature description], providing [benefits an
 
 ## API Reference
 
-For detailed information about component props, types, and method signatures, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-[feature]-api-reference--docs).
+For detailed information about component props, types, and method signatures, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-[feature]-api-reference--docs).
 
 ## Basic Usage
 
@@ -59,7 +59,7 @@ For detailed information about component props, types, and method signatures, se
 
 ### Optional Props
 
-For detailed information about all optional props, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-[feature]-api-reference--docs).
+For detailed information about all optional props, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-[feature]-api-reference--docs).
 
 ## [Feature] Types
 
@@ -133,9 +133,48 @@ Controls [what this affects]:
 
 - `[property]`: [Description]
 
-### Theme Integration
+## Theming Integration
 
-[Explanation of how feature integrates with chart themes and any theme-specific styling].
+[Component]s integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, [Component], type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		[otherThemeProperties]: [values],
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<[Component] data={data} />
+	</GlobalChartsProvider>` }
+/>
+
+## Animation
+
+[Only include this section if the chart component supports animation. Remove this section entirely if animation is not supported.]
+
+The [Component] component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ [FeatureName]Stories.Animation } />
+
+<Source
+	language="tsx"
+	code={ `<[Component]
+		data={ data }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a [describe the animation effect, e.g., "radial wipe reveal effect" for pie charts, or the specific animation type for the chart]
+- **Duration**: [Animation duration in milliseconds, e.g., "1000ms (1 second)"]
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.
 
 ## Custom [Feature Name]
 

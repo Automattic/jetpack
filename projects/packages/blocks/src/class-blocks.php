@@ -75,11 +75,26 @@ class Blocks {
 		if ( ! self::is_standalone_block() ) {
 			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 			if ( ! empty( $args['plan_check'] ) ) {
+				$existing_attributes = array();
+				$gated_blocks        = array(
+					'jetpack/donations',
+					'jetpack/payment-buttons',
+					'jetpack/paypal-payment-buttons',
+				);
+				if ( in_array( $slug, $gated_blocks, true ) &&
+					is_string( $block_type ) &&
+					file_exists( $block_type )
+				) {
+					$metadata            = self::get_block_metadata( $block_type );
+					$existing_attributes = $metadata['attributes'] ?? array();
+				}
+
 				// Set up attributes.
 				if ( ! isset( $args['attributes'] ) ) {
 					$args['attributes'] = array();
 				}
 				$args['attributes'] = array_merge(
+					$existing_attributes,
 					$args['attributes'],
 					array(
 						// Indicates that this block should display an upgrade nudge on the frontend when applicable.

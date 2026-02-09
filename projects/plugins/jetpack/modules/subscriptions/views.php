@@ -748,18 +748,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_logged_in = ! empty( $instance['subscribe_logged_in'] ) ? esc_attr( stripslashes( $instance['subscribe_logged_in'] ) ) : '';
 			$subscribe_button    = ! empty( $instance['subscribe_button'] ) ? esc_attr( stripslashes( $instance['subscribe_button'] ) ) : '';
 			$subscribers_total   = self::fetch_subscriber_count();
-		}
-
-		if ( self::is_jetpack() ) {
-			$title                 = ! empty( $instance['title'] ) ? stripslashes( $instance['title'] ) : '';
-			$subscribe_text        = ! empty( $instance['subscribe_text'] ) ? stripslashes( $instance['subscribe_text'] ) : '';
-			$subscribe_placeholder = ! empty( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
-			$subscribe_button      = ! empty( $instance['subscribe_button'] ) ? stripslashes( $instance['subscribe_button'] ) : '';
-			$success_message       = ! empty( $instance['success_message'] ) ? stripslashes( $instance['success_message'] ) : '';
-			$subscribers_total     = self::fetch_subscriber_count();
-		}
-
-		if ( self::is_wpcom() ) :
 			?>
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
@@ -813,9 +801,15 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				</label>
 			</p>
 			<?php
-		endif;
+		}
 
-		if ( self::is_jetpack() ) :
+		if ( self::is_jetpack() ) {
+			$title                 = ! empty( $instance['title'] ) ? stripslashes( $instance['title'] ) : '';
+			$subscribe_text        = ! empty( $instance['subscribe_text'] ) ? stripslashes( $instance['subscribe_text'] ) : '';
+			$subscribe_placeholder = ! empty( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
+			$subscribe_button      = ! empty( $instance['subscribe_button'] ) ? stripslashes( $instance['subscribe_button'] ) : '';
+			$success_message       = ! empty( $instance['success_message'] ) ? stripslashes( $instance['success_message'] ) : '';
+			$subscribers_total     = self::fetch_subscriber_count();
 			?>
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
@@ -869,7 +863,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				</label>
 			</p>
 			<?php
-		endif;
+		}
 	}
 }
 
