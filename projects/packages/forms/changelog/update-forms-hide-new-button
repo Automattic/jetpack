@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Forms: hide 'new form' button for form response page at new wp-build dashboard.
+Dashboard: Hide "New form" button on form responses page.
