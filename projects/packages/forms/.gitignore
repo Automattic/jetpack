@@ -11,6 +11,3 @@ wordpress/
 
 # wp-build generated entry files
 /routes/**/.content-entry.js
-
-# Icon extraction generated runner
-/tools/.extract-icons-runner.js
