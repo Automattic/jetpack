@@ -134,6 +134,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		 *                            - marketing_redirect_slug (string|null) : Redirect slug for marketing links, or null.
 		 *                            - title (string)                 : Default UI title for the integration.
 		 *                            - subtitle (string)              : Default UI subtitle/description for the integration.
+		 *                            - active_tooltip (string)        : Tooltip copy for when the integration is active/connected.
 		 *                            - enabled_by_default (bool)      : Whether the integration is enabled by default on new forms.
 		 *                            - icon_url (string|null)         : Absolute URL to an icon to display in the UI.
 		 */
