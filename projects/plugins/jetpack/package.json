@@ -126,7 +126,7 @@
 		"social-logos": "workspace:*",
 		"swiper": "11.2.10",
 		"tus-js-client": "4.2.3",
-		"webpack": "5.101.3",
+		"webpack": "5.104.1",
 		"webpack-cli": "6.0.1"
 	},
 	"devDependencies": {
