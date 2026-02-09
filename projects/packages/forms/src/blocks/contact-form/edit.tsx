@@ -209,20 +209,16 @@ function JetpackContactFormEdit( {
 	// Older forms will have a customThankyou attribute set, but not a confirmationType attribute
 	// and not a disableSummary attribute, so we need to set it here.
 	useEffect( () => {
-		if ( confirmationType ) {
-			return;
-		}
-
-		if ( customThankyou === 'redirect' ) {
+		// Migrate redirect setting from deprecated customThankyou attribute
+		if ( customThankyou === 'redirect' && confirmationType !== 'redirect' ) {
 			setAttributes( { confirmationType: 'redirect' } );
-		} else {
-			setAttributes( { confirmationType: 'text' } );
-
-			if ( [ 'noSummary', 'message' ].includes( customThankyou ) ) {
-				setAttributes( { disableSummary: true } );
-			}
 		}
-	}, [ confirmationType, customThankyou, setAttributes ] );
+
+		// Migrate disableSummary from deprecated customThankyou attribute
+		if ( [ 'noSummary', 'message' ].includes( customThankyou ) && ! disableSummary ) {
+			setAttributes( { disableSummary: true } );
+		}
+	}, [ confirmationType, customThankyou, disableSummary, setAttributes ] );
 
 	const steps = useFormSteps( clientId );
 

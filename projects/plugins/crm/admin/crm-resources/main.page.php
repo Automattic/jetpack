@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Main Hub Page file: This is the main file which renders the Resources view
  * Jetpack CRM - https://jetpackcrm.com
  */

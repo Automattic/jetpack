@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -16,160 +16,147 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
  */
 class Woo_Sync_Contact_Tabs {
 
-    /**
-     * The single instance of the class.
-     */
-    protected static $_instance = null;
+	/**
+	 * The single instance of the class.
+	 */
+	protected static $_instance = null;
 
-    /**
-     * Setup WooSync Contact Tabs
-     * Note: This will effectively fire after core settings and modules loaded
-     * ... effectively on tail end of `init`
-     */
+	/**
+	 * Setup WooSync Contact Tabs
+	 * Note: This will effectively fire after core settings and modules loaded
+	 * ... effectively on tail end of `init`
+	 */
 	public function __construct() {
 
-        // Initialise Hooks
-        $this->init_hooks();
+		// Initialise Hooks
+		$this->init_hooks();
+	}
 
-    }
-        
+	/**
+	 * Main Class Instance.
+	 *
+	 * Ensures only one instance of Woo_Sync_Contact_Tabs is loaded or can be loaded.
+	 *
+	 * @since 2.0
+	 * @static
+	 * @see
+	 * @return Woo_Sync_Contact_Tabs main instance
+	 */
+	public static function instance() {
+		if ( self::$_instance === null ) {
+			self::$_instance = new self();
+		}
+		return self::$_instance;
+	}
 
-    /**
-     * Main Class Instance.
-     *
-     * Ensures only one instance of Woo_Sync_Contact_Tabs is loaded or can be loaded.
-     *
-     * @since 2.0
-     * @static
-     * @see 
-     * @return Woo_Sync_Contact_Tabs main instance
-     */
-    public static function instance(){
-        if ( is_null( self::$_instance ) ) {
-            self::$_instance = new self();
-        }
-        return self::$_instance;
-    }
-
-
-
-    /**
-     * Initialise Hooks
-     */
+	/**
+	 * Initialise Hooks
+	 */
 	private function init_hooks() {
 
-        // add in tabs
-        add_filter( 'jetpack-crm-contact-vital-tabs', array( $this, 'append_info_tabs' ) , 10, 2 );
+		// add in tabs
+		add_filter( 'jetpack-crm-contact-vital-tabs', array( $this, 'append_info_tabs' ), 10, 2 );
+	}
 
+	/**
+	 * Wire in ant applicable tabs (subs, memberships, bookings)
+	 */
+	public function append_info_tabs( $array, $id ) {
 
-    }
+		if ( ! is_array( $array ) ) {
+			$array = array();
+		}
 
+		// Woo Subscriptions
+		if ( function_exists( 'wcs_get_users_subscriptions' ) ) {
+			$array[] = array(
+				'id'      => 'woocommerce-subscriptions-tab',
+				'name'    => __( 'Subscriptions', 'zero-bs-crm' ),
+				'content' => $this->generate_subscriptions_tab_html( $id ),
+			);
+		}
 
+		// Woo Memberships
+		if ( function_exists( 'wc_memberships_get_user_memberships' ) ) {
+			$array[] = array(
+				'id'      => 'woocommerce-memberships-tab',
+				'name'    => __( 'Memberships', 'zero-bs-crm' ),
+				'content' => $this->generate_memberships_tab_html( $id ),
+			);
+		}
 
-    /**
-     * Wire in ant applicable tabs (subs, memberships, bookings)
-     */
-    public function append_info_tabs( $array, $id ) {
+		// Woo Bookings
+		if ( class_exists( 'WC_Bookings_Controller' ) ) {
+			$array[] = array(
+				'id'      => 'woocommerce-bookings-tab',
+				'name'    => __( 'Upcoming Bookings', 'zero-bs-crm' ),
+				'content' => $this->generate_bookings_tab_html( $id ),
+			);
+		}
 
-        if ( !is_array($array) ){
-            $array = array();
-        }
+		return $array;
+	}
 
-        // Woo Subscriptions
-        if ( function_exists( 'wcs_get_users_subscriptions' ) ){
-            $array[] = array(
-                'id' => 'woocommerce-subscriptions-tab',
-                'name'    => __( 'Subscriptions', 'zero-bs-crm' ),
-                'content' => $this->generate_subscriptions_tab_html( $id ),
-                );
-        }
+	/**
+	 * Draw the Woo Bookings Contact Vitals tab
+	 */
+	private function generate_bookings_tab_html( $object_id = -1 ) {
 
-        // Woo Memberships
-        if ( function_exists( 'wc_memberships_get_user_memberships' ) ){
-            $array[] = array(
-                'id' => 'woocommerce-memberships-tab',
-                'name' => __('Memberships', 'zero-bs-crm'),
-                'content' => $this->generate_memberships_tab_html( $id )
-                );
-        }
+		global $zbs;
 
-        // Woo Bookings
-        if ( class_exists( 'WC_Bookings_Controller' ) ){
-            $array[] = array(
-                'id' => 'woocommerce-bookings-tab',
-                'name' => __('Upcoming Bookings', 'zero-bs-crm'),
-                'content' => $this->generate_bookings_tab_html( $id )
-                );
-        }
+		// return html
+		$html = '';
 
-        return $array;
+		// retrieve bookings
+		$bookings = $zbs->modules->woosync->get_future_woo_bookings_for_object( $object_id );
 
-    }
+		if ( count( $bookings ) > 0 ) {
 
+			$html             .= '<div class="table-wrap woo-sync-book">';
+				$html         .= '<table class="ui single line table">';
+					$html     .= '<thead>';
+					$html     .= '<tr>';
+						$html .= '<th scope="col" class="booking-id">' . __( 'ID', 'woocommerce-bookings' ) . '</th>';
+						$html .= '<th scope="col" class="booked-product">' . __( 'Booked', 'woocommerce-bookings' ) . '</th>';
+						$html .= '<th scope="col" class="booking-start-date">' . __( 'Start Date', 'woocommerce-bookings' ) . '</th>';
+						$html .= '<th scope="col" class="booking-end-date">' . __( 'End Date', 'woocommerce-bookings' ) . '</th>';
+						$html .= '<th scope="col" class="booking-status">' . __( 'Status', 'woocommerce-bookings' ) . '</th>';
+					$html     .= '</tr>';
+				$html         .= '</thead>';
+				$html         .= '<tbody>';
+			foreach ( $bookings as $booking ) {
 
-    /**
-     * Draw the Woo Bookings Contact Vitals tab
-     */
-    private function generate_bookings_tab_html( $object_id = -1 ){
+					$html     .= '<tr>';
+						$html .= '<td class="booking-id">' . esc_html( $booking->get_id() ) . '</td>';
+						$html .= '<td class="booked-product">';
+				if ( $booking->get_product() && $booking->get_product()->is_type( 'booking' ) ) :
+					$html .= '<a href="' . esc_url( get_permalink( $booking->get_product()->get_id() ) ) . '">';
+					$html .= esc_html( $booking->get_product()->get_title() );
+					$html .= '</a>';
+							endif;
+						$html .= '</td>';
 
-        global $zbs;
+						$status = esc_html( wc_bookings_get_status_label( $booking->get_status() ) );
 
-        // return html
-        $html = '';
+						$html .= '<td class="booking-start-date">' . esc_html( $booking->get_start_date() ) . '</td>';
+						$html .= '<td class="booking-end-date">' . esc_html( $booking->get_end_date() ) . '</td>';
+						$html .= '<td><span class="ui label ' . strtolower( $status ) . '">' . $status . '</span></td>';
 
-        // retrieve bookings
-        $bookings = $zbs->modules->woosync->get_future_woo_bookings_for_object( $object_id );
+					$html .= '</tr>';
+			}
 
-        if ( count( $bookings ) > 0 ){
+					$html .= '</tbody>';
+				$html     .= '</table>';
+			$html         .= '</div>';
 
-            $html .=  '<div class="table-wrap woo-sync-book">';
-                $html .= '<table class="ui single line table">';
-                    $html .= '<thead>';
-                    $html .= '<tr>';
-                        $html .= '<th scope="col" class="booking-id">' . __( 'ID', 'woocommerce-bookings' ) . '</th>';
-                        $html .= '<th scope="col" class="booked-product">' . __( 'Booked', 'woocommerce-bookings' ) . '</th>';
-                        $html .= '<th scope="col" class="booking-start-date">' . __( 'Start Date', 'woocommerce-bookings') . '</th>';
-                        $html .= '<th scope="col" class="booking-end-date">' . __( 'End Date', 'woocommerce-bookings' ) . '</th>';
-                        $html .= '<th scope="col" class="booking-status">' .  __( 'Status', 'woocommerce-bookings' )  . '</th>';
-                    $html .= '</tr>';
-                $html .= '</thead>';
-                $html .= '<tbody>';
-                foreach ( $bookings as $booking ){
+		} else {
 
-                        $html .= '<tr>';
-                            $html .= '<td class="booking-id">' . esc_html( $booking->get_id() ) . '</td>';
-                            $html .= '<td class="booked-product">';
-                                if ( $booking->get_product() && $booking->get_product()->is_type( 'booking' ) ) : 
-                                $html .= '<a href="' . esc_url( get_permalink( $booking->get_product()->get_id() ) ) . '">';
-                                    $html .=  esc_html( $booking->get_product()->get_title() );
-                                $html .= '</a>';
-                                endif; 
-                            $html .= '</td>';
+			$html .= '<div class="ui message info blue"><i class="ui icon info circle"></i>' . __( 'This contact does not have any upcoming WooCommerce Bookings.', 'zero-bs-crm' ) . '</div>';
 
-                            
-                            $status = esc_html( wc_bookings_get_status_label( $booking->get_status() ) );
+		}
 
-                            $html .= '<td class="booking-start-date">' . esc_html( $booking->get_start_date() ) . '</td>';
-                            $html .= '<td class="booking-end-date">' . esc_html( $booking->get_end_date() ) . '</td>';
-                            $html .=  '<td><span class="ui label ' . strtolower( $status ) . '">'.$status.'</span></td>';
-      
-                        $html .= '</tr>';
-                    }
-
-                    $html .= '</tbody>';
-                $html .= '</table>';
-            $html .= '</div>';
-
-        } else {
-
-            $html .=  '<div class="ui message info blue"><i class="ui icon info circle"></i>' . __( "This contact does not have any upcoming WooCommerce Bookings.", 'zero-bs-crm' ) . '</div>';
-        
-        }
-
-        return $html;
-    }
-    
-
+		return $html;
+	}
 
 	/**
 	 * Returns HTML that can be used to render the Subscriptions Table.
@@ -190,7 +177,7 @@ class Woo_Sync_Contact_Tabs {
 			return '<div class="ui message info blue"><i class="ui icon info circle"></i>' . __( 'This contact does not have any WooCommerce Subscriptions yet.', 'zero-bs-crm' ) . '</div>';
 		}
 
-		$html = '';
+		$html  = '';
 		$html .= '<div class="table-wrap woo-sync-subs">';
 		$html .= '<table class="ui single line table">';
 		$html .= '<thead><tr>';
@@ -228,9 +215,7 @@ class Woo_Sync_Contact_Tabs {
 		$html .= '</div>';
 
 		return $html;
-
 	}
-
 
 	/**
 	 * Generate HTML for memberships contact vitals tab
@@ -242,12 +227,12 @@ class Woo_Sync_Contact_Tabs {
 		if ( $data['message'] === 'notfound' || count( $data['memberships'] ) <= 0 ) {
 
 			return '<div class="ui message info blue"><i class="ui icon info circle"></i>' . __( 'This contact does not have any WooCommerce Memberships yet.', 'zero-bs-crm' ) . '</div>';
-		
+
 		}
 
 		$memberships = $data['memberships'];
 
-		$html = '';
+		$html  = '';
 		$html .= '<div class="table-wrap woo-sync-mem">';
 		$html .= '<table class="ui single line table">';
 		$html .= '<thead><tr>';
@@ -298,59 +283,56 @@ class Woo_Sync_Contact_Tabs {
 		return $html;
 	}
 
+	/**
+	 * Helper to display membership statuses
+	 */
+	private function display_membership_status( $status = '' ) {
 
-    /**
-     * Helper to display membership statuses
-     */
-    private function display_membership_status( $status = '' ){
+		$woocommerce_statuses = array(
+			'wcm-active'               => __( 'active', 'zero-bs-crm' ),
+			'wcm-complimentary'        => __( 'complimentary', 'zero-bs-crm' ),
+			'wcm-pending'              => __( 'pending', 'zero-bs-crm' ),
+			'wcm-delayed'              => __( 'delayed', 'zero-bs-crm' ),
+			'wcm-pending-cancelletion' => __( 'pending cancellation', 'zero-bs-crm' ),
+			'wcm-paused'               => __( 'paused', 'zero-bs-crm' ),
+			'wcm-expired'              => __( 'expired', 'zero-bs-crm' ),
+			'wcm-cancelled'            => __( 'cancelled', 'zero-bs-crm' ),
+		);
 
-        $woocommerce_statuses = array(
-            'wcm-active'                => __('active', 'zero-bs-crm'),
-            'wcm-complimentary'         => __('complimentary', 'zero-bs-crm'),
-            'wcm-pending'               => __('pending', 'zero-bs-crm'),
-            'wcm-delayed'               => __('delayed', 'zero-bs-crm'),
-            'wcm-pending-cancelletion'  => __('pending cancellation', 'zero-bs-crm'),
-            'wcm-paused'                => __('paused', 'zero-bs-crm'),
-            'wcm-expired'               => __('expired', 'zero-bs-crm'),
-            'wcm-cancelled'             => __('cancelled', 'zero-bs-crm')
-        );
+		$display_status = $status;
 
-        $display_status = $status;
+		if ( array_key_exists( $status, $woocommerce_statuses ) ) {
 
-        if ( array_key_exists( $status, $woocommerce_statuses ) ){
+			$display_status = $woocommerce_statuses[ $status ];
 
-            $display_status = $woocommerce_statuses[$status];
+		}
 
-        }
+		return $display_status;
+	}
 
-        return $display_status;
+	/**
+	 * Retrieves memberships for a contact
+	 */
+	private function get_contact_memberships( $object_id = -1 ) {
 
-    }
+		$wp_id = zeroBS_getCustomerWPID( $object_id );
 
+		if ( $wp_id > 0 ) {
 
-    /**
-     * Retrieves memberships for a contact
-     */
-    private function get_contact_memberships( $object_id = -1 ){
+			return array(
+				'message'     => 'success',
+				'memberships' => wc_memberships_get_user_memberships( $wp_id ),
+			);
 
-        $wp_id = zeroBS_getCustomerWPID( $object_id );
+		} else {
 
-        if ( $wp_id > 0 ){
+			return array(
+				'message'     => 'notfound',
+				'memberships' => array(),
+			);
 
-            return array(
-                'message' => 'success',
-                'memberships' => wc_memberships_get_user_memberships( $wp_id )
-            );
-
-        } else {
-
-            return array(
-                'message' => 'notfound',
-                'memberships' => array()
-            );
-
-        }
-    }
+		}
+	}
 
 	/**
 	 * Retrieves any Woo Subscriptions against a contact

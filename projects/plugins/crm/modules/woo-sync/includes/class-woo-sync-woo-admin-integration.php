@@ -1,5 +1,5 @@
 <?php
-/*!
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -41,7 +41,7 @@ class Woo_Sync_Woo_Admin_Integration {
 	 * @return Woo_Sync_Woo_Admin_Integration main instance
 	 */
 	public static function instance() {
-		if ( is_null( self::$_instance ) ) {
+		if ( self::$_instance === null ) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
