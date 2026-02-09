@@ -140,6 +140,7 @@ server.on( 'request', async ( req, res ) => {
 		} );
 
 		const onclose = () => {
+			console.log( '!![*] HTTP client closed.' );
 			http2Client = null;
 		};
 
@@ -211,7 +212,7 @@ server.on( 'request', async ( req, res ) => {
 		console.log( `>>[${ reqid }] date: ${ now }` );
 		console.log( `>>[${ reqid }] content-type: text/plain` );
 		/**/
-		res.writeHead( 502, 'Bad Gateway', {
+		res.writeHead( 502, {
 			date: now,
 			'content-type': 'text/plain',
 		} );
