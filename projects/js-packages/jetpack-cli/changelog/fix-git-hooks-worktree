@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+initHooks: resolve hooks directory correctly in git worktrees.

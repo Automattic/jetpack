@@ -150,10 +150,22 @@ const huskyHookExists = ( monorepoRoot, hookName ) => {
  * @throws {Error} If hook installation fails
  */
 const initHooks = monorepoRoot => {
-	const hooksDir = resolve( monorepoRoot, '.git/hooks' );
+	// Use git rev-parse --git-common-dir to find the hooks directory.
+	// In a regular repo this returns ".git"; in a worktree it returns the
+	// main repo's .git path. Hooks are shared across all worktrees.
+	const gitCommonDirResult = spawnSync( 'git', [ 'rev-parse', '--git-common-dir' ], {
+		cwd: monorepoRoot,
+		encoding: 'utf8',
+	} );
+
+	if ( gitCommonDirResult.status !== 0 || ! gitCommonDirResult.stdout.trim() ) {
+		throw new Error( 'Could not determine git directory. Is this a git repository?' );
+	}
+
+	const hooksDir = resolve( monorepoRoot, gitCommonDirResult.stdout.trim(), 'hooks' );
 
 	if ( ! fs.existsSync( hooksDir ) ) {
-		throw new Error( 'Git hooks directory not found. Is this a git repository?' );
+		fs.mkdirSync( hooksDir, { recursive: true } );
 	}
 
 	console.log( chalk.blue( 'Setting up jp git hooks...' ) );
@@ -167,7 +179,7 @@ const initHooks = monorepoRoot => {
 	if ( hooksPathResult.stdout && hooksPathResult.stdout.trim() ) {
 		const currentHooksPath = hooksPathResult.stdout.trim();
 		console.log( chalk.yellow( `  Detected custom git hooks path: ${ currentHooksPath }` ) );
-		console.log( chalk.yellow( '  Resetting to use .git/hooks/ for jp hooks' ) );
+		console.log( chalk.yellow( `  Resetting to use ${ hooksDir } for jp hooks` ) );
 
 		const unsetResult = spawnSync( 'git', [ 'config', '--unset', 'core.hooksPath' ], {
 			cwd: monorepoRoot,
