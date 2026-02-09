@@ -5,7 +5,7 @@
  * Rasterize SVG block icons into PNG images for use in email templates.
  *
  * Finds all icon.svg files in src/blocks/field-* directories and converts
- * them to 48x48 PNG files (2x retina for 24x24 display) with white background,
+ * them to 48x48 PNG files (2x retina for 24x24 display) with transparent background,
  * output to src/contact-form/images/field-icons/. Uses palette mode and max
  * compression for minimal file size.
  *
@@ -51,7 +51,6 @@ if ( svgFiles.length > 0 ) {
 			// Density 144 renders the 24×24 viewBox natively at 48px (24 × 144/72),
 			// avoiding the blur from rasterizing at a smaller size and upscaling.
 			await sharp( svgBuffer, { density: 144 } )
-				.flatten( { background: '#ffffff' } )
 				.png( {
 					compressionLevel: 9,
 					palette: true,
