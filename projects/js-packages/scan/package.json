@@ -42,6 +42,7 @@
 		"@wordpress/element": "6.41.0",
 		"@wordpress/i18n": "6.14.0",
 		"@wordpress/icons": "11.8.0",
+		"@wordpress/theme": "0.7.1-next.v.20260206T143.0",
 		"@wordpress/url": "4.41.0",
 		"debug": "4.4.3"
 	},
