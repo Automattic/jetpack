@@ -19,10 +19,8 @@ import {
 import {
 	BlockLock,
 	findFormBlock,
-	getInsertionIndex,
 	shouldLockBlock,
 	getBlocksToMove,
-	isEmptyParagraph,
 } from './utils/block-utils';
 import { determineBlockNestingAction } from './utils/block-nesting-logic';
 import {
