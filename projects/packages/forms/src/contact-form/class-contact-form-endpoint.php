@@ -1270,6 +1270,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'marketingUrl'     => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
 			'enabledByDefault' => isset( $config['enabled_by_default'] ) ? (bool) $config['enabled_by_default'] : false,
 			'iconUrl'          => $icon_url ? esc_url_raw( $icon_url ) : null,
+			'activeTooltip'    => isset( $config['active_tooltip'] ) ? sanitize_text_field( $config['active_tooltip'] ) : '',
 		);
 	}
 
