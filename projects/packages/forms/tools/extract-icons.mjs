@@ -214,12 +214,17 @@ function postProcessSvg( svg ) {
 	const svgTagMatch = svg.match( /^<svg[^>]*>/ );
 	const svgTag = svgTagMatch ? svgTagMatch[ 0 ] : '';
 
-	// Ensure width/height (insert before viewBox to match conventional attribute order)
+	// Ensure width/height — derive from viewBox dimensions instead of hardcoding.
 	if ( ! svgTag.includes( 'width=' ) ) {
-		if ( ! svgTag.includes( 'viewBox=' ) ) {
+		const vbMatch = svgTag.match( /viewBox="([^"]*)"/ );
+		if ( ! vbMatch ) {
 			throw new Error( 'SVG is missing a viewBox attribute; cannot infer width/height.' );
 		}
-		svg = svg.replace( /viewBox=/, 'width="24" height="24" viewBox=' );
+		// viewBox format: "minX minY width height"
+		const vbParts = vbMatch[ 1 ].trim().split( /\s+/ );
+		const w = vbParts[ 2 ];
+		const h = vbParts[ 3 ];
+		svg = svg.replace( /viewBox=/, `width="${ w }" height="${ h }" viewBox=` );
 	}
 
 	// Ensure aria-hidden and focusable for accessibility
