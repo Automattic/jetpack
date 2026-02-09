@@ -30,7 +30,7 @@ export function useModalScreen() {
 		if ( isPrePublishScreen ) {
 			return _x(
 				'Confirm social sharing',
-				'Modal title for pre-publish confimation',
+				'Modal title for pre-publish confirmation',
 				'jetpack-publicize-pkg'
 			);
 		}
