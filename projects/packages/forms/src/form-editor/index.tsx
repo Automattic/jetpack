@@ -274,6 +274,7 @@ const enforceBlockNesting = () => {
 
 	// Handle dedupe-empty-paragraph case: just remove the stray paragraph and select the existing one
 	if ( action.type === 'dedupe-empty-paragraph' ) {
+		__unstableMarkNextChangeAsNotPersistent();
 		removeBlocks( [ blocksToMove[ 0 ].clientId ] );
 		selectBlock( action.existingEmptyParagraphId! );
 		return;
