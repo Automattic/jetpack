@@ -1302,8 +1302,8 @@ importers:
         specifier: 32.3.0
         version: 32.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 12.0.1-next.v.0
-        version: 12.0.1-next.v.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)
+        specifier: 12.0.1-next.v.20260206T143.0
+        version: 12.0.1-next.v.20260206T143.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/date':
         specifier: 5.41.0
         version: 5.41.0
@@ -2444,8 +2444,8 @@ importers:
         specifier: 10.41.0
         version: 10.41.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 12.0.1-next.v.0
-        version: 12.0.1-next.v.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)
+        specifier: 12.0.1-next.v.20260206T143.0
+        version: 12.0.1-next.v.20260206T143.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/dom':
         specifier: 4.41.0
         version: 4.41.0
@@ -3067,8 +3067,8 @@ importers:
         specifier: 10.41.0
         version: 10.41.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 12.0.1-next.v.0
-        version: 12.0.1-next.v.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)
+        specifier: 12.0.1-next.v.20260206T143.0
+        version: 12.0.1-next.v.20260206T143.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/date':
         specifier: 5.41.0
         version: 5.41.0
@@ -3082,8 +3082,8 @@ importers:
         specifier: 11.8.0
         version: 11.8.0(react@18.3.1)
       '@wordpress/theme':
-        specifier: 0.7.1-next.v.0
-        version: 0.7.1-next.v.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+        specifier: 0.7.1-next.v.20260206T143.0
+        version: 0.7.1-next.v.20260206T143.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/url':
         specifier: 4.41.0
         version: 4.41.0
@@ -3200,8 +3200,8 @@ importers:
         specifier: 32.3.0
         version: 32.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 12.0.1-next.v.0
-        version: 12.0.1-next.v.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)
+        specifier: 12.0.1-next.v.20260206T143.0
+        version: 12.0.1-next.v.20260206T143.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/element':
         specifier: 6.41.0
         version: 6.41.0
@@ -3509,8 +3509,8 @@ importers:
         specifier: 10.41.0
         version: 10.41.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 12.0.1-next.v.0
-        version: 12.0.1-next.v.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)
+        specifier: 12.0.1-next.v.20260206T143.0
+        version: 12.0.1-next.v.20260206T143.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/date':
         specifier: 5.41.0
         version: 5.41.0
@@ -3551,8 +3551,8 @@ importers:
         specifier: 4.41.0
         version: 4.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme':
-        specifier: 0.7.1-next.v.0
-        version: 0.7.1-next.v.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+        specifier: 0.7.1-next.v.20260206T143.0
+        version: 0.7.1-next.v.20260206T143.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/url':
         specifier: 4.41.0
         version: 4.41.0
@@ -3873,8 +3873,8 @@ importers:
         specifier: 10.41.0
         version: 10.41.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 12.0.1-next.v.0
-        version: 12.0.1-next.v.0(react@18.3.1)(stylelint@16.26.1)
+        specifier: 12.0.1-next.v.20260206T143.0
+        version: 12.0.1-next.v.20260206T143.0(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/element':
         specifier: 6.41.0
         version: 6.41.0
@@ -10570,8 +10570,8 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/dataviews@12.0.1-next.v.0':
-    resolution: {integrity: sha512-bPNL0DCKyPh9n3UCyTjk7w6EUfmAdn/D0d/h5vnoI7O/JSXrVZxLgEeJXOAhx2SEL5rgdttPZN7Yo/DnlGryNw==}
+  '@wordpress/dataviews@12.0.1-next.v.20260206T143.0':
+    resolution: {integrity: sha512-fwlXtdXThFx8b+QOGA1VnfW+W8tf4eHBM+IHCyCaGjgSjP7SUy7Nnw9L3vrd+eHJD1/cdrCKsq8KXbKoYM4BMA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
@@ -10901,17 +10901,6 @@ packages:
 
   '@wordpress/theme@0.7.0':
     resolution: {integrity: sha512-ULwLCSKYraIsv83bVH+Hm5pGFen6/0/8xOXQwxMdxeU+8kSm0cTKlpQPNvJGCmAeQb2OgFcowB/8wrUdyqW8UQ==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-      stylelint: '>=16.8.2'
-    peerDependenciesMeta:
-      stylelint:
-        optional: true
-
-  '@wordpress/theme@0.7.1-next.v.0':
-    resolution: {integrity: sha512-cgl6ioBgGcHoADvDTZTeyXG+uSbMJsByWmozkq1Zl0DLnr0x066sEjKDmEoYLEZEJbKH8e1KusZoJlwaPLC/bA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
@@ -24395,7 +24384,7 @@ snapshots:
       rememo: 4.0.2
       use-memo-one: 1.1.3(react@18.3.1)
 
-  '@wordpress/dataviews@12.0.1-next.v.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)':
+  '@wordpress/dataviews@12.0.1-next.v.20260206T143.0(@types/react@18.3.28)(react@18.3.1)(stylelint@16.26.1)':
     dependencies:
       '@ariakit/react': 0.4.22(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/base-styles': 6.17.0
@@ -24410,7 +24399,7 @@ snapshots:
       '@wordpress/keycodes': 4.41.0
       '@wordpress/primitives': 4.41.0(react@18.3.1)
       '@wordpress/private-apis': 1.41.0
-      '@wordpress/theme': 0.7.1-next.v.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+      '@wordpress/theme': 0.7.1-next.v.20260206T143.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/ui': 0.7.1-next.v.20260206T143.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/url': 4.41.0
       '@wordpress/warning': 3.41.0
@@ -24448,7 +24437,7 @@ snapshots:
       - stylelint
       - supports-color
 
-  '@wordpress/dataviews@12.0.1-next.v.0(react@18.3.1)(stylelint@16.26.1)':
+  '@wordpress/dataviews@12.0.1-next.v.20260206T143.0(react@18.3.1)(stylelint@16.26.1)':
     dependencies:
       '@ariakit/react': 0.4.22(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/base-styles': 6.17.0
@@ -24463,7 +24452,7 @@ snapshots:
       '@wordpress/keycodes': 4.41.0
       '@wordpress/primitives': 4.41.0(react@18.3.1)
       '@wordpress/private-apis': 1.41.0
-      '@wordpress/theme': 0.7.1-next.v.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+      '@wordpress/theme': 0.7.1-next.v.20260206T143.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/ui': 0.7.1-next.v.20260206T143.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/url': 4.41.0
       '@wordpress/warning': 3.41.0
@@ -25896,17 +25885,6 @@ snapshots:
       yjs: 13.6.29
 
   '@wordpress/theme@0.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)':
-    dependencies:
-      '@wordpress/element': 6.41.0
-      '@wordpress/private-apis': 1.41.0
-      colorjs.io: 0.6.1
-      memize: 2.1.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    optionalDependencies:
-      stylelint: 16.26.1
-
-  '@wordpress/theme@0.7.1-next.v.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)':
     dependencies:
       '@wordpress/element': 6.41.0
       '@wordpress/private-apis': 1.41.0
