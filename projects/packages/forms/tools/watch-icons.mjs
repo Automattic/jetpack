@@ -44,6 +44,7 @@ function run( script ) {
 			stdio: 'inherit',
 		} );
 		child.on( 'close', resolve );
+		child.on( 'error', () => resolve( 1 ) );
 	} );
 }
 
