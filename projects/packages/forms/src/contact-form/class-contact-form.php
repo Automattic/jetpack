@@ -2113,7 +2113,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$html .= '<td valign="top" style="padding: 20px 0;">';
 		if ( ! empty( $safe_label ) ) {
 			$html .= sprintf(
-				'<div style="font-size: 13px; color: #757575; line-height: 1.4; margin-bottom: 4px;">%s</div>',
+				'<div style="font-size: 13px; color: #757575; line-height: 1.4; margin-bottom: 8px;">%s</div>',
 				esc_html( $safe_label )
 			);
 		}
