@@ -84,7 +84,8 @@ class Connection_Notice {
 		// Bail if we're not trying to delete connection owner.
 $user_ids_to_delete = array();
 
-if ( isset( $_REQUEST['users'] ) ) {
+if ( isset( $_REQUEST['users'] ) && is_array( $_REQUEST['users'] ) ) {
+
     $raw_users = wp_unslash( $_REQUEST['users'] );
 
     if ( is_array( $raw_users ) ) {
