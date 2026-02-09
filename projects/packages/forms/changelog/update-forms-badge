@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: use Badge from wp-ui package in new wp-build dashboard.
