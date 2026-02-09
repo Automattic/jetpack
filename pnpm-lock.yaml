@@ -3161,6 +3161,12 @@ importers:
       moment:
         specifier: 2.30.1
         version: 2.30.1
+      newspack-colors:
+        specifier: ^1.1.0
+        version: 1.1.0
+      newspack-icons:
+        specifier: ^1.0.5
+        version: 1.0.5(react@18.3.1)
       preact:
         specifier: 10.28.2
         version: 10.28.2
@@ -10473,9 +10479,17 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
 
+  '@wordpress/element@5.35.0':
+    resolution: {integrity: sha512-puswpGcIdS+0A2g28uHriMkZqqRCmzFczue5Tk99VNtzBdehyk7Ae+DZ4xw5yT6GqYai8NTqv6MRwCB78uh5Mw==}
+    engines: {node: '>=12'}
+
   '@wordpress/element@6.37.0':
     resolution: {integrity: sha512-8+hvjtbsPX1Jz55a5uJi6o8jNOaGlAUwV55lUJsH+iE3OHA6PyE6r9atosGRRHvfXPDlKA5ckfbrtoh7h586GA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
+  '@wordpress/escape-html@2.58.0':
+    resolution: {integrity: sha512-9YJXMNfzkrhHEVP1jFEhgijbZqW8Mt3NHIMZjIQoWtBf7QE86umpYpGGBXzYC0YlpGTRGzZTBwYaqFKxjeaSgA==}
+    engines: {node: '>=12'}
 
   '@wordpress/escape-html@3.37.0':
     resolution: {integrity: sha512-hJ2yytDPaZ7Gx+Zj+1iUBzZYED+323MTFbkpydJecWA48K+cNyutEEuHPi9bzmJXirI0YSnkN5i1tZoYQPTiGQ==}
@@ -10658,6 +10672,10 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       prettier: '>=3'
+
+  '@wordpress/primitives@3.56.0':
+    resolution: {integrity: sha512-NXBq1ODjl6inMWx/l7KCbATcjdoeIOqYeL9i9alqdAfWeKx1EH9PIvKWylIkqZk7erXxCxldiRkuyjTtwjNBxw==}
+    engines: {node: '>=12'}
 
   '@wordpress/primitives@4.37.0':
     resolution: {integrity: sha512-iPpiS1tu1U5cXxVW6CQ45rqdnIc4Ev5FGyicuuaru0wboC+d2CwoNHxPFDOOpGL16yp8OfSDA13vQY3MJHw7QA==}
@@ -14710,6 +14728,14 @@ packages:
   netmask@2.0.2:
     resolution: {integrity: sha512-dBpDMdxv9Irdq66304OLfEmQ9tbNRFnFTuZiLo+bD+r332bBmMJ8GBLXklIXXgxd3+v9+KUnZaUR5PJMa75Gsg==}
     engines: {node: '>= 0.4.0'}
+
+  newspack-colors@1.1.0:
+    resolution: {integrity: sha512-2ruqLjh/xTuewgH3jREB+UdcBJ09kNVLInhe5DIhO2hZA9i1Mnv7jNrenKV/D0+Oo7a8WrUZMBYE88r/aBa8gA==}
+
+  newspack-icons@1.0.5:
+    resolution: {integrity: sha512-q6lsWTcHRV9C7JC0Bsds3VKph6wIwr2szb7F0Ol44JVpgPvsT5Yg6lTRtzXs+ne4YjxMx/UmbABl0FuRdnQnCg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
   no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
@@ -24390,6 +24416,17 @@ snapshots:
       - supports-color
       - utf-8-validate
 
+  '@wordpress/element@5.35.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@types/react': 18.3.26
+      '@types/react-dom': 18.3.7(@types/react@18.3.26)
+      '@wordpress/escape-html': 2.58.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
+      change-case: 4.1.2
+      is-plain-object: 5.0.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@wordpress/element@6.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)':
     dependencies:
       '@types/react': 18.3.26
@@ -24399,6 +24436,10 @@ snapshots:
       is-plain-object: 5.0.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  '@wordpress/escape-html@2.58.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)':
+    dependencies:
+      '@babel/runtime': 7.28.4
 
   '@wordpress/escape-html@3.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)': {}
 
@@ -25118,6 +25159,12 @@ snapshots:
   '@wordpress/prettier-config@4.37.0(wp-prettier@3.0.3)':
     dependencies:
       prettier: wp-prettier@3.0.3
+
+  '@wordpress/primitives@3.56.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@wordpress/element': 5.35.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
+      clsx: 2.1.1
 
   '@wordpress/primitives@4.37.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react@18.3.1)':
     dependencies:
@@ -30252,6 +30299,13 @@ snapshots:
   neo-async@2.6.2: {}
 
   netmask@2.0.2: {}
+
+  newspack-colors@1.1.0: {}
+
+  newspack-icons@1.0.5(react@18.3.1):
+    dependencies:
+      '@wordpress/primitives': 3.56.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
+      react: 18.3.1
 
   no-case@3.0.4:
     dependencies:
