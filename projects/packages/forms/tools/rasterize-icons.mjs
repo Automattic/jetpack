@@ -48,8 +48,9 @@ if ( svgFiles.length > 0 ) {
 			const svgContent = await readFile( svgFile, 'utf8' );
 			const svgBuffer = Buffer.from( svgContent.replace( /currentColor/g, '#000' ) );
 
-			await sharp( svgBuffer, { density: 96 } )
-				.resize( 48, 48 )
+			// Density 144 renders the 24×24 viewBox natively at 48px (24 × 144/72),
+			// avoiding the blur from rasterizing at a smaller size and upscaling.
+			await sharp( svgBuffer, { density: 144 } )
 				.flatten( { background: '#ffffff' } )
 				.png( {
 					compressionLevel: 9,
