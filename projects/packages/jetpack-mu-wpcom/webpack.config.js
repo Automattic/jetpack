@@ -120,8 +120,9 @@ module.exports = async () => {
 					} ),
 
 					// Transpile @automattic/* in node_modules too.
+					// Transpile newspack-icons (ships un-transpiled JSX).
 					jetpackWebpackConfig.TranspileRule( {
-						includeNodeModules: [ '@automattic/' ],
+						includeNodeModules: [ '@automattic/', 'newspack-icons' ],
 					} ),
 
 					// Handle CSS.
