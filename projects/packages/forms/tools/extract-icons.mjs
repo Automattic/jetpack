@@ -191,7 +191,6 @@ const SELF_CLOSING_TAGS = [ 'path', 'circle', 'line', 'rect', 'ellipse', 'polygo
 /**
  * Post-process a rendered SVG string:
  * - Unwrap nested <svg> elements (safety net for Icon wrapper leaking through)
- * - Replace currentColor with #000 for standalone rendering
  * - Ensure required attributes (xmlns, width, height, aria-hidden, focusable)
  * - Convert empty element pairs to self-closing tags
  * - Format with basic indentation
@@ -205,9 +204,6 @@ function postProcessSvg( svg ) {
 	if ( nestedMatch ) {
 		svg = nestedMatch[ 1 ];
 	}
-
-	// Replace currentColor with black (won't render in standalone SVG/email)
-	svg = svg.replace( /currentColor/g, '#000' );
 
 	// Ensure xmlns
 	if ( ! svg.includes( 'xmlns=' ) ) {

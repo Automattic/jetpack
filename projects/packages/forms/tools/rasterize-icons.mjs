@@ -12,7 +12,8 @@
  * Usage: node tools/rasterize-icons.mjs
  */
 
-import { mkdir } from 'fs/promises';
+import { mkdir, readFile } from 'fs/promises';
+import { Buffer } from 'node:buffer';
 import { basename, dirname, join, relative } from 'path';
 import { glob } from 'glob';
 import sharp from 'sharp';
@@ -43,7 +44,11 @@ if ( svgFiles.length > 0 ) {
 		const relativePath = relative( formsRoot, outputFile );
 
 		try {
-			await sharp( svgFile, { density: 96 } )
+			// Replace currentColor with black — PNGs need a concrete fill value.
+			const svgContent = await readFile( svgFile, 'utf8' );
+			const svgBuffer = Buffer.from( svgContent.replace( /currentColor/g, '#000' ) );
+
+			await sharp( svgBuffer, { density: 96 } )
 				.resize( 48, 48 )
 				.flatten( { background: '#ffffff' } )
 				.png( {
