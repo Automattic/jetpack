@@ -34,6 +34,8 @@ minimumReleaseAgeExclude:
   - '@isaacs/brace-expansion@5.0.1'
   # Renovate security update: webpack@5.104.1
   - webpack@5.104.1
+  # Renovate security update: axios@1.13.5
+  - axios@1.13.5
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
