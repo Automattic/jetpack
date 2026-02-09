@@ -83,8 +83,8 @@ $template = '
 </html>
 ';
 
-// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
 // Minimal CSS for email client fixes only - all styling is inline for maximum compatibility.
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
 $style = '<style media="all" type="text/css">
 	/* Email client fixes for Outlook.com and Gmail */
 	.ExternalClass {width: 100%;}
