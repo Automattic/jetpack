@@ -13,11 +13,6 @@ use WP_Admin_Bar;
  * Add a link to the WordPress.com Reader to the admin bar.
  */
 class Reader_Link {
-	/**
-	 * Whether the class has been initialized.
-	 *
-	 * @var bool
-	 */
 	private static $initialized = false;
 
 	/**
