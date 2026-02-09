@@ -3751,10 +3751,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$html = '
-		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; margin-bottom: 24px;">
-			' . implode( '', $rows ) . '
-			<tr><td colspan="2" style="padding: 24px 0 0 0; border-bottom: 1px solid #E4E4E7; font-size: 0; line-height: 0;">&nbsp;</td></tr>
-		</table>';
+		<div class="metadata-section" style="padding: 16px 0; margin-bottom: 24px;">
+			<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" style="width: 100%;">
+				' . implode( '', $rows ) . '
+			</table>
+		</div>';
 
 		return str_replace( "\t", '', $html );
 	}
