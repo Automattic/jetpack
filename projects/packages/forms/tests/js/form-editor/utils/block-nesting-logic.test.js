@@ -461,9 +461,7 @@ describe( 'block-nesting-logic', () => {
 				const formBlock = {
 					name: 'jetpack/contact-form',
 					clientId: 'form-1',
-					innerBlocks: [
-						{ name: 'jetpack/field-email', clientId: 'email-1', innerBlocks: [] },
-					],
+					innerBlocks: [ { name: 'jetpack/field-email', clientId: 'email-1', innerBlocks: [] } ],
 				};
 
 				const blocksToMove = [
@@ -480,12 +478,10 @@ describe( 'block-nesting-logic', () => {
 				const formBlock = {
 					name: 'jetpack/contact-form',
 					clientId: 'form-1',
-					innerBlocks: [
-						{ name: 'jetpack/field-email', clientId: 'email-1', innerBlocks: [] },
-					],
+					innerBlocks: [ { name: 'jetpack/field-email', clientId: 'email-1', innerBlocks: [] } ],
 				};
 
-				const blocksToMove: unknown[] = [];
+				const blocksToMove = [];
 
 				const result = determineBlockNestingAction( formBlock, blocksToMove );
 
