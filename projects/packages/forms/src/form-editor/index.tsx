@@ -258,13 +258,18 @@ const enforceBlockNesting = () => {
 	// Determine what action to take based on form state and blocks to move
 	const action = determineBlockNestingAction( formBlock, blocksToMove );
 
-	const { replaceInnerBlocks, removeBlocks } = dispatch( 'core/block-editor' ) as {
+	const {
+		replaceInnerBlocks,
+		removeBlocks,
+		__unstableMarkNextChangeAsNotPersistent,
+	} = dispatch( 'core/block-editor' ) as {
 		replaceInnerBlocks: (
 			rootClientId: string,
 			blocks: ReturnType< typeof createBlock >[],
 			updateSelection?: boolean
 		) => void;
 		removeBlocks: ( clientIds: string[] ) => void;
+		__unstableMarkNextChangeAsNotPersistent: () => void;
 	};
 
 	const { selectBlock } = dispatch( 'core/block-editor' ) as {
@@ -302,9 +307,11 @@ const enforceBlockNesting = () => {
 
 	// First remove the original blocks from root level
 	const clientIdsToRemove = blocksToMove.map( block => block.clientId );
+	__unstableMarkNextChangeAsNotPersistent();
 	removeBlocks( clientIdsToRemove );
 
 	// Then use replaceInnerBlocks to set the form's inner blocks
+	__unstableMarkNextChangeAsNotPersistent();
 	replaceInnerBlocks(
 		state.formBlockClientId,
 		newInnerBlocks,
