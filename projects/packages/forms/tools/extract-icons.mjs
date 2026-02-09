@@ -205,9 +205,9 @@ function postProcessSvg( svg ) {
 		svg = nestedMatch[ 1 ];
 	}
 
-	// Ensure xmlns
+	// Ensure xmlns — handles both `<svg ...>` (with attributes) and bare `<svg>`.
 	if ( ! svg.includes( 'xmlns=' ) ) {
-		svg = svg.replace( '<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ' );
+		svg = svg.replace( /(<svg)([\s>])/, '$1 xmlns="http://www.w3.org/2000/svg"$2' );
 	}
 
 	// Check attributes only on the opening <svg> tag, not child elements
