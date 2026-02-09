@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
+use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
 use Jetpack_Tracks_Event;
@@ -1932,12 +1933,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
-		$compiled_form = array();
-		$response      = Feedback::get( $feedback_id );
+		$compiled_form    = array();
+		$field_collection = array();
+		$response         = Feedback::get( $feedback_id );
 
 		if ( $response instanceof Feedback ) {
-			// If the response is an instance of Feedback, we can use its method to get compiled fields.
-			$compiled_form = $response->get_compiled_fields( 'email', 'all' );
+			// Get both formats: 'all' for backward-compat filter, 'collection' for type-aware rendering.
+			$compiled_form    = $response->get_compiled_fields( 'email', 'all' );
+			$field_collection = $response->get_compiled_fields( 'email', 'collection' );
 		}
 
 		/**
@@ -1953,10 +1956,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		$updated_compiled_form = apply_filters( 'jetpack_forms_response_email', $compiled_form, $feedback_id, $form );
 		if ( $updated_compiled_form !== $compiled_form ) {
+			// Filter was customized — use old rendering path for backward compat.
 			$compiled_form = $updated_compiled_form;
-		} else {
-			// add styling to the array
 			foreach ( $compiled_form as $key => $value ) {
+				if ( ! is_array( $value ) || ! isset( $value['label'] ) ) {
+					continue;
+				}
 				$safe_display_label = self::escape_and_sanitize_field_label( $value['label'] );
 				$safe_display_value = self::escape_and_sanitize_field_value( $value['value'] );
 
@@ -1972,6 +1977,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 						$safe_display_value
 					);
 				}
+			}
+		} else {
+			// No filter customization — use new type-aware rendering.
+			$compiled_form = array();
+			foreach ( $field_collection as $field_data ) {
+				$compiled_form[] = self::format_field_for_email( $field_data );
 			}
 		}
 
@@ -2031,6 +2042,338 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
 		return nl2br( wp_kses( $value, array() ) );
+	}
+
+	/**
+	 * Get the icon name for a given field type.
+	 *
+	 * @param string $type The field type.
+	 * @return string The icon name.
+	 */
+	private static function get_field_icon_name( $type ) {
+		$map = array(
+			'text'              => 'field-text',
+			'name'              => 'field-text',
+			'email'             => 'field-email',
+			'textarea'          => 'field-textarea',
+			'select'            => 'field-select',
+			'radio'             => 'field-radio',
+			'checkbox'          => 'field-checkbox',
+			'checkbox-multiple' => 'field-checkbox-multiple',
+			'phone'             => 'field-phone',
+			'telephone'         => 'field-phone',
+			'number'            => 'field-number',
+			'slider'            => 'field-slider',
+			'date'              => 'field-date',
+			'time'              => 'field-time',
+			'url'               => 'field-url',
+			'rating'            => 'field-rating',
+			'image-select'      => 'field-image-select',
+			'file'              => 'field-file',
+			'consent'           => 'field-consent',
+			'hidden'            => 'field-hidden',
+		);
+		return isset( $map[ $type ] ) ? $map[ $type ] : 'field-text';
+	}
+
+	/**
+	 * Format a single field for the email notification using type-aware rendering.
+	 *
+	 * Takes a collection item from get_compiled_fields( 'email', 'collection' )
+	 * and produces a table row with an icon, label, and type-specific value.
+	 *
+	 * @param array $field_data Field data with keys: label, value, type, id, key, meta.
+	 * @return string HTML for the field row.
+	 */
+	private static function format_field_for_email( $field_data ) {
+		$label = isset( $field_data['label'] ) ? $field_data['label'] : '';
+		$value = isset( $field_data['value'] ) ? $field_data['value'] : '';
+		$type  = isset( $field_data['type'] ) ? $field_data['type'] : 'text';
+
+		$safe_label = self::escape_and_sanitize_field_label( $label );
+		$icon_name  = self::get_field_icon_name( $type );
+		$icon_url   = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/' . $icon_name . '@2x.png';
+
+		// Render the value using type-specific renderer.
+		$rendered_value = self::render_email_field_value( $value, $type );
+
+		// Build the field row as a table with icon + content.
+		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #e0e0e0; padding: 0; margin: 0;">';
+		$html .= '<tr>';
+
+		// Icon cell.
+		$html .= '<td width="32" valign="top" style="padding: 20px 12px 20px 0; width: 32px; vertical-align: top;">';
+		$html .= sprintf(
+			'<img src="%s" width="20" height="20" alt="" style="display: block; width: 20px; height: 20px;" />',
+			esc_url( $icon_url )
+		);
+		$html .= '</td>';
+
+		// Content cell.
+		$html .= '<td valign="top" style="padding: 20px 0;">';
+		if ( ! empty( $safe_label ) ) {
+			$html .= sprintf(
+				'<div style="font-size: 13px; color: #757575; line-height: 1.4; margin-bottom: 4px;">%s</div>',
+				esc_html( $safe_label )
+			);
+		}
+		$html .= sprintf(
+			'<div style="font-size: 14px; color: #1e1e1e; line-height: 1.5;">%s</div>',
+			$rendered_value
+		);
+		$html .= '</td>';
+
+		$html .= '</tr>';
+		$html .= '</table>';
+
+		return $html;
+	}
+
+	/**
+	 * Render a field value for email based on its type.
+	 *
+	 * @param mixed  $value The field value (may be structured array or string).
+	 * @param string $type  The field type.
+	 * @return string Rendered HTML.
+	 */
+	private static function render_email_field_value( $value, $type ) {
+		switch ( $type ) {
+			case 'select':
+			case 'radio':
+				return self::render_email_field_value_tags( $value );
+
+			case 'checkbox-multiple':
+				return self::render_email_field_value_tags( $value );
+
+			case 'checkbox':
+			case 'consent':
+				return self::render_email_field_value_consent( $value );
+
+			case 'phone':
+			case 'telephone':
+				return self::render_email_field_value_phone( $value );
+
+			case 'url':
+				return self::render_email_field_value_url( $value );
+
+			case 'rating':
+				return self::render_email_field_value_rating( $value );
+
+			case 'file':
+				return self::render_email_field_value_file( $value );
+
+			default:
+				return self::render_email_field_value_default( $value );
+		}
+	}
+
+	/**
+	 * Render a default text value for email (text, name, email, textarea, date, time, etc).
+	 *
+	 * @param mixed $value The field value.
+	 * @return string Escaped and formatted HTML.
+	 */
+	private static function render_email_field_value_default( $value ) {
+		if ( empty( $value ) && $value !== '0' ) {
+			return '<span style="color: #757575;">&mdash;</span>';
+		}
+
+		return self::escape_and_sanitize_field_value( $value );
+	}
+
+	/**
+	 * Render tag/chip values for select, radio, and checkbox-multiple fields.
+	 *
+	 * @param mixed $value The field value (string or array).
+	 * @return string HTML with rounded chip elements.
+	 */
+	private static function render_email_field_value_tags( $value ) {
+		if ( empty( $value ) && $value !== '0' ) {
+			return '<span style="color: #757575;">&mdash;</span>';
+		}
+
+		$values = is_array( $value ) ? $value : array( $value );
+		$chips  = array();
+
+		foreach ( $values as $item ) {
+			$safe_item = esc_html( is_string( $item ) ? $item : (string) $item );
+			if ( $safe_item === '' ) {
+				continue;
+			}
+			$chips[] = sprintf(
+				'<span style="display: inline-block; padding: 4px 10px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 4px; font-size: 13px; line-height: 1.4; color: #1e1e1e;">%s</span>',
+				$safe_item
+			);
+		}
+
+		if ( empty( $chips ) ) {
+			return '<span style="color: #757575;">&mdash;</span>';
+		}
+
+		return implode( ' ', $chips );
+	}
+
+	/**
+	 * Render a consent/checkbox field value as a Yes/No chip.
+	 *
+	 * @param mixed $value The field value.
+	 * @return string HTML with a colored chip.
+	 */
+	private static function render_email_field_value_consent( $value ) {
+		$is_yes = ! empty( $value ) && strtolower( trim( (string) $value ) ) !== 'no';
+		$label  = $is_yes ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+
+		return sprintf(
+			'<span style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; line-height: 1.4; background-color: %1$s; color: %2$s;">%3$s</span>',
+			$is_yes ? '#f0f0f0' : '#f0f0f0',
+			$is_yes ? '#1e1e1e' : '#1e1e1e',
+			esc_html( $label )
+		);
+	}
+
+	/**
+	 * Render a phone field value as a clickable tel: link.
+	 *
+	 * @param mixed $value The phone value (may include flag emoji prefix).
+	 * @return string HTML with tel: link.
+	 */
+	private static function render_email_field_value_phone( $value ) {
+		if ( empty( $value ) ) {
+			return '<span style="color: #757575;">&mdash;</span>';
+		}
+
+		$display_value = esc_html( (string) $value );
+
+		// Extract the raw phone number (remove flag emoji for the tel: href).
+		$raw_phone = preg_replace( '/^[\x{1F1E0}-\x{1F1FF}]{2}\s*/u', '', (string) $value );
+		$raw_phone = preg_replace( '/[^\d+]/', '', $raw_phone );
+
+		return sprintf(
+			'<a href="tel:%1$s" style="color: #3858e9; text-decoration: none;">%2$s</a>',
+			esc_attr( $raw_phone ),
+			$display_value
+		);
+	}
+
+	/**
+	 * Render a URL field value as a clickable link.
+	 *
+	 * @param mixed $value The URL value (may be structured array or string).
+	 * @return string HTML with clickable link.
+	 */
+	private static function render_email_field_value_url( $value ) {
+		$url           = '';
+		$display_value = '';
+
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' ) {
+			$url           = isset( $value['url'] ) ? $value['url'] : '';
+			$display_value = isset( $value['displayValue'] ) ? $value['displayValue'] : $url;
+		} elseif ( is_string( $value ) ) {
+			$url           = $value;
+			$display_value = $value;
+		}
+
+		if ( empty( $url ) ) {
+			return '<span style="color: #757575;">&mdash;</span>';
+		}
+
+		// Ensure the URL has a scheme.
+		if ( ! preg_match( '/^https?:\/\//i', $url ) ) {
+			$url = 'https://' . $url;
+		}
+
+		return sprintf(
+			'<a href="%1$s" style="color: #3858e9; text-decoration: underline;" target="_blank">%2$s</a>',
+			esc_url( $url ),
+			esc_html( $display_value )
+		);
+	}
+
+	/**
+	 * Render a rating field value as star characters.
+	 *
+	 * @param mixed $value The rating value (structured array or string like "3/5").
+	 * @return string HTML with gold/gray stars.
+	 */
+	private static function render_email_field_value_rating( $value ) {
+		$rating = 0;
+		$max    = 5;
+
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
+			$rating = isset( $value['rating'] ) ? (int) $value['rating'] : 0;
+			$max    = isset( $value['maxRating'] ) ? (int) $value['maxRating'] : 5;
+		} elseif ( is_string( $value ) && strpos( $value, '/' ) !== false ) {
+			$parts = explode( '/', $value );
+			if ( count( $parts ) === 2 ) {
+				$rating = (int) $parts[0];
+				$max    = (int) $parts[1];
+			}
+		}
+
+		if ( $max <= 0 ) {
+			return self::render_email_field_value_default( $value );
+		}
+
+		$stars = '';
+		for ( $i = 1; $i <= $max; $i++ ) {
+			if ( $i <= $rating ) {
+				$stars .= '<span style="color: #e6a117; font-size: 20px;">&#9733;</span>';
+			} else {
+				$stars .= '<span style="color: #cccccc; font-size: 20px;">&#9733;</span>';
+			}
+		}
+
+		return $stars;
+	}
+
+	/**
+	 * Render a file field value with file name and size.
+	 *
+	 * @param mixed $value The file field value.
+	 * @return string HTML with file info.
+	 */
+	private static function render_email_field_value_file( $value ) {
+		if ( ! self::is_file_upload_field( $value ) ) {
+			return self::render_email_field_value_default( $value );
+		}
+
+		$files = isset( $value['files'] ) ? $value['files'] : array();
+		if ( empty( $files ) ) {
+			return '<span style="color: #757575;">&mdash;</span>';
+		}
+
+		$file_items = array();
+		foreach ( $files as $file ) {
+			if ( empty( $file['file_id'] ) ) {
+				continue;
+			}
+
+			$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
+			$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
+			$file_id   = absint( $file['file_id'] );
+			$file_url  = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+
+			$html = esc_html( $file_name );
+			if ( ! empty( $file_size ) ) {
+				$html .= sprintf( ' <span style="color: #757575; font-size: 12px;">(%s)</span>', esc_html( $file_size ) );
+			}
+
+			if ( ! empty( $file_url ) ) {
+				$html = sprintf(
+					'<a href="%1$s" style="color: #3858e9; text-decoration: none;" target="_blank">%2$s</a>',
+					esc_url( $file_url ),
+					$html
+				);
+			}
+
+			$file_items[] = $html;
+		}
+
+		if ( empty( $file_items ) ) {
+			return '<span style="color: #757575;">&mdash;</span>';
+		}
+
+		return implode( '<br />', $file_items );
 	}
 
 	/**

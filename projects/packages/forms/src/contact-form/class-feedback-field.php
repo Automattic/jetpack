@@ -345,9 +345,38 @@ class Feedback_Field {
 	/**
 	 * Get the value of the field for rendering the email.
 	 *
-	 * @return string
+	 * Returns structured data for type-aware rendering when possible,
+	 * similar to get_render_web_value(). The escape_and_sanitize_field_value()
+	 * method in Contact_Form already handles all these structured types.
+	 *
+	 * @return mixed
 	 */
 	private function get_render_email_value() {
+		// Phone: string with country flag prefix.
+		if ( $this->is_of_type( 'phone' ) || $this->is_of_type( 'telephone' ) ) {
+			return $this->get_phone_value_with_flag();
+		}
+
+		// URL: structured array for link rendering.
+		if ( $this->is_of_type( 'url' ) && ! empty( $this->value ) ) {
+			return array(
+				'type'         => 'url',
+				'url'          => $this->value,
+				'displayValue' => $this->value,
+			);
+		}
+
+		// File: return raw value (has field_id + files keys).
+		if ( $this->is_of_type( 'file' ) ) {
+			return $this->value;
+		}
+
+		// Rating: structured array with rating data.
+		if ( $this->is_of_type( 'rating' ) ) {
+			return $this->get_rating_value();
+		}
+
+		// Image-select: keep current string format for backward compat.
 		if ( $this->is_of_type( 'image-select' ) ) {
 			$choices = array();
 
@@ -357,12 +386,16 @@ class Feedback_Field {
 
 				if ( ! empty( $choice['label'] ) ) {
 					$value .= ' - ' . $choice['label'];
-
 				}
 				$choices[] = $value;
 			}
 
 			return implode( ', ', $choices );
+		}
+
+		// Checkbox-multiple: preserve array for chip rendering.
+		if ( $this->is_of_type( 'checkbox-multiple' ) && is_array( $this->value ) ) {
+			return $this->value;
 		}
 
 		return $this->get_render_default_value();
