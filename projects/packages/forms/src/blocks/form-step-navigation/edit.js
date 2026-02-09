@@ -15,32 +15,35 @@ import useParentFormClientId from '../shared/hooks/use-parent-form-client-id.js'
 import './editor.scss';
 
 export const PREVIOUS_BUTTON_TEMPLATE = [
-	'core/button',
+	'jetpack/button',
 	{
-		tagName: 'button',
+		element: 'button',
 		text: __( 'Previous', 'jetpack-forms' ),
-		className: 'is-style-outline form-button-previous is-previous',
-		metadata: { name: __( 'Previous button', 'jetpack-forms' ) },
+		uniqueId: 'previous-step',
+		customVariant: 'previous',
+		className: 'is-style-outline',
+		metaName: __( 'Previous button', 'jetpack-forms' ),
 	},
 ];
 export const NEXT_BUTTON_TEMPLATE = [
-	'core/button',
+	'jetpack/button',
 	{
-		tagName: 'button',
+		element: 'button',
 		text: __( 'Next', 'jetpack-forms' ),
-		className: 'form-button-next is-next',
-		metadata: { name: __( 'Next button', 'jetpack-forms' ) },
+		uniqueId: 'next-step',
+		customVariant: 'next',
+		metaName: __( 'Next button', 'jetpack-forms' ),
 	},
 ];
 
 const SUBMIT_BUTTON_TEMPLATE = [
-	'core/button',
+	'jetpack/button',
 	{
-		tagName: 'button',
-		type: 'submit',
+		element: 'button',
 		text: __( 'Submit', 'jetpack-forms' ),
-		className: 'form-button-submit is-submit',
-		metadata: { name: __( 'Submit button', 'jetpack-forms' ) },
+		uniqueId: 'submit-step',
+		customVariant: 'submit',
+		metaName: __( 'Submit button', 'jetpack-forms' ),
 	},
 ];
 
@@ -50,154 +53,7 @@ export const NAVIGATION_TEMPLATE = [
 	SUBMIT_BUTTON_TEMPLATE,
 ];
 
-const ALLOWED_BLOCKS = [ 'core/button' ];
-
-// Map button types to their templates
-const BUTTON_TEMPLATES = {
-	previous: PREVIOUS_BUTTON_TEMPLATE,
-	next: NEXT_BUTTON_TEMPLATE,
-	submit: SUBMIT_BUTTON_TEMPLATE,
-};
-
-/**
- * Identify the button type from a block.
- * Supports both legacy jetpack/button and new core/button formats.
- *
- * @param {object} block - The block to identify.
- * @return {string|null} Button type ('previous', 'next', 'submit') or null.
- */
-export const getButtonType = block => {
-	// New format: core/button with form-button-* class
-	if ( block.name === 'core/button' ) {
-		const className = block.attributes?.className || '';
-		const classes = className.split( /\s+/ );
-		if ( classes.includes( 'form-button-previous' ) ) {
-			return 'previous';
-		}
-		if ( classes.includes( 'form-button-next' ) ) {
-			return 'next';
-		}
-		if ( classes.includes( 'form-button-submit' ) ) {
-			return 'submit';
-		}
-	}
-
-	// Legacy format: jetpack/button with uniqueId matching data-id-attr values
-	if ( block.name === 'jetpack/button' ) {
-		const uniqueId = block.attributes?.uniqueId || '';
-		if ( uniqueId === 'previous-step' ) {
-			return 'previous';
-		}
-		if ( uniqueId === 'next-step' ) {
-			return 'next';
-		}
-		if ( uniqueId === 'submit-step' ) {
-			return 'submit';
-		}
-	}
-
-	return null;
-};
-
-/**
- * Extract style attributes from a legacy jetpack/button block and map them
- * to core/button format.
- *
- * @param {object} attrs - The legacy block attributes.
- * @return {object} Mapped attributes for core/button.
- */
-const mapLegacyStyleAttributes = attrs => {
-	const mapped = {};
-
-	// Direct palette-based attributes (same name in both blocks)
-	if ( attrs.backgroundColor ) {
-		mapped.backgroundColor = attrs.backgroundColor;
-	}
-	if ( attrs.textColor ) {
-		mapped.textColor = attrs.textColor;
-	}
-	if ( attrs.gradient ) {
-		mapped.gradient = attrs.gradient;
-	}
-
-	// Width: jetpack/button stores as string, core/button expects number
-	if ( attrs.width ) {
-		const numWidth = parseInt( attrs.width, 10 );
-		if ( ! isNaN( numWidth ) ) {
-			mapped.width = numWidth;
-		}
-	}
-
-	// Preset font size (e.g. "small", "medium") is a direct attribute
-	if ( attrs.fontSize ) {
-		mapped.fontSize = attrs.fontSize;
-	}
-
-	// Start from the existing style object (block supports store typography,
-	// border width, etc. here) and layer explicit attribute mappings on top.
-	const existingStyle = attrs.style || {};
-
-	// Custom color values map to style.color
-	const colorStyle = {
-		...( existingStyle.color || {} ),
-	};
-	if ( attrs.customBackgroundColor ) {
-		colorStyle.background = attrs.customBackgroundColor;
-	}
-	if ( attrs.customTextColor ) {
-		colorStyle.text = attrs.customTextColor;
-	}
-	if ( attrs.customGradient ) {
-		colorStyle.gradient = attrs.customGradient;
-	}
-
-	// Border radius from the explicit attribute maps to style.border.radius
-	const borderStyle = {
-		...( existingStyle.border || {} ),
-	};
-	if ( attrs.borderRadius !== undefined ) {
-		borderStyle.radius = `${ attrs.borderRadius }px`;
-	}
-
-	// Build the style object merging existing block support values with mapped attributes
-	const style = {
-		...existingStyle,
-		...( Object.keys( colorStyle ).length && { color: colorStyle } ),
-		...( Object.keys( borderStyle ).length && { border: borderStyle } ),
-	};
-
-	if ( Object.keys( style ).length ) {
-		mapped.style = style;
-	}
-
-	return mapped;
-};
-
-/**
- * Migrate a legacy jetpack/button to core/button, preserving custom text and styles.
- *
- * @param {object} legacyBlock - The legacy jetpack/button block.
- * @param {string} buttonType  - The button type ('previous', 'next', 'submit').
- * @return {object} A new core/button block with preserved customizations.
- */
-export const migrateLegacyButton = ( legacyBlock, buttonType ) => {
-	const template = BUTTON_TEMPLATES[ buttonType ];
-	const [ blockName, templateAttributes ] = template;
-
-	const attrs = legacyBlock.attributes || {};
-
-	// Preserve custom text from the legacy button
-	const customText = attrs.text;
-
-	// Map style attributes from jetpack/button to core/button format
-	const styleAttributes = mapLegacyStyleAttributes( attrs );
-
-	return createBlock( blockName, {
-		...templateAttributes,
-		...styleAttributes,
-		...( customText && { text: customText } ),
-	} );
-};
+const ALLOWED_BLOCKS = [ 'jetpack/button' ];
 
 export default function Edit( { clientId } ) {
 	const blockProps = useBlockProps();
@@ -263,52 +119,67 @@ export default function Edit( { clientId } ) {
 		if ( typeof currentIndex === 'undefined' ) {
 			return;
 		}
+		let shouldReplaceInnerBlocks = false;
 
-		// Identify existing buttons (supports both legacy jetpack/button and new core/button)
+		// First identify existing buttons in the navigation
 		const existingButtons = {
-			previous: null,
-			next: null,
-			submit: null,
+			previous: navigationBlocks.find(
+				block => block.name === 'jetpack/button' && block.attributes.uniqueId === 'previous-step'
+			),
+			next: navigationBlocks.find(
+				block => block.name === 'jetpack/button' && block.attributes.uniqueId === 'next-step'
+			),
+			submit: navigationBlocks.find(
+				block => block.name === 'jetpack/button' && block.attributes.uniqueId === 'submit-step'
+			),
 		};
 
-		navigationBlocks.forEach( block => {
-			const buttonType = getButtonType( block );
-			if ( buttonType && ! existingButtons[ buttonType ] ) {
-				existingButtons[ buttonType ] = block;
+		// Create a map of button types to track required changes
+		const buttonUpdates = {
+			'previous-step': { needed: false, existing: existingButtons.previous },
+			'next-step': { needed: false, existing: existingButtons.next },
+			'submit-step': { needed: false, existing: existingButtons.submit },
+		};
+
+		// Flag needed buttons based on template
+		NAVIGATION_TEMPLATE.forEach( ( [ , blockAttributes ] ) => {
+			buttonUpdates[ blockAttributes.uniqueId ].needed = true;
+
+			// If button doesn't exist but is needed, we'll need to replace inner blocks
+			if ( ! buttonUpdates[ blockAttributes.uniqueId ].existing ) {
+				shouldReplaceInnerBlocks = true;
 			}
 		} );
 
-		// Check if we need to make any changes
-		const hasMissingButtons =
-			! existingButtons.previous || ! existingButtons.next || ! existingButtons.submit;
-		const hasLegacyButtons = navigationBlocks.some( block => block.name === 'jetpack/button' );
+		// Build the updated button collection
+		const replacementInnerBlocks = NAVIGATION_TEMPLATE.map( ( [ blockName, blockAttributes ] ) => {
+			return (
+				buttonUpdates[ blockAttributes.uniqueId ].existing ||
+				createBlock( blockName, {
+					...blockAttributes,
+					uniqueId: blockAttributes.uniqueId,
+				} )
+			);
+		} );
 
-		// Only proceed if buttons are missing or need migration
-		if ( ! hasMissingButtons && ! hasLegacyButtons ) {
+		if ( shouldReplaceInnerBlocks ) {
+			__unstableMarkNextChangeAsNotPersistent();
+			replaceInnerBlocks( clientId, replacementInnerBlocks, false );
 			return;
 		}
 
-		// Build the button collection: preserve existing core/buttons, migrate legacy, create missing
-		const replacementBlocks = [ 'previous', 'next', 'submit' ].map( buttonType => {
-			const existing = existingButtons[ buttonType ];
-
-			if ( ! existing ) {
-				// Button is missing - create from template
-				const [ blockName, blockAttributes ] = BUTTON_TEMPLATES[ buttonType ];
-				return createBlock( blockName, blockAttributes );
+		navigationBlocks.forEach( block => {
+			// If a button exists but isn't needed in the new template, we need to update
+			if ( ! buttonUpdates[ block.attributes.uniqueId ]?.needed ) {
+				shouldReplaceInnerBlocks = true;
 			}
-
-			if ( existing.name === 'jetpack/button' ) {
-				// Legacy button - migrate to core/button preserving text
-				return migrateLegacyButton( existing, buttonType );
-			}
-
-			// Existing core/button - keep as-is
-			return existing;
 		} );
 
-		__unstableMarkNextChangeAsNotPersistent();
-		replaceInnerBlocks( clientId, replacementBlocks, false );
+		// Only update blocks if needed
+		if ( shouldReplaceInnerBlocks ) {
+			__unstableMarkNextChangeAsNotPersistent();
+			replaceInnerBlocks( clientId, replacementInnerBlocks, false );
+		}
 	}, [
 		navigationBlocks,
 		replaceInnerBlocks,

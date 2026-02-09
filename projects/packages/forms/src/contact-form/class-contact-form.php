@@ -1352,9 +1352,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * Prepare the submit button for the contact form.
-	 * Add interactivity attributes to submit buttons identified by:
-	 * - Legacy: type="submit" attribute
-	 * - New: is-submit or form-button-submit class
+	 * Add interactivity attributes to the LAST submit button found in the content.
 	 *
 	 * @param string $content - the content of the submit button.
 	 *
@@ -1364,19 +1362,34 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( ! class_exists( \WP_HTML_Tag_Processor::class ) ) {
 			return $content;
 		}
-
-		$p = new \WP_HTML_Tag_Processor( $content );
-		while ( $p->next_tag( 'button' ) ) {
-			$is_submit_by_type  = 'submit' === $p->get_attribute( 'type' );
-			$is_submit_by_class = $p->has_class( 'is-submit' ) || $p->has_class( 'form-button-submit' );
-
-			if ( $is_submit_by_type || $is_submit_by_class ) {
+		$button_count = 0;
+		$p            = new \WP_HTML_Tag_Processor( $content );
+		while ( $p->next_tag(
+			array(
+				'tag_name' => 'button',
+				'type'     => 'submit',
+			)
+		) ) {
+			++$button_count;
+		}
+		if ( $button_count === 0 ) {
+			return $content;
+		}
+		$occurrence = 0;
+		$p          = new \WP_HTML_Tag_Processor( $content );
+		while ( $p->next_tag(
+			array(
+				'tag_name' => 'button',
+				'type'     => 'submit',
+			)
+		) ) {
+			if ( $occurrence === $button_count - 1 ) {
 				$p->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
 				$p->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
 				$p->set_attribute( 'data-wp-bind--disabled', 'state.isAriaDisabled' );
 			}
+			++$occurrence;
 		}
-
 		return $p->get_updated_html();
 	}
 
