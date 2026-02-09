@@ -22,10 +22,10 @@ See the individual subdirectories for more information.
 
 ## Generating block icons for email templates
 
-Block field icons are defined as React components (`src/blocks/field-*/icon.{jsx,tsx}`) but need to be available as standalone files for email templates. Two scripts handle this:
+Block field icons are defined as React components (`src/blocks/field-*/icon.{js,jsx,tsx}`) but need to be available as standalone files for email templates. Two scripts handle this:
 
 1. **`extract-icons`** — Renders each React icon component to static SVG markup and writes `icon.svg` files.
-2. **`rasterize-icons`** — Converts each `icon.svg` to a 48x48 retina PNG (`icon@2x.png`) with a white background, optimized for minimal file size.
+2. **`rasterize-icons`** — Converts each `icon.svg` to a 48x48 retina PNG (`field-*@2x.png`) with transparent background, optimized for minimal file size.
 
 Run the full pipeline:
 
