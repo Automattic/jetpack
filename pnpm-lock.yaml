@@ -2572,7 +2572,7 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.101.3)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
       sharp:
         specifier: 0.33.5
         version: 0.33.5
