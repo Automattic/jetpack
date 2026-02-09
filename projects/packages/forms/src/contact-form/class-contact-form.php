@@ -2225,8 +2225,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		return sprintf(
 			'<span style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; line-height: 1.4; background-color: %1$s; color: %2$s;">%3$s</span>',
-			$is_yes ? '#f0f0f0' : '#f0f0f0',
-			$is_yes ? '#1e1e1e' : '#1e1e1e',
+			'#f0f0f0',
+			'#1e1e1e',
 			esc_html( $label )
 		);
 	}
