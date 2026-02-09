@@ -465,7 +465,7 @@ describe( 'block-nesting-logic', () => {
 				};
 
 				const blocksToMove = [
-					// @ts-expect-error - Testing malformed block
+					// Testing malformed block
 					{ clientId: 'malformed-1' },
 				];
 
