@@ -149,10 +149,10 @@ git fetch --depth=1 origin "$TAG"
 git checkout -q FETCH_HEAD
 success "Done!"
 
-info "Checking that $TAG is actually $TAG"
+info "Checking that plugin version matches the tag - $TAG"
 PLUGINVER=$( "$BASE"/tools/plugin-version.sh "$PWD" )
 if [[ "$PLUGINVER" != "$TAG" ]]; then
-	proceed_p "Plugin version is $PLUGINVER, which is not $TAG." "Continue anyway?" N
+	proceed_p "Plugin version is $PLUGINVER, which is different from the tag - $TAG." "Continue anyway?" N
 fi
 
 info "Removing .git files and empty directories"
