@@ -407,7 +407,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			$runtime->matched_var        = end( $runtime->matched_vars );
 			return $runtime;
 		};
-		// @phan-suppress-next-line PhanPluginRedundantAssignment -- same value as before but restated for clarity
+
 		$expected = array(
 			array( 'scalar', 'scalar_val' ),
 			array( 'array[0]', 'array_val_0' ),
