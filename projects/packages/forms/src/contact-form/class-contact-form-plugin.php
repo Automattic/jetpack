@@ -404,7 +404,7 @@ class Contact_Form_Plugin {
 			array(
 				'parent' => 'new-content',
 				'id'     => 'new-jetpack_form',
-				'title'  => _x( 'Form', 'Admin bar menu item for creating a new form', 'jetpack-forms' ),
+				'title'  => esc_html_x( 'Form', 'Admin bar menu item for creating a new form', 'jetpack-forms' ),
 				'href'   => admin_url( 'post-new.php?post_type=' . Contact_Form::POST_TYPE ),
 			)
 		);
