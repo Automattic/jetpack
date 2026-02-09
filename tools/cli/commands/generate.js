@@ -278,6 +278,17 @@ export function getQuestions( type ) {
 				},
 			],
 		},
+		{
+			type: 'confirm',
+			name: 'pluginOnWporg',
+			message: 'Will this plugin be published to WordPress.org?',
+			initial() {
+				return this.state.answers.mirrorrepo;
+			},
+			skip() {
+				return ! this.state.answers.mirrorrepo;
+			},
+		},
 	];
 	const extensionQuestions = [];
 	const githubQuestions = [];
@@ -454,11 +465,13 @@ async function generatePluginFromStarter( projDir, answers ) {
 	composerJson.extra ||= {};
 	composerJson.extra.changelogger ||= {};
 	composerJson.extra.changelogger.versioning = answers.versioningMethod;
-	// Add proposed WP.org slug and remove alternative beta slug if we've indicated this is a public plugin.
-	if ( answers.mirrorrepo ) {
+	// Add proposed WP.org slug and remove alternative beta slug if we've indicated this will be on wporg.
+	if ( answers.pluginOnWporg ) {
 		composerJson.extra[ 'wp-plugin-slug' ] = normalizeSlug( answers.name );
+		composerJson.extra[ 'wp-svn-autopublish' ] = true;
 		delete composerJson.extra[ 'beta-plugin-slug' ];
 	}
+	composerJson.extra = Object.fromEntries( Object.entries( composerJson.extra ).sort() );
 	writeComposerJson( answers.project, composerJson, answers.projDir );
 }
 
@@ -480,6 +493,19 @@ function generatePlugin( answers, pluginDir ) {
 	);
 	const readmeTxtData = fs.readFileSync( readmeTxtPath, 'utf8' );
 	writeToFile( pluginDir + '/README.txt', readmeTxtContent + readmeTxtData );
+
+	// Update composer.json
+	const composerJson = readComposerJson( answers.project );
+	composerJson.extra.autotagger ??= true;
+	composerJson.extra.autorelease ??= true;
+	if ( answers.pluginOnWporg ) {
+		composerJson.extra[ 'wp-plugin-slug' ] = normalizeSlug( answers.name );
+		composerJson.extra[ 'wp-svn-autopublish' ] = true;
+	} else {
+		composerJson.extra[ 'beta-plugin-slug' ] = normalizeSlug( answers.name );
+	}
+	composerJson.extra = Object.fromEntries( Object.entries( composerJson.extra ).sort() );
+	writeComposerJson( answers.project, composerJson, answers.projDir );
 }
 
 /**
@@ -973,7 +999,7 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.7\n' +
+		'Requires at least: 6.8\n' +
 		'Requires PHP: 7.2\n' +
 		'Tested up to: 6.9\n' +
 		`Stable tag: ${ answers.version }\n` +

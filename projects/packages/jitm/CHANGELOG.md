@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.19] - 2026-02-03
+### Fixed
+- Fixed JITM REST endpoint query string parsing where the first parameter was corrupted. [#46906]
+
+## [4.3.18] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [4.3.17] - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
+## [4.3.16] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
 ## [4.3.15] - 2026-01-14
 ### Changed
 - Update package dependencies. [#46552]
@@ -1026,6 +1042,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.3.19]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.18...v4.3.19
+[4.3.18]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.17...v4.3.18
+[4.3.17]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.16...v4.3.17
+[4.3.16]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.15...v4.3.16
 [4.3.15]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.14...v4.3.15
 [4.3.14]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.13...v4.3.14
 [4.3.13]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.12...v4.3.13

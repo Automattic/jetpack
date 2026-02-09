@@ -48,6 +48,15 @@ class Posts extends Module {
 	private $action_handler;
 
 	/**
+	 * Mark posts that are deleted in the current request.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private static $deleted_posts_in_request = array();
+
+	/**
 	 * Import end.
 	 *
 	 * @access private
@@ -144,6 +153,7 @@ class Posts extends Module {
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
+		add_action( 'before_delete_post', array( $this, 'mark_post_is_being_deleted' ), 0, 1 );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 11, 3 );
 		add_action( 'wp_after_insert_post', array( $this, 'wp_after_insert_post' ), 11, 2 );
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
@@ -159,6 +169,7 @@ class Posts extends Module {
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_filter( 'jetpack_sync_before_enqueue_updated_post_meta', array( $this, 'on_before_enqueue_updated_attachment_metadata' ), 1 );
+		add_filter( 'jetpack_sync_before_enqueue_deleted_post_meta', array( $this, 'maybe_skip_deleted_post_meta' ) );
 
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_sync_save_post' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_published_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_published_post' ) );
@@ -166,6 +177,8 @@ class Posts extends Module {
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
 		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
+
+		add_action( 'deleted_post', array( $this, 'unmark_post_being_deleted' ), 11, 1 );
 	}
 
 	/**
@@ -372,6 +385,40 @@ class Posts extends Module {
 	}
 
 	/**
+	 * Mark a post as being deleted in the current request.
+	 *
+	 * @param int $post_id ID of the post being deleted.
+	 */
+	public function mark_post_is_being_deleted( $post_id ) {
+		self::$deleted_posts_in_request[ (int) $post_id ] = true;
+	}
+
+	/**
+	 * Enqueue-time per-request dedupe for deleted post metadata, if the post itself is being deleted.
+	 *
+	 * @param array $args [ $meta_id, $post_id, $meta_key, $meta_value ].
+	 * @return array|false
+	 */
+	public function maybe_skip_deleted_post_meta( $args ) {
+		if ( is_array( $args ) && isset( $args[1] ) && is_numeric( $args[1] ) ) {
+			$post_id = (int) $args[1];
+			if ( isset( self::$deleted_posts_in_request[ $post_id ] ) ) {
+				return false;
+			}
+		}
+		return $args;
+	}
+
+	/**
+	 * Unmark a post as being deleted in the current request, to clean up.
+	 *
+	 * @param int $post_id ID of the post.
+	 */
+	public function unmark_post_being_deleted( $post_id ) {
+		unset( self::$deleted_posts_in_request[ (int) $post_id ] );
+	}
+
+	/**
 	 * Enqueue-time per-request dedupe for updated attachment metadata.
 	 *
 	 * @param array $args [ $meta_id, $object_id, $meta_key, $meta_value ].
@@ -413,25 +460,41 @@ class Posts extends Module {
 	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
 	 */
 	public function filter_jetpack_sync_before_enqueue_jetpack_sync_save_post( $args ) {
-		list( $post_id, $post, $update, $previous_state ) = $args;
+		if (
+			! is_array( $args )
+			|| ! array_key_exists( 0, $args ) || ! is_numeric( $args[0] )
+			|| ! array_key_exists( 1, $args ) || ! ( $args[1] instanceof \WP_Post )
+		) {
+			return false;
+		}
+
+		list( $post_id, $post, $update, $previous_state ) = array_pad( $args, 4, null );
 
 		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
 			return false;
 		}
 
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
 	/**
 	 * Add filtered post content.
 	 *
 	 * @param array $args Hook arguments.
-	 * @return array Hook arguments.
+	 * @return array|false Hook arguments, or false if the arguments are invalid.
 	 */
 	public function filter_jetpack_sync_before_enqueue_jetpack_published_post( $args ) {
-		list( $post_id, $flags, $post ) = $args;
+		if (
+			! is_array( $args )
+			|| ! array_key_exists( 0, $args ) || ! is_numeric( $args[0] )
+			|| ! array_key_exists( 1, $args ) || ! is_array( $args[1] )
+			|| ! array_key_exists( 2, $args ) || ! ( $args[2] instanceof \WP_Post )
+		) {
+			return false;
+		}
 
-		return array( $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
+		list( $post_id, $flags, $post ) = $args;
+		return array( (int) $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
 	/**
@@ -441,7 +504,9 @@ class Posts extends Module {
 	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
 	 */
 	public function filter_blacklisted_post_types_deleted( $args ) {
-
+		if ( ! is_array( $args ) || ! array_key_exists( 0, $args ) || ! is_numeric( $args[0] ) ) {
+			return false;
+		}
 		// deleted_post is called after the SQL delete but before cache cleanup.
 		// There is the potential we can't detect post_type at this point.
 		if ( ! $this->is_post_type_allowed( $args[0] ) ) {
@@ -461,6 +526,9 @@ class Posts extends Module {
 		if ( ! is_array( $args ) || count( $args ) < 3 ) {
 			return false;
 		}
+		if ( ! is_numeric( $args[1] ) || ! is_string( $args[2] ) ) {
+			return false;
+		}
 		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
 			return $args;
 		}
@@ -475,8 +543,11 @@ class Posts extends Module {
 	 * @return boolean Whether the post meta key is whitelisted.
 	 */
 	public function is_whitelisted_post_meta( $meta_key ) {
-		// The _wpas_skip_ meta key is used by Publicize.
-		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || str_starts_with( $meta_key, '_wpas_skip_' );
+		if ( ! is_string( $meta_key ) ) {
+			return false;
+		}
+		// The '_wpas_skip_' meta key prefix is used by Publicize to mark posts that should be skipped.
+		return str_starts_with( $meta_key, '_wpas_skip_' ) || in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true );
 	}
 
 	/**
@@ -716,12 +787,12 @@ class Posts extends Module {
 	 * @param boolean  $update  Whether this is an existing post being updated or not.
 	 */
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
-		if ( ! is_numeric( $post_ID ) || $post === null ) {
+		if ( ! is_numeric( $post_ID ) || ! $post instanceof \WP_Post ) {
 			return;
 		}
 
 		// Workaround for https://github.com/woocommerce/woocommerce/issues/18007.
-		if ( $post && 'shop_order' === $post->post_type ) {
+		if ( 'shop_order' === $post->post_type ) {
 			$post = get_post( $post_ID );
 		}
 
@@ -760,12 +831,12 @@ class Posts extends Module {
 	 * @param \WP_Post $post    Post object.
 	 **/
 	public function wp_after_insert_post( $post_ID, $post ) {
-		if ( ! is_numeric( $post_ID ) || $post === null ) {
+		if ( ! is_numeric( $post_ID ) || ! $post instanceof \WP_Post ) {
 			return;
 		}
 
 		// Workaround for https://github.com/woocommerce/woocommerce/issues/18007.
-		if ( $post && 'shop_order' === $post->post_type ) {
+		if ( 'shop_order' === $post->post_type ) {
 			$post = get_post( $post_ID );
 		}
 

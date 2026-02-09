@@ -106,6 +106,9 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	public function test_trash_post_trashes_data() {
 		$this->assertSame( 1, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->server_event_storage->reset();
+		// Ensure there is whitelisted meta on the post.
+		Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
+		add_post_meta( $this->post->ID, 'foobar', 'value' );
 		wp_delete_post( $this->post->ID );
 
 		$this->sender->do_sync();
@@ -125,6 +128,14 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
 
+		// Ensure we are not sending deleted_post_meta actions as well.
+		$deleted_post_meta = $this->server_event_storage->get_most_recent_event( 'deleted_post_meta' );
+		$this->assertFalse( $deleted_post_meta );
+		// And no meta should exist.
+		$this->assertSame(
+			'',
+			$this->server_replica_storage->get_metadata( 'post', $this->post->ID, 'foobar', true )
+		);
 		// Since the post status is not changing here we don't expect the post to be trashed again.
 		$delete_event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
 		$save_event   = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );

@@ -317,6 +317,15 @@ class Options extends Module {
 			return false;
 		}
 
+		// Check if 'jetpack_options' were updated and reject if the change affected only blacklisted keys.
+		if ( 'jetpack_options' === $args[0] && 3 === count( $args ) ) {
+			if ( ! $this->should_enqueue_jetpack_options_update( $args[1], $args[2] ) ) {
+				return false;
+			}
+
+			return $args;
+		}
+
 		// Filter our weird array( false ) value for theme_mods_*.
 		if ( str_starts_with( $args[0], 'theme_mods_' ) ) {
 			$this->filter_theme_mods( $args[1] );
@@ -486,5 +495,50 @@ class Options extends Module {
 		}
 
 		return 'OPTION-DOES-NOT-EXIST';
+	}
+
+	/**
+	 * Check if 'jetpack_options' option update should be processed based on excluded keys.
+	 *
+	 * @param mixed $old_value    The old option value.
+	 * @param mixed $value        The new option value.
+	 * @return bool False if only excluded keys changed (or no change), true otherwise.
+	 */
+	private function should_enqueue_jetpack_options_update( $old_value, $value ) {
+		// No changes at all.
+		if ( $old_value === $value ) {
+			return false;
+		}
+		// Values are different but not both arrays - meaningful change.
+		if ( ! is_array( $old_value ) || ! is_array( $value ) ) {
+			return true;
+		}
+		// Determine all top-level keys present in either the old or new value.
+		$all_keys = array_unique(
+			array_merge(
+				array_keys( $old_value ),
+				array_keys( $value )
+			)
+		);
+		// Short-circuit as soon as we find a changed key that is not blacklisted.
+		foreach ( $all_keys as $key ) {
+			$old_has_key = array_key_exists( $key, $old_value );
+			$new_has_key = array_key_exists( $key, $value );
+			// Key was added or removed.
+			if ( ! $old_has_key || ! $new_has_key ) {
+				if ( ! in_array( $key, Defaults::$jetpack_options_blacklist, true ) ) {
+					return true;
+				}
+				continue;
+			}
+			// Key exists in both arrays but the value changed.
+			if ( $old_value[ $key ] !== $value[ $key ] ) {
+				if ( ! in_array( $key, Defaults::$jetpack_options_blacklist, true ) ) {
+					return true;
+				}
+			}
+		}
+		// Either there were no effective changes, or all changed keys are excluded.
+		return false;
 	}
 }

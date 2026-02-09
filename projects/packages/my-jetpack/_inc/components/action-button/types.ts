@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@automattic/jetpack-components';
-import type { ReactNode } from 'react';
+import type { IconType } from '@wordpress/components';
 
 type ProductButtonProps = Pick<
 	ButtonProps,
@@ -20,7 +20,7 @@ export type SecondaryAction = ProductButtonProps & {
 	onClick: () => void;
 	positionFirst?: boolean;
 	isExternalLink?: boolean;
-	icon?: ReactNode;
+	icon?: IconType;
 	iconSize?: number;
 	disabled?: boolean;
 	isLoading?: boolean;

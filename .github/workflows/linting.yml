@@ -92,13 +92,18 @@ jobs:
             js:
               # If any JS file changed, they need checking.
               - added|modified:
-                - '**.cjs'
                 - '**.js'
                 - '**.jsx'
+                - '**.cjs'
                 - '**.mjs'
                 - '**.ts'
                 - '**.tsx'
+                - '**.cts'
+                - '**.mts'
                 - '**.svelte'
+                - '**.json'
+                - '**.jsonc'
+                - '**.json5'
             css:
               # If any style file changed, they need checking.
               - added|modified:
@@ -108,9 +113,19 @@ jobs:
               # If any PHP or JS file changed or was deleted, we need to check the excludelist.
               - modified|deleted:
                 - '**.php'
+                - '**.ts'
                 - '**.js'
                 - '**.jsx'
+                - '**.cjs'
+                - '**.mjs'
                 - '**.ts'
+                - '**.tsx'
+                - '**.cts'
+                - '**.mts'
+                - '**.svelte'
+                - '**.json'
+                - '**.jsonc'
+                - '**.json5'
             lockfiles:
               - 'composer.json'
               - 'composer.lock'
@@ -155,7 +170,10 @@ jobs:
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/eslint-excludelist.json'
             misc_css:
-              # If Stylelint config changed, there may be new checks.
+              # If package or stylelint config changed, there may be new checks.
+              - 'package.json'
+              - 'tools/js-tools/package.json'
+              - 'pnpm-lock.yaml'
               - .stylelintignore
               - stylelint.config.mjs
               - '**/stylelint.config.{js,mjs,cjs}'

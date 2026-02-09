@@ -50,6 +50,24 @@ class External_Storage {
 	private static $provider = null;
 
 	/**
+	 * Static cache to prevent logging same event multiple times in single request.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @var array
+	 */
+	private static $logged_events = array();
+
+	/**
+	 * Maximum delay threshold for empty state reporting (in seconds).
+	 * This also determines the transient expiry for tracking first empty state.
+	 * Provider custom thresholds must not exceed this value.
+	 *
+	 * @since 7.0.0
+	 */
+	private const EMPTY_STATE_TRANSIENT_EXPIRY = 15 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Register a storage provider for external storage.
 	 *
 	 * @since 6.18.0
@@ -80,8 +98,7 @@ class External_Storage {
 			return null; // No provider registered, use database
 		}
 
-		// Get environment ID from provider
-		$environment = method_exists( $provider, 'get_environment_id' ) ? $provider->get_environment_id() : 'unknown';
+		$environment = $provider->get_environment_id();
 
 		// Check if provider is available in current environment
 		if ( ! $provider->is_available() ) {
@@ -116,9 +133,11 @@ class External_Storage {
 	}
 
 	/**
-	 * Log events if WP_DEBUG is enabled.
-	 * Report external storage events through Jetpack Connection Error_Handler.
+	 * Log events if WP_DEBUG is enabled and delegate to provider for error reporting.
 	 * Includes rate limiting to prevent log spam from noisy events.
+	 *
+	 * Storage providers can optionally implement handle_error_event() method to receive
+	 * notifications about storage errors and empty states for their own error reporting.
 	 *
 	 * @since 6.18.0
 	 *
@@ -128,10 +147,35 @@ class External_Storage {
 	 * @param string $environment The environment identifier (atomic, vip, etc.).
 	 */
 	public static function log_event( $event_type, $key, $details = '', $environment = 'unknown' ) {
-		// Apply rate limiting to prevent log spam
-		if ( ! self::should_log_event( $key ) ) {
+		// Only process 'error' and 'empty' events for provider error reporting
+		if ( 'error' !== $event_type && 'empty' !== $event_type ) {
+			// For non-reportable events, just do debug logging with rate limiting
+			if ( self::should_log_event( $key, $event_type ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					sprintf(
+						'Jetpack External Storage %s: %s in %s%s',
+						$event_type,
+						$key,
+						$environment,
+						$details ? ' - ' . $details : ''
+					)
+				);
+			}
 			return;
 		}
+
+		// For 'empty' events, check delay mechanism first to avoid false positives
+		// during sync between external storage and the database.
+		// This is checked BEFORE rate limiting so we don't block legitimate reports.
+		if ( 'empty' === $event_type && ! self::should_report_empty_state( $key ) ) {
+			return;
+		}
+
+		// Apply rate limiting only for events that will trigger provider notification
+		if ( ! self::should_log_event( $key, $event_type ) ) {
+			return;
+		}
+
 		// Local debug logging (only when WP_DEBUG is enabled)
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -145,87 +189,21 @@ class External_Storage {
 			);
 		}
 
-		// Only report 'error' and 'empty' events to WordPress.com
-		if ( 'error' !== $event_type && 'empty' !== $event_type ) {
-			return;
+		// Delegate to provider if it implements error handling
+		if ( null !== self::$provider && method_exists( self::$provider, 'handle_error_event' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Optional method, checked via method_exists()
+			self::$provider->handle_error_event( $event_type, $key, $details, $environment );
 		}
-
-		$should_report_remote = false;
-
-		if ( 'error' === $event_type ) {
-			// Report external storage errors for supported environments
-			$should_report_remote = self::should_report_for_environment( $key );
-		} elseif ( 'empty' === $event_type ) {
-			// Use delay mechanism to distinguish disconnection from a delay
-			$should_report_remote = self::should_report_for_environment( $key ) && self::should_report_empty_state( $key );
-		}
-
-		if ( ! $should_report_remote || ! class_exists( 'Automattic\Jetpack\Connection\Error_Handler' ) ) {
-			return;
-		}
-
-		// Create and report error
-		$error_code    = 'external_storage_' . $event_type;
-		$error_message = sprintf(
-			'External storage %s for key "%s"%s',
-			str_replace( '_', ' ', $event_type ),
-			$key,
-			$details ? ': ' . $details : ''
-		);
-
-		$error_data = array(
-			'key'         => $key,
-			'event_type'  => $event_type,
-			'details'     => $details,
-			'environment' => $environment,
-			'timestamp'   => time(),
-			'site_url'    => home_url(),
-		);
-
-		$error = new \WP_Error( $error_code, $error_message, $error_data );
-		Error_Handler::get_instance()->report_error( $error, false, true );
-	}
-
-	/**
-	 * Determine if the current environment should report external storage errors to WordPress.com.
-	 * Allows providers to control remote error reporting per-option via optional should_report_errors_for() method.
-	 *
-	 * @since 6.18.0
-	 *
-	 * @param string $key The option key being accessed.
-	 * @return bool True if this environment should report external storage errors to WordPress.com.
-	 */
-	private static function should_report_for_environment( $key = '' ) {
-		$provider = self::$provider;
-
-		// Check if provider implements per-option reporting (optional method not defined in interface).
-		// Providers can optionally implement: public function should_report_errors_for( $option_name )
-		if ( null !== $provider && method_exists( $provider, 'should_report_errors_for' ) && ! empty( $key ) ) {
-			// @phan-suppress-next-line PhanUndeclaredMethodInCallable - Optional method, checked via method_exists()
-			return call_user_func( array( $provider, 'should_report_errors_for' ), $key );
-		}
-
-		// Deprecated: JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED constant
-		// @deprecated 6.18.13 Use should_report_errors_for() method in your Storage Provider instead.
-		if ( defined( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' ) ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-				trigger_error(
-					'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED constant is deprecated. Implement should_report_errors_for() method in your Storage Provider instead.',
-					E_USER_DEPRECATED
-				);
-			}
-			return (bool) constant( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' );
-		}
-
-		return false;
 	}
 
 	/**
 	 * Determine if we should report an empty state based on delay mechanism.
-	 * We need this due to delays in writing in external storage vs writing into the database.
-	 * On first encounter of empty state, sets a transient. On subsequent encounters
-	 * after 10 minutes, allows reporting (indicating likely disconnection, not sync delay).
+	 *
+	 * This prevents false positives during storage sync delays. On first encounter
+	 * of empty state, sets a transient. On subsequent encounters after the delay
+	 * threshold, allows reporting (indicating likely disconnection, not sync delay).
+	 *
+	 * Providers can customize the delay threshold by implementing get_empty_state_delay_threshold().
 	 *
 	 * @since 6.18.0
 	 *
@@ -238,14 +216,25 @@ class External_Storage {
 
 		if ( false === $first_empty_time ) {
 			// First time encountering empty state - set delay transient and don't report yet
-			set_transient( $delay_key, time(), 15 * MINUTE_IN_SECONDS ); // Keep for 15 minutes
+			set_transient( $delay_key, time(), self::EMPTY_STATE_TRANSIENT_EXPIRY );
 			return false;
 		}
 
-		// Check if 10 minutes have passed since first empty encounter
-		$delay_threshold = 10 * MINUTE_IN_SECONDS;
+		// Default delay threshold (5 minutes)
+		$delay_threshold = 5 * MINUTE_IN_SECONDS;
+
+		// Allow provider to customize delay threshold
+		// A threshold of 0 is valid for providers where external storage is written first
+		if ( null !== self::$provider && method_exists( self::$provider, 'get_empty_state_delay_threshold' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Optional method, checked via method_exists()
+			$custom_threshold = self::$provider->get_empty_state_delay_threshold();
+			if ( is_int( $custom_threshold ) && $custom_threshold >= 0 && $custom_threshold <= self::EMPTY_STATE_TRANSIENT_EXPIRY ) {
+				$delay_threshold = $custom_threshold;
+			}
+		}
+
 		if ( ( time() - $first_empty_time ) >= $delay_threshold ) {
-			// 10+ minutes of empty state - likely disconnection, report it
+			// Delay threshold passed - likely disconnection, report it
 			delete_transient( $delay_key );
 			return true;
 		}
@@ -257,21 +246,33 @@ class External_Storage {
 	 * Determine if an event should be logged based on rate limiting rules.
 	 *
 	 * This prevents log spam from noisy events by applying a simple one-hour
-	 * rate limit per key, regardless of event type.
+	 * rate limit per key and event type combination. Also uses a static cache
+	 * to prevent duplicate logs within the same request.
 	 *
 	 * @since 6.18.0
 	 *
 	 * @param string $key        The key that triggered the event.
+	 * @param string $event_type The event type (error, empty, unavailable).
 	 * @return bool True if the event should be logged, false if rate limited.
 	 */
-	private static function should_log_event( $key ) {
-		$rate_limit_key = 'jetpack_ext_storage_rate_limit_' . $key;
+	private static function should_log_event( $key, $event_type = '' ) {
+		// Combine event type and key for unique tracking
+		$event_cache_key = $event_type . '_' . $key;
+
+		// Check static cache first (prevents multiple logs in same request)
+		if ( isset( self::$logged_events[ $event_cache_key ] ) ) {
+			return false;
+		}
+
+		$rate_limit_key = 'jetpack_ext_storage_rate_limit_' . $event_cache_key;
 
 		// Check if we're still within the rate limit period
 		if ( get_transient( $rate_limit_key ) ) {
 			return false;
 		}
 
+		// Mark as logged in both caches
+		self::$logged_events[ $event_cache_key ] = true;
 		set_transient( $rate_limit_key, true, HOUR_IN_SECONDS );
 
 		return true;

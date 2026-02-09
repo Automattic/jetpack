@@ -28,7 +28,7 @@ Here are the 4 types of labels added to newly opened issues. Those labels are in
 
 For now, we have 6 Project Board automations in place:
 
-1. If an issue is classified as a bug (it has a "[Type] bug" label), we'll add it to our project board, if it's not already there. When it gets added to the board, it should also receive the "Needs Triage" status.
+1. If an issue is classified as a bug (it has a "Bug" or a "[Type] bug" label), we'll add it to our project board, if it's not already there. When it gets added to the board, it should also receive the "Needs Triage" status.
 2. Look for updates to the "[Pri]" labels. We'll want to automatically update the Priority field for that issue in the board, to match the label used in the issue.
 3. Look for the "Triaged" label. If it has been added to an issue, let's update the status to "Triaged" in the board.
 4. Look for a mapping of labels <> team provided with the workflow. If we have that, we'll look at all the labels provided in the issue, and if any of them match a label in the mapping, we'll move the issue to the corresponding team column in the board.

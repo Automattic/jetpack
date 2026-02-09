@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix mishandling of empty Content-Type headers.

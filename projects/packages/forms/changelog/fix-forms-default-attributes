@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: set default value for confirmationType attribute to prevent unnecessary serialization.

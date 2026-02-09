@@ -307,6 +307,18 @@ declare type AxisOptions = {
 	 * For more control over rendering or to add event handlers to datum, pass a function as children.
 	 */
 	children?: ( renderProps: AxisRendererProps< AxisScale > ) => ReactNode;
+	/**
+	 * Controls tick label overflow (bar charts only):
+	 *
+	 * - 'ellipsis': Truncate with ellipsis and fit to available space. Labels show full text
+	 * on hover via native tooltip. Note: A minimum width (20px) is enforced for readability.
+	 * On very dense charts (bandwidth < 20px), adjacent labels may overlap. To mitigate, use `numTicks`
+	 * to reduce labels or `tickFormat` to abbreviate text.
+	 * - undefined: No truncation; labels may overlap.
+	 *
+	 * Default: No truncation; labels may overlap.
+	 */
+	labelOverflow?: 'ellipsis';
 };
 
 export type ScaleOptions = {

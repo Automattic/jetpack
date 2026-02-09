@@ -7,7 +7,7 @@ import type { AttachedMedia, JetpackSocialOptions, SIGSettings } from '../../uti
 /**
  * Media source types
  */
-export type MediaSourceType = 'featured-image' | 'media-library' | 'sig' | null;
+export type MediaSourceType = 'featured-image' | 'media-library' | 'upload-video' | 'sig' | null;
 
 /**
  * Menu option IDs - includes all menu items including 'ai-image' which is handled specially
@@ -93,6 +93,11 @@ export interface MediaSectionV2Props {
 	 * operates in "controlled" mode and uses the media props above instead of fetching from the store.
 	 */
 	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
+
+	/**
+	 * Whether to force media as attachment.
+	 */
+	forceAsAttachment?: boolean;
 }
 
 /**
@@ -123,6 +128,11 @@ export interface MediaSourceMenuProps {
 	 * Whether the menu is disabled
 	 */
 	disabled?: boolean;
+
+	/**
+	 * Featured image ID - used to disable "Use featured image" option when not available
+	 */
+	featuredImageId?: number;
 
 	/**
 	 * Optional children render function that receives open function
@@ -158,4 +168,10 @@ export interface MediaPreviewProps {
 	 * Whether the actions are disabled
 	 */
 	disabled?: boolean;
+
+	/**
+	 * Whether to show the remove button. Defaults to true.
+	 * Set to false for auto-detected media like featured image fallback.
+	 */
+	showRemove?: boolean;
 }

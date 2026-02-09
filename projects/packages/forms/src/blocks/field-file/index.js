@@ -5,8 +5,13 @@ import defaultSettings from '../shared/settings/index.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-file';
-const settings = {
+export const name = 'field-file';
+
+export const form_editor = {
+	category: 'advanced',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'File upload field', 'jetpack-forms' ),
 	keywords: [
@@ -39,4 +44,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

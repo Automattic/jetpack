@@ -2,6 +2,34 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.4.11] - 2026-02-04
+### Changed
+- NavigatorModal: Prevent scrolling for navigator screen for large content. [#46925]
+
+## [1.4.10] - 2026-02-03
+### Changed
+- Update package dependencies. [#46905]
+
+## [1.4.9] - 2026-02-02
+### Added
+- NavigatorModal: Allow passing all the props supported by underlying components. [#46856]
+
+### Changed
+- NavigatorModal: Allow customizing the modal via stable BEM class names. [#46818]
+- Update package dependencies. [#46854]
+
+## [1.4.8] - 2026-01-26
+### Changed
+- Update dependencies.
+
+## [1.4.7] - 2026-01-23
+### Changed
+- Internal updates.
+
+## [1.4.6] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
 ## [1.4.5] - 2026-01-14
 ### Changed
 - Internal updates.
@@ -1612,6 +1640,12 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.4.11]: https://github.com/Automattic/jetpack-components/compare/1.4.10...1.4.11
+[1.4.10]: https://github.com/Automattic/jetpack-components/compare/1.4.9...1.4.10
+[1.4.9]: https://github.com/Automattic/jetpack-components/compare/1.4.8...1.4.9
+[1.4.8]: https://github.com/Automattic/jetpack-components/compare/1.4.7...1.4.8
+[1.4.7]: https://github.com/Automattic/jetpack-components/compare/1.4.6...1.4.7
+[1.4.6]: https://github.com/Automattic/jetpack-components/compare/1.4.5...1.4.6
 [1.4.5]: https://github.com/Automattic/jetpack-components/compare/1.4.4...1.4.5
 [1.4.4]: https://github.com/Automattic/jetpack-components/compare/1.4.3...1.4.4
 [1.4.3]: https://github.com/Automattic/jetpack-components/compare/1.4.2...1.4.3

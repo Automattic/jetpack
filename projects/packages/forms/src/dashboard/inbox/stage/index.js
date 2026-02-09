@@ -5,36 +5,36 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { Badge } from '@automattic/ui';
-import { ExternalLink, Modal, Button, Composite } from '@wordpress/components';
-import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
+import { ExternalLink, Modal } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { Icon, globe } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
 import useConfigValue from '../../../hooks/use-config-value.ts';
 import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
+import BackToFormsButton from '../../components/back-to-forms-button/index.tsx';
 import CreateFormButton from '../../components/create-form-button/index.tsx';
+import DataViewsHeaderRow from '../../components/dataviews-header-row/index.tsx';
+import EditFormButton from '../../components/edit-form-button/index.tsx';
 import EmptyResponses from '../../components/empty-responses/index.tsx';
 import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
 import ExportResponsesButton from '../../components/export-responses/button.tsx';
-import Flag from '../../components/flag/index.tsx';
-import FormsResponsesTabs from '../../components/forms-responses-tabs/index.tsx';
 import Gravatar from '../../components/gravatar/index.tsx';
-import InboxStatusToggle from '../../components/inbox-status-toggle/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
 import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
+import TextWithFlag from '../../components/text-with-flag/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
+import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 import { getPath, getItemId } from '../utils.js';
 import {
 	viewAction,
@@ -83,20 +83,22 @@ const setupSidebarWidthObserver = () => {
 /**
  * The DataViews implementation.
  *
+ * @param {object}                    [props]              - Props.
+ * @param {number}                    [props.parentId]     - Optional parent (form/source) ID to scope responses to.
+ * @param {import('react').ReactNode} [props.pageTitle]    - Optional page title content. Defaults to "Forms".
+ * @param {string}                    [props.pageSubtitle] - Optional page subtitle string.
  * @return {import('react').JSX.Element} The DataViews component.
  */
-export default function InboxView() {
+export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) {
 	const [ view, setView ] = useView();
-	const [ searchParams, setSearchParams ] = useSearchParams();
-	const [ containerWidth, setContainerWidth ] = useState( 0 );
+	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
+	const parent = useMemo( () => {
+		const id = Number( parentId );
+		return Number.isFinite( id ) && id > 0 ? id : null;
+	}, [ parentId ] );
+	const isSingleFormView = !! parent;
 
 	const dateSettings = getDateSettings();
-	const containerRef = useResizeObserver(
-		resizeObserverEntries => {
-			setContainerWidth( resizeObserverEntries[ 0 ].borderBoxSize[ 0 ].inlineSize );
-		},
-		{ box: 'border-box' }
-	);
 
 	const selectedResponses = searchParams.get( 'r' );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
@@ -131,6 +133,11 @@ export default function InboxView() {
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
+	const isInboxStatusToggleView = isSingleFormView || isCentralFormManagementEnabled !== true;
+	const urlFolder = useMemo( () => {
+		const urlStatus = searchParams.get( 'status' );
+		return [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
+	}, [ searchParams ] );
 
 	const {
 		setCurrentQuery,
@@ -141,35 +148,7 @@ export default function InboxView() {
 		isLoadingData,
 		totalItems,
 		totalPages,
-		totalItemsInbox,
-		totalItemsSpam,
-		totalItemsTrash,
 	} = useInboxData();
-	const onChangeStatus = useCallback(
-		newStatus => {
-			if ( ! isCentralFormManagementEnabled ) {
-				return;
-			}
-
-			setSearchParams( previousSearchParams => {
-				const params = new URLSearchParams( previousSearchParams );
-				params.set( 'status', newStatus );
-				params.delete( 'r' ); // Clear selected responses when changing status.
-				return params;
-			} );
-
-			// Reset page to 1 when switching status (matches previous tab behavior).
-			setView( { ...view, page: 1 } );
-
-			// Clear selection in store.
-			setSelectedResponses( [] );
-		},
-		[ isCentralFormManagementEnabled, setSearchParams, setSelectedResponses, setView, view ]
-	);
-
-	const onInboxClick = useCallback( () => onChangeStatus( 'inbox' ), [ onChangeStatus ] );
-	const onSpamClick = useCallback( () => onChangeStatus( 'spam' ), [ onChangeStatus ] );
-	const onTrashClick = useCallback( () => onChangeStatus( 'trash' ), [ onChangeStatus ] );
 	const isAkismetStatusPending = useSelect(
 		select => {
 			const store = select( INTEGRATIONS_STORE );
@@ -206,6 +185,12 @@ export default function InboxView() {
 			}
 			return accumulator;
 		}, {} );
+
+		// Single-form view: scope the query directly (no DataViews Source filter pill).
+		if ( isSingleFormView && parent ) {
+			_filters.parent = parent;
+		}
+
 		const _queryArgs = {
 			order: 'desc',
 			orderby: 'date',
@@ -218,7 +203,7 @@ export default function InboxView() {
 		// We need to keep the current query args in the store to be used in `export`
 		// and for getting the total records per `status`.
 		setCurrentQuery( _queryArgs );
-	}, [ view, statusFilter, setCurrentQuery ] );
+	}, [ view, statusFilter, setCurrentQuery, isSingleFormView, parent ] );
 
 	const selection = selectedResponses?.split( ',' ) || EMPTY_ARRAY;
 
@@ -276,8 +261,12 @@ export default function InboxView() {
 			return;
 		}
 
-		// Update sidebar if item changed or needs refresh
-		if ( ! sidePanelItem || getItemId( sidePanelItem ) !== getItemId( recordToShow ) ) {
+		// Update sidebar if item changed or needs refresh.
+		// Items can be updated from row actions (e.g. mark as read/unread) without changing the selected ID.
+		const isSameItem = sidePanelItem && getItemId( sidePanelItem ) === getItemId( recordToShow );
+		const needsRefresh = ! isSameItem || sidePanelItem.is_unread !== recordToShow.is_unread;
+
+		if ( needsRefresh ) {
 			setSidePanelItem( recordToShow );
 		}
 	}, [ isMobileViewport, records, selection, sidePanelItem ] );
@@ -285,6 +274,44 @@ export default function InboxView() {
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
 		[ totalItems, totalPages ]
+	);
+
+	const onChangeView = useCallback(
+		newView => {
+			if ( ! isInboxStatusToggleView ) {
+				const folderValue = newView.filters?.find( filter => filter.field === 'folder' )?.value;
+				const nextFolder = [ 'inbox', 'spam', 'trash' ].includes( folderValue )
+					? folderValue
+					: 'inbox';
+
+				// Enforce that Folder is always set (cannot be removed). If the user clears it via the pill "X",
+				// re-add it as Inbox to match legacy default behavior.
+				if ( ! folderValue ) {
+					newView = {
+						...newView,
+						page: 1,
+						filters: [
+							{ field: 'folder', operator: 'is', value: 'inbox' },
+							...( newView.filters || [] ).filter( filter => filter.field !== 'folder' ),
+						],
+					};
+				}
+
+				// Sync Folder -> URL status (source of truth for querying), clear selection, and reset page.
+				if ( nextFolder !== urlFolder ) {
+					setSearchParams( previousSearchParams => {
+						const params = new URLSearchParams( previousSearchParams );
+						params.set( 'status', nextFolder );
+						params.delete( 'r' ); // Clear selected responses when changing folder.
+						return params;
+					} );
+					setSelectedResponses( [] );
+					newView = { ...newView, page: 1 };
+				}
+			}
+			setView( newView );
+		},
+		[ isInboxStatusToggleView, setSearchParams, setSelectedResponses, setView, urlFolder ]
 	);
 
 	const wrapperUnread = ( isUnread, itemValue ) => {
@@ -296,6 +323,54 @@ export default function InboxView() {
 
 	const fields = useMemo(
 		() => [
+			...( ! isInboxStatusToggleView
+				? [
+						{
+							id: 'folder',
+							label: __( 'Folder', 'jetpack-forms' ),
+							elements: [
+								{ label: __( 'Inbox', 'jetpack-forms' ), value: 'inbox' },
+								{ label: __( 'Spam', 'jetpack-forms' ), value: 'spam' },
+								{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
+							],
+							// Primary so the filter UI (and its pill) is visible by default.
+							filterBy: { operators: [ 'is' ], isPrimary: true },
+							enableSorting: false,
+							// Prevent this filter-only field from being offered as a configurable column.
+							enableHiding: false,
+							// Filter-only field; not shown as a column.
+							render: () => null,
+							getValue: () => null,
+						},
+				  ]
+				: [] ),
+			...( ! isSingleFormView
+				? [
+						{
+							id: 'source',
+							label: __( 'Source', 'jetpack-forms' ),
+							render: ( { item } ) => {
+								if ( ! item.entry_permalink ) {
+									return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
+								}
+								return (
+									<ExternalLink href={ item.entry_permalink }>
+										{ wrapperUnread(
+											item.is_unread,
+											decodeEntities( item.entry_title ) || getPath( item )
+										) }
+									</ExternalLink>
+								);
+							},
+							elements: ( filterOptions?.source || [] ).map( source => ( {
+								value: source.id,
+								label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
+							} ) ),
+							filterBy: { operators: [ 'is' ] },
+							enableSorting: false,
+						},
+				  ]
+				: [] ),
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
@@ -383,29 +458,6 @@ export default function InboxView() {
 				enableSorting: false,
 			},
 			{
-				id: 'source',
-				label: __( 'Source', 'jetpack-forms' ),
-				render: ( { item } ) => {
-					if ( ! item.entry_permalink ) {
-						return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
-					}
-					return (
-						<ExternalLink href={ item.entry_permalink }>
-							{ wrapperUnread(
-								item.is_unread,
-								decodeEntities( item.entry_title ) || getPath( item )
-							) }
-						</ExternalLink>
-					);
-				},
-				elements: ( filterOptions?.source || [] ).map( source => ( {
-					value: source.id,
-					label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
-				} ) ),
-				filterBy: { operators: [ 'is' ] },
-				enableSorting: false,
-			},
-			{
 				id: 'read_status',
 				label: __( 'Status', 'jetpack-forms' ),
 				elements: [
@@ -428,13 +480,9 @@ export default function InboxView() {
 				enableSorting: false,
 				render: ( { item } ) => {
 					return (
-						<>
-							<span className="jp-forms__inbox-response-country-flag">
-								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
-								{ item.country_code && <Flag countryCode={ item.country_code } /> }
-							</span>
+						<TextWithFlag countryCode={ item.country_code } fallbackIcon>
 							{ item.ip || '' }
-						</>
+						</TextWithFlag>
 					);
 				},
 			},
@@ -445,8 +493,33 @@ export default function InboxView() {
 			isMobileViewport,
 			openResponseModal,
 			dateSettings.formats.date,
+			isInboxStatusToggleView,
+			isSingleFormView,
 		]
 	);
+
+	// When CFM is enabled, keep the DataViews "Folder" filter in sync with the URL `status` param
+	// (and default to Inbox on first load).
+	useEffect( () => {
+		if ( isInboxStatusToggleView ) {
+			return;
+		}
+		setView( previousView => {
+			const previousFilters = previousView.filters || [];
+			const existing = previousFilters.find( filter => filter.field === 'folder' );
+			if ( existing?.value === urlFolder ) {
+				return previousView;
+			}
+			const nextFilters = [
+				{ field: 'folder', operator: 'is', value: urlFolder },
+				...previousFilters.filter( filter => filter.field !== 'folder' ),
+			];
+			return {
+				...previousView,
+				filters: nextFilters,
+			};
+		} );
+	}, [ isInboxStatusToggleView, setView, urlFolder ] );
 
 	const actions = useMemo( () => {
 		const mobileViewAction = {
@@ -501,25 +574,41 @@ export default function InboxView() {
 		}
 	}, [ isMobileViewport, onChangeSelection, statusFilter ] );
 
+	const onClickItem = useCallback(
+		item => {
+			onChangeSelection( [ item.id.toString() ] );
+		},
+		[ onChangeSelection ]
+	);
+
 	const resetPage = useCallback( () => {
-		view.page = 1;
-	}, [ view ] );
+		// Reset to page 1 when switching legacy Inbox statuses (Inbox/Spam/Trash).
+		setView( previousView => ( { ...previousView, page: 1 } ) );
+	}, [ setView ] );
 
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
 	// Conditional header actions based on status filter
 	const headerActions = useMemo( () => {
-		const exportIsPrimary = statusFilter !== 'trash' && statusFilter !== 'spam';
+		const exportIsPrimary =
+			! isSingleFormView && statusFilter !== 'trash' && statusFilter !== 'spam';
 		const headerActionsArray = [
 			<ExportResponsesButton key="export" isPrimary={ exportIsPrimary } />,
 		];
+
+		// On the single form screen, always show navigation actions regardless of folder (Inbox/Spam/Trash).
+		if ( isSingleFormView ) {
+			headerActionsArray.unshift( <BackToFormsButton key="back-to-forms" /> );
+			headerActionsArray.splice( 1, 0, <EditFormButton key="edit-form" formId={ parent } /> );
+		}
 
 		if ( statusFilter === 'trash' ) {
 			headerActionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		} else if ( statusFilter === 'spam' ) {
 			headerActionsArray.push( <EmptySpamButton key="empty-spam" /> );
-		} else {
+		} else if ( ! isSingleFormView ) {
+			// When not on the single form screen, show create / integrations.
 			headerActionsArray.unshift( <CreateFormButton key="create" /> );
 			// Only show Create Form and Integrations buttons on inbox (when not in trash or spam)
 			if ( isIntegrationsEnabled && showDashboardIntegrations ) {
@@ -528,19 +617,21 @@ export default function InboxView() {
 		}
 
 		return headerActionsArray;
-	}, [ statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
+	}, [ parent, isSingleFormView, statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
 
 	const pageContent = (
 		<Page
 			title={
 				<div className="jp-forms-page-header-title">
 					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
+					{ pageTitle ? pageTitle : __( 'Forms', 'jetpack-forms' ) }
 				</div>
 			}
-			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
+			subTitle={
+				pageSubtitle ??
+				__( 'View and manage all your form responses in one place.', 'jetpack-forms' )
+			}
 			actions={ headerActions }
-			tabs={ isCentralFormManagementEnabled ? <FormsResponsesTabs /> : undefined }
 			hasPadding={ false }
 		>
 			<DataViews
@@ -550,85 +641,25 @@ export default function InboxView() {
 				data={ records || EMPTY_ARRAY }
 				isLoading={ isInboxLoading }
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ onChangeView }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
+				onClickItem={ onClickItem }
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
 				empty={
 					<EmptyResponses
 						status={ statusFilter }
 						isSearch={ !! view.search }
+						isSingleFormView={ isSingleFormView }
 						readStatusFilter={ readStatusFilter }
 					/>
 				}
 			>
-				{ isCentralFormManagementEnabled ? (
-					<div className="jp-forms-filters-bar">
-						<div className="jp-forms-filters-bar__chips">
-							<Composite className="jp-forms-filters-bar__status-chips">
-								<Button
-									size="compact"
-									variant={ 'tertiary' }
-									className={ statusFilter === 'draft,publish' ? 'is-active' : '' }
-									onClick={ onInboxClick }
-								>
-									{ __( 'Status is Inbox', 'jetpack-forms' ) } ({ totalItemsInbox })
-								</Button>
-
-								<Button
-									size="compact"
-									variant={ 'tertiary' }
-									className={ statusFilter === 'spam' ? 'is-active' : '' }
-									onClick={ onSpamClick }
-								>
-									{ __( 'Status is Spam', 'jetpack-forms' ) } ({ totalItemsSpam })
-								</Button>
-								<Button
-									size="compact"
-									variant={ 'tertiary' }
-									className={ statusFilter === 'trash' ? 'is-active' : '' }
-									onClick={ onTrashClick }
-								>
-									{ __( 'Status is Trash', 'jetpack-forms' ) } ({ totalItemsTrash })
-								</Button>
-							</Composite>
-							<DataViews.FiltersToggled className="jp-forms-filters-container" />
-						</div>
-						<div
-							className="jp-forms-filters-bar__controls"
-							style={ {
-								display: 'flex',
-								gap: '8px',
-								justifyContent: containerWidth < 600 ? 'unset' : 'flex-end',
-							} }
-						>
-							<DataViews.Search />
-							<DataViews.FiltersToggle />
-							<DataViews.ViewConfig />
-						</div>
-					</div>
-				) : (
-					<>
-						<div className="jp-forms-view-actions">
-							<div>
-								<InboxStatusToggle onChange={ resetPage } />
-							</div>
-							<div
-								style={ {
-									display: 'flex',
-									gap: '8px',
-									justifyContent: containerWidth < 600 ? 'unset' : 'flex-end',
-								} }
-							>
-								<DataViews.Search />
-								<DataViews.FiltersToggle />
-								<DataViews.ViewConfig />
-							</div>
-						</div>
-						<DataViews.FiltersToggled className="jp-forms-filters-container" />
-					</>
-				) }
+				<DataViewsHeaderRow
+					onLegacyStatusChange={ resetPage }
+					isInboxStatusToggleView={ isInboxStatusToggleView }
+				/>
 				<div className="jp-forms-dataviews-layout-container">
 					<DataViews.Layout />
 					<DataViews.Footer />
@@ -639,9 +670,7 @@ export default function InboxView() {
 
 	return (
 		<>
-			<div ref={ containerRef } className="jp-forms-layout__surface is-stage">
-				{ pageContent }
-			</div>
+			<div className="jp-forms-layout__surface is-stage">{ pageContent }</div>
 			{ isResponseModalOpen && (
 				<Modal
 					title={ __( 'Response', 'jetpack-forms' ) }

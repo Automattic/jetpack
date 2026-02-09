@@ -3,6 +3,10 @@
 @.cursor/rules/
 @.github/copilot-instructions.md
 
+## Confidentiality
+
+This is a **public repository**. Never include private WordPress.com URLs (e.g., `*.wordpress.com` internal sites) in PR descriptions, commit messages, code comments, or any public-facing text. Use the p2 shorthand syntax instead (e.g., `peKye1-1Z1-p2`).
+
 ## Jetpack CLI (`jp`)
 
 The `jp` command runs `pnpm jetpack` inside the monorepo Docker container. Install globally: `npm install -g @automattic/jetpack-cli`
@@ -89,7 +93,7 @@ Comment: Update internal documentation, no user-facing changes.
 PR descriptions must follow the template in @.github/PULL_REQUEST_TEMPLATE.md - CI checks expect the metadata format defined there.
 
 ```bash
-gh pr create --title "Title" --body-file pr-body.md --label "[Status] Needs Review" --label "[Type] Enhancement" --assignee @me
+gh pr create --title "Title" --body-file pr-body.md --label "[Status] Needs Review" --label "Enhancement" --assignee @me
 ```
 
 ## Project Structure

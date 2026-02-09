@@ -53,6 +53,10 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		],
+		"watch-hot": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch:hot"
+		],
 		"build-production": [
 			"pnpm run build-production-concurrently"
 		]
@@ -76,7 +80,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.70.x-dev"
+			"dev-trunk": "0.72.x-dev"
 		}
 	},
 	"config": {

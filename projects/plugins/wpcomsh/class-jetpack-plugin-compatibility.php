@@ -24,7 +24,6 @@ class Jetpack_Plugin_Compatibility {
 		'advanced-database-cleaner/advanced-db-cleaner.php' => '"advanced-database-cleaner" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'advanced-reset-wp/advanced-reset-wp.php'         => '"advanced-reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'advanced-wp-reset/advanced-wp-reset.php'         => '"advanced-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'backup/backup.php'                               => '"backup" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'better-wp-security/better-wp-security.php'       => '"better-wp-security" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'database-browser/database-browser.php'           => '"database-browser" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'extended-wp-reset/extended-wp-reset.php'         => '"extended-wp-reset" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
@@ -36,7 +35,6 @@ class Jetpack_Plugin_Compatibility {
 		'reset-wp/reset-wp.php'                           => '"reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'reset/data_reset.php'                            => '"reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'secure-file-manager/secure-file-manager.php'     => '"secure-file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'super-blank/super-blank.php'                     => '"super-blank" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'ultimate-reset/ultimate-reset.php'               => '"ultimate-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'ultimate-wp-reset/ultimate-wordpress-reset.php'  => '"ultimate-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'username-changer/class-username-changer.php'     => '"username-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
@@ -59,7 +57,6 @@ class Jetpack_Plugin_Compatibility {
 		'wp-downgrade/wp-downgrade.php'                   => '"wp-downgrade" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 
 		// Backup.
-		'backup-wd/backup-wd.php'                         => '"backup-wd" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'backwpup/backwpup.php'                           => '"backwpup" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'backwpup-pro/backwpup.php'                       => '"backwpup-pro" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'duplicator/duplicator.php'                       => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
@@ -116,7 +113,7 @@ class Jetpack_Plugin_Compatibility {
 		'disable-xml-rpc-api/disable-xml-rpc-api.php'     => '"disable-xml-rpc-api" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
 		'manage-xml-rpc/manage-xml-rpc.php'               => '"manage-xml-rpc" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
 		'one-click-ssl/ssl.php'                           => '"one-click-ssl" has been deactivated, because it is not supported on WordPress.com.',
-		'really-simple-ssl/really-simple-ssl.php'         => '"really-simple-ssl" is not supported on WordPress.com.',
+		'really-simple-ssl/rlrsssl-really-simple-ssl.php' => '"really-simple-ssl" is not supported on WordPress.com.',
 		'really-simple-ssl-pro/really-simple-ssl-pro.php' => '"really-simple-ssl-pro" is not supported on WordPress.com.',
 		'sg-security/sg-security.php'                     => '"sg-security" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
 		'stopbadbots/stopbadbots.php'                     => '"stopbadbots" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',

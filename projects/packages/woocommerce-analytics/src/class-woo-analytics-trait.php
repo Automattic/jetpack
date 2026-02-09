@@ -259,21 +259,7 @@ trait Woo_Analytics_Trait {
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
-		$site_info = array(
-			'blog_id'        => Jetpack_Connection::get_site_id(),
-			// @phan-suppress-current-line UnusedPluginSuppression @phan-suppress-next-line PhanUndeclaredConstantOfClass -- The constant has only existed since WooCommerce 8.4, but we check for its existence. See also: https://github.com/phan/phan/issues/1204
-			'store_id'       => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
-			'ui'             => $this->get_user_id(),
-			'url'            => home_url(),
-			'woo_version'    => WC()->version,
-			'wp_version'     => get_bloginfo( 'version' ),
-			'store_admin'    => in_array( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles, true ) ? 1 : 0,
-			'device'         => wp_is_mobile() ? 'mobile' : 'desktop',
-			'store_currency' => get_woocommerce_currency(),
-			'timezone'       => wp_timezone_string(),
-			'is_guest'       => ( $this->get_user_id() === null ) ? 1 : 0,
-		);
-
+		$common_properties = WC_Analytics_Tracking::get_common_properties();
 		/**
 		 * Allow defining custom event properties in WooCommerce Analytics.
 		 *
@@ -285,7 +271,7 @@ trait Woo_Analytics_Trait {
 		 */
 		$properties = apply_filters(
 			'jetpack_woocommerce_analytics_event_props',
-			$site_info
+			$common_properties
 		);
 
 		return $properties;
@@ -349,7 +335,7 @@ trait Woo_Analytics_Trait {
 		} else {
 			$out        = array();
 			$categories = get_the_terms( $product->get_id(), 'product_cat' );
-			if ( $categories ) {
+			if ( is_array( $categories ) ) {
 				foreach ( $categories as $category ) {
 					$out[] = $category->name;
 				}

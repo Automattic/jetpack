@@ -12,6 +12,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\ContactForm\Form_Preview;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
@@ -41,7 +42,8 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
-				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
+				'render_email_callback' => array( __CLASS__, 'render_email' ),
 			)
 		);
 
@@ -51,6 +53,9 @@ class Contact_Form_Block {
 		add_filter( 'pre_render_block', array( __CLASS__, 'pre_render_contact_form' ), 10, 3 );
 
 		add_filter( 'block_editor_rest_api_preload_paths', array( __CLASS__, 'preload_endpoints' ) );
+
+		// Load scripts for the editing interface
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
 	}
 	/**
 	 * Register the contact form block feature flag.
@@ -704,6 +709,47 @@ class Contact_Form_Block {
 	}
 
 	/**
+	 * Render fallback for non-interactive contexts (email, feed, API, etc.).
+	 *
+	 * @param array $atts - the block attributes.
+	 *
+	 * @return string
+	 */
+	private static function render_fallback( $atts ) {
+		return sprintf(
+			'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
+			esc_attr( Blocks::classes( 'contact-form', $atts ) ),
+			esc_url( get_the_permalink() ),
+			esc_html__( 'Submit a form.', 'jetpack-forms' )
+		);
+	}
+
+	/**
+	 * Render the contact form block for email contexts.
+	 *
+	 * This method is called by WordPress/WooCommerce email rendering system when a form block
+	 * appears in email content. Forms are not interactive in email contexts, so we always return
+	 * a fallback link that directs recipients to the form on the website.
+	 *
+	 * Note: The $block_content and $rendering_context parameters are required by the
+	 * render_email_callback signature but are intentionally unused here. We only need the
+	 * block attributes from $parsed_block to generate the fallback HTML, and we don't need
+	 * to process the block content or use email-specific rendering context since we're
+	 * always returning a simple fallback.
+	 *
+	 * @param string $block_content     The original block HTML content. Unused - we always return a fallback.
+	 * @param array  $parsed_block      The parsed block data including attributes.
+	 * @param object $rendering_context Email rendering context. Unused - not needed for fallback rendering.
+	 *
+	 * @return string HTML fallback with link to submit the form on the website.
+	 */
+	public static function render_email( $block_content, array $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$atts = $parsed_block['attrs'] ?? array();
+
+		return self::render_fallback( $atts );
+	}
+
+	/**
 	 * Render the gutenblock form.
 	 *
 	 * @param array  $atts - the block attributes.
@@ -713,17 +759,14 @@ class Contact_Form_Block {
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
 		// We should not render block if the module is disabled on a site using the Jetpack plugin.
-		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) ) {
+		// Exception: allow rendering in preview mode so form previews work.
+		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) && ! Form_Preview::is_preview_mode() ) {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
-		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			return sprintf(
-				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
-				esc_attr( Blocks::classes( 'contact-form', $atts ) ),
-				esc_url( get_the_permalink() ),
-				esc_html__( 'Submit a form.', 'jetpack-forms' )
-			);
+		// Exception: allow rendering in preview mode.
+		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) && ! Form_Preview::is_preview_mode() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return self::render_fallback( $atts );
 		}
 
 		self::load_view_scripts();
@@ -789,22 +832,11 @@ class Contact_Form_Block {
 
 	/**
 	 * Load editor styles for the block.
-	 * These are loaded via enqueue_block_assets to ensure proper loading in the editor iframe context.
+	 *
+	 * @deprecated 7.5.0 This function is deprecated and will be removed in a future version.
 	 */
 	public static function load_editor_styles() {
-
-		$handle = 'jp-forms-blocks';
-
-		Assets::register_script(
-			$handle,
-			'../../../dist/blocks/editor.js',
-			__FILE__,
-			array(
-				'css_path'   => '../../../dist/blocks/editor.css',
-				'textdomain' => 'jetpack-forms',
-			)
-		);
-		wp_enqueue_style( 'jp-forms-blocks' );
+		_deprecated_function( __FUNCTION__, 'jetpack-7.5.0' );
 	}
 
 	/**
@@ -828,8 +860,7 @@ class Contact_Form_Block {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				// Editor styles are loaded separately, see load_editor_styles().
-				'css_path'     => null,
+				'css_path'     => '../../../dist/blocks/editor.css',
 			)
 		);
 
