@@ -520,13 +520,6 @@ $style = '<style media="all" type="text/css">
 		margin-bottom: 16px;
 	}
 
-	/* Email client table layout for respondent info */
-	.respondent-table {
-		margin-bottom: 24px;
-		padding-bottom: 20px;
-		border-bottom: 1px solid #e0e0e0;
-	}
-
 	.respondent-avatar-cell {
 		width: 64px;
 		vertical-align: top;

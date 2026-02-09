@@ -3627,7 +3627,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Use table layout for better email client compatibility.
 		$html = '
-		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="respondent-table" style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0;">
+		<table role="presentation" border="0" cellpadding="0" cellspacing="0">
 			<tr>
 				<td class="respondent-avatar-cell" style="width: 64px; vertical-align: top;">
 					<div class="respondent-avatar-wrapper" style="width: 48px; height: 48px; border-radius: 24px; background-color: #f0f0f0; text-align: center; line-height: 48px; font-size: 18px; font-weight: 600; color: #50575e;">
