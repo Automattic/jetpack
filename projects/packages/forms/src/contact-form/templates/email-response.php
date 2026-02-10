@@ -211,9 +211,8 @@ $style = '<style media="all" type="text/css">
 
 	.respondent-email {
 		font-size: 14px;
-		color: #757575;
 		margin: 0;
-		text-decoration: underline;
+		line-height: 1.4;
 	}
 
 	/* Metadata Section */
