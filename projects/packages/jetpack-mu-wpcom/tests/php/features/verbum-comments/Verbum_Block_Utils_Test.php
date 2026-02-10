@@ -44,7 +44,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 		$filtered_content = preg_replace( '/\R+/', '', Verbum_Block_Utils::render_verbum_blocks( $comment_content ) );
 
 		// WordPress trunk removed layout classes from block output (Gutenberg PR #71207).
-		// The test now expects output without those classes to match both trunk and stable versions.
+		// Updated test expectations to match the new trunk output format.
 		$expected_content = '<p>test</p><ul><li>1</li><li>2</li><li>3</li></ul><blockquote class="wp-block-quote"><p>something</p><cite>someone</cite></blockquote>';
 		$this->assertSame( $expected_content, $filtered_content );
 	}
