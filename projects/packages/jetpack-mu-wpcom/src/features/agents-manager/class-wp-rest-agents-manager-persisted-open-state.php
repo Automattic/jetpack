@@ -47,6 +47,16 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Default state values.
+	 */
+	private const DEFAULTS = array(
+		'agents_manager_open'              => false,
+		'agents_manager_docked'            => false,
+		'agents_manager_floating_position' => 'right',
+		'agents_manager_router_history'    => null,
+	);
+
+	/**
 	 * Get Agents Manager state from user preferences.
 	 *
 	 * Uses the dedicated /wpcom/v2/agents-manager/state endpoint
@@ -63,33 +73,20 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 			return $body;
 		}
 
-		$response = json_decode( wp_remote_retrieve_body( $body ) );
+		$response = json_decode( wp_remote_retrieve_body( $body ), true );
 
-		if ( ! $response || ! isset( $response->calypso_preferences ) ) {
-			return rest_ensure_response(
-				array(
-					'calypso_preferences' => array(
-						'agents_manager_open'              => false,
-						'agents_manager_docked'            => false,
-						'agents_manager_floating_position' => 'right',
-						'agents_manager_router_history'    => null,
-					),
-				)
-			);
+		if ( ! is_array( $response ) ) {
+			return rest_ensure_response( self::DEFAULTS );
 		}
 
-		$calypso_preferences = $response->calypso_preferences;
-
-		$projected_response = array(
-			'calypso_preferences' => array(
-				'agents_manager_open'              => (bool) ( $calypso_preferences->agents_manager_open ?? false ),
-				'agents_manager_docked'            => (bool) ( $calypso_preferences->agents_manager_docked ?? false ),
-				'agents_manager_floating_position' => $calypso_preferences->agents_manager_floating_position ?? 'right',
-				'agents_manager_router_history'    => $calypso_preferences->agents_manager_router_history ?? null,
-			),
+		return rest_ensure_response(
+			array(
+				'agents_manager_open'              => (bool) ( $response['agents_manager_open'] ?? self::DEFAULTS['agents_manager_open'] ),
+				'agents_manager_docked'            => (bool) ( $response['agents_manager_docked'] ?? self::DEFAULTS['agents_manager_docked'] ),
+				'agents_manager_floating_position' => $response['agents_manager_floating_position'] ?? self::DEFAULTS['agents_manager_floating_position'],
+				'agents_manager_router_history'    => $response['agents_manager_router_history'] ?? self::DEFAULTS['agents_manager_router_history'],
+			)
 		);
-
-		return rest_ensure_response( $projected_response );
 	}
 
 	/**
@@ -101,40 +98,28 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request The request sent to the API.
 	 */
 	public function set_state( \WP_REST_Request $request ) {
-		$data = array(
-			'calypso_preferences' => array(),
-		);
+		$state = array();
 
-		if ( $request->has_param( 'agents_manager_open' ) ) {
-			$data['calypso_preferences']['agents_manager_open'] = $request['agents_manager_open'];
-		}
-
-		if ( $request->has_param( 'agents_manager_router_history' ) ) {
-			$data['calypso_preferences']['agents_manager_router_history'] = $request['agents_manager_router_history'];
-		}
-
-		if ( $request->has_param( 'agents_manager_docked' ) ) {
-			$data['calypso_preferences']['agents_manager_docked'] = $request['agents_manager_docked'];
-		}
-
-		if ( $request->has_param( 'agents_manager_floating_position' ) ) {
-			$data['calypso_preferences']['agents_manager_floating_position'] = $request['agents_manager_floating_position'];
+		foreach ( array_keys( self::DEFAULTS ) as $key ) {
+			if ( $request->has_param( $key ) ) {
+				$state[ $key ] = $request[ $key ];
+			}
 		}
 
 		$body = Client::wpcom_json_api_request_as_user(
 			'/wpcom/v2/agents-manager/state',
 			'2',
 			array( 'method' => 'POST' ),
-			$data
+			array( 'state' => $state )
 		);
 
 		if ( is_wp_error( $body ) ) {
 			return $body;
 		}
 
-		$response = json_decode( wp_remote_retrieve_body( $body ) );
+		$response = json_decode( wp_remote_retrieve_body( $body ), true );
 
-		if ( ! $response || ! isset( $response->calypso_preferences ) ) {
+		if ( ! is_array( $response ) ) {
 			return new \WP_Error(
 				'invalid_response',
 				'Invalid response from WPCOM endpoint',
@@ -142,17 +127,13 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 			);
 		}
 
-		$calypso_preferences = $response->calypso_preferences;
-
-		$projected_response = array(
-			'calypso_preferences' => array(
-				'agents_manager_open'              => (bool) ( $calypso_preferences->agents_manager_open ?? false ),
-				'agents_manager_docked'            => (bool) ( $calypso_preferences->agents_manager_docked ?? false ),
-				'agents_manager_floating_position' => $calypso_preferences->agents_manager_floating_position ?? 'right',
-				'agents_manager_router_history'    => $calypso_preferences->agents_manager_router_history ?? null,
-			),
+		return rest_ensure_response(
+			array(
+				'agents_manager_open'              => (bool) ( $response['agents_manager_open'] ?? self::DEFAULTS['agents_manager_open'] ),
+				'agents_manager_docked'            => (bool) ( $response['agents_manager_docked'] ?? self::DEFAULTS['agents_manager_docked'] ),
+				'agents_manager_floating_position' => $response['agents_manager_floating_position'] ?? self::DEFAULTS['agents_manager_floating_position'],
+				'agents_manager_router_history'    => $response['agents_manager_router_history'] ?? self::DEFAULTS['agents_manager_router_history'],
+			)
 		);
-
-		return rest_ensure_response( $projected_response );
 	}
 }
