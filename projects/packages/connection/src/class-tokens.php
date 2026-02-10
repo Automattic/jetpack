@@ -665,7 +665,7 @@ class Tokens {
 		if ( false === $expiration_date ) {
 			$expiration_date = DateTime::createFromFormat( static::DATE_FORMAT_ATOM, $expires );
 		}
-		
+
 		if ( false === $expiration_date || ! $locked_site_url ) {
 			// Something's wrong with the lock.
 			$this->remove_lock();
