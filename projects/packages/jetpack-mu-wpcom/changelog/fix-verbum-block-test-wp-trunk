@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix verbum comments test expectations for WordPress trunk block output changes (Gutenberg PR #71207).
+Add WordPress version detection to handle both WP 6.9 and 7.0+ block output in tests (Gutenberg PR #71207).

@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Add WordPress version detection to handle both WP 6.9 and 7.0+ block output in tests.
