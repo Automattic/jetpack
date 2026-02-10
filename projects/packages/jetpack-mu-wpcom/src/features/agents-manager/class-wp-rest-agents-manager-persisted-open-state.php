@@ -59,12 +59,12 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 	/**
 	 * Get Agents Manager state from user preferences.
 	 *
-	 * Uses the dedicated /wpcom/v2/agents-manager/state endpoint
+	 * Uses the dedicated wpcom/v2/agents-manager/state endpoint
 	 * which only exposes the specific preferences needed.
 	 */
 	public function get_state() {
 		$body = Client::wpcom_json_api_request_as_user(
-			'/wpcom/v2/agents-manager/state',
+			'/agents-manager/state',
 			'2',
 			array( 'method' => 'GET' )
 		);
@@ -92,7 +92,7 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 	/**
 	 * Set Agents Manager state in user preferences.
 	 *
-	 * Uses the dedicated /wpcom/v2/agents-manager/state endpoint
+	 * Uses the dedicated wpcom/v2/agents-manager/state endpoint
 	 * which only allows updating the specific preferences needed.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the API.
@@ -107,7 +107,7 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 		}
 
 		$body = Client::wpcom_json_api_request_as_user(
-			'/wpcom/v2/agents-manager/state',
+			'/agents-manager/state',
 			'2',
 			array( 'method' => 'POST' ),
 			array( 'state' => $state )

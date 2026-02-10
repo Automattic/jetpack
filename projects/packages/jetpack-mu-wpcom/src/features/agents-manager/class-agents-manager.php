@@ -554,7 +554,7 @@ class Agents_Manager {
 
 		// Call dedicated agents-manager/state endpoint (limits token scope to only needed preferences).
 		$wpcom_request = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-			'/wpcom/v2/agents-manager/state?preference_key=unified_ai_chat',
+			'/agents-manager/state?key=unified_ai_chat',
 			'2',
 			array( 'method' => 'GET' )
 		);
@@ -574,7 +574,7 @@ class Agents_Manager {
 		$body         = wp_remote_retrieve_body( $wpcom_request );
 		$decoded_body = json_decode( $body, true );
 
-		// The response is the value of the preference directly when using preference_key.
+		// The response is { "unified_ai_chat": true/false } when using key param.
 		$result = ! empty( $decoded_body );
 
 		// Cache for 1 minute.
