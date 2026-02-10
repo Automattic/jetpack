@@ -41,17 +41,27 @@ export const navigateToForm = (
 interface ConvertFormToolbarProps {
 	clientId: string;
 	attributes: Record< string, unknown >;
+	/**
+	 * Optional callback to run before navigating to form editor.
+	 * Use this to flush any pending saves. Returns a promise that resolves when save is complete.
+	 */
+	onBeforeNavigate?: () => Promise< void >;
 }
 
 /**
  * Toolbar component for converting inline forms to synced forms and editing synced forms.
  *
- * @param props            - Component props.
- * @param props.clientId   - The block client ID.
- * @param props.attributes - The block attributes.
+ * @param props                  - Component props.
+ * @param props.clientId         - The block client ID.
+ * @param props.attributes       - The block attributes.
+ * @param props.onBeforeNavigate
  * @return Toolbar with edit/convert buttons.
  */
-export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbarProps ) {
+export function ConvertFormToolbar( {
+	clientId,
+	attributes,
+	onBeforeNavigate,
+}: ConvertFormToolbarProps ) {
 	const editorContext = getEditorContext();
 	const isWidgetEditor = editorContext === 'widget';
 
@@ -131,8 +141,18 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 		}
 	};
 
-	const handleEditOriginal = () => {
+	const handleEditOriginal = async () => {
+		console.log( '[ConvertFormToolbar] handleEditOriginal called', {
+			ref: attributes.ref,
+			hasOnBeforeNavigate: !! onBeforeNavigate,
+		} );
 		if ( attributes.ref ) {
+			// Flush any pending saves before navigating (wait for save to complete)
+			if ( onBeforeNavigate ) {
+				console.log( '[ConvertFormToolbar] Calling onBeforeNavigate (flushPendingSave)' );
+				await onBeforeNavigate();
+				console.log( '[ConvertFormToolbar] onBeforeNavigate completed, now navigating' );
+			}
 			navigateToForm( attributes.ref as number, editorContext, onNavigateToEntityRecord );
 		}
 	};

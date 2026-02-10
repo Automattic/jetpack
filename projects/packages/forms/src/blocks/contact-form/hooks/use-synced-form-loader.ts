@@ -6,6 +6,9 @@ import { useEffect, useRef } from '@wordpress/element';
 import { filterSyncedAttributes } from '../util/form-sync.ts';
 import type { Block } from '@wordpress/blocks';
 
+const DEBUG = true;
+const log = ( ...args: unknown[] ) => DEBUG && console.log( '[useSyncedFormLoader]', ...args );
+
 interface UseSyncedFormLoaderParams {
 	ref?: number;
 	syncedFormBlocks: Block[] | null;
@@ -66,15 +69,30 @@ export function useSyncedFormLoader( {
 	const lastLoadedRefId = useRef< number | null >( null );
 
 	useEffect( () => {
+		log( 'Effect triggered', {
+			ref,
+			hasSyncedFormBlocks: !! syncedFormBlocks,
+			syncedFormBlocksCount: syncedFormBlocks?.length,
+			lastLoadedRefId: lastLoadedRefId.current,
+		} );
+
 		if ( ! ref || ! syncedFormBlocks ) {
+			log( '⏭️ Skipping: no ref or no syncedFormBlocks' );
 			return;
 		}
 
 		// Only sync when ref changes or loads for the first time
 		// Don't re-sync when syncedFormBlocks changes due to our own edits
 		if ( lastLoadedRefId.current === ref ) {
+			log( '⏭️ Skipping: already loaded this ref', { ref } );
 			return; // Already loaded this ref
 		}
+
+		log( '🔄 Loading synced form content', {
+			ref,
+			blocksCount: syncedFormBlocks.length,
+			hasAttributes: !! syncedFormAttributes,
+		} );
 
 		// Mark this ref as loaded
 		lastLoadedRefId.current = ref;
@@ -87,29 +105,29 @@ export function useSyncedFormLoader( {
 		// Mark as non-persistent so they're not saved locally - only ref is saved
 		if ( syncedFormAttributes ) {
 			const attrsToApply = filterSyncedAttributes( syncedFormAttributes );
-
+			log( '📝 Applying synced attributes', { attrsToApply } );
 			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( attrsToApply );
 		}
 
 		// Load inner blocks from source
+		log( '📦 Replacing inner blocks', { blocksCount: syncedFormBlocks.length } );
 		__unstableMarkNextChangeAsNotPersistent();
 		replaceInnerBlocks( clientId, syncedFormBlocks, false );
 
 		// For multistep forms, select the first step so the editor shows it immediately
 		const firstStepClientId = findFirstStepClientId( syncedFormBlocks );
 		if ( firstStepClientId ) {
+			log( '📍 Setting active step', { firstStepClientId } );
 			setActiveStep( clientId, firstStepClientId );
 		}
 
-		// Reset syncing flag after a short delay
-		const timeoutId = setTimeout( () => {
+		// Reset syncing flag immediately after operations complete
+		// Using requestAnimationFrame to ensure it happens after React commits
+		requestAnimationFrame( () => {
+			log( '✅ Syncing complete, resetting isSyncingRef' );
 			isSyncingRef.current = false;
-		}, 100 );
-
-		return () => {
-			clearTimeout( timeoutId );
-		};
+		} );
 	}, [
 		ref,
 		syncedFormBlocks,
