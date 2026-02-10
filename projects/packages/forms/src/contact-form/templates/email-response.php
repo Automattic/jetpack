@@ -244,8 +244,8 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.metadata-value a {
-		color: #3858e9;
-		text-decoration: none;
+		color: #1e1e1e;
+		text-decoration: underline;
 	}
 
 	/* Form Fields */
@@ -301,7 +301,7 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.field-value a {
-		color: #3858e9;
+		color: #1e1e1e;
 		text-decoration: underline;
 	}
 
@@ -370,7 +370,7 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.file-name {
-		color: #3858e9;
+		color: #1e1e1e;
 		text-decoration: underline;
 	}
 

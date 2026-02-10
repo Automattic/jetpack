@@ -154,6 +154,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static $ref_id = null;
 
 	/**
+	 * The color of the links in the email.
+	 *
+	 * @var string
+	 */
+	private const LINK_COLOR = '#1e1e1e';
+
+	/**
 	 * Set the reference ID for the contact form.
 	 *
 	 * @param int $ref_id The reference ID.
@@ -2249,9 +2256,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$raw_phone = preg_replace( '/[^\d+]/', '', $raw_phone );
 
 		return sprintf(
-			'<a href="tel:%1$s" style="color: #3858e9; text-decoration: none;">%2$s</a>',
+			'<a href="tel:%1$s" style="color: %3$s; text-decoration: underline;">%2$s</a>',
 			esc_attr( $raw_phone ),
-			$display_value
+			$display_value,
+			self::LINK_COLOR
 		);
 	}
 
@@ -2283,9 +2291,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return sprintf(
-			'<a href="%1$s" style="color: #3858e9; text-decoration: underline;" target="_blank">%2$s</a>',
+			'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
 			esc_url( $url ),
-			esc_html( $display_value )
+			esc_html( $display_value ),
+			self::LINK_COLOR
 		);
 	}
 
@@ -2360,9 +2369,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			if ( ! empty( $file_url ) ) {
 				$html = sprintf(
-					'<a href="%1$s" style="color: #3858e9; text-decoration: none;" target="_blank">%2$s</a>',
+					'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
 					esc_url( $file_url ),
-					$html
+					$html,
+					self::LINK_COLOR
 				);
 			}
 
@@ -3657,7 +3667,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</td>
 				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; color: #50575e; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: #3858e9; text-decoration: none;">' . $email . '</a></div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . self::LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
 				</td>
 			</tr>
 		</table>';
@@ -3687,7 +3697,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( ! empty( $metadata['source'] ) ) {
 			$source_value = esc_html( $metadata['source'] );
 			if ( ! empty( $metadata['source_url'] ) ) {
-				$source_value = '<a href="' . esc_url( $metadata['source_url'] ) . '" style="color: #3858e9; text-decoration: none;">' . $source_value . '</a>';
+				$source_value = '<a href="' . esc_url( $metadata['source_url'] ) . '" style="color: ' . self::LINK_COLOR . '; text-decoration: underline;">' . $source_value . '</a>';
 			}
 			$rows[] = self::generate_metadata_row( __( 'Source', 'jetpack-forms' ), $source_value );
 		}
