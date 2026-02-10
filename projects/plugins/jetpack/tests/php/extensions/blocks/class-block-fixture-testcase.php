@@ -8,7 +8,7 @@
 /**
  * Include helper trait for WordPress version-specific test expectations.
  */
-require_once __DIR__ . '/trait-wp-version-test-helpers.php';
+require_once __DIR__ . '/../../trait-wp-version-test-helpers.php';
 
 /**
  * Jetpack Block Fixture Test Case with method for testing against the block's
