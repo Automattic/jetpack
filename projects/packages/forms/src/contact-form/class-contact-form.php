@@ -3636,7 +3636,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</td>
 				<td class="respondent-details-cell" style="vertical-align: middle;">
 					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; color: #50575e; margin: 0;">' . $email . '</div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; color: #757575; margin: 0; text-decoration: underline;">' . $email . '</div>' : '' ) . '
 				</td>
 			</tr>
 		</table>';
