@@ -131,6 +131,7 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.main {
+		background: #ffffff;
 		border-radius: 8px;
 		width: 100%;
 	}
