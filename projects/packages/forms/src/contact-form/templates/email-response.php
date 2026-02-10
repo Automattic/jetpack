@@ -66,6 +66,9 @@ $template = '
 								<div class="actions">
 									%8$s
 								</div>
+
+								<!-- Powered By -->
+								%9$s
 							</td>
 						</tr>
 					</table>

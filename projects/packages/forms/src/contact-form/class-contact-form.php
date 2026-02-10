@@ -3194,15 +3194,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 
 		// Build the actions with both Mark as spam and View in dashboard buttons.
+		// Use fully table-based layout for maximum email client compatibility - no display:inline-block.
 		$actions = '';
 		if ( $dashboard_url ) {
 			$actions = sprintf(
 				'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
 					<tr>
-						<td class="button-cell" width="50%%" style="text-align: right; padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; background-color: transparent; color: #1e1e1e; border: 1px solid #1e1e1e; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
+						<td class="button-cell" style="padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+							<a href="%1$s" class="action-button action-button-secondary" style="background-color: transparent; color: #1e1e1e; border: 1px solid #1e1e1e; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
 						</td>
-						<td class="button-cell" width="50%%" style="text-align: left; padding-left: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+						<td class="button-cell" style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 							<a href="%3$s" class="action-button action-button-primary" style="background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
 						</td>
 					</tr>
@@ -3585,7 +3586,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @param string $powered_by_html The HTML for the powered by section in the email.
 		 */
-		$logo_url        = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/jetpack-logo@2x.png';
+		// Use table-based layout for maximum email client compatibility.
 		$powered_by_html = apply_filters(
 			'jetpack_forms_email_powered_by_html',
 			str_replace(
@@ -3595,7 +3596,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="powered-by-table" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-top: 24px;">
 					<tr>
 						<td align="center" class="powered-by" style="padding: 24px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<img src="' . esc_url( $logo_url ) . '" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none;">
+							<img src="https://jetpack.com/wp-content/uploads/2022/06/cropped-jp-favicon-new-3.png?w=40" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none;">
 							<span style="font-size: 13px; color: #50575e; line-height: 20px;">' .
 					sprintf(
 						// translators: %1$s is a link to the Jetpack Forms page.
@@ -3675,9 +3676,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			? '<img src="' . $avatar . '" alt="" width="48" height="48" style="border-radius: 24px;">'
 			: esc_html( $initials );
 
-		// Use table layout for better email client compatibility.
+		// Use table layout for maximum email client compatibility.
 		$html = '
-		<table role="presentation" border="0" cellpadding="0" cellspacing="0">
+		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="respondent-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 16px;">
 			<tr>
 				<td class="respondent-avatar-cell" style="width: 64px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 					<!--[if mso]>
@@ -3694,9 +3695,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 					</table>
 					<![endif]-->
 				</td>
-				<td class="respondent-details-cell" style="vertical-align: middle;">
-					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; color: #757575; margin: 0; text-decoration: underline;">' . $email . '</div>' : '' ) . '
+				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; color: #50575e; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: #3858e9; text-decoration: none;">' . $email . '</a></div>' : '' ) . '
 				</td>
 			</tr>
 		</table>';
@@ -3750,12 +3751,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 
+		// Use table layout for maximum email client compatibility.
 		$html = '
-		<div class="metadata-section" style="padding: 16px 0; margin-bottom: 24px;">
-			<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" style="width: 100%;">
-				' . implode( '', $rows ) . '
-			</table>
-		</div>';
+		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; margin-bottom: 24px;">
+			' . implode( '', $rows ) . '
+		</table>';
 
 		return str_replace( "\t", '', $html );
 	}
@@ -3770,7 +3770,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static function generate_metadata_row( $label, $value ) {
 		return '
 			<tr>
-				<td class="metadata-label" style="color: #636363; width: 110px; padding: 4px 12px 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . esc_html( $label ) . ':</td>
+				<td class="metadata-label" style="color: #50575e; width: 100px; padding: 4px 12px 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . esc_html( $label ) . ':</td>
 				<td class="metadata-value" style="color: #1e1e1e; padding: 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . $value . '</td>
 			</tr>';
 	}
