@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#46905]
 
 ### Removed
-- Removed Chrome AI built-in API integration code. [#46896]
+- Remove Chrome AI built-in API integration code. [#46896]
 
 ## [0.33.32] - 2026-02-02
 ### Changed
