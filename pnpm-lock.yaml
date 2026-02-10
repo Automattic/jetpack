@@ -1562,8 +1562,8 @@ importers:
         specifier: 10.2.3
         version: 10.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)(webpack-cli@6.0.1)
       '@storybook/test-runner':
-        specifier: 0.24.1
-        version: 0.24.1(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+        specifier: 0.24.2
+        version: 0.24.2(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -9437,8 +9437,8 @@ packages:
       typescript:
         optional: true
 
-  '@storybook/test-runner@0.24.1':
-    resolution: {integrity: sha512-hDBoQz6wJj7CumdfccsVGMYpJ9lfozwMXWd7rvyhy46Mwo6eZnOWv6xNbZRNZeNtZsCFUai6o8K1Ts9Qd+nzQg==}
+  '@storybook/test-runner@0.24.2':
+    resolution: {integrity: sha512-76DbflDTGAKq8Af6uHbWTGnKzKHhjLbJaZXRFhVnKqFocoXcej58C9DpM0BJ3addu7fSDJmPwfR97OINg16XFQ==}
     engines: {node: '>=20.0.0'}
     hasBin: true
     peerDependencies:
@@ -22710,7 +22710,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@storybook/test-runner@0.24.1(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+  '@storybook/test-runner@0.24.2(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@babel/core': 7.28.4
       '@babel/generator': 7.29.1
