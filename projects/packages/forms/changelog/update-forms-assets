@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Exclude unminified build artifacts from production distribution to reduce plugin size.

@@ -30,6 +30,10 @@ class Dashboard {
 		if ( self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG ) {
 			$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
 			if ( file_exists( $wp_build_index ) ) {
+				// Predefine registration functions with file_exists fallback for
+				// SCRIPT_DEBUG, so production distributions that exclude unminified
+				// JS files don't break when SCRIPT_DEBUG is enabled.
+				require_once __DIR__ . '/wp-build-script-debug-fallback.php';
 				require_once $wp_build_index;
 			}
 		}

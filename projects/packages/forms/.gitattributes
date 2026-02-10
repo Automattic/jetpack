@@ -9,7 +9,9 @@ package.json      export-ignore
 /src/**/*.min.css production-include
 /src/**/*.rtl.css production-include
 dist/**           production-include
-build/**          production-include
+/build/**/*.php    production-include
+/build/**/*.min.js production-include
+/build/**/loader.js production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
@@ -27,3 +29,4 @@ tools/**                 production-exclude
 tsconfig.json            production-exclude
 declarations.d.ts        production-exclude
 global.d.ts              production-exclude
+/routes/**               production-exclude
