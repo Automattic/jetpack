@@ -93,6 +93,18 @@ describe( 'createSyncedFormBlock', () => {
 		);
 	} );
 
+	it( 'creates a block without the lock attribute', () => {
+		const attributes = { lock: { move: true, remove: true }, to: 'test@example.com' };
+
+		createSyncedFormBlock( attributes, [] );
+
+		expect( mockCreateBlock ).toHaveBeenCalledWith(
+			'jetpack/contact-form',
+			{ to: 'test@example.com' },
+			[]
+		);
+	} );
+
 	it( 'preserves all non-ref attributes', () => {
 		const attributes = {
 			ref: 456,

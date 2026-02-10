@@ -25,12 +25,12 @@ export function filterSyncedAttributes(
 }
 
 /**
- * Create a form block for staging/saving
- * Excludes the ref attribute since it's not part of the form definition
+ * Create a form block for staging/saving.
+ * Excludes ref and lock attributes since they're not part of the form definition.
  *
- * @param {Record<string, unknown>} attributes  - Form attributes
- * @param {Array}                   innerBlocks - Form inner blocks
- * @return {Block} The created form block
+ * @param {Record<string, unknown>} attributes  - Form attributes.
+ * @param {Array}                   innerBlocks - Form inner blocks.
+ * @return {Block} The created form block.
  */
 export function createSyncedFormBlock(
 	attributes: Record< string, unknown >,
@@ -38,6 +38,7 @@ export function createSyncedFormBlock(
 ) {
 	const attributesToSave = { ...attributes };
 	delete attributesToSave.ref;
+	delete attributesToSave.lock;
 
 	return createBlock( 'jetpack/contact-form', attributesToSave, innerBlocks );
 }
