@@ -23,11 +23,65 @@ use WP_Block;
 class Contact_Form_Synced_Test extends BaseTestCase {
 
 	/**
+	 * Editor user ID.
+	 *
+	 * @var int
+	 */
+	private $editor_id;
+
+	/**
+	 * Subscriber user ID.
+	 *
+	 * @var int
+	 */
+	private $subscriber_id;
+
+	/**
 	 * Set up the test environment.
 	 */
 	public function set_up() {
 		parent::set_up();
 		Contact_Form_Block::register_child_blocks();
+
+		// Register the form post type if not already registered.
+		if ( ! post_type_exists( Contact_Form::POST_TYPE ) ) {
+			register_post_type(
+				Contact_Form::POST_TYPE,
+				array(
+					'public'       => false,
+					'show_ui'      => true,
+					'map_meta_cap' => true,
+				)
+			);
+		}
+
+		// Create test users for permission testing.
+		$this->editor_id = wp_insert_user(
+			array(
+				'user_login' => 'test_editor_' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'editor_' . wp_rand() . '@test.com',
+				'role'       => 'editor',
+			)
+		);
+
+		$this->subscriber_id = wp_insert_user(
+			array(
+				'user_login' => 'test_subscriber_' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'subscriber_' . wp_rand() . '@test.com',
+				'role'       => 'subscriber',
+			)
+		);
+	}
+
+	/**
+	 * Tear down the test environment.
+	 */
+	public function tear_down() {
+		// Reset current user.
+		wp_set_current_user( 0 );
+		parent::tear_down();
 	}
 
 	/**
@@ -122,10 +176,10 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that only published or draft forms are rendered.
+	 * Test that trashed forms are never rendered, even with edit permissions.
 	 */
 	public function test_render_synced_form_only_renders_published_or_draft() {
-		// Create a trashed form
+		// Create a trashed form.
 		$trashed_form_id = wp_insert_post(
 			array(
 				'post_type'    => 'jetpack_form',
@@ -134,6 +188,9 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-email /--><!-- /wp:jetpack/contact-form -->',
 			)
 		);
+
+		// Set user with edit permissions.
+		wp_set_current_user( $this->editor_id );
 
 		$block = new WP_Block(
 			array(
@@ -144,8 +201,8 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 
 		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
 
-		// Should not render trashed form
-		$this->assertEmpty( $output, 'Trashed form should not be rendered' );
+		// Should not render trashed form, even with edit permissions.
+		$this->assertEmpty( $output, 'Trashed form should not be rendered even with edit permissions' );
 	}
 
 	/**
@@ -175,9 +232,9 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that draft forms are NOT rendered.
+	 * Test that draft forms are rendered with notice for users with edit_post permission.
 	 */
-	public function test_render_synced_form_does_not_render_draft_form() {
+	public function test_render_synced_draft_form_with_edit_permission() {
 		$form_id = wp_insert_post(
 			array(
 				'post_type'    => 'jetpack_form',
@@ -187,6 +244,9 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 			)
 		);
 
+		// Set user with edit permissions.
+		wp_set_current_user( $this->editor_id );
+
 		$block = new WP_Block(
 			array(
 				'blockName' => 'jetpack/contact-form',
@@ -195,7 +255,272 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 		);
 
 		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
-		$this->assertEmpty( $output, 'Draft form should NOT be rendered' );
+
+		// Should render with status notice.
+		$this->assertNotEmpty( $output, 'Draft form should be rendered for users with edit_post permission' );
+		$this->assertStringContainsString( 'jetpack-form-status-notice', $output, 'Output should contain status notice' );
+		$this->assertStringContainsString( 'draft', $output, 'Output should mention draft status' );
+		$this->assertStringContainsString( 'Edit form', $output, 'Output should contain edit link' );
+	}
+
+	/**
+	 * Test that draft forms are NOT rendered without edit_post permission.
+	 */
+	public function test_render_synced_draft_form_without_edit_permission() {
+		$form_id = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_status'  => 'draft',
+				'post_title'   => 'Draft Form',
+				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-text {"label":"Name"} /--><!-- /wp:jetpack/contact-form -->',
+			)
+		);
+
+		// Set user without edit permissions.
+		wp_set_current_user( $this->subscriber_id );
+
+		$block = new WP_Block(
+			array(
+				'blockName' => 'jetpack/contact-form',
+				'attrs'     => array( 'ref' => $form_id ),
+			)
+		);
+
+		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
+		$this->assertEmpty( $output, 'Draft form should NOT be rendered for users without edit_post permission' );
+	}
+
+	/**
+	 * Test that pending forms are rendered with notice for users with edit_post permission.
+	 */
+	public function test_render_synced_pending_form_with_edit_permission() {
+		$form_id = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_status'  => 'pending',
+				'post_title'   => 'Pending Form',
+				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-email {"label":"Email"} /--><!-- /wp:jetpack/contact-form -->',
+			)
+		);
+
+		// Set user with edit permissions.
+		wp_set_current_user( $this->editor_id );
+
+		$block = new WP_Block(
+			array(
+				'blockName' => 'jetpack/contact-form',
+				'attrs'     => array( 'ref' => $form_id ),
+			)
+		);
+
+		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
+
+		// Should render with status notice.
+		$this->assertNotEmpty( $output, 'Pending form should be rendered for users with edit_post permission' );
+		$this->assertStringContainsString( 'jetpack-form-status-notice', $output, 'Output should contain status notice' );
+		$this->assertStringContainsString( 'pending review', $output, 'Output should mention pending review status' );
+		$this->assertStringContainsString( 'Edit form', $output, 'Output should contain edit link' );
+	}
+
+	/**
+	 * Test that pending forms are NOT rendered without edit_post permission.
+	 */
+	public function test_render_synced_pending_form_without_edit_permission() {
+		$form_id = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_status'  => 'pending',
+				'post_title'   => 'Pending Form',
+				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-email {"label":"Email"} /--><!-- /wp:jetpack/contact-form -->',
+			)
+		);
+
+		// Set user without edit permissions.
+		wp_set_current_user( $this->subscriber_id );
+
+		$block = new WP_Block(
+			array(
+				'blockName' => 'jetpack/contact-form',
+				'attrs'     => array( 'ref' => $form_id ),
+			)
+		);
+
+		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
+		$this->assertEmpty( $output, 'Pending form should NOT be rendered for users without edit_post permission' );
+	}
+
+	/**
+	 * Test that future (scheduled) forms are rendered with notice for users with edit_post permission.
+	 */
+	public function test_render_synced_future_form_with_edit_permission() {
+		// Create a future-dated form.
+		$future_date = gmdate( 'Y-m-d H:i:s', strtotime( '+1 week' ) );
+		$form_id     = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_status'  => 'future',
+				'post_date'    => $future_date,
+				'post_date_gmt' => get_gmt_from_date( $future_date ),
+				'post_title'   => 'Scheduled Form',
+				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-name {"label":"Name"} /--><!-- /wp:jetpack/contact-form -->',
+			)
+		);
+
+		// Set user with edit permissions.
+		wp_set_current_user( $this->editor_id );
+
+		$block = new WP_Block(
+			array(
+				'blockName' => 'jetpack/contact-form',
+				'attrs'     => array( 'ref' => $form_id ),
+			)
+		);
+
+		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
+
+		// Should render with status notice.
+		$this->assertNotEmpty( $output, 'Future form should be rendered for users with edit_post permission' );
+		$this->assertStringContainsString( 'jetpack-form-status-notice', $output, 'Output should contain status notice' );
+		$this->assertStringContainsString( 'scheduled', $output, 'Output should mention scheduled status' );
+		$this->assertStringContainsString( 'Edit form', $output, 'Output should contain edit link' );
+	}
+
+	/**
+	 * Test that future forms are NOT rendered without edit_post permission.
+	 */
+	public function test_render_synced_future_form_without_edit_permission() {
+		// Create a future-dated form.
+		$future_date = gmdate( 'Y-m-d H:i:s', strtotime( '+1 week' ) );
+		$form_id     = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_status'  => 'future',
+				'post_date'    => $future_date,
+				'post_date_gmt' => get_gmt_from_date( $future_date ),
+				'post_title'   => 'Scheduled Form',
+				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-name {"label":"Name"} /--><!-- /wp:jetpack/contact-form -->',
+			)
+		);
+
+		// Set user without edit permissions.
+		wp_set_current_user( $this->subscriber_id );
+
+		$block = new WP_Block(
+			array(
+				'blockName' => 'jetpack/contact-form',
+				'attrs'     => array( 'ref' => $form_id ),
+			)
+		);
+
+		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
+		$this->assertEmpty( $output, 'Future form should NOT be rendered for users without edit_post permission' );
+	}
+
+	/**
+	 * Test that private forms are rendered without notice for users with edit_post permission.
+	 */
+	public function test_render_synced_private_form_with_edit_permission() {
+		$form_id = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_status'  => 'private',
+				'post_title'   => 'Private Form',
+				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-telephone {"label":"Phone"} /--><!-- /wp:jetpack/contact-form -->',
+			)
+		);
+
+		// Set user with edit permissions.
+		wp_set_current_user( $this->editor_id );
+
+		$block = new WP_Block(
+			array(
+				'blockName' => 'jetpack/contact-form',
+				'attrs'     => array( 'ref' => $form_id ),
+			)
+		);
+
+		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
+
+		// Should render without status notice (private is treated like published).
+		$this->assertNotEmpty( $output, 'Private form should be rendered for users with edit_post permission' );
+		$this->assertStringNotContainsString( 'jetpack-form-status-notice', $output, 'Private form should not contain status notice' );
+	}
+
+	/**
+	 * Test that private forms are NOT rendered without edit_post permission.
+	 */
+	public function test_render_synced_private_form_without_edit_permission() {
+		$form_id = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_status'  => 'private',
+				'post_title'   => 'Private Form',
+				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-telephone {"label":"Phone"} /--><!-- /wp:jetpack/contact-form -->',
+			)
+		);
+
+		// Set user without edit permissions.
+		wp_set_current_user( $this->subscriber_id );
+
+		$block = new WP_Block(
+			array(
+				'blockName' => 'jetpack/contact-form',
+				'attrs'     => array( 'ref' => $form_id ),
+			)
+		);
+
+		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
+		$this->assertEmpty( $output, 'Private form should NOT be rendered for users without edit_post permission' );
+	}
+
+	/**
+	 * Test that status notice contains correct CSS classes for different statuses.
+	 */
+	public function test_status_notice_css_classes() {
+		// Test draft form (warning).
+		$draft_form_id = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_status'  => 'draft',
+				'post_title'   => 'Draft Form',
+				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-text {"label":"Text"} /--><!-- /wp:jetpack/contact-form -->',
+			)
+		);
+
+		wp_set_current_user( $this->editor_id );
+
+		$block = new WP_Block(
+			array(
+				'blockName' => 'jetpack/contact-form',
+				'attrs'     => array( 'ref' => $draft_form_id ),
+			)
+		);
+
+		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
+		$this->assertStringContainsString( 'jetpack-form-status-notice--warning', $output, 'Draft form should have warning CSS class' );
+
+		// Test future form (info).
+		$future_date    = gmdate( 'Y-m-d H:i:s', strtotime( '+1 week' ) );
+		$future_form_id = wp_insert_post(
+			array(
+				'post_type'     => 'jetpack_form',
+				'post_status'   => 'future',
+				'post_date'     => $future_date,
+				'post_date_gmt' => get_gmt_from_date( $future_date ),
+				'post_title'    => 'Scheduled Form',
+				'post_content'  => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-text {"label":"Text"} /--><!-- /wp:jetpack/contact-form -->',
+			)
+		);
+
+		$block = new WP_Block(
+			array(
+				'blockName' => 'jetpack/contact-form',
+				'attrs'     => array( 'ref' => $future_form_id ),
+			)
+		);
+
+		$output = Contact_Form_Block::gutenblock_render_form( $block->attributes, '' );
+		$this->assertStringContainsString( 'jetpack-form-status-notice--info', $output, 'Future form should have info CSS class' );
 	}
 
 	/**
