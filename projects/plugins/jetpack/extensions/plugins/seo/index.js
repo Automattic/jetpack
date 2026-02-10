@@ -143,7 +143,7 @@ const Seo = () => {
 				name="jetpack-seo"
 			>
 				{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
-					<SeoEnhancer placement="jetpack-sidebar" disableAutoEnhance={ ! canHaveAutoEnhance } />
+					<SeoEnhancer placement="document-settings" disableAutoEnhance={ ! canHaveAutoEnhance } />
 				) }
 				<PanelRow>
 					<SeoTitlePanel />
