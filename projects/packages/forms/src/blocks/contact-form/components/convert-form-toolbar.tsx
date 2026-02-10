@@ -54,7 +54,7 @@ interface ConvertFormToolbarProps {
  * @param props                  - Component props.
  * @param props.clientId         - The block client ID.
  * @param props.attributes       - The block attributes.
- * @param props.onBeforeNavigate
+ * @param props.onBeforeNavigate - Callback to stage pending edits before navigation.
  * @return Toolbar with edit/convert buttons.
  */
 export function ConvertFormToolbar( {
