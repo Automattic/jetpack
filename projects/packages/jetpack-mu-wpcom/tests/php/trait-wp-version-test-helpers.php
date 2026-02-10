@@ -7,6 +7,8 @@
  *
  * This trait provides helper methods to handle version-specific expectations in tests.
  *
+ * @todo Remove this trait once WP 7.0 is the minimum supported version.
+ *
  * @package automattic/jetpack-mu-wpcom
  */
 

@@ -48,6 +48,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 
 		// WordPress trunk (7.0+) removed layout classes from block output (Gutenberg PR #71207).
 		// We need to handle both old (with classes) and new (without classes) formats.
+		// @todo Simplify to a single expected value once WP 7.0 is the minimum supported version.
 		$expected_content_wp7 = '<p>test</p><ul><li>1</li><li>2</li><li>3</li></ul><blockquote class="wp-block-quote"><p>something</p><cite>someone</cite></blockquote>';
 		$expected_content_wp6 = '<p>test</p><ul><li>1</li><li>2</li><li>3</li></ul><blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow"><p>something</p><cite>someone</cite></blockquote>';
 

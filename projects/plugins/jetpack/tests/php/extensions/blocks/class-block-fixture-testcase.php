@@ -90,6 +90,8 @@ abstract class Jetpack_Block_Fixture_TestCase extends WP_UnitTestCase {
 	 * - `wp-block-paragraph` class (added in WP trunk, core r61605)
 	 * - Leftover empty `class=""` attributes after stripping
 	 *
+	 * @todo Remove this method once WP 7.0 is the minimum supported version.
+	 *
 	 * @param string $html The HTML content to normalize.
 	 * @return string The normalized HTML.
 	 */
