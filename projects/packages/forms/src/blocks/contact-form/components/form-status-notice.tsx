@@ -102,8 +102,8 @@ export default function FormStatusNotice( {
 				const updates: { status: string; date?: string } = {
 					status: previousStatus,
 				};
-				// Restore the original scheduled date for scheduled forms
-				if ( previousStatus === 'future' && previousDate ) {
+				// Restore the original date to ensure the form returns to its exact previous state
+				if ( previousDate ) {
 					updates.date = previousDate;
 				}
 				await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, updates );
