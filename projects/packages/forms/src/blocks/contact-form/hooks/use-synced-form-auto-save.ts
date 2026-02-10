@@ -3,6 +3,7 @@
  * Changes are staged (not saved to DB) so they can be picked up by the form editor.
  */
 
+import { serialize } from '@wordpress/blocks';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedFormBlock, serializeSyncedForm } from '../util/form-sync.ts';
@@ -85,8 +86,9 @@ export function stageFormEdits(
 	currentInnerBlocks: unknown[],
 	editEntityRecord: UseSyncedFormAutoSaveParams[ 'editEntityRecord' ]
 ): void {
-	const serialized = serializeSyncedForm( attributes, currentInnerBlocks );
+	// Create block once and reuse for both serialization and staging
 	const formBlock = createSyncedFormBlock( attributes, currentInnerBlocks );
+	const serialized = serialize( formBlock );
 	editEntityRecord( 'postType', FORM_POST_TYPE, ref, {
 		content: serialized,
 		blocks: [ formBlock ],
