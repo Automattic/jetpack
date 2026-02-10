@@ -14,6 +14,10 @@
  * @package automattic/jetpack-forms
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'jetpack_forms_override_script' ) ) {
 	/**
 	 * Registers a script according to `wp_register_script`, honoring any existing
@@ -52,7 +56,6 @@ if ( ! function_exists( 'jetpack_forms_register_package_scripts' ) ) {
 	function jetpack_forms_register_package_scripts( $scripts ) {
 		$build_dir       = dirname( __DIR__, 2 ) . '/build';
 		$build_constants = require $build_dir . '/constants.php';
-		$default_version = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? time() : $build_constants['version'];
 
 		$scripts_dir  = $build_dir . '/scripts';
 		$scripts_file = $scripts_dir . '/registry.php';
@@ -72,6 +75,8 @@ if ( ! function_exists( 'jetpack_forms_register_package_scripts' ) ) {
 				}
 			}
 		}
+
+		$default_version = ( $extension === '.js' ) ? time() : $build_constants['version'];
 
 		foreach ( $scripts_data as $script_data ) {
 			$asset_file   = $scripts_dir . '/' . $script_data['asset'];
@@ -127,11 +132,7 @@ if ( ! function_exists( 'jetpack_forms_register_script_modules' ) ) {
 				$module['id'],
 				$base_url . $module['path'] . $extension,
 				$asset['module_dependencies'] ?? array(),
-				$asset['version'] ?? false,
-				array(
-					'fetchpriority' => 'low',
-					'in_footer'     => true,
-				)
+				$asset['version'] ?? false
 			);
 		}
 	}
@@ -235,7 +236,6 @@ if ( ! function_exists( 'jetpack_forms_register_package_styles' ) ) {
 	function jetpack_forms_register_package_styles( $styles ) {
 		$build_dir       = dirname( __DIR__, 2 ) . '/build';
 		$build_constants = require $build_dir . '/constants.php';
-		$default_version = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? time() : $build_constants['version'];
 
 		$styles_dir  = $build_dir . '/styles';
 		$styles_file = $styles_dir . '/registry.php';
@@ -255,6 +255,8 @@ if ( ! function_exists( 'jetpack_forms_register_package_styles' ) ) {
 				}
 			}
 		}
+
+		$default_version = ( $suffix === '' ) ? time() : $build_constants['version'];
 
 		foreach ( $styles_data as $style_data ) {
 			jetpack_forms_override_style(

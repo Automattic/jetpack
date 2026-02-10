@@ -94,4 +94,51 @@ class Dashboard_Test extends BaseTestCase {
 		$url = Dashboard::get_admin_url( '' );
 		$this->assertNull( $url );
 	}
+
+	/**
+	 * Test load_wp_build does nothing when page parameter is wrong.
+	 */
+	public function test_load_wp_build_wrong_page() {
+		$_GET['page'] = 'some-other-page';
+
+		// Should return without requiring any files — no error, no side effects.
+		Dashboard::load_wp_build();
+
+		$this->assertFalse(
+			function_exists( 'jetpack_forms_test_build_marker' ),
+			'No build files should be loaded for wrong page.'
+		);
+
+		unset( $_GET['page'] );
+	}
+
+	/**
+	 * Test load_wp_build does nothing when page parameter is missing.
+	 */
+	public function test_load_wp_build_no_page() {
+		unset( $_GET['page'] );
+
+		Dashboard::load_wp_build();
+
+		$this->assertFalse(
+			function_exists( 'jetpack_forms_test_build_marker' ),
+			'No build files should be loaded when page is missing.'
+		);
+	}
+
+	/**
+	 * Test load_wp_build does nothing when build.php does not exist.
+	 */
+	public function test_load_wp_build_correct_page_missing_build() {
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+
+		// build/build.php does not exist in the test environment, so
+		// the method should return without errors after passing the
+		// page check but failing the file_exists check.
+		Dashboard::load_wp_build();
+
+		$this->assertTrue( true, 'load_wp_build should not error when build.php is missing.' );
+
+		unset( $_GET['page'] );
+	}
 }

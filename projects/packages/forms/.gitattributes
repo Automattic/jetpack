@@ -12,6 +12,8 @@ dist/**           production-include
 /build/**/*.php    production-include
 /build/**/*.min.js production-include
 /build/**/loader.js production-include
+/build/**/*.min.css production-include
+/build/**/*.rtl.css production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
