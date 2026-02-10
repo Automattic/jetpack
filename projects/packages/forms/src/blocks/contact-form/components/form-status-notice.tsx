@@ -91,7 +91,7 @@ export default function FormStatusNotice( {
 	const { removeBlocks } = useDispatch( 'core/block-editor' );
 
 	const handleUndo = useCallback(
-		async ( previousStatus: string ) => {
+		async ( previousStatus: string, previousDate?: string ) => {
 			if ( ! formRef ) {
 				return;
 			}
@@ -99,9 +99,14 @@ export default function FormStatusNotice( {
 				if ( previousStatus === 'trash' ) {
 					previousStatus = 'draft'; // Moving to trash from publish to draft can't be undone directly.
 				}
-				await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, {
+				const updates: { status: string; date?: string } = {
 					status: previousStatus,
-				} );
+				};
+				// Restore the original scheduled date for scheduled forms
+				if ( previousStatus === 'future' && previousDate ) {
+					updates.date = previousDate;
+				}
+				await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, updates );
 				await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, formRef );
 			} catch {
 				createErrorNotice(
@@ -118,6 +123,7 @@ export default function FormStatusNotice( {
 			return;
 		}
 		const previousStatus = syncedForm?.status;
+		const previousDate = syncedForm?.date;
 		setIsPublishing( true );
 		try {
 			await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, { status: 'publish' } );
@@ -128,7 +134,7 @@ export default function FormStatusNotice( {
 					? [
 							{
 								label: __( 'Undo', 'jetpack-forms' ),
-								onClick: () => handleUndo( previousStatus ),
+								onClick: () => handleUndo( previousStatus, previousDate ),
 							},
 					  ]
 					: [],
@@ -144,6 +150,7 @@ export default function FormStatusNotice( {
 	}, [
 		formRef,
 		syncedForm?.status,
+		syncedForm?.date,
 		editEntityRecord,
 		saveEditedEntityRecord,
 		createSuccessNotice,
