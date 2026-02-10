@@ -25,6 +25,24 @@ export function filterSyncedAttributes(
 }
 
 /**
+ * Create a form block for staging/saving
+ * Excludes the ref attribute since it's not part of the form definition
+ *
+ * @param {Record<string, unknown>} attributes  - Form attributes
+ * @param {Array}                   innerBlocks - Form inner blocks
+ * @return {Block} The created form block
+ */
+export function createSyncedFormBlock(
+	attributes: Record< string, unknown >,
+	innerBlocks: unknown[]
+) {
+	const attributesToSave = { ...attributes };
+	delete attributesToSave.ref;
+
+	return createBlock( 'jetpack/contact-form', attributesToSave, innerBlocks );
+}
+
+/**
  * Serialize form attributes and blocks for saving to synced form post
  * Excludes the ref attribute since it's not part of the form definition
  *
@@ -36,10 +54,6 @@ export function serializeSyncedForm(
 	attributes: Record< string, unknown >,
 	innerBlocks: unknown[]
 ): string {
-	const attributesToSave = { ...attributes };
-	delete attributesToSave.ref;
-
-	const formBlock = createBlock( 'jetpack/contact-form', attributesToSave, innerBlocks );
-
+	const formBlock = createSyncedFormBlock( attributes, innerBlocks );
 	return serialize( formBlock );
 }

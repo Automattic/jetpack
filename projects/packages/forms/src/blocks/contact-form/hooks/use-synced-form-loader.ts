@@ -6,9 +6,6 @@ import { useEffect, useRef } from '@wordpress/element';
 import { filterSyncedAttributes } from '../util/form-sync.ts';
 import type { Block } from '@wordpress/blocks';
 
-const DEBUG = true;
-const log = ( ...args: unknown[] ) => DEBUG && console.log( '[useSyncedFormLoader]', ...args );
-
 interface UseSyncedFormLoaderParams {
 	ref?: number;
 	syncedFormBlocks: Block[] | null;
@@ -26,9 +23,7 @@ interface UseSyncedFormLoaderResult {
 
 /**
  * Helper to find the first step block in a multistep form structure.
- *
- * @param {Block[]} blocks - The blocks to search through.
- * @return {string|null} The clientId of the first step block, or null if not found.
+ * @param blocks
  */
 function findFirstStepClientId( blocks: Block[] ): string | null {
 	for ( const block of blocks ) {
@@ -50,9 +45,15 @@ function findFirstStepClientId( blocks: Block[] ): string | null {
  * Hook to handle loading synced form content into the editor
  * This performs a one-time sync when the ref changes or loads for the first time
  * After loading, the user can edit freely and changes will be saved back via auto-save
- *
- * @param {UseSyncedFormLoaderParams} params - Configuration parameters
- * @return {UseSyncedFormLoaderResult} Object containing syncing state ref
+ * @param root0
+ * @param root0.ref
+ * @param root0.syncedFormBlocks
+ * @param root0.syncedFormAttributes
+ * @param root0.clientId
+ * @param root0.setAttributes
+ * @param root0.replaceInnerBlocks
+ * @param root0.__unstableMarkNextChangeAsNotPersistent
+ * @param root0.setActiveStep
  */
 export function useSyncedFormLoader( {
 	ref,
@@ -69,63 +70,38 @@ export function useSyncedFormLoader( {
 	const lastLoadedRefId = useRef< number | null >( null );
 
 	useEffect( () => {
-		log( 'Effect triggered', {
-			ref,
-			hasSyncedFormBlocks: !! syncedFormBlocks,
-			syncedFormBlocksCount: syncedFormBlocks?.length,
-			lastLoadedRefId: lastLoadedRefId.current,
-		} );
-
 		if ( ! ref || ! syncedFormBlocks ) {
-			log( '⏭️ Skipping: no ref or no syncedFormBlocks' );
 			return;
 		}
 
 		// Only sync when ref changes or loads for the first time
-		// Don't re-sync when syncedFormBlocks changes due to our own edits
 		if ( lastLoadedRefId.current === ref ) {
-			log( '⏭️ Skipping: already loaded this ref', { ref } );
-			return; // Already loaded this ref
+			return;
 		}
-
-		log( '🔄 Loading synced form content', {
-			ref,
-			blocksCount: syncedFormBlocks.length,
-			hasAttributes: !! syncedFormAttributes,
-		} );
 
 		// Mark this ref as loaded
 		lastLoadedRefId.current = ref;
-
-		// Sync on initial load
-		// Once loaded, the user can edit freely and changes will save back to the source
 		isSyncingRef.current = true;
 
 		// Apply form attributes from the synced form (except ref and layout attrs)
-		// Mark as non-persistent so they're not saved locally - only ref is saved
 		if ( syncedFormAttributes ) {
 			const attrsToApply = filterSyncedAttributes( syncedFormAttributes );
-			log( '📝 Applying synced attributes', { attrsToApply } );
 			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( attrsToApply );
 		}
 
 		// Load inner blocks from source
-		log( '📦 Replacing inner blocks', { blocksCount: syncedFormBlocks.length } );
 		__unstableMarkNextChangeAsNotPersistent();
 		replaceInnerBlocks( clientId, syncedFormBlocks, false );
 
-		// For multistep forms, select the first step so the editor shows it immediately
+		// For multistep forms, select the first step
 		const firstStepClientId = findFirstStepClientId( syncedFormBlocks );
 		if ( firstStepClientId ) {
-			log( '📍 Setting active step', { firstStepClientId } );
 			setActiveStep( clientId, firstStepClientId );
 		}
 
-		// Reset syncing flag immediately after operations complete
-		// Using requestAnimationFrame to ensure it happens after React commits
+		// Reset syncing flag after React commits
 		requestAnimationFrame( () => {
-			log( '✅ Syncing complete, resetting isSyncingRef' );
 			isSyncingRef.current = false;
 		} );
 	}, [

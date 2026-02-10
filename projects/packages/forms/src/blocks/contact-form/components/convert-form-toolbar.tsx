@@ -43,9 +43,9 @@ interface ConvertFormToolbarProps {
 	attributes: Record< string, unknown >;
 	/**
 	 * Optional callback to run before navigating to form editor.
-	 * Use this to flush any pending saves. Returns a promise that resolves when save is complete.
+	 * Use this to stage any pending edits in the entity store (not save to database).
 	 */
-	onBeforeNavigate?: () => Promise< void >;
+	onBeforeNavigate?: () => void;
 }
 
 /**
@@ -141,18 +141,10 @@ export function ConvertFormToolbar( {
 		}
 	};
 
-	const handleEditOriginal = async () => {
-		console.log( '[ConvertFormToolbar] handleEditOriginal called', {
-			ref: attributes.ref,
-			hasOnBeforeNavigate: !! onBeforeNavigate,
-		} );
+	const handleEditOriginal = () => {
 		if ( attributes.ref ) {
-			// Flush any pending saves before navigating (wait for save to complete)
-			if ( onBeforeNavigate ) {
-				console.log( '[ConvertFormToolbar] Calling onBeforeNavigate (flushPendingSave)' );
-				await onBeforeNavigate();
-				console.log( '[ConvertFormToolbar] onBeforeNavigate completed, now navigating' );
-			}
+			// Stage any pending edits in the entity store before navigating
+			onBeforeNavigate?.();
 			navigateToForm( attributes.ref as number, editorContext, onNavigateToEntityRecord );
 		}
 	};

@@ -30,9 +30,6 @@ interface UseSyncedFormResult {
  * @param {number | undefined} ref - The jetpack_form post ID to load
  * @return {UseSyncedFormResult} Object containing loading state and parsed block data
  */
-const DEBUG = true;
-const log = ( ...args: unknown[] ) => DEBUG && console.log( '[useSyncedForm]', ...args );
-
 export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 	const { record, isResolving, hasEdits } = useEntityRecord< JetpackForm >(
 		'postType',
@@ -51,29 +48,25 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 		[ ref ]
 	);
 
-	log( 'Hook called', {
-		ref,
-		isResolving,
-		hasEdits,
-		hasRecord: !! record,
-		recordContentLength: record?.content?.raw?.length,
-		hasPendingEdits: !! pendingEdits,
-		pendingEditKeys: pendingEdits ? Object.keys( pendingEdits ) : [],
-	} );
-
-	// Check if there are pending block edits
+	// Check if there are pending edits (either blocks or content)
 	const pendingBlocks = useMemo( () => {
 		if ( ! hasEdits || ! pendingEdits ) {
-			log( 'No pending blocks', { hasEdits, hasPendingEdits: !! pendingEdits } );
 			return null;
 		}
 		const edits = pendingEdits as Record< string, unknown >;
-		if ( ! edits.blocks || ! Array.isArray( edits.blocks ) ) {
-			log( 'Pending edits exist but no blocks field', { editKeys: Object.keys( edits ) } );
-			return null;
+
+		// First check for block edits (from block editor)
+		if ( edits.blocks && Array.isArray( edits.blocks ) ) {
+			return edits.blocks as Block[];
 		}
-		log( 'Found pending blocks', { blockCount: edits.blocks.length } );
-		return edits.blocks as Block[];
+
+		// Then check for content edits (from our auto-save which stores serialized content)
+		if ( typeof edits.content === 'string' ) {
+			const parsedBlocks = parse( edits.content );
+			return parsedBlocks.length > 0 ? parsedBlocks : null;
+		}
+
+		return null;
 	}, [ hasEdits, pendingEdits ] );
 
 	// Parse the block content - prefer pending edits over saved record
@@ -83,30 +76,17 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 			const formBlock = pendingBlocks[ 0 ];
 
 			if ( formBlock.name !== 'jetpack/contact-form' ) {
-				console.log(
-					'[useSyncedForm] Pending blocks first block is not contact-form:',
-					formBlock.name
-				);
 				return { syncedAttributes: null, syncedInnerBlocks: null };
 			}
 
-			// Get attributes, strip out 'lock', and add 'ref'
-			const { lock, ...attributesWithoutLock } = ( formBlock.attributes || {} ) as Record<
-				string,
-				unknown
-			>;
+			// Get attributes and add 'ref' (lock is stripped via destructuring)
+			const attrs = ( formBlock.attributes || {} ) as Record< string, unknown >;
+			const { lock, ...attributesWithoutLock } = attrs;
+			void lock; // Intentionally unused - stripped from synced attributes
 			const finalAttributes = {
 				...attributesWithoutLock,
 				ref,
 			};
-
-			console.log( '[useSyncedForm] Using pending edits for synced form', {
-				source: 'pendingEdits',
-				ref,
-				strippedLock: !! lock,
-				attributeKeys: Object.keys( finalAttributes ),
-				innerBlocksCount: formBlock.innerBlocks?.length ?? 0,
-			} );
 
 			return {
 				syncedAttributes: finalAttributes,
@@ -132,29 +112,20 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 			return { syncedAttributes: null, syncedInnerBlocks: null };
 		}
 
-		// Get attributes, strip out 'lock', and add 'ref'
-		const { lock, ...attributesWithoutLock } = ( formBlock.attributes || {} ) as Record<
-			string,
-			unknown
-		>;
+		// Get attributes and add 'ref' (lock is stripped via destructuring)
+		const attrs = ( formBlock.attributes || {} ) as Record< string, unknown >;
+		const { lock, ...attributesWithoutLock } = attrs;
+		void lock; // Intentionally unused - stripped from synced attributes
 		const finalAttributes = {
 			...attributesWithoutLock,
 			ref,
 		};
 
-		console.log( '[useSyncedForm] Using saved record for synced form', {
-			source: 'record',
-			ref,
-			strippedLock: !! lock,
-			attributeKeys: Object.keys( finalAttributes ),
-			innerBlocksCount: formBlock.innerBlocks?.length ?? 0,
-		} );
-
 		return {
 			syncedAttributes: finalAttributes,
 			syncedInnerBlocks: formBlock.innerBlocks || [],
 		};
-	}, [ pendingBlocks, record, record?.content?.raw, ref ] );
+	}, [ pendingBlocks, record, ref ] );
 
 	if ( ! ref ) {
 		return {
