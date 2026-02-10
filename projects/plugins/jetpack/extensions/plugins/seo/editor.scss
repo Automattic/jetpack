@@ -2,3 +2,16 @@
 	width: 100%;
 }
 
+.jetpack-seo-sidebar__feature-section {
+	display: block;
+
+	p,
+	p > * {
+		text-wrap: pretty;
+	}
+
+	button {
+		width: 100%;
+		justify-content: center;
+	}
+}
