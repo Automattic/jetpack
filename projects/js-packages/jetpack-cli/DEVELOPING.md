@@ -31,3 +31,11 @@ Git hooks follow a three-stage delegation flow:
 ### Git worktrees
 
 `initHooks` uses `git rev-parse --git-common-dir` to locate the hooks directory. In a regular checkout this resolves to `.git/hooks/`; in a worktree it resolves to the main repository's `.git/hooks/`. This is correct because git hooks are shared across all worktrees.
+
+#### Docker worktree support
+
+Running hooks inside Docker from a worktree requires extra handling in `tools/docker/bin/monorepo`:
+
+1. **Git mount** — A worktree's `.git` file contains a `gitdir:` pointer to a host path that doesn't exist inside the container. The script detects worktrees (comparing `--git-common-dir` vs `--absolute-git-dir`), mounts the main repo's `.git/` at `/repo-git`, and sets `GIT_DIR`/`GIT_WORK_TREE` so git operations work.
+2. **Shared Docker data** — Worktrees share the main repo's `tools/docker/data/monorepo` directory so SSH keys, composer cache, and pnpm store are reused.
+3. **Auto-install** — Worktrees don't have `node_modules/` (gitignored). On first Docker run, `pnpm install --frozen-lockfile` runs automatically before the requested command.

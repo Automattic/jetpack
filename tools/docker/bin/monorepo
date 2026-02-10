@@ -9,6 +9,27 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MONOREPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
 
+# Detect git worktree
+GIT_COMMON_DIR="$(git -C "$MONOREPO_ROOT" rev-parse --git-common-dir 2>/dev/null)"
+GIT_ABS_DIR="$(git -C "$MONOREPO_ROOT" rev-parse --absolute-git-dir 2>/dev/null)"
+IS_WORKTREE=0
+
+if [[ -n "$GIT_COMMON_DIR" && -n "$GIT_ABS_DIR" && "$GIT_COMMON_DIR" != "$GIT_ABS_DIR" ]]; then
+    IS_WORKTREE=1
+    # Main repo's .git directory (e.g. /Users/me/code/jetpack/.git)
+    MAIN_GIT_DIR="$(cd "$MONOREPO_ROOT" && cd "$GIT_COMMON_DIR" && pwd)"
+    # Main repo root (parent of .git)
+    MAIN_REPO_ROOT="$(dirname "$MAIN_GIT_DIR")"
+    # Worktree name (last path component of the worktree git dir)
+    WORKTREE_NAME="$(basename "$GIT_ABS_DIR")"
+
+    if [[ "${DEBUG:-}" = "1" ]]; then
+        echo "[worktree] main .git dir: $MAIN_GIT_DIR"
+        echo "[worktree] main repo root: $MAIN_REPO_ROOT"
+        echo "[worktree] worktree name: $WORKTREE_NAME"
+    fi
+fi
+
 echo "Running command in monorepo container: $*"
 
 # Source the versions file
@@ -88,10 +109,35 @@ fi
   GIT_USER_NAME=$(git config user.name 2>/dev/null || echo "")
   GIT_USER_EMAIL=$(git config user.email 2>/dev/null || echo "")
 
+  # Worktree-specific Docker args
+  WORKTREE_DOCKER_ARGS=()
+  if [[ "$IS_WORKTREE" = "1" ]]; then
+      # Share the main repo's Docker data dir (ssh keys, composer/npm/pnpm caches)
+      DOCKER_DATA_DIR="$MAIN_REPO_ROOT/tools/docker/data/monorepo"
+      # Mount main .git/ so git operations work inside the container
+      WORKTREE_DOCKER_ARGS+=(
+          -v "$MAIN_GIT_DIR:/repo-git:ro"
+          -e "GIT_DIR=/repo-git/worktrees/$WORKTREE_NAME"
+          -e "GIT_WORK_TREE=/workspace"
+      )
+  else
+      DOCKER_DATA_DIR="$MONOREPO_ROOT/tools/docker/data/monorepo"
+  fi
+  mkdir -p "$DOCKER_DATA_DIR"
+
+  # In worktrees, node_modules is missing (gitignored). Wrap the command to
+  # auto-install dependencies on first run so hooks and build scripts work.
+  if [[ "$IS_WORKTREE" = "1" ]]; then
+      INSTALL_PREFIX='if [ ! -d /workspace/node_modules ]; then echo "Installing dependencies (first run in worktree)..." && pnpm install --frozen-lockfile; fi && '
+      WRAPPED_CMD="${INSTALL_PREFIX}$*"
+      set -- sh -c "$WRAPPED_CMD"
+  fi
+
   docker run --rm $TTY_FLAG \
     -v "$MONOREPO_ROOT:/workspace" \
-    -v "$MONOREPO_ROOT/tools/docker/data/monorepo:/root" \
+    -v "$DOCKER_DATA_DIR:/root" \
     -v /var/run/docker.sock:/var/run/docker.sock \
+    "${WORKTREE_DOCKER_ARGS[@]}" \
     -w /workspace \
     -e TERM=$TERM \
     -e COLORTERM=$COLORTERM \
