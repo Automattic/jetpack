@@ -228,7 +228,7 @@ $style = '<style media="all" type="text/css">
 		font-size: 14px;
 		color: #757575;
 		margin: 0;
-		line-height: 1.4;
+		text-decoration: underline;
 	}
 
 	/* Metadata Section */

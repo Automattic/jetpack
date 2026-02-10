@@ -3694,9 +3694,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 					</table>
 					<![endif]-->
 				</td>
-				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 500; color: #1e1e1e; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . Feedback_Field::HEADER_LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
+				<td class="respondent-details-cell" style="vertical-align: middle;">
+					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0;">' . $name . '</div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; color: #757575; margin: 0; text-decoration: underline;">' . $email . '</div>' : '' ) . '
 				</td>
 			</tr>
 		</table>';
