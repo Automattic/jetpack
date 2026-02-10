@@ -26,7 +26,14 @@ describe( 'captureBaseline', () => {
 
 	it( 'returns null when ref is undefined', () => {
 		const baselineRef = { current: null };
-		const result = captureBaseline( undefined, { content: { raw: '...' } }, {}, [], baselineRef );
+		const result = captureBaseline(
+			undefined,
+			{ content: { raw: '...' } },
+			false,
+			{},
+			[],
+			baselineRef
+		);
 
 		expect( result ).toBeNull();
 		expect( baselineRef.current ).toBeNull();
@@ -34,7 +41,15 @@ describe( 'captureBaseline', () => {
 
 	it( 'returns null when syncedForm is null', () => {
 		const baselineRef = { current: null };
-		const result = captureBaseline( 123, null, {}, [], baselineRef );
+		const result = captureBaseline( 123, null, false, {}, [], baselineRef );
+
+		expect( result ).toBeNull();
+		expect( baselineRef.current ).toBeNull();
+	} );
+
+	it( 'returns null when isSyncing is true', () => {
+		const baselineRef = { current: null };
+		const result = captureBaseline( 123, { content: { raw: '...' } }, true, {}, [], baselineRef );
 
 		expect( result ).toBeNull();
 		expect( baselineRef.current ).toBeNull();
@@ -51,6 +66,7 @@ describe( 'captureBaseline', () => {
 		const result = captureBaseline(
 			123,
 			{ content: { raw: '...' } },
+			false,
 			attributes,
 			innerBlocks,
 			baselineRef
@@ -70,6 +86,7 @@ describe( 'captureBaseline', () => {
 		const result = captureBaseline(
 			123,
 			{ content: { raw: '...' } },
+			false,
 			{ to: 'new@example.com' },
 			[],
 			baselineRef
@@ -90,6 +107,7 @@ describe( 'captureBaseline', () => {
 		const result = captureBaseline(
 			200,
 			{ content: { raw: '...' } },
+			false,
 			{ new: true },
 			[],
 			baselineRef

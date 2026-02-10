@@ -38,11 +38,12 @@ interface UseSyncedFormAutoSaveResult {
 
 /**
  * Captures a baseline serialization when the form first loads.
- * Baseline is captured even during sync so it's ready when sync completes.
- * Returns the baseline if ready, or null if still loading.
+ * Only captures after sync completes to ensure baseline reflects synced content.
+ * Returns the baseline if ready, or null if still loading/syncing.
  *
  * @param {number | undefined}      ref                - The synced form post ID.
  * @param {Object | null}           syncedForm         - The synced form record.
+ * @param {boolean}                 isSyncing          - Whether sync is in progress.
  * @param {Record<string, unknown>} attributes         - Current form attributes.
  * @param {unknown[]}               currentInnerBlocks - Current form inner blocks.
  * @param {React.MutableRefObject}  baselineRef        - Ref to store the baseline.
@@ -51,12 +52,13 @@ interface UseSyncedFormAutoSaveResult {
 export function captureBaseline(
 	ref: number | undefined,
 	syncedForm: { content?: { raw?: string } } | null,
+	isSyncing: boolean,
 	attributes: Record< string, unknown >,
 	currentInnerBlocks: unknown[],
 	baselineRef: React.MutableRefObject< { ref: number; serialized: string } | null >
 ): string | null {
-	// Not ready yet - need ref and syncedForm to be available
-	if ( ! ref || ! syncedForm ) {
+	// Not ready yet - need ref and syncedForm, and sync must be complete
+	if ( ! ref || ! syncedForm || isSyncing ) {
 		return null;
 	}
 
@@ -127,17 +129,18 @@ export function useSyncedFormAutoSave( {
 	}
 
 	useEffect( () => {
-		// Capture baseline even during sync so it's ready when sync completes
+		// Only capture baseline after sync completes to ensure it reflects synced content
 		const baseline = captureBaseline(
 			ref,
 			syncedForm,
+			isSyncingRef.current,
 			attributes,
 			currentInnerBlocks,
 			baselineRef
 		);
 
-		// Not ready, still syncing, or no changes - don't stage
-		if ( ! baseline || ! ref || isSyncingRef.current ) {
+		// Not ready or no changes - don't stage
+		if ( ! baseline || ! ref ) {
 			return;
 		}
 
@@ -164,14 +167,10 @@ export function useSyncedFormAutoSave( {
 	}, [ currentInnerBlocks, ref, syncedForm, editEntityRecord, attributes, isSyncingRef ] );
 
 	const flushPendingSave = useCallback( () => {
-		// Don't flush while syncing
-		if ( isSyncingRef.current ) {
-			return;
-		}
-
 		const baseline = captureBaseline(
 			ref,
 			syncedForm,
+			isSyncingRef.current,
 			attributes,
 			currentInnerBlocks,
 			baselineRef
