@@ -37,24 +37,25 @@ interface UseSyncedFormAutoSaveResult {
 
 /**
  * Captures a baseline serialization when the form first loads.
- * Returns the baseline if ready, or null if still loading/syncing.
- * @param ref
- * @param syncedForm
- * @param isSyncing
- * @param attributes
- * @param currentInnerBlocks
- * @param baselineRef
+ * Baseline is captured even during sync so it's ready when sync completes.
+ * Returns the baseline if ready, or null if still loading.
+ *
+ * @param {number | undefined}      ref                - The synced form post ID.
+ * @param {Object | null}           syncedForm         - The synced form record.
+ * @param {Record<string, unknown>} attributes         - Current form attributes.
+ * @param {unknown[]}               currentInnerBlocks - Current form inner blocks.
+ * @param {React.MutableRefObject}  baselineRef        - Ref to store the baseline.
+ * @return {string | null} The baseline serialization, or null if not ready.
  */
 export function captureBaseline(
 	ref: number | undefined,
 	syncedForm: { content?: { raw?: string } } | null,
-	isSyncing: boolean,
 	attributes: Record< string, unknown >,
 	currentInnerBlocks: unknown[],
 	baselineRef: React.MutableRefObject< { ref: number; serialized: string } | null >
 ): string | null {
-	// Not ready yet
-	if ( ! ref || ! syncedForm || isSyncing ) {
+	// Not ready yet - need ref and syncedForm to be available
+	if ( ! ref || ! syncedForm ) {
 		return null;
 	}
 
@@ -72,10 +73,11 @@ export function captureBaseline(
 /**
  * Stages form edits to the entity store.
  * Stores both serialized content and parsed blocks so the form editor can pick them up.
- * @param ref
- * @param attributes
- * @param currentInnerBlocks
- * @param editEntityRecord
+ *
+ * @param {number}                  ref                - The synced form post ID.
+ * @param {Record<string, unknown>} attributes         - Current form attributes.
+ * @param {unknown[]}               currentInnerBlocks - Current form inner blocks.
+ * @param {Function}                editEntityRecord   - Function to stage edits in entity store.
  */
 export function stageFormEdits(
 	ref: number,
@@ -100,13 +102,9 @@ export function stageFormEdits(
  * - Only stages edits when content differs from baseline
  * - Stages both `content` and `blocks` so form editor can pick up changes
  * - Does NOT save to database - only stages in entity store
- * @param root0
- * @param root0.ref
- * @param root0.syncedForm
- * @param root0.attributes
- * @param root0.currentInnerBlocks
- * @param root0.isSyncingRef
- * @param root0.editEntityRecord
+ *
+ * @param {UseSyncedFormAutoSaveParams} params - Hook parameters.
+ * @return {UseSyncedFormAutoSaveResult} Object with flushPendingSave function.
  */
 export function useSyncedFormAutoSave( {
 	ref,
@@ -127,17 +125,17 @@ export function useSyncedFormAutoSave( {
 	}
 
 	useEffect( () => {
+		// Capture baseline even during sync so it's ready when sync completes
 		const baseline = captureBaseline(
 			ref,
 			syncedForm,
-			isSyncingRef.current,
 			attributes,
 			currentInnerBlocks,
 			baselineRef
 		);
 
-		// Not ready or no changes
-		if ( ! baseline || ! ref ) {
+		// Not ready, still syncing, or no changes - don't stage
+		if ( ! baseline || ! ref || isSyncingRef.current ) {
 			return;
 		}
 
@@ -149,7 +147,10 @@ export function useSyncedFormAutoSave( {
 		// Debounce staging
 		const timeoutId = setTimeout( () => {
 			pendingTimeoutRef.current = null;
-			stageFormEdits( ref, attributes, currentInnerBlocks, editEntityRecord );
+			// Double-check we're not syncing when the timeout fires
+			if ( ! isSyncingRef.current ) {
+				stageFormEdits( ref, attributes, currentInnerBlocks, editEntityRecord );
+			}
 		}, 1000 );
 
 		pendingTimeoutRef.current = timeoutId;
@@ -161,10 +162,14 @@ export function useSyncedFormAutoSave( {
 	}, [ currentInnerBlocks, ref, syncedForm, editEntityRecord, attributes, isSyncingRef ] );
 
 	const flushPendingSave = useCallback( () => {
+		// Don't flush while syncing
+		if ( isSyncingRef.current ) {
+			return;
+		}
+
 		const baseline = captureBaseline(
 			ref,
 			syncedForm,
-			isSyncingRef.current,
 			attributes,
 			currentInnerBlocks,
 			baselineRef
