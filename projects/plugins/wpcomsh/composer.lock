@@ -1464,7 +1464,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/newsletter",
-                "reference": "1a93a83b9c6c9cc0eab0dcad4f8ac4ee1ddd7d36"
+                "reference": "400365645928f3c68890dce1a3d16440f6ed8823"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1476,6 +1476,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
