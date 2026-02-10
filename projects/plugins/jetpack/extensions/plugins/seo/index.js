@@ -7,7 +7,6 @@ import {
 	getJetpackExtensionAvailability,
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, select as globalSelect, useDispatch } from '@wordpress/data';
@@ -130,7 +129,7 @@ const Seo = () => {
 	}
 
 	const jetpackSeoPublishPanelsProps = {
-		icon: <JetpackEditorPanelLogo />,
+		icon: false,
 		title: __( 'SEO', 'jetpack' ),
 		initialOpen: isSeoEnhancerEnabled,
 	};
