@@ -178,7 +178,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 	/**
 	 * Test that trashed forms are never rendered, even with edit permissions.
 	 */
-	public function test_render_synced_form_only_renders_published_or_draft() {
+	public function test_render_synced_trashed_form_always_hidden() {
 		// Create a trashed form.
 		$trashed_form_id = wp_insert_post(
 			array(
