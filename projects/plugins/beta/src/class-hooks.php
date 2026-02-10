@@ -432,7 +432,7 @@ class Hooks {
 		}
 
 		// Output styles for the logo in the admin bar.
-		echo '<style>#wpadminbar .jpbeta-logo svg { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; position: relative; top: -1px; }</style>';
+		echo '<style>#wpadminbar .jpbeta-logo svg { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; position: relative; top: -1px; fill: currentColor; }</style>';
 
 		// Highlight the menu if you are running the BETA Versions..
 		if ( $any_dev ) {
