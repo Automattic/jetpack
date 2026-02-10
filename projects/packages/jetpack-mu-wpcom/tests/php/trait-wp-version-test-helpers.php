@@ -20,10 +20,17 @@ trait Jetpack_Mu_Wpcom_WP_Version_Test_Helpers {
 	 * @return bool True if WordPress 7.0+, false otherwise.
 	 */
 	protected function is_wp_7_or_higher() {
-		global $wp_version;
+		// Try to get version from get_bloginfo() first (more reliable in test environments)
+		if ( function_exists( 'get_bloginfo' ) ) {
+			$wp_version = get_bloginfo( 'version' );
+		} else {
+			global $wp_version;
+		}
 
 		if ( empty( $wp_version ) ) {
-			return false;
+			// If we can't determine version, assume we're on a newer version
+			// This makes tests forward-compatible with trunk
+			return true;
 		}
 
 		// Check if version is 7.0 or higher
