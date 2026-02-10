@@ -22,19 +22,11 @@ trait Jetpack_Mu_Wpcom_WP_Version_Test_Helpers {
 	protected function is_wp_7_or_higher() {
 		global $wp_version;
 
-		$version = '';
-		if ( function_exists( 'get_bloginfo' ) ) {
-			$version = get_bloginfo( 'version' );
-		}
-		if ( empty( $version ) && ! empty( $wp_version ) ) {
-			$version = $wp_version;
-		}
-
-		if ( empty( $version ) ) {
+		if ( empty( $wp_version ) ) {
 			return false;
 		}
 
-		return version_compare( $version, '7.0-dev', '>=' );
+		return version_compare( $wp_version, '7.0-dev', '>=' );
 	}
 
 	/**
