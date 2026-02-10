@@ -19,6 +19,7 @@ Main component for rendering pie and donut charts.
 | `gapScale` | `number` | `0` | Scale of gaps between segments (0-1) |
 | `cornerScale` | `number` | `0` | Scale of corner rounding for segments (0-1) |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips on hover |
+| `renderTooltip` | `(params: PieChartRenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a radial wipe reveal effect. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legendInteractive` | `boolean` | `false` | Enable clickable legend items to show/hide segments. Requires `chartId` and `GlobalChartsProvider`. When segments are hidden, percentages recalculate so visible segments total 100%. **Note:** Only works with props-based legends (`showLegend={true}`), not with composition API (`<PieChart.Legend />`) |
@@ -77,6 +78,15 @@ The Legend component for displaying chart data labels. Can be used either as a p
 <PieChart>
   <PieChart.Legend position="bottom" orientation="horizontal" />
 </PieChart>
+```
+
+## PieChartRenderTooltipParams Type
+
+```typescript
+type PieChartRenderTooltipParams = {
+	/** The data point being hovered, including label, value, and percentage. */
+	tooltipData: DataPointPercentage;
+};
 ```
 
 ## DataPointPercentage Type

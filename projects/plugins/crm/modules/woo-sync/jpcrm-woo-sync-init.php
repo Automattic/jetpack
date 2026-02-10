@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -10,59 +10,53 @@
 // block direct access
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-
 // Add to $zeroBSCRM_extensionsCompleteList global
 // (Legacy way of maintaining an extensions list)
 global $zbs, $zeroBSCRM_extensionsCompleteList;
 $zeroBSCRM_extensionsCompleteList['woo-sync'] = array(
-  'fallbackname'  => 'WooSync',
-  'imgstr'        => '<i class="fa fa-keyboard-o" aria-hidden="true"></i>',
-  'desc'          => __( 'Automatically import WooCommerce data into your CRM.', 'zero-bs-crm' ),
-  'url'           => $zbs->urls['woosync'],
-  'colour'        => 'rgb(127 85 178)',
-  'helpurl'       => 'https://kb.jetpackcrm.com/article-categories/woocommerce-sync/',
-  'shortname'     => 'WooSync',
+	'fallbackname' => 'WooSync',
+	'imgstr'       => '<i class="fa fa-keyboard-o" aria-hidden="true"></i>',
+	'desc'         => __( 'Automatically import WooCommerce data into your CRM.', 'zero-bs-crm' ),
+	'url'          => $zbs->urls['woosync'],
+	'colour'       => 'rgb(127 85 178)',
+	'helpurl'      => 'https://kb.jetpackcrm.com/article-categories/woocommerce-sync/',
+	'shortname'    => 'WooSync',
 );
 
 global $jpcrm_core_extension_setting_map;
 $jpcrm_core_extension_setting_map['woo-sync'] = 'feat_woosync';
 
-
 // registers WooSync as a core extension, and adds to $zeroBSCRM_extensionsCompleteList global
 function jpcrm_register_free_extension_woosync( $exts ) {
 
-  // append our module
-  $exts['woo-sync'] = array(
-    'name' => 'WooCommerce Sync',
-    'i' => 'ext/woocommerce.png',
-    'short_desc' => __( 'Automatically import WooCommerce data into your CRM.', 'zero-bs-crm' )
-  );
+	// append our module
+	$exts['woo-sync'] = array(
+		'name'       => 'WooCommerce Sync',
+		'i'          => 'ext/woocommerce.png',
+		'short_desc' => __( 'Automatically import WooCommerce data into your CRM.', 'zero-bs-crm' ),
+	);
 
-  return $exts;
-
+	return $exts;
 }
 add_filter( 'jpcrm_register_free_extensions', 'jpcrm_register_free_extension_woosync' );
-
 
 // load the Woo_Sync class if feature is enabled
 function jpcrm_load_woo_sync() {
 
-  global $zbs;
-  
-  // Check whether old WooSync is installed, if so, deactivate in favour of core module
-  jpcrm_intercept_old_woosync();
+	global $zbs;
 
-  // load
-  if ( zeroBSCRM_isExtensionInstalled( 'woo-sync' ) ) {
-    
-    require_once( JPCRM_MODULES_PATH . 'woo-sync/includes/class-woo-sync.php' );
-    $zbs->modules->load_module( 'woosync', 'Woo_Sync' );
+	// Check whether old WooSync is installed, if so, deactivate in favour of core module
+	jpcrm_intercept_old_woosync();
 
-  }
+	// load
+	if ( zeroBSCRM_isExtensionInstalled( 'woo-sync' ) ) {
 
+		require_once JPCRM_MODULES_PATH . 'woo-sync/includes/class-woo-sync.php';
+		$zbs->modules->load_module( 'woosync', 'Woo_Sync' );
+
+	}
 }
 add_action( 'jpcrm_load_modules', 'jpcrm_load_woo_sync' );
-
 
 /**
  * Where WooSync is installed as an extension, deactivate it
@@ -82,7 +76,7 @@ function jpcrm_intercept_old_woosync() {
 			wp_clear_scheduled_hook( 'zerobscrm_woosync_hourly_sync' );
 			// check not fired within past day
 			$existing_transient = get_transient( 'woosync.conflict.deactivated' );
-			if ( !$existing_transient ) {
+			if ( ! $existing_transient ) {
 
 				// add notice & transient
 				zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'woosync.conflict.deactivated', '' );
@@ -139,15 +133,12 @@ function jpcrm_warning_message_woosync_ext( $actions, $plugin_file = '', $plugin
 
 	return $actions;
 }
-add_filter( 'plugin_action_links', 'jpcrm_warning_message_woosync_ext', 10, 3);
-
-
+add_filter( 'plugin_action_links', 'jpcrm_warning_message_woosync_ext', 10, 3 );
 
 // Install function
 function zeroBSCRM_extension_install_woo_sync() {
-  
-  return jpcrm_install_core_extension( 'woo-sync' );
 
+	return jpcrm_install_core_extension( 'woo-sync' );
 }
 
 // Uninstall function
@@ -156,29 +147,27 @@ function zeroBSCRM_extension_uninstall_woo_sync() {
 	// remove cron
 	wp_clear_scheduled_hook( 'jpcrm_woosync_sync' );
 	return jpcrm_uninstall_core_extension( 'woo-sync' );
-
 }
 
 // Sniffs for WooCommerce, and puts out notification when we have woo but no woosync
 function jpcrm_sniff_feature_woosync() {
 
-  global $zbs;
-  
-  // where we've not got WooSync active..
-  if ( !zeroBSCRM_isExtensionInstalled( 'woo-sync' ) ) {
+	global $zbs;
 
-    // check if WooCommerce _is_ active & prompt
-    $zbs->feature_sniffer->sniff_for_plugin(
-      array(
-        'feature_slug'    => 'woocommerce',
-        'plugin_slug'     => 'woocommerce/woocommerce.php',
-        'more_info_link'  => $zbs->urls['kb-woosync-home'],
-        'is_module'       => true,
-      )
-    );
+	// where we've not got WooSync active..
+	if ( ! zeroBSCRM_isExtensionInstalled( 'woo-sync' ) ) {
 
-  }
+		// check if WooCommerce _is_ active & prompt
+		$zbs->feature_sniffer->sniff_for_plugin(
+			array(
+				'feature_slug'   => 'woocommerce',
+				'plugin_slug'    => 'woocommerce/woocommerce.php',
+				'more_info_link' => $zbs->urls['kb-woosync-home'],
+				'is_module'      => true,
+			)
+		);
 
+	}
 }
 add_action( 'jpcrm_sniff_features', 'jpcrm_sniff_feature_woosync' );
 
@@ -218,11 +207,9 @@ function jpcrm_add_woo_jobs_to_system_assistant( $job_list ) {
 			);
 
 		}
-
 	}
 
 	return $job_list;
-
 }
 add_filter( 'jpcrm_system_assistant_jobs', 'jpcrm_add_woo_jobs_to_system_assistant' );
 
@@ -256,7 +243,7 @@ if ( ! defined( 'JPCRM_WOOSYNC_DO_NOT_CREATE' ) ) {
 
 // Extension legacy definitions
 if ( ! defined( 'JPCRM_WOO_SYNC_ROOT_FILE' ) ) {
-  define( 'JPCRM_WOO_SYNC_ROOT_FILE', __FILE__ );
-  define( 'JPCRM_WOO_SYNC_ROOT_PATH', plugin_dir_path( __FILE__ ) );
-  define( 'JPCRM_WOO_SYNC_IMAGE_URL', plugin_dir_url( JPCRM_WOO_SYNC_ROOT_FILE ) . 'i/' );
+	define( 'JPCRM_WOO_SYNC_ROOT_FILE', __FILE__ );
+	define( 'JPCRM_WOO_SYNC_ROOT_PATH', plugin_dir_path( __FILE__ ) );
+	define( 'JPCRM_WOO_SYNC_IMAGE_URL', plugin_dir_url( JPCRM_WOO_SYNC_ROOT_FILE ) . 'i/' );
 }

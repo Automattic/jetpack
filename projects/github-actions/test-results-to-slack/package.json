@@ -11,15 +11,16 @@
 	],
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"type": "module",
 	"main": "src/index.js",
 	"scripts": {
 		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
-		"test": "jest --config=tests/jest.config.js --verbose --runInBand",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js --verbose --runInBand",
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
-		"@actions/core": "2.0.2",
-		"@actions/github": "7.0.0",
+		"@actions/core": "3.0.0",
+		"@actions/github": "9.0.0",
 		"@slack/web-api": "7.12.0",
 		"glob": "13.0.0",
 		"minimatch": "5.1.6"

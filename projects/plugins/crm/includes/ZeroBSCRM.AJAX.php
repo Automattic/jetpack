@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -644,12 +643,14 @@ function jpcrm_ajax_unpin_log() {
 /*
 ======================================================
 	/ Admin AJAX
-====================================================== */
+======================================================
+*/
 
 /*
 ======================================================
 	Admin AJAX: Quote Builder
-====================================================== */
+======================================================
+*/
 
 add_action( 'wp_ajax_zbs_get_quote_template', 'ZeroBSCRM_get_quote_template' );
 function ZeroBSCRM_get_quote_template() {
@@ -1113,7 +1114,8 @@ function ZeroBSCRM_accept_quote() {
 /*
 ======================================================
 	/ Admin AJAX: Quote Builder
-====================================================== */
+======================================================
+*/
 
 /**
  * Sends the notification emal to the quote owner, informing them that
@@ -1169,7 +1171,8 @@ function zbs_send_quote_accept_email( $quoteID, $quoteOwnerEmail ) {
 /*
 ======================================================
 	Admin AJAX: Front End Forms
-====================================================== */
+======================================================
+*/
 
 function zbs_lead_form_views() {
 
@@ -1581,12 +1584,14 @@ function zbs_lead_form_capture() {
 /*
 ======================================================
 	/ Admin AJAX: Front End Forms
-====================================================== */
+======================================================
+*/
 
 /*
 ======================================================
 	Admin AJAX: Customer Record stuff
-====================================================== */
+======================================================
+*/
 
 	// } Add/remove aliases
 	add_action( 'wp_ajax_addAlias', 'zeroBSCRM_AJAX_addAlias' );
@@ -1682,12 +1687,14 @@ function zeroBSCRM_AJAX_removeAlias() {
 /*
 ======================================================
 	/ Admin AJAX: Customer Record stuff
-====================================================== */
+======================================================
+*/
 
 /*
 ======================================================
 	Admin AJAX: List View (API STYLE)
-====================================================== */
+======================================================
+*/
 
 	// } Update Columns - list view column update
 	add_action( 'wp_ajax_updateListViewColumns', 'zeroBSCRM_AJAX_updateListViewColumns' );
@@ -2755,8 +2762,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -2884,8 +2891,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -3025,8 +3032,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -3140,8 +3147,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -3263,8 +3270,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = strtoupper( $listViewParams['sortorder'] );
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = strtoupper( $listViewParams['sortorder'] );
 					}
 				}
 
@@ -3364,8 +3371,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -3485,8 +3492,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 
-						if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
-							$sortOrder = $listViewParams['sortorder'];
+					if ( isset( $listViewParams['sortorder'] ) && ! empty( $listViewParams['sortorder'] ) ) {
+						$sortOrder = $listViewParams['sortorder'];
 					}
 				}
 
@@ -4509,12 +4516,14 @@ function zeroBSCRM_bulkAction_enact_removeTags( $obj_ids = array(), $obj_type_id
 /*
 ======================================================
 	/ Admin AJAX: List View (API STYLE)
-====================================================== */
+======================================================
+*/
 
 /*
 ======================================================
 	Admin AJAX: Segments
-====================================================== */
+======================================================
+*/
 
 // } Preview a segment
 add_action( 'wp_ajax_zbs_segment_previewsegment', 'zeroBSCRM_AJAX_previewSegment' );
@@ -4646,12 +4655,14 @@ function zeroBSCRM_AJAX_saveSegment() {
 /*
 ======================================================
 	/ Admin AJAX: Segments
-====================================================== */
+======================================================
+*/
 
 /*
 ======================================================
 	Admin AJAX: Top Menu
-====================================================== */
+======================================================
+*/
 // } This is our toggle full screen mode for users to be able to control whether the CRM is fullscreen or not.
 add_action( 'wp_ajax_zbs_admin_top_menu_save', 'zeroBSCRM_admin_top_menu_save' );
 function zeroBSCRM_admin_top_menu_save() {
@@ -4669,12 +4680,14 @@ function zeroBSCRM_admin_top_menu_save() {
 /*
 ======================================================
 	/ Admin AJAX: Top Menu
-====================================================== */
+======================================================
+*/
 
 /*
 ======================================================
 	Admin AJAX: Tag Management
-====================================================== */
+======================================================
+*/
 
 add_action( 'wp_ajax_zbs_add_tag', 'zeroBSCRM_AJAX_addTag' );
 function zeroBSCRM_AJAX_addTag() {
@@ -4857,12 +4870,14 @@ function zeroBSCRM_AJAX_previewTagged() {
 /*
 ======================================================
 	/ Admin AJAX: Tag Management
-====================================================== */
+======================================================
+*/
 
 /*
 ======================================================
 	Admin AJAX: Screen options DAL2
-====================================================== */
+======================================================
+*/
 
 	// } Feedback
 	add_action( 'wp_ajax_save_zbs_screen_options', 'zeroBSCRM_AJAX_saveScreenOptions' );
@@ -4937,13 +4952,13 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 		foreach ( $screenOpts as $k => $v ) {
 			if ( isset( $screenOptionsFilters[ $k ]['filter'] ) && $screenOptionsFilters[ $k ]['filter'] === FILTER_UNSAFE_RAW && $v !== null ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				foreach ( $v as $k2 => $v2 ) {
-					$screenOpts[$k][$k2] = strtr(
+					$screenOpts[ $k ][ $k2 ] = strtr(
 						strip_tags( $v2 ),
 						array(
 							"\0" => '',
-							'"' => '&#34;',
-							"'" => '&#39;',
-							"<" => '',
+							'"'  => '&#34;',
+							"'"  => '&#39;',
+							'<'  => '',
 						)
 					);
 				}
@@ -4969,12 +4984,14 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 /*
 ======================================================
 	/ Admin AJAX: Screen options DAL2
-====================================================== */
+======================================================
+*/
 
 /*
 ======================================================
 	Admin AJAX: Inline Editor
-====================================================== */
+======================================================
+*/
 
 	// } Save any inline-edits
 	add_action( 'wp_ajax_zbs_list_save_inline_edit', 'zeroBSCRM_AJAX_listViewInlineEdit_save' );
@@ -5029,7 +5046,8 @@ function zeroBSCRM_AJAX_listViewInlineEdit_save() {
 /*
 ======================================================
 	/ Admin AJAX: Inline Editor
-====================================================== */
+======================================================
+*/
 
 /*
 ======================================================
@@ -5601,7 +5619,8 @@ function zeroBSCRM_AJAX_getInvoice() {
 /*
 ======================================================
 	Admin AJAX: Tasks
-====================================================== */
+======================================================
+*/
 
 add_action( 'wp_ajax_mark_task_complete', 'zeroBSCRM_ajax_mark_task_complete' );
 function zeroBSCRM_ajax_mark_task_complete() {
@@ -5636,5 +5655,5 @@ function zeroBSCRM_ajax_mark_task_complete() {
 /*
 ======================================================
 	/ Admin AJAX: Tasks
-====================================================== */
-
+======================================================
+*/
