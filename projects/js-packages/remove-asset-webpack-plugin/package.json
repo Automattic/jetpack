@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/remove-asset-webpack-plugin",
-	"version": "1.0.33",
+	"version": "1.0.34",
 	"description": "A Webpack plugin to remove assets from the build.",
 	"keywords": [
 		"webpack",
@@ -31,10 +31,10 @@
 	},
 	"devDependencies": {
 		"jest": "30.2.0",
-		"webpack": "5.101.3",
+		"webpack": "5.104.1",
 		"webpack-cli": "6.0.1"
 	},
 	"peerDependencies": {
-		"webpack": "^5.94.0"
+		"webpack": "^5.104.1"
 	}
 }
