@@ -62,22 +62,12 @@ $template = '
 								<div class="actions">
 									%8$s
 								</div>
+
+								<!-- Powered By -->
+								%9$s
 							</td>
 						</tr>
 					</table>
-
-					<!-- START FOOTER -->
-					<div class="footer">
-						<table role="presentation" border="0" cellpadding="0" cellspacing="0">
-							<tr>
-								<td class="content-block wrapper footer-content">
-									<!-- footer -->
-									<p>%5$s</p>
-								</td>
-							</tr>
-							%9$s
-						</table>
-					</div>
 				</div>
 			</td>
 			<td class="collapse">&nbsp;</td>

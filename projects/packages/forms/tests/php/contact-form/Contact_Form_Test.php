@@ -339,7 +339,9 @@ class Contact_Form_Test extends BaseTestCase {
 		// Default metadata should be saved.
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 		$this->assertEquals( 'john <john@example.com>', $email['to'][0] );
-		$this->assertStringContainsString( 'IP Address: <a href="https://jetpack.com/redirect/?source=ip-lookup&#038;path=127.0.0.1">127.0.0.1</a>', $email['message'] );
+		// IP address is now shown in the metadata section.
+		$this->assertStringContainsString( '>IP address:<', $email['message'] );
+		$this->assertStringContainsString( '127.0.0.1', $email['message'] );
 	}
 
 	/**
@@ -506,9 +508,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
 
-		// Browser information should be included in the email.
+		// Browser/device information should be included in the email metadata section.
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
-		$this->assertStringContainsString( 'Browser:', $email['message'] );
+		$this->assertStringContainsString( '>Device:<', $email['message'] );
 		$this->assertStringContainsString( 'Chrome', $email['message'] );
 	}
 
@@ -821,7 +823,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( $title, $result );
 		$this->assertStringContainsString( $body, $result );
-		$this->assertStringContainsString( $footer, $result );
+		// Note: Legacy footer content is no longer displayed in template - metadata section shows this info instead.
 	}
 
 	/**
