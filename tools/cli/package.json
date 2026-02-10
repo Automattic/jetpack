@@ -21,8 +21,8 @@
 		"test": "NODE_OPTIONS=--experimental-vm-modules pnpm jest --testMatch='<rootDir>/tests/**/*.test.js'"
 	},
 	"dependencies": {
-		"@octokit/auth-token": "5.1.2",
-		"@octokit/rest": "21.1.1",
+		"@octokit/auth-token": "6.0.0",
+		"@octokit/rest": "22.0.1",
 		"chalk": "5.6.2",
 		"chokidar": "4.0.3",
 		"configstore": "7.0.0",
@@ -30,7 +30,7 @@
 		"enquirer": "2.4.1",
 		"envfile": "7.1.0",
 		"execa": "7.0.0",
-		"glob": "11.1.0",
+		"glob": "13.0.0",
 		"ignore": "7.0.0",
 		"js-yaml": "4.1.1",
 		"listr": "0.14.3",

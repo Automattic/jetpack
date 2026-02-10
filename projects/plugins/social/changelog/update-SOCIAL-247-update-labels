@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix e2e tests for link preview in the editor sidebar.

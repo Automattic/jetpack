@@ -5,9 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.3] - 2026-02-10
+### Changed
+- Move IDC stats from Jetpack plugin to connection package. [#46967]
+- Update package dependencies. [#47002]
+
+## [7.0.2] - 2026-02-04
+### Changed
+- Update package dependencies. [#46936]
+
+## [7.0.1] - 2026-02-03
+### Changed
+- Update dependencies. [#46383]
+
+## [7.0.0] - 2026-02-02
+### Changed
+- Remove error handling methods for external storage and add host agnostic error reporting. [#46646]
+- Update package dependencies. [#46854]
+
+## [6.20.5] - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
+## [6.20.4] - 2026-01-23
+### Added
+- IDC: Preserve re-validation parameters when new idc error is created. [#46613]
+
+## [6.20.3] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [6.20.2] - 2026-01-14
+### Changed
+- Update package dependencies. [#46552]
+
+## [6.20.1] - 2026-01-12
+### Changed
+- Add transients to prevent excessive remote calls. [#46503]
+
 ## [6.20.0] - 2026-01-07
 ### Added
-- IDC: add revalidation for IDCs. [#46268]
+- IDC: Add revalidation for IDCs. [#46268]
 
 ### Changed
 - Update package dependencies. [#46456]
@@ -1679,6 +1717,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[7.0.3]: https://github.com/Automattic/jetpack-connection/compare/v7.0.2...v7.0.3
+[7.0.2]: https://github.com/Automattic/jetpack-connection/compare/v7.0.1...v7.0.2
+[7.0.1]: https://github.com/Automattic/jetpack-connection/compare/v7.0.0...v7.0.1
+[7.0.0]: https://github.com/Automattic/jetpack-connection/compare/v6.20.5...v7.0.0
+[6.20.5]: https://github.com/Automattic/jetpack-connection/compare/v6.20.4...v6.20.5
+[6.20.4]: https://github.com/Automattic/jetpack-connection/compare/v6.20.3...v6.20.4
+[6.20.3]: https://github.com/Automattic/jetpack-connection/compare/v6.20.2...v6.20.3
+[6.20.2]: https://github.com/Automattic/jetpack-connection/compare/v6.20.1...v6.20.2
+[6.20.1]: https://github.com/Automattic/jetpack-connection/compare/v6.20.0...v6.20.1
 [6.20.0]: https://github.com/Automattic/jetpack-connection/compare/v6.19.13...v6.20.0
 [6.19.13]: https://github.com/Automattic/jetpack-connection/compare/v6.19.12...v6.19.13
 [6.19.12]: https://github.com/Automattic/jetpack-connection/compare/v6.19.11...v6.19.12

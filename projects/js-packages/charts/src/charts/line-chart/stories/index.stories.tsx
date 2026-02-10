@@ -105,9 +105,23 @@ Default.args = {
 	...lineChartStoryArgs,
 };
 
+export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
+FixedDimensions.args = {
+	...lineChartStoryArgs,
+	width: 600,
+	height: 300,
+};
+
+export const AspectRatio: StoryObj< typeof LineChart > = Template.bind( {} );
+AspectRatio.args = {
+	...lineChartStoryArgs,
+	aspectRatio: 0.3,
+};
+
 // Story with single data series
 export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
 SingleSeries.args = {
+	...lineChartStoryArgs,
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
@@ -145,7 +159,6 @@ export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bi
 CustomLegendPositioning.args = {
 	...lineChartStoryArgs,
 	showLegend: true,
-	height: 400,
 	legendAlignment: 'start',
 	legendPosition: 'top',
 	legendOrientation: 'horizontal',
@@ -164,23 +177,19 @@ CustomLegendPositioning.parameters = {
 // Story showing use with LineChart using composition API
 export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 	render: args => (
-		<div style={ { width: '600px', height: '400px' } }>
-			<LineChart
-				data={ args.data || webTrafficData }
-				width={ 600 }
-				height={ 300 }
-				withGradientFill={ false }
-				withLegendGlyph={ false }
-			>
-				<LineChart.Legend
-					orientation={ args.legendOrientation || 'horizontal' }
-					alignment={ args.legendAlignment || 'center' }
-					position={ args.legendPosition || 'bottom' }
-					maxWidth={ args.legendMaxWidth }
-					textOverflow={ args.legendTextOverflow || 'wrap' }
-				/>
-			</LineChart>
-		</div>
+		<LineChart
+			data={ args.data || webTrafficData }
+			withGradientFill={ false }
+			withLegendGlyph={ false }
+		>
+			<LineChart.Legend
+				orientation={ args.legendOrientation || 'horizontal' }
+				alignment={ args.legendAlignment || 'center' }
+				position={ args.legendPosition || 'bottom' }
+				maxWidth={ args.legendMaxWidth }
+				textOverflow={ args.legendTextOverflow || 'wrap' }
+			/>
+		</LineChart>
 	),
 	argTypes: {
 		legendInteractive: {
@@ -192,31 +201,6 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 			description: {
 				story: 'Legend used with LineChart using the composition API, positioned below the chart.',
 			},
-		},
-	},
-};
-
-// Story with custom dimensions
-export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomDimensions.args = {
-	...lineChartStoryArgs,
-	width: 800,
-	height: 400,
-};
-
-// Add after existing stories
-export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
-FixedDimensions.args = {
-	...lineChartStoryArgs,
-	width: 800,
-	height: 400,
-	withTooltips: true,
-};
-
-FixedDimensions.parameters = {
-	docs: {
-		description: {
-			story: 'Line chart with fixed dimensions that override the responsive behavior.',
 		},
 	},
 };
@@ -471,6 +455,7 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 // Story demonstrating Smart Formatting (formatYTick) with large values
 export const SmartFormatting: StoryObj< typeof LineChart > = Template.bind( {} );
 SmartFormatting.args = {
+	...lineChartStoryArgs,
 	data: largeValuesData,
 	withGradientFill: false,
 	smoothing: true,
@@ -527,46 +512,43 @@ BrokenLine.parameters = {
 	},
 };
 
-export const DateStringFormats: StoryObj< typeof LineChart > = {
-	render: () => {
-		return (
-			<LineChart
-				data={ [
-					{
-						label: 'String Dates',
-						data: [
-							{ dateString: '2024-01-01', value: 10 },
-							{ dateString: '2024-01-02', value: 20 },
-							{ dateString: '2024-01-03 00:00:00', value: 15 },
-							{ dateString: '2024-01-04', value: 25 },
-							{ dateString: '2024-01-05 00:00', value: 30 },
-						],
-						options: {},
-					},
-				] }
-				withGradientFill={ false }
-				withLegendGlyph={ false }
-			/>
-		);
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					"Demonstrates the line chart's ability to handle various date string formats and mixed date types. All dates are converted to local timezone. The chart can process:\n" +
-					'- Simple date strings (YYYY-MM-DD)\n' +
-					'- Date with time (YYYY-MM-DD 00:00:00)\n' +
-					'- Date with time (YYYY-MM-DD 00:00)\n' +
-					'- ISO format (YYYY-MM-DDT00:00:00)\n' +
-					'- UTC format (YYYY-MM-DDT00:00:00Z)\n' +
-					'- Timezone offset (YYYY-MM-DDT00:00:00±HH:mm)\n',
-			},
+export const DateStringFormats: StoryObj< typeof LineChart > = Template.bind( {} );
+DateStringFormats.args = {
+	...lineChartStoryArgs,
+	withGradientFill: false,
+	withLegendGlyph: false,
+	data: [
+		{
+			label: 'String Dates',
+			data: [
+				{ dateString: '2024-01-01', value: 10 },
+				{ dateString: '2024-01-02', value: 20 },
+				{ dateString: '2024-01-03 00:00:00', value: 15 },
+				{ dateString: '2024-01-04', value: 25 },
+				{ dateString: '2024-01-05 00:00', value: 30 },
+			],
+			options: {},
+		},
+	],
+};
+DateStringFormats.parameters = {
+	docs: {
+		description: {
+			story:
+				"Demonstrates the line chart's ability to handle various date string formats and mixed date types. All dates are converted to local timezone. The chart can process:\n" +
+				'- Simple date strings (YYYY-MM-DD)\n' +
+				'- Date with time (YYYY-MM-DD 00:00:00)\n' +
+				'- Date with time (YYYY-MM-DD 00:00)\n' +
+				'- ISO format (YYYY-MM-DDT00:00:00)\n' +
+				'- UTC format (YYYY-MM-DDT00:00:00Z)\n' +
+				'- Timezone offset (YYYY-MM-DDT00:00:00±HH:mm)\n',
 		},
 	},
 };
 
 export const Comparison: StoryObj< typeof LineChart > = Template.bind( {} );
 Comparison.args = {
+	...lineChartStoryArgs,
 	showLegend: true,
 	smoothing: false,
 	data: [

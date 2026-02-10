@@ -102,10 +102,15 @@ function pollPackagist( name, versionRange ) {
 								peerMaxConcurrentStreams: 20,
 							} );
 
-							// If there's an http2 error, clean up so the next task tries opening a new connection.
-							http2Client.on( 'error', () => {
+							const onclose = () => {
 								http2Client = null;
-							} );
+							};
+
+							// If there's an http2 error, clean up so the next task tries opening a new connection.
+							http2Client.on( 'error', onclose );
+							http2Client.on( 'frameError', onclose );
+							// Same if it's closed.
+							http2Client.on( 'close', onclose );
 						}
 
 						// Probably the req itself will also error if there's a connection-level error, but the docs aren't clear on that.

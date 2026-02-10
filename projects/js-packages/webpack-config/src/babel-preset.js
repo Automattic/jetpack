@@ -1,5 +1,8 @@
 const path = require( 'path' );
 
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = ! isProduction;
+
 module.exports = ( api, opts = {} ) => {
 	const ret = {
 		sourceType: opts.sourceType || 'unambiguous',
@@ -104,6 +107,15 @@ module.exports = ( api, opts = {} ) => {
 			require.resolve( '@automattic/babel-plugin-preserve-i18n' ),
 			opts.pluginPreserveI18n,
 		] );
+	}
+
+	// React Fast Refresh - only in development mode when explicitly enabled
+	if (
+		isDevelopment &&
+		opts.pluginReactRefresh !== false &&
+		process.env.WEBPACK_SERVE === 'true'
+	) {
+		ret.plugins.push( [ require.resolve( 'react-refresh/babel' ), opts.pluginReactRefresh ] );
 	}
 
 	return ret;

@@ -50,6 +50,7 @@ class Settings {
 			array( $setting_prefix . 'inf_scroll', 'boolean', true ),
 			array( $setting_prefix . 'filtering_opens_overlay', 'boolean', true ),
 			array( $setting_prefix . 'show_post_date', 'boolean', true ),
+			array( $setting_prefix . 'show_product_price', 'boolean', true ),
 			array( $setting_prefix . 'show_powered_by', 'boolean', true ),
 		);
 		foreach ( $settings as $value ) {

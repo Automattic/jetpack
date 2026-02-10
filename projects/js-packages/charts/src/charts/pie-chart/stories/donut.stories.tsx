@@ -355,6 +355,7 @@ export const CustomLegendPositioning: Story = {
 		legendOrientation: 'vertical',
 		legendAlignment: 'start',
 		legendPosition: 'top',
+		containerHeight: '450px',
 		data: [
 			{
 				label: 'Desktop',
@@ -405,7 +406,7 @@ const CustomPieLegend = ( {
 		style={ {
 			display: 'inline-grid',
 			gridTemplateColumns: '1fr auto auto',
-			gap: 'var(--wpds-spacing-05, 5px) var(--wpds-spacing-10, 10px)',
+			gap: 'var(--wpds-dimension-gap-2xs, 4px) var(--wpds-dimension-gap-xs, 8px)',
 		} }
 	>
 		{ items.map( ( item, index ) => {
@@ -413,7 +414,7 @@ const CustomPieLegend = ( {
 
 			return (
 				<Fragment key={ index }>
-					<HStack direction="row" justify="flex-start" gap={ 2 }>
+					<HStack direction="row" justify="flex-start" spacing={ 2 }>
 						<div
 							style={ {
 								width: '8px',

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sidebar Notice: fix passing JSON string instead of array to JITM get_messages().

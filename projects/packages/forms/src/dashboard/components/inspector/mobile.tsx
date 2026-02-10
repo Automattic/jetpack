@@ -8,9 +8,9 @@ import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { FormResponse } from '../../../types/index.ts';
 import useResponseNavigation from '../../hooks/use-response-navigation.ts';
-import ResponseActions from '../response-actions/index.tsx';
-import ResponseNavigation from '../response-navigation/index.tsx';
 import { ResponseViewBody } from './index.tsx';
+import ResponseActions from './response-actions/index.tsx';
+import ResponseNavigation from './response-navigation/index.tsx';
 
 /**
  * Component wrapper for InboxResponse in DataViews modal

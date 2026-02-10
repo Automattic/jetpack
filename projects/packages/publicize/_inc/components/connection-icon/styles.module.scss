@@ -1,0 +1,30 @@
+.wrapper {
+	position: relative;
+	width: 28px;
+	height: 28px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	&.disabled {
+		opacity: 0.4;
+	}
+
+	img {
+		border-radius: 50%;
+		border: 2px solid #fff;
+		background-color: #fff;
+		width: 24px;
+		height: 24px;
+	}
+
+	.social-icon {
+		position: absolute;
+		inset-block-end: 0;
+		inset-inline-end: 0;
+		width: 14px;
+		height: 14px;
+		border-radius: 2px;
+		background-color: #fff;
+	}
+}

@@ -393,19 +393,35 @@ class Full_Sync_Immediately extends Module {
 
 		$started = $this->get_status()['started'];
 
-		foreach ( $this->get_remaining_modules_to_send() as $module ) {
-			$progress[ $module->name() ] = $module->send_full_sync_actions( $config[ $module->name() ], $progress[ $module->name() ], $send_until, $started );
-			if ( isset( $progress[ $module->name() ]['error'] ) ) {
-				unset( $progress[ $module->name() ]['error'] );
-				$this->update_status( array( 'progress' => $progress ) );
-				return false;
-			} elseif ( ! $progress[ $module->name() ]['finished'] ) {
-				$this->update_status( array( 'progress' => $progress ) );
-				return true;
+		$remaining_modules = $this->get_remaining_modules_to_send();
+
+		foreach ( $remaining_modules as $module ) {
+			$module_name = $module->name();
+			if ( array_key_exists( $module_name, $progress ) && array_key_exists( $module_name, $config ) ) {
+				$progress[ $module_name ] = $module->send_full_sync_actions( $config[ $module_name ], $progress[ $module_name ], $send_until, $started );
+				if ( isset( $progress[ $module_name ]['error'] ) ) {
+					unset( $progress[ $module_name ]['error'] );
+					$this->update_status( array( 'progress' => $progress ) );
+					return false;
+				} elseif ( ! $progress[ $module_name ]['finished'] ) {
+					$this->update_status( array( 'progress' => $progress ) );
+					return true;
+				}
 			}
+
 			if ( $this->get_status()['started'] !== $started ) {
 				// Full sync was restarted, stop sending.
 				return false;
+			}
+		}
+
+		// Check that all remaining modules in progress are actually finished.
+		// If a module was skipped in the main loop (due to being unfinished), but still exists in progress, we shouldn't mark the sync as complete.
+		foreach ( $remaining_modules as $module ) {
+			$name = $module->name();
+			if ( array_key_exists( $name, $progress ) && empty( $progress[ $name ]['finished'] ) ) {
+				$this->update_status( array( 'progress' => $progress ) );
+				return true;
 			}
 		}
 

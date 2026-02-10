@@ -48,7 +48,7 @@ if ( $has_license ) {
 
 	// --- Migration data ---//
 
-    // PHPCS:Ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	// PHPCS:Ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	global $zeroBSCRM_migrations;
 
 	// PHPCS:Ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase

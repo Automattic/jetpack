@@ -18,7 +18,7 @@ use Jetpack_Options;
  * Class External_Media
  */
 class External_Media {
-	const PACKAGE_VERSION = '0.7.2';
+	const PACKAGE_VERSION = '0.8.1';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
@@ -96,12 +96,11 @@ class External_Media {
 		}
 
 		return array(
-			'wpcomBlogId'         => $blog_id,
-			'pluginBasePath'      => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
-			'ai-assistant'        => array(
+			'wpcomBlogId'    => $blog_id,
+			'pluginBasePath' => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'ai-assistant'   => array(
 				'is-enabled' => apply_filters( 'jetpack_ai_enabled', $jetpack_ai_enabled ),
 			),
-			'next40pxDefaultSize' => self::site_supports_next_default_size(),
 		);
 	}
 
@@ -109,34 +108,11 @@ class External_Media {
 	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
 	 *
 	 * @since jetpack-14.0
-	 *
-	 * @see https://make.wordpress.org/core/2023/10/16/editor-components-updates-in-wordpress-6-4/#improving-size-consistency-for-ui-components
-	 *
-	 * @to-do: Deprecate this method and the logic around it when Jetpack requires WordPress 6.7.
-	 *
+	 * @deprecated since 0.8.0
 	 * @return bool
 	 */
 	public static function site_supports_next_default_size() {
-		/*
-		 * If running a local dev build of gutenberg,
-		 * let's assume it supports the newest changes included in Gutenberg.
-		 */
-		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
-			return true;
-		}
-
-		// Let's now check if the Gutenberg plugin is installed on the site.
-		if ( defined( 'GUTENBERG_VERSION' ) ) {
-			return version_compare( (string) GUTENBERG_VERSION, '19.4', '>=' );
-		}
-
-		// Finally, let's check for the WordPress version.
-		global $wp_version;
-		if ( version_compare( $wp_version, '6.7', '>=' ) ) {
-			return true;
-		}
-
-		// Final fallback.
-		return false;
+		_deprecated_function( __METHOD__, 'jetpack-external-media-0.8.0' );
+		return true;
 	}
 }

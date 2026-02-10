@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
  * Represents the submitted form data of an individual field.
  */
 class Feedback_Field {
+	use Country_Code_Utils;
 
 	/**
 	 * The key of the field.
@@ -190,14 +191,155 @@ class Feedback_Field {
 	/**
 	 * Get the value of the field for rendering the post-submission page.
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	private function get_render_web_value() {
 		if ( $this->is_of_type( 'image-select' ) ) {
 			return $this->value;
 		}
 
+		// For phone fields, add country flag before the number.
+		if ( $this->is_of_type( 'phone' ) || $this->is_of_type( 'telephone' ) ) {
+			return $this->get_phone_value_with_flag();
+		}
+
+		// For URL fields, return a structured array with the URL for proper link rendering.
+		// 'displayValue' preserves the original user input for display text.
+		// 'url' is used for the href and may have https:// prepended.
+		if ( $this->is_of_type( 'url' ) ) {
+			if ( ! empty( $this->value ) ) {
+				return array(
+					'type'         => 'url',
+					'url'          => $this->value,
+					'displayValue' => $this->value,
+				);
+			}
+		}
+
+		// For file fields, return a structured array with file metadata for proper rendering.
+		if ( $this->is_of_type( 'file' ) ) {
+			$files = array();
+			if ( isset( $this->value['files'] ) && is_array( $this->value['files'] ) ) {
+				foreach ( $this->value['files'] as $file ) {
+					if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
+						continue;
+					}
+					$file_id = absint( $file['file_id'] );
+					$files[] = array(
+						'file_id' => $file_id,
+						'name'    => $file['name'] ?? __( 'Attached file', 'jetpack-forms' ),
+						'size'    => size_format( $file['size'] ),
+						'url'     => apply_filters( 'jetpack_unauth_file_download_url', '', $file_id ),
+					);
+				}
+			}
+			return array(
+				'type'  => 'file',
+				'files' => $files,
+			);
+		}
+
+		// For rating fields, return a structured array with rating data for star/heart display.
+		if ( $this->is_of_type( 'rating' ) ) {
+			return $this->get_rating_value();
+		}
+
 		return $this->get_render_default_value();
+	}
+
+	/**
+	 * Get phone value with country flag emoji.
+	 *
+	 * @return string Phone number with country flag prefix.
+	 */
+	private function get_phone_value_with_flag() {
+		if ( empty( $this->value ) ) {
+			return $this->value;
+		}
+
+		// Try to extract country code from phone number prefix.
+		$country_code = $this->get_country_code_from_phone( $this->value );
+
+		if ( ! empty( $country_code ) ) {
+			$flag = self::country_code_to_emoji_flag( $country_code );
+			if ( ! empty( $flag ) ) {
+				return $flag . ' ' . $this->value;
+			}
+		}
+
+		return $this->value;
+	}
+
+	/**
+	 * Extract country code from phone number based on its prefix.
+	 *
+	 * @param string $phone_number The phone number with country prefix (e.g., "+49 123456789").
+	 *
+	 * @return string|null The ISO country code (e.g., "DE") or null if not found.
+	 */
+	private function get_country_code_from_phone( $phone_number ) {
+		// Remove spaces and normalize the phone number.
+		$normalized = preg_replace( '/\s+/', '', $phone_number );
+
+		// Must start with + for international format.
+		if ( strpos( $normalized, '+' ) !== 0 ) {
+			return null;
+		}
+
+		$prefix_to_country = self::get_phone_prefix_to_country_map();
+
+		foreach ( $prefix_to_country as $prefix => $country ) {
+			if ( strpos( $normalized, $prefix ) === 0 ) {
+				return $country;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get rating value as a structured array for web rendering.
+	 *
+	 * Parses the rating value (format: "rating/max" e.g., "3/5") and returns
+	 * a structured array with the rating, max, and iconStyle for star/heart display.
+	 *
+	 * @return array|string Structured rating data or original value if parsing fails.
+	 */
+	private function get_rating_value() {
+		if ( empty( $this->value ) ) {
+			return $this->value;
+		}
+
+		// Parse the rating value format: "rating/max" (e.g., "3/5").
+		$parts = explode( '/', $this->value );
+		if ( count( $parts ) !== 2 ) {
+			return $this->value;
+		}
+
+		$rating = (int) $parts[0];
+		$max    = (int) $parts[1];
+
+		// Validate parsed values.
+		if ( $rating < 0 || $max <= 0 ) {
+			return $this->value;
+		}
+
+		if ( $rating > $max ) {
+			return $this->value;
+		}
+		// Get icon style from meta data (defaults to 'stars').
+		$icon_style = $this->get_meta_key_value( 'iconStyle' );
+		if ( empty( $icon_style ) ) {
+			$icon_style = 'stars';
+		}
+
+		return array(
+			'type'         => 'rating',
+			'rating'       => $rating,
+			'maxRating'    => $max,
+			'iconStyle'    => $icon_style,
+			'displayValue' => $this->value,
+		);
 	}
 
 	/**
@@ -266,7 +408,8 @@ class Feedback_Field {
 	private function get_render_api_value() {
 		if ( $this->is_of_type( 'file' ) ) {
 			$files = array();
-			foreach ( $this->value['files'] as &$file ) {
+			$value = $this->value;
+			foreach ( $value['files'] as $file ) {
 				if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
 					// this shouldn't happen, todo: log this
 					continue;
@@ -278,12 +421,17 @@ class Feedback_Field {
 				$file['is_previewable'] = $this->is_previewable_file( $file );
 				$files[]                = $file;
 			}
-			$this->value['files'] = $files;
-			return $this->value;
+			$value['files'] = $files;
+			return $value;
 		}
 
 		if ( $this->is_of_type( 'image-select' ) ) {
 			// Return the array as is.
+			return $this->value;
+		}
+
+		if ( $this->is_of_type( 'checkbox-multiple' ) ) {
+			// Since API gets format: collection, return the array as is.
 			return $this->value;
 		}
 

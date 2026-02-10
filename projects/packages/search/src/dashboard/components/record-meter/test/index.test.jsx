@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { render, screen } from '@testing-library/react';
 import RecordMeter from 'components/record-meter';
 

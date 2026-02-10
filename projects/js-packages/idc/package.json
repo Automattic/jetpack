@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-idc",
-	"version": "1.0.41",
+	"version": "1.0.49",
 	"description": "Jetpack Connection Component",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -17,13 +17,13 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
-		"@wordpress/base-styles": "6.13.0",
-		"@wordpress/components": "31.0.0",
-		"@wordpress/compose": "7.37.0",
-		"@wordpress/data": "10.37.0",
-		"@wordpress/element": "6.37.0",
-		"@wordpress/i18n": "6.10.0",
-		"@wordpress/url": "4.37.0",
+		"@wordpress/base-styles": "6.15.0",
+		"@wordpress/components": "32.1.0",
+		"@wordpress/compose": "7.39.0",
+		"@wordpress/data": "10.39.0",
+		"@wordpress/element": "6.39.0",
+		"@wordpress/i18n": "6.12.0",
+		"@wordpress/url": "4.39.0",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {

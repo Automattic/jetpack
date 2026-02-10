@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Main System Page file: This is the main file which controls the different pages in the System section and renders the layout
  * Jetpack CRM - https://jetpackcrm.com
  */

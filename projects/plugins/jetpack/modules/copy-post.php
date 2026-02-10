@@ -155,6 +155,9 @@ class Jetpack_Copy_Post {
 			'tags_input'     => $source_post->tags_input,
 		);
 
+		// Copy footnotes with regenerated IDs.
+		$data = $this->copy_footnotes( $data, $source_post, $target_post_id );
+
 		/**
 		 * Fires just before the target post is updated with its new data.
 		 * Allows for final data adjustments before updating the target post.
@@ -257,6 +260,61 @@ class Jetpack_Copy_Post {
 			'likes'   => $likes_result,
 			'sharing' => $sharing_result,
 		);
+	}
+
+	/**
+	 * Copy footnotes from source post, regenerating IDs for uniqueness.
+	 *
+	 * Gutenberg's Footnotes block stores content in post meta rather than
+	 * in the block markup itself. The IDs must be regenerated to ensure uniqueness,
+	 * otherwise multiple posts on the same page (e.g., archive views) would
+	 * have conflicting footnote anchor links.
+	 *
+	 * @param array   $data Post data with which to update the target (new) post.
+	 * @param WP_Post $source_post Post object being copied.
+	 * @param int     $target_post_id Target post ID.
+	 * @return array Modified post data.
+	 */
+	public function copy_footnotes( $data, $source_post, $target_post_id ) {
+		$footnotes_json = get_post_meta( $source_post->ID, 'footnotes', true );
+
+		if ( '' === $footnotes_json ) {
+			return $data;
+		}
+
+		$footnotes = json_decode( $footnotes_json, true );
+
+		if ( ! is_array( $footnotes ) || empty( $footnotes ) ) {
+			return $data;
+		}
+
+		// Build a mapping of old IDs to new IDs and update the footnotes array.
+		$id_mapping = array();
+		foreach ( $footnotes as &$footnote ) {
+			if ( isset( $footnote['id'] ) ) {
+				$old_id                = $footnote['id'];
+				$new_id                = wp_generate_uuid4();
+				$id_mapping[ $old_id ] = $new_id;
+				$footnote['id']        = $new_id;
+			}
+		}
+		unset( $footnote );
+
+		// Update the post content to use the new footnote IDs.
+		foreach ( $id_mapping as $old_id => $new_id ) {
+			// Replace data-fn attribute values.
+			$data['post_content'] = str_replace( 'data-fn="' . $old_id . '"', 'data-fn="' . $new_id . '"', $data['post_content'] );
+			// Replace href anchor links.
+			$data['post_content'] = str_replace( 'href="#' . $old_id . '"', 'href="#' . $new_id . '"', $data['post_content'] );
+			// Replace id attributes (e.g., id="uuid-link").
+			$data['post_content'] = str_replace( 'id="' . $old_id . '-link"', 'id="' . $new_id . '-link"', $data['post_content'] );
+			$data['post_content'] = str_replace( 'id="' . $old_id . '"', 'id="' . $new_id . '"', $data['post_content'] );
+		}
+
+		// Save the footnotes meta with new IDs.
+		update_post_meta( $target_post_id, 'footnotes', wp_json_encode( $footnotes, JSON_UNESCAPED_SLASHES ) );
+
+		return $data;
 	}
 
 	/**

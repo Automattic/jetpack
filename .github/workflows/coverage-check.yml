@@ -10,7 +10,7 @@ on:
         required: true
 
 concurrency:
-  group: coverage-check-${{ github.head_ref || github.ref_name }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || inputs.pr }}-${{ github.event.pull_request.label.id || '' }}
+  group: coverage-check-${{ github.head_ref || github.ref_name }}-${{ case( github.event_name == 'pull_request', github.event.pull_request.number, inputs.pr ) }}-${{ github.event.pull_request.label.id || '' }}
   cancel-in-progress: true
 
 permissions:
@@ -39,7 +39,7 @@ jobs:
 
       - name: Post message
         env:
-          PR_ID: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || inputs.pr }}
-          PR_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          PR_ID: ${{ case( github.event_name == 'pull_request', github.event.pull_request.number, inputs.pr ) }}
+          PR_HEAD: ${{ case( github.event_name == 'pull_request', github.event.pull_request.head.sha, github.sha ) }}
           POST_MESSAGE_TOKEN: ${{ steps.get_token.outputs.token }}
         run: .github/files/coverage-munger/post-message.sh

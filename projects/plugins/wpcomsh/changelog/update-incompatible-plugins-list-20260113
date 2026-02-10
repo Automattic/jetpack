@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Add three plugins to incompatible list: `factory-reset/factory-reset.php`, `super-blank/super-blank.php`, and `porn-videos-embed/porn-videos-embed.php`

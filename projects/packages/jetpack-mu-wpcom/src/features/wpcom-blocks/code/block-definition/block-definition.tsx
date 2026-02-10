@@ -154,6 +154,16 @@ function filterBlockRegistration( settings: any ) {
 		settings.transforms.to = [ ...transforms.to, ...settings.transforms.to ];
 	}
 
+	// Disable the contrast checker warning for the enhanced Code block.
+	// The block uses custom syntax highlighting colors that may trigger false positive warnings.
+	if ( ! settings.supports ) {
+		settings.supports = {};
+	}
+	if ( ! settings.supports.color ) {
+		settings.supports.color = {};
+	}
+	settings.supports.color.enableContrastChecker = false;
+
 	return settings;
 }
 
@@ -198,7 +208,7 @@ const blockEdit = withColors(
 							</Button>
 						) }
 						renderContent={ ( { onClose }: { onClose: () => void } ) => (
-							<NavigableMenu role="menu" stopNavigationEvents>
+							<NavigableMenu role="menu">
 								<MenuGroup>
 									<MenuItem
 										key={ emptyLanguageOption.value }
@@ -271,7 +281,7 @@ const blockEdit = withColors(
 					</SelectControl>
 					<TextControl
 						label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
-						defaultValue={ attributes.filename }
+						value={ attributes.filename }
 						onChange={ ( nextValue: string ) => {
 							setAttributes( { filename: nextValue.trim() } );
 						} }

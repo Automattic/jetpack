@@ -1,6 +1,6 @@
-const { setFailed, getInput, startGroup, endGroup } = require( '@actions/core' );
-const { sendMessage } = require( './message' );
-const { getChannels } = require( './rules' );
+import { setFailed, getInput, startGroup, endGroup } from '@actions/core';
+import { sendMessage } from './message.js';
+import { getChannels } from './rules.js';
 
 ( async function main() {
 	startGroup( 'Send results to Slack' );

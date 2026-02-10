@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 7.4.0 - 2026-01-14
+### Added
+- Add the new media selection UI for Social. [#46085]
+- IDC: Add revalidation for IDCs. [#46268]
+- Reuse AI image generation in media section. [#46147]
+
+### Changed
+- Improve the sidebar by making titles more descriptive and combining sections. [#46007]
+- Unified social provider preview. [#46364]
+- Update composer lock following Publicize changes. [#46516]
+
+### Removed
+- Remove the obsolete share limits logic. [#46468]
+- Remove the unused dismiss review endpoint. [#46398]
+
+### Fixed
+- Fix connections management modal not opening from pre-publish panel. [#46316]
+- Fix e2e tests for link preview in the editor sidebar. [#46098]
+- UI: Prevent the modals in editor from stretching too wide on large screens. [#46400]
+
 ## 7.3.0 - 2025-11-21
 ### Added
 - Tested up to WordPress 6.9. [#45571]
