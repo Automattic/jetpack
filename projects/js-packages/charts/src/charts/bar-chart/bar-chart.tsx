@@ -12,7 +12,7 @@ import {
 	useChartDataTransform,
 	useZeroValueDisplay,
 	useChartMargin,
-	useElementHeight,
+	useElementSize,
 	useHasLegendChild,
 	usePrefersReducedMotion,
 } from '../../hooks';
@@ -125,7 +125,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendItems = useChartLegendItems( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
-	const [ svgWrapperRef, svgWrapperHeight ] = useElementHeight< HTMLDivElement >();
+	const [ svgWrapperRef, , svgWrapperHeight ] = useElementSize< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 
 	// Check if children contain a Legend component (composition pattern)

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: fix chart height and size calculations for Pie Chart and variants.

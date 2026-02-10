@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useElementHeight } from '../use-element-height';
+import { useElementSize } from '../use-element-size';
 
 // Mock ResizeObserver
 class MockResizeObserver {
@@ -25,7 +25,7 @@ class MockResizeObserver {
 // Store original ResizeObserver
 const originalResizeObserver = globalThis.ResizeObserver;
 
-describe( 'useElementHeight', () => {
+describe( 'useElementSize', () => {
 	let mockResizeObserver;
 
 	beforeEach( () => {
@@ -39,75 +39,82 @@ describe( 'useElementHeight', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'should return initial height of 0 by default', () => {
-		const { result } = renderHook( () => useElementHeight() );
-		const [ refCallback, height ] = result.current;
+	it( 'should return initial dimensions of 0 by default', () => {
+		const { result } = renderHook( () => useElementSize() );
+		const [ refCallback, width, height ] = result.current;
 
+		expect( width ).toBe( 0 );
 		expect( height ).toBe( 0 );
 		expect( typeof refCallback ).toBe( 'function' );
 	} );
 
-	it( 'should return custom initial height when provided', () => {
-		const { result } = renderHook( () => useElementHeight( { initialHeight: 100 } ) );
-		const [ , height ] = result.current;
+	it( 'should return custom initial dimensions when provided', () => {
+		const { result } = renderHook( () =>
+			useElementSize( { initialWidth: 200, initialHeight: 100 } )
+		);
+		const [ , width, height ] = result.current;
 
+		expect( width ).toBe( 200 );
 		expect( height ).toBe( 100 );
 	} );
 
-	it( 'should update height when element is attached', async () => {
+	it( 'should update dimensions when element is attached', async () => {
 		const mockElement = {
-			getBoundingClientRect: jest.fn( () => ( { height: 150 } ) ),
+			getBoundingClientRect: jest.fn( () => ( { width: 300, height: 150 } ) ),
 		};
 
-		const { result } = renderHook( () => useElementHeight() );
+		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
 		// Attach the element
 		refCallback( mockElement as unknown as HTMLDivElement );
 
 		await waitFor( () => {
-			expect( result.current[ 1 ] ).toBe( 150 );
+			expect( result.current[ 1 ] ).toBe( 300 );
+			expect( result.current[ 2 ] ).toBe( 150 );
 		} );
 
 		expect( mockElement.getBoundingClientRect ).toHaveBeenCalled();
 	} );
 
-	it( 'should handle element with zero height', async () => {
+	it( 'should handle element with zero dimensions', async () => {
 		const mockElement = {
-			getBoundingClientRect: jest.fn( () => ( { height: 0 } ) ),
+			getBoundingClientRect: jest.fn( () => ( { width: 0, height: 0 } ) ),
 		};
 
-		const { result } = renderHook( () => useElementHeight() );
+		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
 		refCallback( mockElement as unknown as HTMLDivElement );
 
 		await waitFor( () => {
 			expect( result.current[ 1 ] ).toBe( 0 );
+			expect( result.current[ 2 ] ).toBe( 0 );
 		} );
 	} );
 
-	it( 'should handle getBoundingClientRect returning undefined height', async () => {
+	it( 'should handle getBoundingClientRect returning undefined dimensions', async () => {
 		const mockElement = {
-			getBoundingClientRect: jest.fn( () => ( { height: undefined } ) ),
+			getBoundingClientRect: jest.fn( () => ( { width: undefined, height: undefined } ) ),
 		};
 
-		const { result } = renderHook( () => useElementHeight() );
+		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
 		refCallback( mockElement as unknown as HTMLDivElement );
 
 		await waitFor( () => {
 			expect( result.current[ 1 ] ).toBe( 0 );
+			expect( result.current[ 2 ] ).toBe( 0 );
 		} );
 	} );
 
 	it( 'should disconnect previous observer when new element is attached', () => {
 		const mockElement1 = {
-			getBoundingClientRect: jest.fn( () => ( { height: 100 } ) ),
+			getBoundingClientRect: jest.fn( () => ( { width: 100, height: 100 } ) ),
 		};
 		const mockElement2 = {
-			getBoundingClientRect: jest.fn( () => ( { height: 200 } ) ),
+			getBoundingClientRect: jest.fn( () => ( { width: 200, height: 200 } ) ),
 		};
 
 		const disconnectSpy = jest.fn();
@@ -119,7 +126,7 @@ describe( 'useElementHeight', () => {
 
 		jest.spyOn( globalThis, 'ResizeObserver' ).mockImplementation( () => mockObserver );
 
-		const { result } = renderHook( () => useElementHeight() );
+		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
 		// Attach first element
@@ -133,7 +140,7 @@ describe( 'useElementHeight', () => {
 
 	it( 'should disconnect observer when element is removed (null)', () => {
 		const mockElement = {
-			getBoundingClientRect: jest.fn( () => ( { height: 100 } ) ),
+			getBoundingClientRect: jest.fn( () => ( { width: 100, height: 100 } ) ),
 		};
 
 		const disconnectSpy = jest.fn();
@@ -145,7 +152,7 @@ describe( 'useElementHeight', () => {
 
 		jest.spyOn( globalThis, 'ResizeObserver' ).mockImplementation( () => mockObserver );
 
-		const { result } = renderHook( () => useElementHeight() );
+		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
 		// Attach element
@@ -159,7 +166,7 @@ describe( 'useElementHeight', () => {
 
 	it( 'should create ResizeObserver and observe element', () => {
 		const mockElement = {
-			getBoundingClientRect: jest.fn( () => ( { height: 100 } ) ),
+			getBoundingClientRect: jest.fn( () => ( { width: 100, height: 100 } ) ),
 		};
 
 		const observeSpy = jest.fn();
@@ -171,7 +178,7 @@ describe( 'useElementHeight', () => {
 
 		jest.spyOn( globalThis, 'ResizeObserver' ).mockImplementation( () => mockObserver );
 
-		const { result } = renderHook( () => useElementHeight() );
+		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
 		refCallback( mockElement as unknown as HTMLDivElement );
@@ -181,7 +188,7 @@ describe( 'useElementHeight', () => {
 	} );
 
 	it( 'should maintain stable refCallback reference across re-renders', () => {
-		const { result, rerender } = renderHook( () => useElementHeight() );
+		const { result, rerender } = renderHook( () => useElementSize() );
 
 		const firstRefCallback = result.current[ 0 ];
 
@@ -195,26 +202,27 @@ describe( 'useElementHeight', () => {
 
 	it( 'should work with different element types', async () => {
 		const mockSpanElement = {
-			getBoundingClientRect: jest.fn( () => ( { height: 50 } ) ),
+			getBoundingClientRect: jest.fn( () => ( { width: 75, height: 50 } ) ),
 		};
 
-		const { result } = renderHook( () => useElementHeight() );
+		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
 		refCallback( mockSpanElement as unknown as HTMLDivElement );
 
 		await waitFor( () => {
-			expect( result.current[ 1 ] ).toBe( 50 );
+			expect( result.current[ 1 ] ).toBe( 75 );
+			expect( result.current[ 2 ] ).toBe( 50 );
 		} );
 	} );
 
-	it( 'should update height when ResizeObserver callback is triggered', async () => {
+	it( 'should update dimensions when ResizeObserver callback is triggered', async () => {
 		let resizeCallback;
 		const mockElement = {
 			getBoundingClientRect: jest
 				.fn()
-				.mockReturnValueOnce( { height: 100 } )
-				.mockReturnValueOnce( { height: 200 } ),
+				.mockReturnValueOnce( { width: 100, height: 100 } )
+				.mockReturnValueOnce( { width: 200, height: 150 } ),
 		};
 
 		jest.spyOn( globalThis, 'ResizeObserver' ).mockImplementation( callback => {
@@ -226,13 +234,14 @@ describe( 'useElementHeight', () => {
 			};
 		} );
 
-		const { result } = renderHook( () => useElementHeight() );
+		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
 		refCallback( mockElement as unknown as HTMLDivElement );
 
 		await waitFor( () => {
 			expect( result.current[ 1 ] ).toBe( 100 );
+			expect( result.current[ 2 ] ).toBe( 100 );
 		} );
 
 		// Simulate resize
@@ -240,6 +249,7 @@ describe( 'useElementHeight', () => {
 
 		await waitFor( () => {
 			expect( result.current[ 1 ] ).toBe( 200 );
+			expect( result.current[ 2 ] ).toBe( 150 );
 		} );
 
 		expect( mockElement.getBoundingClientRect ).toHaveBeenCalledTimes( 2 );
@@ -247,7 +257,7 @@ describe( 'useElementHeight', () => {
 
 	it( 'should handle unmount properly', () => {
 		const mockElement = {
-			getBoundingClientRect: jest.fn( () => ( { height: 100 } ) ),
+			getBoundingClientRect: jest.fn( () => ( { width: 100, height: 100 } ) ),
 		};
 
 		const disconnectSpy = jest.fn();
@@ -257,7 +267,7 @@ describe( 'useElementHeight', () => {
 			unobserve: jest.fn(),
 		} ) );
 
-		const { result, unmount } = renderHook( () => useElementHeight() );
+		const { result, unmount } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
 		refCallback( mockElement as unknown as HTMLDivElement );

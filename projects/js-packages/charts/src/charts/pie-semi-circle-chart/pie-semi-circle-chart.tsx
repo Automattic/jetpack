@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
-import { useElementHeight, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
+import { useElementSize, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -181,7 +181,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	renderTooltip = renderDefaultPieSemiCircleTooltip,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+	const [ legendRef, , legendHeight ] = useElementSize< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
