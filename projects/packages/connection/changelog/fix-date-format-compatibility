@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix date format parsing to handle both formats with and without microseconds for WordPress trunk/PHP 8.4+ compatibility.
