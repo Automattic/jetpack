@@ -1,5 +1,4 @@
 import * as connectionDataSelectors from './connection-data';
-import * as renderCountSelectors from './render-count';
 import * as scheduledSharesSelectors from './scheduled-shares';
 import * as servicesSelectors from './services';
 import * as sharepostSelectors from './share-post';
@@ -11,7 +10,6 @@ import * as unifiedModalSelectors from './unified-modal';
 
 const selectors = {
 	...connectionDataSelectors,
-	...renderCountSelectors,
 	...shareStatusSelectors,
 	...sharepostSelectors,
 	...socialImageGeneratorSelectors,

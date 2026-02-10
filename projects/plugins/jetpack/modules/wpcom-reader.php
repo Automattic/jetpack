@@ -12,3 +12,7 @@
  *
  * @package automattic/jetpack
  */
+
+use Automattic\Jetpack\Newsletter\Reader_Link;
+
+Reader_Link::init();

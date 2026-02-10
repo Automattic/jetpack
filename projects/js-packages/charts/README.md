@@ -4,6 +4,11 @@ A comprehensive charting library for displaying interactive data visualizations 
 
 Explore the available charts and their documentation in [Storybook](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts).
 
+## Requirements
+
+- **Node.js**: >= 20.10.0 (required by `@wordpress/ui` dependency)
+- **React**: 17.x or 18.x
+
 ## Quick Start
 
 ### Installation

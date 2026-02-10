@@ -83,16 +83,20 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.7 - 2025-11-21
+### 2.8 - 2026-02-04
 #### Added
-- Tested up to WordPress 6.9.
+- Adding Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
+- IDC: Add revalidation for IDCs.
 
 #### Changed
-- Update dependencies.
-- Update package dependencies.
+- My Jetpack: Check red bubble notification async when cache is not available.
+
+#### Removed
+- General: Update minimum WordPress version to 6.8.
 
 #### Fixed
-- Jetpack: Remove getIconColor functions for block icons.
-- My Jetpack: Fix expiring renewal prompt to show all products.
-- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin.
+- Clarify error messages when video uploads fail due to plan limitations.
+- Fix compatibility with Gutenberg 22.4 by removing invalid null timezone argument from dateI18n calls.
+- Fix upgrade notice incorrectly showing for A4A (Automattic for Agencies) VideoPress customers by using dynamic features API instead of hardcoded plan slugs.
+- Fix video query to only return VideoPress videos instead of all video types.
 

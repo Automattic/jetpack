@@ -55,7 +55,7 @@
 		"daterangepicker": "3.1.0",
 		"font-awesome": "4.7.0",
 		"fullcalendar": "6.1.20",
-		"glob": "11.1.0",
+		"glob": "13.0.0",
 		"hopscotch": "0.3.1",
 		"jest": "30.2.0",
 		"jquery-modal": "0.9.2",
@@ -68,7 +68,7 @@
 		"sweetalert2": "7.33.1",
 		"typeahead.js": "0.11.1",
 		"typescript": "5.9.3",
-		"webpack": "5.101.3",
+		"webpack": "5.104.1",
 		"webpack-cli": "6.0.1"
 	}
 }

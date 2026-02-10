@@ -28,6 +28,53 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Registers the routes for the objects of the controller.
+	 */
+	public function register_routes() {
+		parent::register_routes();
+
+		// Register custom preview-url route.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/preview-url',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_preview_url' ),
+				'permission_callback' => array( $this, 'get_item_permissions_check' ),
+				'args'                => array(
+					'id' => array(
+						'description'       => __( 'Unique identifier for the form.', 'jetpack-forms' ),
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Get the preview URL for a form.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return \WP_REST_Response|\WP_Error Response object or WP_Error.
+	 */
+	public function get_preview_url( $request ) {
+		$form_id     = $request->get_param( 'id' );
+		$preview_url = Form_Preview::generate_preview_url( $form_id );
+
+		if ( ! $preview_url ) {
+			return new \WP_Error(
+				'rest_cannot_preview',
+				__( 'Unable to generate preview URL.', 'jetpack-forms' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return rest_ensure_response( array( 'preview_url' => $preview_url ) );
+	}
+
+	/**
 	 * Add opt-in dashboard fields.
 	 *
 	 * @return array

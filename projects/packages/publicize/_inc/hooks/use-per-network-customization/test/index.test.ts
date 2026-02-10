@@ -15,6 +15,22 @@ jest.mock( '@wordpress/data', () => {
 	} );
 } );
 
+// Mock useFeaturedImage to avoid nested useSelect calls
+jest.mock( '../../use-featured-image', () => jest.fn( () => null ) );
+
+// Mock useMediaDetails to avoid nested useSelect calls
+jest.mock( '../../use-media-details', () => jest.fn( () => [ null ] ) );
+
+// Mock usePostMeta to avoid nested hook calls
+jest.mock( '../../use-post-meta', () => ( {
+	usePostMeta: jest.fn( () => ( {
+		attachedMedia: [],
+		imageGeneratorSettings: { enabled: false },
+		mediaSource: undefined,
+		shareMessage: '',
+	} ) ),
+} ) );
+
 const mockUseDispatch = useDispatch as jest.MockedFunction< typeof useDispatch >;
 const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
 

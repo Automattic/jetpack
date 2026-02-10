@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/social-previews",
-	"version": "3.0.5",
+	"version": "3.0.6",
 	"description": "A suite of components to generate previews for a post for both social and search engines.",
 	"keywords": [
 		"wordpress",
@@ -62,7 +62,7 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"sass": "npm:sass-embedded@^1.97.2",
-		"tsup": "8.5.0",
+		"tsup": "8.5.1",
 		"typescript": "5.9.3"
 	},
 	"peerDependencies": {

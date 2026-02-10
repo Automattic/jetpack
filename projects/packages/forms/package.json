@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-forms",
-	"version": "7.6.0",
+	"version": "7.7.0",
 	"private": true,
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
@@ -24,13 +24,17 @@
 		"build:wp-build": "wp-build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf dist/ build/ .cache/",
+		"extract-icons": "node tools/extract-icons.mjs",
+		"generate-icons": "pnpm run extract-icons && pnpm run rasterize-icons",
 		"module:build": "webpack --config ./tools/webpack.config.modules.js",
 		"module:watch": "webpack --watch --config ./tools/webpack.config.modules.js",
+		"rasterize-icons": "node tools/rasterize-icons.mjs",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
-		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch' 'pnpm:module:watch' 'pnpm:build:form-editor --watch' 'pnpm:watch:wp-build'",
+		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch' 'pnpm:module:watch' 'pnpm:build:form-editor --watch' 'pnpm:watch:wp-build' 'pnpm:watch:icons'",
+		"watch:icons": "node tools/watch-icons.mjs",
 		"watch:wp-build": "wp-build --watch"
 	},
 	"browserslist": [
@@ -90,7 +94,7 @@
 		"redux": "4.2.1",
 		"redux-thunk": "2.3.0",
 		"semver": "7.7.3",
-		"webpack": "5.101.3",
+		"webpack": "5.104.1",
 		"webpack-cli": "6.0.1"
 	},
 	"devDependencies": {
@@ -115,7 +119,7 @@
 		"autoprefixer": "10.4.20",
 		"browserslist": "^4.24.0",
 		"concurrently": "9.2.1",
-		"glob": "11.1.0",
+		"glob": "13.0.0",
 		"jest": "30.2.0",
 		"jquery": "3.7.1",
 		"postcss": "8.5.6",
@@ -123,6 +127,7 @@
 		"postcss-modules": "^6.0.0",
 		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
+		"sharp": "0.33.5",
 		"typescript": "5.9.3"
 	},
 	"optionalDependencies": {

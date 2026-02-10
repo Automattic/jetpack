@@ -422,3 +422,6 @@ const setupFormEditorSubscription = () => {
 };
 
 setupFormEditorSubscription();
+
+// Import plugins
+import './plugins/preview-button';

@@ -36,12 +36,12 @@
 		"@babel/preset-env": "7.28.3",
 		"@babel/runtime": "7.28.4",
 		"@wordpress/browserslist-config": "6.39.0",
-		"glob": "11.1.0",
+		"glob": "13.0.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
-		"webpack": "5.101.3",
+		"webpack": "5.104.1",
 		"webpack-cli": "6.0.1"
 	}
 }
