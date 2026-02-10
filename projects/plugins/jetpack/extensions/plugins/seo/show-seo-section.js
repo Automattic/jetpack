@@ -1,26 +1,28 @@
 /**
  * External dependencies
  */
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 
 export const showSeoSection = async () => {
 	const { clearSelectedBlock } = dispatch( 'core/block-editor' );
-	const { enableComplementaryArea } = dispatch( 'core/interface' );
+	const { openGeneralSidebar } = dispatch( 'core/edit-post' );
 
-	// Clear any block selection, because selected blocks have precedence on settings sidebar
+	// Clear block selection so right sidebar shows document settings, not block settings
 	clearSelectedBlock();
-	await enableComplementaryArea( 'core/edit-post', 'jetpack-sidebar/jetpack' );
 
-	const panel = document.querySelector( '.jetpack-seo-panel' );
-	const isAlreadyOpen = panel?.classList.contains( 'is-opened' );
-	const button = panel?.querySelector( 'h2 button' );
+	// Open the document/post settings sidebar
+	await openGeneralSidebar( 'edit-post/document' );
 
-	if ( isAlreadyOpen ) {
-		// Close it before opening it to ensure the content is scrolled to view
-		button?.click();
+	// Ensure the SEO panel is expanded (panel name = pluginName/panelName)
+	const panelName = 'jetpack-seo/jetpack-seo';
+	const isOpen = select( editorStore ).isEditorPanelOpened( panelName );
+	if ( ! isOpen ) {
+		dispatch( editorStore ).toggleEditorPanelOpened( panelName );
 	}
 
+	// Scroll into view after DOM updates
 	setTimeout( () => {
-		button?.click();
-	}, 50 );
+		document.querySelector( '.jetpack-seo-panel' )?.scrollIntoView( { behavior: 'smooth' } );
+	}, 100 );
 };
