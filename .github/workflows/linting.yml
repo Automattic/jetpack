@@ -493,8 +493,6 @@ jobs:
 
   ### Checks that changelogger change files are being created.
   # Local equivalent: Probably `tools/check-changelogger-use.php origin/trunk HEAD`
-  # Note: This job triggers Claude to auto-generate changelogs when it fails.
-  # It should NOT be a required check for merging.
   changelogger_used:
     name: Changelogger use
     if: github.event_name == 'pull_request'
