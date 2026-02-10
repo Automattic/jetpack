@@ -108,6 +108,8 @@ export function useSyncedFormLoader( {
 			if ( rafIdRef.current !== null ) {
 				cancelAnimationFrame( rafIdRef.current );
 				rafIdRef.current = null;
+				// Reset syncing flag since we're canceling the scheduled reset
+				isSyncingRef.current = false;
 			}
 		};
 	}, [
