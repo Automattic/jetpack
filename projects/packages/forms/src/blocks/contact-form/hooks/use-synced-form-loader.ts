@@ -23,7 +23,9 @@ interface UseSyncedFormLoaderResult {
 
 /**
  * Helper to find the first step block in a multistep form structure.
- * @param blocks
+ *
+ * @param {Block[]} blocks - The blocks to search through.
+ * @return {string | null} The clientId of the first step block, or null if not found.
  */
 function findFirstStepClientId( blocks: Block[] ): string | null {
 	for ( const block of blocks ) {
@@ -42,18 +44,12 @@ function findFirstStepClientId( blocks: Block[] ): string | null {
 }
 
 /**
- * Hook to handle loading synced form content into the editor
- * This performs a one-time sync when the ref changes or loads for the first time
- * After loading, the user can edit freely and changes will be saved back via auto-save
- * @param root0
- * @param root0.ref
- * @param root0.syncedFormBlocks
- * @param root0.syncedFormAttributes
- * @param root0.clientId
- * @param root0.setAttributes
- * @param root0.replaceInnerBlocks
- * @param root0.__unstableMarkNextChangeAsNotPersistent
- * @param root0.setActiveStep
+ * Hook to handle loading synced form content into the editor.
+ * Performs a one-time sync when the ref changes or loads for the first time.
+ * After loading, the user can edit freely and changes will be saved back via auto-save.
+ *
+ * @param {UseSyncedFormLoaderParams} params - Configuration parameters.
+ * @return {UseSyncedFormLoaderResult} Object containing syncing state ref.
  */
 export function useSyncedFormLoader( {
 	ref,
@@ -68,6 +64,7 @@ export function useSyncedFormLoader( {
 	// Track if we're currently syncing to prevent save-back loops
 	const isSyncingRef = useRef( false );
 	const lastLoadedRefId = useRef< number | null >( null );
+	const rafIdRef = useRef< number | null >( null );
 
 	useEffect( () => {
 		if ( ! ref || ! syncedFormBlocks ) {
@@ -101,9 +98,18 @@ export function useSyncedFormLoader( {
 		}
 
 		// Reset syncing flag after React commits
-		requestAnimationFrame( () => {
+		rafIdRef.current = requestAnimationFrame( () => {
+			rafIdRef.current = null;
 			isSyncingRef.current = false;
 		} );
+
+		// Cleanup: cancel pending rAF if component unmounts or effect re-runs
+		return () => {
+			if ( rafIdRef.current !== null ) {
+				cancelAnimationFrame( rafIdRef.current );
+				rafIdRef.current = null;
+			}
+		};
 	}, [
 		ref,
 		syncedFormBlocks,
