@@ -20,22 +20,21 @@ trait Jetpack_Mu_Wpcom_WP_Version_Test_Helpers {
 	 * @return bool True if WordPress 7.0+, false otherwise.
 	 */
 	protected function is_wp_7_or_higher() {
-		// Try to get version from get_bloginfo() first (more reliable in test environments)
+		global $wp_version;
+
+		$version = '';
 		if ( function_exists( 'get_bloginfo' ) ) {
-			$wp_version = get_bloginfo( 'version' );
-		} else {
-			global $wp_version;
+			$version = get_bloginfo( 'version' );
+		}
+		if ( empty( $version ) && ! empty( $wp_version ) ) {
+			$version = $wp_version;
 		}
 
-		if ( empty( $wp_version ) ) {
-			// If we can't determine version, assume we're on an older version
-			// This is safer for test compatibility - we'll normalize by removing classes
+		if ( empty( $version ) ) {
 			return false;
 		}
 
-		// Check if version is 7.0 or higher
-		// This includes trunk builds (e.g., '7.0-alpha', '7.0-dev', '7.0', etc.)
-		return version_compare( $wp_version, '7.0-dev', '>=' );
+		return version_compare( $version, '7.0-dev', '>=' );
 	}
 
 	/**

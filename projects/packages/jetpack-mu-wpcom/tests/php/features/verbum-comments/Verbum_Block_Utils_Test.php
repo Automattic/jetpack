@@ -19,6 +19,7 @@ require_once __DIR__ . '/../../trait-wp-version-test-helpers.php';
 #[CoversClass( Verbum_Block_Utils::class )]
 class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	use Jetpack_Mu_Wpcom_WP_Version_Test_Helpers;
+
 	/**
 	 * Ensure string comments are not modified when 'render_verbum_blocks' is applied
 	 */
