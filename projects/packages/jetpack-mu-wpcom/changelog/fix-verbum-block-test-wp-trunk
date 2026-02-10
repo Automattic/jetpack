@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix verbum comments test expectations for WordPress trunk block output changes (Gutenberg PR #71207).

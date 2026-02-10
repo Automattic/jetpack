@@ -660,12 +660,7 @@ class Tokens {
 		$locked_site_url = base64_decode( $the_lock[1] );
 		$expires         = $the_lock[0];
 
-		// Try parsing with microseconds first (WordPress trunk/PHP 8.4+), then without (stable versions).
-		$expiration_date = DateTime::createFromFormat( 'Y-m-d\TH:i:s.uP', $expires );
-		if ( false === $expiration_date ) {
-			$expiration_date = DateTime::createFromFormat( static::DATE_FORMAT_ATOM, $expires );
-		}
-
+		$expiration_date = DateTime::createFromFormat( static::DATE_FORMAT_ATOM, $expires );
 		if ( false === $expiration_date || ! $locked_site_url ) {
 			// Something's wrong with the lock.
 			$this->remove_lock();

@@ -268,15 +268,7 @@ class TokensTest extends TestCase {
 
 		static::assertSame( 'https://test1.example.org', base64_decode( $lock_site_url ) );
 
-		// Parse the expiration date, handling both formats (with and without microseconds).
-		$date = false;
-		if ( $lock_expiration ) {
-			$parsed_date = DateTime::createFromFormat( 'Y-m-d\TH:i:s.uP', $lock_expiration );
-			if ( false === $parsed_date ) {
-				$parsed_date = DateTime::createFromFormat( Tokens::DATE_FORMAT_ATOM, $lock_expiration );
-			}
-			$date = $parsed_date ? $parsed_date->format( 'Y-m-d' ) : false;
-		}
+		$date = $lock_expiration ? DateTime::createFromFormat( Tokens::DATE_FORMAT_ATOM, $lock_expiration )->format( 'Y-m-d' ) : false;
 		static::assertSame( gmdate( 'Y-m-d', strtotime( 'tomorrow' ) ), $date );
 
 		remove_filter( 'jetpack_sync_site_url', array( $this, 'filter_site_url' ), 10 );
@@ -312,47 +304,6 @@ class TokensTest extends TestCase {
 		static::assertFalse( $is_locked_expired_matching );
 		static::assertFalse( $no_longer_locked );
 
-		remove_filter( 'jetpack_sync_site_url', array( $this, 'filter_site_url' ), 10 );
-	}
-
-	/**
-	 * Test that is_locked() handles both date formats (with and without microseconds).
-	 * This ensures compatibility with both WordPress trunk/PHP 8.4+ and stable versions.
-	 */
-	public function test_is_locked_handles_both_date_formats() {
-		$tokens = new Tokens();
-
-		$this->site_url = 'https://test.example.org';
-		add_filter( 'jetpack_sync_site_url', array( $this, 'filter_site_url' ), 10 );
-
-		// Test with date format without microseconds (old format).
-		$future_date = ( new DateTime() )->add( new DateInterval( 'PT1H' ) );
-		$lock_value  = $future_date->format( 'Y-m-d\TH:i:sP' ) . '|||' . base64_encode( 'https://test.example.org' );
-		Jetpack_Options::update_option( 'token_lock', $lock_value );
-
-		// Should not be locked (same site URL).
-		static::assertFalse( $tokens->is_locked() );
-
-		// Change site URL, should now be locked.
-		$this->site_url = 'https://other.example.org';
-		static::assertTrue( $tokens->is_locked() );
-
-		$tokens->remove_lock();
-
-		// Test with date format with microseconds (new format in WordPress trunk/PHP 8.4+).
-		$future_date_with_microseconds = ( new DateTime() )->add( new DateInterval( 'PT1H' ) );
-		$lock_value_with_microseconds  = $future_date_with_microseconds->format( 'Y-m-d\TH:i:s.uP' ) . '|||' . base64_encode( 'https://test.example.org' );
-		Jetpack_Options::update_option( 'token_lock', $lock_value_with_microseconds );
-
-		// Should not be locked (same site URL).
-		$this->site_url = 'https://test.example.org';
-		static::assertFalse( $tokens->is_locked() );
-
-		// Change site URL, should now be locked.
-		$this->site_url = 'https://other.example.org';
-		static::assertTrue( $tokens->is_locked() );
-
-		$tokens->remove_lock();
 		remove_filter( 'jetpack_sync_site_url', array( $this, 'filter_site_url' ), 10 );
 	}
 
