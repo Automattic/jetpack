@@ -1,21 +1,24 @@
 /**
- * Hook to auto-save editor changes back to synced form post
+ * Hook to stage editor changes to the entity store for synced forms.
+ * Changes are staged (not saved to DB) so they can be picked up by the form editor.
  */
 
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedFormBlock, serializeSyncedForm } from '../util/form-sync.ts';
 
-const DEBUG = false;
-// eslint-disable-next-line no-console
-const log = ( ...args: unknown[] ) => DEBUG && console.log( '[AutoSave]', ...args );
-
 interface UseSyncedFormAutoSaveParams {
+	/** The synced form post ID */
 	ref?: number;
+	/** The synced form record from the entity store */
 	syncedForm: { content?: { raw?: string } } | null;
+	/** Current form block attributes */
 	attributes: Record< string, unknown >;
+	/** Current form inner blocks */
 	currentInnerBlocks: unknown[];
+	/** Ref indicating if form is currently being synced from source */
 	isSyncingRef: React.MutableRefObject< boolean >;
+	/** Function to stage edits in the entity store */
 	editEntityRecord: (
 		kind: string,
 		name: string,
@@ -26,17 +29,77 @@ interface UseSyncedFormAutoSaveParams {
 
 interface UseSyncedFormAutoSaveResult {
 	/**
-	 * Immediately stage any pending changes to the entity store, bypassing the debounce.
+	 * Stage any pending changes to the entity store immediately.
 	 * Call this before navigation to ensure edits are available in the shared store.
-	 * Note: This does NOT save to the database - it only stages edits so the form editor can access them.
 	 */
 	flushPendingSave: () => void;
 }
 
 /**
- * Hook to automatically save changes from the editor back to the synced form post
- * Uses a debounce strategy to avoid excessive saves (1 second delay)
- * Only saves if content has changed and we're not currently loading
+ * Captures a baseline serialization when the form first loads.
+ * Returns the baseline if ready, or null if still loading/syncing.
+ * @param ref
+ * @param syncedForm
+ * @param isSyncing
+ * @param attributes
+ * @param currentInnerBlocks
+ * @param baselineRef
+ */
+export function captureBaseline(
+	ref: number | undefined,
+	syncedForm: { content?: { raw?: string } } | null,
+	isSyncing: boolean,
+	attributes: Record< string, unknown >,
+	currentInnerBlocks: unknown[],
+	baselineRef: React.MutableRefObject< { ref: number; serialized: string } | null >
+): string | null {
+	// Not ready yet
+	if ( ! ref || ! syncedForm || isSyncing ) {
+		return null;
+	}
+
+	// Already have baseline for this ref
+	if ( baselineRef.current?.ref === ref ) {
+		return baselineRef.current.serialized;
+	}
+
+	// Capture new baseline
+	const serialized = serializeSyncedForm( attributes, currentInnerBlocks );
+	baselineRef.current = { ref, serialized };
+	return serialized;
+}
+
+/**
+ * Stages form edits to the entity store.
+ * Stores both serialized content and parsed blocks so the form editor can pick them up.
+ * @param ref
+ * @param attributes
+ * @param currentInnerBlocks
+ * @param editEntityRecord
+ */
+export function stageFormEdits(
+	ref: number,
+	attributes: Record< string, unknown >,
+	currentInnerBlocks: unknown[],
+	editEntityRecord: UseSyncedFormAutoSaveParams[ 'editEntityRecord' ]
+): void {
+	const serialized = serializeSyncedForm( attributes, currentInnerBlocks );
+	const formBlock = createSyncedFormBlock( attributes, currentInnerBlocks );
+	editEntityRecord( 'postType', FORM_POST_TYPE, ref, {
+		content: serialized,
+		blocks: [ formBlock ],
+	} );
+}
+
+/**
+ * Hook to automatically stage changes from the editor to the entity store.
+ * Uses a 1 second debounce to avoid excessive updates.
+ *
+ * Key behaviors:
+ * - Captures a baseline when the form first loads (after sync completes)
+ * - Only stages edits when content differs from baseline
+ * - Stages both `content` and `blocks` so form editor can pick up changes
+ * - Does NOT save to database - only stages in entity store
  * @param root0
  * @param root0.ref
  * @param root0.syncedForm
@@ -53,95 +116,73 @@ export function useSyncedFormAutoSave( {
 	isSyncingRef,
 	editEntityRecord,
 }: UseSyncedFormAutoSaveParams ): UseSyncedFormAutoSaveResult {
-	// Track pending timeout so we can cancel it when flushing
 	const pendingTimeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
-	const hasPendingSaveRef = useRef( false );
-
-	// Track the initial serialized state after syncing completes.
-	// We compare against this baseline instead of the raw database content because
-	// the database content may have fewer attributes (only non-defaults are saved),
-	// while the editor block has all attributes including defaults.
-	const initialSerializedRef = useRef< string | null >( null );
-	const lastSyncedRefId = useRef< number | null >( null );
-	const wasSyncingRef = useRef( false );
-
-	// Detect when syncing completes (transition from syncing to not syncing)
-	const justFinishedSyncing = wasSyncingRef.current && ! isSyncingRef.current;
-	wasSyncingRef.current = isSyncingRef.current;
+	const baselineRef = useRef< { ref: number; serialized: string } | null >( null );
 
 	// Reset baseline when ref changes
-	if ( ref !== lastSyncedRefId.current ) {
-		initialSerializedRef.current = null;
-		lastSyncedRefId.current = ref ?? null;
-	}
-
-	// Capture baseline after syncing completes
-	if ( justFinishedSyncing && ref && ! initialSerializedRef.current ) {
-		initialSerializedRef.current = serializeSyncedForm( attributes, currentInnerBlocks );
-		log( '📌 Baseline captured', { ref, length: initialSerializedRef.current.length } );
+	const prevRefRef = useRef< number | undefined >( undefined );
+	if ( ref !== prevRefRef.current ) {
+		baselineRef.current = null;
+		prevRefRef.current = ref;
 	}
 
 	useEffect( () => {
-		// Skip if not ready
-		if ( ! ref || ! syncedForm || isSyncingRef.current || ! initialSerializedRef.current ) {
+		const baseline = captureBaseline(
+			ref,
+			syncedForm,
+			isSyncingRef.current,
+			attributes,
+			currentInnerBlocks,
+			baselineRef
+		);
+
+		// Not ready or no changes
+		if ( ! baseline || ! ref ) {
 			return;
 		}
 
 		const serialized = serializeSyncedForm( attributes, currentInnerBlocks );
-		const baseline = initialSerializedRef.current;
-
-		// Only stage edits if content changed from baseline
-		if ( serialized !== baseline ) {
-			hasPendingSaveRef.current = true;
-
-			const timeoutId = setTimeout( () => {
-				hasPendingSaveRef.current = false;
-				pendingTimeoutRef.current = null;
-				log( '💾 Staging edits', { ref } );
-				// Stage both content (for saving) and blocks (for block editor to pick up)
-				const formBlock = createSyncedFormBlock( attributes, currentInnerBlocks );
-				editEntityRecord( 'postType', FORM_POST_TYPE, ref, {
-					content: serialized,
-					blocks: [ formBlock ],
-				} );
-			}, 1000 );
-
-			pendingTimeoutRef.current = timeoutId;
-
-			return () => {
-				clearTimeout( timeoutId );
-				pendingTimeoutRef.current = null;
-			};
-		}
-
-		hasPendingSaveRef.current = false;
-	}, [ currentInnerBlocks, ref, syncedForm, editEntityRecord, attributes, isSyncingRef ] );
-
-	const flushPendingSave = useCallback( () => {
-		if ( ! ref || ! syncedForm || isSyncingRef.current || ! initialSerializedRef.current ) {
+		if ( serialized === baseline ) {
 			return;
 		}
 
-		// Cancel pending timeout if any
+		// Debounce staging
+		const timeoutId = setTimeout( () => {
+			pendingTimeoutRef.current = null;
+			stageFormEdits( ref, attributes, currentInnerBlocks, editEntityRecord );
+		}, 1000 );
+
+		pendingTimeoutRef.current = timeoutId;
+
+		return () => {
+			clearTimeout( timeoutId );
+			pendingTimeoutRef.current = null;
+		};
+	}, [ currentInnerBlocks, ref, syncedForm, editEntityRecord, attributes, isSyncingRef ] );
+
+	const flushPendingSave = useCallback( () => {
+		const baseline = captureBaseline(
+			ref,
+			syncedForm,
+			isSyncingRef.current,
+			attributes,
+			currentInnerBlocks,
+			baselineRef
+		);
+
+		if ( ! baseline || ! ref ) {
+			return;
+		}
+
+		// Cancel pending debounced save
 		if ( pendingTimeoutRef.current ) {
 			clearTimeout( pendingTimeoutRef.current );
 			pendingTimeoutRef.current = null;
 		}
 
 		const serialized = serializeSyncedForm( attributes, currentInnerBlocks );
-		const baseline = initialSerializedRef.current;
-
 		if ( serialized !== baseline ) {
-			log( '📝 Flush: staging edits', { ref } );
-			// Stage both content (for saving) and blocks (for block editor to pick up)
-			const formBlock = createSyncedFormBlock( attributes, currentInnerBlocks );
-			editEntityRecord( 'postType', FORM_POST_TYPE, ref, {
-				content: serialized,
-				blocks: [ formBlock ],
-			} );
-			hasPendingSaveRef.current = false;
-		} else {
-			log( '✅ Flush: no changes' );
+			stageFormEdits( ref, attributes, currentInnerBlocks, editEntityRecord );
 		}
 	}, [ ref, syncedForm, attributes, currentInnerBlocks, isSyncingRef, editEntityRecord ] );
 
