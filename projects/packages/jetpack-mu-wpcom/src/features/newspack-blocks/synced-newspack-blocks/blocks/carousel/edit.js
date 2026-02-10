@@ -404,7 +404,7 @@ class Edit extends Component {
 							help={
 								'cover' === imageFit
 									? __( 'The image will fill the entire slide and will be cropped if necessary.', 'jetpack-mu-wpcom' )
-									: __( 'The image will be resized to fit inside the slide without being cropped.', 'jetpack-mu-wpcom' )
+									: __( 'The image will be resized to fit inside the slide without being cropped.', 'jetpack-mu-wpcom', /* dummy arg to avoid bad minification */ 0 )
 							}
 							value={ imageFit }
 							onChange={ value => setAttributes( { imageFit: value } ) }

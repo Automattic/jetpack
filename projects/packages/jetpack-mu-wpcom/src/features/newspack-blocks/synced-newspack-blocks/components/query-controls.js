@@ -295,7 +295,7 @@ class QueryControls extends Component {
 						help={
 							specificMode
 								? __( 'The block will display only the specifically selected content.', 'jetpack-mu-wpcom' )
-								: __( 'The block will display content based on the filtering settings below.', 'jetpack-mu-wpcom' )
+								: __( 'The block will display content based on the filtering settings below.', 'jetpack-mu-wpcom', /* dummy arg to avoid bad minification */ 0 )
 						}
 						__next40pxDefaultSize
 					>
