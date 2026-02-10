@@ -101,12 +101,11 @@ class Dashboard_Test extends BaseTestCase {
 	public function test_load_wp_build_wrong_page() {
 		$_GET['page'] = 'some-other-page';
 
-		// Should return without requiring any files — no error, no side effects.
 		Dashboard::load_wp_build();
 
 		$this->assertFalse(
-			function_exists( 'jetpack_forms_test_build_marker' ),
-			'No build files should be loaded for wrong page.'
+			has_action( 'wp_default_scripts', 'jetpack_forms_register_package_scripts' ),
+			'Fallback file should not be loaded for wrong page.'
 		);
 
 		unset( $_GET['page'] );
@@ -121,8 +120,8 @@ class Dashboard_Test extends BaseTestCase {
 		Dashboard::load_wp_build();
 
 		$this->assertFalse(
-			function_exists( 'jetpack_forms_test_build_marker' ),
-			'No build files should be loaded when page is missing.'
+			has_action( 'wp_default_scripts', 'jetpack_forms_register_package_scripts' ),
+			'Fallback file should not be loaded when page is missing.'
 		);
 	}
 
@@ -130,14 +129,20 @@ class Dashboard_Test extends BaseTestCase {
 	 * Test load_wp_build does nothing when build.php does not exist.
 	 */
 	public function test_load_wp_build_correct_page_missing_build() {
+		$ref       = new \ReflectionClass( Dashboard::class );
+		$build_php = dirname( $ref->getFileName(), 3 ) . '/build/build.php';
+		if ( file_exists( $build_php ) ) {
+			$this->markTestSkipped( 'build/build.php exists in this environment.' );
+		}
+
 		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
 
-		// build/build.php does not exist in the test environment, so
-		// the method should return without errors after passing the
-		// page check but failing the file_exists check.
 		Dashboard::load_wp_build();
 
-		$this->assertTrue( true, 'load_wp_build should not error when build.php is missing.' );
+		$this->assertFalse(
+			has_action( 'wp_default_scripts', 'jetpack_forms_register_package_scripts' ),
+			'Fallback file should not be loaded when build.php is missing.'
+		);
 
 		unset( $_GET['page'] );
 	}
