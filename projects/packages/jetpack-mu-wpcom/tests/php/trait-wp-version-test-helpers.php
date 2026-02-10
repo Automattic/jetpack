@@ -28,9 +28,9 @@ trait Jetpack_Mu_Wpcom_WP_Version_Test_Helpers {
 		}
 
 		if ( empty( $wp_version ) ) {
-			// If we can't determine version, assume we're on a newer version
-			// This makes tests forward-compatible with trunk
-			return true;
+			// If we can't determine version, assume we're on an older version
+			// This is safer for test compatibility - we'll normalize by removing classes
+			return false;
 		}
 
 		// Check if version is 7.0 or higher
