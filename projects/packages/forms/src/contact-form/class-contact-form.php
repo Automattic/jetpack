@@ -3546,6 +3546,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string $powered_by_html The HTML for the powered by section in the email.
 		 */
 		// Use table-based layout for maximum email client compatibility.
+		$logo_url        = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/jetpack-logo@2x.png';
 		$powered_by_html = apply_filters(
 			'jetpack_forms_email_powered_by_html',
 			str_replace(
@@ -3555,7 +3556,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="powered-by-table" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-top: 24px;">
 					<tr>
 						<td align="center" class="powered-by" style="padding: 24px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<img src="https://jetpack.com/wp-content/uploads/2022/06/cropped-jp-favicon-new-3.png?w=40" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none;">
+							<img src="' . esc_url( $logo_url ) . '" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none;">
 							<span style="font-size: 13px; color: #50575e; line-height: 20px;">' .
 					sprintf(
 						// translators: %1$s is a link to the Jetpack Forms page.
