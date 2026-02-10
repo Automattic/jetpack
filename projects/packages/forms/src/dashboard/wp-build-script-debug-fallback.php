@@ -52,7 +52,7 @@ if ( ! function_exists( 'jetpack_forms_register_package_scripts' ) ) {
 	function jetpack_forms_register_package_scripts( $scripts ) {
 		$build_dir       = dirname( __DIR__, 2 ) . '/build';
 		$build_constants = require $build_dir . '/constants.php';
-		$default_version = ! SCRIPT_DEBUG ? $build_constants['version'] : time();
+		$default_version = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? time() : $build_constants['version'];
 
 		$scripts_dir  = $build_dir . '/scripts';
 		$scripts_file = $scripts_dir . '/registry.php';
@@ -137,7 +137,6 @@ if ( ! function_exists( 'jetpack_forms_register_script_modules' ) ) {
 	}
 
 	add_action( 'wp_default_scripts', 'jetpack_forms_register_script_modules' );
-	remove_action( 'wp_default_scripts', 'wp_default_script_modules' );
 }
 
 if ( ! function_exists( 'jetpack_forms_register_page_routes' ) ) {
@@ -236,7 +235,7 @@ if ( ! function_exists( 'jetpack_forms_register_package_styles' ) ) {
 	function jetpack_forms_register_package_styles( $styles ) {
 		$build_dir       = dirname( __DIR__, 2 ) . '/build';
 		$build_constants = require $build_dir . '/constants.php';
-		$default_version = ! SCRIPT_DEBUG ? $build_constants['version'] : time();
+		$default_version = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? time() : $build_constants['version'];
 
 		$styles_dir  = $build_dir . '/styles';
 		$styles_file = $styles_dir . '/registry.php';
