@@ -14,11 +14,11 @@
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Admin dashboard: add new "Reader" section. [#46779]
-- AI: removed Chrome AI built-in API experiment code. [#46896]
+- AI: Remove Chrome AI built-in API experiment code. [#46896]
 - Cover RESTful JSON API with unit tests. [#46940]
 - Cover the JSON API posts endpoint with unit tests. [#46939]
 - Janitorial: Clean up to-test.md. [#46943]
-- Moving IDC stats from Jetpack plugin to connection package. [#46967]
+- Move IDC stats from Jetpack plugin to connection package. [#46967]
 - Update package dependencies. [#46936] [#47002] [#47021]
 - VideoPress: Improve attachment details display with proper i18n support and WordPress core styling. [#46458]
 

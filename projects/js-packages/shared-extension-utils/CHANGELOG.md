@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared Extension Utils: Add separate site type utils export. [#46938]
 
 ### Removed
-- Removed Chrome AI tokens type and mapping. [#46896]
+- Remove Chrome AI tokens type and mapping. [#46896]
 
 ## [1.4.10] - 2026-02-04
 ### Changed

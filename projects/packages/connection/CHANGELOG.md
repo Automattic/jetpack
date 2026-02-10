@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.0.3] - 2026-02-10
 ### Changed
-- Moving IDC stats from Jetpack plugin to connection package. [#46967]
+- Move IDC stats from Jetpack plugin to connection package. [#46967]
 - Update package dependencies. [#47002]
 
 ## [7.0.2] - 2026-02-04

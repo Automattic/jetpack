@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Contain file preview modal component styles. [#46892]
 - Dashboard: Hide "New form" button on form responses page. [#47023]
 - Format numbers consistently in response action messages using `formatNumber()`. [#46871]
-- Add hook for shared wp-build dashboard heaader details. [#46910]
+- Add hook for shared wp-build dashboard header details. [#46910]
 - Add inline field icons module for wp-build compatibility. [#46950]
 - Add SVG icon files for all form field blocks and configure webpack for SVG component and raw imports. [#46858]
 - Update response sidebar meta section visually and refactor styles. [#46929]
