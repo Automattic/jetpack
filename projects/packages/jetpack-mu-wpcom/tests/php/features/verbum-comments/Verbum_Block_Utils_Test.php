@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/verbum-comments/assets/class-verbum-block-utils.php';
 require_once __DIR__ . '/../../trait-wp-version-test-helpers.php';
 

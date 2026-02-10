@@ -1,4 +1,3 @@
 Significance: patch
-Type: fixed
-
-Add WordPress version detection to handle both WP 6.9 and 7.0+ block output in tests (Gutenberg PR #71207).
+Type: changed
+Comment: Update Verbum block test expectations for WordPress 7.0+ block output changes.
