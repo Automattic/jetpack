@@ -34,6 +34,8 @@ minimumReleaseAgeExclude:
   - '@isaacs/brace-expansion@5.0.1'
   # Renovate security update: webpack@5.104.1
   - webpack@5.104.1
+  # Renovate security update: axios@1.13.5
+  - axios@1.13.5
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
@@ -69,6 +71,8 @@ allowBuilds:
   '@swc/core': false
   esbuild: false
   unrs-resolver: false
+  # Tries to rebuild its bundled libs if a newer version of libvips-dev is installed, which probably isn't.
+  sharp: false
   # Attempt to show "remember to install other stuff" spam.
   svelte-preprocess: false
   # Attempt to show "support me" spam.
