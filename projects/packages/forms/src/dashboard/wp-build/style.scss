@@ -21,7 +21,8 @@ body.jetpack-forms-responses {
 		}
 
 		a {
-			color: #000;
+			color: var(--wp-components-color-foreground, #1e1e1e);
+			font-weight: 600;
 		}
 	}
 }
