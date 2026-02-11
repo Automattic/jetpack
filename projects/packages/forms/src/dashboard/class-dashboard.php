@@ -21,7 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles the Jetpack Forms dashboard.
  */
 class Dashboard {
-
 	/**
 	 * Load wp-build generated files if available.
 	 * This is for the new DataViews-based responses list.
@@ -29,8 +28,18 @@ class Dashboard {
 	public static function load_wp_build() {
 		if ( self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG ) {
 			$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
+
 			if ( file_exists( $wp_build_index ) ) {
 				require_once $wp_build_index;
+
+				// Re-add core's registration only when Gutenberg isn't providing it
+				if ( ! defined( 'IS_GUTENBERG_PLUGIN' ) || ! IS_GUTENBERG_PLUGIN ) {
+					// `wp-build` currently removes `wp_default_script_modules` from `wp_default_scripts`.
+					// Re-add the core hook so script modules work in vanilla wp-admin (no Gutenberg plugin).
+					if ( function_exists( 'wp_default_script_modules' ) ) {
+						add_action( 'wp_default_scripts', 'wp_default_script_modules', 0 );
+					}
+				}
 			}
 		}
 	}
@@ -65,16 +74,14 @@ class Dashboard {
 	 * Initialize the dashboard.
 	 */
 	public function init() {
+		add_action( 'admin_menu', array( $this, 'add_new_admin_submenu' ), self::MENU_PRIORITY );
+
+		// Flag to enable the wp-build-based dashboard.
 		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
 
 		if ( $is_wp_build_enabled ) {
-			// Load wp-build generated files for the new DataViews-based UI.
 			self::load_wp_build();
-		}
 
-		add_action( 'admin_menu', array( $this, 'add_new_admin_submenu' ), self::MENU_PRIORITY );
-
-		if ( $is_wp_build_enabled ) {
 			add_action( 'admin_menu', array( $this, 'add_forms_wpbuild_submenu' ), self::MENU_PRIORITY );
 		}
 
