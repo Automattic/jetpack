@@ -10,8 +10,8 @@
  * @package
  */
 
-import type { Block } from '@wordpress/blocks';
 import { getInsertionIndex, isEmptyParagraph } from './block-utils';
+import type { Block } from '@wordpress/blocks';
 
 export interface BlockNestingAction {
 	/**
@@ -36,8 +36,7 @@ export interface BlockNestingAction {
  * Determines what action to take when moving blocks into the form.
  *
  * This function encapsulates the decision logic for:
- * 1. Detecting when to dedupe empty paragraphs (when moving a single empty paragraph
- *    and the form already has an empty paragraph at the end)
+ * 1. Detecting when to dedupe empty paragraphs (when moving a single empty paragraph and the form already has an empty paragraph at the end)
  * 2. Detecting when to add a submit button (when the form was empty/placeholder state)
  * 3. Calculating the correct insertion index (before the submit button if one exists)
  *
