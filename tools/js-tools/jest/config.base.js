@@ -1,6 +1,8 @@
 const path = require( 'path' );
+const nodeConfig = require( './config.node.js' );
 
 module.exports = {
+	...nodeConfig,
 	testEnvironment: path.join( __dirname, 'fix-environment-jsdom.mjs' ),
 	testEnvironmentOptions: {
 		// Note we need to repeat the environment's default conditions here too, sigh.
@@ -28,17 +30,9 @@ module.exports = {
 	},
 	// Unignore uplot css for packages/components. Globally because the monorepo build recompiles in every consumer.
 	transformIgnorePatterns: [ '/node_modules/(?!.*uplot.*\\.css)' ],
-	testMatch: [
-		// Note: Keep the patterns here in sync with ./config.coverage.js and tools/js-tools/eslintrc/base.mjs.
-		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',
-		'<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
-		'<rootDir>/**/test/*.[jt]s?(x)',
-		'!**/eslint.config.?([mc])[jt]s',
-	],
 	moduleNameMapper: {
 		jetpackConfig: path.join( __dirname, 'jest-jetpack-config.js' ),
 	},
-	testPathIgnorePatterns: [ '/node_modules/', '<rootDir>/vendor/', '<rootDir>/jetpack_vendor/' ],
 	setupFiles: [ path.join( __dirname, 'setup-globals.js' ) ],
 	setupFilesAfterEnv: [
 		path.join( __dirname, 'setup-jest-dom.js' ),
@@ -46,7 +40,4 @@ module.exports = {
 		path.join( __dirname, 'setup-client-zip.js' ),
 	],
 	extensionsToTreatAsEsm: [ '.jsx', '.ts', '.tsx' ],
-	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
-
-	...require( './config.coverage.js' ),
 };
