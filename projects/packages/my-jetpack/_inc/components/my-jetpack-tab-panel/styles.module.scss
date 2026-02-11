@@ -5,13 +5,6 @@
 	max-width: var(--max-container-width);
 	margin: 0 auto;
 
-	// Make all the links green
-	a,
-	:global(.components-external-link),
-	:global(.components-button.is-link) {
-		color: var(--jp-green-60);
-	}
-
 	:global(.components-tab-panel__tabs) {
 		position: relative;
 		z-index: 1;
