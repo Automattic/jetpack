@@ -176,7 +176,7 @@ export function useSyncedFormAutoSave( {
 			baselineRef
 		);
 
-		if ( ! baseline || ! ref ) {
+		if ( ! baseline ) {
 			return;
 		}
 
