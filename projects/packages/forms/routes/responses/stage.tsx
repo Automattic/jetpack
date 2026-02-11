@@ -34,6 +34,7 @@ import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-he
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
 import { getRowActions } from './actions';
+import '../../src/dashboard/wp-build/style.scss';
 import './style.scss';
 /**
  * Types

@@ -20,7 +20,6 @@ import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptyTrashButton from '../../components/empty-trash-button';
 import ExportResponsesButton from '../../components/export-responses/button';
-import BackToFormsButton from '../components/back-to-forms-button';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import type { ReactNode } from 'react';
 
@@ -84,10 +83,6 @@ export default function usePageHeaderDetails(
 	}, [ formRecord?.title?.rendered ] );
 
 	const breadcrumbsItems = useMemo( () => {
-		if ( isFormsScreen ) {
-			return [ { label: __( 'Forms', 'jetpack-forms' ) } ];
-		}
-
 		if ( isSingleFormScreen ) {
 			return [
 				{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
@@ -95,9 +90,8 @@ export default function usePageHeaderDetails(
 			];
 		}
 
-		// Responses list screen.
-		return [ { label: __( 'Form Responses', 'jetpack-forms' ) } ];
-	}, [ formTitle, isFormsScreen, isSingleFormScreen ] );
+		return [ { label: __( 'Forms', 'jetpack-forms' ) } ];
+	}, [ formTitle, isSingleFormScreen ] );
 
 	const breadcrumbs = useMemo( () => {
 		return (
@@ -139,7 +133,6 @@ export default function usePageHeaderDetails(
 
 		if ( isSingleFormScreen ) {
 			return [
-				<BackToFormsButton key="back-to-forms" />,
 				...( sourceIdNumber
 					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
 					: [] ),
