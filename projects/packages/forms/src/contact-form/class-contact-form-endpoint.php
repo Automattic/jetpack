@@ -46,6 +46,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-spam',
 				'title'                   => __( 'Akismet Spam Protection', 'jetpack-forms' ),
 				'subtitle'                => __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'This form is protected with Akismet spam protection.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/akismet.svg',
@@ -57,6 +58,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-crm',
 				'title'                   => __( 'Jetpack CRM', 'jetpack-forms' ),
 				'subtitle'                => __( 'Store contact form submissions in your CRM', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'Jetpack CRM is connected for this form.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/zero-bs-crm.svg',
@@ -68,6 +70,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => null,
 				'title'                   => __( 'Salesforce', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send form contacts to Salesforce', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'Salesforce is connected for this form.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/salesforce.svg',
@@ -79,6 +82,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => null,
 				'title'                   => __( 'Google Sheets', 'jetpack-forms' ),
 				'subtitle'                => __( 'Export form responses to Google Sheets.', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'Google Sheets is connected for this form.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/google-drive.svg',
@@ -90,6 +94,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-mailpoet',
 				'title'                   => __( 'MailPoet email marketing', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send newsletters and marketing emails directly from your site.', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'MailPoet is connected for this form.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/mailpoet.svg',
@@ -105,6 +110,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'hostinger-reach',
 				'title'                   => __( 'Hostinger Reach', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send newsletters and marketing emails via Hostinger Reach.', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'Hostinger Reach is connected for this form.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/hostinger-reach.svg',
@@ -128,6 +134,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		 *                            - marketing_redirect_slug (string|null) : Redirect slug for marketing links, or null.
 		 *                            - title (string)                 : Default UI title for the integration.
 		 *                            - subtitle (string)              : Default UI subtitle/description for the integration.
+		 *                            - active_tooltip (string)        : Tooltip copy for when the integration is active/connected.
 		 *                            - enabled_by_default (bool)      : Whether the integration is enabled by default on new forms.
 		 *                            - icon_url (string|null)         : Absolute URL to an icon to display in the UI.
 		 */
@@ -1264,6 +1271,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'marketingUrl'     => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
 			'enabledByDefault' => isset( $config['enabled_by_default'] ) ? (bool) $config['enabled_by_default'] : false,
 			'iconUrl'          => $icon_url ? esc_url_raw( $icon_url ) : null,
+			'activeTooltip'    => isset( $config['active_tooltip'] ) ? sanitize_text_field( $config['active_tooltip'] ) : '',
 		);
 	}
 

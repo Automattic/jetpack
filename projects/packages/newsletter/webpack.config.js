@@ -34,6 +34,7 @@ export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
 		newsletter: path.join( __dirname, 'src/settings/index.tsx' ),
+		'reader-link': path.join( __dirname, 'src/reader-link/style.scss' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
