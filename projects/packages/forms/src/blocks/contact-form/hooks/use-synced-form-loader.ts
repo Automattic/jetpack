@@ -46,7 +46,7 @@ function findFirstStepClientId( blocks: Block[] ): string | null {
 /**
  * Hook to handle loading synced form content into the editor.
  * Performs a one-time sync when the ref changes or loads for the first time.
- * After loading, the user can edit freely and changes will be saved back via auto-save.
+ * After loading, the user can edit freely and changes will be staged via auto-save.
  *
  * @param {UseSyncedFormLoaderParams} params - Configuration parameters.
  * @return {UseSyncedFormLoaderResult} Object containing syncing state ref.
