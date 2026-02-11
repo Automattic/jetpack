@@ -282,9 +282,9 @@ class Dashboard {
 
 		// Dashboard
 		if ( $is_wp_build_enabled ) {
-			$url .= '?page=jetpack-forms-responses-wp-admin';
+			$url .= '?page=' . self::FORMS_WPBUILD_ADMIN_SLUG;
 		} else {
-			$url .= '?page=jetpack-forms-admin';
+			$url .= '?page=' . self::ADMIN_SLUG;
 		}
 
 		// Tab
