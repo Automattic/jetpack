@@ -276,22 +276,20 @@ class Dashboard {
 	 */
 	public static function get_forms_admin_url( $tab = null, $post_id = null ) {
 
-		$central_form_management_enabled = Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' );
-		$valid_tabs                      = array( 'spam', 'inbox', 'trash' );
-
-		// Base URL
-		$url = get_admin_url() . 'admin.php';
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
+		$valid_tabs          = array( 'spam', 'inbox', 'trash' );
+		$url                 = get_admin_url() . 'admin.php';
 
 		// Dashboard
-		if ( $central_form_management_enabled ) {
-			$url = get_admin_url() . '?page=jetpack-forms-responses-wp-admin';
+		if ( $is_wp_build_enabled ) {
+			$url .= '?page=jetpack-forms-responses-wp-admin';
 		} else {
 			$url .= '?page=jetpack-forms-admin';
 		}
 
 		// Tab
 		if ( in_array( $tab, $valid_tabs, true ) ) {
-			if ( $central_form_management_enabled ) {
+			if ( $is_wp_build_enabled ) {
 				$url = '&p=%2Fresponses%2F' . $tab;
 			} else {
 				$url .= '#/responses?status=' . $tab;
@@ -300,7 +298,7 @@ class Dashboard {
 
 		// Response ID
 		if ( ! empty( $post_id ) ) {
-			if ( $central_form_management_enabled ) {
+			if ( $is_wp_build_enabled ) {
 				$url .= '?responseIds=["' . $post_id . '"]';
 			} else {
 				$url .= '&r=' . $post_id;
