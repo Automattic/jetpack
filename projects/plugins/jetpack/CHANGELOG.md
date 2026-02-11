@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.6-a.1 - 2026-02-10
+### Enhancements
+- Forms: Update response sidebar styles. [#46929]
+- WordPress.com Reader: Add new option to show a link to the WordPress.com Reader in the admin bar. [#46781]
+
+### Bug fixes
+- Forms: Fix IP address lookup link in response inspector. [#46969]
+- Sharing: Fix LinkedIn sharing by updating to the current share URL endpoint. [#47008]
+- Slideshow: Fix an issue with sizing when images are lazily loaded. [#46924]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin dashboard: add new "Reader" section. [#46779]
+- AI: Remove Chrome AI built-in API experiment code. [#46896]
+- Cover RESTful JSON API with unit tests. [#46940]
+- Cover the JSON API posts endpoint with unit tests. [#46939]
+- Janitorial: Clean up to-test.md. [#46943]
+- Move IDC stats from Jetpack plugin to connection package. [#46967]
+- Update package dependencies. [#46936] [#47002] [#47021]
+- VideoPress: Improve attachment details display with proper i18n support and WordPress core styling. [#46458]
+
 ## 15.5 - 2026-02-03
 ### Major Enhancements
 - General: Update minimum WordPress version to 6.8. [#46801]

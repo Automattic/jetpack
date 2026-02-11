@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.6] - 2026-02-10
+### Changed
+- Update package dependencies. [#46933]
+
 ## [3.0.5] - 2026-02-02
 ### Changed
 - Update package dependencies. [#46854]
@@ -107,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release after extracting from Calypso.
 
+[3.0.6]: https://github.com/Automattic/social-previews/compare/v3.0.5...v3.0.6
 [3.0.5]: https://github.com/Automattic/social-previews/compare/v3.0.4...v3.0.5
 [3.0.4]: https://github.com/Automattic/social-previews/compare/v3.0.3...v3.0.4
 [3.0.3]: https://github.com/Automattic/social-previews/compare/v3.0.2...v3.0.3

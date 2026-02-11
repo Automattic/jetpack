@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: convert step icons to function components to fix usage as React components.

@@ -4,6 +4,7 @@ import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { getSocialScriptData } from '../../utils/script-data';
+import { CUSTOMIZE_PER_NETWORK_KEY } from '../constants';
 import { Connection, EditorConnection, KeyringResult } from '../types';
 import {
 	ADD_CONNECTION,
@@ -235,9 +236,21 @@ export function toggleConnectionById( connectionId: string ) {
 	return function ( { registry, dispatch } ) {
 		dispatch( toggleConnection( connectionId ) );
 
-		// If the post is not published, sync the connections to the post meta.
-		// Because we don't save connection toggle for already published posts.
-		if ( ! registry.select( editorStore ).isCurrentPostPublished() ) {
+		const customizingPerNetwork = Boolean(
+			registry.select( editorStore ).getEditedPostAttribute( 'meta' )?.[ CUSTOMIZE_PER_NETWORK_KEY ]
+		);
+
+		const isPostPublished = registry.select( editorStore ).isCurrentPostPublished();
+
+		/**
+		 * For published posts, we do not save the connection enable-status to post meta,
+		 * but when customizing per network, we need to ensure
+		 * that the connection toggle results in sync
+		 * because the connection overrides are saved for published posts as well.
+		 */
+		const shouldSyncToMeta = customizingPerNetwork || ! isPostPublished;
+
+		if ( shouldSyncToMeta ) {
 			dispatch( syncConnectionsToPostMeta() );
 		}
 	};

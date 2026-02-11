@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Enable support for ModSecurity’s MATCHED_VAR* family of targets.

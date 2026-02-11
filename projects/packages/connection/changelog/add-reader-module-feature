@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: add maybe_add_origin_site_id method to the Urls class.
