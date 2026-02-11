@@ -31,7 +31,7 @@ export const typescriptFiles = [ '**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts' ]
 export const jestFiles = [
 	'**/jest-globals.?([mc])js',
 	'**/jest.setup.?([mc])js',
-	// Note: Keep the patterns here in sync with tools/js-tools/jest/config.base.js.
+	// Note: Keep the patterns here in sync with tools/js-tools/jest/config.node.js. config.base.js inherits these.
 	'**/__tests__/**/*.[jt]s?(x)',
 	'**/?(*.)+(spec|test).[jt]s?(x)',
 	'**/test/*.[jt]s?(x)',
