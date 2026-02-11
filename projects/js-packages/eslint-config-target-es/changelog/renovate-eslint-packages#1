@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Enable new rules from `eslint-plugin-es-x`.
