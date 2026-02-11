@@ -16,11 +16,11 @@ class Feedback_Field {
 	use Country_Code_Utils;
 
 	/**
-	 * The color of the respondent email link in the email header.
+	 * The color of the links in the email.
 	 *
 	 * @var string
 	 */
-	public const HEADER_LINK_COLOR = '#757575';
+	public const LINK_COLOR = '#1e1e1e';
 
 	/**
 	 * Cached admin theme color.
@@ -427,7 +427,10 @@ class Feedback_Field {
 	 * @return string HTML for the field value.
 	 */
 	private function get_render_email_html_value() {
-		if ( $this->is_of_type( 'select' ) || $this->is_of_type( 'radio' ) || $this->is_of_type( 'checkbox-multiple' ) ) {
+		if ( $this->is_of_type( 'select' ) || $this->is_of_type( 'radio' ) ) {
+			return $this->render_email_chips( $this->value );
+		}
+		if ( $this->is_of_type( 'checkbox-multiple' ) ) {
 			return $this->render_email_chips( $this->value );
 		}
 		if ( $this->is_of_type( 'checkbox' ) || $this->is_of_type( 'consent' ) ) {
@@ -490,7 +493,7 @@ class Feedback_Field {
 				continue;
 			}
 			$chips[] = sprintf(
-				'<div style="display: inline-block; height: 24px; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: 13px; line-height: 24px; color: #1e1e1e;">%s</div>',
+				'<div style="width: fit-content; padding: 4px 10px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 4px; font-size: 13px; line-height: 1.4; color: #1e1e1e;">%s</div>',
 				$safe_item
 			);
 		}
@@ -499,7 +502,7 @@ class Feedback_Field {
 			return $this->render_empty_value_html();
 		}
 
-		return implode( '<br />', $chips );
+		return implode( ' ', $chips );
 	}
 
 	/**
@@ -512,7 +515,9 @@ class Feedback_Field {
 		$label  = $is_yes ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
 
 		return sprintf(
-			'<span style="display: inline-block; padding: 0 8px; border-radius: 2px; font-size: 13px; line-height: 1.4; background-color: #f0f0f0; color: #1e1e1e;">%s</span>',
+			'<span style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; line-height: 1.4; background-color: %1$s; color: %2$s;">%3$s</span>',
+			'#f0f0f0',
+			'#1e1e1e',
 			esc_html( $label )
 		);
 	}
@@ -527,22 +532,16 @@ class Feedback_Field {
 			return $this->render_empty_value_html();
 		}
 
-		$raw_phone    = preg_replace( '/[^\d+]/', '', (string) $this->value );
-		$country_code = $this->get_country_code_from_phone( $this->value );
-		$flag_prefix  = '';
+		$display_value = esc_html( $this->get_phone_value_with_flag() );
 
-		if ( ! empty( $country_code ) ) {
-			$flag = self::country_code_to_emoji_flag( $country_code );
-			if ( ! empty( $flag ) ) {
-				$flag_prefix = $flag . ' ';
-			}
-		}
+		// Use the raw value (without flag) for the tel: href.
+		$raw_phone = preg_replace( '/[^\d+]/', '', (string) $this->value );
 
-		return $flag_prefix . sprintf(
+		return sprintf(
 			'<a href="tel:%1$s" style="color: %3$s; text-decoration: underline;">%2$s</a>',
 			esc_attr( $raw_phone ),
-			esc_html( $this->value ),
-			self::get_admin_theme_color()
+			$display_value,
+			self::LINK_COLOR
 		);
 	}
 
@@ -556,9 +555,10 @@ class Feedback_Field {
 			return $this->render_empty_value_html();
 		}
 
-		$url = $this->value;
+		$url           = $this->value;
+		$display_value = $this->value;
 
-		// Prepend scheme if missing so the href is valid, but display the original input.
+		// Ensure the URL has a scheme.
 		if ( ! preg_match( '/^https?:\/\//i', $url ) ) {
 			$url = 'https://' . $url;
 		}
@@ -566,8 +566,8 @@ class Feedback_Field {
 		return sprintf(
 			'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
 			esc_url( $url ),
-			esc_html( $this->value ),
-			self::get_admin_theme_color()
+			esc_html( $display_value ),
+			self::LINK_COLOR
 		);
 	}
 
@@ -641,7 +641,7 @@ class Feedback_Field {
 					'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
 					esc_url( $file_url ),
 					$html,
-					self::get_admin_theme_color()
+					self::LINK_COLOR
 				);
 			}
 
@@ -799,7 +799,7 @@ class Feedback_Field {
 	public static function get_icon_name_for_type( $type ) {
 		$map = array(
 			'text'              => 'field-text',
-			'name'              => 'field-name',
+			'name'              => 'field-text',
 			'email'             => 'field-email',
 			'textarea'          => 'field-textarea',
 			'select'            => 'field-select',
