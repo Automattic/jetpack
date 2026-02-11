@@ -17,12 +17,7 @@ import {
 	deactivateBlockCategoryOverrides,
 } from './utils/block-category-override';
 import { determineBlockNestingAction } from './utils/block-nesting-logic';
-import {
-	BlockLock,
-	findFormBlock,
-	shouldLockBlock,
-	getBlocksToMove,
-} from './utils/block-utils';
+import { BlockLock, findFormBlock, shouldLockBlock, getBlocksToMove } from './utils/block-utils';
 import {
 	moveContactFormCategoryToFront as moveCategoryToFront,
 	moveContactFormCategoryToBack as moveCategoryToBack,
