@@ -354,7 +354,7 @@ function JetpackContactFormEdit( {
 	} );
 
 	// Auto-save editor changes BACK to the synced form post
-	useSyncedFormAutoSave( {
+	const { flushPendingSave } = useSyncedFormAutoSave( {
 		ref,
 		syncedForm,
 		attributes,
@@ -945,7 +945,11 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ isCentralFormManagementEnabled && ! isJetpackFormEditor && (
-						<ConvertFormToolbar clientId={ clientId } attributes={ attributes } />
+						<ConvertFormToolbar
+							clientId={ clientId }
+							attributes={ attributes }
+							onBeforeNavigate={ flushPendingSave }
+						/>
 					) }
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
