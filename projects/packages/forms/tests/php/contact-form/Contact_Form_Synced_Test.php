@@ -39,11 +39,9 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 		// We use reflection to access the private static property.
 		$reflection = new \ReflectionClass( Contact_Form::class );
 		$property   = $reflection->getProperty( 'seen_ref' );
-		$property->setAccessible( true );
 		$property->setValue( null, array() );
 
 		$ref_id_property = $reflection->getProperty( 'ref_id' );
-		$ref_id_property->setAccessible( true );
 		$ref_id_property->setValue( null, null );
 
 		parent::tear_down();
