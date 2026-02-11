@@ -115,13 +115,15 @@ export function useSyncedFormAutoSave( {
 	const pendingTimeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
 	const baselineRef = useRef< { ref: number; serialized: string } | null >( null );
 
-	// Reset baseline when ref changes
-	const prevRefRef = useRef< number | undefined >( undefined );
-	if ( ref !== prevRefRef.current ) {
+	// Reset baseline and clear any pending timeout when ref changes.
+	useEffect( () => {
 		baselineRef.current = null;
-		prevRefRef.current = ref;
-	}
 
+		if ( pendingTimeoutRef.current ) {
+			clearTimeout( pendingTimeoutRef.current );
+			pendingTimeoutRef.current = null;
+		}
+	}, [ ref ] );
 	useEffect( () => {
 		if ( ! ref ) {
 			return;
