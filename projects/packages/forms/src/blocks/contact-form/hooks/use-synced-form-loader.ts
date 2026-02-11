@@ -64,7 +64,7 @@ export function useSyncedFormLoader( {
 	// Track if we're currently syncing to prevent save-back loops
 	const isSyncingRef = useRef( false );
 	const lastLoadedRefId = useRef< number | null >( null );
-	const rafIdRef = useRef< number | null >( null );
+	const animationFrameIdRef = useRef< number | null >( null );
 
 	useEffect( () => {
 		if ( ! ref || ! syncedFormBlocks ) {
@@ -98,16 +98,16 @@ export function useSyncedFormLoader( {
 		}
 
 		// Reset syncing flag after React commits
-		rafIdRef.current = requestAnimationFrame( () => {
-			rafIdRef.current = null;
+		animationFrameIdRef.current = requestAnimationFrame( () => {
+			animationFrameIdRef.current = null;
 			isSyncingRef.current = false;
 		} );
 
 		// Cleanup: cancel pending rAF if component unmounts or effect re-runs
 		return () => {
-			if ( rafIdRef.current !== null ) {
-				cancelAnimationFrame( rafIdRef.current );
-				rafIdRef.current = null;
+			if ( animationFrameIdRef.current !== null ) {
+				cancelAnimationFrame( animationFrameIdRef.current );
+				animationFrameIdRef.current = null;
 				// Reset syncing flag since we're canceling the scheduled reset
 				isSyncingRef.current = false;
 			}
