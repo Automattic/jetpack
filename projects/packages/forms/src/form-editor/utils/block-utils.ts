@@ -72,3 +72,47 @@ export function shouldLockBlock( block: Block ): boolean {
 export function getBlocksToMove( blocks: Block[], formBlockClientId: string ): Block[] {
 	return blocks.filter( block => block.clientId !== formBlockClientId );
 }
+
+/**
+ * Checks if a block is an empty paragraph.
+ *
+ * Handles various content types: undefined, null, empty string, empty object {},
+ * and RichText value objects with a toString() method.
+ *
+ * @param block                    - The block to check
+ * @param block.name               - The block name
+ * @param block.attributes         - The block attributes
+ * @param block.attributes.content - The paragraph content
+ * @return True if the block is an empty paragraph
+ */
+export function isEmptyParagraph( block: {
+	name: string;
+	attributes?: { content?: unknown };
+} ): boolean {
+	if ( block.name !== 'core/paragraph' ) {
+		return false;
+	}
+	const content = block.attributes?.content;
+	// Handle: undefined, null
+	if ( content === undefined || content === null ) {
+		return true;
+	}
+	// Handle string content
+	if ( typeof content === 'string' ) {
+		return content === '';
+	}
+	// Handle object content (RichText or empty object)
+	if ( typeof content === 'object' ) {
+		// Check for empty plain object {} first
+		if ( Object.keys( content ).length === 0 ) {
+			return true;
+		}
+		// RichText objects have a custom toString() method that returns the text content
+		// Check if toString returns something other than the default "[object Object]"
+		const textContent = String( content );
+		if ( textContent !== '[object Object]' ) {
+			return textContent === '';
+		}
+	}
+	return false;
+}
