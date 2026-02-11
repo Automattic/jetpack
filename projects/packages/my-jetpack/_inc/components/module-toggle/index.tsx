@@ -1,12 +1,13 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
 import { store as modulesStore } from '@automattic/jetpack-shared-extension-utils';
-import { ToggleControl } from '@wordpress/components';
+import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { MyJetpackModule } from '../../types';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
 import { useProductFiltersContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
+import type { ChangeEvent } from 'react';
 
 export type ModuleToggleProps = {
 	module: MyJetpackModule;
@@ -69,7 +70,9 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	);
 
 	const onChange = useCallback(
-		async ( active: boolean ) => {
+		async ( event: ChangeEvent< HTMLInputElement > ) => {
+			const active = event.target.checked;
+
 			// Track module activation/deactivation if we're in the Products tab context
 			if ( trackProductAction ) {
 				trackProductAction( {
@@ -95,8 +98,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	);
 
 	return (
-		<ToggleControl
-			__nextHasNoMarginBottom
+		<FormToggle
 			disabled={ isUpdating }
 			checked={ $module.activated }
 			onChange={ onChange }
