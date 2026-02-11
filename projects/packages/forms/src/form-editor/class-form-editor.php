@@ -76,6 +76,7 @@ class Form_Editor {
 
 			// Supporting blocks.
 			'jetpack/button',
+			'core/button',
 			'jetpack/label',
 			'jetpack/input',
 			'jetpack/options',

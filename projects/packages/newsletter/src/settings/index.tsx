@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { Notice, Snackbar } from '@wordpress/components';
+import { GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
+import { Notice } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -64,9 +65,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	);
 	const [ isSavingSenderName, setIsSavingSenderName ] = useState( false );
 
-	// Snackbar notification state
-	const [ snackbarMessage, setSnackbarMessage ] = useState< string | null >( null );
-
 	// Newsletter categories state (for manual save)
 	const [ newsletterCategoriesChanges, setNewsletterCategoriesChanges ] = useState<
 		Partial< NewsletterSettings >
@@ -84,8 +82,8 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		window as Window & { jetpackNewsletterSettings?: JetpackNewsletterSettings }
 	 ).jetpackNewsletterSettings;
 
-	// Callback to clear snackbar
-	const clearSnackbar = useCallback( () => setSnackbarMessage( null ), [] );
+	// Global notices for success/error messages
+	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 
 	// Load settings on mount
 	useEffect( () => {
@@ -115,17 +113,19 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			// Save to backend
 			updateSettings( updates, jetpackSettings )
 				.then( () => {
-					setError( null );
+					createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 				} )
 				.catch( ( err: Error ) => {
 					// eslint-disable-next-line no-console
 					console.error( 'Newsletter settings auto-save error:', err );
-					setError( err.message || __( 'Failed to save settings', 'jetpack-newsletter' ) );
+					createErrorNotice( err.message || __( 'Failed to save settings', 'jetpack-newsletter' ), {
+						explicitDismiss: true,
+					} );
 					// Revert optimistic update on error
 					setData( data );
 				} );
 		},
-		[ data, jetpackSettings ]
+		[ createErrorNotice, createSuccessNotice, data, jetpackSettings ]
 	);
 
 	// Handle sender name changes (staged, not auto-saved)
@@ -143,23 +143,24 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		}
 
 		setIsSavingSenderName( true );
-		setError( null );
 
 		updateSettings( senderNameChanges, jetpackSettings )
 			.then( () => {
-				setError( null );
 				setSenderNameChanges( {} );
-				setSnackbarMessage( __( 'Sender name saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Sender name saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
 				console.error( 'Newsletter sender name save error:', err );
-				setError( err.message || __( 'Failed to save sender name', 'jetpack-newsletter' ) );
+				createErrorNotice(
+					err.message || __( 'Failed to save sender name', 'jetpack-newsletter' ),
+					{ explicitDismiss: true }
+				);
 			} )
 			.finally( () => {
 				setIsSavingSenderName( false );
 			} );
-	}, [ senderNameChanges, data, jetpackSettings ] );
+	}, [ createErrorNotice, createSuccessNotice, senderNameChanges, data, jetpackSettings ] );
 
 	// Handle subscription settings changes (staged, not auto-saved)
 	const handleSubscriptionChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
@@ -176,25 +177,24 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		}
 
 		setIsSavingSubscriptions( true );
-		setError( null );
 
 		updateSettings( subscriptionChanges, jetpackSettings )
 			.then( () => {
-				setError( null );
 				setSubscriptionChanges( {} );
-				setSnackbarMessage( __( 'Settings saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
 				console.error( 'Newsletter subscription settings save error:', err );
-				setError(
-					err.message || __( 'Failed to save subscription settings', 'jetpack-newsletter' )
+				createErrorNotice(
+					err.message || __( 'Failed to save subscription settings', 'jetpack-newsletter' ),
+					{ explicitDismiss: true }
 				);
 			} )
 			.finally( () => {
 				setIsSavingSubscriptions( false );
 			} );
-	}, [ subscriptionChanges, data, jetpackSettings ] );
+	}, [ createErrorNotice, createSuccessNotice, subscriptionChanges, data, jetpackSettings ] );
 
 	// Handle newsletter categories changes (staged, not auto-saved)
 	const handleNewsletterCategoriesChange = useCallback(
@@ -214,7 +214,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		}
 
 		setIsSavingNewsletterCategories( true );
-		setError( null );
 
 		// Convert categories from strings to numbers for API
 		const apiUpdates: Record< string, unknown > = { ...newsletterCategoriesChanges };
@@ -236,21 +235,27 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 		updateSettings( apiUpdates, jetpackSettings )
 			.then( () => {
-				setError( null );
 				setNewsletterCategoriesChanges( {} );
-				setSnackbarMessage( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
 				console.error( 'Newsletter categories save error:', err );
-				setError(
-					err.message || __( 'Failed to save newsletter categories', 'jetpack-newsletter' )
+				createErrorNotice(
+					err.message || __( 'Failed to save newsletter categories', 'jetpack-newsletter' ),
+					{ explicitDismiss: true }
 				);
 			} )
 			.finally( () => {
 				setIsSavingNewsletterCategories( false );
 			} );
-	}, [ newsletterCategoriesChanges, data, jetpackSettings ] );
+	}, [
+		createErrorNotice,
+		createSuccessNotice,
+		newsletterCategoriesChanges,
+		data,
+		jetpackSettings,
+	] );
 
 	// Handle welcome email changes (staged, not auto-saved)
 	const handleWelcomeEmailChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
@@ -267,25 +272,24 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		}
 
 		setIsSavingWelcomeEmail( true );
-		setError( null );
 
 		updateSettings( welcomeEmailChanges, jetpackSettings )
 			.then( () => {
-				setError( null );
 				setWelcomeEmailChanges( {} );
-				setSnackbarMessage( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
 				console.error( 'Newsletter welcome email save error:', err );
-				setError(
-					err.message || __( 'Failed to save welcome email message', 'jetpack-newsletter' )
+				createErrorNotice(
+					err.message || __( 'Failed to save welcome email message', 'jetpack-newsletter' ),
+					{ explicitDismiss: true }
 				);
 			} )
 			.finally( () => {
 				setIsSavingWelcomeEmail( false );
 			} );
-	}, [ welcomeEmailChanges, data, jetpackSettings ] );
+	}, [ createErrorNotice, createSuccessNotice, welcomeEmailChanges, data, jetpackSettings ] );
 
 	if ( isLoading ) {
 		return (
@@ -348,7 +352,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				isSaving={ isSavingNewsletterCategories }
 				hasChanges={ hasNewsletterCategoriesChanges }
 				jetpackSettings={ jetpackSettings }
-				onError={ setError }
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 
@@ -391,7 +394,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 
-			{ snackbarMessage && <Snackbar onRemove={ clearSnackbar }>{ snackbarMessage }</Snackbar> }
+			<GlobalNotices />
 		</div>
 	);
 }

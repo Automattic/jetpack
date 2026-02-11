@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink, Notice } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -19,7 +19,6 @@ interface NewsletterCategoriesSectionProps {
 	isSaving: boolean;
 	hasChanges: boolean;
 	jetpackSettings: JetpackNewsletterSettings | undefined;
-	onError: ( error: string ) => void;
 	isNewsletterEnabled: boolean;
 }
 
@@ -36,11 +35,11 @@ export function NewsletterCategoriesSection( {
 	isSaving,
 	hasChanges,
 	jetpackSettings,
-	onError,
 	isNewsletterEnabled,
 }: NewsletterCategoriesSectionProps ): JSX.Element {
 	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
+	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {
@@ -56,10 +55,12 @@ export function NewsletterCategoriesSection( {
 				setIsFetchingCategories( false );
 			} )
 			.catch( ( err: Error ) => {
-				onError( err.message || __( 'Failed to load categories', 'jetpack-newsletter' ) );
+				setCategoriesError(
+					err.message || __( 'Failed to load categories', 'jetpack-newsletter' )
+				);
 				setIsFetchingCategories( false );
 			} );
-	}, [ jetpackSettings, onError ] );
+	}, [ jetpackSettings ] );
 
 	// Define fields
 	const fields: Field< NewsletterSettings >[] = [
@@ -153,7 +154,15 @@ export function NewsletterCategoriesSection( {
 					}
 				) }
 			</p>
-			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
+			{ categoriesError && (
+				<Notice status="error" isDismissible={ false }>
+					{ categoriesError }
+				</Notice>
+			) }
+			<fieldset
+				className="newsletter-settings__section-content"
+				disabled={ ! isNewsletterEnabled || !! categoriesError }
+			>
 				<DataForm
 					data={ data }
 					fields={ newsletterCategoriesFields }

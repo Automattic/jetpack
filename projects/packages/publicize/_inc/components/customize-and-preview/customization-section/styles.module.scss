@@ -12,6 +12,8 @@
 		color: gb.$gray-700;
 		// Float fixes the default fieldset/legend border and padding issues.
 		float: inline-start;
+		// Prevents height collapse in flex fieldsets.
+		min-block-size: fit-content;
 		// Truncate long legend names with ellipsis.
 		overflow: hidden;
 		text-overflow: ellipsis;

@@ -113,7 +113,7 @@
 		"sass-loader": "16.0.5",
 		"typescript": "5.9.3",
 		"wait-for-expect": "3.0.2",
-		"webpack": "5.101.3",
+		"webpack": "5.104.1",
 		"webpack-cli": "6.0.1"
 	},
 	"optionalDependencies": {
