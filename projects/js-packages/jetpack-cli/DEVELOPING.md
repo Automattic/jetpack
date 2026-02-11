@@ -14,7 +14,7 @@ npm link
 
 This makes the global `jp` command use your local source. Changes to `bin/jp.js` take effect immediately (no rebuild needed).
 
-Note: Running `bin/jp.js` directly won't work — the CLI must be invoked as the `jp` command (via npm link) because hooks and other tooling look for `jp` in `$PATH`.
+Note: Running `bin/jp.js` directly won't work reliably — hooks and other tooling look for `jp` in `$PATH`.
 
 ## Architecture
 
