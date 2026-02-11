@@ -82,7 +82,7 @@ class Dashboard {
 		if ( $is_wp_build_enabled ) {
 			self::load_wp_build();
 
-			add_action( 'admin_menu', array( $this, 'add_forms_wpbuild_submenu' ), self::MENU_PRIORITY );
+			add_action( 'admin_menu', array( $this, 'add_forms_wpbuild_submenu' ) );
 		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
