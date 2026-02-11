@@ -1506,4 +1506,87 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$spam_meta = get_post_meta( $post_id, '_spam_status_changed_gmt', true );
 		$this->assertEmpty( $spam_meta, 'Spam meta should not be set for non-feedback posts' );
 	}
+
+	/**
+	 * Test navigation button processing with class-based identification (core/button).
+	 *
+	 * @dataProvider data_provider_navigation_button_class_identification
+	 */
+	#[DataProvider( 'data_provider_navigation_button_class_identification' )]
+	public function test_navigation_button_class_identification( $input_html, $expected_attributes, $description ) {
+		// Create minimal wrapper structure that gutenblock_render_form_step_navigation expects
+		$wrapped_html = '<div class="wp-block-jetpack-form-step-navigation"><div class="wp-block-jetpack-form-step-navigation__wrapper">' . $input_html . '</div></div>';
+
+		$result = Contact_Form_Plugin::gutenblock_render_form_step_navigation( array(), $wrapped_html );
+
+		foreach ( $expected_attributes as $attr => $value ) {
+			if ( $value === null ) {
+				$this->assertStringNotContainsString( $attr, $result, "$description: should NOT contain $attr" );
+			} else {
+				$this->assertStringContainsString( "$attr=\"$value\"", $result, "$description: should contain $attr=\"$value\"" );
+			}
+		}
+	}
+
+	/**
+	 * Data provider for navigation button class identification tests.
+	 */
+	public static function data_provider_navigation_button_class_identification() {
+		return array(
+			'previous button by class'       => array(
+				'<button class="form-button-previous">Previous</button>',
+				array(
+					'data-wp-on--click'        => 'actions.previousStep',
+					'data-wp-class--is-hidden' => 'state.isFirstStep',
+				),
+				'Previous button identified by form-button-previous class',
+			),
+			'next button by class'           => array(
+				'<button class="form-button-next">Next</button>',
+				array(
+					'data-wp-on--click'        => 'actions.nextStep',
+					'data-wp-class--is-hidden' => 'state.isLastStep',
+				),
+				'Next button identified by form-button-next class',
+			),
+			'submit button by class'         => array(
+				'<button class="form-button-submit">Submit</button>',
+				array(
+					'data-wp-class--is-hidden' => 'state.isNotLastStep',
+				),
+				'Submit button identified by form-button-submit class',
+			),
+			'previous button by legacy attr' => array(
+				'<button data-id-attr="previous-step">Previous</button>',
+				array(
+					'data-wp-on--click'        => 'actions.previousStep',
+					'data-wp-class--is-hidden' => 'state.isFirstStep',
+				),
+				'Previous button identified by legacy data-id-attr',
+			),
+			'next button by legacy attr'     => array(
+				'<button data-id-attr="next-step">Next</button>',
+				array(
+					'data-wp-on--click'        => 'actions.nextStep',
+					'data-wp-class--is-hidden' => 'state.isLastStep',
+				),
+				'Next button identified by legacy data-id-attr',
+			),
+			'submit button by legacy attr'   => array(
+				'<button data-id-attr="submit-step">Submit</button>',
+				array(
+					'data-wp-class--is-hidden' => 'state.isNotLastStep',
+				),
+				'Submit button identified by legacy data-id-attr',
+			),
+			'regular button not affected'    => array(
+				'<button class="some-other-class">Click me</button>',
+				array(
+					'data-wp-on--click'        => null,
+					'data-wp-class--is-hidden' => null,
+				),
+				'Regular button should not get navigation attributes',
+			),
+		);
+	}
 }

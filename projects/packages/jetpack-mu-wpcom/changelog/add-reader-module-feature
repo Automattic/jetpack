@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin Bar: use Urls::maybe_add_origin_site_id from the Connection package, deprecate local maybe_add_origin_site_id_to_url function.

@@ -15,7 +15,7 @@
 		"@jest/globals": "^30.0.0",
 		"@types/node": "^20.4.2",
 		"_jetpack-e2e-commons": "workspace:*",
-		"axios": "1.12.0",
+		"axios": "1.13.5",
 		"cheerio": "1.1.2",
 		"domhandler": "5.0.3",
 		"dotenv": "16.6.1",

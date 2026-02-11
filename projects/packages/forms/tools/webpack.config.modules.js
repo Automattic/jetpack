@@ -99,10 +99,18 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 						],
 					} ),
 
-					// Handle assets
+					// Allow importing .svg files as raw HTML strings via `?raw` query.
+					{
+						test: /\.svg$/i,
+						resourceQuery: /raw/,
+						type: 'asset/source',
+					},
+
+					// Handle assets (exclude ?raw SVG imports).
 					{
 						test: /\.(eot|ttf|woff|png|svg)$/i,
 						type: 'asset/resource',
+						resourceQuery: { not: [ /raw/ ] },
 						generator: {
 							emit: false,
 							filename: '[file]',

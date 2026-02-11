@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.7.0] - 2026-02-10
+### Added
+- Contact Form: Add shortcode transform support for synced form references. [#46812]
+- Dashboard: Update header tab counts. [#46934]
+- Add field type icons to submission confirmation page to indicate field types. [#46834]
+- Add icon extraction and rasterization pipeline for email templates. [#46979]
+- Add preview functionality allowing users with edit permissions to preview forms at a temporary nonce-based URL. [#46935]
+- Add single form view to wp-build dashboard. [#46875]
+- Response inspector: Display star rating icons for rating field submissions. [#46874]
+- Single Response View: Add notes feature to wp-build dashboard. [#46907]
+
+### Changed
+- Contain file preview modal component styles. [#46892]
+- Dashboard: Hide "New form" button on form responses page. [#47023]
+- Format numbers consistently in response action messages using `formatNumber()`. [#46871]
+- Add hook for shared wp-build dashboard header details. [#46910]
+- Add inline field icons module for wp-build compatibility. [#46950]
+- Add SVG icon files for all form field blocks and configure webpack for SVG component and raw imports. [#46858]
+- Update response sidebar meta section visually and refactor styles. [#46929]
+- Update sidebar information on wp-build dashboard. [#46938]
+- Hide 'Last Edited' panel in form editor. [#47013]
+- Image select field: Improve preview styling in response inspector. [#46870]
+- Multi-step Forms: Replace jetpack/button with core/button for navigation buttons, with backwards compatibility for existing forms. [#46942]
+- Refine inspector field styles. [#46970]
+- Update package dependencies. [#46936] [#47002]
+- Use dynamic number values for spam and trash tip in response sidebar, and add styles. [#46888]
+
+### Fixed
+- Contact Form: Add support for form editing in widget editor context. [#46806]
+- Contact Form: Fix loading spinner not showing on submit button. [#46913]
+- Contact Form: Prevent duplicate form display on the frontend after a successful submission. [#47011]
+- Fix Export button on wp-build dashboard. [#46994]
+- Fix IP address lookup link in response inspector. [#46969]
+- Fix leftover icons after SVG restructuring revert. [#46999]
+- Add placeholder option for required shortcode-based select fields to fix validation. [#47007]
+- Convert step icons to function components to fix usage as React components. [#47005]
+- Remove focus outline from form success message. [#46912]
+- Set default value for confirmationType attribute to prevent unnecessary serialization. [#46866]
+- Handle deleted or missing form source in responses filter. [#46861]
+- Prevent creating synced jetpack_form posts during block preview, and skip form wrapping when editing jetpack_form post type directly. [#46932]
+
 ## [7.6.0] - 2026-02-02
 ### Added
 - Display star/heart rating icons on submission confirmation page. [#46679]
@@ -2146,6 +2187,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.7.0]: https://github.com/automattic/jetpack-forms/compare/v7.6.0...v7.7.0
 [7.6.0]: https://github.com/automattic/jetpack-forms/compare/v7.5.0...v7.6.0
 [7.5.0]: https://github.com/automattic/jetpack-forms/compare/v7.4.0...v7.5.0
 [7.4.0]: https://github.com/automattic/jetpack-forms/compare/v7.3.0...v7.4.0

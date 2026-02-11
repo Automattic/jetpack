@@ -28,6 +28,29 @@ import type { ResponsiveConfig } from '../private/with-responsive';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import type { FC, MouseEvent, ReactNode } from 'react';
 
+/**
+ * Parameters passed to the renderTooltip function for semi-circle charts.
+ */
+export type PieSemiCircleChartRenderTooltipParams = {
+	/**
+	 * The data point being hovered, including label, value, and percentage.
+	 */
+	tooltipData: DataPointPercentage;
+};
+
+/**
+ * Default tooltip renderer for semi-circle pie charts.
+ * Renders a BaseTooltip with the hovered segment's data.
+ *
+ * @param {PieSemiCircleChartRenderTooltipParams} params - The tooltip parameters containing the hovered data point
+ * @return {ReactNode} The rendered tooltip content
+ */
+const renderDefaultPieSemiCircleTooltip = ( {
+	tooltipData,
+}: PieSemiCircleChartRenderTooltipParams ): ReactNode => {
+	return <BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />;
+};
+
 const PAD_ANGLE = 0.03; // Padding between segments
 
 export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
@@ -87,6 +110,12 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	 * Vertical offset for tooltip positioning in pixels (default: -15)
 	 */
 	tooltipOffsetY?: number;
+
+	/**
+	 * Custom render function for tooltip content.
+	 * When provided, replaces the default BaseTooltip with custom content.
+	 */
+	renderTooltip?: ( params: PieSemiCircleChartRenderTooltipParams ) => ReactNode;
 }
 
 // Base props type with optional responsive properties
@@ -149,6 +178,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	children,
 	tooltipOffsetX = 0,
 	tooltipOffsetY = -15,
+	renderTooltip = renderDefaultPieSemiCircleTooltip,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -415,9 +445,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-						<div role="tooltip">
-							<BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />
-						</div>
+						<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
 					</TooltipInPortal>
 				) }
 
