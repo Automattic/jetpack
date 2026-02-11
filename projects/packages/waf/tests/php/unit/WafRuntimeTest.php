@@ -290,4 +290,19 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 
 		$this->assertSame( 'a=&lt;svg\/onload\b=alert`1`&gt;', $result );
 	}
+
+	/**
+	 * Test reset_matched_vars() method
+	 */
+	public function testResetMatchedVars() {
+		$this->runtime->matched_vars       = array( 'var1', 'var2', 'var3' );
+		$this->runtime->matched_vars_names = array( 'name1', 'name2', 'name3' );
+		$this->runtime->matched_var        = 'value1';
+		$this->runtime->matched_var_name   = 'name1';
+		$this->runtime->reset_matched_vars();
+		$this->assertEmpty( $this->runtime->matched_vars );
+		$this->assertEmpty( $this->runtime->matched_vars_names );
+		$this->assertEmpty( $this->runtime->matched_var );
+		$this->assertEmpty( $this->runtime->matched_var_name );
+	}
 }

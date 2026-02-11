@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Allow filtering active tooltips for integrations from the backend.

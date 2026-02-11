@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.8
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 4.5.7-beta
+Stable tag: 4.5.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.7-beta - 2026-02-03
+### 4.5.7 - 2026-02-04
 #### Added
 - Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
 

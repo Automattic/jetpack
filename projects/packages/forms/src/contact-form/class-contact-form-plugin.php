@@ -31,6 +31,9 @@ use WP_Post;
 // Load the Form_Submission_Error class.
 require_once __DIR__ . '/class-form-submission-error.php';
 
+// Load the Form_Preview class.
+require_once __DIR__ . '/class-form-preview.php';
+
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  */
@@ -377,6 +380,7 @@ class Contact_Form_Plugin {
 		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
 			Contact_Form::register_post_type();
 			Form_Editor::init();
+			Form_Preview::init();
 		}
 	}
 
@@ -947,20 +951,25 @@ class Contact_Form_Plugin {
 		}
 
 		while ( $processor->next_tag() ) {
-			$id = $processor->get_attribute( 'data-id-attr' );
-			if ( 'previous-step' === $id ) {
+			// Check for button type - support both legacy (data-id-attr) and new (class-based) identification.
+			$id              = $processor->get_attribute( 'data-id-attr' );
+			$is_previous_btn = 'previous-step' === $id || $processor->has_class( 'form-button-previous' );
+			$is_next_btn     = 'next-step' === $id || $processor->has_class( 'form-button-next' );
+			$is_submit_btn   = 'submit-step' === $id || $processor->has_class( 'form-button-submit' );
+
+			if ( $is_previous_btn ) {
 				$processor->remove_attribute( 'id' );
 				$processor->add_class( 'disable-spinner is-previous is-hidden' );
 				$processor->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isFirstStep' );
 			}
-			if ( 'next-step' === $id ) {
+			if ( $is_next_btn ) {
 				$processor->remove_attribute( 'id' );
 				$processor->add_class( 'disable-spinner is-next' );
 				$processor->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isLastStep' );
 			}
-			if ( 'submit-step' === $id ) {
+			if ( $is_submit_btn ) {
 				$processor->remove_attribute( 'id' );
 				$processor->add_class( 'is-submit is-hidden' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
@@ -1552,6 +1561,11 @@ class Contact_Form_Plugin {
 	 * Conditionally attached to `template_redirect`
 	 */
 	public function process_form_submission() {
+		// Block submissions in preview mode.
+		if ( Form_Preview::is_preview_mode() ) {
+			return;
+		}
+
 		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 

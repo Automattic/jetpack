@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Page } from '@wordpress/admin-ui';
+import apiFetch from '@wordpress/api-fetch';
 import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -221,8 +222,8 @@ function StageInner() {
 		const actionsList: Action< FormListItem >[] = [
 			{
 				id: 'view-responses',
-				isPrimary: false,
-				label: __( 'View responses', 'jetpack-forms' ),
+				isPrimary: true,
+				label: __( 'Responses', 'jetpack-forms' ),
 				supportsBulk: false,
 				callback( items: FormListItem[] ) {
 					const [ item ] = items;
@@ -234,7 +235,7 @@ function StageInner() {
 			},
 			{
 				id: 'edit-form',
-				isPrimary: false,
+				isPrimary: true,
 				label: __( 'Edit', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
@@ -246,6 +247,28 @@ function StageInner() {
 					const editUrl = item.editUrl || fallbackEditUrl;
 					const url = new URL( editUrl, window.location.origin );
 					window.location.href = url.toString();
+				},
+			},
+			{
+				id: 'preview-form',
+				isPrimary: false,
+				label: __( 'Preview', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					try {
+						const response = await apiFetch< { preview_url: string } >( {
+							path: `/wp/v2/jetpack-forms/${ item.id }/preview-url`,
+						} );
+						window.open( response.preview_url, '_blank' );
+					} catch ( error ) {
+						// eslint-disable-next-line no-console
+						console.error( 'Failed to get preview URL:', error );
+					}
 				},
 			},
 		];

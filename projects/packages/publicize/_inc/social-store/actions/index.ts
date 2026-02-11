@@ -1,5 +1,4 @@
 import * as connectionData from './connection-data';
-import * as renderCount from './render-count';
 import * as scheduledSharesActions from './scheduled-shares';
 import * as servicesActions from './services';
 import * as sharePost from './share-post';
@@ -15,7 +14,6 @@ const actions = {
 	...shareStatus,
 	...sharePost,
 	...connectionData,
-	...renderCount,
 	...sigActions,
 	...utmActions,
 	...socialNoteSettings,

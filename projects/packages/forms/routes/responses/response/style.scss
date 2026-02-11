@@ -1,0 +1,29 @@
+/**
+ * Response View Component Styles
+ */
+
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/variables";
+
+$inspector-padding: 16px;
+
+.jp-forms-response-header {
+	padding: 8px;
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+}
+
+.jp-forms-response-header-actions {
+	gap: 0 !important;
+}
+
+.jp-forms__inbox__tip-container {
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+	margin: auto 0 0 0;
+	padding: $inspector-padding;
+	text-wrap: pretty;
+
+	// https://wordpress.github.io/gutenberg/?path=/docs/components-tip--docs
+	.components-tip {
+		align-items: anchor-center;
+	}
+}

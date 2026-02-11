@@ -18,9 +18,24 @@ export const Default: Story = {
 	},
 };
 
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 600,
+		height: 300,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.5,
+	},
+};
+
 export const SingleCountry: Story = {
 	args: {
-		...geoChartStoryArgs,
+		...Default.args,
 		data: [
 			[ 'Country', 'Views' ],
 			[ 'United States', 1500 ],
@@ -30,14 +45,14 @@ export const SingleCountry: Story = {
 
 export const EmptyData: Story = {
 	args: {
-		...geoChartStoryArgs,
+		...Default.args,
 		data: [ [ 'Country', 'Views' ] ],
 	},
 };
 
 export const USStates: Story = {
 	args: {
-		...geoChartStoryArgs,
+		...Default.args,
 		region: 'US',
 		resolution: 'provinces',
 		data: viewsByUSState,
@@ -46,7 +61,7 @@ export const USStates: Story = {
 
 export const EuropeanCountries: Story = {
 	args: {
-		...geoChartStoryArgs,
+		...Default.args,
 		region: '150',
 		resolution: 'countries',
 		data: viewsByEuropeanCountry,

@@ -15,6 +15,7 @@ use DOMElement;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
 use WP_Block;
@@ -2696,7 +2697,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$expected_attributes['notificationRecipients'] = array();
 		$expected_attributes['webhooks']               = array();
 		$expected_attributes['disableSummary']         = '';
-		$expected_attributes['confirmationType']       = '';
+		$expected_attributes['confirmationType']       = 'text';
 		$expected_attributes['hostingerReach']         = '';
 		$expected_attributes['ref']                    = '';
 		$expected_attributes['formTitle']              = 'Test Form';
@@ -3895,5 +3896,94 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
 
 		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test prepare_submit_button adds interactivity attributes to submit buttons.
+	 *
+	 * @dataProvider data_provider_prepare_submit_button
+	 */
+	#[DataProvider( 'data_provider_prepare_submit_button' )]
+	public function test_prepare_submit_button( $input_html, $expected_contains, $expected_not_contains, $description ) {
+		// Use reflection to access private method
+		$reflection = new \ReflectionClass( Contact_Form::class );
+		$method     = $reflection->getMethod( 'prepare_submit_button' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null, $input_html );
+
+		foreach ( $expected_contains as $expected ) {
+			$this->assertStringContainsString( $expected, $result, "$description: should contain $expected" );
+		}
+
+		foreach ( $expected_not_contains as $not_expected ) {
+			$this->assertStringNotContainsString( $not_expected, $result, "$description: should NOT contain $not_expected" );
+		}
+	}
+
+	/**
+	 * Data provider for prepare_submit_button tests.
+	 */
+	public static function data_provider_prepare_submit_button() {
+		return array(
+			'button with type=submit'        => array(
+				'<button type="submit">Submit</button>',
+				array(
+					'data-wp-class--is-submitting="state.isSubmitting"',
+					'data-wp-bind--aria-disabled="state.isAriaDisabled"',
+					'data-wp-bind--disabled="state.isAriaDisabled"',
+				),
+				array(),
+				'Button with type=submit should get interactivity attributes',
+			),
+			'button with is-submit class'    => array(
+				'<button class="is-submit">Submit</button>',
+				array(
+					'data-wp-class--is-submitting="state.isSubmitting"',
+					'data-wp-bind--aria-disabled="state.isAriaDisabled"',
+					'data-wp-bind--disabled="state.isAriaDisabled"',
+				),
+				array(),
+				'Button with is-submit class should get interactivity attributes',
+			),
+			'button with form-button-submit' => array(
+				'<button class="form-button-submit">Submit</button>',
+				array(
+					'data-wp-class--is-submitting="state.isSubmitting"',
+					'data-wp-bind--aria-disabled="state.isAriaDisabled"',
+					'data-wp-bind--disabled="state.isAriaDisabled"',
+				),
+				array(),
+				'Button with form-button-submit class should get interactivity attributes',
+			),
+			'regular button not affected'    => array(
+				'<button class="some-other-class">Click</button>',
+				array(),
+				array(
+					'data-wp-class--is-submitting',
+					'data-wp-bind--aria-disabled',
+					'data-wp-bind--disabled',
+				),
+				'Regular button should NOT get interactivity attributes',
+			),
+			'multiple buttons mixed'         => array(
+				'<button class="is-previous">Previous</button><button class="is-next">Next</button><button class="is-submit">Submit</button>',
+				array(
+					'data-wp-class--is-submitting="state.isSubmitting"',
+				),
+				array(),
+				'Only submit button should get interactivity attributes in mixed buttons',
+			),
+			'button with multiple classes'   => array(
+				'<button class="wp-block-button__link is-submit form-button-submit">Submit</button>',
+				array(
+					'data-wp-class--is-submitting="state.isSubmitting"',
+				),
+				array(),
+				'Button with multiple classes including is-submit should get attributes',
+			),
+		);
 	}
 }

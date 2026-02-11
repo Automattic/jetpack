@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Improve feedback with toast notifications for save success/error and inline error for category load failures.

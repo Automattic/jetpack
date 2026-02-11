@@ -10,15 +10,19 @@
  * Note it needs to be passed paths to certificate key and crt files.
  */
 
-import * as fs from 'node:fs';
-import * as https from 'node:https';
+import fs from 'node:fs';
+import http2 from 'node:http2';
 
-const upstreamHost = 'https://repo.packagist.org/';
+const upstreamHost = 'https://repo.packagist.org';
 
-const server = https.createServer( {
+const server = http2.createSecureServer( {
 	key: fs.readFileSync( process.argv[ 2 ] ),
 	cert: fs.readFileSync( process.argv[ 3 ] ),
+	allowHTTP1: true,
 } );
+
+// http2 needs a global-ish client object.
+let http2Client;
 
 const dateRegex =
 	/^\s*(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat), (\d{2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d{2}):(\d{2}):(\d{2}) GMT\s*$/;
@@ -31,38 +35,78 @@ const parseDate = v => {
 
 let ctr = 0;
 const lastModifiedCache = {};
+const fourOhFourCache = {};
+const inflight = {};
 
-server.on( 'request', ( req, res ) => {
+/**
+ * Ensure a value is an array.
+ *
+ * @param {*} v - Value.
+ * @return {Array} Value, wrapped in an array if it wasn't one already.
+ */
+function toArr( v ) {
+	return Array.isArray( v ) ? v : [ v ];
+}
+
+server.on( 'request', async ( req, res ) => {
 	const reqid = ++ctr;
 	console.log( `<<[${ reqid }] ${ req.method } ${ req.url } HTTP/${ req.httpVersion }` );
-	const headers = { ...req.headersDistinct };
+
+	// To avoid multiple requests in flight for the same package, each request stores a promise and then waits on any previous request.
+	const waitfor = inflight[ req.url ];
+	const { promise: mypromise, resolve: mypromiseResolve } = Promise.withResolvers();
+	const mypromiseDone = () => {
+		if ( inflight[ req.url ] === mypromise ) {
+			delete inflight[ req.url ];
+		}
+		res.removeListener( 'close', mypromiseDone );
+		res.removeListener( 'finish', mypromiseDone );
+		res.removeListener( 'error', mypromiseDone );
+		mypromiseResolve();
+	};
+	res.on( 'close', mypromiseDone );
+	res.on( 'finish', mypromiseDone );
+	res.on( 'error', mypromiseDone );
+	mypromise.reqid = reqid;
+	inflight[ req.url ] = mypromise;
+	if ( waitfor ) {
+		console.log( `!![${ reqid }] Waiting for request ${ waitfor.reqid }` );
+		await waitfor;
+	}
+
+	const headers = Object.fromEntries(
+		Object.entries( req.headers ).filter( ( [ k ] ) => ! k.startsWith( ':' ) )
+	);
 	delete headers.host;
 	delete headers.connection;
 
 	/*
 	for ( const [ k, vv ] of Object.entries( headers ) ) {
-		for ( const v of vv ) {
+		for ( const v of toArr( vv ) ) {
 			console.log( `<<[${ reqid }] ${ k }: ${ v }` );
 		}
 	}
-	*/
+	/**/
 
 	// Check if-modified-since if we have cached a last-modified date.
 	if ( lastModifiedCache[ req.url ] && headers[ 'if-modified-since' ] ) {
-		for ( const v of headers[ 'if-modified-since' ] ) {
+		for ( const v of toArr( headers[ 'if-modified-since' ] ) ) {
 			const ts = parseDate( v );
 			if ( ts <= lastModifiedCache[ req.url ] ) {
-				console.log( `!![${ reqid }] Replying with cached timestamp ${ ts }` );
+				console.log(
+					`!![${ reqid }] Replying with cached timestamp ${ lastModifiedCache[ req.url ] }`
+				);
 				const now = new Date().toUTCString();
 				const lm = new Date( lastModifiedCache[ req.url ] ).toUTCString();
 
-				console.log( `>>[${ reqid }] HTTP/${ res.httpVersion ?? '1.1' } 304 Not Modified` );
+				console.log( `>>[${ reqid }] HTTP/${ req.httpVersion } 304 Not Modified` );
 				/*
 				console.log( `>>[${ reqid }] date: ${ now }` );
 				console.log( `>>[${ reqid }] last-modified: ${ lm }` );
-				*/
+				/**/
 
-				res.writeHead( 304, 'Not Modified', {
+				mypromiseDone(); // No need to wait for it to send.
+				res.writeHead( 304, {
 					date: now,
 					'last-modified': lm,
 				} );
@@ -72,32 +116,67 @@ server.on( 'request', ( req, res ) => {
 		}
 	}
 
-	// Make remote request.
+	if ( fourOhFourCache[ req.url ] ) {
+		console.log( `!![${ reqid }] Replying with cached 404` );
+		const now = new Date().toUTCString();
+
+		console.log( `>>[${ reqid }] HTTP/${ req.httpVersion } 404 Not Found` );
+		/*
+		console.log( `>>[${ reqid }] date: ${ now }` );
+		/**/
+
+		mypromiseDone(); // No need to wait for it to send.
+		res.writeHead( 404, {
+			date: now,
+		} );
+		res.end();
+		return;
+	}
+
+	if ( ! http2Client ) {
+		http2Client = http2.connect( upstreamHost, {
+			// https://packagist.org/apidoc suggests a max of 20 concurrent requests.
+			peerMaxConcurrentStreams: 20,
+		} );
+
+		const onclose = () => {
+			console.log( '!![*] HTTP client closed.' );
+			http2Client = null;
+		};
+
+		// If there's an http2 error, clean up so the next request tries opening a new connection.
+		http2Client.on( 'error', onclose );
+		http2Client.on( 'frameError', onclose );
+		// Same if it's closed.
+		http2Client.on( 'close', onclose );
+	}
+
+	console.log( `!![${ reqid }] Proxying to ${ upstreamHost }/${ req.url.replace( /^\//, '' ) }` );
 	// If you're looking at this because some "security" scanner complained
-	// about this code using user input to build the request path, it's fine.
+	// about this code using user input to build the request, it's fine.
 	// This proxy only runs on localhost inside of CI, any attacker could just
 	// make their bad request directly.
-	const upstreamUrl = upstreamHost + req.url.replace( /^\//, '' );
-	console.log( `!![${ reqid }] Proxying to ${ upstreamUrl }` );
-	const upstreamReq = https.request( upstreamUrl, {
-		method: req.method,
-		headers,
+	const upstreamReq = http2Client.request( {
+		[ http2.constants.HTTP2_HEADER_METHOD ]: req.method,
+		[ http2.constants.HTTP2_HEADER_PATH ]: req.url,
+		...headers,
 	} );
 
 	let sentResponse = false;
-	upstreamReq.on( 'response', upstreamRes => {
-		console.log(
-			`>>[${ reqid }] HTTP/${ upstreamRes.httpVersion } ${ upstreamRes.statusCode } ${ upstreamRes.statusMessage }`
-		);
+	upstreamReq.on( 'response', upstreamHeaders => {
+		const status = upstreamHeaders[ http2.constants.HTTP2_HEADER_STATUS ];
+		console.log( `>>[${ reqid }] HTTP/${ req.httpVersion } ${ status }` );
 
 		sentResponse = true;
-		const resHeaders = { ...upstreamRes.headersDistinct };
+		const resHeaders = Object.fromEntries(
+			Object.entries( upstreamHeaders ).filter( ( [ k ] ) => ! k.startsWith( ':' ) )
+		);
 		delete resHeaders.connection;
 		for ( const [ k, vv ] of Object.entries( resHeaders ) ) {
-			for ( const v of vv ) {
+			for ( const v of toArr( vv ) ) {
 				/*
 				console.log( `>>[${ reqid }] ${ k }: ${ v }` );
-				*/
+				/**/
 				if ( k === 'last-modified' ) {
 					const ts = parseDate( v );
 					if ( ts ) {
@@ -107,11 +186,13 @@ server.on( 'request', ( req, res ) => {
 				}
 			}
 		}
+		if ( status === 404 ) {
+			fourOhFourCache[ req.url ] = true;
+		}
 
-		res.writeHead( upstreamRes.statusCode, upstreamRes.statusMessage, resHeaders );
-
-		upstreamRes.pipe( res );
-
+		mypromiseDone(); // No need to wait for it to send.
+		res.writeHead( status, resHeaders );
+		upstreamReq.pipe( res );
 		res.on( 'finish', cleanup );
 	} );
 
@@ -126,12 +207,12 @@ server.on( 'request', ( req, res ) => {
 		sentResponse = true;
 
 		const now = new Date().toUTCString();
-		console.log( `>>[${ reqid }] HTTP/${ res.httpVersion ?? '1.1' } 502 Bad Gateway` );
+		console.log( `>>[${ reqid }] HTTP/${ req.httpVersion } 502 Bad Gateway` );
 		/*
 		console.log( `>>[${ reqid }] date: ${ now }` );
 		console.log( `>>[${ reqid }] content-type: text/plain` );
-		*/
-		res.writeHead( 502, 'Bad Gateway', {
+		/**/
+		res.writeHead( 502, {
 			date: now,
 			'content-type': 'text/plain',
 		} );
@@ -140,7 +221,9 @@ server.on( 'request', ( req, res ) => {
 	} );
 
 	const onclose = () => {
-		upstreamReq.abort();
+		if ( ! upstreamReq.closed && ! upstreamReq.destroyed ) {
+			upstreamReq.close( http2.constants.NGHTTP2_CANCEL );
+		}
 		cleanup();
 	};
 	res.on( 'close', onclose );

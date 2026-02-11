@@ -15,7 +15,7 @@ module.exports = {
 	'no-intl-locale-prototype-gettextinfo': 'javascript.builtins.Intl.Locale.getTextInfo',
 	'no-intl-locale-prototype-gettimezones': 'javascript.builtins.Intl.Locale.getTimeZones',
 	'no-intl-locale-prototype-getweekinfo': 'javascript.builtins.Intl.Locale.getWeekInfo',
-	'no-iterator-concat': false, // No compat data yet.
+	'no-iterator-concat': 'javascript.builtins.Iterator.concat',
 	'no-suppressederror': 'javascript.builtins.SuppressedError.SuppressedError',
 	'no-symbol-asyncdispose': 'javascript.builtins.Symbol.asyncDispose',
 	'no-symbol-dispose': 'javascript.builtins.Symbol.dispose',
