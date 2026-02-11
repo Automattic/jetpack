@@ -30,7 +30,7 @@ Git hooks follow a three-stage delegation flow:
 
 ### Git worktrees
 
-`initHooks` uses `git rev-parse --git-common-dir` to locate the hooks directory. In a regular checkout this resolves to `.git/hooks/`; in a worktree it resolves to the main repository's `.git/hooks/`. This is correct because git hooks are shared across all worktrees.
+`initHooks` uses `git rev-parse --git-common-dir` to locate the hooks directory. In a regular checkout, this resolves to `.git/hooks/`; in a worktree it resolves to the main repository's `.git/hooks/`. This is correct because git hooks are shared across all worktrees.
 
 #### Docker worktree support
 
