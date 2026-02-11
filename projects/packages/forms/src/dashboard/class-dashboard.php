@@ -81,8 +81,6 @@ class Dashboard {
 
 		if ( $is_wp_build_enabled ) {
 			self::load_wp_build();
-
-			add_action( 'admin_menu', array( $this, 'add_forms_wpbuild_submenu' ) );
 		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
@@ -206,6 +204,26 @@ class Dashboard {
 	 * Register the NEW dashboard admin submenu Forms under Jetpack menu.
 	 */
 	public function add_new_admin_submenu() {
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
+
+		if ( $is_wp_build_enabled ) {
+			$callback = function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' )
+				? 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page'
+				: array( $this, 'render_dashboard' );
+
+			Admin_Menu::add_menu(
+				/** "Jetpack Forms" and "Forms" are product names, do not translate. */
+				'Jetpack Forms',
+				'Forms',
+				'edit_pages',
+				self::FORMS_WPBUILD_ADMIN_SLUG,
+				$callback,
+				10
+			);
+
+			return;
+		}
+
 		Admin_Menu::add_menu(
 			/** "Jetpack Forms" and "Forms" are Product names, do not translate. */
 			'Jetpack Forms',
@@ -214,24 +232,6 @@ class Dashboard {
 			self::ADMIN_SLUG,
 			array( $this, 'render_dashboard' ),
 			10
-		);
-	}
-
-	/**
-	 * Register Forms (WP-Build) submenu under Jetpack menu using wp-build page.
-	 */
-	public function add_forms_wpbuild_submenu() {
-		$callback = function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' )
-			? 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page'
-			: array( $this, 'render_dashboard' );
-
-		Admin_Menu::add_menu(
-			'Jetpack Forms',
-			'Forms (WP-Build)',
-			'edit_pages',
-			self::FORMS_WPBUILD_ADMIN_SLUG,
-			$callback,
-			11
 		);
 	}
 
