@@ -792,13 +792,9 @@ class Contact_Form_Block {
 	 */
 	private static function render_synced_form( $ref_id ) {
 		// Circular reference prevention.
-		static $seen_refs = array();
-
-		if ( isset( $seen_refs[ $ref_id ] ) ) {
-			// Return empty string to match other error cases and unit test expectations.
+		if ( $ref_id === Contact_Form::get_ref_id() ) {
 			return '';
 		}
-
 		// Load the jetpack-form post.
 		$synced_form = get_post( $ref_id );
 
@@ -839,6 +835,9 @@ class Contact_Form_Block {
 	 * @return string Rendered form HTML.
 	 */
 	private static function render_synced_form_content( $ref_id, $synced_form ) {
+		if ( $ref_id === Contact_Form::get_ref_id() ) {
+			return '';
+		}
 		// Mark as seen for circular reference prevention.
 		Contact_Form::set_ref_id( $ref_id );
 		$output = '';

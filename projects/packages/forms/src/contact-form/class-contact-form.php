@@ -169,6 +169,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the reference ID for the contact form.
+	 *
+	 * @return int|null The reference ID.
+	 */
+	public static function get_ref_id() {
+		return self::$ref_id;
+	}
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
