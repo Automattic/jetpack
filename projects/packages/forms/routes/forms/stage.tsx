@@ -22,6 +22,7 @@ import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
+import '../../src/dashboard/wp-build/style.scss';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
 import './style.scss';

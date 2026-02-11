@@ -1,0 +1,29 @@
+/**
+ * Holds shared styling for the wp-build routes.
+ */
+
+/**
+ * Temporary overrides to align styling of core breadcrumbs with Jetpack Forms
+ * designs and Commerce in a Box designs.
+ *
+ * To remove these overrides, the breadcrumbs component would need to support:
+ * - removing bottom margin on breadcrumb list items
+ * - applying a color attribute to breadcrumb links
+ */
+body.jetpack_page_jetpack-forms-responses-wp-admin,
+body.jetpack-forms-responses {
+
+	.admin-ui-breadcrumbs__list li {
+		margin-bottom: 0;
+
+		&:first-of-type {
+			margin-inline-start: 4px;
+		}
+
+		a {
+			color: var(--wp-components-color-foreground, #1e1e1e);
+			font-weight: 600;
+		}
+	}
+}
+
