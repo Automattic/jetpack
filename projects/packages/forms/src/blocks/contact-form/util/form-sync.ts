@@ -35,7 +35,7 @@ export function filterSyncedAttributes(
  */
 export function createSyncedFormBlock(
 	attributes: Record< string, unknown >,
-	innerBlocks: unknown[]
+	innerBlocks: Block[]
 ): Block {
 	const attributesToSave = { ...attributes };
 	delete attributesToSave.ref;
@@ -49,12 +49,12 @@ export function createSyncedFormBlock(
  * Excludes the ref attribute since it's not part of the form definition
  *
  * @param {Record<string, unknown>} attributes  - Form attributes
- * @param {Array}                   innerBlocks - Form inner blocks
+ * @param {Block[]}                 innerBlocks - Form inner blocks
  * @return {string} Serialized block content
  */
 export function serializeSyncedForm(
 	attributes: Record< string, unknown >,
-	innerBlocks: unknown[]
+	innerBlocks: Block[]
 ): string {
 	const formBlock = createSyncedFormBlock( attributes, innerBlocks );
 	return serialize( formBlock );
