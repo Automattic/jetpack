@@ -792,7 +792,7 @@ class Contact_Form_Block {
 	 */
 	private static function render_synced_form( $ref_id ) {
 		// Circular reference prevention.
-		if ( $ref_id === Contact_Form::get_ref_id() ) {
+		if ( Contact_Form::has_seen( $ref_id ) ) {
 			return '';
 		}
 		// Load the jetpack-form post.
@@ -849,7 +849,7 @@ class Contact_Form_Block {
 			}
 		} finally {
 			// Clean up.
-			Contact_Form::clear_ref_id();
+			Contact_Form::clear_ref_id( $ref_id );
 		}
 		return $output;
 	}

@@ -153,19 +153,30 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static $ref_id = null;
 
 	/**
+	 * Seen reference IDs for the contact form.
+	 *
+	 * @var array
+	 */
+	private static $seen_ref = array();
+
+	/**
 	 * Set the reference ID for the contact form.
 	 *
 	 * @param int $ref_id The reference ID.
 	 */
 	public static function set_ref_id( $ref_id ) {
-		self::$ref_id = $ref_id;
+		self::$ref_id              = $ref_id;
+		self::$seen_ref[ $ref_id ] = true;
 	}
 
 	/**
 	 * Clear the reference ID for the contact form.
+	 *
+	 * @param int $ref_id The reference ID to clear.
 	 */
-	public static function clear_ref_id() {
-		self::$ref_id = null;
+	public static function clear_ref_id( $ref_id ) {
+		self::$ref_id              = null;
+		self::$seen_ref[ $ref_id ] = false;
 	}
 
 	/**
@@ -175,6 +186,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public static function get_ref_id() {
 		return self::$ref_id;
+	}
+
+	/**
+	 * Check if the reference ID has been seen for the contact form.
+	 *
+	 * @param int $ref_id The reference ID.
+	 * @return bool True if the reference ID has been seen, false otherwise.
+	 */
+	public static function has_seen( $ref_id ) {
+		return isset( self::$seen_ref[ $ref_id ] ) && self::$seen_ref[ $ref_id ];
 	}
 
 	/**
