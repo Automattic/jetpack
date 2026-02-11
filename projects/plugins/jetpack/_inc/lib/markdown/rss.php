@@ -129,8 +129,11 @@ function jetpack_markdown_block_rss_output_source_markdown() {
 	// Append any remaining content after the last block.
 	$modified_content .= substr( $post->post_content, $cursor );
 
-	// Render all non-Markdown content through the standard pipeline.
+	// Render all non-Markdown content through the standard pipeline,
+	// then apply feed-specific transforms (the same sequence core uses in get_the_content_feed).
 	$rendered = apply_filters( 'the_content', $modified_content );
+	/** This filter is documented in wp-includes/feed.php */
+	$rendered = apply_filters( 'the_content_feed', $rendered, 'rss2' );
 
 	// Substitute placeholders with raw Markdown sources.
 	foreach ( $sources as $i => $source ) {
@@ -173,8 +176,11 @@ function jetpack_markdown_rss_output_source_markdown() {
 	) {
 		$content = $post->post_content_filtered;
 	} elseif ( ! empty( $post->post_content ) ) {
-		// Apply the_content filters to render Gutenberg blocks and shortcodes into clean HTML.
+		// Apply the_content filters to render Gutenberg blocks and shortcodes into clean HTML,
+		// then apply feed-specific transforms (the same sequence core uses in get_the_content_feed).
 		$content = apply_filters( 'the_content', $post->post_content );
+		/** This filter is documented in wp-includes/feed.php */
+		$content = apply_filters( 'the_content_feed', $content, 'rss2' );
 	} else {
 		return;
 	}
