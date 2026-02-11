@@ -432,7 +432,7 @@ class Hooks {
 		}
 
 		// Output styles for the logo in the admin bar.
-		echo '<style>#wpadminbar .jpbeta-logo svg { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; position: relative; top: -1px; fill: currentColor; }</style>';
+		echo '<style>#wpadminbar .jpbeta-logo svg { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; position: relative; top: -1px; } #wpadminbar .jpbeta-logo svg path { fill: currentColor; }</style>';
 
 		// Highlight the menu if you are running the BETA Versions..
 		if ( $any_dev ) {
@@ -443,8 +443,8 @@ class Hooks {
 				)
 			);
 			// Use Jetpack Green 50 rather than 40 for accessibility, per pcdRpT-if-p2.
-			echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight, #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight { background: #008710; }\n";
-			echo '#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight > .ab-item, #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight > .ab-item { color: white; }</style>';
+			echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight:not(.hover), #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight:not(.hover) { background: #008710; }\n";
+			echo '#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight:not(.hover) > .ab-item, #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight:not(.hover) > .ab-item { color: white; }</style>';
 		}
 	}
 
