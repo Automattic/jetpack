@@ -51,6 +51,7 @@ test.describe( 'Auto refresh of speed scores', () => {
 		} );
 
 		let renderBlockingPromise;
+
 		await test.step( 'Toggle minify_js module before automatic score refresh starts', async () => {
 			renderBlockingPromise = jetpackBoostPage.toggleModule( 'minify_js', true );
 		} );

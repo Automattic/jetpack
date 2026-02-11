@@ -48,6 +48,7 @@ function isFormSubmissionResponse( response: Response ) {
 test.describe( 'Forms: Submission', () => {
 	test( 'Submits a simple contact form', async ( { admin, editor } ) => {
 		const formTitle = 'E2E Test Form';
+
 		await test.step( 'Visit the block editor and insert a form', async () => {
 			await admin.createNewPost();
 			await editor.insertBlock( {
