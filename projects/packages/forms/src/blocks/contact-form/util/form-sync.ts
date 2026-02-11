@@ -3,6 +3,7 @@
  */
 
 import { createBlock, serialize } from '@wordpress/blocks';
+import type { Block } from '@wordpress/blocks';
 
 /**
  * Filter out attributes that shouldn't be synced from source
@@ -35,7 +36,7 @@ export function filterSyncedAttributes(
 export function createSyncedFormBlock(
 	attributes: Record< string, unknown >,
 	innerBlocks: unknown[]
-) {
+): Block {
 	const attributesToSave = { ...attributes };
 	delete attributesToSave.ref;
 	delete attributesToSave.lock;
