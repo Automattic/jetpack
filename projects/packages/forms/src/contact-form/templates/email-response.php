@@ -123,6 +123,7 @@ $style = '<style media="all" type="text/css">
 		max-width: 830px;
 		padding: 0;
 		padding-top: 24px;
+		padding-bottom: 24px;
 		width: 830px;
 	}
 
@@ -558,6 +559,7 @@ $style = '<style media="all" type="text/css">
 		.container {
 			padding: 0 !important;
 			padding-top: 8px !important;
+			padding-bottom: 8px !important;
 			width: 100% !important;
 		}
 

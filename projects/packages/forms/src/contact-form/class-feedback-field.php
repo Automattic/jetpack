@@ -499,7 +499,7 @@ class Feedback_Field {
 			return $this->render_empty_value_html();
 		}
 
-		return implode( ' ', $chips );
+		return implode( '<br />', $chips );
 	}
 
 	/**
