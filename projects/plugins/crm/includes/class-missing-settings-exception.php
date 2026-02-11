@@ -2,7 +2,6 @@
 /**
  * Jetpack CRM Missing Settings Exception Class
  * Extends Exception to provide additional data.
- *
  */
 
 namespace Automattic\JetpackCRM;

@@ -222,8 +222,8 @@ function StageInner() {
 		const actionsList: Action< FormListItem >[] = [
 			{
 				id: 'view-responses',
-				isPrimary: false,
-				label: __( 'View responses', 'jetpack-forms' ),
+				isPrimary: true,
+				label: __( 'Responses', 'jetpack-forms' ),
 				supportsBulk: false,
 				callback( items: FormListItem[] ) {
 					const [ item ] = items;
@@ -235,7 +235,7 @@ function StageInner() {
 			},
 			{
 				id: 'edit-form',
-				isPrimary: false,
+				isPrimary: true,
 				label: __( 'Edit', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {

@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Responsive charts now fill parent container by default instead of using a fixed aspect ratio. Pass `aspectRatio` prop to restore the previous behavior. Added @wordpress/ui and @wordpress/theme dependencies (requires Node.js >= 20.10.0).

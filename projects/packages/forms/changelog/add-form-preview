@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Forms: add preview functionality allowing users with edit permissions to preview forms at a temporary nonce-based URL.
