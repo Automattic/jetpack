@@ -99,6 +99,9 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				style={ {
 					width: size ?? width ?? '100%',
 					height: size ?? height ?? defaultHeight,
+					// Allow wrapper to shrink in flex layouts
+					minWidth: 0,
+					minHeight: 0,
 				} }
 			>
 				<WrappedComponent
