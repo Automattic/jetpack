@@ -51,9 +51,13 @@ $template = '
 								%11$s
 
 								<!-- Form Fields -->
-								<div class="form-fields">
-									%2$s
-								</div>
+								<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%%" class="form-fields" style="margin-top: 8px;">
+									<tr>
+										<td class="form-fields-inner" style="padding: 16px 16px 24px;">
+											%2$s
+										</td>
+									</tr>
+								</table>
 
 								%3$s
 								%4$s
@@ -251,6 +255,10 @@ $style = '<style media="all" type="text/css">
 	/* Form Fields */
 	.form-fields {
 		margin-top: 8px;
+	}
+
+	.form-fields-inner {
+		padding: 16px 16px 24px;
 	}
 
 	.form-field {
@@ -569,6 +577,10 @@ $style = '<style media="all" type="text/css">
 
 		.powered-by {
 			padding: 0 16px 16px !important;
+		}
+
+		.form-fields-inner {
+			padding: 8px 8px 16px !important;
 		}
 
 		.metadata-label {
