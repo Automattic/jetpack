@@ -38,7 +38,7 @@ class Verbum_Block_Utils {
 	 * This method provides significant performance benefits by avoiding expensive
 	 * parse_blocks() processing when all blocks are allowed (the common case).
 	 *
-	 * @param string $content Unslashed content to scan.
+	 * @param string $content Content to scan (may be slashed).
 	 * @return bool True if disallowed blocks found, false if all blocks are allowed.
 	 */
 	private static function has_disallowed_blocks( $content ) {
