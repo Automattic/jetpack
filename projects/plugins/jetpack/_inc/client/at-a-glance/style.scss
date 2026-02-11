@@ -480,7 +480,7 @@
 
 .jp-connection-settings__text {
 	margin-left: rem.convert(16px);
-	word-break: break-word;
+	overflow-wrap: break-word;
 	color: calypso-colors.$gray-80;
 	font-size: typography.$font-body-small;
 	line-height: 24px;

@@ -1,7 +1,7 @@
 .templates {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	grid-gap: calc(var(--spacing-base) * 4);
+	gap: calc(var(--spacing-base) * 4);
 }
 
 .template {

@@ -237,7 +237,7 @@ th {
 	blockquote,
 	pre {
 		border: 1px solid #999;
-		page-break-inside: avoid;
+		break-inside: avoid;
 	}
 
 	thead {
@@ -246,7 +246,7 @@ th {
 
 	img,
 	tr {
-		page-break-inside: avoid;
+		break-inside: avoid;
 	}
 
 	img {
@@ -262,7 +262,7 @@ th {
 
 	h2,
 	h3 {
-		page-break-after: avoid;
+		break-after: avoid;
 	}
 
 	select {

@@ -68,16 +68,16 @@
 	allowing themes to easily override these styles
  */
 :where(
-.contact-form input[type="text"],
-.contact-form input[type="email"],
-.contact-form input[type="tel"],
-.contact-form input[type="url"],
-.contact-form input[type="number"],
-.contact-form input[type="time"],
-.contact-form textarea,
-/** for compound fields, input-wrap is the input element wrapper
-that needs to mimic the input element styles */
-.contact-form .wp-block-jetpack-input-wrap .jetpack-field__input-phone-wrapper
+	.contact-form input[type="text"],
+	.contact-form input[type="email"],
+	.contact-form input[type="tel"],
+	.contact-form input[type="url"],
+	.contact-form input[type="number"],
+	.contact-form input[type="time"],
+	.contact-form textarea,
+	/** for compound fields, input-wrap is the input element wrapper
+	that needs to mimic the input element styles */
+	.contact-form .wp-block-jetpack-input-wrap .jetpack-field__input-phone-wrapper
 ) {
 	box-sizing: border-box;
 	width: 100%;
@@ -243,7 +243,7 @@ that needs to mimic the input element styles */
 
 .contact-form-submission p {
 	margin: 0 auto;
-	word-wrap: break-word;
+	overflow-wrap: break-word;
 }
 
 .contact-form-submission :where(.jetpack_forms_contact-form-custom-success-message) p {
@@ -526,7 +526,6 @@ that needs to mimic the input element styles */
 	padding: 0;
 	margin: -1px;
 	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
 	clip-path: inset(50%);
 	white-space: nowrap;
 	border: 0;
@@ -1381,7 +1380,6 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio {
 
 	/* visually-hidden */
-	clip: rect(0 0 0 0);
 	clip-path: inset(50%);
 	height: 1px;
 	overflow: hidden;

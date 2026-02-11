@@ -33,7 +33,7 @@
 
 .jp-search-dashboard-row {
 	display: grid;
-	grid-gap: 24px;
+	gap: 24px;
 	grid-template-columns: repeat(4, 1fr);
 	width: calc(100% - 32px);
 	margin: 0 16px;

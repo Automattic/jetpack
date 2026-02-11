@@ -5,7 +5,7 @@
 	.simple-payments__wrapper {
 		display: grid;
 		grid-template-columns: 200px auto;
-		grid-column-gap: 10px;
+		column-gap: 10px;
 
 		font-family: gb.$default-font;
 		font-size: gb.$default-font-size;
@@ -37,7 +37,6 @@
 	.simple-payments__field.simple-payments__field-email {
 
 		.components-base-control__label {
-			clip: rect(0 0 0 0);
 			clip-path: inset(50%);
 			height: 1px;
 			overflow: hidden;
@@ -91,7 +90,6 @@
 		}
 
 		.components-input-control__suffix > div {
-			-webkit-box-align: center;
 			align-items: center;
 			bottom: 0;
 			box-sizing: border-box;

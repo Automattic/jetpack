@@ -459,7 +459,7 @@ div.ui.learn.button {
 
 /* allow for long file titles and descriptions */
 table#zbsFilesTable td {
-	word-break: break-word;
+	overflow-wrap: break-word;
 }
 
 // Custom field csv builder labels can be clicked!

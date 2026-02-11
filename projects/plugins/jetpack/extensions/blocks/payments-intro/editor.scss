@@ -26,7 +26,7 @@
 .wp-block-jetpack-payments-intro__pattern-picker-selection-content .block-editor-block-patterns-list {
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
-	grid-gap: gb.$grid-unit-10;
+	gap: gb.$grid-unit-10;
 
 	.block-editor-block-patterns-list__list-item {
 		margin-bottom: 0;
