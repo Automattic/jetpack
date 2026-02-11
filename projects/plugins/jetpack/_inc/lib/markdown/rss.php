@@ -70,11 +70,7 @@ function jetpack_markdown_block_rss_output_source_markdown() {
 		return;
 	}
 
-	if ( ! jetpack_markdown_rss_post_has_markdown_block( $post->post_content ) ) {
-		return;
-	}
-
-	// First pass: find Markdown blocks, extract sources, record byte offsets.
+	// Find Markdown blocks, extract sources, record byte offsets.
 	// @phan-suppress-next-line PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- We checked that the class exists above. @todo Remove when we drop WP <6.9.
 	$processor = new WP_Block_Processor( $post->post_content );
 	$sources   = array();
