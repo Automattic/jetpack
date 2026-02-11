@@ -81,6 +81,42 @@ class WpcomshTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests multiple script tags with comparison operators preserve all surrounding content.
+	 *
+	 * @return void
+	 */
+	public function test_wpcomsh_make_content_clickable_with_multiple_scripts() {
+		$content = '<p>https://wp.com before</p>' .
+			'<script>var a = 1 < 2;</script>' .
+			'<p>https://wp.com between</p>' .
+			'<script>var b = 3 > 1;</script>' .
+			'<p>https://wp.com after</p>';
+
+		$expected = '<p><a href="https://wp.com" rel="nofollow">https://wp.com</a> before</p>' .
+			'<script>var a = 1 < 2;</script>' .
+			'<p><a href="https://wp.com" rel="nofollow">https://wp.com</a> between</p>' .
+			'<script>var b = 3 > 1;</script>' .
+			'<p><a href="https://wp.com" rel="nofollow">https://wp.com</a> after</p>';
+
+		$this->assertEquals( $expected, wpcomsh_make_content_clickable( $content ) );
+	}
+
+	/**
+	 * Tests that URLs inside script tags with comparison operators are not linkified.
+	 *
+	 * @return void
+	 */
+	public function test_wpcomsh_make_content_clickable_with_url_in_script() {
+		$content = '<script>if (count < 5) { fetch("https://wp.com/api"); }</script>' .
+			'<p>https://wp.com should be linkified</p>';
+
+		$expected = '<script>if (count < 5) { fetch("https://wp.com/api"); }</script>' .
+			'<p><a href="https://wp.com" rel="nofollow">https://wp.com</a> should be linkified</p>';
+
+		$this->assertEquals( $expected, wpcomsh_make_content_clickable( $content ) );
+	}
+
+	/**
 	 * Tests if Jetpack Boost plugin is active, to test the integreation setup.
 	 *
 	 * This is for the `jp docker phpunit-integration` command to verify it works.
