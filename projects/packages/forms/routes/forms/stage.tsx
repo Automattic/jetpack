@@ -24,6 +24,10 @@ import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataview
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
+import './style.scss';
+/**
+ * Types
+ */
 import type { FormListItem } from '../../src/dashboard/hooks/use-forms-data.ts';
 import type { Action, Operator, View } from '@wordpress/dataviews';
 
