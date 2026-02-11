@@ -363,7 +363,7 @@ class AssetsTest extends TestCase {
 			$this->expectExceptionMessage( $extra['exception']->getMessage() );
 		}
 		if ( isset( $extra['enqueue'] ) ) {
-			$obj = $this->createStub( AssetsTest_test_wp_default_scripts_hook::class );
+			$obj = $this->createMock( AssetsTest_test_wp_default_scripts_hook::class );
 			$obj->method( 'get_data' )->with( ...$extra['enqueue'][0] )->willReturn( $extra['enqueue'][1] );
 			Functions\expect( 'wp_scripts' )->andReturn( $obj );
 		}

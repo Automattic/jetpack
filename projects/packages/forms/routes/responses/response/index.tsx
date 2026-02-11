@@ -14,6 +14,7 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
+import FeedbackComments from '../../../src/dashboard/components/feedback-comments';
 import PreviewFile from '../../../src/dashboard/components/inspector/preview-file';
 import ResponseFieldsIterator from '../../../src/dashboard/components/inspector/response-fields';
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
@@ -52,6 +53,7 @@ function SingleResponseView( {
 	const [ hasMarkedAsRead, setHasMarkedAsRead ] = useState< number | null >( null );
 
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
+	const isNotesEnabled = useConfigValue( 'isNotesEnabled' ) ?? false;
 
 	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
 
@@ -62,7 +64,7 @@ function SingleResponseView( {
 			}
 
 			return {
-				response: ( select( coreStore ) as unknown as SelectActions ).getEntityRecord(
+				response: select( coreStore ).getEditedEntityRecord(
 					'postType',
 					'feedback',
 					responseId
@@ -199,13 +201,9 @@ function SingleResponseView( {
 
 			<ResponseMeta response={ response } />
 
-			<div className="jp-forms__inbox-response-data">
-				<ResponseFieldsIterator
-					fields={ response.fields }
-					onFilePreview={ handleFilePreview }
-					className="jp-forms__inbox-response-data"
-				/>
-			</div>
+			<ResponseFieldsIterator fields={ response.fields } onFilePreview={ handleFilePreview } />
+
+			{ isNotesEnabled && <FeedbackComments postId={ response.id } /> }
 
 			{ response.status === 'spam' && (
 				<div className="jp-forms__inbox__tip-container">

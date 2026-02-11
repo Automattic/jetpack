@@ -16,30 +16,6 @@ $inspector-padding: 16px;
 	gap: 0 !important;
 }
 
-.jp-forms__inbox-response-data {
-	font-size: var(--jp-forms-font-size-regular);
-	line-height: 24px;
-	padding: 0 $inspector-padding;
-
-	// old field format renders without .jp-forms__field-preview
-	&:not(.is-collection-format) {
-
-		display: flex;
-		flex-direction: column;
-		row-gap: 24px;
-		padding-top: 24px;
-		padding-bottom: 24px;
-
-		.jp-forms__inbox-response-data-label {
-			font-weight: 600;
-		}
-
-		.jp-forms__inbox-response-data-value {
-			white-space: pre-wrap;
-		}
-	}
-}
-
 .jp-forms__inbox__tip-container {
 	border-top: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
 	margin: auto 0 0 0;

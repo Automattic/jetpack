@@ -9,7 +9,8 @@
 	"require-dev": {
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "@dev",
+		"yoast/phpunit-polyfills": "^4.0.0"
 	},
 	"autoload": {
 		"classmap": [

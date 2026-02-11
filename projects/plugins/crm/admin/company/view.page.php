@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Single company view page
  */
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
