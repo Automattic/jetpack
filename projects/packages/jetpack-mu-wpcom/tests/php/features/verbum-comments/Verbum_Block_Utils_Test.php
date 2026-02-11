@@ -241,7 +241,7 @@ HTML;
 	 * Previously, remove_blocks() called wp_unslash() for block parsing but did not
 	 * re-slash the content, causing WordPress to double-unslash and strip user backslashes.
 	 *
-	 * @see https://linear.app/a8c/issue/CM-516
+	 * @see CM-516
 	 */
 	public function test_remove_blocks_preserves_backslashes() {
 		// Simulate what WordPress does: slash the comment content before applying pre_comment_content filters.
