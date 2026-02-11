@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replaced custom FormToggle component with WordPress ToggleControl.

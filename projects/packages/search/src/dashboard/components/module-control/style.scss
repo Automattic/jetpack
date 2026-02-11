@@ -4,10 +4,6 @@ $color-button-background: variables.$black;
 $color-button-text: variables.$white;
 $color-button-background-disabled: #dcdcde;
 $color-button-text-disabled: #a7aaad;
-$toggle-dot-radius: 0.9375em;
-$toggle-dot-padding: 0.1875em;
-$toggle-height: 1.5em;
-$toggle-width: 3em;
 
 .jp-form-search-settings-group {
 	width: 100%;
@@ -17,10 +13,6 @@ $toggle-width: 3em;
 		box-shadow: none;
 		padding: 0;
 		padding-top: 4em;
-	}
-
-	.form-toggle__label {
-		margin: 0;
 	}
 
 	&.jp-form-search-settings-group--disabled {
@@ -114,50 +106,6 @@ p.jp-form-search-settings-group__toggle-explanation {
 	}
 }
 
-.form-toggle.is-search-admin.is-compact {
-
-	+ .form-toggle__switch {
-		border-radius: calc(#{$toggle-height}/ 2);
-		width: $toggle-width;
-		height: $toggle-height;
-
-		&::before,
-		&::after {
-			width: $toggle-dot-radius;
-			height: $toggle-dot-radius;
-			background-color: variables.$black;
-		}
-		background: variables.$white;
-		border: 2px solid variables.$black;
-
-		&:focus {
-			box-shadow: 0 0 0 2px variables.$blue-medium;
-		}
-	}
-
-	&:checked {
-
-		+ .form-toggle__switch {
-			background: variables.$color-plan;
-			border-color: variables.$color-plan;
-
-			&::after {
-				left: $toggle-height;
-				background-color: variables.$white;
-			}
-		}
-	}
-
-	&.is-toggling + .form-toggle__switch::before,
-	&.is-toggling + .form-toggle__switch::after {
-		left: $toggle-height;
-	}
-
-	&.is-toggling:checked + .form-toggle__switch::before,
-	&.is-toggling:checked + .form-toggle__switch::after {
-		left: 0;
-	}
-}
 
 .jp-search-dashboard-cut {
 	position: relative;
@@ -200,11 +148,4 @@ p.jp-form-search-settings-group__toggle-explanation {
 		transform: translateY(-50%);
 		transition: transform 0.15s ease-out;
 	}
-}
-
-.jp-search-dashboard-row .form-toggle__switch-container.sm-col-span-1 {
-	display: flex;
-	justify-content: center;
-
-	padding-top: 4px;
 }
