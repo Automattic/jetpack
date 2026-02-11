@@ -127,7 +127,7 @@ export default function usePageHeaderDetails(
 				...( isIntegrationsEnabled && showDashboardIntegrations
 					? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
 					: [] ),
-				<CreateFormButton key="create" />,
+				<CreateFormButton key="create" variant="primary" showIcon={ false } />,
 			];
 		}
 
@@ -136,7 +136,11 @@ export default function usePageHeaderDetails(
 				...( sourceIdNumber
 					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
 					: [] ),
-				<ExportResponsesButton key="export" isPrimary={ false } />,
+				<ExportResponsesButton
+					key="export"
+					isPrimary={ statusView === 'inbox' }
+					showIcon={ false }
+				/>,
 				...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 				...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
 			];
@@ -148,9 +152,20 @@ export default function usePageHeaderDetails(
 				? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
 				: [] ),
 			...( statusView === 'inbox'
-				? [ <CreateFormButton key="create" variant="secondary" showPatterns={ false } /> ]
+				? [
+						<CreateFormButton
+							key="create"
+							variant="secondary"
+							showPatterns={ false }
+							showIcon={ false }
+						/>,
+				  ]
 				: [] ),
-			<ExportResponsesButton key="export" isPrimary={ statusView === 'inbox' } />,
+			<ExportResponsesButton
+				key="export"
+				isPrimary={ statusView === 'inbox' }
+				showIcon={ false }
+			/>,
 			...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 			...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
 		];

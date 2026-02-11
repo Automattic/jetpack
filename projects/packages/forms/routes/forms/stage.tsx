@@ -415,6 +415,7 @@ function StageInner() {
 							<CreateFormButton
 								label={ __( 'Create a new form', 'jetpack-forms' ) }
 								variant="primary"
+								showIcon={ false }
 							/>
 						}
 					/>
