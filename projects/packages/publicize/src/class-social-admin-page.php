@@ -91,7 +91,7 @@ class Social_Admin_Page {
 		// Refresh data if coming from purchase to ensure it is up to date
 		// without making API calls on every admin page load.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['from_purchase'] ) ) {
+		if ( isset( $_GET['refresh_plan_data'] ) ) {
 			Current_Plan::refresh_from_wpcom();
 		}
 
