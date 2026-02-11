@@ -527,15 +527,21 @@ class Feedback_Field {
 			return $this->render_empty_value_html();
 		}
 
-		$display_value = esc_html( $this->get_phone_value_with_flag() );
+		$raw_phone    = preg_replace( '/[^\d+]/', '', (string) $this->value );
+		$country_code = $this->get_country_code_from_phone( $this->value );
+		$flag_prefix  = '';
 
-		// Use the raw value (without flag) for the tel: href.
-		$raw_phone = preg_replace( '/[^\d+]/', '', (string) $this->value );
+		if ( ! empty( $country_code ) ) {
+			$flag = self::country_code_to_emoji_flag( $country_code );
+			if ( ! empty( $flag ) ) {
+				$flag_prefix = $flag . ' ';
+			}
+		}
 
-		return sprintf(
+		return $flag_prefix . sprintf(
 			'<a href="tel:%1$s" style="color: %3$s; text-decoration: underline;">%2$s</a>',
 			esc_attr( $raw_phone ),
-			$display_value,
+			esc_html( $this->value ),
 			self::get_admin_theme_color()
 		);
 	}
