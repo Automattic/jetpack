@@ -490,7 +490,7 @@ class Feedback_Field {
 				continue;
 			}
 			$chips[] = sprintf(
-				'<div style="width: fit-content; padding: 4px 10px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 4px; font-size: 13px; line-height: 1.4; color: #1e1e1e;">%s</div>',
+				'<div style="display: inline-block; padding: 4px 10px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 4px; font-size: 13px; line-height: 1.4; color: #1e1e1e;">%s</div>',
 				$safe_item
 			);
 		}
@@ -793,7 +793,7 @@ class Feedback_Field {
 	public static function get_icon_name_for_type( $type ) {
 		$map = array(
 			'text'              => 'field-text',
-			'name'              => 'field-text',
+			'name'              => 'field-name',
 			'email'             => 'field-email',
 			'textarea'          => 'field-textarea',
 			'select'            => 'field-select',
