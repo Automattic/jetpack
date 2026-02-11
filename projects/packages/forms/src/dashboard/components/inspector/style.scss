@@ -57,30 +57,6 @@
 	}
 }
 
-.jp-forms__inbox-response-data {
-
-	font-size: var(--jp-forms-font-size-regular);
-	line-height: 24px;
-	padding: 0 16px;
-
-	// old field format renders without .jp-forms__field-preview
-	&:not(.is-collection-format) {
-
-		@include mixins.flex-column;
-		row-gap: 24px;
-		padding-top: 24px;
-		padding-bottom: 24px;
-
-		.jp-forms__inbox-response-data-label {
-			font-weight: 600;
-		}
-
-		.jp-forms__inbox-response-data-value {
-			white-space: pre-wrap;
-		}
-	}
-}
-
 .jp-forms-response-content {
 	display: flex;
 	flex-direction: column;

@@ -31,7 +31,11 @@ export {
 // Types
 export type * from './types';
 export type * from './visx/types';
-export type { PieChartProps } from './charts/pie-chart';
+export type { PieChartProps, PieChartRenderTooltipParams } from './charts/pie-chart';
+export type {
+	PieSemiCircleChartProps,
+	PieSemiCircleChartRenderTooltipParams,
+} from './charts/pie-semi-circle-chart';
 export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';

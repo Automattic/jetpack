@@ -2,13 +2,14 @@
  * External dependencies
  */
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink, Notice } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { fetchCategories } from '../api';
 import type { NewsletterSettings, JetpackNewsletterSettings, WordPressCategory } from '../types';
 
 interface NewsletterCategoriesSectionProps {
@@ -18,7 +19,6 @@ interface NewsletterCategoriesSectionProps {
 	isSaving: boolean;
 	hasChanges: boolean;
 	jetpackSettings: JetpackNewsletterSettings | undefined;
-	onError: ( error: string ) => void;
 	isNewsletterEnabled: boolean;
 }
 
@@ -35,59 +35,16 @@ export function NewsletterCategoriesSection( {
 	isSaving,
 	hasChanges,
 	jetpackSettings,
-	onError,
 	isNewsletterEnabled,
 }: NewsletterCategoriesSectionProps ): JSX.Element {
 	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
+	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {
-		const wpApiSettings = ( window as Window & { wpApiSettings?: { root: string; nonce: string } } )
-			.wpApiSettings;
-
-		if ( ! wpApiSettings?.root ) {
-			setIsFetchingCategories( false );
-			return;
-		}
-
-		// Recursive function to fetch all pages of categories
-		const fetchAllCategories = async (
-			page = 1,
-			allCategories: { id: number; name: string }[] = []
-		): Promise< { id: number; name: string }[] > => {
-			const url = new URL( 'wp/v2/categories', wpApiSettings.root );
-			url.searchParams.set( 'per_page', '100' );
-			url.searchParams.set( 'page', String( page ) );
-
-			const response = await fetch( url.toString(), {
-				credentials: 'same-origin',
-				headers: {
-					'X-WP-Nonce': wpApiSettings.nonce,
-				},
-			} );
-
-			if ( ! response.ok ) {
-				throw new Error(
-					`Failed to load categories: ${ response.status } ${ response.statusText }`
-				);
-			}
-
-			const pageCategories = await response.json();
-			const totalPages = parseInt( response.headers.get( 'X-WP-TotalPages' ) || '1', 10 );
-			const combined = [ ...allCategories, ...pageCategories ];
-
-			// If there are more pages, fetch them recursively
-			if ( page < totalPages ) {
-				return fetchAllCategories( page + 1, combined );
-			}
-
-			return combined;
-		};
-
-		// Fetch all categories from WordPress REST API
-		fetchAllCategories()
-			.then( ( fetchedCategories: { id: number; name: string }[] ) => {
+		fetchCategories( jetpackSettings )
+			.then( fetchedCategories => {
 				// Convert category IDs to strings
 				setCategories(
 					fetchedCategories.map( cat => ( {
@@ -98,10 +55,12 @@ export function NewsletterCategoriesSection( {
 				setIsFetchingCategories( false );
 			} )
 			.catch( ( err: Error ) => {
-				onError( err.message || __( 'Failed to load categories', 'jetpack-newsletter' ) );
+				setCategoriesError(
+					err.message || __( 'Failed to load categories', 'jetpack-newsletter' )
+				);
 				setIsFetchingCategories( false );
 			} );
-	}, [ onError ] );
+	}, [ jetpackSettings ] );
 
 	// Define fields
 	const fields: Field< NewsletterSettings >[] = [
@@ -195,7 +154,15 @@ export function NewsletterCategoriesSection( {
 					}
 				) }
 			</p>
-			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
+			{ categoriesError && (
+				<Notice status="error" isDismissible={ false }>
+					{ categoriesError }
+				</Notice>
+			) }
+			<fieldset
+				className="newsletter-settings__section-content"
+				disabled={ ! isNewsletterEnabled || !! categoriesError }
+			>
 				<DataForm
 					data={ data }
 					fields={ newsletterCategoriesFields }

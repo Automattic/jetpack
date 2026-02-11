@@ -632,9 +632,26 @@ class Help_Center {
 			return;
 		}
 
-		// Support sites only support logged-out users when the Odie answers feature is enabled.
-		if ( ! is_user_logged_in() && ! self::is_proxied() && ! get_option( 'dotcom_support_enable_odie_answers', false ) ) {
-			return;
+		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
+		if ( ! is_user_logged_in() && ! self::is_proxied() ) {
+			if ( ! $this->is_support_site ) {
+				return;
+			}
+
+			$experiment_variation = null;
+			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
+				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages' );
+			} else {
+				log2logstash(
+					array(
+						'feature' => 'help-center',
+						'message' => 'ExPlat\assign_maybe_anon_user function is unavailable',
+					)
+				);
+			}
+			if ( $experiment_variation !== 'treatment' ) {
+				return;
+			}
 		}
 
 		if ( $is_next_admin ) {

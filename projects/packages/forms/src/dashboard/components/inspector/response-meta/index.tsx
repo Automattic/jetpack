@@ -110,7 +110,9 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 							<TextWithFlag countryCode={ response.country_code }>
 								<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
 									<ExternalLink
-										href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=/${ response.ip }` }
+										href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=${ encodeURIComponent(
+											response.ip
+										) }` }
 									>
 										{ response.ip }
 									</ExternalLink>
