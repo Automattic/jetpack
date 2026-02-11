@@ -2,7 +2,7 @@
  * Tests for useSyncedFormLoader hook
  */
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
 
 // Mock WordPress dependencies
@@ -61,6 +61,10 @@ describe( 'useSyncedFormLoader', () => {
 		rafCallback = null;
 		rafId = 1;
 		cleanupFn = null;
+	} );
+
+	afterAll( () => {
+		jest.restoreAllMocks();
 	} );
 
 	it( 'returns isSyncingRef', () => {
