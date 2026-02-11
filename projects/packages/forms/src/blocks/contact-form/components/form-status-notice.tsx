@@ -123,7 +123,14 @@ export default function FormStatusNotice( {
 
 		setIsPublishing( true );
 		try {
-			await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, { status: 'publish' } );
+			const formUpdate: { status: string; date?: string } = {
+				status: 'publish',
+			};
+			if ( previousStatus === 'future' ) {
+				// If the form was previously scheduled, clear the date to publish immediately.
+				formUpdate.date = new Date().toISOString();
+			}
+			await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, formUpdate );
 			await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, formRef );
 			createSuccessNotice( __( 'Form is live and ready to accept responses.', 'jetpack-forms' ), {
 				type: 'snackbar',
