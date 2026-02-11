@@ -8,7 +8,7 @@ module.exports = {
 		],
 	},
 	testMatch: [
-		// Note: Keep the patterns here in sync with ./config.base.js, ./config.coverage.js, and tools/js-tools/eslintrc/base.mjs.
+		// Note: Keep the patterns here in sync with ./config.coverage.js and tools/js-tools/eslintrc/base.mjs. config.base.js inherits these.
 		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',
 		'<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
 		'<rootDir>/**/test/*.[jt]s?(x)',
