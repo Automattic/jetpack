@@ -2869,10 +2869,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$actions = sprintf(
 				'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
 					<tr>
-						<td class="button-cell" style="padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%1$s" class="action-button action-button-secondary" style="background-color: transparent; color: #1e1e1e; border: 1px solid #1e1e1e; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
+						<td class="button-cell" width="50%%" style="text-align: right; padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+							<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; background-color: transparent; color: #1e1e1e; border: 1px solid #1e1e1e; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
 						</td>
-						<td class="button-cell" style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+						<td class="button-cell" width="50%%" style="text-align: left; padding-left: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 							<a href="%3$s" class="action-button action-button-primary" style="background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
 						</td>
 					</tr>
