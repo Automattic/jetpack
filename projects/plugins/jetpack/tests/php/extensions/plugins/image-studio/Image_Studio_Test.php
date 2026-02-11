@@ -65,6 +65,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	private function reset_availability() {
 		$reflection = new ReflectionClass( 'Jetpack_Gutenberg' );
 		$property   = $reflection->getProperty( 'availability' );
+		@$property->setAccessible( true ); // @codingStandardsIgnoreLine — needed for PHP < 8.1, suppressed for PHP 8.5+ deprecation.
 		$property->setValue( null, array() );
 	}
 
