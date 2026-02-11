@@ -14,6 +14,7 @@
 	margin-bottom: 97px;
 
 	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		/* stylelint-disable-next-line no-invalid-position-declaration -- Ok in a sass mixin. */
 		margin-bottom: 57px;
 	}
 }
