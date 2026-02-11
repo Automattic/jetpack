@@ -323,27 +323,6 @@ class Dashboard {
 	}
 
 	/**
-	 * Appends the appropriate tab parameter to the URL based on the view type.
-	 *
-	 * @param string $url              Base URL to append to.
-	 * @param string $tab              Tab to open.
-	 *
-	 * @return string
-	 */
-	private static function append_tab_to_url( $url, $tab ) {
-		$valid_tabs = array( 'spam', 'inbox', 'trash' );
-		if ( ! in_array( $tab, $valid_tabs, true ) ) {
-
-			if ( $tab === 'forms' ) {
-				return $url . '#/forms';
-			}
-			return $url;
-		}
-
-		return $url . '#/responses?status=' . $tab;
-	}
-
-	/**
 	 * Returns true if the current screen is the Jetpack Forms admin page.
 	 *
 	 * @return boolean
