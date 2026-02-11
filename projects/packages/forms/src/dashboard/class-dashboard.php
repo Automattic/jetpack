@@ -268,7 +268,20 @@ class Dashboard {
 	public static function get_forms_admin_url( $tab = null ) {
 		$base_url = get_admin_url() . 'admin.php?page=jetpack-forms-admin';
 
-		return self::append_tab_to_url( $base_url, $tab );
+		$url = self::append_tab_to_url( $base_url, $tab );
+
+		/**
+		 * Filters the Forms admin page URL.
+		 *
+		 * @module contact-form
+		 * @since $$next-version$$
+		 *
+		 * @param string      $url The Forms admin page URL.
+		 * @param string|null $tab Tab to open in the forms admin page.
+		 *
+		 * @return string The filtered Forms admin page URL.
+		 */
+		return apply_filters( 'jetpack_forms_admin_url', $url, $tab );
 	}
 
 	/**
