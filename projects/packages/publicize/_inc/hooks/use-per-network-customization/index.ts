@@ -3,6 +3,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { CUSTOMIZE_PER_NETWORK_KEY } from '../../social-store/constants';
+import { hasSocialPaidFeatures } from '../../utils';
 import useFeaturedImage from '../use-featured-image';
 import useMediaDetails from '../use-media-details';
 import { usePostMeta } from '../use-post-meta';
@@ -80,7 +81,7 @@ export function usePerNetworkCustomization() {
 
 	return useMemo(
 		() => ( {
-			isEnabled,
+			isEnabled: isEnabled && hasSocialPaidFeatures(),
 			toggle,
 		} ),
 		[ isEnabled, toggle ]
