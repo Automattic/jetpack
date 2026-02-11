@@ -276,16 +276,16 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.field-icon {
-		width: 20px;
-		height: 20px;
+		width: 24px;
+		height: 24px;
 		margin-right: 16px;
 		flex-shrink: 0;
 		margin-top: 2px;
 	}
 
 	.field-icon svg {
-		width: 20px;
-		height: 20px;
+		width: 24px;
+		height: 24px;
 		fill: #50575e;
 	}
 

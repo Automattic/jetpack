@@ -2064,9 +2064,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #F0F0F0; padding: 0; margin: 0;">';
 		$html .= '<tr>';
-		$html .= '<td width="36" valign="top" style="padding: 20px 16px 20px 0; width: 36px; vertical-align: top;">';
+		$html .= '<td width="40" valign="top" style="padding: 20px 16px 20px 0; width: 40px; vertical-align: top;">';
 		$html .= sprintf(
-			'<img src="%s" width="20" height="20" alt="" style="display: block; width: 20px; height: 20px;" />',
+			'<img src="%s" width="24" height="24" alt="" style="display: block; width: 24px; height: 24px;" />',
 			esc_url( $icon_url )
 		);
 		$html .= '</td>';
