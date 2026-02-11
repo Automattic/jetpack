@@ -23,14 +23,13 @@ class Verbum_Block_Utils {
 			return $content;
 		}
 
-		// The block attributes come slashed and `parse_blocks` won't be able to parse them.
-		$unslashed_content = wp_unslash( $content );
-
-		if ( ! self::has_disallowed_blocks( $unslashed_content ) ) {
-			return $unslashed_content;
+		if ( ! self::has_disallowed_blocks( $content ) ) {
+			return $content;
 		}
 
-		return self::remove_blocks_with_parse_blocks( $unslashed_content );
+		// Unslash for parse_blocks: slashed JSON attributes can't be parsed.
+		// Re-slash after: pre_comment_content filters must return slashed data.
+		return wp_slash( self::remove_blocks_with_parse_blocks( wp_unslash( $content ) ) );
 	}
 
 	/**

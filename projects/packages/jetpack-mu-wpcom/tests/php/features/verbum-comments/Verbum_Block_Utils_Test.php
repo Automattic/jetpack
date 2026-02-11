@@ -108,7 +108,10 @@ HTML;
 <!-- /wp:quote -->
 HTML;
 
-		$filtered_content = Verbum_Block_Utils::remove_blocks( $comment_content );
+		// Simulate WordPress flow: pre_comment_content filters receive slashed data.
+		$filtered_content = Verbum_Block_Utils::remove_blocks( wp_slash( $comment_content ) );
+		// Unslash the result for comparison since the filter returns slashed data.
+		$filtered_content = wp_unslash( $filtered_content );
 		// Normalize whitespace before comparison
 		$filtered_content = preg_replace( '/\s+/', ' ', $filtered_content );
 		$expected_content = preg_replace( '/\s+/', ' ', $expected_content );
@@ -229,6 +232,26 @@ HTML;
 		$many_blocks = str_repeat( '<!-- wp:paragraph -->content<!-- /wp:paragraph -->', 100 );
 		$result      = Verbum_Block_Utils::remove_blocks( $many_blocks );
 		$this->assertIsString( $result );
+	}
+
+	/**
+	 * Ensure backslashes in comment content are preserved through the remove_blocks filter.
+	 *
+	 * The pre_comment_content filter receives slashed data and must return slashed data.
+	 * Previously, remove_blocks() called wp_unslash() for block parsing but did not
+	 * re-slash the content, causing WordPress to double-unslash and strip user backslashes.
+	 *
+	 * @see https://linear.app/a8c/issue/CM-516
+	 */
+	public function test_remove_blocks_preserves_backslashes() {
+		// Simulate what WordPress does: slash the comment content before applying pre_comment_content filters.
+		$user_input    = '<!-- wp:paragraph --><p>Hello \\ World and some \\LaTeX</p><!-- /wp:paragraph -->';
+		$slashed_input = wp_slash( $user_input );
+
+		$result = Verbum_Block_Utils::remove_blocks( $slashed_input );
+
+		// The result must still be slashed so WordPress can unslash it once to get the original content.
+		$this->assertSame( $user_input, wp_unslash( $result ), 'Backslashes should survive a single wp_unslash after remove_blocks processing.' );
 	}
 
 	/**
