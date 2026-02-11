@@ -34,7 +34,8 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 	const { record, isResolving, hasEdits } = useEntityRecord< JetpackForm >(
 		'postType',
 		FORM_POST_TYPE,
-		ref
+		ref,
+		{ enabled: !! ref }
 	);
 
 	// Get the actual pending edits object to see exactly what's being changed
