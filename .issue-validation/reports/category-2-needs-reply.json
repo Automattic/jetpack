@@ -1,77 +1,12 @@
 {
-  "count": 35,
+  "count": 27,
   "issues": [
     {
-      "number": 24196,
-      "title": "Excluding multiple categories from Related Posts disables it completely",
-      "url": "https://github.com/Automattic/jetpack/issues/24196",
-      "updated_at": "2022-05-02T16:10:13Z",
-      "days_inactive": 1351,
-      "labels": [
-        "[Status] Needs Author Reply",
-        "[Feature] Related Posts",
-        "[Plugin] Jetpack"
-      ],
-      "comments_count": 1
-    },
-    {
-      "number": 25457,
-      "title": "Tracking Parameters Causes Issue for Forms",
-      "url": "https://github.com/Automattic/jetpack/issues/25457",
-      "updated_at": "2022-08-15T07:11:52Z",
-      "days_inactive": 1247,
-      "labels": [
-        "[Status] Needs Author Reply",
-        "[Plugin] Super Cache"
-      ],
-      "comments_count": 1
-    },
-    {
-      "number": 25460,
-      "title": "wp supercache files being cleared when single page updated",
-      "url": "https://github.com/Automattic/jetpack/issues/25460",
-      "updated_at": "2022-08-15T07:55:09Z",
-      "days_inactive": 1246,
-      "labels": [
-        "[Status] Needs Author Reply",
-        "[Plugin] Super Cache",
-        "[Super Cache] Preload"
-      ],
-      "comments_count": 6
-    },
-    {
-      "number": 25460,
-      "title": "wp supercache files being cleared when single page updated",
-      "url": "https://github.com/Automattic/jetpack/issues/25460",
-      "updated_at": "2022-08-15T07:55:09Z",
-      "days_inactive": 1246,
-      "labels": [
-        "[Status] Needs Author Reply",
-        "[Plugin] Super Cache",
-        "[Super Cache] Preload"
-      ],
-      "comments_count": 6
-    },
-    {
       "number": 27547,
       "title": "flood of debug warnings",
       "url": "https://github.com/Automattic/jetpack/issues/27547",
       "updated_at": "2022-12-07T08:27:44Z",
-      "days_inactive": 1132,
-      "labels": [
-        "[Type] Bug",
-        "[Status] Needs Author Reply",
-        "[Pri] Normal",
-        "[Plugin] Jetpack"
-      ],
-      "comments_count": 2
-    },
-    {
-      "number": 27547,
-      "title": "flood of debug warnings",
-      "url": "https://github.com/Automattic/jetpack/issues/27547",
-      "updated_at": "2022-12-07T08:27:44Z",
-      "days_inactive": 1132,
+      "days_inactive": 1161,
       "labels": [
         "[Type] Bug",
         "[Status] Needs Author Reply",
@@ -85,7 +20,7 @@
       "title": "Rename Settings > Hosting Configuration to Settings > Hosting",
       "url": "https://github.com/Automattic/jetpack/issues/27019",
       "updated_at": "2022-12-07T08:39:37Z",
-      "days_inactive": 1132,
+      "days_inactive": 1161,
       "labels": [
         "[Type] Enhancement",
         "[Status] Needs Author Reply",
@@ -96,25 +31,11 @@
       "comments_count": 1
     },
     {
-      "number": 32027,
-      "title": "Feature Request: SMTP",
-      "url": "https://github.com/Automattic/jetpack/issues/32027",
-      "updated_at": "2023-07-25T16:30:46Z",
-      "days_inactive": 902,
-      "labels": [
-        "[Status] Needs Author Reply",
-        "[Type] Feature Request",
-        "[Pri] Low",
-        "[Plugin] Jetpack"
-      ],
-      "comments_count": 3
-    },
-    {
       "number": 28607,
       "title": "Bug: Videopress Fullscreen Toggle Not Working Correctly",
       "url": "https://github.com/Automattic/jetpack/issues/28607",
       "updated_at": "2023-07-30T00:49:40Z",
-      "days_inactive": 898,
+      "days_inactive": 927,
       "labels": [
         "[Type] Bug",
         "[Feature] VideoPress",
@@ -131,21 +52,7 @@
       "title": "Stats: Headless compatibility",
       "url": "https://github.com/Automattic/jetpack/issues/34897",
       "updated_at": "2024-01-09T11:40:52Z",
-      "days_inactive": 734,
-      "labels": [
-        "[Feature] Stats Data",
-        "[Status] Needs Author Reply",
-        "[Type] Feature Request",
-        "[Plugin] Jetpack"
-      ],
-      "comments_count": 1
-    },
-    {
-      "number": 34897,
-      "title": "Stats: Headless compatibility",
-      "url": "https://github.com/Automattic/jetpack/issues/34897",
-      "updated_at": "2024-01-09T11:40:52Z",
-      "days_inactive": 734,
+      "days_inactive": 763,
       "labels": [
         "[Feature] Stats Data",
         "[Status] Needs Author Reply",
@@ -159,24 +66,7 @@
       "title": "\"Enable payment button\" and \"Enable donation form\" links redirect to an unexpected place",
       "url": "https://github.com/Automattic/jetpack/issues/35393",
       "updated_at": "2024-02-02T16:08:59Z",
-      "days_inactive": 710,
-      "labels": [
-        "[Type] Enhancement",
-        "[Status] Needs Author Reply",
-        "[Pri] Normal",
-        "Earn",
-        "[Plugin] Jetpack",
-        "Triaged",
-        "[Feature] Earn Blocks"
-      ],
-      "comments_count": 3
-    },
-    {
-      "number": 35393,
-      "title": "\"Enable payment button\" and \"Enable donation form\" links redirect to an unexpected place",
-      "url": "https://github.com/Automattic/jetpack/issues/35393",
-      "updated_at": "2024-02-02T16:08:59Z",
-      "days_inactive": 710,
+      "days_inactive": 739,
       "labels": [
         "[Type] Enhancement",
         "[Status] Needs Author Reply",
@@ -193,7 +83,7 @@
       "title": "Image Guide remains paused after disable/re-enable feature in Boost Settings",
       "url": "https://github.com/Automattic/jetpack/issues/36937",
       "updated_at": "2024-04-29T14:03:06Z",
-      "days_inactive": 623,
+      "days_inactive": 652,
       "labels": [
         "[Type] Enhancement",
         "[Status] Needs Author Reply",
@@ -209,7 +99,7 @@
       "title": "Your site URL is a known local development environment URL",
       "url": "https://github.com/Automattic/jetpack/issues/36889",
       "updated_at": "2024-05-06T09:45:33Z",
-      "days_inactive": 616,
+      "days_inactive": 645,
       "labels": [
         "[Type] Enhancement",
         "[Status] Needs Author Reply",
@@ -225,26 +115,7 @@
       "title": "[Mastodon] Jetpack Social Connection fails to integrate with Mozilla.social",
       "url": "https://github.com/Automattic/jetpack/issues/34822",
       "updated_at": "2024-06-26T07:09:15Z",
-      "days_inactive": 566,
-      "labels": [
-        "[Type] Bug",
-        "[Feature] Publicize",
-        "[Status] Needs Author Reply",
-        "[Pri] Normal",
-        "[Plugin] Jetpack",
-        "[Focus] Compatibility",
-        "[Plugin] Social",
-        "Triaged",
-        "[Status] Priority Review Triggered"
-      ],
-      "comments_count": 9
-    },
-    {
-      "number": 34822,
-      "title": "[Mastodon] Jetpack Social Connection fails to integrate with Mozilla.social",
-      "url": "https://github.com/Automattic/jetpack/issues/34822",
-      "updated_at": "2024-06-26T07:09:15Z",
-      "days_inactive": 566,
+      "days_inactive": 594,
       "labels": [
         "[Type] Bug",
         "[Feature] Publicize",
@@ -263,24 +134,7 @@
       "title": "Markdown module regression in support for multiple codeblocks in same document",
       "url": "https://github.com/Automattic/jetpack/issues/35588",
       "updated_at": "2024-08-12T00:49:37Z",
-      "days_inactive": 519,
-      "labels": [
-        "[Type] Bug",
-        "[Status] Needs Author Reply",
-        "[Feature] Markdown",
-        "[Pri] Low",
-        "[Status] Stale",
-        "[Plugin] Jetpack",
-        "Triaged"
-      ],
-      "comments_count": 5
-    },
-    {
-      "number": 35588,
-      "title": "Markdown module regression in support for multiple codeblocks in same document",
-      "url": "https://github.com/Automattic/jetpack/issues/35588",
-      "updated_at": "2024-08-12T00:49:37Z",
-      "days_inactive": 519,
+      "days_inactive": 548,
       "labels": [
         "[Type] Bug",
         "[Status] Needs Author Reply",
@@ -297,7 +151,7 @@
       "title": "Tracking user requests for Twitter (X) connection reinstatement",
       "url": "https://github.com/Automattic/jetpack/issues/38817",
       "updated_at": "2024-08-23T06:37:11Z",
-      "days_inactive": 508,
+      "days_inactive": 536,
       "labels": [
         "[Feature] Publicize",
         "[Status] Needs Author Reply",
@@ -313,7 +167,7 @@
       "title": " wp_is_stream() causing strpos(): Passing null to parameter #1 ($haystack) of type string is deprecated",
       "url": "https://github.com/Automattic/jetpack/issues/37298",
       "updated_at": "2024-11-06T00:49:51Z",
-      "days_inactive": 433,
+      "days_inactive": 462,
       "labels": [
         "[Type] Bug",
         "[Status] Needs Author Reply",
@@ -327,29 +181,39 @@
       "comments_count": 3
     },
     {
-      "number": 40862,
-      "title": "Images break when there is a space in the filename",
-      "url": "https://github.com/Automattic/jetpack/issues/40862",
-      "updated_at": "2025-01-15T14:56:15Z",
-      "days_inactive": 362,
+      "number": 25531,
+      "title": "Jquery session white screen",
+      "url": "https://github.com/Automattic/jetpack/issues/25531",
+      "updated_at": "2024-12-18T15:40:39Z",
+      "days_inactive": 419,
       "labels": [
         "[Type] Bug",
         "[Status] Needs Author Reply",
         "[Pri] Low",
-        "[Feature] Search",
-        "[Plugin] Search",
-        "Triaged",
-        "[Platform] Atomic",
-        "[Status] Auto-allocated"
+        "[Plugin] Super Cache"
       ],
-      "comments_count": 5
+      "comments_count": 1
+    },
+    {
+      "number": 25555,
+      "title": "when i active mod_rewrite my home page change, help please",
+      "url": "https://github.com/Automattic/jetpack/issues/25555",
+      "updated_at": "2024-12-18T15:40:42Z",
+      "days_inactive": 419,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Pri] Low",
+        "[Plugin] Super Cache"
+      ],
+      "comments_count": 1
     },
     {
       "number": 40862,
       "title": "Images break when there is a space in the filename",
       "url": "https://github.com/Automattic/jetpack/issues/40862",
       "updated_at": "2025-01-15T14:56:15Z",
-      "days_inactive": 362,
+      "days_inactive": 391,
       "labels": [
         "[Type] Bug",
         "[Status] Needs Author Reply",
@@ -367,23 +231,7 @@
       "title": "Incongruencies in plans page",
       "url": "https://github.com/Automattic/jetpack/issues/41222",
       "updated_at": "2025-01-21T13:45:12Z",
-      "days_inactive": 356,
-      "labels": [
-        "[Type] Bug",
-        "[Status] Needs Author Reply",
-        "[Pri] Low",
-        "Triaged",
-        "[Status] Auto-allocated",
-        "[Experiment] AI labels added"
-      ],
-      "comments_count": 2
-    },
-    {
-      "number": 41222,
-      "title": "Incongruencies in plans page",
-      "url": "https://github.com/Automattic/jetpack/issues/41222",
-      "updated_at": "2025-01-21T13:45:12Z",
-      "days_inactive": 356,
+      "days_inactive": 385,
       "labels": [
         "[Type] Bug",
         "[Status] Needs Author Reply",
@@ -399,7 +247,7 @@
       "title": "VideoPress: Video block v6 does not work in the mobile app",
       "url": "https://github.com/Automattic/jetpack/issues/28534",
       "updated_at": "2025-02-12T20:52:30Z",
-      "days_inactive": 334,
+      "days_inactive": 363,
       "labels": [
         "[Type] Bug",
         "[Feature] VideoPress",
@@ -417,7 +265,7 @@
       "title": "Donation Block Missing After Downgrading from Atomic to Simple",
       "url": "https://github.com/Automattic/jetpack/issues/41285",
       "updated_at": "2025-02-17T17:24:41Z",
-      "days_inactive": 329,
+      "days_inactive": 358,
       "labels": [
         "[Type] Bug",
         "[Status] Needs Author Reply",
@@ -441,7 +289,7 @@
       "title": "Video block not showing poster in the emails",
       "url": "https://github.com/Automattic/jetpack/issues/39662",
       "updated_at": "2025-03-04T16:39:30Z",
-      "days_inactive": 314,
+      "days_inactive": 343,
       "labels": [
         "[Type] Bug",
         "[Feature] Subscriptions",
@@ -460,7 +308,7 @@
       "title": "Stats: Show subscriber name > email instead of username",
       "url": "https://github.com/Automattic/jetpack/issues/40648",
       "updated_at": "2025-03-06T18:35:44Z",
-      "days_inactive": 312,
+      "days_inactive": 341,
       "labels": [
         "[Type] Enhancement",
         "[Feature] Stats Data",
@@ -476,7 +324,7 @@
       "title": "Scheduled posts not counting towards daily streak",
       "url": "https://github.com/Automattic/jetpack/issues/42226",
       "updated_at": "2025-03-12T16:48:50Z",
-      "days_inactive": 306,
+      "days_inactive": 335,
       "labels": [
         "[Type] Bug",
         "[Feature] Notifications",
@@ -490,11 +338,29 @@
       "comments_count": 4
     },
     {
+      "number": 14855,
+      "title": "Related Posts endpoint called on Add Post",
+      "url": "https://github.com/Automattic/jetpack/issues/14855",
+      "updated_at": "2025-04-21T17:26:43Z",
+      "days_inactive": 295,
+      "labels": [
+        "[Type] Bug",
+        "[Status] Needs Author Reply",
+        "[Feature] Related Posts",
+        "[Focus] Performance",
+        "[Pri] Low",
+        "[Focus] Blocks",
+        "[Block] Related Posts",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 4
+    },
+    {
       "number": 39936,
       "title": "Taxonomy search terms Tags and Categories not working",
       "url": "https://github.com/Automattic/jetpack/issues/39936",
       "updated_at": "2025-04-29T00:50:27Z",
-      "days_inactive": 259,
+      "days_inactive": 288,
       "labels": [
         "[Type] Bug",
         "[Status] Needs Author Reply",
@@ -514,7 +380,7 @@
       "title": "Mailchimp Block: no audience groups being displayed under the \"Mailchimp Groups\" heading in the sidebar",
       "url": "https://github.com/Automattic/jetpack/issues/40259",
       "updated_at": "2025-05-20T00:50:23Z",
-      "days_inactive": 238,
+      "days_inactive": 267,
       "labels": [
         "[Type] Bug",
         "[Status] Needs Author Reply",
@@ -539,7 +405,7 @@
       "title": "Block Editor: TypeError: Cannot read properties of undefined (reading 'domReady')",
       "url": "https://github.com/Automattic/jetpack/issues/38110",
       "updated_at": "2025-06-02T14:33:56Z",
-      "days_inactive": 224,
+      "days_inactive": 253,
       "labels": [
         "[Type] Bug",
         "[Feature] Subscriptions",
@@ -557,7 +423,7 @@
       "title": "VideoPress: Videos not playing in Instagram in-app browser on Android",
       "url": "https://github.com/Automattic/jetpack/issues/40470",
       "updated_at": "2025-06-12T00:50:21Z",
-      "days_inactive": 215,
+      "days_inactive": 244,
       "labels": [
         "[Type] Bug",
         "[Feature] VideoPress",
@@ -576,7 +442,7 @@
       "title": "Instagram Business Connection Issues",
       "url": "https://github.com/Automattic/jetpack/issues/42810",
       "updated_at": "2025-08-17T14:14:41Z",
-      "days_inactive": 148,
+      "days_inactive": 177,
       "labels": [
         "[Type] Bug",
         "[Feature] Publicize",
@@ -590,6 +456,19 @@
         "[Status] Auto-allocated"
       ],
       "comments_count": 20
+    },
+    {
+      "number": 45734,
+      "title": "Enhancement: Improving Image resulting code in the Markdown parsing library",
+      "url": "https://github.com/Automattic/jetpack/issues/45734",
+      "updated_at": "2025-11-10T13:57:10Z",
+      "days_inactive": 92,
+      "labels": [
+        "[Type] Enhancement",
+        "[Status] Needs Author Reply",
+        "[Feature] Markdown"
+      ],
+      "comments_count": 2
     }
   ]
 }

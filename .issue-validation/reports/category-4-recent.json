@@ -1,17 +1,229 @@
 {
-  "count": 44,
+  "count": 45,
   "issues": [
     {
-      "number": 46409,
-      "title": "YouTube `wpcom_youtube_embed_crazy_url` embed handler does not run anymore",
-      "url": "https://github.com/Automattic/jetpack/issues/46409",
-      "updated_at": "2026-01-12T07:26:30Z",
+      "number": 23363,
+      "title": "Renovate Dependency Updates",
+      "url": "https://github.com/Automattic/jetpack/issues/23363",
+      "updated_at": "2026-02-10T22:42:12Z",
+      "labels": [
+        "Primary Issue",
+        "Task"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 38818,
+      "title": "Enhancement: Allow Yearly Storage Upgrades",
+      "url": "https://github.com/Automattic/jetpack/issues/38818",
+      "updated_at": "2026-02-10T16:53:21Z",
+      "labels": [
+        "[Type] Enhancement",
+        "Plans",
+        "[Feature] Backups",
+        "Customer Report [LEGACY]",
+        "[Plugin] Backup",
+        "Customer Report"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 47000,
+      "title": "Jetpack Subscribe form and popup accessibility.",
+      "url": "https://github.com/Automattic/jetpack/issues/47000",
+      "updated_at": "2026-02-06T09:39:28Z",
+      "labels": [
+        "[Feature] Subscriptions",
+        "[Focus] Accessibility",
+        "[Block] Subscribe",
+        "Bug",
+        "Newsletters",
+        "[Block] Subscriptions",
+        "Accessibility"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 46996,
+      "title": "PHP Warning: parse_str() Input variables exceeded in WPCOM_JSON_API_Endpoint::input()",
+      "url": "https://github.com/Automattic/jetpack/issues/46996",
+      "updated_at": "2026-02-05T20:56:08Z",
+      "labels": [],
+      "milestone": null
+    },
+    {
+      "number": 25461,
+      "title": "WP_Cache added to wp-config.php in a place that gets erased by iThemes files updates. ",
+      "url": "https://github.com/Automattic/jetpack/issues/25461",
+      "updated_at": "2026-02-03T23:37:24Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Plugin] Super Cache"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 39651,
+      "title": "Cannot log in using email address to WordPress.com when submitting a comment (forced to use username)",
+      "url": "https://github.com/Automattic/jetpack/issues/39651",
+      "updated_at": "2026-02-02T14:27:32Z",
+      "labels": [
+        "Enhancement",
+        "Customer Report"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 44756,
+      "title": "Typo in sharing buttons code: \"serivces\"",
+      "url": "https://github.com/Automattic/jetpack/issues/44756",
+      "updated_at": "2026-01-31T17:38:13Z",
+      "labels": [
+        "[Plugin] Jetpack",
+        "Enhancement"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 44891,
+      "title": "VideoPress block forced in editor despite being disabled",
+      "url": "https://github.com/Automattic/jetpack/issues/44891",
+      "updated_at": "2026-01-30T13:36:40Z",
+      "labels": [
+        "[Type] Bug",
+        "[Feature] VideoPress",
+        "[Pri] High",
+        "[Plugin] Jetpack",
+        "[Plugin] VideoPress",
+        "[Status] Priority Review Triggered",
+        "[Status] Escalated to Product Ambassadors"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 45518,
+      "title": "WordPress 6.9 Compatibility",
+      "url": "https://github.com/Automattic/jetpack/issues/45518",
+      "updated_at": "2026-01-28T17:53:19Z",
+      "labels": [
+        "General",
+        "[Type] Janitorial",
+        "Epic",
+        "[Pri] Normal"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 46570,
+      "title": "Protect preventing authentication flows for .org two-factor",
+      "url": "https://github.com/Automattic/jetpack/issues/46570",
+      "updated_at": "2026-01-26T18:39:40Z",
       "labels": [
         "[Type] Bug",
         "[Pri] Normal",
-        "[Plugin] Jetpack",
+        "[Plugin] Protect",
         "Needs triage",
         "[Status] Auto-allocated"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 46605,
+      "title": "✨ Set up Copilot instructions",
+      "url": "https://github.com/Automattic/jetpack/issues/46605",
+      "updated_at": "2026-01-26T14:19:30Z",
+      "labels": [
+        "[Type] Enhancement"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 46754,
+      "title": "Enhancement:Time specific preload in wp-super cache",
+      "url": "https://github.com/Automattic/jetpack/issues/46754",
+      "updated_at": "2026-01-24T16:10:01Z",
+      "labels": [
+        "[Plugin] Super Cache",
+        "Enhancement"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 42738,
+      "title": "Tiled Gallery: Screen reader announces ARIA label instead of alt text",
+      "url": "https://github.com/Automattic/jetpack/issues/42738",
+      "updated_at": "2026-01-21T07:52:09Z",
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Tiled Gallery",
+        "[Focus] Accessibility",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Block] Tiled Gallery",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "Vulcan"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 46020,
+      "title": "Copy post strips \"\\\" characters from post content",
+      "url": "https://github.com/Automattic/jetpack/issues/46020",
+      "updated_at": "2026-01-19T16:43:20Z",
+      "labels": [
+        "[Type] Bug",
+        "[Pri] Low",
+        "[Feature] Copy a Post",
+        "[Plugin] Jetpack",
+        "Triaged",
+        "[Status] Auto-allocated"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 39484,
+      "title": "Enable blocks in comments not available when upgrading Simple site to Atomic",
+      "url": "https://github.com/Automattic/jetpack/issues/39484",
+      "updated_at": "2026-01-16T04:59:35Z",
+      "labels": [
+        "Enhancement",
+        "Customer Report",
+        "Customer Report > Direct",
+        "WordPress.com",
+        "Dotcom > Publishing experience"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 36417,
+      "title": "Boost: Add excludes to defer JS",
+      "url": "https://github.com/Automattic/jetpack/issues/36417",
+      "updated_at": "2026-01-13T16:38:52Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "[Plugin] Boost",
+        "[Boost Feature] Defer JS"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 40681,
+      "title": "Defer JS causes Like button to show \"loading\" on Atomic sites",
+      "url": "https://github.com/Automattic/jetpack/issues/40681",
+      "updated_at": "2026-01-13T16:22:21Z",
+      "labels": [
+        "[Type] Bug",
+        "[Feature] Photon",
+        "[Pri] Low",
+        "[Plugin] Boost",
+        "Triaged",
+        "[Package] Image CDN",
+        "[Boost Feature] Image CDN",
+        "[Status] Auto-allocated",
+        "[Experiment] AI labels added"
       ],
       "milestone": null
     },
@@ -44,19 +256,6 @@
         "[Status] Priority Review Triggered",
         "[Status] Auto-allocated",
         "[Status] Escalated to Product Ambassadors"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 46387,
-      "title": "Forms: country flag not updating",
-      "url": "https://github.com/Automattic/jetpack/issues/46387",
-      "updated_at": "2026-01-07T20:34:23Z",
-      "labels": [
-        "[Feature] Contact Form",
-        "[Plugin] Jetpack",
-        "[Block] Contact Form",
-        "[Feature] Forms Blocks"
       ],
       "milestone": null
     },
@@ -101,20 +300,6 @@
       "milestone": null
     },
     {
-      "number": 34757,
-      "title": "Stats: Break out page views for \"archive\" pages rather than grouping them all as \"Home page / Archives\"",
-      "url": "https://github.com/Automattic/jetpack/issues/34757",
-      "updated_at": "2025-12-23T00:10:07Z",
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Stats Data",
-        "Customer Report [LEGACY]",
-        "[Plugin] Jetpack",
-        "Customer Report"
-      ],
-      "milestone": null
-    },
-    {
       "number": 40029,
       "title": "Write Brief: assistant does not detect site language",
       "url": "https://github.com/Automattic/jetpack/issues/40029",
@@ -129,6 +314,20 @@
         "Triaged",
         "[Extension] AI Assistant Plugin",
         "[Feature] AI"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 9134,
+      "title": "Publicize: Enable sharing to Google My Business posts",
+      "url": "https://github.com/Automattic/jetpack/issues/9134",
+      "updated_at": "2025-12-18T05:48:07Z",
+      "labels": [
+        "[Type] Enhancement",
+        "[Feature] Publicize",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "Customer Report"
       ],
       "milestone": null
     },
@@ -151,19 +350,6 @@
       "milestone": null
     },
     {
-      "number": 38029,
-      "title": "WordPress.com REST API: consider supporting AVIF as a supported media type",
-      "url": "https://github.com/Automattic/jetpack/issues/38029",
-      "updated_at": "2025-12-08T15:42:11Z",
-      "labels": [
-        "[Feature] WPCOM API",
-        "[Type] Janitorial",
-        "[Pri] Normal",
-        "Vulcan"
-      ],
-      "milestone": null
-    },
-    {
       "number": 40133,
       "title": "Featured Content: featured tag is hidden from editor when it isn't shown on front end",
       "url": "https://github.com/Automattic/jetpack/issues/40133",
@@ -180,19 +366,26 @@
       "milestone": null
     },
     {
-      "number": 42738,
-      "title": "Tiled Gallery: Screen reader announces ARIA label instead of alt text",
-      "url": "https://github.com/Automattic/jetpack/issues/42738",
+      "number": 38029,
+      "title": "WordPress.com REST API: consider supporting AVIF as a supported media type",
+      "url": "https://github.com/Automattic/jetpack/issues/38029",
       "updated_at": "2025-12-08T15:42:11Z",
       "labels": [
-        "[Type] Bug",
-        "[Feature] Tiled Gallery",
-        "[Focus] Accessibility",
-        "[Pri] Low",
-        "Customer Report [LEGACY]",
-        "[Block] Tiled Gallery",
+        "[Feature] WPCOM API",
+        "[Type] Janitorial",
+        "[Pri] Normal",
+        "Vulcan"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 44933,
+      "title": "Enhancement: Please bring back UI settings for PORTFOLIO & TESTIMONIALS",
+      "url": "https://github.com/Automattic/jetpack/issues/44933",
+      "updated_at": "2025-12-08T15:42:11Z",
+      "labels": [
+        "[Type] Enhancement",
         "[Plugin] Jetpack",
-        "Triaged",
         "Vulcan"
       ],
       "milestone": null
@@ -210,18 +403,6 @@
         "[Plugin] Jetpack",
         "Triaged",
         "[Status] Auto-allocated",
-        "Vulcan"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 44933,
-      "title": "Enhancement: Please bring back UI settings for PORTFOLIO & TESTIMONIALS",
-      "url": "https://github.com/Automattic/jetpack/issues/44933",
-      "updated_at": "2025-12-08T15:42:11Z",
-      "labels": [
-        "[Type] Enhancement",
-        "[Plugin] Jetpack",
         "Vulcan"
       ],
       "milestone": null
@@ -249,21 +430,6 @@
         "Enhancement",
         "Loop",
         "Blogs"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 46020,
-      "title": "Copy post strips \"\\\" characters from post content",
-      "url": "https://github.com/Automattic/jetpack/issues/46020",
-      "updated_at": "2025-12-01T18:22:46Z",
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Low",
-        "[Feature] Copy a Post",
-        "[Plugin] Jetpack",
-        "Triaged",
-        "[Status] Auto-allocated"
       ],
       "milestone": null
     },
@@ -317,12 +483,12 @@
       "milestone": null
     },
     {
-      "number": 39484,
-      "title": "Enable blocks in comments not available when upgrading Simple site to Atomic",
-      "url": "https://github.com/Automattic/jetpack/issues/39484",
-      "updated_at": "2025-11-25T20:39:03Z",
+      "number": 21012,
+      "title": "[Atomic] Comments not working on password protected posts & pages in some browsers",
+      "url": "https://github.com/Automattic/jetpack/issues/21012",
+      "updated_at": "2025-11-25T20:39:43Z",
       "labels": [
-        "Enhancement"
+        "Verbum comments"
       ],
       "milestone": null
     },
@@ -330,6 +496,16 @@
       "number": 39626,
       "title": "Jetpack: newsletter preview doesn't match frontend experience with OnyxPluse Theme",
       "url": "https://github.com/Automattic/jetpack/issues/39626",
+      "updated_at": "2025-11-24T20:06:52Z",
+      "labels": [
+        "Bug"
+      ],
+      "milestone": null
+    },
+    {
+      "number": 23133,
+      "title": "Subscription Block: Border color in the editor isn't consistently reflected properly in preview or live",
+      "url": "https://github.com/Automattic/jetpack/issues/23133",
       "updated_at": "2025-11-24T20:06:52Z",
       "labels": [
         "Bug"
@@ -347,9 +523,9 @@
       "milestone": null
     },
     {
-      "number": 34343,
-      "title": "Meta Tags Partially Discloses Content on Paid Newsletters",
-      "url": "https://github.com/Automattic/jetpack/issues/34343",
+      "number": 45550,
+      "title": "Jetpack Newsletter: Issue with email frequency changes and Subscribe block",
+      "url": "https://github.com/Automattic/jetpack/issues/45550",
       "updated_at": "2025-11-24T20:06:50Z",
       "labels": [
         "Bug"
@@ -367,9 +543,9 @@
       "milestone": null
     },
     {
-      "number": 45550,
-      "title": "Jetpack Newsletter: Issue with email frequency changes and Subscribe block",
-      "url": "https://github.com/Automattic/jetpack/issues/45550",
+      "number": 34343,
+      "title": "Meta Tags Partially Discloses Content on Paid Newsletters",
+      "url": "https://github.com/Automattic/jetpack/issues/34343",
       "updated_at": "2025-11-24T20:06:50Z",
       "labels": [
         "Bug"
@@ -423,184 +599,6 @@
         "[Pri] Normal",
         "[Focus] Blocks",
         "[Plugin] Jetpack"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 45518,
-      "title": "WordPress 6.9 Compatibility",
-      "url": "https://github.com/Automattic/jetpack/issues/45518",
-      "updated_at": "2025-11-13T19:14:21Z",
-      "labels": [
-        "General",
-        "[Type] Janitorial",
-        "Epic",
-        "[Pri] Normal"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 45440,
-      "title": "Newsletter feature requires Jetpack Blocks to be enabled",
-      "url": "https://github.com/Automattic/jetpack/issues/45440",
-      "updated_at": "2025-11-12T09:46:00Z",
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Subscriptions",
-        "[Pri] Normal",
-        "[Focus] Blocks",
-        "[Status] Needs Design",
-        "[Plugin] Jetpack",
-        "Enhancement"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 45787,
-      "title": "Enhancement: Increase target size of checkboxes on Forms",
-      "url": "https://github.com/Automattic/jetpack/issues/45787",
-      "updated_at": "2025-11-11T22:32:53Z",
-      "labels": [
-        "[Type] Enhancement",
-        "[Plugin] Jetpack",
-        "[Package] Forms"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 45861,
-      "title": "Carousel images with differing heights occasionally fail to unify, misplacing navigation elements",
-      "url": "https://github.com/Automattic/jetpack/issues/45861",
-      "updated_at": "2025-11-11T10:40:08Z",
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Normal",
-        "[Plugin] Jetpack",
-        "Needs triage",
-        "[Status] Auto-allocated"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 45734,
-      "title": "Enhancement: Improving Image resulting code in the Markdown parsing library",
-      "url": "https://github.com/Automattic/jetpack/issues/45734",
-      "updated_at": "2025-11-10T13:57:10Z",
-      "labels": [
-        "[Type] Enhancement",
-        "[Status] Needs Author Reply",
-        "[Feature] Markdown"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 45079,
-      "title": "Feature Request: [Stats] On Posts list, set stat timeframe for which stats are displayed, and allow to sort based on stats count.",
-      "url": "https://github.com/Automattic/jetpack/issues/45079",
-      "updated_at": "2025-11-06T22:36:02Z",
-      "labels": [
-        "[Type] Feature Request",
-        "[Plugin] Jetpack"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 36576,
-      "title": "Newsletters: allow customizing email subject separately from the blog title",
-      "url": "https://github.com/Automattic/jetpack/issues/36576",
-      "updated_at": "2025-11-06T14:09:57Z",
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Subscriptions",
-        "[Pri] Normal"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 29727,
-      "title": "Related Posts: add an option to display excerpts",
-      "url": "https://github.com/Automattic/jetpack/issues/29727",
-      "updated_at": "2025-11-04T16:26:22Z",
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Related Posts",
-        "[Pri] Normal",
-        "[Plugin] Jetpack",
-        "[Block] Related Posts"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 42887,
-      "title": "Social Notes: add option to customize the Post Type slug",
-      "url": "https://github.com/Automattic/jetpack/issues/42887",
-      "updated_at": "2025-10-29T13:50:32Z",
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Normal",
-        "[Plugin] Social",
-        "[Feature] Social Notes"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 40493,
-      "title": "Jetpack search overlay: displayed product prices exclude tax",
-      "url": "https://github.com/Automattic/jetpack/issues/40493",
-      "updated_at": "2025-10-28T19:24:43Z",
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Normal",
-        "[Feature] Search",
-        "Customer Report [LEGACY]",
-        "[Plugin] Jetpack",
-        "Triaged",
-        "[Status] Priority Review Triggered",
-        "[Status] Auto-allocated",
-        "[Status] Escalated to Product Ambassadors"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 36417,
-      "title": "Boost: Add excludes to defer JS",
-      "url": "https://github.com/Automattic/jetpack/issues/36417",
-      "updated_at": "2025-10-24T15:57:20Z",
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Normal",
-        "[Status] Stale",
-        "Customer Report [LEGACY]",
-        "[Plugin] Boost",
-        "[Boost Feature] Defer JS"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 45532,
-      "title": "Contact Form: \"View in Dashboard\" and \"Mark as Spam\" Links Are Now Included in Notification Emails and Disrupts Replying",
-      "url": "https://github.com/Automattic/jetpack/issues/45532",
-      "updated_at": "2025-10-17T14:28:27Z",
-      "labels": [
-        "[Type] Bug",
-        "[Pri] High",
-        "[Plugin] Jetpack",
-        "Needs triage",
-        "[Status] Priority Review Triggered",
-        "[Status] Auto-allocated",
-        "[Status] Escalated to Product Ambassadors"
-      ],
-      "milestone": null
-    },
-    {
-      "number": 45519,
-      "title": "Block Delimiter / Scanner: retire in favor of Core's upcoming WP_Block_Processor",
-      "url": "https://github.com/Automattic/jetpack/issues/45519",
-      "updated_at": "2025-10-16T07:43:25Z",
-      "labels": [
-        "[Type] Janitorial",
-        "[Pri] Normal",
-        "[Package] Block Delimiter"
       ],
       "milestone": null
     }
