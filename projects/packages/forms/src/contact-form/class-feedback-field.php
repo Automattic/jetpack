@@ -420,10 +420,7 @@ class Feedback_Field {
 	 * @return string HTML for the field value.
 	 */
 	private function get_render_email_html_value() {
-		if ( $this->is_of_type( 'select' ) || $this->is_of_type( 'radio' ) ) {
-			return $this->render_email_chips( $this->value );
-		}
-		if ( $this->is_of_type( 'checkbox-multiple' ) ) {
+		if ( $this->is_of_type( 'select' ) || $this->is_of_type( 'radio' ) || $this->is_of_type( 'checkbox-multiple' ) ) {
 			return $this->render_email_chips( $this->value );
 		}
 		if ( $this->is_of_type( 'checkbox' ) || $this->is_of_type( 'consent' ) ) {
@@ -452,6 +449,7 @@ class Feedback_Field {
 	private function render_empty_value_html() {
 		return '<span style="color: #757575;">&mdash;</span>';
 	}
+
 	/**
 	 * Render a default text value for email (text, name, email, textarea, date, time, etc).
 	 *
@@ -507,9 +505,7 @@ class Feedback_Field {
 		$label  = $is_yes ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
 
 		return sprintf(
-			'<span style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; line-height: 1.4; background-color: %1$s; color: %2$s;">%3$s</span>',
-			'#f0f0f0',
-			'#1e1e1e',
+			'<span style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; line-height: 1.4; background-color: #f0f0f0; color: #1e1e1e;">%s</span>',
 			esc_html( $label )
 		);
 	}
@@ -547,10 +543,9 @@ class Feedback_Field {
 			return $this->render_empty_value_html();
 		}
 
-		$url           = $this->value;
-		$display_value = $this->value;
+		$url = $this->value;
 
-		// Ensure the URL has a scheme.
+		// Prepend scheme if missing so the href is valid, but display the original input.
 		if ( ! preg_match( '/^https?:\/\//i', $url ) ) {
 			$url = 'https://' . $url;
 		}
@@ -558,7 +553,7 @@ class Feedback_Field {
 		return sprintf(
 			'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
 			esc_url( $url ),
-			esc_html( $display_value ),
+			esc_html( $this->value ),
 			self::LINK_COLOR
 		);
 	}
@@ -783,11 +778,12 @@ class Feedback_Field {
 	}
 
 	/**
-	 * Get the icon filename for this field's type.
+	 * Get the icon filename for a given field type.
 	 *
+	 * @param string $type The field type.
 	 * @return string The icon name (without path or extension).
 	 */
-	public function get_icon_name() {
+	public static function get_icon_name_for_type( $type ) {
 		$map = array(
 			'text'              => 'field-text',
 			'name'              => 'field-text',
@@ -810,7 +806,7 @@ class Feedback_Field {
 			'consent'           => 'field-consent',
 			'hidden'            => 'field-hidden',
 		);
-		return $map[ $this->type ] ?? 'field-text';
+		return $map[ $type ] ?? 'field-text';
 	}
 
 	/**

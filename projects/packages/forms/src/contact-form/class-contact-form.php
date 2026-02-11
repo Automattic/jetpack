@@ -154,13 +154,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static $ref_id = null;
 
 	/**
-	 * The color of the links in the email.
-	 *
-	 * @var string
-	 */
-	private const LINK_COLOR = Feedback_Field::LINK_COLOR;
-
-	/**
 	 * Set the reference ID for the contact form.
 	 *
 	 * @param int $ref_id The reference ID.
@@ -2052,41 +2045,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Get the icon name for a given field type.
-	 *
-	 * @param string $type The field type.
-	 * @return string The icon name.
-	 */
-	private static function get_field_icon_name( $type ) {
-		$map = array(
-			'text'              => 'field-text',
-			'name'              => 'field-text',
-			'email'             => 'field-email',
-			'textarea'          => 'field-textarea',
-			'select'            => 'field-select',
-			'radio'             => 'field-single-choice',
-			'checkbox'          => 'field-checkbox',
-			'checkbox-multiple' => 'field-multiple-choice',
-			'phone'             => 'field-telephone',
-			'telephone'         => 'field-telephone',
-			'number'            => 'field-number',
-			'slider'            => 'field-slider',
-			'date'              => 'field-date',
-			'time'              => 'field-time',
-			'url'               => 'field-url',
-			'rating'            => 'field-rating',
-			'image-select'      => 'field-image-select',
-			'file'              => 'field-file',
-			'consent'           => 'field-consent',
-			'hidden'            => 'field-hidden',
-		);
-		return isset( $map[ $type ] ) ? $map[ $type ] : 'field-text';
-	}
-
-	/**
 	 * Format a single field for the email notification using type-aware rendering.
 	 *
-	 * Takes a collection item from get_compiled_fields( 'email', 'collection' )
+	 * Takes a collection item from get_compiled_fields( 'email_html', 'collection' )
 	 * and produces a table row with an icon, label, and type-specific value.
 	 *
 	 * @param array $field_data Field data with keys: label, value, type, id, key, meta.
@@ -2098,25 +2059,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$type  = isset( $field_data['type'] ) ? $field_data['type'] : 'text';
 
 		$safe_label = self::escape_and_sanitize_field_label( $label );
-		$icon_name  = self::get_field_icon_name( $type );
+		$icon_name  = Feedback_Field::get_icon_name_for_type( $type );
 		$icon_url   = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/' . $icon_name . '@2x.png';
 
-		// Value is already rendered as HTML by Feedback_Field::get_render_email_html_value().
-		$rendered_value = $value;
-
-		// Build the field row as a table with icon + content.
 		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #e0e0e0; padding: 0; margin: 0;">';
 		$html .= '<tr>';
-
-		// Icon cell.
 		$html .= '<td width="32" valign="top" style="padding: 20px 12px 20px 0; width: 32px; vertical-align: top;">';
 		$html .= sprintf(
 			'<img src="%s" width="20" height="20" alt="" style="display: block; width: 20px; height: 20px;" />',
 			esc_url( $icon_url )
 		);
 		$html .= '</td>';
-
-		// Content cell.
 		$html .= '<td valign="top" style="padding: 20px 0;">';
 		if ( ! empty( $safe_label ) ) {
 			$html .= sprintf(
@@ -2126,10 +2079,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		$html .= sprintf(
 			'<div style="font-size: 14px; color: #1e1e1e; line-height: 1.5;">%s</div>',
-			$rendered_value
+			$value
 		);
 		$html .= '</td>';
-
 		$html .= '</tr>';
 		$html .= '</table>';
 
@@ -2912,8 +2864,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
-		// Build the actions with both Mark as spam and View in dashboard buttons.
-		// Use fully table-based layout for maximum email client compatibility - no display:inline-block.
 		$actions = '';
 		if ( $dashboard_url ) {
 			$actions = sprintf(
@@ -2934,20 +2884,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 
-		// Build respondent info for the new email template.
 		$respondent_info = array(
 			'name'   => $comment_author,
 			'email'  => $comment_author_email,
 			'avatar' => $response->get_author_avatar(),
 		);
 
-		// Get the form title for source metadata.
 		$form_title = $this->get_attribute( 'formTitle' );
 		if ( empty( $form_title ) && $this->current_post ) {
 			$form_title = self::get_post_property( $this->current_post, 'post_title' );
 		}
 
-		// Build metadata for the new email template.
 		$metadata = array(
 			'date'       => $time,
 			'source'     => $form_title,
@@ -3305,7 +3252,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @param string $powered_by_html The HTML for the powered by section in the email.
 		 */
-		// Use table-based layout for maximum email client compatibility.
 		$logo_url        = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/jetpack-logo@2x.png';
 		$powered_by_html = apply_filters(
 			'jetpack_forms_email_powered_by_html',
@@ -3329,11 +3275,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
-		// Generate respondent info HTML.
 		$respondent_html = self::generate_respondent_info_html( $respondent_info );
-
-		// Generate metadata HTML.
-		$metadata_html = self::generate_metadata_html( $metadata );
+		$metadata_html   = self::generate_metadata_html( $metadata );
 
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
@@ -3396,7 +3339,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			? '<img src="' . $avatar . '" alt="" width="48" height="48" style="border-radius: 24px;">'
 			: esc_html( $initials );
 
-		// Use table layout for maximum email client compatibility.
 		$html = '
 		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="respondent-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 16px;">
 			<tr>
@@ -3417,7 +3359,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</td>
 				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . self::LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . Feedback_Field::LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
 				</td>
 			</tr>
 		</table>';
@@ -3438,26 +3380,22 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$rows = array();
 
-		// Date row.
 		if ( ! empty( $metadata['date'] ) ) {
 			$rows[] = self::generate_metadata_row( __( 'Date', 'jetpack-forms' ), esc_html( $metadata['date'] ) );
 		}
 
-		// Source row.
 		if ( ! empty( $metadata['source'] ) ) {
 			$source_value = esc_html( $metadata['source'] );
 			if ( ! empty( $metadata['source_url'] ) ) {
-				$source_value = '<a href="' . esc_url( $metadata['source_url'] ) . '" style="color: ' . self::LINK_COLOR . '; text-decoration: underline;">' . $source_value . '</a>';
+				$source_value = '<a href="' . esc_url( $metadata['source_url'] ) . '" style="color: ' . Feedback_Field::LINK_COLOR . '; text-decoration: underline;">' . $source_value . '</a>';
 			}
 			$rows[] = self::generate_metadata_row( __( 'Source', 'jetpack-forms' ), $source_value );
 		}
 
-		// Device row.
 		if ( ! empty( $metadata['device'] ) ) {
 			$rows[] = self::generate_metadata_row( __( 'Device', 'jetpack-forms' ), esc_html( $metadata['device'] ) );
 		}
 
-		// IP Address row.
 		if ( ! empty( $metadata['ip'] ) ) {
 			$ip_value = '';
 			if ( ! empty( $metadata['ip_flag'] ) ) {
@@ -3471,7 +3409,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 
-		// Use table layout for maximum email client compatibility.
 		$html = '
 		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; margin-bottom: 24px;">
 			' . implode( '', $rows ) . '
