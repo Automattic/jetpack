@@ -91,7 +91,7 @@ export default function FormStatusNotice( {
 	const { removeBlocks } = useDispatch( 'core/block-editor' );
 
 	const handleUndo = useCallback(
-		async ( previousStatus: string ) => {
+		async ( previousStatus: string, previousDate?: string ) => {
 			if ( ! formRef ) {
 				return;
 			}
@@ -101,6 +101,7 @@ export default function FormStatusNotice( {
 				}
 				await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, {
 					status: previousStatus,
+					date: previousDate,
 				} );
 				await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, formRef );
 			} catch {
@@ -118,6 +119,8 @@ export default function FormStatusNotice( {
 			return;
 		}
 		const previousStatus = syncedForm?.status;
+		const previousDate = syncedForm?.date;
+
 		setIsPublishing( true );
 		try {
 			await editEntityRecord( 'postType', FORM_POST_TYPE, formRef, { status: 'publish' } );
@@ -128,7 +131,7 @@ export default function FormStatusNotice( {
 					? [
 							{
 								label: __( 'Undo', 'jetpack-forms' ),
-								onClick: () => handleUndo( previousStatus ),
+								onClick: () => handleUndo( previousStatus, previousDate ),
 							},
 					  ]
 					: [],
@@ -144,6 +147,7 @@ export default function FormStatusNotice( {
 	}, [
 		formRef,
 		syncedForm?.status,
+		syncedForm?.date,
 		editEntityRecord,
 		saveEditedEntityRecord,
 		createSuccessNotice,
