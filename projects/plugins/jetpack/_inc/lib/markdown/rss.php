@@ -44,7 +44,9 @@ function jetpack_markdown_rss_post_has_markdown_block( $post_content ) {
 		return false;
 	}
 
+	// @phan-suppress-next-line PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- We checked that the class exists above. @todo Remove when we drop WP <6.9.
 	$processor = new WP_Block_Processor( $post_content );
+	// @phan-suppress-next-line PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- We checked that the class exists above. @todo Remove when we drop WP <6.9.
 	return $processor->next_block( 'jetpack/markdown' );
 }
 
@@ -73,24 +75,30 @@ function jetpack_markdown_block_rss_output_source_markdown() {
 	}
 
 	// First pass: find Markdown blocks, extract sources, record byte offsets.
+	// @phan-suppress-next-line PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- We checked that the class exists above. @todo Remove when we drop WP <6.9.
 	$processor = new WP_Block_Processor( $post->post_content );
 	$sources   = array();
 	$regions   = array(); // Each entry: array( 'start' => int, 'end' => int ).
 	$index     = 0;
 
+	// @phan-suppress-next-line PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- We checked that the class exists above. @todo Remove when we drop WP <6.9.
 	while ( $processor->next_block( 'jetpack/markdown' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- We checked that the class exists above. @todo Remove when we drop WP <6.9.
 		$span        = $processor->get_span();
 		$block_start = $span->start;
-		$attrs       = $processor->allocate_and_return_parsed_attributes();
-		$source      = ( is_array( $attrs ) && isset( $attrs['source'] ) ) ? $attrs['source'] : '';
+		// @phan-suppress-next-line PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- We checked that the class exists above. @todo Remove when we drop WP <6.9.
+		$attrs  = $processor->allocate_and_return_parsed_attributes();
+		$source = ( is_array( $attrs ) && isset( $attrs['source'] ) ) ? $attrs['source'] : '';
 
 		$sources[ $index ] = $source;
 
 		// Advance past the full block (opener + innerHTML + closer).
+		// @phan-suppress-next-line PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- We checked that the class exists above. @todo Remove when we drop WP <6.9.
 		$processor->extract_full_block_and_advance();
 
 		// After extraction, get_span() returns the span of the closer token.
 		// Use start + length to find the byte offset right after the block.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- We checked that the class exists above. @todo Remove when we drop WP <6.9.
 		$next_span = $processor->get_span();
 		$block_end = $next_span ? $next_span->start + $next_span->length : strlen( $post->post_content );
 
