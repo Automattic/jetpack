@@ -1,3 +1,4 @@
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { Button, Modal, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
@@ -88,7 +89,7 @@ export default function FormStatusNotice( {
 	const { editEntityRecord, saveEditedEntityRecord, deleteEntityRecord } = useDispatch( coreStore );
 	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
 
-	const { removeBlocks } = useDispatch( 'core/block-editor' );
+	const { removeBlocks } = useDispatch( blockEditorStore );
 
 	const handleUndo = useCallback(
 		async ( previousStatus: string, previousDate?: string ) => {
