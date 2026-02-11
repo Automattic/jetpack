@@ -3410,7 +3410,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$html = '
-		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; margin-bottom: 24px;">
+		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid #e0e0e0;">
 			' . implode( '', $rows ) . '
 		</table>';
 
