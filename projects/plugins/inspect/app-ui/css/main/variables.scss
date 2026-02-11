@@ -22,7 +22,7 @@
 	--gray_80: #2c3338;
 	--gray_90: #1d2327;
 	--gray_100: #101517;
-	--gray: #{$gray_50};
+	--gray: var(--gray_50);
 
 	--jetpack_green_0: #f0f2eb;
 	--jetpack_green_5: #d0e6b8;
@@ -39,5 +39,5 @@
 
 	--red_50: #d63638;
 	--orange_20: #faa754;
-	--jetpack_green: #{$jetpack_green_50};
+	--jetpack_green: var(--jetpack_green_50);
 }
