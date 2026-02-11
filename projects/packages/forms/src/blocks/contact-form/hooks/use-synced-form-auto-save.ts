@@ -9,17 +9,11 @@ import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedFormBlock, serializeSyncedForm } from '../util/form-sync.ts';
 
 interface UseSyncedFormAutoSaveParams {
-	/** The synced form post ID */
 	ref?: number;
-	/** The synced form record from the entity store */
 	syncedForm: { content?: { raw?: string } } | null;
-	/** Current form block attributes */
 	attributes: Record< string, unknown >;
-	/** Current form inner blocks */
 	currentInnerBlocks: unknown[];
-	/** Ref indicating if form is currently being synced from source */
 	isSyncingRef: React.MutableRefObject< boolean >;
-	/** Function to stage edits in the entity store */
 	editEntityRecord: (
 		kind: string,
 		name: string,
@@ -129,6 +123,9 @@ export function useSyncedFormAutoSave( {
 	}
 
 	useEffect( () => {
+		if ( ! ref ) {
+			return;
+		}
 		// Only capture baseline after sync completes to ensure it reflects synced content
 		const baseline = captureBaseline(
 			ref,
@@ -140,7 +137,7 @@ export function useSyncedFormAutoSave( {
 		);
 
 		// Not ready or no changes - don't stage
-		if ( ! baseline || ! ref ) {
+		if ( ! baseline ) {
 			return;
 		}
 
@@ -167,6 +164,9 @@ export function useSyncedFormAutoSave( {
 	}, [ currentInnerBlocks, ref, syncedForm, editEntityRecord, attributes, isSyncingRef ] );
 
 	const flushPendingSave = useCallback( () => {
+		if ( ! ref ) {
+			return;
+		}
 		const baseline = captureBaseline(
 			ref,
 			syncedForm,
