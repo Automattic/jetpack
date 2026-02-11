@@ -1,14 +1,14 @@
-const fs = require( 'fs' );
-const { getInput } = require( '@actions/core' );
-const { glob } = require( 'glob' );
-const { debug } = require( './debug' );
+import fs from 'fs';
+import { getInput } from '@actions/core';
+import { glob } from 'glob';
+import { debug } from './debug.js';
 
 /**
  * Parses multiple Playwright JSON reports and returns details about the failed tests.
  *
  * @return {object} an array of Slack blocks with test failure details.
  */
-function getPlaywrightBlocks() {
+export function getPlaywrightBlocks() {
 	const blocks = [];
 	const { reports, parseError } = getPlaywrightReports();
 	const failedTests = [];
@@ -150,7 +150,7 @@ function getPlaywrightReportsPaths() {
  * @param {string} attachmentPath - the original path to the attachment, as defined in the Playwright report
  * @return {string} the final path to the attachment
  */
-function getAttachmentPath( outputPath, attachmentPath ) {
+export function getAttachmentPath( outputPath, attachmentPath ) {
 	const resultsPath = getInput( 'playwright_output_dir' );
 
 	if ( resultsPath ) {
@@ -188,5 +188,3 @@ function flattenSuites( suites ) {
 		return all;
 	}, [] );
 }
-
-module.exports = { getPlaywrightBlocks, getAttachmentPath };

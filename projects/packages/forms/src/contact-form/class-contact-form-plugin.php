@@ -951,20 +951,25 @@ class Contact_Form_Plugin {
 		}
 
 		while ( $processor->next_tag() ) {
-			$id = $processor->get_attribute( 'data-id-attr' );
-			if ( 'previous-step' === $id ) {
+			// Check for button type - support both legacy (data-id-attr) and new (class-based) identification.
+			$id              = $processor->get_attribute( 'data-id-attr' );
+			$is_previous_btn = 'previous-step' === $id || $processor->has_class( 'form-button-previous' );
+			$is_next_btn     = 'next-step' === $id || $processor->has_class( 'form-button-next' );
+			$is_submit_btn   = 'submit-step' === $id || $processor->has_class( 'form-button-submit' );
+
+			if ( $is_previous_btn ) {
 				$processor->remove_attribute( 'id' );
 				$processor->add_class( 'disable-spinner is-previous is-hidden' );
 				$processor->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isFirstStep' );
 			}
-			if ( 'next-step' === $id ) {
+			if ( $is_next_btn ) {
 				$processor->remove_attribute( 'id' );
 				$processor->add_class( 'disable-spinner is-next' );
 				$processor->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isLastStep' );
 			}
-			if ( 'submit-step' === $id ) {
+			if ( $is_submit_btn ) {
 				$processor->remove_attribute( 'id' );
 				$processor->add_class( 'is-submit is-hidden' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );

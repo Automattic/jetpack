@@ -491,4 +491,186 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		$result = $this->handler->disable_wpcom_invite_for_protected_owner( false );
 		$this->assertFalse( $result );
 	}
+
+	/**
+	 * Test get_protected_owner_status returns no_match when APD class doesn't exist.
+	 */
+	public function test_get_protected_owner_status_no_apd_class() {
+		// Skip if APD class exists (we can't test the "no class" scenario)
+		if ( class_exists( \Atomic_Persistent_Data::class ) ) {
+			$this->markTestSkipped( 'Test requires Atomic_Persistent_Data class to NOT exist.' );
+		}
+
+		$user_id = $this->factory()->user->create( array( 'user_email' => 'test@example.com' ) );
+
+		// Use reflection to access private method
+		$reflection = new ReflectionClass( $this->handler );
+		$method     = $reflection->getMethod( 'get_protected_owner_status' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( $this->handler, $user_id );
+
+		$this->assertEquals( 'no_match', $result['match_type'] );
+		$this->assertNull( $result['owner_email'] );
+	}
+
+	/**
+	 * Test get_protected_owner_status returns no_match for non-existent user.
+	 */
+	public function test_get_protected_owner_status_nonexistent_user() {
+		// Use reflection to access private method
+		$reflection = new ReflectionClass( $this->handler );
+		$method     = $reflection->getMethod( 'get_protected_owner_status' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		// Use a user ID that doesn't exist
+		$result = $method->invoke( $this->handler, 999999 );
+
+		$this->assertEquals( 'no_match', $result['match_type'] );
+	}
+
+	/**
+	 * Test user_has_owner_token returns false when Jetpack_Options class doesn't exist.
+	 */
+	public function test_user_has_owner_token_no_jetpack_options() {
+		// Skip if Jetpack_Options exists (most test environments have it)
+		if ( class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Test requires Jetpack_Options class to NOT exist.' );
+		}
+
+		$user_id = $this->factory()->user->create();
+
+		// Use reflection to access private method
+		$reflection = new ReflectionClass( $this->handler );
+		$method     = $reflection->getMethod( 'user_has_owner_token' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( $this->handler, $user_id, 'some.secret' );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test user_has_owner_token returns false when user has no token.
+	 */
+	public function test_user_has_owner_token_no_token() {
+		// Skip if Jetpack_Options doesn't exist
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Test requires Jetpack_Options class.' );
+		}
+
+		$user_id = $this->factory()->user->create();
+
+		// Ensure no tokens are set for this user
+		$private_options                = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
+		$private_options['user_tokens'] = array();
+		\Jetpack_Options::update_raw_option( 'jetpack_private_options', $private_options, false );
+
+		// Use reflection to access private method
+		$reflection = new ReflectionClass( $this->handler );
+		$method     = $reflection->getMethod( 'user_has_owner_token' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( $this->handler, $user_id, 'some.secret' );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test user_has_owner_token returns true when token matches.
+	 */
+	public function test_user_has_owner_token_matching_token() {
+		// Skip if Jetpack_Options doesn't exist
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Test requires Jetpack_Options class.' );
+		}
+
+		$user_id      = $this->factory()->user->create();
+		$owner_secret = 'token_key.secret_value';
+		$user_token   = $owner_secret . '.' . $user_id; // token_key.secret_value.user_id
+
+		// Set the user token
+		$private_options                            = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
+		$private_options['user_tokens']             = array();
+		$private_options['user_tokens'][ $user_id ] = $user_token;
+		\Jetpack_Options::update_raw_option( 'jetpack_private_options', $private_options, false );
+
+		// Use reflection to access private method
+		$reflection = new ReflectionClass( $this->handler );
+		$method     = $reflection->getMethod( 'user_has_owner_token' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( $this->handler, $user_id, $owner_secret );
+
+		$this->assertTrue( $result );
+
+		// Clean up
+		$private_options['user_tokens'] = array();
+		\Jetpack_Options::update_raw_option( 'jetpack_private_options', $private_options, false );
+	}
+
+	/**
+	 * Test user_has_owner_token returns false when token doesn't match.
+	 */
+	public function test_user_has_owner_token_non_matching_token() {
+		// Skip if Jetpack_Options doesn't exist
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Test requires Jetpack_Options class.' );
+		}
+
+		$user_id      = $this->factory()->user->create();
+		$owner_secret = 'token_key.secret_value';
+		$user_token   = 'different_key.different_secret.' . $user_id;
+
+		// Set a different user token
+		$private_options                            = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
+		$private_options['user_tokens']             = array();
+		$private_options['user_tokens'][ $user_id ] = $user_token;
+		\Jetpack_Options::update_raw_option( 'jetpack_private_options', $private_options, false );
+
+		// Use reflection to access private method
+		$reflection = new ReflectionClass( $this->handler );
+		$method     = $reflection->getMethod( 'user_has_owner_token' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( $this->handler, $user_id, $owner_secret );
+
+		$this->assertFalse( $result );
+
+		// Clean up
+		$private_options['user_tokens'] = array();
+		\Jetpack_Options::update_raw_option( 'jetpack_private_options', $private_options, false );
+	}
+
+	/**
+	 * Test add_owner_email_warning outputs nothing when user is not protected owner.
+	 */
+	public function test_add_owner_email_warning_not_protected_owner() {
+		// Create a regular user
+		$user_id         = $this->factory()->user->create( array( 'user_email' => 'regular@example.com' ) );
+		$_GET['user_id'] = $user_id;
+
+		// Capture output
+		ob_start();
+		$this->handler->add_owner_email_warning();
+		$output = ob_get_clean();
+
+		// Should be empty since user is not the protected owner
+		$this->assertEmpty( $output );
+
+		// Clean up
+		unset( $_GET['user_id'] );
+	}
 }

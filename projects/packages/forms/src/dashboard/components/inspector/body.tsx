@@ -181,11 +181,7 @@ const ResponseViewBody = ( {
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<ResponseMeta response={ response } />
 
-				<ResponseFieldsIterator
-					fields={ response.fields }
-					onFilePreview={ handleFilePreview }
-					className="jp-forms__inbox-response-data"
-				/>
+				<ResponseFieldsIterator fields={ response.fields } onFilePreview={ handleFilePreview } />
 				{ isPreviewModalOpen && previewFile && onModalStateChange && (
 					<Modal
 						title={ decodeEntities( previewFile.name ) }

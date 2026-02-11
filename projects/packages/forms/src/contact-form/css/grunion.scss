@@ -52,8 +52,14 @@
 	display: block;
 }
 
+// jetpack/button: is-hidden class is on inner button element
 .contact-form .wp-block-button:has(button.is-hidden),
 .contact-form .wp-block-jetpack-button:has(button.is-hidden) {
+	display: none;
+}
+
+// core/button: is-hidden class is on wrapper element
+.contact-form .wp-block-button.is-hidden {
 	display: none;
 }
 
@@ -288,6 +294,39 @@ that needs to mimic the input element styles */
 		border-top: 1px solid currentColor;
 		border-top-color: color-mix(in sRGB, currentColor 20%, transparent);
 	}
+
+	// Align field values with the label text, past the icon.
+	> .field-value,
+	> .field-url,
+	> .field-rating,
+	> .field-images,
+	> .field-files {
+		margin-inline-start: 28px; // icon width (20px) + gap (8px)
+	}
+}
+
+.contact-form-submission .field-name-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.contact-form-submission .field-type-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	color: inherit;
+	opacity: 0.6;
+
+	svg {
+		width: 100%;
+		height: 100%;
+		fill: currentColor;
+	}
 }
 
 .contact-form-submission .field-name {
@@ -295,7 +334,6 @@ that needs to mimic the input element styles */
 	font-weight: 400;
 	color: inherit;
 	opacity: 0.6;
-	margin-bottom: 8px;
 }
 
 .contact-form-submission .field-images {
@@ -1501,8 +1539,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: block;
 }
 
-.contact-form.is-ajax-form.submission-success {
-	display: none;
+.contact-form.submission-success {
+	display: none; // hide the form when the submission is successful, and show the success message instead
 }
 
 .contact-form-ajax-submission:not(.submission-success) {
