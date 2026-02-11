@@ -16,11 +16,18 @@ class Feedback_Field {
 	use Country_Code_Utils;
 
 	/**
-	 * The color of the links in the email.
+	 * The color of the respondent email link in the email header.
 	 *
 	 * @var string
 	 */
-	public const LINK_COLOR = '#1e1e1e';
+	public const HEADER_LINK_COLOR = '#1e1e1e';
+
+	/**
+	 * Cached admin theme color.
+	 *
+	 * @var string|null
+	 */
+	private static $admin_theme_color = null;
 
 	/**
 	 * The key of the field.
@@ -529,7 +536,7 @@ class Feedback_Field {
 			'<a href="tel:%1$s" style="color: %3$s; text-decoration: underline;">%2$s</a>',
 			esc_attr( $raw_phone ),
 			$display_value,
-			self::LINK_COLOR
+			self::get_admin_theme_color()
 		);
 	}
 
@@ -554,7 +561,7 @@ class Feedback_Field {
 			'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
 			esc_url( $url ),
 			esc_html( $this->value ),
-			self::LINK_COLOR
+			self::get_admin_theme_color()
 		);
 	}
 
@@ -628,7 +635,7 @@ class Feedback_Field {
 					'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
 					esc_url( $file_url ),
 					$html,
-					self::LINK_COLOR
+					self::get_admin_theme_color()
 				);
 			}
 
@@ -807,6 +814,45 @@ class Feedback_Field {
 			'hidden'            => 'field-hidden',
 		);
 		return $map[ $type ] ?? 'field-text';
+	}
+
+	/**
+	 * Get the WordPress admin theme color for use in email links.
+	 *
+	 * Resolves the site admin's admin_color preference to the matching
+	 * --wp-admin-theme-color hex value so email links visually match
+	 * the Forms dashboard.
+	 *
+	 * @return string Hex color string.
+	 */
+	public static function get_admin_theme_color() {
+		if ( self::$admin_theme_color !== null ) {
+			return self::$admin_theme_color;
+		}
+
+		$color_scheme = 'fresh';
+		$admin_user   = get_user_by( 'email', get_option( 'admin_email' ) );
+		if ( $admin_user ) {
+			$saved = get_user_option( 'admin_color', $admin_user->ID );
+			if ( $saved ) {
+				$color_scheme = $saved;
+			}
+		}
+
+		$map = array(
+			'fresh'     => '#2271b1',
+			'light'     => '#0085ba',
+			'blue'      => '#096484',
+			'coffee'    => '#c7a589',
+			'ectoplasm' => '#a3b745',
+			'midnight'  => '#e14d43',
+			'ocean'     => '#9ebaa0',
+			'sunrise'   => '#dd823b',
+			'modern'    => '#3858e9',
+		);
+
+		self::$admin_theme_color = $map[ $color_scheme ] ?? '#2271b1';
+		return self::$admin_theme_color;
 	}
 
 	/**

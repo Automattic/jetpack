@@ -3359,7 +3359,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				</td>
 				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . Feedback_Field::LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . Feedback_Field::HEADER_LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
 				</td>
 			</tr>
 		</table>';
@@ -3387,7 +3387,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( ! empty( $metadata['source'] ) ) {
 			$source_value = esc_html( $metadata['source'] );
 			if ( ! empty( $metadata['source_url'] ) ) {
-				$source_value = '<a href="' . esc_url( $metadata['source_url'] ) . '" style="color: ' . Feedback_Field::LINK_COLOR . '; text-decoration: underline;">' . $source_value . '</a>';
+				$source_value = '<a href="' . esc_url( $metadata['source_url'] ) . '" style="color: ' . Feedback_Field::get_admin_theme_color() . '; text-decoration: underline;">' . $source_value . '</a>';
 			}
 			$rows[] = self::generate_metadata_row( __( 'Source', 'jetpack-forms' ), $source_value );
 		}
