@@ -1,4 +1,5 @@
-const { mockContextExtras, setInputData } = require( './test-utils' );
+import { jest } from '@jest/globals';
+import { mockContextExtras, mockGitHubContext, setInputData } from './test-utils.js';
 
 describe( 'Message content', () => {
 	const repository = 'foo/bar';
@@ -28,12 +29,10 @@ describe( 'Message content', () => {
 	`(
 		`Message text is correct for $eventName and workflow failed=$isFailure and suiteName=$suiteName`,
 		async ( { eventName, isFailure, suiteName, expected } ) => {
-			const { mockGitHubContext } = require( './test-utils' );
-
 			setInputData( { suiteName } );
 
 			// Mock GitHub context
-			mockGitHubContext( {
+			await mockGitHubContext( {
 				payload: {
 					head_commit: { id: '123', message: 'Some commit message' },
 					pull_request: { number: prNumber },
@@ -45,7 +44,7 @@ describe( 'Message content', () => {
 			} );
 			mockContextExtras( { repository, refType, refName } );
 
-			const { createMessage } = require( '../src/message' );
+			const { createMessage } = await import( '../src/message.js' );
 			const { text, mainMsgBlocks } = await createMessage( isFailure );
 
 			expect( text ).toBe( expected.text );
@@ -60,17 +59,15 @@ describe( 'Message content', () => {
 	`(
 		`First main message context line is correct for push`,
 		async ( { commitId, commitMsg, expected } ) => {
-			const { mockGitHubContext } = require( './test-utils' );
-
 			// Mock GitHub context
-			mockGitHubContext( {
+			await mockGitHubContext( {
 				payload: {
 					head_commit: { id: commitId, message: commitMsg },
 				},
 				eventName: 'push',
 			} );
 
-			const { createMessage } = require( '../src/message' );
+			const { createMessage } = await import( '../src/message.js' );
 			const { mainMsgBlocks } = await createMessage( true );
 
 			expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( expected.text );
@@ -79,10 +76,9 @@ describe( 'Message content', () => {
 
 	test( `First main message context line is correct for pull_request`, async () => {
 		const title = 'Pull request title';
-		const { mockGitHubContext } = require( './test-utils' );
 
 		// Mock GitHub context
-		mockGitHubContext( {
+		await mockGitHubContext( {
 			payload: {
 				head_commit: { message: 'Some commit message' },
 				pull_request: { title },
@@ -90,17 +86,15 @@ describe( 'Message content', () => {
 			eventName: 'pull_request',
 		} );
 
-		const { createMessage } = require( '../src/message' );
+		const { createMessage } = await import( '../src/message.js' );
 		const { mainMsgBlocks } = await createMessage( true );
 
 		expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( `Title: ${ title }` );
 	} );
 
 	test( `First main message context line is correct for schedule`, async () => {
-		const { mockGitHubContext } = require( './test-utils' );
-
 		// Mock GitHub context
-		mockGitHubContext( {
+		await mockGitHubContext( {
 			payload: {
 				head_commit: { message: 'Some commit message' },
 			},
@@ -108,7 +102,7 @@ describe( 'Message content', () => {
 			sha: '5dc6ab9d13d9b79317b719a32a60cc682cd6930d',
 		} );
 
-		const { createMessage } = require( '../src/message' );
+		const { createMessage } = await import( '../src/message.js' );
 		const { mainMsgBlocks } = await createMessage( true );
 
 		expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( `Last commit: 5dc6ab9d` );
@@ -123,10 +117,8 @@ describe( 'Message content', () => {
 		${ 'repository_dispatch' }
 		${ 'unsupported' }
 	`( 'There are no empty blocks elements lists for $eventName event', async ( { eventName } ) => {
-		const { mockGitHubContext } = require( './test-utils' );
-
 		// Mock GitHub context
-		mockGitHubContext( {
+		await mockGitHubContext( {
 			payload: {
 				head_commit: { id: '123', message: 'Some commit message' },
 				pull_request: { number: prNumber },
@@ -138,7 +130,7 @@ describe( 'Message content', () => {
 		} );
 		mockContextExtras( { repository, refType, refName } );
 
-		const { createMessage } = require( '../src/message' );
+		const { createMessage } = await import( '../src/message.js' );
 		const { mainMsgBlocks } = await createMessage( true );
 
 		expect( mainMsgBlocks[ 1 ].type ).toBe( 'context' );
@@ -155,10 +147,8 @@ describe( 'Message content', () => {
 	`(
 		`Repository dispatch blocks for #description`,
 		async ( { clientPayload, expectedContextLength, expectedButtonsLength } ) => {
-			const { mockGitHubContext } = require( './test-utils' );
-
 			// Mock GitHub context
-			mockGitHubContext( {
+			await mockGitHubContext( {
 				payload: {
 					action: 'some action',
 					client_payload: clientPayload,
@@ -166,7 +156,7 @@ describe( 'Message content', () => {
 				eventName: 'repository_dispatch',
 			} );
 
-			const { createMessage } = require( '../src/message' );
+			const { createMessage } = await import( '../src/message.js' );
 			const { mainMsgBlocks } = await createMessage( true );
 
 			expect( mainMsgBlocks[ 1 ].elements ).toHaveLength( expectedContextLength );
@@ -183,27 +173,29 @@ describe( 'Send message', () => {
 		${ 'Should create main message and send reply on failure' }    | ${ false }        | ${ true }  | ${ [ { update: false }, { update: false } ] }
 		${ 'Should not send anything on success and no main message' } | ${ false }        | ${ false } | ${ [] }
 	`( `$description`, async ( { isFailure, mainMessageExists, expectedCalls } ) => {
-		const slack = require( '../src/slack' );
+		// Mock Slack message existence
+		const slack = { ...( await import( '../src/slack.js' ) ) };
 		const spy = jest
 			.spyOn( slack, 'postOrUpdateMessage' )
 			.mockImplementation()
 			.mockReturnValue( { ts: '123' } );
-
-		// Mock message existence
 		jest.spyOn( slack, 'getMessage' ).mockReturnValue( mainMessageExists );
+		jest.unstable_mockModule( '../src/slack.js', () => slack );
 
 		// Mock the run conclusion
-		const github = require( '../src/github' );
+		const github = { ...( await import( '../src/github.js' ) ) };
 		jest.spyOn( github, 'isWorkflowFailed' ).mockReturnValue( isFailure );
+		jest.unstable_mockModule( '../src/github.js', () => github );
 
 		// Mock message content
-		const message = require( '../src/message' );
+		const message = { ...( await import( '../src/message.js' ) ) };
 		jest.spyOn( message, 'createMessage' ).mockReturnValue( {
 			text: 'message text',
 			id: 'msg-id',
 			mainMsgBlocks: [],
 			detailsMsgBlocksChunks: [],
 		} );
+		jest.unstable_mockModule( '../src/message.js', () => message );
 
 		await message.sendMessage( '', '', '', '' );
 

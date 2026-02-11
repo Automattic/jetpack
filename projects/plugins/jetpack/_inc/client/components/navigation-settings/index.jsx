@@ -210,7 +210,7 @@ export class NavigationSettings extends Component {
 							{ _x( 'Newsletter', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
-					{ this.props.hasAnyOfTheseModules( [ 'reader' ] ) && ! this.props.isWoASite && (
+					{ this.props.hasAnyOfTheseModules( [ 'wpcom-reader' ] ) && ! this.props.isWoASite && (
 						<NavItem
 							path="#reader"
 							onClick={ this.handleClickForTracking( 'reader' ) }

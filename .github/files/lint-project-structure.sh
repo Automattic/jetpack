@@ -473,6 +473,16 @@ for PROJECT in projects/*/*; do
 		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/wordbless"] or .[0] == ["require-dev","automattic/wordbless"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
 	fi
 
+	# - Must use yoast/phpunit-polyfills with automattic/phpunit-select-config.
+	if jq -e '.require["automattic/phpunit-select-config"] // .["require-dev"]["automattic/phpunit-select-config"]' "$PROJECT/composer.json" >/dev/null &&
+		! jq -e '.require["yoast/phpunit-polyfills"] // .["require-dev"]["yoast/phpunit-polyfills"]' "$PROJECT/composer.json" >/dev/null
+	then
+		while IFS=$'\t' read -r LINE; do
+			EXIT=1
+			echo "::error file=$PROJECT/composer.json,line=${LINE}::We require \`yoast/phpunit-polyfills\` to get the correct version of PHPUnit. Please add it, or remove other PHPUnit-related packages if you're not using PHPUnit for testing."
+		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/phpunit-select-config"] or .[0] == ["require-dev","automattic/phpunit-select-config"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
+	fi
+
 	# - Plugins shouldn't have redundant wp-plugin-slug and beta-plugin-slug.
 	if [[ "$TYPE" == "plugins" ]] && jq -e '.extra["wp-plugin-slug"] and .extra["beta-plugin-slug"] and .extra["wp-plugin-slug"] == .extra["beta-plugin-slug"]' "$PROJECT/composer.json" > /dev/null; then
 		EXIT=1

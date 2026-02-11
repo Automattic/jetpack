@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-partner-coupon",
-	"version": "1.0.34",
+	"version": "1.0.35",
 	"private": true,
 	"description": "This package aims to add components to make it easier to redeem partner coupons",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/partner-coupon/#readme",

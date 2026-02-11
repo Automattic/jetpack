@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Refresh plan features on post-checkout redirect.
