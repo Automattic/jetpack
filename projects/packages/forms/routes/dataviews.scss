@@ -1,5 +1,0 @@
-@use "sass:meta";
-
-// DataViews styles are not included if Gutenberg is not installed,
-// so we must load them on any route that uses DataViews.
-@include meta.load-css("@wordpress/dataviews/build-style/style.css");
