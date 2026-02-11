@@ -75,7 +75,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<source:markdown><![CDATA[', $output );
-		$this->assertStringContainsString( '<p>Regular post.</p>', $output );
+		$this->assertMatchesRegularExpression( '/<p[^>]*>Regular post\.<\/p>/', $output );
 		$this->assertStringNotContainsString( '<!-- wp:paragraph -->', $output );
 
 		wp_reset_postdata();
@@ -101,7 +101,7 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<source:markdown><![CDATA[', $output );
-		$this->assertStringContainsString( '<p>Some HTML.</p>', $output );
+		$this->assertMatchesRegularExpression( '/<p[^>]*>Some HTML\.<\/p>/', $output );
 		$this->assertStringNotContainsString( '<!-- wp:paragraph -->', $output );
 
 		wp_reset_postdata();
@@ -322,12 +322,13 @@ class Markdown_RSS_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( $md1, $cdata );
 		$this->assertStringContainsString( $md2, $cdata );
 
-		// Rendered HTML should appear for the paragraph.
-		$this->assertStringContainsString( '<p>A regular paragraph.</p>', $cdata );
+		// Rendered HTML should appear for the paragraph (block renderer may add class attributes to <p>).
+		$this->assertMatchesRegularExpression( '/<p[^>]*>A regular paragraph\.<\/p>/', $cdata );
 
 		// Verify order: md1 before paragraph before md2.
-		$pos_md1  = strpos( $cdata, $md1 );
-		$pos_para = strpos( $cdata, '<p>A regular paragraph.</p>' );
+		$pos_md1 = strpos( $cdata, $md1 );
+		preg_match( '/<p[^>]*>A regular paragraph\.<\/p>/', $cdata, $para_match, PREG_OFFSET_CAPTURE );
+		$pos_para = $para_match[0][1];
 		$pos_md2  = strpos( $cdata, $md2 );
 		$this->assertLessThan( $pos_para, $pos_md1, 'First markdown should appear before the paragraph.' );
 		$this->assertLessThan( $pos_md2, $pos_para, 'Paragraph should appear before the second markdown.' );
