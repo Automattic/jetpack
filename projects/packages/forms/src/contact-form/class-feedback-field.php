@@ -20,7 +20,7 @@ class Feedback_Field {
 	 *
 	 * @var string
 	 */
-	public const HEADER_LINK_COLOR = '#1e1e1e';
+	public const HEADER_LINK_COLOR = '#757575';
 
 	/**
 	 * Cached admin theme color.
@@ -490,7 +490,7 @@ class Feedback_Field {
 				continue;
 			}
 			$chips[] = sprintf(
-				'<div style="display: inline-block; padding: 4px 10px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 4px; font-size: 13px; line-height: 1.4; color: #1e1e1e;">%s</div>',
+				'<div style="display: inline-block; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: 13px; line-height: 1.4; color: #1e1e1e;">%s</div>',
 				$safe_item
 			);
 		}
@@ -512,7 +512,7 @@ class Feedback_Field {
 		$label  = $is_yes ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
 
 		return sprintf(
-			'<span style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; line-height: 1.4; background-color: #f0f0f0; color: #1e1e1e;">%s</span>',
+			'<span style="display: inline-block; padding: 0 8px; border-radius: 2px; font-size: 13px; line-height: 1.4; background-color: #f0f0f0; color: #1e1e1e;">%s</span>',
 			esc_html( $label )
 		);
 	}

@@ -2062,9 +2062,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$icon_name  = Feedback_Field::get_icon_name_for_type( $type );
 		$icon_url   = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/' . $icon_name . '@2x.png';
 
-		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #e0e0e0; padding: 0; margin: 0;">';
+		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #F0F0F0; padding: 0; margin: 0;">';
 		$html .= '<tr>';
-		$html .= '<td width="32" valign="top" style="padding: 20px 12px 20px 0; width: 32px; vertical-align: top;">';
+		$html .= '<td width="36" valign="top" style="padding: 20px 16px 20px 0; width: 36px; vertical-align: top;">';
 		$html .= sprintf(
 			'<img src="%s" width="20" height="20" alt="" style="display: block; width: 20px; height: 20px;" />',
 			esc_url( $icon_url )
@@ -2078,7 +2078,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 		$html .= sprintf(
-			'<div style="font-size: 14px; color: #1e1e1e; line-height: 1.5;">%s</div>',
+			'<div style="font-size: 13px; color: #1e1e1e; line-height: 1.5;">%s</div>',
 			$value
 		);
 		$html .= '</td>';
@@ -3358,7 +3358,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					<![endif]-->
 				</td>
 				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
+					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 500; color: #1e1e1e; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
 					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . Feedback_Field::HEADER_LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
 				</td>
 			</tr>
@@ -3410,7 +3410,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$html = '
-		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid #e0e0e0;">
+		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid #E4E4E7;">
 			' . implode( '', $rows ) . '
 		</table>';
 
@@ -3427,7 +3427,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static function generate_metadata_row( $label, $value ) {
 		return '
 			<tr>
-				<td class="metadata-label" style="color: #50575e; width: 100px; padding: 4px 12px 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . esc_html( $label ) . ':</td>
+				<td class="metadata-label" style="color: #636363; width: 110px; padding: 4px 12px 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . esc_html( $label ) . ':</td>
 				<td class="metadata-value" style="color: #1e1e1e; padding: 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . $value . '</td>
 			</tr>';
 	}

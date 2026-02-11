@@ -116,17 +116,17 @@ $style = '<style media="all" type="text/css">
 
 	.container {
 		margin: 0 auto !important;
-		max-width: 600px;
+		max-width: 830px;
 		padding: 0;
 		padding-top: 24px;
-		width: 600px;
+		width: 830px;
 	}
 
 	.content {
 		box-sizing: border-box;
 		display: block;
 		margin: 0 auto;
-		max-width: 600px;
+		max-width: 830px;
 		padding: 0;
 	}
 
@@ -138,7 +138,7 @@ $style = '<style media="all" type="text/css">
 
 	.wrapper {
 		box-sizing: border-box;
-		padding: 32px;
+		padding: 40px 48px;
 	}
 
 	.content-block {
@@ -174,7 +174,7 @@ $style = '<style media="all" type="text/css">
 		align-items: center;
 		margin-bottom: 24px;
 		padding-bottom: 20px;
-		border-bottom: 1px solid #e0e0e0;
+		border-bottom: 1px solid #E4E4E7;
 	}
 
 	.respondent-avatar {
@@ -204,20 +204,21 @@ $style = '<style media="all" type="text/css">
 
 	.respondent-name {
 		font-size: 16px;
-		font-weight: 600;
+		font-weight: 500;
 		color: #1e1e1e;
 		margin: 0 0 2px 0;
 	}
 
 	.respondent-email {
 		font-size: 14px;
+		color: #757575;
 		margin: 0;
 		line-height: 1.4;
 	}
 
 	/* Metadata Section */
 	.metadata-section {
-		border-bottom: 1px solid #e0e0e0;
+		border-bottom: 1px solid #E4E4E7;
 		padding: 16px 0;
 		margin-bottom: 24px;
 	}
@@ -233,8 +234,8 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.metadata-label {
-		color: #50575e;
-		width: 100px;
+		color: #636363;
+		width: 110px;
 		padding-right: 12px;
 	}
 
@@ -254,7 +255,7 @@ $style = '<style media="all" type="text/css">
 
 	.form-field {
 		padding: 16px 0;
-		border-bottom: 1px solid #e0e0e0;
+		border-bottom: 1px solid #F0F0F0;
 	}
 
 	.form-field:last-child {
@@ -269,7 +270,7 @@ $style = '<style media="all" type="text/css">
 	.field-icon {
 		width: 20px;
 		height: 20px;
-		margin-right: 12px;
+		margin-right: 16px;
 		flex-shrink: 0;
 		margin-top: 2px;
 	}
@@ -287,13 +288,13 @@ $style = '<style media="all" type="text/css">
 
 	.field-label {
 		font-size: 12px;
-		color: #50575e;
+		color: #757575;
 		margin: 0 0 4px 0;
 		text-transform: none;
 	}
 
 	.field-value {
-		font-size: 14px;
+		font-size: 13px;
 		color: #1e1e1e;
 		margin: 0;
 		word-wrap: break-word;
@@ -315,8 +316,8 @@ $style = '<style media="all" type="text/css">
 	.field-tag {
 		display: inline-block;
 		background-color: #f0f0f0;
-		border-radius: 12px;
-		padding: 4px 12px;
+		border-radius: 2px;
+		padding: 0 8px;
 		font-size: 13px;
 		color: #1e1e1e;
 	}
@@ -383,8 +384,8 @@ $style = '<style media="all" type="text/css">
 		display: inline-block;
 		background-color: #d4edda;
 		color: #155724;
-		border-radius: 12px;
-		padding: 4px 12px;
+		border-radius: 2px;
+		padding: 0 8px;
 		font-size: 13px;
 	}
 
@@ -571,7 +572,7 @@ $style = '<style media="all" type="text/css">
 		}
 
 		.metadata-label {
-			width: 80px !important;
+			width: 90px !important;
 		}
 
 		.action-button {
