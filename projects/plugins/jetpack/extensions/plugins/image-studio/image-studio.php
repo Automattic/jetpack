@@ -138,8 +138,9 @@ function get_asset_data() {
 		return false;
 	}
 
-	$cache_duration = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? 0 : HOUR_IN_SECONDS;
-	set_transient( ASSET_TRANSIENT, $data, $cache_duration );
+	if ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
+		set_transient( ASSET_TRANSIENT, $data, HOUR_IN_SECONDS );
+	}
 	return $data;
 }
 
