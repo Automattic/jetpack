@@ -25,7 +25,7 @@ import CreateFormButton from '../../src/dashboard/components/create-form-button/
 import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { NON_TRASH_FORM_STATUSES } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
-import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
+import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
@@ -147,7 +147,7 @@ function StageInner() {
 	const [ isRenaming, setIsRenaming ] = useState( false );
 
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
+	const { invalidateResolution } = useDispatch( coreStore );
 
 	// Selection is local state. Clear it whenever the view changes (page/perPage/search/filters).
 	useEffect( () => {
@@ -197,10 +197,20 @@ function StageInner() {
 		const newTitle = renameTitle.trim() || __( 'Untitled Form', 'jetpack-forms' );
 
 		try {
-			await editEntityRecord( 'postType', 'jetpack_form', renameFormItem.id, {
-				title: newTitle,
+			await apiFetch( {
+				path: `/wp/v2/jetpack-forms/${ renameFormItem.id }`,
+				method: 'POST',
+				data: { title: newTitle },
 			} );
-			await saveEditedEntityRecord( 'postType', 'jetpack_form', renameFormItem.id );
+
+			// Invalidate the forms list cache to refresh the data
+			const query = getFormsListQuery(
+				view.page ?? 1,
+				view.perPage ?? 20,
+				view.search ?? '',
+				statusQuery
+			);
+			invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', query ] );
 
 			createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
 		} catch ( error ) {
@@ -217,8 +227,11 @@ function StageInner() {
 		renameFormItem,
 		renameTitle,
 		isRenaming,
-		editEntityRecord,
-		saveEditedEntityRecord,
+		view.page,
+		view.perPage,
+		view.search,
+		statusQuery,
+		invalidateResolution,
 		createSuccessNotice,
 		createErrorNotice,
 		closeRenameModal,
