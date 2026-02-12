@@ -315,6 +315,7 @@ class Dashboard {
 	 * @return string URL path (e.g. '/', '/responses/inbox', '/forms').
 	 */
 	private static function get_forms_admin_path_wp_build( $tab, $post_id ) {
+		$post_id      = ! empty( $post_id ) ? absint( $post_id ) : null;
 		$response_ids = ! empty( $post_id ) ? '?responseIds=["' . $post_id . '"]' : '';
 
 		$path_map = array(
@@ -342,6 +343,7 @@ class Dashboard {
 	 * @return string URL suffix (e.g. '#/responses?status=inbox' or '&r=123').
 	 */
 	private static function get_forms_admin_suffix_legacy( $tab, $post_id ) {
+		$post_id    = ! empty( $post_id ) ? absint( $post_id ) : null;
 		$valid_tabs = array( 'spam', 'inbox', 'trash' );
 		$r_param    = ! empty( $post_id ) ? '&r=' . $post_id : '';
 
@@ -396,8 +398,17 @@ class Dashboard {
 	 * @param string $screen_id Screen ID.
 	 * @return string Admin URL.
 	 */
-	public static function get_admin_url( $screen_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function get_admin_url( $screen_id ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Dashboard::get_forms_admin_url' );
+
+		if ( 'edit-jetpack_form' === $screen_id ) {
+			return self::get_forms_admin_url( 'forms' );
+		}
+
+		if ( 'edit-feedback' === $screen_id ) {
+			return self::get_forms_admin_url( 'inbox' );
+		}
+
 		return self::get_forms_admin_url();
 	}
 }
