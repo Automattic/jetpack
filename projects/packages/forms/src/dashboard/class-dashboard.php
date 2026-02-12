@@ -290,16 +290,22 @@ class Dashboard {
 		// Tab
 		if ( in_array( $tab, $valid_tabs, true ) ) {
 			if ( $is_wp_build_enabled ) {
-				$url = '&p=%2Fresponses%2F' . $tab;
+				$path = '/responses/' . $tab;
+				if ( ! empty( $post_id ) ) {
+					$path .= '?responseIds=["' . $post_id . '"]';
+				}
+				$url .= '&p=' . rawurlencode( $path );
 			} else {
 				$url .= '#/responses?status=' . $tab;
+				if ( ! empty( $post_id ) ) {
+					$url .= '&r=' . $post_id;
+				}
 			}
-		}
-
-		// Response ID
-		if ( ! empty( $post_id ) ) {
+		} elseif ( ! empty( $post_id ) ) {
+			// Post ID without tab: default to inbox for wp-build.
 			if ( $is_wp_build_enabled ) {
-				$url .= '?responseIds=["' . $post_id . '"]';
+				$path = '/responses/inbox?responseIds=["' . $post_id . '"]';
+				$url .= '&p=' . rawurlencode( $path );
 			} else {
 				$url .= '&r=' . $post_id;
 			}
