@@ -3850,7 +3850,7 @@ class Contact_Form_Plugin {
 			return;
 		}
 
-		$redirect = Dashboard::get_admin_url( $screen->id );
+		$redirect = Dashboard::get_forms_admin_url();
 		if ( $redirect ) {
 			wp_safe_redirect( $redirect );
 			exit;
