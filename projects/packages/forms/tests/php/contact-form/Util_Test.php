@@ -660,6 +660,13 @@ EOT
 	}
 
 	/**
+	 * Test maybe_add_colon_to_label handles null.
+	 */
+	public function test_maybe_add_colon_to_label_null() {
+		$this->assertSame( ':', Util::maybe_add_colon_to_label( null ) );
+	}
+
+	/**
 	 * Test that Util::init() sets up the expected hooks and filters.
 	 *
 	 * This test verifies that the Util::init() method properly registers
