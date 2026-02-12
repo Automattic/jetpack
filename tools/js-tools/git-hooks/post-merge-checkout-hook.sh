@@ -15,11 +15,22 @@ runOnChange() {
 	fi
 }
 
+changedSlugs=()
 for f in $(git -c core.quotepath=off ls-files '**/composer.lock'); do
-	slug="${f#projects/}"
-	slug="${slug%/composer.lock}"
-	runOnChange "$f" "$f has changed. Consider updating your working copy by running: jetpack install $slug"
+	if echo "$changedFiles" | grep -q "^$f$"; then
+		slug="${f#projects/}"
+		slug="${slug%/composer.lock}"
+		changedSlugs+=("$slug")
+	fi
 done
+if [[ ${#changedSlugs[@]} -gt 0 ]]; then
+	n=${#changedSlugs[@]}
+	label="project"
+	if [[ $n -gt 1 ]]; then label="projects"; fi
+	list=$(IFS=,; echo "${changedSlugs[*]}" | sed 's/,/, /g')
+	echo -e "${SEP}composer.lock changed in $n $label: $list\n\nTo update, run:\n  jetpack install ${changedSlugs[*]}"
+	SEP=
+fi
 runOnChange 'pnpm-lock.yaml\|composer.lock' "A monorepo root lock file has changed. Consider updating your working copy by running: jetpack install -r"
 
 exit 0
