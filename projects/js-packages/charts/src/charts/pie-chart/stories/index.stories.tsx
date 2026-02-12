@@ -35,7 +35,8 @@ const meta: Meta< StoryArgs > = {
 				step: 10,
 				default: 400,
 			},
-			description: 'Diameter of the pie chart in pixels',
+			description:
+				'Maximum diameter of the pie in pixels. The pie shrinks if the container is smaller. When omitted, fills available space.',
 			table: { category: 'Dimensions' },
 		},
 		thickness: {
@@ -134,6 +135,14 @@ export const WithSize: Story = {
 	args: {
 		...Default.args,
 		size: 200,
+	},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 300,
+		height: 300,
 	},
 };
 

@@ -364,15 +364,17 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	className?: string;
 	/**
-	 * Width of the chart in pixels
+	 * Width of the chart container in pixels. When omitted, the chart fills its parent's width.
 	 */
 	width?: number;
 	/**
-	 * Height of the chart in pixels
+	 * Height of the chart container in pixels. When omitted, the chart fills its parent's height.
 	 */
 	height?: number;
 	/**
-	 * Size of the chart in pixels for pie and donut charts
+	 * Maximum diameter of the pie in pixels (pie and donut charts only).
+	 * The pie will shrink if the container is smaller than this value.
+	 * When omitted, the pie fills the available space.
 	 */
 	size?: number;
 	/**
