@@ -75,9 +75,9 @@
 	.contact-form input[type="number"],
 	.contact-form input[type="time"],
 	.contact-form textarea,
-	/* For compound fields, input-wrap is the input element wrapper
-	that needs to mimic the input element styles. */
-	.contact-form .jetpack-field__input-element-wrap .jetpack-field__input-element
+	/** for compound fields, input-wrap is the input element wrapper
+	that needs to mimic the input element styles */
+	.contact-form .wp-block-jetpack-input-wrap .jetpack-field__input-phone-wrapper
 ) {
 	box-sizing: border-box;
 	width: 100%;
@@ -574,22 +574,18 @@
 	box-sizing: border-box;
 }
 
-.wp-block-jetpack-contact-form:not(.is-layout-flex) {
+.wp-block-jetpack-contact-form {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	flex-direction: row;
 	flex-grow: 1;
 	gap: var(--wp--style--block-gap, 1.5rem);
+}
 
-	> *:not(.wp-block-jetpack-button,.wp-block-button) {
-		flex: 0 0 100%;
-		box-sizing: border-box;
-	}
-
-	.wp-block-jetpack-button {
-		align-self: flex-end;
-	}
+.wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button,.wp-block-button) {
+	flex: 0 0 100%;
+	box-sizing: border-box;
 }
 
 :where(.wp-block-jetpack-contact-form .wp-block-separator) {
@@ -604,29 +600,20 @@
 }
 
 /* Added circa Nov 2022: container class assigned to topmost block div */
-.jetpack-contact-form-container.alignfull .wp-block-jetpack-contact-form {
-	padding-inline: 0;
+.wp-block-jetpack-contact-form-container.alignfull .wp-block-jetpack-contact-form {
+	padding-right: 0;
+	padding-left: 0;
 }
 
-.jetpack-contact-form-container.is-forced-horizontal-form,
-.jetpack-contact-form-container.is-single-input-form {
+.wp-block-jetpack-contact-form-container.is-single-input-form {
 
 	&:has(.contact-form__input-error.has-errors) {
 		margin-bottom: calc(var(--wp--style--block-gap, 1.5rem) * 2);
 
-		// buttons on single input form are printed AFTER the input error,
-		// so they need to be pushed down to avoid overlap
+		// buttons on single input form need to be pushed down to avoid overlap
 		// but only if they are not animated or outlined.
-		:is(.wp-block-button.wp-block-button, .wp-block-jetpack-button.wp-block-button) {
-			// height of input error + margins (.25 top + bottom)
-			// NOTE: double lined errors get the button unaligned.
-			margin-bottom: 2rem;
-
-			&:not(.is-style-animated *,.is-style-outlined *) {
-				// since field labels are rendered inside the field,
-				// we need to compensate with the button top margin.
-				margin-top: var(--wp--style--block-gap, 1.5rem);
-			}
+		:is(.wp-block-button.wp-block-button, .wp-block-jetpack-button.wp-block-button):not(.is-style-animated *):not(.is-style-outlined *) {
+			margin-top: var(--wp--style--block-gap, 1.5rem);
 		}
 	}
 }
@@ -634,11 +621,11 @@
 .wp-block-jetpack-contact-form .wp-block-button,
 .wp-block-jetpack-contact-form .wp-block-jetpack-button {
 	min-height: var(--jetpack--contact-form--input-height, auto);
+	align-self: flex-end;
 
 	.wp-block-button__link {
 		min-height: var(--jetpack--contact-form--input-height, auto);
-		padding-top: var(--jetpack--contact-form--input-padding-top);
-		padding-bottom: var(--jetpack--contact-form--input-padding-top);
+		padding: var(--jetpack--contact-form--button-primary--padding);
 	}
 }
 
@@ -665,7 +652,6 @@
 	box-sizing: border-box;
 	position: relative;
 	flex: 1 1 100%;
-	width: 100%;
 
 	:where(:not(.is-single-input-form) > .grunion-field-wrap) {
 		display: flex;
@@ -677,27 +663,23 @@
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
 	flex: 1 1 calc(25% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 25%;
-	width: calc(25% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-33-wrap {
 	flex: 1 1 calc(33.33% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 33.33%;
-	width: calc(33.33% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 }
 
 .wp-block-jetpack-contact-form .wp-block-button__width-50,
 .wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
 	flex: 1 1 calc(50% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 50%;
-	width: calc(50% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 }
 
 .wp-block-jetpack-contact-form .wp-block-button__width-75,
 .wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
 	flex: 1 1 calc(75% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 75%;
-	width: calc(75% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-auto-wrap {
@@ -871,22 +853,11 @@
 	--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 }
 
-.contact-form .is-style-outlined,
-.contact-form .is-style-animated {
-
-	.grunion-field-wrap:not(
-		.grunion-field-checkbox-wrap,
-		.grunion-field-consent-wrap,
-		.grunion-field-checkbox-multiple-wrap,
-		.grunion-field-radio-wrap,
-		.grunion-field-select-wrap,
-		.grunion-field-file-wrap,
-		.grunion-field-phone-wrap
-	) {
-		position: relative;
-		display: flex;
-		flex-direction: row-reverse;
-	}
+.contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap):not(.grunion-field-select-wrap):not(.grunion-field-file-wrap),
+.contact-form .is-style-animated .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap):not(.grunion-field-select-wrap):not(.grunion-field-file-wrap) {
+	position: relative;
+	display: flex;
+	flex-direction: row-reverse;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options,
@@ -1466,15 +1437,10 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__error.show-errors {
 	display: inline-block;
-	width: 100%;
-	box-sizing: border-box;
+	min-width: 100%;
+	box-sizing: inherit;
 	margin-block-end: 0.5em;
 	text-wrap: pretty;
-
-	.is-single-input-form &,
-	&.is-horizontal {
-		margin-top: var(--wp--style--block-gap, 1.5rem);
-	}
 }
 
 .contact-form__error ul {
@@ -1519,6 +1485,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	max-height: unset;
 	transform: translateY(0);
 	transition: opacity 200ms cubic-bezier(0.34, 0.8, 0.34, 1), transform 200ms cubic-bezier(0.34, 0.8, 0.34, 1);
+
+	.is-single-input-form & {
+		position: absolute;
+	}
+
 }
 
 .contact-form [aria-invalid="true"]:not(fieldset),
