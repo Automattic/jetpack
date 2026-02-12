@@ -100,15 +100,35 @@ describe( 'Reader', () => {
 		it( 'renders the section title', () => {
 			render( <Reader { ...defaultProps } />, { initialState } );
 			expect(
-				screen.getByText(
-					'Stay up to date with your favorite sites and find new ones with the WordPress.com Reader.'
-				)
+				screen.getByText( 'Discover and be discovered with the WordPress.com Reader.' )
 			).toBeInTheDocument();
 		} );
 
 		it( 'renders the screen reader heading', () => {
 			render( <Reader { ...defaultProps } />, { initialState } );
 			expect( screen.getByText( 'Jetpack Reader Settings' ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders the Discover card with promotional copy', () => {
+			render( <Reader { ...defaultProps } />, { initialState } );
+			expect(
+				screen.getByText(
+					'Connect with millions of creators and readers across the WordPress.com and Jetpack network.'
+				)
+			).toBeInTheDocument();
+		} );
+
+		it( 'renders the Discover card bullet points', () => {
+			render( <Reader { ...defaultProps } />, { initialState } );
+			expect(
+				screen.getByText( 'Follow sites you love and explore content by topic' )
+			).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Reach new readers through Reader feeds and tag pages' )
+			).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Recommend creators you enjoy and get recommended back' )
+			).toBeInTheDocument();
 		} );
 	} );
 

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
+import ReaderDiscover from './reader-discover';
 import ReaderModule from './reader-module';
 
 /**
@@ -12,7 +13,7 @@ import ReaderModule from './reader-module';
  * @return {import('react').Component} Reader settings component.
  */
 function Reader( props ) {
-	const { active, isModuleFound, searchTerm } = props;
+	const { active, isModuleFound, searchTerm, blogID } = props;
 
 	if ( ! searchTerm && ! active ) {
 		return null;
@@ -33,13 +34,14 @@ function Reader( props ) {
 				{ searchTerm
 					? __( 'Reader', 'jetpack' )
 					: __(
-							'Stay up to date with your favorite sites and find new ones with the WordPress.com Reader.',
+							'Discover and be discovered with the WordPress.com Reader.',
 							'jetpack',
 							/* dummy arg to avoid bad minification */ 0
 					  ) }
 			</h2>
 			{ foundReader && (
 				<>
+					<ReaderDiscover moduleName={ moduleName } blogID={ blogID } />
 					<ReaderModule moduleName={ moduleName } />
 				</>
 			) }
