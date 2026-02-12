@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Script Data: add defensive fallback when window.JetpackScriptData is undefined.

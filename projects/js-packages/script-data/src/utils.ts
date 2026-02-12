@@ -6,6 +6,11 @@ import { CurrentUserData } from './types.ts';
  * @return {import('./types').JetpackScriptData} The script data.
  */
 export function getScriptData() {
+	// Provide a safe fallback if window.JetpackScriptData is not defined
+	// This can happen on public pages where no script data is provided
+	if ( typeof window.JetpackScriptData === 'undefined' ) {
+		return {} as import('./types').JetpackScriptData;
+	}
 	return window.JetpackScriptData;
 }
 
@@ -26,7 +31,11 @@ export function getSiteData() {
  * @return {string} The admin URL.
  */
 export function getAdminUrl( path = '' ) {
-	return `${ getScriptData()?.site.admin_url }${ path }`;
+	const adminUrl = getScriptData()?.site?.admin_url;
+	if ( ! adminUrl ) {
+		return '';
+	}
+	return `${ adminUrl }${ path }`;
 }
 
 /**
@@ -98,7 +107,7 @@ export function isWoASite() {
  * @return Whether the site is a WordPress.com site.
  */
 export function isWpcomPlatformSite() {
-	return getScriptData()?.site?.is_wpcom_platform;
+	return getScriptData()?.site?.is_wpcom_platform ?? false;
 }
 
 /**
@@ -118,5 +127,5 @@ export function isJetpackSelfHostedSite() {
  * @return Whether the current user has that capability.
  */
 export function currentUserCan( capability: keyof CurrentUserData[ 'capabilities' ] ): boolean {
-	return getScriptData()?.user.current_user.capabilities[ capability ];
+	return getScriptData()?.user?.current_user?.capabilities?.[ capability ] ?? false;
 }

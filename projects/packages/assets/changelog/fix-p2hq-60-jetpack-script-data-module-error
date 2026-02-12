@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Script Data: ensure JetpackScriptData object always exists to prevent TypeError in blocks.

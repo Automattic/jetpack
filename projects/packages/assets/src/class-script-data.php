@@ -64,7 +64,7 @@ class Script_Data {
 			'../build/jetpack-script-data.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
+				'in_footer'  => false,
 				'textdomain' => 'jetpack-assets',
 			)
 		);
@@ -89,19 +89,23 @@ class Script_Data {
 			? self::get_admin_script_data()
 			: self::get_public_script_data();
 
-		if ( ! empty( $script_data ) ) {
-			$script_data = wp_json_encode(
-				$script_data,
-				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
-			);
-
-			wp_add_inline_script(
-				self::SCRIPT_HANDLE,
-				sprintf( 'window.JetpackScriptData = %s;', $script_data ),
-				'before'
-			);
-			Assets::enqueue_script( self::SCRIPT_HANDLE );
+		// Always render at least an empty object to prevent TypeError in JS code
+		// that assumes window.JetpackScriptData exists.
+		if ( empty( $script_data ) ) {
+			$script_data = array();
 		}
+
+		$script_data = wp_json_encode(
+			$script_data,
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
+		);
+
+		wp_add_inline_script(
+			self::SCRIPT_HANDLE,
+			sprintf( 'window.JetpackScriptData = %s;', $script_data ),
+			'before'
+		);
+		Assets::enqueue_script( self::SCRIPT_HANDLE );
 	}
 
 	/**
