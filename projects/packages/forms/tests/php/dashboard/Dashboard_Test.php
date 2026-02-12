@@ -57,6 +57,44 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test get_forms_admin_url with post_id parameter (legacy mode).
+	 * Verifies the r query parameter is correctly appended.
+	 */
+	public function test_get_forms_admin_url_with_post_id_legacy() {
+		// Tab + post_id: appends &r= to the hash fragment.
+		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123';
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox', 123 ) );
+
+		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=spam&r=456';
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'spam', 456 ) );
+
+		// post_id only (no tab): appends &r= to the base URL.
+		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin&r=789';
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( null, 789 ) );
+	}
+
+	/**
+	 * Test get_forms_admin_url with post_id parameter (wp-build mode).
+	 * Verifies the responseIds query parameter is correctly encoded in the path.
+	 */
+	public function test_get_forms_admin_url_with_post_id_wp_build() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		// Tab + post_id: path includes responseIds in the path.
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox?responseIds=["123"]' );
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox', 123 ) );
+
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/spam?responseIds=["456"]' );
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'spam', 456 ) );
+
+		// post_id only (no tab): defaults to /responses/inbox with responseIds.
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox?responseIds=["789"]' );
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( null, 789 ) );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
 	 * Test get_forms_admin_url without tab for wp-build dashboard
 	 */
 	public function test_get_forms_admin_url_wp_build_without_tab() {
