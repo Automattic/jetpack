@@ -17,7 +17,7 @@ const trackReaderClick = () => {
  * ReaderDiscover component.
  *
  * @param {object} props - Component props.
- * @return {import('react').Component} ReaderDiscover component.
+ * @return {import('react').ReactElement} ReaderDiscover component.
  */
 function ReaderDiscover( props ) {
 	const { readerModule, moduleName, blogID } = props;
