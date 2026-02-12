@@ -606,6 +606,234 @@ class Feedback_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test email_html renders plain text for a basic text field.
+	 */
+	public function test_email_html_text_field() {
+		$field  = new Feedback_Field( 'k', 'Label', 'Hello world', 'text' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Hello world', $result );
+	}
+
+	/**
+	 * Test email_html renders empty value dash for empty text field.
+	 */
+	public function test_email_html_empty_text_field() {
+		$field  = new Feedback_Field( 'k', 'Label', '', 'text' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test email_html renders chips for select field.
+	 */
+	public function test_email_html_select_field() {
+		$field  = new Feedback_Field( 'k', 'Label', 'Option A', 'select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Option A', $result );
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+	}
+
+	/**
+	 * Test email_html renders multiple chips for checkbox-multiple field.
+	 */
+	public function test_email_html_checkbox_multiple_field() {
+		$field  = new Feedback_Field( 'k', 'Label', array( 'Red', 'Blue' ), 'checkbox-multiple' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Red', $result );
+		$this->assertStringContainsString( 'Blue', $result );
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+	}
+
+	/**
+	 * Test email_html renders Yes for consent field with truthy value.
+	 */
+	public function test_email_html_consent_yes() {
+		$field  = new Feedback_Field( 'k', 'Consent', '1', 'consent' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Yes', $result );
+	}
+
+	/**
+	 * Test email_html renders No for consent field with empty value.
+	 */
+	public function test_email_html_consent_no() {
+		$field  = new Feedback_Field( 'k', 'Consent', '', 'consent' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'No', $result );
+	}
+
+	/**
+	 * Test email_html renders tel: link for phone field.
+	 */
+	public function test_email_html_phone_field() {
+		$field  = new Feedback_Field( 'k', 'Phone', '+1 555 123 4567', 'phone' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'tel:', $result );
+		$this->assertStringContainsString( '+1 555 123 4567', $result );
+	}
+
+	/**
+	 * Test email_html renders clickable link for URL field.
+	 */
+	public function test_email_html_url_field() {
+		$field  = new Feedback_Field( 'k', 'Website', 'https://example.com', 'url' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'href="https://example.com"', $result );
+		$this->assertStringContainsString( 'https://example.com', $result );
+	}
+
+	/**
+	 * Test email_html renders stars for rating field.
+	 */
+	public function test_email_html_rating_field() {
+		$field  = new Feedback_Field( 'k', 'Rating', '3/5', 'rating' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// 3 gold + 2 gray stars.
+		$this->assertSame( 3, substr_count( $result, '#e6a117' ) );
+		$this->assertSame( 2, substr_count( $result, '#cccccc' ) );
+	}
+
+	/**
+	 * Test email_html renders dash for empty chips.
+	 */
+	public function test_email_html_select_empty() {
+		$field  = new Feedback_Field( 'k', 'Label', '', 'select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test email_html renders image-select field with thumbnails and letter codes.
+	 */
+	public function test_email_html_image_select_field() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'A',
+					'selected'   => 'A',
+					'label'      => 'Shoes',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://example.com/shoes.jpg',
+					),
+				),
+				array(
+					'perceived'  => 'B',
+					'selected'   => 'C',
+					'label'      => 'Bags',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://example.com/bags.jpg',
+					),
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// Should contain images.
+		$this->assertStringContainsString( 'https://example.com/shoes.jpg', $result );
+		$this->assertStringContainsString( 'https://example.com/bags.jpg', $result );
+		// Should contain letter codes.
+		$this->assertStringContainsString( '>A</span>', $result );
+		$this->assertStringContainsString( '>C</span>', $result );
+		// Should contain labels.
+		$this->assertStringContainsString( 'Shoes', $result );
+		$this->assertStringContainsString( 'Bags', $result );
+		// Should use img tags.
+		$this->assertSame( 2, substr_count( $result, '<img ' ) );
+		// Cards should have outline border.
+		$this->assertStringContainsString( 'border: 1px solid #dcdcde', $result );
+	}
+
+	/**
+	 * Test email_html renders image-select field without labels when showLabels is false.
+	 */
+	public function test_email_html_image_select_no_labels() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'A',
+					'selected'   => 'A',
+					'label'      => 'Shoes',
+					'showLabels' => false,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://example.com/shoes.jpg',
+					),
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// Should contain letter code but not label text as a separate span.
+		$this->assertStringContainsString( '>A</span>', $result );
+		$this->assertStringNotContainsString( '>Shoes</span>', $result );
+	}
+
+	/**
+	 * Test email_html renders dash for empty image-select.
+	 */
+	public function test_email_html_image_select_empty() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test email_html renders image-select without image src gracefully.
+	 */
+	public function test_email_html_image_select_no_image() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'A',
+					'selected'   => 'B',
+					'label'      => 'Option',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => '',
+					),
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// No img tag when src is empty.
+		$this->assertStringNotContainsString( '<img ', $result );
+		// But letter code and label should still render.
+		$this->assertStringContainsString( '>B</span>', $result );
+		$this->assertStringContainsString( 'Option', $result );
+	}
+
+	/**
 	 * Test get_admin_theme_color returns a hex color.
 	 */
 	public function test_get_admin_theme_color() {
