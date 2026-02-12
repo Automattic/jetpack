@@ -105,9 +105,9 @@ class WPCOM_REST_API_V2_Endpoint_Application_Password_Extras_Test extends Jetpac
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertIsArray( $data );
-		$this->assertArrayHasKey( 'admin-ajax-videopress', $data );
+		$this->assertArrayHasKey( 'admin-ajax', $data );
 		$this->assertArrayHasKey( 'post-previews', $data );
-		$this->assertTrue( $data['admin-ajax-videopress'] );
+		$this->assertTrue( $data['admin-ajax'] );
 		$this->assertTrue( $data['post-previews'] );
 	}
 
@@ -140,7 +140,7 @@ class WPCOM_REST_API_V2_Endpoint_Application_Password_Extras_Test extends Jetpac
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertIsArray( $data );
-		$this->assertArrayHasKey( 'admin-ajax-videopress', $data );
+		$this->assertArrayHasKey( 'admin-ajax', $data );
 		$this->assertArrayHasKey( 'post-previews', $data );
 	}
 

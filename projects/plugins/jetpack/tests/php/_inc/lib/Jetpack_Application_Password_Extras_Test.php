@@ -237,8 +237,8 @@ class Jetpack_Application_Password_Extras_Test extends Jetpack_REST_TestCase {
 		$abilities = Jetpack_Application_Password_Extras::get_abilities();
 
 		$expected_abilities = array(
-			'admin-ajax-videopress' => true,
-			'post-previews'         => true,
+			'admin-ajax'    => true,
+			'post-previews' => true,
 		);
 
 		$this->assertEquals( $expected_abilities, $abilities, 'get_abilities should return all expected abilities' );

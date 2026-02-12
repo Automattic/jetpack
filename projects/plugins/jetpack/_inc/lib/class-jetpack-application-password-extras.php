@@ -83,8 +83,8 @@ class Jetpack_Application_Password_Extras {
 	 */
 	public static function get_abilities() {
 		return array(
-			'admin-ajax-videopress' => true,
-			'post-previews'         => true,
+			'admin-ajax'    => true,
+			'post-previews' => true,
 		);
 	}
 }
