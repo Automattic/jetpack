@@ -2389,6 +2389,9 @@ importers:
       '@wordpress/boot':
         specifier: 0.6.0
         version: 0.6.0(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+      '@wordpress/commands':
+        specifier: 1.39.0
+        version: 1.39.0(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/components':
         specifier: 32.1.0
         version: 32.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

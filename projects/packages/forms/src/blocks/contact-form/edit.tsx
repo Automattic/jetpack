@@ -49,6 +49,7 @@ import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.j
 import { CORE_BLOCKS, FORM_POST_TYPE } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
 import { ConvertFormToolbar } from './components/convert-form-toolbar.tsx';
+import FormCommands from './components/form-commands.tsx';
 import FormStatusNotice from './components/form-status-notice.tsx';
 import FormTitleModal from './components/form-title-modal.tsx';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
@@ -1121,7 +1122,10 @@ function JetpackContactFormEdit( {
 			<ThemeProvider targetDom={ wrapperRef.current }>
 				<div { ...blockProps }>
 					{ isCentralFormManagementEnabled && isJetpackFormEditor && (
-						<FormTitleModal hasInnerBlocks={ hasAnyInnerBlocks } />
+						<>
+							<FormTitleModal hasInnerBlocks={ hasAnyInnerBlocks } />
+							<FormCommands />
+						</>
 					) }
 					{ ref && (
 						<FormStatusNotice
