@@ -34,7 +34,7 @@
 		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*",
-		"stylelint": "16.26.1"
+		"stylelint": "17.2.0"
 	},
 	"packageManager": "pnpm@10.28.2",
 	"engines": {
