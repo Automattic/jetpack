@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -21,6 +22,11 @@ const trackReaderClick = () => {
 function ReaderDiscover( props ) {
 	const { readerModule, moduleName, blogID } = props;
 
+	const readerUrl = addQueryArgs(
+		'https://wordpress.com/reader/',
+		blogID ? { origin_site_id: blogID } : {}
+	);
+
 	return (
 		<SettingsCard
 			{ ...props }
@@ -42,7 +48,7 @@ function ReaderDiscover( props ) {
 				compact
 				className="jp-settings-card__configure-link"
 				onClick={ trackReaderClick }
-				href={ `https://wordpress.com/reader/?origin_site_id=${ blogID }` }
+				href={ readerUrl }
 				target="_blank"
 				rel="noopener noreferrer"
 			>
