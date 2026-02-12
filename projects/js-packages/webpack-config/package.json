@@ -36,7 +36,7 @@
 		"@pmmmwh/react-refresh-webpack-plugin": "0.6.2",
 		"@wordpress/browserslist-config": "6.39.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.39.0",
-		"babel-loader": "9.1.2",
+		"babel-loader": "10.0.0",
 		"babel-plugin-polyfill-corejs3": "0.10.6",
 		"browserslist": "4.28.1",
 		"core-js": "3.38.1",
@@ -46,7 +46,7 @@
 		"mini-css-extract-plugin": "2.9.4",
 		"react-refresh": "0.17.0",
 		"terser-webpack-plugin": "5.3.14",
-		"thread-loader": "3.0.4"
+		"thread-loader": "4.0.4"
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.0",

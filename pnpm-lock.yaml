@@ -1619,8 +1619,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       babel-loader:
-        specifier: 9.1.2
-        version: 9.1.2(@babel/core@7.29.0)(webpack@5.104.1)
+        specifier: 10.0.0
+        version: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1)
       babel-plugin-inline-json-import:
         specifier: 0.3.2
         version: 0.3.2
@@ -1757,8 +1757,8 @@ importers:
         specifier: 6.39.0
         version: 6.39.0(webpack@5.104.1)
       babel-loader:
-        specifier: 9.1.2
-        version: 9.1.2(@babel/core@7.29.0)(webpack@5.104.1)
+        specifier: 10.0.0
+        version: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1)
       babel-plugin-polyfill-corejs3:
         specifier: 0.10.6
         version: 0.10.6(@babel/core@7.29.0)
@@ -1787,8 +1787,8 @@ importers:
         specifier: 5.3.14
         version: 5.3.14(webpack@5.104.1)
       thread-loader:
-        specifier: 3.0.4
-        version: 3.0.4(webpack@5.104.1)
+        specifier: 4.0.4
+        version: 4.0.4(webpack@5.104.1)
     devDependencies:
       '@babel/core':
         specifier: 7.29.0
@@ -11169,13 +11169,6 @@ packages:
       '@babel/core': ^7.12.0
       webpack: '>=5.61.0'
 
-  babel-loader@9.1.2:
-    resolution: {integrity: sha512-mN14niXW43tddohGl8HPu5yfQq70iUThvFL/4QzESA7GcZoC0eVOhvWdQ8+3UlSjaDE9MVtsW9mxDY07W7VpVA==}
-    engines: {node: '>= 14.15.0'}
-    peerDependencies:
-      '@babel/core': ^7.12.0
-      webpack: '>=5'
-
   babel-plugin-inline-json-import@0.3.2:
     resolution: {integrity: sha512-QNNJx08KjmMT25Cw7rAPQ6dlREDPiZGDyApHL8KQ9vrQHbrr4PTi7W8g1tMMZPz0jEMd39nx/eH7xjnDNxq5sA==}
 
@@ -17212,11 +17205,11 @@ packages:
   third-party-web@0.27.0:
     resolution: {integrity: sha512-h0JYX+dO2Zr3abCQpS6/uFjujaOjA1DyDzGQ41+oFn9VW/ARiq9g5ln7qEP9+BTzDpOMyIfsfj4OvfgXAsMUSA==}
 
-  thread-loader@3.0.4:
-    resolution: {integrity: sha512-ByaL2TPb+m6yArpqQUZvP+5S1mZtXsEP7nWKKlAUTm7fCml8kB5s1uI3+eHRP2bk5mVYfRSBI7FFf+tWEyLZwA==}
-    engines: {node: '>= 10.13.0'}
+  thread-loader@4.0.4:
+    resolution: {integrity: sha512-tXagu6Hivd03wB2tiS1bqvw345sc7mKei32EgpYpq31ZLes9FN0mEK2nKzXLRFgwt3PsBB0E/MZDp159rDoqwg==}
+    engines: {node: '>= 16.10.0'}
     peerDependencies:
-      webpack: ^4.27.0 || ^5.0.0
+      webpack: ^5.0.0
 
   thunky@1.1.0:
     resolution: {integrity: sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==}
@@ -26765,13 +26758,6 @@ snapshots:
       find-up: 5.0.0
       webpack: 5.104.1(webpack-cli@6.0.1)
 
-  babel-loader@9.1.2(@babel/core@7.29.0)(webpack@5.104.1):
-    dependencies:
-      '@babel/core': 7.29.0
-      find-cache-dir: 3.3.2
-      schema-utils: 4.3.3
-      webpack: 5.104.1(webpack-cli@6.0.1)
-
   babel-plugin-inline-json-import@0.3.2:
     dependencies:
       decache: 4.6.2
@@ -34134,13 +34120,12 @@ snapshots:
 
   third-party-web@0.27.0: {}
 
-  thread-loader@3.0.4(webpack@5.104.1):
+  thread-loader@4.0.4(webpack@5.104.1):
     dependencies:
       json-parse-better-errors: 1.0.2
       loader-runner: 4.3.1
-      loader-utils: 2.0.4
       neo-async: 2.6.2
-      schema-utils: 3.3.0
+      schema-utils: 4.3.3
       webpack: 5.104.1(webpack-cli@6.0.1)
 
   thunky@1.1.0: {}
