@@ -36,7 +36,7 @@
 		"@pmmmwh/react-refresh-webpack-plugin": "0.6.2",
 		"@wordpress/browserslist-config": "6.39.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.39.0",
-		"babel-loader": "9.1.2",
+		"babel-loader": "10.0.0",
 		"babel-plugin-polyfill-corejs3": "0.10.6",
 		"browserslist": "4.28.1",
 		"core-js": "3.38.1",

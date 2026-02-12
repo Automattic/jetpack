@@ -1619,8 +1619,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       babel-loader:
-        specifier: 9.1.2
-        version: 9.1.2(@babel/core@7.29.0)(webpack@5.104.1)
+        specifier: 10.0.0
+        version: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1)
       babel-plugin-inline-json-import:
         specifier: 0.3.2
         version: 0.3.2
@@ -1757,8 +1757,8 @@ importers:
         specifier: 6.39.0
         version: 6.39.0(webpack@5.104.1)
       babel-loader:
-        specifier: 9.1.2
-        version: 9.1.2(@babel/core@7.29.0)(webpack@5.104.1)
+        specifier: 10.0.0
+        version: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1)
       babel-plugin-polyfill-corejs3:
         specifier: 0.10.6
         version: 0.10.6(@babel/core@7.29.0)
@@ -11168,13 +11168,6 @@ packages:
     peerDependencies:
       '@babel/core': ^7.12.0
       webpack: '>=5.61.0'
-
-  babel-loader@9.1.2:
-    resolution: {integrity: sha512-mN14niXW43tddohGl8HPu5yfQq70iUThvFL/4QzESA7GcZoC0eVOhvWdQ8+3UlSjaDE9MVtsW9mxDY07W7VpVA==}
-    engines: {node: '>= 14.15.0'}
-    peerDependencies:
-      '@babel/core': ^7.12.0
-      webpack: '>=5'
 
   babel-plugin-inline-json-import@0.3.2:
     resolution: {integrity: sha512-QNNJx08KjmMT25Cw7rAPQ6dlREDPiZGDyApHL8KQ9vrQHbrr4PTi7W8g1tMMZPz0jEMd39nx/eH7xjnDNxq5sA==}
@@ -26763,13 +26756,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.0
       find-up: 5.0.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
-
-  babel-loader@9.1.2(@babel/core@7.29.0)(webpack@5.104.1):
-    dependencies:
-      '@babel/core': 7.29.0
-      find-cache-dir: 3.3.2
-      schema-utils: 4.3.3
       webpack: 5.104.1(webpack-cli@6.0.1)
 
   babel-plugin-inline-json-import@0.3.2:
