@@ -2,7 +2,6 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
-import '@wordpress/theme/design-tokens.css';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
