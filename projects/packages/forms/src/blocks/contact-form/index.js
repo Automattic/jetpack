@@ -1,8 +1,12 @@
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
-import { __, _x } from '@wordpress/i18n';
+import { store as coreStore } from '@wordpress/core-data';
+import { select } from '@wordpress/data';
+import { decodeEntities } from '@wordpress/html-entities';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import './editor.scss';
 import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import { FORM_POST_TYPE } from '../shared/util/constants.js';
 import defaultAttributes from './attributes.ts';
 import blockMetadata from './block.json';
 import deprecated from './deprecated.js';
@@ -109,6 +113,28 @@ export const settings = {
 	transforms,
 	deprecated,
 	__experimentalLabel: ( { ref } ) => {
-		return ref ? __( 'Form', 'jetpack-forms' ) + ' (Synced)' : __( 'Form', 'jetpack-forms' );
+		if ( ! ref ) {
+			return;
+		}
+
+		const form = select( coreStore ).getEditedEntityRecord( 'postType', FORM_POST_TYPE, ref );
+		const title = form?.title ? decodeEntities( form.title ) : __( 'Form', 'jetpack-forms' );
+
+		if ( ! form?.status || form.status === 'publish' ) {
+			return title;
+		}
+
+		const statusLabels = {
+			draft: _x( 'Draft', 'form status', 'jetpack-forms' ),
+			pending: _x( 'Pending', 'form status', 'jetpack-forms' ),
+			future: _x( 'Scheduled', 'form status', 'jetpack-forms' ),
+			private: _x( 'Private', 'form status', 'jetpack-forms' ),
+			trash: _x( 'Trashed', 'form status', 'jetpack-forms' ),
+		};
+
+		const statusLabel = statusLabels[ form.status ] || form.status;
+
+		/* translators: 1: Form title, 2: Form status (e.g., Draft, Scheduled) */
+		return sprintf( __( '%1$s (%2$s)', 'jetpack-forms' ), title, statusLabel );
 	},
 };
