@@ -281,7 +281,7 @@ function StageInner() {
 			{
 				id: 'copy-shortcode',
 				isPrimary: false,
-				label: __( 'Copy shortcode', 'jetpack-forms' ),
+				label: __( 'Copy embed', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
 					const [ item ] = items;
