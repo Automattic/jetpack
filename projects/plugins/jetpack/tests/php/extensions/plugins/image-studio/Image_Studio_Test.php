@@ -18,12 +18,14 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * AI image extensions that Image Studio replaces.
 	 */
-	private const AI_IMAGE_EXTENSIONS = array(
-		'ai-featured-image-generator',
-		'ai-assistant-image-extension',
-		'ai-general-purpose-image-generator',
-		'ai-assistant-experimental-image-generation-support',
-	);
+	/**
+	 * Get the AI image extensions list from the source function.
+	 *
+	 * @return array
+	 */
+	private static function get_ai_image_extensions() {
+		return ImageStudio\get_ai_image_extensions();
+	}
 
 	/**
 	 * Saved current screen for restoration in tear_down.
@@ -113,7 +115,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Register all AI image extensions as available.
 	 */
 	private function make_ai_extensions_available() {
-		foreach ( self::AI_IMAGE_EXTENSIONS as $ext ) {
+		foreach ( self::get_ai_image_extensions() as $ext ) {
 			\Jetpack_Gutenberg::set_extension_available( $ext );
 		}
 	}
@@ -916,7 +918,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
-		foreach ( self::AI_IMAGE_EXTENSIONS as $ext ) {
+		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
 				"Extension $ext should be unavailable when Image Studio is enabled."
@@ -933,7 +935,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
-		foreach ( self::AI_IMAGE_EXTENSIONS as $ext ) {
+		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
 				"Extension $ext should be unavailable when unified experience is enabled."
@@ -950,7 +952,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
-		foreach ( self::AI_IMAGE_EXTENSIONS as $ext ) {
+		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertTrue(
 				\Jetpack_Gutenberg::is_available( $ext ),
 				"Extension $ext should remain available when Image Studio is disabled."
@@ -976,7 +978,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->set_block_editor_screen();
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
-		foreach ( self::AI_IMAGE_EXTENSIONS as $ext ) {
+		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertTrue(
 				\Jetpack_Gutenberg::is_available( $ext ),
 				"Extension $ext should stay available on block editor without query param."
@@ -995,7 +997,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->set_enable_image_studio_param();
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
-		foreach ( self::AI_IMAGE_EXTENSIONS as $ext ) {
+		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
 				"Extension $ext should be disabled on block editor with query param."
@@ -1013,7 +1015,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->set_media_library_screen();
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
-		foreach ( self::AI_IMAGE_EXTENSIONS as $ext ) {
+		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
 				"Extension $ext should be disabled on Media Library."
@@ -1031,7 +1033,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		set_current_screen( 'dashboard' );
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
-		foreach ( self::AI_IMAGE_EXTENSIONS as $ext ) {
+		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertTrue(
 				\Jetpack_Gutenberg::is_available( $ext ),
 				"Extension $ext should stay available on dashboard."
@@ -1052,7 +1054,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$GLOBALS['current_screen'] = null;
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
-		foreach ( self::AI_IMAGE_EXTENSIONS as $ext ) {
+		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
 				"Extension $ext should be disabled when no screen is available (blanket disable)."
@@ -1296,7 +1298,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_get_ai_image_extensions_returns_expected_list() {
 		$extensions = ImageStudio\get_ai_image_extensions();
-		$this->assertEquals( self::AI_IMAGE_EXTENSIONS, $extensions );
+		$this->assertEquals( self::get_ai_image_extensions(), $extensions );
 	}
 
 	// -------------------------------------------------------------------------
