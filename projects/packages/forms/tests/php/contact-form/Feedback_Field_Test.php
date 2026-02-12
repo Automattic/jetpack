@@ -586,4 +586,145 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertSame( 0, $value['rating'] );
 		$this->assertEquals( 5, $value['maxRating'] );
 	}
+
+	// ─── Email HTML rendering tests ───
+
+	/**
+	 * Test get_icon_name_for_type maps known types and falls back to field-text.
+	 */
+	public function test_get_icon_name_for_type() {
+		$this->assertSame( 'field-text', Feedback_Field::get_icon_name_for_type( 'text' ) );
+		$this->assertSame( 'field-email', Feedback_Field::get_icon_name_for_type( 'email' ) );
+		$this->assertSame( 'field-telephone', Feedback_Field::get_icon_name_for_type( 'phone' ) );
+		$this->assertSame( 'field-telephone', Feedback_Field::get_icon_name_for_type( 'telephone' ) );
+		$this->assertSame( 'field-single-choice', Feedback_Field::get_icon_name_for_type( 'radio' ) );
+		$this->assertSame( 'field-multiple-choice', Feedback_Field::get_icon_name_for_type( 'checkbox-multiple' ) );
+		$this->assertSame( 'field-rating', Feedback_Field::get_icon_name_for_type( 'rating' ) );
+		$this->assertSame( 'field-file', Feedback_Field::get_icon_name_for_type( 'file' ) );
+		// Unknown type falls back to field-text.
+		$this->assertSame( 'field-text', Feedback_Field::get_icon_name_for_type( 'nonexistent' ) );
+	}
+
+	/**
+	 * Test email_html renders plain text for a basic text field.
+	 */
+	public function test_email_html_text_field() {
+		$field  = new Feedback_Field( 'k', 'Label', 'Hello world', 'text' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Hello world', $result );
+	}
+
+	/**
+	 * Test email_html renders empty value dash for empty text field.
+	 */
+	public function test_email_html_empty_text_field() {
+		$field  = new Feedback_Field( 'k', 'Label', '', 'text' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test email_html renders chips for select field.
+	 */
+	public function test_email_html_select_field() {
+		$field  = new Feedback_Field( 'k', 'Label', 'Option A', 'select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Option A', $result );
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+	}
+
+	/**
+	 * Test email_html renders multiple chips for checkbox-multiple field.
+	 */
+	public function test_email_html_checkbox_multiple_field() {
+		$field  = new Feedback_Field( 'k', 'Label', array( 'Red', 'Blue' ), 'checkbox-multiple' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Red', $result );
+		$this->assertStringContainsString( 'Blue', $result );
+		$this->assertStringContainsString( '<br />', $result );
+	}
+
+	/**
+	 * Test email_html renders Yes for consent field with truthy value.
+	 */
+	public function test_email_html_consent_yes() {
+		$field  = new Feedback_Field( 'k', 'Consent', '1', 'consent' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Yes', $result );
+	}
+
+	/**
+	 * Test email_html renders No for consent field with empty value.
+	 */
+	public function test_email_html_consent_no() {
+		$field  = new Feedback_Field( 'k', 'Consent', '', 'consent' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'No', $result );
+	}
+
+	/**
+	 * Test email_html renders tel: link for phone field.
+	 */
+	public function test_email_html_phone_field() {
+		$field  = new Feedback_Field( 'k', 'Phone', '+1 555 123 4567', 'phone' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'tel:', $result );
+		$this->assertStringContainsString( '+1 555 123 4567', $result );
+	}
+
+	/**
+	 * Test email_html renders clickable link for URL field.
+	 */
+	public function test_email_html_url_field() {
+		$field  = new Feedback_Field( 'k', 'Website', 'https://example.com', 'url' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'href="https://example.com"', $result );
+		$this->assertStringContainsString( 'https://example.com', $result );
+	}
+
+	/**
+	 * Test email_html renders stars for rating field.
+	 */
+	public function test_email_html_rating_field() {
+		$field  = new Feedback_Field( 'k', 'Rating', '3/5', 'rating' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// 3 gold + 2 gray stars.
+		$this->assertSame( 3, substr_count( $result, '#e6a117' ) );
+		$this->assertSame( 2, substr_count( $result, '#cccccc' ) );
+	}
+
+	/**
+	 * Test email_html renders dash for empty chips.
+	 */
+	public function test_email_html_select_empty() {
+		$field  = new Feedback_Field( 'k', 'Label', '', 'select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test get_admin_theme_color returns a hex color.
+	 */
+	public function test_get_admin_theme_color() {
+		// Reset cached value so it runs through the method.
+		$reflection = new \ReflectionClass( Feedback_Field::class );
+		$prop       = $reflection->getProperty( 'admin_theme_color' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, null );
+
+		$color = Feedback_Field::get_admin_theme_color();
+		$this->assertMatchesRegularExpression( '/^#[0-9a-f]{6}$/i', $color );
+	}
 }
