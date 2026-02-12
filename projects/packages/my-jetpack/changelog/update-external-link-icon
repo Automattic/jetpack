@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Replace dashicons-external with Unicode arrow (↗) in external menu links for improved performance and modern appearance.
+Update external menu links in My Jetpack to use an external-link arrow indicator (↗) for improved clarity and modern appearance.
