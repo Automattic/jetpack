@@ -1,6 +1,7 @@
 import { useParentSize } from '@visx/responsive';
 import type { BaseChartProps } from '../../../types';
 import type { ComponentType } from 'react';
+import styles from './with-responsive.module.scss';
 
 type DimensionProps = {
 	width?: number;
@@ -96,12 +97,10 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			<div
 				ref={ parentRef }
 				data-testid="responsive-wrapper"
+				className={ styles[ 'responsive-wrapper' ] }
 				style={ {
 					width: size ?? width ?? '100%',
 					height: size ?? height ?? defaultHeight,
-					// Allow wrapper to shrink in flex layouts
-					minWidth: 0,
-					minHeight: 0,
 				} }
 			>
 				<WrappedComponent

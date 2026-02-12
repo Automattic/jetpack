@@ -1,0 +1,5 @@
+.responsive-wrapper {
+	// Allow wrapper to shrink in flex layouts
+	min-width: 0;
+	min-height: 0;
+}
