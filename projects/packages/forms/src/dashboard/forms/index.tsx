@@ -27,7 +27,7 @@ import { EmptyWrapper } from '../components/empty-responses/index.tsx';
 import Page from '../components/page/index.tsx';
 import { NON_TRASH_FORM_STATUSES } from '../constants.ts';
 import useDeleteForm from '../hooks/use-delete-form.ts';
-import useFormsData from '../hooks/use-forms-data.ts';
+import useFormsData, { getFormsListQuery } from '../hooks/use-forms-data.ts';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
@@ -88,7 +88,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 	} );
 
 	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
-	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
+	const { invalidateResolution } = useDispatch( coreStore );
 
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ pendingPermanentDeleteCount, setPendingPermanentDeleteCount ] = useState( 0 );
@@ -153,10 +153,15 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		const newTitle = renameTitle.trim() || __( 'Untitled Form', 'jetpack-forms' );
 
 		try {
-			await editEntityRecord( 'postType', 'jetpack_form', renameFormItem.id, {
-				title: newTitle,
+			await apiFetch( {
+				path: `/wp/v2/jetpack-forms/${ renameFormItem.id }`,
+				method: 'POST',
+				data: { title: newTitle },
 			} );
-			await saveEditedEntityRecord( 'postType', 'jetpack_form', renameFormItem.id );
+
+			// Invalidate the forms list cache to refresh the data
+			const query = getFormsListQuery( view.page, view.perPage, view.search, statusQuery );
+			invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', query ] );
 
 			createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
 		} catch ( error ) {
@@ -173,8 +178,11 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		renameFormItem,
 		renameTitle,
 		isRenaming,
-		editEntityRecord,
-		saveEditedEntityRecord,
+		view.page,
+		view.perPage,
+		view.search,
+		statusQuery,
+		invalidateResolution,
 		createSuccessNotice,
 		createErrorNotice,
 		closeRenameModal,
