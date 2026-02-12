@@ -1123,8 +1123,8 @@ function JetpackContactFormEdit( {
 				<div { ...blockProps }>
 					{ isCentralFormManagementEnabled && isJetpackFormEditor && (
 						<>
-							<FormTitleModal hasInnerBlocks={ hasAnyInnerBlocks } />
-							<FormCommands />
+							<FormTitleModal hasInnerBlocks={ hasAnyInnerBlocks } clientId={ clientId } />
+							<FormCommands clientId={ clientId } />
 						</>
 					) }
 					{ ref && (

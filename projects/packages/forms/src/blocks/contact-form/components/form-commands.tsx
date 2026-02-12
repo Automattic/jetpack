@@ -1,27 +1,40 @@
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useCommandLoader } from '@wordpress/commands';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState, useMemo, useRef } from '@wordpress/element';
+import { useState, useMemo, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import FormNameModal from './form-name-modal.tsx';
 
-export default function FormCommands() {
+type FormCommandsProps = {
+	clientId: string;
+};
+
+export default function FormCommands( { clientId }: FormCommandsProps ) {
 	const [ isRenameModalOpen, setIsRenameModalOpen ] = useState( false );
 
-	const { currentPostTitle } = useSelect( select => {
-		const { getCurrentPostId } = select( editorStore );
-		const { getEditedEntityRecord } = select( coreStore );
+	const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
-		const postId = getCurrentPostId();
-		const post = postId ? getEditedEntityRecord( 'postType', FORM_POST_TYPE, postId ) : null;
+	const { currentPostTitle, metadata } = useSelect(
+		select => {
+			const { getCurrentPostId } = select( editorStore );
+			const { getEditedEntityRecord } = select( coreStore );
+			const { getBlockAttributes } = select( blockEditorStore );
 
-		return {
-			currentPostTitle: ( post as { title?: string } )?.title || '',
-		};
-	}, [] );
+			const postId = getCurrentPostId();
+			const post = postId ? getEditedEntityRecord( 'postType', FORM_POST_TYPE, postId ) : null;
+			const blockAttributes = getBlockAttributes( clientId );
+
+			return {
+				currentPostTitle: ( post as { title?: string } )?.title || '',
+				metadata: blockAttributes?.metadata || {},
+			};
+		},
+		[ clientId ]
+	);
 
 	// Use ref to store the callback so the command loader always has access to latest state
 	const openRenameModalRef = useRef< () => void >( () => {} );
@@ -32,6 +45,18 @@ export default function FormCommands() {
 	const handleClose = () => {
 		setIsRenameModalOpen( false );
 	};
+
+	const handleSave = useCallback(
+		( title: string ) => {
+			updateBlockAttributes( clientId, {
+				metadata: {
+					...metadata,
+					name: title,
+				},
+			} );
+		},
+		[ clientId, metadata, updateBlockAttributes ]
+	);
 
 	// Command loader hook - defined as a proper hook function
 	function useRenameFormCommandLoader() {
@@ -75,6 +100,7 @@ export default function FormCommands() {
 		<FormNameModal
 			isOpen={ isRenameModalOpen }
 			onClose={ handleClose }
+			onSave={ handleSave }
 			initialTitle={ currentPostTitle }
 			modalTitle={ __( 'Rename Form', 'jetpack-forms' ) }
 			cancelLabel={ __( 'Cancel', 'jetpack-forms' ) }

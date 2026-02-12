@@ -9,6 +9,7 @@ import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 type FormNameModalProps = {
 	isOpen: boolean;
 	onClose: () => void;
+	onSave?: ( title: string ) => void;
 	initialTitle?: string;
 	modalTitle: string;
 	cancelLabel: string;
@@ -18,6 +19,7 @@ type FormNameModalProps = {
 export default function FormNameModal( {
 	isOpen,
 	onClose,
+	onSave,
 	initialTitle = '',
 	modalTitle,
 	cancelLabel,
@@ -57,9 +59,11 @@ export default function FormNameModal( {
 			} );
 			await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, currentPostId );
 		}
+
+		onSave?.( newTitle );
 		setIsSaving( false );
 		onClose();
-	}, [ title, currentPostId, editEntityRecord, saveEditedEntityRecord, onClose ] );
+	}, [ title, currentPostId, editEntityRecord, saveEditedEntityRecord, onSave, onClose ] );
 
 	const onSubmitForm = useCallback(
 		( event: React.FormEvent ) => {
