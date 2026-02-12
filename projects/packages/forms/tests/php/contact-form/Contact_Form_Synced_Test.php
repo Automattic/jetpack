@@ -36,14 +36,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		// Reset the seen refs to avoid state pollution between tests.
-		// We use reflection to access the private static property.
-		$reflection = new \ReflectionClass( Contact_Form::class );
-		$property   = $reflection->getProperty( 'seen_ref' );
-		$property->setValue( null, array() );
-
-		$ref_id_property = $reflection->getProperty( 'ref_id' );
-		$ref_id_property->setValue( null, null );
-
+		Contact_Form::reset_seen_refs();
 		parent::tear_down();
 	}
 

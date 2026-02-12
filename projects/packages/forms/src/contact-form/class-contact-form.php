@@ -199,6 +199,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Reset the seen reference IDs for the contact form.
+	 */
+	public static function reset_seen_refs() {
+		self::$seen_ref = array();
+		self::$ref_id   = null;
+	}
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
