@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Replace dashicons-external with Unicode arrow (↗) in external menu links for improved performance and modern appearance.
+Update external menu links to display an arrow indicator for improved performance and a more modern appearance.
