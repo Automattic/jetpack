@@ -1119,15 +1119,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 
 		$is_single_input_form = is_array( $form->fields ) && count( $form->fields ) === 1;
+		$is_flex_layout       = isset( $attributes['layout']['type'] ) && $attributes['layout']['type'] === 'flex';
+		$is_nowrap_layout     = isset( $attributes['layout']['flexWrap'] ) && $attributes['layout']['flexWrap'] === 'nowrap';
+		$is_forced_horizontal = $is_flex_layout && $is_nowrap_layout
+			&& ( ! isset( $attributes['layout']['orientation'] ) || $attributes['layout']['orientation'] === 'horizontal' );
 
-		$container_classes = array( 'wp-block-jetpack-contact-form-container' );
-
-		if ( $is_single_input_form ) {
-			$container_classes[] = 'is-single-input-form';
+		$extra_container_classes = array();
+		if ( $is_forced_horizontal ) {
+			$extra_container_classes[] = 'is-forced-horizontal-form';
 		}
-
-		$container_classes[]      = self::get_block_alignment_class( $attributes );
-		$container_classes_string = implode( ' ', $container_classes );
+		if ( $is_single_input_form ) {
+			$extra_container_classes[] = 'is-single-input-form';
+		}
+		$container_classes_string = self::get_block_container_classes( $attributes, $extra_container_classes );
 
 		$is_reload_after_success = isset( $_GET['contact-form-id'] )
 		&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
@@ -1185,6 +1189,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'submissionError'         => null,
 			'elementId'               => $element_id,
 			'isSingleInputForm'       => $is_single_input_form,
+			'isForcedHorizontal'      => $is_forced_horizontal,
 		);
 
 		if ( $is_multistep ) {
@@ -1265,17 +1270,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 */
 			$url                     = apply_filters( 'grunion_contact_form_form_action', $url, $GLOBALS['post'], $id, $page );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' ) || str_contains( $content, 'wp-block-button' );
-			$form_classes            = 'contact-form commentsblock';
+			$form_classes            = 'contact-form commentsblock jetpack-contact-form__form';
 			if ( $submission_success ) {
 				$form_classes .= ' submission-success';
 			}
 			$post_title           = $post->post_title ?? '';
 			$form_accessible_name = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
 			$form_aria_label      = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
-
-			if ( $has_submit_button_block ) {
-				$form_classes .= ' wp-block-jetpack-contact-form';
-			}
 
 			$r .= "<form action='" . esc_url( $url ) . "'
 				id='" . $element_id . "'
@@ -1297,18 +1298,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			if ( $is_multistep ) {
 				$r = preg_replace( '/<div class="wp-block-jetpack-form-step-navigation__wrapper/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-form-step-navigation__wrapper', $r, 1 );
-			} elseif ( $has_submit_button_block && ! $is_single_input_form ) {
+			} elseif ( $has_submit_button_block ) {
+				$r = self::prepare_submit_button( $r );
 				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
 				// Replace only the first occurrence of a wp-block-jetpack-button prepending it with the error wrapper.
 				// Fallback with same strategy for new core button blocks.
-				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
-				if ( str_contains( $r, 'wp-block-button' ) ) {
-					$r = preg_replace( '/<div class="wp-block-button/', self::render_error_wrapper() . ' <div class="wp-block-button', $r, 1 );
+				if ( $is_forced_horizontal || $is_single_input_form ) {
+					// When user forced a horizontal layout, place the error wrapper
+					// after the form body.
+					$r .= self::render_error_wrapper( 'is-horizontal' );
+				} else {
+					// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
+					// Replace only the first occurrence.
+					$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
+					if ( str_contains( $r, 'wp-block-button' ) ) {
+						$r = preg_replace( '/<div class="wp-block-button/', self::render_error_wrapper() . ' <div class="wp-block-button', $r, 1 );
+					}
 				}
-			}
-
-			if ( $has_submit_button_block ) {
-				$r = self::prepare_submit_button( $r );
 			}
 
 			// In new versions of the contact form block the button is an inner block
@@ -1602,18 +1608,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper function that display the error wrapper.
 	 *
+	 * @param string $classes - the class names to add to the error wrapper.
 	 * @return string HTML string for the error wrapper.
 	 */
-	private static function render_error_wrapper() {
-		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFormErrors">';
-		$html .= '<span class="contact-form__warning-icon" aria-hidden="true"><i></i></span>';
-		$html .= '<span class="contact-form__error-message" tabindex="-1" data-wp-watch="callbacks.focusOnValidationError" data-wp-text="state.getFormErrorMessage"></span>';
-		$html .= '<ul aria-label="' . esc_attr__( 'Form errors', 'jetpack-forms' ) . '">
+	private static function render_error_wrapper( $classes = '' ) {
+		$class_attr = $classes ? ' ' . esc_attr( $classes ) : '';
+		$html       = '<div class="contact-form__error' . $class_attr . '" data-wp-class--show-errors="state.showFormErrors">';
+		$html      .= '<span class="contact-form__warning-icon" aria-hidden="true"><i></i></span>';
+		$html      .= '<span class="contact-form__error-message" tabindex="-1" data-wp-watch="callbacks.focusOnValidationError" data-wp-text="state.getFormErrorMessage"></span>';
+		$html      .= '<ul aria-label="' . esc_attr__( 'Form errors', 'jetpack-forms' ) . '">
 				<template data-wp-each="state.getErrorList" data-wp-key="context.item.id">
 					<li><a data-wp-bind--href="context.item.anchor" data-wp-on--click="actions.scrollIntoView" data-wp-text="context.item.label"></a></li>
 				</template>
 				</ul>';
-		$html .= '</div>';
+		$html      .= '</div>';
 
 		$html .= '<div class="contact-form__error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError" tabindex="-1" data-wp-watch="callbacks.focusOnSubmissionError"></div>';
 		return $html;
@@ -3517,6 +3525,32 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return addslashes( $value );
+	}
+
+	/**
+	 * Get the block's classes.
+	 * This gathers both the alignment classes and the layout classes,
+	 * which go on the outermost div.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @param array $extra_container_classes Extra container classes.
+	 * @return string The block's classes.
+	 */
+	public static function get_block_container_classes( $attributes = array(), $extra_container_classes = array() ) {
+		// using wp-block-jetpack-contact-form-container here
+		// confuses the layout support process, making it place the CSS classes on the container
+		// instead of the actual block.
+		$classes = array( 'jetpack-contact-form-container' );
+
+		$classes = array_merge( $classes, $extra_container_classes );
+
+		if ( isset( $attributes['variationName'] ) && $attributes['variationName'] === 'multistep' ) {
+			$classes[] = 'is-multistep';
+		}
+
+		$classes[] = self::get_block_alignment_class( $attributes );
+
+		return implode( ' ', $classes );
 	}
 
 	/**
