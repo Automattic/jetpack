@@ -534,6 +534,7 @@ class Forms_Abilities {
 		}
 
 		$result = array();
+		'@phan-var array[] $data'; // Phan doesn't narrow after is_wp_error + return.
 		foreach ( $data as $form ) {
 			$result[] = array(
 				'id'            => $form['id'],
