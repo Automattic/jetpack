@@ -57,9 +57,9 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_forms_admin_url without tab when alpha filter is enabled
+	 * Test get_forms_admin_url without tab for wp-build dashboard
 	 */
-	public function test_get_forms_admin_url_alpha_without_tab() {
+	public function test_get_forms_admin_url_wp_build_without_tab() {
 		add_filter( 'jetpack_forms_alpha', '__return_true' );
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=%2F';
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url() );
@@ -67,9 +67,9 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_forms_admin_url with tab when alpha filter is enabled
+	 * Test get_forms_admin_url with tab for wp-build dashboard
 	 */
-	public function test_get_forms_admin_url_alpha_with_tab() {
+	public function test_get_forms_admin_url_wp_build_with_tab() {
 		add_filter( 'jetpack_forms_alpha', '__return_true' );
 
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
@@ -116,7 +116,7 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url_form );
 		$this->assertStringContainsString( '#/forms', $url_form );
 
-		// For non-alpha, edit-feedback equivalent is base URL (no tab).
+		// For legacy dashboard, edit-feedback equivalent is base URL (no tab).
 		$url_feedback = Dashboard::get_forms_admin_url();
 		$expected     = get_admin_url() . 'admin.php?page=' . Dashboard::ADMIN_SLUG;
 		$this->assertEquals( $expected, $url_feedback );
@@ -135,9 +135,9 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_forms_admin_url with screen ID equivalents when alpha filter is enabled.
+	 * Test get_forms_admin_url with screen ID equivalents for wp-build dashboard
 	 */
-	public function test_get_forms_admin_url_alpha_with_screen_id_equivalents() {
+	public function test_get_forms_admin_url_wp_build_with_screen_id_equivalents() {
 		add_filter( 'jetpack_forms_alpha', '__return_true' );
 
 		$url_form = Dashboard::get_forms_admin_url( 'forms' );

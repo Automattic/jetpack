@@ -325,7 +325,7 @@ class Dashboard {
 			'responses/inbox' => '/responses/inbox',
 		);
 
-		if ( isset( $path_map[ $tab ] ) ) {
+		if ( $tab !== null && $tab !== '' && isset( $path_map[ $tab ] ) ) {
 			return $path_map[ $tab ] . $response_ids;
 		}
 		if ( ! empty( $post_id ) ) {
