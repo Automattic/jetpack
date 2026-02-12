@@ -279,7 +279,7 @@ function StageInner() {
 				},
 			},
 			{
-				id: 'copy-shortcode',
+				id: 'copy-embed',
 				isPrimary: false,
 				label: __( 'Copy embed', 'jetpack-forms' ),
 				supportsBulk: false,
@@ -289,15 +289,15 @@ function StageInner() {
 						return;
 					}
 
-					const shortcode = `[contact-form ref="${ item.id }"]`;
+					const embedCode = `[contact-form ref="${ item.id }"]`;
 					try {
-						await navigator.clipboard.writeText( shortcode );
-						createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
+						await navigator.clipboard.writeText( embedCode );
+						createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
 							type: 'snackbar',
 						} );
 					} catch {
 						createErrorNotice(
-							__( 'Failed to copy shortcode. Please try again.', 'jetpack-forms' ),
+							__( 'Failed to copy embed code. Please try again.', 'jetpack-forms' ),
 							{ type: 'snackbar' }
 						);
 					}
