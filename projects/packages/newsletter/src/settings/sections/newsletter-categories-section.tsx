@@ -4,11 +4,12 @@
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { Button, ExternalLink, Notice } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
-import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getSiteType, trackSectionSave } from '../analytics';
 import { fetchCategories } from '../api';
 import type { NewsletterSettings, JetpackNewsletterSettings, WordPressCategory } from '../types';
 
@@ -37,9 +38,16 @@ export function NewsletterCategoriesSection( {
 	jetpackSettings,
 	isNewsletterEnabled,
 }: NewsletterCategoriesSectionProps ): JSX.Element {
+	const siteType = getSiteType( jetpackSettings );
 	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
 	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
+
+	// Track section save
+	const handleSave = useCallback( () => {
+		trackSectionSave( 'newsletter_categories', siteType );
+		onSave();
+	}, [ onSave, siteType ] );
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {
@@ -184,7 +192,7 @@ export function NewsletterCategoriesSection( {
 				<div className="newsletter-settings__section-actions">
 					<Button
 						variant="primary"
-						onClick={ onSave }
+						onClick={ handleSave }
 						disabled={
 							! isNewsletterEnabled ||
 							isSaving ||

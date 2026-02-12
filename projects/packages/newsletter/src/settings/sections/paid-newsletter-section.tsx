@@ -2,15 +2,18 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { JetpackNewsletterSettings } from '../types';
+import { getSiteType, trackPaidPlansClick } from '../analytics';
+import type { JetpackNewsletterSettings, NewsletterSettings } from '../types';
 
 interface PaidNewsletterSectionProps {
 	jetpackSettings: JetpackNewsletterSettings | undefined;
 	isNewsletterEnabled: boolean;
+	hasActivePlan?: NewsletterSettings[ 'newsletter_has_active_plan' ];
 }
 
 /**
@@ -22,10 +25,23 @@ interface PaidNewsletterSectionProps {
 export function PaidNewsletterSection( {
 	jetpackSettings,
 	isNewsletterEnabled,
+	hasActivePlan = false,
 }: PaidNewsletterSectionProps ): JSX.Element | null {
+	const siteType = getSiteType( jetpackSettings );
+
+	// Track paid plans button click
+	const handlePaidPlansClick = useCallback( () => {
+		trackPaidPlansClick( !! hasActivePlan, siteType );
+	}, [ hasActivePlan, siteType ] );
+
 	if ( ! jetpackSettings?.setupPaymentPlansUrl ) {
 		return null;
 	}
+
+	// Button text based on whether they have an active plan
+	const buttonText = hasActivePlan
+		? __( 'Manage Plans', 'jetpack-newsletter' )
+		: __( 'Add Plans', 'jetpack-newsletter' );
 
 	return (
 		<div className="newsletter-settings__section">
@@ -45,8 +61,9 @@ export function PaidNewsletterSection( {
 					target="_blank"
 					rel="noopener noreferrer"
 					disabled={ ! isNewsletterEnabled }
+					onClick={ handlePaidPlansClick }
 				>
-					{ __( 'Add Plans', 'jetpack-newsletter' ) }
+					{ buttonText }
 				</Button>
 			</fieldset>
 		</div>

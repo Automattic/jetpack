@@ -3,10 +3,12 @@
  */
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getSiteType, trackSectionSave } from '../analytics';
 import { ToggleWithEditorLink } from '../components/toggle-with-link';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
@@ -41,9 +43,17 @@ export function SubscriptionsSection( {
 	hasChanges,
 	isNewsletterEnabled,
 }: SubscriptionsSectionProps ): JSX.Element {
+	const siteType = getSiteType( jetpackSettings );
+
 	// Translation strings for save button
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
+
+	// Track section save
+	const handleSave = useCallback( () => {
+		trackSectionSave( 'subscriptions', siteType );
+		onSave();
+	}, [ onSave, siteType ] );
 
 	// Helper to check if we can show editor links for block theme features
 	const canShowBlockThemeEditorLinks =
@@ -72,6 +82,7 @@ export function SubscriptionsSection( {
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template"
 							templateId="single"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -90,6 +101,7 @@ export function SubscriptionsSection( {
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-modal"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -108,6 +120,7 @@ export function SubscriptionsSection( {
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-overlay"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -126,6 +139,7 @@ export function SubscriptionsSection( {
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-floating-button"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -144,6 +158,7 @@ export function SubscriptionsSection( {
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template"
 							templateId="index"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -162,6 +177,7 @@ export function SubscriptionsSection( {
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template"
 							templateId="index"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -238,7 +254,7 @@ export function SubscriptionsSection( {
 				<div className="newsletter-settings__section-actions">
 					<Button
 						variant="primary"
-						onClick={ onSave }
+						onClick={ handleSave }
 						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
 						isBusy={ isSaving }
 					>

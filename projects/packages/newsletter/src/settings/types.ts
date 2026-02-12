@@ -53,6 +53,10 @@ export interface JetpackNewsletterSettings {
 	restApiRoot: string;
 	restApiNonce: string;
 	siteName: string;
+	tracksUserData?: {
+		userid: number;
+		username: string;
+	};
 }
 
 /**

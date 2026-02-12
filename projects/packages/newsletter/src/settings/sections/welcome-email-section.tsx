@@ -8,7 +8,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { NewsletterSettings } from '../types';
+import { getSiteType, trackSectionSave } from '../analytics';
+import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface WelcomeEmailSectionProps {
 	data: NewsletterSettings;
@@ -17,6 +18,7 @@ interface WelcomeEmailSectionProps {
 	isSaving: boolean;
 	hasChanges: boolean;
 	isNewsletterEnabled: boolean;
+	jetpackSettings?: JetpackNewsletterSettings;
 }
 
 // Flattened data structure for DataForm
@@ -39,7 +41,10 @@ export function WelcomeEmailSection( {
 	isSaving,
 	hasChanges,
 	isNewsletterEnabled,
+	jetpackSettings,
 }: WelcomeEmailSectionProps ): JSX.Element {
+	const siteType = getSiteType( jetpackSettings );
+
 	// Flatten data for DataForm
 	const formData: WelcomeEmailFormData = useMemo(
 		() => ( {
@@ -51,6 +56,12 @@ export function WelcomeEmailSection( {
 	// Translation strings for save button
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
+
+	// Track section save
+	const handleSave = useCallback( () => {
+		trackSectionSave( 'welcome_email', siteType );
+		onSave();
+	}, [ onSave, siteType ] );
 
 	const fields: Field< WelcomeEmailFormData >[] = [
 		{
@@ -109,7 +120,7 @@ export function WelcomeEmailSection( {
 				<div className="newsletter-settings__section-actions">
 					<Button
 						variant="primary"
-						onClick={ onSave }
+						onClick={ handleSave }
 						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
 						isBusy={ isSaving }
 					>

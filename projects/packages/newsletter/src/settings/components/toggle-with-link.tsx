@@ -6,10 +6,10 @@ import { type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-
 /**
  * Internal dependencies
  */
+import { trackEditLinkClick, type SiteType } from '../analytics';
 import './toggle-with-link.scss';
 
 interface ToggleWithLinkProps {
@@ -19,18 +19,20 @@ interface ToggleWithLinkProps {
 	url: string;
 	linkText: string;
 	isExternal?: boolean;
+	onLinkClick?: () => void;
 }
 
 /**
  * Generic toggle control with a link in the label
  *
- * @param {object}   props            - Component props
- * @param {object}   props.data       - The data object
- * @param {object}   props.field      - The field definition
- * @param {Function} props.onChange   - Change handler
- * @param {string}   props.url        - URL for the link
- * @param {string}   props.linkText   - Text for the link
- * @param {boolean}  props.isExternal - Whether the link is external (default: true)
+ * @param {object}   props             - Component props
+ * @param {object}   props.data        - The data object
+ * @param {object}   props.field       - The field definition
+ * @param {Function} props.onChange    - Change handler
+ * @param {string}   props.url         - URL for the link
+ * @param {string}   props.linkText    - Text for the link
+ * @param {boolean}  props.isExternal  - Whether the link is external (default: true)
+ * @param {Function} props.onLinkClick - Optional callback when link is clicked
  * @return {JSX.Element} The toggle control with link
  */
 export function ToggleWithLink( {
@@ -40,6 +42,7 @@ export function ToggleWithLink( {
 	url,
 	linkText,
 	isExternal = true,
+	onLinkClick,
 }: ToggleWithLinkProps ): JSX.Element {
 	const handleChange = useCallback( () => {
 		onChange( { [ field.id ]: ! data[ field.id ] } );
@@ -54,9 +57,13 @@ export function ToggleWithLink( {
 				<span className="toggle-with-link__label">
 					{ field.label }
 					{ isExternal ? (
-						<ExternalLink href={ url }>{ linkText }</ExternalLink>
+						<ExternalLink href={ url } onClick={ onLinkClick }>
+							{ linkText }
+						</ExternalLink>
 					) : (
-						<a href={ url }>{ linkText }</a>
+						<a href={ url } onClick={ onLinkClick }>
+							{ linkText }
+						</a>
 					) }
 				</span>
 			}
@@ -73,6 +80,7 @@ interface ToggleWithEditorLinkProps {
 	themeStylesheet: string;
 	postType: 'wp_template' | 'wp_template_part';
 	templateId: string;
+	siteType?: SiteType;
 }
 
 /**
@@ -86,6 +94,7 @@ interface ToggleWithEditorLinkProps {
  * @param {string}   props.themeStylesheet - Theme stylesheet name
  * @param {string}   props.postType        - Post type (wp_template or wp_template_part)
  * @param {string}   props.templateId      - Template ID
+ * @param {SiteType} props.siteType        - Site type for analytics tracking
  * @return {JSX.Element} The toggle control with editor link
  */
 export function ToggleWithEditorLink( {
@@ -96,12 +105,19 @@ export function ToggleWithEditorLink( {
 	themeStylesheet,
 	postType,
 	templateId,
+	siteType,
 }: ToggleWithEditorLinkProps ): JSX.Element {
 	const url = addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 		postType,
 		postId: `${ themeStylesheet }//${ templateId }`,
 		canvas: 'edit',
 	} );
+
+	const handleLinkClick = useCallback( () => {
+		if ( siteType ) {
+			trackEditLinkClick( templateId, siteType );
+		}
+	}, [ siteType, templateId ] );
 
 	return (
 		<ToggleWithLink
@@ -111,6 +127,7 @@ export function ToggleWithEditorLink( {
 			url={ url }
 			linkText={ __( 'Preview and edit', 'jetpack-newsletter' ) }
 			isExternal={ false }
+			onLinkClick={ handleLinkClick }
 		/>
 	);
 }

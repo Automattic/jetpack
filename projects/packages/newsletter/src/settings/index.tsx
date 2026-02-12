@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import {
 	AdminPage,
 	Col,
@@ -14,6 +15,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getSiteType, trackSettingToggle, trackSettingChange } from './analytics';
 import { fetchSettings, updateSettings } from './api';
 import { Header } from './components/header';
 import {
@@ -31,6 +33,24 @@ import type { NewsletterSettings, JetpackNewsletterSettings } from './types';
 import './style.scss';
 
 const MODULE_NAME = __( 'Jetpack Newsletter', 'jetpack-newsletter' );
+
+/**
+ * Boolean settings that should be tracked with trackSettingToggle
+ */
+const BOOLEAN_SETTINGS = [
+	'wpcom_featured_image_in_email',
+	'jetpack_gravatar_in_email',
+	'jetpack_author_in_email',
+	'jetpack_post_date_in_email',
+] as const;
+
+/**
+ * String settings that should be tracked with trackSettingChange
+ */
+const STRING_SETTINGS = [
+	'wpcom_subscription_emails_use_excerpt',
+	'jetpack_subscriptions_reply_to',
+] as const;
 
 /**
  * Normalize settings from API response
@@ -93,6 +113,16 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	// Global notices for success/error messages
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 
+	// Initialize analytics with user data
+	useEffect( () => {
+		if ( jetpackSettings?.tracksUserData?.userid && jetpackSettings?.tracksUserData?.username ) {
+			analytics.initialize(
+				jetpackSettings.tracksUserData.userid,
+				jetpackSettings.tracksUserData.username
+			);
+		}
+	}, [ jetpackSettings ] );
+
 	// Load settings on mount
 	useEffect( () => {
 		fetchSettings( jetpackSettings )
@@ -108,11 +138,35 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			} );
 	}, [ jetpackSettings ] );
 
+	// Get site type for analytics
+	const siteType = getSiteType( jetpackSettings );
+
 	// Handle auto-save for newsletter toggle and email settings
 	const handleAutoSave = useCallback(
 		( updates: Partial< NewsletterSettings > ) => {
 			if ( ! data ) {
 				return;
+			}
+
+			// Track setting changes for analytics
+			for ( const key of Object.keys( updates ) as Array< keyof NewsletterSettings > ) {
+				const newValue = updates[ key ];
+				const oldValue = data[ key ];
+
+				// Skip if value hasn't changed
+				if ( newValue === oldValue ) {
+					continue;
+				}
+
+				// Track boolean settings
+				if ( BOOLEAN_SETTINGS.includes( key as ( typeof BOOLEAN_SETTINGS )[ number ] ) ) {
+					trackSettingToggle( key, !! newValue, siteType );
+				}
+
+				// Track string settings
+				if ( STRING_SETTINGS.includes( key as ( typeof STRING_SETTINGS )[ number ] ) ) {
+					trackSettingChange( key, String( newValue ), siteType );
+				}
 			}
 
 			// Update local state optimistically
@@ -133,7 +187,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					setData( data );
 				} );
 		},
-		[ createErrorNotice, createSuccessNotice, data, jetpackSettings ]
+		[ createErrorNotice, createSuccessNotice, data, jetpackSettings, siteType ]
 	);
 
 	// Handle sender name changes (staged, not auto-saved)
@@ -364,6 +418,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 						<PaidNewsletterSection
 							jetpackSettings={ jetpackSettings }
 							isNewsletterEnabled={ data.subscriptions }
+							hasActivePlan={ data.newsletter_has_active_plan }
 						/>
 
 						<NewsletterCategoriesSection
@@ -413,6 +468,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 							isSaving={ isSavingWelcomeEmail }
 							hasChanges={ hasWelcomeEmailChanges }
 							isNewsletterEnabled={ data.subscriptions }
+							jetpackSettings={ jetpackSettings }
 						/>
 
 						<GlobalNotices />

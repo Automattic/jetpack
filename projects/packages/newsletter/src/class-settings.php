@@ -14,6 +14,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
+use Jetpack_Tracks_Client;
 
 /**
  * A class responsible for adding a newsletter settings screen to wp-admin.
@@ -200,6 +201,9 @@ class Settings {
 			'window.jetpackNewsletterSettings = ' . wp_json_encode( $this->get_settings_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 			'before'
 		);
+
+		// Enqueue the Tracks script for analytics.
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	/**
@@ -272,6 +276,7 @@ class Settings {
 			'restApiRoot'                     => esc_url_raw( rest_url() ),
 			'restApiNonce'                    => wp_create_nonce( 'wp_rest' ),
 			'siteName'                        => get_bloginfo( 'name' ),
+			'tracksUserData'                  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 		);
 	}
 

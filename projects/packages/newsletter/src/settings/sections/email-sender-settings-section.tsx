@@ -3,11 +3,12 @@
  */
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getSiteType, trackSectionSave } from '../analytics';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface EmailSenderSettingsSectionProps {
@@ -37,9 +38,17 @@ export function EmailSenderSettingsSection( {
 	jetpackSettings,
 	isNewsletterEnabled,
 }: EmailSenderSettingsSectionProps ): JSX.Element {
+	const siteType = getSiteType( jetpackSettings );
+
 	// Translation strings for save button
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
+
+	// Track section save
+	const handleSave = useCallback( () => {
+		trackSectionSave( 'sender_settings', siteType );
+		onSave();
+	}, [ onSave, siteType ] );
 
 	const fields: Field< NewsletterSettings >[] = [
 		{
@@ -98,7 +107,7 @@ export function EmailSenderSettingsSection( {
 				<div className="newsletter-settings__section-actions">
 					<Button
 						variant="primary"
-						onClick={ onSave }
+						onClick={ handleSave }
 						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
 						isBusy={ isSaving }
 					>
