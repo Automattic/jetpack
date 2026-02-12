@@ -64,7 +64,7 @@ class Script_Data {
 			'../build/jetpack-script-data.js',
 			__FILE__,
 			array(
-				'in_footer'  => false,
+				'in_footer'  => true,
 				'textdomain' => 'jetpack-assets',
 			)
 		);
