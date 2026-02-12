@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.10
+ * Stubs automatically generated from PHPUnit 12.5.11
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -14138,11 +14138,12 @@ trait Method
  */
 trait MockObjectApi
 {
-    /** @noinspection MagicMethodsValidityInspection */
-    public function __phpunit_hasMatchers(): bool
+    public function __phpunit_hasInvocationCountRule(): bool
     {
     }
-    /** @noinspection MagicMethodsValidityInspection */
+    public function __phpunit_hasParametersRule(): bool
+    {
+    }
     public function __phpunit_verify(bool $unsetInvocationMocker = true): void
     {
     }
@@ -14176,11 +14177,9 @@ trait StubApi
     public function __phpunit_state(): \PHPUnit\Framework\MockObject\TestDoubleState
     {
     }
-    /** @noinspection MagicMethodsValidityInspection */
     public function __phpunit_getInvocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler
     {
     }
-    /** @noinspection MagicMethodsValidityInspection */
     public function __phpunit_unsetInvocationMocker(): void
     {
     }
@@ -14195,7 +14194,7 @@ final class TestDoubleState
     /**
      * @param list<ConfigurableMethod> $configurableMethods
      */
-    public function __construct(array $configurableMethods, bool $generateReturnValues)
+    public function __construct(array $configurableMethods, bool $generateReturnValues, bool $isMockObject = false)
     {
     }
     public function invocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler
@@ -14324,7 +14323,8 @@ interface MockObject extends \PHPUnit\Framework\MockObject\Stub
  */
 interface MockObjectInternal extends \PHPUnit\Framework\MockObject\MockObject, \PHPUnit\Framework\MockObject\StubInternal
 {
-    public function __phpunit_hasMatchers(): bool;
+    public function __phpunit_hasInvocationCountRule(): bool;
+    public function __phpunit_hasParametersRule(): bool;
     public function __phpunit_verify(bool $unsetInvocationMocker = true): void;
 }
 /**
@@ -14401,10 +14401,16 @@ final class InvocationHandler
     /**
      * @param list<ConfigurableMethod> $configurableMethods
      */
-    public function __construct(array $configurableMethods, bool $returnValueGeneration)
+    public function __construct(array $configurableMethods, bool $returnValueGeneration, bool $isMockObject = false)
     {
     }
-    public function hasMatchers(): bool
+    public function isMockObject(): bool
+    {
+    }
+    public function hasInvocationCountRule(): bool
+    {
+    }
+    public function hasParametersRule(): bool
     {
     }
     /**
@@ -14546,7 +14552,7 @@ final class Matcher
     public function __construct(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $rule)
     {
     }
-    public function hasMatchers(): bool
+    public function hasInvocationCountRule(): bool
     {
     }
     public function hasMethodNameRule(): bool

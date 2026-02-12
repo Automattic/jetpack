@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
+use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
 use Jetpack_Tracks_Event;
@@ -153,19 +154,57 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static $ref_id = null;
 
 	/**
+	 * Seen reference IDs for the contact form.
+	 *
+	 * @var array
+	 */
+	private static $seen_ref = array();
+
+	/**
 	 * Set the reference ID for the contact form.
 	 *
 	 * @param int $ref_id The reference ID.
 	 */
 	public static function set_ref_id( $ref_id ) {
-		self::$ref_id = $ref_id;
+		self::$ref_id              = $ref_id;
+		self::$seen_ref[ $ref_id ] = true;
 	}
 
 	/**
 	 * Clear the reference ID for the contact form.
+	 *
+	 * @param int $ref_id The reference ID to clear.
 	 */
-	public static function clear_ref_id() {
-		self::$ref_id = null;
+	public static function clear_ref_id( $ref_id ) {
+		self::$ref_id              = null;
+		self::$seen_ref[ $ref_id ] = false;
+	}
+
+	/**
+	 * Get the reference ID for the contact form.
+	 *
+	 * @return int|null The reference ID.
+	 */
+	public static function get_ref_id() {
+		return self::$ref_id;
+	}
+
+	/**
+	 * Check if the reference ID has been seen for the contact form.
+	 *
+	 * @param int $ref_id The reference ID.
+	 * @return bool True if the reference ID has been seen, false otherwise.
+	 */
+	public static function has_seen( $ref_id ) {
+		return isset( self::$seen_ref[ $ref_id ] ) && self::$seen_ref[ $ref_id ];
+	}
+
+	/**
+	 * Reset the seen reference IDs for the contact form.
+	 */
+	public static function reset_seen_refs() {
+		self::$seen_ref = array();
+		self::$ref_id   = null;
 	}
 
 	/**
@@ -1080,15 +1119,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 
 		$is_single_input_form = is_array( $form->fields ) && count( $form->fields ) === 1;
+		$is_flex_layout       = isset( $attributes['layout']['type'] ) && $attributes['layout']['type'] === 'flex';
+		$is_nowrap_layout     = isset( $attributes['layout']['flexWrap'] ) && $attributes['layout']['flexWrap'] === 'nowrap';
+		$is_forced_horizontal = $is_flex_layout && $is_nowrap_layout
+			&& ( ! isset( $attributes['layout']['orientation'] ) || $attributes['layout']['orientation'] === 'horizontal' );
 
-		$container_classes = array( 'wp-block-jetpack-contact-form-container' );
-
-		if ( $is_single_input_form ) {
-			$container_classes[] = 'is-single-input-form';
+		$extra_container_classes = array();
+		if ( $is_forced_horizontal ) {
+			$extra_container_classes[] = 'is-forced-horizontal-form';
 		}
-
-		$container_classes[]      = self::get_block_alignment_class( $attributes );
-		$container_classes_string = implode( ' ', $container_classes );
+		if ( $is_single_input_form ) {
+			$extra_container_classes[] = 'is-single-input-form';
+		}
+		$container_classes_string = self::get_block_container_classes( $attributes, $extra_container_classes );
 
 		$is_reload_after_success = isset( $_GET['contact-form-id'] )
 		&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
@@ -1146,6 +1189,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'submissionError'         => null,
 			'elementId'               => $element_id,
 			'isSingleInputForm'       => $is_single_input_form,
+			'isForcedHorizontal'      => $is_forced_horizontal,
 		);
 
 		if ( $is_multistep ) {
@@ -1226,17 +1270,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 */
 			$url                     = apply_filters( 'grunion_contact_form_form_action', $url, $GLOBALS['post'], $id, $page );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' ) || str_contains( $content, 'wp-block-button' );
-			$form_classes            = 'contact-form commentsblock';
+			$form_classes            = 'contact-form commentsblock jetpack-contact-form__form';
 			if ( $submission_success ) {
 				$form_classes .= ' submission-success';
 			}
 			$post_title           = $post->post_title ?? '';
 			$form_accessible_name = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
 			$form_aria_label      = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
-
-			if ( $has_submit_button_block ) {
-				$form_classes .= ' wp-block-jetpack-contact-form';
-			}
 
 			$r .= "<form action='" . esc_url( $url ) . "'
 				id='" . $element_id . "'
@@ -1258,18 +1298,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			if ( $is_multistep ) {
 				$r = preg_replace( '/<div class="wp-block-jetpack-form-step-navigation__wrapper/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-form-step-navigation__wrapper', $r, 1 );
-			} elseif ( $has_submit_button_block && ! $is_single_input_form ) {
+			} elseif ( $has_submit_button_block ) {
+				$r = self::prepare_submit_button( $r );
 				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
 				// Replace only the first occurrence of a wp-block-jetpack-button prepending it with the error wrapper.
 				// Fallback with same strategy for new core button blocks.
-				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
-				if ( str_contains( $r, 'wp-block-button' ) ) {
-					$r = preg_replace( '/<div class="wp-block-button/', self::render_error_wrapper() . ' <div class="wp-block-button', $r, 1 );
+				if ( $is_forced_horizontal || $is_single_input_form ) {
+					// When user forced a horizontal layout, place the error wrapper
+					// after the form body.
+					$r .= self::render_error_wrapper( 'is-horizontal' );
+				} else {
+					// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
+					// Replace only the first occurrence.
+					$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
+					if ( str_contains( $r, 'wp-block-button' ) ) {
+						$r = preg_replace( '/<div class="wp-block-button/', self::render_error_wrapper() . ' <div class="wp-block-button', $r, 1 );
+					}
 				}
-			}
-
-			if ( $has_submit_button_block ) {
-				$r = self::prepare_submit_button( $r );
 			}
 
 			// In new versions of the contact form block the button is an inner block
@@ -1563,18 +1608,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper function that display the error wrapper.
 	 *
+	 * @param string $classes - the class names to add to the error wrapper.
 	 * @return string HTML string for the error wrapper.
 	 */
-	private static function render_error_wrapper() {
-		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFormErrors">';
-		$html .= '<span class="contact-form__warning-icon" aria-hidden="true"><i></i></span>';
-		$html .= '<span class="contact-form__error-message" tabindex="-1" data-wp-watch="callbacks.focusOnValidationError" data-wp-text="state.getFormErrorMessage"></span>';
-		$html .= '<ul aria-label="' . esc_attr__( 'Form errors', 'jetpack-forms' ) . '">
+	private static function render_error_wrapper( $classes = '' ) {
+		$class_attr = $classes ? ' ' . esc_attr( $classes ) : '';
+		$html       = '<div class="contact-form__error' . $class_attr . '" data-wp-class--show-errors="state.showFormErrors">';
+		$html      .= '<span class="contact-form__warning-icon" aria-hidden="true"><i></i></span>';
+		$html      .= '<span class="contact-form__error-message" tabindex="-1" data-wp-watch="callbacks.focusOnValidationError" data-wp-text="state.getFormErrorMessage"></span>';
+		$html      .= '<ul aria-label="' . esc_attr__( 'Form errors', 'jetpack-forms' ) . '">
 				<template data-wp-each="state.getErrorList" data-wp-key="context.item.id">
 					<li><a data-wp-bind--href="context.item.anchor" data-wp-on--click="actions.scrollIntoView" data-wp-text="context.item.label"></a></li>
 				</template>
 				</ul>';
-		$html .= '</div>';
+		$html      .= '</div>';
 
 		$html .= '<div class="contact-form__error" data-wp-class--show-errors="state.showSubmissionError" data-wp-text="context.submissionError" tabindex="-1" data-wp-watch="callbacks.focusOnSubmissionError"></div>';
 		return $html;
@@ -1932,12 +1979,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
-		$compiled_form = array();
-		$response      = Feedback::get( $feedback_id );
+		$compiled_form    = array();
+		$field_collection = array();
+		$response         = Feedback::get( $feedback_id );
 
 		if ( $response instanceof Feedback ) {
-			// If the response is an instance of Feedback, we can use its method to get compiled fields.
-			$compiled_form = $response->get_compiled_fields( 'email', 'all' );
+			// Get both formats: 'all' for backward-compat filter, 'collection' for type-aware rendering.
+			$compiled_form    = $response->get_compiled_fields( 'email', 'all' );
+			$field_collection = $response->get_compiled_fields( 'email_html', 'collection' );
 		}
 
 		/**
@@ -1953,10 +2002,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		$updated_compiled_form = apply_filters( 'jetpack_forms_response_email', $compiled_form, $feedback_id, $form );
 		if ( $updated_compiled_form !== $compiled_form ) {
+			// Filter was customized — use old rendering path for backward compat.
 			$compiled_form = $updated_compiled_form;
-		} else {
-			// add styling to the array
 			foreach ( $compiled_form as $key => $value ) {
+				if ( ! is_array( $value ) || ! isset( $value['label'] ) ) {
+					continue;
+				}
 				$safe_display_label = self::escape_and_sanitize_field_label( $value['label'] );
 				$safe_display_value = self::escape_and_sanitize_field_value( $value['value'] );
 
@@ -1972,6 +2023,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 						$safe_display_value
 					);
 				}
+			}
+		} else {
+			// No filter customization — use new type-aware rendering.
+			$compiled_form = array();
+			foreach ( $field_collection as $field_data ) {
+				$compiled_form[] = self::format_field_for_email( $field_data );
 			}
 		}
 
@@ -2031,6 +2088,50 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
 		return nl2br( wp_kses( $value, array() ) );
+	}
+
+	/**
+	 * Format a single field for the email notification using type-aware rendering.
+	 *
+	 * Takes a collection item from get_compiled_fields( 'email_html', 'collection' )
+	 * and produces a table row with an icon, label, and type-specific value.
+	 *
+	 * @param array $field_data Field data with keys: label, value, type, id, key, meta.
+	 * @return string HTML for the field row.
+	 */
+	private static function format_field_for_email( $field_data ) {
+		$label = isset( $field_data['label'] ) ? $field_data['label'] : '';
+		$value = isset( $field_data['value'] ) ? $field_data['value'] : '';
+		$type  = isset( $field_data['type'] ) ? $field_data['type'] : 'text';
+
+		$safe_label = self::escape_and_sanitize_field_label( $label );
+		$icon_name  = Feedback_Field::get_icon_name_for_type( $type );
+		$icon_url   = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/' . $icon_name . '@2x.png';
+
+		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #F0F0F0; padding: 0; margin: 0;">';
+		$html .= '<tr>';
+		$html .= '<td width="24" valign="top" style="padding: 20px 16px 20px 0; width: 24px; vertical-align: top;">';
+		$html .= sprintf(
+			'<img src="%s" width="24" height="24" alt="" style="display: block; width: 24px; height: 24px;" />',
+			esc_url( $icon_url )
+		);
+		$html .= '</td>';
+		$html .= '<td valign="top" style="padding: 20px 0;">';
+		if ( ! empty( $safe_label ) ) {
+			$html .= sprintf(
+				'<div style="font-size: 13px; color: #757575; line-height: 1.4; margin-bottom: 8px;">%s</div>',
+				esc_html( $safe_label )
+			);
+		}
+		$html .= sprintf(
+			'<div style="font-size: 13px; color: #1e1e1e; line-height: 1.5;">%s</div>',
+			$value
+		);
+		$html .= '</td>';
+		$html .= '</tr>';
+		$html .= '</table>';
+
+		return $html;
 	}
 
 	/**
@@ -2719,8 +2820,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @param string the title of the email
 		 */
-		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
-		$message = self::get_compiled_form_for_email( $post_id, $this );
+		$default_email_title = __( 'Hey, a new form response just came in!', 'jetpack-forms' );
+		$title               = (string) apply_filters( 'jetpack_forms_response_email_title', $default_email_title );
+		$message             = self::get_compiled_form_for_email( $post_id, $this );
 
 		if ( is_user_logged_in() ) {
 			$sent_by_text = sprintf(
@@ -2768,6 +2870,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Build the dashboard URL with the status and the feedback's post id if we have a post id
 		$dashboard_url           = '';
+		$mark_as_spam_url        = '';
 		$footer_mark_as_spam_url = '';
 		if ( $feedback_status !== 'jp-temp-feedback' ) {
 			$dashboard_url           = Forms_Dashboard::get_forms_admin_url( $status ) . '&r=' . $post_id;
@@ -2807,29 +2910,45 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
-		// Build the actions url if we have a dashboard url
 		$actions = '';
 		if ( $dashboard_url ) {
 			$actions = sprintf(
-				'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
+				'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
 					<tr>
-						<td class="pad" align="center">
-							<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
-								<!--[if mso]>
-								<i style="mso-text-raise: 30pt;">&nbsp;</i>
-								<![endif]-->
-								<span>%2$s</span>
-								<!--[if mso]>
-								<i>&nbsp;</i>
-								<![endif]-->
-							</a>
+						<td class="button-cell" width="50%%" style="text-align: right; padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+							<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; background-color: transparent; color: #1e1e1e; border: 1px solid #1e1e1e; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
+						</td>
+						<td class="button-cell" width="50%%" style="text-align: left; padding-left: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+							<a href="%3$s" class="action-button action-button-primary" style="background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
 						</td>
 					</tr>
 				</table>',
+				esc_url( $mark_as_spam_url ),
+				__( 'Mark as spam', 'jetpack-forms' ),
 				esc_url( $dashboard_url ),
 				__( 'View in dashboard', 'jetpack-forms' )
 			);
 		}
+
+		$respondent_info = array(
+			'name'   => $comment_author,
+			'email'  => $comment_author_email,
+			'avatar' => $response->get_author_avatar(),
+		);
+
+		$form_title = $this->get_attribute( 'formTitle' );
+		if ( empty( $form_title ) && $this->current_post ) {
+			$form_title = self::get_post_property( $this->current_post, 'post_title' );
+		}
+
+		$metadata = array(
+			'date'       => $time,
+			'source'     => $form_title,
+			'source_url' => $url,
+			'device'     => $response->get_browser(),
+			'ip'         => $comment_author_ip,
+			'ip_flag'    => $response->get_country_flag(),
+		);
 
 		/**
 		 * Filters the message sent via email after a successful form submission.
@@ -2844,7 +2963,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
 
 		// This is called after `contact_form_message`, in order to preserve back-compat
-		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions );
+		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions, $respondent_info, $metadata );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
@@ -3132,10 +3251,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $body - the message body.
 	 * @param string $footer - the footer containing meta information.
 	 * @param string $actions - HTML for actions displayed in the email.
+	 * @param array  $respondent_info - Optional. Respondent information array with 'name', 'email', 'avatar'.
+	 * @param array  $metadata - Optional. Metadata array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag'.
 	 *
 	 * @return string
 	 */
-	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '' ) {
+	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '', $respondent_info = array(), $metadata = array() ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
 		if ( str_contains( $body, '<html' ) ) {
@@ -3177,24 +3298,31 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @param string $powered_by_html The HTML for the powered by section in the email.
 		 */
+		$logo_url        = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/jetpack-logo@2x.png';
 		$powered_by_html = apply_filters(
 			'jetpack_forms_email_powered_by_html',
 			str_replace(
 				"\t",
 				'',
 				'
-				<tr>
-					<td class="content-block powered-by">
-					' .
+				<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="powered-by-table" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-top: 24px;">
+					<tr>
+						<td align="center" class="powered-by" style="padding: 24px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+							<img src="' . esc_url( $logo_url ) . '" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none;">
+							<span style="font-size: 13px; color: #50575e; line-height: 20px;">' .
 					sprintf(
 						// translators: %1$s is a link to the Jetpack Forms page.
 						__( 'Powered by %1$s', 'jetpack-forms' ),
-						'<a href="https://jetpack.com/forms/?utm_source=jetpack-forms&utm_medium=email&utm_campaign=form-submissions">Jetpack Forms</a>'
-					) . '
-					</td>
-				</tr>'
+						'<a href="https://jetpack.com/forms/?utm_source=jetpack-forms&utm_medium=email&utm_campaign=form-submissions" style="color: #50575e; text-decoration: none;">Jetpack Forms</a>'
+					) . '</span>
+						</td>
+					</tr>
+				</table>'
 			)
 		);
+
+		$respondent_html = self::generate_respondent_info_html( $respondent_info );
+		$metadata_html   = self::generate_metadata_html( $metadata );
 
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
@@ -3204,7 +3332,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'',
 				$template
 			),
-			( $title !== '' ? '<h1>' . $title . '</h1>' : '' ),
+			esc_html( $title ),
 			$body,
 			'',
 			'',
@@ -3212,10 +3340,143 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$style,
 			$tracking_pixel,
 			$actions,
-			$powered_by_html
+			$powered_by_html,
+			$respondent_html,
+			$metadata_html
 		);
 
 		return $html_message;
+	}
+
+	/**
+	 * Generate HTML for respondent info section in email.
+	 *
+	 * @param array $respondent_info Array with 'name', 'email', 'avatar' keys.
+	 * @return string HTML for respondent info section.
+	 */
+	private static function generate_respondent_info_html( $respondent_info ) {
+		if ( empty( $respondent_info ) ) {
+			return '';
+		}
+
+		$name   = isset( $respondent_info['name'] ) ? esc_html( $respondent_info['name'] ) : '';
+		$email  = isset( $respondent_info['email'] ) ? esc_html( $respondent_info['email'] ) : '';
+		$avatar = isset( $respondent_info['avatar'] ) ? esc_url( $respondent_info['avatar'] ) : '';
+
+		// Don't show section if there's no name or email.
+		if ( empty( $name ) && empty( $email ) ) {
+			return '';
+		}
+
+		// Get initials for avatar fallback.
+		$initials = '';
+		if ( ! empty( $name ) ) {
+			$name_parts = explode( ' ', $name );
+			$initials   = strtoupper( substr( $name_parts[0], 0, 1 ) );
+			if ( count( $name_parts ) > 1 ) {
+				$initials .= strtoupper( substr( end( $name_parts ), 0, 1 ) );
+			}
+		} elseif ( ! empty( $email ) ) {
+			$initials = strtoupper( substr( $email, 0, 1 ) );
+		}
+
+		// Avatar content - either image or initials.
+		$avatar_content = ! empty( $avatar )
+			? '<img src="' . $avatar . '" alt="" width="48" height="48" style="border-radius: 24px;">'
+			: esc_html( $initials );
+
+		$html = '
+		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="respondent-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 16px;">
+			<tr>
+				<td class="respondent-avatar-cell" style="width: 64px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+					<!--[if mso]>
+					<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="48" height="48" style="width: 48px; height: 48px;">
+					<tr>
+					<td align="center" valign="middle" style="width: 48px; height: 48px; background-color: #f0f0f0; border-radius: 24px; font-size: 18px; font-weight: 600; color: #50575e;">
+					<![endif]-->
+					<div class="respondent-avatar-wrapper" style="width: 48px; height: 48px; border-radius: 24px; background-color: #f0f0f0; text-align: center; line-height: 48px; font-size: 18px; font-weight: 600; color: #50575e;">
+						' . $avatar_content . '
+					</div>
+					<!--[if mso]>
+					</td>
+					</tr>
+					</table>
+					<![endif]-->
+				</td>
+				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 500; color: #1e1e1e; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . Feedback_Field::HEADER_LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
+				</td>
+			</tr>
+		</table>';
+
+		return str_replace( "\t", '', $html );
+	}
+
+	/**
+	 * Generate HTML for metadata section in email.
+	 *
+	 * @param array $metadata Array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag' keys.
+	 * @return string HTML for metadata section.
+	 */
+	private static function generate_metadata_html( $metadata ) {
+		if ( empty( $metadata ) ) {
+			return '';
+		}
+
+		$rows = array();
+
+		if ( ! empty( $metadata['date'] ) ) {
+			$rows[] = self::generate_metadata_row( __( 'Date', 'jetpack-forms' ), esc_html( $metadata['date'] ) );
+		}
+
+		if ( ! empty( $metadata['source'] ) ) {
+			$source_value = esc_html( $metadata['source'] );
+			if ( ! empty( $metadata['source_url'] ) ) {
+				$source_value = '<a href="' . esc_url( $metadata['source_url'] ) . '" style="color: ' . Feedback_Field::get_admin_theme_color() . '; text-decoration: underline;">' . $source_value . '</a>';
+			}
+			$rows[] = self::generate_metadata_row( __( 'Source', 'jetpack-forms' ), $source_value );
+		}
+
+		if ( ! empty( $metadata['device'] ) ) {
+			$rows[] = self::generate_metadata_row( __( 'Device', 'jetpack-forms' ), esc_html( $metadata['device'] ) );
+		}
+
+		if ( ! empty( $metadata['ip'] ) ) {
+			$ip_value = '';
+			if ( ! empty( $metadata['ip_flag'] ) ) {
+				$ip_value .= $metadata['ip_flag'] . ' ';
+			}
+			$ip_value .= esc_html( $metadata['ip'] );
+			$rows[]    = self::generate_metadata_row( __( 'IP address', 'jetpack-forms' ), $ip_value );
+		}
+
+		if ( empty( $rows ) ) {
+			return '';
+		}
+
+		$html = '
+		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; margin-bottom: 24px;">
+			' . implode( '', $rows ) . '
+			<tr><td colspan="2" style="padding: 24px 0 0 0; border-bottom: 1px solid #E4E4E7; font-size: 0; line-height: 0;">&nbsp;</td></tr>
+		</table>';
+
+		return str_replace( "\t", '', $html );
+	}
+
+	/**
+	 * Generate a single metadata row.
+	 *
+	 * @param string $label The label text.
+	 * @param string $value The value (can contain HTML).
+	 * @return string HTML for the row.
+	 */
+	private static function generate_metadata_row( $label, $value ) {
+		return '
+			<tr>
+				<td class="metadata-label" style="color: #636363; width: 110px; padding: 4px 12px 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . esc_html( $label ) . ':</td>
+				<td class="metadata-value" style="color: #1e1e1e; padding: 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . $value . '</td>
+			</tr>';
 	}
 
 	/**
@@ -3264,6 +3525,32 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return addslashes( $value );
+	}
+
+	/**
+	 * Get the block's classes.
+	 * This gathers both the alignment classes and the layout classes,
+	 * which go on the outermost div.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @param array $extra_container_classes Extra container classes.
+	 * @return string The block's classes.
+	 */
+	public static function get_block_container_classes( $attributes = array(), $extra_container_classes = array() ) {
+		// using wp-block-jetpack-contact-form-container here
+		// confuses the layout support process, making it place the CSS classes on the container
+		// instead of the actual block.
+		$classes = array( 'jetpack-contact-form-container' );
+
+		$classes = array_merge( $classes, $extra_container_classes );
+
+		if ( isset( $attributes['variationName'] ) && $attributes['variationName'] === 'multistep' ) {
+			$classes[] = 'is-multistep';
+		}
+
+		$classes[] = self::get_block_alignment_class( $attributes );
+
+		return implode( ' ', $classes );
 	}
 
 	/**

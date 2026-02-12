@@ -130,6 +130,21 @@ describe( 'ConvertFormToolbar', () => {
 			} );
 		} );
 
+		it( 'calls onBeforeNavigate before navigating to synced form', async () => {
+			const mockOnBeforeNavigate = jest.fn();
+			render(
+				<ConvertFormToolbar
+					clientId="test-id"
+					attributes={ { ref: 456 } }
+					onBeforeNavigate={ mockOnBeforeNavigate }
+				/>
+			);
+			await userEvent.click( screen.getByRole( 'button' ) );
+
+			expect( mockOnBeforeNavigate ).toHaveBeenCalled();
+			expect( mockOnNavigateToEntityRecord ).toHaveBeenCalled();
+		} );
+
 		it( 'creates synced form and navigates on convert', async () => {
 			mockCreateSyncedForm.mockResolvedValue( 789 );
 

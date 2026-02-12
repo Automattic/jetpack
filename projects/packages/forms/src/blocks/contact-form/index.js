@@ -4,6 +4,7 @@ import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import defaultAttributes from './attributes.ts';
+import blockMetadata from './block.json';
 import deprecated from './deprecated.js';
 import edit from './edit.tsx';
 import transforms from './transforms.js';
@@ -33,8 +34,14 @@ const icon = renderMaterialIcon(
 	</>
 );
 
+// Extract only valid block registration properties from block.json
+// Exclude file-based properties like editorScript, style, etc.
+const { editorScript, style, name: blockName, $schema, ...validBlockMetadata } = blockMetadata;
+
 export const settings = {
-	apiVersion: 3,
+	// Import valid metadata from block.json to ensure consistency
+	...validBlockMetadata,
+	// Override/extend with JS-specific settings
 	title: __( 'Form', 'jetpack-forms' ),
 	description: __(
 		'Create forms to collect data from site visitors and manage their responses.',
@@ -46,19 +53,6 @@ export const settings = {
 		_x( 'feedback', 'block search term', 'jetpack-forms' ),
 		_x( 'contact form', 'block search term', 'jetpack-forms' ),
 	],
-	supports: {
-		color: {
-			link: true,
-			gradients: true,
-		},
-		html: false,
-		spacing: {
-			padding: true,
-			margin: true,
-		},
-		align: [ 'wide', 'full' ],
-		listView: true,
-	},
 	attributes: defaultAttributes,
 	providesContext: {
 		'jetpack/form-class-name': 'className',

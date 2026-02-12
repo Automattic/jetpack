@@ -348,6 +348,13 @@ class Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
+		wp_register_style(
+			'jetpack-forms-layout',
+			Jetpack_Forms::plugin_url() . '../dist/contact-form/css/jetpack-forms-layout.css',
+			array( 'grunion.css' ),
+			\JETPACK__VERSION
+		);
+
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
 		if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
@@ -1490,7 +1497,7 @@ class Contact_Form_Plugin {
 	public function unread_count() {
 
 		global $submenu, $menu;
-		if ( apply_filters( 'jetpack_forms_use_new_menu_parent', true ) && current_user_can( 'edit_pages' ) ) {
+		if ( current_user_can( 'edit_pages' ) ) {
 			// show the count on Jetpack and Jetpack → Forms
 			$unread = self::get_unread_count();
 
@@ -1521,7 +1528,8 @@ class Contact_Form_Plugin {
 
 				// Jetpack submenu entries
 				foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-					if ( 'jetpack-forms-admin' === $menu_item[2] ) {
+					$admin_slug = apply_filters( 'jetpack_forms_alpha', false ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
+					if ( $admin_slug === $menu_item[2] ) {
 						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 						$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
 					}

@@ -7,20 +7,17 @@
  * It also locks the form block to prevent it from being moved or removed.
  */
 
+import { createBlock, cloneBlock } from '@wordpress/blocks';
 import { subscribe, select, dispatch } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 import {
 	activateBlockCategoryOverrides,
 	deactivateBlockCategoryOverrides,
 } from './utils/block-category-override';
-import {
-	BlockLock,
-	findFormBlock,
-	getInsertionIndex,
-	shouldLockBlock,
-	getBlocksToMove,
-} from './utils/block-utils';
+import { determineBlockNestingAction } from './utils/block-nesting-logic';
+import { BlockLock, findFormBlock, shouldLockBlock, getBlocksToMove } from './utils/block-utils';
 import {
 	moveContactFormCategoryToFront as moveCategoryToFront,
 	moveContactFormCategoryToBack as moveCategoryToBack,
@@ -247,26 +244,76 @@ const enforceBlockNesting = () => {
 
 	// Get the form block to determine where to insert the blocks
 	const formBlock = rootBlocks.find( b => b.clientId === state.formBlockClientId );
-	const targetIndex = formBlock ? getInsertionIndex( formBlock ) : 0;
+	if ( ! formBlock ) {
+		return;
+	}
 
-	// Collect all client IDs to move
-	const clientIdsToMove = blocksToMove.map( block => block.clientId );
+	// Determine what action to take based on form state and blocks to move
+	const action = determineBlockNestingAction( formBlock, blocksToMove );
 
-	const { moveBlocksToPosition } = dispatch( 'core/block-editor' ) as {
-		moveBlocksToPosition: (
-			clientIds: string[],
-			source: string,
-			destination: string,
-			index: number
+	const { replaceInnerBlocks, removeBlocks, __unstableMarkNextChangeAsNotPersistent } = dispatch(
+		'core/block-editor'
+	) as {
+		replaceInnerBlocks: (
+			rootClientId: string,
+			blocks: ReturnType< typeof createBlock >[],
+			updateSelection?: boolean
 		) => void;
+		removeBlocks: ( clientIds: string[] ) => void;
+		__unstableMarkNextChangeAsNotPersistent: () => void;
 	};
-	// Move all blocks at once to avoid state conflicts
-	moveBlocksToPosition(
-		clientIdsToMove,
-		'', // From root
-		state.formBlockClientId, // To form block
-		targetIndex
+
+	const { selectBlock } = dispatch( 'core/block-editor' ) as {
+		selectBlock: ( clientId: string ) => void;
+	};
+
+	// Handle dedupe-empty-paragraph case: just remove the stray paragraph and select the existing one
+	if ( action.type === 'dedupe-empty-paragraph' ) {
+		__unstableMarkNextChangeAsNotPersistent();
+		removeBlocks( [ blocksToMove[ 0 ].clientId ] );
+		selectBlock( action.existingEmptyParagraphId! );
+		return;
+	}
+
+	// Handle move-blocks case: clone blocks and insert them into the form
+	const clonedBlocks = blocksToMove.map( block => cloneBlock( block ) );
+
+	// Build the new inner blocks array
+	let newInnerBlocks: ReturnType< typeof createBlock >[];
+
+	if ( action.addSubmitButton ) {
+		// Form was empty, add a submit button after the moved blocks
+		const submitButton = createBlock( 'jetpack/button', {
+			element: 'button',
+			text: __( 'Submit', 'jetpack-forms' ),
+			lock: { move: false, remove: true },
+		} );
+
+		newInnerBlocks = [ ...clonedBlocks, submitButton ];
+	} else {
+		// Form already has blocks, insert new blocks at the target index
+		const existingBlocks = [ ...formBlock.innerBlocks ];
+		existingBlocks.splice( action.insertionIndex!, 0, ...clonedBlocks );
+		newInnerBlocks = existingBlocks;
+	}
+
+	// First remove the original blocks from root level
+	const clientIdsToRemove = blocksToMove.map( block => block.clientId );
+	__unstableMarkNextChangeAsNotPersistent();
+	removeBlocks( clientIdsToRemove );
+
+	// Then use replaceInnerBlocks to set the form's inner blocks
+	__unstableMarkNextChangeAsNotPersistent();
+	replaceInnerBlocks(
+		state.formBlockClientId,
+		newInnerBlocks,
+		false // Don't update selection
 	);
+
+	// Select the first of the newly added blocks
+	if ( clonedBlocks.length > 0 ) {
+		selectBlock( clonedBlocks[ 0 ].clientId );
+	}
 };
 
 let unsubscribe: ( () => void ) | null = null;

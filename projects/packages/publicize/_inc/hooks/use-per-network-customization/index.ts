@@ -2,12 +2,12 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
+import { CUSTOMIZE_PER_NETWORK_KEY } from '../../social-store/constants';
+import { hasSocialPaidFeatures } from '../../utils';
 import useFeaturedImage from '../use-featured-image';
 import useMediaDetails from '../use-media-details';
 import { usePostMeta } from '../use-post-meta';
 import { computeAttachedMediaForSource, getEffectiveMediaSource } from './utils';
-
-const TOGGLE_KEY = '_wpas_customize_per_network';
 
 /**
  * Hook to manage per network customization toggle state.
@@ -30,7 +30,7 @@ export function usePerNetworkCustomization() {
 	const isEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
 
-		return Boolean( meta?.[ TOGGLE_KEY ] );
+		return Boolean( meta?.[ CUSTOMIZE_PER_NETWORK_KEY ] );
 	}, [] );
 
 	const syncConnections = useCallback( () => {
@@ -70,7 +70,7 @@ export function usePerNetworkCustomization() {
 		// Update post metadata.
 		editPost( {
 			meta: {
-				[ TOGGLE_KEY ]: isNowEnabled,
+				[ CUSTOMIZE_PER_NETWORK_KEY ]: isNowEnabled,
 			},
 		} );
 
@@ -81,7 +81,7 @@ export function usePerNetworkCustomization() {
 
 	return useMemo(
 		() => ( {
-			isEnabled,
+			isEnabled: isEnabled && hasSocialPaidFeatures(),
 			toggle,
 		} ),
 		[ isEnabled, toggle ]

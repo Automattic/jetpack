@@ -22,8 +22,13 @@ import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
+import '../../src/dashboard/wp-build/style.scss';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
+import './style.scss';
+/**
+ * Types
+ */
 import type { FormListItem } from '../../src/dashboard/hooks/use-forms-data.ts';
 import type { Action, Operator, View } from '@wordpress/dataviews';
 
@@ -222,8 +227,8 @@ function StageInner() {
 		const actionsList: Action< FormListItem >[] = [
 			{
 				id: 'view-responses',
-				isPrimary: false,
-				label: __( 'View responses', 'jetpack-forms' ),
+				isPrimary: true,
+				label: __( 'Responses', 'jetpack-forms' ),
 				supportsBulk: false,
 				callback( items: FormListItem[] ) {
 					const [ item ] = items;
@@ -235,7 +240,7 @@ function StageInner() {
 			},
 			{
 				id: 'edit-form',
-				isPrimary: false,
+				isPrimary: true,
 				label: __( 'Edit', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
@@ -410,6 +415,7 @@ function StageInner() {
 							<CreateFormButton
 								label={ __( 'Create a new form', 'jetpack-forms' ) }
 								variant="primary"
+								showIcon={ false }
 							/>
 						}
 					/>

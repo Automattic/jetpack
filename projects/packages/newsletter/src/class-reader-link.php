@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Connection\Urls;
+use Automattic\Jetpack\Modules;
 use WP_Admin_Bar;
 
 /**
@@ -92,5 +93,21 @@ class Reader_Link {
 				'parent' => 'top-secondary',
 			)
 		);
+	}
+
+	/**
+	 * Activate the wpcom-reader module when a site is first connected to WordPress.com.
+	 *
+	 * Only activates on truly fresh connections. If modules were previously initialized
+	 * (e.g., the user disconnected and reconnected), we respect their prior module choices.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function activate_on_connection() {
+		if ( \Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
+			return;
+		}
+
+		( new Modules() )->activate( 'wpcom-reader', false, false );
 	}
 }
