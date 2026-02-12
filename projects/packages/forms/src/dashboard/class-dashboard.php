@@ -74,7 +74,7 @@ class Dashboard {
 	 * Initialize the dashboard.
 	 */
 	public function init() {
-		add_action( 'admin_menu', array( $this, 'add_new_admin_submenu' ), self::MENU_PRIORITY );
+		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
 
 		// Flag to enable the wp-build-based dashboard.
 		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
