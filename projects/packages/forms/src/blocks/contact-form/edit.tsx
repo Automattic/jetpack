@@ -49,6 +49,7 @@ import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.j
 import { CORE_BLOCKS, FORM_POST_TYPE } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
 import { ConvertFormToolbar } from './components/convert-form-toolbar.tsx';
+import FormStatusNotice from './components/form-status-notice.tsx';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
@@ -162,6 +163,7 @@ type JetpackContactFormEditProps = {
 	setAttributes: ( attributes: Partial< JetpackContactFormAttributes > ) => void;
 	clientId: string;
 	className: string;
+	isSelected: boolean;
 };
 
 function JetpackContactFormEdit( {
@@ -170,6 +172,7 @@ function JetpackContactFormEdit( {
 	setAttributes,
 	clientId,
 	className,
+	isSelected,
 }: JetpackContactFormEditProps ) {
 	// Initialize default form block settings as needed.
 	useFormBlockDefaults( { attributes, setAttributes } );
@@ -241,10 +244,16 @@ function JetpackContactFormEdit( {
 		selectedBlockClientId,
 		onlySubmitBlock,
 		isJetpackFormEditor,
+		hasChildSelected,
 	} = useSelect(
 		select => {
-			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
-				select( blockEditorStore );
+			const {
+				getBlocks,
+				getBlock,
+				getSelectedBlockClientId,
+				getBlockParentsByBlockName,
+				hasSelectedInnerBlock,
+			} = select( blockEditorStore );
 			const { getEditedPostAttribute, getCurrentPostType } = select( editorStore );
 			const selectedBlockId = getSelectedBlockClientId();
 			const selectedBlock = getBlock( selectedBlockId );
@@ -276,6 +285,7 @@ function JetpackContactFormEdit( {
 				selectedBlockClientId: selectedStepBlockId,
 				onlySubmitBlock: isSingleButtonBlock,
 				isJetpackFormEditor: getCurrentPostType() === FORM_POST_TYPE,
+				hasChildSelected: hasSelectedInnerBlock( clientId, true ),
 			};
 		},
 		[ clientId ]
@@ -890,6 +900,9 @@ function JetpackContactFormEdit( {
 		stepBlock,
 	] );
 
+	// Determine if form or any child is selected for status notice visibility
+	const isFormOrChildSelected = isSelected || hasChildSelected;
+
 	let elt;
 
 	// Show loading state when resolving synced form
@@ -1105,7 +1118,17 @@ function JetpackContactFormEdit( {
 	return (
 		<SyncedAttributeProvider>
 			<ThemeProvider targetDom={ wrapperRef.current }>
-				<div { ...blockProps }>{ elt }</div>
+				<div { ...blockProps }>
+					{ ref && (
+						<FormStatusNotice
+							syncedForm={ syncedForm }
+							formRef={ ref }
+							isVisible={ isFormOrChildSelected }
+							clientId={ clientId }
+						/>
+					) }
+					{ elt }
+				</div>
 			</ThemeProvider>
 		</SyncedAttributeProvider>
 	);

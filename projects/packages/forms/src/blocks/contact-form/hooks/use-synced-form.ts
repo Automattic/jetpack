@@ -13,6 +13,8 @@ import type { Block } from '@wordpress/blocks';
 type ParsedBlock = ReturnType< typeof parse >[ number ];
 interface JetpackForm {
 	content?: { raw: string } | undefined;
+	status: string;
+	date: string;
 }
 
 interface UseSyncedFormResult {
