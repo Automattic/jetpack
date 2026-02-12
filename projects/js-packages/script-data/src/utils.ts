@@ -8,7 +8,7 @@ import { CurrentUserData } from './types.ts';
 export function getScriptData() {
 	// Provide a safe fallback if window.JetpackScriptData is not defined
 	// This can happen on public pages where no script data is provided
-	if ( typeof window.JetpackScriptData === 'undefined' ) {
+	if ( typeof window === 'undefined' || typeof window.JetpackScriptData === 'undefined' ) {
 		return {};
 	}
 	return window.JetpackScriptData;
