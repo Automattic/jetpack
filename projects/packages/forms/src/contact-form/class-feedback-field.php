@@ -490,7 +490,7 @@ class Feedback_Field {
 				continue;
 			}
 			$chips[] = sprintf(
-				'<div style="display: inline-block; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: 13px; line-height: 1.4; color: #1e1e1e;">%s</div>',
+				'<div style="display: inline-block; height: 24px; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: 13px; line-height: 24px; color: #1e1e1e;">%s</div>',
 				$safe_item
 			);
 		}
