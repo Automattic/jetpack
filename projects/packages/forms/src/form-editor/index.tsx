@@ -471,4 +471,5 @@ const setupFormEditorSubscription = () => {
 setupFormEditorSubscription();
 
 // Import plugins
+import './plugins/form-title-modal';
 import './plugins/preview-button';

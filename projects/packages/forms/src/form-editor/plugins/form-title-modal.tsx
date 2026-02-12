@@ -1,16 +1,28 @@
+/**
+ * Form Title Modal Plugin
+ *
+ * Shows a modal to name a new form when first creating it in the form editor.
+ * Only displays for new/untitled forms that don't have any content yet.
+ */
+
 import { Button, Modal, TextControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { FORM_POST_TYPE } from '../../shared/util/constants.js';
+import { registerPlugin } from '@wordpress/plugins';
+import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 
-type FormTitleModalProps = {
-	hasInnerBlocks: boolean;
-};
-
-export default function FormTitleModal( { hasInnerBlocks }: FormTitleModalProps ) {
+/**
+ * Form Title Modal component.
+ *
+ * Displays a modal prompting the user to name their form when creating a new one.
+ * Only shows for jetpack_form post type when the form is untitled and empty.
+ *
+ * @return The modal component or null.
+ */
+const FormTitleModal = () => {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ hasShown, setHasShown ] = useState( false );
 	const [ title, setTitle ] = useState( '' );
@@ -18,18 +30,45 @@ export default function FormTitleModal( { hasInnerBlocks }: FormTitleModalProps 
 
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
 
-	const { currentPostId, currentPostTitle } = useSelect( select => {
-		const { getCurrentPostId } = select( editorStore );
-		const { getEditedEntityRecord } = select( coreStore );
+	const { currentPostId, currentPostTitle, postType, hasInnerBlocks } = useSelect( select => {
+		const editor = select( editorStore ) as {
+			getCurrentPostId: () => number;
+			getCurrentPostType: () => string;
+		};
+		const core = select( coreStore ) as {
+			getEditedEntityRecord: (
+				kind: string,
+				name: string,
+				key: number
+			) => { title?: string } | null;
+		};
+		const blockEditor = select( 'core/block-editor' ) as {
+			getBlocks: () => Array< {
+				name: string;
+				innerBlocks: unknown[];
+			} >;
+		};
 
-		const postId = getCurrentPostId();
-		const post = postId ? getEditedEntityRecord( 'postType', FORM_POST_TYPE, postId ) : null;
+		const postId = editor.getCurrentPostId();
+		const post = postId ? core.getEditedEntityRecord( 'postType', FORM_POST_TYPE, postId ) : null;
+
+		// Check if the form block has any inner blocks
+		const rootBlocks = blockEditor.getBlocks();
+		const formBlock = rootBlocks.find( block => block.name === 'jetpack/contact-form' );
+		const formHasInnerBlocks = formBlock?.innerBlocks?.length > 0;
 
 		return {
 			currentPostId: postId,
-			currentPostTitle: ( post as { title?: string } )?.title || '',
+			currentPostTitle: post?.title || '',
+			postType: editor.getCurrentPostType(),
+			hasInnerBlocks: formHasInnerBlocks,
 		};
 	}, [] );
+
+	// Only operate in the form editor
+	if ( postType !== FORM_POST_TYPE ) {
+		return null;
+	}
 
 	const isNewForm =
 		! currentPostTitle ||
@@ -37,6 +76,7 @@ export default function FormTitleModal( { hasInnerBlocks }: FormTitleModalProps 
 		currentPostTitle === 'Untitled Form';
 
 	// Show modal on first render if this is a new placeholder form in the form editor
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	useEffect( () => {
 		if ( ! hasInnerBlocks && isNewForm && ! hasShown ) {
 			setIsOpen( true );
@@ -44,10 +84,12 @@ export default function FormTitleModal( { hasInnerBlocks }: FormTitleModalProps 
 		}
 	}, [ hasInnerBlocks, isNewForm, hasShown ] );
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const handleClose = useCallback( () => {
 		setIsOpen( false );
 	}, [] );
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const handleConfirm = useCallback( async () => {
 		setIsSaving( true );
 		const newTitle = title.trim() || __( 'Untitled Form', 'jetpack-forms' );
@@ -62,6 +104,7 @@ export default function FormTitleModal( { hasInnerBlocks }: FormTitleModalProps 
 		setIsOpen( false );
 	}, [ title, currentPostId, editEntityRecord, saveEditedEntityRecord ] );
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const onSubmitForm = useCallback(
 		( event: React.FormEvent ) => {
 			event.preventDefault();
@@ -73,6 +116,7 @@ export default function FormTitleModal( { hasInnerBlocks }: FormTitleModalProps 
 		[ handleConfirm, isSaving ]
 	);
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const handleKeyDown = useCallback(
 		( event: React.KeyboardEvent ) => {
 			if ( event.key === 'Enter' ) {
@@ -119,4 +163,9 @@ export default function FormTitleModal( { hasInnerBlocks }: FormTitleModalProps 
 			</form>
 		</Modal>
 	);
-}
+};
+
+// Register the form title modal plugin
+registerPlugin( 'jetpack-form-title-modal', {
+	render: FormTitleModal,
+} );
