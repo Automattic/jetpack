@@ -23,9 +23,11 @@ class Feedback_Email_Renderer {
 	/**
 	 * The color of the links in the email.
 	 *
+	 * TODO: move this to a constant in the Feedback_Field class.
+	 *
 	 * @var string
 	 */
-	private const LINK_COLOR = Feedback_Field::LINK_COLOR;
+	private const LINK_COLOR = '#1e1e1e';
 
 	/**
 	 * Build the complete email content for a form submission.
@@ -316,7 +318,7 @@ class Feedback_Email_Renderer {
 			'consent'           => 'field-consent',
 			'hidden'            => 'field-hidden',
 		);
-		return isset( $map[ $type ] ) ? $map[ $type ] : 'field-text';
+		return $map[ $type ] ?? 'field-text';
 	}
 
 	/**
@@ -329,9 +331,9 @@ class Feedback_Email_Renderer {
 	 * @return string HTML for the field row.
 	 */
 	private static function format_field_for_email( $field_data ) {
-		$label = isset( $field_data['label'] ) ? $field_data['label'] : '';
-		$value = isset( $field_data['value'] ) ? $field_data['value'] : '';
-		$type  = isset( $field_data['type'] ) ? $field_data['type'] : 'text';
+		$label = $field_data['label'] ?? '';
+		$value = $field_data['value'] ?? '';
+		$type  = $field_data['type'] ?? 'text';
 
 		$safe_label = Contact_Form::escape_and_sanitize_field_label( $label );
 		$icon_name  = self::get_field_icon_name( $type );

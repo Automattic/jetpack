@@ -3742,7 +3742,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string|null $raw_label The raw label input.
 	 * @return string The formatted and kses'd label string, or an empty string if raw_label is empty.
 	 */
-	private static function escape_and_sanitize_field_label( $raw_label ) {
+	public static function escape_and_sanitize_field_label( $raw_label ) {
 		if ( empty( $raw_label ) ) {
 			return ''; // kses the empty string
 		}
