@@ -607,10 +607,10 @@ class Jetpack_Admin {
 		// - admin_page_jetpack* (legacy/special Jetpack pages)
 		// Or check if parent_base is 'jetpack' (submenu pages)
 		return (
-			$screen->id === 'toplevel_page_jetpack' ||
-			strpos( $screen->id, 'jetpack_page_' ) === 0 ||
-			strpos( $screen->id, 'admin_page_jetpack' ) === 0 ||
-			$screen->parent_base === 'jetpack'
+		$screen->id === 'toplevel_page_jetpack' ||
+		str_starts_with( $screen->id, 'jetpack_page_' ) ||
+		str_starts_with( $screen->id, 'admin_page_jetpack' ) ||
+		$screen->parent_base === 'jetpack'
 		);
 	}
 
@@ -622,7 +622,7 @@ class Jetpack_Admin {
 	 */
 	public function add_jetpack_admin_body_class( $classes ) {
 		if ( $this->is_jetpack_admin_page() ) {
-			return trim( $classes ) . ' jetpack-admin-page';
+			return trim( $classes ) . ' jetpack-admin-page ';
 		}
 		return $classes;
 	}
