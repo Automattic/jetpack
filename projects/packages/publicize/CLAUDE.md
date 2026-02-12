@@ -54,14 +54,18 @@ The codebase handles two runtime environments:
 ### REST API Controllers (`src/rest-api/`)
 
 Controllers extending `Base_Controller`:
+
 - `Connections_Controller` — CRUD for social connections
-- `Connections_Post_Field` — Adds connections data to post REST responses
 - `Services_Controller` — Available social services list
 - `Share_Post_Controller` — Trigger sharing for a post
 - `Share_Status_Controller` — Check share results/status
 - `Scheduled_Actions_Controller` — Manage scheduled shares
 - `Social_Image_Generator_Controller` — SIG template/settings API
-- `Proxy_Requests` — Proxy to WPCOM API endpoints
+
+Other REST API components:
+
+- `Connections_Post_Field` — Registers a REST field to add connections data to post responses (via `rest_api_init`)
+- `Proxy_Requests` — Helper for proxying requests to WPCOM API endpoints
 
 **REST namespaces**: `wpcom/v2/publicize/*` (primary, loaded via controllers above) and `jetpack/v4/publicize/*` (legacy, via `REST_Controller`, Jetpack sites only)
 
@@ -75,7 +79,7 @@ Auto-generates share images from post content. Key classes:
 
 ### Jetpack Social Settings (`src/jetpack-social-settings/`)
 
-`Settings` class — Manages global Social settings (auto-sharing, SIG defaults, UTM parameters). Registered as a REST controller.
+`Settings` class — Manages global Social settings (auto-sharing, SIG defaults, UTM parameters) and exposes them via the WordPress Settings REST API (`show_in_rest`).
 
 ### Important Post Meta Keys
 
@@ -111,7 +115,8 @@ Store ID: `jetpack-social-plugin` (registered via `@wordpress/data`)
 - `unified-modal` — Modal state for the unified sharing UI
 
 **Other action/selector modules** (no dedicated reducer — use resolvers or derive from other state):
-- `services`, `social-image-generator`, `social-module-settings`, `social-settings`, `utm-settings`, `social-notes`
+- `services`, `social-image-generator`, `social-module-settings`, `social-settings`
+- `utm-settings`, `social-notes` — actions only; selectors are accessed via `social-settings`
 
 Initial state is hydrated from `getSocialScriptData()` (PHP-localized data).
 
