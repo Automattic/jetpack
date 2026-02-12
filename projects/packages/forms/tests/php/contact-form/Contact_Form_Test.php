@@ -4360,6 +4360,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$mailer = new \stdClass();
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$mailer->Body = $html;
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- stdClass duck-types PHPMailer's Body/AltBody properties.
 		Contact_Form::add_plain_text_alternative( $mailer );
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		return $mailer->AltBody;
