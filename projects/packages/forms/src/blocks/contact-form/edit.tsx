@@ -56,6 +56,7 @@ import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeh
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
 import WebhooksSettings from './components/webhooks-settings.js';
+import { useSyncFormName } from './hooks/use-sync-form-name.ts';
 import { useSyncedFormAutoSave } from './hooks/use-synced-form-auto-save.ts';
 import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
@@ -209,6 +210,9 @@ function JetpackContactFormEdit( {
 		syncedAttributes: syncedFormAttributes,
 		syncedInnerBlocks: syncedFormBlocks,
 	} = useSyncedForm( ref );
+
+	// Sync block metadata.name to form post title when changed via List View (only for synced forms)
+	useSyncFormName( clientId, ref, syncedForm?.title );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
 	// Older forms will have a customThankyou attribute set, but not a confirmationType attribute

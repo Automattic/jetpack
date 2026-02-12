@@ -15,6 +15,7 @@ interface JetpackForm {
 	content?: { raw: string } | undefined;
 	status: string;
 	date: string;
+	title?: string;
 }
 
 interface UseSyncedFormResult {
