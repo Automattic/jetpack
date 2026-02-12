@@ -1,7 +1,13 @@
 /**
  * External dependencies
  */
-import { GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	Col,
+	Container,
+	GlobalNotices,
+	useGlobalNotices,
+} from '@automattic/jetpack-components';
 import { Notice } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -293,19 +299,31 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( isLoading ) {
 		return (
-			<div className="newsletter-settings">
-				<p>{ __( 'Loading newsletter settings…', 'jetpack-newsletter' ) }</p>
-			</div>
+			<AdminPage moduleName="Jetpack Newsletter" header={ <Header /> }>
+				<Container horizontalSpacing={ 3 }>
+					<Col>
+						<div className="newsletter-settings">
+							<p>{ __( 'Loading newsletter settings…', 'jetpack-newsletter' ) }</p>
+						</div>
+					</Col>
+				</Container>
+			</AdminPage>
 		);
 	}
 
 	if ( error ) {
 		return (
-			<div className="newsletter-settings newsletter-settings--error">
-				<Notice status="error" isDismissible={ false }>
-					{ error }
-				</Notice>
-			</div>
+			<AdminPage moduleName="Jetpack Newsletter" header={ <Header /> }>
+				<Container horizontalSpacing={ 3 }>
+					<Col>
+						<div className="newsletter-settings newsletter-settings--error">
+							<Notice status="error" isDismissible={ false }>
+								{ error }
+							</Notice>
+						</div>
+					</Col>
+				</Container>
+			</AdminPage>
 		);
 	}
 
@@ -319,83 +337,87 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
-		<div className="newsletter-settings">
-			<Header />
+		<AdminPage moduleName="Jetpack Newsletter" header={ <Header /> }>
+			<Container horizontalSpacing={ 3 }>
+				<Col>
+					<div className="newsletter-settings">
+						{ ! jetpackSettings?.isWpcomSimple && (
+							<NewsletterSection
+								data={ data }
+								jetpackSettings={ jetpackSettings }
+								onChange={ handleAutoSave }
+							/>
+						) }
 
-			{ ! jetpackSettings?.isWpcomSimple && (
-				<NewsletterSection
-					data={ data }
-					jetpackSettings={ jetpackSettings }
-					onChange={ handleAutoSave }
-				/>
-			) }
+						<SubscriptionsSection
+							data={ data }
+							jetpackSettings={ jetpackSettings }
+							onChange={ handleSubscriptionChange }
+							onSave={ saveSubscriptionSettings }
+							isSaving={ isSavingSubscriptions }
+							hasChanges={ hasSubscriptionChanges }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<SubscriptionsSection
-				data={ data }
-				jetpackSettings={ jetpackSettings }
-				onChange={ handleSubscriptionChange }
-				onSave={ saveSubscriptionSettings }
-				isSaving={ isSavingSubscriptions }
-				hasChanges={ hasSubscriptionChanges }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<PaidNewsletterSection
+							jetpackSettings={ jetpackSettings }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<PaidNewsletterSection
-				jetpackSettings={ jetpackSettings }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<NewsletterCategoriesSection
+							data={ data }
+							onChange={ handleNewsletterCategoriesChange }
+							onSave={ saveNewsletterCategories }
+							isSaving={ isSavingNewsletterCategories }
+							hasChanges={ hasNewsletterCategoriesChanges }
+							jetpackSettings={ jetpackSettings }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<NewsletterCategoriesSection
-				data={ data }
-				onChange={ handleNewsletterCategoriesChange }
-				onSave={ saveNewsletterCategories }
-				isSaving={ isSavingNewsletterCategories }
-				hasChanges={ hasNewsletterCategoriesChanges }
-				jetpackSettings={ jetpackSettings }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<EmailContentSection
+							data={ data }
+							onChange={ handleAutoSave }
+							isSitePublic={ jetpackSettings?.isSitePublic ?? true }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<EmailContentSection
-				data={ data }
-				onChange={ handleAutoSave }
-				isSitePublic={ jetpackSettings?.isSitePublic ?? true }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<EmailBylineSection
+							data={ data }
+							onChange={ handleAutoSave }
+							jetpackSettings={ jetpackSettings }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<EmailBylineSection
-				data={ data }
-				onChange={ handleAutoSave }
-				jetpackSettings={ jetpackSettings }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<EmailSenderSettingsSection
+							data={ data }
+							onChange={ handleSenderNameChange }
+							onSave={ saveSenderName }
+							isSaving={ isSavingSenderName }
+							hasChanges={ hasSenderNameChanges }
+							jetpackSettings={ jetpackSettings }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<EmailSenderSettingsSection
-				data={ data }
-				onChange={ handleSenderNameChange }
-				onSave={ saveSenderName }
-				isSaving={ isSavingSenderName }
-				hasChanges={ hasSenderNameChanges }
-				jetpackSettings={ jetpackSettings }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<EmailReplyToSettingsSection
+							data={ data }
+							onChange={ handleAutoSave }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<EmailReplyToSettingsSection
-				data={ data }
-				onChange={ handleAutoSave }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<WelcomeEmailSection
+							data={ data }
+							onChange={ handleWelcomeEmailChange }
+							onSave={ saveWelcomeEmail }
+							isSaving={ isSavingWelcomeEmail }
+							hasChanges={ hasWelcomeEmailChanges }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<WelcomeEmailSection
-				data={ data }
-				onChange={ handleWelcomeEmailChange }
-				onSave={ saveWelcomeEmail }
-				isSaving={ isSavingWelcomeEmail }
-				hasChanges={ hasWelcomeEmailChanges }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
-
-			<GlobalNotices />
-		</div>
+						<GlobalNotices />
+					</div>
+				</Col>
+			</Container>
+		</AdminPage>
 	);
 }
 
