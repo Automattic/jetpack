@@ -278,7 +278,7 @@ class Dashboard {
 
 		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
 		$valid_tabs          = array( 'spam', 'inbox', 'trash' );
-		$url                 = get_admin_url() . 'admin.php';
+		$url                 = admin_url( 'admin.php' );
 
 		// Dashboard
 		if ( $is_wp_build_enabled ) {
@@ -287,7 +287,7 @@ class Dashboard {
 			$url .= '?page=' . self::ADMIN_SLUG;
 		}
 
-		// Tab
+		// Tab & response
 		if ( in_array( $tab, $valid_tabs, true ) ) {
 			if ( $is_wp_build_enabled ) {
 				$path = '/responses/' . $tab;
@@ -360,16 +360,13 @@ class Dashboard {
 	/**
 	 * Get admin URL for given screen ID.
 	 *
+	 * @deprecated $$next-version$$ Use Dashboard::get_forms_admin_url() instead.
+	 *
 	 * @param string $screen_id Screen ID.
-	 * @return string|null Admin URL or null if not found.
+	 * @return string Admin URL.
 	 */
-	public static function get_admin_url( $screen_id ) {
-		switch ( $screen_id ) {
-			case 'edit-jetpack_form':
-				return self::get_forms_admin_url( 'forms' );
-			case 'edit-feedback':
-				return self::get_forms_admin_url( 'responses/inbox' );
-		}
-		return null;
+	public static function get_admin_url( $screen_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Dashboard::get_forms_admin_url' );
+		return self::get_forms_admin_url();
 	}
 }
