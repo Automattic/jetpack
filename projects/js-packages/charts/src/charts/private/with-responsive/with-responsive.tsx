@@ -97,7 +97,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			<div
 				ref={ parentRef }
 				data-testid="responsive-wrapper"
-				className={ styles[ 'responsive-wrapper' ] }
+				className={ styles.container }
 				style={ {
 					width: size ?? width ?? '100%',
 					height: size ?? height ?? defaultHeight,
