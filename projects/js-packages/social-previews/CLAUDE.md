@@ -57,7 +57,7 @@ Each platform has its own `src/{platform}-preview/` directory. See `src/index.ts
 ## Testing
 
 ```bash
-jp test js js-packages/social-previews    # Run Jest tests
+jetpack test js js-packages/social-previews    # Run Jest tests
 ```
 
 Tests live under the `tests/` directory. Use React Testing Library for component tests.
