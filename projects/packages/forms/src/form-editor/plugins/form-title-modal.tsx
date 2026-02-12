@@ -11,7 +11,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { registerPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 
 /**
@@ -22,7 +21,7 @@ import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
  *
  * @return The modal component or null.
  */
-const FormTitleModal = () => {
+export const FormTitleModal = () => {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ hasShown, setHasShown ] = useState( false );
 	const [ title, setTitle ] = useState( '' );
@@ -157,8 +156,3 @@ const FormTitleModal = () => {
 		</Modal>
 	);
 };
-
-// Register the form title modal plugin
-registerPlugin( 'jetpack-form-title-modal', {
-	render: FormTitleModal,
-} );
