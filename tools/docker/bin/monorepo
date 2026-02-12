@@ -10,14 +10,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MONOREPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
 
 # Detect git worktree
-GIT_COMMON_DIR="$(git -C "$MONOREPO_ROOT" rev-parse --git-common-dir 2>/dev/null)"
+GIT_COMMON_DIR="$(cd "$MONOREPO_ROOT" && cd "$(git rev-parse --git-common-dir 2>/dev/null)" && pwd)"
 GIT_ABS_DIR="$(git -C "$MONOREPO_ROOT" rev-parse --absolute-git-dir 2>/dev/null)"
 IS_WORKTREE=0
 
 if [[ -n "$GIT_COMMON_DIR" && -n "$GIT_ABS_DIR" && "$GIT_COMMON_DIR" != "$GIT_ABS_DIR" ]]; then
     IS_WORKTREE=1
     # Main repo's .git directory (e.g. /Users/me/code/jetpack/.git)
-    MAIN_GIT_DIR="$(cd "$MONOREPO_ROOT" && cd "$GIT_COMMON_DIR" && pwd)"
+    MAIN_GIT_DIR="$GIT_COMMON_DIR"
     # Main repo root (parent of .git)
     MAIN_REPO_ROOT="$(dirname "$MAIN_GIT_DIR")"
     # Worktree name (last path component of the worktree git dir)
