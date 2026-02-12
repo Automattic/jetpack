@@ -837,6 +837,14 @@ class Jetpack_Gutenberg {
 			 * @param array true Enable the RePublicize UI in the block editor context. Defaults to true.
 			 */
 			'feature_flags'           => apply_filters( 'jetpack_block_editor_feature_flags', array() ),
+			/**
+			 * Whether to show the Jetpack branding in editor panels (e.g., SEO, AI Assistant).
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $show Whether to show the Jetpack editor panel branding. Defaults to true.
+			 */
+			'showEditorPanelBranding' => (bool) apply_filters( 'jetpack_show_editor_panel_branding', true ),
 			'pluginBasePath'          => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
 
