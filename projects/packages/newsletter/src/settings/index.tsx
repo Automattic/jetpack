@@ -115,11 +115,9 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	// Initialize analytics with user data
 	useEffect( () => {
-		if ( jetpackSettings?.tracksUserData?.userid && jetpackSettings?.tracksUserData?.username ) {
-			analytics.initialize(
-				jetpackSettings.tracksUserData.userid,
-				jetpackSettings.tracksUserData.username
-			);
+		const tracksUserData = jetpackSettings?.tracksUserData;
+		if ( tracksUserData && typeof tracksUserData === 'object' ) {
+			analytics.initialize( tracksUserData.userid, tracksUserData.username );
 		}
 	}, [ jetpackSettings ] );
 
