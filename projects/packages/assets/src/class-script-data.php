@@ -97,15 +97,15 @@ class Script_Data {
 
 			// Guard against JSON encoding failure. Fall back to an empty object string
 			// to avoid generating invalid JavaScript (e.g., "window.JetpackScriptData = ;").
-			if (false === $script_data) {
+			if ( false === $script_data ) {
 				$script_data = '{}';
 			}
 			wp_add_inline_script(
 				self::SCRIPT_HANDLE,
-				sprintf('window.JetpackScriptData = %s;', $script_data),
+				sprintf( 'window.JetpackScriptData = %s;', $script_data ),
 				'before'
 			);
-			Assets::enqueue_script(self::SCRIPT_HANDLE);
+			Assets::enqueue_script( self::SCRIPT_HANDLE );
 		}
 	}
 
