@@ -23,7 +23,11 @@ export const useSeoModuleSettings = () => {
 	const setIsEnabled = useDispatch( store ).setIsAutoEnhanceEnabled;
 
 	const toggleEnhancer = useCallback(
-		async ( { placement }: { placement: 'jetpack-sidebar' | 'jetpack-prepublish-sidebar' } ) => {
+		async ( {
+			placement,
+		}: {
+			placement: 'jetpack-sidebar' | 'document-settings' | 'jetpack-prepublish-sidebar';
+		} ) => {
 			setIsToggling( true );
 			try {
 				await apiFetch( {
