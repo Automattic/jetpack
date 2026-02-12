@@ -101,6 +101,7 @@ export default function FormCommands() {
 	useCommandLoader( {
 		name: 'jetpack-forms/form-commands',
 		hook: useRenameFormCommandLoader,
+		context: 'block-selection-edit',
 	} );
 
 	if ( ! isRenameModalOpen ) {
