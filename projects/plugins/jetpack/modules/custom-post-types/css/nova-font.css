@@ -15,8 +15,7 @@
 #menu-posts-nova_menu_item::before,
 #dashboard_right_now .nova-menu-count a::before,
 #dashboard_right_now .nova-menu-count span::before {
-	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword
-	-- this is a one-off icon font. */
+	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword -- this is a one-off icon font. */
 	font-family: nova-font;
 	speak: none;
 	font-style: normal;

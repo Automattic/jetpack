@@ -164,6 +164,20 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Outdated dependencies
+	if ( pkg.name === '@wordpress/stylelint-config' ) {
+		for ( const field of [ 'dependencies', 'peerDependencies' ] ) {
+			for ( const [ dep, ver ] of Object.entries( pkg[ field ] ?? {} ) ) {
+				if ( dep.startsWith( 'stylelint' ) || dep === '@stylistic/stylelint-plugin' ) {
+					pkg[ field ][ dep ] = ver.replace( /^(?:\^|>=)?/, '>=' );
+				}
+			}
+		}
+	}
+	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.stylelint ) {
+		pkg.peerDependencies.stylelint = pkg.peerDependencies.stylelint.replace( /^(?:\^|>=)?/, '>=' );
+	}
+
 	// Update localtunnel axios dep to avoid CVE
 	// https://github.com/localtunnel/localtunnel/issues/632
 	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {

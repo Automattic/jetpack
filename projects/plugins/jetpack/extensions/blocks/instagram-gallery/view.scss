@@ -39,7 +39,7 @@
 
 	.wp-block-jetpack-instagram-gallery__grid {
 		display: grid;
-		grid-gap: 10px;
+		gap: 10px;
 		grid-auto-columns: 1fr;
 
 		@media ( max-width: gb.$break-small ) {

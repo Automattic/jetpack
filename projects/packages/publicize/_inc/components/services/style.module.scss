@@ -123,7 +123,7 @@
 
 	&.small {
 		grid-auto-flow: row;
-		grid-gap: 2rem;
+		gap: 2rem;
 		height: auto;
 		min-height: unset;
 	}

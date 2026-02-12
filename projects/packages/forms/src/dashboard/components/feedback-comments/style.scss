@@ -87,7 +87,7 @@
 	.jp-forms__feedback-comments-comment-content {
 		font-size: 14px;
 		line-height: 1.5;
-		word-wrap: break-word;
+		overflow-wrap: break-word;
 
 		// Remove default margins from rendered HTML
 		p {
