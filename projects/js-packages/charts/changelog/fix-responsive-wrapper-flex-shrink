@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Allow responsive wrapper to shrink properly in flex layouts by adding min-width and min-height CSS properties.
