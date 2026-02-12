@@ -13,6 +13,7 @@ import {
 	PLAN_TYPE_UNLIMITED,
 	usePlanType,
 } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -241,7 +242,7 @@ export default function AiAssistantPluginSidebar() {
 				/>
 			</DocumentPanel>
 
-			<PrePublishPanel title={ title } initialOpen={ false }>
+			<PrePublishPanel title={ title } icon={ <JetpackEditorPanelLogo /> } initialOpen={ false }>
 				<>
 					{ isAITitleOptimizationAvailable && (
 						<TitleOptimization
