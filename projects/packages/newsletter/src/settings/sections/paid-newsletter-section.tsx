@@ -8,12 +8,12 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getSiteType, trackPaidPlansClick } from '../analytics';
-import type { JetpackNewsletterSettings, NewsletterSettings } from '../types';
+import type { JetpackNewsletterSettings } from '../types';
 
 interface PaidNewsletterSectionProps {
 	jetpackSettings: JetpackNewsletterSettings | undefined;
 	isNewsletterEnabled: boolean;
-	hasActivePlan?: NewsletterSettings[ 'newsletter_has_active_plan' ];
+	hasActivePlan?: boolean;
 }
 
 /**
