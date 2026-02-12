@@ -160,12 +160,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 				// Track boolean settings
 				if ( BOOLEAN_SETTINGS.includes( key as ( typeof BOOLEAN_SETTINGS )[ number ] ) ) {
-					trackSettingToggle( key, !! newValue, siteType );
+					trackSettingToggle( String( key ), !! newValue, siteType );
 				}
 
 				// Track string settings
 				if ( STRING_SETTINGS.includes( key as ( typeof STRING_SETTINGS )[ number ] ) ) {
-					trackSettingChange( key, String( newValue ), siteType );
+					trackSettingChange( String( key ), String( newValue ), siteType );
 				}
 			}
 
