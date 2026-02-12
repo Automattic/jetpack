@@ -3,12 +3,19 @@
  */
 import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import {
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	Button,
+	Modal,
+	TextControl,
+} from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useSearch, useNavigate } from '@wordpress/route';
 import * as React from 'react';
 /**
@@ -125,6 +132,15 @@ function StageInner() {
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ pendingPermanentDeleteCount, setPendingPermanentDeleteCount ] = useState( 0 );
 
+	// Rename modal state
+	const [ isRenameModalOpen, setIsRenameModalOpen ] = useState( false );
+	const [ renameFormItem, setRenameFormItem ] = useState< FormListItem | null >( null );
+	const [ renameTitle, setRenameTitle ] = useState( '' );
+	const [ isRenaming, setIsRenaming ] = useState( false );
+
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
+
 	// Selection is local state. Clear it whenever the view changes (page/perPage/search/filters).
 	useEffect( () => {
 		setSelection( [] );
@@ -151,6 +167,65 @@ function StageInner() {
 			setSelection( [] );
 		}
 	}, [ confirmPermanentDelete ] );
+
+	const openRenameModal = useCallback( ( item: FormListItem ) => {
+		setRenameFormItem( item );
+		setRenameTitle( item.title || '' );
+		setIsRenameModalOpen( true );
+	}, [] );
+
+	const closeRenameModal = useCallback( () => {
+		setIsRenameModalOpen( false );
+		setRenameFormItem( null );
+		setRenameTitle( '' );
+	}, [] );
+
+	const handleRename = useCallback( async () => {
+		if ( ! renameFormItem || isRenaming ) {
+			return;
+		}
+
+		setIsRenaming( true );
+		const newTitle = renameTitle.trim() || __( 'Untitled Form', 'jetpack-forms' );
+
+		try {
+			await editEntityRecord( 'postType', 'jetpack_form', renameFormItem.id, {
+				title: newTitle,
+			} );
+			await saveEditedEntityRecord( 'postType', 'jetpack_form', renameFormItem.id );
+
+			createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
+		} catch ( error ) {
+			createErrorNotice( __( 'Failed to rename form. Please try again.', 'jetpack-forms' ), {
+				type: 'snackbar',
+			} );
+			// eslint-disable-next-line no-console
+			console.error( 'Failed to rename form:', error );
+		} finally {
+			setIsRenaming( false );
+			closeRenameModal();
+		}
+	}, [
+		renameFormItem,
+		renameTitle,
+		isRenaming,
+		editEntityRecord,
+		saveEditedEntityRecord,
+		createSuccessNotice,
+		createErrorNotice,
+		closeRenameModal,
+	] );
+
+	const onRenameFormSubmit = useCallback(
+		( event: React.FormEvent ) => {
+			event.preventDefault();
+			if ( isRenaming ) {
+				return;
+			}
+			handleRename();
+		},
+		[ handleRename, isRenaming ]
+	);
 
 	const statusLabel = useCallback( ( status: string ) => {
 		switch ( status ) {
@@ -276,6 +351,19 @@ function StageInner() {
 					}
 				},
 			},
+			{
+				id: 'rename-form',
+				isPrimary: false,
+				label: __( 'Rename', 'jetpack-forms' ),
+				supportsBulk: false,
+				callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+					openRenameModal( item );
+				},
+			},
 		];
 
 		if ( isViewingTrash ) {
@@ -335,6 +423,7 @@ function StageInner() {
 		isDeleting,
 		isViewingTrash,
 		onOpenPermanentDeleteConfirm,
+		openRenameModal,
 		openSingleFormView,
 		restoreForms,
 		trashForms,
@@ -457,6 +546,42 @@ function StageInner() {
 				<DataViews.Layout />
 				<DataViews.Footer />
 			</DataViews>
+			{ isRenameModalOpen && (
+				<Modal
+					title={ __( 'Rename Form', 'jetpack-forms' ) }
+					onRequestClose={ closeRenameModal }
+					size="medium"
+				>
+					<form onSubmit={ onRenameFormSubmit }>
+						<TextControl
+							label={ __( 'Name', 'jetpack-forms' ) }
+							value={ renameTitle }
+							onChange={ setRenameTitle }
+							__next40pxDefaultSize
+						/>
+						<div
+							style={ {
+								display: 'flex',
+								justifyContent: 'flex-end',
+								gap: '8px',
+								marginTop: '16px',
+							} }
+						>
+							<Button variant="tertiary" onClick={ closeRenameModal }>
+								{ __( 'Cancel', 'jetpack-forms' ) }
+							</Button>
+							<Button
+								aria-disabled={ isRenaming }
+								isBusy={ isRenaming }
+								variant="primary"
+								type="submit"
+							>
+								{ __( 'Save', 'jetpack-forms' ) }
+							</Button>
+						</div>
+					</form>
+				</Modal>
+			) }
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }
 				onClose={ closeIntegrationsModal }
