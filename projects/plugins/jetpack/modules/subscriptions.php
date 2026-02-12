@@ -1054,7 +1054,7 @@ class Jetpack_Subscriptions {
 
 		Admin_Menu::add_menu(
 			__( 'Subscribers', 'jetpack' ),
-			__( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+			__( 'Subscribers', 'jetpack' ) . ' <span aria-hidden="true">↗</span>',
 			'manage_options',
 			esc_url( $link ),
 			null,
