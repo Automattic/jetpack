@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Tumblr preview to prioritize custom message when it is set.

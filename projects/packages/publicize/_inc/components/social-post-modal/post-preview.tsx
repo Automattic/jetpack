@@ -253,14 +253,18 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			);
 		}
 
-		case 'tumblr':
+		case 'tumblr': {
+			const desc = message || description;
+
 			return (
 				<TumblrPostPreview
 					{ ...commonProps }
+					title={ message ? '' : title }
+					description={ desc }
 					user={ { displayName: user.displayName, avatarUrl: user.profileImage } }
-					customText={ message }
 				/>
 			);
+		}
 
 		default:
 			return null;
