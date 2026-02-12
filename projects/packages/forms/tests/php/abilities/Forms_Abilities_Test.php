@@ -135,8 +135,13 @@ class Forms_Abilities_Test extends BaseTestCase {
 		);
 
 		$expected_abilities = array(
+			'jetpack-forms/list-forms',
+			'jetpack-forms/get-form',
+			'jetpack-forms/create-form',
+			'jetpack-forms/delete-form',
 			'jetpack-forms/get-responses',
 			'jetpack-forms/update-response',
+			'jetpack-forms/bulk-update-responses',
 			'jetpack-forms/get-status-counts',
 		);
 
@@ -310,5 +315,149 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'inbox', $result );
 		$this->assertArrayHasKey( 'spam', $result );
 		$this->assertArrayHasKey( 'trash', $result );
+	}
+
+	/**
+	 * Test get_form with missing ID.
+	 */
+	public function test_get_form_missing_id() {
+		$result = Forms_Abilities::get_form( array() );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_id', $result->get_error_code() );
+	}
+
+	/**
+	 * Test get_form with non-existent ID.
+	 */
+	public function test_get_form_not_found() {
+		$result = Forms_Abilities::get_form( array( 'id' => 999999 ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'not_found', $result->get_error_code() );
+	}
+
+	/**
+	 * Test get_form with a valid form post.
+	 */
+	public function test_get_form_success() {
+		wp_set_current_user( self::$user_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_title'   => 'Test Form',
+				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-text {"label":"Name","required":true} /--><!-- /wp:jetpack/contact-form -->',
+				'post_status'  => 'publish',
+			)
+		);
+
+		$result = Forms_Abilities::get_form( array( 'id' => $post_id ) );
+
+		$this->assertIsArray( $result );
+		$this->assertEquals( $post_id, $result['id'] );
+		$this->assertEquals( 'Test Form', $result['title'] );
+		$this->assertEquals( 'publish', $result['status'] );
+		$this->assertIsArray( $result['fields'] );
+	}
+
+	/**
+	 * Test create_form with missing title.
+	 */
+	public function test_create_form_missing_title() {
+		$result = Forms_Abilities::create_form( array() );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_title', $result->get_error_code() );
+	}
+
+	/**
+	 * Test create_form success.
+	 */
+	public function test_create_form_success() {
+		wp_set_current_user( self::$user_id );
+
+		$result = Forms_Abilities::create_form( array( 'title' => 'My New Form' ) );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'id', $result );
+		$this->assertEquals( 'My New Form', $result['title'] );
+		$this->assertEquals( 'publish', $result['status'] );
+	}
+
+	/**
+	 * Test create_form with custom content.
+	 */
+	public function test_create_form_with_content() {
+		wp_set_current_user( self::$user_id );
+
+		$content = '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-email {"label":"Email"} /--><!-- /wp:jetpack/contact-form -->';
+		$result  = Forms_Abilities::create_form(
+			array(
+				'title'   => 'Custom Form',
+				'content' => $content,
+				'status'  => 'draft',
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertEquals( 'Custom Form', $result['title'] );
+		$this->assertEquals( 'draft', $result['status'] );
+
+		$post = get_post( $result['id'] );
+		$this->assertEquals( $content, $post->post_content );
+	}
+
+	/**
+	 * Test delete_form with missing ID.
+	 */
+	public function test_delete_form_missing_id() {
+		$result = Forms_Abilities::delete_form( array() );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_id', $result->get_error_code() );
+	}
+
+	/**
+	 * Test delete_form with non-existent ID.
+	 */
+	public function test_delete_form_not_found() {
+		$result = Forms_Abilities::delete_form( array( 'id' => 999999 ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'not_found', $result->get_error_code() );
+	}
+
+	/**
+	 * Test delete_form success.
+	 */
+	public function test_delete_form_success() {
+		wp_set_current_user( self::$user_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_title'   => 'Form to Delete',
+				'post_content' => '',
+				'post_status'  => 'publish',
+			)
+		);
+
+		$result = Forms_Abilities::delete_form( array( 'id' => $post_id ) );
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['deleted'] );
+		$this->assertEquals( 'trash', $result['status'] );
+		$this->assertEquals( 'trash', get_post_status( $post_id ) );
+	}
+
+	/**
+	 * Test bulk_update_responses with missing params.
+	 */
+	public function test_bulk_update_responses_missing_params() {
+		$result = Forms_Abilities::bulk_update_responses( array() );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_params', $result->get_error_code() );
 	}
 }

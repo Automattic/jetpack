@@ -12,13 +12,15 @@
 
 namespace Automattic\Jetpack\Forms\Abilities;
 
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint;
+use Automattic\Jetpack\Forms\ContactForm\Jetpack_Form_Endpoint;
 
 /**
  * Class Forms_Abilities
  *
  * Registers Jetpack Forms abilities with the WordPress Abilities API.
- * Provides abilities for managing form responses and status counts.
+ * Provides abilities for managing forms, form responses, and status counts.
  */
 class Forms_Abilities {
 
@@ -65,7 +67,7 @@ class Forms_Abilities {
 			array(
 				// "Jetpack Forms" is a product name and should not be translated.
 				'label'       => 'Jetpack Forms',
-				'description' => __( 'Abilities for managing Jetpack Forms responses.', 'jetpack-forms' ),
+				'description' => __( 'Abilities for managing Jetpack Forms and their responses.', 'jetpack-forms' ),
 			)
 		);
 	}
@@ -80,9 +82,187 @@ class Forms_Abilities {
 			return;
 		}
 
+		self::register_list_forms_ability();
+		self::register_get_form_ability();
+		self::register_create_form_ability();
+		self::register_delete_form_ability();
 		self::register_get_responses_ability();
 		self::register_update_response_ability();
+		self::register_bulk_update_responses_ability();
 		self::register_get_status_counts_ability();
+	}
+
+	/**
+	 * Register ability to list forms with admin-level detail.
+	 *
+	 * @return void
+	 */
+	private static function register_list_forms_ability() {
+		wp_register_ability(
+			'jetpack-forms/list-forms',
+			array(
+				'label'               => __( 'List forms (admin)', 'jetpack-forms' ),
+				'description'         => __( 'List all forms with admin detail including response counts, status, and edit URLs. Supports pagination, search, and status filtering.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'default'              => array(),
+					'properties'           => array(
+						'page'     => array(
+							'type'        => 'integer',
+							'description' => __( 'Page number for paginated results.', 'jetpack-forms' ),
+							'default'     => 1,
+						),
+						'per_page' => array(
+							'type'        => 'integer',
+							'description' => __( 'Number of forms per page (max 100).', 'jetpack-forms' ),
+							'default'     => 10,
+						),
+						'search'   => array(
+							'type'        => 'string',
+							'description' => __( 'Search forms by title.', 'jetpack-forms' ),
+						),
+						'status'   => array(
+							'type'        => 'string',
+							'description' => __( 'Filter by form status.', 'jetpack-forms' ),
+							'enum'        => array( 'publish', 'draft', 'trash' ),
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'execute_callback'    => array( __CLASS__, 'list_forms' ),
+				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => true,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
+			)
+		);
+	}
+
+	/**
+	 * Register ability to get a single form's full details.
+	 *
+	 * @return void
+	 */
+	private static function register_get_form_ability() {
+		wp_register_ability(
+			'jetpack-forms/get-form',
+			array(
+				'label'               => __( 'Get form details', 'jetpack-forms' ),
+				'description'         => __( 'Get a single form with its full structure, field definitions, response count, status, and preview URL.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'id' ),
+					'properties'           => array(
+						'id' => array(
+							'type'        => 'integer',
+							'description' => __( 'The form ID.', 'jetpack-forms' ),
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'execute_callback'    => array( __CLASS__, 'get_form' ),
+				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => true,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
+			)
+		);
+	}
+
+	/**
+	 * Register ability to create a new form.
+	 *
+	 * @return void
+	 */
+	private static function register_create_form_ability() {
+		wp_register_ability(
+			'jetpack-forms/create-form',
+			array(
+				'label'               => __( 'Create a form', 'jetpack-forms' ),
+				'description'         => __( 'Create a new form with a title. Optionally provide block content for the form structure. Returns the new form ID and edit URL.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'title' ),
+					'properties'           => array(
+						'title'   => array(
+							'type'        => 'string',
+							'description' => __( 'The form title/name.', 'jetpack-forms' ),
+						),
+						'content' => array(
+							'type'        => 'string',
+							'description' => __( 'Block content for the form structure. If omitted, creates an empty form with a submit button.', 'jetpack-forms' ),
+						),
+						'status'  => array(
+							'type'        => 'string',
+							'description' => __( 'Initial form status.', 'jetpack-forms' ),
+							'enum'        => array( 'publish', 'draft' ),
+							'default'     => 'publish',
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'execute_callback'    => array( __CLASS__, 'create_form' ),
+				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => false,
+						'destructive' => false,
+						'idempotent'  => false,
+					),
+					'show_in_rest' => true,
+				),
+			)
+		);
+	}
+
+	/**
+	 * Register ability to delete a form.
+	 *
+	 * @return void
+	 */
+	private static function register_delete_form_ability() {
+		wp_register_ability(
+			'jetpack-forms/delete-form',
+			array(
+				'label'               => __( 'Delete a form', 'jetpack-forms' ),
+				'description'         => __( 'Move a form to the trash. Does not permanently delete. Trashed forms can be restored.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'id' ),
+					'properties'           => array(
+						'id' => array(
+							'type'        => 'integer',
+							'description' => __( 'The form ID to delete.', 'jetpack-forms' ),
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'execute_callback'    => array( __CLASS__, 'delete_form' ),
+				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => false,
+						'destructive' => true,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
+			)
+		);
 	}
 
 	/**
@@ -194,6 +374,49 @@ class Forms_Abilities {
 					'additionalProperties' => false,
 				),
 				'execute_callback'    => array( __CLASS__, 'update_form_response' ),
+				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => false,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
+			)
+		);
+	}
+
+	/**
+	 * Register ability to bulk-update form responses.
+	 *
+	 * @return void
+	 */
+	private static function register_bulk_update_responses_ability() {
+		wp_register_ability(
+			'jetpack-forms/bulk-update-responses',
+			array(
+				'label'               => __( 'Bulk update form responses', 'jetpack-forms' ),
+				'description'         => __( 'Mark multiple responses as spam or not-spam in a single operation.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'action', 'ids' ),
+					'properties'           => array(
+						'action' => array(
+							'type'        => 'string',
+							'description' => __( 'The bulk action to perform.', 'jetpack-forms' ),
+							'enum'        => array( 'mark_as_spam', 'mark_as_not_spam' ),
+						),
+						'ids'    => array(
+							'type'        => 'array',
+							'description' => __( 'Response IDs to update.', 'jetpack-forms' ),
+							'items'       => array( 'type' => 'integer' ),
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'execute_callback'    => array( __CLASS__, 'bulk_update_responses' ),
 				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
 				'meta'                => array(
 					'annotations'  => array(
@@ -383,5 +606,222 @@ class Forms_Abilities {
 		}
 
 		return (array) $response->get_data();
+	}
+
+	/**
+	 * List forms with admin-level detail callback.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns array of forms with admin detail.
+	 */
+	public static function list_forms( $args = array() ) {
+		$args     = is_array( $args ) ? $args : array();
+		$endpoint = new Jetpack_Form_Endpoint();
+		$request  = new \WP_REST_Request( 'GET', '/wp/v2/jetpack-forms' );
+
+		self::set_params_from_args( $request, $args, array( 'page', 'per_page', 'search', 'status' ) );
+
+		// Request dashboard context to include entries_count and edit_url.
+		$request->set_param( 'jetpack_forms_context', 'dashboard' );
+
+		$response = $endpoint->get_items( $request );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$result = array();
+		foreach ( $response->get_data() as $form ) {
+			$result[] = array(
+				'id'            => $form['id'],
+				'title'         => $form['title']['rendered'] ?? '',
+				'status'        => $form['status'],
+				'entries_count' => $form['entries_count'] ?? 0,
+				'edit_url'      => $form['edit_url'] ?? '',
+				'date'          => $form['date'],
+				'modified'      => $form['modified'],
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Get a single form's full details callback.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns form data with fields, or WP_Error.
+	 */
+	public static function get_form( $args ) {
+		if ( ! isset( $args['id'] ) ) {
+			return new \WP_Error( 'missing_id', __( 'Form ID is required.', 'jetpack-forms' ) );
+		}
+
+		$form_post = get_post( absint( $args['id'] ) );
+		if ( ! $form_post || Contact_Form::POST_TYPE !== $form_post->post_type ) {
+			return new \WP_Error( 'not_found', __( 'Form not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+
+		$fields = self::extract_fields_from_post( $form_post );
+
+		return array(
+			'id'       => $form_post->ID,
+			'title'    => $form_post->post_title,
+			'status'   => $form_post->post_status,
+			'fields'   => $fields,
+			'date'     => $form_post->post_date,
+			'modified' => $form_post->post_modified,
+			'edit_url' => get_edit_post_link( $form_post->ID, 'raw' ),
+		);
+	}
+
+	/**
+	 * Create a new form callback.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns new form data or WP_Error.
+	 */
+	public static function create_form( $args ) {
+		if ( empty( $args['title'] ) ) {
+			return new \WP_Error( 'missing_title', __( 'Form title is required.', 'jetpack-forms' ) );
+		}
+
+		$content = $args['content'] ?? '';
+		if ( '' === $content ) {
+			// Default form structure with a submit button.
+			$content = '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/button {"element":"button","text":"Submit","lock":{"remove":true}} /--><!-- /wp:jetpack/contact-form -->';
+		}
+
+		$status  = $args['status'] ?? 'publish';
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => Contact_Form::POST_TYPE,
+				'post_title'   => sanitize_text_field( $args['title'] ),
+				'post_content' => $content,
+				'post_status'  => $status,
+			),
+			true
+		);
+
+		if ( is_wp_error( $post_id ) ) {
+			return $post_id;
+		}
+
+		return array(
+			'id'       => $post_id,
+			'title'    => get_the_title( $post_id ),
+			'status'   => get_post_status( $post_id ),
+			'edit_url' => get_edit_post_link( $post_id, 'raw' ),
+		);
+	}
+
+	/**
+	 * Delete (trash) a form callback.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns deletion result or WP_Error.
+	 */
+	public static function delete_form( $args ) {
+		if ( ! isset( $args['id'] ) ) {
+			return new \WP_Error( 'missing_id', __( 'Form ID is required.', 'jetpack-forms' ) );
+		}
+
+		$form_post = get_post( absint( $args['id'] ) );
+		if ( ! $form_post || Contact_Form::POST_TYPE !== $form_post->post_type ) {
+			return new \WP_Error( 'not_found', __( 'Form not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+
+		$result = wp_trash_post( $form_post->ID );
+		if ( ! $result ) {
+			return new \WP_Error( 'delete_failed', __( 'Failed to delete form.', 'jetpack-forms' ) );
+		}
+
+		return array(
+			'id'      => $form_post->ID,
+			'deleted' => true,
+			'status'  => 'trash',
+		);
+	}
+
+	/**
+	 * Bulk update responses callback.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns update result or WP_Error.
+	 */
+	public static function bulk_update_responses( $args ) {
+		if ( empty( $args['action'] ) || empty( $args['ids'] ) || ! is_array( $args['ids'] ) ) {
+			return new \WP_Error( 'missing_params', __( 'Action and IDs are required.', 'jetpack-forms' ) );
+		}
+
+		$endpoint = new Contact_Form_Endpoint( 'feedback' );
+		$request  = new \WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+		$request->set_body_params(
+			array(
+				'action'   => $args['action'],
+				'post_ids' => array_map( 'absint', $args['ids'] ),
+			)
+		);
+
+		$response = $endpoint->bulk_actions( $request );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $response->get_data();
+	}
+
+	/**
+	 * Extract field definitions from a form post's block content.
+	 *
+	 * @param \WP_Post $post The form post.
+	 * @return array Array of field definitions.
+	 */
+	private static function extract_fields_from_post( $post ) {
+		$blocks = parse_blocks( $post->post_content );
+		$fields = array();
+
+		self::extract_fields_from_blocks( $blocks, $fields );
+
+		return $fields;
+	}
+
+	/**
+	 * Recursively extract field definitions from blocks.
+	 *
+	 * @param array $blocks The blocks to process.
+	 * @param array $fields Reference to the fields array being built.
+	 */
+	private static function extract_fields_from_blocks( $blocks, &$fields ) {
+		foreach ( $blocks as $block ) {
+			if ( strpos( $block['blockName'] ?? '', 'jetpack/field-' ) === 0 ) {
+				$attrs = $block['attrs'] ?? array();
+				$label = $attrs['label'] ?? '';
+
+				// Skip fields without a label.
+				if ( '' === $label ) {
+					continue;
+				}
+
+				$field = array(
+					'label'    => $label,
+					'type'     => str_replace( 'jetpack/field-', '', $block['blockName'] ),
+					'required' => ! empty( $attrs['required'] ),
+				);
+
+				if ( ! empty( $attrs['options'] ) ) {
+					$field['options'] = $attrs['options'];
+				}
+
+				if ( ! empty( $attrs['placeholder'] ) ) {
+					$field['placeholder'] = $attrs['placeholder'];
+				}
+
+				$fields[] = $field;
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				self::extract_fields_from_blocks( $block['innerBlocks'], $fields );
+			}
+		}
 	}
 }
