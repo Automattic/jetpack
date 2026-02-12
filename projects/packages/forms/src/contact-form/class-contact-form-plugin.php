@@ -3846,7 +3846,7 @@ class Contact_Form_Plugin {
 
 		$screen = get_current_screen();
 
-		if ( ! $screen || ! isset( $screen->id ) ) {
+		if ( ! $screen || ! isset( $screen->id ) || $screen->id !== 'edit-feedback' ) {
 			return;
 		}
 
