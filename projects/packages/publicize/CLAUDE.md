@@ -57,7 +57,7 @@ Controllers extending `Base_Controller`:
 
 - `Connections_Controller` — CRUD for social connections
 - `Services_Controller` — Available social services list
-- `Share_Post_Controller` — Trigger sharing for a post
+- `Share_Post_Controller` — Trigger resharing for a post
 - `Share_Status_Controller` — Check share results/status
 - `Scheduled_Actions_Controller` — Manage scheduled shares
 - `Social_Image_Generator_Controller` — SIG template/settings API
@@ -147,16 +147,16 @@ Key hooks:
 ### Build & Watch
 
 ```bash
-jp build packages/publicize          # Production build
-jp build packages/publicize --deps   # Build with dependencies
-jp watch packages/publicize          # Watch mode
+jetpack build packages/publicize        # Production build
+jetpack build packages/publicize --deps # Build with dependencies
+jetpack watch packages/publicize --hot  # Watch mode with HMR
 ```
 
 ### Testing
 
 ```bash
-jp test php packages/publicize       # PHP tests (PHPUnit)
-jp test js packages/publicize        # JS tests (Jest)
+jetpack test php packages/publicize       # PHP tests (PHPUnit)
+jetpack test js packages/publicize        # JS tests (Jest)
 ```
 
 ### Text Domain

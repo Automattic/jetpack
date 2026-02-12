@@ -65,8 +65,8 @@ The plugin activates the `publicize` module via `Automattic\Jetpack\Modules`. On
 ### PHP Tests
 
 ```bash
-jp test php plugins/social       # Run PHPUnit tests
-jp test php plugins/social -v    # Verbose output
+jetpack test php plugins/social       # Run PHPUnit tests
+jetpack test php plugins/social -v    # Verbose output
 ```
 
 Test files are in `tests/php/`.
@@ -74,7 +74,7 @@ Test files are in `tests/php/`.
 ### E2E Tests
 
 ```bash
-jp test e2e plugins/social       # Run E2E tests (Playwright)
+jetpack test e2e plugins/social       # Run E2E tests (Playwright)
 ```
 
 E2E tests are in `tests/e2e/`. These test the full plugin flow including connection setup and sharing.

@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Social Previews is a React component library that renders visual previews of how a post will appear when shared on various social media platforms. Published as `@automattic/social-previews` on npm.
 
-This package is consumed by the Publicize package (`projects/packages/publicize/`) to show previews in the block editor sidebar and the Social admin page.
+This package is consumed by the Publicize package (`projects/packages/publicize/`) to show previews in the block editor sidebar. It is also used by the Jetpack plugin (`projects/plugins/jetpack/`) to show the site SEO search preview.
 
 ## Platform Preview Pattern
 
