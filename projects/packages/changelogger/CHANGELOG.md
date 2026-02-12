@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Changed
 - Internal updates.
 
+### Fixed
+- Tests: Fix tests for PHPUnit 12.5.11 breakage.
 ## [6.0.13] - 2026-02-02
 ### Changed
 - Update package dependencies. [#46836]
