@@ -274,9 +274,13 @@ class Dashboard {
 	 * @return string
 	 */
 	public static function get_forms_admin_url( $tab = null ) {
-		$base_url = get_admin_url() . 'admin.php?page=jetpack-forms-admin';
-
-		$url = self::append_tab_to_url( $base_url, $tab );
+		if ( apply_filters( 'jetpack_forms_alpha', false ) ) {
+			$base_url = get_admin_url() . 'admin.php?page=' . self::FORMS_WPBUILD_ADMIN_SLUG;
+			$url      = $base_url . '&p=%2F' . $tab;
+		} else {
+			$base_url = get_admin_url() . 'admin.php?page=' . self::ADMIN_SLUG;
+			$url      = self::append_tab_to_url( $base_url, $tab );
+		}
 
 		/**
 		 * Filters the Forms admin page URL.
@@ -303,6 +307,10 @@ class Dashboard {
 	private static function append_tab_to_url( $url, $tab ) {
 		$valid_tabs = array( 'spam', 'inbox', 'trash' );
 		if ( ! in_array( $tab, $valid_tabs, true ) ) {
+
+			if ( $tab === 'forms' ) {
+				return $url . '#/forms';
+			}
 			return $url;
 		}
 
@@ -349,9 +357,9 @@ class Dashboard {
 	public static function get_admin_url( $screen_id ) {
 		switch ( $screen_id ) {
 			case 'edit-jetpack_form':
-				return admin_url( 'admin.php?page=' . self::ADMIN_SLUG . '#/forms' );
+				return self::get_forms_admin_url( 'forms' );
 			case 'edit-feedback':
-				return admin_url( 'admin.php?page=' . self::ADMIN_SLUG . '#/responses' );
+				return self::get_forms_admin_url( 'responses/inbox' );
 		}
 		return null;
 	}

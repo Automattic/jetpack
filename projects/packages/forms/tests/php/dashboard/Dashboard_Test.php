@@ -49,6 +49,42 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test get_forms_admin_url with forms tab parameter
+	 */
+	public function test_get_forms_admin_url_with_forms_tab() {
+		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/forms';
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'forms' ) );
+	}
+
+	/**
+	 * Test get_forms_admin_url without tab when alpha filter is enabled
+	 */
+	public function test_get_forms_admin_url_alpha_without_tab() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=%2F';
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url() );
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
+	 * Test get_forms_admin_url with tab when alpha filter is enabled
+	 */
+	public function test_get_forms_admin_url_alpha_with_tab() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=%2Finbox';
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox' ) );
+
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=%2Fforms';
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'forms' ) );
+
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=%2Fresponses/inbox';
+		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'responses/inbox' ) );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
 	 * Test is_jetpack_forms_admin_page when get_current_screen is not available
 	 */
 	public function test_is_jetpack_forms_admin_page_no_get_current_screen() {
@@ -73,16 +109,17 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_admin_url with valid screen IDS
+	 * Test get_admin_url with valid screen IDs
 	 */
 	public function test_get_admin_url_with_valid_screen_ids() {
 		$url_form = Dashboard::get_admin_url( 'edit-jetpack_form' );
 		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url_form );
 		$this->assertStringContainsString( '#/forms', $url_form );
 
+		// For non-alpha, 'responses/inbox' is not a valid tab, so returns base URL only.
 		$url_feedback = Dashboard::get_admin_url( 'edit-feedback' );
-		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url_feedback );
-		$this->assertStringContainsString( '#/responses', $url_feedback );
+		$expected     = get_admin_url() . 'admin.php?page=' . Dashboard::ADMIN_SLUG;
+		$this->assertEquals( $expected, $url_feedback );
 	}
 
 	/**
@@ -93,5 +130,22 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertNull( $url );
 		$url = Dashboard::get_admin_url( '' );
 		$this->assertNull( $url );
+	}
+
+	/**
+	 * Test get_admin_url with valid screen IDs when alpha filter is enabled.
+	 */
+	public function test_get_admin_url_alpha_with_valid_screen_ids() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$url_form = Dashboard::get_admin_url( 'edit-jetpack_form' );
+		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG, $url_form );
+		$this->assertStringContainsString( '&p=%2Fforms', $url_form );
+
+		$url_feedback = Dashboard::get_admin_url( 'edit-feedback' );
+		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG, $url_feedback );
+		$this->assertStringContainsString( '&p=%2Fresponses/inbox', $url_feedback );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}
 }
