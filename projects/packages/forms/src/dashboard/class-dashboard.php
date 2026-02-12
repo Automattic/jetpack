@@ -275,39 +275,20 @@ class Dashboard {
 	 * @return string
 	 */
 	public static function get_forms_admin_url( $tab = null, $post_id = null ) {
-
 		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
-		$valid_tabs          = array( 'spam', 'inbox', 'trash' );
 		$url                 = admin_url( 'admin.php' );
 
-		// Dashboard
-		if ( $is_wp_build_enabled ) {
-			$url .= '?page=' . self::FORMS_WPBUILD_ADMIN_SLUG;
-		} else {
-			$url .= '?page=' . self::ADMIN_SLUG;
-		}
+		$url .= $is_wp_build_enabled
+			? '?page=' . self::FORMS_WPBUILD_ADMIN_SLUG
+			: '?page=' . self::ADMIN_SLUG;
 
-		// Tab & Response
-		if ( in_array( $tab, $valid_tabs, true ) ) {
-			if ( $is_wp_build_enabled ) {
-				$path = '/responses/' . $tab;
-				if ( ! empty( $post_id ) ) {
-					$path .= '?responseIds=["' . $post_id . '"]';
-				}
-				$url .= '&p=' . rawurlencode( $path );
-			} else {
-				$url .= '#/responses?status=' . $tab;
-				if ( ! empty( $post_id ) ) {
-					$url .= '&r=' . $post_id;
-				}
-			}
-		} elseif ( ! empty( $post_id ) ) {
-			// Post ID without tab: default to inbox for wp-build.
-			if ( $is_wp_build_enabled ) {
-				$path = '/responses/inbox?responseIds=["' . $post_id . '"]';
-				$url .= '&p=' . rawurlencode( $path );
-			} else {
-				$url .= '&r=' . $post_id;
+		if ( $is_wp_build_enabled ) {
+			$path = self::get_forms_admin_path_wp_build( $tab, $post_id );
+			$url .= '&p=' . rawurlencode( $path );
+		} else {
+			$suffix = self::get_forms_admin_suffix_legacy( $tab, $post_id );
+			if ( $suffix !== '' ) {
+				$url .= $suffix;
 			}
 		}
 
@@ -324,6 +305,56 @@ class Dashboard {
 		 * @return string The filtered Forms admin page URL.
 		 */
 		return apply_filters( 'jetpack_forms_admin_url', $url, $tab, $post_id );
+	}
+
+	/**
+	 * WP-Build path for the forms admin URL.
+	 *
+	 * @param string|null $tab    Tab to open.
+	 * @param int|null    $post_id Post ID of response.
+	 * @return string URL path (e.g. '/', '/responses/inbox', '/forms').
+	 */
+	private static function get_forms_admin_path_wp_build( $tab, $post_id ) {
+		$response_ids = ! empty( $post_id ) ? '?responseIds=["' . $post_id . '"]' : '';
+
+		$path_map = array(
+			'inbox'           => '/responses/inbox',
+			'spam'            => '/responses/spam',
+			'trash'           => '/responses/trash',
+			'forms'           => '/forms',
+			'responses/inbox' => '/responses/inbox',
+		);
+
+		if ( isset( $path_map[ $tab ] ) ) {
+			return $path_map[ $tab ] . $response_ids;
+		}
+		if ( ! empty( $post_id ) ) {
+			return '/responses/inbox?responseIds=["' . $post_id . '"]';
+		}
+		return '/';
+	}
+
+	/**
+	 * Legacy (hash-based) URL suffix for the forms admin page.
+	 *
+	 * @param string|null $tab    Tab to open.
+	 * @param int|null    $post_id Post ID of response.
+	 * @return string URL suffix (e.g. '#/responses?status=inbox' or '&r=123').
+	 */
+	private static function get_forms_admin_suffix_legacy( $tab, $post_id ) {
+		$valid_tabs = array( 'spam', 'inbox', 'trash' );
+		$r_param    = ! empty( $post_id ) ? '&r=' . $post_id : '';
+
+		if ( in_array( $tab, $valid_tabs, true ) ) {
+			return '#/responses?status=' . $tab . $r_param;
+		}
+		if ( $tab === 'forms' ) {
+			return '#/forms';
+		}
+		if ( ! empty( $post_id ) ) {
+			return '&r=' . $post_id;
+		}
+		return '';
 	}
 
 	/**

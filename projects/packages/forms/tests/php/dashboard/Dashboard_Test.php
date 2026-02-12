@@ -72,13 +72,13 @@ class Dashboard_Test extends BaseTestCase {
 	public function test_get_forms_admin_url_alpha_with_tab() {
 		add_filter( 'jetpack_forms_alpha', '__return_true' );
 
-		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=%2Finbox';
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox' ) );
 
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=%2Fforms';
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'forms' ) );
 
-		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=%2Fresponses/inbox';
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'responses/inbox' ) );
 
 		remove_filter( 'jetpack_forms_alpha', '__return_true' );
@@ -109,42 +109,44 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_admin_url with valid screen IDs
+	 * Test get_forms_admin_url with screen ID equivalents (edit-jetpack_form -> forms, edit-feedback -> base/inbox).
 	 */
-	public function test_get_admin_url_with_valid_screen_ids() {
-		$url_form = Dashboard::get_admin_url( 'edit-jetpack_form' );
+	public function test_get_forms_admin_url_with_screen_id_equivalents() {
+		$url_form = Dashboard::get_forms_admin_url( 'forms' );
 		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url_form );
 		$this->assertStringContainsString( '#/forms', $url_form );
 
-		// For non-alpha, 'responses/inbox' is not a valid tab, so returns base URL only.
-		$url_feedback = Dashboard::get_admin_url( 'edit-feedback' );
+		// For non-alpha, edit-feedback equivalent is base URL (no tab).
+		$url_feedback = Dashboard::get_forms_admin_url();
 		$expected     = get_admin_url() . 'admin.php?page=' . Dashboard::ADMIN_SLUG;
 		$this->assertEquals( $expected, $url_feedback );
 	}
 
 	/**
-	 * Test get_admin_url with invalid screen ID returns null.
+	 * Test get_forms_admin_url with invalid tab returns base URL.
 	 */
-	public function test_get_admin_url_with_invalid_screen() {
-		$url = Dashboard::get_admin_url( 'invalid-screen' );
-		$this->assertNull( $url );
-		$url = Dashboard::get_admin_url( '' );
-		$this->assertNull( $url );
+	public function test_get_forms_admin_url_with_invalid_tab_returns_base_url() {
+		$url = Dashboard::get_forms_admin_url( 'invalid-screen' );
+		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url );
+		$this->assertStringNotContainsString( '#/', $url );
+
+		$url = Dashboard::get_forms_admin_url( '' );
+		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url );
 	}
 
 	/**
-	 * Test get_admin_url with valid screen IDs when alpha filter is enabled.
+	 * Test get_forms_admin_url with screen ID equivalents when alpha filter is enabled.
 	 */
-	public function test_get_admin_url_alpha_with_valid_screen_ids() {
+	public function test_get_forms_admin_url_alpha_with_screen_id_equivalents() {
 		add_filter( 'jetpack_forms_alpha', '__return_true' );
 
-		$url_form = Dashboard::get_admin_url( 'edit-jetpack_form' );
+		$url_form = Dashboard::get_forms_admin_url( 'forms' );
 		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG, $url_form );
 		$this->assertStringContainsString( '&p=%2Fforms', $url_form );
 
-		$url_feedback = Dashboard::get_admin_url( 'edit-feedback' );
+		$url_feedback = Dashboard::get_forms_admin_url( 'inbox' );
 		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG, $url_feedback );
-		$this->assertStringContainsString( '&p=%2Fresponses/inbox', $url_feedback );
+		$this->assertStringContainsString( '&p=%2Fresponses%2Finbox', $url_feedback );
 
 		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}
