@@ -65,31 +65,17 @@ const FormTitleModal = () => {
 		};
 	}, [] );
 
-	// Only operate in the form editor
-	if ( postType !== FORM_POST_TYPE ) {
-		return null;
-	}
+	const isFormEditor = postType === FORM_POST_TYPE;
 
 	const isNewForm =
 		! currentPostTitle ||
 		currentPostTitle === __( 'Untitled Form', 'jetpack-forms' ) ||
 		currentPostTitle === 'Untitled Form';
 
-	// Show modal on first render if this is a new placeholder form in the form editor
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	useEffect( () => {
-		if ( ! hasInnerBlocks && isNewForm && ! hasShown ) {
-			setIsOpen( true );
-			setHasShown( true );
-		}
-	}, [ hasInnerBlocks, isNewForm, hasShown ] );
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const handleClose = useCallback( () => {
 		setIsOpen( false );
 	}, [] );
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const handleConfirm = useCallback( async () => {
 		setIsSaving( true );
 		const newTitle = title.trim() || __( 'Untitled Form', 'jetpack-forms' );
@@ -104,7 +90,6 @@ const FormTitleModal = () => {
 		setIsOpen( false );
 	}, [ title, currentPostId, editEntityRecord, saveEditedEntityRecord ] );
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const onSubmitForm = useCallback(
 		( event: React.FormEvent ) => {
 			event.preventDefault();
@@ -116,7 +101,6 @@ const FormTitleModal = () => {
 		[ handleConfirm, isSaving ]
 	);
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const handleKeyDown = useCallback(
 		( event: React.KeyboardEvent ) => {
 			if ( event.key === 'Enter' ) {
@@ -127,7 +111,16 @@ const FormTitleModal = () => {
 		[ handleConfirm ]
 	);
 
-	if ( ! isOpen ) {
+	// Show modal on first render if this is a new placeholder form in the form editor
+	useEffect( () => {
+		if ( isFormEditor && ! hasInnerBlocks && isNewForm && ! hasShown ) {
+			setIsOpen( true );
+			setHasShown( true );
+		}
+	}, [ isFormEditor, hasInnerBlocks, isNewForm, hasShown ] );
+
+	// Don't render anything if not in the form editor or modal is closed
+	if ( ! isFormEditor || ! isOpen ) {
 		return null;
 	}
 
