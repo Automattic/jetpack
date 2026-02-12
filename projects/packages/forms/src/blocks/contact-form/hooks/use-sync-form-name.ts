@@ -20,7 +20,7 @@ export function useSyncFormName(
 ) {
 	const { editEntityRecord } = useDispatch( coreStore );
 
-	const { metadataName, formBlock } = useSelect(
+	const { metadataName } = useSelect(
 		select => {
 			if ( ! formRef ) {
 				return {
@@ -28,12 +28,11 @@ export function useSyncFormName(
 				};
 			}
 
-			const { getBlock, getBlockAttributes } = select( blockEditorStore );
+			const { getBlockAttributes } = select( blockEditorStore );
 			const blockAttributes = getBlockAttributes( clientId );
 
 			return {
 				metadataName: ( blockAttributes?.metadata?.name as string ) || '',
-				formBlock: getBlock( clientId ),
 			};
 		},
 		[ clientId, formRef ]
@@ -63,9 +62,8 @@ export function useSyncFormName(
 		// Update the synced form's post title to match the metadata name
 		editEntityRecord( 'postType', FORM_POST_TYPE, formRef, {
 			title: metadataName,
-			blocks: [ formBlock ],
 		} );
 
 		prevMetadataNameRef.current = metadataName;
-	}, [ formRef, metadataName, syncedFormTitle, editEntityRecord, formBlock ] );
+	}, [ formRef, metadataName, syncedFormTitle, editEntityRecord ] );
 }

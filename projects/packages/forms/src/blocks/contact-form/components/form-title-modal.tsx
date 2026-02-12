@@ -1,10 +1,6 @@
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { store as coreStore } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { FORM_POST_TYPE } from '../../shared/util/constants.js';
+import { useFormMetadata } from '../hooks/use-form-metadata.ts';
 import FormNameModal from './form-name-modal.tsx';
 
 type FormTitleModalProps = {
@@ -16,25 +12,7 @@ export default function FormTitleModal( { hasInnerBlocks, clientId }: FormTitleM
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ hasShown, setHasShown ] = useState( false );
 
-	const { updateBlockAttributes } = useDispatch( blockEditorStore );
-
-	const { currentPostTitle, metadata } = useSelect(
-		select => {
-			const { getCurrentPostId } = select( editorStore );
-			const { getEditedEntityRecord } = select( coreStore );
-			const { getBlockAttributes } = select( blockEditorStore );
-
-			const postId = getCurrentPostId();
-			const post = postId ? getEditedEntityRecord( 'postType', FORM_POST_TYPE, postId ) : null;
-			const blockAttributes = getBlockAttributes( clientId );
-
-			return {
-				currentPostTitle: ( post as { title?: string } )?.title || '',
-				metadata: blockAttributes?.metadata || {},
-			};
-		},
-		[ clientId ]
-	);
+	const { currentPostTitle, updateMetadataName } = useFormMetadata( clientId );
 
 	const isNewForm =
 		! currentPostTitle ||
@@ -55,14 +33,9 @@ export default function FormTitleModal( { hasInnerBlocks, clientId }: FormTitleM
 
 	const handleSave = useCallback(
 		( title: string ) => {
-			updateBlockAttributes( clientId, {
-				metadata: {
-					...metadata,
-					name: title,
-				},
-			} );
+			updateMetadataName( title );
 		},
-		[ clientId, metadata, updateBlockAttributes ]
+		[ updateMetadataName ]
 	);
 
 	return (

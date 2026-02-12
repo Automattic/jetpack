@@ -4,6 +4,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 
 type FormNameModalProps = {
@@ -29,6 +30,7 @@ export default function FormNameModal( {
 	const [ isSaving, setIsSaving ] = useState( false );
 
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const { currentPostId } = useSelect( select => {
 		const { getCurrentPostId } = select( editorStore );
@@ -53,17 +55,31 @@ export default function FormNameModal( {
 		setIsSaving( true );
 		const newTitle = title.trim() || __( 'Untitled Form', 'jetpack-forms' );
 
-		if ( currentPostId ) {
-			await editEntityRecord( 'postType', FORM_POST_TYPE, currentPostId, {
-				title: newTitle,
+		try {
+			if ( currentPostId ) {
+				await editEntityRecord( 'postType', FORM_POST_TYPE, currentPostId, {
+					title: newTitle,
+				} );
+				await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, currentPostId );
+			}
+			onSave?.( newTitle );
+			onClose();
+		} catch {
+			createErrorNotice( __( 'Failed to save form name.', 'jetpack-forms' ), {
+				type: 'snackbar',
 			} );
-			await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, currentPostId );
+		} finally {
+			setIsSaving( false );
 		}
-
-		onSave?.( newTitle );
-		setIsSaving( false );
-		onClose();
-	}, [ title, currentPostId, editEntityRecord, saveEditedEntityRecord, onSave, onClose ] );
+	}, [
+		title,
+		currentPostId,
+		editEntityRecord,
+		saveEditedEntityRecord,
+		onSave,
+		onClose,
+		createErrorNotice,
+	] );
 
 	const onSubmitForm = useCallback(
 		( event: React.FormEvent ) => {
@@ -87,6 +103,7 @@ export default function FormNameModal( {
 					label={ __( 'Name', 'jetpack-forms' ) }
 					value={ title }
 					onChange={ setTitle }
+					maxLength={ 200 }
 					__next40pxDefaultSize
 				/>
 				<div
