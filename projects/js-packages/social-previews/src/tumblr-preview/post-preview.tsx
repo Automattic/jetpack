@@ -13,7 +13,6 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 	image,
 	user,
 	url,
-	customText,
 	media,
 } ) => {
 	const avatarUrl = user?.avatarUrl;
@@ -27,7 +26,6 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 				<TumblrPostHeader user={ user } />
 				<div className="tumblr-preview__body">
 					<div className="tumblr-preview__title">{ tumblrTitle( title ) }</div>
-					{ customText && <div className="tumblr-preview__custom-text">{ customText }</div> }
 					{ description && (
 						<div className="tumblr-preview__description">
 							{ preparePreviewText( tumblrDescription( description ), {
