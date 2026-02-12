@@ -57,6 +57,7 @@
 		"@wordpress/block-editor": "15.12.0",
 		"@wordpress/blocks": "15.12.0",
 		"@wordpress/boot": "0.6.0",
+		"@wordpress/commands": "1.39.0",
 		"@wordpress/components": "32.1.0",
 		"@wordpress/compose": "7.39.0",
 		"@wordpress/core-data": "7.39.0",
