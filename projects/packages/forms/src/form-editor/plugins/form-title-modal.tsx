@@ -125,7 +125,7 @@ export const FormTitleModal = () => {
 
 	return (
 		<Modal
-			title={ __( 'Create Form', 'jetpack-forms' ) }
+			title={ __( 'Create form', 'jetpack-forms' ) }
 			onRequestClose={ handleClose }
 			size="medium"
 		>
