@@ -848,18 +848,80 @@ class Woo_Sync_Background_Sync_Job {
 				 * WooCommerce orders only has one company field that we can use (company name). As such,
 				 * we can't rely on more accurate searches (e.g. by email)
 				 */
-				$potential_company = $zbs->DAL->companies->getCompany( -1, array( 'name' => $crm_object_data['company']['name'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$company_args = array(
+		'data' => $crm_object_data['company'],
+	);
 
-				if ( $potential_company ) {
-					$company_id = $potential_company['id'];
-				} else {
-					// Add the company
-					$company_id = $zbs->DAL->companies->addUpdateCompany( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						array(
-							'data' => $crm_object_data['company'],
-						)
-					);
+	$protect_company_address = false;
+	$existing_company_id     = 0;
+
+	// First, if this contact is already linked to a company, prefer that as the target.
+	if ( $contact_id > 0 ) {
+		$linked_companies = $zbs->DAL->contacts->getContactCompanies( $contact_id );
+
+		if ( is_array( $linked_companies ) && ! empty( $linked_companies ) ) {
+			$existing_company_id = (int) reset( $linked_companies );
+		}
+	}
+
+	/**
+	 * If there is no linked company yet, use an existing company with the same
+	 * name when available, otherwise create one.
+	 *
+	 * WooCommerce orders only has one company field that we can use (company name). As such,
+	 * we still can’t rely on more accurate searches (e.g. by email) as a primary key.
+	 */
+	if ( ! $existing_company_id ) {
+		$potential_company = $zbs->DAL->companies->getCompany(
+			-1,
+			array(
+				'name' => $crm_object_data['company']['name'],
+			)
+		); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		if ( $potential_company ) {
+			$existing_company_id = (int) $potential_company['id'];
+		}
+	}
+
+	if ( $existing_company_id ) {
+		$company_args['id'] = $existing_company_id;
+
+		$existing_company     = $zbs->DAL->companies->getCompany( $existing_company_id );
+		$company_has_address  = false;
+		$company_address_keys = array( 'addr1', 'addr2', 'city', 'county', 'country', 'postcode' );
+
+		foreach ( $company_address_keys as $address_key ) {
+			if ( ! empty( $existing_company[ $address_key ] ) ) {
+				$company_has_address = true;
+				break;
+			}
+		}
+
+		// By default, protect an existing company's address from being overwritten by Woo checkout data.
+		$protect_company_address = apply_filters(
+			'jpcrm_woosync_protect_existing_company_address',
+			$company_has_address,
+			$existing_company,
+			$crm_object_data['company']
+		);
+
+		if ( $protect_company_address ) {
+
+			// Blank address fields so they are treated as "no update" when combined with do_not_update_blanks.
+			foreach ( $company_address_keys as $address_key ) {
+				if ( isset( $company_args['data'][ $address_key ] ) ) {
+					$company_args['data'][ $address_key ] = '';
 				}
+			}
+
+			// Ensure we never overwrite existing non-empty values with these blank address fields.
+			$company_args['do_not_update_blanks'] = true;
+		}
+	}
+
+	// Add or update the company.
+	$company_id = $zbs->DAL->companies->addUpdateCompany( $company_args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				if ( $company_id > 0 ) {
 
