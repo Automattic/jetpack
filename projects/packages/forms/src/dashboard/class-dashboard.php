@@ -270,7 +270,7 @@ class Dashboard {
 	 * Returns url of forms admin page.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
-	 * @param string|null $post_id Post ID of response to open in the forms responses page.
+	 * @param int|null    $post_id Post ID of response to open in the forms responses page.
 	 *
 	 * @return string
 	 */
@@ -287,7 +287,7 @@ class Dashboard {
 			$url .= '?page=' . self::ADMIN_SLUG;
 		}
 
-		// Tab & response
+		// Tab & Response
 		if ( in_array( $tab, $valid_tabs, true ) ) {
 			if ( $is_wp_build_enabled ) {
 				$path = '/responses/' . $tab;
@@ -319,7 +319,7 @@ class Dashboard {
 		 *
 		 * @param string      $url The Forms admin page URL.
 		 * @param string|null $tab Tab to open in the forms admin page.
-		 * @param string|null $post_id Post ID of response to open in the forms responses page.
+		 * @param int|null $post_id Post ID of response to open in the forms responses page.
 		 *
 		 * @return string The filtered Forms admin page URL.
 		 */
