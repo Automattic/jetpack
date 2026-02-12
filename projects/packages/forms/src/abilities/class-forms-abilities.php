@@ -12,15 +12,12 @@
 
 namespace Automattic\Jetpack\Forms\Abilities;
 
-use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
-use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint;
-use Automattic\Jetpack\Forms\ContactForm\Jetpack_Form_Endpoint;
-
 /**
  * Class Forms_Abilities
  *
  * Registers Jetpack Forms abilities with the WordPress Abilities API.
- * Provides abilities for managing forms, form responses, and status counts.
+ * Ability callbacks delegate to REST endpoints via rest_do_request()
+ * so they inherit endpoint validation, sanitization, and hooks.
  */
 class Forms_Abilities {
 
@@ -37,14 +34,14 @@ class Forms_Abilities {
 	 * @return void
 	 */
 	public static function init() {
-		// Register category
+		// Register category.
 		if ( did_action( 'wp_abilities_api_categories_init' ) ) {
 			self::register_category();
 		} else {
 			add_action( 'wp_abilities_api_categories_init', array( __CLASS__, 'register_category' ) );
 		}
 
-		// Register abilities
+		// Register abilities.
 		if ( did_action( 'wp_abilities_api_init' ) ) {
 			self::register_abilities();
 		} else {
@@ -154,7 +151,7 @@ class Forms_Abilities {
 			'jetpack-forms/get-form',
 			array(
 				'label'               => __( 'Get form details', 'jetpack-forms' ),
-				'description'         => __( 'Get a single form with its full structure, field definitions, response count, status, and preview URL.', 'jetpack-forms' ),
+				'description'         => __( 'Get a single form with its full structure including field definitions, status, and edit URL.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -495,142 +492,49 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Helper to set multiple parameters on a request from args array.
+	 * Dispatch an internal REST request and return its data or WP_Error.
 	 *
-	 * @param \WP_REST_Request $request The request object.
-	 * @param array            $args    The arguments array.
-	 * @param array            $keys    The keys to copy from args to request.
-	 * @return void
+	 * @param \WP_REST_Request $request The REST request to dispatch.
+	 * @return array|\WP_Error Response data array, or WP_Error on failure.
 	 */
-	private static function set_params_from_args( $request, $args, $keys ) {
-		foreach ( $keys as $key ) {
-			if ( isset( $args[ $key ] ) ) {
-				$request->set_param( $key, $args[ $key ] );
-			}
-		}
-	}
+	private static function dispatch( $request ) {
+		$response = rest_do_request( $request );
 
-	/**
-	 * Get form responses callback.
-	 *
-	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns array of responses or WP_Error on failure.
-	 */
-	public static function get_form_responses( $args = array() ) {
-		$args     = is_array( $args ) ? $args : array();
-		$endpoint = new Contact_Form_Endpoint( 'feedback' );
-		$request  = new \WP_REST_Request( 'GET', '/wp/v2/feedback' );
-
-		self::set_params_from_args(
-			$request,
-			$args,
-			array( 'page', 'per_page', 'parent', 'status', 'is_unread', 'search', 'before', 'after' )
-		);
-
-		// Filter by specific IDs if provided
-		if ( isset( $args['ids'] ) && is_array( $args['ids'] ) ) {
-			$request->set_param( 'include', $args['ids'] );
-		}
-
-		$response = $endpoint->get_items( $request );
-		if ( is_wp_error( $response ) ) {
-			return $response;
+		if ( $response->is_error() ) {
+			return $response->as_error();
 		}
 
 		return $response->get_data();
 	}
 
 	/**
-	 * Update form response callback.
-	 *
-	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns updated response data or WP_Error on failure.
-	 */
-	public static function update_form_response( $args ) {
-		if ( ! isset( $args['id'] ) ) {
-			return new \WP_Error( 'missing_id', __( 'Response ID is required.', 'jetpack-forms' ) );
-		}
-
-		$endpoint = new Contact_Form_Endpoint( 'feedback' );
-		$result   = array();
-
-		// Update status if provided
-		if ( isset( $args['status'] ) ) {
-			$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/' . $args['id'] );
-			$request->set_url_params( array( 'id' => $args['id'] ) );
-			$request->set_body_params( array( 'status' => $args['status'] ) );
-
-			$response = $endpoint->update_item( $request );
-			if ( is_wp_error( $response ) ) {
-				return $response;
-			}
-			$result = $response->get_data();
-		}
-
-		// Update read status if provided
-		if ( isset( $args['is_unread'] ) ) {
-			$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/' . $args['id'] . '/read' );
-			$request->set_url_params( array( 'id' => $args['id'] ) );
-			$request->set_body_params( array( 'is_unread' => $args['is_unread'] ) );
-
-			$response = $endpoint->update_read_status( $request );
-			if ( is_wp_error( $response ) ) {
-				return $response;
-			}
-			$result = array_merge( $result, $response->get_data() );
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Get status counts callback.
-	 *
-	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns status counts or WP_Error on failure.
-	 */
-	public static function get_status_counts( $args = array() ) {
-		$args     = is_array( $args ) ? $args : array();
-		$endpoint = new Contact_Form_Endpoint( 'feedback' );
-		$request  = new \WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
-
-		self::set_params_from_args(
-			$request,
-			$args,
-			array( 'search', 'parent', 'before', 'after', 'is_unread' )
-		);
-
-		$response = $endpoint->get_status_counts( $request );
-		if ( $response instanceof \WP_Error ) {
-			return $response;
-		}
-
-		return (array) $response->get_data();
-	}
-
-	/**
 	 * List forms with admin-level detail callback.
+	 *
+	 * Delegates to GET /wp/v2/jetpack-forms with dashboard context,
+	 * then reshapes to a compact format for AI consumption.
 	 *
 	 * @param array $args Arguments from the ability input.
 	 * @return array|\WP_Error Returns array of forms with admin detail.
 	 */
 	public static function list_forms( $args = array() ) {
-		$args     = is_array( $args ) ? $args : array();
-		$endpoint = new Jetpack_Form_Endpoint();
-		$request  = new \WP_REST_Request( 'GET', '/wp/v2/jetpack-forms' );
+		$args    = is_array( $args ) ? $args : array();
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/jetpack-forms' );
 
-		self::set_params_from_args( $request, $args, array( 'page', 'per_page', 'search', 'status' ) );
-
-		// Request dashboard context to include entries_count and edit_url.
 		$request->set_param( 'jetpack_forms_context', 'dashboard' );
 
-		$response = $endpoint->get_items( $request );
-		if ( is_wp_error( $response ) ) {
-			return $response;
+		foreach ( array( 'page', 'per_page', 'search', 'status' ) as $key ) {
+			if ( isset( $args[ $key ] ) ) {
+				$request->set_param( $key, $args[ $key ] );
+			}
+		}
+
+		$data = self::dispatch( $request );
+		if ( is_wp_error( $data ) ) {
+			return $data;
 		}
 
 		$result = array();
-		foreach ( $response->get_data() as $form ) {
+		foreach ( $data as $form ) {
 			$result[] = array(
 				'id'            => $form['id'],
 				'title'         => $form['title']['rendered'] ?? '',
@@ -648,6 +552,9 @@ class Forms_Abilities {
 	/**
 	 * Get a single form's full details callback.
 	 *
+	 * Delegates to GET /wp/v2/jetpack-forms/{id} for the base data,
+	 * then enriches with extracted field definitions from block content.
+	 *
 	 * @param array $args Arguments from the ability input.
 	 * @return array|\WP_Error Returns form data with fields, or WP_Error.
 	 */
@@ -656,26 +563,33 @@ class Forms_Abilities {
 			return new \WP_Error( 'missing_id', __( 'Form ID is required.', 'jetpack-forms' ) );
 		}
 
-		$form_post = get_post( absint( $args['id'] ) );
-		if ( ! $form_post || Contact_Form::POST_TYPE !== $form_post->post_type ) {
-			return new \WP_Error( 'not_found', __( 'Form not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/jetpack-forms/' . absint( $args['id'] ) );
+		$request->set_param( 'context', 'edit' );
+
+		$data = self::dispatch( $request );
+		if ( is_wp_error( $data ) ) {
+			return $data;
 		}
 
-		$fields = self::extract_fields_from_post( $form_post );
+		$post   = get_post( absint( $args['id'] ) );
+		$fields = $post ? self::extract_fields_from_post( $post ) : array();
 
 		return array(
-			'id'       => $form_post->ID,
-			'title'    => $form_post->post_title,
-			'status'   => $form_post->post_status,
+			'id'       => $data['id'],
+			'title'    => $data['title']['raw'] ?? $data['title']['rendered'] ?? '',
+			'status'   => $data['status'],
 			'fields'   => $fields,
-			'date'     => $form_post->post_date,
-			'modified' => $form_post->post_modified,
-			'edit_url' => get_edit_post_link( $form_post->ID, 'raw' ),
+			'date'     => $data['date'],
+			'modified' => $data['modified'],
+			'edit_url' => $data['link'] ?? get_edit_post_link( $data['id'], 'raw' ),
 		);
 	}
 
 	/**
 	 * Create a new form callback.
+	 *
+	 * Delegates to POST /wp/v2/jetpack-forms, which handles
+	 * sanitization, validation, and all insert hooks.
 	 *
 	 * @param array $args Arguments from the ability input.
 	 * @return array|\WP_Error Returns new form data or WP_Error.
@@ -687,35 +601,36 @@ class Forms_Abilities {
 
 		$content = $args['content'] ?? '';
 		if ( '' === $content ) {
-			// Default form structure with a submit button.
 			$content = '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/button {"element":"button","text":"Submit","lock":{"remove":true}} /--><!-- /wp:jetpack/contact-form -->';
 		}
 
-		$status  = $args['status'] ?? 'publish';
-		$post_id = wp_insert_post(
+		$request = new \WP_REST_Request( 'POST', '/wp/v2/jetpack-forms' );
+		$request->set_body_params(
 			array(
-				'post_type'    => Contact_Form::POST_TYPE,
-				'post_title'   => sanitize_text_field( $args['title'] ),
-				'post_content' => $content,
-				'post_status'  => $status,
-			),
-			true
+				'title'   => $args['title'],
+				'content' => $content,
+				'status'  => $args['status'] ?? 'publish',
+			)
 		);
 
-		if ( is_wp_error( $post_id ) ) {
-			return $post_id;
+		$data = self::dispatch( $request );
+		if ( is_wp_error( $data ) ) {
+			return $data;
 		}
 
 		return array(
-			'id'       => $post_id,
-			'title'    => get_the_title( $post_id ),
-			'status'   => get_post_status( $post_id ),
-			'edit_url' => get_edit_post_link( $post_id, 'raw' ),
+			'id'       => $data['id'],
+			'title'    => $data['title']['rendered'] ?? $data['title']['raw'] ?? '',
+			'status'   => $data['status'],
+			'edit_url' => get_edit_post_link( $data['id'], 'raw' ),
 		);
 	}
 
 	/**
 	 * Delete (trash) a form callback.
+	 *
+	 * Delegates to DELETE /wp/v2/jetpack-forms/{id}, which handles
+	 * permission checks and trash logic.
 	 *
 	 * @param array $args Arguments from the ability input.
 	 * @return array|\WP_Error Returns deletion result or WP_Error.
@@ -725,25 +640,91 @@ class Forms_Abilities {
 			return new \WP_Error( 'missing_id', __( 'Form ID is required.', 'jetpack-forms' ) );
 		}
 
-		$form_post = get_post( absint( $args['id'] ) );
-		if ( ! $form_post || Contact_Form::POST_TYPE !== $form_post->post_type ) {
-			return new \WP_Error( 'not_found', __( 'Form not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
-		}
+		$request = new \WP_REST_Request( 'DELETE', '/wp/v2/jetpack-forms/' . absint( $args['id'] ) );
 
-		$result = wp_trash_post( $form_post->ID );
-		if ( ! $result ) {
-			return new \WP_Error( 'delete_failed', __( 'Failed to delete form.', 'jetpack-forms' ) );
+		$data = self::dispatch( $request );
+		if ( is_wp_error( $data ) ) {
+			return $data;
 		}
 
 		return array(
-			'id'      => $form_post->ID,
+			'id'      => $data['id'] ?? absint( $args['id'] ),
 			'deleted' => true,
-			'status'  => 'trash',
+			'status'  => $data['status'] ?? 'trash',
 		);
 	}
 
 	/**
+	 * Get form responses callback.
+	 *
+	 * Delegates to GET /wp/v2/feedback.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns array of responses or WP_Error on failure.
+	 */
+	public static function get_form_responses( $args = array() ) {
+		$args    = is_array( $args ) ? $args : array();
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/feedback' );
+
+		foreach ( array( 'page', 'per_page', 'parent', 'status', 'is_unread', 'search', 'before', 'after' ) as $key ) {
+			if ( isset( $args[ $key ] ) ) {
+				$request->set_param( $key, $args[ $key ] );
+			}
+		}
+
+		if ( isset( $args['ids'] ) && is_array( $args['ids'] ) ) {
+			$request->set_param( 'include', $args['ids'] );
+		}
+
+		return self::dispatch( $request );
+	}
+
+	/**
+	 * Update form response callback.
+	 *
+	 * Delegates to POST /wp/v2/feedback/{id} for status changes
+	 * and POST /wp/v2/feedback/{id}/read for read state changes.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns updated response data or WP_Error on failure.
+	 */
+	public static function update_form_response( $args ) {
+		if ( ! isset( $args['id'] ) ) {
+			return new \WP_Error( 'missing_id', __( 'Response ID is required.', 'jetpack-forms' ) );
+		}
+
+		$id     = absint( $args['id'] );
+		$result = array();
+
+		if ( isset( $args['status'] ) ) {
+			$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/' . $id );
+			$request->set_body_params( array( 'status' => $args['status'] ) );
+
+			$data = self::dispatch( $request );
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			}
+			$result = $data;
+		}
+
+		if ( isset( $args['is_unread'] ) ) {
+			$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/' . $id . '/read' );
+			$request->set_body_params( array( 'is_unread' => $args['is_unread'] ) );
+
+			$data = self::dispatch( $request );
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			}
+			$result = array_merge( $result, $data );
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Bulk update responses callback.
+	 *
+	 * Delegates to POST /wp/v2/feedback/bulk_actions.
 	 *
 	 * @param array $args Arguments from the ability input.
 	 * @return array|\WP_Error Returns update result or WP_Error.
@@ -753,8 +734,7 @@ class Forms_Abilities {
 			return new \WP_Error( 'missing_params', __( 'Action and IDs are required.', 'jetpack-forms' ) );
 		}
 
-		$endpoint = new Contact_Form_Endpoint( 'feedback' );
-		$request  = new \WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+		$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
 		$request->set_body_params(
 			array(
 				'action'   => $args['action'],
@@ -762,12 +742,28 @@ class Forms_Abilities {
 			)
 		);
 
-		$response = $endpoint->bulk_actions( $request );
-		if ( is_wp_error( $response ) ) {
-			return $response;
+		return self::dispatch( $request );
+	}
+
+	/**
+	 * Get status counts callback.
+	 *
+	 * Delegates to GET /wp/v2/feedback/counts.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns status counts or WP_Error on failure.
+	 */
+	public static function get_status_counts( $args = array() ) {
+		$args    = is_array( $args ) ? $args : array();
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+
+		foreach ( array( 'search', 'parent', 'before', 'after', 'is_unread' ) as $key ) {
+			if ( isset( $args[ $key ] ) ) {
+				$request->set_param( $key, $args[ $key ] );
+			}
 		}
 
-		return $response->get_data();
+		return self::dispatch( $request );
 	}
 
 	/**

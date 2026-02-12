@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack\Forms\Abilities;
 
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use WorDBless\BaseTestCase;
 
@@ -42,8 +43,15 @@ class Forms_Abilities_Test extends BaseTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+		global $wp_rest_server;
 
 		Contact_Form_Plugin::init();
+
+		// Register the jetpack_form post type and initialize REST routes
+		// so rest_do_request() can dispatch to /wp/v2/jetpack-forms.
+		Contact_Form::register_post_type();
+		$wp_rest_server = new \WP_REST_Server();
+		do_action( 'rest_api_init' );
 
 		self::$user_id = wp_insert_user(
 			array(
@@ -334,7 +342,7 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$result = Forms_Abilities::get_form( array( 'id' => 999999 ) );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'not_found', $result->get_error_code() );
+		$this->assertEquals( 'rest_post_invalid_id', $result->get_error_code() );
 	}
 
 	/**
@@ -405,7 +413,8 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$this->assertEquals( 'draft', $result['status'] );
 
 		$post = get_post( $result['id'] );
-		$this->assertEquals( $content, $post->post_content );
+		$this->assertStringContainsString( 'jetpack/field-email', $post->post_content );
+		$this->assertStringContainsString( 'jetpack/contact-form', $post->post_content );
 	}
 
 	/**
@@ -425,7 +434,7 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$result = Forms_Abilities::delete_form( array( 'id' => 999999 ) );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'not_found', $result->get_error_code() );
+		$this->assertEquals( 'rest_post_invalid_id', $result->get_error_code() );
 	}
 
 	/**
