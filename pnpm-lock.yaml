@@ -2153,8 +2153,8 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
       qs:
-        specifier: 6.14.1
-        version: 6.14.1
+        specifier: 6.14.2
+        version: 6.14.2
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -15822,8 +15822,8 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  qs@6.14.1:
-    resolution: {integrity: sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==}
+  qs@6.14.2:
+    resolution: {integrity: sha512-V/yCWTTF7VJ9hIh18Ugr2zhJMP01MY7c5kh4J870L7imm6/DIzBsNLTXzMwUA3yZ5b/KBqLx8Kp3uRvd7xSe3Q==}
     engines: {node: '>=0.6'}
 
   qss@3.0.0:
@@ -18295,7 +18295,7 @@ snapshots:
       '@wordpress/url': 4.39.0
       debug: 4.4.3
       i18n-calypso: 7.4.0(@types/react@18.3.27)(react@18.3.1)
-      qs: 6.14.1
+      qs: 6.14.2
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       redux: 5.0.1
@@ -27730,7 +27730,7 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.4.24
       on-finished: 2.4.1
-      qs: 6.14.1
+      qs: 6.14.2
       raw-body: 2.5.3
       type-is: 1.6.18
       unpipe: 1.0.0
@@ -29632,7 +29632,7 @@ snapshots:
       parseurl: 1.3.3
       path-to-regexp: 0.1.12
       proxy-addr: 2.0.7
-      qs: 6.14.1
+      qs: 6.14.2
       range-parser: 1.2.1
       safe-buffer: 5.2.1
       send: 0.19.2
@@ -29668,7 +29668,7 @@ snapshots:
       parseurl: 1.3.3
       path-to-regexp: 0.1.12
       proxy-addr: 2.0.7
-      qs: 6.14.1
+      qs: 6.14.2
       range-parser: 1.2.1
       safe-buffer: 5.2.1
       send: 0.19.2
@@ -33207,7 +33207,7 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  qs@6.14.1:
+  qs@6.14.2:
     dependencies:
       side-channel: 1.1.0
 
