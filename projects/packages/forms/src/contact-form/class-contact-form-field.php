@@ -1030,7 +1030,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$class_names = preg_replace( "/^class=['\"]([^'\"]*)['\"].*$/", '$1', $class );
 		// somehow we are getting the class jetpack-field__input-element on the wrong wrapper
 		// .jetpack-field__input-element is meant to be applied just to the input element, not its wrapper.
-		$class_names = preg_replace( '/jetpack-field__input-element /', '', $class_names );
+		// Remove the jetpack-field__input-element class token regardless of its position and normalize whitespace.
+		$class_names = preg_replace( '/\s*\bjetpack-field__input-element\b\s*/', ' ', $class_names );
+		$class_names = trim( preg_replace( '/\s+/', ' ', $class_names ) );
 
 		$link_label_id = $id . '-number';
 
