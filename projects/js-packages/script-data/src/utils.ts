@@ -9,7 +9,7 @@ export function getScriptData() {
 	// Provide a safe fallback if window.JetpackScriptData is not defined
 	// This can happen on public pages where no script data is provided
 	if ( typeof window.JetpackScriptData === 'undefined' ) {
-		return {} as import('./types').JetpackScriptData;
+		return {};
 	}
 	return window.JetpackScriptData;
 }
