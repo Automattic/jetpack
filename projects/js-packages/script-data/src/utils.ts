@@ -1,4 +1,4 @@
-import { CurrentUserData } from './types.ts';
+import { CurrentUserData, JetpackScriptData } from './types.ts';
 
 /**
  * Get the script data from the window object.
@@ -9,7 +9,7 @@ export function getScriptData() {
 	// Provide a safe fallback if window.JetpackScriptData is not defined
 	// This can happen on public pages where no script data is provided
 	if ( typeof window === 'undefined' || typeof window.JetpackScriptData === 'undefined' ) {
-		return {};
+		return {} as JetpackScriptData;
 	}
 	return window.JetpackScriptData;
 }
