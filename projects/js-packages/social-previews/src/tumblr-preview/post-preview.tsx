@@ -25,7 +25,7 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 			<div className="tumblr-preview__card">
 				<TumblrPostHeader user={ user } />
 				<div className="tumblr-preview__body">
-					<div className="tumblr-preview__title">{ tumblrTitle( title ) }</div>
+					{ title ? <div className="tumblr-preview__title">{ tumblrTitle( title ) }</div> : null }
 					{ description && (
 						<div className="tumblr-preview__description">
 							{ preparePreviewText( tumblrDescription( description ), {
