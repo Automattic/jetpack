@@ -12,7 +12,7 @@ module.exports = {
 		],
 	},
 	transform: {
-		'\\.(gif|jpg|jpeg|png|svg|scss|sass|css|ttf|woff|woff2)$': path.join(
+		'\\.(gif|jpg|jpeg|png|webp|svg|scss|sass|css|ttf|woff|woff2)$': path.join(
 			__dirname,
 			'jest-extensions-asset-stub.js'
 		),
