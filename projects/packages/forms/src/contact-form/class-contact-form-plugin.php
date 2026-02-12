@@ -1490,7 +1490,7 @@ class Contact_Form_Plugin {
 	public function unread_count() {
 
 		global $submenu, $menu;
-		if ( apply_filters( 'jetpack_forms_use_new_menu_parent', true ) && current_user_can( 'edit_pages' ) ) {
+		if ( current_user_can( 'edit_pages' ) ) {
 			// show the count on Jetpack and Jetpack → Forms
 			$unread = self::get_unread_count();
 
@@ -1521,7 +1521,8 @@ class Contact_Form_Plugin {
 
 				// Jetpack submenu entries
 				foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-					if ( 'jetpack-forms-admin' === $menu_item[2] ) {
+					$admin_slug = apply_filters( 'jetpack_forms_alpha', false ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
+					if ( $admin_slug === $menu_item[2] ) {
 						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 						$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
 					}
