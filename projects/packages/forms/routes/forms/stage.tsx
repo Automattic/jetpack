@@ -21,6 +21,7 @@ import * as React from 'react';
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
+import { FORM_POST_TYPE } from '../../src/blocks/shared/util/constants.js';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
 import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { NON_TRASH_FORM_STATUSES } from '../../src/dashboard/constants';
@@ -57,6 +58,10 @@ const DEFAULT_VIEW: View = {
 const defaultLayouts = {
 	table: {},
 	list: {},
+};
+
+type CoreStore = typeof coreStore & {
+	invalidateResolution: ( selector: string, args: unknown[] ) => void;
 };
 
 /**
@@ -147,7 +152,7 @@ function StageInner() {
 	const [ isRenaming, setIsRenaming ] = useState( false );
 
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { invalidateResolution } = useDispatch( coreStore );
+	const { invalidateResolution } = useDispatch( coreStore ) as unknown as CoreStore;
 
 	// Selection is local state. Clear it whenever the view changes (page/perPage/search/filters).
 	useEffect( () => {
@@ -210,7 +215,7 @@ function StageInner() {
 				view.search ?? '',
 				statusQuery
 			);
-			invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', query ] );
+			invalidateResolution( 'getEntityRecords', [ 'postType', FORM_POST_TYPE, query ] );
 
 			createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
 		} catch ( error ) {
@@ -605,7 +610,7 @@ function StageInner() {
 			</DataViews>
 			{ isRenameModalOpen && (
 				<Modal
-					title={ __( 'Rename Form', 'jetpack-forms' ) }
+					title={ __( 'Rename form', 'jetpack-forms' ) }
 					onRequestClose={ closeRenameModal }
 					size="medium"
 				>
