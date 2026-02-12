@@ -7,14 +7,15 @@
 
 namespace Automattic\Jetpack\Extensions\ImageStudio;
 
-const FEATURE_NAME    = 'image-studio';
-const ASSET_BASE_PATH = 'widgets.wp.com/agents-manager/';
-const ASSET_JS_URL    = 'https://' . ASSET_BASE_PATH . 'image-studio.min.js';
-const ASSET_CSS_URL   = 'https://' . ASSET_BASE_PATH . 'image-studio.css';
-const ASSET_RTL_URL   = 'https://' . ASSET_BASE_PATH . 'image-studio.rtl.css';
-const ASSET_JSON_URL  = 'https://' . ASSET_BASE_PATH . 'image-studio.asset.json';
-const ASSET_JSON_PATH = ASSET_BASE_PATH . 'image-studio.asset.json';
-const ASSET_TRANSIENT = 'jetpack_image_studio_asset';
+const FEATURE_NAME            = 'image-studio';
+const ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
+const ASSET_JS_URL            = 'https://' . ASSET_BASE_PATH . 'image-studio.min.js';
+const ASSET_CSS_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.css';
+const ASSET_RTL_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.rtl.css';
+const ASSET_JSON_URL          = 'https://' . ASSET_BASE_PATH . 'image-studio.asset.json';
+const ASSET_JSON_PATH         = ASSET_BASE_PATH . 'image-studio.asset.json';
+const ASSET_TRANSIENT         = 'jetpack_image_studio_asset';
+const HEADLESS_AGENT_PROVIDER = 'image-studio/headless-agent-provider';
 
 /**
  * Check if Image Studio is enabled.
@@ -315,3 +316,41 @@ function disable_jetpack_ai_image_extensions() {
 }
 // Priority 99 ensures this runs after all AI extensions are registered at default priority.
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\disable_jetpack_ai_image_extensions', 99 );
+
+/**
+ * Enable the agents manager unified experience on self-hosted sites
+ * when jetpack_image_studio_enabled is true.
+ *
+ * This ensures the agents manager loads and can host the headless agent
+ * even when the unified chat experience is not otherwise enabled.
+ *
+ * @param bool $use_unified_experience Current value of the filter.
+ * @return bool
+ */
+function enable_agents_manager_for_image_studio( $use_unified_experience ) {
+	if ( $use_unified_experience ) {
+		return true;
+	}
+
+	return (bool) apply_filters( 'jetpack_image_studio_enabled', false );
+}
+add_filter( 'agents_manager_use_unified_experience', __NAMESPACE__ . '\enable_agents_manager_for_image_studio' );
+
+/**
+ * Register the Image Studio headless agent provider with the agents manager.
+ *
+ * When jetpack_image_studio_enabled is true, adds the Image Studio headless
+ * agent provider module so the agents manager can load it.
+ *
+ * @param array $providers Existing agent provider module IDs.
+ * @return array Modified array of provider module IDs.
+ */
+function register_headless_agent_provider( $providers ) {
+	if ( ! apply_filters( 'jetpack_image_studio_enabled', false ) ) {
+		return $providers;
+	}
+
+	$providers[] = HEADLESS_AGENT_PROVIDER;
+	return $providers;
+}
+add_filter( 'agents_manager_agent_providers', __NAMESPACE__ . '\register_headless_agent_provider' );
