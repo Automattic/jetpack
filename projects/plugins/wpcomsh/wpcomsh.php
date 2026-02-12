@@ -427,110 +427,98 @@ add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
 /**
  * WP.com make clickable
  *
- * Converts all plain-text HTTP URLs in post_content to links on display
+ * Converts all plain-text HTTP URLs in post_content to links on display.
+ * Uses WP_HTML_Tag_Processor for proper HTML tokenization that won't be confused by
+ * content inside tags (e.g., JavaScript comparison operators in script tags).
  *
  * @param string $content The content.
- *
+ * @return string Modified content with linkified URLs.
  * @uses make_clickable()
  * @since 20121125
  */
 function wpcomsh_make_content_clickable( $content ) {
-	// make_clickable() is expensive, check if plain-text URLs exist before running it
-	// don't look inside HTML tags
-	// don't look in <a></a>, <pre></pre>, <script></script> and <style></style>
-	// use <div class="skip-make-clickable"> in support docs where linkifying
-	// breaks shortcodes, etc.
-	$_split  = preg_split( '/(<[^>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
-	$end     = '';
-	$out     = '';
-	$combine = '';
-	$split   = array();
+	// Require WP_HTML_Tag_Processor with next_token() support (WordPress 6.5+).
+	if ( ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+		return $content;
+	}
 
-	// Defines a set of rules for the wpcomsh_make_content_clickable() function to ignore matching html elements.
-	$make_clickable_rules = array(
-		array(
-			'match' => array( '<a ' ),
-			'end'   => '</a>',
-		),
-		array(
-			'match' => array( '<pre ', '<pre>' ),
-			'end'   => '</pre>',
-		),
-		array(
-			'match' => array( '<code ', '<code>' ),
-			'end'   => '</code>',
-		),
-		array(
-			'match' => array( '<script ', '<script>' ),
-			'end'   => '</script>',
-		),
-		array(
-			'match' => array( '<style ', '<style>' ),
-			'end'   => '</style>',
-		),
-		array(
-			'match' => array( '<textarea ', '<textarea>' ),
-			'end'   => '</textarea>',
-		),
-		array(
-			'match' => array( '<div class="skip-make-clickable' ),
-			'end'   => '</div>',
-		),
-	);
+	require_once __DIR__ . '/class-wpcomsh-html-linkifier.php';
 
-	// filter the array and combine <a></a>, <pre></pre>, <script></script> and <style></style> into one
-	// (none of these tags can be nested so when we see the opening tag, we grab everything untill we reach the closing tag).
-	foreach ( $_split as $chunk ) {
-		if ( '' === $chunk ) {
+	$processor       = new Wpcomsh_HTML_Linkifier( $content );
+	$output          = '';
+	$last_offset     = 0;
+	$protected_depth = 0; // Tracks nesting inside tags where URLs should remain as plain text (e.g., <a>, <pre>, <code>). When > 0, text nodes are copied as-is.
+
+	// SCRIPT, STYLE, and TEXTAREA are raw text elements — the tokenizer bundles them
+	// as single #tag tokens (opening + content + closing), so their content is never
+	// exposed as #text nodes and they don't need protection here.
+	$protected_tags = array( 'A', 'PRE', 'CODE' );
+
+	while ( $processor->next_token() ) {
+		$token_type = $processor->get_token_type();
+		$position   = $processor->get_token_position();
+
+		if ( null === $position ) {
 			continue;
 		}
 
-		if ( $end ) {
-			$combine .= $chunk;
+		list( $start, $length ) = $position;
 
-			if ( $end === strtolower( str_replace( array( "\t", ' ', "\r", "\n" ), '', $chunk ) ) ) {
-				$split[] = $combine;
-				$end     = '';
-				$combine = '';
-			}
-			continue;
+		// Copy any content between the previous token and this one.
+		if ( $start > $last_offset ) {
+			$output .= substr( $content, $last_offset, $start - $last_offset );
 		}
 
-		$found = false;
-		foreach ( $make_clickable_rules as $rule ) {
-			foreach ( $rule['match'] as $match ) {
-				if ( stripos( $chunk, $match ) === 0 ) {
-					$combine .= $chunk;
-					$end      = $rule['end'];
-					$found    = true;
+		if ( '#tag' === $token_type ) {
+			$tag_name  = $processor->get_tag();
+			$is_closer = $processor->is_tag_closer();
 
-					break 2;
+			if ( ! $is_closer ) {
+				// Opening tag - check if it's a protected tag.
+				$is_protected = in_array( $tag_name, $protected_tags, true );
+
+				// Special case: <div class="skip-make-clickable">.
+				if ( 'DIV' === $tag_name && $processor->has_class( 'skip-make-clickable' ) ) {
+					$is_protected = true;
+				}
+
+				if ( $is_protected ) {
+					++$protected_depth;
+				}
+			} elseif ( $protected_depth > 0 ) {
+				// Closing tag - decrement depth if closing a protected tag.
+				if ( in_array( $tag_name, $protected_tags, true ) || 'DIV' === $tag_name ) {
+					--$protected_depth;
 				}
 			}
-		}
 
-		if ( ! $found ) {
-			$split[] = $chunk;
-		}
-	}
+			// Copy tag HTML as-is.
+			$output .= substr( $content, $start, $length );
+		} elseif ( '#text' === $token_type && 0 === $protected_depth ) {
+			// Unprotected text node - linkify URLs if present.
+			$raw_text = substr( $content, $start, $length );
 
-	foreach ( $split as $chunk ) {
-		// if $chunk is white space or a tag (or a combined tag), add it and continue.
-		if ( preg_match( '/^\s+$/', $chunk ) || ( '<' === $chunk[0] && '>' === $chunk[ strlen( $chunk ) - 1 ] ) ) {
-			$out .= $chunk;
-			continue;
-		}
-
-		// three strpos() are faster than one preg_match() here. If we need to check for more protocols, preg_match() would probably be better.
-		if ( strpos( $chunk, 'http://' ) !== false || strpos( $chunk, 'https://' ) !== false || strpos( $chunk, 'www.' ) !== false ) {
-			// looks like there is a plain-text url.
-			$out .= make_clickable( $chunk );
+			if ( false !== strpos( $raw_text, 'http://' ) ||
+				false !== strpos( $raw_text, 'https://' ) ||
+				false !== strpos( $raw_text, 'www.' ) ) {
+				$output .= make_clickable( $raw_text );
+			} else {
+				$output .= $raw_text;
+			}
 		} else {
-			$out .= $chunk;
+			// Protected text, comments, doctypes, etc. - copy as-is.
+			$output .= substr( $content, $start, $length );
 		}
+
+		$last_offset = $start + $length;
 	}
 
-	return $out;
+	// Append any remaining content after the last token.
+	if ( $last_offset < strlen( $content ) ) {
+		$output .= substr( $content, $last_offset );
+	}
+
+	return $output;
 }
 add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
