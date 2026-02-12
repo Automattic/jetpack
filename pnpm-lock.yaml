@@ -5974,6 +5974,12 @@ importers:
       stylelint:
         specifier: 17.2.0
         version: 17.2.0(typescript@5.9.3)
+      stylelint-config-recommended:
+        specifier: ^18.0.0
+        version: 18.0.0(stylelint@17.2.0(typescript@5.9.3))
+      stylelint-config-recommended-scss:
+        specifier: ^17.0.0
+        version: 17.0.0(postcss@8.5.6)(stylelint@17.2.0(typescript@5.9.3))
       stylelint-scss:
         specifier: 7.0.0
         version: 7.0.0(stylelint@17.2.0(typescript@5.9.3))

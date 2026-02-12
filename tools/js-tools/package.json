@@ -66,6 +66,8 @@
 		"react-dom": "18.3.1",
 		"semver": "7.7.3",
 		"stylelint": "17.2.0",
+		"stylelint-config-recommended": "^18.0.0",
+		"stylelint-config-recommended-scss": "^17.0.0",
 		"stylelint-scss": "7.0.0",
 		"svelte": "4.2.19",
 		"svelte-eslint-parser": "1.4.1",

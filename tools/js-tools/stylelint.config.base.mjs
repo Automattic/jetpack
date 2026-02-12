@@ -1,4 +1,39 @@
+import { registerHooks } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { styleText } from 'node:util';
+
+const styleTextStderr = ( format, text, options ) =>
+	styleText( format, text, { stream: process.stderr, ...options } );
+
+// This is a ridiculous hack around https://github.com/WordPress/gutenberg/issues/75047.
+// `@wordpress/stylelint-config` tries to `require.resolve` various modules, which fails for `stylelint-config-recommended` and `stylelint-config-recommended-scss`
+// as those have gone esm-only. This hack replaces those two module names with absolute paths to our copies so `require.resolve` doesn't have to actually resolve them.
+registerHooks( {
+	load( url, context, nextLoad ) {
+		const ret = nextLoad( url, context );
+
+		if ( /\/node_modules\/@wordpress\/stylelint-config\//.test( url ) ) {
+			if ( ret.format === 'commonjs' ) {
+				ret.source = ret.source
+					.toString()
+					.replace(
+						/'(stylelint-config-recommended|stylelint-config-recommended-scss)'/,
+						( _, m ) => JSON.stringify( fileURLToPath( import.meta.resolve( m ) ) )
+					);
+			} else {
+				console.error(
+					styleTextStderr(
+						'red',
+						styleTextStderr( 'bold', `Is the hack in ${ import.meta.filename } obsolete?` ) +
+							` Loaded ${ fileURLToPath( url ) } as ${ ret.format } rather than commonjs.`
+					)
+				);
+			}
+		}
+
+		return ret;
+	},
+} );
 
 /**
  * @type {import('stylelint').Config}
