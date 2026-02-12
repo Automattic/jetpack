@@ -33,13 +33,29 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	private $saved_screen;
 
 	/**
+	 * Saved wp_scripts global.
+	 *
+	 * @var mixed
+	 */
+	private $saved_wp_scripts;
+
+	/**
+	 * Saved wp_styles global.
+	 *
+	 * @var mixed
+	 */
+	private $saved_wp_styles;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
 		parent::set_up();
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
-		$GLOBALS['wp_scripts'] = new WP_Scripts();
-		$GLOBALS['wp_styles']  = new WP_Styles();
+		$this->saved_wp_scripts = $GLOBALS['wp_scripts'] ?? null;
+		$this->saved_wp_styles  = $GLOBALS['wp_styles'] ?? null;
+		$GLOBALS['wp_scripts']  = new WP_Scripts();
+		$GLOBALS['wp_styles']   = new WP_Styles();
 		$this->reset_availability();
 		unset( $_GET['enable_image_studio'] );
 		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
@@ -56,6 +72,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'jetpack_set_available_extensions' );
 		unset( $_GET['enable_image_studio'] );
 		$GLOBALS['current_screen'] = $this->saved_screen;
+		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
+		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
 		parent::tear_down();
 	}
 

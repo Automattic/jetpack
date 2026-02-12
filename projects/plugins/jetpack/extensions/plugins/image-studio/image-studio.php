@@ -185,7 +185,7 @@ function get_asset_data_from_remote() {
 	}
 
 	$content_type = wp_remote_retrieve_header( $response, 'content-type' );
-	if ( is_string( $content_type ) && false === strpos( $content_type, 'json' ) ) {
+	if ( is_string( $content_type ) && false === stripos( $content_type, 'json' ) ) {
 		return false;
 	}
 
