@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Block Editor: made Jetpack logo display behavior consistent across SEO and AI panels. Logo now appears in global contexts (document settings, pre-publish, post-publish) but not in the Jetpack sidebar.

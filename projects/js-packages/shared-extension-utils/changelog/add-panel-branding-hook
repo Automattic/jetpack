@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added useShouldShowPanelBranding hook to determine when Jetpack branding should be displayed in editor panels.

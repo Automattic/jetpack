@@ -12,6 +12,7 @@ import {
 	PLAN_TYPE_FREE,
 	PLAN_TYPE_UNLIMITED,
 	usePlanType,
+	useShouldShowPanelBranding,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
@@ -181,6 +182,7 @@ const JetpackAndSettingsContent = ( {
 export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier, isOverLimit } = useAiFeature();
 	const { tracks } = useAnalytics();
+	const shouldShowPanelBranding = useShouldShowPanelBranding();
 
 	const isViewable = useSelect( select => {
 		const postTypeName = select( editorStore ).getCurrentPostType();
@@ -209,6 +211,7 @@ export default function AiAssistantPluginSidebar() {
 	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
 	const isBreveAvailable = getBreveAvailability();
+	const panelIcon = shouldShowPanelBranding ? <JetpackEditorPanelLogo /> : undefined;
 
 	return (
 		<>
@@ -232,7 +235,7 @@ export default function AiAssistantPluginSidebar() {
 				</PanelBody>
 			</JetpackPluginSidebar>
 
-			<DocumentPanel title={ title } name="jetpack-ai-assistant">
+			<DocumentPanel title={ title } name="jetpack-ai-assistant" icon={ panelIcon }>
 				<JetpackAndSettingsContent
 					placement={ PLACEMENT_DOCUMENT_SETTINGS }
 					requireUpgrade={ requireUpgrade }
@@ -242,7 +245,7 @@ export default function AiAssistantPluginSidebar() {
 				/>
 			</DocumentPanel>
 
-			<PrePublishPanel title={ title } icon={ <JetpackEditorPanelLogo /> } initialOpen={ false }>
+			<PrePublishPanel title={ title } icon={ panelIcon } initialOpen={ false }>
 				<>
 					{ isAITitleOptimizationAvailable && (
 						<TitleOptimization
