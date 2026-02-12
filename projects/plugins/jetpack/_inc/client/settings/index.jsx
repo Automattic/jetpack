@@ -8,6 +8,7 @@ import Earn from 'earn';
 import Subscriptions from 'newsletter';
 import Performance from 'performance';
 import Privacy from 'privacy';
+import Reader from 'reader';
 import SearchableModules from 'searchable-modules';
 import Security from 'security';
 import Sharing from 'sharing';
@@ -67,6 +68,7 @@ class Settings extends Component {
 						active={ '/newsletter' === pathname }
 						{ ...commonProps }
 					/>
+					<Reader active={ '/reader' === pathname } { ...commonProps } />
 					<Earn
 						siteRawUrl={ siteRawUrl }
 						active={ '/earn' === pathname }

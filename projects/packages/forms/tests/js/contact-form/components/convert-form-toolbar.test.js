@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event';
 // Mock functions
 const mockCreateSyncedForm = jest.fn();
 const mockUpdateBlockAttributes = jest.fn();
+const mockReplaceInnerBlocks = jest.fn();
 const mockLockPostSaving = jest.fn();
 const mockUnlockPostSaving = jest.fn();
 const mockCreateErrorNotice = jest.fn();
@@ -18,11 +19,11 @@ const mockAddQueryArgs = jest.fn(
 );
 
 let mockIsLocked = false;
-let mockIsSiteEditor = false;
+let mockEditorContext = 'post';
 
 // Mock WordPress dependencies
 await jest.unstable_mockModule( '@wordpress/components', () => ( {
-	ToolbarGroup: ( { children } ) => <div>{ children }</div>,
+	ToolbarGroup: ( { children } ) => <div data-testid="toolbar-group">{ children }</div>,
 	ToolbarButton: ( { children, onClick, disabled } ) => (
 		<button onClick={ onClick } disabled={ disabled }>
 			{ children }
@@ -53,14 +54,16 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 					getSettings: () => ( { onNavigateToEntityRecord: mockOnNavigateToEntityRecord } ),
 				};
 			}
-			if ( store === 'core/edit-site' ) {
-				return mockIsSiteEditor ? {} : undefined;
+			if ( store === 'core/edit-widgets' ) {
+				return {
+					getParentWidgetAreaBlock: () => ( { attributes: { name: 'Footer Widget Area' } } ),
+				};
 			}
 			return undefined;
 		} )
 	),
 	useDispatch: jest.fn( () => ( {
-		replaceInnerBlocks: jest.fn(),
+		replaceInnerBlocks: mockReplaceInnerBlocks,
 		updateBlockAttributes: mockUpdateBlockAttributes,
 		lockPostSaving: mockLockPostSaving,
 		unlockPostSaving: mockUnlockPostSaving,
@@ -75,7 +78,14 @@ await jest.unstable_mockModule(
 	} )
 );
 
-const { ConvertFormToolbar } = await import(
+await jest.unstable_mockModule(
+	'../../../../src/blocks/contact-form/util/get-editor-context',
+	() => ( {
+		getEditorContext: () => mockEditorContext,
+	} )
+);
+
+const { ConvertFormToolbar, navigateToForm } = await import(
 	'../../../../src/blocks/contact-form/components/convert-form-toolbar'
 );
 
@@ -83,96 +93,225 @@ describe( 'ConvertFormToolbar', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockIsLocked = false;
-		mockIsSiteEditor = false;
+		mockEditorContext = 'post';
 	} );
 
-	it( 'renders Edit Form button', () => {
-		render( <ConvertFormToolbar clientId="test-id" attributes={ {} } /> );
-		expect( screen.getByText( 'Edit Form' ) ).toBeInTheDocument();
-	} );
+	describe( 'rendering', () => {
+		it( 'renders Edit Form button', () => {
+			render( <ConvertFormToolbar clientId="test-id" attributes={ {} } /> );
+			expect( screen.getByText( 'Edit Form' ) ).toBeInTheDocument();
+		} );
 
-	it( 'disables button when editor is locked', () => {
-		mockIsLocked = true;
-		render( <ConvertFormToolbar clientId="test-id" attributes={ {} } /> );
-		expect( screen.getByRole( 'button' ) ).toBeDisabled();
-	} );
+		it( 'disables button when editor is locked and form is not synced', () => {
+			mockIsLocked = true;
+			render( <ConvertFormToolbar clientId="test-id" attributes={ {} } /> );
+			expect( screen.getByRole( 'button' ) ).toBeDisabled();
+		} );
 
-	it( 'navigates to form when clicking edit on synced form', async () => {
-		render( <ConvertFormToolbar clientId="test-id" attributes={ { ref: 456 } } /> );
-		await userEvent.click( screen.getByRole( 'button' ) );
-
-		expect( mockOnNavigateToEntityRecord ).toHaveBeenCalledWith( {
-			postId: 456,
-			postType: 'jetpack_form',
+		it( 'does not disable button when form is already synced (has ref)', () => {
+			mockIsLocked = true;
+			render( <ConvertFormToolbar clientId="test-id" attributes={ { ref: 456 } } /> );
+			expect( screen.getByRole( 'button' ) ).toBeEnabled();
 		} );
 	} );
 
-	it( 'creates synced form and navigates on convert', async () => {
-		mockCreateSyncedForm.mockResolvedValue( 789 );
+	describe( 'post editor context', () => {
+		beforeEach( () => {
+			mockEditorContext = 'post';
+		} );
 
-		render( <ConvertFormToolbar clientId="test-id" attributes={ { to: 'test@example.com' } } /> );
-		await userEvent.click( screen.getByRole( 'button' ) );
+		it( 'navigates to form using onNavigateToEntityRecord when clicking edit on synced form', async () => {
+			render( <ConvertFormToolbar clientId="test-id" attributes={ { ref: 456 } } /> );
+			await userEvent.click( screen.getByRole( 'button' ) );
 
-		await waitFor( () => {
 			expect( mockOnNavigateToEntityRecord ).toHaveBeenCalledWith( {
-				postId: 789,
+				postId: 456,
 				postType: 'jetpack_form',
 			} );
 		} );
 
-		expect( mockLockPostSaving ).toHaveBeenCalled();
-		expect( mockUnlockPostSaving ).toHaveBeenCalled();
-	} );
+		it( 'calls onBeforeNavigate before navigating to synced form', async () => {
+			const mockOnBeforeNavigate = jest.fn();
+			render(
+				<ConvertFormToolbar
+					clientId="test-id"
+					attributes={ { ref: 456 } }
+					onBeforeNavigate={ mockOnBeforeNavigate }
+				/>
+			);
+			await userEvent.click( screen.getByRole( 'button' ) );
 
-	it( 'in site editor, navigates via URL when clicking edit on synced form', async () => {
-		mockIsSiteEditor = true;
-
-		render( <ConvertFormToolbar clientId="test-id" attributes={ { ref: 456 } } /> );
-		await userEvent.click( screen.getByRole( 'button' ) );
-
-		expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
-			post: 456,
-			action: 'edit',
+			expect( mockOnBeforeNavigate ).toHaveBeenCalled();
+			expect( mockOnNavigateToEntityRecord ).toHaveBeenCalled();
 		} );
-		expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
-		// jsdom logs an error for unimplemented navigation
-		expect( console ).toHaveErrored();
+
+		it( 'creates synced form and navigates on convert', async () => {
+			mockCreateSyncedForm.mockResolvedValue( 789 );
+
+			render( <ConvertFormToolbar clientId="test-id" attributes={ { to: 'test@example.com' } } /> );
+			await userEvent.click( screen.getByRole( 'button' ) );
+
+			await waitFor( () => {
+				expect( mockOnNavigateToEntityRecord ).toHaveBeenCalledWith( {
+					postId: 789,
+					postType: 'jetpack_form',
+				} );
+			} );
+
+			expect( mockLockPostSaving ).toHaveBeenCalled();
+			expect( mockUnlockPostSaving ).toHaveBeenCalled();
+		} );
 	} );
 
-	it( 'in site editor, creates synced form and navigates via URL on convert', async () => {
-		mockIsSiteEditor = true;
-		mockCreateSyncedForm.mockResolvedValue( 789 );
+	describe( 'site editor context', () => {
+		beforeEach( () => {
+			mockEditorContext = 'site';
+		} );
 
-		render( <ConvertFormToolbar clientId="test-id" attributes={ { to: 'test@example.com' } } /> );
-		await userEvent.click( screen.getByRole( 'button' ) );
+		it( 'navigates via URL when clicking edit on synced form', async () => {
+			render( <ConvertFormToolbar clientId="test-id" attributes={ { ref: 456 } } /> );
+			await userEvent.click( screen.getByRole( 'button' ) );
 
-		await waitFor( () => {
 			expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
-				post: 789,
+				post: 456,
 				action: 'edit',
 			} );
+			expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
+			// jsdom logs an error for unimplemented navigation
+			expect( console ).toHaveErrored();
 		} );
 
-		expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
-		expect( mockLockPostSaving ).toHaveBeenCalled();
-		expect( mockUnlockPostSaving ).toHaveBeenCalled();
+		it( 'creates synced form and navigates via URL on convert', async () => {
+			mockCreateSyncedForm.mockResolvedValue( 789 );
+
+			render( <ConvertFormToolbar clientId="test-id" attributes={ { to: 'test@example.com' } } /> );
+			await userEvent.click( screen.getByRole( 'button' ) );
+
+			await waitFor( () => {
+				expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
+					post: 789,
+					action: 'edit',
+				} );
+			} );
+
+			expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
+			expect( mockLockPostSaving ).toHaveBeenCalled();
+			expect( mockUnlockPostSaving ).toHaveBeenCalled();
+			// jsdom logs an error for unimplemented navigation
+			expect( console ).toHaveErrored();
+		} );
+	} );
+
+	describe( 'widget editor context', () => {
+		beforeEach( () => {
+			mockEditorContext = 'widget';
+		} );
+
+		it( 'navigates via URL when clicking edit on synced form', async () => {
+			render( <ConvertFormToolbar clientId="test-id" attributes={ { ref: 456 } } /> );
+			await userEvent.click( screen.getByRole( 'button' ) );
+
+			expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
+				post: 456,
+				action: 'edit',
+			} );
+			expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
+			// jsdom logs an error for unimplemented navigation
+			expect( console ).toHaveErrored();
+		} );
+
+		it( 'creates synced form and navigates via URL on convert', async () => {
+			mockCreateSyncedForm.mockResolvedValue( 789 );
+
+			render( <ConvertFormToolbar clientId="test-id" attributes={ { to: 'test@example.com' } } /> );
+			await userEvent.click( screen.getByRole( 'button' ) );
+
+			await waitFor( () => {
+				expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
+					post: 789,
+					action: 'edit',
+				} );
+			} );
+
+			expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
+			expect( mockLockPostSaving ).toHaveBeenCalled();
+			expect( mockUnlockPostSaving ).toHaveBeenCalled();
+			// jsdom logs an error for unimplemented navigation
+			expect( console ).toHaveErrored();
+		} );
+
+		it( 'button is not disabled even when locked (widget editor has no lock)', () => {
+			mockIsLocked = true; // This should be ignored in widget context
+			render( <ConvertFormToolbar clientId="test-id" attributes={ {} } /> );
+			// In widget editor, isLocked is always false, so button should be enabled
+			expect( screen.getByRole( 'button' ) ).toBeEnabled();
+		} );
+	} );
+
+	describe( 'error handling', () => {
+		it( 'shows error notice when conversion fails', async () => {
+			mockCreateSyncedForm.mockRejectedValue( new Error( 'API Error' ) );
+
+			render( <ConvertFormToolbar clientId="test-id" attributes={ {} } /> );
+			await userEvent.click( screen.getByRole( 'button' ) );
+
+			await waitFor( () => {
+				expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+					'Failed to create a form. Please try again.',
+					expect.objectContaining( { type: 'snackbar' } )
+				);
+			} );
+
+			expect( mockUnlockPostSaving ).toHaveBeenCalled();
+		} );
+	} );
+} );
+
+describe( 'navigateToForm', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+	} );
+
+	it( 'uses onNavigateToEntityRecord in post context when available', () => {
+		const mockNavigate = jest.fn();
+		navigateToForm( 123, 'post', mockNavigate );
+
+		expect( mockNavigate ).toHaveBeenCalledWith( {
+			postId: 123,
+			postType: 'jetpack_form',
+		} );
+		expect( mockAddQueryArgs ).not.toHaveBeenCalled();
+	} );
+
+	it( 'does nothing in post context when onNavigateToEntityRecord is not available', () => {
+		navigateToForm( 123, 'post', undefined );
+
+		expect( mockAddQueryArgs ).not.toHaveBeenCalled();
+	} );
+
+	it( 'navigates via URL in site editor context', () => {
+		const mockNavigate = jest.fn();
+		navigateToForm( 123, 'site', mockNavigate );
+
+		expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
+			post: 123,
+			action: 'edit',
+		} );
+		expect( mockNavigate ).not.toHaveBeenCalled();
 		// jsdom logs an error for unimplemented navigation
 		expect( console ).toHaveErrored();
 	} );
 
-	it( 'shows error notice when conversion fails', async () => {
-		mockCreateSyncedForm.mockRejectedValue( new Error( 'API Error' ) );
+	it( 'navigates via URL in widget editor context', () => {
+		const mockNavigate = jest.fn();
+		navigateToForm( 123, 'widget', mockNavigate );
 
-		render( <ConvertFormToolbar clientId="test-id" attributes={ {} } /> );
-		await userEvent.click( screen.getByRole( 'button' ) );
-
-		await waitFor( () => {
-			expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
-				'Failed to create a form. Please try again.',
-				expect.objectContaining( { type: 'snackbar' } )
-			);
+		expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
+			post: 123,
+			action: 'edit',
 		} );
-
-		expect( mockUnlockPostSaving ).toHaveBeenCalled();
+		expect( mockNavigate ).not.toHaveBeenCalled();
+		// jsdom logs an error for unimplemented navigation
+		expect( console ).toHaveErrored();
 	} );
 } );

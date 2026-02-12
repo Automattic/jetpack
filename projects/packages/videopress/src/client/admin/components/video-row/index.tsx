@@ -138,7 +138,7 @@ export const VideoRow = ( {
 	const [ anchor, setAnchor ] = useState( null );
 
 	const durationInMinutesAndSeconds = millisecondsToMinutesAndSeconds( duration );
-	const uploadDateFormatted = dateI18n( 'M j, Y', uploadDate, null );
+	const uploadDateFormatted = dateI18n( 'M j, Y', uploadDate );
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
 
 	const showTitleLabel = ! isSmall && isEllipsisActive;

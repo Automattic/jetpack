@@ -651,6 +651,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 					<EmptyResponses
 						status={ statusFilter }
 						isSearch={ !! view.search }
+						isSingleFormView={ isSingleFormView }
 						readStatusFilter={ readStatusFilter }
 					/>
 				}

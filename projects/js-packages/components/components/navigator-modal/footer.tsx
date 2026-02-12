@@ -1,9 +1,9 @@
 import { Button, Flex, FlexBlock, FlexItem, useNavigator } from '@wordpress/components';
+import clsx from 'clsx';
 import { useCallback, useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
-import { SharedProps } from './types.ts';
 
-export type FooterProps = SharedProps & {
+export type FooterProps = React.HTMLAttributes< HTMLDivElement > & {
 	actions?: Array<
 		| ( ( props: { navigate: VoidFunction } ) => React.ReactElement )
 		| React.ComponentProps< typeof Button >
@@ -18,7 +18,7 @@ export type FooterProps = SharedProps & {
  *
  * @return The rendered footer.
  */
-export function Footer( { children, actions, isScreenLocked }: FooterProps ) {
+export function Footer( { children, actions, isScreenLocked, className, ...props }: FooterProps ) {
 	const navigator = useNavigator();
 	const context = useContext( NavigatorModalContext );
 
@@ -31,23 +31,23 @@ export function Footer( { children, actions, isScreenLocked }: FooterProps ) {
 	}, [ isScreenLocked, navigator, context ] );
 
 	return (
-		<Flex className="jp-navigator-modal__footer">
+		<Flex className={ clsx( 'jp-navigator-modal__footer', className ) } { ...props }>
 			<FlexBlock>{ children }</FlexBlock>
 			{ actions ? (
 				<FlexItem>
 					<Flex>
-						{ actions.map( ( props, index ) => {
-							if ( typeof props === 'function' ) {
-								return props( { navigate } );
+						{ actions.map( ( action, index ) => {
+							if ( typeof action === 'function' ) {
+								return action( { navigate } );
 							}
 
 							return (
 								<Button
 									key={ index }
-									{ ...props }
+									{ ...action }
 									// eslint-disable-next-line react/jsx-no-bind
 									onClick={ event => {
-										props.onClick?.( event );
+										action.onClick?.( event );
 										navigate();
 									} }
 								/>

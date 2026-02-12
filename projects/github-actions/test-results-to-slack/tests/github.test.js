@@ -1,5 +1,5 @@
-const { MockAgent, setGlobalDispatcher } = require( 'undici' );
-const { mockContextExtras } = require( './test-utils' );
+import { MockAgent, setGlobalDispatcher } from 'undici';
+import { mockGitHubContext, mockContextExtras } from './test-utils.js';
 
 describe( 'Workflow conclusion', () => {
 	test.each`
@@ -10,12 +10,11 @@ describe( 'Workflow conclusion', () => {
 		${ false } | ${ 'Workflow is successful for skipped jobs' }                | ${ [ { status: 'completed', conclusion: 'skipped' }, { status: 'completed', conclusion: 'success' } ] }
 		${ true }  | ${ 'Workflow is failed for one failed job' }                  | ${ [ { status: 'completed', conclusion: 'success' }, { status: 'completed', conclusion: 'failed' } ] }
 	`( '$description', async ( { expected, jobs } ) => {
-		const { mockGitHubContext } = require( './test-utils' );
 		const runId = '12345';
 		const repository = 'foo/bar';
 
 		// Mock GitHub context
-		mockGitHubContext( { runId } );
+		await mockGitHubContext( { runId } );
 		mockContextExtras( { repository } );
 
 		// Intercept request to GitHub Api and mock response
@@ -26,7 +25,7 @@ describe( 'Workflow conclusion', () => {
 			.intercept( { path: `/repos/${ repository }/actions/runs/${ runId }/jobs` } )
 			.reply( 200, { jobs }, { headers: { 'content-type': 'application/json' } } );
 
-		const { isWorkflowFailed } = require( '../src/github' );
+		const { isWorkflowFailed } = await import( '../src/github.js' );
 		const conclusion = await isWorkflowFailed( 'token' );
 		await expect( conclusion ).toBe( expected );
 	} );

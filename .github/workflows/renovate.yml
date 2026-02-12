@@ -22,7 +22,7 @@ on:
         description: 'Do OSV database lookups (slow)'
         type: boolean
   schedule:
-    - cron: '0 0/2 * * *'
+    - cron: '17 0/2 * * *'
 concurrency:
   group: renovate-${{ github.ref }}
 
@@ -50,12 +50,12 @@ jobs:
           TOKEN: ${{ secrets.RENOVATE_TOKEN }}
         run: |
           curl --no-progress-meter --header "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit
-      - uses: renovatebot/github-action@v44.0.5
+      - uses: renovatebot/github-action@v46.0.2
         with:
           configurationFile: /tmp/monorepo/.github/renovate-config.js
           token: ${{ secrets.RENOVATE_TOKEN }}
           mount-docker-socket: true
-          renovate-version: 42.92.1
+          renovate-version: 43.8.2
         env:
           LOG_LEVEL: ${{ github.event.inputs.logLevel || 'debug' }}
           RENOVATE_DRY_RUN: ${{ github.event.inputs.dryRun == 'no' && 'null' || github.event.inputs.dryRun || 'null' }}

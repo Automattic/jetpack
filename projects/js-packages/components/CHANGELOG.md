@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.4.12] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+### Fixed
+- RNA: Fix build folder extensions and copy SCSS assets. [#46938]
+
+## [1.4.11] - 2026-02-04
+### Changed
+- NavigatorModal: Prevent scrolling for navigator screen for large content. [#46925]
+
+## [1.4.10] - 2026-02-03
+### Changed
+- Update package dependencies. [#46905]
+
+## [1.4.9] - 2026-02-02
+### Added
+- NavigatorModal: Allow passing all the props supported by underlying components. [#46856]
+
+### Changed
+- NavigatorModal: Allow customizing the modal via stable BEM class names. [#46818]
+- Update package dependencies. [#46854]
+
 ## [1.4.8] - 2026-01-26
 ### Changed
 - Update dependencies.
@@ -1624,6 +1647,10 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.4.12]: https://github.com/Automattic/jetpack-components/compare/1.4.11...1.4.12
+[1.4.11]: https://github.com/Automattic/jetpack-components/compare/1.4.10...1.4.11
+[1.4.10]: https://github.com/Automattic/jetpack-components/compare/1.4.9...1.4.10
+[1.4.9]: https://github.com/Automattic/jetpack-components/compare/1.4.8...1.4.9
 [1.4.8]: https://github.com/Automattic/jetpack-components/compare/1.4.7...1.4.8
 [1.4.7]: https://github.com/Automattic/jetpack-components/compare/1.4.6...1.4.7
 [1.4.6]: https://github.com/Automattic/jetpack-components/compare/1.4.5...1.4.6

@@ -18,7 +18,7 @@ use Jetpack_Options;
  * Class External_Media
  */
 class External_Media {
-	const PACKAGE_VERSION = '0.7.5';
+	const PACKAGE_VERSION = '0.8.1';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
@@ -108,11 +108,11 @@ class External_Media {
 	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
 	 *
 	 * @since jetpack-14.0
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 0.8.0
 	 * @return bool
 	 */
 	public static function site_supports_next_default_size() {
-		_deprecated_function( __METHOD__, 'jetpack-external-media-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-external-media-0.8.0' );
 		return true;
 	}
 }

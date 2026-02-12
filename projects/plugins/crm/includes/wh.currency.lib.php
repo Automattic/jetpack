@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Woody Hayday Currency Lib
  * V1.0
  *

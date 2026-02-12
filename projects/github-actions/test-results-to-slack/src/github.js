@@ -1,5 +1,5 @@
-const github = require( '@actions/github' );
-const extras = require( './extra-context' );
+import * as github from '@actions/github';
+import extras from './extra-context.js';
 
 /**
  * Decides if the current workflow failed
@@ -7,7 +7,7 @@ const extras = require( './extra-context' );
  * @param {string} token - GitHub token
  * @return {boolean} Whether it failed.
  */
-async function isWorkflowFailed( token ) {
+export async function isWorkflowFailed( token ) {
 	// eslint-disable-next-line new-cap
 	const octokit = new github.getOctokit( token );
 
@@ -39,12 +39,10 @@ async function isWorkflowFailed( token ) {
  * @param {boolean} withAttempt - whether to include the run attempt in the url
  * @return {string} the run url
  */
-function getRunUrl( withAttempt = true ) {
+export function getRunUrl( withAttempt = true ) {
 	const { serverUrl, runId } = github.context;
 	const { repository, runAttempt } = extras;
 	return `${ serverUrl }/${ repository }/actions/runs/${ runId }/${
 		withAttempt ? `attempts/${ runAttempt }` : ''
 	}`;
 }
-
-module.exports = { isWorkflowFailed, getRunUrl };

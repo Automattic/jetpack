@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load the wp-build dashboard independently of the Gutenberg plugin.

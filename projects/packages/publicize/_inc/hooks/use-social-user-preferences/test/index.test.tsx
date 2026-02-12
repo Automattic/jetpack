@@ -36,13 +36,13 @@ describe( 'useSocialUserPreferences', () => {
 			),
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBeUndefined();
+		expect( result.current.data.showPrePublishConfirmation ).toBeUndefined();
 		expect( result.current.data.reviewPromptDismissed ).toBeUndefined();
 	} );
 
 	it( 'should return the initial preference values', () => {
 		const registry = createRegistryWithPreferencesStore( {
-			pre_publish_confirmation: true,
+			show_pre_publish_confirmation: true,
 			review_prompt_dismissed: false,
 		} );
 
@@ -52,7 +52,7 @@ describe( 'useSocialUserPreferences', () => {
 			),
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( true );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
 		expect( result.current.data.reviewPromptDismissed ).toBe( false );
 	} );
 
@@ -66,10 +66,10 @@ describe( 'useSocialUserPreferences', () => {
 		} );
 
 		act( () => {
-			result.current.set( 'prePublishConfirmation', true );
+			result.current.set( 'showPrePublishConfirmation', true );
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( true );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
 
 		act( () => {
 			result.current.set( 'reviewPromptDismissed', true );
@@ -80,7 +80,7 @@ describe( 'useSocialUserPreferences', () => {
 
 	it( 'should toggle a boolean preference value', () => {
 		const registry = createRegistryWithPreferencesStore( {
-			pre_publish_confirmation: false,
+			show_pre_publish_confirmation: false,
 		} );
 
 		const { result } = renderHook( () => useSocialUserPreferences(), {
@@ -89,18 +89,18 @@ describe( 'useSocialUserPreferences', () => {
 			),
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( false );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( false );
 
 		act( () => {
-			result.current.toggle( 'prePublishConfirmation' );
+			result.current.toggle( 'showPrePublishConfirmation' );
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( true );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
 
 		act( () => {
-			result.current.toggle( 'prePublishConfirmation' );
+			result.current.toggle( 'showPrePublishConfirmation' );
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( false );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( false );
 	} );
 } );

@@ -15,6 +15,8 @@ import { validateField, isEmptyValue } from '../../contact-form/js/validate-help
 import { getRating } from '../field-rating/view.js';
 import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
 import { focusNextInput, submitForm } from './shared.ts';
+// Import field type icons view to register its callbacks.
+import './field-type-icons-view.js';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -64,6 +66,7 @@ const setSubmissionData = ( data = [] ) => {
 			url,
 			files,
 			rating,
+			type: item.type || 'text',
 			showPlainValue:
 				! url &&
 				! rating &&
@@ -509,6 +512,23 @@ const { state, actions } = store( NAMESPACE, {
 
 		onFormSubmit: withSyncEvent( function* ( event ) {
 			const context = getContext();
+
+			// Check if we're in preview mode and block submission.
+			if ( window.jetpackFormsPreviewMode ) {
+				event.preventDefault();
+				event.stopPropagation();
+				context.submissionError = config.error_types?.preview_mode;
+
+				if ( errorTimeout ) {
+					clearTimeout( errorTimeout );
+				}
+
+				errorTimeout = setTimeout( () => {
+					context.submissionError = null;
+				}, 5000 );
+
+				return;
+			}
 
 			if ( ! state.isFormValid ) {
 				context.showErrors = true;

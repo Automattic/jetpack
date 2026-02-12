@@ -3,6 +3,7 @@
  */
 
 import { createBlock, serialize } from '@wordpress/blocks';
+import type { Block } from '@wordpress/blocks';
 
 /**
  * Filter out attributes that shouldn't be synced from source
@@ -25,21 +26,36 @@ export function filterSyncedAttributes(
 }
 
 /**
+ * Create a form block for staging/saving.
+ * Excludes ref and lock attributes since they're not part of the form definition.
+ *
+ * @param {Record<string, unknown>} attributes  - Form attributes.
+ * @param {Array}                   innerBlocks - Form inner blocks.
+ * @return {Block} The created form block.
+ */
+export function createSyncedFormBlock(
+	attributes: Record< string, unknown >,
+	innerBlocks: Block[]
+): Block {
+	const attributesToSave = { ...attributes };
+	delete attributesToSave.ref;
+	delete attributesToSave.lock;
+
+	return createBlock( 'jetpack/contact-form', attributesToSave, innerBlocks );
+}
+
+/**
  * Serialize form attributes and blocks for saving to synced form post
  * Excludes the ref attribute since it's not part of the form definition
  *
  * @param {Record<string, unknown>} attributes  - Form attributes
- * @param {Array}                   innerBlocks - Form inner blocks
+ * @param {Block[]}                 innerBlocks - Form inner blocks
  * @return {string} Serialized block content
  */
 export function serializeSyncedForm(
 	attributes: Record< string, unknown >,
-	innerBlocks: unknown[]
+	innerBlocks: Block[]
 ): string {
-	const attributesToSave = { ...attributes };
-	delete attributesToSave.ref;
-
-	const formBlock = createBlock( 'jetpack/contact-form', attributesToSave, innerBlocks );
-
+	const formBlock = createSyncedFormBlock( attributes, innerBlocks );
 	return serialize( formBlock );
 }

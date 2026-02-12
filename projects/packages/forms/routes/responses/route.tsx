@@ -2,6 +2,10 @@
  * WordPress dependencies
  */
 import { resolveSelect } from '@wordpress/data';
+/**
+ * Internal dependencies
+ */
+import { preloadGlobalTabCounts } from '../../src/dashboard/wp-build/utils/preload';
 
 export const route = {
 	/**
@@ -48,6 +52,9 @@ export const route = {
 			orderby: 'date',
 			order: 'desc',
 		} );
+
+		// Preload global header tab counts.
+		await preloadGlobalTabCounts();
 	},
 
 	/**

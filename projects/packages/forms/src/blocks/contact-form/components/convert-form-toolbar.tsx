@@ -12,149 +12,150 @@ import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedForm } from '../util/create-synced-form.ts';
+import { getEditorContext, type EditorContext } from '../util/get-editor-context.ts';
 
 const FORM_CONVERSION_LOCK = 'jetpack-form-conversion';
+
+/**
+ * Navigate to edit a form post.
+ * - Widget/Site editor: redirects in same page (no in-editor navigation available)
+ * - Post editor: uses in-editor navigation if available
+ *
+ * @param formId                   - The form post ID to edit.
+ * @param editorContext            - The current editor context.
+ * @param onNavigateToEntityRecord - Optional callback for in-editor navigation.
+ */
+export const navigateToForm = (
+	formId: number,
+	editorContext: EditorContext,
+	onNavigateToEntityRecord?: ( params: { postId: number; postType: string } ) => void
+) => {
+	if ( editorContext === 'widget' || editorContext === 'site' ) {
+		const editUrl = addQueryArgs( 'post.php', { post: formId, action: 'edit' } );
+		window.location.href = editUrl;
+	} else if ( onNavigateToEntityRecord ) {
+		onNavigateToEntityRecord( { postId: formId, postType: FORM_POST_TYPE } );
+	}
+};
 
 interface ConvertFormToolbarProps {
 	clientId: string;
 	attributes: Record< string, unknown >;
+	/**
+	 * Optional callback to run before navigating to form editor.
+	 * Use this to stage any pending edits in the entity store (not save to database).
+	 */
+	onBeforeNavigate?: () => void;
 }
 
-export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbarProps ) {
-	const { postTitle, currentPostId, isLocked } = useSelect( select => {
-		const editedPost = select( editorStore ).getEditedPostAttribute( 'title' );
-		const editedPostId = select( editorStore ).getEditedPostAttribute( 'id' );
-		const savingLocked = select( editorStore ).isPostSavingLocked();
-		return {
-			postTitle: editedPost || 'Untitled',
-			currentPostId: editedPostId,
-			isLocked: savingLocked,
-		};
-	}, [] );
+/**
+ * Toolbar component for converting inline forms to synced forms and editing synced forms.
+ *
+ * @param props                  - Component props.
+ * @param props.clientId         - The block client ID.
+ * @param props.attributes       - The block attributes.
+ * @param props.onBeforeNavigate - Callback to stage pending edits before navigation.
+ * @return Toolbar with edit/convert buttons.
+ */
+export function ConvertFormToolbar( {
+	clientId,
+	attributes,
+	onBeforeNavigate,
+}: ConvertFormToolbarProps ) {
+	const editorContext = getEditorContext();
+	const isWidgetEditor = editorContext === 'widget';
 
-	const { onNavigateToEntityRecord, isSiteEditor } = useSelect( select => {
-		const { getSettings } = select( blockEditorStore );
-		return {
-			onNavigateToEntityRecord: getSettings().onNavigateToEntityRecord,
-			isSiteEditor: !! select( 'core/edit-site' ),
-		};
-	}, [] );
+	const { block, formTitle, currentPostId, isLocked, onNavigateToEntityRecord } = useSelect(
+		select => {
+			const { getBlock, getSettings } = select( blockEditorStore );
 
-	// Get block data
-	const block = useSelect(
-		select => select( blockEditorStore ).getBlock( clientId ),
-		[ clientId ]
+			// Get widget area name in widget editor context
+			let widgetAreaName = null;
+			if ( isWidgetEditor ) {
+				try {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					const widgetStore = select( 'core/edit-widgets' ) as any;
+					widgetAreaName = widgetStore?.getParentWidgetAreaBlock?.( clientId )?.attributes?.name;
+				} catch {
+					// Widget store not available
+				}
+			}
+
+			// In widget editor, we don't have post context
+			const postTitle = isWidgetEditor
+				? null
+				: select( editorStore ).getEditedPostAttribute( 'title' );
+			const postId = isWidgetEditor ? 0 : select( editorStore ).getEditedPostAttribute( 'id' );
+			const locked = isWidgetEditor ? false : select( editorStore ).isPostSavingLocked();
+
+			return {
+				block: getBlock( clientId ),
+				formTitle: widgetAreaName || postTitle || 'Untitled',
+				currentPostId: postId,
+				isLocked: locked,
+				onNavigateToEntityRecord: getSettings().onNavigateToEntityRecord,
+			};
+		},
+		[ clientId, isWidgetEditor ]
 	);
 
-	// Get functions to manipulate blocks
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
 	const { lockPostSaving, unlockPostSaving } = useDispatch( editorStore );
 	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const hasRef = !! attributes.ref;
 
-	/**
-	 * Open the form editor by navigating directly.
-	 * @param formId - The ID of the form to edit.
-	 */
-	const openFormEditor = ( formId: number ) => {
-		const editUrl = addQueryArgs( 'post.php', { post: formId, action: 'edit' } );
-		window.location.href = editUrl;
-	};
-
-	/**
-	 * Convert inline form to synced form
-	 */
 	const convertToSynced = async () => {
 		if ( ! block || isLocked ) {
 			return;
 		}
 
-		lockPostSaving( FORM_CONVERSION_LOCK );
+		lockPostSaving?.( FORM_CONVERSION_LOCK );
 
 		try {
-			// Remove ref from attributes if it exists (shouldn't, but safety check)
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { ref, ...cleanAttributes } = attributes;
 
-			// Create the synced form post with all attributes and innerBlocks
 			const formId = await createSyncedForm(
-				{
-					attributes: cleanAttributes,
-					innerBlocks: block.innerBlocks || [],
-				},
-				postTitle,
+				{ attributes: cleanAttributes, innerBlocks: block.innerBlocks || [] },
+				formTitle,
 				currentPostId
 			);
 
-			// Clear innerBlocks first
+			// Clear block and set ref to the new form
 			replaceInnerBlocks( clientId, [], false );
-
-			// Get all current attribute keys
-			const attributeKeys = Object.keys( attributes );
-			const clearedAttributes: Record< string, unknown > = {};
-
-			// Set all attributes to undefined to clear them
-			attributeKeys.forEach( key => {
-				clearedAttributes[ key ] = undefined;
-			} );
-
-			// Then set only the ref
-			clearedAttributes.ref = formId;
-
-			// Update attributes using updateBlockAttributes which properly clears them
+			const clearedAttributes = Object.keys( attributes ).reduce(
+				( acc, key ) => ( { ...acc, [ key ]: undefined } ),
+				{ ref: formId }
+			);
 			updateBlockAttributes( clientId, clearedAttributes );
 
-			if ( isSiteEditor ) {
-				openFormEditor( formId );
-			} else if ( onNavigateToEntityRecord ) {
-				onNavigateToEntityRecord( {
-					postId: formId,
-					postType: FORM_POST_TYPE,
-				} );
-			}
+			navigateToForm( formId, editorContext, onNavigateToEntityRecord );
 		} catch {
 			createErrorNotice( __( 'Failed to create a form. Please try again.', 'jetpack-forms' ), {
 				type: 'snackbar',
 				isDismissible: true,
 			} );
 		} finally {
-			unlockPostSaving( FORM_CONVERSION_LOCK );
+			unlockPostSaving?.( FORM_CONVERSION_LOCK );
 		}
 	};
 
-	/**
-	 * Navigate to edit the synced form post
-	 */
 	const handleEditOriginal = () => {
-		if ( ! attributes.ref ) {
-			return;
-		}
-
-		if ( isSiteEditor ) {
-			openFormEditor( attributes.ref as number );
-			return;
-		}
-
-		if ( onNavigateToEntityRecord ) {
-			onNavigateToEntityRecord( {
-				postId: attributes.ref as number,
-				postType: FORM_POST_TYPE,
-			} );
+		if ( attributes.ref ) {
+			// Stage any pending edits in the entity store before navigating
+			onBeforeNavigate?.();
+			navigateToForm( attributes.ref as number, editorContext, onNavigateToEntityRecord );
 		}
 	};
-
-	const showEditButton = hasRef && ( isSiteEditor || onNavigateToEntityRecord );
-	const showConvertButton = ! hasRef;
 
 	return (
 		<ToolbarGroup>
-			{ showEditButton && (
+			{ hasRef ? (
 				<ToolbarButton onClick={ handleEditOriginal }>
 					{ __( 'Edit Form', 'jetpack-forms' ) }
 				</ToolbarButton>
-			) }
-			{ showConvertButton && (
+			) : (
 				<ToolbarButton onClick={ convertToSynced } disabled={ isLocked }>
 					{ __( 'Edit Form', 'jetpack-forms' ) }
 				</ToolbarButton>

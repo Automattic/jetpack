@@ -12,6 +12,7 @@ import {
 	WP_REST_API_MEDIA_ENDPOINT,
 	FLUSH_DELETED_VIDEOS,
 	REST_API_SITE_INFO_ENDPOINT,
+	REST_API_FEATURES_ENDPOINT,
 	SET_VIDEO_PROCESSING,
 	SET_LOCAL_VIDEOS_QUERY,
 	WP_REST_API_USERS_ENDPOINT,
@@ -98,7 +99,6 @@ const getVideos = {
 				orderby: query.orderBy,
 				page: query.page,
 				per_page: query.itemsPerPage,
-				media_type: 'video',
 				mime_type: 'video/videopress',
 			};
 
@@ -227,7 +227,6 @@ const getUploadedVideoCount = {
 			// Only the minimum necessary data
 			const wpv2MediaQuery = {
 				per_page: 1,
-				media_type: 'video',
 				mime_type: 'video/videopress',
 			};
 
@@ -442,6 +441,30 @@ const getVideoPressSettings = {
 		},
 };
 
+const getFeatures = {
+	isFulfilled: state => state?.features?.isVideoPressSupported !== undefined,
+
+	fulfill:
+		() =>
+		async ( { dispatch } ) => {
+			dispatch.setIsFetchingFeatures( true );
+
+			try {
+				const features = await apiFetch( {
+					path: REST_API_FEATURES_ENDPOINT,
+					method: 'GET',
+				} );
+
+				dispatch.setFeatures( features );
+				return features;
+			} catch ( error ) {
+				console.error( error ); // eslint-disable-line no-console
+			} finally {
+				dispatch.setIsFetchingFeatures( false );
+			}
+		},
+};
+
 export default {
 	getStorageUsed,
 	getUploadedVideoCount,
@@ -455,4 +478,6 @@ export default {
 	getPlaybackToken,
 
 	getVideoPressSettings,
+
+	getFeatures,
 };

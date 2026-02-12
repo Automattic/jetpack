@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Form Editor: Fix synced form changes being lost when navigating between page editor and form editor.

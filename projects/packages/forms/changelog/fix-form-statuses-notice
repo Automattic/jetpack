@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Show status notice for non-published synced forms in the block editor and frontend preview when attempting to publish.

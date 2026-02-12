@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.2] - 2026-02-10
+### Changed
+- Update dependencies. [#46931] [#47002]
+
+## [0.27.1] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
 ## [0.27.0] - 2026-01-26
 ### Added
 - Improve post promotion speed by handling the Blaze “advise campaign” endpoint locally, reducing the initial sync delay. [#46623]
@@ -765,6 +773,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.27.2]: https://github.com/automattic/jetpack-blaze/compare/v0.27.1...v0.27.2
+[0.27.1]: https://github.com/automattic/jetpack-blaze/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/automattic/jetpack-blaze/compare/v0.26.24...v0.27.0
 [0.26.24]: https://github.com/automattic/jetpack-blaze/compare/v0.26.23...v0.26.24
 [0.26.23]: https://github.com/automattic/jetpack-blaze/compare/v0.26.22...v0.26.23
