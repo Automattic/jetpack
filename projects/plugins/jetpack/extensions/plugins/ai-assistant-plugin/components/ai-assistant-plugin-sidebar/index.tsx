@@ -181,6 +181,7 @@ const JetpackAndSettingsContent = ( {
 export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier, isOverLimit } = useAiFeature();
 	const { tracks } = useAnalytics();
+
 	const isViewable = useSelect( select => {
 		const postTypeName = select( editorStore ).getCurrentPostType();
 		// The coreStore select type lacks the getPostType method, so we need to cast it to the correct type
@@ -208,7 +209,6 @@ export default function AiAssistantPluginSidebar() {
 	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
 	const isBreveAvailable = getBreveAvailability();
-	const panelIcon = <JetpackEditorPanelLogo />;
 
 	return (
 		<>
@@ -232,7 +232,7 @@ export default function AiAssistantPluginSidebar() {
 				</PanelBody>
 			</JetpackPluginSidebar>
 
-			<DocumentPanel title={ title } name="jetpack-ai-assistant" icon={ panelIcon }>
+			<DocumentPanel title={ title } name="jetpack-ai-assistant">
 				<JetpackAndSettingsContent
 					placement={ PLACEMENT_DOCUMENT_SETTINGS }
 					requireUpgrade={ requireUpgrade }
@@ -242,7 +242,7 @@ export default function AiAssistantPluginSidebar() {
 				/>
 			</DocumentPanel>
 
-			<PrePublishPanel title={ title } icon={ panelIcon } initialOpen={ false }>
+			<PrePublishPanel title={ title } icon={ <JetpackEditorPanelLogo /> } initialOpen={ false }>
 				<>
 					{ isAITitleOptimizationAvailable && (
 						<TitleOptimization
