@@ -100,6 +100,11 @@ class Script_Data {
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
 		);
 
+		// Guard against JSON encoding failure. Fall back to an empty object string
+		// to avoid generating invalid JavaScript (e.g., "window.JetpackScriptData = ;").
+		if ( false === $script_data ) {
+			$script_data = '{}';
+		}
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
 			sprintf( 'window.JetpackScriptData = %s;', $script_data ),
