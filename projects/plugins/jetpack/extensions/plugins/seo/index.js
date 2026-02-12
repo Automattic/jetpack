@@ -6,7 +6,6 @@ import {
 	useModuleStatus,
 	getJetpackExtensionAvailability,
 	getRequiredPlan,
-	useShouldShowPanelBranding,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelRow } from '@wordpress/components';
@@ -51,7 +50,6 @@ const canHaveAutoEnhance = ! isSimpleSite();
 const Seo = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
-	const shouldShowPanelBranding = useShouldShowPanelBranding();
 	const isPrePublishPanelOpen = useSelect(
 		select => select( editorStore ).isPublishSidebarOpened?.(),
 		[]
@@ -98,7 +96,7 @@ const Seo = () => {
 	const requiredPlan = getRequiredPlan( 'advanced-seo' );
 	const canShowUpsell = isWpcomPlatformSite();
 	const hasRequiredPlanForEnhancer = ! getRequiredPlan( 'ai-seo-enhancer' );
-	const panelIcon = shouldShowPanelBranding ? <JetpackEditorPanelLogo /> : undefined;
+	const panelIcon = <JetpackEditorPanelLogo />;
 
 	if ( canShowUpsell && requiredPlan !== false ) {
 		return (

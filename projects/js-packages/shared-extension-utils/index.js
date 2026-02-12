@@ -28,5 +28,4 @@ export { default as isMyJetpackAvailable } from './src/is-my-jetpack-available';
 export { default as hasFeatureFlag } from './src/has-feature-flag';
 export * from './src/libs';
 export { default as useUpgradeFlow } from './src/hooks/use-upgrade-flow';
-export { default as useShouldShowPanelBranding } from './src/hooks/use-should-show-panel-branding';
 export * from './src/block-editor-actions';

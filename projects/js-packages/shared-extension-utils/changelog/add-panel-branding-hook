@@ -1,4 +1,4 @@
 Significance: minor
-Type: added
+Type: changed
 
-Added useShouldShowPanelBranding hook to determine when Jetpack branding should be displayed in editor panels.
+JetpackEditorPanelLogo now respects the jetpack_show_editor_panel_branding PHP filter.

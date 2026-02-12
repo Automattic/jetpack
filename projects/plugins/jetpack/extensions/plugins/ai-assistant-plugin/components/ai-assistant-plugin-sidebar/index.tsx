@@ -12,7 +12,6 @@ import {
 	PLAN_TYPE_FREE,
 	PLAN_TYPE_UNLIMITED,
 	usePlanType,
-	useShouldShowPanelBranding,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
@@ -182,8 +181,6 @@ const JetpackAndSettingsContent = ( {
 export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier, isOverLimit } = useAiFeature();
 	const { tracks } = useAnalytics();
-	const shouldShowPanelBranding = useShouldShowPanelBranding();
-
 	const isViewable = useSelect( select => {
 		const postTypeName = select( editorStore ).getCurrentPostType();
 		// The coreStore select type lacks the getPostType method, so we need to cast it to the correct type
@@ -211,7 +208,7 @@ export default function AiAssistantPluginSidebar() {
 	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
 	const isBreveAvailable = getBreveAvailability();
-	const panelIcon = shouldShowPanelBranding ? <JetpackEditorPanelLogo /> : undefined;
+	const panelIcon = <JetpackEditorPanelLogo />;
 
 	return (
 		<>

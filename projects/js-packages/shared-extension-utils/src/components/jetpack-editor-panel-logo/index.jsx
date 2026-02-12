@@ -1,21 +1,31 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import getJetpackData from '../../get-jetpack-data';
 
 import './style.scss';
 
 /**
- * The Jetpack logo used for block editor panels
+ * The Jetpack logo used for block editor panels.
  *
- * @return {import('react').Component} Jetpack logo component
+ * Returns null when panel branding is disabled via the
+ * `jetpack_show_editor_panel_branding` PHP filter.
+ *
+ * @return {import('react').Component|null} Jetpack logo component or null
  */
-const JetpackEditorPanelLogo = () => (
-	<JetpackLogo
-		className="jetpack-editor-panel-logo"
-		height={ 16 }
-		logoColor="#1E1E1E"
-		showText={ false }
-		title={ __( 'This feature is powered by Jetpack', 'jetpack-shared-extension-utils' ) }
-	/>
-);
+const JetpackEditorPanelLogo = () => {
+	if ( getJetpackData()?.showEditorPanelBranding === false ) {
+		return null;
+	}
+
+	return (
+		<JetpackLogo
+			className="jetpack-editor-panel-logo"
+			height={ 16 }
+			logoColor="#1E1E1E"
+			showText={ false }
+			title={ __( 'This feature is powered by Jetpack', 'jetpack-shared-extension-utils' ) }
+		/>
+	);
+};
 
 export default JetpackEditorPanelLogo;
