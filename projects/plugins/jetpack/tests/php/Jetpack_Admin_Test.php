@@ -76,6 +76,18 @@ class Jetpack_Admin_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test add_jetpack_admin_body_class() adds class on Jetpack Network Admin toplevel page.
+	 */
+	public function test_add_jetpack_admin_body_class_on_network_toplevel_page() {
+		$this->set_mock_screen( 'toplevel_page_jetpack-network' );
+
+		$result = $this->admin->add_jetpack_admin_body_class( 'existing-class' );
+
+		$this->assertStringContainsString( 'jetpack-admin-page', $result );
+		$this->assertStringContainsString( 'existing-class', $result );
+	}
+
+	/**
 	 * Test add_jetpack_admin_body_class() adds class on jetpack_page_* screens.
 	 */
 	public function test_add_jetpack_admin_body_class_on_jetpack_page() {
@@ -102,6 +114,17 @@ class Jetpack_Admin_Test extends WP_UnitTestCase {
 	 */
 	public function test_add_jetpack_admin_body_class_with_jetpack_parent_base() {
 		$this->set_mock_screen( 'some_submenu_page', 'jetpack' );
+
+		$result = $this->admin->add_jetpack_admin_body_class( 'existing-class' );
+
+		$this->assertStringContainsString( 'jetpack-admin-page', $result );
+	}
+
+	/**
+	 * Test add_jetpack_admin_body_class() adds class when parent_base is jetpack-network.
+	 */
+	public function test_add_jetpack_admin_body_class_with_jetpack_network_parent_base() {
+		$this->set_mock_screen( 'some_network_submenu_page', 'jetpack-network' );
 
 		$result = $this->admin->add_jetpack_admin_body_class( 'existing-class' );
 
@@ -159,6 +182,8 @@ class Jetpack_Admin_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( '<style>', $output );
 		$this->assertStringContainsString( '.jetpack-admin-page #wpbody-content', $output );
 		$this->assertStringContainsString( 'padding-bottom: 0', $output );
+		$this->assertStringContainsString( '.jetpack-admin-page #wpfooter', $output );
+		$this->assertStringContainsString( 'display: none', $output );
 	}
 
 	/**

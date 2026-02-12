@@ -603,14 +603,17 @@ class Jetpack_Admin {
 
 		// Check for Jetpack admin pages:
 		// - toplevel_page_jetpack (main Jetpack menu page)
+		// - toplevel_page_jetpack-network (Jetpack Network Admin menu page)
 		// - jetpack_page_* (Jetpack submenu pages)
 		// - admin_page_jetpack* (legacy/special Jetpack pages)
-		// Or check if parent_base is 'jetpack' (submenu pages)
+		// Or check if parent_base is 'jetpack' or 'jetpack-network' (submenu pages)
 		return (
 		$screen->id === 'toplevel_page_jetpack' ||
+		$screen->id === 'toplevel_page_jetpack-network' ||
 		str_starts_with( $screen->id, 'jetpack_page_' ) ||
 		str_starts_with( $screen->id, 'admin_page_jetpack' ) ||
-		$screen->parent_base === 'jetpack'
+		$screen->parent_base === 'jetpack' ||
+		$screen->parent_base === 'jetpack-network'
 		);
 	}
 
@@ -637,7 +640,7 @@ class Jetpack_Admin {
 		if ( ! $this->is_jetpack_admin_page() ) {
 			return;
 		}
-		echo '<style>.jetpack-admin-page #wpbody-content { padding-bottom: 0; }</style>';
+		echo '<style>.jetpack-admin-page #wpbody-content { padding-bottom: 0; } .jetpack-admin-page #wpfooter { display: none; }</style>';
 	}
 
 	/**
