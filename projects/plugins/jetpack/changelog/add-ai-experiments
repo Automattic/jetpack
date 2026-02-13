@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+AI Experiments: add module with experiment toggle infrastructure and AI bot detection header.
