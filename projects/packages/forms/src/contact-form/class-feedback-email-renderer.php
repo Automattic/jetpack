@@ -42,6 +42,41 @@ class Feedback_Email_Renderer {
 	public const TEXT_COLOR = '#1e1e1e';
 
 	/**
+	 * Font size for field labels.
+	 *
+	 * @var string
+	 */
+	public const FONT_SIZE_FIELD_LABEL = '15px';
+
+	/**
+	 * Font size for field values, chips, and respondent name.
+	 *
+	 * @var string
+	 */
+	public const FONT_SIZE_FIELD_VALUE = '16px';
+
+	/**
+	 * Font size for metadata section and powered-by text.
+	 *
+	 * @var string
+	 */
+	public const FONT_SIZE_METADATA = '13px';
+
+	/**
+	 * Font size for action buttons and respondent email.
+	 *
+	 * @var string
+	 */
+	public const FONT_SIZE_BUTTON = '14px';
+
+	/**
+	 * Font size for small annotations like file sizes.
+	 *
+	 * @var string
+	 */
+	public const FONT_SIZE_SMALL = '12px';
+
+	/**
 	 * Build the complete email content for a form submission.
 	 *
 	 * Assembles the email title, compiled form fields, footer, actions,
@@ -156,7 +191,7 @@ class Feedback_Email_Renderer {
 				'jetpack_forms_response_email_footer',
 				array_filter(
 					array(
-						'<span style="font-size: 12px">',
+						'<span style="font-size: ' . self::FONT_SIZE_SMALL . '">',
 						$footer_time . '<br />',
 						$footer_ip ? $footer_ip . '<br />' : null,
 						$footer_browser ? $footer_browser . '<br />' : null,
@@ -177,10 +212,10 @@ class Feedback_Email_Renderer {
 				'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
 					<tr>
 						<td class="button-cell" width="50%%" style="text-align: right; padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; background-color: transparent; color: %5$s; border: 1px solid #1e1e1e; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
+							<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; background-color: transparent; color: %5$s; border: 1px solid #1e1e1e; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
 						</td>
 						<td class="button-cell" width="50%%" style="text-align: left; padding-left: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%3$s" class="action-button action-button-primary" style="display: inline-block; background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
+							<a href="%3$s" class="action-button action-button-primary" style="display: inline-block; background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
 						</td>
 					</tr>
 				</table>',
@@ -367,13 +402,13 @@ class Feedback_Email_Renderer {
 		$html .= '<td valign="top" style="padding: 20px 0;">';
 		if ( ! empty( $safe_label ) ) {
 			$html .= sprintf(
-				'<div style="font-size: 15px; color: %s; line-height: 1.4; margin-bottom: 8px;">%s</div>',
+				'<div style="font-size: ' . self::FONT_SIZE_FIELD_LABEL . '; color: %s; line-height: 1.4; margin-bottom: 8px;">%s</div>',
 				self::TEXT_SECONDARY_COLOR,
 				esc_html( $safe_label )
 			);
 		}
 		$html .= sprintf(
-			'<div style="font-size: 16px; color: %s; line-height: 1.5;">%s</div>',
+			'<div style="font-size: ' . self::FONT_SIZE_FIELD_VALUE . '; color: %s; line-height: 1.5;">%s</div>',
 			self::TEXT_COLOR,
 			$rendered_value
 		);
@@ -512,11 +547,11 @@ class Feedback_Email_Renderer {
 					<tr>
 						<td align="center" class="powered-by" style="padding: 24px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 							<img src="' . esc_url( $logo_url ) . '" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none;">
-							<span style="font-size: 13px; color: #50575e; line-height: 20px;">' .
+							<span style="font-size: ' . self::FONT_SIZE_METADATA . '; color: #50575e; line-height: 20px;">' .
 					sprintf(
 						// translators: %1$s is a link to the Jetpack Forms page.
 						__( 'Powered by %1$s', 'jetpack-forms' ),
-						'<a href="https://jetpack.com/forms/?utm_source=jetpack-forms&utm_medium=email&utm_campaign=form-submissions" style="font-size: 13px; color: #50575e; text-decoration: none;">Jetpack Forms</a>'
+						'<a href="https://jetpack.com/forms/?utm_source=jetpack-forms&utm_medium=email&utm_campaign=form-submissions" style="font-size: ' . self::FONT_SIZE_METADATA . '; color: #50575e; text-decoration: none;">Jetpack Forms</a>'
 					) . '</span>
 						</td>
 					</tr>
@@ -611,8 +646,8 @@ class Feedback_Email_Renderer {
 					<![endif]-->
 				</td>
 				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: ' . self::TEXT_COLOR . '; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . self::TEXT_SECONDARY_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
+					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: ' . self::FONT_SIZE_FIELD_VALUE . '; font-weight: 600; color: ' . self::TEXT_COLOR . '; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: ' . self::FONT_SIZE_BUTTON . '; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . self::TEXT_SECONDARY_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
 				</td>
 			</tr>
 		</table>';
@@ -686,8 +721,8 @@ class Feedback_Email_Renderer {
 	private static function generate_metadata_row( $label, $value ) {
 		return '
 			<tr>
-				<td class="metadata-label" style="color: #50575e; width: 100px; padding: 4px 12px 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . esc_html( $label ) . ':</td>
-				<td class="metadata-value" style="color: #1e1e1e; padding: 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . $value . '</td>
+				<td class="metadata-label" style="color: #50575e; width: 100px; padding: 4px 12px 4px 0; font-size: ' . self::FONT_SIZE_METADATA . '; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . esc_html( $label ) . ':</td>
+				<td class="metadata-value" style="color: #1e1e1e; padding: 4px 0; font-size: ' . self::FONT_SIZE_METADATA . '; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . $value . '</td>
 			</tr>';
 	}
 }
