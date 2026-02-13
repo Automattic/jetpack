@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-GlobalChartsProvider: fix color flicker on initial render by pre-computing hex colors synchronously.
+GlobalChartsProvider: Fix color flicker on initial render by providing fallback access to theme hex colors.
