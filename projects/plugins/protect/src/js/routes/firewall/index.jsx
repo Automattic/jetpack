@@ -3,12 +3,11 @@ import {
 	Col,
 	Container,
 	Text,
-	ToggleControl,
 	ContextualUpgradeTrigger,
 	useBreakpointMatch,
 	Notice as JetpackNotice,
 } from '@automattic/jetpack-components';
-import { Popover } from '@wordpress/components';
+import { Popover, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';

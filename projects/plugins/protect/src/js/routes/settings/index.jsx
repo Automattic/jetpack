@@ -2,13 +2,12 @@ import {
 	Col,
 	Container,
 	Text,
-	ToggleControl,
 	AdminSectionHero,
 	Notice,
 	Button,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
