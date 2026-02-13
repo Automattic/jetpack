@@ -645,7 +645,7 @@ class Feedback_Field_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'Red', $result );
 		$this->assertStringContainsString( 'Blue', $result );
-		$this->assertStringContainsString( '<br />', $result );
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
 	}
 
 	/**
