@@ -9,10 +9,8 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
-use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
-use Jetpack_Tracks_Event;
 use PHPMailer\PHPMailer\PHPMailer;
 use WP_Block;
 use WP_Error;
