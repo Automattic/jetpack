@@ -12,6 +12,7 @@ import { subscribe, select, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
+import { FormTitleModal } from './plugins/form-title-modal';
 import {
 	activateBlockCategoryOverrides,
 	deactivateBlockCategoryOverrides,
@@ -28,6 +29,8 @@ import { getAllowedBlocks } from './utils/get-allowed-blocks';
 import type { WPPlugin } from '@wordpress/plugins';
 
 type PluginSettings = Omit< WPPlugin, 'name' >;
+
+const NEW_FORMS_MODAL_PLUGIN = 'jetpack-form-title-modal';
 
 import './style.scss';
 
@@ -345,9 +348,16 @@ const setupFormEditorSubscription = () => {
 				if ( isFormEditor ) {
 					// We just entered the form editor.
 					document.body.classList.add( 'post-type-jetpack_form' );
+					// Register the form title modal plugin
+					registerPlugin( NEW_FORMS_MODAL_PLUGIN, {
+						render: FormTitleModal,
+					} );
 				} else {
 					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
+					if ( getPlugin( NEW_FORMS_MODAL_PLUGIN ) ) {
+						unregisterPlugin( NEW_FORMS_MODAL_PLUGIN );
+					}
 
 					if ( state.categoriesSetUp ) {
 						state.categoriesSetUp = false;
