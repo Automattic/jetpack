@@ -21,13 +21,25 @@ use PHPMailer\PHPMailer\PHPMailer;
 class Feedback_Email_Renderer {
 
 	/**
-	 * The color of the links in the email.
-	 *
-	 * TODO: move this to a constant in the Feedback_Field class.
+	 * The color of the respondent email link in the email header.
 	 *
 	 * @var string
 	 */
-	private const LINK_COLOR = '#1e1e1e';
+	public const TEXT_SECONDARY_COLOR = '#757575';
+
+	/**
+	 * The color of the links in the email.
+	 *
+	 * @var string
+	 */
+	public const LINK_COLOR = '#1e1e1e';
+
+	/**
+	 * The color of the text in the email.
+	 *
+	 * @var string
+	 */
+	public const TEXT_COLOR = '#1e1e1e';
 
 	/**
 	 * Build the complete email content for a form submission.
@@ -165,7 +177,7 @@ class Feedback_Email_Renderer {
 				'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
 					<tr>
 						<td class="button-cell" style="padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%1$s" class="action-button action-button-secondary" style="background-color: transparent; color: #1e1e1e; border: 1px solid #1e1e1e; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
+							<a href="%1$s" class="action-button action-button-secondary" style="background-color: transparent; color: %5$s; border: 1px solid #1e1e1e; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
 						</td>
 						<td class="button-cell" style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 							<a href="%3$s" class="action-button action-button-primary" style="background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
@@ -175,7 +187,8 @@ class Feedback_Email_Renderer {
 				esc_url( $mark_as_spam_url ),
 				__( 'Mark as spam', 'jetpack-forms' ),
 				esc_url( $dashboard_url ),
-				__( 'View in dashboard', 'jetpack-forms' )
+				__( 'View in dashboard', 'jetpack-forms' ),
+				self::LINK_COLOR
 			);
 		}
 
@@ -354,12 +367,14 @@ class Feedback_Email_Renderer {
 		$html .= '<td valign="top" style="padding: 20px 0;">';
 		if ( ! empty( $safe_label ) ) {
 			$html .= sprintf(
-				'<div style="font-size: 13px; color: #757575; line-height: 1.4; margin-bottom: 8px;">%s</div>',
+				'<div style="font-size: 13px; color: %s; line-height: 1.4; margin-bottom: 8px;">%s</div>',
+				self::TEXT_SECONDARY_COLOR,
 				esc_html( $safe_label )
 			);
 		}
 		$html .= sprintf(
-			'<div style="font-size: 13px; color: #1e1e1e; line-height: 1.5;">%s</div>',
+			'<div style="font-size: 13px; color: %s; line-height: 1.5;">%s</div>',
+			self::TEXT_COLOR,
 			$rendered_value
 		);
 		$html .= '</td>';
@@ -596,8 +611,8 @@ class Feedback_Email_Renderer {
 					<![endif]-->
 				</td>
 				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: #1e1e1e; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . self::LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
+					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: ' . self::TEXT_COLOR . '; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . self::TEXT_SECONDARY_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
 				</td>
 			</tr>
 		</table>';

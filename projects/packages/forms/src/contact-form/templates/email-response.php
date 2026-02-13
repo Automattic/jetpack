@@ -22,6 +22,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+$link_color           = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::LINK_COLOR;
+$text_color           = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::TEXT_COLOR;
+$text_secondary_color = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::TEXT_SECONDARY_COLOR;
+
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
 $template = '
 <!DOCTYPE html>
@@ -91,7 +95,7 @@ $style = '<style media="all" type="text/css">
 		line-height: 1.5;
 		-ms-text-size-adjust: 100%;
 		-webkit-text-size-adjust: 100%;
-		color: #1e1e1e;
+		color: ' . $text_color . ';
 	}
 
 	table {
@@ -168,7 +172,7 @@ $style = '<style media="all" type="text/css">
 	.email-header {
 		font-size: 20px;
 		font-weight: 600;
-		color: #1e1e1e;
+		color: ' . $text_color . ';
 		margin: 0 0 24px 0;
 		padding: 0;
 	}
@@ -210,13 +214,13 @@ $style = '<style media="all" type="text/css">
 	.respondent-name {
 		font-size: 16px;
 		font-weight: 500;
-		color: #1e1e1e;
+		color: ' . $text_color . ';
 		margin: 0 0 2px 0;
 	}
 
 	.respondent-email {
 		font-size: 14px;
-		color: #757575;
+		color: ' . $text_secondary_color . ';
 		margin: 0;
 		line-height: 1.4;
 	}
@@ -245,11 +249,11 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.metadata-value {
-		color: #1e1e1e;
+		color: ' . $text_color . ';
 	}
 
 	.metadata-value a {
-		color: #1e1e1e;
+		color: ' . $link_color . ';
 		text-decoration: underline;
 	}
 
@@ -297,20 +301,20 @@ $style = '<style media="all" type="text/css">
 
 	.field-label {
 		font-size: 12px;
-		color: #757575;
+		color: ' . $text_secondary_color . ';
 		margin: 0 0 4px 0;
 		text-transform: none;
 	}
 
 	.field-value {
 		font-size: 13px;
-		color: #1e1e1e;
+		color: ' . $text_color . ';
 		margin: 0;
 		word-wrap: break-word;
 	}
 
 	.field-value a {
-		color: #1e1e1e;
+		color: ' . $link_color . ';
 		text-decoration: underline;
 	}
 
@@ -328,7 +332,7 @@ $style = '<style media="all" type="text/css">
 		border-radius: 2px;
 		padding: 0 8px;
 		font-size: 13px;
-		color: #1e1e1e;
+		color: ' . $text_color . ';
 	}
 
 	/* Image Select Styles */
@@ -379,7 +383,7 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.file-name {
-		color: #1e1e1e;
+		color: ' . $link_color . ';
 		text-decoration: underline;
 	}
 
@@ -430,8 +434,8 @@ $style = '<style media="all" type="text/css">
 
 	.action-button-secondary {
 		background-color: transparent;
-		color: #1e1e1e !important;
-		border: 1px solid #1e1e1e;
+		color: ' . $link_color . ' !important;
+		border: 1px solid ' . $link_color . ';
 	}
 
 	/* Legacy Actions Support */

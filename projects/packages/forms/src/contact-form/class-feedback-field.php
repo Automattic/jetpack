@@ -16,13 +16,6 @@ class Feedback_Field {
 	use Country_Code_Utils;
 
 	/**
-	 * The color of the respondent email link in the email header.
-	 *
-	 * @var string
-	 */
-	public const HEADER_LINK_COLOR = '#757575';
-
-	/**
 	 * Cached admin theme color.
 	 *
 	 * @var string|null
@@ -454,7 +447,7 @@ class Feedback_Field {
 	 * @return string HTML for empty values.
 	 */
 	private function render_empty_value_html() {
-		return '<span style="color: #757575;">&mdash;</span>';
+		return '<span style="color: ' . Feedback_Email_Renderer::TEXT_SECONDARY_COLOR . ';">&mdash;</span>';
 	}
 
 	/**
@@ -490,7 +483,8 @@ class Feedback_Field {
 				continue;
 			}
 			$chips[] = sprintf(
-				'<div style="display: inline-block; height: 24px; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: 13px; line-height: 24px; color: #1e1e1e;">%s</div>',
+				'<div style="display: inline-block; height: 24px; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: 13px; line-height: 24px; color: %s;">%s</div>',
+				Feedback_Email_Renderer::TEXT_COLOR,
 				$safe_item
 			);
 		}
@@ -512,7 +506,8 @@ class Feedback_Field {
 		$label  = $is_yes ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
 
 		return sprintf(
-			'<span style="display: inline-block; padding: 0 8px; border-radius: 2px; font-size: 13px; line-height: 1.4; background-color: #f0f0f0; color: #1e1e1e;">%s</span>',
+			'<span style="display: inline-block; padding: 0 8px; border-radius: 2px; font-size: 13px; line-height: 1.4; background-color: #f0f0f0; color: %s;">%s</span>',
+			Feedback_Email_Renderer::TEXT_COLOR,
 			esc_html( $label )
 		);
 	}
@@ -633,7 +628,7 @@ class Feedback_Field {
 
 			$html = esc_html( $file_name );
 			if ( ! empty( $file_size ) ) {
-				$html .= sprintf( ' <span style="color: #757575; font-size: 12px;">(%s)</span>', esc_html( $file_size ) );
+				$html .= sprintf( ' <span style="color: ' . Feedback_Email_Renderer::TEXT_SECONDARY_COLOR . '; font-size: 12px;">(%s)</span>', esc_html( $file_size ) );
 			}
 
 			if ( ! empty( $file_url ) ) {
