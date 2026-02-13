@@ -306,7 +306,7 @@ This is a simple [asset module](https://webpack.js.org/guides/asset-modules/) ru
 
 Options are:
 - `filename`: Output filename pattern. Default is `images/[name]-[contenthash][ext]`.
-- `extensions`: Array of extensions to handle. Default is `[ 'gif', 'jpg', 'jpeg', 'png', 'svg' ]`.
+- `extensions`: Array of extensions to handle. Default is `[ 'gif', 'jpg', 'jpeg', 'png', 'svg', 'webp' ]`.
 - `maxInlineSize`: If set to a number greater than 0, files will be inlined if they are smaller than this. Default is 0.
 
 ### Babel
