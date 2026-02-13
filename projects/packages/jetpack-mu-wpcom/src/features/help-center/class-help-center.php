@@ -253,7 +253,7 @@ class Help_Center {
 		);
 
 		wp_enqueue_style(
-			'help-center-style',
+			'help-center-' . $variant . '-style',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
 			$version
@@ -497,8 +497,13 @@ class Help_Center {
 	 */
 	public function is_block_editor() {
 		global $current_screen;
+
+		if ( ! $current_screen ) {
+			return false;
+		}
+
 		// widgets screen does have the block editor but also no Gutenberg top bar.
-		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+		return $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
 	}
 
 	/**
