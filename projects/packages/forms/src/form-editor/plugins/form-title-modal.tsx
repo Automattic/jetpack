@@ -67,8 +67,7 @@ export const FormTitleModal = () => {
 	const isFormEditor = postType === FORM_POST_TYPE;
 
 	const isNewForm =
-		! currentPostTitle ||
-		currentPostTitle === __( 'Untitled Form', 'jetpack-forms' );
+		! currentPostTitle || currentPostTitle === __( 'Untitled Form', 'jetpack-forms' );
 
 	const handleClose = useCallback( () => {
 		setIsOpen( false );
@@ -99,16 +98,6 @@ export const FormTitleModal = () => {
 		[ handleConfirm, isSaving ]
 	);
 
-	const handleKeyDown = useCallback(
-		( event: React.KeyboardEvent ) => {
-			if ( event.key === 'Enter' ) {
-				event.preventDefault();
-				handleConfirm();
-			}
-		},
-		[ handleConfirm ]
-	);
-
 	// Show modal on first render if this is a new placeholder form in the form editor
 	useEffect( () => {
 		if ( isFormEditor && ! hasInnerBlocks && isNewForm && ! hasShown ) {
@@ -133,8 +122,11 @@ export const FormTitleModal = () => {
 					label={ __( 'Name', 'jetpack-forms' ) }
 					value={ title }
 					onChange={ setTitle }
-					onKeyDown={ handleKeyDown }
 					__next40pxDefaultSize
+					// eslint-disable-next-line jsx-a11y/no-autofocus
+					autoFocus={ true }
+					placeholder={ __( 'Enter form name', 'jetpack-forms' ) }
+					disabled={ isSaving }
 				/>
 				<div
 					style={ {
