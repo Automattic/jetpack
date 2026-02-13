@@ -225,6 +225,39 @@ describe( 'ChartContext', () => {
 	} );
 
 	describe( 'Color resolution', () => {
+		it( 'returns correct palette color on first render without flicker', () => {
+			// This test verifies the fix for the color flicker issue where hex colors
+			// were not immediately available on the first render, causing a fallback
+			// color to be shown briefly before the correct palette color appeared.
+			let firstRenderColor: string | undefined;
+			let renderCount = 0;
+
+			const TestComponent = () => {
+				const context = useGlobalChartsContext();
+				renderCount++;
+
+				// Capture the color on the very first render
+				if ( renderCount === 1 ) {
+					firstRenderColor = context.getElementStyles( {
+						data: undefined,
+						index: 0,
+					} ).color;
+				}
+
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// The first render should immediately return the correct palette color,
+			// not a fallback generated color like #813131
+			expect( firstRenderColor ).toBe( mockTheme.colors[ 0 ] );
+		} );
+
 		it( 'provides getElementStyles function for color resolution', () => {
 			let contextValue: GlobalChartsContextValue;
 
