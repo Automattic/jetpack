@@ -187,6 +187,39 @@ class WpcomshTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that nested divs inside skip-make-clickable don't prematurely exit protection.
+	 *
+	 * @return void
+	 */
+	public function test_wpcomsh_make_content_clickable_with_nested_divs_in_skip() {
+		$content = '<div class="skip-make-clickable">' .
+			'<div class="inner">https://wp.com</div>' .
+			'https://wp.com' .
+			'</div>' .
+			'<div>https://wp.com</div>';
+
+		$expected = '<div class="skip-make-clickable">' .
+			'<div class="inner">https://wp.com</div>' .
+			'https://wp.com' .
+			'</div>' .
+			'<div><a href="https://wp.com" rel="nofollow">https://wp.com</a></div>';
+
+		$this->assertEquals( $expected, wpcomsh_make_content_clickable( $content ) );
+	}
+
+	/**
+	 * Tests that trailing URLs after all HTML tags are linkified.
+	 *
+	 * @return void
+	 */
+	public function test_wpcomsh_make_content_clickable_trailing_url() {
+		$content  = '<p>hello</p>https://wp.com trailing';
+		$expected = '<p>hello</p><a href="https://wp.com" rel="nofollow">https://wp.com</a> trailing';
+
+		$this->assertEquals( $expected, wpcomsh_make_content_clickable( $content ) );
+	}
+
+	/**
 	 * Tests if Jetpack Boost plugin is active, to test the integreation setup.
 	 *
 	 * This is for the `jp docker phpunit-integration` command to verify it works.

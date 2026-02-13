@@ -448,6 +448,7 @@ function wpcomsh_make_content_clickable( $content ) {
 	$output          = '';
 	$last_offset     = 0;
 	$protected_depth = 0; // Tracks nesting inside tags where URLs should remain as plain text (e.g., <a>, <pre>, <code>). When > 0, text nodes are copied as-is.
+	$skip_div_depth  = 0; // Tracks div nesting inside skip-make-clickable contexts. When > 0, text nodes are copied as-is.
 
 	// SCRIPT, STYLE, and TEXTAREA are raw text elements — the tokenizer bundles them
 	// as single #tag tokens (opening + content + closing), so their content is never
@@ -459,7 +460,7 @@ function wpcomsh_make_content_clickable( $content ) {
 		$position   = $processor->get_token_position();
 
 		if ( null === $position ) {
-			continue;
+			return $content;
 		}
 
 		list( $start, $length ) = $position;
@@ -474,27 +475,22 @@ function wpcomsh_make_content_clickable( $content ) {
 			$is_closer = $processor->is_tag_closer();
 
 			if ( ! $is_closer ) {
-				// Opening tag - check if it's a protected tag.
-				$is_protected = in_array( $tag_name, $protected_tags, true );
-
-				// Special case: <div class="skip-make-clickable">.
-				if ( 'DIV' === $tag_name && $processor->has_class( 'skip-make-clickable' ) ) {
-					$is_protected = true;
-				}
-
-				if ( $is_protected ) {
+				if ( in_array( $tag_name, $protected_tags, true ) ) {
 					++$protected_depth;
+				} elseif ( 'DIV' === $tag_name ) {
+					if ( $processor->has_class( 'skip-make-clickable' ) || $skip_div_depth > 0 ) {
+						++$skip_div_depth;
+					}
 				}
-			} elseif ( $protected_depth > 0 ) {
-				// Closing tag - decrement depth if closing a protected tag.
-				if ( in_array( $tag_name, $protected_tags, true ) || 'DIV' === $tag_name ) {
-					--$protected_depth;
-				}
+			} elseif ( $protected_depth > 0 && in_array( $tag_name, $protected_tags, true ) ) {
+				--$protected_depth;
+			} elseif ( $skip_div_depth > 0 && 'DIV' === $tag_name ) {
+				--$skip_div_depth;
 			}
 
 			// Copy tag HTML as-is.
 			$output .= substr( $content, $start, $length );
-		} elseif ( '#text' === $token_type && 0 === $protected_depth ) {
+		} elseif ( '#text' === $token_type && 0 === $protected_depth && 0 === $skip_div_depth ) {
 			// Unprotected text node - linkify URLs if present.
 			$raw_text = substr( $content, $start, $length );
 
@@ -515,7 +511,15 @@ function wpcomsh_make_content_clickable( $content ) {
 
 	// Append any remaining content after the last token.
 	if ( $last_offset < strlen( $content ) ) {
-		$output .= substr( $content, $last_offset );
+		$remaining = substr( $content, $last_offset );
+		if ( 0 === $protected_depth && 0 === $skip_div_depth &&
+			( false !== strpos( $remaining, 'http://' ) ||
+				false !== strpos( $remaining, 'https://' ) ||
+				false !== strpos( $remaining, 'www.' ) ) ) {
+			$output .= make_clickable( $remaining );
+		} else {
+			$output .= $remaining;
+		}
 	}
 
 	return $output;
