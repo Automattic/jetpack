@@ -2928,16 +2928,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
 
-		// schedule deletes of old spam feedbacks
-		if ( ! wp_next_scheduled( 'grunion_scheduled_delete' ) ) {
-			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
-		}
-
-		// schedule deletes of old temp feedbacks
-		if ( ! wp_next_scheduled( 'grunion_scheduled_delete_temp' ) ) {
-			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete_temp' );
-		}
-
 		/**
 		 * Filter to choose whether an email should be sent after each successful contact form submission.
 		 * This filter takes precedence over the emailNotifications attribute.
@@ -2985,6 +2975,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 			apply_filters( 'grunion_still_email_spam', false )
 		) { // don't send spam by default.  Filterable.
 			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+		}
+
+		// Schedule deletes of old spam feedbacks.
+		if ( ! wp_next_scheduled( 'grunion_scheduled_delete' ) ) {
+			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
+		}
+
+		// Schedule deletes of old temp feedbacks.
+		if ( ! wp_next_scheduled( 'grunion_scheduled_delete_temp' ) ) {
+			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete_temp' );
 		}
 
 		/**
