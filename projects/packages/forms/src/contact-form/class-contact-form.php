@@ -1987,14 +1987,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @param mixed $value - the value to sanitize.
 	 *
-	 * @return mixed|string
+	 * TODO: there's a mix of functionalities in this method. Unsure if it's fixable.
+	 * @return string
 	 */
 	public static function escape_and_sanitize_field_value( $value ) {
 		if ( empty( $value ) ) {
 			return '';
 		}
 
-		// Handle file upload field (new structure with field_id and files array)
+		// Handle file upload field (new structure with field_id and files array).
 		if ( self::is_file_upload_field( $value ) ) {
 			$files = $value['files'];
 			if ( empty( $files ) ) {
@@ -2760,7 +2761,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		$should_send_email = apply_filters( 'grunion_should_send_email', null, $post_id );
 
-		// Determine if email should be sent based on filter precedence
+		// Determine if email should be sent based on filter precedence.
 		if ( $should_send_email === true ) {
 			// Filter explicitly says to send email
 			$send_email = true;
