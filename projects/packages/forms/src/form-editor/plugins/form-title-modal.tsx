@@ -68,8 +68,7 @@ export const FormTitleModal = () => {
 
 	const isNewForm =
 		! currentPostTitle ||
-		currentPostTitle === __( 'Untitled Form', 'jetpack-forms' ) ||
-		currentPostTitle === 'Untitled Form';
+		currentPostTitle === __( 'Untitled Form', 'jetpack-forms' );
 
 	const handleClose = useCallback( () => {
 		setIsOpen( false );
