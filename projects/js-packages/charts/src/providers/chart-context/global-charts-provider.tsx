@@ -61,6 +61,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
 	// This is intentional, as wrapperRef is expected to be stable for the lifetime of the provider.
 	useLayoutEffect( () => {
+		// Reset ready flag when theme changes to prevent using stale cache
+		setIsColorCacheReady( false );
+
 		const { colors } = providerTheme;
 		const resolvedColors: string[] = [];
 		const hues: number[] = [];
