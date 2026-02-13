@@ -240,50 +240,12 @@ function StageInner() {
 					openSingleFormView( item.id );
 				},
 			},
-			{
-				id: 'edit-form',
-				isPrimary: true,
-				label: __( 'Edit', 'jetpack-forms' ),
-				supportsBulk: false,
-				async callback( items: FormListItem[] ) {
-					const [ item ] = items;
-					if ( ! item ) {
-						return;
-					}
-					const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
-					const editUrl = item.editUrl || fallbackEditUrl;
-					const url = new URL( editUrl, window.location.origin );
-					window.location.href = url.toString();
-				},
-			},
-			{
-				id: 'preview-form',
-				isPrimary: false,
-				label: __( 'Preview', 'jetpack-forms' ),
-				supportsBulk: false,
-				async callback( items: FormListItem[] ) {
-					const [ item ] = items;
-					if ( ! item ) {
-						return;
-					}
-
-					try {
-						const response = await apiFetch< { preview_url: string } >( {
-							path: `/wp/v2/jetpack-forms/${ item.id }/preview-url`,
-						} );
-						window.open( response.preview_url, '_blank' );
-					} catch ( error ) {
-						// eslint-disable-next-line no-console
-						console.error( 'Failed to get preview URL:', error );
-					}
-				},
-			},
 		];
 
 		if ( isViewingTrash ) {
 			actionsList.push( {
 				id: 'restore-form',
-				isPrimary: false,
+				isPrimary: true,
 				label: __( 'Restore', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
@@ -316,35 +278,26 @@ function StageInner() {
 		}
 
 		actionsList.push( {
-			id: 'copy-embed',
-			isPrimary: false,
-			label: __( 'Copy embed', 'jetpack-forms' ),
+			id: 'edit-form',
+			isPrimary: true,
+			label: __( 'Edit', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
 				const [ item ] = items;
 				if ( ! item ) {
 					return;
 				}
-
-				const embedCode = `<!-- wp:jetpack/contact-form {"ref":${ item.id }} /-->`;
-				try {
-					await navigator.clipboard.writeText( embedCode );
-					createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
-						type: 'snackbar',
-					} );
-				} catch {
-					createErrorNotice(
-						__( 'Failed to copy embed code. Please try again.', 'jetpack-forms' ),
-						{ type: 'snackbar' }
-					);
-				}
+				const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
+				const editUrl = item.editUrl || fallbackEditUrl;
+				const url = new URL( editUrl, window.location.origin );
+				window.location.href = url.toString();
 			},
 		} );
 
 		actionsList.push( {
-			id: 'copy-shortcode',
+			id: 'preview-form',
 			isPrimary: false,
-			label: __( 'Copy shortcode', 'jetpack-forms' ),
+			label: __( 'Preview', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
 				const [ item ] = items;
@@ -352,23 +305,76 @@ function StageInner() {
 					return;
 				}
 
-				if ( ! navigator.clipboard ) {
-					return;
-				}
-
-				const embedCode = `[contact-form ref="${ item.id }"]`;
 				try {
-					await navigator.clipboard.writeText( embedCode );
-					createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
-						type: 'snackbar',
+					const response = await apiFetch< { preview_url: string } >( {
+						path: `/wp/v2/jetpack-forms/${ item.id }/preview-url`,
 					} );
-				} catch {
-					createErrorNotice( __( 'Failed to copy shortcode. Please try again.', 'jetpack-forms' ), {
-						type: 'snackbar',
-					} );
+					window.open( response.preview_url, '_blank' );
+				} catch ( error ) {
+					// eslint-disable-next-line no-console
+					console.error( 'Failed to get preview URL:', error );
 				}
 			},
 		} );
+		if ( navigator?.clipboard ) {
+			actionsList.push( {
+				id: 'copy-embed',
+				isPrimary: false,
+				label: __( 'Copy embed', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					const embedCode = `<!-- wp:jetpack/contact-form {"ref":${ item.id }} /-->`;
+					try {
+						await navigator.clipboard.writeText( embedCode );
+						createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
+							type: 'snackbar',
+						} );
+					} catch {
+						createErrorNotice(
+							__( 'Failed to copy embed code. Please try again.', 'jetpack-forms' ),
+							{ type: 'snackbar' }
+						);
+					}
+				},
+			} );
+
+			actionsList.push( {
+				id: 'copy-shortcode',
+				isPrimary: false,
+				label: __( 'Copy shortcode', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					if ( ! navigator.clipboard ) {
+						return;
+					}
+
+					const embedCode = `[contact-form ref="${ item.id }"]`;
+					try {
+						await navigator.clipboard.writeText( embedCode );
+						createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
+							type: 'snackbar',
+						} );
+					} catch {
+						createErrorNotice(
+							__( 'Failed to copy shortcode. Please try again.', 'jetpack-forms' ),
+							{
+								type: 'snackbar',
+							}
+						);
+					}
+				},
+			} );
+		}
 
 		actionsList.push( {
 			id: 'trash-form',
