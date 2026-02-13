@@ -2714,160 +2714,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
 
-		/**
-		 * Filter the title used in the response email.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 0.18.0
-		 *
-		 * @param string the title of the email
-		 */
-		$default_email_title = __( 'Hey, a new form response just came in!', 'jetpack-forms' );
-		$title               = (string) apply_filters( 'jetpack_forms_response_email_title', $default_email_title );
-		$message             = self::get_compiled_form_for_email( $post_id, $this );
-
-		if ( is_user_logged_in() ) {
-			$sent_by_text = sprintf(
-				// translators: the name of the site.
-				'<br />' . esc_html__( 'Sent by a verified %s user.', 'jetpack-forms' ) . '<br />',
-				isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ? $GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
-			);
-		} else {
-			$sent_by_text = '<br />' . esc_html__( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '<br />';
-		}
-
-		$footer_time = sprintf(
-			/* translators: Placeholder is the date and time when a form was submitted. */
-			esc_html__( 'Time: %1$s', 'jetpack-forms' ),
-			$time
+		// Build the complete email content via the renderer.
+		$context_data = array(
+			'time'                 => $time,
+			'url'                  => $url,
+			'comment_author'       => $comment_author,
+			'comment_author_email' => $comment_author_email,
+			'comment_author_ip'    => $comment_author_ip,
+			'is_spam'              => $is_spam,
+			'feedback_status'      => $feedback_status,
 		);
-		$footer_ip = null;
-		if ( $comment_author_ip ) {
-			$ip_lookup_url               = sprintf( 'https://jetpack.com/redirect/?source=ip-lookup&path=%s', rawurlencode( $comment_author_ip ) );
-			$comment_author_ip_with_link = '<a href="' . esc_url( $ip_lookup_url ) . '">' . esc_html( $comment_author_ip ) . '</a>';
-			$comment_author_ip_with_flag = ( $response->get_country_flag() ? $response->get_country_flag() . ' ' : '' ) . $comment_author_ip_with_link;
-			$footer_ip                   = sprintf(
-				/* translators: Placeholder is the IP address of the person who submitted a form. */
-				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
-				$comment_author_ip_with_flag
-			);
-		}
-		$footer_browser = null;
-		if ( $response->get_browser() ) {
-			$footer_browser = sprintf(
-				/* translators: Placeholder is the browser and platform used to submit a form. */
-				esc_html__( 'Browser: %1$s', 'jetpack-forms' ),
-				$response->get_browser()
-			) . '<br />';
-		}
+		$email        = Feedback_Email_Renderer::build_email_content( $post_id, $this, $response, $context_data );
+		$message      = $email['message'];
 
-		$footer_url = sprintf(
-			/* translators: Placeholder is the URL of the page where a form was submitted. */
-			__( 'Source URL: %1$s', 'jetpack-forms' ),
-			esc_url( $url )
-		);
-
-		// Get the status of the feedback
-		$status = $is_spam ? 'spam' : 'inbox';
-
-		// Build the dashboard URL with the status and the feedback's post id if we have a post id
-		$dashboard_url           = '';
-		$mark_as_spam_url        = '';
-		$footer_mark_as_spam_url = '';
-		if ( $feedback_status !== 'jp-temp-feedback' ) {
-			$dashboard_url           = Forms_Dashboard::get_forms_admin_url( $status ) . '&r=' . $post_id;
-			$mark_as_spam_url        = $dashboard_url . '&mark_as_spam';
-			$footer_mark_as_spam_url = sprintf(
-				'<a href="%1$s">%2$s</a>',
-				esc_url( $mark_as_spam_url ),
-				__( 'Mark as spam', 'jetpack-forms' )
-			);
-		}
-
-		$footer = implode(
-			'',
-			/**
-			 * Filter the footer used in the response email.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 0.18.0
-			 *
-			 * @param array the lines of the footer, one line per array element.
-			 */
-			apply_filters(
-				'jetpack_forms_response_email_footer',
-				array_filter(
-					array(
-						'<span style="font-size: 12px">',
-						$footer_time . '<br />',
-						$footer_ip ? $footer_ip . '<br />' : null,
-						$footer_browser ? $footer_browser . '<br />' : null,
-						$footer_url . '<br /><br />',
-						$footer_mark_as_spam_url ? $footer_mark_as_spam_url . '<br />' : null,
-						$sent_by_text,
-						'</span>',
-					)
-				)
-			)
-		);
-
-		$actions = '';
-		if ( $dashboard_url ) {
-			$actions = sprintf(
-				'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
-					<tr>
-						<td class="button-cell" width="50%%" style="text-align: right; padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; background-color: transparent; color: #1e1e1e; border: 1px solid #1e1e1e; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
-						</td>
-						<td class="button-cell" width="50%%" style="text-align: left; padding-left: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%3$s" class="action-button action-button-primary" style="background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
-						</td>
-					</tr>
-				</table>',
-				esc_url( $mark_as_spam_url ),
-				__( 'Mark as spam', 'jetpack-forms' ),
-				esc_url( $dashboard_url ),
-				__( 'View in dashboard', 'jetpack-forms' )
-			);
-		}
-
-		$respondent_info = array(
-			'name'   => $comment_author,
-			'email'  => $comment_author_email,
-			'avatar' => $response->get_author_avatar(),
-		);
-
-		$form_title = $this->get_attribute( 'formTitle' );
-		if ( empty( $form_title ) && $this->current_post ) {
-			$form_title = self::get_post_property( $this->current_post, 'post_title' );
-		}
-
-		$metadata = array(
-			'date'       => $time,
-			'source'     => $form_title,
-			'source_url' => $url,
-			'device'     => $response->get_browser(),
-			'ip'         => $comment_author_ip,
-			'ip_flag'    => $response->get_country_flag(),
-		);
-
-		/**
-		 * Filters the message sent via email after a successful form submission.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 1.3.1
-		 *
-		 * @param string $message Feedback email message.
-		 * @param string $message Feedback email message as an array
-		 */
-		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
-
-		// This is called after `contact_form_message`, in order to preserve back-compat
-		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions, $respondent_info, $metadata );
-
+		// Always store the rendered email for the resend endpoint.
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
 		/**
