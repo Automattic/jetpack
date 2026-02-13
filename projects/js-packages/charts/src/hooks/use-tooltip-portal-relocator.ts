@@ -121,10 +121,23 @@ export function useTooltipPortalRelocator(
 				pointerEvents: 'none',
 			} );
 
+			// Remember the focused element before moving the node — relocating
+			// a DOM subtree causes the browser to blur any focused descendants.
+			const { activeElement } = node.ownerDocument;
+			const focusedElement =
+				activeElement instanceof HTMLElement && node.contains( activeElement )
+					? activeElement
+					: null;
+
 			// Insert at the start of the container (before header and content).
 			container.insertBefore( node, container.firstChild );
 			relocatedNodes.add( node );
 			instanceNodes.add( node );
+
+			// Restore focus that was lost due to the DOM move.
+			if ( focusedElement ) {
+				focusedElement.focus();
+			}
 		};
 
 		// Patch document.body.removeChild so visx Portal unmount doesn't throw
