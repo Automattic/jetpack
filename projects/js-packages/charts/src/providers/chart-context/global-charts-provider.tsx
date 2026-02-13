@@ -62,13 +62,44 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	// Cache expensive color computations that only change when theme colors change
 	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
 	// in <style> tags are applied to the DOM before we try to resolve them
-	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
-		colors: [],
-		hues: [],
-		existingHslColors: [],
-		minHue: 360,
-		maxHue: 0,
-	} ) );
+	const [ colorCache, setColorCache ] = useState< ColorCache >( () => {
+		// Pre-compute cache for non-CSS-variable colors to prevent initial color flicker
+		// CSS variables will be resolved in useLayoutEffect after DOM is ready
+		const { colors } = providerTheme;
+		const resolvedColors: string[] = [];
+		const hues: number[] = [];
+		const existingHslColors: Array< [ number, number, number ] > = [];
+		let minHue = 360;
+		let maxHue = 0;
+
+		if ( Array.isArray( colors ) ) {
+			for ( const color of colors ) {
+				if ( color && typeof color === 'string' && color.startsWith( '#' ) ) {
+					resolvedColors.push( color );
+					const hslColor = d3Hsl( color );
+					if ( ! isNaN( hslColor.h ) ) {
+						const hslTuple: [ number, number, number ] = [
+							hslColor.h,
+							hslColor.s * 100,
+							hslColor.l * 100,
+						];
+						hues.push( hslTuple[ 0 ] );
+						existingHslColors.push( hslTuple );
+						minHue = Math.min( minHue, hslTuple[ 0 ] );
+						maxHue = Math.max( maxHue, hslTuple[ 0 ] );
+					}
+				}
+			}
+		}
+
+		return {
+			colors: resolvedColors,
+			hues,
+			existingHslColors,
+			minHue,
+			maxHue,
+		};
+	} );
 
 	// Compute color cache after DOM is updated (so CSS variables are available)
 	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
