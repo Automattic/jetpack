@@ -147,6 +147,7 @@ export const CustomRenderProps: Story = {
 					marginBottom: '32px',
 					color: 'white',
 					textAlign: 'center',
+					height: 'fit-content',
 				} }
 			>
 				<h3
@@ -256,7 +257,6 @@ export const CustomRenderProps: Story = {
 			</div>
 		),
 	},
-	decorators: [ Story => <Story /> ],
 };
 
 export const WithoutTooltips: Story = {
