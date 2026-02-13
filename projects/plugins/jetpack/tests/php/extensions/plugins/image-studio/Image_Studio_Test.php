@@ -1442,6 +1442,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test row action is added for supported JPEG image.
 	 */
 	public function test_row_action_added_for_jpeg() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		$post    = $this->create_attachment_post( 'image/jpeg' );
 		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
 
@@ -1455,6 +1456,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test row action is added for supported PNG image.
 	 */
 	public function test_row_action_added_for_png() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		$post    = $this->create_attachment_post( 'image/png' );
 		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
 
@@ -1465,6 +1467,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test row action is added for supported WebP image.
 	 */
 	public function test_row_action_added_for_webp() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		$post    = $this->create_attachment_post( 'image/webp' );
 		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
 
@@ -1495,6 +1498,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test row action is inserted before the 'edit' action.
 	 */
 	public function test_row_action_inserted_before_edit() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		$post    = $this->create_attachment_post( 'image/jpeg' );
 		$actions = ImageStudio\add_image_studio_row_action(
 			array(
@@ -1513,6 +1517,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test row action is appended when 'edit' action is not present.
 	 */
 	public function test_row_action_appended_when_no_edit_action() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		$post    = $this->create_attachment_post( 'image/jpeg' );
 		$actions = ImageStudio\add_image_studio_row_action(
 			array(
@@ -1530,6 +1535,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test row action preserves all existing actions.
 	 */
 	public function test_row_action_preserves_existing_actions() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		$post    = $this->create_attachment_post( 'image/jpeg' );
 		$actions = ImageStudio\add_image_studio_row_action(
 			array(
