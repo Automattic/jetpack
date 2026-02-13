@@ -257,6 +257,7 @@ export const CustomRenderProps: Story = {
 			</div>
 		),
 	},
+	decorators: [ Story => <Story /> ],
 };
 
 export const WithoutTooltips: Story = {
