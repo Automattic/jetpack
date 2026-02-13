@@ -358,9 +358,9 @@ function StageInner() {
 						return;
 					}
 
-					const embedCode = `[contact-form ref="${ item.id }"]`;
+					const shortcode = `[contact-form ref="${ item.id }"]`;
 					try {
-						await navigator.clipboard.writeText( embedCode );
+						await navigator.clipboard.writeText( shortcode );
 						createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
 							type: 'snackbar',
 						} );
