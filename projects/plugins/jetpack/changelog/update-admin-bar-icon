@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: enhancement
 
 Forms: Replace dashicon with SVG icon and add tooltip to admin bar "Form Responses" link.
