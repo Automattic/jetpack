@@ -446,6 +446,19 @@ function StageInner() {
 				},
 			} );
 		}
+		actionsList.push( {
+			id: 'rename-form',
+			isPrimary: false,
+			label: __( 'Rename', 'jetpack-forms' ),
+			supportsBulk: false,
+			callback( items: FormListItem[] ) {
+				const [ item ] = items;
+				if ( ! item ) {
+					return;
+				}
+				openRenameModal( item );
+			},
+		} );
 
 		actionsList.push( {
 			id: 'trash-form',
