@@ -612,7 +612,7 @@ class Feedback_Email_Renderer {
 				</td>
 				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 600; color: ' . self::TEXT_COLOR . '; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . self::LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
+					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . self::TEXT_SECONDARY_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
 				</td>
 			</tr>
 		</table>';
