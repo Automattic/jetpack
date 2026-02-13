@@ -97,14 +97,14 @@ function Reader( props ) {
 		>
 			<h3 className="jp-form-label-wide">
 				{ __(
-					'Connect with millions of creators and readers across the WordPress.com and Jetpack network.',
+					'Follow sites and discover new content from the WordPress.com and Jetpack network.',
 					'jetpack'
 				) }
 			</h3>
 			<ul role="list" className="jp-reader-discover__list">
-				<li>{ __( 'Follow sites you love and explore content by topic', 'jetpack' ) }</li>
-				<li>{ __( 'Reach new readers through Reader feeds and tag pages', 'jetpack' ) }</li>
-				<li>{ __( 'Recommend creators you enjoy and get recommended back', 'jetpack' ) }</li>
+				<li>{ __( 'Follow blogs you like', 'jetpack' ) }</li>
+				<li>{ __( 'Discover posts by topic', 'jetpack' ) }</li>
+				<li>{ __( 'Reach new readers', 'jetpack' ) }</li>
 			</ul>
 			<ModuleToggle
 				slug={ moduleName }
@@ -145,14 +145,14 @@ function Reader( props ) {
 				{ searchTerm
 					? __( 'Reader', 'jetpack' )
 					: __(
-							'Stay up to date with your favorite sites and find new ones with the WordPress.com Reader.',
+							'Discover and follow your favorite sites with the WordPress.com Reader.',
 							'jetpack',
 							/* dummy arg to avoid bad minification */ 0
 					  ) }
 			</h2>
 			<SettingsCard
 				{ ...props }
-				header={ __( 'Visibility', 'jetpack' ) }
+				header={ __( 'WordPress.com Reader', 'jetpack' ) }
 				hideButton
 				module={ moduleName }
 			>
