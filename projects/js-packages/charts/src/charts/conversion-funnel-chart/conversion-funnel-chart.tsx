@@ -49,7 +49,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { conversionFunnelChart: conversionFunnelChartSettings } = useGlobalChartsTheme();
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles, isColorCacheReady } = useGlobalChartsContext();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 
@@ -228,12 +228,19 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		conversionFunnelChartSettings;
 
 	// Resolve bar color using getElementStyles with primaryColor as override
-	const { color: barColor } = getElementStyles
-		? getElementStyles( {
-				index: 0,
-				overrideColor: primaryColor,
-		  } )
-		: { color: primaryColor || '#000000' };
+	// Only resolve color when cache is ready to prevent flickering
+	const { color: barColor } = useMemo( () => {
+		if ( ! isColorCacheReady ) {
+			// Return primary color directly while cache initializes
+			return { color: primaryColor || '#000000' };
+		}
+		return getElementStyles
+			? getElementStyles( {
+					index: 0,
+					overrideColor: primaryColor,
+			  } )
+			: { color: primaryColor || '#000000' };
+	}, [ isColorCacheReady, getElementStyles, primaryColor ] );
 
 	// Determine change indicator color
 	const isPositiveChange = changeIndicator?.startsWith( '+' );

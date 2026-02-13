@@ -53,6 +53,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		maxHue: 0,
 	} ) );
 
+	// Track whether the color cache has been initialized to prevent flickering
+	const [ isColorCacheReady, setIsColorCacheReady ] = useState< boolean >( false );
+
 	// Compute color cache after DOM is updated (so CSS variables are available)
 	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
 	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
@@ -112,6 +115,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			minHue,
 			maxHue,
 		} );
+		setIsColorCacheReady( true );
 	}, [ providerTheme ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
@@ -254,6 +258,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
+			isColorCacheReady,
 		} ),
 		[
 			charts,
@@ -265,6 +270,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
+			isColorCacheReady,
 		]
 	);
 

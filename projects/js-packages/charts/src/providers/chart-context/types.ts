@@ -35,4 +35,5 @@ export interface GlobalChartsContextValue {
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
 	isSeriesVisible: ( chartId: string, seriesLabel: string ) => boolean;
 	getHiddenSeries: ( chartId: string ) => Set< string >;
+	isColorCacheReady: boolean;
 }
