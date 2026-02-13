@@ -12,6 +12,7 @@ import { useTooltipPortalRelocator } from '../../hooks/use-tooltip-portal-reloca
 import {
 	getItemShapeStyles,
 	getSeriesLineStyles,
+	isValidHexColor,
 	mergeThemes,
 	resolveCssVariable,
 	normalizeColorToHex,
