@@ -118,7 +118,14 @@ export const settings = {
 		}
 
 		const form = select( coreStore ).getEditedEntityRecord( 'postType', FORM_POST_TYPE, ref );
-		const title = form?.title ? decodeEntities( form.title ) : __( 'Form', 'jetpack-forms' );
+		const rawTitle = form?.title;
+		const titleText =
+			typeof rawTitle === 'string'
+				? rawTitle
+				: rawTitle && typeof rawTitle === 'object' && 'rendered' in rawTitle
+				? rawTitle.rendered
+				: '';
+		const title = titleText ? decodeEntities( titleText ) : __( 'Form', 'jetpack-forms' );
 
 		if ( ! form?.status || form.status === 'publish' ) {
 			return title;
