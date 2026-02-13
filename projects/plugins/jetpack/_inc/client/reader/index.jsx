@@ -152,7 +152,7 @@ function Reader( props ) {
 			</h2>
 			<SettingsCard
 				{ ...props }
-				header={ __( 'WordPress.com Reader', 'jetpack' ) }
+				header={ __( 'Reader Visibility', 'jetpack' ) }
 				hideButton
 				module={ moduleName }
 			>
