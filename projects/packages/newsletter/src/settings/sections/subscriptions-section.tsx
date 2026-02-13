@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
@@ -8,8 +9,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType, trackSectionSave } from '../analytics';
 import { ToggleWithEditorLink } from '../components/toggle-with-link';
+import { getSiteType } from '../utils';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface FieldRenderProps {
@@ -51,7 +52,10 @@ export function SubscriptionsSection( {
 
 	// Track section save
 	const handleSave = useCallback( () => {
-		trackSectionSave( 'subscriptions', siteType );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
+			site_type: siteType,
+			section: 'subscriptions',
+		} );
 		onSave();
 	}, [ onSave, siteType ] );
 

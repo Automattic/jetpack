@@ -15,7 +15,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType, trackSettingToggle, trackSettingChange } from './analytics';
 import { fetchSettings, updateSettings } from './api';
 import { Header } from './components/header';
 import {
@@ -29,6 +28,7 @@ import {
 	SubscriptionsSection,
 	WelcomeEmailSection,
 } from './sections';
+import { getSiteType } from './utils';
 import type { NewsletterSettings, JetpackNewsletterSettings } from './types';
 import './style.scss';
 
@@ -140,9 +140,17 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 				// Track based on value type - no manual lists to maintain
 				if ( typeof newValue === 'boolean' ) {
-					trackSettingToggle( String( key ), newValue, siteType );
+					analytics.tracks.recordEvent( 'jetpack_newsletter_setting_toggle', {
+						site_type: siteType,
+						setting: String( key ),
+						enabled: newValue,
+					} );
 				} else if ( typeof newValue === 'string' ) {
-					trackSettingChange( String( key ), newValue, siteType );
+					analytics.tracks.recordEvent( 'jetpack_newsletter_setting_change', {
+						site_type: siteType,
+						setting: String( key ),
+						value: newValue,
+					} );
 				}
 			}
 

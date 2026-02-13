@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
@@ -8,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType, trackSectionSave } from '../analytics';
+import { getSiteType } from '../utils';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface EmailSenderSettingsSectionProps {
@@ -46,7 +47,10 @@ export function EmailSenderSettingsSection( {
 
 	// Track section save
 	const handleSave = useCallback( () => {
-		trackSectionSave( 'sender_settings', siteType );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
+			site_type: siteType,
+			section: 'sender_settings',
+		} );
 		onSave();
 	}, [ onSave, siteType ] );
 

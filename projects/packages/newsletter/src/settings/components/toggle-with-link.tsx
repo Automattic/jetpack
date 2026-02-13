@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
@@ -9,7 +10,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { trackEditLinkClick, type SiteType } from '../analytics';
+import { type SiteType } from '../utils';
 import './toggle-with-link.scss';
 
 interface ToggleWithLinkProps {
@@ -115,7 +116,10 @@ export function ToggleWithEditorLink( {
 
 	const handleLinkClick = useCallback( () => {
 		if ( siteType ) {
-			trackEditLinkClick( templateId, siteType );
+			analytics.tracks.recordEvent( 'jetpack_newsletter_edit_link_click', {
+				site_type: siteType,
+				template: templateId,
+			} );
 		}
 	}, [ siteType, templateId ] );
 

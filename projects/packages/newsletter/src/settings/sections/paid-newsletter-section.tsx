@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType, trackPaidPlansClick } from '../analytics';
+import { getSiteType } from '../utils';
 import type { JetpackNewsletterSettings } from '../types';
 
 interface PaidNewsletterSectionProps {
@@ -31,7 +32,10 @@ export function PaidNewsletterSection( {
 
 	// Track paid plans button click
 	const handlePaidPlansClick = useCallback( () => {
-		trackPaidPlansClick( !! hasActivePlan, siteType );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_paid_plans_click', {
+			site_type: siteType,
+			has_active_plan: !! hasActivePlan,
+		} );
 	}, [ hasActivePlan, siteType ] );
 
 	if ( ! jetpackSettings?.setupPaymentPlansUrl ) {

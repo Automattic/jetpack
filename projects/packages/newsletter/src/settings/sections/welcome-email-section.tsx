@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -8,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType, trackSectionSave } from '../analytics';
+import { getSiteType } from '../utils';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface WelcomeEmailSectionProps {
@@ -59,7 +60,10 @@ export function WelcomeEmailSection( {
 
 	// Track section save
 	const handleSave = useCallback( () => {
-		trackSectionSave( 'welcome_email', siteType );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
+			site_type: siteType,
+			section: 'welcome_email',
+		} );
 		onSave();
 	}, [ onSave, siteType ] );
 

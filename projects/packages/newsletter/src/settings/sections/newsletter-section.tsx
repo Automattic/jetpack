@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { ExternalLink } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useRef } from '@wordpress/element';
@@ -8,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType, trackModuleToggle, trackManageSubscribersClick } from '../analytics';
+import { getSiteType } from '../utils';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface NewsletterSectionProps {
@@ -38,7 +39,10 @@ export function NewsletterSection( {
 				'subscriptions' in updates &&
 				updates.subscriptions !== previousSubscriptionsValue.current
 			) {
-				trackModuleToggle( !! updates.subscriptions, siteType );
+				analytics.tracks.recordEvent( 'jetpack_newsletter_module_toggle', {
+					site_type: siteType,
+					enabled: !! updates.subscriptions,
+				} );
 				previousSubscriptionsValue.current = !! updates.subscriptions;
 			}
 			onChange( updates );
@@ -48,7 +52,9 @@ export function NewsletterSection( {
 
 	// Track manage subscribers click
 	const handleManageSubscribersClick = useCallback( () => {
-		trackManageSubscribersClick( siteType );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_manage_subscribers_click', {
+			site_type: siteType,
+		} );
 	}, [ siteType ] );
 
 	const fields: Field< NewsletterSettings >[] = [

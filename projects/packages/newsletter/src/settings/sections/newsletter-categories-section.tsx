@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { Button, ExternalLink, Notice } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
@@ -9,8 +10,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType, trackSectionSave } from '../analytics';
 import { fetchCategories } from '../api';
+import { getSiteType } from '../utils';
 import type { NewsletterSettings, JetpackNewsletterSettings, WordPressCategory } from '../types';
 
 interface NewsletterCategoriesSectionProps {
@@ -45,7 +46,10 @@ export function NewsletterCategoriesSection( {
 
 	// Track section save
 	const handleSave = useCallback( () => {
-		trackSectionSave( 'newsletter_categories', siteType );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
+			site_type: siteType,
+			section: 'newsletter_categories',
+		} );
 		onSave();
 	}, [ onSave, siteType ] );
 
