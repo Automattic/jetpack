@@ -72,7 +72,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_use_unified_experience' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );
-		remove_all_filters( 'jetpack_set_available_extensions' );
 		unset( $_GET['enable_image_studio'] );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
@@ -1060,27 +1059,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 				"Extension $ext should be disabled when no screen is available (blanket disable)."
 			);
 		}
-	}
-
-	// -------------------------------------------------------------------------
-	// jetpack_set_available_extensions filter tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test that the jetpack_set_available_extensions filter includes image-studio.
-	 */
-	public function test_available_extensions_filter_includes_image_studio() {
-		$extensions = apply_filters( 'jetpack_set_available_extensions', array() );
-		$this->assertContains( ImageStudio\FEATURE_NAME, $extensions );
-	}
-
-	/**
-	 * Test that the filter merges with existing extensions.
-	 */
-	public function test_available_extensions_filter_merges_with_existing() {
-		$extensions = apply_filters( 'jetpack_set_available_extensions', array( 'some-other-extension' ) );
-		$this->assertContains( 'some-other-extension', $extensions );
-		$this->assertContains( ImageStudio\FEATURE_NAME, $extensions );
 	}
 
 	// -------------------------------------------------------------------------

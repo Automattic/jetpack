@@ -102,19 +102,6 @@ function register_plugin() {
 }
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugin' );
 
-// Populate the available extensions with image-studio.
-add_filter(
-	'jetpack_set_available_extensions',
-	function ( $extensions ) {
-		return array_merge(
-			(array) $extensions,
-			array(
-				FEATURE_NAME,
-			)
-		);
-	}
-);
-
 /**
  * Fetch and cache the remote asset manifest.
  *
