@@ -75,8 +75,7 @@ class Form_Editor {
 			'jetpack/field-image-select',
 
 			// Supporting blocks.
-			'jetpack/button',
-			'core/button',
+			'jetpack/button', // Used for the submit button previously.
 			'jetpack/label',
 			'jetpack/input',
 			'jetpack/options',
@@ -95,29 +94,29 @@ class Form_Editor {
 			'jetpack/form-step-navigation',
 			'jetpack/form-progress-indicator',
 
-		// Core blocks for rich content.
-		'core/accordion',
-		'core/audio',
-		'core/button',
-		'core/code',
-		'core/columns',
-		'core/column',
-		'core/details',
-		'core/group',
-		'core/heading',
-		'core/html',
-		'core/icon',
-		'core/image',
-		'core/list',
-		'core/list-item',
-		'core/math',
-		'core/paragraph',
-		'core/row',
-		'core/separator',
-		'core/spacer',
-		'core/stack',
-		'core/subhead',
-		'core/video',
+			// Core blocks for rich content.
+			'core/accordion',
+			'core/audio',
+			'core/button', // Used for the submit button.
+			'core/code',
+			'core/column',
+			'core/columns',
+			'core/details',
+			'core/group',
+			'core/heading',
+			'core/html',
+			'core/icon',
+			'core/image',
+			'core/list-item',
+			'core/list',
+			'core/math',
+			'core/paragraph',
+			'core/row',
+			'core/separator',
+			'core/spacer',
+			'core/stack',
+			'core/subhead',
+			'core/video',
 		);
 	}
 
