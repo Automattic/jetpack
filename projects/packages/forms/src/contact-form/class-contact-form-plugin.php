@@ -3831,26 +3831,38 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Redirect users from the edit-feedback screen to the Jetpack Forms admin page.
+	 * Redirect users from the edit-feedback and edit-jetpack_form screens to the Jetpack Forms admin page.
 	 *
-	 * This method is hooked to 'current_screen' and checks if the current screen
-	 * is 'edit-feedback'. If so, it redirects the user to admin.php?page=jetpack-forms-admin.
+	 * This method is hooked to 'current_screen' and redirects:
+	 * - edit-jetpack_form: to #/forms (legacy) or &p=/forms (wp-build)
+	 * - edit-feedback: to #/responses?status=inbox (legacy) or &p=/responses/inbox (wp-build)
 	 *
 	 * @since 6.0.0
 	 */
 	public function redirect_edit_feedback_to_jetpack_forms() {
-		// Only proceed if we have a valid screen object
 		if ( ! function_exists( 'get_current_screen' ) ) {
 			return;
 		}
 
 		$screen = get_current_screen();
 
-		if ( ! $screen || ! isset( $screen->id ) || $screen->id !== 'edit-feedback' ) {
+		if ( ! $screen || ! isset( $screen->id ) ) {
 			return;
 		}
 
-		$redirect = Dashboard::get_forms_admin_url();
+		// Don't redirect if we're already on the Forms admin page (prevents redirect loop).
+		if ( Dashboard::is_jetpack_forms_admin_page() ) {
+			return;
+		}
+
+		$redirect = null;
+
+		if ( 'edit-jetpack_form' === $screen->id ) {
+			$redirect = Dashboard::get_forms_admin_url( 'forms' );
+		} elseif ( 'edit-feedback' === $screen->id ) {
+			$redirect = Dashboard::get_forms_admin_url( 'inbox' );
+		}
+
 		if ( $redirect ) {
 			wp_safe_redirect( $redirect );
 			exit;

@@ -370,7 +370,17 @@ class Dashboard {
 		}
 
 		$screen = get_current_screen();
-		return $screen && $screen->id === 'jetpack_page_jetpack-forms-admin';
+
+		if ( ! $screen || ! isset( $screen->id ) ) {
+			return false;
+		}
+
+		$forms_admin_screens = array(
+			'jetpack_page_' . self::ADMIN_SLUG,
+			'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG,
+		);
+
+		return in_array( $screen->id, $forms_admin_screens, true );
 	}
 
 	/**
