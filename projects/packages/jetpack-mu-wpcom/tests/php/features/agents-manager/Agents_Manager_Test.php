@@ -1501,6 +1501,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1511,6 +1512,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 	}
 
 	/**
@@ -1538,6 +1540,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1548,6 +1551,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"sectionName":"gutenberg"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 	}
 
 	/**
@@ -1578,6 +1582,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1588,5 +1593,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 	}
 }
