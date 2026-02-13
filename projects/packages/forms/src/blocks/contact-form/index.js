@@ -16,6 +16,58 @@ import variations from './variations.js';
 
 export const name = 'contact-form';
 
+/**
+ * Status labels for non-published forms.
+ * Hoisted to module level to avoid repeated allocations.
+ */
+const STATUS_LABELS = {
+	draft: _x( 'Draft', 'form status', 'jetpack-forms' ),
+	pending: _x( 'Pending', 'form status', 'jetpack-forms' ),
+	future: _x( 'Scheduled', 'form status', 'jetpack-forms' ),
+	private: _x( 'Private', 'form status', 'jetpack-forms' ),
+	trash: _x( 'Trashed', 'form status', 'jetpack-forms' ),
+};
+
+/**
+ * Get the label for a form block in List View.
+ *
+ * For synced forms (with ref), displays the form title with status indicator.
+ * For inline forms (without ref), displays the default "Form" label.
+ *
+ * @param {object} props     - Block attributes
+ * @param {number} props.ref - The form post ID (for synced forms)
+ * @return {string} The label to display in List View
+ */
+const getFormLabel = ( { ref } ) => {
+	const defaultLabel = __( 'Form', 'jetpack-forms' );
+
+	if ( ! ref ) {
+		return defaultLabel;
+	}
+
+	const form = select( coreStore ).getEditedEntityRecord( 'postType', FORM_POST_TYPE, ref );
+	const rawTitle = form?.title;
+
+	// Handle both string and object formats for the title property
+	let titleText = '';
+	if ( typeof rawTitle === 'string' ) {
+		titleText = rawTitle;
+	} else if ( rawTitle && typeof rawTitle === 'object' && 'rendered' in rawTitle ) {
+		titleText = rawTitle.rendered;
+	}
+
+	const title = titleText ? decodeEntities( titleText ) : defaultLabel;
+
+	if ( ! form?.status || form.status === 'publish' ) {
+		return title;
+	}
+
+	const statusLabel = STATUS_LABELS[ form.status ] || form.status;
+
+	/* translators: 1: Form title, 2: Form status (e.g., Draft, Scheduled) */
+	return sprintf( __( '%1$s (%2$s)', 'jetpack-forms' ), title, statusLabel );
+};
+
 const icon = renderMaterialIcon(
 	<>
 		<Path fillRule="evenodd" clipRule="evenodd" d="M18 9H13V7.5H18V9Z" />
@@ -112,36 +164,7 @@ export const settings = {
 	category: 'contact-form',
 	transforms,
 	deprecated,
-	__experimentalLabel: ( { ref } ) => {
-		if ( ! ref ) {
-			return;
-		}
-
-		const form = select( coreStore ).getEditedEntityRecord( 'postType', FORM_POST_TYPE, ref );
-		const rawTitle = form?.title;
-		const titleText =
-			typeof rawTitle === 'string'
-				? rawTitle
-				: rawTitle && typeof rawTitle === 'object' && 'rendered' in rawTitle
-				? rawTitle.rendered
-				: '';
-		const title = titleText ? decodeEntities( titleText ) : __( 'Form', 'jetpack-forms' );
-
-		if ( ! form?.status || form.status === 'publish' ) {
-			return title;
-		}
-
-		const statusLabels = {
-			draft: _x( 'Draft', 'form status', 'jetpack-forms' ),
-			pending: _x( 'Pending', 'form status', 'jetpack-forms' ),
-			future: _x( 'Scheduled', 'form status', 'jetpack-forms' ),
-			private: _x( 'Private', 'form status', 'jetpack-forms' ),
-			trash: _x( 'Trashed', 'form status', 'jetpack-forms' ),
-		};
-
-		const statusLabel = statusLabels[ form.status ] || form.status;
-
-		/* translators: 1: Form title, 2: Form status (e.g., Draft, Scheduled) */
-		return sprintf( __( '%1$s (%2$s)', 'jetpack-forms' ), title, statusLabel );
-	},
+	// Custom label for List View - shows form title with status for synced forms
+	label: getFormLabel,
+	__experimentalLabel: getFormLabel, // Backwards compatibility with WP < 7.0
 };
