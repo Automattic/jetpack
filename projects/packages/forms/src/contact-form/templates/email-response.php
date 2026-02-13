@@ -593,9 +593,30 @@ $style = '<style media="all" type="text/css">
 			width: 90px !important;
 		}
 
+		.actions {
+			width: 100% !important;
+			padding: 0 !important;
+		}
+
+		.actions .button-table,
+		.actions .button-table tbody,
+		.actions .button-table tr,
+		.actions .button-cell {
+			display: block !important;
+			width: 100% !important;
+			max-width: 100% !important;
+		}
+
+		.button-cell {
+			text-align: center !important;
+			padding: 4px 0 !important;
+		}
+
 		.action-button {
 			display: block !important;
-			margin: 8px 0 !important;
+			width: 100% !important;
+			box-sizing: border-box !important;
+			text-align: center !important;
 		}
 	}
 
