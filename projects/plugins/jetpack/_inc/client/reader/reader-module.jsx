@@ -1,8 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
+import Card from 'components/card';
+import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SimpleNotice from 'components/notice';
@@ -10,6 +13,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { getModule } from 'state/modules';
+import './style.scss';
 
 /**
  * ReaderModule component.
@@ -26,6 +30,7 @@ function ReaderModule( props ) {
 		getOptionValue,
 		refreshSettings,
 		moduleName,
+		blogID,
 	} = props;
 
 	const cannotBeToggled = isWoASite();
@@ -49,6 +54,15 @@ function ReaderModule( props ) {
 		},
 		[ getOptionValue, updateOptions, refreshSettings ]
 	);
+
+	const readerUrl = addQueryArgs(
+		'https://wordpress.com/reader/',
+		blogID ? { origin_site_id: blogID } : {}
+	);
+
+	const trackReaderClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( 'open-reader-from-admin-bar' );
+	}, [] );
 
 	return (
 		<SettingsCard
@@ -78,6 +92,17 @@ function ReaderModule( props ) {
 					link: getRedirectUrl( 'jetpack-support-reader' ),
 				} }
 			>
+				<FormLegend className="jp-form-label-wide">
+					{ __(
+						'Connect with millions of creators and readers across the WordPress.com and Jetpack network.',
+						'jetpack'
+					) }
+				</FormLegend>
+				<ul role="list" className="jp-reader-discover__list">
+					<li>{ __( 'Follow sites you love and explore content by topic', 'jetpack' ) }</li>
+					<li>{ __( 'Reach new readers through Reader feeds and tag pages', 'jetpack' ) }</li>
+					<li>{ __( 'Recommend creators you enjoy and get recommended back', 'jetpack' ) }</li>
+				</ul>
 				<ModuleToggle
 					slug={ moduleName }
 					activated={ isReaderModuleActive }
@@ -90,6 +115,16 @@ function ReaderModule( props ) {
 					</span>
 				</ModuleToggle>
 			</SettingsGroup>
+			<Card
+				compact
+				className="jp-settings-card__configure-link"
+				onClick={ trackReaderClick }
+				href={ readerUrl }
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				{ __( 'Visit the Reader', 'jetpack' ) }
+			</Card>
 		</SettingsCard>
 	);
 }
