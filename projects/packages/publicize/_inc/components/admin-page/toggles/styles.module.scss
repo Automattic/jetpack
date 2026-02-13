@@ -62,23 +62,6 @@
 			}
 		}
 
-		.components-form-toggle__track {
-			width: 48px;
-			height: 24px;
-			border-radius: 12px;
-			border-width: 1.5px;
-		}
-
-		.components-form-toggle__thumb {
-			width: 14px;
-			height: 14px;
-			top: 5px;
-			left: 5px;
-		}
-
-		.components-form-toggle.is-checked .components-form-toggle__thumb {
-			transform: translateX(24px);
-		}
 	}
 }
 
