@@ -8,6 +8,7 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
  */
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DropdownMenu } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
@@ -44,6 +45,7 @@ type UsePageHeaderDetailsProps = {
 	isIntegrationsEnabled: boolean;
 	showDashboardIntegrations: boolean;
 	onOpenIntegrations: () => void;
+	onOpenFormsHelp?: () => void;
 };
 
 type UsePageHeaderDetailsReturn = {
@@ -64,8 +66,14 @@ type UsePageHeaderDetailsReturn = {
 export default function usePageHeaderDetails(
 	props: UsePageHeaderDetailsProps
 ): UsePageHeaderDetailsReturn {
-	const { screen, sourceId, isIntegrationsEnabled, showDashboardIntegrations, onOpenIntegrations } =
-		props;
+	const {
+		screen,
+		sourceId,
+		isIntegrationsEnabled,
+		showDashboardIntegrations,
+		onOpenIntegrations,
+		onOpenFormsHelp,
+	} = props;
 	const statusView: ResponsesStatusView = props.statusView ?? 'inbox';
 	const sourceIdNumber = useMemo( () => {
 		const value = sourceId;
@@ -171,7 +179,20 @@ export default function usePageHeaderDetails(
 
 	const subtitle = useMemo( () => {
 		if ( isFormsScreen ) {
-			return __( 'View and manage all your forms in one place.', 'jetpack-forms' );
+			const base = __( 'View and manage all your forms.', 'jetpack-forms' );
+
+			if ( ! onOpenFormsHelp ) {
+				return base;
+			}
+
+			return (
+				<>
+					{ base }{ ' ' }
+					<Button variant="link" onClick={ onOpenFormsHelp }>
+						{ __( 'Missing forms?', 'jetpack-forms' ) }
+					</Button>
+				</>
+			);
 		}
 
 		if ( isSingleFormScreen ) {
@@ -186,7 +207,7 @@ export default function usePageHeaderDetails(
 		}
 
 		return __( 'View and manage all your form submissions in one place.', 'jetpack-forms' );
-	}, [ formTitle, isFormsScreen, isSingleFormScreen ] );
+	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp ] );
 
 	const actions = useMemo( () => {
 		// Mobile: show dropdown menu with actions
