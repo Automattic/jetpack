@@ -592,6 +592,10 @@
 	}
 }
 
+.widgets-php .wp-block-jetpack-contact-form:not(.is-layout-flex) {
+	display: block;
+}
+
 :where(.wp-block-jetpack-contact-form .wp-block-separator) {
 	max-width: var(--wp--preset--spacing--80, 100px);
 	margin-top: 0;
