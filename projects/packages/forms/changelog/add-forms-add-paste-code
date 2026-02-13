@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Dashboard: add 'Copy embed' action to copy form embed code to clipboard.
+Dashboard: add 'Copy embed' and 'Copy shortcode' actions to copy form code to clipboard.
