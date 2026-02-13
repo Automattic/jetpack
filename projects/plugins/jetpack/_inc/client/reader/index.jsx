@@ -6,7 +6,6 @@ import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
-import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SimpleNotice from 'components/notice';
@@ -96,12 +95,12 @@ function Reader( props ) {
 				link: getRedirectUrl( 'jetpack-support-reader' ),
 			} }
 		>
-			<FormLegend className="jp-form-label-wide">
+			<h3 className="jp-form-label-wide">
 				{ __(
 					'Connect with millions of creators and readers across the WordPress.com and Jetpack network.',
 					'jetpack'
 				) }
-			</FormLegend>
+			</h3>
 			<ul role="list" className="jp-reader-discover__list">
 				<li>{ __( 'Follow sites you love and explore content by topic', 'jetpack' ) }</li>
 				<li>{ __( 'Reach new readers through Reader feeds and tag pages', 'jetpack' ) }</li>
