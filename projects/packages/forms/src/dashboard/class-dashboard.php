@@ -136,8 +136,6 @@ class Dashboard {
 				if ( preg_match( '#^/responses/(inbox|spam|trash)(?:\?responseIds=\["(\d+)"\])?$#', $p, $m ) ) {
 					$tab     = $m[1];
 					$post_id = ! empty( $m[2] ) ? absint( $m[2] ) : null;
-				} elseif ( preg_match( '#^/responses/inbox\?responseIds=\["(\d+)"\]#', $p, $m ) ) {
-					$post_id = absint( $m[1] );
 				} elseif ( preg_match( '#^/forms#', $p ) ) {
 					$tab = 'forms';
 				}
