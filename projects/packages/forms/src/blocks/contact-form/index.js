@@ -3,7 +3,7 @@ import { Path } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { select } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import { FORM_POST_TYPE } from '../shared/util/constants.js';
@@ -12,21 +12,10 @@ import blockMetadata from './block.json';
 import deprecated from './deprecated.js';
 import edit from './edit.tsx';
 import transforms from './transforms.js';
+import { DEFAULT_FORM_LABEL, extractTitleText, formatFormLabel } from './util/form-label.js';
 import variations from './variations.js';
 
 export const name = 'contact-form';
-
-/**
- * Status labels for non-published forms.
- * Hoisted to module level to avoid repeated allocations.
- */
-const STATUS_LABELS = {
-	draft: _x( 'Draft', 'form status', 'jetpack-forms' ),
-	pending: _x( 'Pending', 'form status', 'jetpack-forms' ),
-	future: _x( 'Scheduled', 'form status', 'jetpack-forms' ),
-	private: _x( 'Private', 'form status', 'jetpack-forms' ),
-	trash: _x( 'Trashed', 'form status', 'jetpack-forms' ),
-};
 
 /**
  * Get the label for a form block in List View.
@@ -38,39 +27,25 @@ const STATUS_LABELS = {
  * @param {number} props.ref - The form post ID (for synced forms)
  * @return {string} The label to display in List View
  */
-const getFormLabel = ( { ref } ) => {
-	const defaultLabel = __( 'Form', 'jetpack-forms' );
-
+export const getFormLabel = ( { ref } ) => {
 	if ( ! ref ) {
-		return defaultLabel;
+		return DEFAULT_FORM_LABEL;
 	}
 
 	const form = select( coreStore ).getEditedEntityRecord( 'postType', FORM_POST_TYPE, ref );
 
 	if ( ! form?.status ) {
-		return defaultLabel;
+		return DEFAULT_FORM_LABEL;
 	}
 
-	const rawTitle = form?.title;
+	const titleText = extractTitleText( form?.title );
+	const title = titleText ? decodeEntities( titleText ) : '';
 
-	// Handle both string and object formats for the title property
-	let titleText = '';
-	if ( typeof rawTitle === 'string' ) {
-		titleText = rawTitle;
-	} else if ( rawTitle && typeof rawTitle === 'object' && 'rendered' in rawTitle ) {
-		titleText = rawTitle.rendered;
-	}
-
-	const title = titleText ? decodeEntities( titleText ) : defaultLabel;
-	if ( form.status === 'publish' ) {
-		// translators: 1: Form title, e.g., "Contact Us"
-		return sprintf( __( 'Form: %1$s', 'jetpack-forms' ), title );
-	}
-
-	const statusLabel = STATUS_LABELS[ form.status ] || form.status;
-
-	/* translators: 1: Form title, 2: Form status (e.g., Draft, Scheduled) */
-	return sprintf( __( 'Form: %1$s (%2$s)', 'jetpack-forms' ), title, statusLabel );
+	return formatFormLabel( {
+		title,
+		status: form.status,
+		defaultLabel: DEFAULT_FORM_LABEL,
+	} );
 };
 
 const icon = renderMaterialIcon(
