@@ -2038,50 +2038,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Format a single field for the email notification using type-aware rendering.
-	 *
-	 * Takes a collection item from get_compiled_fields( 'email_html', 'collection' )
-	 * and produces a table row with an icon, label, and type-specific value.
-	 *
-	 * @param array $field_data Field data with keys: label, value, type, id, key, meta.
-	 * @return string HTML for the field row.
-	 */
-	private static function format_field_for_email( $field_data ) {
-		$label = isset( $field_data['label'] ) ? $field_data['label'] : '';
-		$value = isset( $field_data['value'] ) ? $field_data['value'] : '';
-		$type  = isset( $field_data['type'] ) ? $field_data['type'] : 'text';
-
-		$safe_label = self::escape_and_sanitize_field_label( $label );
-		$icon_name  = Feedback_Field::get_icon_name_for_type( $type );
-		$icon_url   = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/' . $icon_name . '@2x.png';
-
-		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #F0F0F0; padding: 0; margin: 0;">';
-		$html .= '<tr>';
-		$html .= '<td width="24" valign="top" style="padding: 20px 16px 20px 0; width: 24px; vertical-align: top;">';
-		$html .= sprintf(
-			'<img src="%s" width="24" height="24" alt="" style="display: block; width: 24px; height: 24px;" />',
-			esc_url( $icon_url )
-		);
-		$html .= '</td>';
-		$html .= '<td valign="top" style="padding: 20px 0;">';
-		if ( ! empty( $safe_label ) ) {
-			$html .= sprintf(
-				'<div style="font-size: 13px; color: #757575; line-height: 1.4; margin-bottom: 8px;">%s</div>',
-				esc_html( $safe_label )
-			);
-		}
-		$html .= sprintf(
-			'<div style="font-size: 13px; color: #1e1e1e; line-height: 1.5;">%s</div>',
-			$value
-		);
-		$html .= '</td>';
-		$html .= '</tr>';
-		$html .= '</table>';
-
-		return $html;
-	}
-
-	/**
 	 * Only strip out empty string values and keep all the other values as they are.
 	 *
 	 * @param string $single_value - the single value.
