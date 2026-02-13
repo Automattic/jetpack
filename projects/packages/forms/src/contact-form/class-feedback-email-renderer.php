@@ -358,7 +358,7 @@ class Feedback_Email_Renderer {
 		// Build the field row as a table with icon + content.
 		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #F0F0F0; padding: 0; margin: 0;">';
 		$html .= '<tr>';
-		$html .= '<td width="24" valign="top" style="padding: 20px 16px 20px 0; width: 24px; vertical-align: top;">';
+		$html .= '<td width="24" valign="top" style="padding: 18px 16px 20px 0; width: 24px; vertical-align: top;">';
 		$html .= sprintf(
 			'<img src="%s" width="24" height="24" alt="" style="display: block; width: 24px; height: 24px;" />',
 			esc_url( $icon_url )
