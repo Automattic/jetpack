@@ -35,24 +35,6 @@ import './style.scss';
 const MODULE_NAME = __( 'Jetpack Newsletter', 'jetpack-newsletter' );
 
 /**
- * Boolean settings that should be tracked with trackSettingToggle
- */
-const BOOLEAN_SETTINGS = [
-	'wpcom_featured_image_in_email',
-	'jetpack_gravatar_in_email',
-	'jetpack_author_in_email',
-	'jetpack_post_date_in_email',
-] as const;
-
-/**
- * String settings that should be tracked with trackSettingChange
- */
-const STRING_SETTINGS = [
-	'wpcom_subscription_emails_use_excerpt',
-	'jetpack_subscriptions_reply_to',
-] as const;
-
-/**
  * Normalize settings from API response
  *
  * @param {Record<string, unknown>} settings - Raw settings from API
@@ -156,14 +138,11 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					continue;
 				}
 
-				// Track boolean settings
-				if ( BOOLEAN_SETTINGS.includes( key as ( typeof BOOLEAN_SETTINGS )[ number ] ) ) {
-					trackSettingToggle( String( key ), !! newValue, siteType );
-				}
-
-				// Track string settings
-				if ( STRING_SETTINGS.includes( key as ( typeof STRING_SETTINGS )[ number ] ) ) {
-					trackSettingChange( String( key ), String( newValue ), siteType );
+				// Track based on value type - no manual lists to maintain
+				if ( typeof newValue === 'boolean' ) {
+					trackSettingToggle( String( key ), newValue, siteType );
+				} else if ( typeof newValue === 'string' ) {
+					trackSettingChange( String( key ), newValue, siteType );
 				}
 			}
 
