@@ -30,6 +30,8 @@ import {
 import type { NewsletterSettings, JetpackNewsletterSettings } from './types';
 import './style.scss';
 
+const MODULE_NAME = __( 'Jetpack Newsletter', 'jetpack-newsletter' );
+
 /**
  * Normalize settings from API response
  *
@@ -299,7 +301,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( isLoading ) {
 		return (
-			<AdminPage moduleName="Jetpack Newsletter" header={ <Header /> }>
+			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
 				<Container horizontalSpacing={ 3 }>
 					<Col>
 						<div className="newsletter-settings">
@@ -313,7 +315,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( error ) {
 		return (
-			<AdminPage moduleName="Jetpack Newsletter" header={ <Header /> }>
+			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
 				<Container horizontalSpacing={ 3 }>
 					<Col>
 						<div className="newsletter-settings newsletter-settings--error">
@@ -337,7 +339,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
-		<AdminPage moduleName="Jetpack Newsletter" header={ <Header /> }>
+		<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
 			<Container horizontalSpacing={ 3 }>
 				<Col>
 					<div className="newsletter-settings">
