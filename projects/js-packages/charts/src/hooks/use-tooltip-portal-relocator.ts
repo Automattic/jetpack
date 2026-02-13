@@ -6,7 +6,7 @@ import type { RefObject } from 'react';
  *
  * visx renders tooltips via `ReactDOM.createPortal` into plain `<div>` elements
  * appended to `document.body`. These portals have no id or className and contain
- * a child element with the class `visx-tooltip-portal`.
+ * a child element with the class `visx-tooltip`.
  * @param node - The DOM node to check.
  * @return Whether the node is a visx tooltip portal div.
  */
@@ -16,7 +16,7 @@ function isVisxPortalNode( node: Node ): node is HTMLDivElement {
 		node.parentElement === document.body &&
 		! node.id &&
 		! node.className &&
-		node.querySelector( '.visx-tooltip-portal' ) !== null
+		node.querySelector( '.visx-tooltip' ) !== null
 	);
 }
 
