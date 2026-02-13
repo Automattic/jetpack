@@ -2732,20 +2732,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
 		/**
-		 * Fires right before the contact form message is sent via email to
-		 * the recipient specified in the contact form.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 1.3.1
-		 *
-		 * @param integer $post_id Post contact form lives on
-		 * @param array $all_values Contact form fields
-		 * @param array $extra_values Contact form fields not included in $all_values
-		 */
-		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
-
-		/**
 		 * Filter to choose whether an email should be sent after each successful contact form submission.
 		 * This filter takes precedence over the emailNotifications attribute.
 		 *
@@ -2773,24 +2759,31 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$send_email = ( $this->get_attribute( 'emailNotifications' ) !== 'no' );
 		}
 
-		if (
-			$is_spam !== true &&
-			$send_email
-		) {
-			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
-		} elseif (
-			true === $is_spam &&
+		/**
+		 * Filter to determine if spam should still be emailed.
+		 *
+		 * @module contact-form
+		 */
+		$send_even_if_spam = apply_filters( 'grunion_still_email_spam', false );
+
+		// Only fire send-related side effects when we are actually going to send.
+		$will_send = ( $is_spam !== true && $send_email ) || ( true === $is_spam && $send_even_if_spam );
+
+		if ( $will_send ) {
 			/**
-			 * Choose whether an email should be sent for each spam contact form submission.
+			 * Fires right before the contact form message is sent via email to
+			 * the recipient specified in the contact form.
 			 *
 			 * @module contact-form
 			 *
 			 * @since 1.3.1
 			 *
-			 * @param bool false Should an email be sent after a spam form submission. Default to false.
+			 * @param integer $post_id Post contact form lives on
+			 * @param array $all_values Contact form fields
+			 * @param array $extra_values Contact form fields not included in $all_values
 			 */
-			apply_filters( 'grunion_still_email_spam', false )
-		) { // don't send spam by default.  Filterable.
+			do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
+
 			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
 
