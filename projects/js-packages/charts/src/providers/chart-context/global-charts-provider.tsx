@@ -180,7 +180,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			const getRawThemeColor = ( colorIndex: number ): string | null => {
 				if ( colorCache.colors.length === 0 ) {
 					const themeColor = providerTheme.colors?.[ colorIndex ];
-					if ( themeColor && typeof themeColor === 'string' && themeColor.startsWith( '#' ) ) {
+					if ( themeColor && isValidHexColor( themeColor ) ) {
 						return themeColor;
 					}
 				}
