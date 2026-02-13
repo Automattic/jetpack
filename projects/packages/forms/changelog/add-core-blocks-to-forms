@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Form Editor: Consolidate allowed core blocks list between JavaScript and PHP, adding core/accordion, core/icon, core/details, core/button, core/column, and core/list-item.

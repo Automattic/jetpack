@@ -4,14 +4,20 @@ export const ALLOWED_FORMATS = [ 'core/bold', 'core/italic' ];
 export const ALLOWED_INNER_BLOCKS = [ 'jetpack/label', 'jetpack/input' ];
 
 export const CORE_BLOCKS = [
+	'core/accordion',
 	'core/audio',
+	'core/button',
 	'core/code',
 	'core/columns',
+	'core/column',
+	'core/details',
 	'core/group',
 	'core/heading',
 	'core/html',
+	'core/icon',
 	'core/image',
 	'core/list',
+	'core/list-item',
 	'core/math',
 	'core/paragraph',
 	'core/row',
