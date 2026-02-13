@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Contact Form: fix shortcode ref attribute to load form from jetpack_form post type.
+Contact Form: Fix shortcode ref attribute to load form from jetpack_form post type.
