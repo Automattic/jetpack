@@ -101,7 +101,9 @@ describe( 'Reader', () => {
 		it( 'renders the section title', () => {
 			render( <Reader { ...defaultProps } />, { initialState } );
 			expect(
-				screen.getByText( 'Discover and be discovered with the WordPress.com Reader.' )
+				screen.getByText(
+					'Stay up to date with your favorite sites and find new ones with the WordPress.com Reader.'
+				)
 			).toBeInTheDocument();
 		} );
 
