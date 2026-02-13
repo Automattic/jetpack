@@ -4265,7 +4265,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Your Name', $result );
 		$this->assertStringContainsString( '#757575', $result );
 		$this->assertStringContainsString( 'John Doe', $result );
-		$this->assertStringContainsString( 'field-name@2x.png', $result );
+		$this->assertStringContainsString( 'field-text@2x.png', $result );
 	}
 
 	/**
@@ -4335,14 +4335,14 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Invoke a private static method on Contact_Form via reflection.
+	 * Invoke a private static method on Feedback_Email_Renderer via reflection.
 	 *
 	 * @param string $method_name The method name.
 	 * @param mixed  ...$args     Arguments to pass to the method.
 	 * @return mixed The method's return value.
 	 */
 	private static function invoke_static_method( $method_name, ...$args ) {
-		$reflection = new \ReflectionClass( Contact_Form::class );
+		$reflection = new \ReflectionClass( Feedback_Email_Renderer::class );
 		$method     = $reflection->getMethod( $method_name );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
