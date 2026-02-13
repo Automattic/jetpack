@@ -137,6 +137,10 @@ export default {
 					// Bundle the package with our assets until WP core exposes wp-admin-ui.
 					'@wordpress/admin-ui': { external: false },
 					'@wordpress/admin-ui/build-style/style.css': { external: false },
+					// Bundle these packages that aren't in WordPress core yet
+					'@wordpress/boot': { external: false },
+					'@wordpress/theme': { external: false },
+					'@wordpress/route': { external: false },
 					// Bundle jetpack-connection since it's used by IntegrationsModal
 					'@automattic/jetpack-connection': { external: false },
 				},
