@@ -13,7 +13,10 @@ import './style.scss';
  * @return {import('react').Component|null} Jetpack logo component or null
  */
 const JetpackEditorPanelLogo = () => {
-	if ( getJetpackData()?.showEditorPanelBranding === false ) {
+	const branding = getJetpackData()?.showEditorPanelBranding;
+	// wp_localize_script converts booleans to strings ("1" / ""), so use a falsy check.
+	// undefined means the key isn't present (older PHP), so default to showing branding.
+	if ( branding !== undefined && ! branding ) {
 		return null;
 	}
 
