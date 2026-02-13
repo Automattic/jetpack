@@ -11,10 +11,7 @@ p {
 }
 // Override WordPress component styles
 .jb-dashboard {
-	--wp-admin-theme-color: #{variables.$jetpack_green_50};
 	--wp-admin-theme-link-color: #{variables.$gray_90};
-	--wp-admin-theme-color-darker-10: #{variables.$jetpack_green_60};
-	--wp-admin-theme-color-darker-20: #{variables.$jetpack_green_70};
 
 	--font-headline-medium: 48px;
 	--font-title-medium: 24px;
