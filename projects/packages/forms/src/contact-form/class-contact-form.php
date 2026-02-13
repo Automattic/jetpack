@@ -1979,60 +1979,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
-		$compiled_form    = array();
-		$field_collection = array();
-		$response         = Feedback::get( $feedback_id );
-
-		if ( $response instanceof Feedback ) {
-			// Get both formats: 'all' for backward-compat filter, 'collection' for type-aware rendering.
-			$compiled_form    = $response->get_compiled_fields( 'email', 'all' );
-			$field_collection = $response->get_compiled_fields( 'email_html', 'collection' );
-		}
-
-		/**
-		 * This filter allows a site owner to customize the response to be emailed, by adding their own HTML around it for example.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 0.18.0
-		 *
-		 * @param array $compiled_form the form response to be filtered
-		 * @param int $feedback_id the ID of the feedback form
-		 * @param Contact_Form $form a copy of this object
-		 */
-		$updated_compiled_form = apply_filters( 'jetpack_forms_response_email', $compiled_form, $feedback_id, $form );
-		if ( $updated_compiled_form !== $compiled_form ) {
-			// Filter was customized — use old rendering path for backward compat.
-			$compiled_form = $updated_compiled_form;
-			foreach ( $compiled_form as $key => $value ) {
-				if ( ! is_array( $value ) || ! isset( $value['label'] ) ) {
-					continue;
-				}
-				$safe_display_label = self::escape_and_sanitize_field_label( $value['label'] );
-				$safe_display_value = self::escape_and_sanitize_field_value( $value['value'] );
-
-				if ( ! empty( $safe_display_label ) ) {
-					$compiled_form[ $key ] = sprintf(
-						'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
-						Util::maybe_add_colon_to_label( $safe_display_label ),
-						$safe_display_value
-					);
-				} else {
-					$compiled_form[ $key ] = sprintf(
-						'<p><span>%s</span></p>',
-						$safe_display_value
-					);
-				}
-			}
-		} else {
-			// No filter customization — use new type-aware rendering.
-			$compiled_form = array();
-			foreach ( $field_collection as $field_data ) {
-				$compiled_form[] = self::format_field_for_email( $field_data );
-			}
-		}
-
-		return $compiled_form;
+		return Feedback_Email_Renderer::get_compiled_form_for_email( $feedback_id, $form );
 	}
 
 	/**
@@ -3195,15 +3142,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return bool Whether the email contents were sent successfully.
 	 */
 	public static function wp_mail( $to, $subject, $message, $headers = '', $attachments = array() ) {
-		add_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
-		add_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
-
-		$result = wp_mail( $to, $subject, $message, $headers, $attachments );
-
-		remove_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
-		remove_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
-
-		return $result;
+		return Feedback_Email_Renderer::wp_mail( $to, $subject, $message, $headers, $attachments );
 	}
 
 	/**
@@ -3239,7 +3178,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string
 	 */
 	public static function get_mail_content_type() {
-		return 'text/html';
+		return Feedback_Email_Renderer::get_mail_content_type();
 	}
 
 	/**
@@ -3257,226 +3196,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string
 	 */
 	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '', $respondent_info = array(), $metadata = array() ) {
-		// Don't do anything if the message was already wrapped in HTML tags
-		// That could have be done by a plugin via filters
-		if ( str_contains( $body, '<html' ) ) {
-			return $body;
-		}
-
-		$template = '';
-		$style    = '';
-
-		// The hash is just used to anonymize the admin email and have a unique identifier for the event.
-		// The secret key used could have been a random string, but it's better to use the version number to make it easier to track.
-		$event = new Jetpack_Tracks_Event(
-			(object) array(
-				'_en' => 'jetpack_forms_email_open',
-				'_ui' => hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION ),
-				'_ut' => 'anon',
-			)
-		);
-
-		$tracking_pixel = '<img src="' . $event->build_pixel_url() . '" alt="" width="1" height="1" />';
-
-		/**
-		 * Filter the filename of the template HTML surrounding the response email. The PHP file will return the template in a variable called $template.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 0.18.0
-		 *
-		 * @param string the filename of the HTML template used for response emails to the form owner.
-		 */
-		require apply_filters( 'jetpack_forms_response_email_template', __DIR__ . '/templates/email-response.php' );
-
-		/**
-		 * Filter the HTML for the powered by section in the email.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 7.2.0
-		 *
-		 * @param string $powered_by_html The HTML for the powered by section in the email.
-		 */
-		$logo_url        = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/jetpack-logo@2x.png';
-		$powered_by_html = apply_filters(
-			'jetpack_forms_email_powered_by_html',
-			str_replace(
-				"\t",
-				'',
-				'
-				<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="powered-by-table" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-top: 24px;">
-					<tr>
-						<td align="center" class="powered-by" style="padding: 24px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<img src="' . esc_url( $logo_url ) . '" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none;">
-							<span style="font-size: 13px; color: #50575e; line-height: 20px;">' .
-					sprintf(
-						// translators: %1$s is a link to the Jetpack Forms page.
-						__( 'Powered by %1$s', 'jetpack-forms' ),
-						'<a href="https://jetpack.com/forms/?utm_source=jetpack-forms&utm_medium=email&utm_campaign=form-submissions" style="color: #50575e; text-decoration: none;">Jetpack Forms</a>'
-					) . '</span>
-						</td>
-					</tr>
-				</table>'
-			)
-		);
-
-		$respondent_html = self::generate_respondent_info_html( $respondent_info );
-		$metadata_html   = self::generate_metadata_html( $metadata );
-
-		$html_message = sprintf(
-			// The tabs are just here so that the raw code is correctly formatted for developers
-			// They're removed so that they don't affect the final message sent to users
-			str_replace(
-				"\t",
-				'',
-				$template
-			),
-			esc_html( $title ),
-			$body,
-			'',
-			'',
-			$footer,
-			$style,
-			$tracking_pixel,
-			$actions,
-			$powered_by_html,
-			$respondent_html,
-			$metadata_html
-		);
-
-		return $html_message;
-	}
-
-	/**
-	 * Generate HTML for respondent info section in email.
-	 *
-	 * @param array $respondent_info Array with 'name', 'email', 'avatar' keys.
-	 * @return string HTML for respondent info section.
-	 */
-	private static function generate_respondent_info_html( $respondent_info ) {
-		if ( empty( $respondent_info ) ) {
-			return '';
-		}
-
-		$name   = isset( $respondent_info['name'] ) ? esc_html( $respondent_info['name'] ) : '';
-		$email  = isset( $respondent_info['email'] ) ? esc_html( $respondent_info['email'] ) : '';
-		$avatar = isset( $respondent_info['avatar'] ) ? esc_url( $respondent_info['avatar'] ) : '';
-
-		// Don't show section if there's no name or email.
-		if ( empty( $name ) && empty( $email ) ) {
-			return '';
-		}
-
-		// Get initials for avatar fallback.
-		$initials = '';
-		if ( ! empty( $name ) ) {
-			$name_parts = explode( ' ', $name );
-			$initials   = strtoupper( substr( $name_parts[0], 0, 1 ) );
-			if ( count( $name_parts ) > 1 ) {
-				$initials .= strtoupper( substr( end( $name_parts ), 0, 1 ) );
-			}
-		} elseif ( ! empty( $email ) ) {
-			$initials = strtoupper( substr( $email, 0, 1 ) );
-		}
-
-		// Avatar content - either image or initials.
-		$avatar_content = ! empty( $avatar )
-			? '<img src="' . $avatar . '" alt="" width="48" height="48" style="border-radius: 24px;">'
-			: esc_html( $initials );
-
-		$html = '
-		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="respondent-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 16px;">
-			<tr>
-				<td class="respondent-avatar-cell" style="width: 64px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-					<!--[if mso]>
-					<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="48" height="48" style="width: 48px; height: 48px;">
-					<tr>
-					<td align="center" valign="middle" style="width: 48px; height: 48px; background-color: #f0f0f0; border-radius: 24px; font-size: 18px; font-weight: 600; color: #50575e;">
-					<![endif]-->
-					<div class="respondent-avatar-wrapper" style="width: 48px; height: 48px; border-radius: 24px; background-color: #f0f0f0; text-align: center; line-height: 48px; font-size: 18px; font-weight: 600; color: #50575e;">
-						' . $avatar_content . '
-					</div>
-					<!--[if mso]>
-					</td>
-					</tr>
-					</table>
-					<![endif]-->
-				</td>
-				<td class="respondent-details-cell" style="vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-					' . ( ! empty( $name ) ? '<div class="respondent-name" style="font-size: 16px; font-weight: 500; color: #1e1e1e; margin: 0 0 2px 0; line-height: 1.4;">' . $name . '</div>' : '' ) . '
-					' . ( ! empty( $email ) ? '<div class="respondent-email" style="font-size: 14px; margin: 0; line-height: 1.4;"><a href="mailto:' . $email . '" style="color: ' . Feedback_Field::HEADER_LINK_COLOR . '; text-decoration: underline;">' . $email . '</a></div>' : '' ) . '
-				</td>
-			</tr>
-		</table>';
-
-		return str_replace( "\t", '', $html );
-	}
-
-	/**
-	 * Generate HTML for metadata section in email.
-	 *
-	 * @param array $metadata Array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag' keys.
-	 * @return string HTML for metadata section.
-	 */
-	private static function generate_metadata_html( $metadata ) {
-		if ( empty( $metadata ) ) {
-			return '';
-		}
-
-		$rows = array();
-
-		if ( ! empty( $metadata['date'] ) ) {
-			$rows[] = self::generate_metadata_row( __( 'Date', 'jetpack-forms' ), esc_html( $metadata['date'] ) );
-		}
-
-		if ( ! empty( $metadata['source'] ) ) {
-			$source_value = esc_html( $metadata['source'] );
-			if ( ! empty( $metadata['source_url'] ) ) {
-				$source_value = '<a href="' . esc_url( $metadata['source_url'] ) . '" style="color: ' . Feedback_Field::get_admin_theme_color() . '; text-decoration: underline;">' . $source_value . '</a>';
-			}
-			$rows[] = self::generate_metadata_row( __( 'Source', 'jetpack-forms' ), $source_value );
-		}
-
-		if ( ! empty( $metadata['device'] ) ) {
-			$rows[] = self::generate_metadata_row( __( 'Device', 'jetpack-forms' ), esc_html( $metadata['device'] ) );
-		}
-
-		if ( ! empty( $metadata['ip'] ) ) {
-			$ip_value = '';
-			if ( ! empty( $metadata['ip_flag'] ) ) {
-				$ip_value .= $metadata['ip_flag'] . ' ';
-			}
-			$ip_value .= esc_html( $metadata['ip'] );
-			$rows[]    = self::generate_metadata_row( __( 'IP address', 'jetpack-forms' ), $ip_value );
-		}
-
-		if ( empty( $rows ) ) {
-			return '';
-		}
-
-		$html = '
-		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="metadata-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; margin-bottom: 24px;">
-			' . implode( '', $rows ) . '
-			<tr><td colspan="2" style="padding: 24px 0 0 0; border-bottom: 1px solid #E4E4E7; font-size: 0; line-height: 0;">&nbsp;</td></tr>
-		</table>';
-
-		return str_replace( "\t", '', $html );
-	}
-
-	/**
-	 * Generate a single metadata row.
-	 *
-	 * @param string $label The label text.
-	 * @param string $value The value (can contain HTML).
-	 * @return string HTML for the row.
-	 */
-	private static function generate_metadata_row( $label, $value ) {
-		return '
-			<tr>
-				<td class="metadata-label" style="color: #636363; width: 110px; padding: 4px 12px 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . esc_html( $label ) . ':</td>
-				<td class="metadata-value" style="color: #1e1e1e; padding: 4px 0; font-size: 13px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . $value . '</td>
-			</tr>';
+		return Feedback_Email_Renderer::wrap_message_in_html_tags( $title, $body, $footer, $actions, $respondent_info, $metadata );
 	}
 
 	/**
@@ -3488,23 +3208,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param PHPMailer $phpmailer - the phpmailer.
 	 */
 	public static function add_plain_text_alternative( $phpmailer ) {
-		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-
-		// Add an extra break so that the extra space above the <p> is preserved after the <p> is stripped out
-		$alt_body = str_replace( '<p>', '<p><br />', $phpmailer->Body );
-
-		// Convert <br> to \n breaks, to preserve the space between lines that we want to keep
-		$alt_body = str_replace( array( '<br>', '<br />' ), "\n", $alt_body );
-
-		// Convert <div> to \n breaks, to preserve space between lines for new email formatting.
-		$alt_body = str_replace( '<div', "\n<div", $alt_body );
-
-		// Convert <hr> to an plain-text equivalent, to preserve the integrity of the message
-		$alt_body = str_replace( array( '<hr>', '<hr />' ), "----\n", $alt_body );
-
-		// Trim the plain text message to remove the \n breaks that were after <doctype>, <html>, and <body>
-		$phpmailer->AltBody = trim( wp_strip_all_tags( $alt_body ) );
-		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		Feedback_Email_Renderer::add_plain_text_alternative( $phpmailer );
 	}
 
 	/**
