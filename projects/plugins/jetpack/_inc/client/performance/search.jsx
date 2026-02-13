@@ -1,4 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
@@ -58,7 +59,6 @@ function Search( props ) {
 	}, [ failedToEnableSearch, hasInstantSearch, updateOptions, toggleSearchModule ] );
 
 	const togglingModule = !! props.isSavingAnyOption( 'search' );
-	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	return (
 		<SettingsCard { ...props } module="search" feature={ FEATURE_SEARCH_JETPACK } hideButton>
 			<SettingsGroup
@@ -94,7 +94,6 @@ function Search( props ) {
 							<ToggleControl
 								checked={ isModuleEnabled && isInstantSearchEnabled }
 								disabled={ togglingModule || ! props.hasInstantSearch }
-								toggling={ togglingInstantSearch }
 								onChange={ toggleInstantSearch }
 								label={
 									<span className="jp-form-toggle-explanation">

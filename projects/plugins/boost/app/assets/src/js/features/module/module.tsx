@@ -1,4 +1,5 @@
-import { getRedirectUrl, Notice, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl, Notice } from '@automattic/jetpack-components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
@@ -7,7 +8,6 @@ import { __ } from '@wordpress/i18n';
 import { isWoaHosting } from '$lib/utils/hosting';
 import { useNotices } from '$features/notice/context';
 import { createInterpolateElement } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
 import Pill from '$features/ui/pill/pill';
 import type { ReactNode } from 'react';
 
@@ -106,7 +106,6 @@ const Module = ( {
 				{ toggle && (
 					<ToggleControl
 						className={ `jb-feature-toggle-${ slug }` }
-						size="small"
 						checked={ isModuleActive || isFakeActive }
 						disabled={ ! isModuleAvailable }
 						onChange={ handleToggle }

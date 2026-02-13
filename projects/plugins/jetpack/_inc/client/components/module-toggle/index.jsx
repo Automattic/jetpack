@@ -1,4 +1,5 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -97,7 +98,6 @@ class ModuleToggleComponent extends Component {
 		return (
 			<ToggleControl
 				checked={ this.props.activated }
-				toggling={ this.props.toggling }
 				className={ this.props.className }
 				disabled={ this.props.disabled || this.isDisabledByOverride() }
 				onChange={ this.toggleModule }

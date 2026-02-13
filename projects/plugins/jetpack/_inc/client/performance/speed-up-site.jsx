@@ -1,4 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -174,57 +175,6 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 				( foundPhoton || foundAssetCdn ) &&
 				( 'inactive' !== photonStatus || 'inactive' !== assetCdnStatus );
 
-			// Monitor any changes that should cause our main toggle to appear toggling.
-			let togglingSiteAccelerator;
-			// First Photon activating.
-			if ( ! this.props.getOptionValue( 'photon' ) && this.props.isSavingAnyOption( 'photon' ) ) {
-				if ( this.props.getOptionValue( 'photon-cdn' ) ) {
-					togglingSiteAccelerator = false;
-				} else {
-					togglingSiteAccelerator = true;
-				}
-				// Then Asset CDN activating.
-			} else if (
-				! this.props.getOptionValue( 'photon-cdn' ) &&
-				this.props.isSavingAnyOption( 'photon-cdn' )
-			) {
-				if ( this.props.getOptionValue( 'photon' ) ) {
-					togglingSiteAccelerator = false;
-				} else {
-					togglingSiteAccelerator = true;
-				}
-				// Then Photon deactivating.
-			} else if (
-				this.props.getOptionValue( 'photon' ) &&
-				this.props.isSavingAnyOption( 'photon' )
-			) {
-				if ( this.props.getOptionValue( 'photon-cdn' ) ) {
-					togglingSiteAccelerator = false;
-				} else {
-					togglingSiteAccelerator = true;
-				}
-
-				// Is the Asset CDN being disabled as well?
-				if (
-					this.props.getOptionValue( 'photon-cdn' ) &&
-					this.props.isSavingAnyOption( 'photon-cdn' )
-				) {
-					togglingSiteAccelerator = true;
-				}
-				// Then Asset CDN deactivating.
-			} else if (
-				this.props.getOptionValue( 'photon-cdn' ) &&
-				this.props.isSavingAnyOption( 'photon-cdn' )
-			) {
-				if ( this.props.getOptionValue( 'photon' ) ) {
-					togglingSiteAccelerator = false;
-				} else {
-					togglingSiteAccelerator = true;
-				}
-			} else {
-				togglingSiteAccelerator = false;
-			}
-
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -249,7 +199,6 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 								{ canAppearInSearch && (
 									<ToggleControl
 										checked={ siteAcceleratorStatus }
-										toggling={ togglingSiteAccelerator }
 										onChange={ this.handleSiteAcceleratorChange }
 										disabled={ ! canDisplaySiteAcceleratorSettings }
 										label={

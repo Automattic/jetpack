@@ -1,4 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 import { FormFieldset, FormLegend, FormLabel, FormSelect } from 'components/forms';
@@ -47,7 +48,6 @@ function WritingMedia( props ) {
 		<ToggleControl
 			checked={ checked }
 			disabled={ ! isCarouselActive || props.isSavingAnyOption( [ 'carousel' ] ) }
-			toggling={ props.isSavingAnyOption( [ optionName ] ) }
 			onChange={ onChangeHandler }
 			label={ label }
 		/>

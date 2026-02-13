@@ -1,4 +1,5 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -236,7 +237,6 @@ class SiteStatsComponent extends Component {
 									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'stats' ] )
 								}
-								toggling={ this.props.isSavingAnyOption( [ 'admin_bar' ] ) }
 								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
 								label={ __(
 									'Include a small chart in your admin bar with a 48-hour traffic snapshot',
@@ -254,7 +254,6 @@ class SiteStatsComponent extends Component {
 										unavailableInOfflineMode ||
 										this.props.isSavingAnyOption( [ 'stats' ] )
 									}
-									toggling={ this.props.isSavingAnyOption( [ `count_roles_${ key }` ] ) }
 									onChange={ this.handleRoleToggleChange( key, 'count_roles' ) }
 									key={ `count_roles-${ key }` }
 									label={ siteRoles[ key ].name }
@@ -277,7 +276,6 @@ class SiteStatsComponent extends Component {
 											unavailableInOfflineMode ||
 											this.props.isSavingAnyOption( [ 'stats' ] )
 										}
-										toggling={ this.props.isSavingAnyOption( [ `roles_${ key }` ] ) }
 										onChange={ this.handleRoleToggleChange( key, 'roles' ) }
 										key={ `roles-${ key }` }
 										label={ siteRoles[ key ].name }
@@ -290,7 +288,6 @@ class SiteStatsComponent extends Component {
 							<ToggleControl
 								checked={ this.state.wpcom_reader_views_enabled }
 								disabled={ ! isStatsActive || unavailableInOfflineMode }
-								toggling={ this.props.isSavingAnyOption( [ 'wpcom_reader_views_enabled' ] ) }
 								onChange={ this.handleOptionToggle( 'wpcom_reader_views_enabled' ) }
 								label={ __( 'Show post views for this site.', 'jetpack' ) }
 							/>

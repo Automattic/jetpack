@@ -1,5 +1,6 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 import Card from 'components/card';

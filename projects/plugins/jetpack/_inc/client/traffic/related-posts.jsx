@@ -1,4 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
@@ -142,7 +143,6 @@ class RelatedPostsComponent extends Component {
 								unavailableInOfflineMode ||
 								this.props.isSavingAnyOption( [ 'related-posts' ] )
 							}
-							toggling={ this.props.isSavingAnyOption( [ 'show_headline' ] ) }
 							onChange={ this.handleShowHeadlineToggleChange }
 							label={
 								<span className="jp-form-toggle-explanation">
@@ -157,7 +157,6 @@ class RelatedPostsComponent extends Component {
 								unavailableInOfflineMode ||
 								this.props.isSavingAnyOption( [ 'related-posts' ] )
 							}
-							toggling={ this.props.isSavingAnyOption( [ 'show_thumbnails' ] ) }
 							onChange={ this.handleShowThumbnailsToggleChange }
 							label={
 								<span className="jp-form-toggle-explanation">

@@ -1,4 +1,4 @@
-import { ToggleControl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -145,10 +145,6 @@ const AllowList = class extends Component {
 						<div className="waf__settings__toggle-setting">
 							<ToggleControl
 								checked={ this.props.settings?.ipAllowListEnabled }
-								toggling={
-									this.props.isUpdatingWafSettings &&
-									this.state.ipAllowListEnabled !== this.props.settings?.ipAllowListEnabled
-								}
 								disabled={ baseInputDisabledCase }
 								onChange={ this.toggleIpAllowList }
 								label={

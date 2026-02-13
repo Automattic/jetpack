@@ -1,5 +1,5 @@
-import { getRedirectUrl, ToggleControl, Status } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl, Status } from '@automattic/jetpack-components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Component } from 'react';
@@ -222,10 +222,6 @@ export const Waf = class extends Component {
 							? this.props.settings?.automaticRulesEnabled
 							: false
 					}
-					toggling={
-						this.props.isUpdatingWafSettings &&
-						this.state.automaticRulesEnabled !== this.props.settings?.automaticRulesEnabled
-					}
 					disabled={
 						baseInputDisabledCase ||
 						( ! this.props.hasScan && ! this.props.settings?.automaticRulesAvailable )
@@ -248,10 +244,6 @@ export const Waf = class extends Component {
 				<ToggleControl
 					checked={ this.props.settings?.shareData }
 					disabled={ baseInputDisabledCase }
-					toggling={
-						this.props.isUpdatingWafSettings &&
-						this.state.shareData !== this.props.settings?.shareData
-					}
 					onChange={ this.toggleShareData }
 					label={
 						<div className="waf__settings__toggle-setting__label">
@@ -289,10 +281,6 @@ export const Waf = class extends Component {
 				<ToggleControl
 					checked={ this.props.settings?.shareDebugData }
 					disabled={ baseInputDisabledCase }
-					toggling={
-						this.props.isUpdatingWafSettings &&
-						this.state.shareDebugData !== this.props.settings?.shareDebugData
-					}
 					onChange={ this.toggleShareDebugData }
 					label={
 						<div className="waf__settings__toggle-setting__label">
@@ -407,10 +395,6 @@ export const Waf = class extends Component {
 			<div className="waf__settings__toggle-setting">
 				<ToggleControl
 					checked={ this.props.settings?.ipBlockListEnabled }
-					toggling={
-						this.props.isUpdatingWafSettings &&
-						this.state.ipBlockListEnabled !== this.props.settings?.ipBlockListEnabled
-					}
 					disabled={ baseInputDisabledCase }
 					onChange={ this.toggleIpBlockList }
 					label={

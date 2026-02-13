@@ -1,4 +1,4 @@
-import { ToggleControl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';

@@ -1,4 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
@@ -145,7 +146,6 @@ export class CustomContentTypes extends Component {
 									: false
 							}
 							disabled={ disabledByOverride || woa_theme_supports_jetpack_testimonial }
-							toggling={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
 							onChange={ this.handleTestimonialToggleChange }
 							disabledReason={ testimonialDisabledReason }
 							label={
@@ -185,7 +185,6 @@ export class CustomContentTypes extends Component {
 									: false
 							}
 							disabled={ disabledByOverride || woa_theme_supports_jetpack_portfolio }
-							toggling={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
 							onChange={ this.handlePortfolioToggleChange }
 							disabledReason={ portfolioDisabledReason }
 							label={
