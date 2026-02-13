@@ -300,14 +300,14 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.field-label {
-		font-size: 12px;
+		font-size: 15px;
 		color: ' . $text_secondary_color . ';
 		margin: 0 0 4px 0;
 		text-transform: none;
 	}
 
 	.field-value {
-		font-size: 13px;
+		font-size: 16px;
 		color: ' . $text_color . ';
 		margin: 0;
 		word-wrap: break-word;
@@ -331,7 +331,7 @@ $style = '<style media="all" type="text/css">
 		background-color: #f0f0f0;
 		border-radius: 2px;
 		padding: 0 8px;
-		font-size: 13px;
+		font-size: 16px;
 		color: ' . $text_color . ';
 	}
 
@@ -399,7 +399,7 @@ $style = '<style media="all" type="text/css">
 		color: #155724;
 		border-radius: 2px;
 		padding: 0 8px;
-		font-size: 13px;
+		font-size: 16px;
 	}
 
 	.consent-chip.no {

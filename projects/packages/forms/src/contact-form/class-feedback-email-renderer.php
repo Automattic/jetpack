@@ -367,13 +367,13 @@ class Feedback_Email_Renderer {
 		$html .= '<td valign="top" style="padding: 20px 0;">';
 		if ( ! empty( $safe_label ) ) {
 			$html .= sprintf(
-				'<div style="font-size: 13px; color: %s; line-height: 1.4; margin-bottom: 8px;">%s</div>',
+				'<div style="font-size: 15px; color: %s; line-height: 1.4; margin-bottom: 8px;">%s</div>',
 				self::TEXT_SECONDARY_COLOR,
 				esc_html( $safe_label )
 			);
 		}
 		$html .= sprintf(
-			'<div style="font-size: 13px; color: %s; line-height: 1.5;">%s</div>',
+			'<div style="font-size: 16px; color: %s; line-height: 1.5;">%s</div>',
 			self::TEXT_COLOR,
 			$rendered_value
 		);

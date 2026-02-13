@@ -483,7 +483,7 @@ class Feedback_Field {
 				continue;
 			}
 			$chips[] = sprintf(
-				'<div style="display: inline-block; height: 24px; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: 13px; line-height: 24px; color: %s;">%s</div>',
+				'<div style="display: inline-block; height: 24px; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: 16px; line-height: 24px; color: %s;">%s</div>',
 				Feedback_Email_Renderer::TEXT_COLOR,
 				$safe_item
 			);
@@ -506,7 +506,7 @@ class Feedback_Field {
 		$label  = $is_yes ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
 
 		return sprintf(
-			'<span style="display: inline-block; padding: 0 8px; border-radius: 2px; font-size: 13px; line-height: 1.4; background-color: #f0f0f0; color: %s;">%s</span>',
+			'<span style="display: inline-block; padding: 0 8px; border-radius: 2px; font-size: 16px; line-height: 1.4; background-color: #f0f0f0; color: %s;">%s</span>',
 			Feedback_Email_Renderer::TEXT_COLOR,
 			esc_html( $label )
 		);
