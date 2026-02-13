@@ -62,44 +62,13 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	// Cache expensive color computations that only change when theme colors change
 	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
 	// in <style> tags are applied to the DOM before we try to resolve them
-	const [ colorCache, setColorCache ] = useState< ColorCache >( () => {
-		// Pre-compute cache for non-CSS-variable colors to prevent initial color flicker
-		// CSS variables will be resolved in useLayoutEffect after DOM is ready
-		const { colors } = providerTheme;
-		const resolvedColors: string[] = [];
-		const hues: number[] = [];
-		const existingHslColors: Array< [ number, number, number ] > = [];
-		let minHue = 360;
-		let maxHue = 0;
-
-		if ( Array.isArray( colors ) ) {
-			for ( const color of colors ) {
-				if ( color && typeof color === 'string' && color.startsWith( '#' ) ) {
-					resolvedColors.push( color );
-					const hslColor = d3Hsl( color );
-					if ( ! isNaN( hslColor.h ) ) {
-						const hslTuple: [ number, number, number ] = [
-							hslColor.h,
-							hslColor.s * 100,
-							hslColor.l * 100,
-						];
-						hues.push( hslTuple[ 0 ] );
-						existingHslColors.push( hslTuple );
-						minHue = Math.min( minHue, hslTuple[ 0 ] );
-						maxHue = Math.max( maxHue, hslTuple[ 0 ] );
-					}
-				}
-			}
-		}
-
-		return {
-			colors: resolvedColors,
-			hues,
-			existingHslColors,
-			minHue,
-			maxHue,
-		};
-	} );
+	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
+		colors: [],
+		hues: [],
+		existingHslColors: [],
+		minHue: 360,
+		maxHue: 0,
+	} ) );
 
 	// Compute color cache after DOM is updated (so CSS variables are available)
 	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
@@ -206,6 +175,18 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				return normalizeColorToHex( overrideColor, wrapperRef.current, resolveCssVariable );
 			}
 
+			// Fallback for first render: if colorCache is not yet populated by useLayoutEffect,
+			// use raw theme hex colors directly to prevent color flicker
+			const getRawThemeColor = ( colorIndex: number ): string | null => {
+				if ( colorCache.colors.length === 0 ) {
+					const themeColor = providerTheme.colors?.[ colorIndex ];
+					if ( themeColor && typeof themeColor === 'string' && themeColor.startsWith( '#' ) ) {
+						return themeColor;
+					}
+				}
+				return null;
+			};
+
 			// If group provided, maintain a stable assignment
 			if ( group ) {
 				const existing = groupToColorMap.get( group );
@@ -217,15 +198,16 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				// Use map size as index to assign colors sequentially (0, 1, 2...)
 				// ensuring each new group gets the next available palette color
 				const assignedCount = groupToColorMap.size;
-				const color = getChartColor( assignedCount, colorCache );
+				const color =
+					getRawThemeColor( assignedCount ) ?? getChartColor( assignedCount, colorCache );
 				groupToColorMap.set( group, color );
 
 				return color;
 			}
 
-			return getChartColor( index, colorCache );
+			return getRawThemeColor( index ) ?? getChartColor( index, colorCache );
 		},
-		[ colorCache, groupToColorMap ]
+		[ colorCache, groupToColorMap, providerTheme.colors ]
 	);
 
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
