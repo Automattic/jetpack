@@ -104,9 +104,6 @@ const addBlockSupportLinks = (
 
 			if ( isBlockLink( variationInfo ) ) {
 				// "Flat" entry: same link for all variations
-				if ( ! variation.description ) {
-					return variation;
-				}
 				link = variationInfo.link;
 				postId = variationInfo.postId;
 			} else {
@@ -121,6 +118,10 @@ const addBlockSupportLinks = (
 				} else if ( ! link ) {
 					return variation;
 				}
+			}
+
+			if ( ! variation.description ) {
+				return variation;
 			}
 
 			variation.description = createLocalizedDescriptionWithLearnMore(
