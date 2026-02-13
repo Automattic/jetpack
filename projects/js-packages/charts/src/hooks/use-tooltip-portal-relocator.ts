@@ -55,16 +55,19 @@ export function useTooltipPortalRelocator(
 			if ( ! isVisxPortalNode( node ) ) {
 				return;
 			}
+
 			// Position the portal at the viewport origin so visx's
 			// absolute-positioned tooltip coordinates remain correct.
-			node.style.position = 'fixed';
-			node.style.top = '0';
-			node.style.left = '0';
-			node.style.width = '0';
-			node.style.height = '0';
-			node.style.overflow = 'visible';
-			node.style.zIndex = '1';
-			node.style.pointerEvents = 'none';
+			Object.assign( node.style, {
+				position: 'fixed',
+				top: '0',
+				left: '0',
+				width: '0',
+				height: '0',
+				overflow: 'visible',
+				zIndex: '1',
+				pointerEvents: 'none',
+			} );
 
 			// Insert at the start of the container (before header and content).
 			container.insertBefore( node, container.firstChild );
