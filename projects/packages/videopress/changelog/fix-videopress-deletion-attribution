@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove explicit wpcom API call for VideoPress video deletion, fixing Activity Log attribution. Cleanup is now handled via Jetpack Sync.

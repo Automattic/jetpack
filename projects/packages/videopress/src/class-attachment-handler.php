@@ -7,9 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan;
-use WP_Error;
 use WP_Post;
 
 /**
@@ -35,7 +33,7 @@ class Attachment_Handler {
 			add_filter( 'upload_mimes', array( __CLASS__, 'add_video_upload_mimes' ), 999 );
 		}
 
-		add_filter( 'pre_delete_attachment', array( __CLASS__, 'delete_video_wpcom' ), 10, 2 );
+		add_action( 'delete_attachment', array( __CLASS__, 'delete_video_poster_attachment' ) );
 		add_filter( 'wp_mime_type_icon', array( __CLASS__, 'wp_mime_type_icon' ), 10, 3 );
 		add_filter( 'wp_video_extensions', array( __CLASS__, 'add_videopress_extenstion' ) );
 
@@ -65,7 +63,7 @@ class Attachment_Handler {
 	}
 
 	/**
-	 * Makes sure that all video mimes are added in, as multi site installs can remove them.
+	 * Makes sure that all video mimes are added in, as multisite installs can remove them.
 	 *
 	 * @param array $existing_mimes Mime types to extend/filter.
 	 * @return array
@@ -85,7 +83,7 @@ class Attachment_Handler {
 	}
 
 	/**
-	 * Filter designed to get rid of non video mime types.
+	 * Filter designed to get rid of non-video mime types.
 	 *
 	 * @param string $value Mime type to filter.
 	 * @return int
@@ -95,57 +93,37 @@ class Attachment_Handler {
 	}
 
 	/**
-	 * Attempts to delete a VideoPress video from wp.com.
-	 * Will block the deletion from continuing if certain errors return from the wp.com API.
+	 * Previously deleted a VideoPress video from wp.com via API call.
+	 *
+	 * @deprecated $$next-version$$ Video file cleanup is now handled via Jetpack Sync on wpcom.
 	 *
 	 * @param Boolean $delete if the deletion should occur or not (unused).
 	 * @param WP_Post $post the post object.
 	 *
-	 * @return null|WP_Error|Boolean null if deletion should continue.
+	 * @return null null to allow the deletion to continue.
 	 */
 	public static function delete_video_wpcom( $delete, $post ) {
-		if ( ! is_videopress_attachment( $post->ID ) ) {
-			return null;
-		}
+		_deprecated_function( __METHOD__, 'jetpack-videopress-$$next-version$$' );
 
-		$guid = get_post_meta( $post->ID, 'videopress_guid', true );
-		if ( empty( $guid ) ) {
-			self::delete_video_poster_attachment( $post->ID );
-			return null;
-		}
+		self::delete_video_poster_attachment( $post->ID );
 
-		// Phone home and have wp.com delete the VideoPress entry and files.
-		$wpcom_response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/videos/%s/delete', $guid ),
-			'1.1',
-			array( 'method' => 'POST' )
-		);
-
-		if ( is_wp_error( $wpcom_response ) ) {
-			return $wpcom_response;
-		}
-
-		// Upon success or a 404 (video already deleted on wp.com), return null to allow the deletion to continue.
-		if ( 200 === $wpcom_response['response']['code'] || 404 === $wpcom_response['response']['code'] ) {
-			self::delete_video_poster_attachment( $post->ID );
-			return null;
-		}
-
-		// Otherwise we stop the deletion from proceeding.
-		return false;
+		return null;
 	}
 
 	/**
-	 * Deletes a video poster attachment if it exists.
+	 * Deletes the video poster attachment for a VideoPress video if it exists.
 	 *
-	 * @param int $attachment_id the WP attachment id.
+	 * @param int $attachment_id The WP attachment ID.
 	 */
-	private static function delete_video_poster_attachment( $attachment_id ) {
+	public static function delete_video_poster_attachment( $attachment_id ) {
+		if ( ! is_videopress_attachment( $attachment_id ) ) {
+			return;
+		}
+
 		$thumbnail_id = get_post_meta( $attachment_id, '_thumbnail_id', true );
 		if ( ! empty( $thumbnail_id ) ) {
 			// Let's ensure this is a VP poster image before we delete it.
 			if ( '1' === get_post_meta( $thumbnail_id, 'videopress_poster_image', true ) ) {
-				// This call triggers the `delete_video_wpcom` filter again but it bails early at the is_videopress_attachment() check.
 				wp_delete_attachment( $thumbnail_id );
 			}
 		}
@@ -232,7 +210,7 @@ class Attachment_Handler {
 	 * Media List:
 	 * Do the same as `videopress_ajax_query_attachments_args()` but for the list view.
 	 *
-	 * @param array $query WP_Query instance.
+	 * @param \WP_Query $query WP_Query instance.
 	 */
 	public static function media_list_table_query( $query ) {
 

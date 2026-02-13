@@ -148,19 +148,19 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * Attempts to delete a VideoPress video from wp.com.
-	 * Will block the deletion from continuing if certain errors return from the wp.com API.
+	 * Previously deleted a VideoPress video from wp.com via API call.
+	 *
+	 * @deprecated 11.3
 	 *
 	 * @param Boolean $delete if the deletion should occur or not (unused).
 	 * @param WP_Post $post the post object.
 	 *
-	 * @deprecated 11.3
-	 *
-	 * @return null|WP_Error|Boolean null if deletion should continue.
+	 * @return null null to allow the deletion to continue.
 	 */
 	public function delete_video_wpcom( $delete, $post ) {
-		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::delete_video_wpcom' );
-		return Attachment_Handler::delete_video_wpcom( $delete, $post );
+		_deprecated_function( __METHOD__, 'jetpack-11.3' );
+		Attachment_Handler::delete_video_poster_attachment( $post->ID );
+		return null;
 	}
 
 	/**

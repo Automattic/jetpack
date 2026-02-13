@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Updated deprecated VideoPress shim to avoid calling another deprecated method.
+
+

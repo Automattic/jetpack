@@ -116,7 +116,7 @@ function videopress_ajax_query_attachments_args( $args ) {
  * Media List:
  * Do the same as `videopress_ajax_query_attachments_args()` but for the list view.
  *
- * @param array $query WP_Query instance.
+ * @param \WP_Query $query WP_Query instance.
  * @deprecated 11.4
  */
 function videopress_media_list_table_query( $query ) {
