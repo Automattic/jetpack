@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Git hooks: Resolve hooks directory correctly in Git worktrees.
