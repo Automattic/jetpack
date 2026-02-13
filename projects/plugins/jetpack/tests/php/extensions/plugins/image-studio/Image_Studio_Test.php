@@ -852,10 +852,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test AI image extensions are disabled when Image Studio is enabled.
+	 * Test AI image extensions are disabled when Image Studio is available.
 	 */
-	public function test_ai_extensions_disabled_when_enabled() {
+	public function test_ai_extensions_disabled_when_available() {
 		$this->enable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 		$this->set_block_editor_screen();
 
@@ -864,7 +865,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should be unavailable when Image Studio is enabled."
+				"Extension $ext should be unavailable when Image Studio is available."
 			);
 		}
 	}
@@ -874,6 +875,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_when_unified_experience() {
 		$this->enable_unified_experience();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 		$this->set_block_editor_screen();
 
@@ -888,10 +890,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test AI image extensions are NOT disabled when Image Studio is disabled.
+	 * Test AI image extensions are NOT disabled when Image Studio is not available.
 	 */
-	public function test_ai_extensions_not_disabled_when_disabled() {
+	public function test_ai_extensions_not_disabled_when_not_available() {
 		$this->disable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
 		ImageStudio\disable_jetpack_ai_image_extensions();
@@ -945,40 +948,45 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test AI extensions are NOT disabled on non-editor, non-media screen.
+	 * Test AI extensions ARE disabled on dashboard when Image Studio is available.
+	 *
+	 * Since the screen guard was removed, AI extensions are disabled globally
+	 * when Image Studio is available, regardless of screen.
 	 */
-	public function test_ai_extensions_not_disabled_on_dashboard() {
+	public function test_ai_extensions_disabled_on_dashboard() {
 		$this->enable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
 		set_current_screen( 'dashboard' );
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
 		foreach ( self::get_ai_image_extensions() as $ext ) {
-			$this->assertTrue(
+			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should stay available on dashboard."
+				"Extension $ext should be disabled on dashboard when Image Studio is available."
 			);
 		}
 	}
 
 	/**
-	 * Test AI extensions remain available when no screen is available.
+	 * Test AI extensions ARE disabled when no screen is available.
 	 *
-	 * When get_current_screen() is not available (early in module load),
-	 * Image Studio won't load either, so AI extensions remain available.
+	 * Since the screen guard was removed, AI extensions are disabled globally
+	 * when Image Studio is available, regardless of screen availability.
 	 */
-	public function test_ai_extensions_not_disabled_when_no_screen() {
+	public function test_ai_extensions_disabled_when_no_screen() {
 		$this->enable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
 		$GLOBALS['current_screen'] = null;
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
 		foreach ( self::get_ai_image_extensions() as $ext ) {
-			$this->assertTrue(
+			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should remain available when no screen is available (Image Studio won't load)."
+				"Extension $ext should be disabled when no screen is available."
 			);
 		}
 	}
@@ -1408,6 +1416,132 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		$script = $GLOBALS['wp_scripts']->registered['image-studio-translations'];
 		$this->assertStringContainsString( 'languages/pt-br-v1.js', $script->src );
+	}
+
+	// -------------------------------------------------------------------------
+	// add_image_studio_row_action() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Create a mock attachment post with a given MIME type.
+	 *
+	 * @param string $mime_type The MIME type for the attachment.
+	 * @return \WP_Post
+	 */
+	private function create_attachment_post( $mime_type = 'image/jpeg' ) {
+		$attachment_id = self::factory()->attachment->create(
+			array(
+				'post_mime_type' => $mime_type,
+				'post_type'      => 'attachment',
+			)
+		);
+		return get_post( $attachment_id );
+	}
+
+	/**
+	 * Test row action is added for supported JPEG image.
+	 */
+	public function test_row_action_added_for_jpeg() {
+		$post    = $this->create_attachment_post( 'image/jpeg' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+		$this->assertStringContainsString( 'Edit with AI', $actions['edit-with-ai'] );
+		$this->assertStringContainsString( 'big-sky-image-studio-link', $actions['edit-with-ai'] );
+		$this->assertStringContainsString( 'data-attachment-id="' . $post->ID . '"', $actions['edit-with-ai'] );
+	}
+
+	/**
+	 * Test row action is added for supported PNG image.
+	 */
+	public function test_row_action_added_for_png() {
+		$post    = $this->create_attachment_post( 'image/png' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is added for supported WebP image.
+	 */
+	public function test_row_action_added_for_webp() {
+		$post    = $this->create_attachment_post( 'image/webp' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is NOT added for unsupported MIME type (PDF).
+	 */
+	public function test_row_action_not_added_for_pdf() {
+		$post    = $this->create_attachment_post( 'application/pdf' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is NOT added for unsupported MIME type (video).
+	 */
+	public function test_row_action_not_added_for_video() {
+		$post    = $this->create_attachment_post( 'video/mp4' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is inserted before the 'edit' action.
+	 */
+	public function test_row_action_inserted_before_edit() {
+		$post    = $this->create_attachment_post( 'image/jpeg' );
+		$actions = ImageStudio\add_image_studio_row_action(
+			array(
+				'trash' => '<a>Trash</a>',
+				'edit'  => '<a>Edit</a>',
+				'view'  => '<a>View</a>',
+			),
+			$post
+		);
+
+		$keys = array_keys( $actions );
+		$this->assertSame( array( 'trash', 'edit-with-ai', 'edit', 'view' ), $keys );
+	}
+
+	/**
+	 * Test row action is appended when 'edit' action is not present.
+	 */
+	public function test_row_action_appended_when_no_edit_action() {
+		$post    = $this->create_attachment_post( 'image/jpeg' );
+		$actions = ImageStudio\add_image_studio_row_action(
+			array(
+				'trash' => '<a>Trash</a>',
+				'view'  => '<a>View</a>',
+			),
+			$post
+		);
+
+		$keys = array_keys( $actions );
+		$this->assertSame( array( 'trash', 'view', 'edit-with-ai' ), $keys );
+	}
+
+	/**
+	 * Test row action preserves all existing actions.
+	 */
+	public function test_row_action_preserves_existing_actions() {
+		$post    = $this->create_attachment_post( 'image/jpeg' );
+		$actions = ImageStudio\add_image_studio_row_action(
+			array(
+				'edit'  => '<a>Edit</a>',
+				'trash' => '<a>Trash</a>',
+			),
+			$post
+		);
+
+		$this->assertArrayHasKey( 'edit', $actions );
+		$this->assertArrayHasKey( 'trash', $actions );
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
 	}
 
 	// -------------------------------------------------------------------------
