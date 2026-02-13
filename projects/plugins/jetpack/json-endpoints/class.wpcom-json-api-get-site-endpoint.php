@@ -137,6 +137,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_flex',
 		'is_a4a_client',
 		'is_a4a_dev_site',
+		'is_garden',
 	);
 
 	/**
