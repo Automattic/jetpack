@@ -1,5 +1,5 @@
 import { render, act } from '@testing-library/react';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
@@ -229,16 +229,16 @@ describe( 'ChartContext', () => {
 			// This test verifies the fix for the color flicker issue where hex colors
 			// were not immediately available on the first render, causing a fallback
 			// color to be shown briefly before the correct palette color appeared.
-			let firstRenderColor: string | undefined;
-			let renderCount = 0;
+			let capturedColor: string | undefined;
 
 			const TestComponent = () => {
 				const context = useGlobalChartsContext();
-				renderCount++;
+				const hasCaptured = useRef( false );
 
-				// Capture the color on the very first render
-				if ( renderCount === 1 ) {
-					firstRenderColor = context.getElementStyles( {
+				// Capture the color only once on first committed render
+				if ( ! hasCaptured.current ) {
+					hasCaptured.current = true;
+					capturedColor = context.getElementStyles( {
 						data: undefined,
 						index: 0,
 					} ).color;
@@ -255,7 +255,7 @@ describe( 'ChartContext', () => {
 
 			// The first render should immediately return the correct palette color,
 			// not a fallback generated color like #813131
-			expect( firstRenderColor ).toBe( mockTheme.colors[ 0 ] );
+			expect( capturedColor ).toBe( mockTheme.colors[ 0 ] );
 		} );
 
 		it( 'provides getElementStyles function for color resolution', () => {
