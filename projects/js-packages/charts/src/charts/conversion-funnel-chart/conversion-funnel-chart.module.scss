@@ -1,5 +1,7 @@
 .conversionFunnelChart {
 	font-family: var(--funnel-font-family, "SF Pro Text");
+	display: flex;
+	flex-direction: column;
 
 	&.loading {
 		opacity: 0.6;
@@ -42,7 +44,8 @@
 	display: flex;
 	gap: 16px;
 	align-items: flex-end;
-	height: 200px;
+	flex: 1;
+	min-height: 200px;
 	width: 100%;
 }
 

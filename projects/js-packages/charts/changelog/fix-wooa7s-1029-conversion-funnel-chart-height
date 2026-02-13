@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+ConversionFunnelChart: use flex layout so the chart can grow to fill its container height.
