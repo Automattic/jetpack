@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: Fix crash in block label function and display actual form title with status indicator.
