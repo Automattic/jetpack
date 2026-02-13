@@ -123,19 +123,10 @@ export const FormTitleModal = () => {
 					value={ title }
 					onChange={ setTitle }
 					__next40pxDefaultSize
-					// eslint-disable-next-line jsx-a11y/no-autofocus
-					autoFocus={ true }
 					placeholder={ __( 'Enter form name', 'jetpack-forms' ) }
 					disabled={ isSaving }
 				/>
-				<div
-					style={ {
-						display: 'flex',
-						justifyContent: 'flex-end',
-						gap: '8px',
-						marginTop: '16px',
-					} }
-				>
+				<div className="jetpack-forms-title-modal__buttons">
 					<Button variant="tertiary" onClick={ handleClose }>
 						{ __( 'Skip', 'jetpack-forms' ) }
 					</Button>
