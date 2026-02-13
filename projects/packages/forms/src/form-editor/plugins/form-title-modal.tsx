@@ -11,6 +11,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 
 /**
@@ -28,6 +29,7 @@ export const FormTitleModal = () => {
 	const [ isSaving, setIsSaving ] = useState( false );
 
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const { currentPostId, currentPostTitle, postType, hasInnerBlocks } = useSelect( select => {
 		const editor = select( editorStore ) as {
@@ -78,14 +80,44 @@ export const FormTitleModal = () => {
 		const newTitle = title.trim() || __( 'Untitled Form', 'jetpack-forms' );
 
 		if ( currentPostId ) {
-			await editEntityRecord( 'postType', FORM_POST_TYPE, currentPostId, {
-				title: newTitle,
-			} );
-			await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, currentPostId );
+			try {
+				await editEntityRecord( 'postType', FORM_POST_TYPE, currentPostId, {
+					title: newTitle,
+				} );
+				await saveEditedEntityRecord( 'postType', FORM_POST_TYPE, currentPostId, {
+					throwOnError: true,
+				} );
+
+				setIsSaving( false );
+				setIsOpen( false );
+				createSuccessNotice( __( 'Form created.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+			} catch {
+				setIsSaving( false );
+				setIsOpen( false );
+				createErrorNotice( __( 'Failed to create form.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					actions: [
+						{
+							label: __( 'Retry', 'jetpack-forms' ),
+							onClick: () => {
+								setTitle( newTitle );
+								setIsOpen( true );
+							},
+						},
+					],
+				} );
+			}
 		}
-		setIsSaving( false );
-		setIsOpen( false );
-	}, [ title, currentPostId, editEntityRecord, saveEditedEntityRecord ] );
+	}, [
+		title,
+		currentPostId,
+		editEntityRecord,
+		saveEditedEntityRecord,
+		createSuccessNotice,
+		createErrorNotice,
+	] );
 
 	const onSubmitForm = useCallback(
 		( event: React.FormEvent ) => {
