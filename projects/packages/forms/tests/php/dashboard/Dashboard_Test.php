@@ -58,18 +58,18 @@ class Dashboard_Test extends BaseTestCase {
 
 	/**
 	 * Test get_forms_admin_url with post_id parameter (legacy mode).
-	 * Verifies the r query parameter is correctly appended.
+	 * Verifies the r parameter is correctly appended in the hash fragment.
 	 */
 	public function test_get_forms_admin_url_with_post_id_legacy() {
-		// Tab + post_id: appends &r= to the hash fragment.
+		// Tab + post_id: appends r and status in hash fragment (client-side handles redirect).
 		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123';
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox', 123 ) );
 
 		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=spam&r=456';
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'spam', 456 ) );
 
-		// post_id only (no tab): appends &r= to the base URL.
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin&r=789';
+		// post_id only (no tab): appends r and status=inbox in hash fragment.
+		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=789';
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( null, 789 ) );
 	}
 

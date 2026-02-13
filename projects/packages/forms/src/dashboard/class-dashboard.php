@@ -75,6 +75,7 @@ class Dashboard {
 	 */
 	public function init() {
 		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
+		add_action( 'admin_menu', array( __CLASS__, 'redirect_dashboard_url_cross_variant' ), 1 );
 
 		// Flag to enable the wp-build-based dashboard.
 		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
@@ -88,6 +89,63 @@ class Dashboard {
 		// Removed all admin notices on the Jetpack Forms admin page.
 		if ( self::get_admin_query_page() === self::ADMIN_SLUG ) {
 			remove_all_actions( 'admin_notices' );
+		}
+	}
+
+	/**
+	 * Redirect dashboard URLs when the wp-build flag has changed since the link was generated.
+	 *
+	 * Email links may point to the legacy or wp-build dashboard. If the flag has toggled,
+	 * the requested page may not exist. This redirects to the correct variant.
+	 */
+	public static function redirect_dashboard_url_cross_variant() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( $page !== self::ADMIN_SLUG && $page !== self::FORMS_WPBUILD_ADMIN_SLUG ) {
+			return;
+		}
+
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
+
+		// Legacy URL requested but wp-build is now active → redirect to wp-build.
+		if ( $page === self::ADMIN_SLUG && $is_wp_build_enabled ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$status         = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : 'inbox';
+			$valid_statuses = array( 'spam', 'inbox', 'trash' );
+
+			if ( ! in_array( $status, $valid_statuses, true ) ) {
+				$status = 'inbox';
+			}
+
+			// The hash is never sent to the server, so it is handled client-side on the routes' beforeLoad hook.
+			$redirect = self::get_forms_admin_url( $status );
+			wp_safe_redirect( $redirect );
+			exit;
+		}
+
+		// WP-Build URL requested but legacy is now active → redirect to legacy.
+		if ( $page === self::FORMS_WPBUILD_ADMIN_SLUG && ! $is_wp_build_enabled ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$p       = isset( $_GET['p'] ) ? rawurldecode( sanitize_text_field( wp_unslash( $_GET['p'] ) ) ) : '';
+			$tab     = 'inbox';
+			$post_id = null;
+
+			if ( $p !== '' ) {
+				// Parse path like /responses/inbox?responseIds=["2879"] or /forms.
+				if ( preg_match( '#^/responses/(inbox|spam|trash)(?:\?responseIds=\["(\d+)"\])?$#', $p, $m ) ) {
+					$tab     = $m[1];
+					$post_id = ! empty( $m[2] ) ? absint( $m[2] ) : null;
+				} elseif ( preg_match( '#^/responses/inbox\?responseIds=\["(\d+)"\]#', $p, $m ) ) {
+					$post_id = absint( $m[1] );
+				} elseif ( preg_match( '#^/forms#', $p ) ) {
+					$tab = 'forms';
+				}
+			}
+
+			$redirect = self::get_forms_admin_url( $tab, $post_id );
+			wp_safe_redirect( $redirect );
+			exit;
 		}
 	}
 
@@ -287,6 +345,7 @@ class Dashboard {
 			$url .= '&p=' . rawurlencode( $path );
 		} else {
 			$suffix = self::get_forms_admin_suffix_legacy( $tab, $post_id );
+
 			if ( $suffix !== '' ) {
 				$url .= $suffix;
 			}
@@ -329,9 +388,11 @@ class Dashboard {
 		if ( $tab !== null && $tab !== '' && isset( $path_map[ $tab ] ) ) {
 			return $path_map[ $tab ] . $response_ids;
 		}
+
 		if ( ! empty( $post_id ) ) {
 			return '/responses/inbox?responseIds=["' . $post_id . '"]';
 		}
+
 		return '/';
 	}
 
@@ -350,12 +411,15 @@ class Dashboard {
 		if ( in_array( $tab, $valid_tabs, true ) ) {
 			return '#/responses?status=' . $tab . $r_param;
 		}
+
 		if ( $tab === 'forms' ) {
 			return '#/forms';
 		}
+
 		if ( ! empty( $post_id ) ) {
-			return '&r=' . $post_id;
+			return '#/responses?status=inbox' . $r_param;
 		}
+
 		return '';
 	}
 
