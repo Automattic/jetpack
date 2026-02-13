@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -8,10 +9,6 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { getModule } from 'state/modules';
 import './reader-info-banner.scss';
-
-const trackReaderClick = () => {
-	analytics.tracks.recordJetpackClick( 'open-reader' );
-};
 
 /**
  * ReaderInfoBanner component.
@@ -26,6 +23,10 @@ function ReaderInfoBanner( props ) {
 		'https://wordpress.com/reader/',
 		blogID ? { origin_site_id: blogID } : {}
 	);
+
+	const trackReaderClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( 'open-reader-from-admin-bar' );
+	}, [] );
 
 	return (
 		<SettingsCard
