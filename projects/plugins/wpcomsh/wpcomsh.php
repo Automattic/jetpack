@@ -509,19 +509,6 @@ function wpcomsh_make_content_clickable( $content ) {
 		$last_offset = $start + $length;
 	}
 
-	// Append any remaining content after the last token.
-	if ( $last_offset < strlen( $content ) ) {
-		$remaining = substr( $content, $last_offset );
-		if ( 0 === $protected_depth && 0 === $skip_div_depth &&
-			( false !== strpos( $remaining, 'http://' ) ||
-				false !== strpos( $remaining, 'https://' ) ||
-				false !== strpos( $remaining, 'www.' ) ) ) {
-			$output .= make_clickable( $remaining );
-		} else {
-			$output .= $remaining;
-		}
-	}
-
 	return $output;
 }
 add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
