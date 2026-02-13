@@ -7,19 +7,19 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { getModule } from 'state/modules';
-import './discover.scss';
+import './reader-info-banner.scss';
 
 const trackReaderClick = () => {
 	analytics.tracks.recordJetpackClick( 'open-reader' );
 };
 
 /**
- * ReaderDiscover component.
+ * ReaderInfoBanner component.
  *
  * @param {object} props - Component props.
- * @return {import('react').ReactElement} ReaderDiscover component.
+ * @return {import('react').ReactElement} ReaderInfoBanner component.
  */
-function ReaderDiscover( props ) {
+function ReaderInfoBanner( props ) {
 	const { readerModule, moduleName, blogID } = props;
 
 	const readerUrl = addQueryArgs(
@@ -63,5 +63,5 @@ export default withModuleSettingsFormHelpers(
 		return {
 			readerModule: getModule( state, ownProps.moduleName ),
 		};
-	} )( ReaderDiscover )
+	} )( ReaderInfoBanner )
 );

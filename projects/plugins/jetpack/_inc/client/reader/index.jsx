@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
-import ReaderDiscover from './reader-discover';
+import ReaderInfoBanner from './reader-info-banner';
 import ReaderModule from './reader-module';
 
 /**
@@ -41,7 +41,7 @@ function Reader( props ) {
 			</h2>
 			{ foundReader && (
 				<>
-					<ReaderDiscover moduleName={ moduleName } blogID={ blogID } />
+					<ReaderInfoBanner moduleName={ moduleName } blogID={ blogID } />
 					<ReaderModule moduleName={ moduleName } />
 				</>
 			) }
