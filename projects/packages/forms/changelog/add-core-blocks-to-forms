@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Add core/accordion, core/icon, and core/details blocks to allowed form blocks.
+Allow Accordion, Details, and Icon blocks in forms.
