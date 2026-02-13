@@ -110,16 +110,9 @@ class Dashboard {
 
 		// Legacy URL requested but wp-build is now active → redirect to wp-build.
 		if ( $page === self::ADMIN_SLUG && $is_wp_build_enabled ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$status         = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : 'inbox';
-			$valid_statuses = array( 'spam', 'inbox', 'trash' );
-
-			if ( ! in_array( $status, $valid_statuses, true ) ) {
-				$status = 'inbox';
-			}
-
-			// The hash is never sent to the server, so it is handled client-side on the routes' beforeLoad hook.
-			$redirect = self::get_forms_admin_url( $status );
+			// The hash is never sent to the server. "inbox" used as default tab so we end up specifically in the responses
+			// route, where the client-side router will handle the redirect to the correct status in its beforeLoad hook.
+			$redirect = self::get_forms_admin_url( 'inbox' );
 			wp_safe_redirect( $redirect );
 			exit;
 		}
@@ -399,7 +392,7 @@ class Dashboard {
 	 *
 	 * @param string|null $tab    Tab to open.
 	 * @param int|null    $post_id Post ID of response.
-	 * @return string URL suffix (e.g. '#/responses?status=inbox' or '&r=123').
+	 * @return string URL suffix (e.g. '#/responses?status=inbox&r=123', or '#/forms').
 	 */
 	private static function get_forms_admin_suffix_legacy( $tab, $post_id ) {
 		$post_id    = ! empty( $post_id ) ? absint( $post_id ) : null;
