@@ -46,6 +46,11 @@ const getFormLabel = ( { ref } ) => {
 	}
 
 	const form = select( coreStore ).getEditedEntityRecord( 'postType', FORM_POST_TYPE, ref );
+
+	if ( ! form?.status ) {
+		return defaultLabel;
+	}
+
 	const rawTitle = form?.title;
 
 	// Handle both string and object formats for the title property
@@ -57,15 +62,15 @@ const getFormLabel = ( { ref } ) => {
 	}
 
 	const title = titleText ? decodeEntities( titleText ) : defaultLabel;
-
-	if ( ! form?.status || form.status === 'publish' ) {
-		return title;
+	if ( form.status === 'publish' ) {
+		// translators: 1: Form title, e.g., "Contact Us"
+		return sprintf( __( 'Form: %1$s', 'jetpack-forms' ), title );
 	}
 
 	const statusLabel = STATUS_LABELS[ form.status ] || form.status;
 
 	/* translators: 1: Form title, 2: Form status (e.g., Draft, Scheduled) */
-	return sprintf( __( '%1$s (%2$s)', 'jetpack-forms' ), title, statusLabel );
+	return sprintf( __( 'Form: %1$s (%2$s)', 'jetpack-forms' ), title, statusLabel );
 };
 
 const icon = renderMaterialIcon(
