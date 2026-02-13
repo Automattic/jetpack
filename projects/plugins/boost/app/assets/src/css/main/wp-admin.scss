@@ -71,25 +71,6 @@ p {
 		font-size: 24px;
 	}
 
-	button.secondary,
-	a.button-secondary {
-		color: variables.$primary-black;
-		background: none;
-		border: 1px solid variables.$primary-black;
-		padding: 8px 24px;
-		border-radius: 3px;
-		font-weight: 600;
-		cursor: pointer;
-		font-size: 16px;
-		line-height: 24px;
-
-		&:hover {
-			background: variables.$gray_0;
-			border-color: variables.$primary-black;
-			color: variables.$primary-black;
-		}
-	}
-
 	// Override WP styles for panel header.
 	.components-panel__body-title .components-button:hover:not(:disabled,[aria-disabled="true"]),
 	.components-panel__body-title .components-button[aria-expanded="true"] {

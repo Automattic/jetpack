@@ -80,8 +80,8 @@
 	}
 
 	&__cta-button {
-		background: #000;
-		border: 1px solid #000;
+		background: var(--wp-admin-theme-color, #007cba);
+		border: 1px solid var(--wp-admin-theme-color, #007cba);
 		border-radius: 4px;
 		box-sizing: border-box;
 		color: #fff;
@@ -100,13 +100,13 @@
 
 		&:hover {
 			color: #fff;
-			background-color: variables.$gray_80;
+			background-color: var(--wp-admin-theme-color-darker-10, #006ba1);
 		}
 
 		&:focus {
 			color: #fff;
 			box-shadow: none;
-			outline: solid 1px variables.$primary-black;
+			outline: solid 1px var(--wp-admin-theme-color, #007cba);
 			outline-offset: 1px;
 		}
 	}
