@@ -6,7 +6,7 @@ import type { RefObject } from 'react';
  *
  * visx renders tooltips via `ReactDOM.createPortal` into plain `<div>` elements
  * appended to `document.body`. These portals have no id or className and contain
- * child elements with visx-specific classes (e.g. `.visx-tooltip-portal`).
+ * a child element with the class `visx-tooltip-portal`.
  * @param node - The DOM node to check.
  * @return Whether the node is a visx tooltip portal div.
  */
@@ -16,8 +16,53 @@ function isVisxPortalNode( node: Node ): node is HTMLDivElement {
 		node.parentElement === document.body &&
 		! node.id &&
 		! node.className &&
-		node.querySelector( '[class*="visx"]' ) !== null
+		node.querySelector( '.visx-tooltip-portal' ) !== null
 	);
+}
+
+// Shared state for the document.body.removeChild patch.
+// Reference-counted so multiple hook instances can coexist safely.
+let patchRefCount = 0;
+let origRemoveChild: typeof document.body.removeChild | null = null;
+let patchedRemoveChild: typeof document.body.removeChild | null = null;
+const relocatedNodes = new WeakSet< Node >();
+
+/**
+ * Installs (or increments the ref count of) the shared removeChild patch.
+ */
+function installRemoveChildPatch() {
+	if ( patchRefCount++ > 0 ) {
+		return;
+	}
+	origRemoveChild = document.body.removeChild;
+	patchedRemoveChild = function < T extends Node >( this: HTMLElement, child: T ): T {
+		if ( relocatedNodes.has( child ) && child.parentNode !== this ) {
+			relocatedNodes.delete( child );
+			child.parentNode?.removeChild( child );
+			return child;
+		}
+		return origRemoveChild!.call( this, child );
+	};
+	document.body.removeChild = patchedRemoveChild;
+}
+
+/**
+ * Decrements the ref count and removes the patch when no instances remain.
+ * If another library has since wrapped our patch, we leave it in place to
+ * avoid breaking their chain — our function becomes a transparent pass-through
+ * once all relocated nodes have been cleaned up.
+ */
+function uninstallRemoveChildPatch() {
+	if ( --patchRefCount > 0 ) {
+		return;
+	}
+	// Only revert if removeChild is still our function. If something else
+	// has wrapped it, reverting would break their patch.
+	if ( document.body.removeChild === patchedRemoveChild ) {
+		document.body.removeChild = origRemoveChild!;
+	}
+	origRemoveChild = null;
+	patchedRemoveChild = null;
 }
 
 /**
@@ -35,6 +80,10 @@ function isVisxPortalNode( node: Node ): node is HTMLDivElement {
  * were moved out of body. Without this, React throws a "not a child of this
  * node" error when tooltips unmount.
  *
+ * **Important:** The container and its ancestors must not have CSS `transform`,
+ * `perspective`, or `filter` properties set, as these create a new containing
+ * block for `position: fixed` children, breaking viewport-relative positioning.
+ *
  * @param containerRef - Ref to the element that portals should be relocated into.
  *                     The container should use `position: relative; z-index: 0`
  *                     to create a stacking context.
@@ -48,8 +97,8 @@ export function useTooltipPortalRelocator(
 			return;
 		}
 
-		// Track nodes we've relocated so we can intercept their removal.
-		const relocatedNodes = new WeakSet< Node >();
+		// Track nodes relocated by this instance so we can move them back on cleanup.
+		const instanceNodes = new Set< Node >();
 
 		const relocateNode = ( node: Node ) => {
 			if ( ! isVisxPortalNode( node ) ) {
@@ -58,6 +107,9 @@ export function useTooltipPortalRelocator(
 
 			// Position the portal at the viewport origin so visx's
 			// absolute-positioned tooltip coordinates remain correct.
+			// Zero-size with overflow: visible so it doesn't affect layout
+			// but tooltip content still renders. pointerEvents: none on the
+			// wrapper is intentional — tooltip inner elements manage their own.
 			Object.assign( node.style, {
 				position: 'fixed',
 				top: '0',
@@ -72,19 +124,12 @@ export function useTooltipPortalRelocator(
 			// Insert at the start of the container (before header and content).
 			container.insertBefore( node, container.firstChild );
 			relocatedNodes.add( node );
+			instanceNodes.add( node );
 		};
 
 		// Patch document.body.removeChild so visx Portal unmount doesn't throw
 		// when it tries to remove a node we already moved out of body.
-		const origRemoveChild = document.body.removeChild;
-		document.body.removeChild = function < T extends Node >( child: T ): T {
-			if ( relocatedNodes.has( child ) && child.parentNode !== this ) {
-				relocatedNodes.delete( child );
-				child.parentNode?.removeChild( child );
-				return child;
-			}
-			return origRemoveChild.call( this, child );
-		};
+		installRemoveChildPatch();
 
 		// Relocate any portals that already exist.
 		for ( const child of Array.from( document.body.children ) ) {
@@ -103,8 +148,21 @@ export function useTooltipPortalRelocator(
 		observer.observe( document.body, { childList: true } );
 
 		return () => {
+			// Disconnect first to avoid the observer re-relocating nodes
+			// as we move them back to body.
 			observer.disconnect();
-			document.body.removeChild = origRemoveChild;
+
+			// Move relocated nodes back to body so visx can clean them up
+			// normally with the original removeChild.
+			for ( const node of instanceNodes ) {
+				if ( node.parentNode === container ) {
+					document.body.appendChild( node );
+				}
+				relocatedNodes.delete( node );
+			}
+			instanceNodes.clear();
+
+			uninstallRemoveChildPatch();
 		};
 	}, [ containerRef ] );
 }
