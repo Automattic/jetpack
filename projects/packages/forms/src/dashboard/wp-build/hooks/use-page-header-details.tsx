@@ -13,7 +13,7 @@ import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { moreVertical, plus, download, plugins } from '@wordpress/icons';
+import { moreVertical, plus, download, plugins, trash } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -21,10 +21,14 @@ import { Stack } from '@wordpress/ui';
 import CreateFormButton from '../../components/create-form-button';
 import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
+import EmptySpamConfirmationModal from '../../components/empty-spam-button/confirmation-modal';
 import EmptyTrashButton from '../../components/empty-trash-button';
+import EmptyTrashConfirmationModal from '../../components/empty-trash-button/confirmation-modal';
 import ExportResponsesButton from '../../components/export-responses/button';
 import ExportResponsesModal from '../../components/export-responses/modal';
 import useCreateForm from '../../hooks/use-create-form';
+import useEmptySpam from '../../hooks/use-empty-spam';
+import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
@@ -87,6 +91,10 @@ export default function usePageHeaderDetails(
 	} = useExportResponses();
 	const { totalItems, isLoadingData } = useInboxData();
 	const hasResponses = ! isLoadingData && totalItems > 0;
+
+	// Empty spam/trash hooks
+	const emptySpam = useEmptySpam();
+	const emptyTrash = useEmptyTrash();
 
 	const formRecord = useSelect(
 		select =>
@@ -165,7 +173,7 @@ export default function usePageHeaderDetails(
 					title: __( 'Create a form', 'jetpack-forms' ),
 				} );
 			} else if ( isSingleFormScreen ) {
-				// Single form screen: Edit form (not in trash/spam), Export
+				// Single form screen: Edit form (not in trash/spam), Export, Empty trash/spam
 				if ( statusView === 'inbox' && sourceIdNumber ) {
 					dropdownControls.push( {
 						onClick: () => {
@@ -182,8 +190,26 @@ export default function usePageHeaderDetails(
 					title: exportLabel,
 					isDisabled: ! hasResponses,
 				} );
+
+				if ( statusView === 'trash' ) {
+					dropdownControls.push( {
+						icon: trash,
+						onClick: emptyTrash.openConfirmDialog,
+						title: __( 'Empty trash', 'jetpack-forms' ),
+						isDisabled: emptyTrash.isEmpty || emptyTrash.isEmptying,
+					} );
+				}
+
+				if ( statusView === 'spam' ) {
+					dropdownControls.push( {
+						icon: trash,
+						onClick: emptySpam.openConfirmDialog,
+						title: __( 'Delete spam', 'jetpack-forms' ),
+						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
+					} );
+				}
 			} else {
-				// Responses list screen: Manage integrations (inbox only), Create a form (inbox only), Export
+				// Responses list screen: Manage integrations (inbox only), Create a form (inbox only), Export, Empty trash/spam
 				if ( statusView === 'inbox' && isIntegrationsEnabled && showDashboardIntegrations ) {
 					dropdownControls.push( {
 						icon: plugins,
@@ -191,6 +217,7 @@ export default function usePageHeaderDetails(
 						title: __( 'Manage integrations', 'jetpack-forms' ),
 					} );
 				}
+
 				if ( statusView === 'inbox' ) {
 					dropdownControls.push( {
 						icon: plus,
@@ -198,12 +225,31 @@ export default function usePageHeaderDetails(
 						title: __( 'Create a form', 'jetpack-forms' ),
 					} );
 				}
+
 				dropdownControls.push( {
 					icon: download,
 					onClick: openExportModal,
 					title: exportLabel,
 					isDisabled: ! hasResponses,
 				} );
+
+				if ( statusView === 'trash' ) {
+					dropdownControls.push( {
+						icon: trash,
+						onClick: emptyTrash.openConfirmDialog,
+						title: __( 'Empty trash', 'jetpack-forms' ),
+						isDisabled: emptyTrash.isEmpty || emptyTrash.isEmptying,
+					} );
+				}
+
+				if ( statusView === 'spam' ) {
+					dropdownControls.push( {
+						icon: trash,
+						onClick: emptySpam.openConfirmDialog,
+						title: __( 'Delete spam', 'jetpack-forms' ),
+						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
+					} );
+				}
 			}
 
 			if ( dropdownControls.length === 0 ) {
@@ -217,7 +263,7 @@ export default function usePageHeaderDetails(
 					icon={ moreVertical }
 					label={ __( 'More actions', 'jetpack-forms' ) }
 				/>,
-				// Include the export modal when on mobile
+				// Include modals when on mobile
 				...( showExportModal
 					? [
 							<ExportResponsesModal
@@ -225,6 +271,30 @@ export default function usePageHeaderDetails(
 								onRequestClose={ closeExportModal }
 								onExport={ onExport }
 								autoConnectGdrive={ autoConnectGdrive }
+							/>,
+					  ]
+					: [] ),
+				...( emptyTrash.isConfirmDialogOpen
+					? [
+							<EmptyTrashConfirmationModal
+								key="empty-trash-confirm"
+								isOpen={ emptyTrash.isConfirmDialogOpen }
+								onCancel={ emptyTrash.closeConfirmDialog }
+								onConfirm={ emptyTrash.onConfirmEmptying }
+								totalItemsTrash={ emptyTrash.totalItemsTrash }
+								selectedResponsesCount={ emptyTrash.selectedResponsesCount }
+							/>,
+					  ]
+					: [] ),
+				...( emptySpam.isConfirmDialogOpen
+					? [
+							<EmptySpamConfirmationModal
+								key="empty-spam-confirm"
+								isOpen={ emptySpam.isConfirmDialogOpen }
+								onCancel={ emptySpam.closeConfirmDialog }
+								onConfirm={ emptySpam.onConfirmEmptying }
+								totalItemsSpam={ emptySpam.totalItemsSpam }
+								selectedResponsesCount={ emptySpam.selectedResponsesCount }
 							/>,
 					  ]
 					: [] ),
@@ -296,6 +366,22 @@ export default function usePageHeaderDetails(
 		autoConnectGdrive,
 		hasResponses,
 		exportLabel,
+		emptyTrash.openConfirmDialog,
+		emptyTrash.isEmpty,
+		emptyTrash.isEmptying,
+		emptyTrash.isConfirmDialogOpen,
+		emptyTrash.closeConfirmDialog,
+		emptyTrash.onConfirmEmptying,
+		emptyTrash.totalItemsTrash,
+		emptyTrash.selectedResponsesCount,
+		emptySpam.openConfirmDialog,
+		emptySpam.isEmpty,
+		emptySpam.isEmptying,
+		emptySpam.isConfirmDialogOpen,
+		emptySpam.closeConfirmDialog,
+		emptySpam.onConfirmEmptying,
+		emptySpam.totalItemsSpam,
+		emptySpam.selectedResponsesCount,
 	] );
 
 	return { breadcrumbs, subtitle, actions };
