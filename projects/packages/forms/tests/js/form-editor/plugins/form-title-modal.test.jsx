@@ -6,7 +6,7 @@
  */
 
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 /**
@@ -102,6 +102,8 @@ await jest.unstable_mockModule( '../../../../src/blocks/shared/util/constants.js
 let mockUseSelect;
 let mockEditEntityRecord;
 let mockSaveEditedEntityRecord;
+let mockCreateSuccessNotice;
+let mockCreateErrorNotice;
 
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useSelect: jest.fn( callback => mockUseSelect( callback ) ),
@@ -112,8 +114,18 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 				saveEditedEntityRecord: mockSaveEditedEntityRecord,
 			};
 		}
+		if ( store === 'core/notices' ) {
+			return {
+				createSuccessNotice: mockCreateSuccessNotice,
+				createErrorNotice: mockCreateErrorNotice,
+			};
+		}
 		return {};
 	} ),
+} ) );
+
+await jest.unstable_mockModule( '@wordpress/notices', () => ( {
+	store: 'core/notices',
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/core-data', () => ( {
@@ -135,6 +147,8 @@ describe( 'FormTitleModal', () => {
 		jest.clearAllMocks();
 		mockEditEntityRecord = jest.fn().mockResolvedValue( {} );
 		mockSaveEditedEntityRecord = jest.fn().mockResolvedValue( {} );
+		mockCreateSuccessNotice = jest.fn();
+		mockCreateErrorNotice = jest.fn();
 	} );
 
 	const createMockUseSelect = ( {
@@ -290,12 +304,19 @@ describe( 'FormTitleModal', () => {
 			expect( mockEditEntityRecord ).toHaveBeenCalledWith( 'postType', 'jetpack_form', 123, {
 				title: 'My New Form',
 			} );
-			expect( mockSaveEditedEntityRecord ).toHaveBeenCalledWith( 'postType', 'jetpack_form', 123 );
+			expect( mockSaveEditedEntityRecord ).toHaveBeenCalledWith( 'postType', 'jetpack_form', 123, {
+				throwOnError: true,
+			} );
 		} );
 
 		// Modal should close
 		await waitFor( () => {
 			expect( screen.queryByTestId( 'modal' ) ).not.toBeInTheDocument();
+		} );
+
+		// Success notice should be shown
+		expect( mockCreateSuccessNotice ).toHaveBeenCalledWith( 'Form created.', {
+			type: 'snackbar',
 		} );
 	} );
 
@@ -489,5 +510,98 @@ describe( 'FormTitleModal', () => {
 
 		// Modal should not appear again
 		expect( screen.queryByTestId( 'modal' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows error notice with retry action when save fails', async () => {
+		// Make save throw an error
+		mockSaveEditedEntityRecord = jest.fn().mockRejectedValue( new Error( 'Server error' ) );
+
+		mockUseSelect = createMockUseSelect( {
+			postType: 'jetpack_form',
+			postTitle: '',
+			hasInnerBlocks: false,
+			postId: 123,
+		} );
+
+		render( <FormTitleModal /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'modal' ) ).toBeInTheDocument();
+		} );
+
+		// Type a title and submit
+		const input = screen.getByLabelText( 'Name' );
+		await userEvent.clear( input );
+		await userEvent.type( input, 'My Form' );
+
+		const createButton = screen.getByText( 'Create' );
+		await userEvent.click( createButton );
+
+		// Error notice should be shown with retry action
+		await waitFor( () => {
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+				'Failed to create form.',
+				expect.objectContaining( {
+					type: 'snackbar',
+					actions: expect.arrayContaining( [
+						expect.objectContaining( {
+							label: 'Retry',
+						} ),
+					] ),
+				} )
+			);
+		} );
+
+		// Modal should close
+		await waitFor( () => {
+			expect( screen.queryByTestId( 'modal' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	it( 'retry action reopens modal with prefilled title', async () => {
+		let retryCallback;
+		mockCreateErrorNotice = jest.fn( ( message, options ) => {
+			retryCallback = options.actions[ 0 ].onClick;
+		} );
+		mockSaveEditedEntityRecord = jest.fn().mockRejectedValue( new Error( 'Server error' ) );
+
+		mockUseSelect = createMockUseSelect( {
+			postType: 'jetpack_form',
+			postTitle: '',
+			hasInnerBlocks: false,
+			postId: 123,
+		} );
+
+		render( <FormTitleModal /> );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'modal' ) ).toBeInTheDocument();
+		} );
+
+		// Type a title and submit
+		const input = screen.getByLabelText( 'Name' );
+		await userEvent.clear( input );
+		await userEvent.type( input, 'My Form' );
+
+		const createButton = screen.getByText( 'Create' );
+		await userEvent.click( createButton );
+
+		// Wait for modal to close after error
+		await waitFor( () => {
+			expect( screen.queryByTestId( 'modal' ) ).not.toBeInTheDocument();
+		} );
+
+		// Trigger the retry action wrapped in act
+		act( () => {
+			retryCallback();
+		} );
+
+		// Modal should reopen with the title prefilled
+		await waitFor( () => {
+			expect( screen.getByTestId( 'modal' ) ).toBeInTheDocument();
+		} );
+
+		const reopenedInput = screen.getByLabelText( 'Name' );
+		expect( reopenedInput ).toHaveValue( 'My Form' );
 	} );
 } );
