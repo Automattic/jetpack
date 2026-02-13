@@ -1498,7 +1498,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$type   = isset( $field_data['type'] ) ? $field_data['type'] : 'text';
 
 			$formatted_submission_data[] = array(
-				'label'          => self::maybe_add_colon_to_label( $field_data['label'] ),
+				'label'          => Util::maybe_add_colon_to_label( $field_data['label'] ),
 				'value'          => self::maybe_transform_value( $field_data['value'] ),
 				'images'         => $images,
 				'url'            => $url,
@@ -1906,7 +1906,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$safe_display_label            = self::escape_and_sanitize_field_label( $data['label'] );
 				$compiled_form[ $field_index ] = sprintf(
 					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
-					self::maybe_add_colon_to_label( $safe_display_label ),
+					Util::maybe_add_colon_to_label( $safe_display_label ),
 					$safe_display_value
 				);
 			} else {
@@ -2014,7 +2014,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				if ( ! empty( $safe_display_label ) ) {
 					$compiled_form[ $key ] = sprintf(
 						'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
-						self::maybe_add_colon_to_label( $safe_display_label ),
+						Util::maybe_add_colon_to_label( $safe_display_label ),
 						$safe_display_value
 					);
 				} else {
@@ -3623,20 +3623,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Ensures a field label ends with a colon, unless it ends with a question mark.
-	 *
-	 * @param string $label The field label.
-	 * @return string The formatted label.
-	 */
-	private static function maybe_add_colon_to_label( $label ) {
-		$formatted_label = $label ? $label : '';
-		// Special case for the Terms consent field block which a period after the label.
-		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':.' ) . ':';
-
-		return $formatted_label;
-	}
-
-	/**
 	 * Ensures a value is formatted as a string, taking into account file upload fields.
 	 *
 	 * @param mixed $value The value to transform.
@@ -3756,7 +3742,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string|null $raw_label The raw label input.
 	 * @return string The formatted and kses'd label string, or an empty string if raw_label is empty.
 	 */
-	private static function escape_and_sanitize_field_label( $raw_label ) {
+	public static function escape_and_sanitize_field_label( $raw_label ) {
 		if ( empty( $raw_label ) ) {
 			return ''; // kses the empty string
 		}
