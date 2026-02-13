@@ -20,7 +20,7 @@ const trackReaderClick = () => {
  * @return {import('react').ReactElement} ReaderInfoBanner component.
  */
 function ReaderInfoBanner( props ) {
-	const { readerModule, moduleName, blogID } = props;
+	const { moduleName, blogID } = props;
 
 	const readerUrl = addQueryArgs(
 		'https://wordpress.com/reader/',
@@ -37,7 +37,7 @@ function ReaderInfoBanner( props ) {
 			hideButton
 			module={ moduleName }
 		>
-			<SettingsGroup module={ readerModule }>
+			<SettingsGroup>
 				<ul role="list" className="jp-reader-discover__list">
 					<li>{ __( 'Follow sites you love and explore content by topic', 'jetpack' ) }</li>
 					<li>{ __( 'Reach new readers through Reader feeds and tag pages', 'jetpack' ) }</li>
