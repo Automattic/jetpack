@@ -351,7 +351,7 @@ class Contact_Form_Plugin {
 		wp_register_style(
 			'jetpack-forms-layout',
 			Jetpack_Forms::plugin_url() . '../dist/contact-form/css/jetpack-forms-layout.css',
-			array( 'grunion.css' ),
+			array(),
 			\JETPACK__VERSION
 		);
 
