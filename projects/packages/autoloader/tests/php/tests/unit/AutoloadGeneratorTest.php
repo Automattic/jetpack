@@ -24,78 +24,111 @@ class AutoloadGeneratorTest extends TestCase {
 	private $generator;
 
 	/**
+	 * Temporary directory for test fixtures.
+	 *
+	 * @var string
+	 */
+	private $tempDir;
+
+	/**
 	 * Setup runs before each test.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 		$this->generator = new AutoloadGenerator( new NullIO() );
+
+		// Create a temp directory so that realpath() can resolve paths.
+		$this->tempDir = sys_get_temp_dir() . '/jpautoloadtest' . uniqid();
+		mkdir( $this->tempDir, 0777, true );
+	}
+
+	/**
+	 * Cleanup after each test.
+	 */
+	protected function tearDown(): void {
+		if ( $this->tempDir && is_dir( $this->tempDir ) ) {
+			rmdir( $this->tempDir );
+		}
+		parent::tearDown();
 	}
 
 	/**
 	 * Data provider for parseAutoloads tests.
 	 *
+	 * Each case provides autoload/devAutoload config for the root package,
+	 * optional dependency autoload configs, and expected regex suffixes that
+	 * should appear in the exclude-from-classmap output (after the base path).
+	 *
 	 * @return array Test cases.
 	 */
 	public static function provide_parse_autoloads_cases(): array {
 		return array(
-			'no exclude-from-classmap'                        => array(
-				'autoload'     => array(
+			'no exclude-from-classmap'                                   => array(
+				'autoload'         => array(
 					'classmap' => array( 'src' ),
 					'psr-4'    => array( 'Test\\' => 'src/' ),
 				),
-				'devAutoload'  => array(),
-				'depAutoloads' => array(),
-				'expectEmpty'  => true,
+				'devAutoload'      => array(),
+				'depAutoloads'     => array(),
+				'expectedSuffixes' => array(),
 			),
-			'exclude-from-classmap in autoload only'          => array(
-				'autoload'     => array(
+			'exclude-from-classmap in autoload only'                     => array(
+				'autoload'         => array(
 					'classmap'              => array( 'src' ),
 					'exclude-from-classmap' => array( 'src/Excluded.php', 'src/tests/' ),
 				),
-				'devAutoload'  => array(),
-				'depAutoloads' => array(),
-				'expectEmpty'  => false,
-				'expectCount'  => 2,
+				'devAutoload'      => array(),
+				'depAutoloads'     => array(),
+				'expectedSuffixes' => array( 'src/Excluded\.php', 'src/tests' ),
 			),
-			'exclude-from-classmap in autoload-dev only'      => array(
-				'autoload'     => array(
+			'exclude-from-classmap in autoload-dev only'                 => array(
+				'autoload'         => array(
 					'classmap' => array( 'src' ),
 				),
-				'devAutoload'  => array(
+				'devAutoload'      => array(
 					'exclude-from-classmap' => array( 'tests/fixtures/' ),
 				),
-				'depAutoloads' => array(),
-				'expectEmpty'  => false,
-				'expectCount'  => 1,
+				'depAutoloads'     => array(),
+				'expectedSuffixes' => array( 'tests/fixtures' ),
 			),
-			'exclude-from-classmap in both autoload and autoload-dev' => array(
-				'autoload'     => array(
+			'exclude-from-classmap in both autoload and autoload-dev'    => array(
+				'autoload'         => array(
 					'classmap'              => array( 'src' ),
 					'exclude-from-classmap' => array( 'src/Excluded.php', 'common/' ),
 				),
-				'devAutoload'  => array(
+				'devAutoload'      => array(
 					'exclude-from-classmap' => array( 'common/', 'tests/' ),
 				),
-				'depAutoloads' => array(),
-				'expectEmpty'  => false,
-				// Note: Composer does not deduplicate, so 'common/' appears twice (once from
-				// autoload and once from autoload-dev). This matches Composer's behavior.
-				'expectCount'  => 4,
+				'depAutoloads'     => array(),
+				// array_merge_recursive does not deduplicate, so 'common/' appears twice.
+				'expectedSuffixes' => array( 'src/Excluded\.php', 'common', 'common', 'tests' ),
 			),
-			'exclude-from-classmap in non-root package ignored' => array(
-				'autoload'     => array(
+			'exclude-from-classmap in non-root package ignored'          => array(
+				'autoload'         => array(
 					'classmap' => array( 'src' ),
 				),
-				'devAutoload'  => array(),
-				'depAutoloads' => array(
+				'devAutoload'      => array(),
+				'depAutoloads'     => array(
 					array(
-						'name'      => 'vendor/dep',
-						'autoload'  => array(
+						'name'        => 'vendor/dep',
+						'autoload'    => array(
 							'exclude-from-classmap' => array( 'vendor-excluded/' ),
+						),
+						'devAutoload' => array(
+							'exclude-from-classmap' => array( 'vendor-dev-excluded/' ),
 						),
 					),
 				),
-				'expectEmpty'  => true, // Non-root package exclusions are ignored.
+				'expectedSuffixes' => array(),
+			),
+			'exclude-from-classmap with wildcards'                       => array(
+				'autoload'         => array(
+					'classmap'              => array( 'src' ),
+					'exclude-from-classmap' => array( 'src/*/Test.php', 'tests/**' ),
+				),
+				'devAutoload'      => array(),
+				'depAutoloads'     => array(),
+				'expectedSuffixes' => array( 'src/[^/]+?/Test\.php', 'tests/.+?' ),
 			),
 		);
 	}
@@ -106,27 +139,28 @@ class AutoloadGeneratorTest extends TestCase {
 	 * @param array $autoload Root package autoload config.
 	 * @param array $devAutoload Root package dev autoload config.
 	 * @param array $depAutoloads Dependency autoload configs.
-	 * @param bool  $expectEmpty Whether to expect empty exclude-from-classmap.
-	 * @param int   $expectCount Expected count of exclusion patterns (if not empty).
+	 * @param array $expectedSuffixes Expected regex suffixes for exclude patterns.
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_parse_autoloads_cases' )]
 	public function test_parse_autoloads_exclude_from_classmap(
 		array $autoload,
 		array $devAutoload,
 		array $depAutoloads,
-		bool $expectEmpty,
-		int $expectCount = 0
+		array $expectedSuffixes
 	) {
 		$package = new RootPackage( 'test/package', '1.0.0', '1.0.0' );
 		$package->setAutoload( $autoload );
 		$package->setDevAutoload( $devAutoload );
 
 		// Build package map: root package first, then dependencies.
-		$packageMap = array( array( $package, getcwd() ) );
+		$packageMap = array( array( $package, $this->tempDir ) );
 		foreach ( $depAutoloads as $dep ) {
 			$depPackage = new Package( $dep['name'], '1.0.0', '1.0.0' );
 			$depPackage->setAutoload( $dep['autoload'] );
-			$packageMap[] = array( $depPackage, getcwd() . '/vendor/' . $dep['name'] );
+			if ( isset( $dep['devAutoload'] ) ) {
+				$depPackage->setDevAutoload( $dep['devAutoload'] );
+			}
+			$packageMap[] = array( $depPackage, $this->tempDir . '/vendor/' . $dep['name'] );
 		}
 
 		$result = $this->generator->parseAutoloads( $packageMap, $package );
@@ -138,68 +172,13 @@ class AutoloadGeneratorTest extends TestCase {
 		$this->assertArrayHasKey( 'files', $result );
 		$this->assertArrayHasKey( 'exclude-from-classmap', $result );
 
-		if ( $expectEmpty ) {
-			$this->assertEmpty( $result['exclude-from-classmap'] );
-		} else {
-			$this->assertNotEmpty( $result['exclude-from-classmap'] );
-			$this->assertCount( $expectCount, $result['exclude-from-classmap'] );
-
-			// Verify patterns are regex format (contain escaped paths and end with ($|/)).
-			foreach ( $result['exclude-from-classmap'] as $pattern ) {
-				$this->assertMatchesRegularExpression( '/\(\$\|\\/\)$/', $pattern, 'Pattern should end with ($|/)' );
-			}
+		// Build expected exclude-from-classmap patterns from the suffixes.
+		$basePath = preg_quote( strtr( realpath( $this->tempDir ), '\\', '/' ) );
+		$expected = array();
+		foreach ( $expectedSuffixes as $suffix ) {
+			$expected[] = $basePath . '/' . $suffix . '($|/)';
 		}
-	}
 
-	/**
-	 * Tests that exclude-from-classmap patterns are properly converted to regexes.
-	 */
-	public function test_exclude_from_classmap_patterns_are_regexes() {
-		$package = new RootPackage( 'test/package', '1.0.0', '1.0.0' );
-		$package->setAutoload(
-			array(
-				'classmap'              => array( 'src' ),
-				'exclude-from-classmap' => array( 'src/Test.php' ),
-			)
-		);
-
-		$packageMap = array( array( $package, getcwd() ) );
-		$result     = $this->generator->parseAutoloads( $packageMap, $package );
-
-		$this->assertCount( 1, $result['exclude-from-classmap'] );
-
-		$pattern = $result['exclude-from-classmap'][0];
-
-		// Pattern should be a valid regex.
-		$this->assertNotFalse( @preg_match( '{' . $pattern . '}', '' ), 'Pattern should be a valid regex' );
-
-		// Pattern should match the expected file.
-		$expectedPath = strtr( getcwd(), '\\', '/' ) . '/src/Test.php';
-		$this->assertMatchesRegularExpression( '{' . $pattern . '}', $expectedPath );
-	}
-
-	/**
-	 * Tests wildcard support in exclude-from-classmap patterns.
-	 */
-	public function test_exclude_from_classmap_wildcards() {
-		$package = new RootPackage( 'test/package', '1.0.0', '1.0.0' );
-		$package->setAutoload(
-			array(
-				'classmap'              => array( 'src' ),
-				'exclude-from-classmap' => array( 'src/*/Test.php', 'tests/**' ),
-			)
-		);
-
-		$packageMap = array( array( $package, getcwd() ) );
-		$result     = $this->generator->parseAutoloads( $packageMap, $package );
-
-		// Patterns with wildcards should be converted properly.
-		// * becomes [^/]+? and ** becomes .+?
-		$this->assertCount( 2, $result['exclude-from-classmap'] );
-
-		foreach ( $result['exclude-from-classmap'] as $pattern ) {
-			// Verify it's a valid regex.
-			$this->assertNotFalse( @preg_match( '{' . $pattern . '}', '' ), 'Pattern should be a valid regex' );
-		}
+		$this->assertSame( $expected, $result['exclude-from-classmap'] );
 	}
 }

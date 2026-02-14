@@ -111,8 +111,7 @@ class AutoloadGenerator {
 		$psr4     = $this->parseAutoloadsType( $packageMap, 'psr-4', $mainPackage );
 		$classmap = $this->parseAutoloadsType( array_reverse( $sortedPackageMap ), 'classmap', $mainPackage );
 		$files    = $this->parseAutoloadsType( $sortedPackageMap, 'files', $mainPackage );
-		// Composer only uses exclude-from-classmap from the root package.
-		$exclude  = $this->parseAutoloadsType( $sortedPackageMap, 'exclude-from-classmap', $mainPackage );
+		$exclude  = $this->parseAutoloadsType( array( $rootPackageMap ), 'exclude-from-classmap', $mainPackage );
 
 		krsort( $psr0 );
 		krsort( $psr4 );
