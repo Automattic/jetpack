@@ -12,20 +12,17 @@ import EmptySpamConfirmationModal from './confirmation-modal';
 
 interface EmptySpamButtonProps {
 	totalItemsSpam?: number;
-	isLoadingCounts?: boolean;
 }
 
 /**
  * Renders a button to empty form responses.
  *
- * @param {object}  props                 - Component props.
- * @param {number}  props.totalItemsSpam  - The total number of spam items (optional, will use hook if not provided).
- * @param {boolean} props.isLoadingCounts - Whether counts are loading (optional, will use hook if not provided).
+ * @param {object} props                - Component props.
+ * @param {number} props.totalItemsSpam - The total number of spam items (optional, will use hook if not provided).
  * @return {JSX.Element} The empty spam button.
  */
 const EmptySpamButton = ( {
 	totalItemsSpam: totalItemsSpamProp,
-	isLoadingCounts: isLoadingCountsProp,
 }: EmptySpamButtonProps = {} ): JSX.Element => {
 	const {
 		isConfirmDialogOpen,
@@ -38,7 +35,6 @@ const EmptySpamButton = ( {
 		selectedResponsesCount,
 	} = useEmptySpam( {
 		totalItemsSpam: totalItemsSpamProp,
-		isLoadingCounts: isLoadingCountsProp,
 	} );
 
 	return (

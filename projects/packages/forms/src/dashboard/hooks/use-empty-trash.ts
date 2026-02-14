@@ -35,15 +35,12 @@ type UseEmptyTrashReturn = {
  *
  * @param props                 - Optional props.
  * @param props.totalItemsTrash - The total number of trash items (optional, will use hook if not provided).
- * @param props.isLoadingCounts - Whether counts are loading (optional, will use hook if not provided).
  * @return Object with empty trash state and handlers.
  */
 export default function useEmptyTrash( {
 	totalItemsTrash: totalItemsTrashProp,
-	isLoadingCounts: isLoadingCountsProp,
 }: {
 	totalItemsTrash?: number;
-	isLoadingCounts?: boolean;
 } = {} ): UseEmptyTrashReturn {
 	const [ isConfirmDialogOpen, setConfirmDialogOpen ] = useState( false );
 	const [ isEmptying, setIsEmptying ] = useState( false );
@@ -55,12 +52,11 @@ export default function useEmptyTrash( {
 	// Use props if provided, otherwise use hook
 	const hookData = useInboxData();
 	const totalItemsTrash = totalItemsTrashProp ?? hookData.totalItemsTrash ?? 0;
-	const isLoadingCounts = isLoadingCountsProp ?? false;
 	const { selectedResponsesCount, currentQuery } = hookData;
 
 	useEffect( () => {
-		setIsEmpty( isLoadingCounts || ! totalItemsTrash );
-	}, [ totalItemsTrash, isLoadingCounts ] );
+		setIsEmpty( ! totalItemsTrash );
+	}, [ totalItemsTrash ] );
 
 	const openConfirmDialog = useCallback( () => setConfirmDialogOpen( true ), [] );
 	const closeConfirmDialog = useCallback( () => setConfirmDialogOpen( false ), [] );

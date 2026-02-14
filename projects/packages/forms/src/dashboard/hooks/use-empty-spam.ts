@@ -33,17 +33,14 @@ type UseEmptySpamReturn = {
 /**
  * Hook to manage empty spam functionality.
  *
- * @param props                 - Optional props.
- * @param props.totalItemsSpam  - The total number of spam items (optional, will use hook if not provided).
- * @param props.isLoadingCounts - Whether counts are loading (optional, will use hook if not provided).
+ * @param props                - Optional props.
+ * @param props.totalItemsSpam - The total number of spam items (optional, will use hook if not provided).
  * @return Object with empty spam state and handlers.
  */
 export default function useEmptySpam( {
 	totalItemsSpam: totalItemsSpamProp,
-	isLoadingCounts: isLoadingCountsProp,
 }: {
 	totalItemsSpam?: number;
-	isLoadingCounts?: boolean;
 } = {} ): UseEmptySpamReturn {
 	const [ isConfirmDialogOpen, setConfirmDialogOpen ] = useState( false );
 	const [ isEmptying, setIsEmptying ] = useState( false );
@@ -55,12 +52,11 @@ export default function useEmptySpam( {
 	// Use props if provided, otherwise use hook
 	const hookData = useInboxData();
 	const totalItemsSpam = totalItemsSpamProp ?? hookData.totalItemsSpam ?? 0;
-	const isLoadingCounts = isLoadingCountsProp ?? false;
 	const { selectedResponsesCount, currentQuery } = hookData;
 
 	useEffect( () => {
-		setIsEmpty( isLoadingCounts || ! totalItemsSpam );
-	}, [ totalItemsSpam, isLoadingCounts ] );
+		setIsEmpty( ! totalItemsSpam );
+	}, [ totalItemsSpam ] );
 
 	const openConfirmDialog = useCallback( () => setConfirmDialogOpen( true ), [] );
 	const closeConfirmDialog = useCallback( () => setConfirmDialogOpen( false ), [] );
