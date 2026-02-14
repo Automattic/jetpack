@@ -5,14 +5,14 @@
  * Only displays for new/untitled forms that don't have any content yet.
  */
 
-import { Button, Modal, TextControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
+import { FormNameModal } from '../../dashboard/components/form-name-modal';
 
 /**
  * Form Title Modal component.
@@ -25,8 +25,7 @@ import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 export const FormTitleModal = () => {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ hasShown, setHasShown ] = useState( false );
-	const [ title, setTitle ] = useState( '' );
-	const [ isSaving, setIsSaving ] = useState( false );
+	const retryTitleRef = useRef< string >( '' );
 
 	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
@@ -73,13 +72,15 @@ export const FormTitleModal = () => {
 
 	const handleClose = useCallback( () => {
 		setIsOpen( false );
+		retryTitleRef.current = '';
 	}, [] );
 
-	const handleConfirm = useCallback( async () => {
-		setIsSaving( true );
-		const newTitle = title.trim() || __( 'Untitled Form', 'jetpack-forms' );
+	const handleSave = useCallback(
+		async ( newTitle: string ) => {
+			if ( ! currentPostId ) {
+				return;
+			}
 
-		if ( currentPostId ) {
 			try {
 				await editEntityRecord( 'postType', FORM_POST_TYPE, currentPostId, {
 					title: newTitle,
@@ -88,46 +89,33 @@ export const FormTitleModal = () => {
 					throwOnError: true,
 				} );
 
-				setIsSaving( false );
-				setIsOpen( false );
 				createSuccessNotice( __( 'Form created.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
+				retryTitleRef.current = '';
 			} catch {
-				setIsSaving( false );
-				setIsOpen( false );
 				createErrorNotice( __( 'Failed to create form.', 'jetpack-forms' ), {
 					type: 'snackbar',
 					actions: [
 						{
 							label: __( 'Retry', 'jetpack-forms' ),
 							onClick: () => {
-								setTitle( newTitle );
+								retryTitleRef.current = newTitle;
 								setIsOpen( true );
 							},
 						},
 					],
 				} );
+				throw new Error( 'Failed to save' );
 			}
-		}
-	}, [
-		title,
-		currentPostId,
-		editEntityRecord,
-		saveEditedEntityRecord,
-		createSuccessNotice,
-		createErrorNotice,
-	] );
-
-	const onSubmitForm = useCallback(
-		( event: React.FormEvent ) => {
-			event.preventDefault();
-			if ( isSaving ) {
-				return;
-			}
-			handleConfirm();
 		},
-		[ handleConfirm, isSaving ]
+		[
+			currentPostId,
+			editEntityRecord,
+			saveEditedEntityRecord,
+			createSuccessNotice,
+			createErrorNotice,
+		]
 	);
 
 	// Show modal on first render if this is a new placeholder form in the form editor
@@ -138,35 +126,21 @@ export const FormTitleModal = () => {
 		}
 	}, [ isFormEditor, hasInnerBlocks, isNewForm, hasShown ] );
 
-	// Don't render anything if not in the form editor or modal is closed
-	if ( ! isFormEditor || ! isOpen ) {
+	// Don't render anything if not in the form editor
+	if ( ! isFormEditor ) {
 		return null;
 	}
 
 	return (
-		<Modal
+		<FormNameModal
+			isOpen={ isOpen }
+			onClose={ handleClose }
+			onSave={ handleSave }
 			title={ __( 'Create form', 'jetpack-forms' ) }
-			onRequestClose={ handleClose }
-			size="medium"
-		>
-			<form onSubmit={ onSubmitForm }>
-				<TextControl
-					label={ __( 'Name', 'jetpack-forms' ) }
-					value={ title }
-					onChange={ setTitle }
-					__next40pxDefaultSize
-					placeholder={ __( 'Enter form name', 'jetpack-forms' ) }
-					disabled={ isSaving }
-				/>
-				<div className="jetpack-forms-title-modal__buttons">
-					<Button variant="tertiary" onClick={ handleClose }>
-						{ __( 'Skip', 'jetpack-forms' ) }
-					</Button>
-					<Button aria-disabled={ isSaving } isBusy={ isSaving } variant="primary" type="submit">
-						{ __( 'Create', 'jetpack-forms' ) }
-					</Button>
-				</div>
-			</form>
-		</Modal>
+			initialValue={ retryTitleRef.current }
+			primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
+			secondaryButtonLabel={ __( 'Skip', 'jetpack-forms' ) }
+			placeholder={ __( 'Enter form name', 'jetpack-forms' ) }
+		/>
 	);
 };

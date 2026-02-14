@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Page } from '@wordpress/admin-ui';
+import apiFetch from '@wordpress/api-fetch';
 import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
@@ -13,7 +14,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
+import { useEffect, useMemo, useState, useCallback, useRef } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useSearch, useNavigate } from '@wordpress/route';
 import * as React from 'react';
@@ -24,6 +25,7 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import { FORM_POST_TYPE } from '../../src/blocks/shared/util/constants.js';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
 import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/index.tsx';
+import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
 import { NON_TRASH_FORM_STATUSES } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
@@ -146,10 +148,8 @@ function StageInner() {
 	const [ pendingPermanentDeleteCount, setPendingPermanentDeleteCount ] = useState( 0 );
 
 	// Rename modal state
-	const [ isRenameModalOpen, setIsRenameModalOpen ] = useState( false );
 	const [ renameFormItem, setRenameFormItem ] = useState< FormListItem | null >( null );
-	const [ renameTitle, setRenameTitle ] = useState( '' );
-	const [ isRenaming, setIsRenaming ] = useState( false );
+	const renameRetryRef = useRef< { item: FormListItem; title: string } | null >( null );
 
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { invalidateResolution } = useDispatch( coreStore ) as unknown as CoreStore;
@@ -183,74 +183,69 @@ function StageInner() {
 
 	const openRenameModal = useCallback( ( item: FormListItem ) => {
 		setRenameFormItem( item );
-		setRenameTitle( item.title || '' );
-		setIsRenameModalOpen( true );
 	}, [] );
 
 	const closeRenameModal = useCallback( () => {
-		setIsRenameModalOpen( false );
 		setRenameFormItem( null );
-		setRenameTitle( '' );
+		renameRetryRef.current = null;
 	}, [] );
 
-	const handleRename = useCallback( async () => {
-		if ( ! renameFormItem || isRenaming ) {
-			return;
-		}
-
-		setIsRenaming( true );
-		const newTitle = renameTitle.trim() || __( 'Untitled Form', 'jetpack-forms' );
-
-		try {
-			await apiFetch( {
-				path: `/wp/v2/jetpack-forms/${ renameFormItem.id }`,
-				method: 'POST',
-				data: { title: newTitle },
-			} );
-
-			// Invalidate the forms list cache to refresh the data
-			const query = getFormsListQuery(
-				view.page ?? 1,
-				view.perPage ?? 20,
-				view.search ?? '',
-				statusQuery
-			);
-			invalidateResolution( 'getEntityRecords', [ 'postType', FORM_POST_TYPE, query ] );
-
-			createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
-		} catch ( error ) {
-			createErrorNotice( __( 'Failed to rename form. Please try again.', 'jetpack-forms' ), {
-				type: 'snackbar',
-			} );
-			// eslint-disable-next-line no-console
-			console.error( 'Failed to rename form:', error );
-		} finally {
-			setIsRenaming( false );
-			closeRenameModal();
-		}
-	}, [
-		renameFormItem,
-		renameTitle,
-		isRenaming,
-		view.page,
-		view.perPage,
-		view.search,
-		statusQuery,
-		invalidateResolution,
-		createSuccessNotice,
-		createErrorNotice,
-		closeRenameModal,
-	] );
-
-	const onRenameFormSubmit = useCallback(
-		( event: React.FormEvent ) => {
-			event.preventDefault();
-			if ( isRenaming ) {
+	const handleRename = useCallback(
+		async ( newTitle: string ) => {
+			if ( ! renameFormItem ) {
 				return;
 			}
-			handleRename();
+
+			try {
+				await apiFetch( {
+					path: `/wp/v2/jetpack-forms/${ renameFormItem.id }`,
+					method: 'POST',
+					data: { title: newTitle },
+				} );
+
+				// Invalidate the forms list cache to refresh the data
+				const query = getFormsListQuery(
+					view.page ?? 1,
+					view.perPage ?? 20,
+					view.search ?? '',
+					statusQuery
+				);
+				invalidateResolution( 'getEntityRecords', [ 'postType', FORM_POST_TYPE, query ] );
+
+				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
+				renameRetryRef.current = null;
+			} catch ( error ) {
+				// Store retry data before the modal closes
+				const retryItem = renameFormItem;
+				const retryTitle = newTitle;
+
+				createErrorNotice( __( 'Failed to rename form.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					actions: [
+						{
+							label: __( 'Retry', 'jetpack-forms' ),
+							onClick: () => {
+								renameRetryRef.current = { item: retryItem, title: retryTitle };
+								setRenameFormItem( retryItem );
+							},
+						},
+					],
+				} );
+				// eslint-disable-next-line no-console
+				console.error( 'Failed to rename form:', error );
+				throw error;
+			}
 		},
-		[ handleRename, isRenaming ]
+		[
+			renameFormItem,
+			view.page,
+			view.perPage,
+			view.search,
+			statusQuery,
+			invalidateResolution,
+			createSuccessNotice,
+			createErrorNotice,
+		]
 	);
 
 	const statusLabel = useCallback( ( status: string ) => {
@@ -621,42 +616,13 @@ function StageInner() {
 				<DataViews.Layout />
 				<DataViews.Footer />
 			</DataViews>
-			{ isRenameModalOpen && (
-				<Modal
-					title={ __( 'Rename form', 'jetpack-forms' ) }
-					onRequestClose={ closeRenameModal }
-					size="medium"
-				>
-					<form onSubmit={ onRenameFormSubmit }>
-						<TextControl
-							label={ __( 'Name', 'jetpack-forms' ) }
-							value={ renameTitle }
-							onChange={ setRenameTitle }
-							__next40pxDefaultSize
-						/>
-						<div
-							style={ {
-								display: 'flex',
-								justifyContent: 'flex-end',
-								gap: '8px',
-								marginTop: '16px',
-							} }
-						>
-							<Button variant="tertiary" onClick={ closeRenameModal }>
-								{ __( 'Cancel', 'jetpack-forms' ) }
-							</Button>
-							<Button
-								aria-disabled={ isRenaming }
-								isBusy={ isRenaming }
-								variant="primary"
-								type="submit"
-							>
-								{ __( 'Save', 'jetpack-forms' ) }
-							</Button>
-						</div>
-					</form>
-				</Modal>
-			) }
+			<FormNameModal
+				isOpen={ !! renameFormItem }
+				onClose={ closeRenameModal }
+				onSave={ handleRename }
+				title={ __( 'Rename form', 'jetpack-forms' ) }
+				initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+			/>
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }
 				onClose={ closeIntegrationsModal }
