@@ -41,6 +41,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	animation,
 	className,
 	chartId: providedChartId,
+	height = '200px',
 	style,
 	renderStepLabel,
 	renderStepRate,
@@ -294,7 +295,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		return (
 			<div
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-				style={ style }
+				style={ { ...style, height } }
 			>
 				<div className={ styles[ 'empty-state' ] }>
 					{ loading ? 'Loading...' : 'No data available' }
@@ -315,7 +316,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 					chartRef.current = node;
 				} }
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-				style={ style }
+				style={ { ...style, height } }
 			>
 				{ /* Main Metric */ }
 				{ renderMainMetric ? (

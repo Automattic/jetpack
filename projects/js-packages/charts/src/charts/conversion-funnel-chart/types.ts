@@ -66,6 +66,8 @@ export interface ConversionFunnelChartProps
 	steps: FunnelStep[];
 	/** Whether the chart is in loading state */
 	loading?: boolean;
+	/** Height of the chart container (e.g., "100%", "400px"). Defaults to 200px. */
+	height?: string | number;
 	/** Custom styling */
 	style?: React.CSSProperties;
 	/** Custom render function for step labels */
