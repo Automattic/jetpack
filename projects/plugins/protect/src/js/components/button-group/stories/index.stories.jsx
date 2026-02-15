@@ -1,4 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import ButtonGroup from '../index.jsx';
 
 export default {

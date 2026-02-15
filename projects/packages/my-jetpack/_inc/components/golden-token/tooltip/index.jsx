@@ -1,5 +1,5 @@
-import { Button, JetpackIcon } from '@automattic/jetpack-components';
-import { Popover } from '@wordpress/components';
+import { JetpackIcon } from '@automattic/jetpack-components';
+import { Button, Popover } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';

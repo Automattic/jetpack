@@ -1,6 +1,6 @@
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { animated, useSpring } from '@react-spring/web';
 import clsx from 'clsx';
 import { useState } from 'react';

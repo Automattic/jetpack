@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
+import { ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button, Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useState } from 'react';

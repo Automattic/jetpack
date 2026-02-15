@@ -1,4 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { forwardRef, useMemo } from 'react';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';

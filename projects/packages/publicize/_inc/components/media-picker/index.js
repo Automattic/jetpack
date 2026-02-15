@@ -1,6 +1,6 @@
-import { Button, ThemeProvider } from '@automattic/jetpack-components';
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { ResponsiveWrapper, Spinner, VisuallyHidden } from '@wordpress/components';
+import { Button, ResponsiveWrapper, Spinner, VisuallyHidden } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';

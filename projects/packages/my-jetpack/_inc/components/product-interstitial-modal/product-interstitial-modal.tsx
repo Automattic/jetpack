@@ -1,5 +1,5 @@
-import { Text, Button, ThemeProvider, Col, Container } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
+import { Text, ThemeProvider, Col, Container } from '@automattic/jetpack-components';
+import { Button, Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useState, cloneElement } from 'react';
@@ -236,7 +236,7 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 									{ PrimaryButton }
 									<Button
 										variant="link"
-										isExternalLink={ secondaryButtonHasExternalLink }
+										target={ secondaryButtonHasExternalLink ? '_blank' : undefined }
 										href={ secondaryButtonHref }
 									>
 										{ __( 'Learn more', 'jetpack-my-jetpack' ) }

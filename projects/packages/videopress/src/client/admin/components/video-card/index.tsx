@@ -3,12 +3,12 @@
  */
 import {
 	Text,
-	Button,
 	Title,
 	useBreakpointMatch,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
+import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';

@@ -1,6 +1,7 @@
-import { Button, Col, Container, H3 } from '@automattic/jetpack-components';
+import { Col, Container, H3 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../../social-store';

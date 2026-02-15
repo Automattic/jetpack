@@ -1,5 +1,6 @@
-import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { getRedirectUrl, Text } from '@automattic/jetpack-components';
 import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
+import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
@@ -59,7 +60,7 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 						'jetpack-protect'
 					),
 					{
-						codeableLink: <Button variant="link" isExternalLink={ true } href={ codeableURL } />,
+						codeableLink: <ExternalLink href={ codeableURL } />,
 					}
 				) }
 			</Text>
@@ -67,7 +68,7 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 				<Button variant="secondary" onClick={ handleCancelClick() }>
 					{ __( 'Cancel', 'jetpack-protect' ) }
 				</Button>
-				<Button isDestructive={ true } isLoading={ isIgnoring } onClick={ handleIgnoreClick() }>
+				<Button isDestructive={ true } isBusy={ isIgnoring } onClick={ handleIgnoreClick() }>
 					{ __( 'Ignore threat', 'jetpack-protect' ) }
 				</Button>
 			</div>

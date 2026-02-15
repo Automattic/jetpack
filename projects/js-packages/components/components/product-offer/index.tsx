@@ -1,8 +1,8 @@
+import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import clsx from 'clsx';
 import Alert from '../alert/index.tsx';
-import Button from '../button/index.tsx';
 import { CheckmarkIcon } from '../icons/index.tsx';
 import ProductPrice from '../product-price/index.tsx';
 import Text, { H3, Title } from '../text/index.tsx';
@@ -90,7 +90,7 @@ const ProductOffer: FC< ProductOfferProps > = ( {
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Button
 						onClick={ addProductUrl ? null : onAdd }
-						isLoading={ isLoading }
+						isBusy={ isLoading }
 						disabled={ isLoading }
 						variant={ isLoading || ! isBundle ? 'primary' : 'secondary' }
 						className={ styles[ 'add-button' ] }

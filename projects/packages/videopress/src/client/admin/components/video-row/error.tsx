@@ -3,11 +3,11 @@
  */
 import {
 	Text,
-	Button,
 	useBreakpointMatch,
 	ActionPopover,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';

@@ -1,4 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import clsx from 'clsx';
 import styles from './style.module.scss';
 import usePricingData from './use-pricing-data';

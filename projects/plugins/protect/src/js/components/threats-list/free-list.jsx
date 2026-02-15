@@ -1,4 +1,5 @@
-import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
+import { Text, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -27,9 +28,9 @@ const ThreatAccordionItem = ( {
 	}, [ recordEvent, upgradePlan ] );
 
 	const learnMoreButton = source ? (
-		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
+		<ExternalLink href={ source }>
 			{ __( 'See more technical details of this threat', 'jetpack-protect' ) }
-		</Button>
+		</ExternalLink>
 	) : null;
 
 	return (

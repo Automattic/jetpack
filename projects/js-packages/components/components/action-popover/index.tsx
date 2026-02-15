@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { Popover } from '@wordpress/components';
+import { Button, Popover } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import Button from '../button/index.tsx';
 import useBreakpointMatch from '../layout/use-breakpoint-match/index.ts';
 import Text from '../text/index.tsx';
 /**
@@ -93,7 +92,7 @@ const ActionPopover = ( {
 							className={ styles[ 'action-button' ] }
 							disabled={ buttonDisabled }
 							onClick={ onClick }
-							isExternalLink={ buttonExternalLink }
+							target={ buttonExternalLink ? '_blank' : undefined }
 							href={ buttonHref }
 						>
 							{ buttonContent }

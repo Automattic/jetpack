@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
-import { Popover, Dropdown } from '@wordpress/components';
+import { Text, ThemeProvider } from '@automattic/jetpack-components';
+import { Button, Popover, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -202,8 +202,7 @@ const PrivacyActionsDropdown = ( {
 				<ThemeProvider>
 					<div className={ styles[ 'dropdown-content' ] }>
 						<Button
-							weight="regular"
-							fullWidth
+							style={ { minWidth: '100%' } }
 							variant="tertiary"
 							icon={ siteDefaultPrivacyIcon }
 							onClick={ () => {
@@ -218,8 +217,7 @@ const PrivacyActionsDropdown = ( {
 						</Button>
 
 						<Button
-							weight="regular"
-							fullWidth
+							style={ { minWidth: '100%' } }
 							variant="tertiary"
 							icon={ publicPrivacyIcon }
 							onClick={ () => {
@@ -232,8 +230,7 @@ const PrivacyActionsDropdown = ( {
 						</Button>
 
 						<Button
-							weight="regular"
-							fullWidth
+							style={ { minWidth: '100%' } }
 							variant="tertiary"
 							icon={ privatePrivacyIcon }
 							onClick={ () => {

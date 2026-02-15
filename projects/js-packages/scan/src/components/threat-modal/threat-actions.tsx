@@ -1,4 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext, useMemo } from 'react';
 import { getFixerState, getDetailedFixerAction } from '@automattic/jetpack-scan';

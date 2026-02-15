@@ -1,4 +1,5 @@
-import { Button, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -23,7 +24,7 @@ const UpgradeButton = props => {
 		upgradePlan();
 	}, [ recordEvent, upgradePlan ] );
 
-	return <Button variant="link" weight="regular" onClick={ getScan } { ...props } />;
+	return <Button variant="link" onClick={ getScan } { ...props } />;
 };
 
 export default [
@@ -74,7 +75,6 @@ export default [
 						credentialsLink: (
 							<Button
 								variant="link"
-								weight="regular"
 								href={ getRedirectUrl( 'jetpack-settings-security-credentials', {
 									site: siteSuffix,
 								} ) }

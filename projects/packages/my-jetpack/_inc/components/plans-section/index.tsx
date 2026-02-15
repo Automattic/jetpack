@@ -1,7 +1,7 @@
-import { Button, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -109,16 +109,16 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 		if ( isExpiringSoon ) {
 			return (
-				<Button href={ renewUrl } isExternalLink={ true } variant="link" weight="regular">
+				<ExternalLink href={ renewUrl }>
 					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
-				</Button>
+				</ExternalLink>
 			);
 		}
 
 		return (
-			<Button href={ managePurchaseUrl } isExternalLink={ true } variant="link" weight="regular">
+			<ExternalLink href={ managePurchaseUrl }>
 				{ __( 'Resume subscription', 'jetpack-my-jetpack' ) }
-			</Button>
+			</ExternalLink>
 		);
 	}, [ isExpiringPurchase, isExpiringSoon, managePurchaseUrl, renewUrl ] );
 
@@ -246,7 +246,6 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 						onClick={ viewIncludedFeaturesClickHandler }
 						href={ getMyJetpackUrl( '#/products?filter=included' ) }
 						variant="link"
-						weight="regular"
 					>
 						{ __( 'View included features', 'jetpack-my-jetpack' ) }
 					</Button>
@@ -254,15 +253,9 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 			) }
 			{ ! hasComplete && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
-						onClick={ planPurchaseClickHandler }
-						href={ getPurchasePlanUrl() }
-						weight="regular"
-						variant="link"
-						isExternalLink={ true }
-					>
+					<ExternalLink onClick={ planPurchaseClickHandler } href={ getPurchasePlanUrl() }>
 						{ planPurchaseDescription }
-					</Button>
+					</ExternalLink>
 				</li>
 			) }
 
@@ -272,7 +265,6 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 						onClick={ activateLicenseClickHandler }
 						href={ isUserConnected ? getMyJetpackUrl( '#/add-license' ) : getUserConnectionUrl() }
 						variant="link"
-						weight="regular"
 					>
 						{ activateLicenceDescription }
 					</Button>

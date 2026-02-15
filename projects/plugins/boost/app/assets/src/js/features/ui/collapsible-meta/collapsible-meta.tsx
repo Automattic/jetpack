@@ -1,5 +1,5 @@
 import styles from './collapsible-meta.module.scss';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import ChevronDown from '$svg/chevron-down';
@@ -55,7 +55,6 @@ const CollapsibleMeta = ( {
 				<Button
 					variant="link"
 					size="small"
-					weight="regular"
 					icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
 					className={ styles[ 'edit-button' ] }
 					onClick={ onToggle }

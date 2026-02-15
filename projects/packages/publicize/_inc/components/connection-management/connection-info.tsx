@@ -1,5 +1,5 @@
-import { Button, IconTooltip, Text } from '@automattic/jetpack-components';
-import { Panel, PanelBody } from '@wordpress/components';
+import { IconTooltip, Text } from '@automattic/jetpack-components';
+import { Button, Panel, PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';

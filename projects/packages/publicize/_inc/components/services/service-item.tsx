@@ -1,5 +1,5 @@
-import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { Panel, PanelBody } from '@wordpress/components';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button, Panel, PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useReducer, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';

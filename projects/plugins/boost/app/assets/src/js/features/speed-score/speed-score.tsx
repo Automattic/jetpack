@@ -3,7 +3,8 @@ import {
 	didScoresChange,
 	getScoreMovementPercentage,
 } from '@automattic/jetpack-boost-score-api';
-import { BoostScoreBar, Button } from '@automattic/jetpack-components';
+import { BoostScoreBar } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
 import ContextTooltip from './context-tooltip/context-tooltip';
 import RefreshIcon from '$svg/refresh';
@@ -121,7 +122,6 @@ const SpeedScore = () => {
 							<Button
 								variant="link"
 								size="small"
-								weight="regular"
 								className={ styles[ 'action-button' ] }
 								onClick={ handleClickRefresh }
 								disabled={ status === 'loading' }

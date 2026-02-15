@@ -1,4 +1,4 @@
-import Button from '../../button/index.tsx';
+import { Button } from '@wordpress/components';
 import { CheckmarkIcon } from '../../icons/index.tsx';
 import Popover from '../index.tsx';
 import type { Meta } from '@storybook/react';

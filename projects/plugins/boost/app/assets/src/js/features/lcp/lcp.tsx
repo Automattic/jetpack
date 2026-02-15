@@ -2,7 +2,7 @@ import Module from '$features/module/module';
 import Pill from '$features/ui/pill/pill';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import RefreshIcon from '$svg/refresh';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { __ } from '@wordpress/i18n';
 import { useLcpState, useOptimizeLcpAction } from './lib/stores/lcp-state';
@@ -66,7 +66,6 @@ const Lcp = () => {
 					className={ styles[ 'optimize-button' ] }
 					variant="link"
 					size="small"
-					weight="regular"
 					onClick={ handleClickOptimize }
 					icon={ <RefreshIcon /> }
 					disabled={ lcpState?.status === 'pending' }

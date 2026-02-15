@@ -1,5 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
-import { Disabled } from '@wordpress/components';
+import { Button, Disabled } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';

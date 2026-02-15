@@ -1,5 +1,5 @@
-import { Button } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -83,7 +83,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 			variant: ! isBusy ? 'primary' : undefined,
 			disabled: isBusy,
 			size: 'small',
-			weight: 'regular',
 			className,
 		};
 	}, [ isBusy, className ] );

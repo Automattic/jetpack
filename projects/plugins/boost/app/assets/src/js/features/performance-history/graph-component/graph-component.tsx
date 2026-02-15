@@ -1,10 +1,5 @@
-import {
-	BoostScoreGraph,
-	Button,
-	Gridicon,
-	Popover,
-	Spinner,
-} from '@automattic/jetpack-components';
+import { BoostScoreGraph, Gridicon, Popover, Spinner } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { __ } from '@wordpress/i18n';
 import styles from './graph-component.module.scss';

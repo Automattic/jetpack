@@ -1,6 +1,5 @@
-import { Card, CardBody } from '@wordpress/components';
+import { Button, Card, CardBody } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { Button } from '@automattic/jetpack-components';
 import { UpsellBannerProps } from './types.ts';
 import type { FC, ReactNode } from 'react';
 
@@ -53,7 +52,7 @@ const UpsellBanner: FC< UpsellBannerProps > = props => {
 								className="upsell-banner--content-cta-button secondary"
 								href={ secondaryCtaURL }
 								onClick={ secondaryCtaOnClick ?? undefined }
-								isExternalLink={ secondaryCtaIsExternalLink }
+								target={ secondaryCtaIsExternalLink ? '_blank' : undefined }
 							>
 								{ secondaryCtaLabel }
 							</Button>
@@ -63,7 +62,7 @@ const UpsellBanner: FC< UpsellBannerProps > = props => {
 								className="upsell-banner--content-cta-button primary"
 								href={ primaryCtaURL }
 								onClick={ primaryCtaOnClick ?? undefined }
-								isExternalLink={ primaryCtaIsExternalLink }
+								target={ primaryCtaIsExternalLink ? '_blank' : undefined }
 							>
 								{ primaryCtaLabel }
 							</Button>

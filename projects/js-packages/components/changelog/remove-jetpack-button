@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Button: remove Jetpack Button wrapper in favor of WordPress Button component.

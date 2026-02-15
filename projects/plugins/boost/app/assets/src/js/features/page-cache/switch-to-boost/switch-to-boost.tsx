@@ -1,6 +1,6 @@
 import { useAsyncSuperCacheAction } from '$lib/stores/page-cache';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 

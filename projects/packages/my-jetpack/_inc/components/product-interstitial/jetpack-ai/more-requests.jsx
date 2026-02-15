@@ -3,7 +3,6 @@
  */
 import {
 	AdminPage,
-	Button,
 	Col,
 	Container,
 	Text,
@@ -11,6 +10,7 @@ import {
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';

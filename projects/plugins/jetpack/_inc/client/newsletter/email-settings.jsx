@@ -1,12 +1,5 @@
-import {
-	RadioControl,
-	getRedirectUrl,
-	Container,
-	Col,
-	Chip,
-	Button as JetpackButton,
-} from '@automattic/jetpack-components';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { RadioControl, getRedirectUrl, Container, Col, Chip } from '@automattic/jetpack-components';
+import { Button as WPButton, ExternalLink, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
@@ -306,14 +299,14 @@ const EmailSettings = props => {
 											'jetpack'
 										) }
 									</div>
-									<JetpackButton
-										isExternalLink={ true }
+									<WPButton
 										href="https://gravatar.com/profile/avatars"
+										target="_blank"
 										variant="secondary"
 										size="small"
 									>
 										{ __( 'Update your Gravatar', 'jetpack' ) }
-									</JetpackButton>
+									</WPButton>
 								</div>
 							</div>
 						</div>

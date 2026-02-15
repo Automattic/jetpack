@@ -1,5 +1,4 @@
 import {
-	Button,
 	Col,
 	Container,
 	Text,
@@ -7,7 +6,7 @@ import {
 	useBreakpointMatch,
 	Notice as JetpackNotice,
 } from '@automattic/jetpack-components';
-import { Popover, ToggleControl } from '@wordpress/components';
+import { Button, Popover, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
@@ -229,7 +228,7 @@ const FirewallPage = () => {
 					key="enable"
 					variant="link"
 					onClick={ toggleWaf }
-					isLoading={ isUpdating }
+					isBusy={ isUpdating }
 					disabled={ isUpdating }
 				>
 					{ __( 'Enable Firewall', 'jetpack-protect' ) }
@@ -450,7 +449,7 @@ const FirewallPage = () => {
 					<div className={ styles[ 'block-list-button-container' ] }>
 						<Button
 							onClick={ saveIpBlockListChanges }
-							isLoading={ isUpdating }
+							isBusy={ isUpdating }
 							disabled={ ! canEditFirewallSettings || ! ipBlockListHasChanges }
 						>
 							{ __( 'Save block list', 'jetpack-protect' ) }
@@ -527,7 +526,7 @@ const FirewallPage = () => {
 							</div>
 							<Button
 								onClick={ saveIpAllowListChanges }
-								isLoading={ isUpdating }
+								isBusy={ isUpdating }
 								disabled={ isUpdating || ! ipAllowListHasChanges }
 							>
 								{ __( 'Save allow list', 'jetpack-protect' ) }

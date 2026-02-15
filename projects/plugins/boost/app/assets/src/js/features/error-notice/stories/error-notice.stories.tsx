@@ -1,6 +1,6 @@
 import ErrorNotice from '../error-notice';
 import type { Meta } from '@storybook/react';
-import {Button} from '@automattic/jetpack-components'
+import { Button } from '@wordpress/components'
 
 const meta: Meta< typeof ErrorNotice > = {
 	title: 'Plugins/Boost/ErrorNotice',

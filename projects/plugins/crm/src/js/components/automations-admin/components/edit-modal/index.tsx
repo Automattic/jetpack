@@ -1,5 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
+import { Button, Modal } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { StepLabel } from 'crm/components/automations-admin/components/step-label';
@@ -75,7 +74,7 @@ export const EditModal: FC< EditModalProps > = ( {
 							<Button variant={ 'secondary' } onClick={ onCancel }>
 								{ __( 'Cancel', 'zero-bs-crm' ) }
 							</Button>
-							<Button isPrimary onClick={ onSave }>
+							<Button variant="primary" onClick={ onSave }>
 								{ __( 'Save', 'zero-bs-crm' ) }
 							</Button>
 						</div>

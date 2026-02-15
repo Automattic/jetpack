@@ -3,7 +3,6 @@
  */
 import {
 	AdminPage,
-	Button,
 	Col,
 	Container,
 	PricingTable,
@@ -16,7 +15,7 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
-import { Spinner } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -430,10 +429,10 @@ export default function PricingInterstitial( { slug } ) {
 										variant="simple"
 									/>
 									<Button
-										fullWidth
+										style={ { minWidth: '100%' } }
 										variant="secondary"
 										onClick={ handleFreeActivation }
-										isLoading={ loadingButton === 'free' }
+										isBusy={ loadingButton === 'free' }
 										disabled={ buttonsDisabled }
 									>
 										{ config.tiers.free.cta }
@@ -467,9 +466,9 @@ export default function PricingInterstitial( { slug } ) {
 									<Spinner className={ styles.spinner } />
 								) }
 								<Button
-									fullWidth
+									style={ { minWidth: '100%' } }
 									onClick={ handleGetProduct }
-									isLoading={ loadingButton === 'paid' }
+									isBusy={ loadingButton === 'paid' }
 									disabled={ buttonsDisabled }
 								>
 									{ config.tiers.paid.cta }
@@ -498,10 +497,10 @@ export default function PricingInterstitial( { slug } ) {
 									<Spinner className={ styles.spinner } />
 								) }
 								<Button
-									fullWidth
+									style={ { minWidth: '100%' } }
 									variant="secondary"
 									onClick={ handleGetBundle }
-									isLoading={ loadingButton === 'bundle' }
+									isBusy={ loadingButton === 'bundle' }
 									disabled={ buttonsDisabled || isBundleLoading }
 								>
 									{ config.tiers.bundle.cta }

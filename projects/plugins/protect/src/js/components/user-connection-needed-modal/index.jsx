@@ -1,5 +1,6 @@
-import { Button, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import useModal from '../../hooks/use-modal';
 import Notice from '../notice';
@@ -50,12 +51,7 @@ const UserConnectionNeededModal = () => {
 				<Button variant="secondary" onClick={ handleCancelClick() }>
 					{ __( 'Not now', 'jetpack-protect' ) }
 				</Button>
-				<Button
-					isExternalLink={ true }
-					weight="regular"
-					isLoading={ userIsConnecting }
-					onClick={ handleConnectUser }
-				>
+				<Button target="_blank" isBusy={ userIsConnecting } onClick={ handleConnectUser }>
 					{ __( 'Connect your user account', 'jetpack-protect' ) }
 				</Button>
 			</div>

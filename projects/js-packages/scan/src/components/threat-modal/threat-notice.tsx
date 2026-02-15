@@ -1,5 +1,5 @@
-import { Text, Button } from '@automattic/jetpack-components';
-import { Notice, Spinner } from '@wordpress/components';
+import { Text } from '@automattic/jetpack-components';
+import { Button, Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, cautionFilled as warning } from '@wordpress/icons';
 import { useContext } from 'react';
@@ -55,9 +55,8 @@ const ThreatNotice = ( {
 						{ userConnectionNeeded && (
 							<Button
 								className={ styles.notice__action }
-								isExternalLink={ true }
-								weight="regular"
-								isLoading={ userIsConnecting }
+								target="_blank"
+								isBusy={ userIsConnecting }
 								onClick={ handleConnectUser }
 							>
 								{ __( 'Connect your user account', 'jetpack-scan' ) }
@@ -66,10 +65,9 @@ const ThreatNotice = ( {
 						{ siteCredentialsNeeded && (
 							<Button
 								className={ styles.notice__action }
-								isExternalLink={ true }
-								weight="regular"
+								target="_blank"
 								href={ credentialsRedirectUrl }
-								isLoading={ credentialsIsFetching }
+								isBusy={ credentialsIsFetching }
 							>
 								{ __( 'Enter server credentials', 'jetpack-scan' ) }
 							</Button>

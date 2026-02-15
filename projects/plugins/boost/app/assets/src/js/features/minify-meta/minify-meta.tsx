@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
 import { recordBoostEvent } from '$lib/utils/analytics';

@@ -1,4 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
@@ -31,7 +31,7 @@ export default function ConnectedCard() {
 					{ __( 'Site is connected and syncing', 'automattic-for-agencies-client' ) }
 				</p>
 				<div>
-					<Button onClick={ navigateToDashboard } isExternalLink>
+					<Button onClick={ navigateToDashboard } target="_blank">
 						{ __( 'Visit the dashboard', 'automattic-for-agencies-client' ) }
 					</Button>
 				</div>

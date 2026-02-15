@@ -1,6 +1,7 @@
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { Button, getRedirectUrl, Notice } from '@automattic/jetpack-components';
+import { getRedirectUrl, Notice } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const MinifyLegacyNotice = () => {
@@ -25,7 +26,7 @@ const MinifyLegacyNotice = () => {
 				<p>
 					<Button
 						variant="secondary"
-						isExternalLink={ true }
+						target="_blank"
 						onClick={ () => {
 							recordBoostEvent( 'critical_css_retry', {
 								error_type: 'UnknownError',

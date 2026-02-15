@@ -1,5 +1,5 @@
-import { Title, Text, Button, Container, Col } from '@automattic/jetpack-components';
-import { ToggleControl } from '@wordpress/components';
+import { Title, Text, Container, Col } from '@automattic/jetpack-components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useModal from '../../hooks/use-modal';
@@ -31,12 +31,7 @@ const StandaloneMode = () => {
 				</Text>
 				<Text>{ __( 'This mode offers the most protection.', 'jetpack-protect' ) }</Text>
 			</div>
-			<Button
-				variant={ 'link' }
-				isExternalLink={ true }
-				weight={ 'regular' }
-				onClick={ handleClick() }
-			>
+			<Button variant={ 'link' } target="_blank" onClick={ handleClick() }>
 				{ __( 'Learn more', 'jetpack-protect' ) }
 			</Button>
 		</div>

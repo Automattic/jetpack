@@ -3,13 +3,12 @@
  */
 import {
 	Text,
-	Button,
 	useBreakpointMatch,
 	LoadingPlaceholder,
 	ProgressBar,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
-import { Dropdown } from '@wordpress/components';
+import { Button, Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import {
@@ -45,8 +44,7 @@ export const VideoThumbnailDropdownButtons = ( {
 			{ /* TODO: Implement use default and remove disabled class */ }
 			<Button
 				className={ styles.disabled }
-				weight="regular"
-				fullWidth
+				style={ { minWidth: '100%' } }
 				variant="tertiary"
 				icon={ image }
 				onClick={ () => {
@@ -57,8 +55,7 @@ export const VideoThumbnailDropdownButtons = ( {
 				{ __( 'Use default thumbnail', 'jetpack-videopress-pkg' ) }
 			</Button>
 			<Button
-				weight="regular"
-				fullWidth
+				style={ { minWidth: '100%' } }
 				variant="tertiary"
 				icon={ media }
 				onClick={ () => {
@@ -69,8 +66,7 @@ export const VideoThumbnailDropdownButtons = ( {
 				{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
 			</Button>
 			<Button
-				weight="regular"
-				fullWidth
+				style={ { minWidth: '100%' } }
 				variant="tertiary"
 				icon={ cloud }
 				disabled={ isUpdatingPoster }

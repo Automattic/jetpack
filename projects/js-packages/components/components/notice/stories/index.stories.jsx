@@ -1,6 +1,5 @@
 /* eslint-disable no-alert -- ok for demo */
-import { ExternalLink } from '@wordpress/components';
-import Button from '../../button/index.tsx';
+import { Button, ExternalLink } from '@wordpress/components';
 import Notice from '../index.tsx';
 
 export default {

@@ -1,5 +1,4 @@
 import {
-	Button,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
@@ -9,7 +8,7 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { Spinner } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -122,7 +121,7 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 							site: blogID ? blogID.toString() : siteSuffix,
 							query: 'redirect_to=admin.php?page=jetpack-social&refresh_plan_data=1',
 						} ) }
-						fullWidth
+						style={ { minWidth: '100%' } }
 					>
 						{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
 					</Button>
@@ -146,7 +145,7 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 						hidePriceFraction
 					/>
 					<Button
-						fullWidth
+						style={ { minWidth: '100%' } }
 						variant="secondary"
 						onClick={ startForFree }
 						className={ isLarge && styles.button }

@@ -3,9 +3,9 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { getRedirectUrl, Text } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { ExternalLink, Modal } from '@wordpress/components';
+import { Button, ExternalLink, Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
@@ -313,7 +313,6 @@ const HelpFooter = ( { onClose, disabled } ) => {
 			</div>
 			<div className="jp-connection__manage-dialog__button-wrap lg-col-span-3 md-col-span-1 sm-col-span-1">
 				<Button
-					weight="regular"
 					variant="secondary"
 					onClick={ onClose }
 					className="jp-connection__manage-dialog__btn-dismiss"

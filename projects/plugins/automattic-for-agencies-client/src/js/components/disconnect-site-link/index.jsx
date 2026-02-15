@@ -1,6 +1,5 @@
 import restApi from '@automattic/jetpack-api';
-import { Button, Spinner } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
+import { Button, Modal, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 import styles from './styles.module.scss';
@@ -87,7 +86,7 @@ export default function DisconnectSiteLink( { onDisconnect } ) {
 							variant="primary"
 							isDestructive
 							size="small"
-							isLoading={ isDisconnecting }
+							isBusy={ isDisconnecting }
 							disabled={ isDisconnecting }
 							onClick={ disconnect }
 							className={ styles.disconnect_button }

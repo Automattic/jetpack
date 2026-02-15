@@ -1,5 +1,5 @@
-import { Button, Text } from '@automattic/jetpack-components';
-import { TextControl } from '@wordpress/components';
+import { Text } from '@automattic/jetpack-components';
+import { Button, TextControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
@@ -157,13 +157,13 @@ const FixThreatModal = ( { id, signature, extension, fixable, label, icon, sever
 						variant="primary"
 						isDestructive
 						disabled={ confirmationInput !== slug }
-						isLoading={ isFixersLoading }
+						isBusy={ isFixersLoading }
 						onClick={ handleFixClick() }
 					>
 						{ __( 'Delete now', 'jetpack-protect' ) }
 					</Button>
 				) : (
-					<Button isLoading={ isFixersLoading } onClick={ handleFixClick() }>
+					<Button isBusy={ isFixersLoading } onClick={ handleFixClick() }>
 						{ __( 'Fix threat', 'jetpack-protect' ) }
 					</Button>
 				) }

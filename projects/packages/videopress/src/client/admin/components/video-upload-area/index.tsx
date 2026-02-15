@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, useBreakpointMatch, Text } from '@automattic/jetpack-components';
+import { useBreakpointMatch, Text } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, captureVideo } from '@wordpress/icons';
 import clsx from 'clsx';

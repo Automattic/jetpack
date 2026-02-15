@@ -1,4 +1,4 @@
-import Button from '../../button/index.tsx';
+import { Button } from '@wordpress/components';
 import ProductPrice from '../../product-price/index.tsx';
 import PricingTable, {
 	PricingTableColumn,
@@ -28,7 +28,7 @@ const Template: StoryFn< typeof PricingTable > = args => {
 						currency="USD"
 						hideDiscountLabel={ args?.hideDiscountLabel }
 					/>
-					<Button fullWidth>Get Premium</Button>
+					<Button style={ { minWidth: '100%' } }>Get Premium</Button>
 				</PricingTableHeader>
 				<PricingTableItem isIncluded={ true } label={ <strong>Up to 1000</strong> } />
 				<PricingTableItem isIncluded={ true } tooltipInfo={ 'This is an info' } />
@@ -43,7 +43,7 @@ const Template: StoryFn< typeof PricingTable > = args => {
 			<PricingTableColumn>
 				<PricingTableHeader>
 					<ProductPrice price={ 0 } legend="Free forever" currency="USD" hidePriceFraction />
-					<Button fullWidth variant="secondary">
+					<Button style={ { minWidth: '100%' } } variant="secondary">
 						Start for free
 					</Button>
 				</PricingTableHeader>
@@ -122,7 +122,7 @@ const WithLogoTemplate: StoryFn< typeof PricingTable > = args => {
 						hidePriceFraction
 						variant="simple"
 					/>
-					<Button fullWidth>Get Social</Button>
+					<Button style={ { minWidth: '100%' } }>Get Social</Button>
 				</PricingTableHeader>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
@@ -143,7 +143,7 @@ const WithLogoTemplate: StoryFn< typeof PricingTable > = args => {
 						hidePriceFraction
 						variant="simple"
 					/>
-					<Button fullWidth variant="secondary">
+					<Button style={ { minWidth: '100%' } } variant="secondary">
 						Start for free
 					</Button>
 				</PricingTableHeader>
@@ -175,7 +175,7 @@ const CustomLabelsTemplate: StoryFn< typeof PricingTable > = args => {
 			<PricingTableColumn>
 				<PricingTableHeader>
 					<ProductPrice price={ 0 } currency="USD" hidePriceFraction />
-					<Button fullWidth variant="secondary">
+					<Button style={ { minWidth: '100%' } } variant="secondary">
 						Free
 					</Button>
 				</PricingTableHeader>
@@ -186,7 +186,7 @@ const CustomLabelsTemplate: StoryFn< typeof PricingTable > = args => {
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice price={ 15.95 } currency="USD" hidePriceFraction legend="/month" />
-					<Button fullWidth>Pro</Button>
+					<Button style={ { minWidth: '100%' } }>Pro</Button>
 				</PricingTableHeader>
 				<PricingTableItem isIncluded={ true } label="Full version" />
 				<PricingTableItem isIncluded={ true } />
@@ -215,7 +215,7 @@ const ThreeColumnsTemplate: StoryFn< typeof PricingTable > = args => {
 						hidePriceFraction
 						variant="simple"
 					/>
-					<Button fullWidth variant="secondary">
+					<Button style={ { minWidth: '100%' } } variant="secondary">
 						Start Free
 					</Button>
 				</PricingTableHeader>
@@ -236,7 +236,7 @@ const ThreeColumnsTemplate: StoryFn< typeof PricingTable > = args => {
 						hidePriceFraction
 						variant="simple"
 					/>
-					<Button fullWidth>Get Professional</Button>
+					<Button style={ { minWidth: '100%' } }>Get Professional</Button>
 				</PricingTableHeader>
 				<PricingTableItem isIncluded={ true } label="Up to 50 sites" />
 				<PricingTableItem isIncluded={ true } />
@@ -255,7 +255,7 @@ const ThreeColumnsTemplate: StoryFn< typeof PricingTable > = args => {
 						hidePriceFraction
 						variant="simple"
 					/>
-					<Button fullWidth variant="secondary">
+					<Button style={ { minWidth: '100%' } } variant="secondary">
 						Contact Sales
 					</Button>
 				</PricingTableHeader>

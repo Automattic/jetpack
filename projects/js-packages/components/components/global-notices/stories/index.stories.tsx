@@ -1,5 +1,5 @@
+import { Button } from '@wordpress/components';
 import { useCallback } from 'react';
-import Button from '../../button/index.tsx';
 import { GlobalNotices, useGlobalNotices } from '../index.ts';
 import type { Meta } from '@storybook/react';
 

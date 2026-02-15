@@ -4,7 +4,6 @@ import {
 	Text,
 	AdminSectionHero,
 	Notice,
-	Button,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
@@ -74,16 +73,14 @@ const SettingsPage = () => {
 							</Text>
 						}
 						actions={ [
-							<Button
-								variant="link"
-								isExternalLink
+							<ExternalLink
 								href={ getRedirectUrl( 'jetpack-account-protection', {
 									anchor: 'unsupported-environments',
 								} ) }
 								key="learn-more"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
-							</Button>,
+							</ExternalLink>,
 						] }
 					/>
 				) }
@@ -101,16 +98,14 @@ const SettingsPage = () => {
 							</Text>
 						}
 						actions={ [
-							<Button
-								variant="link"
-								isExternalLink
+							<ExternalLink
 								href={ getRedirectUrl( 'jetpack-account-protection', {
 									anchor: 'requirements',
 								} ) }
 								key="learn-more"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
-							</Button>,
+							</ExternalLink>,
 						] }
 					/>
 				) }

@@ -12,12 +12,12 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	IconTooltip,
-	Button,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -258,7 +258,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 										</IconTooltip>
 									</div>
 								</ProductPrice>
-								<Button onClick={ sendToCartPaid } fullWidth>
+								<Button onClick={ sendToCartPaid } style={ { minWidth: '100%' } }>
 									{ __( 'Get Search', 'jetpack-search-pkg' ) }
 								</Button>
 							</PricingTableHeader>
@@ -304,7 +304,11 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 									currency={ priceCurrencyCode }
 									hidePriceFraction
 								/>
-								<Button onClick={ sendToCartFree } variant="secondary" fullWidth>
+								<Button
+									onClick={ sendToCartFree }
+									variant="secondary"
+									style={ { minWidth: '100%' } }
+								>
 									{ __( 'Start for free', 'jetpack-search-pkg' ) }
 								</Button>
 							</PricingTableHeader>

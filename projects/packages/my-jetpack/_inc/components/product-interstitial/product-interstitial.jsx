@@ -1,16 +1,10 @@
 /**
  * External dependencies
  */
-import {
-	AdminPage,
-	Button,
-	Col,
-	Container,
-	Text,
-	TermsOfService,
-} from '@automattic/jetpack-components';
+import { AdminPage, Col, Container, Text, TermsOfService } from '@automattic/jetpack-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';

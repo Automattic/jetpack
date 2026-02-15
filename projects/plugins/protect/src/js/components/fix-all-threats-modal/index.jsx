@@ -1,4 +1,5 @@
-import { Button, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import useFixers from '../../hooks/use-fixers';
@@ -107,7 +108,7 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 				</Button>
 				{ bulkFixableThreats.length > 0 && (
 					<Button
-						isLoading={ isFixersLoading }
+						isBusy={ isFixersLoading }
 						onClick={ handleFixClick }
 						disabled={ ! threatIds.length }
 					>

@@ -1,6 +1,5 @@
-import { Button } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
-import { Tooltip } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -15,7 +14,6 @@ export const BackupNowButton = ( {
 	tooltipText,
 	tracksEventName,
 	variant = 'primary',
-	weight = 'regular',
 	onClick,
 } ) => {
 	const { tracks } = useAnalytics();
@@ -95,7 +93,6 @@ export const BackupNowButton = ( {
 				onClick={ onClickHandler }
 				disabled={ disabled }
 				isBusy={ isEnqueuing || backupCurrentlyInProgress }
-				weight={ weight }
 			>
 				{ buttonContent }
 			</Button>
@@ -110,7 +107,6 @@ BackupNowButton.propTypes = {
 	tooltipText: PropTypes.string,
 	tracksEventName: PropTypes.string,
 	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'tertiary' ] ),
-	weight: PropTypes.oneOf( [ 'regular', 'bold' ] ),
 	onClick: PropTypes.func,
 };
 

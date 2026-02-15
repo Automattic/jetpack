@@ -1,6 +1,6 @@
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { ExternalLink, SelectControl, ToggleControl } from '@wordpress/components';
+import { Button, ExternalLink, SelectControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -106,7 +106,7 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 
 			<Button
 				className={ styles.button }
-				fullWidth={ isSmall }
+				style={ isSmall ? { minWidth: '100%' } : undefined }
 				variant="secondary"
 				disabled={ isUpdating || ! isEnabled }
 				href={ newNoteUrl }

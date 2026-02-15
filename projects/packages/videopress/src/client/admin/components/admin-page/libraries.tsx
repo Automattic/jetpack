@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';

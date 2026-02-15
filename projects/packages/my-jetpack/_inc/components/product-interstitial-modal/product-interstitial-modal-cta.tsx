@@ -1,5 +1,5 @@
-import { Button } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
@@ -78,9 +78,9 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 		<Button
 			variant="primary"
 			className={ styles[ 'action-button' ] }
-			isLoading={ isProductLoading || hasMainCheckoutStarted }
+			isBusy={ isProductLoading || hasMainCheckoutStarted }
 			onClick={ mainCheckoutRedirect }
-			isExternalLink={ isExternalLink }
+			target={ isExternalLink ? '_blank' : undefined }
 			href={ href }
 			disabled={ disabled || isProductLoading }
 		>

@@ -1,5 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
-import { Tooltip } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
@@ -83,12 +82,11 @@ export default function ThreatFixerButton( {
 			<Tooltip className={ styles.tooltip } text={ tooltipText }>
 				<Button
 					size="small"
-					weight="regular"
 					variant="secondary"
 					onClick={ handleClick }
 					children={ buttonText }
 					className={ className }
-					isLoading={ fixerState.inProgress }
+					isBusy={ fixerState.inProgress }
 					isDestructive={
 						( threat.fixable && threat.fixable.fixer === 'delete' ) ||
 						fixerState.error ||

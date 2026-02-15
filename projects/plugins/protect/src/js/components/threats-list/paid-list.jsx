@@ -1,11 +1,11 @@
 import {
 	Text,
-	Button,
 	DiffViewer,
 	MarkedLines,
 	DetailsViewer,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -46,9 +46,9 @@ const ThreatAccordionItem = ( {
 	const isStaleFixInProgress = isThreatFixStale( id );
 
 	const learnMoreButton = source ? (
-		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
+		<ExternalLink href={ source }>
 			{ __( 'See more technical details of this threat', 'jetpack-protect' ) }
-		</Button>
+		</ExternalLink>
 	) : null;
 
 	const handleIgnoreThreatClick = () => {

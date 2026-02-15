@@ -1,4 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { useCallback, useState } from 'react';
 import ThreatModal from '../index.tsx';
 

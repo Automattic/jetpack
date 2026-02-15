@@ -1,5 +1,4 @@
 import {
-	Button,
 	ProductPrice,
 	PricingTable,
 	PricingTableColumn,
@@ -7,6 +6,7 @@ import {
 	PricingTableItem,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -23,7 +23,7 @@ const ConnectedPricingTable = () => {
 	const { showErrorNotice } = useNotices();
 	const { recordEvent } = useAnalyticsTracks();
 	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
-	const { handleRegisterSite, registrationError } = useConnection( {
+	const { handleRegisterSite } = useConnection( {
 		from: 'protect',
 		skipUserConnection: true,
 		redirectUri: 'admin.php?page=jetpack-protect',
@@ -108,9 +108,9 @@ const ConnectedPricingTable = () => {
 							hideDiscountLabel={ false }
 						/>
 						<Button
-							fullWidth
+							style={ { minWidth: '100%' } }
 							onClick={ getScan }
-							isLoading={ hasCheckoutStarted }
+							isBusy={ hasCheckoutStarted }
 							disabled={ isPlanLoading || hasCheckoutStarted }
 						>
 							{ __( 'Get Jetpack Protect', 'jetpack-protect' ) }
@@ -146,16 +146,11 @@ const ConnectedPricingTable = () => {
 							hidePriceFraction
 						/>
 						<Button
-							fullWidth
+							style={ { minWidth: '100%' } }
 							variant="secondary"
 							onClick={ getProtectFree }
-							isLoading={ hasConnectionStarted }
+							isBusy={ hasConnectionStarted }
 							disabled={ isPlanLoading || hasConnectionStarted }
-							error={
-								registrationError
-									? __( 'An error occurred. Please try again.', 'jetpack-protect' )
-									: null
-							}
 						>
 							{ __( 'Start for free', 'jetpack-protect' ) }
 						</Button>

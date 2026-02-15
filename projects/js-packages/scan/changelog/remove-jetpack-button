@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Threats: replace Jetpack Button with WordPress Button and ExternalLink components.

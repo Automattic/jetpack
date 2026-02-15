@@ -1,5 +1,6 @@
-import { Button, ProductPrice, getRedirectUrl } from '@automattic/jetpack-components';
+import { ProductPrice, getRedirectUrl } from '@automattic/jetpack-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -152,7 +153,6 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 							<Button
 								href={ getRedirectUrl( 'ai-assistant-fair-usage-policy' ) }
 								variant="link"
-								weight="regular"
 								size="small"
 								target="_blank"
 							/>

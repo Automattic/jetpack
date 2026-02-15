@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 /**

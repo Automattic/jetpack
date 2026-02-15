@@ -1,5 +1,5 @@
-import { getIconBySlug, JetpackLogo, Button, Col, Container } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
+import { getIconBySlug, JetpackLogo, Col, Container } from '@automattic/jetpack-components';
+import { Button, Modal } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
@@ -113,12 +113,7 @@ function GoldenTokenModal( {
 										) }
 								</p>
 							</div>
-							<Button
-								variant="primary"
-								weight="regular"
-								onClick={ redeemClickHandler }
-								className={ styles.button }
-							>
+							<Button variant="primary" onClick={ redeemClickHandler } className={ styles.button }>
 								{ tokenRedeemed && __( 'Awesome!', 'jetpack-licensing' ) }
 								{ ! tokenRedeemed && __( 'Redeem your token', 'jetpack-licensing' ) }
 							</Button>
@@ -164,7 +159,6 @@ function GoldenTokenModal( {
 
 							<Button
 								variant="primary"
-								weight="regular"
 								onClick={ redeemClickHandler }
 								href={ window?.myJetpackInitialState?.myJetpackUrl }
 								className={ styles.button }

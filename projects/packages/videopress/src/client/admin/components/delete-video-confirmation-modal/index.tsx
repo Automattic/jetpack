@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, ThemeProvider, Text } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
+import { ThemeProvider, Text } from '@automattic/jetpack-components';
+import { Button, Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -29,7 +29,6 @@ const DeleteVideoConfirmationModal = ( {
 						<Button
 							className={ styles[ 'modal-action-button' ] }
 							variant="secondary"
-							weight="bold"
 							onClick={ onClose }
 						>
 							{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
@@ -39,7 +38,6 @@ const DeleteVideoConfirmationModal = ( {
 							className={ styles[ 'modal-action-button' ] }
 							isDestructive
 							variant="primary"
-							weight="bold"
 							onClick={ onDelete }
 						>
 							{ __( 'Delete', 'jetpack-videopress-pkg' ) }

@@ -1,13 +1,13 @@
 import {
 	JetpackFooter,
 	JetpackSearchLogo,
-	Button,
 	Container,
 	Col,
 	getProductCheckoutUrl,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
+import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';

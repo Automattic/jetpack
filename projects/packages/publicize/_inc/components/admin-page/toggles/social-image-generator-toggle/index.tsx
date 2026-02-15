@@ -1,4 +1,5 @@
-import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -57,7 +58,7 @@ const SocialImageGeneratorToggle: FC< SocialImageGeneratorToggleProps > = ( { di
 	const renderTemplatePickerModal = useCallback(
 		( { open } ) => (
 			<Button
-				fullWidth={ isSmall }
+				style={ isSmall ? { minWidth: '100%' } : undefined }
 				className={ styles.button }
 				variant="secondary"
 				disabled={ isUpdating || ! isEnabled }

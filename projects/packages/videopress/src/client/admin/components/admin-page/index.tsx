@@ -7,7 +7,6 @@ import {
 	AdminSectionHero,
 	AdminSection,
 	Container,
-	Button,
 	Col,
 	useBreakpointMatch,
 	ContextualUpgradeTrigger,
@@ -19,7 +18,7 @@ import {
 	ConnectionError,
 } from '@automattic/jetpack-connection';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
-import { FormFileUpload } from '@wordpress/components';
+import { Button, FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -266,9 +265,9 @@ const Admin = () => {
 										multiple={ hasVideoPressPurchase }
 										render={ ( { openFileDialog } ) => (
 											<Button
-												fullWidth={ isSm }
+												style={ isSm ? { minWidth: '100%' } : undefined }
 												onClick={ openFileDialog }
-												isLoading={ loading }
+												isBusy={ loading }
 												disabled={ ! canUpload }
 											>
 												{ __( 'Add new video', 'jetpack-videopress-pkg' ) }

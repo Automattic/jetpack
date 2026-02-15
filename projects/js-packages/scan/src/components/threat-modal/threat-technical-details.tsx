@@ -1,4 +1,5 @@
-import { Text, Button, DiffViewer, MarkedLines } from '@automattic/jetpack-components';
+import { Text, DiffViewer, MarkedLines } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp, Icon } from '@wordpress/icons';
 import { useState, useCallback, useContext } from 'react';

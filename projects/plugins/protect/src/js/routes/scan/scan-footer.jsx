@@ -1,12 +1,12 @@
 import {
 	Text,
-	Button,
 	Title,
 	getRedirectUrl,
 	ContextualUpgradeTrigger,
 	Col,
 	Container,
 } from '@automattic/jetpack-components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import SeventyFiveLayout from '../../components/seventy-five-layout';
@@ -38,7 +38,7 @@ const ProductPromotion = () => {
 					) }
 				</Text>
 
-				<Button variant="secondary" weight="regular" href={ goToCloudUrl }>
+				<Button variant="secondary" href={ goToCloudUrl }>
 					{ __( 'Go to Cloud', 'jetpack-protect' ) }
 				</Button>
 			</div>
@@ -86,9 +86,9 @@ const FooterInfo = () => {
 						'We actively review line-by-line of your site files to identify threats and vulnerabilities. Jetpack monitors millions of websites to keep your site secure all the time.',
 						'jetpack-protect'
 					) }{ ' ' }
-					<Button variant="link" target="_blank" weight="regular" href={ learnMoreScanUrl }>
+					<ExternalLink href={ learnMoreScanUrl }>
 						{ __( 'Learn more', 'jetpack-protect' ) }
-					</Button>
+					</ExternalLink>
 				</Text>
 			</div>
 		);
@@ -116,9 +116,9 @@ const FooterInfo = () => {
 				) }
 			</Text>
 
-			<Button variant="link" isExternalLink={ true } href={ learnMoreProtectUrl } weight="regular">
+			<ExternalLink href={ learnMoreProtectUrl }>
 				{ __( 'Learn more', 'jetpack-protect' ) }
-			</Button>
+			</ExternalLink>
 		</div>
 	);
 };

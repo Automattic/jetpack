@@ -1,5 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
-import { Notice } from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { _n } from '@wordpress/i18n';

@@ -46,8 +46,6 @@ export { default as ThemeProvider } from './components/theme-provider/index.tsx'
 export { default as Text, H2, H3, Title } from './components/text/index.tsx';
 export { default as NumberControl } from './components/number-control/index.tsx';
 export { default as QRCode } from './components/qr-code/index.tsx';
-export { default as Button } from './components/button/index.tsx';
-export type { ButtonProps } from './components/button/types.ts';
 export { default as LoadingPlaceholder } from './components/loading-placeholder/index.tsx';
 export { default as TermsOfService } from './components/terms-of-service/index.tsx';
 export { default as Badge } from './components/badge/index.tsx';

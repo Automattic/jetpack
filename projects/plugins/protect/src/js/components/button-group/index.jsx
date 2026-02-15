@@ -1,5 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
-import { Flex } from '@wordpress/components';
+import { Button, Flex } from '@wordpress/components';
 import styles from './styles.module.scss';
 
 /**

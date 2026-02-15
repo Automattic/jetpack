@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	Button,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
@@ -10,6 +9,7 @@ import {
 	ProductPrice,
 } from '@automattic/jetpack-components';
 import { useConnection, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
 /**
@@ -61,8 +61,8 @@ const PricingPage = ( { onRedirecting } ) => {
 							onRedirecting?.();
 							run();
 						} }
-						isLoading={ hasCheckoutStarted }
-						fullWidth
+						isBusy={ hasCheckoutStarted }
+						style={ { minWidth: '100%' } }
 						disabled={ isConnecting || hasCheckoutStarted || userIsConnecting }
 					>
 						{ __( 'Get VideoPress', 'jetpack-videopress-pkg' ) }
@@ -77,14 +77,14 @@ const PricingPage = ( { onRedirecting } ) => {
 				<PricingTableHeader>
 					<ProductPrice price={ 0 } legend="" currency={ yearlyPrice.currency } hidePriceFraction />
 					<Button
-						fullWidth
+						style={ { minWidth: '100%' } }
 						variant="secondary"
 						onClick={ () => {
 							setIsConnecting( true );
 							handleRegisterSite();
 							onRedirecting?.();
 						} }
-						isLoading={ userIsConnecting || isConnecting }
+						isBusy={ userIsConnecting || isConnecting }
 						disabled={ userIsConnecting || isConnecting || hasCheckoutStarted }
 					>
 						{ __( 'Start for free', 'jetpack-videopress-pkg' ) }

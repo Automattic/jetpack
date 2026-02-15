@@ -1,11 +1,5 @@
-import {
-	Container,
-	Col,
-	Title,
-	Button,
-	useBreakpointMatch,
-	Text,
-} from '@automattic/jetpack-components';
+import { Container, Col, Title, useBreakpointMatch, Text } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';

@@ -1,5 +1,4 @@
 import {
-	Button,
 	Notice,
 	PricingTable,
 	PricingTableColumn,
@@ -9,6 +8,7 @@ import {
 	Text,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { useCallback, useMemo, useState, useEffect } from 'react';
@@ -210,10 +210,10 @@ const ProductDetailTableColumn = ( {
 					)
 				) }
 				<Button
-					fullWidth
+					style={ { minWidth: '100%' } }
 					variant={ isFree ? 'secondary' : 'primary' }
 					onClick={ onClick }
-					isLoading={ shouldShowLoadingState }
+					isBusy={ shouldShowLoadingState }
 					disabled={ shouldDisableButton }
 				>
 					{ callToAction }
@@ -329,7 +329,7 @@ const ProductDetailTable = ( {
 					key="get"
 					variant="secondary"
 					href={ `https://wordpress.org/plugins/${ pluginSlug }` }
-					isExternalLink
+					target="_blank"
 				>
 					{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
 				</Button>,

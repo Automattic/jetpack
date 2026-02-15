@@ -6,9 +6,8 @@ import {
 import GraphComponent from './graph-component/graph-component';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
-import { Panel, PanelBody, PanelRow } from '@wordpress/components';
+import { Button, Panel, PanelBody, PanelRow } from '@wordpress/components';
 import { PerformanceHistoryData } from './lib/types';
-import { Button } from '@automattic/jetpack-components';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './performance-history.module.scss';
 import { useEffect } from 'react';

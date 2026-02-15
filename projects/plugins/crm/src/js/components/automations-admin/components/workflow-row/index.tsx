@@ -1,5 +1,5 @@
-import { Button, IconTooltip } from '@automattic/jetpack-components';
-import { ToggleControl } from '@wordpress/components';
+import { IconTooltip } from '@automattic/jetpack-components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';

@@ -1,5 +1,5 @@
-import { Button, Gridicon, getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { ExternalLink, Popover } from '@wordpress/components';
+import { Gridicon, getProductCheckoutUrl } from '@automattic/jetpack-components';
+import { Button, ExternalLink, Popover } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';

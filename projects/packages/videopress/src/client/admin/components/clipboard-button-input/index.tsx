@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
@@ -45,7 +45,7 @@ const ClipboardButtonInput: FC< ClipboardButtonInputProps > = ( {
 	return (
 		<div className={ styles.wrapper }>
 			<input type="text" value={ text || value } onClick={ onClickInputHandler } readOnly />
-			<Button weight="regular" variant="secondary" size="small" ref={ ref }>
+			<Button variant="secondary" size="small" ref={ ref }>
 				{ hasCopied ? copiedLabel : copyLabel }
 			</Button>
 		</div>

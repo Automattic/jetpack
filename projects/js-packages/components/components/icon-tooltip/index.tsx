@@ -1,7 +1,6 @@
-import { Popover } from '@wordpress/components';
+import { Popover, Button } from '@wordpress/components';
 import clsx from 'clsx';
 import { useCallback, useState, ReactElement, FC } from 'react';
-import Button from '../button/index.tsx';
 import Gridicon from '../gridicon/index.tsx';
 import { IconTooltipProps, Placement, Position } from './types.ts';
 

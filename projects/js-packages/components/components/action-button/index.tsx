@@ -1,8 +1,7 @@
-import { Spinner } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import Button from '../button/index.tsx';
 import styles from './style.module.scss';
 
 /**
@@ -39,7 +38,7 @@ const ActionButton = props => {
 					label={ label }
 					onClick={ onClick }
 					variant={ isExternalLink ? 'link' : variant }
-					isExternalLink={ isExternalLink }
+					target={ isExternalLink ? '_blank' : undefined }
 					disabled={ isLoading || isDisabled }
 				>
 					{ isLoading ? loadingContent : label }

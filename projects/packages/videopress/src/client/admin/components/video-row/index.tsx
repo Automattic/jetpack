@@ -1,12 +1,8 @@
 /**
  * External dependencies
  */
-import {
-	Text,
-	Button,
-	useBreakpointMatch,
-	LoadingPlaceholder,
-} from '@automattic/jetpack-components';
+import { Text, useBreakpointMatch, LoadingPlaceholder } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';

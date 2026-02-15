@@ -1,11 +1,6 @@
-import {
-	DonutMeter,
-	Gridicon,
-	IconTooltip,
-	Button,
-	ThemeProvider,
-} from '@automattic/jetpack-components';
+import { DonutMeter, Gridicon, IconTooltip, ThemeProvider } from '@automattic/jetpack-components';
 import { formatNumber as formatNumberImported } from '@automattic/number-formatters';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import './style.scss';
 

@@ -1,4 +1,4 @@
-import { Button, IconTooltip, Notice, getRedirectUrl } from '@automattic/jetpack-components';
+import { IconTooltip, Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import Lightning from '$svg/lightning';
@@ -13,7 +13,7 @@ import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
-import { ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import type { ChangeEvent, ReactNode } from 'react';
 
 const Meta = () => {
@@ -99,7 +99,6 @@ const Meta = () => {
 		<Button
 			variant="link"
 			size="small"
-			weight="regular"
 			iconSize={ 16 }
 			icon={ <Lightning /> }
 			onClick={ clearPageCache }

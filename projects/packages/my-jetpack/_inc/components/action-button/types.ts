@@ -1,16 +1,15 @@
-import type { ButtonProps } from '@automattic/jetpack-components';
-import type { IconType } from '@wordpress/components';
+import type { Button, IconType } from '@wordpress/components';
+import type { ComponentProps } from 'react';
 
 type ProductButtonProps = Pick<
-	ButtonProps,
-	'size' | 'variant' | 'weight' | 'disabled' | 'className'
+	ComponentProps< typeof Button >,
+	'size' | 'variant' | 'disabled' | 'className'
 >;
 
 export type AdditionalAction = ProductButtonProps & {
 	label: string;
 	href?: string;
 	onClick?: () => void;
-	isExternalLink?: boolean;
 };
 
 export type SecondaryAction = ProductButtonProps & {
@@ -19,10 +18,8 @@ export type SecondaryAction = ProductButtonProps & {
 	shouldShowButton?: () => boolean;
 	onClick: () => void;
 	positionFirst?: boolean;
-	isExternalLink?: boolean;
 	icon?: IconType;
 	iconSize?: number;
 	disabled?: boolean;
-	isLoading?: boolean;
 	className?: string;
 };

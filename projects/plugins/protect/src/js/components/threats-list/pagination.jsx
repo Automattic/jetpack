@@ -1,4 +1,5 @@
-import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { useCallback, useState, useMemo } from 'react';
@@ -13,7 +14,6 @@ const PaginationButton = ( { pageNumber, currentPage, onPageChange } ) => {
 
 	return (
 		<Button
-			size={ 'medium' }
 			className={ ! isCurrentPage ? styles.unfocused : null }
 			onClick={ handleClick }
 			aria-current={ isCurrentPage ? 'page' : undefined }

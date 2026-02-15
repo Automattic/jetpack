@@ -2,13 +2,13 @@
  * External dependencies
  */
 import {
-	Button,
 	Title,
 	useBreakpointMatch,
 	ActionPopover,
 	getRedirectUrl,
 	Text,
 } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp, trash } from '@wordpress/icons';

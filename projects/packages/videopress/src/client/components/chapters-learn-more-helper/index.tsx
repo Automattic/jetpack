@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';

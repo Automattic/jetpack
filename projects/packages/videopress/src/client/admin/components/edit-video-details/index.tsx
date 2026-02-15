@@ -1,6 +1,5 @@
 import {
 	Text,
-	Button,
 	AdminPage,
 	AdminSection,
 	Container,
@@ -10,7 +9,7 @@ import {
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
-import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
+import { Button, SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import {
 	Icon,
@@ -81,7 +80,7 @@ const Header = ( {
 					<Button
 						disabled={ saveDisabled || disabled }
 						onClick={ onSaveChanges }
-						isLoading={ disabled }
+						isBusy={ disabled }
 					>
 						{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
 					</Button>
