@@ -26,6 +26,7 @@ import type { FunnelStep, ConversionFunnelChartProps } from './types';
  * @param props.loading          - Whether the chart is in loading state
  * @param props.animation        - Whether to show chart animation on initial render or not
  * @param props.className        - Additional CSS class name
+ * @param props.height           - Height of the chart container (e.g., "100%", "400px"). Defaults to "200px".
  * @param props.style            - Custom styling
  * @param props.renderStepLabel  - Custom render function for step labels
  * @param props.renderStepRate   - Custom render function for step rates
