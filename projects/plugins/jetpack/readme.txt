@@ -326,15 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.6-a.1 - 2026-02-10
+### 15.6-a.3 - 2026-02-16
 #### Enhancements
-- Forms: Update response sidebar styles.
-- WordPress.com Reader: Add new option to show a link to the WordPress.com Reader in the admin bar.
+- Form Notifications: Add new HTML email template design with respondent info header, metadata section, and improved action buttons.
+- Forms: Allow Accordion, Details, and Icon blocks in forms, and Icon block to be added inside the file upload dropzone.
+- Forms: Allow filtering Forms dashboard URL.
+- Forms: Create new forms in same tab.
+- Forms: Replace dashicon with SVG icon and add tooltip to admin bar "Form Responses" link.
+- Reader: Add Discover card to Reader settings page to highlight feature benefits.
+- Update external menu links to display an arrow indicator for improved performance and a more modern appearance.
+- VideoPress: Accept SRT subtitle files for upload alongside VTT.
+- WordPress.com Reader: Automatically enable the admin bar link on sites newly connected to WordPress.com.
 
 #### Bug fixes
-- Forms: Fix IP address lookup link in response inspector.
-- Sharing: Fix LinkedIn sharing by updating to the current share URL endpoint.
-- Slideshow: Fix an issue with sizing when images are lazily loaded.
+- AI Assistant: Restore Jetpack logo in pre-publish panel where branding is not otherwise apparent.
+- Block Editor Assets: Fix Gutenberg asset detection when assets are served from a CDN.
+- Social: Fix Tumblr preview to prioritize custom message when it is set.
+- Social: Refresh plan features on post-checkout redirect.
 
 --------
 

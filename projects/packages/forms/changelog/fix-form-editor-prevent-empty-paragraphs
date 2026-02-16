@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Form Editor: Prevent empty paragraphs from being inserted outside the form block.
