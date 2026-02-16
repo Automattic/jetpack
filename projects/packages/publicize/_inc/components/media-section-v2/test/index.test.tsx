@@ -305,6 +305,25 @@ describe( 'MediaSectionV2', () => {
 	} );
 
 	describe( 'Remove media', () => {
+		beforeEach( () => {
+			// Set up explicit media selection to show Remove button
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				attachedMedia: [ { id: 789, url: 'https://example.com/attached.jpg', type: 'image/jpeg' } ],
+				imageGeneratorSettings: { enabled: false },
+				mediaSource: 'media-library',
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+			} );
+		} );
+
+		afterEach( () => {
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				attachedMedia: [],
+				imageGeneratorSettings: { enabled: false },
+				mediaSource: undefined,
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+			} );
+		} );
+
 		it( 'should clear media and record event when Remove is clicked', async () => {
 			const user = userEvent.setup();
 
@@ -313,18 +332,54 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Remove' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
-				media_source: 'none',
+				media_source: undefined,
 				attached_media: [],
 				image_generator_settings: { enabled: false },
 			} );
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_removed', {
 				test: 'data',
-				source: 'featured-image',
+				source: 'media-library',
 			} );
+		} );
+
+		it( 'should not show Remove button for featured image fallback', () => {
+			// Reset to featured image fallback state
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				attachedMedia: [],
+				imageGeneratorSettings: { enabled: false },
+				mediaSource: undefined,
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+			} );
+
+			render( <MediaSectionV2 /> );
+
+			// Featured image preview should be shown
+			expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
+			// But Remove button should not be shown
+			expect( screen.queryByRole( 'button', { name: 'Remove' } ) ).not.toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'Disabled state', () => {
+		beforeEach( () => {
+			// Set up explicit media selection to show Remove button
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				attachedMedia: [ { id: 789, url: 'https://example.com/attached.jpg', type: 'image/jpeg' } ],
+				imageGeneratorSettings: { enabled: false },
+				mediaSource: 'media-library',
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+			} );
+		} );
+
+		afterEach( () => {
+			( usePostMeta as jest.Mock ).mockReturnValue( {
+				attachedMedia: [],
+				imageGeneratorSettings: { enabled: false },
+				mediaSource: undefined,
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
+			} );
+		} );
+
 		it( 'should disable buttons when disabled prop is true', () => {
 			render( <MediaSectionV2 disabled={ true } /> );
 

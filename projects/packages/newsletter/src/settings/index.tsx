@@ -1,23 +1,55 @@
 /**
  * External dependencies
  */
-import restApi from '@automattic/jetpack-api';
-import { Notice, Snackbar } from '@wordpress/components';
+import {
+	AdminPage,
+	Col,
+	Container,
+	GlobalNotices,
+	useGlobalNotices,
+} from '@automattic/jetpack-components';
+import { Notice } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { fetchSettings, updateSettings } from './api';
 import { Header } from './components/header';
 import {
-	EmailBylineSection,
 	EmailContentSection,
-	EmailReplyToSettingsSection,
+	EmailBylineSection,
 	EmailSenderSettingsSection,
+	EmailReplyToSettingsSection,
 	NewsletterSection,
+	NewsletterCategoriesSection,
+	PaidNewsletterSection,
+	SubscriptionsSection,
+	WelcomeEmailSection,
 } from './sections';
 import type { NewsletterSettings, JetpackNewsletterSettings } from './types';
 import './style.scss';
+
+const MODULE_NAME = __( 'Jetpack Newsletter', 'jetpack-newsletter' );
+
+/**
+ * Normalize settings from API response
+ *
+ * @param {Record<string, unknown>} settings - Raw settings from API
+ * @return {NewsletterSettings} Normalized settings
+ */
+function normalizeSettings( settings: Record< string, unknown > ): NewsletterSettings {
+	return {
+		...( settings as NewsletterSettings ),
+		wpcom_newsletter_categories: ( ( settings.wpcom_newsletter_categories as number[] ) || [] ).map(
+			String
+		),
+		// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1')
+		wpcom_subscription_emails_use_excerpt: String(
+			Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
+		),
+	};
+}
 
 /**
  * Newsletter Settings App
@@ -29,43 +61,43 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ error, setError ] = useState< string | null >( null );
 
+	// Subscription settings state (for manual save)
+	const [ subscriptionChanges, setSubscriptionChanges ] = useState< Partial< NewsletterSettings > >(
+		{}
+	);
+	const [ isSavingSubscriptions, setIsSavingSubscriptions ] = useState( false );
+
 	// Sender name state (for manual save)
 	const [ senderNameChanges, setSenderNameChanges ] = useState< Partial< NewsletterSettings > >(
 		{}
 	);
 	const [ isSavingSenderName, setIsSavingSenderName ] = useState( false );
 
-	// Snackbar notification state
-	const [ snackbarMessage, setSnackbarMessage ] = useState< string | null >( null );
+	// Newsletter categories state (for manual save)
+	const [ newsletterCategoriesChanges, setNewsletterCategoriesChanges ] = useState<
+		Partial< NewsletterSettings >
+	>( {} );
+	const [ isSavingNewsletterCategories, setIsSavingNewsletterCategories ] = useState( false );
+
+	// Welcome email state (for manual save)
+	const [ welcomeEmailChanges, setWelcomeEmailChanges ] = useState< Partial< NewsletterSettings > >(
+		{}
+	);
+	const [ isSavingWelcomeEmail, setIsSavingWelcomeEmail ] = useState( false );
 
 	// Get settings from PHP
 	const jetpackSettings = (
 		window as Window & { jetpackNewsletterSettings?: JetpackNewsletterSettings }
 	 ).jetpackNewsletterSettings;
 
-	// Callback to clear snackbar
-	const clearSnackbar = useCallback( () => setSnackbarMessage( null ), [] );
+	// Global notices for success/error messages
+	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 
 	// Load settings on mount
 	useEffect( () => {
-		// Initialize the REST API with settings from PHP
-		if ( jetpackSettings?.restApiRoot && jetpackSettings?.restApiNonce ) {
-			restApi.setApiRoot( jetpackSettings.restApiRoot );
-			restApi.setApiNonce( jetpackSettings.restApiNonce );
-		}
-
-		restApi
-			.fetchSettings()
+		fetchSettings( jetpackSettings )
 			.then( ( settings: Record< string, unknown > ) => {
-				// Normalize settings types for frontend use
-				const normalizedSettings: NewsletterSettings = {
-					...( settings as NewsletterSettings ),
-					// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1')
-					wpcom_subscription_emails_use_excerpt: String(
-						Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
-					),
-				};
-				setData( normalizedSettings );
+				setData( normalizeSettings( settings ) );
 				setIsLoading( false );
 			} )
 			.catch( ( err: Error ) => {
@@ -74,7 +106,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
 				setIsLoading( false );
 			} );
-	}, [ jetpackSettings?.restApiRoot, jetpackSettings?.restApiNonce ] );
+	}, [ jetpackSettings ] );
 
 	// Handle auto-save for newsletter toggle and email settings
 	const handleAutoSave = useCallback(
@@ -84,23 +116,24 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			}
 
 			// Update local state optimistically
-			setData( { ...data, ...updates } );
+			setData( prev => ( { ...prev, ...updates } ) );
 
 			// Save to backend
-			restApi
-				.updateSettings( updates )
+			updateSettings( updates, jetpackSettings )
 				.then( () => {
-					setError( null );
+					createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 				} )
 				.catch( ( err: Error ) => {
 					// eslint-disable-next-line no-console
 					console.error( 'Newsletter settings auto-save error:', err );
-					setError( err.message || __( 'Failed to save settings', 'jetpack-newsletter' ) );
+					createErrorNotice( err.message || __( 'Failed to save settings', 'jetpack-newsletter' ), {
+						explicitDismiss: true,
+					} );
 					// Revert optimistic update on error
 					setData( data );
 				} );
 		},
-		[ data ]
+		[ createErrorNotice, createSuccessNotice, data, jetpackSettings ]
 	);
 
 	// Handle sender name changes (staged, not auto-saved)
@@ -118,40 +151,181 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		}
 
 		setIsSavingSenderName( true );
-		setError( null );
 
-		restApi
-			.updateSettings( senderNameChanges )
+		updateSettings( senderNameChanges, jetpackSettings )
 			.then( () => {
-				setError( null );
 				setSenderNameChanges( {} );
-				setSnackbarMessage( __( 'Sender name saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Sender name saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
 				console.error( 'Newsletter sender name save error:', err );
-				setError( err.message || __( 'Failed to save sender name', 'jetpack-newsletter' ) );
+				createErrorNotice(
+					err.message || __( 'Failed to save sender name', 'jetpack-newsletter' ),
+					{ explicitDismiss: true }
+				);
 			} )
 			.finally( () => {
 				setIsSavingSenderName( false );
 			} );
-	}, [ senderNameChanges, data ] );
+	}, [ createErrorNotice, createSuccessNotice, senderNameChanges, data, jetpackSettings ] );
+
+	// Handle subscription settings changes (staged, not auto-saved)
+	const handleSubscriptionChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
+		// Update local state immediately (like auto-save)
+		setData( prev => ( { ...prev, ...updates } ) );
+		// Track changes for save button state
+		setSubscriptionChanges( prev => ( { ...prev, ...updates } ) );
+	}, [] );
+
+	// Save subscription settings
+	const saveSubscriptionSettings = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingSubscriptions( true );
+
+		updateSettings( subscriptionChanges, jetpackSettings )
+			.then( () => {
+				setSubscriptionChanges( {} );
+				createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter subscription settings save error:', err );
+				createErrorNotice(
+					err.message || __( 'Failed to save subscription settings', 'jetpack-newsletter' ),
+					{ explicitDismiss: true }
+				);
+			} )
+			.finally( () => {
+				setIsSavingSubscriptions( false );
+			} );
+	}, [ createErrorNotice, createSuccessNotice, subscriptionChanges, data, jetpackSettings ] );
+
+	// Handle newsletter categories changes (staged, not auto-saved)
+	const handleNewsletterCategoriesChange = useCallback(
+		( updates: Partial< NewsletterSettings > ) => {
+			// Update local state immediately (like auto-save)
+			setData( prev => ( { ...prev, ...updates } ) );
+			// Track changes for save button state
+			setNewsletterCategoriesChanges( prev => ( { ...prev, ...updates } ) );
+		},
+		[]
+	);
+
+	// Save newsletter categories settings
+	const saveNewsletterCategories = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingNewsletterCategories( true );
+
+		// Convert categories from strings to numbers for API
+		const apiUpdates: Record< string, unknown > = { ...newsletterCategoriesChanges };
+
+		// Only include categories if they exist AND are not empty
+		if (
+			apiUpdates.wpcom_newsletter_categories &&
+			Array.isArray( apiUpdates.wpcom_newsletter_categories )
+		) {
+			if ( ( apiUpdates.wpcom_newsletter_categories as string[] ).length > 0 ) {
+				apiUpdates.wpcom_newsletter_categories = (
+					apiUpdates.wpcom_newsletter_categories as string[]
+				 ).map( Number );
+			} else {
+				// Remove empty categories from the update payload to avoid API error
+				delete apiUpdates.wpcom_newsletter_categories;
+			}
+		}
+
+		updateSettings( apiUpdates, jetpackSettings )
+			.then( () => {
+				setNewsletterCategoriesChanges( {} );
+				createSuccessNotice( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter categories save error:', err );
+				createErrorNotice(
+					err.message || __( 'Failed to save newsletter categories', 'jetpack-newsletter' ),
+					{ explicitDismiss: true }
+				);
+			} )
+			.finally( () => {
+				setIsSavingNewsletterCategories( false );
+			} );
+	}, [
+		createErrorNotice,
+		createSuccessNotice,
+		newsletterCategoriesChanges,
+		data,
+		jetpackSettings,
+	] );
+
+	// Handle welcome email changes (staged, not auto-saved)
+	const handleWelcomeEmailChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
+		// Update local state immediately (like auto-save)
+		setData( prev => ( { ...prev, ...updates } ) );
+		// Track changes for save button state
+		setWelcomeEmailChanges( prev => ( { ...prev, ...updates } ) );
+	}, [] );
+
+	// Save welcome email settings
+	const saveWelcomeEmail = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingWelcomeEmail( true );
+
+		updateSettings( welcomeEmailChanges, jetpackSettings )
+			.then( () => {
+				setWelcomeEmailChanges( {} );
+				createSuccessNotice( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter welcome email save error:', err );
+				createErrorNotice(
+					err.message || __( 'Failed to save welcome email message', 'jetpack-newsletter' ),
+					{ explicitDismiss: true }
+				);
+			} )
+			.finally( () => {
+				setIsSavingWelcomeEmail( false );
+			} );
+	}, [ createErrorNotice, createSuccessNotice, welcomeEmailChanges, data, jetpackSettings ] );
 
 	if ( isLoading ) {
 		return (
-			<div className="newsletter-settings">
-				<p>{ __( 'Loading newsletter settings…', 'jetpack-newsletter' ) }</p>
-			</div>
+			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+				<Container horizontalSpacing={ 3 }>
+					<Col>
+						<div className="newsletter-settings">
+							<p>{ __( 'Loading newsletter settings…', 'jetpack-newsletter' ) }</p>
+						</div>
+					</Col>
+				</Container>
+			</AdminPage>
 		);
 	}
 
 	if ( error ) {
 		return (
-			<div className="newsletter-settings newsletter-settings--error">
-				<Notice status="error" isDismissible={ false }>
-					{ error }
-				</Notice>
-			</div>
+			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+				<Container horizontalSpacing={ 3 }>
+					<Col>
+						<div className="newsletter-settings newsletter-settings--error">
+							<Notice status="error" isDismissible={ false }>
+								{ error }
+							</Notice>
+						</div>
+					</Col>
+				</Container>
+			</AdminPage>
 		);
 	}
 
@@ -159,52 +333,93 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		return null;
 	}
 
+	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
 	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
+	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
+	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
-		<div className="newsletter-settings">
-			<Header />
+		<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+			<Container horizontalSpacing={ 3 }>
+				<Col>
+					<div className="newsletter-settings">
+						{ ! jetpackSettings?.isWpcomSimple && (
+							<NewsletterSection
+								data={ data }
+								jetpackSettings={ jetpackSettings }
+								onChange={ handleAutoSave }
+							/>
+						) }
 
-			{ ! jetpackSettings?.isWpcomSimple && (
-				<NewsletterSection
-					data={ data }
-					jetpackSettings={ jetpackSettings }
-					onChange={ handleAutoSave }
-				/>
-			) }
+						<SubscriptionsSection
+							data={ data }
+							jetpackSettings={ jetpackSettings }
+							onChange={ handleSubscriptionChange }
+							onSave={ saveSubscriptionSettings }
+							isSaving={ isSavingSubscriptions }
+							hasChanges={ hasSubscriptionChanges }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<EmailContentSection
-				data={ data }
-				onChange={ handleAutoSave }
-				isSitePublic={ jetpackSettings?.isSitePublic ?? true }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<PaidNewsletterSection
+							jetpackSettings={ jetpackSettings }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<EmailBylineSection
-				data={ data }
-				onChange={ handleAutoSave }
-				jetpackSettings={ jetpackSettings }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<NewsletterCategoriesSection
+							data={ data }
+							onChange={ handleNewsletterCategoriesChange }
+							onSave={ saveNewsletterCategories }
+							isSaving={ isSavingNewsletterCategories }
+							hasChanges={ hasNewsletterCategoriesChanges }
+							jetpackSettings={ jetpackSettings }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<EmailSenderSettingsSection
-				data={ data }
-				onChange={ handleSenderNameChange }
-				onSave={ saveSenderName }
-				isSaving={ isSavingSenderName }
-				hasChanges={ hasSenderNameChanges }
-				jetpackSettings={ jetpackSettings }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<EmailContentSection
+							data={ data }
+							onChange={ handleAutoSave }
+							isSitePublic={ jetpackSettings?.isSitePublic ?? true }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			<EmailReplyToSettingsSection
-				data={ data }
-				onChange={ handleAutoSave }
-				isNewsletterEnabled={ data.subscriptions }
-			/>
+						<EmailBylineSection
+							data={ data }
+							onChange={ handleAutoSave }
+							jetpackSettings={ jetpackSettings }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
 
-			{ snackbarMessage && <Snackbar onRemove={ clearSnackbar }>{ snackbarMessage }</Snackbar> }
-		</div>
+						<EmailSenderSettingsSection
+							data={ data }
+							onChange={ handleSenderNameChange }
+							onSave={ saveSenderName }
+							isSaving={ isSavingSenderName }
+							hasChanges={ hasSenderNameChanges }
+							jetpackSettings={ jetpackSettings }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
+
+						<EmailReplyToSettingsSection
+							data={ data }
+							onChange={ handleAutoSave }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
+
+						<WelcomeEmailSection
+							data={ data }
+							onChange={ handleWelcomeEmailChange }
+							onSave={ saveWelcomeEmail }
+							isSaving={ isSavingWelcomeEmail }
+							hasChanges={ hasWelcomeEmailChanges }
+							isNewsletterEnabled={ data.subscriptions }
+						/>
+
+						<GlobalNotices />
+					</div>
+				</Col>
+			</Container>
+		</AdminPage>
 	);
 }
 

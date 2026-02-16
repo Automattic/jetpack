@@ -1,11 +1,14 @@
-.post-type-jetpack_form .editor-sidebar__panel-tabs {
-	display: none;
-}
-
 .post-type-jetpack_form .block-editor-block-breadcrumb li:first-child {
 	display: none;
 }
 
-.post-type-jetpack_form .block-editor-block-list__layout .block-editor-block-list__block.is-selected {
-	box-shadow: none;
+.post-type-jetpack_form .editor-post-last-edited-panel {
+	display: none;
+}
+
+.jetpack-forms-title-modal__buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-block-start: 16px;
 }

@@ -1,8 +1,8 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.5-a.3
-Requires at least: 6.7
+Stable tag: 15.6-a.1
+Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
 License: GPLv2 or later
@@ -326,20 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.5-a.3 - 2026-01-19
+### 15.6-a.1 - 2026-02-10
 #### Enhancements
-- Command Palette: Add site switcher command to quickly switch between WordPress.com connected sites.
-- Forms: Add ref attribute support for the form block.
-- Forms: Make form webhooks generally available.
-- Instant Search: Show WooCommerce product filters in filter widget.
-- My Jetpack: Check red bubble notifications async when cache is not available.
-- Sharing: Improve accessibility of sharing button texts by removing "Click to" prefix.
+- Forms: Update response sidebar styles.
+- WordPress.com Reader: Add new option to show a link to the WordPress.com Reader in the admin bar.
 
 #### Bug fixes
-- About Page: Fix plugin icon positioning and sizing.
-- Contact Form: Fix checkbox field value not being properly output in the classic editor form builder.
-- Shortcode: Fix broken YouTube URL on the classic editor.
-- Slideshow: Ensure slideshows do not stretch to parent container width on mobile if no list height is set.
+- Forms: Fix IP address lookup link in response inspector.
+- Sharing: Fix LinkedIn sharing by updating to the current share URL endpoint.
+- Slideshow: Fix an issue with sizing when images are lazily loaded.
 
 --------
 

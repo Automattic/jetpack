@@ -30,6 +30,22 @@ class Dashboard_REST_Controller {
 	public static $namespace = 'jetpack/v4/blaze-app';
 
 	/**
+	 * Connection manager object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Manager
+	 */
+	private $connection;
+
+	/**
+	 * Creates the Dashboard_REST_Controller object.
+	 *
+	 * @param \Automattic\Jetpack\Connection\Manager $connection   The connection manager object.
+	 */
+	public function __construct( $connection = null ) {
+		$this->connection = $connection ?? new Connection_Manager();
+	}
+
+	/**
 	 * Registers the REST routes for Blaze Dashboard.
 	 *
 	 * Blaze Dashboard is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
@@ -1515,8 +1531,7 @@ class Dashboard_REST_Controller {
 			return true;
 		}
 
-		$connection = new Connection_Manager();
-		return $connection->is_connected() && $connection->is_user_connected();
+		return $this->connection->is_connected() && $this->connection->is_user_connected();
 	}
 
 	/**

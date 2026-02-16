@@ -19,13 +19,13 @@ return [
     // PhanTypeNonVarPassByRef : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 10+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 9 occurrences
     // PhanUndeclaredFunction : 8 occurrences
     // PhanSuspiciousValueComparison : 6 occurrences
     // PhanTypeArraySuspiciousNull : 6 occurrences
     // PhanTypeInvalidDimOffset : 6 occurrences
     // PhanUndeclaredVariableDim : 6 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanTypeMismatchArgumentInternalProbablyReal : 4 occurrences
     // PhanTypeMismatchArgumentInternalReal : 4 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 3 occurrences

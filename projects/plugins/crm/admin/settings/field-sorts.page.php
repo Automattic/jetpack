@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Admin Page: Settings: Field sorts
  */
 

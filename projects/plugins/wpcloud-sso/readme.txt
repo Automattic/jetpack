@@ -1,6 +1,6 @@
 === Jetpack_WPCloud_SSO ===
 Contributors: automattic
-Requires at least: 6.7
+Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.8
 Stable tag: 0.1.0-alpha

@@ -8,7 +8,7 @@ export type SocialUserPreferences = {
 	/**
 	 * Whether to show a confirmation before publishing a post with social shares.
 	 */
-	prePublishConfirmation: boolean | undefined;
+	showPrePublishConfirmation: boolean | undefined;
 
 	/**
 	 * Whether the review prompt has been dismissed by the user.
@@ -25,7 +25,7 @@ type BooleanPreferences = {
 type Preference = keyof SocialUserPreferences;
 
 const PREFERENCES: Record< Preference, string > = {
-	prePublishConfirmation: 'pre_publish_confirmation',
+	showPrePublishConfirmation: 'show_pre_publish_confirmation',
 	reviewPromptDismissed: 'review_prompt_dismissed',
 } as const;
 

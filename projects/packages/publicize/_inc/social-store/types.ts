@@ -1,4 +1,4 @@
-import { AttachedMedia, MediaSourceValue } from '../utils';
+import { AttachedMedia, MediaSourceValue, SHARING_ACTIVITY_TABS } from '../utils';
 
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
@@ -81,10 +81,20 @@ export type ScheduledShares = {
 	isScheduling?: boolean;
 };
 
+export type UnifiedModalData = {
+	sharingActivity?: {
+		initialTab?: ( typeof SHARING_ACTIVITY_TABS )[ keyof typeof SHARING_ACTIVITY_TABS ];
+	};
+	socialPreview?: {
+		initialTab?: string;
+	};
+};
+
 export type UnifiedModalState = {
 	isOpen?: boolean;
 	initialPath?: string;
 	isScreenLocked?: boolean;
+	data?: UnifiedModalData;
 };
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };

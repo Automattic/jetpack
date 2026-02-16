@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Blaze: reduce time-to-first-use by querying local database when Jetpack Sync is not ready.

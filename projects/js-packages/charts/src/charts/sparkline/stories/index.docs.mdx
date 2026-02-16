@@ -62,14 +62,20 @@ The simplest sparkline requires only a `data` prop with an array of numeric valu
 
 ### Optional Props
 
+**Layout & Dimensions:**
 - **`width`** (default: `100`): Width of the sparkline in pixels
 - **`height`** (default: `40`): Height of the sparkline in pixels
+- **`margin`** (default: `{2,2,2,2}`): Margin around the chart
+- **`aspectRatio`**: Height as a fraction of width. When omitted, fills parent container height
+- **`maxWidth`** (default: `1200`): Maximum width constraint for responsive charts
+- **`resizeDebounceTime`** (default: `300`): Debounce delay for resize events in ms
+
+**Visual Styling:**
 - **`color`**: Color for the line stroke (defaults to theme color)
 - **`strokeWidth`** (default: `1.5`): Line stroke width in pixels
 - **`withGradientFill`** (default: `true`): Whether to render gradient fill beneath the line
 - **`gradient`**: Custom gradient configuration (from, to, fromOpacity, toOpacity)
 - **`className`**: Additional CSS class name
-- **`margin`** (default: `{2,2,2,2}`): Margin around the chart
 
 For detailed prop information and type definitions, see the [Sparkline API Reference](./?path=/docs/js-packages-charts-library-charts-sparkline-api-reference--docs).
 
@@ -145,20 +151,24 @@ Disable the gradient for a cleaner line-only appearance, or customize it:
 
 ### Responsive Sparkline
 
-The default `Sparkline` export includes responsive behavior. Wrap in a container and use `aspectRatio`:
+The default `Sparkline` export includes responsive behavior. By default, it **fills its parent container's dimensions**:
 
 <Canvas of={ SparklineStories.Responsive } />
 
 <Source
 	language="jsx"
-	code={ `<div style={{ width: '100%', maxWidth: '200px' }}>
-		<Sparkline
-			data={[10, 15, 12, 18, 22, 25]}
-			color="#9C27B0"
-			aspectRatio={0.3}
-		/>
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '200px', height: '60px' }}>
+		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%', maxWidth: '200px' }}>
+		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" aspectRatio={0.3} />
 	</div>` }
 />
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Dashboard Integration
 

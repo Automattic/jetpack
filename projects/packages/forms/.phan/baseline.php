@@ -9,11 +9,10 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 45+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 25+ occurrences
-    // PhanDeprecatedFunction : 8 occurrences
-    // PhanTypeMismatchReturnProbablyReal : 8 occurrences
-    // PhanUndeclaredFunction : 4 occurrences
+    // PhanTypeMismatchArgument : 50+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
+    // PhanTypeMismatchReturnProbablyReal : 7 occurrences
+    // PhanDeprecatedFunction : 3 occurrences
     // PhanPluginDuplicateAdjacentStatement : 3 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
@@ -24,7 +23,6 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/abilities/class-forms-abilities.php' => ['PhanUndeclaredFunction'],
         'src/contact-form/class-contact-form-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyNullTypeMismatchProperty', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form-plugin.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form-shortcode.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],

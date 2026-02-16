@@ -6,6 +6,7 @@ import { useCopyToClipboard } from '@wordpress/compose';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { copySmall, check } from '@wordpress/icons';
+import './style.scss';
 
 type CopyClipboardButtonProps = {
 	text: string;
@@ -45,6 +46,7 @@ export default function CopyClipboardButton( { text }: CopyClipboardButtonProps 
 	return (
 		<Tooltip delay={ 0 } hideOnClick={ false } text={ emailCopyLabel }>
 			<Button
+				className="jp-forms__copy-clipboard-button"
 				size="small"
 				aria-label={ emailCopyLabel }
 				ref={ ref }

@@ -195,6 +195,7 @@ const IntegrationCardHeader = ( {
 							}
 						>
 							<span className="integration-card__toggle-tooltip-wrapper">
+								{ /* @ts-expect-error label is missing here. May be use FormToggle then? */ }
 								<ToggleControl
 									checked={ headerToggleValue && ( isActive || isConnected ) }
 									onChange={ handleToggleChange }

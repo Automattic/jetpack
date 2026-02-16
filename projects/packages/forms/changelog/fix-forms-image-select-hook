@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Image Select Field: fix useSelect returning different values warning by memoizing derived data.

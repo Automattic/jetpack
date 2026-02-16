@@ -7,15 +7,13 @@ import { useCallback } from '@wordpress/element';
  */
 import useConfigValue from '../../hooks/use-config-value.ts';
 
-const openFormLinkInNewTab = ( url: string ) => {
+const openFormLink = ( url: string ) => {
 	/*
-	 * We are using a temporary link click to open the page. Using window.open() does not work reliably
-	 * due to Safari's popup blocker, especially after async work.
+	 * We are using a temporary link click to navigate. Using window.open() does not work reliably due
+	 * to Safari's popup blocker, especially after async work.
 	 */
 	const link = document.createElement( 'a' );
 	link.setAttribute( 'href', url );
-	link.setAttribute( 'target', '_blank' );
-	link.setAttribute( 'rel', 'noopener noreferrer' );
 	link.style.display = 'none';
 
 	document.body.appendChild( link );
@@ -42,6 +40,8 @@ type CreateFormReturn = {
 export default function useCreateForm(): CreateFormReturn {
 	const newFormNonce = useConfigValue( 'newFormNonce' );
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
+	const adminUrl = useConfigValue( 'adminUrl' );
+	const ajaxUrl = useConfigValue( 'ajaxUrl' );
 	const createForm = useCallback(
 		async ( formPattern: string ) => {
 			const data = new FormData();
@@ -53,7 +53,9 @@ export default function useCreateForm(): CreateFormReturn {
 				data.append( 'pattern', formPattern );
 			}
 
-			const response = await fetch( window.ajaxurl, { method: 'POST', body: data } );
+			// Fall back to window.ajaxurl for backwards compatibility.
+			const fetchUrl = ajaxUrl || window.ajaxurl;
+			const response = await fetch( fetchUrl, { method: 'POST', body: data } );
 
 			const {
 				success,
@@ -67,7 +69,7 @@ export default function useCreateForm(): CreateFormReturn {
 
 			return postUrl;
 		},
-		[ newFormNonce ]
+		[ newFormNonce, ajaxUrl ]
 	);
 
 	const openNewForm = useCallback(
@@ -77,8 +79,9 @@ export default function useCreateForm(): CreateFormReturn {
 				// Keep existing behavior when disabled (or not yet loaded).
 				if ( isCentralFormManagementEnabled === true ) {
 					analyticsEvent?.( { formPattern: formPattern ?? '' } );
-					const url = 'post-new.php?post_type=jetpack_form';
-					openFormLinkInNewTab( url );
+					// Use config adminUrl to build full URL for external admin contexts.
+					const url = `${ adminUrl || '' }post-new.php?post_type=jetpack_form`;
+					openFormLink( url );
 					return;
 				}
 
@@ -90,13 +93,13 @@ export default function useCreateForm(): CreateFormReturn {
 					const url = `${ postUrl }${
 						showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : ''
 					}`;
-					openFormLinkInNewTab( url );
+					openFormLink( url );
 				}
 			} catch ( error ) {
 				console.error( error.message ); // eslint-disable-line no-console
 			}
 		},
-		[ createForm, isCentralFormManagementEnabled ]
+		[ createForm, isCentralFormManagementEnabled, adminUrl ]
 	);
 
 	return { createForm, openNewForm };

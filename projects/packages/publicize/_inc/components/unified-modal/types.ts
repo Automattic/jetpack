@@ -1,6 +1,6 @@
 import { NavigatorModal } from '@automattic/jetpack-components';
 
-export type ScreenDetails = Extract<
+export type ScreenDetails = Omit<
 	React.ComponentProps< typeof NavigatorModal.Screen >,
-	{ content: React.ReactNode }
+	'children'
 >;

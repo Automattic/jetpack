@@ -1466,6 +1466,11 @@ class lessc {
 				$key = $this->vPrefix . $this->compileValue($this->lib_e($key));
 			}
 
+			// Memoization: return cached value if already reduced.
+			if (isset($this->env->reducedVars[$key])) {
+				return $this->env->reducedVars[$key];
+			}
+
 			$seen =& $this->env->seenNames;
 
 			if (!empty($seen[$key])) {
@@ -1475,6 +1480,10 @@ class lessc {
 			$seen[$key] = true;
 			$out = $this->reduce($this->get($key));
 			$seen[$key] = false;
+
+			// Cache the reduced value for future lookups.
+			$this->env->reducedVars[$key] = $out;
+
 			return $out;
 		case "list":
 			foreach ($value[2] as &$item) {

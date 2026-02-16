@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
@@ -2777,6 +2778,8 @@ class Manager {
 		}
 
 		$stats['jetpack_package_versions'] = apply_filters( 'jetpack_package_versions', array() );
+
+		$stats['identitycrisis'] = Identity_Crisis::check_identity_crisis() ? 'yes' : 'no';
 
 		return $stats;
 	}

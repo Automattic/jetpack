@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * User Profile -> Reminders page
  */
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );

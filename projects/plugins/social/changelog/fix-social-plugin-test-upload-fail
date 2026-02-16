@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Tests: Set custom upload dir so concurrent tests for other plugins don't delete files mid-test.
+
+

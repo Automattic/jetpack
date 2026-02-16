@@ -12,6 +12,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\ContactForm\Form_Preview;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
@@ -41,8 +42,26 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
-				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
+				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
+				'supports'              => array(
+					'layout' => array(
+						'default'                => array(
+							'type'              => 'flex',
+							'flexWrap'          => 'nowrap',
+							'orientation'       => 'vertical',
+							'justifyContent'    => 'left',
+							'verticalAlignment' => 'bottom',
+						),
+						'allowSwitching'         => false,
+						'allowEditing'           => true,
+						'allowOrientation'       => true,
+						'allowVerticalAlignment' => true,
+						'allowJustification'     => true,
+						'allowWrap'              => false,
+					),
+				),
+				'style_handles'         => array( 'jetpack-forms-layout' ),
 			)
 		);
 
@@ -52,6 +71,9 @@ class Contact_Form_Block {
 		add_filter( 'pre_render_block', array( __CLASS__, 'pre_render_contact_form' ), 10, 3 );
 
 		add_filter( 'block_editor_rest_api_preload_paths', array( __CLASS__, 'preload_endpoints' ) );
+
+		// Load scripts for the editing interface
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
 	}
 	/**
 	 * Register the contact form block feature flag.
@@ -670,6 +692,15 @@ class Contact_Form_Block {
 		// Count and store form steps
 		self::$form_step_count = self::count_form_steps_in_block( $parsed_block );
 
+		// For ref (synced) forms, render here via pre_render_block to short-circuit
+		// render_block(). This prevents wp_render_layout_support_flag from adding
+		// layout classes to the outer ref block's container div. The synced form's
+		// inner jetpack/contact-form block renders through the normal pipeline and
+		// gets layout classes on the correct element (wp-block-jetpack-contact-form).
+		if ( isset( $parsed_block['attrs']['ref'] ) ) {
+			return self::gutenblock_render_form( $parsed_block['attrs'], '' );
+		}
+
 		return $pre_render; // Don't actually pre-render, let normal rendering continue
 	}
 
@@ -755,11 +786,13 @@ class Contact_Form_Block {
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
 		// We should not render block if the module is disabled on a site using the Jetpack plugin.
-		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) ) {
+		// Exception: allow rendering in preview mode so form previews work.
+		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) && ! Form_Preview::is_preview_mode() ) {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
-		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// Exception: allow rendering in preview mode.
+		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) && ! Form_Preview::is_preview_mode() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return self::render_fallback( $atts );
 		}
 
@@ -786,13 +819,9 @@ class Contact_Form_Block {
 	 */
 	private static function render_synced_form( $ref_id ) {
 		// Circular reference prevention.
-		static $seen_refs = array();
-
-		if ( isset( $seen_refs[ $ref_id ] ) ) {
-			// Return empty string to match other error cases and unit test expectations.
+		if ( Contact_Form::has_seen( $ref_id ) ) {
 			return '';
 		}
-
 		// Load the jetpack-form post.
 		$synced_form = get_post( $ref_id );
 
@@ -801,13 +830,42 @@ class Contact_Form_Block {
 			return '';
 		}
 
-		// Only render published forms statuses.
-		if ( ! in_array( $synced_form->post_status, array( 'publish' ), true ) ) {
+		$status = $synced_form->post_status;
+
+		// Trashed forms are always hidden.
+		if ( 'trash' === $status ) {
 			return '';
 		}
 
+		// Published forms render normally for everyone.
+		if ( 'publish' === $status ) {
+			return self::render_synced_form_content( $ref_id, $synced_form );
+		}
+
+		// For non-published statuses (draft, pending, future, private), only show preview to users who can edit the form.
+		if ( ! current_user_can( 'edit_post', $ref_id ) ) {
+			return '';
+		}
+
+		// Render the form with a status notice for editors.
+		$notice       = self::render_frontend_status_notice( $synced_form );
+		$form_content = self::render_synced_form_content( $ref_id, $synced_form );
+
+		return $notice . $form_content;
+	}
+
+	/**
+	 * Render the actual form content for a synced form.
+	 *
+	 * @param int      $ref_id The jetpack_form post ID.
+	 * @param \WP_Post $synced_form The synced form post object.
+	 * @return string Rendered form HTML.
+	 */
+	private static function render_synced_form_content( $ref_id, $synced_form ) {
+		if ( $ref_id === Contact_Form::get_ref_id() ) {
+			return '';
+		}
 		// Mark as seen for circular reference prevention.
-		$seen_refs[ $ref_id ] = true;
 		Contact_Form::set_ref_id( $ref_id );
 		$output = '';
 		try {
@@ -818,30 +876,71 @@ class Contact_Form_Block {
 			}
 		} finally {
 			// Clean up.
-			unset( $seen_refs[ $ref_id ] );
-			Contact_Form::clear_ref_id();
+			Contact_Form::clear_ref_id( $ref_id );
 		}
 		return $output;
 	}
 
 	/**
+	 * Render a frontend status notice for non-published forms.
+	 *
+	 * @param \WP_Post $synced_form The synced form post object.
+	 * @return string Notice HTML.
+	 */
+	private static function render_frontend_status_notice( $synced_form ) {
+		$status = $synced_form->post_status;
+
+		if ( 'publish' === $status || 'private' === $status ) {
+			return '';
+		}
+
+		$status_config = array(
+			'draft'   => array(
+				'type'    => 'warning',
+				'message' => __( 'This form is a draft and is only visible to you. Publish it to make it visible to site visitors.', 'jetpack-forms' ),
+			),
+			'pending' => array(
+				'type'    => 'warning',
+				'message' => __( 'This form is pending review and is only visible to you. It will be visible to site visitors once approved and published.', 'jetpack-forms' ),
+			),
+			'future'  => array(
+				'type'    => 'info',
+				'message' => sprintf(
+					/* translators: %s: scheduled publish date */
+					__( 'This form is scheduled for %s and is only visible to you until then.', 'jetpack-forms' ),
+					wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), get_post_time( 'U', true, $synced_form ) )
+				),
+			),
+		);
+
+		if ( ! isset( $status_config[ $status ] ) ) {
+			return '';
+		}
+
+		$config     = $status_config[ $status ];
+		$type_class = 'info' === $config['type'] ? 'jetpack-form-status-notice--info' : 'jetpack-form-status-notice--warning';
+		$edit_url   = get_edit_post_link( $synced_form->ID, 'raw' );
+		$edit_link  = $edit_url ? sprintf(
+			' <a href="%s" class="jetpack-form-status-notice__edit-link">%s</a>',
+			esc_url( $edit_url ),
+			esc_html__( 'Edit form', 'jetpack-forms' )
+		) : '';
+
+		return sprintf(
+			'<div class="jetpack-form-status-notice %s"><p>%s%s</p></div>',
+			esc_attr( $type_class ),
+			esc_html( $config['message'] ),
+			$edit_link
+		);
+	}
+
+	/**
 	 * Load editor styles for the block.
-	 * These are loaded via enqueue_block_assets to ensure proper loading in the editor iframe context.
+	 *
+	 * @deprecated 7.5.0 This function is deprecated and will be removed in a future version.
 	 */
 	public static function load_editor_styles() {
-
-		$handle = 'jp-forms-blocks';
-
-		Assets::register_script(
-			$handle,
-			'../../../dist/blocks/editor.js',
-			__FILE__,
-			array(
-				'css_path'   => '../../../dist/blocks/editor.css',
-				'textdomain' => 'jetpack-forms',
-			)
-		);
-		wp_enqueue_style( 'jp-forms-blocks' );
+		_deprecated_function( __FUNCTION__, 'jetpack-7.5.0' );
 	}
 
 	/**
@@ -865,8 +964,7 @@ class Contact_Form_Block {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				// Editor styles are loaded separately, see load_editor_styles().
-				'css_path'     => null,
+				'css_path'     => '../../../dist/blocks/editor.css',
 			)
 		);
 
