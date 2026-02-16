@@ -1672,6 +1672,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Set admin context - scripts only enqueue in admin.
 		$this->set_admin_context();
 
+		// Save the current did_action counter for next_admin_init to restore later.
+		global $wp_actions;
+		$original_action_count = $wp_actions['next_admin_init'] ?? 0;
+
 		// Simulate CIAB environment by firing the next_admin_init action.
 		do_action( 'next_admin_init' );
 
@@ -1695,6 +1699,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
 		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+
+		// Restore the original did_action counter to prevent test order dependencies.
+		if ( $original_action_count === 0 ) {
+			unset( $wp_actions['next_admin_init'] );
+		} else {
+			$wp_actions['next_admin_init'] = $original_action_count;
+		}
 	}
 
 	/**
@@ -1824,7 +1835,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// For gutenberg-disconnected variant, CSS should not be enqueued.
 		// $wp_styles may be null if wp_enqueue_style was never called.
-		// @phan-suppress-next-line PhanSuspiciousValueComparison, PhanTypeExpectedObjectPropAccessButGotNull - WordPress may initialize $wp_styles during enqueue
+		// @phan-suppress-next-line PhanSuspiciousValueComparison - WordPress may initialize $wp_styles during enqueue
 		$this->assertTrue( null === $wp_styles || ! isset( $wp_styles->registered['agents-manager-style'] ), 'CSS should NOT be enqueued for gutenberg-disconnected variant' );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
@@ -1866,5 +1877,19 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( $node, 'No admin bar node should be added on P2 frontend' );
 
 		remove_all_filters( 'stylesheet' );
+	}
+
+	/**
+	 * Tests that should_enqueue_script returns false on WooCommerce Admin home page.
+	 *
+	 * This verifies the WooCommerce Admin exclusion to avoid UI conflicts,
+	 * matching the same exclusion in Help_Center::enqueue_wp_admin_scripts().
+	 */
+	public function test_should_enqueue_script_returns_false_on_woocommerce_admin_home() {
+		// Set admin context first.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'woocommerce_page_wc-admin' );
+
+		$this->assertFalse( $this->call_should_enqueue_script(), 'should_enqueue_script should return false on WooCommerce Admin home page' );
 	}
 }

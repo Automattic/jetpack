@@ -328,6 +328,13 @@ class Agents_Manager {
 			return false;
 		}
 
+		// Don't load on WooCommerce Admin home page to avoid UI conflicts.
+		// This matches the exclusion in Help_Center::enqueue_wp_admin_scripts().
+		global $current_screen;
+		if ( $current_screen && $current_screen->id === 'woocommerce_page_wc-admin' ) {
+			return false;
+		}
+
 		// Don't load in customizer preview iframe - Help Center handles customizer separately
 		// via customize_controls_enqueue_scripts hook (loads only in controls panel, not preview).
 		if ( is_customize_preview() ) {
