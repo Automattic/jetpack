@@ -79,7 +79,7 @@ class Agents_Manager {
 			try {
 				$reflection        = new \ReflectionClass( $help_center_class );
 				$instance_property = $reflection->getProperty( 'instance' );
-				// setAccessible() is deprecated in PHP 8.5 and unnecessary since PHP 8.1.
+				// setAccessible() is deprecated in PHP 8.4 and unnecessary since PHP 8.1.
 				if ( PHP_VERSION_ID < 80100 ) {
 					$instance_property->setAccessible( true );
 				}
