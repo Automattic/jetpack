@@ -102,30 +102,57 @@ add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
  * Adds a Hosting menu.
  */
 function wpcom_add_hosting_menu() {
-	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-		return;
-	}
-
-	$parent_slug = 'wpcom-hosting-menu';
-	$domain      = wp_parse_url( home_url(), PHP_URL_HOST );
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	add_menu_page(
 		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		$parent_slug,
+		esc_url( "https://wordpress.com/overview/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		'dashicons-cloud',
-		3
+		2.98
 	);
+}
+add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
 
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
+/**
+ * Adds an Upgrades menu.
+ *
+ * This centralizes the Upgrades menu registration for all admin interfaces (Calypso and wp-admin).
+ * The masterbar classes defer to this function instead of registering their own Upgrades menu.
+ */
+function wpcom_add_upgrades_menu() {
+	// Don't show Upgrades on staging sites.
+	if ( get_option( 'wpcom_is_staging_site' ) ) {
+		return;
+	}
+
+	$domain      = wp_parse_url( home_url(), PHP_URL_HOST );
+	$parent_slug = 'paid-upgrades.php';
+
+	// Build the menu title, optionally with the plan label.
+	$plan = wpcom_get_current_plan_name();
+	if ( $plan ) {
+		// Add display:none as a default for cases when CSS is not loaded.
+		// Calypso and the masterbar CSS override this to show the plan label.
+		$menu_title = sprintf(
+			'%1$s<span class="inline-text" style="display:none">%2$s</span>',
+			esc_attr__( 'Upgrades', 'jetpack-mu-wpcom' ),
+			esc_html( $plan )
+		);
+	} else {
+		$menu_title = esc_attr__( 'Upgrades', 'jetpack-mu-wpcom' );
+	}
+
+	add_menu_page(
+		esc_attr__( 'Upgrades', 'jetpack-mu-wpcom' ),
+		$menu_title,
 		'manage_options',
-		esc_url( "https://wordpress.com/overview/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		$parent_slug,
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		'dashicons-cart',
+		2.99
 	);
 
 	add_submenu_page(
@@ -134,7 +161,8 @@ function wpcom_add_hosting_menu() {
 		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/plans/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		1
 	);
 
 	add_submenu_page(
@@ -143,7 +171,8 @@ function wpcom_add_hosting_menu() {
 		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/add-ons/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		2
 	);
 
 	add_submenu_page(
@@ -152,7 +181,8 @@ function wpcom_add_hosting_menu() {
 		esc_attr__( 'Domains', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/domains/manage/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		3
 	);
 
 	add_submenu_page(
@@ -161,7 +191,8 @@ function wpcom_add_hosting_menu() {
 		esc_attr__( 'Emails', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/email/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		4
 	);
 
 	add_submenu_page(
@@ -170,16 +201,45 @@ function wpcom_add_hosting_menu() {
 		esc_attr__( 'Purchases', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/purchases/subscriptions/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		5
 	);
 
 	// By default, WordPress adds a submenu item for the parent menu item, which we don't want.
-	remove_submenu_page(
-		$parent_slug,
-		$parent_slug
-	);
+	remove_submenu_page( $parent_slug, $parent_slug );
+
+	// Remove legacy Upgrades submenus registered elsewhere on WP.com.
+	remove_submenu_page( $parent_slug, 'premium-themes' );
+	remove_submenu_page( $parent_slug, 'domains' );
+	remove_submenu_page( $parent_slug, 'my-upgrades' );
+	remove_submenu_page( $parent_slug, 'billing-history' );
 }
-add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
+add_action( 'admin_menu', 'wpcom_add_upgrades_menu', 140 ); // After hookpress hook at 130, needed to ensure the legacy submenus are removed.
+
+/**
+ * Gets the current plan's short name.
+ *
+ * @return string|null The plan name, or null if unavailable.
+ */
+function wpcom_get_current_plan_name() {
+	// Simple sites: use WPCOM_Store_API.
+	if ( class_exists( 'WPCOM_Store_API' ) ) {
+		$current_plan = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+		if ( ! empty( $current_plan['product_name_short'] ) ) {
+			return $current_plan['product_name_short'];
+		}
+	}
+
+	// Atomic sites: use Jetpack Current_Plan.
+	if ( class_exists( 'Automattic\Jetpack\Current_Plan' ) ) {
+		$products = \Automattic\Jetpack\Current_Plan::get();
+		if ( array_key_exists( 'product_name_short', $products ) ) {
+			return $products['product_name_short'];
+		}
+	}
+
+	return null;
+}
 
 /**
  * Re-order the submenu items of the given menu slug according to a sorted array of submenu slugs.
