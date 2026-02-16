@@ -719,7 +719,7 @@ class Agents_Manager {
 	 * Check if disconnected variant should be used.
 	 *
 	 * Disconnected variants are lightweight and only show a help icon
-	 * linking to Calypso. They are used when:
+	 * linking to the WordPress.com support page. They are used when:
 	 * - Unified experience is disabled
 	 * - Help center icon needs to display
 	 * - Full Agents Manager UI is not needed
