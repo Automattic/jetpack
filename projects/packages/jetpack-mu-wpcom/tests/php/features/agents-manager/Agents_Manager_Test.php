@@ -1822,7 +1822,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->agents_manager->enqueue_scripts();
 
-		$this->assertFalse( isset( $wp_styles->registered['agents-manager-style'] ), 'CSS should NOT be enqueued for gutenberg-disconnected variant' );
+		// For gutenberg-disconnected variant, CSS should not be enqueued.
+		// $wp_styles may be null if wp_enqueue_style was never called.
+		$this->assertTrue( null === $wp_styles || ! isset( $wp_styles->registered['agents-manager-style'] ), 'CSS should NOT be enqueued for gutenberg-disconnected variant' );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
 		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
