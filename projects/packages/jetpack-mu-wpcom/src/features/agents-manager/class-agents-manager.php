@@ -214,6 +214,12 @@ class Agents_Manager {
 			return;
 		}
 
+		// Check if scripts should be enqueued before adding admin bar UI.
+		// This prevents rendering non-functional UI on the frontend where scripts won't load.
+		if ( ! $this->should_enqueue_script() ) {
+			return;
+		}
+
 		$use_disconnected = $this->should_use_disconnected_variant();
 		$is_gutenberg     = $this->is_block_editor();
 
@@ -260,10 +266,6 @@ class Agents_Manager {
 			if ( ! $use_disconnected ) {
 				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
 			}
-		}
-
-		if ( ! $this->should_enqueue_script() ) {
-			return;
 		}
 
 		/**
@@ -357,20 +359,8 @@ class Agents_Manager {
 			return true;
 		}
 
-		// For disconnected variants, also load in block editor when disconnected variant is needed.
-		// This allows the lightweight help icon to display in Gutenberg.
-		if ( $this->is_block_editor() && $this->should_use_disconnected_variant() ) {
-			return true;
-		}
-
-		// For disconnected variants, also load in CIAB environment when disconnected variant is needed.
-		// This allows the lightweight help icon to display in CIAB admin.
-		if ( $this->is_ciab_environment() && $this->should_use_disconnected_variant() ) {
-			return true;
-		}
-
-		// For disconnected variants, also load in regular wp-admin when disconnected variant is needed.
-		// This allows the lightweight help icon to display in wp-admin.
+		// For disconnected variants, also load when disconnected variant is needed.
+		// This allows the lightweight help icon to display in block editor, CIAB admin, and regular wp-admin.
 		if ( $this->should_use_disconnected_variant() ) {
 			return true;
 		}
@@ -408,12 +398,16 @@ class Agents_Manager {
 			true
 		);
 
-		wp_enqueue_style(
-			'agents-manager-style',
-			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
-			array(),
-			$version
-		);
+		// Only enqueue CSS for wp-admin variants.
+		// Gutenberg and CIAB variants don't have/need separate CSS files.
+		if ( str_starts_with( $variant, 'wp-admin' ) ) {
+			wp_enqueue_style(
+				'agents-manager-style',
+				'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
+				array(),
+				$version
+			);
+		}
 	}
 
 	/**
@@ -739,7 +733,7 @@ class Agents_Manager {
 	 */
 	private function should_use_disconnected_variant() {
 		// Don't use disconnected variant if unified experience is enabled.
-		if ( $this->should_use_unified_experience() ) {
+		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return false;
 		}
 

@@ -1595,4 +1595,186 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 		remove_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 	}
+
+	/**
+	 * Tests that enqueue_scripts includes sectionName as wp-admin-disconnected when disconnected variant is enabled.
+	 */
+	public function test_enqueue_scripts_includes_section_name_wp_admin_disconnected() {
+		// Set admin context - scripts only enqueue in admin.
+		$this->set_admin_context();
+
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Enable disconnected variant, disable unified experience.
+		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"sectionName":"wp-admin-disconnected"', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that enqueue_scripts includes sectionName as gutenberg-disconnected in block editor with disconnected variant.
+	 */
+	public function test_enqueue_scripts_includes_section_name_gutenberg_disconnected() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Set up block editor context.
+		set_current_screen( 'post' );
+		$screen = get_current_screen();
+
+		// Use reflection to set the block_editor property.
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Enable disconnected variant, disable unified experience.
+		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"sectionName":"gutenberg-disconnected"', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that enqueue_scripts includes sectionName as ciab-disconnected in CIAB environment with disconnected variant.
+	 */
+	public function test_enqueue_scripts_includes_section_name_ciab_disconnected() {
+		// Set admin context - scripts only enqueue in admin.
+		$this->set_admin_context();
+
+		// Simulate CIAB environment by firing the next_admin_init action.
+		do_action( 'next_admin_init' );
+
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Enable disconnected variant, disable unified experience.
+		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"sectionName":"ciab-disconnected"', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that should_enqueue_script returns true when disconnected variant is enabled in wp-admin.
+	 */
+	public function test_should_enqueue_script_returns_true_when_disconnected_variant_enabled_in_admin() {
+		$this->set_admin_context();
+		$_SERVER['REQUEST_URI'] = '/wp-admin/index.php';
+
+		// Enable disconnected variant, disable unified experience.
+		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+
+		$result = $this->call_should_enqueue_script();
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that should_enqueue_script returns true when disconnected variant is enabled in block editor.
+	 */
+	public function test_should_enqueue_script_returns_true_when_disconnected_variant_enabled_in_block_editor() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Set up block editor context.
+		set_current_screen( 'post' );
+		$screen = get_current_screen();
+
+		// Use reflection to set the block_editor property.
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Enable disconnected variant, disable unified experience.
+		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+
+		$result = $this->call_should_enqueue_script();
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that disconnected variant is not used when unified experience is enabled.
+	 */
+	public function test_disconnected_variant_not_used_when_unified_experience_enabled() {
+		// Set admin context.
+		$this->set_admin_context();
+
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Enable both unified experience and disconnected variant filter.
+		// Unified experience should take precedence.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		// Should use wp-admin, not wp-admin-disconnected, because unified experience takes precedence.
+		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
+		$this->assertStringNotContainsString( 'disconnected', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+	}
 }
