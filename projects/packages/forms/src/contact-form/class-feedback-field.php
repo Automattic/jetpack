@@ -631,7 +631,7 @@ class Feedback_Field {
 			$file_url  = apply_filters( 'jetpack_unauth_file_download_url', '', absint( $file['file_id'] ) );
 			$file_type = $file['type'] ?? '';
 
-			$file_items[] = $this->render_email_file_row( $file_name, $file_size, $file_url, $file_type );
+			$file_items[] = $this->render_email_file_row( $file, $file_name, $file_size, $file_url, $file_type );
 		}
 
 		if ( empty( $file_items ) ) {
@@ -644,14 +644,15 @@ class Feedback_Field {
 	/**
 	 * Render a single file row with thumbnail, name/size, and download icon.
 	 *
+	 * @param array  $file      The file data (name, type, file_id, etc.).
 	 * @param string $file_name The file name.
 	 * @param string $file_size The formatted file size.
 	 * @param string $file_url  The download URL.
 	 * @param string $file_type The MIME type of the file.
 	 * @return string HTML table for the file row.
 	 */
-	private function render_email_file_row( $file_name, $file_size, $file_url, $file_type = '' ) {
-		$thumbnail_html = $this->get_file_thumbnail_html( $file_name, $file_type );
+	private function render_email_file_row( $file, $file_name, $file_size, $file_url, $file_type = '' ) {
+		$thumbnail_html = $this->get_file_thumbnail_html( $file_name, $file_type, $file_url, $file );
 
 		// File name — linked if download URL is available.
 		$name_html = esc_html( $file_name );
@@ -717,15 +718,31 @@ class Feedback_Field {
 	/**
 	 * Get the thumbnail HTML for a file attachment.
 	 *
-	 * Uses a file-type icon from the file-icons directory. Uploaded files are
-	 * stored on WordPress.com cloud storage (not as local WP attachments), so
-	 * there is no local thumbnail URL available for email rendering.
+	 * For previewable files (images: jpg, jpeg, png, gif, webp), uses the actual
+	 * file URL as the thumbnail when available. For other file types, falls back
+	 * to a file-type icon from the file-icons directory.
 	 *
 	 * @param string $file_name The original file name (used for extension-based icon lookup).
 	 * @param string $file_type The MIME type of the file.
+	 * @param string $file_url  The download URL for the file.
+	 * @param array  $file      The file data (used to check is_previewable_file).
 	 * @return string HTML for the thumbnail.
 	 */
-	private function get_file_thumbnail_html( $file_name = '', $file_type = '' ) {
+	private function get_file_thumbnail_html( $file_name = '', $file_type = '', $file_url = '', $file = array() ) {
+		$thumbnail_url = null;
+		if ( ! empty( $file_url ) && $this->is_previewable_file( $file ) ) {
+			// Use the file URL as thumbnail for previewable images. Add preview=true for
+			// admin-ajax URLs so the server serves with Content-Disposition: inline.
+			$thumbnail_url = add_query_arg( 'preview', 'true', $file_url );
+		}
+
+		if ( $thumbnail_url ) {
+			return sprintf(
+				'<img src="%1$s" width="40" height="40" alt="" style="border-radius: 50%%; object-fit: cover; width: 40px; height: 40px;" />',
+				esc_url( $thumbnail_url )
+			);
+		}
+
 		$icon_name = self::get_file_icon_name( $file_name, $file_type );
 		$icon_url  = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/' . $icon_name . '@2x.png';
 
