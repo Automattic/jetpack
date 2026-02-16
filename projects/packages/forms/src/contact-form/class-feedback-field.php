@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\Jetpack_Forms;
+
 /**
  * Feedback field class.
  *
@@ -601,16 +603,19 @@ class Feedback_Field {
 	}
 
 	/**
-	 * Render a file field value with file name and size.
+	 * Render a file field value with thumbnail, file name, size, and download icon.
 	 *
 	 * @return string HTML with file info.
 	 */
 	private function render_email_file() {
-		if ( ! Contact_Form::is_file_upload_field( $this->value ) ) {
+		// We already know the field is type 'file' (dispatched from get_render_email_html_value).
+		// The value may or may not contain 'field_id' depending on how it was loaded,
+		// so we only check for the 'files' array rather than using is_file_upload_field().
+		if ( ! is_array( $this->value ) || ! isset( $this->value['files'] ) || ! is_array( $this->value['files'] ) ) {
 			return $this->render_email_default();
 		}
 
-		$files = $this->value['files'] ?? array();
+		$files = $this->value['files'];
 		if ( empty( $files ) ) {
 			return $this->render_empty_value_html();
 		}
@@ -626,28 +631,172 @@ class Feedback_Field {
 			$file_id   = absint( $file['file_id'] );
 			$file_url  = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
 
-			$html = esc_html( $file_name );
-			if ( ! empty( $file_size ) ) {
-				$html .= sprintf( ' <span style="color: ' . Feedback_Email_Renderer::TEXT_SECONDARY_COLOR . '; font-size: ' . Feedback_Email_Renderer::FONT_SIZE_SMALL . ';">(%s)</span>', esc_html( $file_size ) );
-			}
-
-			if ( ! empty( $file_url ) ) {
-				$html = sprintf(
-					'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
-					esc_url( $file_url ),
-					$html,
-					self::get_admin_theme_color()
-				);
-			}
-
-			$file_items[] = $html;
+			$file_type    = $file['type'] ?? '';
+			$file_items[] = $this->render_email_file_row( $file_id, $file_name, $file_size, $file_url, $file_type );
 		}
 
 		if ( empty( $file_items ) ) {
 			return $this->render_empty_value_html();
 		}
 
-		return implode( '<br />', $file_items );
+		return implode( '', $file_items );
+	}
+
+	/**
+	 * Render a single file row with thumbnail, name/size, and download icon.
+	 *
+	 * @param int    $file_id   The WordPress attachment ID.
+	 * @param string $file_name The file name.
+	 * @param string $file_size The formatted file size.
+	 * @param string $file_url  The download URL.
+	 * @param string $file_type The MIME type of the file.
+	 * @return string HTML table for the file row.
+	 */
+	private function render_email_file_row( $file_id, $file_name, $file_size, $file_url, $file_type = '' ) {
+		$thumbnail_html = $this->get_file_thumbnail_html( $file_id, $file_name, $file_type );
+
+		// File name — linked if download URL is available.
+		$name_html = esc_html( $file_name );
+		if ( ! empty( $file_url ) ) {
+			$name_html = sprintf(
+				'<a href="%1$s" style="color: %2$s; text-decoration: underline;" target="_blank">%3$s</a>',
+				esc_url( $file_url ),
+				Feedback_Email_Renderer::TEXT_COLOR,
+				$name_html
+			);
+		}
+
+		// File size on a second line.
+		$size_html = '';
+		if ( ! empty( $file_size ) ) {
+			$size_html = sprintf(
+				'<div style="font-size: 12px; color: %1$s; line-height: 1.4;">%2$s</div>',
+				Feedback_Email_Renderer::TEXT_SECONDARY_COLOR,
+				esc_html( $file_size )
+			);
+		}
+
+		// Download icon (SVG as data URI).
+		$download_icon = '';
+		if ( ! empty( $file_url ) ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			$svg_data_uri  = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#50575e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' );
+			$download_icon = sprintf(
+				'<a href="%1$s" target="_blank" style="text-decoration: none;"><img src="%2$s" width="20" height="20" alt="%3$s" style="display: block; width: 20px; height: 20px;" /></a>',
+				esc_url( $file_url ),
+				esc_url( $svg_data_uri ),
+				esc_attr__( 'Download', 'jetpack-forms' )
+			);
+		}
+
+		// Build the file row as a table: [thumbnail] [name + size] [download icon].
+		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 4px;">';
+		$html .= '<tr>';
+
+		// Thumbnail cell.
+		$html .= '<td width="40" valign="middle" style="padding-right: 12px; width: 40px; vertical-align: middle; text-align: center;">';
+		$html .= $thumbnail_html;
+		$html .= '</td>';
+
+		// Name and size cell.
+		$html .= '<td valign="middle" style="font-size: 13px; line-height: 1.4;">';
+		$html .= '<div>' . $name_html . '</div>';
+		$html .= $size_html;
+		$html .= '</td>';
+
+		// Download icon cell.
+		if ( ! empty( $download_icon ) ) {
+			$html .= '<td width="20" valign="middle" align="right" style="padding-left: 12px; width: 20px;">';
+			$html .= $download_icon;
+			$html .= '</td>';
+		}
+
+		$html .= '</tr>';
+		$html .= '</table>';
+
+		return $html;
+	}
+
+	/**
+	 * Get the thumbnail HTML for a file attachment.
+	 *
+	 * Returns a circular image preview for image attachments, or a
+	 * file-type icon from the file-icons directory for non-image attachments.
+	 *
+	 * @param int    $file_id   The WordPress attachment ID.
+	 * @param string $file_name The original file name (used for extension-based icon lookup).
+	 * @param string $file_type The MIME type of the file.
+	 * @return string HTML for the thumbnail.
+	 */
+	private function get_file_thumbnail_html( $file_id, $file_name = '', $file_type = '' ) {
+		$thumbnail_url = wp_get_attachment_image_url( $file_id, 'thumbnail' );
+
+		if ( $thumbnail_url ) {
+			return sprintf(
+				'<img src="%1$s" width="40" height="40" alt="" style="width: 40px; height: 40px; border-radius: 50%%; object-fit: cover;" />',
+				esc_url( $thumbnail_url )
+			);
+		}
+
+		// Use the file-type icon from the file-icons directory.
+		// Mirrors the JS logic in modules/file-field/view.js getFileIcon().
+		$icon_name = self::get_file_icon_name( $file_name, $file_type );
+		$icon_url  = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/' . $icon_name . '@2x.png';
+
+		return sprintf(
+			'<img src="%1$s" width="40" height="40" alt="" style="border-radius: 50%%; object-fit: cover; width: 40px; height: 40px;" />',
+			esc_url( $icon_url )
+		);
+	}
+
+	/**
+	 * Map a file to its icon name based on extension then MIME type category.
+	 *
+	 * Mirrors the JS logic in modules/file-field/view.js getFileIcon().
+	 *
+	 * @param string $file_name The file name.
+	 * @param string $file_type The MIME type.
+	 * @return string The icon filename without extension.
+	 */
+	private static function get_file_icon_name( $file_name, $file_type ) {
+		$extension = strtolower( pathinfo( $file_name, PATHINFO_EXTENSION ) );
+
+		$extension_map = array(
+			'pdf'  => 'pdf',
+			'doc'  => 'txt',
+			'docx' => 'txt',
+			'txt'  => 'txt',
+			'ppt'  => 'ppt',
+			'pptx' => 'ppt',
+			'xls'  => 'xls',
+			'xlsx' => 'xls',
+			'csv'  => 'xls',
+			'zip'  => 'zip',
+			'sql'  => 'sql',
+			'cal'  => 'cal',
+			'html' => 'html',
+			'mp3'  => 'mp3',
+			'mp4'  => 'mp4',
+			'png'  => 'png',
+			'jpg'  => 'png',
+			'jpeg' => 'png',
+			'gif'  => 'png',
+			'webp' => 'png',
+		);
+
+		if ( isset( $extension_map[ $extension ] ) ) {
+			return $extension_map[ $extension ];
+		}
+
+		// Fall back to MIME type category.
+		$category     = explode( '/', $file_type )[0] ?? '';
+		$category_map = array(
+			'image' => 'png',
+			'video' => 'mp4',
+			'audio' => 'mp3',
+		);
+
+		return $category_map[ $category ] ?? 'txt';
 	}
 
 	/**
