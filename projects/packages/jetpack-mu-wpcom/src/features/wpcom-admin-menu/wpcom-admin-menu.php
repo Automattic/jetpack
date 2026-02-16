@@ -104,9 +104,14 @@ add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
 function wpcom_add_hosting_menu() {
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
+	$menu_title = sprintf(
+		'%1$s<span class="inline-icon dashicons dashicons-external"></span>',
+		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' )
+	);
+
 	add_menu_page(
 		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
+		$menu_title,
 		'manage_options',
 		esc_url( "https://wordpress.com/overview/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
@@ -115,6 +120,19 @@ function wpcom_add_hosting_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
+
+/**
+ * Enqueues admin menu styles.
+ */
+function wpcom_admin_menu_enqueue_styles() {
+	wp_enqueue_style(
+		'wpcom-admin-menu',
+		plugins_url( 'wpcom-admin-menu.css', __FILE__ ),
+		array(),
+		filemtime( __DIR__ . '/wpcom-admin-menu.css' )
+	);
+}
+add_action( 'admin_enqueue_scripts', 'wpcom_admin_menu_enqueue_styles' );
 
 /**
  * Adds an Upgrades menu.

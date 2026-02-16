@@ -177,6 +177,20 @@
 }
 
 /**
+ * Inline icon in a menu title
+ */
+.inline-icon {
+	font-size: 16px;
+	opacity: 0.8;
+	position: absolute;
+	right: 16px;
+}
+
+body.is-nav-unification .inline-icon {
+	right: 8px;
+}
+
+/**
  * Stats
  */
 [class*="toplevel_page_https://wordpress.com/stats/day"] .sidebar-unified__sparkline {

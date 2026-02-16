@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Admin Menu: add inlineIcon support to the admin-menu REST endpoint.
