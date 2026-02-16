@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Removed JetBackup from incompatible plugins list. Developer provided new version which works on WordPress.com when tested.

@@ -1,0 +1,111 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.tab-panel-wrapper {
+
+	@include gb.break-medium() {
+		display: grid;
+
+		&[data-variant="global"] {
+			grid-template-columns: clamp(200px, 33.33%, 350px) minmax(0, 1fr);
+		}
+	}
+
+	&[data-plan="paid"] {
+		border-top: 1px solid gb.$gray-200;
+		overflow: auto;
+	}
+
+	[role="tablist"] {
+		padding: gb.$grid-unit-10; // 8px
+		border-block: 1px solid gb.$gray-200;
+
+		@include gb.break-medium() {
+			border-block-start: none;
+		}
+	}
+
+	&[data-variant="per-network"] [role="tablist"] {
+		border-block-start: none;
+	}
+}
+
+.tab-panel {
+
+	display: grid;
+
+	@include gb.break-medium() {
+		grid-template-rows: auto 1fr;
+		height: 100%;
+	}
+
+	:global(.components-tab-panel__tabs-item) {
+		padding: 0;
+		height: 40px !important; // Core uses !important for tab height.
+
+		&:global(.is-active) {
+			background: gb.$gray-900;
+			border-radius: gb.$radius-medium;
+
+			// Hide the default active tab underline.
+			&::after {
+				display: none;
+			}
+		}
+	}
+}
+
+.tab-content {
+	display: grid;
+	grid-template-columns: 1fr;
+	height: 100%;
+
+	// On mobile per-network mode,
+	// move connection toggle above customization section
+	&[data-variant="per-network"] {
+
+		.preview-wrapper {
+			display: contents;
+		}
+
+		.connection-toggle-wrapper {
+			order: -1;
+			background-color: gb.$white;
+		}
+	}
+
+	@include gb.break-medium() {
+		// Ensure that it takes full height
+		grid-template-rows: 1fr;
+
+
+		&[data-variant="per-network"] {
+			// Make the sidebar and preview take appropriate space
+			grid-template-columns: clamp(200px, 33.33%, 350px) minmax(0, 1fr);
+
+			.preview-wrapper {
+				// Reset from mobile's `display: contents`
+				display: flex;
+			}
+
+			.connection-toggle-wrapper {
+				order: unset;
+				background: gb.$gray-100;
+			}
+		}
+	}
+}
+
+.preview-wrapper {
+	display: flex;
+	flex-direction: column;
+
+	// Make the preview section fill remaining space
+	> :last-child {
+		flex: 1;
+	}
+}
+
+.connection-toggle-wrapper {
+	background: gb.$gray-100;
+	padding: 1rem;
+}

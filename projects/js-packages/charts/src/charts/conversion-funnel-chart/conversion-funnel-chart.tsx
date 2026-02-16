@@ -1,6 +1,4 @@
-import { localPoint } from '@visx/event';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
-import { color as d3Color } from '@visx/vendor/d3-color';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback, useContext } from 'react';
 import { usePrefersReducedMotion } from '../../hooks';
@@ -12,7 +10,7 @@ import {
 	useGlobalChartsTheme,
 	useGlobalChartsContext,
 } from '../../providers';
-import { formatPercentage } from '../../utils';
+import { formatPercentage, hexToRgba } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
 import type { FunnelStep, ConversionFunnelChartProps } from './types';
@@ -62,7 +60,11 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	// Use custom hook for selection management
 	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } =
 		useFunnelSelection( hideTooltip );
-	const { containerRef: portalContainerRef, TooltipInPortal } = useTooltipInPortal( {
+	const {
+		containerRef: portalContainerRef,
+		TooltipInPortal,
+		containerBounds,
+	} = useTooltipInPortal( {
 		// use TooltipWithBounds for boundary detection
 		detectBounds: true,
 		// when tooltip containers are scrolled, this will correctly update the Tooltip position
@@ -89,29 +91,42 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	);
 
 	// Helper function to get tooltip coordinates for mouse events
-	const getMouseTooltipCoords = useCallback( ( event: React.MouseEvent ) => {
-		const containerElement = chartRef.current;
-		if ( containerElement ) {
-			const coords = localPoint( containerElement, event.nativeEvent );
-			if ( coords ) {
-				return { x: coords.x, y: coords.y };
+	// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
+	// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
+	// By passing (clientX - containerBounds.left), we get correct page coordinates
+	// regardless of whether bounds are stale (e.g., after dashboard customization).
+	const getMouseTooltipCoords = useCallback(
+		( event: React.MouseEvent ) => {
+			// Don't return coords until container bounds are measured
+			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+				return null;
 			}
-		}
-		return null;
-	}, [] );
+
+			return {
+				x: event.clientX - containerBounds.left,
+				y: event.clientY - containerBounds.top,
+			};
+		},
+		[ containerBounds.width, containerBounds.height, containerBounds.left, containerBounds.top ]
+	);
 
 	// Helper function to get tooltip coordinates for keyboard events
-	const getKeyboardTooltipCoords = useCallback( ( event: React.KeyboardEvent ) => {
-		const rect = event.currentTarget.getBoundingClientRect();
-		const containerElement = chartRef.current;
-		if ( containerElement ) {
-			const containerRect = containerElement.getBoundingClientRect();
-			const x = rect.left + rect.width / 2 - containerRect.left;
-			const y = rect.top - containerRect.top;
+	// Use fresh getBoundingClientRect() and subtract containerBounds to cancel out stale offset.
+	const getKeyboardTooltipCoords = useCallback(
+		( event: React.KeyboardEvent ) => {
+			// Don't return coords until container bounds are measured
+			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+				return null;
+			}
+
+			const rect = event.currentTarget.getBoundingClientRect();
+			// Calculate center of element in viewport coordinates, then subtract containerBounds
+			const x = rect.left + rect.width / 2 - containerBounds.left;
+			const y = rect.top - containerBounds.top;
 			return { x, y };
-		}
-		return null;
-	}, [] );
+		},
+		[ containerBounds.width, containerBounds.height, containerBounds.left, containerBounds.top ]
+	);
 
 	// Helper function to handle step interaction (both click and keyboard)
 	const handleStepInteraction = useCallback(
@@ -226,9 +241,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 	// Create light background version of primary color if not set
 	const barBackgroundColor =
-		backgroundColor ||
-		d3Color( barColor )?.copy( { opacity: 0.08 } ).formatRgb() ||
-		'rgba(0, 0, 0, 0.08)';
+		backgroundColor || hexToRgba( barColor, 0.08 ) || 'rgba(0, 0, 0, 0.08)';
 
 	// Default main metric rendering function
 	const renderDefaultMainMetric = () => (

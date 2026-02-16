@@ -311,4 +311,34 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		$this->assertEquals( 'publish_posts', $post_type_object->cap->create_posts, 'Create capability should be publish_posts' );
 		$this->assertEquals( 'edit_posts', $post_type_object->cap->edit_posts, 'Edit posts capability should be edit_posts' );
 	}
+
+	/**
+	 * Test that source post ID meta is stored when creating a form via REST API.
+	 */
+	public function test_create_jetpack_form_stores_source_post_id_meta() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'edit_posts' );
+		$user->add_cap( 'publish_posts' );
+
+		$source_post_id = 123;
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/jetpack-forms' );
+		$request->set_param( 'title', 'Form with Source' );
+		$request->set_param( 'status', 'publish' );
+		$request->set_param( 'content', '<!-- wp:jetpack/contact-form --><!-- /wp:jetpack/contact-form -->' );
+		$request->set_param( 'meta', array( '_jetpack_forms_source_post_id' => $source_post_id ) );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 201, $response->get_status(), 'POST request should return 201' );
+
+		$data    = $response->get_data();
+		$post_id = $data['id'];
+
+		$stored_meta = get_post_meta( $post_id, '_jetpack_forms_source_post_id', true );
+		$this->assertEquals( $source_post_id, (int) $stored_meta, 'Source post ID meta should be stored' );
+	}
 }

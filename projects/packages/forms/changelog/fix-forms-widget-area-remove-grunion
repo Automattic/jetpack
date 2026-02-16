@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: remove grunion.css dependency from forms layout stylesheet.

@@ -21,7 +21,7 @@ jobs:
       - name: Generate message
         id: message
         env:
-          SLACK_RELEASES_CHANNEL: ${{ secrets.SLACK_RELEASES_CHANNEL }}
+          SLACK_RELEASES_CHANNEL: ${{ vars.SLACK_RELEASES_CHANNEL }}
         run: |
           source .github/files/gh-funcs.sh
 

@@ -96,6 +96,9 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'data-media="all"', $output );
 		$this->assertStringContainsString( 'onload=', $output );
 		$this->assertStringContainsString( '<noscript>', $output );
+		// Verify HTML structure is preserved.
+		$this->assertStringContainsString( 'rel="stylesheet"', $output );
+		$this->assertStringContainsString( 'href="style.css"', $output );
 	}
 
 	/**
@@ -140,6 +143,51 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 		$output = $instance->asynchronize_stylesheets( $html, 'handle', 'style.css', 'all' );
 
 		$this->assertSame( $html, $output );
+	}
+
+	/**
+	 * Test asynchronize_stylesheets() without media attribute.
+	 */
+	public function test_asynchronize_stylesheets_without_media_attribute() {
+		$html   = '<link rel="stylesheet" href="https://example.com/style.css">';
+		$output = $this->instance->asynchronize_stylesheets( $html, 'handle', 'https://example.com/style.css', 'all' );
+
+		$this->assertStringContainsString( 'media="not all"', $output );
+		$this->assertStringContainsString( 'data-media="all"', $output );
+		$this->assertStringContainsString( 'onload=', $output );
+		$this->assertStringContainsString( '<noscript>', $output );
+		// Verify HTML structure is preserved.
+		$this->assertStringContainsString( 'rel="stylesheet"', $output );
+		$this->assertStringContainsString( 'href="https://example.com/style.css"', $output );
+	}
+
+	/**
+	 * Test asynchronize_stylesheets() with full URL preserves href.
+	 */
+	public function test_asynchronize_stylesheets_preserves_full_url() {
+		$url    = 'https://example.com/wp-content/plugins/test/style.css?ver=1.0';
+		$html   = '<link rel="stylesheet" id="test-css" href="' . $url . '" type="text/css" media="all">';
+		$output = $this->instance->asynchronize_stylesheets( $html, 'test', $url, 'all' );
+
+		$this->assertStringContainsString( 'media="not all"', $output );
+		$this->assertStringContainsString( 'data-media="all"', $output );
+		// Verify all original attributes are preserved.
+		$this->assertStringContainsString( 'rel="stylesheet"', $output );
+		$this->assertStringContainsString( 'id="test-css"', $output );
+		$this->assertStringContainsString( 'href="' . $url . '"', $output );
+		$this->assertStringContainsString( 'type="text/css"', $output );
+	}
+
+	/**
+	 * Test asynchronize_stylesheets() with single-quoted attributes.
+	 */
+	public function test_asynchronize_stylesheets_single_quoted_attributes() {
+		$html   = "<link rel='stylesheet' href='style.css' media='all' />";
+		$output = $this->instance->asynchronize_stylesheets( $html, 'handle', 'style.css', 'all' );
+
+		$this->assertStringContainsString( 'media="not all"', $output );
+		$this->assertStringContainsString( 'data-media="all"', $output );
+		$this->assertStringContainsString( '<noscript>', $output );
 	}
 
 	/**

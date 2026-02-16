@@ -87,6 +87,8 @@ function wpcom_get_calypso_origin() {
 		'https://wpcalypso.wordpress.com',
 		'https://horizon.wordpress.com',
 		'https://wordpress.com',
+		'http://my.localhost:3000',
+		'https://my.wordpress.com',
 	);
 	return in_array( $origin, $allowed, true ) ? $origin : 'https://wordpress.com';
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Block Editor Assets: fix Gutenberg asset detection when assets are served from a CDN.

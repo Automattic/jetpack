@@ -1,13 +1,18 @@
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import defaultSettings from '../shared/settings/index.js';
 import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-date';
-const settings = {
+export const name = 'field-date';
+
+export const form_editor = {
+	category: 'advanced',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Date picker', 'jetpack-forms' ),
 	keywords: [
@@ -58,4 +63,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

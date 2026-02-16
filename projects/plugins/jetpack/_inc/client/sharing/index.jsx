@@ -14,6 +14,7 @@ import {
 	getSiteAdminUrl,
 	userCanManageModules,
 	isSharingBlockAvailable,
+	isLikeBlockAvailable,
 	getSiteId,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
@@ -39,6 +40,7 @@ class Sharing extends Component {
 			userCanManageModules: this.props.userCanManageModules,
 			activeFeatures: this.props.activeFeatures,
 			hasSharingBlock: this.props.hasSharingBlock,
+			hasLikeBlock: this.props.hasLikeBlock,
 			isBlockTheme: this.props.isBlockTheme,
 		};
 
@@ -89,6 +91,7 @@ export default connect( state => {
 		activeFeatures: getActiveFeatures( state ),
 		userCanManageModules: userCanManageModules( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),
+		hasLikeBlock: isLikeBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
 	};
 } )( Sharing );

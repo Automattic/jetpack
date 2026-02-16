@@ -61,6 +61,9 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
+
+	// Initialize Newsletter Settings (always-loaded so the settings page URL works even when module is inactive).
+	\Automattic\Jetpack\Newsletter\Settings::init();
 }
 
 // Play nice with https://wp-cli.org/.

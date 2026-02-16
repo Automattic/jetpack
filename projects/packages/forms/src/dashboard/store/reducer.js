@@ -31,6 +31,7 @@ const currentQuery = (
 		page: 1,
 		per_page: 20,
 		status: 'draft,publish',
+		fields_format: 'collection',
 	},
 	action
 ) => {

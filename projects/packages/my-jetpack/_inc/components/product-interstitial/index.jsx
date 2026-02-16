@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import completeImage from './assets/complete.png';
+import completeImage from './assets/complete.webp';
 import extrasImage from './assets/extras.png';
-import securityImage from './assets/security.png';
+import securityImage from './assets/security.webp';
 import statsImage from './assets/stats.png';
 import PricingInterstitial from './pricing-interstitial';
 import ProductInterstitial from './product-interstitial';

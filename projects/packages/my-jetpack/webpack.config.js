@@ -5,6 +5,7 @@ module.exports = [
 	{
 		entry: {
 			index: './_inc/admin.jsx',
+			'async-notification-bubble': './_inc/utils/async-notification-bubble.ts',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -23,13 +24,6 @@ module.exports = [
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
-				// https://github.com/WordPress/gutenberg/issues/73362
-				{
-					test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
-					resolve: { fullySpecified: false },
-				},
-
 				// Transpile JavaScript
 				jetpackWebpackConfig.TranspileRule( {
 					exclude: /node_modules\//,
@@ -70,5 +64,8 @@ module.exports = [
 				consumer_slug: 'my_jetpack',
 			} ),
 		},
+		devServer: jetpackWebpackConfig.DevServer( {
+			static: { directory: path.resolve( './build' ) },
+		} ),
 	},
 ];

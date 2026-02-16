@@ -858,6 +858,16 @@ export function isSharingBlockAvailable( state ) {
 }
 
 /**
+ * Check if the Like block is available on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Like block is available on the site.
+ */
+export function isLikeBlockAvailable( state ) {
+	return !! state.jetpack.initialState.siteData.isLikeBlockAvailable;
+}
+
+/**
  * Get the Jetpack Manage info
  *
  * @param {object} state - Global state tree.

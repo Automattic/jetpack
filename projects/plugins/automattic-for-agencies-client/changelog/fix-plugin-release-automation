@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove redundant `beta-plugin-slug` setting, plugin already has `wp-plugin-slug` set.
+
+

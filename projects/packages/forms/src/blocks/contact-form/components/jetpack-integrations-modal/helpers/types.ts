@@ -16,6 +16,11 @@ export type NavigationHandlers = {
 	goToResponses?: () => void;
 };
 
+// Optional components that can be injected (to avoid bundling block-editor deps in dashboard)
+export type IntegrationComponents = {
+	ConsentToggle?: React.ComponentType< { className?: string } >;
+};
+
 export type EditorFormAttributes = {
 	jetpackCRM?: boolean;
 	mailpoet?: { enabledForForm?: boolean; listId?: string };
@@ -30,6 +35,7 @@ export type IntegrationContextProps = {
 	handlers?: NavigationHandlers;
 	attributes?: EditorFormAttributes;
 	setAttributes?: ( attrs: Partial< EditorFormAttributes > ) => void;
+	components?: IntegrationComponents;
 };
 
 // Builder props for a single integration

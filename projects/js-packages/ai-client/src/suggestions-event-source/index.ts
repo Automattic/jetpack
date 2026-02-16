@@ -37,6 +37,7 @@ type SuggestionsEventSourceConstructorArgs = {
 		fromCache?: boolean;
 		functions?: Array< object >;
 		model?: AiModelTypeProp;
+		languageCode?: string;
 	};
 };
 
@@ -115,6 +116,7 @@ export default class SuggestionsEventSource extends EventTarget {
 			feature?: string;
 			functions?: Array< object >;
 			model?: AiModelTypeProp;
+			language_code?: string;
 		} = {};
 
 		// Populate body data with post id only if it is an integer
@@ -158,6 +160,11 @@ export default class SuggestionsEventSource extends EventTarget {
 		if ( options?.model?.length ) {
 			debug( 'Model: %o', options.model );
 			bodyData.model = options.model;
+		}
+
+		if ( options?.languageCode?.length ) {
+			debug( 'Language: %o', options.languageCode );
+			bodyData.language_code = options.languageCode;
 		}
 
 		// Clean the unclear prompt trigger flag

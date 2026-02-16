@@ -82,7 +82,7 @@ class Post_List_Test extends BaseTestCase {
 
 	/**
 	 * Test add_filters_and_actions_for_screen() with "Pages".
-	 * Thumbnail should show up on "Pages", but Share should not, because 'publicize' is not supported on "Pages".
+	 * Thumbnail and Copy link should show up on "Pages".
 	 */
 	public function test_add_filters_and_actions_for_screen_thumbnail() {
 		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
@@ -94,28 +94,22 @@ class Post_List_Test extends BaseTestCase {
 			'post_type' => 'page',
 		);
 
-		// Turn on the flag that allows the Share action if applicable.
-		add_filter( 'jetpack_post_list_display_share_action', '__return_true' );
-
 		$post_list->add_filters_and_actions_for_screen( $current_screen );
 
-		// Assert that our style, filter, and action has been added.
+		// Assert that thumbnail columns and copy link actions have been added.
 		$this->assertTrue( has_filter( 'manage_posts_columns' ) );
 		$this->assertTrue( has_action( 'manage_posts_custom_column' ) );
 		$this->assertTrue( has_filter( 'manage_pages_columns' ) );
 		$this->assertTrue( has_action( 'manage_pages_custom_column' ) );
-		$this->assertFalse( has_action( 'post_row_actions', array( $post_list, 'add_share_action' ) ) );
-		$this->assertFalse( has_action( 'page_row_actions', array( $post_list, 'add_share_action' ) ) );
 		$this->assertNotFalse( has_action( 'post_row_actions', array( $post_list, 'add_copy_link_action' ) ) );
 		$this->assertNotFalse( has_action( 'page_row_actions', array( $post_list, 'add_copy_link_action' ) ) );
 	}
 
 	/**
 	 * Test add_filters_and_actions_for_screen() with a custom post type.
-	 * Thumbnail should ONLY show up on "Posts" and "Pages". However, the Share action should show up on custom post
-	 * types that support publicize and the block editor.
+	 * Thumbnail should ONLY show up on "Posts" and "Pages", but copy link should show up.
 	 */
-	public function test_add_filters_and_actions_for_screen_share() {
+	public function test_add_filters_and_actions_for_screen_custom_post_type() {
 		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
 		$post_list = Post_List::configure();
 
@@ -124,7 +118,8 @@ class Post_List_Test extends BaseTestCase {
 			'post_type_we_made_up',
 			array(
 				'show_in_rest' => true,
-				'supports'     => array( 'editor', 'publicize' ),
+				'public'       => true,
+				'supports'     => array( 'editor' ),
 			)
 		);
 
@@ -134,12 +129,9 @@ class Post_List_Test extends BaseTestCase {
 			'post_type' => 'post_type_we_made_up',
 		);
 
-		// Turn on the flag that allows the Share action if applicable.
-		add_filter( 'jetpack_post_list_display_share_action', '__return_true' );
-
 		$post_list->add_filters_and_actions_for_screen( $current_screen );
 
-		// Assert that only the Share action was enabled.
+		// Assert that only copy link action was enabled (no thumbnail columns for custom post types).
 		$this->assertFalse( has_filter( 'manage_posts_columns' ) );
 		$this->assertFalse( has_action( 'manage_posts_custom_column' ) );
 		$this->assertFalse( has_filter( 'manage_pages_columns' ) );
@@ -150,9 +142,9 @@ class Post_List_Test extends BaseTestCase {
 
 	/**
 	 * Test the add_filters_and_actions_for_screen() with "Posts".
-	 * The thumbnail and Share action should be available on "Posts".
+	 * Thumbnail and copy link should be available on "Posts".
 	 */
-	public function test_add_filters_and_actions_for_screen_thumbnail_and_share() {
+	public function test_add_filters_and_actions_for_screen_posts() {
 		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
 		$post_list = Post_List::configure();
 
@@ -160,53 +152,20 @@ class Post_List_Test extends BaseTestCase {
 			'base'      => 'edit',
 			'post_type' => 'post',
 		);
-		add_post_type_support( 'post', 'publicize' );
-
-		// Turn on the flag that allows the Share action if applicable.
-		add_filter( 'jetpack_post_list_display_share_action', '__return_true' );
 
 		$post_list->add_filters_and_actions_for_screen( $current_screen );
 
-		// Assert that our style, filter, and action has been added.
+		// Assert that thumbnail columns and copy link actions have been added.
 		$this->assertTrue( has_filter( 'manage_posts_columns' ) );
 		$this->assertTrue( has_action( 'manage_posts_custom_column' ) );
 		$this->assertTrue( has_filter( 'manage_pages_columns' ) );
 		$this->assertTrue( has_action( 'manage_pages_custom_column' ) );
-		$this->assertTrue( has_action( 'post_row_actions' ) );
-		$this->assertTrue( has_action( 'page_row_actions' ) );
-	}
-
-	/**
-	 * Test the add_filters_and_actions_for_screen() with "Posts".
-	 * The thumbnail and Share action should be available on "Posts", but we don't set the share flag to true, so only
-	 * thumbnails show up.
-	 */
-	public function test_add_filters_and_actions_for_screen_share_flag_disabled() {
-
-		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
-		$post_list = Post_List::configure();
-
-		$current_screen = (object) array(
-			'base'      => 'edit',
-			'post_type' => 'post',
-		);
-		add_post_type_support( 'post', 'publicize' );
-
-		$post_list->add_filters_and_actions_for_screen( $current_screen );
-
-		// Assert that our style, filter, and action has been added.
-		$this->assertTrue( has_filter( 'manage_posts_columns' ) );
-		$this->assertTrue( has_action( 'manage_posts_custom_column' ) );
-		$this->assertTrue( has_filter( 'manage_pages_columns' ) );
-		$this->assertTrue( has_action( 'manage_pages_custom_column' ) );
-		$this->assertFalse( has_action( 'post_row_actions', array( $post_list, 'add_share_action' ) ) );
-		$this->assertFalse( has_action( 'page_row_actions', array( $post_list, 'add_share_action' ) ) );
 		$this->assertNotFalse( has_action( 'post_row_actions', array( $post_list, 'add_copy_link_action' ) ) );
 		$this->assertNotFalse( has_action( 'page_row_actions', array( $post_list, 'add_copy_link_action' ) ) );
 	}
 
 	/**
-	 * Test the add_filters_and_actions_for_screen() method doesn't add thumbnails or Share if screen not 'edit' base.
+	 * Test the add_filters_and_actions_for_screen() method doesn't add thumbnails or copy link if screen not 'edit' base.
 	 */
 	public function test_add_filters_and_actions_for_screen_wrong_screen() {
 		$post_list      = Post_List::configure();

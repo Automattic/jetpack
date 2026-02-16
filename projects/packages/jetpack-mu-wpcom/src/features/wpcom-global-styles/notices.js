@@ -1,20 +1,14 @@
 /* global wpcomGlobalStyles */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { ExternalLink, Notice } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import {
-	createInterpolateElement,
-	render,
-	useCallback,
-	useEffect,
-	useState,
-} from '@wordpress/element';
+import { render, useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import clsx from 'clsx';
 import { wpcomTrackEvent } from '../../common/tracks';
 import { useCanvas } from './use-canvas';
 import { useGlobalStylesConfig } from './use-global-styles-config';
+import useGlobalStyleNoticeActions from './use-global-styles-notice-actions';
 import { usePreview } from './use-preview';
 
 import './notice.scss';
@@ -33,33 +27,32 @@ const trackEvent = ( eventName, isSiteEditor = true ) =>
  * @return {import('react').JSX.Element} The component to render.
  */
 function GlobalStylesWarningNotice() {
+	const { upgrade, reset, learnMore } = useGlobalStyleNoticeActions( {
+		isSiteEditor: true,
+		context: 'view_canvas',
+	} );
+
 	useEffect( () => {
 		trackEvent( 'calypso_global_styles_gating_notice_view_canvas_show' );
 	}, [] );
 
 	const planName = wpcomGlobalStyles.planName;
 
-	const upgradeTranslation = sprintf(
-		/* translators: %s is the short-form Premium plan name */
-		__(
-			'Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.',
-			'jetpack-mu-wpcom'
-		),
-		planName
-	);
 	return (
-		<Notice status="warning" isDismissible={ false } className="wpcom-global-styles-notice">
-			{ createInterpolateElement( upgradeTranslation, {
-				a: (
-					<ExternalLink
-						href={ wpcomGlobalStyles.upgradeUrl }
-						target="_blank"
-						onClick={ () =>
-							trackEvent( 'calypso_global_styles_gating_notice_view_canvas_upgrade_click' )
-						}
-					/>
+		<Notice
+			actions={ [ upgrade, reset, learnMore ] }
+			status="warning"
+			isDismissible={ false }
+			className="wpcom-global-styles-notice"
+		>
+			{ sprintf(
+				/* translators: %s is the short-form Premium plan name */
+				__(
+					'Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.',
+					'jetpack-mu-wpcom'
 				),
-			} ) }
+				planName
+			) }
 		</Notice>
 	);
 }
@@ -115,7 +108,7 @@ function GlobalStylesViewNotice() {
  */
 function GlobalStylesEditNotice() {
 	const NOTICE_ID = 'wpcom-global-styles/gating-notice';
-	const { globalStylesInUse, globalStylesId } = useGlobalStylesConfig();
+	const { globalStylesInUse } = useGlobalStylesConfig();
 	const { canvas } = useCanvas();
 	const { isSiteEditor, isPostEditor } = useSelect(
 		select => ( {
@@ -126,63 +119,20 @@ function GlobalStylesEditNotice() {
 	);
 	const { previewPostWithoutCustomStyles, canPreviewPost } = usePreview();
 
-	const { createWarningNotice, removeNotice } = useDispatch( 'core/notices' );
-	const { editEntityRecord } = useDispatch( 'core' );
-	const helpCenterDispatch = useDispatch( 'automattic/help-center' );
-	const setShowHelpCenter = helpCenterDispatch?.setShowHelpCenter;
-	const setShowSupportDoc = helpCenterDispatch?.setShowSupportDoc;
+	const { upgrade, reset, learnMore } = useGlobalStyleNoticeActions( {
+		isSiteEditor: true,
+		context: 'view_canvas',
+	} );
 
-	const upgradePlan = useCallback( () => {
-		window.open( wpcomGlobalStyles.upgradeUrl, '_blank' ).focus();
-		trackEvent( 'calypso_global_styles_gating_notice_upgrade_click', isSiteEditor );
-	}, [ isSiteEditor ] );
+	const { createWarningNotice, removeNotice } = useDispatch( 'core/notices' );
 
 	const previewPost = useCallback( () => {
 		previewPostWithoutCustomStyles();
 		trackEvent( 'calypso_global_styles_gating_notice_preview_click', isSiteEditor );
 	}, [ isSiteEditor, previewPostWithoutCustomStyles ] );
 
-	const resetGlobalStyles = useCallback( () => {
-		if ( ! globalStylesId ) {
-			return;
-		}
-
-		editEntityRecord( 'root', 'globalStyles', globalStylesId, {
-			styles: {},
-			settings: {},
-		} );
-
-		trackEvent( 'calypso_global_styles_gating_notice_reset_click', isSiteEditor );
-	}, [ editEntityRecord, globalStylesId, isSiteEditor ] );
-
-	const openLearnMoreAboutStylesDialog = useCallback( () => {
-		if ( setShowHelpCenter && setShowSupportDoc ) {
-			setShowHelpCenter( true );
-			setShowSupportDoc(
-				wpcomGlobalStyles.learnMoreAboutStylesUrl,
-				wpcomGlobalStyles.learnMoreAboutStylesPostId
-			);
-		} else {
-			window.open( wpcomGlobalStyles.learnMoreAboutStylesUrl, '_blank' ).focus();
-		}
-
-		trackEvent( 'calypso_global_styles_gating_learn_more_click', isSiteEditor );
-	}, [ isSiteEditor, setShowHelpCenter, setShowSupportDoc ] );
-
 	const showNotice = useCallback( () => {
-		const actions = [
-			{
-				label: __( 'Upgrade now', 'jetpack-mu-wpcom' ),
-				onClick: upgradePlan,
-				variant: 'primary',
-				noDefaultClasses: true,
-				className: clsx(
-					'wpcom-global-styles-action-is-upgrade',
-					'wpcom-global-styles-action-has-icon',
-					'wpcom-global-styles-action-is-external'
-				),
-			},
-		];
+		const actions = [ upgrade ];
 
 		if ( isPostEditor && canPreviewPost ) {
 			actions.push( {
@@ -195,20 +145,10 @@ function GlobalStylesEditNotice() {
 		}
 
 		if ( isSiteEditor ) {
-			actions.push( {
-				label: __( 'Remove premium styles', 'jetpack-mu-wpcom' ),
-				onClick: resetGlobalStyles,
-				variant: 'secondary',
-				noDefaultClasses: true,
-			} );
+			actions.push( reset );
 		}
 
-		actions.push( {
-			label: __( 'Learn more', 'jetpack-mu-wpcom' ),
-			onClick: openLearnMoreAboutStylesDialog,
-			variant: 'link',
-			noDefaultClasses: true,
-		} );
+		actions.push( learnMore );
 
 		const planName = wpcomGlobalStyles.planName;
 		createWarningNotice(
@@ -233,10 +173,10 @@ function GlobalStylesEditNotice() {
 		createWarningNotice,
 		isPostEditor,
 		isSiteEditor,
-		openLearnMoreAboutStylesDialog,
+		learnMore,
 		previewPost,
-		resetGlobalStyles,
-		upgradePlan,
+		reset,
+		upgrade,
 	] );
 
 	const isDistractionFree = useSelect(

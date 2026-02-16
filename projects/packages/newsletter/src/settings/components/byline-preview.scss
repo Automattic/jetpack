@@ -1,0 +1,36 @@
+// Byline preview component
+.byline-preview {
+	display: inline-flex;
+	align-items: center;
+	flex-flow: row;
+	margin: 16px 0;
+	padding: 16px;
+	background-color: #f0f0f1;
+	border-radius: 4px;
+
+	&__label {
+		height: 24px;
+		line-height: 24px;
+		margin-inline-end: 8px;
+		color: #1e1e1e;
+	}
+
+	&__gravatar {
+		border-radius: 50%;
+		width: 24px;
+		height: 24px;
+		margin-inline-end: 8px;
+	}
+
+	&__author {
+		color: #1e1e1e;
+	}
+
+	&__date {
+		color: #1e1e1e;
+	}
+
+	em {
+		color: #646970;
+	}
+}

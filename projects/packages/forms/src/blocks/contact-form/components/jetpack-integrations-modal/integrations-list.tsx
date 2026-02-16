@@ -21,6 +21,7 @@ const IntegrationsList = ( {
 	handlers,
 	attributes,
 	setAttributes,
+	components,
 }: IntegrationsListProps ) => {
 	const items = useIntegrationCardsData( {
 		integrations,
@@ -29,6 +30,7 @@ const IntegrationsList = ( {
 		handlers,
 		attributes,
 		setAttributes,
+		components,
 	} );
 
 	const initialCardsExpandedState = useMemo( () => {

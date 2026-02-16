@@ -40,6 +40,58 @@ define( 'CLASSIC_THEME_HELPER_PLUGIN_NAME', 'Classic Theme Helper Plugin' );
 define( 'CLASSIC_THEME_HELPER_PLUGIN_URI', 'https://jetpack.com' );
 define( 'CLASSIC_THEME_HELPER_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
+/*
+ * Autoloader check: This ensures the plugin doesn't fatal if activated before
+ * `composer install` has been run. This is a common oversight during development
+ * setup. The admin notice helps developers quickly identify the issue.
+ */
+$jetpack_autoloader = CLASSIC_THEME_HELPER_PLUGIN_DIR . 'vendor/autoload_packages.php';
+if ( is_readable( $jetpack_autoloader ) ) {
+	require_once $jetpack_autoloader;
+	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
+		\Automattic\Jetpack\Assets::alias_textdomains_from_file( CLASSIC_THEME_HELPER_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
+	}
+} else {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			__( 'Error loading autoloader file for Classic Theme Helper Plugin', 'classic-theme-helper-plugin' )
+		);
+	}
+
+	add_action(
+		'admin_notices',
+		function () {
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
+
+			$message = sprintf(
+				wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+					__( 'Your installation of Classic Theme Helper Plugin is incomplete. If you installed Classic Theme Helper Plugin from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Classic Theme Helper Plugin must have Composer dependencies installed and built via the build command.', 'classic-theme-helper-plugin' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+					)
+				),
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
+			);
+		}
+	);
+
+	return;
+}
+
 // Add "Settings" link to plugins page.
 add_filter(
 	'plugin_action_links_' . CLASSIC_THEME_HELPER_PLUGIN_FOLDER . '/classic-theme-helper-plugin.php',

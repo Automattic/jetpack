@@ -8,16 +8,19 @@ type Props = Pick< BlueskyPreviewProps, 'user' >;
 const BlueskyPostHeader: React.FC< Props > = ( { user } ) => {
 	const { displayName, address } = user || {};
 
+	let handle = address || 'username.bsky.social';
+	// Ensure that the handle starts with the '@' symbol.
+	if ( ! handle.startsWith( '@' ) ) {
+		handle = '@' + handle;
+	}
+
 	return (
 		<div className="bluesky-preview__post-header">
 			<div className="bluesky-preview__post-header-user">
 				<span className="bluesky-preview__post-header--displayname">
 					{ displayName || __( 'Account name', 'social-previews' ) }
 				</span>
-				&nbsp;
-				<span className="bluesky-preview__post-header--username">
-					{ address || 'username.bsky.social' }
-				</span>
+				<span className="bluesky-preview__post-header--username">{ handle }</span>
 			</div>
 			<div className="bluesky-preview__post-header--separator">·</div>
 			<div className="bluesky-preview__post-header--date">

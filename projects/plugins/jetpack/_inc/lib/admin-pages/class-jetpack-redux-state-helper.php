@@ -194,6 +194,8 @@ class Jetpack_Redux_State_Helper {
 				'latestBoostSpeedScores'     => $speed_score_history->latest(),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
 					&& $block_availability['sharing-buttons']['available'],
+				'isLikeBlockAvailable'       => isset( $block_availability['like'] )
+					&& $block_availability['like']['available'],
 			),
 			'themeData'                            => array(
 				'name'         => $current_theme->get( 'Name' ),

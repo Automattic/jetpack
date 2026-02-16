@@ -24,7 +24,6 @@ export interface Attributes {
 	 */
 	triggerCodeUpdate: boolean;
 
-	showFileName: boolean;
 	showCopyButton: boolean;
 
 	showLanguageName: boolean;

@@ -694,21 +694,18 @@ class Search_Widget extends \WP_Widget {
 							'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ?? '' ),
 						);
 						break;
-					// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-					// TODO: Uncomment when Search rebuild is complete (search for: product_attribute filter).
-					// case 'product_attribute':
-					// $filter_data = array(
-					// 'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-					// 'type'  => 'product_attribute',
-					// 'count' => $count,
-					// );
-					// Save included attributes if any are selected.
-					// if ( isset( $new_instance[ 'included_attributes_' . $index ] ) && is_array( $new_instance[ 'included_attributes_' . $index ] ) ) {
-					// $filter_data['included_attributes'] = array_map( 'sanitize_key', $new_instance[ 'included_attributes_' . $index ] );
-					// }
-					// $filters[] = $filter_data;
-					// break.
-					// phpcs:enable Squiz.PHP.CommentedOutCode.Found
+					case 'product_attribute':
+						$filter_data = array(
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ?? '' ),
+							'type'  => 'product_attribute',
+							'count' => $count,
+						);
+						// Save included attributes if any are selected.
+						if ( isset( $new_instance[ 'included_attributes_' . $index ] ) && is_array( $new_instance[ 'included_attributes_' . $index ] ) ) {
+							$filter_data['included_attributes'] = array_map( 'sanitize_key', $new_instance[ 'included_attributes_' . $index ] );
+						}
+						$filters[] = $filter_data;
+						break;
 				}
 			}
 		}
@@ -1014,11 +1011,9 @@ class Search_Widget extends \WP_Widget {
 						<option value="date_histogram" <?php $this->render_widget_option_selected( 'type', $args['type'], 'date_histogram', $is_template ); ?>>
 							<?php esc_html_e( 'Date', 'jetpack-search-pkg' ); ?>
 						</option>
-						<!-- TODO: Uncomment when Search rebuild is complete (search for: product_attribute filter).
 						<option value="product_attribute" <?php $this->render_widget_option_selected( 'type', $args['type'], 'product_attribute', $is_template ); ?>>
 							<?php esc_html_e( 'Product Attributes', 'jetpack-search-pkg' ); ?>
 						</option>
-						-->
 					</select>
 				</label>
 			</p>

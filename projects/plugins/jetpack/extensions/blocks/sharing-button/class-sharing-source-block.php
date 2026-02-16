@@ -1429,13 +1429,11 @@ class Share_LinkedIn_Block extends Sharing_Source_Block {
 
 		$post_link = $this->get_share_url( $post->ID );
 
-		// Using the same URL as the official button, which is *not* LinkedIn's documented sharing link
-		// https://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
 		$linkedin_url = add_query_arg(
 			array(
 				'url' => rawurlencode( $post_link ),
 			),
-			'https://www.linkedin.com/cws/share?token=&isFramed=false'
+			'https://www.linkedin.com/sharing/share-offsite/'
 		);
 
 		// Record stats

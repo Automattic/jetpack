@@ -5,6 +5,83 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.1] - 2026-02-12
+### Changed
+- Remove redundant moduleNameMapper from jest config. [#46962]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Allow responsive wrapper to shrink properly in flex layouts by adding min-width and min-height CSS properties. [#47070]
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [0.56.0] - 2026-02-10
+### Added
+- Add `renderTooltip` prop for custom tooltip rendering in pie charts. [#46971]
+
+### Changed
+- Responsive charts now fill parent container by default instead of using a fixed aspect ratio. [#46846]
+
+### Fixed
+- Bundle `@wordpress/ui` into dist output to prevent runtime errors in consumers using wp-build. [#47004]
+- Fix tooltip positioning when container moves without triggering containerBounds refresh. [#46963]
+
+## [0.55.0] - 2026-02-04
+### Changed
+- Update package dependencies. [#46933]
+
+### Fixed
+- Fix Sparkline component export paths in package.json and update documentation to include GeoChart, Sparkline, and TrendIndicator components. [#46842]
+
+## [0.54.3] - 2026-02-03
+### Changed
+- Update package dependencies. [#46905]
+
+### Fixed
+- Add missing stories referenced by Storybook MDX docs. [#46883]
+
+## [0.54.2] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.54.1] - 2026-01-26
+### Changed
+- Update dependencies. [#43811]
+
+## [0.54.0] - 2026-01-21
+### Added
+- Add labelOverflow ellipsis option to truncate long axis labels for bar chart. [#46656]
+
+## [0.53.4] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [0.53.3] - 2026-01-14
+### Changed
+- Update package dependencies. [#46552]
+
+## [0.53.2] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## [0.53.1] - 2026-01-06
+### Added
+- Add animation support to Sparkline chart component. [#46333]
+- Add Geo Chart exports to package. [#46438]
+
+## [0.53.0] - 2025-12-22
+### Added
+- Add Geo chart [#45883]
+- Add TrendIndicator component for displaying directional trends with values [#46213]
+- GeoChart: Add region and resolution props for state/province-level map views [#46332]
+
+### Changed
+- Change Geo Chart data format to handle all Google Charts data [#46330]
+- Update package dependencies. [#46362]
+- Update package dependencies. [#46363]
+
+### Fixed
+- Charts: Add documentation and API references of animation feature. [#46326]
+
 ## [0.52.0] - 2025-12-15
 ### Added
 - Add new sparkline chart type. [#46165]
@@ -601,6 +678,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.56.1]: https://github.com/Automattic/charts/compare/v0.56.0...v0.56.1
+[0.56.0]: https://github.com/Automattic/charts/compare/v0.55.0...v0.56.0
+[0.55.0]: https://github.com/Automattic/charts/compare/v0.54.3...v0.55.0
+[0.54.3]: https://github.com/Automattic/charts/compare/v0.54.2...v0.54.3
+[0.54.2]: https://github.com/Automattic/charts/compare/v0.54.1...v0.54.2
+[0.54.1]: https://github.com/Automattic/charts/compare/v0.54.0...v0.54.1
+[0.54.0]: https://github.com/Automattic/charts/compare/v0.53.4...v0.54.0
+[0.53.4]: https://github.com/Automattic/charts/compare/v0.53.3...v0.53.4
+[0.53.3]: https://github.com/Automattic/charts/compare/v0.53.2...v0.53.3
+[0.53.2]: https://github.com/Automattic/charts/compare/v0.53.1...v0.53.2
+[0.53.1]: https://github.com/Automattic/charts/compare/v0.53.0...v0.53.1
+[0.53.0]: https://github.com/Automattic/charts/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/Automattic/charts/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/Automattic/charts/compare/v0.50.2...v0.51.0
 [0.50.2]: https://github.com/Automattic/charts/compare/v0.50.1...v0.50.2

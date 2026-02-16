@@ -96,7 +96,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	} );
 
 	resetButton.addEventListener( 'click', () => {
-		recordEvent( 'wpcom_global_styles_gating_notice_reset_support' );
+		recordEvent( 'wpcom_global_styles_gating_notice_reset_link' );
 	} );
 
 	popoverToggle.addEventListener( 'click', () => {

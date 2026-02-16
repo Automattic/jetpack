@@ -37,9 +37,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'plan_selected',
-				'setup_general',
-				'first_post_published',
+				'domain_upsell',
 				'design_edited',
+				'mobile_app_installed',
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',

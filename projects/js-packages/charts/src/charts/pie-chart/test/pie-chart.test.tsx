@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
@@ -332,6 +328,43 @@ describe( 'PieChart', () => {
 				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
 			} );
 			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Test: 42' );
+		} );
+
+		test( 'renders custom tooltip when renderTooltip prop is provided', async () => {
+			const user = userEvent.setup();
+			const customTooltipRenderer = jest.fn( ( { tooltipData } ) => (
+				<div role="tooltip" data-testid="custom-tooltip">
+					Custom: { tooltipData.label } - { tooltipData.value }
+				</div>
+			) );
+
+			renderWithTheme( {
+				data: testData,
+				withTooltips: true,
+				renderTooltip: customTooltipRenderer,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			await user.hover( segments[ 0 ] );
+
+			await waitFor( () => {
+				expect( screen.getByTestId( 'custom-tooltip' ) ).toBeInTheDocument();
+			} );
+
+			const customTooltip = screen.getByTestId( 'custom-tooltip' );
+			expect( customTooltip ).toHaveTextContent( 'Custom: Windows - 80000' );
+			expect( customTooltipRenderer ).toHaveBeenCalled();
+
+			// Verify the renderer received correct parameters
+			expect( customTooltipRenderer ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					tooltipData: expect.objectContaining( {
+						label: 'Windows',
+						value: 80000,
+						percentage: 70,
+					} ),
+				} )
+			);
 		} );
 	} );
 

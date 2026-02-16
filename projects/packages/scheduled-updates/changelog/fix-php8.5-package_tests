@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Tests: Improve compatibility with PHP 8.5.

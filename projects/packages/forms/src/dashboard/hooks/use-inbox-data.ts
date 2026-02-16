@@ -5,21 +5,23 @@ import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useRef, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { isEmpty } from 'lodash';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import { isCollectionFormatField } from '../components/inspector/utils.ts';
+import { useDashboardSearchParams } from '../router/dashboard-search-params-context.tsx';
 import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
-import type { FormResponse } from '../../types/index.ts';
+import type { FormResponse, ResponseField, ResponseFields } from '../../types/index.ts';
 
 /**
  * Helper function to get the status filter to apply from the URL.
- * This is the only way to filter the data by `status` as intentionally
- * we don't want to have a `status` filter in the UI.
+ * This is the only way to filter the data by `status`.
+ *
+ * Note: When Central Form Management (CFM) is enabled, the UI can expose a
+ * "Folder" DataViews filter that syncs its value to the URL `status` param.
  *
  * @param {string} urlStatus - The current status from the URL.
  * @return {string} The status filter to apply.
@@ -38,13 +40,64 @@ const formatFieldName = fieldName => {
 	return fieldName;
 };
 
+// https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore?tab=readme-ov-file#_isempty
+const isEmpty = obj =>
+	[ Object, Array ].includes( ( obj || {} ).constructor ) && ! Object.entries( obj || {} ).length;
+
 const formatFieldValue = fieldValue => {
-	if ( isEmpty( fieldValue ) ) {
+	if ( ! fieldValue || isEmpty( fieldValue ) ) {
 		return '-';
-	} else if ( Array.isArray( fieldValue ) ) {
+	}
+	if ( Array.isArray( fieldValue ) ) {
 		return fieldValue.join( ', ' );
 	}
 	return fieldValue;
+};
+
+type UseInboxDataOptions = {
+	status?: 'inbox' | 'spam' | 'trash';
+};
+
+const decodeValue = ( value: unknown ): unknown => {
+	if ( typeof value === 'string' ) {
+		return decodeEntities( value );
+	}
+
+	if ( Array.isArray( value ) ) {
+		return value.map( v => ( typeof v === 'string' ? decodeEntities( v ) : v ) );
+	}
+
+	return value;
+};
+
+const hasOwn = ( obj: object, key: PropertyKey ): boolean =>
+	Object.prototype.hasOwnProperty.call( obj, key );
+
+const normalizeFieldsForDisplay = ( fields: ResponseField[] ): ResponseFields => {
+	if ( ! fields || ! Array.isArray( fields ) ) {
+		return Object.create( null ) as Record< string, unknown >;
+	}
+
+	if ( isCollectionFormatField( fields[ 0 ] ) ) {
+		return fields;
+	}
+
+	return Object.entries( fields || {} ).reduce(
+		( accumulator, [ key, value ] ) => {
+			let _key = formatFieldName( key );
+			let counter = 2;
+
+			while ( hasOwn( accumulator, _key ) ) {
+				_key = `${ formatFieldName( key ) } (${ counter })`;
+				counter++;
+			}
+
+			accumulator[ _key ] = formatFieldValue( decodeValue( value ) );
+
+			return accumulator;
+		},
+		Object.create( null ) as Record< string, unknown >
+	);
 };
 
 /**
@@ -70,12 +123,13 @@ interface UseInboxDataReturn {
 /**
  * Hook to get all inbox related data.
  *
+ * @param {UseInboxDataOptions} options - Optional configuration.
  * @return {UseInboxDataReturn} The inbox related data.
  */
-export default function useInboxData(): UseInboxDataReturn {
-	const [ searchParams ] = useSearchParams();
+export default function useInboxData( options: UseInboxDataOptions = {} ): UseInboxDataReturn {
+	const [ searchParams ] = useDashboardSearchParams();
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
-	const urlStatus = searchParams.get( 'status' );
+	const urlStatus = options.status ?? searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
 	const {
@@ -177,21 +231,10 @@ export default function useInboxData(): UseInboxDataReturn {
 
 		return filteredRecords.map( record => {
 			const formResponse = record as FormResponse;
+
 			return {
 				...formResponse,
-				fields: Object.entries( formResponse.fields || {} ).reduce(
-					( accumulator, [ key, value ] ) => {
-						let _key = formatFieldName( key );
-						let counter = 2;
-						while ( accumulator[ _key ] ) {
-							_key = `${ formatFieldName( key ) } (${ counter })`;
-							counter++;
-						}
-						accumulator[ _key ] = formatFieldValue( decodeEntities( value as string ) );
-						return accumulator;
-					},
-					{}
-				),
+				fields: normalizeFieldsForDisplay( formResponse.fields as ResponseField[] ),
 			};
 		} ) as FormResponse[];
 	}, [ editedRecords, statusFilter ] );

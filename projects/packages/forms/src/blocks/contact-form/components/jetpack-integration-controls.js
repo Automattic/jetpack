@@ -2,12 +2,13 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton, Button, PanelBody } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
 import useConfigValue from '../../../hooks/use-config-value.ts';
 import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
 import ActiveIntegrations from './jetpack-integrations-modal/active-integrations/index.js';
+import ConsentToggle from './jetpack-integrations-modal/components/consent-toggle.tsx';
 import IntegrationsModal from './jetpack-integrations-modal/index.tsx';
 
 /**
@@ -28,6 +29,9 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const { tracks } = useAnalytics();
 	const showIntegrationIcons = useConfigValue( 'showIntegrationIcons' );
+
+	// Provide block-editor specific components to the modal
+	const components = useMemo( () => ( { ConsentToggle } ), [] );
 
 	const handleOpenModal = entry_point => {
 		tracks.recordEvent( 'jetpack_forms_block_modal_view', { entry_point } );
@@ -76,6 +80,7 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 				setAttributes={ setAttributes }
 				integrationsData={ integrations }
 				refreshIntegrations={ refreshIntegrations }
+				components={ components }
 			/>
 		</>
 	);

@@ -1,7 +1,4 @@
 /* eslint-disable react/jsx-no-bind */
-/**
- * @jest-environment jsdom
- */
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -10,6 +7,12 @@ import { createElement, createRef } from 'react';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
 import type { SingleChartRef } from '../../private/single-chart-context';
+
+// Mock useElementHeight to return a non-zero height in jsdom so charts render
+const mockRefCallback = jest.fn();
+jest.mock( '../../../hooks/use-element-height', () => ( {
+	useElementHeight: () => [ mockRefCallback, 300 ], // Return test height to allow chart rendering
+} ) );
 
 const customTheme = {
 	...defaultTheme,

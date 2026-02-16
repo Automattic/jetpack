@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add local name for css module classes for development for easier debugging.

@@ -56,6 +56,11 @@ const meta: Meta< SparklineProps > = {
 			description: 'Margin around the chart',
 			table: { category: 'Dimensions' },
 		},
+		animation: {
+			control: 'boolean',
+			description: 'Enable entry animation on initial render',
+			table: { category: 'Visual Style' },
+		},
 	},
 };
 
@@ -76,6 +81,29 @@ export const Default: Story = {
 		width: 120,
 		height: 48,
 		color: '#4CAF50',
+		containerHeight: 100,
+	},
+};
+
+/**
+ * Responsive sparkline that fills the container.
+ * Drag the corner of the container to resize and see the sparkline adapt.
+ */
+export const Responsive: Story = {
+	args: {
+		data: Default.args?.data,
+		color: '#9C27B0',
+	},
+};
+
+/**
+ * Sparkline with an aspect ratio.
+ */
+export const AspectRatio: Story = {
+	args: {
+		data: Default.args?.data,
+		color: '#9C27B0',
+		aspectRatio: 0.3,
 	},
 };
 
@@ -84,9 +112,8 @@ export const Default: Story = {
  */
 export const EmptyData: Story = {
 	args: {
+		...Default.args,
 		data: [],
-		width: 120,
-		height: 48,
 	},
 };
 
@@ -95,10 +122,9 @@ export const EmptyData: Story = {
  */
 export const SinglePoint: Story = {
 	args: {
+		...Default.args,
 		data: [ 42 ],
 		color: '#9C27B0',
-		width: 120,
-		height: 48,
 	},
 };
 
@@ -107,33 +133,10 @@ export const SinglePoint: Story = {
  */
 export const TwoPoints: Story = {
 	args: {
+		...Default.args,
 		data: [ 10, 20 ],
 		color: '#3F51B5',
-		width: 120,
-		height: 48,
 	},
-};
-
-/**
- * Responsive sparkline that adjusts to container width using aspectRatio.
- * Drag the corner of the container to resize and see the sparkline adapt.
- */
-export const Responsive: Story = {
-	render: () => (
-		<div
-			style={ {
-				width: '200px',
-				resize: 'horizontal',
-				overflow: 'auto',
-				padding: '8px',
-				border: '1px dashed #ccc',
-				minWidth: '80px',
-				maxWidth: '400px',
-			} }
-		>
-			<Sparkline data={ [ 10, 15, 12, 18, 22, 25 ] } color="#9C27B0" aspectRatio={ 0.3 } />
-		</div>
-	),
 };
 
 /**
@@ -189,5 +192,19 @@ export const Dashboard: Story = {
 				) ) }
 			</div>
 		);
+	},
+	args: {
+		containerHeight: 150,
+	},
+};
+
+/**
+ * Sparkline with entry animation that creates a smooth rising effect.
+ * The animation respects the user's prefers-reduced-motion setting for accessibility.
+ */
+export const Animation: Story = {
+	args: {
+		...Default.args,
+		animation: true,
 	},
 };

@@ -473,6 +473,23 @@ for PROJECT in projects/*/*; do
 		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/wordbless"] or .[0] == ["require-dev","automattic/wordbless"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
 	fi
 
+	# - Must use yoast/phpunit-polyfills with automattic/phpunit-select-config.
+	if jq -e '.require["automattic/phpunit-select-config"] // .["require-dev"]["automattic/phpunit-select-config"]' "$PROJECT/composer.json" >/dev/null &&
+		! jq -e '.require["yoast/phpunit-polyfills"] // .["require-dev"]["yoast/phpunit-polyfills"]' "$PROJECT/composer.json" >/dev/null
+	then
+		while IFS=$'\t' read -r LINE; do
+			EXIT=1
+			echo "::error file=$PROJECT/composer.json,line=${LINE}::We require \`yoast/phpunit-polyfills\` to get the correct version of PHPUnit. Please add it, or remove other PHPUnit-related packages if you're not using PHPUnit for testing."
+		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/phpunit-select-config"] or .[0] == ["require-dev","automattic/phpunit-select-config"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
+	fi
+
+	# - Plugins shouldn't have redundant wp-plugin-slug and beta-plugin-slug.
+	if [[ "$TYPE" == "plugins" ]] && jq -e '.extra["wp-plugin-slug"] and .extra["beta-plugin-slug"] and .extra["wp-plugin-slug"] == .extra["beta-plugin-slug"]' "$PROJECT/composer.json" > /dev/null; then
+		EXIT=1
+		LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["extra","beta-plugin-slug"] then input_line_number else empty end' "$PROJECT/composer.json" | head -n 1)
+		echo "::error file=$PROJECT/composer.json,line=$LINE::There is no need to set both \`wp-plugin-slug\` and \`beta-plugin-slug\` to the same value. Delete \`beta-plugin-slug\` if the plugin is on wporg (or will be soon), or \`wp-plugin-slug\` otherwise."
+	fi
+
 done
 
 # - Monorepo root composer.json must also use dev deps appropriately.
@@ -510,7 +527,7 @@ fi
 
 # - Text domains from plugins should not be used in packages.
 debug "Checking package textdomain usage vs plugin slugs"
-PLUGDOMAINS="$(jq -n 'reduce inputs as $i ({}; .[$i.extra["wp-plugin-slug"] // $i.extra["wp-theme-slug"] // ""] = ( input_filename | sub("^projects/(?<slug>.*)/composer\\.json$";"\(.slug)"))) | .[""] |= empty' projects/plugins/*/composer.json)"
+PLUGDOMAINS="$(jq -n 'reduce inputs as $i ({}; .[$i.extra["wp-plugin-slug"] // $i.extra["beta-plugin-slug"] // ""] = ( input_filename | sub("^projects/(?<slug>.*)/composer\\.json$";"\(.slug)"))) | .[""] |= empty' projects/plugins/*/composer.json)"
 for FILE in projects/packages/*/composer.json; do
 	DIR="${FILE%/composer.json}"
 	SLUG="${DIR#projects/}"
@@ -723,5 +740,17 @@ while IFS= read -r X; do
 	echo "::error file=$FILE,line=$LINE,col=$COL::The Free Software Foundation moved out of $MOVED. The recommended text for the GPL license notice is now%0A    You should have received a copy of the GNU General Public License%0A    along with this program; if not, see <https://www.gnu.org/licenses/>."
 	echo "---"
 done < <( git grep --line-number --column -o '675\s\+Massachusetts\|59\s\+Temple\|51\s\+Franklin' ':!.github/files/lint-project-structure.sh' ':!*/changelog/*' )
+
+# - Unexpected packages in monorepo root.
+debug "Checking for unexpected JS packages in monorepo root"
+TMP=$( shopt -u dotglob; printf "%s\n" node_modules/* node_modules/@*/* | sed 's!^node_modules/!!' | grep -v '^@[^/]*$' | grep -E --line-regexp -v 'eslint|husky|jetpack-cli|jetpack-js-tools|stylelint|@\*/\*' || true )
+if [[ -n "$TMP" ]]; then
+	EXIT=1
+	echo "::error::Unexpected packages are installed in the monorepo root node_modules. This is likely to lead to phantom dependencies! Whatever you did that resulted in this is probably wrong. Ask for help in Slack #jetpack-monorepo.%0A%0APackages found are: ${TMP//$'\n'/ }"
+fi
+if [[ -d node_modules/.pnpm/node_modules ]]; then
+	EXIT=1
+	echo '::error::Packages are unexpectedly hoisted into node_modules/.pnpm/node_modules. This is likely to lead to phantom dependencies! Whatever you did that resulted in this is probably wrong. Ask for help in Slack #jetpack-monorepo.'
+fi
 
 exit $EXIT
