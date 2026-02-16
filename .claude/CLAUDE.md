@@ -3,6 +3,14 @@
 @.cursor/rules/
 @.github/copilot-instructions.md
 
+## Codex System
+
+Some projects in this monorepo have a `.codex/` directory containing architecture documentation. **Before working on any project, check if it has a `.codex/` directory.** If it does, read `.codex/README.md` first -- it will orient you on the codebase far faster than reading source files.
+
+Projects with a codex will also have a `CLAUDE.md` in their project root with tooling commands and additional context.
+
+Use `/codex-init` to bootstrap a codex for a new project. Use `/codex-update` after making code changes to keep docs current.
+
 ## Confidentiality
 
 This is a **public repository**. Never include private WordPress.com URLs (e.g., `*.wordpress.com` internal sites) in PR descriptions, commit messages, code comments, or any public-facing text. Use the p2 shorthand syntax instead (e.g., `peKye1-1Z1-p2`).
