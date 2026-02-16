@@ -23,7 +23,7 @@ export function LinkPreviewModal( {
 	previewData,
 	title,
 	className,
-	...mmodalProps
+	...modalProps
 }: LinkPreviewModalProps ) {
 	const linkPreviewData = useLinkPreviewPostData();
 
@@ -32,7 +32,7 @@ export function LinkPreviewModal( {
 			title={ title || __( 'Previews', 'jetpack-publicize-pkg' ) }
 			size="fill"
 			className={ clsx( styles[ 'link-preview-modal' ], className ) }
-			{ ...mmodalProps }
+			{ ...modalProps }
 		>
 			<LinkPreviewTabs { ...linkPreviewData } { ...previewData } />
 		</Modal>
