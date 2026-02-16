@@ -1830,4 +1830,41 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
 		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
 	}
+
+	/**
+	 * Tests that scripts are not enqueued on P2 frontend.
+	 *
+	 * This verifies the P2 frontend detection logic (lines 203-209 in class-agents-manager.php)
+	 * that prevents Agents Manager from loading on P2 sites when not in admin context.
+	 */
+	public function test_scripts_not_enqueued_on_p2_frontend() {
+		global $wp_admin_bar;
+
+		// Ensure we're on the frontend (not admin).
+		$this->assertFalse( is_admin() );
+
+		// Test with pub/p2 stylesheet.
+		add_filter(
+			'stylesheet',
+			function () {
+				return 'pub/p2v2';
+			}
+		);
+
+		// Initialize admin bar.
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		$wp_admin_bar = new \WP_Admin_Bar();
+		$wp_admin_bar->initialize();
+
+		// Call enqueue_scripts which should return early for P2 frontend.
+		// The method should detect P2 frontend and return before adding admin bar nodes or enqueuing scripts.
+		$this->agents_manager->enqueue_scripts();
+
+		// Verify no admin bar nodes were added.
+		// The agents-manager admin bar node should not exist if the method returned early.
+		$node = $wp_admin_bar->get_node( 'agents-manager' );
+		$this->assertNull( $node, 'No admin bar node should be added on P2 frontend' );
+
+		remove_all_filters( 'stylesheet' );
+	}
 }
