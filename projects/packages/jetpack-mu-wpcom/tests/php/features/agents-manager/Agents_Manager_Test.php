@@ -1824,6 +1824,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// For gutenberg-disconnected variant, CSS should not be enqueued.
 		// $wp_styles may be null if wp_enqueue_style was never called.
+		// @phan-suppress-next-line PhanSuspiciousValueComparison, PhanTypeExpectedObjectPropAccessButGotNull - WordPress may initialize $wp_styles during enqueue
 		$this->assertTrue( null === $wp_styles || ! isset( $wp_styles->registered['agents-manager-style'] ), 'CSS should NOT be enqueued for gutenberg-disconnected variant' );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
