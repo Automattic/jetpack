@@ -37,5 +37,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+
+		> div {
+			max-width: clamp(gb.$break-mobile, 100%, gb.$break-small);
+		}
 	}
 }
