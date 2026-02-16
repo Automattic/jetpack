@@ -62,7 +62,7 @@ class Agents_Manager {
 	 * - Priority 50 on admin_enqueue_scripts (before Help Center's priority 100)
 	 * - Priority 500 on next_admin_init (before Help Center's priority 1000)
 	 *
-	 * Prevents Help Center in Gutenberg and CIAB environments when using disconnected variants.
+	 * Prevents Help Center from loading when Agents Manager will be active to avoid duplicate UI elements.
 	 */
 	public function maybe_prevent_help_center() {
 		// Only prevent if Agents Manager will be loading.
