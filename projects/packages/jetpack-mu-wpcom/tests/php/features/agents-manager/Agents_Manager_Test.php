@@ -1772,9 +1772,59 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Should use wp-admin, not wp-admin-disconnected, because unified experience takes precedence.
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
-		$this->assertStringNotContainsString( 'disconnected', $inline_script );
+		$this->assertStringNotContainsString( '"sectionName":"wp-admin-disconnected"', $inline_script );
+		$this->assertStringNotContainsString( '"sectionName":"gutenberg-disconnected"', $inline_script );
+		$this->assertStringNotContainsString( '"sectionName":"ciab-disconnected"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that CSS is enqueued for wp-admin variants but not for gutenberg or ciab variants.
+	 */
+	public function test_css_enqueued_only_for_wp_admin_variants() {
+		// Test wp-admin variant - should enqueue CSS.
+		$this->set_admin_context();
+		global $wp_styles;
+		$wp_styles = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_styles, 'wp_styles should be initialized' );
+		$this->assertTrue( isset( $wp_styles->registered['agents-manager-style'] ), 'CSS should be enqueued for wp-admin variant' );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
+
+		// Test gutenberg-disconnected variant - should NOT enqueue CSS.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen = get_current_screen();
+
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		$wp_styles = null;
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse( isset( $wp_styles->registered['agents-manager-style'] ), 'CSS should NOT be enqueued for gutenberg-disconnected variant' );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
 		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
 	}
 }

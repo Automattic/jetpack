@@ -65,18 +65,9 @@ class Agents_Manager {
 	 * Prevents Help Center in Gutenberg and CIAB environments when using disconnected variants.
 	 */
 	public function maybe_prevent_help_center() {
-		// Detect which hook we're on to determine environment.
-		// When running on next_admin_init, we're in CIAB.
-		// Otherwise, check for Gutenberg block editor.
-		$current_filter = current_filter();
-		$is_ciab        = ( 'next_admin_init' === $current_filter );
-		$is_gutenberg   = ! $is_ciab && $this->is_block_editor();
-
-		if ( ! $is_gutenberg && ! $is_ciab ) {
-			return;
-		}
-
 		// Only prevent if Agents Manager will be loading.
+		// This ensures Help Center doesn't enqueue duplicate JS/CSS in wp-admin,
+		// Gutenberg, or CIAB when Agents Manager is active.
 		if ( ! $this->should_enqueue_script() ) {
 			return;
 		}
@@ -402,7 +393,8 @@ class Agents_Manager {
 		);
 
 		// Only enqueue CSS for wp-admin variants.
-		// Gutenberg and CIAB variants don't have/need separate CSS files.
+		// Gutenberg and CIAB variants handle styling through their own interfaces
+		// and do not require separate CSS files for the help icon.
 		if ( str_starts_with( $variant, 'wp-admin' ) ) {
 			wp_enqueue_style(
 				'agents-manager-style',
