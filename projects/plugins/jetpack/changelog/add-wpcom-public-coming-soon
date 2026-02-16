@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Site Settings: add wpcom_public_coming_soon to the v1.4 site settings endpoint.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added wpcom_public_coming_soon to the options sync whitelist.
