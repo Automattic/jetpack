@@ -29,6 +29,7 @@ class Defaults {
 		'blog_charset',
 		'blog_public',
 		'wpcom_data_sharing_opt_out',
+		'wpcom_public_coming_soon',
 		'blogdescription',
 		'blogname',
 		'carousel_background_color',
