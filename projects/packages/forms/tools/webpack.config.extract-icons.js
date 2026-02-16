@@ -28,6 +28,7 @@ export const iconPipelineConfig = {
 	svgFilename: 'icon.svg',
 	rasterOutputDir: path.join( __dirname, '..', 'src', 'contact-form', 'images', 'field-icons' ),
 	rasterSuffix: '@2x',
+	fileIconsDir: path.join( __dirname, '..', 'src', 'contact-form', 'images', 'file-icons' ),
 };
 
 export default {
