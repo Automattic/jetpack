@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { LinkPreviewModalWithTrigger } from '@automattic/jetpack-publicize/link-preview';
 import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	useModuleStatus,
@@ -150,6 +151,9 @@ const Seo = () => {
 				</PanelRow>
 				<PanelRow>
 					<SeoDescriptionPanel />
+				</PanelRow>
+				<PanelRow>
+					<LinkPreviewModalWithTrigger />
 				</PanelRow>
 				<PanelRow>
 					<SeoNoindexPanel />
