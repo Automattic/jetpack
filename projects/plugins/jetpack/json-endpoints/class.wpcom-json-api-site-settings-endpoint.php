@@ -402,6 +402,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'instant_search_enabled'           => (bool) get_option( 'instant_search_enabled' ),
 						'blog_public'                      => (int) get_option( 'blog_public' ),
 						'wpcom_data_sharing_opt_out'       => (bool) get_option( 'wpcom_data_sharing_opt_out' ),
+						'wpcom_public_coming_soon'         => (int) get_option( 'wpcom_public_coming_soon' ),
 						'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 						'jetpack_relatedposts_allowed'     => (bool) $this->jetpack_relatedposts_supported(),
 						'jetpack_relatedposts_enabled'     => (bool) $jetpack_relatedposts_options['enabled'],
