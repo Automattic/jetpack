@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build social-previews for E2E tests.
