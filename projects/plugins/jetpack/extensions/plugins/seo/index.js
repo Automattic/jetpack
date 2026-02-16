@@ -175,6 +175,9 @@ const Seo = () => {
 						<SeoDescriptionPanel />
 					</PanelRow>
 					<PanelRow>
+						<LinkPreviewModalWithTrigger />
+					</PanelRow>
+					<PanelRow>
 						<SeoNoindexPanel />
 					</PanelRow>
 				</div>
