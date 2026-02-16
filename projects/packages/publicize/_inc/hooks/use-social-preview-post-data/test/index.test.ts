@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import { useSocialPreviewPostData } from '../';
+import { getMediaSourceUrl, getPostImageUrl } from '../../use-link-preview-post-data/utils';
 import { usePostMeta } from '../../use-post-meta';
 import { getSigImageUrl } from '../../use-sig-preview/utils';
-import { getMediaSourceUrl, getPostImageUrl } from '../utils';
 
 jest.mock( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' );
@@ -25,7 +25,7 @@ jest.mock( '../../use-sig-preview/utils', () => ( {
 	getSigImageUrl: jest.fn(),
 } ) );
 
-jest.mock( '../utils', () => ( {
+jest.mock( '../../use-link-preview-post-data/utils', () => ( {
 	getMediaSourceUrl: jest.fn(),
 	getPostImageUrl: jest.fn(),
 } ) );
@@ -73,6 +73,7 @@ describe( 'useSocialPreviewPostData', () => {
 					getEntityRecord: jest.fn().mockReturnValue( null ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
 					getEditedPostContent: jest.fn().mockReturnValue( '' ),
+					getSite: jest.fn().mockReturnValue( { title: 'Test Site' } ),
 				} );
 				return selectorOrMapper( mockSelect );
 			}
@@ -266,6 +267,7 @@ describe( 'useSocialPreviewPostData', () => {
 					getEntityRecord: jest.fn().mockReturnValue( null ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
 					getEditedPostContent: jest.fn().mockReturnValue( '' ),
+					getSite: jest.fn().mockReturnValue( { title: 'Test Site' } ),
 				} );
 				return selectorOrMapper( mockSelect );
 			}
@@ -294,6 +296,25 @@ describe( 'useSocialPreviewPostData', () => {
 
 		mockGetSigImageUrl.mockReturnValue( 'https://example.com/sig-generated.jpg' );
 
+		mockGetEditedPostAttribute.mockImplementation( ( attr: string ) => {
+			const attributes: Record< string, unknown > = {
+				title: 'Test Post Title',
+				excerpt: 'Test excerpt',
+				content: 'Test content',
+				link: 'https://example.com/test-post',
+				featured_media: 0,
+				meta: {
+					jetpack_social_options: {
+						image_generator_settings: {
+							enabled: true,
+							token: 'test-token',
+						},
+					},
+				},
+			};
+			return attributes[ attr ];
+		} );
+
 		mockUseSelect.mockImplementation( ( selectorOrMapper: unknown ) => {
 			if ( typeof selectorOrMapper === 'function' ) {
 				const mockSelect = () => ( {
@@ -301,6 +322,7 @@ describe( 'useSocialPreviewPostData', () => {
 					getEntityRecord: jest.fn().mockReturnValue( null ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
 					getEditedPostContent: jest.fn().mockReturnValue( '' ),
+					getSite: jest.fn().mockReturnValue( { title: 'Test Site' } ),
 				} );
 				return selectorOrMapper( mockSelect );
 			}
@@ -339,6 +361,7 @@ describe( 'useSocialPreviewPostData', () => {
 					getEntityRecord: jest.fn().mockReturnValue( mockFeaturedMedia ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
 					getEditedPostContent: jest.fn().mockReturnValue( '' ),
+					getSite: jest.fn().mockReturnValue( { title: 'Test Site' } ),
 				} );
 				return selectorOrMapper( mockSelect );
 			}
@@ -362,6 +385,7 @@ describe( 'useSocialPreviewPostData', () => {
 					getEditedPostContent: jest
 						.fn()
 						.mockReturnValue( '<img src="https://example.com/content-image.jpg">' ),
+					getSite: jest.fn().mockReturnValue( { title: 'Test Site' } ),
 				} );
 				return selectorOrMapper( mockSelect );
 			}
@@ -381,6 +405,7 @@ describe( 'useSocialPreviewPostData', () => {
 					getEntityRecord: jest.fn().mockReturnValue( null ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
 					getEditedPostContent: jest.fn().mockReturnValue( '' ),
+					getSite: jest.fn().mockReturnValue( { title: 'Test Site' } ),
 				} );
 				return selectorOrMapper( mockSelect );
 			}
@@ -406,6 +431,7 @@ describe( 'useSocialPreviewPostData', () => {
 					getEntityRecord: jest.fn().mockReturnValue( null ),
 					getEditedPostAttribute: mockGetEditedPostAttribute,
 					getEditedPostContent: jest.fn().mockReturnValue( '' ),
+					getSite: jest.fn().mockReturnValue( { title: 'Test Site' } ),
 				} );
 				return selectorOrMapper( mockSelect );
 			}
