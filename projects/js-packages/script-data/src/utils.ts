@@ -112,6 +112,32 @@ export function isJetpackSelfHostedSite() {
 }
 
 /**
+ * Site type categories for analytics and conditional logic.
+ * - 'simple': WordPress.com Simple sites
+ * - 'atomic': WordPress.com Atomic sites (including WoA)
+ * - 'jetpack': Self-hosted Jetpack sites
+ */
+export type SiteType = 'simple' | 'atomic' | 'jetpack';
+
+/**
+ * Get the site type category.
+ * Useful for analytics tracking and conditional UI logic.
+ *
+ * @return {SiteType} The site type: 'simple', 'atomic', or 'jetpack'.
+ */
+export function getSiteType(): SiteType {
+	if ( isSimpleSite() ) {
+		return 'simple';
+	}
+
+	if ( isWpcomPlatformSite() ) {
+		return 'atomic';
+	}
+
+	return 'jetpack';
+}
+
+/**
  * Check if the current user has a particular capability.
  *
  * @param capability - The capability to check.

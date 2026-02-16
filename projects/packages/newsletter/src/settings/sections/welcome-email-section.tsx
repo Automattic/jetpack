@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getSiteType } from '../utils';
-import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
+import type { NewsletterSettings, CombinedNewsletterSettings } from '../types';
 
 interface WelcomeEmailSectionProps {
 	data: NewsletterSettings;
@@ -19,7 +19,7 @@ interface WelcomeEmailSectionProps {
 	isSaving: boolean;
 	hasChanges: boolean;
 	isNewsletterEnabled: boolean;
-	jetpackSettings?: JetpackNewsletterSettings;
+	jetpackSettings?: CombinedNewsletterSettings;
 }
 
 // Flattened data structure for DataForm

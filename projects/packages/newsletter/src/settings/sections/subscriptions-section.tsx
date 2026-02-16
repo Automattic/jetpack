@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { ToggleWithEditorLink } from '../components/toggle-with-link';
 import { getSiteType } from '../utils';
-import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
+import type { NewsletterSettings, CombinedNewsletterSettings } from '../types';
 
 interface FieldRenderProps {
 	data: NewsletterSettings;
@@ -21,7 +21,7 @@ interface FieldRenderProps {
 
 interface SubscriptionsSectionProps {
 	data: NewsletterSettings;
-	jetpackSettings: JetpackNewsletterSettings | undefined;
+	jetpackSettings: CombinedNewsletterSettings | undefined;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
 	onSave: () => void;
 	isSaving: boolean;
@@ -61,15 +61,11 @@ export function SubscriptionsSection( {
 
 	// Helper to check if we can show editor links for block theme features
 	const canShowBlockThemeEditorLinks =
-		jetpackSettings?.isBlockTheme &&
-		jetpackSettings?.siteAdminUrl &&
-		jetpackSettings?.themeStylesheet;
+		jetpackSettings?.isBlockTheme && jetpackSettings?.themeStylesheet;
 
 	// Helper to check if we can show editor links for subscription site edit features
 	const canShowSubscriptionEditorLinks =
-		jetpackSettings?.isSubscriptionSiteEditSupported &&
-		jetpackSettings?.siteAdminUrl &&
-		jetpackSettings?.themeStylesheet;
+		jetpackSettings?.isSubscriptionSiteEditSupported && jetpackSettings?.themeStylesheet;
 
 	const fields: Field< NewsletterSettings >[] = [
 		{
@@ -82,7 +78,6 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template"
 							templateId="single"
@@ -101,7 +96,6 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-modal"
@@ -120,7 +114,6 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-overlay"
@@ -139,7 +132,6 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-floating-button"
@@ -158,7 +150,6 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template"
 							templateId="index"
@@ -177,7 +168,6 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
 							themeStylesheet={ jetpackSettings.themeStylesheet }
 							postType="wp_template"
 							templateId="index"

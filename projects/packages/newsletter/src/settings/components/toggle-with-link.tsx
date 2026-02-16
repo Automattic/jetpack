@@ -2,6 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
@@ -77,7 +78,6 @@ interface ToggleWithEditorLinkProps {
 	data: Record< string, unknown >;
 	field: Field< Record< string, unknown > >;
 	onChange: ( updates: Record< string, unknown > ) => void;
-	siteAdminUrl: string;
 	themeStylesheet: string;
 	postType: 'wp_template' | 'wp_template_part';
 	templateId: string;
@@ -91,7 +91,6 @@ interface ToggleWithEditorLinkProps {
  * @param {object}   props.data            - The data object
  * @param {object}   props.field           - The field definition
  * @param {Function} props.onChange        - Change handler
- * @param {string}   props.siteAdminUrl    - Site admin URL
  * @param {string}   props.themeStylesheet - Theme stylesheet name
  * @param {string}   props.postType        - Post type (wp_template or wp_template_part)
  * @param {string}   props.templateId      - Template ID
@@ -102,13 +101,12 @@ export function ToggleWithEditorLink( {
 	data,
 	field,
 	onChange,
-	siteAdminUrl,
 	themeStylesheet,
 	postType,
 	templateId,
 	siteType,
 }: ToggleWithEditorLinkProps ): JSX.Element {
-	const url = addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
+	const url = addQueryArgs( getAdminUrl( 'site-editor.php' ), {
 		postType,
 		postId: `${ themeStylesheet }//${ templateId }`,
 		canvas: 'edit',

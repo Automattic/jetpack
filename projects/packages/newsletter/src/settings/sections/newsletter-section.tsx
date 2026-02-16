@@ -10,11 +10,11 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getSiteType } from '../utils';
-import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
+import type { NewsletterSettings, CombinedNewsletterSettings } from '../types';
 
 interface NewsletterSectionProps {
 	data: NewsletterSettings;
-	jetpackSettings: JetpackNewsletterSettings | undefined;
+	jetpackSettings: CombinedNewsletterSettings | undefined;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
 }
 

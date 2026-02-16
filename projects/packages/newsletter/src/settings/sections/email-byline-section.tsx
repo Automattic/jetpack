@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
 /**
@@ -8,12 +9,12 @@ import { __ } from '@wordpress/i18n';
  */
 import { BylinePreview } from '../components/byline-preview';
 import { ToggleWithLink } from '../components/toggle-with-link';
-import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
+import type { NewsletterSettings, CombinedNewsletterSettings } from '../types';
 
 interface EmailBylineSectionProps {
 	data: NewsletterSettings;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
-	jetpackSettings: JetpackNewsletterSettings | undefined;
+	jetpackSettings: CombinedNewsletterSettings | undefined;
 	isNewsletterEnabled: boolean;
 }
 
@@ -62,18 +63,16 @@ export function EmailBylineSection( {
 			id: 'jetpack_post_date_in_email',
 			label: __( 'Add the post date', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: jetpackSettings?.siteAdminUrl
-				? ( { data: fieldData, field, onChange: fieldOnChange } ) => (
-						<ToggleWithLink
-							data={ fieldData as Record< string, unknown > }
-							field={ field as Field< Record< string, unknown > > }
-							onChange={ fieldOnChange }
-							url={ `${ jetpackSettings.siteAdminUrl }options-general.php` }
-							linkText={ __( 'Customize date format', 'jetpack-newsletter' ) }
-							isExternal={ false }
-						/>
-				  )
-				: ( 'toggle' as const ),
+			Edit: ( { data: fieldData, field, onChange: fieldOnChange } ) => (
+				<ToggleWithLink
+					data={ fieldData as Record< string, unknown > }
+					field={ field as Field< Record< string, unknown > > }
+					onChange={ fieldOnChange }
+					url={ getAdminUrl( 'options-general.php' ) }
+					linkText={ __( 'Customize date format', 'jetpack-newsletter' ) }
+					isExternal={ false }
+				/>
+			),
 		},
 	];
 

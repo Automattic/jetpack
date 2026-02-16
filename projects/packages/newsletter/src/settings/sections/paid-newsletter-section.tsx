@@ -9,10 +9,10 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getSiteType } from '../utils';
-import type { JetpackNewsletterSettings } from '../types';
+import type { CombinedNewsletterSettings } from '../types';
 
 interface PaidNewsletterSectionProps {
-	jetpackSettings: JetpackNewsletterSettings | undefined;
+	jetpackSettings: CombinedNewsletterSettings | undefined;
 	isNewsletterEnabled: boolean;
 	hasActivePlan?: boolean;
 }

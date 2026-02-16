@@ -9,8 +9,14 @@ import {
 	GlobalNotices,
 	useGlobalNotices,
 } from '@automattic/jetpack-components';
+import {
+	getScriptData,
+	getSiteData,
+	isSimpleSite,
+	isWpcomPlatformSite,
+} from '@automattic/jetpack-script-data';
 import { Notice } from '@wordpress/components';
-import { createRoot, useCallback, useEffect, useState } from '@wordpress/element';
+import { createRoot, useCallback, useEffect, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -29,7 +35,11 @@ import {
 	WelcomeEmailSection,
 } from './sections';
 import { getSiteType } from './utils';
-import type { NewsletterSettings, JetpackNewsletterSettings } from './types';
+import type {
+	NewsletterSettings,
+	NewsletterJetpackScriptData,
+	CombinedNewsletterSettings,
+} from './types';
 import './style.scss';
 
 const MODULE_NAME = __( 'Jetpack Newsletter', 'jetpack-newsletter' );
@@ -87,25 +97,47 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	);
 	const [ isSavingWelcomeEmail, setIsSavingWelcomeEmail ] = useState( false );
 
-	// Get settings from PHP
-	const jetpackSettings = (
-		window as Window & { jetpackNewsletterSettings?: JetpackNewsletterSettings }
-	 ).jetpackNewsletterSettings;
+	// Get all data from JetpackScriptData (common site data + newsletter-specific data)
+	const scriptData = useMemo(
+		() => getScriptData() as NewsletterJetpackScriptData | undefined,
+		[]
+	);
+	const siteData = useMemo( () => getSiteData(), [] );
+	const newsletterData = scriptData?.newsletter;
+
+	// Combine site data, user data, and newsletter data for section components
+	const jetpackSettings = useMemo( (): CombinedNewsletterSettings | undefined => {
+		if ( ! newsletterData || ! siteData || ! scriptData?.user ) {
+			return undefined;
+		}
+		return {
+			...newsletterData,
+			// Site data fields needed by components (using script-data utilities)
+			siteName: siteData.title ?? '',
+			blogID: siteData.wpcom?.blog_id ?? 0,
+			isWpcomPlatform: isWpcomPlatformSite() ?? false,
+			// User data fields needed by components
+			displayName: scriptData.user.current_user?.display_name ?? '',
+		};
+	}, [ newsletterData, siteData, scriptData?.user ] );
 
 	// Global notices for success/error messages
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 
+	// Get site type for analytics (uses JetpackScriptData)
+	const siteType = useMemo( () => getSiteType(), [] );
+
 	// Initialize analytics with user data
 	useEffect( () => {
-		const tracksUserData = jetpackSettings?.tracksUserData;
+		const tracksUserData = newsletterData?.tracksUserData;
 		if ( tracksUserData && typeof tracksUserData === 'object' ) {
 			analytics.initialize( tracksUserData.userid, tracksUserData.username );
 		}
-	}, [ jetpackSettings ] );
+	}, [ newsletterData ] );
 
 	// Load settings on mount
 	useEffect( () => {
-		fetchSettings( jetpackSettings )
+		fetchSettings()
 			.then( ( settings: Record< string, unknown > ) => {
 				setData( normalizeSettings( settings ) );
 				setIsLoading( false );
@@ -116,10 +148,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
 				setIsLoading( false );
 			} );
-	}, [ jetpackSettings ] );
-
-	// Get site type for analytics
-	const siteType = getSiteType( jetpackSettings );
+	}, [] );
 
 	// Handle auto-save for newsletter toggle and email settings
 	const handleAutoSave = useCallback(
@@ -158,7 +187,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			setData( prev => ( { ...prev, ...updates } ) );
 
 			// Save to backend
-			updateSettings( updates, jetpackSettings )
+			updateSettings( updates )
 				.then( () => {
 					createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 				} )
@@ -172,7 +201,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					setData( data );
 				} );
 		},
-		[ createErrorNotice, createSuccessNotice, data, jetpackSettings, siteType ]
+		[ createErrorNotice, createSuccessNotice, data, siteType ]
 	);
 
 	// Handle sender name changes (staged, not auto-saved)
@@ -191,7 +220,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 		setIsSavingSenderName( true );
 
-		updateSettings( senderNameChanges, jetpackSettings )
+		updateSettings( senderNameChanges )
 			.then( () => {
 				setSenderNameChanges( {} );
 				createSuccessNotice( __( 'Sender name saved', 'jetpack-newsletter' ) );
@@ -207,7 +236,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingSenderName( false );
 			} );
-	}, [ createErrorNotice, createSuccessNotice, senderNameChanges, data, jetpackSettings ] );
+	}, [ createErrorNotice, createSuccessNotice, senderNameChanges, data ] );
 
 	// Handle subscription settings changes (staged, not auto-saved)
 	const handleSubscriptionChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
@@ -225,7 +254,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 		setIsSavingSubscriptions( true );
 
-		updateSettings( subscriptionChanges, jetpackSettings )
+		updateSettings( subscriptionChanges )
 			.then( () => {
 				setSubscriptionChanges( {} );
 				createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
@@ -241,7 +270,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingSubscriptions( false );
 			} );
-	}, [ createErrorNotice, createSuccessNotice, subscriptionChanges, data, jetpackSettings ] );
+	}, [ createErrorNotice, createSuccessNotice, subscriptionChanges, data ] );
 
 	// Handle newsletter categories changes (staged, not auto-saved)
 	const handleNewsletterCategoriesChange = useCallback(
@@ -280,7 +309,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			}
 		}
 
-		updateSettings( apiUpdates, jetpackSettings )
+		updateSettings( apiUpdates )
 			.then( () => {
 				setNewsletterCategoriesChanges( {} );
 				createSuccessNotice( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
@@ -296,13 +325,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingNewsletterCategories( false );
 			} );
-	}, [
-		createErrorNotice,
-		createSuccessNotice,
-		newsletterCategoriesChanges,
-		data,
-		jetpackSettings,
-	] );
+	}, [ createErrorNotice, createSuccessNotice, newsletterCategoriesChanges, data ] );
 
 	// Handle welcome email changes (staged, not auto-saved)
 	const handleWelcomeEmailChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
@@ -320,7 +343,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 		setIsSavingWelcomeEmail( true );
 
-		updateSettings( welcomeEmailChanges, jetpackSettings )
+		updateSettings( welcomeEmailChanges )
 			.then( () => {
 				setWelcomeEmailChanges( {} );
 				createSuccessNotice( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
@@ -336,7 +359,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingWelcomeEmail( false );
 			} );
-	}, [ createErrorNotice, createSuccessNotice, welcomeEmailChanges, data, jetpackSettings ] );
+	}, [ createErrorNotice, createSuccessNotice, welcomeEmailChanges, data ] );
 
 	if ( isLoading ) {
 		return (

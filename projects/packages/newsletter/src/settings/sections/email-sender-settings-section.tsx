@@ -10,7 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getSiteType } from '../utils';
-import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
+import type { NewsletterSettings, CombinedNewsletterSettings } from '../types';
 
 interface EmailSenderSettingsSectionProps {
 	data: NewsletterSettings;
@@ -18,7 +18,7 @@ interface EmailSenderSettingsSectionProps {
 	onSave: () => void;
 	isSaving: boolean;
 	hasChanges: boolean;
-	jetpackSettings: JetpackNewsletterSettings | undefined;
+	jetpackSettings: CombinedNewsletterSettings | undefined;
 	isNewsletterEnabled: boolean;
 }
 
