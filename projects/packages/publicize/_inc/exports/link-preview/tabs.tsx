@@ -1,4 +1,3 @@
-import '@automattic/social-previews/style.css';
 import { TabPanel } from '@wordpress/components';
 import styles from './styles.module.scss';
 import { LinkPreviewData } from './types';
