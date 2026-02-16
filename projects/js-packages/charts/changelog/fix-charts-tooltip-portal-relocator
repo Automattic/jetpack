@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Relocated visx tooltip portals from document.body into the chart container to fix z-index stacking issues with sticky headers and other positioned elements.
+Relocate visx tooltip portals from document.body into the chart container to fix z-index stacking issues with sticky headers and other positioned elements.

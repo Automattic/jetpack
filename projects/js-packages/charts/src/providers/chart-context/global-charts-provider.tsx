@@ -30,8 +30,10 @@ export interface GlobalChartsProviderProps {
 	/**
 	 * Optional ref to an element that chart tooltip portals should be relocated into.
 	 * When provided, visx tooltip portals (normally appended to document.body) will be
-	 * moved into this container, placing them in the same CSS stacking context.
-	 * The container should have `position: relative` to create a stacking context.
+	 * moved into this container so they participate in the same effective CSS stacking context.
+	 * The element referenced here, or one of its ancestors, should establish the desired
+	 * stacking context (for example by using `position` and `z-index`) so that tooltips
+	 * appear above the relevant chart content.
 	 */
 	portalContainer?: React.RefObject< HTMLElement | null >;
 }
