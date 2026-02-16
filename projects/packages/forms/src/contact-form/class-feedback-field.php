@@ -628,11 +628,10 @@ class Feedback_Field {
 
 			$file_name = $file['name'] ?? __( 'Attached file', 'jetpack-forms' );
 			$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
-			$file_id   = absint( $file['file_id'] );
-			$file_url  = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+			$file_url  = apply_filters( 'jetpack_unauth_file_download_url', '', absint( $file['file_id'] ) );
+			$file_type = $file['type'] ?? '';
 
-			$file_type    = $file['type'] ?? '';
-			$file_items[] = $this->render_email_file_row( $file_id, $file_name, $file_size, $file_url, $file_type );
+			$file_items[] = $this->render_email_file_row( $file_name, $file_size, $file_url, $file_type );
 		}
 
 		if ( empty( $file_items ) ) {
@@ -645,15 +644,14 @@ class Feedback_Field {
 	/**
 	 * Render a single file row with thumbnail, name/size, and download icon.
 	 *
-	 * @param int    $file_id   The WordPress attachment ID.
 	 * @param string $file_name The file name.
 	 * @param string $file_size The formatted file size.
 	 * @param string $file_url  The download URL.
 	 * @param string $file_type The MIME type of the file.
 	 * @return string HTML table for the file row.
 	 */
-	private function render_email_file_row( $file_id, $file_name, $file_size, $file_url, $file_type = '' ) {
-		$thumbnail_html = $this->get_file_thumbnail_html( $file_id, $file_name, $file_type );
+	private function render_email_file_row( $file_name, $file_size, $file_url, $file_type = '' ) {
+		$thumbnail_html = $this->get_file_thumbnail_html( $file_name, $file_type );
 
 		// File name — linked if download URL is available.
 		$name_html = esc_html( $file_name );
@@ -676,15 +674,14 @@ class Feedback_Field {
 			);
 		}
 
-		// Download icon (SVG as data URI).
+		// Download icon (rasterized from @wordpress/icons 'download').
 		$download_icon = '';
 		if ( ! empty( $file_url ) ) {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			$svg_data_uri  = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#50575e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' );
-			$download_icon = sprintf(
+			$download_icon_url = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/download@2x.png';
+			$download_icon     = sprintf(
 				'<a href="%1$s" target="_blank" style="text-decoration: none;"><img src="%2$s" width="20" height="20" alt="%3$s" style="display: block; width: 20px; height: 20px;" /></a>',
 				esc_url( $file_url ),
-				esc_url( $svg_data_uri ),
+				esc_url( $download_icon_url ),
 				esc_attr__( 'Download', 'jetpack-forms' )
 			);
 		}
@@ -720,26 +717,15 @@ class Feedback_Field {
 	/**
 	 * Get the thumbnail HTML for a file attachment.
 	 *
-	 * Returns a circular image preview for image attachments, or a
-	 * file-type icon from the file-icons directory for non-image attachments.
+	 * Uses a file-type icon from the file-icons directory. Uploaded files are
+	 * stored on WordPress.com cloud storage (not as local WP attachments), so
+	 * there is no local thumbnail URL available for email rendering.
 	 *
-	 * @param int    $file_id   The WordPress attachment ID.
 	 * @param string $file_name The original file name (used for extension-based icon lookup).
 	 * @param string $file_type The MIME type of the file.
 	 * @return string HTML for the thumbnail.
 	 */
-	private function get_file_thumbnail_html( $file_id, $file_name = '', $file_type = '' ) {
-		$thumbnail_url = wp_get_attachment_image_url( $file_id, 'thumbnail' );
-
-		if ( $thumbnail_url ) {
-			return sprintf(
-				'<img src="%1$s" width="40" height="40" alt="" style="width: 40px; height: 40px; border-radius: 50%%; object-fit: cover;" />',
-				esc_url( $thumbnail_url )
-			);
-		}
-
-		// Use the file-type icon from the file-icons directory.
-		// Mirrors the JS logic in modules/file-field/view.js getFileIcon().
+	private function get_file_thumbnail_html( $file_name = '', $file_type = '' ) {
 		$icon_name = self::get_file_icon_name( $file_name, $file_type );
 		$icon_url  = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/' . $icon_name . '@2x.png';
 
