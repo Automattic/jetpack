@@ -1,5 +1,7 @@
 import { Attachment, store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { decodeEntities } from '@wordpress/html-entities';
 import { useMemo } from 'react';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import { useLinkPreviewPostData } from '../use-link-preview-post-data';
@@ -70,10 +72,23 @@ export function useSocialPreviewPostData(): PostPreviewData {
 		[ attachedMedia, mediaItems ]
 	);
 
+	const excerpt = useSelect( select => {
+		const { getEditedPostAttribute } = select( editorStore );
+
+		return decodeEntities(
+			(
+				getEditedPostAttribute( 'excerpt' ) ||
+				getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
+				''
+			).trim()
+		);
+	}, [] );
+
 	return useMemo( () => {
 		return {
 			...linkPreviewData,
+			excerpt,
 			media,
 		};
-	}, [ linkPreviewData, media ] );
+	}, [ excerpt, linkPreviewData, media ] );
 }
