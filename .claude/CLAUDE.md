@@ -3,13 +3,13 @@
 @.cursor/rules/
 @.github/copilot-instructions.md
 
-## Codex System
+## Codex System (packages/forms only)
 
-Some projects in this monorepo have a `.codex/` directory containing architecture documentation. **Before working on any project, check if it has a `.codex/` directory.** If it does, read `.codex/README.md` first -- it will orient you on the codebase far faster than reading source files.
+The `projects/packages/forms` package has a `.codex/` directory with architecture documentation. **When working on forms, read `projects/packages/forms/CLAUDE.md` first** — it points to the codex and has tooling commands.
 
-Projects with a codex will also have a `CLAUDE.md` in their project root with tooling commands and additional context.
+The codex is currently only set up for the forms package. The `/codex-init` and `/codex-update` commands are scoped to forms — do not use them on other projects.
 
-Use `/codex-init` to bootstrap a codex for a new project. Use `/codex-update` after making code changes to keep docs current.
+After making code changes to forms, run `/codex-update` to keep docs current.
 
 ## Confidentiality
 

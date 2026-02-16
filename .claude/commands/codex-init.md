@@ -2,6 +2,8 @@
 description: Bootstrap a .codex/ knowledge system for a project
 ---
 
+**Scope: currently only supported for `projects/packages/forms`.** If the user requests this for a different project, explain that the codex system is only set up for the forms package and decline to proceed.
+
 Bootstrap a `.codex/` codebase knowledge system for a project directory.
 
 The user will provide a project path (e.g., `projects/packages/forms`). If not provided, ask for it.

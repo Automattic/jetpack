@@ -2,6 +2,8 @@
 description: Update .codex/ documentation after code changes
 ---
 
+**Scope: currently only supported for `projects/packages/forms`.** If the user requests this for a different project, explain that the codex system is only set up for the forms package and decline to proceed.
+
 Update the `.codex/` knowledge system for a project after code changes.
 
 The user may provide a project path and/or description of changes. If the project path is not provided, infer it from recent git changes or ask.
