@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack",
-		"directory": "projects/js-packages/config"
+		"url": "git+https://github.com/Automattic/jetpack-config-js.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
