@@ -132,6 +132,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'sticky_posts'                                 => 'pineapple',
 			'blog_public'                                  => 0,
 			'wpcom_data_sharing_opt_out'                   => false,
+			'wpcom_public_coming_soon'                     => 1,
 			'default_pingback_flag'                        => 'pineapple',
 			'require_name_email'                           => 'pineapple',
 			'close_comments_for_old_posts'                 => 'pineapple',
