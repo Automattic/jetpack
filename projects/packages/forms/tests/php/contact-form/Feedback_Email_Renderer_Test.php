@@ -296,6 +296,246 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test email_html renders plain text for a basic text field.
+	 */
+	public function test_email_html_text_field() {
+		$field  = new Feedback_Field( 'k', 'Label', 'Hello world', 'text' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Hello world', $result );
+	}
+
+	/**
+	 * Test email_html renders empty value dash for empty text field.
+	 */
+	public function test_email_html_empty_text_field() {
+		$field  = new Feedback_Field( 'k', 'Label', '', 'text' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test email_html renders chips for select field.
+	 */
+	public function test_email_html_select_field() {
+		$field  = new Feedback_Field( 'k', 'Label', 'Option A', 'select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Option A', $result );
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+	}
+
+	/**
+	 * Test email_html renders multiple chips for checkbox-multiple field.
+	 */
+	public function test_email_html_checkbox_multiple_field() {
+		$field  = new Feedback_Field( 'k', 'Label', array( 'Red', 'Blue' ), 'checkbox-multiple' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Red', $result );
+		$this->assertStringContainsString( 'Blue', $result );
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+	}
+
+	/**
+	 * Test email_html renders Yes for consent field with truthy value.
+	 */
+	public function test_email_html_consent_yes() {
+		$field  = new Feedback_Field( 'k', 'Consent', '1', 'consent' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'Yes', $result );
+	}
+
+	/**
+	 * Test email_html renders No for consent field with empty value.
+	 */
+	public function test_email_html_consent_no() {
+		$field  = new Feedback_Field( 'k', 'Consent', '', 'consent' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'No', $result );
+	}
+
+	/**
+	 * Test email_html renders tel: link for phone field.
+	 */
+	public function test_email_html_phone_field() {
+		$field  = new Feedback_Field( 'k', 'Phone', '+1 555 123 4567', 'phone' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'tel:', $result );
+		$this->assertStringContainsString( '+1 555 123 4567', $result );
+	}
+
+	/**
+	 * Test email_html renders clickable link for URL field.
+	 */
+	public function test_email_html_url_field() {
+		$field  = new Feedback_Field( 'k', 'Website', 'https://example.com', 'url' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'href="https://example.com"', $result );
+		$this->assertStringContainsString( 'https://example.com', $result );
+	}
+
+	/**
+	 * Test email_html renders stars for rating field.
+	 */
+	public function test_email_html_rating_field() {
+		$field  = new Feedback_Field( 'k', 'Rating', '3/5', 'rating' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// 3 gold + 2 gray stars.
+		$this->assertSame( 3, substr_count( $result, '#e6a117' ) );
+		$this->assertSame( 2, substr_count( $result, '#cccccc' ) );
+	}
+
+	/**
+	 * Test email_html renders dash for empty chips.
+	 */
+	public function test_email_html_select_empty() {
+		$field  = new Feedback_Field( 'k', 'Label', '', 'select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test file field email rendering produces table layout with file name and size.
+	 */
+	public function test_file_field_renders_table_layout() {
+		$value = array(
+			'field_id' => 'abc123',
+			'files'    => array(
+				array(
+					'file_id' => 123,
+					'name'    => 'photo.png',
+					'size'    => 2621440,
+					'type'    => 'image/png',
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'File upload', $value, 'file' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'photo.png', $result );
+		$this->assertStringContainsString( size_format( 2621440 ), $result );
+		$this->assertStringContainsString( '<table', $result );
+	}
+
+	/**
+	 * Test file field email rendering works without field_id (computed fields path).
+	 */
+	public function test_file_field_renders_without_field_id() {
+		$value = array(
+			'files' => array(
+				array(
+					'file_id' => 123,
+					'name'    => 'document.pdf',
+					'size'    => 1048576,
+					'type'    => 'application/pdf',
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'File upload', $value, 'file' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( 'document.pdf', $result );
+		$this->assertStringContainsString( '1 MB', $result );
+		$this->assertStringContainsString( '<table', $result );
+	}
+
+	/**
+	 * Test file field email rendering shows dash for empty files.
+	 */
+	public function test_file_field_renders_dash_when_empty() {
+		$value = array(
+			'field_id' => 'abc123',
+			'files'    => array(),
+		);
+
+		$field  = new Feedback_Field( 'k', 'File upload', $value, 'file' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test file field uses file-type icon URL for non-image files.
+	 */
+	public function test_file_field_uses_file_type_icon() {
+		$value = array(
+			'files' => array(
+				array(
+					'file_id' => 999,
+					'name'    => 'report.pdf',
+					'size'    => 500000,
+					'type'    => 'application/pdf',
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'File upload', $value, 'file' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// Should use the pdf icon PNG from file-icons directory.
+		$this->assertStringContainsString( 'file-icons/pdf@2x.png', $result );
+	}
+
+	/**
+	 * Test file icon mapping by extension.
+	 */
+	public function test_file_icon_mapping_by_extension() {
+		$method = self::invoke_feedback_field_method( 'get_file_icon_name', 'spreadsheet.xlsx', 'application/octet-stream' );
+		$this->assertSame( 'xls', $method );
+
+		$method = self::invoke_feedback_field_method( 'get_file_icon_name', 'slides.pptx', '' );
+		$this->assertSame( 'ppt', $method );
+
+		$method = self::invoke_feedback_field_method( 'get_file_icon_name', 'archive.zip', '' );
+		$this->assertSame( 'zip', $method );
+	}
+
+	/**
+	 * Test file icon mapping falls back to MIME type category.
+	 */
+	public function test_file_icon_mapping_by_mime_category() {
+		$method = self::invoke_feedback_field_method( 'get_file_icon_name', 'clip.unknown', 'video/quicktime' );
+		$this->assertSame( 'mp4', $method );
+
+		$method = self::invoke_feedback_field_method( 'get_file_icon_name', 'song.unknown', 'audio/mpeg' );
+		$this->assertSame( 'mp3', $method );
+	}
+
+	/**
+	 * Test file icon mapping falls back to txt for unknown types.
+	 */
+	public function test_file_icon_mapping_unknown_falls_back_to_txt() {
+		$method = self::invoke_feedback_field_method( 'get_file_icon_name', 'mystery.xyz', 'application/octet-stream' );
+		$this->assertSame( 'txt', $method );
+	}
+
+	/**
+	 * Invoke a private static method on Feedback_Field via reflection.
+	 *
+	 * @param string $method_name The method name.
+	 * @param mixed  ...$args     Arguments to pass to the method.
+	 * @return mixed The method's return value.
+	 */
+	private static function invoke_feedback_field_method( $method_name, ...$args ) {
+		$reflection = new \ReflectionClass( Feedback_Field::class );
+		$method     = $reflection->getMethod( $method_name );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( null, ...$args );
+	}
+
+	/**
 	 * Invoke a private static method on Feedback_Email_Renderer via reflection.
 	 *
 	 * @param string $method_name The method name.
