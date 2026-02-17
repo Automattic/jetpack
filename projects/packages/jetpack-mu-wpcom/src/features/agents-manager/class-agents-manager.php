@@ -38,7 +38,7 @@ class Agents_Manager {
 	 * @return bool True if the menu panel should be displayed.
 	 */
 	public function should_display_menu_panel() {
-		return $this->should_use_unified_experience();
+		return apply_filters( 'agents_manager_use_unified_experience', false );
 	}
 
 	/**

@@ -43,7 +43,7 @@
 	.broken-connection {
 		font-weight: 700;
 		font-style: italic;
-		word-wrap: break-word;
+		overflow-wrap: break-word;
 	}
 }
 
@@ -96,4 +96,8 @@
 .share-post-form-disabled {
 	opacity: 0.5;
 	pointer-events: none;
+}
+
+.per-network-customization-notice {
+	color: gb.$gray-700;
 }

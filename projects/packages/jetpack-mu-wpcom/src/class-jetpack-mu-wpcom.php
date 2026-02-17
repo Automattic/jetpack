@@ -422,6 +422,7 @@ class Jetpack_Mu_Wpcom {
 		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
 			require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 			require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
+			require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 			require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 			require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';

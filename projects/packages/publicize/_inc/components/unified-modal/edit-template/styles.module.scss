@@ -83,5 +83,5 @@
 // Uses !important to override the picker's default responsive grid
 .templateGrid {
 	grid-template-columns: repeat(2, 1fr) !important;
-	grid-gap: 8px !important;
+	gap: 8px !important;
 }

@@ -74,12 +74,12 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.28.4",
-		"@babel/plugin-transform-react-jsx": "7.27.1",
-		"@babel/preset-env": "7.28.3",
-		"@babel/preset-react": "7.27.1",
-		"@babel/preset-typescript": "7.27.1",
-		"@babel/runtime": "7.28.4",
+		"@babel/core": "7.29.0",
+		"@babel/plugin-transform-react-jsx": "7.28.6",
+		"@babel/preset-env": "7.29.0",
+		"@babel/preset-react": "7.28.5",
+		"@babel/preset-typescript": "7.28.5",
+		"@babel/runtime": "7.28.6",
 		"@csstools/postcss-global-data": "2.1.1",
 		"@size-limit/preset-app": "11.2.0",
 		"@testing-library/dom": "10.4.1",
@@ -98,7 +98,7 @@
 		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
 		"size-limit": "11.2.0",
-		"webpack": "5.104.1",
+		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	}
 }

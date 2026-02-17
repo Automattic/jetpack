@@ -5,6 +5,8 @@ export const SOCIAL_NOTES_ENABLED_KEY = 'jetpack-social-note';
 export const SOCIAL_NOTES_CONFIG_KEY = 'jetpack_social_notes_config';
 export const SHOW_PRICING_PAGE_KEY = 'jetpack-social_show_pricing_page';
 
+export const CUSTOMIZE_PER_NETWORK_KEY = '_wpas_customize_per_network';
+
 /**
  * This is to avoid creating a new empty array each time.
  *

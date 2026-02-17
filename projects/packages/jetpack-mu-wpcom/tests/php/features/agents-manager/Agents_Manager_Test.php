@@ -465,6 +465,38 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that should_display_menu_panel returns false by default.
+	 */
+	public function test_should_display_menu_panel_returns_false_by_default() {
+		wp_set_current_user( 0 );
+
+		$result = $this->agents_manager->should_display_menu_panel();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that should_display_menu_panel respects the agents_manager_use_unified_experience filter.
+	 *
+	 * External code (e.g. mu-plugins in test environments) should be able to control
+	 * whether the admin bar menu panel is displayed via the filter.
+	 */
+	public function test_should_display_menu_panel_respects_filter() {
+		add_filter(
+			'agents_manager_use_unified_experience',
+			'__return_true',
+			// Use a higher priority to ensure it runs after the class's own filter.
+			20
+		);
+
+		$result = $this->agents_manager->should_display_menu_panel();
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
 	 * Tests that the agents_manager_use_unified_experience filter is registered.
 	 */
 	public function test_unified_experience_filter_is_registered() {

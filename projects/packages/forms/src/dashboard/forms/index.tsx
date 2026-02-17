@@ -81,7 +81,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		statusQuery,
 	} );
 
-	const { createErrorNotice } = useDispatch( noticesStore );
+	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
 
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ pendingPermanentDeleteCount, setPendingPermanentDeleteCount ] = useState( 0 );
@@ -242,6 +242,56 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					}
 				},
 			},
+			{
+				id: 'copy-embed',
+				isPrimary: false,
+				label: __( 'Copy embed', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					const embedCode = `<!-- wp:jetpack/contact-form {"ref":${ item.id }} /-->`;
+					try {
+						await navigator.clipboard.writeText( embedCode );
+						createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
+							type: 'snackbar',
+						} );
+					} catch {
+						createErrorNotice(
+							__( 'Failed to copy embed code. Please try again.', 'jetpack-forms' ),
+							{ type: 'snackbar' }
+						);
+					}
+				},
+			},
+			{
+				id: 'copy-shortcode',
+				isPrimary: false,
+				label: __( 'Copy shortcode', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					const embedCode = `[contact-form ref="${ item.id }"]`;
+					try {
+						await navigator.clipboard.writeText( embedCode );
+						createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
+							type: 'snackbar',
+						} );
+					} catch {
+						createErrorNotice(
+							__( 'Failed to copy shortcode. Please try again.', 'jetpack-forms' ),
+							{ type: 'snackbar' }
+						);
+					}
+				},
+			},
 		];
 
 		if ( isViewingTrash ) {
@@ -299,6 +349,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		return actionsList;
 	}, [
 		createErrorNotice,
+		createSuccessNotice,
 		isDeleting,
 		isViewingTrash,
 		navigate,

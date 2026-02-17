@@ -339,7 +339,9 @@ class Contact_Form_Test extends BaseTestCase {
 		// Default metadata should be saved.
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 		$this->assertEquals( 'john <john@example.com>', $email['to'][0] );
-		$this->assertStringContainsString( 'IP Address: <a href="https://jetpack.com/redirect/?source=ip-lookup&#038;path=127.0.0.1">127.0.0.1</a>', $email['message'] );
+		// IP address is now shown in the metadata section.
+		$this->assertStringContainsString( '>IP address:<', $email['message'] );
+		$this->assertStringContainsString( '127.0.0.1', $email['message'] );
 	}
 
 	/**
@@ -506,9 +508,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
 
-		// Browser information should be included in the email.
+		// Browser/device information should be included in the email metadata section.
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
-		$this->assertStringContainsString( 'Browser:', $email['message'] );
+		$this->assertStringContainsString( '>Device:<', $email['message'] );
 		$this->assertStringContainsString( 'Chrome', $email['message'] );
 	}
 
@@ -723,12 +725,17 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 
-		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
-		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
-		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
-		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
-
-		$this->assertStringContainsString( $expected, $email['message'] );
+		// New type-aware rendering uses table-based layout with labels and values.
+		$this->assertStringContainsString( 'Name', $email['message'] );
+		$this->assertStringContainsString( 'John Doe', $email['message'] );
+		$this->assertStringContainsString( 'Dropdown', $email['message'] );
+		$this->assertStringContainsString( 'First option', $email['message'] );
+		$this->assertStringContainsString( 'Radio', $email['message'] );
+		$this->assertStringContainsString( 'Second option', $email['message'] );
+		$this->assertStringContainsString( 'Text', $email['message'] );
+		$this->assertStringContainsString( 'Texty text', $email['message'] );
+		// Verify table-based structure is used.
+		$this->assertStringContainsString( '<table role="presentation"', $email['message'] );
 	}
 
 	/**
@@ -772,12 +779,17 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertContains( 'john <john@example.com>', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
-		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
-		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
-		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
-		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
-
-		$this->assertStringContainsString( $expected, $args['message'] );
+		// New type-aware rendering uses table-based layout with labels and values.
+		$this->assertStringContainsString( 'Name', $args['message'] );
+		$this->assertStringContainsString( 'John Doe', $args['message'] );
+		$this->assertStringContainsString( 'Dropdown', $args['message'] );
+		$this->assertStringContainsString( 'First option', $args['message'] );
+		$this->assertStringContainsString( 'Radio', $args['message'] );
+		$this->assertStringContainsString( 'Second option', $args['message'] );
+		$this->assertStringContainsString( 'Text', $args['message'] );
+		$this->assertStringContainsString( 'Texty text', $args['message'] );
+		// Verify table-based structure is used.
+		$this->assertStringContainsString( '<table role="presentation"', $args['message'] );
 	}
 
 	/**
@@ -811,7 +823,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( $title, $result );
 		$this->assertStringContainsString( $body, $result );
-		$this->assertStringContainsString( $footer, $result );
+		// Note: Legacy footer content is no longer displayed in template - metadata section shows this info instead.
 	}
 
 	/**
@@ -3985,5 +3997,103 @@ class Contact_Form_Test extends BaseTestCase {
 				'Button with multiple classes including is-submit should get attributes',
 			),
 		);
+	}
+
+	/**
+	 * Test escape_and_sanitize_field_value handles rating and URL field types.
+	 *
+	 * @dataProvider data_provider_escape_and_sanitize_field_value_structured
+	 *
+	 * @param array  $value    The structured field value.
+	 * @param string $expected The expected sanitized output.
+	 */
+	#[DataProvider( 'data_provider_escape_and_sanitize_field_value_structured' )]
+	public function test_escape_and_sanitize_field_value_structured( $value, $expected ) {
+		$this->assertSame( $expected, Contact_Form::escape_and_sanitize_field_value( $value ) );
+	}
+
+	/**
+	 * Data provider for structured field value sanitization (rating, URL types).
+	 *
+	 * @return array[]
+	 */
+	public static function data_provider_escape_and_sanitize_field_value_structured() {
+		return array(
+			'rating with displayValue'              => array(
+				array(
+					'type'         => 'rating',
+					'displayValue' => '3/5',
+				),
+				'3/5',
+			),
+			'rating without displayValue'           => array(
+				array( 'type' => 'rating' ),
+				'',
+			),
+			'rating escapes HTML in displayValue'   => array(
+				array(
+					'type'         => 'rating',
+					'displayValue' => '<script>alert("xss")</script>',
+				),
+				'&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;',
+			),
+			'URL with displayValue and url'         => array(
+				array(
+					'type'         => 'url',
+					'displayValue' => 'Example Site',
+					'url'          => 'https://example.com',
+				),
+				'Example Site',
+			),
+			'URL with url only'                     => array(
+				array(
+					'type' => 'url',
+					'url'  => 'https://example.com',
+				),
+				'https://example.com',
+			),
+			'URL with neither displayValue nor url' => array(
+				array( 'type' => 'url' ),
+				'',
+			),
+		);
+	}
+
+	/**
+	 * Test the get_block_container_classes method
+	 */
+	public function test_get_block_container_classes() {
+		// Test with no attributes (default case)
+		$classes = Contact_Form::get_block_container_classes();
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+
+		// Test with empty attributes array
+		$classes = Contact_Form::get_block_container_classes( array() );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+
+		// Test with align attribute set to 'wide'
+		$attributes = array( 'align' => 'wide' );
+		$classes    = Contact_Form::get_block_container_classes( $attributes );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+		$this->assertStringContainsString( 'alignwide', $classes );
+
+		// Test with align attribute set to 'full'
+		$attributes = array( 'align' => 'full' );
+		$classes    = Contact_Form::get_block_container_classes( $attributes );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+		$this->assertStringContainsString( 'alignfull', $classes );
+
+		// Test with unsupported align attribute (should not add alignment class)
+		$attributes = array( 'align' => 'left' );
+		$classes    = Contact_Form::get_block_container_classes( $attributes );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+		$this->assertStringNotContainsString( 'alignleft', $classes );
+
+		// Test that classes are space-separated string
+		$attributes    = array( 'align' => 'wide' );
+		$classes       = Contact_Form::get_block_container_classes( $attributes );
+		$classes_array = explode( ' ', $classes );
+		$this->assertContains( 'jetpack-contact-form-container', $classes_array );
+		$this->assertContains( 'alignwide', $classes_array );
 	}
 }
