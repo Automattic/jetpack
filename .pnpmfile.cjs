@@ -164,6 +164,20 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Outdated dependencies
+	if ( pkg.name === '@wordpress/stylelint-config' ) {
+		for ( const field of [ 'dependencies', 'peerDependencies' ] ) {
+			for ( const [ dep, ver ] of Object.entries( pkg[ field ] ?? {} ) ) {
+				if ( dep.startsWith( 'stylelint' ) || dep === '@stylistic/stylelint-plugin' ) {
+					pkg[ field ][ dep ] = ver.replace( /^(?:\^|>=)?/, '>=' );
+				}
+			}
+		}
+	}
+	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.stylelint ) {
+		pkg.peerDependencies.stylelint = pkg.peerDependencies.stylelint.replace( /^(?:\^|>=)?/, '>=' );
+	}
+
 	// Update localtunnel axios dep to avoid CVE
 	// https://github.com/localtunnel/localtunnel/issues/632
 	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {
@@ -256,10 +270,13 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Seems to depend on hoisting. 33306 doesn't seem to directly address it, but 33315 looks like it will fix it anyway.
-	// https://github.com/storybookjs/storybook/issues/33306
-	if ( pkg.name === 'storybook' && ! pkg.dependencies[ '@vitest/mocker' ] ) {
-		pkg.dependencies[ '@vitest/mocker' ] = '*';
+	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
+	// On the plus side, the net change from v10 to v13 is deleting the CLI from the package.
+	if ( pkg.dependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
+		pkg.dependencies.glob = '^13';
+	}
+	if ( pkg.peerDependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
+		pkg.dependencies.glob = '^13';
 	}
 
 	// CVE-2026-22036

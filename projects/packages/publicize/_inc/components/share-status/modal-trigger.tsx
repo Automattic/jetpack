@@ -22,8 +22,8 @@ type ModalTriggerProps = ButtonProps & {
 /**
  * Modal trigger component.
  */
-export const ModalTrigger = forwardRef(
-	( { withWrapper = false, analyticsData = null, ...props }: ModalTriggerProps, ref: unknown ) => {
+export const ModalTrigger = forwardRef< HTMLButtonElement, ModalTriggerProps >(
+	( { withWrapper = false, analyticsData = null, ...props }, ref ) => {
 		const { recordEvent } = useAnalytics();
 		const { openShareStatusModal, openUnifiedModal } = useDispatch( socialStore );
 		const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );

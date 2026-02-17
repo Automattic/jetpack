@@ -1028,6 +1028,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// $class is ill-formed, so we need to fix it
 		// Strip 'class=' and quotes to get just the class names
 		$class_names = preg_replace( "/^class=['\"]([^'\"]*)['\"].*$/", '$1', $class );
+		// somehow we are getting the class jetpack-field__input-element on the wrong wrapper
+		// .jetpack-field__input-element is meant to be applied just to the input element, not its wrapper.
+		// Remove the jetpack-field__input-element class token regardless of its position and normalize whitespace.
+		$class_names = preg_replace( '/\s*\bjetpack-field__input-element\b\s*/', ' ', $class_names );
+		$class_names = trim( preg_replace( '/\s+/', ' ', $class_names ) );
 
 		$link_label_id = $id . '-number';
 
@@ -1834,6 +1839,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
+		} elseif ( ! $this->get_attribute( 'default' ) ) {
+			// For select fields without an explicit togglelabel or default value (e.g., shortcode-based forms),
+			// add a placeholder option to ensure users must make an explicit selection.
+			$field .= "\t\t<option value=''>" . esc_html__( 'Select an option', 'jetpack-forms' ) . "</option>\n";
 		}
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {

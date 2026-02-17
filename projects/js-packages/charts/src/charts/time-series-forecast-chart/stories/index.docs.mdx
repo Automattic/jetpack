@@ -1,0 +1,483 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as TimeSeriesForecastChartStories from './index.stories';
+
+<Meta title="JS Packages/Charts Library/Charts/Time Series Forecast Chart" of={ TimeSeriesForecastChartStories } />
+
+# Time Series Forecast Chart
+
+Displays historical data alongside forecasted values with optional uncertainty bands, connecting the two regions with a visual divider at the forecast start date.
+
+<Canvas of={ TimeSeriesForecastChartStories.Default } />
+
+## Overview
+
+The Time Series Forecast Chart component visualizes time-series data split into historical and forecast regions. Historical data renders as a solid line, forecast data as a dashed line, and an optional shaded band shows the uncertainty range between upper and lower bounds. A vertical dashed divider marks the transition point between historical and forecast data.
+
+The component is generic over your data type — pass any shape of data along with accessor functions to extract the values the chart needs:
+
+<Source
+	language="tsx"
+	code={ `import { TimeSeriesForecastChart } from '@automattic/charts';
+
+	<TimeSeriesForecastChart
+		data={ data }
+		accessors={ {
+			x: d => d.date,
+			y: d => d.value,
+			yLower: d => d.lower,
+			yUpper: d => d.upper,
+		} }
+		forecastStart={ new Date('2024-02-19') }
+	/>` }
+/>
+
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Time Series Forecast Chart API Reference](./?path=/docs/js-packages-charts-library-charts-time-series-forecast-chart-api-reference--docs).
+
+## Basic Usage
+
+### Simple Forecast Chart
+
+The simplest forecast chart requires `data`, `accessors`, and `forecastStart`:
+
+<Canvas of={ TimeSeriesForecastChartStories.Default } />
+
+<Source
+	language="tsx"
+	code={ `<TimeSeriesForecastChart
+		data={ [
+			{ date: new Date('2024-01-01'), value: 100 },
+			{ date: new Date('2024-01-15'), value: 115 },
+			{ date: new Date('2024-02-01'), value: 130, lower: 130, upper: 130 },
+			{ date: new Date('2024-02-15'), value: 145, lower: 132, upper: 158 },
+			{ date: new Date('2024-03-01'), value: 160, lower: 138, upper: 182 },
+		] }
+		accessors={ {
+			x: d => d.date,
+			y: d => d.value,
+			yLower: d => d.lower,
+			yUpper: d => d.upper,
+		} }
+		forecastStart={ new Date('2024-02-01') }
+	/>` }
+/>
+
+### Required Props
+
+- **`data`**: Array of data points of any shape (generic type `D`). The chart uses accessor functions to extract values from each datum.
+- **`accessors`**: Object with `x` and `y` accessor functions (plus optional `yLower` and `yUpper` for uncertainty bounds).
+- **`forecastStart`**: A `Date` marking where the forecast region begins. Points before this date are historical; points on or after are forecast.
+- **`height`**: Chart height in pixels (required for the unresponsive variant; the default responsive wrapper calculates this automatically).
+
+### Optional Props
+
+**Layout & Dimensions:**
+- **`width`**: Chart width in pixels (responsive by default)
+- **`margin`**: Custom chart margins
+- **`className`**: Additional CSS class name for the chart container
+- **`chartId`**: Unique identifier for the chart (auto-generated if not provided)
+- **`aspectRatio`**: Height as a fraction of width (e.g., `0.5` = 50% height). When omitted, fills parent container height
+- **`maxWidth`**: Maximum width constraint for responsive charts
+- **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
+- **`gap`**: Gap between chart elements using WordPress design tokens (default: `'md'`)
+
+**Visual Styling:**
+- **`yDomain`**: Fixed y-axis domain `[min, max]` (auto-calculated by default)
+- **`xTickFormat`**: Custom formatter for x-axis tick labels
+- **`yTickFormat`**: Custom formatter for y-axis tick labels
+- **`gridVisibility`**: Control grid visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
+- **`bandFillOpacity`**: Opacity of the uncertainty band fill (default: `0.2`)
+
+**Interactivity:**
+- **`withTooltips`**: Enable interactive tooltips (`true` by default)
+- **`renderTooltip`**: Custom tooltip render function
+
+**Legend:**
+- **`showLegend`**: Display chart legend (`false` by default)
+- **`legendPosition`**: Legend position (`'top'` or `'bottom'`, default: `'bottom'`)
+- **`seriesKeys`**: Custom labels for series in legend and tooltip
+
+**Advanced:**
+- **`animation`**: Enable entry animation (`false` by default)
+
+For detailed prop information and type definitions, see the [Time Series Forecast Chart API Reference](./?path=/docs/js-packages-charts-library-charts-time-series-forecast-chart-api-reference--docs).
+
+## Forecast Regions
+
+### Historical and Forecast Data
+
+The chart automatically splits data into historical and forecast regions based on the `forecastStart` date. Historical points render as a solid line, forecast points as a dashed line. For a seamless visual transition, include a shared data point at the `forecastStart` date with tight bounds (equal lower and upper values):
+
+<Source
+	language="tsx"
+	code={ `const data = [
+		// Historical (no bounds needed)
+		{ date: new Date('2024-01-01'), value: 100 },
+		{ date: new Date('2024-01-15'), value: 115 },
+		// Transition point (tight bounds for seamless connection)
+		{ date: new Date('2024-02-01'), value: 130, lower: 130, upper: 130 },
+		// Forecast (with growing uncertainty)
+		{ date: new Date('2024-02-15'), value: 145, lower: 132, upper: 158 },
+		{ date: new Date('2024-03-01'), value: 160, lower: 138, upper: 182 },
+	];
+
+	<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ new Date('2024-02-01') }
+	/>` }
+/>
+
+### Historical Only
+
+When `forecastStart` is after all data points, only the historical line is shown without a divider or uncertainty band:
+
+<Canvas of={ TimeSeriesForecastChartStories.HistoricalOnly } />
+
+### Forecast Only
+
+When `forecastStart` is before all data points, only the forecast line and band are shown:
+
+<Canvas of={ TimeSeriesForecastChartStories.ForecastOnly } />
+
+## Uncertainty Band
+
+### How the Band Works
+
+The uncertainty band is a shaded area between the lower and upper bounds of forecast data points. It only renders for points where **both** `yLower` and `yUpper` accessors return valid numbers. Points with missing bounds still appear on the forecast line but are excluded from the band.
+
+### Partial Bounds
+
+When some forecast points are missing bounds, the band renders only for the points that have complete bounds:
+
+<Canvas of={ TimeSeriesForecastChartStories.PartialBounds } />
+
+### Band Opacity
+
+Control the opacity of the uncertainty band fill with the `bandFillOpacity` prop (default: `0.2`):
+
+<Source
+	language="tsx"
+	code={ `<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ forecastStart }
+		bandFillOpacity={ 0.4 }
+	/>` }
+/>
+
+## Generic Data Types
+
+The chart is generic over your datum type `D`. Pass any data shape and provide accessor functions to map your data fields:
+
+<Canvas of={ TimeSeriesForecastChartStories.GenericDataType } />
+
+<Source
+	language="tsx"
+	code={ `type CustomDatum = {
+		timestamp: number;
+		measurement: number;
+		confidenceLow?: number;
+		confidenceHigh?: number;
+	};
+
+	<TimeSeriesForecastChart< CustomDatum >
+		data={ customData }
+		accessors={ {
+			x: d => new Date(d.timestamp),
+			y: d => d.measurement,
+			yLower: d => d.confidenceLow,
+			yUpper: d => d.confidenceHigh,
+		} }
+		forecastStart={ new Date('2024-02-01') }
+	/>` }
+/>
+
+## Interactive Features
+
+### Tooltips
+
+Tooltips are enabled by default and show the date, value, and (for forecast points with bounds) the uncertainty range. A "Forecast" badge appears for points in the forecast region:
+
+<Source
+	language="tsx"
+	code={ `// Disable tooltips
+	<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ forecastStart }
+		withTooltips={ false }
+	/>` }
+/>
+
+### Custom Tooltip
+
+Provide a `renderTooltip` function to fully customize the tooltip content. The function receives the original datum, x/y values, optional bounds, and a flag indicating whether the point is in the forecast region:
+
+<Canvas of={ TimeSeriesForecastChartStories.CustomTooltip } />
+
+<Source
+	language="tsx"
+	code={ `<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ forecastStart }
+		renderTooltip={ ({ nearest, x, y, yLower, yUpper, isForecast }) => (
+			<div>
+				<div>{ x.toLocaleDateString() }</div>
+				<div>Value: { y }</div>
+				{ isForecast && yLower !== undefined && yUpper !== undefined && (
+					<div>Range: { yLower } - { yUpper }</div>
+				) }
+			</div>
+		) }
+	/>` }
+/>
+
+## Legends
+
+### Basic Legend
+
+Display a legend showing the historical (solid line) and forecast (dashed line) series:
+
+<Canvas of={ TimeSeriesForecastChartStories.WithLegend } />
+
+<Source
+	language="tsx"
+	code={ `<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ forecastStart }
+		showLegend={ true }
+		legendPosition="bottom"
+	/>` }
+/>
+
+### Legend Position
+
+Place the legend above or below the chart:
+
+<Canvas of={ TimeSeriesForecastChartStories.LegendAtTop } />
+
+<Source
+	language="tsx"
+	code={ `<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ forecastStart }
+		showLegend={ true }
+		legendPosition="top"
+	/>` }
+/>
+
+### Custom Series Labels
+
+Override the default series labels ("Historical", "Forecast", "Uncertainty") with the `seriesKeys` prop:
+
+<Canvas of={ TimeSeriesForecastChartStories.CustomSeriesLabels } />
+
+<Source
+	language="tsx"
+	code={ `<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ forecastStart }
+		showLegend={ true }
+		seriesKeys={ {
+			historical: 'Actual Revenue',
+			forecast: 'Projected Revenue',
+			band: 'Confidence Interval',
+		} }
+	/>` }
+/>
+
+## Advanced Customization
+
+### Axis Formatting
+
+Customize axis tick labels with the `xTickFormat` and `yTickFormat` props:
+
+<Canvas of={ TimeSeriesForecastChartStories.CustomTickFormatters } />
+
+<Source
+	language="tsx"
+	code={ `<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ forecastStart }
+		xTickFormat={ (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
+		yTickFormat={ (n) => \`$\${n}\` }
+	/>` }
+/>
+
+### Y-Axis Domain
+
+Override the auto-calculated y-axis domain with a fixed range:
+
+<Canvas of={ TimeSeriesForecastChartStories.CustomYDomain } />
+
+<Source
+	language="tsx"
+	code={ `<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ forecastStart }
+		yDomain={ [0, 200] }
+	/>` }
+/>
+
+### Grid Visibility
+
+Control which grid lines are displayed:
+
+<Canvas of={ TimeSeriesForecastChartStories.GridVisibilityOptions } />
+
+<Source
+	language="tsx"
+	code={ `// Y-axis grid only (default)
+	<TimeSeriesForecastChart gridVisibility="y" ... />
+
+	// X-axis grid only
+	<TimeSeriesForecastChart gridVisibility="x" ... />
+
+	// Both axes
+	<TimeSeriesForecastChart gridVisibility="xy" ... />
+
+	// No grid
+	<TimeSeriesForecastChart gridVisibility="none" ... />` }
+/>
+
+### Responsive Behavior
+
+By default, the chart fills its parent container's dimensions using the responsive wrapper. The parent must have an explicit height:
+
+<Source
+	language="tsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<TimeSeriesForecastChart data={data} accessors={accessors} forecastStart={forecastStart} />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%' }}>
+		<TimeSeriesForecastChart data={data} accessors={accessors} forecastStart={forecastStart} aspectRatio={0.5} />
+	</div>
+
+	// Fixed dimensions
+	<TimeSeriesForecastChart data={data} accessors={accessors} forecastStart={forecastStart} width={800} height={400} />` }
+/>
+
+### Custom Margins
+
+Control chart layout with margin settings:
+
+<Source
+	language="tsx"
+	code={ `<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ forecastStart }
+		margin={ {
+			top: 20,
+			right: 40,
+			bottom: 60,
+			left: 80,
+		} }
+	/>` }
+/>
+
+## Dynamic Data
+
+The chart works well with dynamically generated data. The `generateForecastData` helper included in the stories demonstrates realistic time series with configurable trend, volatility, and forecast length:
+
+<Canvas of={ TimeSeriesForecastChartStories.DynamicData } />
+
+## Error Handling
+
+The chart gracefully handles empty data by displaying a "No data available" message:
+
+<Canvas of={ TimeSeriesForecastChartStories.EmptyData } />
+
+## Accessibility
+
+### Keyboard Navigation
+
+- **Tab**: Focus the chart area
+- **Arrow Keys**: Navigate between data points
+- **Escape**: Close active tooltips
+
+### Screen Reader Support
+
+- Chart data points are navigable and announced with values
+- Color information is supplemented with line style differences (solid vs dashed)
+
+### Focus Management
+
+- Clear visual focus indicators on interactive elements
+- Logical tab order through chart elements
+
+## Browser Compatibility
+
+### Modern Browser Support
+
+Full functionality in all modern browsers supporting:
+- SVG rendering
+- CSS Grid and Flexbox
+- ES6+ JavaScript features
+
+### Responsive Features
+
+- Built-in ResizeObserver support for automatic chart resizing
+- Touch-friendly tooltip interactions on mobile devices
+
+## Performance Considerations
+
+### Built-in Optimizations
+
+- **Efficient rendering**: Built on `@visx/xychart` for optimized SVG rendering
+- **Responsive behavior**: Uses `ResizeObserver` for efficient chart resizing without polling
+- **Memoized computations**: Data transformation and domain calculations are memoized to avoid unnecessary recalculations
+
+## Theming Integration
+
+Time Series Forecast Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, TimeSeriesForecastChart, type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		gridColor: '#E0E0E0',
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<TimeSeriesForecastChart data={data} accessors={accessors} forecastStart={forecastStart} />
+	</GlobalChartsProvider>` }
+/>
+
+## Animation
+
+The Time Series Forecast Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ TimeSeriesForecastChartStories.WithAnimation } />
+
+<Source
+	language="tsx"
+	code={ `<TimeSeriesForecastChart
+		data={ data }
+		accessors={ accessors }
+		forecastStart={ forecastStart }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a rising effect where chart paths scale up from the bottom, revealing the data progressively
+- **Duration**: 1000ms (1 second) with ease-out timing
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.

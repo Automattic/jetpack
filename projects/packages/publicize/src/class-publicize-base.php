@@ -1243,7 +1243,7 @@ abstract class Publicize_Base {
 			'description'   => __( 'Whether to enable per-network customization.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => false,
-			'show_in_rest'  => true,
+			'show_in_rest'  => $this->has_paid_features(),
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 

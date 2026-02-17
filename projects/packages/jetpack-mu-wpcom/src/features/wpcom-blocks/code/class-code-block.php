@@ -276,13 +276,9 @@ abstract class Code_Block {
 
 					/*
 					 * Core should handle this, but Script Module assets are not currently handled.
-					 *
-					 * `wp_should_load_block_assets_on_demand()` was added in WordPress 6.8. The
-					 * `function_exists()` can be removed when 6.8+ is required.
 					 */
 					if (
-						function_exists( 'wp_should_load_block_assets_on_demand' )
-						&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
+						! wp_should_load_block_assets_on_demand()
 						&& has_block( 'core/code' )
 					) {
 						self::enqueue_view_assets();

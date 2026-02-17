@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -322,7 +321,7 @@ function zeroBSCRM_catchDashboard() {
 			// $screen = get_current_screen();
 
 			// } Does:
-			global $pagenow,$zbs;
+			global $pagenow, $zbs;
 
 			if ( $pagenow == 'profile.php' || $pagenow == 'index.php' ) {// $screen->base == 'dashboard' ) {
 

@@ -20,7 +20,7 @@ import { useMarkAsSpam } from '../../hooks/use-mark-as-spam.ts';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils.js';
 import { store as dashboardStore } from '../../store/index.js';
 import FeedbackComments from '../feedback-comments/index.tsx';
-import PreviewFile from './preview-file';
+import PreviewFile from './preview-file/index';
 import ResponseFieldsIterator from './response-fields/index.tsx';
 import ResponseMeta from './response-meta';
 import type { FormResponse } from '../../../types/index.ts';
@@ -181,11 +181,7 @@ const ResponseViewBody = ( {
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<ResponseMeta response={ response } />
 
-				<ResponseFieldsIterator
-					fields={ response.fields }
-					onFilePreview={ handleFilePreview }
-					className="jp-forms__inbox-response-data"
-				/>
+				<ResponseFieldsIterator fields={ response.fields } onFilePreview={ handleFilePreview } />
 				{ isPreviewModalOpen && previewFile && onModalStateChange && (
 					<Modal
 						title={ decodeEntities( previewFile.name ) }

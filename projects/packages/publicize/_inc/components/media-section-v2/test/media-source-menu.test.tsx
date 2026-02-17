@@ -87,6 +87,7 @@ describe( 'MediaSourceMenu', () => {
 				currentSource={ null }
 				onSelect={ mockOnSelect }
 				onMediaLibraryClick={ mockOnMediaLibraryClick }
+				featuredImageId={ 123 }
 			/>
 		);
 
@@ -163,7 +164,7 @@ describe( 'MediaSourceMenu', () => {
 		expect( screen.getByText( 'For link preview' ) ).toBeInTheDocument();
 	} );
 
-	it( 'should render menu with current source item', async () => {
+	it( 'should disable the current source item', async () => {
 		const user = userEvent.setup();
 
 		render(
@@ -171,17 +172,19 @@ describe( 'MediaSourceMenu', () => {
 				currentSource="featured-image"
 				onSelect={ mockOnSelect }
 				onMediaLibraryClick={ mockOnMediaLibraryClick }
+				featuredImageId={ 123 }
 			/>
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
-		// Verify the menu renders with all options including the current source
+		// Verify the menu renders with the current source item disabled
 		const featuredImageItem = screen.getByRole( 'menuitem', { name: 'Use featured image' } );
 		expect( featuredImageItem ).toBeInTheDocument();
+		expect( featuredImageItem ).toHaveAttribute( 'aria-disabled', 'true' );
 
-		// Verify clicking the current source still triggers onSelect
+		// Verify clicking the disabled item does not trigger onSelect
 		await user.click( featuredImageItem );
-		expect( mockOnSelect ).toHaveBeenCalledWith( 'featured-image' );
+		expect( mockOnSelect ).not.toHaveBeenCalled();
 	} );
 } );

@@ -9,6 +9,7 @@ import {
 	getInsertionIndex,
 	shouldLockBlock,
 	getBlocksToMove,
+	isEmptyParagraph,
 } from '../../../../src/form-editor/utils/block-utils';
 
 describe( 'block-utils', () => {
@@ -481,6 +482,78 @@ describe( 'block-utils', () => {
 
 			expect( result ).toHaveLength( 1 );
 			expect( result[ 0 ].clientId ).toBe( 'para-1' );
+		} );
+	} );
+
+	describe( 'isEmptyParagraph', () => {
+		test( 'returns false for non-paragraph blocks', () => {
+			const block = { name: 'core/heading', attributes: { content: '' } };
+			expect( isEmptyParagraph( block ) ).toBe( false );
+		} );
+
+		test( 'returns false for jetpack blocks', () => {
+			const block = { name: 'jetpack/field-text', attributes: {} };
+			expect( isEmptyParagraph( block ) ).toBe( false );
+		} );
+
+		test( 'returns true when content is undefined', () => {
+			const block = { name: 'core/paragraph', attributes: {} };
+			expect( isEmptyParagraph( block ) ).toBe( true );
+		} );
+
+		test( 'returns true when attributes is undefined', () => {
+			const block = { name: 'core/paragraph' };
+			expect( isEmptyParagraph( block ) ).toBe( true );
+		} );
+
+		test( 'returns true when content is null', () => {
+			const block = { name: 'core/paragraph', attributes: { content: null } };
+			expect( isEmptyParagraph( block ) ).toBe( true );
+		} );
+
+		test( 'returns true when content is empty string', () => {
+			const block = { name: 'core/paragraph', attributes: { content: '' } };
+			expect( isEmptyParagraph( block ) ).toBe( true );
+		} );
+
+		test( 'returns false when content is non-empty string', () => {
+			const block = { name: 'core/paragraph', attributes: { content: 'Hello world' } };
+			expect( isEmptyParagraph( block ) ).toBe( false );
+		} );
+
+		test( 'returns false when content is whitespace-only string', () => {
+			const block = { name: 'core/paragraph', attributes: { content: '   ' } };
+			expect( isEmptyParagraph( block ) ).toBe( false );
+		} );
+
+		test( 'returns true when content is empty object {}', () => {
+			const block = { name: 'core/paragraph', attributes: { content: {} } };
+			expect( isEmptyParagraph( block ) ).toBe( true );
+		} );
+
+		test( 'returns false when content is object with toString returning non-empty', () => {
+			const richTextValue = {
+				toString() {
+					return 'Some content';
+				},
+			};
+			const block = { name: 'core/paragraph', attributes: { content: richTextValue } };
+			expect( isEmptyParagraph( block ) ).toBe( false );
+		} );
+
+		test( 'returns true when content is object with toString returning empty', () => {
+			const emptyRichTextValue = {
+				toString() {
+					return '';
+				},
+			};
+			const block = { name: 'core/paragraph', attributes: { content: emptyRichTextValue } };
+			expect( isEmptyParagraph( block ) ).toBe( true );
+		} );
+
+		test( 'returns false for paragraph with HTML content', () => {
+			const block = { name: 'core/paragraph', attributes: { content: '<strong>Bold</strong>' } };
+			expect( isEmptyParagraph( block ) ).toBe( false );
 		} );
 	} );
 } );

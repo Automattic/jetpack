@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.5-a.5
+Stable tag: 15.6-a.1
 Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
@@ -326,19 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.5-a.5 - 2026-01-26
+### 15.6-a.1 - 2026-02-10
 #### Enhancements
-- Forms: Update DataViews header and filters.
-- Likes: Enable CSS inlining.
-- Social: Refactor share status UI to use Notice component.
-- Social: Show a snackbar while sharing is in progress.
-- Social: Use fallback avatar for Jetpack Social connection icons.
+- Forms: Update response sidebar styles.
+- WordPress.com Reader: Add new option to show a link to the WordPress.com Reader in the admin bar.
 
 #### Bug fixes
-- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting.
-- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts.
-- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts.
-- Social Previews: Use fallback image when social preview profile picture fails.
+- Forms: Fix IP address lookup link in response inspector.
+- Sharing: Fix LinkedIn sharing by updating to the current share URL endpoint.
+- Slideshow: Fix an issue with sizing when images are lazily loaded.
 
 --------
 

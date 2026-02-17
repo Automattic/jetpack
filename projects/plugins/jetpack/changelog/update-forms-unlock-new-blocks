@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: Allow Accordion, Details, and Icon blocks in forms, and Icon block to be added inside the file upload dropzone.

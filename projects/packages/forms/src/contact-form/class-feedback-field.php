@@ -16,6 +16,13 @@ class Feedback_Field {
 	use Country_Code_Utils;
 
 	/**
+	 * Cached admin theme color.
+	 *
+	 * @var string|null
+	 */
+	private static $admin_theme_color = null;
+
+	/**
 	 * The key of the field.
 	 *
 	 * @var string
@@ -147,6 +154,8 @@ class Feedback_Field {
 				return $this->get_render_web_value();
 			case 'email':
 				return $this->get_render_email_value();
+			case 'email_html':
+				return $this->get_render_email_html_value();
 			case 'ajax':
 				return $this->get_render_web_value(); // For now, we use the same value for ajax and web.
 			case 'csv':
@@ -345,9 +354,38 @@ class Feedback_Field {
 	/**
 	 * Get the value of the field for rendering the email.
 	 *
-	 * @return string
+	 * Returns structured data for type-aware rendering when possible,
+	 * similar to get_render_web_value(). The escape_and_sanitize_field_value()
+	 * method in Contact_Form already handles all these structured types.
+	 *
+	 * @return mixed
 	 */
 	private function get_render_email_value() {
+		// Phone: string with country flag prefix.
+		if ( $this->is_of_type( 'phone' ) || $this->is_of_type( 'telephone' ) ) {
+			return $this->get_phone_value_with_flag();
+		}
+
+		// URL: structured array for link rendering.
+		if ( $this->is_of_type( 'url' ) && ! empty( $this->value ) ) {
+			return array(
+				'type'         => 'url',
+				'url'          => $this->value,
+				'displayValue' => $this->value,
+			);
+		}
+
+		// File: return raw value (has field_id + files keys).
+		if ( $this->is_of_type( 'file' ) ) {
+			return $this->value;
+		}
+
+		// Rating: structured array with rating data.
+		if ( $this->is_of_type( 'rating' ) ) {
+			return $this->get_rating_value();
+		}
+
+		// Image-select: keep current string format for backward compat.
 		if ( $this->is_of_type( 'image-select' ) ) {
 			$choices = array();
 
@@ -357,7 +395,6 @@ class Feedback_Field {
 
 				if ( ! empty( $choice['label'] ) ) {
 					$value .= ' - ' . $choice['label'];
-
 				}
 				$choices[] = $value;
 			}
@@ -365,7 +402,252 @@ class Feedback_Field {
 			return implode( ', ', $choices );
 		}
 
+		// Checkbox-multiple: preserve array for chip rendering.
+		if ( $this->is_of_type( 'checkbox-multiple' ) && is_array( $this->value ) ) {
+			return $this->value;
+		}
+
 		return $this->get_render_default_value();
+	}
+
+	/**
+	 * Get the value of the field rendered as final HTML for the email template.
+	 *
+	 * Unlike get_render_email_value() which returns structured data for the
+	 * backward-compat filter path, this returns ready-to-use HTML for the
+	 * type-aware email rendering path.
+	 *
+	 * @return string HTML for the field value.
+	 */
+	private function get_render_email_html_value() {
+		if ( $this->is_of_type( 'select' ) || $this->is_of_type( 'radio' ) || $this->is_of_type( 'checkbox-multiple' ) ) {
+			return $this->render_email_chips( $this->value );
+		}
+		if ( $this->is_of_type( 'checkbox' ) || $this->is_of_type( 'consent' ) ) {
+			return $this->render_email_consent();
+		}
+		if ( $this->is_of_type( 'phone' ) || $this->is_of_type( 'telephone' ) ) {
+			return $this->render_email_phone();
+		}
+		if ( $this->is_of_type( 'url' ) ) {
+			return $this->render_email_url();
+		}
+		if ( $this->is_of_type( 'rating' ) ) {
+			return $this->render_email_rating();
+		}
+		if ( $this->is_of_type( 'file' ) ) {
+			return $this->render_email_file();
+		}
+		return $this->render_email_default();
+	}
+
+	/**
+	 * Render an empty value HTML.
+	 *
+	 * @return string HTML for empty values.
+	 */
+	private function render_empty_value_html() {
+		return '<span style="color: ' . Feedback_Email_Renderer::TEXT_SECONDARY_COLOR . ';">&mdash;</span>';
+	}
+
+	/**
+	 * Render a default text value for email (text, name, email, textarea, date, time, etc).
+	 *
+	 * @return string Escaped and formatted HTML.
+	 */
+	private function render_email_default() {
+		if ( empty( $this->value ) && $this->value !== '0' ) {
+			return $this->render_empty_value_html();
+		}
+
+		return Contact_Form::escape_and_sanitize_field_value( $this->value );
+	}
+
+	/**
+	 * Render tag/chip values for select, radio, and checkbox-multiple fields.
+	 *
+	 * @param mixed $value The field value (string or array).
+	 * @return string HTML with rounded chip elements.
+	 */
+	private function render_email_chips( $value ) {
+		if ( empty( $value ) && $value !== '0' ) {
+			return $this->render_empty_value_html();
+		}
+
+		$values = is_array( $value ) ? $value : array( $value );
+		$chips  = array();
+
+		foreach ( $values as $item ) {
+			$safe_item = esc_html( is_string( $item ) ? $item : (string) $item );
+			if ( $safe_item === '' ) {
+				continue;
+			}
+			$chips[] = sprintf(
+				'<div style="display: inline-block; height: 24px; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: 13px; line-height: 24px; color: %s;">%s</div>',
+				Feedback_Email_Renderer::TEXT_COLOR,
+				$safe_item
+			);
+		}
+
+		if ( empty( $chips ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		return implode( '<br />', $chips );
+	}
+
+	/**
+	 * Render a consent/checkbox field value as a Yes/No chip.
+	 *
+	 * @return string HTML with a colored chip.
+	 */
+	private function render_email_consent() {
+		$is_yes = ! empty( $this->value ) && strtolower( trim( (string) $this->value ) ) !== 'no';
+		$label  = $is_yes ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+
+		return sprintf(
+			'<span style="display: inline-block; padding: 0 8px; border-radius: 2px; font-size: 13px; line-height: 1.4; background-color: #f0f0f0; color: %s;">%s</span>',
+			Feedback_Email_Renderer::TEXT_COLOR,
+			esc_html( $label )
+		);
+	}
+
+	/**
+	 * Render a phone field value as a clickable tel: link.
+	 *
+	 * @return string HTML with tel: link.
+	 */
+	private function render_email_phone() {
+		if ( empty( $this->value ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		$raw_phone    = preg_replace( '/[^\d+]/', '', (string) $this->value );
+		$country_code = $this->get_country_code_from_phone( $this->value );
+		$flag_prefix  = '';
+
+		if ( ! empty( $country_code ) ) {
+			$flag = self::country_code_to_emoji_flag( $country_code );
+			if ( ! empty( $flag ) ) {
+				$flag_prefix = $flag . ' ';
+			}
+		}
+
+		return $flag_prefix . sprintf(
+			'<a href="tel:%1$s" style="color: %3$s; text-decoration: underline;">%2$s</a>',
+			esc_attr( $raw_phone ),
+			esc_html( $this->value ),
+			self::get_admin_theme_color()
+		);
+	}
+
+	/**
+	 * Render a URL field value as a clickable link.
+	 *
+	 * @return string HTML with clickable link.
+	 */
+	private function render_email_url() {
+		if ( empty( $this->value ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		$url = $this->value;
+
+		// Prepend scheme if missing so the href is valid, but display the original input.
+		if ( ! preg_match( '/^https?:\/\//i', $url ) ) {
+			$url = 'https://' . $url;
+		}
+
+		return sprintf(
+			'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
+			esc_url( $url ),
+			esc_html( $this->value ),
+			self::get_admin_theme_color()
+		);
+	}
+
+	/**
+	 * Render a rating field value as star characters.
+	 *
+	 * @return string HTML with gold/gray stars.
+	 */
+	private function render_email_rating() {
+		if ( empty( $this->value ) || ! is_string( $this->value ) || strpos( $this->value, '/' ) === false ) {
+			return $this->render_email_default();
+		}
+
+		$parts = explode( '/', $this->value );
+		if ( count( $parts ) !== 2 ) {
+			return $this->render_email_default();
+		}
+
+		$rating = (int) $parts[0];
+		$max    = (int) $parts[1];
+
+		if ( $max <= 0 ) {
+			return $this->render_email_default();
+		}
+
+		$stars = '';
+		for ( $i = 1; $i <= $max; $i++ ) {
+			if ( $i <= $rating ) {
+				$stars .= '<span style="color: #e6a117; font-size: 20px;">&#9733;</span>';
+			} else {
+				$stars .= '<span style="color: #cccccc; font-size: 20px;">&#9733;</span>';
+			}
+		}
+
+		return $stars;
+	}
+
+	/**
+	 * Render a file field value with file name and size.
+	 *
+	 * @return string HTML with file info.
+	 */
+	private function render_email_file() {
+		if ( ! Contact_Form::is_file_upload_field( $this->value ) ) {
+			return $this->render_email_default();
+		}
+
+		$files = $this->value['files'] ?? array();
+		if ( empty( $files ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		$file_items = array();
+		foreach ( $files as $file ) {
+			if ( empty( $file['file_id'] ) ) {
+				continue;
+			}
+
+			$file_name = $file['name'] ?? __( 'Attached file', 'jetpack-forms' );
+			$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
+			$file_id   = absint( $file['file_id'] );
+			$file_url  = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+
+			$html = esc_html( $file_name );
+			if ( ! empty( $file_size ) ) {
+				$html .= sprintf( ' <span style="color: ' . Feedback_Email_Renderer::TEXT_SECONDARY_COLOR . '; font-size: 12px;">(%s)</span>', esc_html( $file_size ) );
+			}
+
+			if ( ! empty( $file_url ) ) {
+				$html = sprintf(
+					'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
+					esc_url( $file_url ),
+					$html,
+					self::get_admin_theme_color()
+				);
+			}
+
+			$file_items[] = $html;
+		}
+
+		if ( empty( $file_items ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		return implode( '<br />', $file_items );
 	}
 
 	/**
@@ -501,6 +783,77 @@ class Feedback_Field {
 	 */
 	public function get_type() {
 		return $this->type;
+	}
+
+	/**
+	 * Get the icon filename for a given field type.
+	 *
+	 * @param string $type The field type.
+	 * @return string The icon name (without path or extension).
+	 */
+	public static function get_icon_name_for_type( $type ) {
+		$map = array(
+			'text'              => 'field-text',
+			'name'              => 'field-name',
+			'email'             => 'field-email',
+			'textarea'          => 'field-textarea',
+			'select'            => 'field-select',
+			'radio'             => 'field-single-choice',
+			'checkbox'          => 'field-checkbox',
+			'checkbox-multiple' => 'field-multiple-choice',
+			'phone'             => 'field-telephone',
+			'telephone'         => 'field-telephone',
+			'number'            => 'field-number',
+			'slider'            => 'field-slider',
+			'date'              => 'field-date',
+			'time'              => 'field-time',
+			'url'               => 'field-url',
+			'rating'            => 'field-rating',
+			'image-select'      => 'field-image-select',
+			'file'              => 'field-file',
+			'consent'           => 'field-consent',
+			'hidden'            => 'field-hidden',
+		);
+		return $map[ $type ] ?? 'field-text';
+	}
+
+	/**
+	 * Get the WordPress admin theme color for use in email links.
+	 *
+	 * Resolves the site admin's admin_color preference to the matching
+	 * --wp-admin-theme-color hex value so email links visually match
+	 * the Forms dashboard.
+	 *
+	 * @return string Hex color string.
+	 */
+	public static function get_admin_theme_color() {
+		if ( self::$admin_theme_color !== null ) {
+			return self::$admin_theme_color;
+		}
+
+		$color_scheme = 'fresh';
+		$admin_user   = get_user_by( 'email', get_option( 'admin_email' ) );
+		if ( $admin_user ) {
+			$saved = get_user_option( 'admin_color', $admin_user->ID );
+			if ( $saved ) {
+				$color_scheme = $saved;
+			}
+		}
+
+		$map = array(
+			'fresh'     => '#2271b1',
+			'light'     => '#0085ba',
+			'blue'      => '#096484',
+			'coffee'    => '#c7a589',
+			'ectoplasm' => '#a3b745',
+			'midnight'  => '#e14d43',
+			'ocean'     => '#9ebaa0',
+			'sunrise'   => '#dd823b',
+			'modern'    => '#3858e9',
+		);
+
+		self::$admin_theme_color = $map[ $color_scheme ] ?? '#2271b1';
+		return self::$admin_theme_color;
 	}
 
 	/**

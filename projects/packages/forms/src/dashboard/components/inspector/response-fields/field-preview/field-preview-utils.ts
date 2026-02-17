@@ -1,13 +1,7 @@
 /**
- * External dependencies
- */
-import { Icon } from '@wordpress/components';
-/**
  * Internal dependencies
  */
 import type { FieldType } from '../../../../../types/index.ts';
-
-export type BlockIcon = React.ComponentProps< typeof Icon >[ 'icon' ];
 
 export const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
@@ -65,18 +59,4 @@ export const inferFieldTypeFromLabel = ( label: string ): FieldType | null => {
 	}
 
 	return null;
-};
-
-/**
- * Extracts the icon source from a block's icon definition.
- * Block icons can be defined as { src: ... } or directly as a function/element.
- *
- * @param {unknown} icon - The block icon definition.
- * @return {BlockIcon} The icon source compatible with the Icon component.
- */
-export const getIconSource = ( icon: unknown ): BlockIcon => {
-	if ( icon && typeof icon === 'object' && 'src' in icon ) {
-		return ( icon as { src: BlockIcon } ).src;
-	}
-	return icon as BlockIcon;
 };

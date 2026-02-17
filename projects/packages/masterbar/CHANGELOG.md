@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.11] - 2026-02-10
+### Changed
+- Update package dependencies. [#46936] [#47002]
+
+### Fixed
+- Admin Menu: Fix passing JSON string instead of array to JITM `get_messages()`. [#46906]
+
+## [0.27.10] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
 ## [0.27.9] - 2026-01-26
 ### Changed
 - Update dependencies. [#46383]
@@ -507,6 +518,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.27.11]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.10...v0.27.11
+[0.27.10]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.9...v0.27.10
 [0.27.9]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.8...v0.27.9
 [0.27.8]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.7...v0.27.8
 [0.27.7]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.6...v0.27.7

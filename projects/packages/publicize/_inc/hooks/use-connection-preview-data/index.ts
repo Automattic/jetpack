@@ -6,6 +6,7 @@ import { Connection } from '../../social-store/types';
 import { features } from '../../utils';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
+import { usePostMeta } from '../use-post-meta';
 import useSigPreview from '../use-sig-preview';
 import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
@@ -19,6 +20,7 @@ import { PostData } from '../use-social-preview-post-data/types';
  */
 export function useConnectionPreviewData( connection: Connection ) {
 	const { isEnabled: usingPerNetworkCustomization } = usePerNetworkCustomization();
+	const { mediaSource: globalMediaSource } = usePostMeta();
 
 	const postData = useSocialPreviewPostData();
 	const { message: globalMessage } = useSocialMediaMessage();
@@ -27,17 +29,28 @@ export function useConnectionPreviewData( connection: Connection ) {
 	);
 	const [ featuredImageDetails ] = useMediaDetails( featuredImageId );
 
-	// Generate SIG preview only if site has the feature and connection is set to use SIG.
+	// Generate SIG preview if site has the feature and either:
+	// - Connection is set to use SIG (per-network customization)
+	// - Global media source is SIG (same for all mode)
 	const generateSigPreview =
-		siteHasFeature( features.IMAGE_GENERATOR ) && connection.media_source === 'sig';
+		siteHasFeature( features.IMAGE_GENERATOR ) &&
+		( connection.media_source === 'sig' || globalMediaSource === 'sig' );
 
 	const sig = useSigPreview( generateSigPreview );
 
 	return useMemo( () => {
 		if ( ! siteHasFeature( features.ENHANCED_PUBLISHING ) || ! usingPerNetworkCustomization ) {
+			// In global mode, resolve SIG URL dynamically when attachment mode is on
+			// so preview updates when template is edited
+			let media = postData.media;
+			if ( globalMediaSource === 'sig' && sig.url && postData.media.length > 0 ) {
+				media = [ { url: sig.url, type: 'image/png' } ];
+			}
+
 			return {
 				...postData,
 				message: globalMessage.trim(),
+				media,
 			};
 		}
 
@@ -78,6 +91,7 @@ export function useConnectionPreviewData( connection: Connection ) {
 	}, [
 		connection,
 		featuredImageDetails,
+		globalMediaSource,
 		globalMessage,
 		postData,
 		sig.url,

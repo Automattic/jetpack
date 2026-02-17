@@ -7,7 +7,7 @@ on:
 
 concurrency:
   # Trunk runs need to not be cancelled for concurrency, mainly for code coverage. Everything else can be.
-  group: tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' && github.run_id || '' }}
+  group: tests-${{ github.event_name }}-${{ github.ref }}-${{ case( github.event_name == 'push' && github.ref == 'refs/heads/trunk', github.run_id, '' ) }}
   cancel-in-progress: true
 
 permissions:
@@ -61,8 +61,8 @@ jobs:
 
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
-      did-coverage: ${{ ( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success' ) && 'true' || '' }}
-      coverage-status: ${{ matrix.script == 'test-coverage' && steps.run-tests.conclusion || '' }}
+      did-coverage: ${{ case( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
+      coverage-status: ${{ case( matrix.script == 'test-coverage', steps.run-tests.conclusion, '' ) }}
 
     steps:
       - uses: actions/checkout@v6
@@ -82,7 +82,7 @@ jobs:
         uses: ./.github/actions/tool-setup
         with:
           php: ${{ matrix.php }}
-          coverage: ${{ matrix.script == 'test-coverage' && 'pcov' || 'none' }}
+          coverage: ${{ case( matrix.script == 'test-coverage', 'pcov', 'none' ) }}
           node: ${{ matrix.node }}
 
       - name: Monorepo install
@@ -169,7 +169,7 @@ jobs:
       - name: Run project tests
         id: run-tests
         env:
-          FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
+          FORCE_PACKAGE_TESTS: ${{ case( matrix.force-package-tests, 'true', 'false' ) }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           EXIT=0
@@ -350,7 +350,7 @@ jobs:
 
       - name: Upload coverage results
         env:
-          PR_ID: ${{ github.event_name != 'pull_request' && 'trunk' || github.event.pull_request.number }}
+          PR_ID: ${{ case( github.event_name != 'pull_request', 'trunk', github.event.pull_request.number ) }}
           SECRET: ${{ secrets.CODECOV_SECRET }}
           STATUS: ${{ needs.run-tests.outputs.coverage-status }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}

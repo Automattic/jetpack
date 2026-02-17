@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix tests for PHPUnit 12.5.11 breakage.
+
+

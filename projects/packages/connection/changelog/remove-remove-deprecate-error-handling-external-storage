@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Remove error handling methods for external storage and add host agnostic error reporting.

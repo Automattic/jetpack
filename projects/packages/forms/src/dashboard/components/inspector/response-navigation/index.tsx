@@ -24,14 +24,14 @@ const ResponseNavigation = ( {
 		accessibleWhenDisabled: true,
 		iconSize: 24,
 		showTooltip: true,
-		size: 'compact',
+		size: 'compact' as const,
 	};
 
 	const closeButtonProps = {
 		accessibleWhenDisabled: true,
 		iconSize: 20,
 		showTooltip: true,
-		size: 'compact',
+		size: 'compact' as const,
 	};
 
 	return (

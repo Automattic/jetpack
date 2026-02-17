@@ -1,14 +1,14 @@
-const fs = require( 'fs' );
-const { getInput } = require( '@actions/core' );
-const minimatch = require( 'minimatch' );
-const { debug } = require( './debug' );
-const extras = require( './extra-context' );
+import fs from 'fs';
+import { getInput } from '@actions/core';
+import minimatch from 'minimatch';
+import { debug } from './debug.js';
+import extras from './extra-context.js';
 /**
  * Returns a list o Slack channel ids, based on context and rules configuration.
  *
  * @return {string[]} an array of channels ids
  */
-function getChannels() {
+export function getChannels() {
 	const channels = [];
 	const defaultChannel = getInput( 'slack_channel' );
 	const rulesConfigurationPath = getInput( 'rules_configuration_path' );
@@ -59,5 +59,3 @@ function getChannels() {
 	debug( `Found ${ uniqueChannels.length } channels` );
 	return uniqueChannels;
 }
-
-module.exports = { getChannels };

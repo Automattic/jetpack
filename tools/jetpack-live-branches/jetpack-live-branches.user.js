@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.36
+// @version      1.37
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      betadownload.jetpack.me
@@ -79,6 +79,56 @@
 		return m && m[ 1 ] ? decodeURIComponent( m[ 1 ] ) : null;
 	}
 
+	/**
+	 * Determine PR data, Feb 2026 version.
+	 *
+	 * @return {object|null} Data
+	 */
+	function getPRDataFeb2026() {
+		const prdatatag = document.querySelector( '[data-target="react-app.embeddedData"]' );
+		if ( ! prdatatag ) {
+			console.warn( 'Jetpack Live Branches: Did not find react-app.embeddedData' );
+			return null;
+		}
+		let prdata;
+		try {
+			prdata = JSON.parse( prdatatag.textContent );
+		} catch ( e ) {
+			console.warn( 'Jetpack Live Branches: Failed to parse react-app.embeddedData', e );
+			return null;
+		}
+
+		const currentBranch = prdata?.payload?.pullRequestsLayoutRoute?.pullRequest?.headBranch;
+		const branchStatus = prdata?.payload?.pullRequestsLayoutRoute?.pullRequest?.state;
+		if ( ! currentBranch || ! branchStatus ) {
+			console.warn( 'Jetpack Live Branches: Failed to find fields in react-app.embeddedData' );
+			return null;
+		}
+
+		return { currentBranch, branchStatus };
+	}
+
+	/**
+	 * Determine PR data, older version.
+	 *
+	 * @return {object|null} Data
+	 */
+	function getPRDataOld() {
+		const currentBranch = jQuery( '.head-ref:first' ).text();
+		if ( ! currentBranch ) {
+			console.warn( 'Jetpack Live Branches: Failed to find .head-ref:first' );
+			return null;
+		}
+
+		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
+		if ( ! branchStatus ) {
+			console.warn( 'Jetpack Live Branches: Failed to find .gh-header-meta .State' );
+			return null;
+		}
+
+		return { currentBranch, branchStatus };
+	}
+
 	/** Function. */
 	function doit() {
 		const markdownBody = document.querySelectorAll( markdownBodySelector )[ 0 ];
@@ -88,11 +138,19 @@
 		}
 
 		const host = 'https://jurassic.ninja';
-		const currentBranch = jQuery( '.head-ref:first' ).text();
-		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
+
+		const { currentBranch, branchStatus } = getPRDataFeb2026() ?? getPRDataOld() ?? {};
+		if ( ! currentBranch || ! branchStatus ) {
+			appendHtml(
+				markdownBody,
+				'<p><strong>Failed to find PR data. The Jetpack Live Branches script may need updating.</strong></p>'
+			);
+			return;
+		}
+
 		const repo = determineRepo();
 
-		if ( branchStatus === 'Merged' ) {
+		if ( branchStatus === 'MERGED' ) {
 			const contents = `
 				<p><strong>This branch is already merged.</strong></p>
 				<p><a target="_blank" rel="nofollow noopener" href="${ getLink()[ 0 ] }">

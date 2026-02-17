@@ -1,4 +1,5 @@
 import type { LegendShape } from '@visx/legend/lib/types';
+import type { GapSize } from '@wordpress/theme';
 import type { ReactNode } from 'react';
 
 /**
@@ -210,4 +211,14 @@ export interface TimeSeriesForecastChartProps< D > {
 	 * Use TimeSeriesForecastChart.SVG for SVG children and TimeSeriesForecastChart.HTML for HTML children.
 	 */
 	children?: ReactNode;
+	/**
+	 * Gap between chart elements (SVG, legend).
+	 * Uses WordPress design system tokens.
+	 * @default 'md'
+	 */
+	gap?: GapSize;
+	/**
+	 * Opacity of the uncertainty band fill. Default: 0.2
+	 */
+	bandFillOpacity?: number;
 }

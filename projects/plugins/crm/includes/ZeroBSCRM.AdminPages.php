@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -1001,22 +1000,22 @@ function zeroBSCRM_pages_admin_system_emails() {
 							if ( $form->zbsmail_active ) {
 								// 1 = active, 0 = inactive..
 								echo '<div class="ui buttons tiny" style="float: right;
-                                        position: absolute;
-                                        top: 19px;
-                                        right: 20px;">
-                                        <button class="ui positive button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
-                                        <div class="or"></div>
-                                        <button class="ui button zbs-turn-inactive" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
-                                      </div>';
+										position: absolute;
+										top: 19px;
+										right: 20px;">
+										<button class="ui positive button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
+										<div class="or"></div>
+										<button class="ui button zbs-turn-inactive" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
+									  </div>';
 							} else {
 								echo '<div class="ui buttons tiny" style="float: right;
-                                        position: absolute;
-                                        top: 19px;
-                                        right: 20px;">
-                                        <button class="ui button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
-                                        <div class="or"></div>
-                                        <button class="ui button zbs-turn-inactive negative" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
-                                      </div>';
+										position: absolute;
+										top: 19px;
+										right: 20px;">
+										<button class="ui button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
+										<div class="or"></div>
+										<button class="ui button zbs-turn-inactive negative" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
+									  </div>';
 							}
 						}
 
@@ -2081,8 +2080,8 @@ function zeroBSCRM_html_extensions() {
 				usort(
 					$top_woo_extensions,
 					function (
-					$str1,
-					$str2
+						$str1,
+						$str2
 					) {
 						return strcasecmp( $str1->name, $str2->name );
 					}
@@ -2092,8 +2091,8 @@ function zeroBSCRM_html_extensions() {
 			usort(
 				$extensions_to_display,
 				function (
-				$str1,
-				$str2
+					$str1,
+					$str2
 				) {
 					return strcasecmp( $str1->name, $str2->name );
 				}

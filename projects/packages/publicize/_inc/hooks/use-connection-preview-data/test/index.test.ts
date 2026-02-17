@@ -47,11 +47,16 @@ jest.mock( '../../use-sig-preview', () => ( {
 	default: jest.fn(),
 } ) );
 
+jest.mock( '../../use-post-meta', () => ( {
+	usePostMeta: jest.fn(),
+} ) );
+
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import { useConnectionPreviewData } from '../';
 import useMediaDetails from '../../use-media-details';
 import { usePerNetworkCustomization } from '../../use-per-network-customization';
+import { usePostMeta } from '../../use-post-meta';
 import useSigPreview from '../../use-sig-preview';
 import useSocialMediaMessage from '../../use-social-media-message';
 import { useSocialPreviewPostData } from '../../use-social-preview-post-data';
@@ -71,6 +76,7 @@ const mockUseSocialPreviewPostData = useSocialPreviewPostData as jest.MockedFunc
 >;
 const mockUseMediaDetails = useMediaDetails as jest.MockedFunction< typeof useMediaDetails >;
 const mockUseSigPreview = useSigPreview as jest.MockedFunction< typeof useSigPreview >;
+const mockUsePostMeta = usePostMeta as jest.MockedFunction< typeof usePostMeta >;
 
 const createMockConnection = ( overrides: Partial< Connection > = {} ): Connection => ( {
 	connection_id: '123',
@@ -113,6 +119,9 @@ describe( 'useConnectionPreviewData', () => {
 		mockUseSocialPreviewPostData.mockReturnValue( defaultPostData );
 		mockUseMediaDetails.mockReturnValue( [ null ] );
 		mockUseSigPreview.mockReturnValue( { url: null, isLoading: false } );
+		mockUsePostMeta.mockReturnValue( {
+			mediaSource: undefined,
+		} as ReturnType< typeof usePostMeta > );
 	} );
 
 	afterAll( () => {
