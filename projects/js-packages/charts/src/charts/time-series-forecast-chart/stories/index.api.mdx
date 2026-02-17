@@ -1,0 +1,110 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Time Series Forecast Chart/API Reference" />
+
+# Time Series Forecast Chart API Reference
+
+## TimeSeriesForecastChart
+
+Main chart component with responsive behavior by default. The component is generic over datum type `D`.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `readonly D[]` | - | **Required.** Array of data points to display |
+| `accessors` | `TimeSeriesForecastAccessors<D>` | - | **Required.** Accessor functions to extract values from each datum |
+| `forecastStart` | `Date` | - | **Required.** The date at which the forecast region begins |
+| `height` | `number` | responsive | Chart height in pixels |
+| `width` | `number` | responsive | Chart width in pixels |
+| `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | `{ top: 20, right: 20, bottom: 40, left: 50 }` | Chart margins |
+| `yDomain` | `[number, number]` | auto-calculated | Fixed y-axis domain [min, max] |
+| `xTickFormat` | `(d: Date) => string` | short month + day | Custom formatter for x-axis tick labels |
+| `yTickFormat` | `(n: number) => string` | `formatNumberCompact` | Custom formatter for y-axis tick labels |
+| `withTooltips` | `boolean` | `true` | Enable interactive tooltips on hover |
+| `seriesKeys` | `SeriesKeys` | `{ historical: 'Historical', forecast: 'Forecast', band: 'Uncertainty' }` | Custom labels for series in legend and tooltip |
+| `renderTooltip` | `(params: ForecastTooltipParams<D>) => ReactNode` | - | Custom tooltip renderer |
+| `className` | `string` | - | Additional CSS class name for the chart container |
+| `chartId` | `string` | auto-generated | Unique identifier for the chart |
+| `showLegend` | `boolean` | `false` | Display the chart legend |
+| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Position of the legend relative to the chart |
+| `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a rising effect where paths scale up from the bottom. Automatically respects user's `prefers-reduced-motion` system setting |
+| `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | `'y'` | Control which grid lines are displayed |
+| `gap` | `GapSize` | `'md'` | Gap between chart elements (SVG, legend). Uses WordPress design system tokens |
+| `bandFillOpacity` | `number` | `0.2` | Opacity of the uncertainty band fill (0-1) |
+
+**Responsive wrapper additional props (default export):**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `maxWidth` | `number` | - | Maximum width constraint for responsive charts |
+| `aspectRatio` | `number` | - | Height as a fraction of width (e.g., `0.5` = 50% height) |
+| `resizeDebounceTime` | `number` | `300` | Debounce delay for resize events in milliseconds |
+
+## TimeSeriesForecastChartUnresponsive
+
+Non-responsive variant that requires explicit `width` and `height` props. Accepts the same props as `TimeSeriesForecastChart` without the responsive wrapper additions.
+
+## TimeSeriesForecastAccessors Type
+
+Accessor functions to extract values from generic datum type `D`.
+
+```typescript
+type TimeSeriesForecastAccessors<D> = {
+	x: Accessor<D, Date>;
+	y: Accessor<D, number>;
+	yLower?: Accessor<D, number | null | undefined>;
+	yUpper?: Accessor<D, number | null | undefined>;
+};
+```
+
+- **`x`**: **Required.** Extract the x-axis date value from each datum
+- **`y`**: **Required.** Extract the y-axis numeric value from each datum
+- **`yLower`**: Extract the lower bound of the forecast uncertainty. The uncertainty band is only rendered for points where both `yLower` and `yUpper` return valid numbers
+- **`yUpper`**: Extract the upper bound of the forecast uncertainty. The uncertainty band is only rendered for points where both `yLower` and `yUpper` return valid numbers
+
+## SeriesKeys Type
+
+Custom labels for legend and tooltip display.
+
+```typescript
+type SeriesKeys = {
+	historical?: string;
+	forecast?: string;
+	band?: string;
+};
+```
+
+- **`historical`**: Label for the historical series. Default: `'Historical'`
+- **`forecast`**: Label for the forecast series. Default: `'Forecast'`
+- **`band`**: Label for the uncertainty band. Default: `'Uncertainty'`
+
+## ForecastTooltipParams Type
+
+Parameters passed to the custom `renderTooltip` function.
+
+```typescript
+interface ForecastTooltipParams<D> {
+	nearest: D;
+	x: Date;
+	y: number;
+	yLower?: number;
+	yUpper?: number;
+	isForecast: boolean;
+}
+```
+
+- **`nearest`**: The original datum nearest to the cursor
+- **`x`**: The x-axis date value
+- **`y`**: The y-axis numeric value
+- **`yLower`**: The lower bound of the forecast uncertainty (if available)
+- **`yUpper`**: The upper bound of the forecast uncertainty (if available)
+- **`isForecast`**: Whether this point is in the forecast region
+
+## Accessor Type
+
+Generic accessor function type used by `TimeSeriesForecastAccessors`.
+
+```typescript
+type Accessor<D, R> = (d: D, index: number) => R;
+```
