@@ -2,6 +2,7 @@ import { formatNumberCompact, formatNumber } from '@automattic/number-formatters
 import { curveMonotoneX } from '@visx/curve';
 import { XYChart, AreaSeries, LineSeries, Grid, Axis, Tooltip } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useContext, useMemo, useCallback } from 'react';
 import { Legend } from '../../components/legend';
@@ -64,6 +65,7 @@ const formatDateTick = ( d: Date ) => {
  * @param root0.legendPosition - Position of the legend (top or bottom)
  * @param root0.animation      - Whether to enable chart animations
  * @param root0.gridVisibility - Which grid lines to show (x, y, xy, or none)
+ * @param root0.gap            - Gap between chart elements using WP design tokens
  * @return The rendered chart component
  */
 function TimeSeriesForecastChartInternal< D >( {
@@ -85,10 +87,11 @@ function TimeSeriesForecastChartInternal< D >( {
 	legendPosition = 'bottom',
 	animation = false,
 	gridVisibility = 'y',
+	gap = 'md',
 }: TimeSeriesForecastChartProps< D > ) {
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
-	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+	const [ svgWrapperRef, svgWrapperHeight ] = useElementHeight< HTMLDivElement >();
 	const prefersReducedMotion = usePrefersReducedMotion();
 
 	// Merge series keys with defaults
@@ -140,8 +143,11 @@ function TimeSeriesForecastChartInternal< D >( {
 		[ margin ]
 	);
 
-	// Chart dimensions accounting for legend
-	const chartHeight = height - ( showLegend ? legendHeight : 0 );
+	// Use the measured SVG wrapper height, falling back to the passed height if provided.
+	// When there's a legend, we must wait for measurement because
+	// the legend takes space and the svg-wrapper height will be less than the total height.
+	const chartHeight = svgWrapperHeight > 0 ? svgWrapperHeight : height;
+	const isWaitingForMeasurement = showLegend ? svgWrapperHeight === 0 : ! chartHeight;
 
 	// Create legend items
 	const legendItems = useMemo< BaseLegendItem[] >( () => {
@@ -274,129 +280,140 @@ function TimeSeriesForecastChartInternal< D >( {
 	const showXGrid = gridVisibility === 'x' || gridVisibility === 'xy';
 	const showYGrid = gridVisibility === 'y' || gridVisibility === 'xy';
 
+	const legendElement = showLegend && (
+		<Legend
+			orientation="horizontal"
+			alignment="center"
+			position={ legendPosition }
+			className={ styles[ 'time-series-forecast-chart__legend' ] }
+			shape="line"
+			chartId={ chartId }
+			items={ legendItems }
+		/>
+	);
+
 	return (
-		<div
+		<Stack
+			direction="column"
+			gap={ gap }
 			className={ clsx(
 				'time-series-forecast-chart',
 				styles[ 'time-series-forecast-chart' ],
 				{
 					[ styles[ 'time-series-forecast-chart--animated' ] ]: animation && ! prefersReducedMotion,
-					[ styles[ 'time-series-forecast-chart--legend-top' ] ]:
-						showLegend && legendPosition === 'top',
 				},
 				className
 			) }
 			data-testid="time-series-forecast-chart"
-			style={ { width, height } }
+			style={ {
+				width,
+				height,
+				visibility: isWaitingForMeasurement ? 'hidden' : 'visible',
+			} }
 		>
-			<XYChart
-				theme={ theme }
-				width={ width }
-				height={ chartHeight }
-				margin={ computedMargin }
-				xScale={ { type: 'time', domain: xDomain } }
-				yScale={ { type: 'linear', domain: yDomain, nice: true } }
-				pointerEventsDataKey="nearest"
-			>
-				{ gridVisibility !== 'none' && (
-					<Grid columns={ showXGrid } rows={ showYGrid } numTicks={ 4 } />
+			{ legendPosition === 'top' && legendElement }
+
+			<div className={ styles[ 'time-series-forecast-chart__svg-wrapper' ] } ref={ svgWrapperRef }>
+				{ ! isWaitingForMeasurement && (
+					<XYChart
+						theme={ theme }
+						width={ width }
+						height={ chartHeight }
+						margin={ computedMargin }
+						xScale={ { type: 'time', domain: xDomain } }
+						yScale={ { type: 'linear', domain: yDomain, nice: true } }
+						pointerEventsDataKey="nearest"
+					>
+						{ gridVisibility !== 'none' && (
+							<Grid columns={ showXGrid } rows={ showYGrid } numTicks={ 4 } />
+						) }
+
+						<Axis orientation="bottom" numTicks={ 5 } tickFormat={ xAxisTickFormat } />
+						<Axis orientation="left" numTicks={ 4 } tickFormat={ yAxisTickFormat } />
+
+						{ /* Uncertainty band - rendered first (behind lines), no pointer events */ }
+						{ bandData.length > 0 && (
+							<AreaSeries
+								dataKey={ seriesKeys.band }
+								data={ bandData }
+								xAccessor={ xAccessor }
+								yAccessor={ bandUpperAccessor }
+								y0Accessor={ bandLowerAccessor }
+								fill={ bandColor }
+								fillOpacity={ 0.2 }
+								renderLine={ false }
+								curve={ curveMonotoneX }
+								enableEvents={ false }
+							/>
+						) }
+
+						{ /* Historical line - solid, visual only */ }
+						{ historical.length > 0 && (
+							<AreaSeries
+								dataKey={ seriesKeys.historical }
+								data={ historical }
+								xAccessor={ xAccessor }
+								yAccessor={ yAccessor }
+								fill="transparent"
+								renderLine={ true }
+								curve={ curveMonotoneX }
+								lineProps={ { stroke: primaryColor } }
+								enableEvents={ false }
+							/>
+						) }
+
+						{ /* Forecast line - dashed, visual only */ }
+						{ forecast.length > 0 && (
+							<AreaSeries
+								dataKey={ seriesKeys.forecast }
+								data={ forecast }
+								xAccessor={ xAccessor }
+								yAccessor={ yAccessor }
+								fill="transparent"
+								renderLine={ true }
+								curve={ curveMonotoneX }
+								lineProps={ {
+									stroke: primaryColor,
+									strokeDasharray: '5 5',
+								} }
+								enableEvents={ false }
+							/>
+						) }
+
+						{ /* Invisible line for tooltip - handles all pointer events */ }
+						<LineSeries
+							dataKey="__tooltip__"
+							data={ allPoints }
+							xAccessor={ xAccessor }
+							yAccessor={ yAccessor }
+							curve={ curveMonotoneX }
+							stroke="transparent"
+							strokeWidth={ 0 }
+						/>
+
+						{ /* Vertical divider at forecast start */ }
+						{ showDivider && (
+							<ForecastDivider
+								forecastStart={ forecastStart }
+								color={ providerTheme.gridStyles?.stroke ?? '#cccccc' }
+							/>
+						) }
+
+						{ /* Tooltip */ }
+						{ withTooltips && (
+							<Tooltip
+								snapTooltipToDatumX
+								snapTooltipToDatumY
+								showSeriesGlyphs
+								renderTooltip={ tooltipRenderer }
+							/>
+						) }
+					</XYChart>
 				) }
+			</div>
 
-				<Axis orientation="bottom" numTicks={ 5 } tickFormat={ xAxisTickFormat } />
-				<Axis orientation="left" numTicks={ 4 } tickFormat={ yAxisTickFormat } />
-
-				{ /* Uncertainty band - rendered first (behind lines), no pointer events */ }
-				{ bandData.length > 0 && (
-					<AreaSeries
-						dataKey={ seriesKeys.band }
-						data={ bandData }
-						xAccessor={ xAccessor }
-						yAccessor={ bandUpperAccessor }
-						y0Accessor={ bandLowerAccessor }
-						fill={ bandColor }
-						fillOpacity={ 0.2 }
-						renderLine={ false }
-						curve={ curveMonotoneX }
-						enableEvents={ false }
-					/>
-				) }
-
-				{ /* Historical line - solid, visual only */ }
-				{ historical.length > 0 && (
-					<AreaSeries
-						dataKey={ seriesKeys.historical }
-						data={ historical }
-						xAccessor={ xAccessor }
-						yAccessor={ yAccessor }
-						fill="transparent"
-						renderLine={ true }
-						curve={ curveMonotoneX }
-						lineProps={ { stroke: primaryColor } }
-						enableEvents={ false }
-					/>
-				) }
-
-				{ /* Forecast line - dashed, visual only */ }
-				{ forecast.length > 0 && (
-					<AreaSeries
-						dataKey={ seriesKeys.forecast }
-						data={ forecast }
-						xAccessor={ xAccessor }
-						yAccessor={ yAccessor }
-						fill="transparent"
-						renderLine={ true }
-						curve={ curveMonotoneX }
-						lineProps={ {
-							stroke: primaryColor,
-							strokeDasharray: '5 5',
-						} }
-						enableEvents={ false }
-					/>
-				) }
-
-				{ /* Invisible line for tooltip - handles all pointer events */ }
-				<LineSeries
-					dataKey="__tooltip__"
-					data={ allPoints }
-					xAccessor={ xAccessor }
-					yAccessor={ yAccessor }
-					curve={ curveMonotoneX }
-					stroke="transparent"
-					strokeWidth={ 0 }
-				/>
-
-				{ /* Vertical divider at forecast start */ }
-				{ showDivider && (
-					<ForecastDivider
-						forecastStart={ forecastStart }
-						color={ providerTheme.gridStyles?.stroke ?? '#cccccc' }
-					/>
-				) }
-
-				{ /* Tooltip */ }
-				{ withTooltips && (
-					<Tooltip
-						snapTooltipToDatumX
-						snapTooltipToDatumY
-						showSeriesGlyphs
-						renderTooltip={ tooltipRenderer }
-					/>
-				) }
-			</XYChart>
-
-			{ showLegend && (
-				<Legend
-					orientation="horizontal"
-					alignment="center"
-					position={ legendPosition }
-					className={ styles[ 'time-series-forecast-chart__legend' ] }
-					shape="line"
-					chartId={ chartId }
-					ref={ legendRef }
-					items={ legendItems }
-				/>
-			) }
-		</div>
+			{ legendPosition === 'bottom' && legendElement }
+		</Stack>
 	);
 }
 

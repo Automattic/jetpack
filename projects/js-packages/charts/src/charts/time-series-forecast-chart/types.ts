@@ -1,3 +1,4 @@
+import type { GapSize } from '@wordpress/theme';
 import type { ReactNode } from 'react';
 
 /**
@@ -177,4 +178,10 @@ export interface TimeSeriesForecastChartProps< D > {
 	 * Grid visibility. Default: 'y'
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+	/**
+	 * Gap between chart elements (SVG, legend).
+	 * Uses WordPress design system tokens.
+	 * @default 'md'
+	 */
+	gap?: GapSize;
 }
