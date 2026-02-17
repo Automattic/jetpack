@@ -14,14 +14,22 @@ import {
 	usePlanType,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
-import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
+import {
+	PanelBody,
+	PanelRow,
+	BaseControl,
+	Button,
+	ExternalLink,
+	Notice,
+} from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import {
 	PluginPrePublishPanel,
 	PluginDocumentSettingPanel,
 	store as editorStore,
 } from '@wordpress/editor';
+import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import { ComponentType } from 'react';
@@ -83,6 +91,15 @@ const JetpackAndSettingsContent = ( {
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
 	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
+	const { editPost } = useDispatch( editorStore );
+
+	const imageGenerationHandler = applyFilters( 'jetpack.ai.imageGenerationHandler', null, {
+		entryPoint: 'featured-image',
+		onImageSelect: ( image: { id: number; url: string; mime?: string } ) => {
+			editPost( { featured_media: image.id } );
+		},
+		extra: { placement, disabled: requireUpgrade },
+	} ) as ( () => void ) | null;
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
@@ -128,13 +145,23 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			{ isAIFeaturedImageAvailable && (
+			{ ( imageGenerationHandler || isAIFeaturedImageAvailable ) && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
 							{ __( 'Get Featured Image', 'jetpack' ) }
 						</BaseControl.VisualLabel>
-						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
+						{ imageGenerationHandler ? (
+							<Button
+								onClick={ imageGenerationHandler }
+								variant="secondary"
+								disabled={ requireUpgrade }
+							>
+								{ __( 'Generate image', 'jetpack' ) }
+							</Button>
+						) : (
+							<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
+						) }
 					</BaseControl>
 				</PanelRow>
 			) }
