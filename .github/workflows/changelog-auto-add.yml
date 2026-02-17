@@ -58,7 +58,9 @@ jobs:
 
       - name: Fetch PR head SHA
         if: steps.checkbox.outputs.checked == 'true'
-        run: git fetch origin ${{ github.event.pull_request.head.sha }}
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git fetch origin "$PR_HEAD_SHA"
 
       - name: Setup tools
         if: steps.checkbox.outputs.checked == 'true'
