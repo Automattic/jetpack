@@ -14,6 +14,12 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"exports": {
+		"./link-preview": {
+			"jetpack:src": "./_inc/exports/link-preview/index.ts",
+			"default": "./_inc/exports/link-preview/index.ts"
+		}
+	},
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "webpack",
@@ -66,7 +72,8 @@
 		"clsx": "2.1.1",
 		"jquery": "3.7.1",
 		"prop-types": "15.8.1",
-		"react-page-visibility": "7.0.0"
+		"react-page-visibility": "7.0.0",
+		"social-logos": "workspace:*"
 	},
 	"devDependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",

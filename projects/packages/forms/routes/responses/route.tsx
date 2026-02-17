@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { resolveSelect } from '@wordpress/data';
+import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
@@ -62,6 +63,29 @@ export const route = {
 	 * Checks if the feedback post type exists.
 	 */
 	beforeLoad: async () => {
+		// Redirect legacy hash from email links (e.g. #/responses?status=inbox&r=2879).
+		// The hash survives server redirects but is never sent to the server, so we must
+		// convert it client-side to the wp-build URL with responseIds in the path.
+		const hash = window.location.hash;
+		const legacyMatch = hash.match( /^#\/responses\?(.*)$/ );
+
+		if ( legacyMatch ) {
+			const params = new URLSearchParams( legacyMatch[ 1 ] );
+			const r = params.get( 'r' );
+
+			if ( r ) {
+				const status = params.get( 'status' ) || 'inbox';
+				const validStatuses = [ 'inbox', 'spam', 'trash' ];
+				const view = validStatuses.includes( status ) ? status : 'inbox';
+
+				throw redirect( {
+					href: `/responses/${ view }?responseIds=${ encodeURIComponent(
+						JSON.stringify( [ r ] )
+					) }`,
+				} );
+			}
+		}
+
 		// The feedback post type is registered by Jetpack Forms
 		// This will throw notFound() if the post type doesn't exist
 		try {
