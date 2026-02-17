@@ -16,7 +16,7 @@ done
 
 # Check if root lock files changed.
 rootChanged=
-if echo "$changedFiles" | grep -q '^\(pnpm-lock\.yaml\|composer\.lock\)$'; then
+if grep -q '^\(pnpm-lock\.yaml\|composer\.lock\)$' <<<"$changedFiles"; then
 	rootChanged=1
 fi
 
