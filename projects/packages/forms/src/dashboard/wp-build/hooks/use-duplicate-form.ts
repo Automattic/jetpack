@@ -86,6 +86,15 @@ export default function useDuplicateForm( {
 					item.id,
 					{ context: 'edit' }
 				);
+				if ( ! original ) {
+					createErrorNotice(
+						__( 'Could not load the form to duplicate. Please try again.', 'jetpack-forms' ),
+						{
+							type: 'snackbar',
+						}
+					);
+					return;
+				}
 				const originalRecord = original as JetpackFormEntityRecord | null | undefined;
 				const raw = originalRecord?.content?.raw;
 				const originalContentRaw = typeof raw === 'string' ? raw : '';
