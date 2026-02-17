@@ -15,8 +15,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/eslint-config-target-es"
+		"url": "git+https://github.com/Automattic/eslint-config-target-es.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

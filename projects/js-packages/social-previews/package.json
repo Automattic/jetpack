@@ -14,8 +14,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/social-previews"
+		"url": "git+https://github.com/Automattic/social-previews.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
