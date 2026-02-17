@@ -184,4 +184,8 @@ export interface TimeSeriesForecastChartProps< D > {
 	 * @default 'md'
 	 */
 	gap?: GapSize;
+	/**
+	 * Opacity of the uncertainty band fill. Default: 0.2
+	 */
+	bandFillOpacity?: number;
 }

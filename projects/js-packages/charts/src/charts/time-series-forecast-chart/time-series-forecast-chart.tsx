@@ -47,26 +47,27 @@ const formatDateTick = ( d: Date ) => {
 /**
  * Internal component that renders the TimeSeriesForecastChart
  *
- * @param root0                - Component props
- * @param root0.data           - Array of data points to display
- * @param root0.accessors      - Accessor functions to extract values from data
- * @param root0.forecastStart  - Date at which forecast begins
- * @param root0.height         - Chart height in pixels
- * @param root0.width          - Chart width in pixels
- * @param root0.margin         - Chart margin configuration
- * @param root0.yDomain        - Optional fixed y-axis domain
- * @param root0.xTickFormat    - Formatter function for x-axis ticks
- * @param root0.yTickFormat    - Formatter function for y-axis ticks
- * @param root0.withTooltips   - Whether to show tooltips on hover
- * @param root0.seriesKeys     - Custom labels for series in legend/tooltip
- * @param root0.renderTooltip  - Custom tooltip renderer function
- * @param root0.className      - Additional CSS class name
- * @param root0.chartId        - Unique chart identifier
- * @param root0.showLegend     - Whether to show the legend
- * @param root0.legendPosition - Position of the legend (top or bottom)
- * @param root0.animation      - Whether to enable chart animations
- * @param root0.gridVisibility - Which grid lines to show (x, y, xy, or none)
- * @param root0.gap            - Gap between chart elements using WP design tokens
+ * @param root0                 - Component props
+ * @param root0.data            - Array of data points to display
+ * @param root0.accessors       - Accessor functions to extract values from data
+ * @param root0.forecastStart   - Date at which forecast begins
+ * @param root0.height          - Chart height in pixels
+ * @param root0.width           - Chart width in pixels
+ * @param root0.margin          - Chart margin configuration
+ * @param root0.yDomain         - Optional fixed y-axis domain
+ * @param root0.xTickFormat     - Formatter function for x-axis ticks
+ * @param root0.yTickFormat     - Formatter function for y-axis ticks
+ * @param root0.withTooltips    - Whether to show tooltips on hover
+ * @param root0.seriesKeys      - Custom labels for series in legend/tooltip
+ * @param root0.renderTooltip   - Custom tooltip renderer function
+ * @param root0.className       - Additional CSS class name
+ * @param root0.chartId         - Unique chart identifier
+ * @param root0.showLegend      - Whether to show the legend
+ * @param root0.legendPosition  - Position of the legend (top or bottom)
+ * @param root0.animation       - Whether to enable chart animations
+ * @param root0.gridVisibility  - Which grid lines to show (x, y, xy, or none)
+ * @param root0.gap             - Gap between chart elements using WP design tokens
+ * @param root0.bandFillOpacity - Opacity of the uncertainty band fill
  * @return The rendered chart component
  */
 function TimeSeriesForecastChartInternal< D >( {
@@ -89,6 +90,7 @@ function TimeSeriesForecastChartInternal< D >( {
 	animation = false,
 	gridVisibility = 'y',
 	gap = 'md',
+	bandFillOpacity = 0.2,
 }: TimeSeriesForecastChartProps< D > ) {
 	const providerTheme = useGlobalChartsTheme();
 	const { getElementStyles } = useGlobalChartsContext();
@@ -352,7 +354,7 @@ function TimeSeriesForecastChartInternal< D >( {
 								yAccessor={ bandUpperAccessor }
 								y0Accessor={ bandLowerAccessor }
 								fill={ bandColor }
-								fillOpacity={ 0.2 }
+								fillOpacity={ bandFillOpacity }
 								renderLine={ false }
 								curve={ curveMonotoneX }
 								enableEvents={ false }
