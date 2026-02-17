@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: bugfix
 
-Fix YouTube shorts rendering in WordPress Reader
+WordPress.com Reader: Fix YouTube Shorts embeds not rendering correctly.
