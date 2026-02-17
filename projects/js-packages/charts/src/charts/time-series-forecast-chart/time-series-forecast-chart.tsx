@@ -122,7 +122,7 @@ function TimeSeriesForecastChartInternal< D >( {
 	// Use provided y domain or computed one
 	const yDomain = providedYDomain ?? computedYDomain;
 
-	// Get theme colors
+	// Get theme colors and styles
 	const { color: primaryColor } = getElementStyles( {
 		index: 0,
 		data: { group: 'primary', label: seriesKeys.historical, data: [] },
@@ -130,6 +130,10 @@ function TimeSeriesForecastChartInternal< D >( {
 	const { color: bandColor } = getElementStyles( {
 		index: 1,
 		data: { group: 'primary', label: seriesKeys.band, data: [] },
+	} );
+	const { lineStyles: forecastLineStyles, shapeStyles: forecastShapeStyles } = getElementStyles( {
+		index: 1,
+		data: { group: 'primary', label: seriesKeys.forecast, data: [], options: {} },
 	} );
 
 	// Create mock series data for theme hook
@@ -174,12 +178,12 @@ function TimeSeriesForecastChartInternal< D >( {
 				label: seriesKeys.forecast,
 				value: '',
 				color: primaryColor,
-				shapeStyle: { strokeDasharray: '5 5' },
+				shapeStyle: { strokeDasharray: '5 5', ...forecastShapeStyles },
 			} );
 		}
 
 		return items;
-	}, [ historical.length, forecast.length, seriesKeys, primaryColor ] );
+	}, [ historical.length, forecast.length, seriesKeys, primaryColor, forecastShapeStyles ] );
 
 	// Accessors for transformed points (memoized to avoid recreating on each render)
 	const xAccessor = useCallback( ( p: TransformedForecastPoint | BandPoint ) => p.date, [] );
@@ -383,6 +387,7 @@ function TimeSeriesForecastChartInternal< D >( {
 								lineProps={ {
 									stroke: primaryColor,
 									strokeDasharray: '5 5',
+									...forecastLineStyles,
 								} }
 								enableEvents={ false }
 							/>
