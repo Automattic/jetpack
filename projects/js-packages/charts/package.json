@@ -180,9 +180,6 @@
 			"time-series-forecast-chart": [
 				"./dist/charts/time-series-forecast-chart/index.d.ts"
 			],
-			"time-series-forecast-chart": [
-				"./dist/charts/time-series-forecast-chart/index.d.ts"
-			],
 			"tooltip": [
 				"./dist/components/tooltip/index.d.ts"
 			],
