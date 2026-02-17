@@ -53,7 +53,6 @@ type UseFormsDataReturn = {
 	isLoading: boolean;
 	totalItems: number;
 	totalPages: number;
-	query: Record< string, unknown >;
 };
 
 /**
@@ -100,6 +99,5 @@ export default function useFormsData(
 		isLoading: ! hasResolved,
 		totalItems: totalItems ?? 0,
 		totalPages: totalPages ?? 0,
-		query,
 	};
 }

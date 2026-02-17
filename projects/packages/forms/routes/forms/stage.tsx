@@ -104,14 +104,14 @@ function StageInner() {
 		return statusFilterValue === 'trash';
 	}, [ view.filters ] );
 
-	const { records, isLoading, totalItems, totalPages, query } = useFormsData(
+	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page ?? 1,
 		view.perPage ?? 20,
 		view.search ?? '',
 		statusQuery
 	);
 
-	const { duplicateForm } = useDuplicateForm( { currentQuery: query } );
+	const { duplicateForm } = useDuplicateForm();
 
 	const {
 		isDeleting,

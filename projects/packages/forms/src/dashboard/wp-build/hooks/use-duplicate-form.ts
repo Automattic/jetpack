@@ -9,6 +9,7 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import { FORM_SOURCE_META_KEY } from '../../../blocks/shared/util/constants.js';
+import useConfigValue from '../../../hooks/use-config-value';
 /**
  * Types
  */
@@ -21,17 +22,10 @@ type CoreDispatch = {
 		record: Record< string, unknown >,
 		options?: { throwOnError?: boolean }
 	) => Promise< unknown >;
-	invalidateResolution: ( selector: string, args: unknown[] ) => void;
 };
-
-type DuplicateFormQuery = Record< string, unknown >;
 
 type JetpackFormEntityRecord = {
 	content?: { raw?: unknown };
-};
-
-type UseDuplicateFormArgs = {
-	currentQuery: DuplicateFormQuery;
 };
 
 type UseDuplicateFormReturn = {
@@ -40,34 +34,15 @@ type UseDuplicateFormReturn = {
 };
 
 /**
- * Duplicate a `jetpack_form` post and refresh the current list query.
+ * Duplicate a `jetpack_form` post.
  *
- * @param params              - Hook params.
- * @param params.currentQuery - The exact core-data query object used for the current Forms list view.
  * @return Duplicate handler and in-flight state.
  */
-export default function useDuplicateForm( {
-	currentQuery,
-}: UseDuplicateFormArgs ): UseDuplicateFormReturn {
+export default function useDuplicateForm(): UseDuplicateFormReturn {
 	const [ isDuplicating, setIsDuplicating ] = useState( false );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { saveEntityRecord, invalidateResolution } = useDispatch(
-		'core'
-	) as unknown as CoreDispatch;
-
-	const invalidateListQueries = useCallback(
-		( query: DuplicateFormQuery ) => {
-			// Invalidate list results.
-			invalidateResolution( 'getEntityRecords', [ 'postType', 'jetpack_form', query ] );
-			// Invalidate totals (core-data uses a separate selector under the hood).
-			invalidateResolution( 'getEntityRecords', [
-				'postType',
-				'jetpack_form',
-				{ ...query, per_page: 1, _fields: 'id' },
-			] );
-		},
-		[ invalidateResolution ]
-	);
+	const { saveEntityRecord } = useDispatch( 'core' ) as unknown as CoreDispatch;
+	const adminUrl = useConfigValue( 'adminUrl' ) || '';
 
 	const duplicateForm = useCallback(
 		async ( item: FormListItem ) => {
@@ -129,10 +104,18 @@ export default function useDuplicateForm( {
 					return;
 				}
 
-				invalidateListQueries( currentQuery );
-
 				createSuccessNotice( __( 'Form duplicated.', 'jetpack-forms' ), {
 					type: 'snackbar',
+					actions: [
+						{
+							label: __( 'Edit', 'jetpack-forms' ),
+							onClick: () => {
+								if ( adminUrl ) {
+									window.location.href = `${ adminUrl }post.php?post=${ createdId }&action=edit&post_type=jetpack_form`;
+								}
+							},
+						},
+					],
 				} );
 			} catch {
 				createErrorNotice( __( 'Could not duplicate form. Please try again.', 'jetpack-forms' ), {
@@ -142,14 +125,7 @@ export default function useDuplicateForm( {
 				setIsDuplicating( false );
 			}
 		},
-		[
-			createErrorNotice,
-			createSuccessNotice,
-			currentQuery,
-			invalidateListQueries,
-			isDuplicating,
-			saveEntityRecord,
-		]
+		[ createErrorNotice, createSuccessNotice, adminUrl, isDuplicating, saveEntityRecord ]
 	);
 
 	return { duplicateForm, isDuplicating };
