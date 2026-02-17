@@ -11,6 +11,7 @@ import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
 	useChartId,
+	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
 import { withResponsive } from '../private/with-responsive';
@@ -90,6 +91,7 @@ function TimeSeriesForecastChartInternal< D >( {
 	gap = 'md',
 }: TimeSeriesForecastChartProps< D > ) {
 	const providerTheme = useGlobalChartsTheme();
+	const { getElementStyles } = useGlobalChartsContext();
 	const chartId = useChartId( providedChartId );
 	const [ svgWrapperRef, svgWrapperHeight ] = useElementHeight< HTMLDivElement >();
 	const prefersReducedMotion = usePrefersReducedMotion();
@@ -121,8 +123,14 @@ function TimeSeriesForecastChartInternal< D >( {
 	const yDomain = providedYDomain ?? computedYDomain;
 
 	// Get theme colors
-	const primaryColor = providerTheme.colors[ 0 ] ?? '#3858e9';
-	const bandColor = providerTheme.colors[ 1 ] ?? primaryColor;
+	const { color: primaryColor } = getElementStyles( {
+		index: 0,
+		data: { group: 'primary', label: seriesKeys.historical, data: [] },
+	} );
+	const { color: bandColor } = getElementStyles( {
+		index: 1,
+		data: { group: 'primary', label: seriesKeys.band, data: [] },
+	} );
 
 	// Create mock series data for theme hook
 	const mockSeriesData = useMemo(
