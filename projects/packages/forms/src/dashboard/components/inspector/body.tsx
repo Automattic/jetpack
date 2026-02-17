@@ -67,7 +67,7 @@ const ResponseViewBody = ( {
 		onCancelMarkAsSpam,
 		markAsSpamConfirmationMessage,
 		isSaving,
-	} = useMarkAsSpam( response as FormResponse, {
+	} = useMarkAsSpam( response as FormResponse | null, {
 		checkParameter: () => searchParams.get( 'mark_as_spam' ) != null,
 		removeParameter: () => {
 			const newSearchParams = new URLSearchParams( searchParams );

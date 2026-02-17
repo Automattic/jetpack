@@ -93,7 +93,7 @@ function SingleResponseView( {
 		onCancelMarkAsSpam,
 		markAsSpamConfirmationMessage,
 		isSaving,
-	} = useMarkAsSpam( response as FormResponse, {
+	} = useMarkAsSpam( response as FormResponse | null, {
 		checkParameter: () => searchParams?.mark_as_spam === 1,
 		removeParameter: () => {
 			navigate( {

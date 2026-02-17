@@ -31,7 +31,7 @@ export type UseMarkAsSpamOptions = {
 	switchToSpam: ( responseId: number | string ) => void;
 };
 
-export const useMarkAsSpam = ( response: FormResponse, options: UseMarkAsSpamOptions ) => {
+export const useMarkAsSpam = ( response: FormResponse | null, options: UseMarkAsSpamOptions ) => {
 	const [ isConfirmDialogOpen, setIsConfirmDialogOpen ] = useState( false );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const { saveEntityRecord } = useDispatch( coreStore );
@@ -44,6 +44,10 @@ export const useMarkAsSpam = ( response: FormResponse, options: UseMarkAsSpamOpt
 	const { checkParameter, removeParameter, switchToSpam } = options;
 
 	const onConfirmMarkAsSpam = useCallback( async () => {
+		if ( ! response ) {
+			return;
+		}
+
 		try {
 			setIsSaving( true );
 
@@ -62,7 +66,7 @@ export const useMarkAsSpam = ( response: FormResponse, options: UseMarkAsSpamOpt
 		} catch {
 			setIsSaving( false );
 		}
-	}, [ saveEntityRecord, response.id, invalidateCounts, switchToSpam ] );
+	}, [ response, saveEntityRecord, invalidateCounts, switchToSpam ] );
 
 	const hasSpamParameter = useMemo( () => checkParameter(), [ checkParameter ] );
 
@@ -74,10 +78,10 @@ export const useMarkAsSpam = ( response: FormResponse, options: UseMarkAsSpamOpt
 
 	// Email links have a query param that triggers the confirmation dialog.
 	useEffect( () => {
-		if ( hasSpamParameter && ! [ 'spam', 'trash' ].includes( response.status ) ) {
+		if ( hasSpamParameter && response && ! [ 'spam', 'trash' ].includes( response.status ) ) {
 			setIsConfirmDialogOpen( true );
 		}
-	}, [ response.status, hasSpamParameter ] );
+	}, [ response?.status, hasSpamParameter, response ] );
 
 	return {
 		isConfirmDialogOpen,
