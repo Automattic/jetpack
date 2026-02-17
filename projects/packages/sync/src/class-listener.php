@@ -389,7 +389,7 @@ class Listener {
 	 * @param string $current_filter Name of action that triggered sync.
 	 * @return boolean was send successful
 	 */
-	public function sync_data_loss( $queue, $current_filter ) {
+	public function sync_data_loss( $queue, $current_filter = '' ) {
 		if ( ! Settings::is_sync_enabled() ) {
 			return;
 		}
