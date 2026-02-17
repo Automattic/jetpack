@@ -1519,7 +1519,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "672719ef8b84bb360ce4771033011d2b244063ed"
+                "reference": "d913a6f5c93725c4d971752349f5abccbf4be02a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
