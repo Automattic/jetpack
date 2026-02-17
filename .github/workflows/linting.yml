@@ -223,7 +223,9 @@ jobs:
 
   ### Runs `php -l` over all PHP files, in all relevant PHP versions
   # Local equivalent: `composer php:lint`
-  # We don't use an `if` here because GH Actions had issues expanding the name when we did. See also:
+  # We can't use a job-level `if` because GH Actions doesn't expand matrix names for skipped jobs,
+  # which breaks required status checks. Instead, we gate at the step level so the matrix entries
+  # always report a status. See also:
   #    - https://github.com/Automattic/jetpack/pull/17940
   #    - https://github.com/Automattic/jetpack/pull/18979
   php_lint:
@@ -241,14 +243,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
 
       - name: Setup tools
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
         uses: ./.github/actions/tool-setup
         with:
           php: ${{ matrix.php-versions }}
           node: false
 
       - name: Install dependencies
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
         run: |
           # Install stuff ignoring platform reqs.
           composer install --ignore-platform-reqs
@@ -257,6 +262,7 @@ jobs:
           composer remove --dev sirbrillig/phpcs-changed automattic/jetpack-codesniffer automattic/jetpack-phan-plugins phan/phan
 
       - name: Run linter
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
         run: |
           echo "::add-matcher::.github/matchers/php-lint-problem-matcher.json"
           composer php:lint -- --checkstyle
@@ -625,14 +631,19 @@ jobs:
   typecheck:
     name: Type checking
     runs-on: ubuntu-latest
+    needs: changed_files
     timeout-minutes: 10 # 2025-11-20: Takes around 3 minutes.
     steps:
       - uses: actions/checkout@v6
+        if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
       - name: Setup tools
+        if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
+        if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
         run: pnpm install
       - name: Run type checking
+        if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
         # Can't just `pnpm typecheck` here, GitHub won't match the output files correctly
         # and unfortunately https://github.com/microsoft/TypeScript/issues/36221 is still open.
         run: |
@@ -648,14 +659,19 @@ jobs:
   phan:
     name: Static analysis
     runs-on: ubuntu-latest
+    needs: changed_files
     timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
     steps:
       - uses: actions/checkout@v6
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
       - name: Setup tools
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
         run: pnpm install
       - name: Add back removed packages in case of a release branch.
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
         run: |
           echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
           for FILE in projects/*/*/composer.json; do
@@ -671,8 +687,10 @@ jobs:
             fi
           done
       - name: Run phan
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
         run: pnpm jetpack phan --all -v --update-baseline --format github
       - name: Run phan for previous WP version and old Woo
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
         env:
           # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
           NO_PHAN_UNUSED_SUPPRESSION: 1
@@ -681,6 +699,7 @@ jobs:
           # Don't re-update baselines here, only check.
           pnpm jetpack phan --all -v --format github
       - name: Check baselines
+        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
         run: |
           # Anything changed? (with a side of printing the diff)
           if git diff --exit-code --ignore-matching-lines='^    // ' -- .phan/baseline.php '*/.phan/baseline.php'; then
