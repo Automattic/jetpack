@@ -809,14 +809,15 @@ class Feedback_Field {
 			$image_src  = ! empty( $choice['image']['src'] ) ? esc_url( $choice['image']['src'] ) : '';
 			$show_label = ! empty( $choice['showLabels'] );
 
-			// Image thumbnail with 8px padding inside the card.
-			$image_html = '';
+			// Image thumbnail or gray placeholder at 138×144.
 			if ( $image_src !== '' ) {
 				$image_html = sprintf(
 					'<div style="padding: 8px 8px 0 8px;"><img src="%s" alt="%s" width="138" height="144" style="display: block; width: 138px; height: 144px; object-fit: cover;" /></div>',
 					$image_src,
 					$label !== '' ? $label : $letter
 				);
+			} else {
+				$image_html = '<div style="padding: 8px 8px 0 8px;"><div style="width: 138px; height: 144px; background-color: #f0f0f0;"></div></div>';
 			}
 
 			// Letter code box + label.
@@ -835,14 +836,12 @@ class Feedback_Field {
 				);
 			}
 
-			// Card with outline matching the admin preview Card component (radiusLarge = 8px).
-			$card = '<div style="display: inline-block; vertical-align: top; border: 1px solid #dcdcde; border-radius: 8px; margin: 0 8px 8px 0;">';
-			if ( $image_html !== '' ) {
-				$card .= $image_html;
-			}
+			// Card with fixed width matching the admin preview (138px image + 16px padding).
+			$card  = '<div style="display: inline-block; vertical-align: top; width: 154px; border: 1px solid #dcdcde; border-radius: 8px; margin: 0 8px 8px 0;">';
+			$card .= $image_html;
 			if ( $caption_html !== '' ) {
 				$card .= sprintf(
-					'<div style="padding: 4px 8px 8px 8px;">%s</div>',
+					'<div style="padding: 4px 8px 8px 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">%s</div>',
 					$caption_html
 				);
 			}

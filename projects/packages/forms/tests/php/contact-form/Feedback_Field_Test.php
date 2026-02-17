@@ -756,8 +756,11 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Bags', $result );
 		// Should use img tags.
 		$this->assertSame( 2, substr_count( $result, '<img ' ) );
-		// Cards should have outline border.
+		// Cards should have outline border and fixed width.
 		$this->assertStringContainsString( 'border: 1px solid #dcdcde', $result );
+		$this->assertStringContainsString( 'width: 154px', $result );
+		// Caption should have text truncation styles.
+		$this->assertStringContainsString( 'text-overflow: ellipsis', $result );
 	}
 
 	/**
@@ -826,9 +829,10 @@ class Feedback_Field_Test extends BaseTestCase {
 		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
 		$result = $field->get_render_value( 'email_html' );
 
-		// No img tag when src is empty.
+		// No img tag when src is empty, but placeholder should render.
 		$this->assertStringNotContainsString( '<img ', $result );
-		// But letter code and label should still render.
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+		// Letter code and label should still render.
 		$this->assertStringContainsString( '>B</span>', $result );
 		$this->assertStringContainsString( 'Option', $result );
 	}
