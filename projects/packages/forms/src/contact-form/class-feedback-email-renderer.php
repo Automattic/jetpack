@@ -169,7 +169,7 @@ class Feedback_Email_Renderer {
 
 		if ( $feedback_status !== 'jp-temp-feedback' ) {
 			$dashboard_url           = Forms_Dashboard::get_forms_admin_url( $status, $post_id );
-			$mark_as_spam_url        = $dashboard_url . '&mark_as_spam';
+			$mark_as_spam_url        = self::add_mark_as_spam_to_url( $dashboard_url );
 			$footer_mark_as_spam_url = sprintf(
 				'<a href="%1$s">%2$s</a>',
 				esc_url( $mark_as_spam_url ),
@@ -270,6 +270,40 @@ class Feedback_Email_Renderer {
 			'title'   => $title,
 			'message' => $message,
 		);
+	}
+
+	/**
+	 * Adds the mark_as_spam parameter to a dashboard URL.
+	 *
+	 * This method handles both legacy and wp-build dashboard URLs:
+	 * - Legacy: appends &mark_as_spam to the hash fragment
+	 * - WP-Build: adds mark_as_spam to the path inside the p parameter
+	 *
+	 * @param string $url The dashboard URL.
+	 * @return string The URL with mark_as_spam parameter added.
+	 */
+	private static function add_mark_as_spam_to_url( $url ) {
+		// Check if this is a wp-build URL (contains &p= parameter).
+		if ( strpos( $url, '&p=' ) !== false ) {
+			// WP-Build URL format: admin.php?page=jetpack-forms-responses-wp-admin&p=/responses/inbox?responseIds=["123"]
+			// We need to add &mark_as_spam=1 inside the p parameter path.
+			$parts = explode( '&p=', $url, 2 );
+
+			if ( count( $parts ) === 2 ) {
+				$base_url = $parts[0];
+				$path     = rawurldecode( $parts[1] );
+
+				// Add mark_as_spam parameter to the path.
+				$separator = strpos( $path, '?' ) !== false ? '&' : '?';
+				$path     .= $separator . 'mark_as_spam=1';
+
+				return $base_url . '&p=' . rawurlencode( $path );
+			}
+		}
+
+		// Legacy URL format: admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123
+		// Append &mark_as_spam to the hash fragment.
+		return $url . '&mark_as_spam';
 	}
 
 	/**
