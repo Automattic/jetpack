@@ -6,10 +6,11 @@
  */
 
 import { Button, DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { useCopyToClipboard } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useState, createPortal } from '@wordpress/element';
+import { useCallback, useEffect, useState, useRef, createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, copy, shortcode } from '@wordpress/icons';
+import { check, chevronDown, copy, shortcode } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 
 declare global {
@@ -63,17 +64,47 @@ const generateShortcode = ( postId: number ): string => {
  *
  * @return The header actions component or null.
  */
+type CopiedItem = 'embed' | 'shortcode' | null;
+
 export const HeaderActions = () => {
 	const [ headerSlot, setHeaderSlot ] = useState< Element | null >( null );
+	const [ copiedItem, setCopiedItem ] = useState< CopiedItem >( null );
+	const copiedTimeoutRef = useRef< number | null >( null );
 
-	const postId = useSelect( select => {
+	const { postId, isNewPost } = useSelect( select => {
 		const editor = select( 'core/editor' ) as {
 			getCurrentPostId: () => number;
+			isEditedPostNew: () => boolean;
 		};
-		return editor.getCurrentPostId();
+		return {
+			postId: editor.getCurrentPostId(),
+			isNewPost: editor.isEditedPostNew(),
+		};
 	} );
 
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { createSuccessNotice } = useDispatch( noticesStore );
+
+	// Helper to set copied state with auto-reset
+	const markAsCopied = useCallback(
+		( item: CopiedItem, message: string ) => {
+			setCopiedItem( item );
+			if ( copiedTimeoutRef.current ) {
+				clearTimeout( copiedTimeoutRef.current );
+			}
+			copiedTimeoutRef.current = setTimeout( () => setCopiedItem( null ), 2000 );
+			createSuccessNotice( message, { type: 'snackbar' } );
+		},
+		[ createSuccessNotice ]
+	);
+
+	// Clean up timeout on unmount
+	useEffect( () => {
+		return () => {
+			if ( copiedTimeoutRef.current ) {
+				clearTimeout( copiedTimeoutRef.current );
+			}
+		};
+	}, [] );
 
 	// Find the header slot element
 	useEffect( () => {
@@ -118,42 +149,18 @@ export const HeaderActions = () => {
 		}
 	}, [ postId ] );
 
-	const handleCopyEmbedCode = useCallback( async () => {
-		if ( ! postId ) {
-			return;
-		}
-		const embedCode = generateEmbedCode( postId );
-		try {
-			await navigator.clipboard.writeText( embedCode );
-			createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
-				type: 'snackbar',
-			} );
-		} catch {
-			createErrorNotice( __( 'Failed to copy embed code.', 'jetpack-forms' ), {
-				type: 'snackbar',
-			} );
-		}
-	}, [ postId, createSuccessNotice, createErrorNotice ] );
+	const embedCodeRef = useCopyToClipboard< HTMLButtonElement >(
+		postId ? generateEmbedCode( postId ) : '',
+		() => markAsCopied( 'embed', __( 'Embed code copied to clipboard.', 'jetpack-forms' ) )
+	);
 
-	const handleCopyShortcode = useCallback( async () => {
-		if ( ! postId ) {
-			return;
-		}
-		const shortcodeText = generateShortcode( postId );
-		try {
-			await navigator.clipboard.writeText( shortcodeText );
-			createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
-				type: 'snackbar',
-			} );
-		} catch {
-			createErrorNotice( __( 'Failed to copy shortcode.', 'jetpack-forms' ), {
-				type: 'snackbar',
-			} );
-		}
-	}, [ postId, createSuccessNotice, createErrorNotice ] );
+	const shortcodeRef = useCopyToClipboard< HTMLButtonElement >(
+		postId ? generateShortcode( postId ) : '',
+		() => markAsCopied( 'shortcode', __( 'Shortcode copied to clipboard.', 'jetpack-forms' ) )
+	);
 
-	// Wait for the header slot to be available
-	if ( ! headerSlot ) {
+	// Wait for the header slot and a saved post to be available
+	if ( ! headerSlot || ! postId || isNewPost ) {
 		return null;
 	}
 
@@ -173,10 +180,10 @@ export const HeaderActions = () => {
 			>
 				{ () => (
 					<MenuGroup>
-						<MenuItem icon={ copy } onClick={ handleCopyEmbedCode }>
+						<MenuItem ref={ embedCodeRef } icon={ copiedItem === 'embed' ? check : copy }>
 							{ __( 'Copy embed code', 'jetpack-forms' ) }
 						</MenuItem>
-						<MenuItem icon={ shortcode } onClick={ handleCopyShortcode }>
+						<MenuItem ref={ shortcodeRef } icon={ copiedItem === 'shortcode' ? check : shortcode }>
 							{ __( 'Copy shortcode', 'jetpack-forms' ) }
 						</MenuItem>
 					</MenuGroup>
