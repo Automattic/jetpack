@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Reduced plugin zip size by converting vendored package images from PNG to WebP.

@@ -346,7 +346,7 @@ class Dashboard {
 		 * Filters the Forms admin page URL.
 		 *
 		 * @module contact-form
-		 * @since $$next-version$$
+		 * @since 7.8.0
 		 *
 		 * @param string      $url The Forms admin page URL.
 		 * @param string|null $tab Tab to open in the forms admin page.
