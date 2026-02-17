@@ -148,6 +148,7 @@ require_once __DIR__ . '/feature-plugins/staging-sites.php';
 require_once __DIR__ . '/feature-plugins/stats.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
+require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
 /**

@@ -15,6 +15,8 @@ import { validateField, isEmptyValue } from '../../contact-form/js/validate-help
 import { getRating } from '../field-rating/view.js';
 import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
 import { focusNextInput, submitForm } from './shared.ts';
+// Import field type icons view to register its callbacks.
+import './field-type-icons-view.js';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -64,6 +66,7 @@ const setSubmissionData = ( data = [] ) => {
 			url,
 			files,
 			rating,
+			type: item.type || 'text',
 			showPlainValue:
 				! url &&
 				! rating &&
@@ -238,12 +241,30 @@ const { state, actions } = store( NAMESPACE, {
 				return false;
 			}
 
-			// For single input forms, show submission errors in the field error div
+			// For single input forms, show submission errors in the field error div (only one field).
 			if ( context.isSingleInputForm && context.submissionError ) {
 				return true;
 			}
 
+			// For forced horizontal forms with submission error: use per-field errors when we have
+			// validation errors (showErrors + field.error). Otherwise show generic error only on
+			// the first field to avoid showing it on all fields.
+			if ( context.isForcedHorizontal && context.submissionError ) {
+				const hasFieldError = field.error && field.error !== 'yes';
+				if ( context.showErrors && hasFieldError ) {
+					return true;
+				}
+				const firstFieldId = Object.keys( context.fields || {} )[ 0 ];
+				return fieldId === firstFieldId;
+			}
+
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
+		},
+
+		get fieldAriaInvalid() {
+			// Return 'true' for invalid fields, null to remove the attribute entirely.
+			// Using null instead of false prevents VoiceOver from announcing "invalid" for valid fields.
+			return state.fieldHasErrors ? 'true' : null;
 		},
 
 		get isFormEmpty() {
@@ -288,14 +309,29 @@ const { state, actions } = store( NAMESPACE, {
 			return state.isSubmitting;
 		},
 
+		get isSuccessMessageAriaHidden() {
+			const context = getContext();
+			return context.submissionSuccess ? null : 'true';
+		},
+
 		get errorMessage() {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
 
-			// For single input forms, show submission errors in the field error div
+			// For single input forms, show submission errors in the field error div.
 			if ( context.isSingleInputForm && context.submissionError ) {
 				return context.submissionError;
+			}
+
+			// For forced horizontal: use per-field errors when we have validation errors.
+			else if ( context.isForcedHorizontal && context.submissionError ) {
+				const hasFieldError = field.error && field.error !== 'yes';
+				if ( context.showErrors && hasFieldError ) {
+					return getError( field );
+				}
+				const firstFieldId = Object.keys( context.fields || {} )[ 0 ];
+				return fieldId === firstFieldId ? context.submissionError : '';
 			}
 
 			if ( ! ( context.showErrors || field.showFieldError ) || ! field.error ) {
@@ -322,13 +358,21 @@ const { state, actions } = store( NAMESPACE, {
 		get showFormErrors() {
 			const context = getContext();
 
-			return ! state.isFormValid && context.showErrors;
+			return (
+				! state.isFormValid &&
+				context.showErrors &&
+				! ( context.isSingleInputForm || context.isForcedHorizontal )
+			);
 		},
 
 		get showSubmissionError() {
 			const context = getContext();
 
-			return !! context.submissionError && ! state.showFormErrors;
+			return (
+				! ( context.isForcedHorizontal || context.isSingleInputForm ) &&
+				!! context.submissionError &&
+				! state.showFormErrors
+			);
 		},
 
 		get getFormErrorMessage() {
@@ -499,6 +543,23 @@ const { state, actions } = store( NAMESPACE, {
 		onFormSubmit: withSyncEvent( function* ( event ) {
 			const context = getContext();
 
+			// Check if we're in preview mode and block submission.
+			if ( window.jetpackFormsPreviewMode ) {
+				event.preventDefault();
+				event.stopPropagation();
+				context.submissionError = config.error_types?.preview_mode;
+
+				if ( errorTimeout ) {
+					clearTimeout( errorTimeout );
+				}
+
+				errorTimeout = setTimeout( () => {
+					context.submissionError = null;
+				}, 5000 );
+
+				return;
+			}
+
 			if ( ! state.isFormValid ) {
 				context.showErrors = true;
 				event.preventDefault();
@@ -635,7 +696,60 @@ const { state, actions } = store( NAMESPACE, {
 			if ( context.submissionSuccess || context.hasClickedBack ) {
 				const wrapperElement = document.getElementById( `contact-form-${ context.formId }` );
 				wrapperElement?.scrollIntoView( { behavior: 'smooth' } );
+
+				// Move focus to the success wrapper for screen reader announcement.
+				// The wrapper has aria-labelledby pointing to the heading, so VoiceOver
+				// will read the heading content without announcing "heading level 4".
+				if ( context.submissionSuccess && ! context.hasClickedBack ) {
+					const successWrapper = document.getElementById(
+						`contact-form-success-${ context.formHash }`
+					);
+					successWrapper?.focus();
+				}
+
 				context.hasClickedBack = false;
+			}
+		},
+
+		focusOnValidationError() {
+			const context = getContext();
+
+			if ( state.showFormErrors ) {
+				// Only move focus once per error episode to avoid trapping keyboard users.
+				if ( context.didFocusValidationError ) {
+					return;
+				}
+
+				const { ref } = getElement();
+
+				if ( ref ) {
+					ref.focus();
+					context.didFocusValidationError = true;
+				}
+			} else if ( context.didFocusValidationError ) {
+				// Reset when errors clear so future errors can move focus again.
+				context.didFocusValidationError = false;
+			}
+		},
+
+		focusOnSubmissionError() {
+			const context = getContext();
+
+			if ( state.showSubmissionError ) {
+				// Only move focus once per error episode to avoid trapping keyboard users.
+				if ( context.didFocusSubmissionError ) {
+					return;
+				}
+
+				const { ref } = getElement();
+
+				if ( ref ) {
+					ref.focus();
+					context.didFocusSubmissionError = true;
+				}
+			} else if ( context.didFocusSubmissionError ) {
+				// Reset when errors clear so future errors can move focus again.
+				context.didFocusSubmissionError = false;
 			}
 		},
 

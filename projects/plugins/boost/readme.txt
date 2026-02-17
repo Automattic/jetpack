@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.7
+Requires at least: 6.8
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 4.5.6
+Stable tag: 4.5.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,14 +183,18 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.6 - 2026-01-28
+### 4.5.7 - 2026-02-04
+#### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
+
 #### Changed
-- My Jetpack: Check red bubble notification async when cache is not available.
-- Update composer.lock.
 - Update package dependencies.
 
+#### Removed
+- General: Update minimum WordPress version to 6.8.
+
 #### Fixed
-- LCP: Skip image optimizations that would break responsive backgrounds or custom focal points under specific configurations.
+- Compatibility: Disable JS concatenation in Beaver Builder editor to prevent script execution order issues.
 
 --------
 

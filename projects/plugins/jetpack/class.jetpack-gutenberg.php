@@ -848,16 +848,6 @@ class Jetpack_Gutenberg {
 
 		// Adds Connection package initial state.
 		Connection_Initial_State::render_script( 'jetpack-blocks-editor' );
-
-		// Register and enqueue the Jetpack Chrome AI token script
-		wp_register_script(
-			'jetpack-chrome-ai-token',
-			'https://widgets.wp.com/jetpack-chrome-ai/v1/3p-token.js',
-			array(),
-			gmdate( 'Ymd' ) . floor( (int) gmdate( 'G' ) / 12 ), // Cache buster: changes twice daily (morning/afternoon) in case we need to rotate the tokens
-			true
-		);
-		wp_enqueue_script( 'jetpack-chrome-ai-token' );
 	}
 
 	/**
@@ -1365,39 +1355,12 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Temporarily bypasses _doing_it_wrong() notices for block metadata collection registration.
-	 *
-	 * WordPress 6.7 introduced block metadata collections (with strict path validation).
-	 * Any sites using symlinks for plugins will fail the validation which causes the metadata
-	 * collection to not be registered. However, the blocks will still fall back to the regular
-	 * registration and no functionality is affected.
-	 * While this validation is being discussed in WordPress Core (#62140),
-	 * this method allows registration to proceed by temporarily disabling
-	 * the relevant notice.
-	 *
-	 * @since 14.2
-	 *
-	 * @param bool   $trigger       Whether to trigger the error.
-	 * @param string $function      The function that was called.
-	 * @param string $message       A message explaining what was done incorrectly.
-	 * @param string $version       The version of WordPress where the message was added.
-	 * @return bool Whether to trigger the error.
-	 */
-	public static function bypass_block_metadata_doing_it_wrong( $trigger, $function, $message, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( $function === 'WP_Block_Metadata_Registry::register_collection' ) {
-			return false;
-		}
-		return $trigger;
-	}
-
-	/**
 	 * Register block metadata collection for Jetpack blocks.
 	 * This allows for more efficient block metadata loading by avoiding
 	 * individual block.json file reads at runtime.
 	 *
-	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.7+)
-	 * and if the manifest file exists. The manifest file is auto-generated
-	 * during the build process.
+	 * Uses wp_register_block_metadata_collection() if the manifest file
+	 * exists. The manifest file is auto-generated during the build process.
 	 *
 	 * Runs on plugins_loaded to ensure registration happens before individual
 	 * blocks register themselves on init.
@@ -1408,16 +1371,11 @@ class Jetpack_Gutenberg {
 	 */
 	public static function register_block_metadata_collection() {
 		$meta_file_path = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
-		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
-			add_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10, 4 );
-
-			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first. @phan-suppress-current-line UnusedPluginSuppression
+		if ( file_exists( $meta_file_path ) ) {
 			wp_register_block_metadata_collection(
 				JETPACK__PLUGIN_DIR . '_inc/blocks/',
 				$meta_file_path
 			);
-
-			remove_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10 );
 		}
 	}
 

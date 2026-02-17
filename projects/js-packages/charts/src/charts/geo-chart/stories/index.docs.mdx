@@ -1,7 +1,8 @@
-import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import { Meta, Canvas, Source } from '@storybook/addon-docs/blocks';
 import * as GeoChartStories from './index.stories';
+import * as TooltipStories from './tooltip.stories';
 
-<Meta title="JS Packages/Charts/Types/Geo Chart" of={ GeoChartStories } />
+<Meta title="JS Packages/Charts Library/Charts/Geo Chart" of={ GeoChartStories } />
 
 # Geo Chart
 
@@ -22,6 +23,7 @@ The Geo Chart component provides a clean, accessible solution for displaying cou
 		width={ 800 }
 		height={ 500 }
 	/>` }
+
 />
 
 ## API Reference
@@ -60,11 +62,17 @@ The simplest geo chart requires data, width, and height. The `data` prop uses Go
 ### Required Props
 
 - **`data`**: Array in Google Charts format - first row is headers, subsequent rows are data. Countries can be identified by full name (e.g., 'United States', 'Canada') or ISO 3166-1 alpha-2 codes (e.g., 'US', 'CA')
-- **`width`**: Width of the chart in pixels
-- **`height`**: Height of the chart in pixels
 
 ### Optional Props
 
+**Layout & Dimensions:**
+- **`width`**: Width of the chart in pixels. When omitted, fills parent container width
+- **`height`**: Height of the chart in pixels. When omitted, fills parent container height (parent must have explicit height)
+- **`aspectRatio`**: Height as a fraction of width (e.g., `0.625` = 62.5% height). When provided, height is calculated from width
+- **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
+- **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
+
+**Styling & Customization:**
 - **`className`**: Additional CSS class name for custom styling
 - **`renderPlaceholder`**: Custom render function for the loading placeholder
 
@@ -78,7 +86,7 @@ The Geo Chart supports the full Google Charts data format, enabling powerful cus
 
 You can customize tooltip content using column roles. Add a tooltip column to your data with `{ type: 'string', role: 'tooltip' }`:
 
-<Canvas of={ GeoChartStories.WithTextTooltips } />
+<Canvas of={ TooltipStories.PlainText } />
 
 <Source
 	language="tsx"
@@ -98,7 +106,7 @@ You can customize tooltip content using column roles. Add a tooltip column to yo
 
 For rich tooltip content with HTML formatting, add `p: { html: true }` to the tooltip column:
 
-<Canvas of={ GeoChartStories.WithCustomTooltip } />
+<Canvas of={ TooltipStories.HTML } />
 
 <Source
 	language="tsx"
@@ -116,11 +124,12 @@ For rich tooltip content with HTML formatting, add `p: { html: true }` to the to
 #### Security Considerations
 
 When using HTML tooltips via `p: { html: true }`, any HTML in the tooltip content will be rendered by the browser. If tooltip strings come from user-generated input or external data sources, you **must** sanitize them first to prevent cross-site scripting (XSS) attacks.
+
 ### Formatted Values
 
 Separate the display format from the actual value using cell objects with `v` (value) and `f` (formatted) properties:
 
-<Canvas of={ GeoChartStories.WithFormattedValues } />
+<Canvas of={ TooltipStories.FormattedValues } />
 
 <Source
 	language="tsx"
@@ -142,7 +151,7 @@ This ensures proper data scaling while displaying user-friendly labels.
 
 Combine HTML tooltips with custom styling for rich, interactive experiences:
 
-<Canvas of={ GeoChartStories.WithComplexTooltips } />
+<Canvas of={ TooltipStories.Complex } />
 
 <Source
 	language="tsx"
@@ -268,11 +277,12 @@ Geo Charts integrate seamlessly with the chart theming system. The default theme
 
 	<GlobalChartsProvider theme={customTheme}>
 		<GeoChart
-			data={ordersByCountry}
-			width={800}
-			height={500}
+			data={ ordersByCountry }
+			width={ 800 }
+			height={ 500 }
 		/>
 	</GlobalChartsProvider>` }
+
 />
 
 The chart uses the following theme properties:
@@ -298,6 +308,7 @@ Add custom styles using the `className` prop:
 		height={ 500 }
 		className="custom-geo-chart"
 	/>` }
+
 />
 
 ## Map Projection
@@ -313,6 +324,28 @@ The Geo Chart uses Google Charts' default Mercator projection for world map visu
 - **Validate data**: Check that values are positive numbers
 - **Consider scale**: Large value ranges will show more dramatic color differences
 
+### Responsive Behavior
+
+Like other charts in this library, GeoChart supports responsive sizing. By default, it **fills its parent container's dimensions**:
+
+<Source
+	language="tsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<GeoChart data={ordersByCountry} />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%' }}>
+		<GeoChart data={ordersByCountry} aspectRatio={0.625} />
+	</div>
+
+	// Fixed dimensions
+	<GeoChart data={ordersByCountry} width={800} height={500} />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
 ### Performance Considerations
 
 The Geo Chart renders efficiently for typical use cases, but consider these factors:
@@ -320,7 +353,6 @@ The Geo Chart renders efficiently for typical use cases, but consider these fact
 - **Network dependency**: Google Charts loads resources from Google's CDN, requiring network access
 - **Initial load**: The first render requires loading Google Charts library (~100KB)
 - **Caching**: Subsequent renders benefit from browser caching of Google Charts resources
-- **Fixed dimensions**: The chart uses fixed width and height, not responsive sizing
 
 ### Accessibility
 

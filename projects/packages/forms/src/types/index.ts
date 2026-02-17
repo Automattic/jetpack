@@ -22,6 +22,8 @@ export interface IntegrationMetadata {
 	enabledByDefault?: boolean;
 	/** URL to an SVG/icon for this integration provided by the backend. */
 	iconUrl?: string | null;
+	/** Tooltip for the integration when it is active. */
+	activeTooltip?: string;
 }
 
 /**

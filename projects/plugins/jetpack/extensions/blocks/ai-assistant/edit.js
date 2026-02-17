@@ -112,15 +112,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		requestingState,
 		error,
 	} = useAIAssistant( {
-		onSuggestionDone: useCallback(
-			skipRequestCount => {
-				focusOnPrompt();
-				if ( ! skipRequestCount ) {
-					increaseRequestsCount();
-				}
-			},
-			[ increaseRequestsCount ]
-		),
+		onSuggestionDone: useCallback( () => {
+			focusOnPrompt();
+			increaseRequestsCount();
+		}, [ increaseRequestsCount ] ),
 		onUnclearPrompt: useCallback( () => {
 			focusOnBlock();
 			increaseRequestsCount();

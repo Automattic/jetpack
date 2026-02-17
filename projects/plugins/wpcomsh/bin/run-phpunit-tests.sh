@@ -42,8 +42,9 @@ function checkout_project() {
 function setup_tests() {
 	cd "$HOME/htdocs/wp-content/mu-plugins/wpcomsh"
 	chmod 700 bin/install-wp-tests.sh
-	"$HOME/composer" global require "phpunit/phpunit=^9" --ignore-platform-reqs --dev -W
-	"$HOME/composer" global require "yoast/phpunit-polyfills=^1.0.1" --ignore-platform-reqs --dev
+	"$HOME/composer" global remove "phpunit/phpunit" --dev --no-update
+	VER=$( jq -r '.["require-dev"]["yoast/phpunit-polyfills"]' composer.json )
+	"$HOME/composer" global require "yoast/phpunit-polyfills=$VER" --dev -W
 	# "$HOME/composer" install --no-dev --optimize-autoloader
 
 	bin/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASSWORD" "$DB_HOST" latest true

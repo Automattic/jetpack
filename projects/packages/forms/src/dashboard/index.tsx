@@ -8,7 +8,6 @@ import { RouterProvider } from 'react-router/dom';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../hooks/use-config-value.ts';
 import Layout from './components/layout/index.tsx';
 import FormsDashboardForms from './forms/index.tsx';
 import SingleFormResponses from './forms/single/index.tsx';
@@ -37,15 +36,14 @@ function initFormsDashboard() {
 
 	const DashboardIndexRedirect = () => {
 		const navigate = useNavigate();
-		const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 
 		useEffect( () => {
 			// Default landing when no hash/route is set.
 			// Treat undefined (not yet loaded / not provided) as false so we never render a blank page.
-			navigate( isCentralFormManagementEnabled === true ? '/forms' : '/responses', {
+			navigate( '/responses', {
 				replace: true,
 			} );
-		}, [ isCentralFormManagementEnabled, navigate ] );
+		}, [ navigate ] );
 
 		return null;
 	};

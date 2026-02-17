@@ -625,6 +625,41 @@ EOT
 	}
 
 	/**
+	 * Test maybe_add_colon_to_label adds colon to regular labels.
+	 */
+	public function test_maybe_add_colon_to_label_adds_colon() {
+		$this->assertSame( 'Name:', Util::maybe_add_colon_to_label( 'Name' ) );
+	}
+
+	/**
+	 * Test maybe_add_colon_to_label does not double-add colon.
+	 */
+	public function test_maybe_add_colon_to_label_no_double_colon() {
+		$this->assertSame( 'Name:', Util::maybe_add_colon_to_label( 'Name:' ) );
+	}
+
+	/**
+	 * Test maybe_add_colon_to_label preserves question mark.
+	 */
+	public function test_maybe_add_colon_to_label_preserves_question_mark() {
+		$this->assertSame( 'How are you?', Util::maybe_add_colon_to_label( 'How are you?' ) );
+	}
+
+	/**
+	 * Test maybe_add_colon_to_label strips trailing period.
+	 */
+	public function test_maybe_add_colon_to_label_strips_period() {
+		$this->assertSame( 'I agree:', Util::maybe_add_colon_to_label( 'I agree.' ) );
+	}
+
+	/**
+	 * Test maybe_add_colon_to_label handles empty string.
+	 */
+	public function test_maybe_add_colon_to_label_empty_string() {
+		$this->assertSame( ':', Util::maybe_add_colon_to_label( '' ) );
+	}
+
+	/**
 	 * Test that Util::init() sets up the expected hooks and filters.
 	 *
 	 * This test verifies that the Util::init() method properly registers

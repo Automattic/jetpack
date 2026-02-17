@@ -33,8 +33,8 @@ export default function FormsResponsesTabs(): JSX.Element {
 	return (
 		<Tabs.Root value={ value } onValueChange={ onValueChange }>
 			<Tabs.List density="compact">
+				<Tabs.Tab value="responses">{ __( 'Responses', 'jetpack-forms' ) }</Tabs.Tab>
 				<Tabs.Tab value="forms">{ __( 'Forms', 'jetpack-forms' ) }</Tabs.Tab>
-				<Tabs.Tab value="responses">{ __( 'All Responses', 'jetpack-forms' ) }</Tabs.Tab>
 			</Tabs.List>
 		</Tabs.Root>
 	);

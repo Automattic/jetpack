@@ -2,6 +2,7 @@ import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
@@ -12,6 +13,7 @@ import {
 	useZeroValueDisplay,
 	useChartMargin,
 	useElementHeight,
+	useHasLegendChild,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -30,6 +32,7 @@ import { useBarChartOptions } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
+import type { GapSize } from '@wordpress/theme';
 import type { FC, ReactNode, ComponentType } from 'react';
 
 export interface BarChartProps extends BaseChartProps< SeriesData[] > {
@@ -39,6 +42,12 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	showZeroValues?: boolean;
 	legendInteractive?: boolean;
 	children?: ReactNode;
+	/**
+	 * Gap between chart elements (SVG, legend, children).
+	 * Uses WordPress design system tokens.
+	 * @default 'md'
+	 */
+	gap?: GapSize;
 }
 
 // Base props type with optional responsive properties
@@ -78,7 +87,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	data,
 	chartId: providedChartId,
 	width,
-	height = 400,
+	height,
 	className,
 	margin,
 	withTooltips = false,
@@ -99,6 +108,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legendInteractive = false,
 	animation,
 	children,
+	gap = 'md',
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
@@ -115,8 +125,18 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendItems = useChartLegendItems( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
-	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+	const [ svgWrapperRef, svgWrapperHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
+
+	// Check if children contain a Legend component (composition pattern)
+	const hasLegendChild = useHasLegendChild( children );
+
+	// Use the measured SVG wrapper height, falling back to the passed height if provided.
+	// When there's a legend (via prop or composition), we must wait for measurement because
+	// the legend takes space and the svg-wrapper height will be less than the total height.
+	const chartHeight = svgWrapperHeight > 0 ? svgWrapperHeight : height;
+	const hasLegend = showLegend || hasLegendChild;
+	const isWaitingForMeasurement = hasLegend ? svgWrapperHeight === 0 : ! chartHeight;
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
@@ -312,150 +332,166 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
 	const highlightedBarStyle = createKeyboardHighlightStyle();
 
+	const legendElement = showLegend && (
+		<Legend
+			orientation={ legendOrientation }
+			position={ legendPosition }
+			alignment={ legendAlignment }
+			maxWidth={ legendMaxWidth }
+			textOverflow={ legendTextOverflow }
+			legendItemClassName={ legendItemClassName }
+			className={ styles[ 'bar-chart__legend' ] }
+			shape={ legendShape }
+			chartId={ chartId }
+			interactive={ legendInteractive }
+		/>
+	);
+
 	return (
 		<SingleChartContext.Provider
 			value={ {
 				chartId,
 				chartWidth: width,
-				chartHeight: height - ( showLegend ? legendHeight : 0 ),
+				chartHeight,
 			} }
 		>
-			<div
+			<Stack
+				direction="column"
+				gap={ gap }
 				className={ clsx(
 					'bar-chart',
 					styles[ 'bar-chart' ],
 					{
 						[ styles[ `bar-chart--animated${ horizontal ? '-horizontal' : '' }` ] ]:
 							animation && ! prefersReducedMotion,
-						[ styles[ 'bar-chart--legend-top' ] ]: showLegend && legendPosition === 'top',
 					},
 					className
 				) }
 				data-testid="bar-chart"
-				role="grid"
-				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 				style={ {
 					width,
 					height,
+					visibility: isWaitingForMeasurement ? 'hidden' : 'visible',
 				} }
-				tabIndex={ 0 }
-				onKeyDown={ onChartKeyDown }
-				onFocus={ onChartFocus }
-				onBlur={ onChartBlur }
-				ref={ chartRef }
-				data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
+				data-chart-id={ `bar-chart-${ chartId }` }
 			>
-				<XYChart
-					theme={ theme }
-					width={ width }
-					height={ height - ( showLegend ? legendHeight : 0 ) }
-					margin={ {
-						...defaultMargin,
-						...margin,
-						...( showLegend && legendPosition === 'top'
-							? { top: ( defaultMargin.top || 0 ) + legendHeight }
-							: {} ),
-					} }
-					xScale={ chartOptions.xScale }
-					yScale={ chartOptions.yScale }
-					horizontal={ horizontal }
-					pointerEventsDataKey="nearest"
+				{ legendPosition === 'top' && legendElement }
+
+				<div
+					className={ styles[ 'bar-chart__svg-wrapper' ] }
+					ref={ svgWrapperRef }
+					role="grid"
+					aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
+					tabIndex={ 0 }
+					onKeyDown={ onChartKeyDown }
+					onFocus={ onChartFocus }
+					onBlur={ onChartBlur }
 				>
-					<Grid
-						columns={ gridVisibility.includes( 'y' ) }
-						rows={ gridVisibility.includes( 'x' ) }
-						numTicks={ 4 }
-					/>
-
-					{ withPatterns && (
-						<>
-							<defs data-testid="bar-chart-patterns">
-								{ dataSorted.map( ( seriesData, index ) =>
-									renderPattern( index, getElementStyles( { data: seriesData, index } ).color )
-								) }
-							</defs>
-							<style>
-								{ dataSorted.map( ( seriesData, index ) =>
-									createPatternBorderStyle(
-										index,
-										getElementStyles( { data: seriesData, index } ).color
-									)
-								) }
-							</style>
-						</>
-					) }
-
-					{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
-
-					{ allSeriesHidden ? (
-						<text
-							x={ width / 2 }
-							y={ ( height - ( showLegend ? legendHeight : 0 ) ) / 2 }
-							textAnchor="middle"
-							fill={ providerTheme.gridStyles?.stroke || '#ccc' }
-							fontSize="14"
-							fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
-						>
-							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
-						</text>
-					) : null }
-
-					<BarGroup padding={ chartOptions.barGroup.padding }>
-						{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
-							// Skip rendering invisible series
-							if ( ! isVisible ) {
-								return null;
-							}
-
-							return (
-								<BarSeries
-									key={ seriesData?.label }
-									dataKey={ seriesData?.label }
-									data={ seriesData.data as DataPointDate[] }
-									yAccessor={ chartOptions.accessors.yAccessor }
-									xAccessor={ chartOptions.accessors.xAccessor }
-									colorAccessor={ getBarBackground( index ) }
+					{ ! isWaitingForMeasurement && (
+						<div ref={ chartRef }>
+							<XYChart
+								theme={ theme }
+								width={ width }
+								height={ chartHeight }
+								margin={ {
+									...defaultMargin,
+									...margin,
+								} }
+								xScale={ chartOptions.xScale }
+								yScale={ chartOptions.yScale }
+								horizontal={ horizontal }
+								pointerEventsDataKey="nearest"
+							>
+								<Grid
+									columns={ gridVisibility.includes( 'y' ) }
+									rows={ gridVisibility.includes( 'x' ) }
+									numTicks={ 4 }
 								/>
-							);
-						} ) }
-					</BarGroup>
 
-					<Axis { ...chartOptions.axis.x } />
-					<Axis { ...chartOptions.axis.y } />
+								{ withPatterns && (
+									<>
+										<defs data-testid="bar-chart-patterns">
+											{ dataSorted.map( ( seriesData, index ) =>
+												renderPattern(
+													index,
+													getElementStyles( { data: seriesData, index } ).color
+												)
+											) }
+										</defs>
+										<style>
+											{ dataSorted.map( ( seriesData, index ) =>
+												createPatternBorderStyle(
+													index,
+													getElementStyles( { data: seriesData, index } ).color
+												)
+											) }
+										</style>
+									</>
+								) }
 
-					{ withTooltips && (
-						<AccessibleTooltip
-							detectBounds
-							snapTooltipToDatumX
-							snapTooltipToDatumY
-							renderTooltip={ renderTooltip || renderDefaultTooltip }
-							selectedIndex={ selectedIndex }
-							tooltipRef={ tooltipRef }
-							keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
-							series={ data }
-							mode="individual"
-						/>
+								{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
+
+								{ allSeriesHidden ? (
+									<text
+										x={ width / 2 }
+										y={ chartHeight / 2 }
+										textAnchor="middle"
+										fill={ providerTheme.gridStyles?.stroke || '#ccc' }
+										fontSize="14"
+										fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+									>
+										{ __(
+											'All series are hidden. Click legend items to show data.',
+											'jetpack-charts'
+										) }
+									</text>
+								) : null }
+
+								<BarGroup padding={ chartOptions.barGroup.padding }>
+									{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
+										// Skip rendering invisible series
+										if ( ! isVisible ) {
+											return null;
+										}
+
+										return (
+											<BarSeries
+												key={ seriesData?.label }
+												dataKey={ seriesData?.label }
+												data={ seriesData.data as DataPointDate[] }
+												yAccessor={ chartOptions.accessors.yAccessor }
+												xAccessor={ chartOptions.accessors.xAccessor }
+												colorAccessor={ getBarBackground( index ) }
+											/>
+										);
+									} ) }
+								</BarGroup>
+
+								<Axis { ...chartOptions.axis.x } />
+								<Axis { ...chartOptions.axis.y } />
+
+								{ withTooltips && (
+									<AccessibleTooltip
+										detectBounds
+										snapTooltipToDatumX
+										snapTooltipToDatumY
+										renderTooltip={ renderTooltip || renderDefaultTooltip }
+										selectedIndex={ selectedIndex }
+										tooltipRef={ tooltipRef }
+										keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
+										series={ data }
+										mode="individual"
+									/>
+								) }
+							</XYChart>
+						</div>
 					) }
-				</XYChart>
+				</div>
 
-				{ showLegend && (
-					<Legend
-						orientation={ legendOrientation }
-						position={ legendPosition }
-						alignment={ legendAlignment }
-						maxWidth={ legendMaxWidth }
-						textOverflow={ legendTextOverflow }
-						legendItemClassName={ legendItemClassName }
-						className={ styles[ 'bar-chart__legend' ] }
-						shape={ legendShape }
-						ref={ legendRef }
-						chartId={ chartId }
-						interactive={ legendInteractive }
-					/>
-				) }
+				{ legendPosition === 'bottom' && legendElement }
 
 				{ children }
-			</div>
+			</Stack>
 		</SingleChartContext.Provider>
 	);
 };

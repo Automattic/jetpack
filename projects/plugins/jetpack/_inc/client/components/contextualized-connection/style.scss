@@ -82,12 +82,12 @@
 
 		&-row {
 			display: grid;
-			grid-gap: 4rem;
+			gap: 4rem;
 			grid-template-columns: auto;
 
 			@include mixins.break-medium {
 				grid-template-columns: repeat(3, 1fr);
-				grid-gap: 3rem;
+				gap: 3rem;
 			}
 		}
 

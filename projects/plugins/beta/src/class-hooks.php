@@ -7,6 +7,7 @@
 
 namespace Automattic\JetpackBeta;
 
+use Automattic\Jetpack\Assets\Logo;
 use Jetpack;
 use Language_Pack_Upgrader;
 use Plugin_Upgrader;
@@ -354,7 +355,7 @@ class Hooks {
 		// Add the main menu.
 		$args = array(
 			'id'     => 'jetpack-beta_admin_bar',
-			'title'  => 'Jetpack Beta',
+			'title'  => '<span class="jpbeta-logo">' . ( new Logo() )->get_jp_emblem() . '</span><span class="screen-reader-text">Jetpack </span>Beta',
 			'parent' => 'top-secondary',
 			'href'   => current_user_can( 'update_plugins' ) ? Utils::admin_url() : '',
 		);
@@ -430,6 +431,9 @@ class Hooks {
 			}
 		}
 
+		// Output styles for the logo in the admin bar.
+		echo '<style>#wpadminbar .jpbeta-logo svg { width: 20px; height: 20px; vertical-align: middle; margin-right: 6px; position: relative; top: -1px; } #wpadminbar .jpbeta-logo svg path { fill: currentColor; }</style>';
+
 		// Highlight the menu if you are running the BETA Versions..
 		if ( $any_dev ) {
 			$wp_admin_bar->add_node(
@@ -439,8 +443,8 @@ class Hooks {
 				)
 			);
 			// Use Jetpack Green 50 rather than 40 for accessibility, per pcdRpT-if-p2.
-			echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight, #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight { background: #008710; }\n";
-			echo '#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight > .ab-item, #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight > .ab-item { color: white; }</style>';
+			echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight:not(.hover), #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight:not(.hover) { background: #008710; }\n";
+			echo '#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar.jpbeta-highlight:not(.hover) > .ab-item, #wpadminbar #wp-admin-bar-jetpack-beta_admin_bar .jpbeta-highlight:not(.hover) > .ab-item { color: white; }</style>';
 		}
 	}
 
