@@ -817,7 +817,11 @@ class Feedback_Field {
 					$label !== '' ? $label : $letter
 				);
 			} else {
-				$image_html = '<div style="padding: 8px 8px 0 8px;"><div style="width: 138px; height: 144px; background-color: #f0f0f0;"></div></div>';
+				$placeholder_icon = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/field-image-select@2x.png';
+				$image_html       = sprintf(
+					'<div style="padding: 8px 8px 0 8px;"><div style="width: 138px; height: 144px; background-color: #f0f0f0; text-align: center; line-height: 144px;"><img src="%s" alt="" width="24" height="24" style="vertical-align: middle;" /></div></div>',
+					esc_url( $placeholder_icon )
+				);
 			}
 
 			// Letter code box + label.

@@ -829,9 +829,9 @@ class Feedback_Field_Test extends BaseTestCase {
 		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
 		$result = $field->get_render_value( 'email_html' );
 
-		// No img tag when src is empty, but placeholder should render.
-		$this->assertStringNotContainsString( '<img ', $result );
+		// Placeholder should render with gray background and icon.
 		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+		$this->assertStringContainsString( 'field-image-select@2x.png', $result );
 		// Letter code and label should still render.
 		$this->assertStringContainsString( '>B</span>', $result );
 		$this->assertStringContainsString( 'Option', $result );
