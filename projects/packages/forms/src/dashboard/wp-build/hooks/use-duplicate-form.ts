@@ -70,8 +70,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 					);
 					return;
 				}
-				const originalRecord = original as JetpackFormEntityRecord | null | undefined;
-				const raw = originalRecord?.content?.raw;
+				const raw = ( original as JetpackFormEntityRecord ).content?.raw;
 				const originalContentRaw = typeof raw === 'string' ? raw : '';
 
 				const originalTitle = item.title || __( 'Untitled Form', 'jetpack-forms' );
