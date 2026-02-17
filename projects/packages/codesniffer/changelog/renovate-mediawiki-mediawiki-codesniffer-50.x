@@ -1,4 +1,4 @@
-Significance: patch
+Significance: major
 Type: changed
 
-Update package dependencies.
+Update mediawiki/mediawiki-codesniffer ruleset to v50.
