@@ -3,7 +3,6 @@
 # The jobs are all set up to only run if appropriate files have changed; the
 # `changed_files` job is used to determine whether files have changed in
 # various categories so the rest of the jobs can know whether to run or not.
-# Individual steps within jobs also gate on file relevance for efficiency.
 
 name: Linting
 

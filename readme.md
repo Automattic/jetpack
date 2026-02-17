@@ -50,3 +50,4 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 ## Join us!
 
 Interested in working on awesome open-source code all day? [Join us](https://automattic.com/work-with-us/)!
+
