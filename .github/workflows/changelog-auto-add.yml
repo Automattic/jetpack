@@ -1,8 +1,9 @@
 # This workflow auto-generates changelog entries using Claude when the
 # "Generate changelog entries" checkbox is checked in the PR template.
 #
-# It triggers on pull_request_target so it has write permissions to push
-# commits to the PR branch.
+# It triggers on pull_request_target so it can access repository secrets
+# (ANTHROPIC_API_KEY). Regular pull_request events for same-repo branches
+# don't expose secrets.
 #
 # Security: the default checkout is the base branch (trunk). Tool setup,
 # the PHP detection script, and composer.json reads all come from trusted
