@@ -245,19 +245,21 @@ class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
 		Health::update_status( Health::STATUS_IN_SYNC );
 		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 
-		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue(), 'test_action' );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
 
 		$this->assertTrue( isset( $event->args['timestamp'] ) );
 		$this->assertTrue( isset( $event->args['queue_size'] ) );
 		$this->assertTrue( isset( $event->args['queue_lag'] ) );
+		$this->assertTrue( isset( $event->args['extra'] ) );
+		$this->assertEquals( 'test_action', $event->args['extra'] );
 		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
 	}
 
 	public function test_data_loss_action_ignored_if_already_out_of_sync() {
 		Health::update_status( Health::STATUS_OUT_OF_SYNC );
 
-		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue(), 'test_action' );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
 
 		$this->assertFalse( $event );
