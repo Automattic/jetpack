@@ -197,11 +197,12 @@ async function checkChangelogFiles() {
 	// Actionable exit codes: 2 (missing), 4 (uncommitted), 6 (both), 10 (committed + still missing).
 	const actionable = [ 2, 4, 6, 10 ];
 	if ( ! actionable.includes( needChangelog.status ) ) {
-		console.log(
-			chalk.yellow(
-				`Unexpected changelog check exit code (${ needChangelog.status }). Allowing push.`
+		console.error(
+			chalk.red(
+				`Changelog check failed with unexpected exit code (${ needChangelog.status }). Aborting push.`
 			)
 		);
+		process.exitCode = 1;
 		return;
 	}
 
