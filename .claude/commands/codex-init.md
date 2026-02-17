@@ -10,70 +10,70 @@ The user will provide a project path (e.g., `projects/packages/forms`). If not p
 
 ## What is .codex/?
 
-A persistent documentation system that gives Claude (and humans) instant orientation on a codebase. It stores architecture maps, cross-file flow documents, and deep dives for complex files — so future sessions don't need to re-read thousands of lines of source code to understand the project.
+A persistent, directory-scoped documentation system that gives Claude (and humans) instant orientation on a codebase. It stores architecture maps, cross-file flow documents, and notes on complex files — so future sessions don't need to re-read thousands of lines of source code to understand the project.
+
+Each codex lives inside its project directory and documents only that project. It does not index the monorepo or other packages.
+
+## Reference style
+
+Use **method and class references** as primary anchors, not line numbers. Method names are stable across code changes and greppable. Line numbers go stale with every edit.
+
+Good: `Contact_Form::process_submission()` handles validation and storage.
+Bad: `class-contact-form.php:2426` — process_submission() handles validation.
+
+When referencing code, use the format `Class::method()` or `function_name()` with the file path for context where needed: `Contact_Form::process_submission() (class-contact-form.php)`.
 
 ## Steps
 
-### 1. Survey the project
+### 1. Survey the project and plan scope
 
-Use Explore agents to thoroughly analyze the project:
+Use Explore agents to analyze the project. Focus on **production source files** — skip test files, config files, build artifacts, and vendor/node_modules unless they contain unusual patterns.
 
-- **File inventory**: Every source file with path, approximate line count, and one-line role
+Gather:
+- **File inventory**: Every production source file with path, approximate line count, and one-line role
 - **Class hierarchy**: Classes, inheritance, interfaces, traits
 - **Entry points**: How the project bootstraps, where execution starts
-- **Key data flows**: How data moves through the system end-to-end
-- **Complex files**: Files over 500 lines that need deep dives
-- **WordPress hooks**: Major actions and filters (if applicable)
-- **External dependencies**: What packages/APIs this project depends on
+- **Key data flows**: The 3-8 most important cross-file processes (e.g., "form submission", "email sending")
+- **Complex files**: Files that are hard to understand — complex state, non-obvious patterns, many responsibilities
+- **WordPress hooks**: Major actions and filters registered or consumed (if applicable)
+- **External dependencies**: Packages and APIs this project depends on
 
-### 2. Create directory structure
+After surveying, decide:
+- Which flows deserve their own doc (aim for 3-8)
+- Which files deserve a deep dive (only genuinely complex ones — a short file with tricky state needs one more than a long file of repetitive renderers)
+- Share your plan with the user before writing, so they can redirect if priorities are wrong
 
-```
-<project>/.codex/
-├── README.md
-├── map.md
-├── flows/
-├── files/
-├── references.md
-└── log.md
-```
+### 2. Write map.md (architecture overview)
 
-### 3. Write README.md (the bootstrap file)
-
-This is the only file Claude *must* read when starting work on a project. Include:
-
-- **What this is**: One paragraph explanation of the codex system
-- **How to use**: Read map.md first, then relevant flow/file docs as needed
-- **Update rules**: After any code change, update affected codex docs
-- **Self-improvement protocol**: After each task, note gaps in log.md; periodically review and improve
-- **Quality criteria**: What makes a good flow doc vs. a bad one
-- **How to create a codex for a new project**: Point to `/codex-init`
-
-### 4. Write map.md (architecture overview)
+The main orientation document. Include:
 
 - **Overview**: What the package does (2-3 sentences)
-- **Entry points**: Where execution starts (main class, block registration, etc.)
-- **File inventory**: Every source file with one-line role, grouped by directory
-- **Key classes**: Class hierarchy, relationships, responsibility ownership
-- **Data flow**: How data moves through the system
-- **Available flow docs**: Index of flows/ with one-line descriptions
-- **Available file docs**: Index of files/ with one-line descriptions
+- **Entry points**: Where execution starts, with class/method references
+- **Boot sequence**: How the project initializes (numbered steps with class::method references)
+- **File inventory**: Every production source file with one-line role, grouped by directory. Include line counts to signal complexity. Skip test files and config.
+- **Key classes**: Class hierarchy diagram showing inheritance and responsibility
+- **Data flow**: ASCII diagram or numbered description of how data moves through the system
+- **Available flow docs**: Index of `flows/` with one-line descriptions
+- **Available file docs**: Index of `files/` with one-line descriptions
 
-### 5. Write flow docs (flows/*.md)
+### 3. Write flow docs (flows/*.md)
 
-Identify the 3-8 most important cross-file processes and create a flow doc for each. Every flow doc must follow this template:
+Create a flow doc for each major cross-file process. These are the highest-value part of the codex — they capture knowledge that's genuinely hard to reconstruct from source. Template:
 
 ```markdown
 # [Flow Name]
+
+<!-- verified: YYYY-MM-DD, commit: short-hash -->
 
 ## When this happens
 One sentence describing the trigger.
 
 ## Entry point
-File:line — what triggers this flow.
+Class::method() (file path) — what triggers this flow.
 
 ## Sequence
-Numbered steps with file:line references showing the call chain.
+Numbered steps showing the call chain. Use Class::method() references.
+Group into phases if the flow has distinct stages.
 
 ## Key decisions
 Non-obvious logic, branching, filter hooks that alter behavior.
@@ -87,95 +87,101 @@ Non-obvious logic, branching, filter hooks that alter behavior.
 Things that will bite you if you don't know about them.
 ```
 
-### 6. Write file deep dives (files/*.md)
+Keep each flow doc to **50-200 lines**. If it's longer, split into separate flows.
 
-Only for files that are genuinely complex (500+ lines, non-obvious patterns). Each follows:
+### 4. Write file notes (files/*.md)
+
+Only for files that are **genuinely hard to understand** — complex state, non-obvious patterns, many responsibilities. Don't write these for files that are straightforward despite being long.
+
+Keep these lighter than flow docs. Focus on what's not obvious from reading the source:
 
 ```markdown
 # [filename]
 
+<!-- verified: YYYY-MM-DD, commit: short-hash -->
+
 ## Purpose
-What this file does (2-3 sentences).
+What this file does and why it's complex (2-3 sentences).
 
 ## Key patterns
-Non-obvious architectural patterns.
+Non-obvious architectural patterns, design decisions, or conventions.
 
-## Method index
-| Method | Line | Description |
-|--------|------|-------------|
-| ... | ... | ... |
+## Key methods
+Only the 5-10 methods that aren't obvious from their names.
+For each: method name, what it does, and why it's notable.
 
-Group methods by concern area.
-
-## Properties & state
-Important properties, especially static ones with shared state.
+## State & lifecycle
+Important properties, especially static/shared state. How instances are created and managed.
 
 ## Hooks & filters
-All WordPress hooks used/fired, with context.
+WordPress hooks registered or consumed, with context on when and why.
 
-## Dependencies
-What this file needs from others, what others need from it.
+## Gotchas
+Non-obvious behavior, common mistakes, tricky edge cases.
 ```
 
-### 7. Write references.md
+Note: don't write exhaustive method indexes. I can Grep for any method name. Document only the methods where the name doesn't tell the full story.
 
-Document external dependencies and source code references. Structure as:
+### 5. Write references.md
 
-- **External libraries / upstream repos**: For major dependencies where you might need to read the source (e.g., Gutenberg for `@wordpress/*` packages), include:
-  - Local clone path if available (e.g., `/Users/cg/a8c/gutenberg`)
+Document external dependencies so future sessions know where to look:
+
+- **External libraries / upstream repos**: For major dependencies where you might need to read the source (e.g., Gutenberg for `@wordpress/*` packages):
+  - Local clone path if available (e.g., `~/src/gutenberg`)
   - GitHub URL
-  - Table of key source locations within that repo relevant to this project
-  - List of packages/modules used by this project and what they're used for
-- **WordPress docs**: API references, developer handbook links
-- **Jetpack packages**: Internal packages this project depends on
+  - Table of key source locations relevant to this project
+  - Packages/modules used and what they're used for
+- **WordPress docs**: Relevant API references, developer handbook links
+- **Internal packages**: Packages from this monorepo that the project depends on
 - **Third-party integrations**: External services the project integrates with
-- **Key hooks**: Important WordPress actions and filters the project registers and consumes
+- **Key hooks**: Important actions and filters the project registers and consumes
 
-The goal is that when you need to understand how an external dependency works, the references tell you exactly where to look -- either locally or on GitHub -- without searching from scratch.
+### 6. Write README.md (the bootstrap file)
 
-### 8. Write log.md
+First file Claude reads when starting work. Keep it concise:
 
-Initialize with a creation entry:
+- **What this is**: One paragraph explaining the codex
+- **How to use**: Read map.md first, then relevant flow/file docs as needed. Don't read everything.
+- **Update rules**: After code changes, run `/codex-update`
+- **Freshness**: Each doc has a `<!-- verified: date, commit -->` comment. If the source was modified after that commit, verify before relying on the doc.
+- **Quality criteria**: Verified references, concise, explains "why" not "what"
+- **File index**: Table of every codex file with one-line purpose
+
+### 7. Write log.md
+
+Tracks **codex maintenance activity** — what docs were created, modified, or found lacking. NOT a changelog of the source code.
 
 ```markdown
 # Codex Log
 
+Tracks changes to the codex documentation itself, not to the source code. Each entry records which codex docs were created or modified, what triggered the update, and any gaps discovered.
+
 ## YYYY-MM-DD — Initial creation
 - Created codex for [project] via /codex-init
-- Files documented: [count]
-- Flow docs created: [list]
-- File deep dives created: [list]
+- Codex docs created: [list all .codex/ files]
+- Gaps/TODO: [anything you noticed but skipped, or "none"]
 ```
 
-### 9. Create or update CLAUDE.md
+### 8. Create or update CLAUDE.md
 
-Add to the project's CLAUDE.md (create if needed). Include:
+Add to the project's CLAUDE.md (create if it doesn't exist):
 
-```markdown
-## Codex
-
-This project has a `.codex/` knowledge system for architecture documentation.
-Always read `.codex/README.md` first when working on this project.
-
-## Tooling
-
-All commands require `nvm use` first to set the correct Node.js version for Jetpack tooling.
-
-[Document the exact commands for: testing (JS and PHP), building, static analysis (phan), linting, watching. Include any environment prerequisites like `nvm use`.]
-```
-
-The Tooling section is critical -- it captures the exact commands with any prerequisites (like `nvm use`) so future sessions don't waste time on environment issues. Check `composer.json` scripts and the project structure to determine available tooling. Test a command if unsure.
+- **Codex pointer**: Tell Claude to read `.codex/README.md` first when working on this project
+- **Quick overview**: What the project does, key files (enough to orient without reading the codex)
+- **Tooling commands**: Discover the exact commands for testing (JS and PHP), building, static analysis, linting, and watching. Check `composer.json` scripts and the project structure. Include any environment prerequisites. Test a command if unsure.
 
 ## Quality Standards
 
-- **Accuracy over coverage**: Every file:line reference must be verified against source code. Wrong references are worse than no references.
-- **Concise**: A flow doc should be 50-200 lines. If it's longer, split it.
+- **Accuracy over coverage**: Every reference must be verified against source code. Wrong references are worse than no references.
+- **Concise**: Flow docs 50-200 lines. File notes up to 150 lines. If it's longer, you're documenting too much.
 - **Actionable**: Every section should help someone understand the code faster. Remove anything that doesn't.
-- **Maintainable**: Write docs that are easy to update. Avoid duplicating information across files.
+- **Maintainable**: Use class::method() references that survive code changes. Avoid duplicating information across files.
+- **Scoped**: Only document the project in its own `.codex/` directory. Don't reference or update codex docs in other projects.
 
 ## Important
 
-- Read actual source files before writing any codex content. Never guess at line numbers or method signatures.
-- Use file:line format (e.g., `src/class-foo.php:142`) for all code references.
-- Group related information logically. Don't just dump alphabetical lists.
+- Read actual source files before writing any codex content. Never guess at method signatures or behavior.
+- Use `Class::method()` format for code references. Add `(file-path)` when the class/file mapping isn't obvious.
+- Group related information logically. Don't dump alphabetical lists.
 - Focus on the "why" and "how" — the "what" is already in the source code.
+- The codex is a tool for orientation, not exhaustive documentation. If it's faster to just read the source, the codex doc isn't earning its keep.

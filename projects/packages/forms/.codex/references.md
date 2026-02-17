@@ -1,5 +1,7 @@
 # External References
 
+<!-- verified: 2026-02-17, commit: 8225b1ff -->
+
 ## Gutenberg (Block Editor)
 
 Gutenberg is the source of the `@wordpress/*` packages and the block editor environment. The forms package depends heavily on it for block registration, rendering, and frontend interactivity.

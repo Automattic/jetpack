@@ -1,45 +1,47 @@
 # Field Validation
 
+<!-- verified: 2026-02-17, commit: 8225b1ff -->
+
 ## When this happens
 
 During form submission, after the form is reconstructed (from JWT or legacy path) and before feedback is stored.
 
 ## Entry point
 
-`src/contact-form/class-contact-form.php:3354` -- `Contact_Form::validate()` iterates over all fields and calls per-field validation.
+`Contact_Form::validate()` (class-contact-form.php) — iterates over all fields and calls per-field validation.
 
 ## Sequence
 
-1. **Form-level validation** (`class-contact-form.php:3354`)
+1. **Form-level validation** — `Contact_Form::validate()`
    - Iterates `$this->fields`, calls `$field->validate()` on each
-   - Tracks if any field has a value (`$field->has_value()`)
-   - If no field has any value and no errors yet, adds "Please fill out at least one field" error (line 3365)
-   - Validates form reference if `ref` attribute is set (line 3368-3371)
+   - Tracks if any field has a value via `Contact_Form_Field::has_value()`
+   - If no field has any value and no errors yet, adds "Please fill out at least one field" error
+   - Validates form reference if `ref` attribute is set via `validate_ref()`
 
-2. **Per-field validation** (`class-contact-form-field.php:296`)
-   - Skip if field already has an error (line 298)
-   - Determine effective field type via `maybe_override_type()` (line 302) -- handles type overrides from block attributes
-   - Skip if field is not required and has no value (line 304)
-   - Skip if field type is not renderable (line 308)
-   - Read field value from `$_POST[$field_id]` (line 315-323)
+2. **Per-field validation** — `Contact_Form_Field::validate()`
+   - Skip if field already has an error
+   - Determine effective field type via `maybe_override_type()` — handles type overrides from block attributes
+   - Skip if field is not required and has no value
+   - Skip if field type is not renderable via `is_field_renderable()`
+   - Read field value from `$_POST[$field_id]`
 
-3. **Type-specific validation** (`class-contact-form-field.php:325-493`)
-   - `url`: Regex validation against URL pattern (line 327-335)
-   - `email`: WordPress `is_email()` check (line 337-341)
-   - `checkbox-multiple`: At least one selection, each value must be in allowed options (line 343-377)
-   - `radio`: At least one selection from allowed options (line 379-412)
-   - `image-select`: Validates selected values against option letters, handles single/multiple modes (line 413-465)
-   - `number`: `is_numeric()` check (line 467-472)
-   - `time`: Regex `HH:MM` 24-hour format (line 474-479)
-   - `file`: Non-empty array check (line 481-486)
-   - `default` (text, name, telephone, date, textarea, etc.): Non-empty string after trim (line 487-492)
+3. **Type-specific validation** — inside `Contact_Form_Field::validate()`
+   - `url`: Regex validation against URL pattern
+   - `email`: WordPress `is_email()` check
+   - `checkbox-multiple`: At least one selection, each value must be in allowed options
+   - `radio`: At least one selection from allowed options
+   - `image-select`: Validates selected values against option letters, handles single/multiple modes
+   - `number`: `is_numeric()` check
+   - `time`: Regex `HH:MM` 24-hour format
+   - `file`: Non-empty array check
+   - `default` (text, name, telephone, date, textarea, etc.): Non-empty string after trim
 
-4. **Error propagation** (`class-contact-form-field.php:257`)
-   - `$field->add_error($message)` sets error on the field
-   - In `Contact_Form`: `add_error()` (line 3412) stores errors in `self::$static_errors[$id]` as `Form_Submission_Error`
-   - `has_errors()` (line 3427) checks static errors for the form ID
+4. **Error propagation**
+   - `Contact_Form_Field::add_error($message)` sets error on the field
+   - `Contact_Form::add_error()` stores errors in `self::$static_errors[$id]` as `Form_Submission_Error`
+   - `Contact_Form::has_errors()` checks static errors for the form ID
 
-5. **Form ref validation** (`class-contact-form.php:3379`)
+5. **Form ref validation** — `Contact_Form::validate_ref()`
    - If form has a `ref` attribute, validates that the referenced `jetpack_form` post exists and is published
 
 ## Key decisions
@@ -53,8 +55,8 @@ During form submission, after the form is reconstructed (from JWT or legacy path
 
 | File | Role |
 |------|------|
-| `src/contact-form/class-contact-form.php` | `validate()` at line 3354, error storage |
-| `src/contact-form/class-contact-form-field.php` | `validate()` at line 296, per-type checks |
+| `src/contact-form/class-contact-form.php` | `validate()`, error storage |
+| `src/contact-form/class-contact-form-field.php` | `validate()`, per-type checks |
 | `src/contact-form/class-form-submission-error.php` | Error wrapper (extends WP_Error) |
 
 ## Gotchas
@@ -63,4 +65,4 @@ During form submission, after the form is reconstructed (from JWT or legacy path
 - **Checkbox values are arrays**: `$_POST[$field_id]` for checkbox-multiple fields is an array, not a string. The validation handles this correctly but it's easy to miss.
 - **Image-select JSON**: Image-select field values are JSON-encoded strings with a `selected` key. The validator `json_decode`s them before checking against options.
 - **No client-side validation gate**: Server validation runs independently of client-side validation. Even if the frontend prevents submission, the server validates everything again.
-- **Static errors persist across forms**: Because errors use static storage keyed by form ID, they persist across shortcode processing. `reset_errors()` (line 3398) can clear them if needed.
+- **Static errors persist across forms**: Because errors use static storage keyed by form ID, they persist across shortcode processing. `Contact_Form::reset_errors()` can clear them if needed.

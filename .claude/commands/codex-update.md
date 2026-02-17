@@ -4,68 +4,86 @@ description: Update .codex/ documentation after code changes
 
 **Scope: currently only supported for `projects/packages/forms`.** If the user requests this for a different project, explain that the codex system is only set up for the forms package and decline to proceed.
 
-Update the `.codex/` knowledge system for a project after code changes.
+Update the `.codex/` knowledge system for a project after source code changes. Only update the codex inside the project's own directory — never modify codex docs in other projects.
 
 The user may provide a project path and/or description of changes. If the project path is not provided, infer it from recent git changes or ask.
 
 ## Steps
 
-### 1. Identify what changed
+### 1. Identify what changed in the source code
 
-Determine what files were modified:
-- Check `git diff --name-only` (staged and unstaged) for the project
-- Check `git diff --name-only HEAD~1..HEAD` for recently committed changes
-- If the user described changes, use that as a guide
+Figure out which source files were modified and how:
+- Check `git diff --name-only` (staged and unstaged) filtered to the project path
+- Check `git log --oneline --name-only` for recent commits on the current branch (compare against trunk/main)
+- If the user described the changes, use that as a starting point
+- Read the actual diffs or changed files to understand the nature of each change
 
-### 2. Read affected codex docs
+### 2. Decide if the codex needs updating
 
-Read the project's `.codex/README.md` and `.codex/map.md` to understand the current documentation state. Then read any flow docs or file docs that cover the changed files.
+Not every source change requires a codex update. **Skip the update** (and tell the user) if:
+- Changes are test-only (new/modified test files, no production code changes)
+- Changes are cosmetic (formatting, comments, whitespace, import reordering)
+- Changes are in files not covered by any codex doc and don't introduce new patterns
 
-### 3. Read the changed source files
+If no update is needed, append a brief "no update needed" entry to `log.md` with the reason, and stop.
 
-Read the actual modified source files to understand what changed. Compare against what the codex currently says.
+### 3. Find which codex docs are affected
+
+Read `.codex/map.md` to understand the current documentation structure. Then:
+- Check the **"Files involved"** tables in `flows/*.md` — does any flow doc list a changed file?
+- Check `files/*.md` — is there a note file for any changed file?
+- Check `map.md` itself — were files added/removed/renamed, or did class relationships change?
+- Check `references.md` — were new external dependencies introduced?
+
+Read the affected codex docs so you know what they currently say.
 
 ### 4. Update affected documents
 
-For each changed source file, determine which codex documents need updates:
+For each affected codex doc, read the corresponding source files and update:
 
-- **map.md**: Update if files were added/removed/renamed, or if class relationships changed
-- **flows/*.md**: Update if the change affects any documented flow (check the "Files involved" tables). Update line numbers, sequence steps, key decisions.
-- **files/*.md**: Update if a deeply-documented file was modified. Update method index, line numbers, hooks, properties.
-- **references.md**: Update if new external dependencies or references were added
+- **map.md**: File inventory (add/remove/rename entries), class hierarchy, entry points, data flow diagram
+- **flows/*.md**: Sequence steps, method references, key decisions, gotchas. If a flow fundamentally changed, rewrite it rather than patching.
+- **files/*.md**: Key methods, patterns, state, hooks, gotchas. If a file was deleted or simplified, remove the doc.
+- **references.md**: New external dependencies, packages, or hooks
 
-### 5. Verify line numbers
+**If the change introduces a significant new cross-file process**, create a new flow doc rather than overloading an existing one.
 
-After updating, spot-check that file:line references in updated docs still point to the correct code. Line numbers shift when code is added/removed above them.
+### 5. Update freshness signals
 
-### 6. Log the update
-
-Append to `.codex/log.md`:
+For every codex doc you modified, update the verified comment at the top:
 
 ```markdown
-## YYYY-MM-DD — [Brief description of changes]
-- Changed files: [list]
-- Updated codex docs: [list]
-- Notes: [any gaps found, improvements needed]
+<!-- verified: YYYY-MM-DD, commit: short-hash -->
 ```
 
-### 7. Self-improvement check
+Use the current date and the latest commit hash for the source files covered by that doc.
 
-After updating, briefly consider:
-- Did the codex have everything needed to understand the change? If not, note the gap in log.md.
-- Are there new patterns or flows that should be documented?
-- Did any existing documentation become stale or misleading?
-- Should README.md instructions be updated based on this experience?
+### 6. Verify your references
+
+For each codex doc you modified, confirm that `Class::method()` references still exist in the source. Methods get renamed or removed — check that the methods you reference are still there. A quick Grep for each method name is sufficient.
+
+### 7. Log what you did to the codex
+
+Append to `.codex/log.md`. This log tracks **codex maintenance activity** — which docs you edited and why. It is NOT a changelog of the source code.
+
+```markdown
+## YYYY-MM-DD — [What you changed in the codex, e.g. "Updated submission flow for new webhook step"]
+- Codex docs modified: [list of .codex/ files you created or edited]
+- Trigger: [what source code change prompted this, e.g. "New retry logic in Form_Webhooks::send()"]
+- Gaps found: [anything the codex was missing that you needed — or "none"]
+- Still needed: [follow-up codex improvements you noticed but didn't do — or "none"]
+```
 
 ## Quality Standards
 
-- Every file:line reference must be verified against current source code
-- Don't just update line numbers mechanically — re-read the context to ensure the description is still accurate
+- Use `Class::method()` references, not line numbers. Method names are stable and greppable.
+- Don't just patch docs mechanically — re-read context to ensure descriptions are still accurate
 - If a flow has fundamentally changed, rewrite the flow doc rather than patching it
-- Keep log.md entries concise but informative
+- Keep `log.md` entries concise but informative
+- Only update the codex in this project's directory — don't touch codex docs in other projects
 
 ## Important
 
-- Always read source files before updating codex docs. Never guess at what changed.
+- Always read source files before writing codex updates. Never guess at what changed.
 - If changes are extensive (new feature, major refactor), consider creating new flow docs rather than overloading existing ones.
-- If a file deep dive no longer applies (file deleted or simplified below 500 lines), remove it and update map.md.
+- The codex is for orientation, not exhaustive documentation. If a doc isn't helping anyone understand the code faster, remove it.

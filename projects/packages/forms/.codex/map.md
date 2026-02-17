@@ -1,22 +1,24 @@
 # Architecture Map: Jetpack Forms
 
+<!-- verified: 2026-02-17, commit: 8225b1ff -->
+
 ## Overview
 
 The Jetpack Forms package provides contact forms for WordPress sites using Jetpack. It handles the full lifecycle: block registration in Gutenberg, server-side rendering of form HTML, form submission processing (validation, spam detection, feedback storage as custom post type), and email notification delivery. Forms can live in posts, pages, widgets, block templates, and template parts.
 
 ## Entry Points
 
-| Entry Point | File | Description |
-|-------------|------|-------------|
-| Package bootstrap | `src/class-jetpack-forms.php:22` | `Jetpack_Forms::load_contact_form()` -- called by host plugin to initialize the package |
-| Plugin singleton | `src/contact-form/class-contact-form-plugin.php:116` | `Contact_Form_Plugin::init()` -- registers post types, shortcodes, blocks, hooks |
-| Block registration | `src/blocks/contact-form/class-contact-form-block.php:32` | `Contact_Form_Block::register_block()` -- registers `jetpack/contact-form` block |
-| Form rendering | `src/contact-form/class-contact-form.php:1050` | `Contact_Form::parse()` -- shortcode/block callback that outputs form HTML |
-| Form submission | `src/contact-form/class-contact-form-plugin.php:1571` | `Contact_Form_Plugin::process_form_submission()` -- handles POST requests |
+| Entry Point | Class::Method | File |
+|-------------|---------------|------|
+| Package bootstrap | `Jetpack_Forms::load_contact_form()` | `src/class-jetpack-forms.php` |
+| Plugin singleton | `Contact_Form_Plugin::init()` | `src/contact-form/class-contact-form-plugin.php` |
+| Block registration | `Contact_Form_Block::register_block()` | `src/blocks/contact-form/class-contact-form-block.php` |
+| Form rendering | `Contact_Form::parse()` | `src/contact-form/class-contact-form.php` |
+| Form submission | `Contact_Form_Plugin::process_form_submission()` | `src/contact-form/class-contact-form-plugin.php` |
 
 ## Boot Sequence
 
-1. Host plugin calls `Jetpack_Forms::load_contact_form()` (`src/class-jetpack-forms.php:22`)
+1. Host plugin calls `Jetpack_Forms::load_contact_form()`
 2. This calls `Util::init()` which hooks `Contact_Form_Plugin::init` to WordPress `init` at priority 9
 3. `Contact_Form_Plugin::init()` is a singleton that:
    - Registers the `feedback` custom post type and `spam`/`jp-temp-feedback` post statuses
@@ -122,7 +124,7 @@ Util                        # Utility hooks, patterns, scheduled tasks
        a. Feedback::from_submission() creates response data model
        b. Spam check via jetpack_contact_form_is_spam filter (Akismet)
        c. Feedback::save() stores as feedback CPT
-       d. Feedback_Email_Renderer builds email HTML
+       d. Feedback_Email_Renderer::build_email_content() builds email HTML
        e. Contact_Form::wp_mail() sends notification
        f. Integrations fire (webhooks, MailPoet, etc.)
    --> Response: JSON (AJAX), redirect, or success message
@@ -138,10 +140,10 @@ Util                        # Utility hooks, patterns, scheduled tasks
 | JWT Encryption | `flows/jwt-encryption.md` | JWT encode/decode with HKDF key derivation and AES-256-GCM |
 | Email Sending | `flows/email-sending.md` | Email decision tree, content assembly, and wp_mail delivery |
 
-## Available File Docs
+## Available File Notes
 
-| File | Doc | Why it needs a deep dive |
-|------|-----|--------------------------|
-| `class-contact-form.php` | `files/class-contact-form.md` | 3,477 lines. Static state, JWT crypto, dual render/submit role |
-| `class-contact-form-plugin.php` | `files/class-contact-form-plugin.md` | 3,953 lines. Singleton with 80+ methods spanning blocks, spam, GDPR, export |
-| `class-contact-form-field.php` | `files/class-contact-form-field.md` | 3,339 lines. 20+ field type renderers with style variations |
+| File | Doc | Why it needs notes |
+|------|-----|---------------------|
+| `class-contact-form.php` | `files/class-contact-form.md` | Static state, JWT crypto, dual render/submit role |
+| `class-contact-form-plugin.php` | `files/class-contact-form-plugin.md` | Singleton with many concerns: blocks, spam, GDPR, export |
+| `class-contact-form-field.php` | `files/class-contact-form-field.md` | 20+ field type renderers with style variations |
