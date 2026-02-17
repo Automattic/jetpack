@@ -19,7 +19,6 @@ concurrency:
 permissions:
   contents: write
   pull-requests: read
-  id-token: write
 
 jobs:
   generate:
@@ -85,7 +84,8 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          direct_prompt: |
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
             You are generating changelog entries for a Jetpack monorepo PR.
 
             The following projects need changelog entries:
@@ -112,15 +112,16 @@ jobs:
             7. After generating all entries, commit them with the message "Add changelog entries." and push to the current branch.
             8. Do NOT modify any files other than changelog entries.
 
-          allowed_tools: |
-            Bash(git diff:*)
-            Bash(git log:*)
-            Bash(git add:*)
-            Bash(git commit:*)
-            Bash(git push:*)
-            Bash(pnpm jetpack changelog:*)
-            Bash(cat projects/*/changelog/*)
-            Bash(ls projects/*/changelog/*)
+          claude_args: >-
+            --allowedTools
+            "Bash(git diff:*)"
+            "Bash(git log:*)"
+            "Bash(git add:*)"
+            "Bash(git commit:*)"
+            "Bash(git push:*)"
+            "Bash(pnpm jetpack changelog:*)"
+            "Bash(cat projects/*/changelog/*)"
+            "Bash(ls projects/*/changelog/*)"
             Read
             Glob
             Grep
