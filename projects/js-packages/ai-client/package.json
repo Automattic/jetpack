@@ -60,7 +60,7 @@
 		"@wordpress/url": "4.39.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
-		"markdown-it": "14.1.0",
+		"markdown-it": "14.1.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"turndown": "7.1.2"
