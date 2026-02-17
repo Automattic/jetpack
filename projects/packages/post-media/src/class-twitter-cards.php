@@ -175,7 +175,7 @@ class Twitter_Cards {
 		}
 
 		if ( empty( $og_tags['twitter:image'] ) && empty( $og_tags['twitter:image:src'] ) ) {
-			/** This action is documented in class.jetpack-twitter-cards.php */
+			/** This action is documented in class-twitter-cards.php */
 			$image = apply_filters( 'jetpack_twitter_cards_image_default', '' );
 			if ( ! empty( $image ) ) {
 				$og_tags['twitter:image'] = $image;
