@@ -31,7 +31,7 @@ class Jetpack_Twitter_Cards {
 	 * @return array OG tags inclusive of Twitter Card output.
 	 */
 	public static function twitter_cards_tags( $og_tags ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::twitter_cards_tags' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::twitter_cards_tags' );
 		return Twitter_Cards::twitter_cards_tags( $og_tags );
 	}
 
@@ -45,7 +45,7 @@ class Jetpack_Twitter_Cards {
 	 * @return string Twitter user value.
 	 */
 	public static function sanitize_twitter_user( $str ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::sanitize_twitter_user' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::sanitize_twitter_user' );
 		return Twitter_Cards::sanitize_twitter_user( $str );
 	}
 
@@ -59,7 +59,7 @@ class Jetpack_Twitter_Cards {
 	 * @return bool True if the default site tag is being used.
 	 */
 	public static function is_default_site_tag( $site_tag ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::is_default_site_tag' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::is_default_site_tag' );
 		return Twitter_Cards::is_default_site_tag( $site_tag );
 	}
 
@@ -74,7 +74,7 @@ class Jetpack_Twitter_Cards {
 	 * @return string Site tag.
 	 */
 	public static function prioritize_creator_over_default_site( $site_tag, $og_tags = array() ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::prioritize_creator_over_default_site' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::prioritize_creator_over_default_site' );
 		return Twitter_Cards::prioritize_creator_over_default_site( $site_tag, $og_tags );
 	}
 
@@ -89,7 +89,7 @@ class Jetpack_Twitter_Cards {
 	 * @return array
 	 */
 	public static function twitter_cards_define_type_based_on_image_count( $og_tags, $extract ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::twitter_cards_define_type_based_on_image_count' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::twitter_cards_define_type_based_on_image_count' );
 		return Twitter_Cards::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
 	}
 
@@ -103,7 +103,7 @@ class Jetpack_Twitter_Cards {
 	 * @return string Result of the OG tag.
 	 */
 	public static function twitter_cards_output( $og_tag ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::twitter_cards_output' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::twitter_cards_output' );
 		return Twitter_Cards::twitter_cards_output( $og_tag );
 	}
 
@@ -113,7 +113,7 @@ class Jetpack_Twitter_Cards {
 	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Twitter_Cards::settings_init() instead.
 	 */
 	public static function settings_init() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::settings_init' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::settings_init' );
 		Twitter_Cards::settings_init();
 	}
 
@@ -123,7 +123,7 @@ class Jetpack_Twitter_Cards {
 	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Twitter_Cards::sharing_global_options() instead.
 	 */
 	public static function sharing_global_options() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::sharing_global_options' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::sharing_global_options' );
 		Twitter_Cards::sharing_global_options();
 	}
 
@@ -135,7 +135,7 @@ class Jetpack_Twitter_Cards {
 	 * @return string Twitter via tag.
 	 */
 	public static function site_tag() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::site_tag' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::site_tag' );
 		return Twitter_Cards::site_tag();
 	}
 
@@ -145,7 +145,7 @@ class Jetpack_Twitter_Cards {
 	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Twitter_Cards::settings_field() instead.
 	 */
 	public static function settings_field() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::settings_field' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::settings_field' );
 		Twitter_Cards::settings_field();
 	}
 
@@ -155,7 +155,7 @@ class Jetpack_Twitter_Cards {
 	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Twitter_Cards::settings_validate() instead.
 	 */
 	public static function settings_validate() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::settings_validate' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::settings_validate' );
 		Twitter_Cards::settings_validate();
 	}
 
@@ -165,7 +165,7 @@ class Jetpack_Twitter_Cards {
 	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Twitter_Cards::init() instead.
 	 */
 	public static function init() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::init' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Post_Media\Twitter_Cards::init' );
 		Twitter_Cards::init();
 	}
 }
