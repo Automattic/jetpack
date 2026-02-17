@@ -30,6 +30,7 @@ runs:
         echo "node-version=${INPUT_NODE:-$NODE_VERSION}" >> "$GITHUB_OUTPUT"
         echo " Pnpm: $PNPM_VERSION"
         echo "pnpm-version=$PNPM_VERSION" >> "$GITHUB_OUTPUT"
+        echo "::notice::Wrong"
 
     - name: Remove disabled tools
       shell: bash

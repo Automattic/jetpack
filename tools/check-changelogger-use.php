@@ -8,6 +8,8 @@
 
 chdir( __DIR__ . '/../' );
 
+echo "::notice::Wrong\n";
+
 /**
  * Display usage information and exit.
  *
