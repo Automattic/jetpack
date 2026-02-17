@@ -4,12 +4,15 @@ export const ALLOWED_FORMATS = [ 'core/bold', 'core/italic' ];
 export const ALLOWED_INNER_BLOCKS = [ 'jetpack/label', 'jetpack/input' ];
 
 export const CORE_BLOCKS = [
+	'core/accordion',
 	'core/audio',
 	'core/code',
 	'core/columns',
+	'core/details',
 	'core/group',
 	'core/heading',
 	'core/html',
+	'core/icon',
 	'core/image',
 	'core/list',
 	'core/math',

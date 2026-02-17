@@ -15,6 +15,8 @@ import { validateField, isEmptyValue } from '../../contact-form/js/validate-help
 import { getRating } from '../field-rating/view.js';
 import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
 import { focusNextInput, submitForm } from './shared.ts';
+// Import field type icons view to register its callbacks.
+import './field-type-icons-view.js';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -64,6 +66,7 @@ const setSubmissionData = ( data = [] ) => {
 			url,
 			files,
 			rating,
+			type: item.type || 'text',
 			showPlainValue:
 				! url &&
 				! rating &&
@@ -238,9 +241,21 @@ const { state, actions } = store( NAMESPACE, {
 				return false;
 			}
 
-			// For single input forms, show submission errors in the field error div
+			// For single input forms, show submission errors in the field error div (only one field).
 			if ( context.isSingleInputForm && context.submissionError ) {
 				return true;
+			}
+
+			// For forced horizontal forms with submission error: use per-field errors when we have
+			// validation errors (showErrors + field.error). Otherwise show generic error only on
+			// the first field to avoid showing it on all fields.
+			if ( context.isForcedHorizontal && context.submissionError ) {
+				const hasFieldError = field.error && field.error !== 'yes';
+				if ( context.showErrors && hasFieldError ) {
+					return true;
+				}
+				const firstFieldId = Object.keys( context.fields || {} )[ 0 ];
+				return fieldId === firstFieldId;
 			}
 
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
@@ -304,9 +319,19 @@ const { state, actions } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
 
-			// For single input forms, show submission errors in the field error div
+			// For single input forms, show submission errors in the field error div.
 			if ( context.isSingleInputForm && context.submissionError ) {
 				return context.submissionError;
+			}
+
+			// For forced horizontal: use per-field errors when we have validation errors.
+			else if ( context.isForcedHorizontal && context.submissionError ) {
+				const hasFieldError = field.error && field.error !== 'yes';
+				if ( context.showErrors && hasFieldError ) {
+					return getError( field );
+				}
+				const firstFieldId = Object.keys( context.fields || {} )[ 0 ];
+				return fieldId === firstFieldId ? context.submissionError : '';
 			}
 
 			if ( ! ( context.showErrors || field.showFieldError ) || ! field.error ) {
@@ -333,13 +358,21 @@ const { state, actions } = store( NAMESPACE, {
 		get showFormErrors() {
 			const context = getContext();
 
-			return ! state.isFormValid && context.showErrors;
+			return (
+				! state.isFormValid &&
+				context.showErrors &&
+				! ( context.isSingleInputForm || context.isForcedHorizontal )
+			);
 		},
 
 		get showSubmissionError() {
 			const context = getContext();
 
-			return !! context.submissionError && ! state.showFormErrors;
+			return (
+				! ( context.isForcedHorizontal || context.isSingleInputForm ) &&
+				!! context.submissionError &&
+				! state.showFormErrors
+			);
 		},
 
 		get getFormErrorMessage() {

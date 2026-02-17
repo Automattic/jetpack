@@ -69,6 +69,7 @@
 
 		.connection-toggle-wrapper {
 			order: -1;
+			background-color: gb.$white;
 		}
 	}
 
@@ -88,6 +89,7 @@
 
 			.connection-toggle-wrapper {
 				order: unset;
+				background: gb.$gray-100;
 			}
 		}
 	}
@@ -106,5 +108,4 @@
 .connection-toggle-wrapper {
 	background: gb.$gray-100;
 	padding: 1rem;
-	padding-bottom: 0;
 }

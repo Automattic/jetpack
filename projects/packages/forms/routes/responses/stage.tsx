@@ -33,7 +33,8 @@ import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataview
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
-import { getActions } from './actions';
+import { getRowActions } from './actions';
+import '../../src/dashboard/wp-build/style.scss';
 import './style.scss';
 /**
  * Types
@@ -522,7 +523,7 @@ function StageInner() {
 
 	const actions = useMemo(
 		() =>
-			getActions( {
+			getRowActions( {
 				navigate,
 				searchParams,
 				view: statusView,
@@ -580,9 +581,10 @@ function StageInner() {
 			<DataViews
 				empty={
 					<EmptyResponses
-						status={ statusView }
 						isSearch={ !! view.search }
+						isSingleFormView={ isSingleFormView }
 						readStatusFilter={ readStatusFilter }
+						status={ statusView }
 					/>
 				}
 				data={ records || EMPTY_ARRAY }

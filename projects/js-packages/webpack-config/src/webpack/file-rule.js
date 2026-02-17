@@ -1,5 +1,5 @@
 const FileRule = ( options = {} ) => {
-	const exts = options.extensions || [ 'gif', 'jpg', 'jpeg', 'png', 'svg' ];
+	const exts = options.extensions || [ 'gif', 'jpg', 'jpeg', 'png', 'svg', 'webp' ];
 
 	let type;
 	if ( options.maxInlineSize > 0 ) {

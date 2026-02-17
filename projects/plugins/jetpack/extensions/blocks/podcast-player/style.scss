@@ -20,7 +20,7 @@ $jetpack-podcast-player-error: gb.$alert-red;
 	height: 1px;
 	width: 1px;
 	overflow: hidden;
-	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
 	white-space: nowrap; /* added line */
 }
 

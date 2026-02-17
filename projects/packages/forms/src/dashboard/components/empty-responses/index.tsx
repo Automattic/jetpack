@@ -38,9 +38,10 @@ type UseInstallAkismetReturn = {
 };
 
 type EmptyResponsesProps = {
-	status: string;
 	isSearch: boolean;
+	isSingleFormView?: boolean;
 	readStatusFilter?: 'unread' | 'read';
+	status: string;
 };
 
 type EmptyWrapperProps = {
@@ -163,7 +164,12 @@ export const EmptyWrapper = ( { heading = '', body = '', actions = null }: Empty
 	</VStack>
 );
 
-const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesProps ) => {
+const EmptyResponses = ( {
+	isSearch,
+	isSingleFormView = false,
+	readStatusFilter,
+	status,
+}: EmptyResponsesProps ) => {
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 	const {
 		shouldShowAkismetCta,
@@ -240,7 +246,12 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 				'jetpack-forms'
 			) }
 			actions={
-				<CreateFormButton label={ __( 'Create a new form', 'jetpack-forms' ) } variant="primary" />
+				! isSingleFormView && (
+					<CreateFormButton
+						label={ __( 'Create a new form', 'jetpack-forms' ) }
+						variant="primary"
+					/>
+				)
 			}
 		/>
 	);

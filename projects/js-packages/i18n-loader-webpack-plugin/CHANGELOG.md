@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.91] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
 ## [2.0.90] - 2026-02-02
 ### Changed
 - Update package dependencies. [#46854]
@@ -390,6 +394,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[2.0.91]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.90...v2.0.91
 [2.0.90]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.89...v2.0.90
 [2.0.89]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.88...v2.0.89
 [2.0.88]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.87...v2.0.88

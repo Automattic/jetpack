@@ -251,10 +251,6 @@ class WPCOM_Features {
 	private const WPCOM_TITAN_MAIL_PRODUCTS     = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
 
 	private const WPCOM_PERSONAL_AND_PREMIUM_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS );
-	private const WPCOM_SUMMER_SPECIAL_2025_PLANS  = array(
-		'required_sticker' => 'summer-special-2025',
-		self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
-	);
 	// Unlock Business-gated features for sites with the flex-cache-site sticker via the free plan.
 	private const WPCOM_FLEX_CACHE_SITE_FREE_PLANS = array(
 		'required_sticker' => 'flex-cache-site',
@@ -386,6 +382,7 @@ class WPCOM_Features {
 	public const BACKUPS                           = 'backups';
 	public const BACKUPS_DAILY                     = 'backups-daily';
 	public const BACKUPS_RESTORE                   = 'restore';
+	public const BACKUPS_SELF_SERVE                = 'backups-self-serve';
 	public const BACKUP_ONE_TIME                   = 'backup-one-time';
 	public const BLAZE_CREDITS_VOUCHER             = 'blaze-credits-voucher';
 	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
@@ -591,10 +588,9 @@ class WPCOM_Features {
 
 		self::ATOMIC                            => array(
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
 			array( 'product_type' => array( 'marketplace_plugin', 'saas_plugin' ) ),
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		// BACKUPS - Site has *any* kind of backups.
@@ -607,10 +603,9 @@ class WPCOM_Features {
 			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
 			self::JETPACK_GOLDEN_TOKEN,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		// BACKUPS_DAILY - Site has product that includes daily backups.
@@ -620,9 +615,23 @@ class WPCOM_Features {
 			self::JETPACK_SECURITY_DAILY_PLANS,
 		),
 		self::BACKUPS_RESTORE                   => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
+		),
+		self::BACKUPS_SELF_SERVE                => array(
+			self::JETPACK_BACKUP_DAILY_PLANS,
+			self::JETPACK_BACKUP_ONE_TIME,
+			self::JETPACK_BACKUP_REALTIME_PLANS,
+			self::JETPACK_BACKUP_T0_PLANS,
+			self::JETPACK_BACKUP_T1_PLANS,
+			self::JETPACK_BACKUP_T2_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::JETPACK_GOLDEN_TOKEN,
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_STAGING_PRODUCT,
+			// Business and higher can self serve restoring backups.
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 
@@ -773,22 +782,20 @@ class WPCOM_Features {
 		),
 		// EDIT_PLUGINS - Provides the edit_plugins capability on atomic sites, does nothing on simple sites.
 		self::EDIT_PLUGINS                      => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		// EDIT_THEMES - Provides the edit_themes capability on atomic sites, does nothing on simple sites.
 		self::EDIT_THEMES                       => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		// EMAIL_PROFESSIONAL - Access to Titan email hosting, often referred to as WordPress.com "Professional Email".
@@ -878,32 +885,29 @@ class WPCOM_Features {
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::INSTALL_PLUGINS                   => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::INSTALL_PURCHASED_PLUGINS         => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STARTER_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::INSTALL_THEMES                    => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::JETPACK_ALL_SITES,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::INSTALL_WOO_ONBOARDING_PLUGINS    => array(
@@ -927,10 +931,9 @@ class WPCOM_Features {
 			self::WPCOM_HUNDRED_YEAR_BUNDLE,
 		),
 		self::LIST_INSTALLED_PLUGINS            => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STARTER_PLANS,
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2.
@@ -976,11 +979,10 @@ class WPCOM_Features {
 		// MANAGE_PLUGINS - Atomic only feature. Can upload, install, and activate any 3rd party plugin.
 		self::MANAGE_PLUGINS                    => array(
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::MONITORING                        => array(
@@ -1160,7 +1162,6 @@ class WPCOM_Features {
 			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::RECURRING_PAYMENTS                => array(
@@ -1200,7 +1201,6 @@ class WPCOM_Features {
 			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 
@@ -1211,7 +1211,6 @@ class WPCOM_Features {
 		self::SCAN_MANAGED                      => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 
@@ -1487,12 +1486,11 @@ class WPCOM_Features {
 			self::JETPACK_ALL_SITES,
 		),
 		self::UPLOAD_PLUGINS                    => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::UPLOAD_SPACE_1GB                  => array(
@@ -1534,12 +1532,11 @@ class WPCOM_Features {
 			),
 		),
 		self::UPLOAD_THEMES                     => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
-			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 

@@ -63,25 +63,36 @@ Inner blocks meant to be used inside fields directly, or as containers of the in
 
 ## Icons
 
-Each block has an `icon.svg` file that serves as the single source of truth for the block's icon. The SVG is consumed via webpack's `?component` suffix (e.g., `import Icon from './icon.svg?component'`), which converts the SVG into a React component at build time.
+Each field block has two icon representations that must be kept in sync:
+
+- **`icon.jsx`** (or `icon.tsx`): Defines the icon using `@wordpress/primitives` (SVG, Path, etc.) for use in React contexts (block editor, dashboard).
+- **`icon.svg`**: Raw SVG file used by PHP server-side rendering and JS raw imports (`?raw`).
+
+**Important:** If you change an icon, update both `icon.jsx` and `icon.svg`. They are maintained independently and will not automatically stay in sync.
 
 ### Custom icons
 
-Most blocks (field-checkbox, field-consent, field-date, field-image-select, field-multiple-choice, field-name, field-number, field-rating, field-select, field-single-choice, field-slider, field-text, field-textarea, field-time, fieldset-image-options, form-step, form-step-container, input-image-option, input-range) use custom SVG icons. These were originally defined as inline JSX via `renderMaterialIcon()` and have been extracted into standalone `.svg` files with JSX attributes converted to standard SVG (e.g., `fillRule` → `fill-rule`, `clipRule` → `clip-rule`).
+Most field blocks use custom SVG icons defined inline with `@wordpress/primitives`:
 
-Their `icon.jsx` (or `icon.tsx`) imports the SVG directly:
+```jsx
+import { SVG, Path } from '@wordpress/primitives';
 
-```js
-import Icon from './icon.svg?component';
+const icon = (
+	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+		<Path d="..." />
+	</SVG>
+);
 
 export default {
-	src: Icon,
+	src: icon,
 };
 ```
 
+The corresponding `icon.svg` contains the same SVG data in standard HTML format (e.g., `fillRule` in JSX corresponds to `fill-rule` in the SVG file).
+
 ### WordPress icons
 
-Five blocks use icons from the `@wordpress/icons` package: field-email, field-file, field-hidden, field-telephone, and field-url. For these blocks, the `icon.jsx` continues to import from `@wordpress/icons` for use in the editor:
+Five blocks use icons from the `@wordpress/icons` package: field-email, field-file, field-hidden, field-telephone, and field-url. For these blocks, the `icon.jsx` imports from `@wordpress/icons` directly:
 
 ```js
 import { Icon } from '@wordpress/components';
@@ -92,7 +103,7 @@ export default {
 };
 ```
 
-The `icon.svg` files for these blocks are copies of the corresponding `@wordpress/icons` SVGs, made available for any non-React consumer that needs the icon as raw SVG markup.
+The `icon.svg` files for these blocks are copies of the corresponding `@wordpress/icons` SVGs, made available for non-React consumers.
 
 | Block | `@wordpress/icons` export |
 |---|---|
@@ -102,18 +113,8 @@ The `icon.svg` files for these blocks are copies of the corresponding `@wordpres
 | `field-telephone` | `mobile` |
 | `field-url` | `globe` |
 
-### Regenerating a WordPress icon SVG
+### Updating an icon
 
-If a `@wordpress/icons` icon changes upstream, regenerate the SVG:
-
-1. Check the block's `icon.jsx` to find which export it uses (see mapping table above).
-2. Locate the source in `node_modules/@wordpress/icons/build/library/<name>.js`.
-3. Extract the `<path>` element(s) with their attributes.
-4. Convert React JSX attributes to standard SVG attributes (e.g., `fillRule` → `fill-rule`, `clipRule` → `clip-rule`).
-5. Wrap in the standard SVG template:
-   ```xml
-   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-       <!-- path element(s) here -->
-   </svg>
-   ```
-6. Save as `icon.svg` in the block's directory.
+1. Update the `icon.jsx` file with the new `@wordpress/primitives` JSX.
+2. Update the `icon.svg` file with the equivalent raw SVG (convert JSX attributes: `fillRule` to `fill-rule`, `clipRule` to `clip-rule`, `strokeWidth` to `stroke-width`).
+3. For `@wordpress/icons` blocks, if the upstream icon changes, also regenerate the `icon.svg` from the library source at `node_modules/@wordpress/icons/build/library/<name>.js`.

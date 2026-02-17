@@ -101,6 +101,50 @@ describe( 'PieSemiCircleChart', () => {
 		} );
 	} );
 
+	it( 'renders custom tooltip when renderTooltip prop is provided', async () => {
+		const user = userEvent.setup();
+		const testData = [
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 5 },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 1 },
+			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 2 },
+		];
+
+		const customTooltipRenderer = jest.fn( ( { tooltipData } ) => (
+			<div role="tooltip" data-testid="custom-tooltip">
+				Custom: { tooltipData.label } - { tooltipData.value }
+			</div>
+		) );
+
+		renderPieChart( {
+			data: testData,
+			withTooltips: true,
+			width: 400,
+			renderTooltip: customTooltipRenderer,
+		} );
+
+		const segments = screen.getAllByTestId( 'pie-segment' );
+		await user.hover( segments[ 0 ] );
+
+		await waitFor( () => {
+			expect( screen.getByTestId( 'custom-tooltip' ) ).toBeInTheDocument();
+		} );
+
+		const customTooltip = screen.getByTestId( 'custom-tooltip' );
+		expect( customTooltip ).toHaveTextContent( 'Custom: MacOS - 30000' );
+		expect( customTooltipRenderer ).toHaveBeenCalled();
+
+		// Verify the renderer received correct parameters
+		expect( customTooltipRenderer ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				tooltipData: expect.objectContaining( {
+					label: 'MacOS',
+					value: 30000,
+					percentage: 5,
+				} ),
+			} )
+		);
+	} );
+
 	it( 'applies custom className', () => {
 		const customClass = 'custom-chart';
 		renderPieChart( { data: mockData, className: customClass } );

@@ -1,16 +1,19 @@
 /**
  * External dependencies
  */
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 /**
  * WordPress dependencies
  */
 import { Breadcrumbs } from '@wordpress/admin-ui';
+import { DropdownMenu } from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
+import { moreVertical, plus, download, plugins, trash } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -18,9 +21,16 @@ import { Stack } from '@wordpress/ui';
 import CreateFormButton from '../../components/create-form-button';
 import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
+import EmptySpamConfirmationModal from '../../components/empty-spam-button/confirmation-modal';
 import EmptyTrashButton from '../../components/empty-trash-button';
-import BackToFormsButton from '../components/back-to-forms-button';
-import ExportResponsesButton from '../components/export-responses-button';
+import EmptyTrashConfirmationModal from '../../components/empty-trash-button/confirmation-modal';
+import ExportResponsesButton from '../../components/export-responses/button';
+import ExportResponsesModal from '../../components/export-responses/modal';
+import useCreateForm from '../../hooks/use-create-form';
+import useEmptySpam from '../../hooks/use-empty-spam';
+import useEmptyTrash from '../../hooks/use-empty-trash';
+import useExportResponses from '../../hooks/use-export-responses';
+import useInboxData from '../../hooks/use-inbox-data';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import type { ReactNode } from 'react';
 
@@ -62,9 +72,29 @@ export default function usePageHeaderDetails(
 		return Number.isFinite( numberValue ) && numberValue > 0 ? numberValue : null;
 	}, [ sourceId ] );
 
+	// Detect mobile viewport
+	const [ isSm ] = useBreakpointMatch( 'sm' );
+
 	// Mutually-exclusive screen flags.
 	const isFormsScreen = screen === 'forms';
 	const isSingleFormScreen = screen === 'responses' && sourceIdNumber !== null;
+
+	// Hooks for mobile dropdown menu actions
+	const { openNewForm } = useCreateForm();
+	const {
+		showExportModal,
+		openModal: openExportModal,
+		closeModal: closeExportModal,
+		onExport,
+		autoConnectGdrive,
+		exportLabel,
+	} = useExportResponses();
+	const { totalItems, isLoadingData } = useInboxData();
+	const hasResponses = ! isLoadingData && totalItems > 0;
+
+	// Empty spam/trash hooks
+	const emptySpam = useEmptySpam();
+	const emptyTrash = useEmptyTrash();
 
 	const formRecord = useSelect(
 		select =>
@@ -84,10 +114,6 @@ export default function usePageHeaderDetails(
 	}, [ formRecord?.title?.rendered ] );
 
 	const breadcrumbsItems = useMemo( () => {
-		if ( isFormsScreen ) {
-			return [ { label: __( 'Forms', 'jetpack-forms' ) } ];
-		}
-
 		if ( isSingleFormScreen ) {
 			return [
 				{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
@@ -95,9 +121,8 @@ export default function usePageHeaderDetails(
 			];
 		}
 
-		// Responses list screen.
-		return [ { label: __( 'Form Responses', 'jetpack-forms' ) } ];
-	}, [ formTitle, isFormsScreen, isSingleFormScreen ] );
+		return [ { label: __( 'Forms', 'jetpack-forms' ) } ];
+	}, [ formTitle, isSingleFormScreen ] );
 
 	const breadcrumbs = useMemo( () => {
 		return (
@@ -128,22 +153,174 @@ export default function usePageHeaderDetails(
 	}, [ formTitle, isFormsScreen, isSingleFormScreen ] );
 
 	const actions = useMemo( () => {
+		// Mobile: show dropdown menu with actions
+		if ( isSm ) {
+			const dropdownControls = [];
+
+			if ( isFormsScreen ) {
+				// Forms screen: Manage integrations, Create a form
+				if ( isIntegrationsEnabled && showDashboardIntegrations ) {
+					dropdownControls.push( {
+						icon: plugins,
+						onClick: onOpenIntegrations,
+						title: __( 'Manage integrations', 'jetpack-forms' ),
+					} );
+				}
+
+				dropdownControls.push( {
+					icon: plus,
+					onClick: () => openNewForm( {} ),
+					title: __( 'Create a form', 'jetpack-forms' ),
+				} );
+			} else if ( isSingleFormScreen ) {
+				// Single form screen: Edit form (not in trash/spam), Export, Empty trash/spam
+				if ( statusView === 'inbox' && sourceIdNumber ) {
+					dropdownControls.push( {
+						onClick: () => {
+							const fallbackEditUrl = `post.php?post=${ sourceIdNumber }&action=edit&post_type=jetpack_form`;
+							const url = new URL( fallbackEditUrl, window.location.origin );
+							window.location.href = url.toString();
+						},
+						title: __( 'Edit form', 'jetpack-forms' ),
+					} );
+				}
+				dropdownControls.push( {
+					icon: download,
+					onClick: openExportModal,
+					title: exportLabel,
+					isDisabled: ! hasResponses,
+				} );
+
+				if ( statusView === 'trash' ) {
+					dropdownControls.push( {
+						icon: trash,
+						onClick: emptyTrash.openConfirmDialog,
+						title: __( 'Empty trash', 'jetpack-forms' ),
+						isDisabled: emptyTrash.isEmpty || emptyTrash.isEmptying,
+					} );
+				}
+
+				if ( statusView === 'spam' ) {
+					dropdownControls.push( {
+						icon: trash,
+						onClick: emptySpam.openConfirmDialog,
+						title: __( 'Delete spam', 'jetpack-forms' ),
+						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
+					} );
+				}
+			} else {
+				// Responses list screen: Manage integrations (inbox only), Create a form (inbox only), Export, Empty trash/spam
+				if ( statusView === 'inbox' && isIntegrationsEnabled && showDashboardIntegrations ) {
+					dropdownControls.push( {
+						icon: plugins,
+						onClick: onOpenIntegrations,
+						title: __( 'Manage integrations', 'jetpack-forms' ),
+					} );
+				}
+
+				if ( statusView === 'inbox' ) {
+					dropdownControls.push( {
+						icon: plus,
+						onClick: () => openNewForm( { showPatterns: false } ),
+						title: __( 'Create a form', 'jetpack-forms' ),
+					} );
+				}
+
+				dropdownControls.push( {
+					icon: download,
+					onClick: openExportModal,
+					title: exportLabel,
+					isDisabled: ! hasResponses,
+				} );
+
+				if ( statusView === 'trash' ) {
+					dropdownControls.push( {
+						icon: trash,
+						onClick: emptyTrash.openConfirmDialog,
+						title: __( 'Empty trash', 'jetpack-forms' ),
+						isDisabled: emptyTrash.isEmpty || emptyTrash.isEmptying,
+					} );
+				}
+
+				if ( statusView === 'spam' ) {
+					dropdownControls.push( {
+						icon: trash,
+						onClick: emptySpam.openConfirmDialog,
+						title: __( 'Delete spam', 'jetpack-forms' ),
+						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
+					} );
+				}
+			}
+
+			if ( dropdownControls.length === 0 ) {
+				return null;
+			}
+
+			return [
+				<DropdownMenu
+					key="actions-menu"
+					controls={ dropdownControls }
+					icon={ moreVertical }
+					label={ __( 'More actions', 'jetpack-forms' ) }
+				/>,
+				// Include modals when on mobile
+				...( showExportModal
+					? [
+							<ExportResponsesModal
+								key="export-modal"
+								onRequestClose={ closeExportModal }
+								onExport={ onExport }
+								autoConnectGdrive={ autoConnectGdrive }
+							/>,
+					  ]
+					: [] ),
+				...( emptyTrash.isConfirmDialogOpen
+					? [
+							<EmptyTrashConfirmationModal
+								key="empty-trash-confirm"
+								isOpen={ emptyTrash.isConfirmDialogOpen }
+								onCancel={ emptyTrash.closeConfirmDialog }
+								onConfirm={ emptyTrash.onConfirmEmptying }
+								totalItemsTrash={ emptyTrash.totalItemsTrash }
+								selectedResponsesCount={ emptyTrash.selectedResponsesCount }
+							/>,
+					  ]
+					: [] ),
+				...( emptySpam.isConfirmDialogOpen
+					? [
+							<EmptySpamConfirmationModal
+								key="empty-spam-confirm"
+								isOpen={ emptySpam.isConfirmDialogOpen }
+								onCancel={ emptySpam.closeConfirmDialog }
+								onConfirm={ emptySpam.onConfirmEmptying }
+								totalItemsSpam={ emptySpam.totalItemsSpam }
+								selectedResponsesCount={ emptySpam.selectedResponsesCount }
+							/>,
+					  ]
+					: [] ),
+			];
+		}
+
+		// Desktop: show individual buttons
 		if ( isFormsScreen ) {
 			return [
 				...( isIntegrationsEnabled && showDashboardIntegrations
 					? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
 					: [] ),
-				<CreateFormButton key="create" />,
+				<CreateFormButton key="create" variant="primary" showIcon={ false } />,
 			];
 		}
 
 		if ( isSingleFormScreen ) {
 			return [
-				<BackToFormsButton key="back-to-forms" />,
 				...( sourceIdNumber
 					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
 					: [] ),
-				<ExportResponsesButton key="export" isPrimary={ false } />,
+				<ExportResponsesButton
+					key="export"
+					isPrimary={ statusView === 'inbox' }
+					showIcon={ false }
+				/>,
 				...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 				...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
 			];
@@ -155,13 +332,25 @@ export default function usePageHeaderDetails(
 				? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
 				: [] ),
 			...( statusView === 'inbox'
-				? [ <CreateFormButton key="create" variant="secondary" showPatterns={ false } /> ]
+				? [
+						<CreateFormButton
+							key="create"
+							variant="secondary"
+							showPatterns={ false }
+							showIcon={ false }
+						/>,
+				  ]
 				: [] ),
-			<ExportResponsesButton key="export" isPrimary={ statusView === 'inbox' } />,
+			<ExportResponsesButton
+				key="export"
+				isPrimary={ statusView === 'inbox' }
+				showIcon={ false }
+			/>,
 			...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 			...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
 		];
 	}, [
+		isSm,
 		isIntegrationsEnabled,
 		onOpenIntegrations,
 		showDashboardIntegrations,
@@ -169,6 +358,30 @@ export default function usePageHeaderDetails(
 		isFormsScreen,
 		isSingleFormScreen,
 		statusView,
+		openNewForm,
+		openExportModal,
+		showExportModal,
+		closeExportModal,
+		onExport,
+		autoConnectGdrive,
+		hasResponses,
+		exportLabel,
+		emptyTrash.openConfirmDialog,
+		emptyTrash.isEmpty,
+		emptyTrash.isEmptying,
+		emptyTrash.isConfirmDialogOpen,
+		emptyTrash.closeConfirmDialog,
+		emptyTrash.onConfirmEmptying,
+		emptyTrash.totalItemsTrash,
+		emptyTrash.selectedResponsesCount,
+		emptySpam.openConfirmDialog,
+		emptySpam.isEmpty,
+		emptySpam.isEmptying,
+		emptySpam.isConfirmDialogOpen,
+		emptySpam.closeConfirmDialog,
+		emptySpam.onConfirmEmptying,
+		emptySpam.totalItemsSpam,
+		emptySpam.selectedResponsesCount,
 	] );
 
 	return { breadcrumbs, subtitle, actions };

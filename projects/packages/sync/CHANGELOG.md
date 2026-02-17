@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.27.0] - 2026-02-10
+### Changed
+- Ensure we sync directly during cron. [#46887]
+
 ## [4.26.0] - 2026-02-02
 ### Added
 - Introduce Sync blacklist for `jetpack_options`. [#46852]
@@ -1648,6 +1652,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.27.0]: https://github.com/Automattic/jetpack-sync/compare/v4.26.0...v4.27.0
 [4.26.0]: https://github.com/Automattic/jetpack-sync/compare/v4.25.2...v4.26.0
 [4.25.2]: https://github.com/Automattic/jetpack-sync/compare/v4.25.1...v4.25.2
 [4.25.1]: https://github.com/Automattic/jetpack-sync/compare/v4.25.0...v4.25.1

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.55.0",
+	"version": "0.56.2",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/charts"
+		"url": "git+https://github.com/Automattic/charts.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -201,7 +200,7 @@
 	},
 	"dependencies": {
 		"@automattic/number-formatters": "workspace:*",
-		"@babel/runtime": "7.28.4",
+		"@babel/runtime": "7.28.6",
 		"@react-spring/web": "9.7.5",
 		"@visx/annotation": "^3.12.0",
 		"@visx/axis": "^3.12.0",
@@ -232,7 +231,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.28.4",
+		"@babel/core": "7.29.0",
 		"@storybook/addon-docs": "10.2.3",
 		"@storybook/react": "10.2.3",
 		"@testing-library/dom": "^10.0.0",

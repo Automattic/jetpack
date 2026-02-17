@@ -147,6 +147,7 @@ export const CustomRenderProps: Story = {
 					marginBottom: '32px',
 					color: 'white',
 					textAlign: 'center',
+					height: 'fit-content',
 				} }
 			>
 				<h3

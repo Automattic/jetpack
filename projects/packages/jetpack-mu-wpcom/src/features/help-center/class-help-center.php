@@ -44,7 +44,8 @@ class Help_Center {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
-		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
+		$blog_id               = get_current_blog_id();
+		$this->is_support_site = ( defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_SUPPORT_BLOG_IDS, true ) ) || ( defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true ) );
 
 		// Always register REST API endpoints.
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
@@ -253,7 +254,7 @@ class Help_Center {
 		);
 
 		wp_enqueue_style(
-			'help-center-style',
+			'help-center-' . $variant . '-style',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
 			$version
@@ -497,8 +498,13 @@ class Help_Center {
 	 */
 	public function is_block_editor() {
 		global $current_screen;
+
+		if ( ! $current_screen ) {
+			return false;
+		}
+
 		// widgets screen does have the block editor but also no Gutenberg top bar.
-		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+		return $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
 	}
 
 	/**
@@ -633,14 +639,14 @@ class Help_Center {
 		}
 
 		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
-		if ( ! is_user_logged_in() && ! self::is_proxied() ) {
+		if ( ! is_user_logged_in() ) {
 			if ( ! $this->is_support_site ) {
 				return;
 			}
 
 			$experiment_variation = null;
 			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
-				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages' );
+				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages_v2' );
 			} else {
 				log2logstash(
 					array(
