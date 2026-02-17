@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from 'child_process';
-import fs, { readFileSync, readdirSync } from 'fs';
+import fs, { readFileSync } from 'fs';
 import net from 'net';
-import os from 'os';
 import { dirname, resolve } from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
@@ -306,213 +305,6 @@ const initJetpack = async () => {
 };
 
 /**
- * Read saved rsync destinations from the config store.
- * Checks both the Docker volume location and the standard configstore location.
- *
- * @param {string} monorepoRoot - Path to the monorepo root
- * @return {object} Object mapping alias names to destination paths
- */
-const readRsyncConfig = monorepoRoot => {
-	// Possible config locations (Docker volume first, then standard configstore)
-	const configPaths = [
-		resolve(
-			monorepoRoot,
-			'tools/docker/data/monorepo/.config/configstore/automattic/jetpack-cli/rsync.json'
-		),
-		resolve(
-			process.env.XDG_CONFIG_HOME || resolve( os.homedir(), '.config', 'configstore' ),
-			'automattic',
-			'jetpack-cli',
-			'rsync.json'
-		),
-	];
-
-	for ( const configPath of configPaths ) {
-		try {
-			if ( fs.existsSync( configPath ) ) {
-				return JSON.parse( readFileSync( configPath, 'utf8' ) );
-			}
-		} catch {
-			// Ignore errors, try next path
-		}
-	}
-	return {};
-};
-
-/**
- * List available plugins in the monorepo.
- *
- * @param {string} monorepoRoot - Path to the monorepo root
- * @return {Array} Array of plugin directory names
- */
-const listPlugins = monorepoRoot => {
-	const pluginsDir = resolve( monorepoRoot, 'projects/plugins' );
-	try {
-		return readdirSync( pluginsDir, { withFileTypes: true } )
-			.filter( dirent => dirent.isDirectory() )
-			.map( dirent => dirent.name )
-			.sort();
-	} catch {
-		return [];
-	}
-};
-
-/**
- * Parse rsync command args to extract plugin and dest values.
- *
- * @param {Array} args - Command line arguments
- * @return {object} Object with plugin, dest, and other parsed values
- */
-const parseRsyncArgs = args => {
-	const result = { plugin: null, dest: null, watch: false, remainingArgs: [] };
-
-	for ( let i = 0; i < args.length; i++ ) {
-		const arg = args[ i ];
-		if ( arg === '--plugin' || arg === '-p' ) {
-			result.plugin = args[ ++i ];
-		} else if ( arg.startsWith( '--plugin=' ) ) {
-			result.plugin = arg.split( '=' )[ 1 ];
-		} else if ( arg === '--dest' || arg === '-d' ) {
-			result.dest = args[ ++i ];
-		} else if ( arg.startsWith( '--dest=' ) ) {
-			result.dest = arg.split( '=' )[ 1 ];
-		} else if ( arg === '--watch' || arg === '-w' ) {
-			result.watch = true;
-			result.remainingArgs.push( arg );
-		} else if ( arg !== 'rsync' ) {
-			result.remainingArgs.push( arg );
-		}
-	}
-
-	return result;
-};
-
-/**
- * Prompt for plugin selection if not already specified.
- *
- * @param {string}      monorepoRoot - Path to the monorepo root
- * @param {string|null} currentValue - Current plugin value from args
- * @return {Promise<string>} Selected plugin name
- */
-const promptForPlugin = async ( monorepoRoot, currentValue ) => {
-	if ( currentValue ) {
-		return currentValue;
-	}
-
-	const plugins = listPlugins( monorepoRoot );
-	if ( plugins.length === 0 ) {
-		throw new Error( 'No plugins found in projects/plugins/' );
-	}
-
-	const choices = plugins.map( p => ( { title: p, value: p } ) );
-
-	const response = await prompts( {
-		type: 'autocomplete',
-		name: 'plugin',
-		message: 'Which plugin?',
-		choices,
-		suggest: ( input, choices_ ) => {
-			const inputLower = input.toLowerCase();
-			return Promise.resolve(
-				choices_.filter( choice => choice.title.toLowerCase().includes( inputLower ) )
-			);
-		},
-	} );
-
-	if ( ! response.plugin ) {
-		throw new Error( 'Plugin selection cancelled' );
-	}
-
-	return response.plugin;
-};
-
-/**
- * Prompt for destination selection if not already specified.
- *
- * @param {string}      monorepoRoot - Path to the monorepo root
- * @param {string|null} currentValue - Current dest value from args
- * @return {Promise<string>} Selected destination path or alias
- */
-const promptForDest = async ( monorepoRoot, currentValue ) => {
-	const config = readRsyncConfig( monorepoRoot );
-
-	// If current value is an alias, resolve it
-	if ( currentValue ) {
-		// Configstore escapes dots in keys by replacing . with \.
-		// We need to check both the original key and the escaped version
-		// Use split/join for safe string replacement (no regex special char issues)
-		const escapedKey = currentValue.split( '.' ).join( '\\.' );
-		if ( config[ escapedKey ] ) {
-			console.log( `Alias found, using dest: ${ config[ escapedKey ] }` );
-			return config[ escapedKey ];
-		}
-		if ( config[ currentValue ] ) {
-			console.log( `Alias found, using dest: ${ config[ currentValue ] }` );
-			return config[ currentValue ];
-		}
-		// Not an alias, use as-is
-		return currentValue;
-	}
-
-	const savedDests = Object.keys( config );
-
-	if ( savedDests.length === 0 ) {
-		// No saved destinations, prompt for new one
-		const response = await prompts( {
-			type: 'text',
-			name: 'dest',
-			message:
-				"Input destination host:path to the plugin's dir or the /plugins or /mu-plugins dir:",
-			validate: v => ( v === '' ? 'Please enter a host:path' : true ),
-		} );
-
-		if ( ! response.dest ) {
-			throw new Error( 'Destination input cancelled' );
-		}
-
-		return response.dest;
-	}
-
-	// Show saved destinations with option to create new
-	const choices = [
-		{ title: 'Create new destination', value: '__new__' },
-		...savedDests.map( key => ( {
-			title: `${ key } → ${ config[ key ] }`,
-			value: config[ key ],
-		} ) ),
-	];
-
-	const response = await prompts( {
-		type: 'select',
-		name: 'dest',
-		message: 'Choose destination:',
-		choices,
-	} );
-
-	if ( response.dest === undefined ) {
-		throw new Error( 'Destination selection cancelled' );
-	}
-
-	if ( response.dest === '__new__' ) {
-		const newResponse = await prompts( {
-			type: 'text',
-			name: 'dest',
-			message:
-				"Input destination host:path to the plugin's dir or the /plugins or /mu-plugins dir:",
-			validate: v => ( v === '' ? 'Please enter a host:path' : true ),
-		} );
-
-		if ( ! newResponse.dest ) {
-			throw new Error( 'Destination input cancelled' );
-		}
-
-		return newResponse.dest;
-	}
-
-	return response.dest;
-};
-
-/**
  * Run rsync command with SSH TCP proxy.
  * This allows rsync to run inside Docker while SSH connections are handled by the host,
  * enabling support for Secure Enclave SSH keys (like AutoProxxy) that can't be forwarded into Docker.
@@ -659,7 +451,10 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 			} );
 
 			// Listen on localhost (0 = OS assigns a free port)
-			tcpServer.listen( 0, '127.0.0.1', () => {
+			// On Linux, Docker's host.docker.internal resolves to the bridge IP,
+			// not 127.0.0.1, so we need to listen on all interfaces.
+			const bindAddress = process.platform === 'linux' ? '0.0.0.0' : '127.0.0.1';
+			tcpServer.listen( 0, bindAddress, () => {
 				const addr = tcpServer.address();
 				resolvePort( addr.port );
 			} );
@@ -762,19 +557,7 @@ const main = async () => {
 			! args.includes( '--help' ) &&
 			! args.includes( '-h' )
 		) {
-			// Parse args to check if plugin and dest are provided
-			const parsed = parseRsyncArgs( args );
-
-			// Prompt for missing values on the host side (before starting Docker)
-			// This is necessary because interactive prompts don't work when stdin
-			// is being proxied through the TCP connection
-			const plugin = await promptForPlugin( monorepoRoot, parsed.plugin );
-			const dest = await promptForDest( monorepoRoot, parsed.dest );
-
-			// Build the final args with the selected/provided values
-			const finalArgs = [ 'rsync', '--plugin', plugin, '--dest', dest, ...parsed.remainingArgs ];
-
-			await runRsyncWithProxy( monorepoRoot, finalArgs );
+			await runRsyncWithProxy( monorepoRoot, args );
 			return;
 		}
 

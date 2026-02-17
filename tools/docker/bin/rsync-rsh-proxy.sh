@@ -19,7 +19,7 @@ if [[ -z "${RSYNC_PROXY_PORT:-}" ]]; then
     exit 1
 fi
 
-{
+exec socat STDIO "TCP:host.docker.internal:$RSYNC_PROXY_PORT" < <(
     jq -nc '$ARGS.positional' --args -- ssh "$@"
     cat
-} | socat STDIO "TCP:host.docker.internal:$RSYNC_PROXY_PORT"
+)
