@@ -260,7 +260,6 @@ class Twitter_Cards_Test extends BaseTestCase {
 		// Create a simple test PNG file.
 		$img = imagecreatetruecolor( 240, 240 );
 		imagepng( $img, $image_path );
-		imagedestroy( $img );
 
 		$attachment_id = wp_insert_attachment(
 			array(

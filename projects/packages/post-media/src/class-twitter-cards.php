@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Post_Media;
 
-use Automattic\Jetpack\Jetpack_Options;
-
 /**
  * Twitter Cards
  *
@@ -135,6 +133,8 @@ class Twitter_Cards {
 				}
 			}
 		}
+
+			$extract = array();
 
 		// Only proceed with media analysis if a featured image has not superseded it already.
 		if ( empty( $og_tags['twitter:image'] ) && empty( $og_tags['twitter:image:src'] ) ) {
@@ -310,7 +310,7 @@ class Twitter_Cards {
 	public static function site_tag() {
 		$site_tag = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
 			trim( get_option( 'twitter_via' ) ) :
-			( class_exists( Jetpack_Options::class ) ? Jetpack_Options::get_option_and_ensure_autoload( 'jetpack-twitter-cards-site-tag', '' ) : get_option( 'jetpack-twitter-cards-site-tag', '' ) );
+			( class_exists( 'Jetpack_Options' ) ? \Jetpack_Options::get_option_and_ensure_autoload( 'jetpack-twitter-cards-site-tag', '' ) : get_option( 'jetpack-twitter-cards-site-tag', '' ) );
 		if ( empty( $site_tag ) ) {
 			/** This action is documented in modules/sharedaddy/sharing-sources.php */
 			return apply_filters( 'jetpack_sharing_twitter_via', '', null );
