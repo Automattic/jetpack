@@ -1343,12 +1343,8 @@ class WPCOM_Features {
 			self::WPCOM_ALL_SITES,
 		),
 		self::SOCIAL_UNIFIED_UI_V1              => array(
-			array(
-				// The feature is not available yet.
-				'before' => '2004-01-00',
-				self::WPCOM_ALL_SITES,
-				self::JETPACK_ALL_SITES,
-			),
+			self::WPCOM_ALL_SITES,
+			// For Jetpack sites, the feature is controlled in Store_Product_List.
 		),
 		self::SOCIAL_EDITOR_PREVIEW             => array(
 			self::WPCOM_ALL_SITES,
