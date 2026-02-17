@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Add documentation and tests for TimeSeriesForecastChart, no user-facing changes.

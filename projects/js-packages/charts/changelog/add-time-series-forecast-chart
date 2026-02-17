@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add TimeSeriesForecastChart component for visualizing time series data with forecast periods.
