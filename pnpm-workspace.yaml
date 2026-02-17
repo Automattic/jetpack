@@ -38,6 +38,8 @@ minimumReleaseAgeExclude:
   - axios@1.13.5
   # Renovate security update: qs@6.14.2
   - qs@6.14.2
+  # Renovate security update: markdown-it@14.1.1
+  - markdown-it@14.1.1
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

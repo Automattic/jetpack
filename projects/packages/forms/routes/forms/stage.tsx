@@ -21,6 +21,7 @@ import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/ind
 import { NON_TRASH_FORM_STATUSES } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
+import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import '../../src/dashboard/wp-build/style.scss';
@@ -535,6 +536,12 @@ function StageInner() {
 	);
 }
 
-const Stage = () => <StageInner />;
+const Stage = () => {
+	return (
+		<WpRouteDashboardSearchParamsProvider from="/forms">
+			<StageInner />
+		</WpRouteDashboardSearchParamsProvider>
+	);
+};
 
 export { Stage as stage };

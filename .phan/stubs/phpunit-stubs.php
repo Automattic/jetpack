@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.11
+ * Stubs automatically generated from PHPUnit 12.5.12
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -11266,7 +11266,7 @@ class TestSuite implements \IteratorAggregate, \PHPUnit\Framework\Reorderable, \
     {
     }
     /**
-     * Returns an iterator for this test suite.
+     * @return \Iterator<non-negative-int, Test>
      */
     public function getIterator(): \Iterator
     {
