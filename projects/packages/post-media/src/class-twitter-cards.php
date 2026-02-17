@@ -99,7 +99,7 @@ class Twitter_Cards {
 		// Try to give priority to featured images.
 		// @todo Jetpack_PostImages is defined in the Jetpack plugin. It should be moved to this package.
 		if ( class_exists( 'Jetpack_PostImages' ) && ! empty( $post_id ) ) {
-			$post_image = \Jetpack_PostImages::get_image(
+			$post_image = \Jetpack_PostImages::get_image( // @phan-suppress-current-line PhanUndeclaredClassMethod -- Guarded by class_exists().
 				$post_id,
 				array(
 					'width'  => 144,
@@ -134,7 +134,7 @@ class Twitter_Cards {
 			}
 		}
 
-			$extract = array();
+		$extract = array();
 
 		// Only proceed with media analysis if a featured image has not superseded it already.
 		if ( empty( $og_tags['twitter:image'] ) && empty( $og_tags['twitter:image:src'] ) ) {
@@ -146,7 +146,7 @@ class Twitter_Cards {
 			// Test again, class should already be auto-loaded in Jetpack.
 			// If not, skip extra media analysis and stick with a summary card.
 			if ( class_exists( 'Jetpack_Media_Summary' ) && ! empty( $post_id ) ) {
-				$extract = \Jetpack_Media_Summary::get( $post_id );
+				$extract = \Jetpack_Media_Summary::get( $post_id ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- Guarded by class_exists().
 
 				if ( 'gallery' === $extract['type'] ) {
 					list( $og_tags, $card_type ) = self::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
@@ -164,13 +164,13 @@ class Twitter_Cards {
 
 		// Make sure we have a description for Twitter, their validator isn't happy without some content (single space not valid).
 		if ( ! isset( $og_tags['og:description'] ) || '' === trim( $og_tags['og:description'] ) || __( 'Visit the post for more.', 'jetpack-post-media' ) === $og_tags['og:description'] ) { // empty( trim( $og_tags['og:description'] ) ) isn't valid php.
-			$has_creator = ( ! empty( $og_tags['twitter:creator'] ) && '@wordpressdotcom' !== $og_tags['twitter:creator'] ) ? true : false;
+			$has_creator = ! empty( $og_tags['twitter:creator'] ) && '@wordpressdotcom' !== $og_tags['twitter:creator'];
 			if ( ! empty( $extract ) && 'video' === $extract['type'] ) { // use $extract['type'] since $card_type is 'summary' for video posts.
 				/* translators: %s is the post author */
-				$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __( 'Video post by %s.', 'jetpack-post-media' ), $og_tags['twitter:creator'] ) : __( 'Video post.', 'jetpack-post-media' );
+				$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __( 'Video post by %s.', 'jetpack-post-media' ), $og_tags['twitter:creator'] ?? '' ) : __( 'Video post.', 'jetpack-post-media' );
 			} else {
 				/* translators: %s is the post author */
-				$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __( 'Post by %s.', 'jetpack-post-media' ), $og_tags['twitter:creator'] ) : __( 'Visit the post for more.', 'jetpack-post-media' );
+				$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __( 'Post by %s.', 'jetpack-post-media' ), $og_tags['twitter:creator'] ?? '' ) : __( 'Visit the post for more.', 'jetpack-post-media' );
 			}
 		}
 
@@ -239,21 +239,21 @@ class Twitter_Cards {
 			// No images, use Blavatar as a thumbnail for the summary type.
 			// @todo blavatar_domain, blavatar_exists, and blavatar_url are WordPress.com functions. They should be abstracted.
 			if ( function_exists( 'blavatar_domain' ) ) {
-				$blavatar_domain = blavatar_domain( site_url() );
-				if ( blavatar_exists( $blavatar_domain ) ) {
-					$og_tags['twitter:image'] = blavatar_url( $blavatar_domain, 'img', 240 );
+				$blavatar_domain = blavatar_domain( site_url() ); // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
+				if ( blavatar_exists( $blavatar_domain ) ) { // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
+					$og_tags['twitter:image'] = blavatar_url( $blavatar_domain, 'img', 240 ); // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
 				}
 			}
 
 			// Second fall back, Site Logo.
 			// @todo jetpack_has_site_logo and jetpack_get_site_logo are defined in the Jetpack plugin. They should be abstracted.
-			if ( empty( $og_tags['twitter:image'] ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
-				$og_tags['twitter:image'] = jetpack_get_site_logo( 'url' );
+			if ( empty( $og_tags['twitter:image'] ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) { // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
+				$og_tags['twitter:image'] = jetpack_get_site_logo( 'url' ); // @phan-suppress-current-line PhanUndeclaredFunction -- Guarded by function_exists().
 			}
 
 			// Third fall back, Site Icon.
 			if ( empty( $og_tags['twitter:image'] ) && has_site_icon() ) {
-				$og_tags['twitter:image'] = get_site_icon_url( '240' );
+				$og_tags['twitter:image'] = get_site_icon_url( 240 );
 			}
 
 			// Not falling back on Gravatar, because there's no way to know if we end up with an auto-generated one.
