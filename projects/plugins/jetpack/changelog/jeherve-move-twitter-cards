@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Twitter Cards: deprecate Jetpack_Twitter_Cards class in favor of Automattic\Jetpack\Post_Media\Twitter_Cards.
