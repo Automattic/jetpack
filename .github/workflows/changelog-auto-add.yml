@@ -127,8 +127,8 @@ jobs:
                (Run this from the main working directory, which has full history.)
 
             2. For each project listed above, create a changelog file using the Write tool.
-               The file path must be: `pr-checkout/projects/<type>/<name>/changelog/${{ github.event.pull_request.head.ref }}`
-               (e.g., `pr-checkout/projects/packages/connection/changelog/${{ github.event.pull_request.head.ref }}`)
+               The file path must be: `pr-checkout/projects/<type>/<name>/changelog/pr-${{ github.event.pull_request.number }}`
+               (e.g., `pr-checkout/projects/packages/connection/changelog/pr-${{ github.event.pull_request.number }}`)
 
                The file format is:
                ```
@@ -158,7 +158,7 @@ jobs:
             7. After writing all changelog files, commit and push from the PR checkout:
                ```
                cd pr-checkout
-               git add 'projects/*/changelog/${{ github.event.pull_request.head.ref }}'
+               git add 'projects/*/*/changelog/pr-${{ github.event.pull_request.number }}'
                git commit -m "Add changelog entries."
                git push
                ```
