@@ -2,9 +2,9 @@
 # "Generate changelog entries" checkbox is checked in the PR template.
 #
 # It triggers on pull_request_target so it has write permissions to push
-# commits to the PR branch. It only runs the changelogger check script
-# and Claude against the PR head — no untrusted code is executed in a
-# privileged context.
+# commits to the PR branch. It's restricted to same-repo branches (no
+# forks) because the checkout runs local actions and scripts from the
+# PR head, which would be untrusted code in a fork context.
 
 name: Changelog Auto-Add
 
@@ -24,8 +24,12 @@ permissions:
 jobs:
   generate:
     name: Generate changelog entries
-    # Skip bot PRs (e.g. Renovate, dependabot).
-    if: github.event.pull_request.user.login != 'renovate[bot]' && github.event.pull_request.user.login != 'dependabot[bot]' && github.event.pull_request.user.login != 'matticbot'
+    # Only run for same-repo branches (not forks) and skip bot PRs.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login != 'renovate[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      github.event.pull_request.user.login != 'matticbot'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
