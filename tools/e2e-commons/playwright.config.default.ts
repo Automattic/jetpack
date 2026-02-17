@@ -93,7 +93,11 @@ const playwrightConfig = defineConfig( {
 		timeout: 20000,
 	},
 	retries: process.env.CI ? 1 : 0,
-	workers: process.env.CI ? 4 : 1,
+	workers: process.env.PLAYWRIGHT_WORKERS
+		? parseInt( process.env.PLAYWRIGHT_WORKERS )
+		: process.env.CI
+			? 2
+			: 1,
 	outputDir: config.get( 'dirs.results' ),
 	reporter,
 	forbidOnly: !! process.env.CI,
