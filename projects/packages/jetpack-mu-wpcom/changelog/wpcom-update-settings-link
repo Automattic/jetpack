@@ -1,5 +1,5 @@
 Significance: patch
 Type: fixed
-Comment: wpcom_site_management_panel_link: Update settings link to new path
+Comment: Fix broken link to site settings on WordPress.com.
 
 
