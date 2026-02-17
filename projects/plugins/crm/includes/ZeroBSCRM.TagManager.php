@@ -308,7 +308,6 @@ class zeroBSCRM_TagManager {
 			var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>';
 			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
 			var zbsListViewLink = '<?php echo jpcrm_esc_link( $this->listViewSlug ); ?>';
-			var zbsClick2CallType = parseInt('<?php echo esc_html( zeroBSCRM_getSetting( 'clicktocalltype' ) ); ?>');
 			var zbsEditViewLangLabels = {
 
 					'today': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Today', 'zero-bs-crm' ) ) ); ?>',

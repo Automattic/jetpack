@@ -122,10 +122,6 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	if ( isset( $_POST['wpzbscrm_clicktocall'] ) && ! empty( $_POST['wpzbscrm_clicktocall'] ) ) {
 		$updatedSettings['clicktocall'] = 1;
 	}
-	$updatedSettings['clicktocalltype'] = 1;
-	if ( isset( $_POST['wpzbscrm_clicktocalltype'] ) && ! empty( $_POST['wpzbscrm_clicktocalltype'] ) ) {
-		$updatedSettings['clicktocalltype'] = (int) sanitize_text_field( $_POST['wpzbscrm_clicktocalltype'] );
-	}
 	$updatedSettings['objnav'] = 0;
 	if ( isset( $_POST['wpzbscrm_objnav'] ) && ! empty( $_POST['wpzbscrm_objnav'] ) ) {
 		$updatedSettings['objnav'] = 1;
@@ -433,26 +429,6 @@ if ( ! $confirmAct ) {
 					/></td>
 				</tr>
 
-
-				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_clicktocalltype"><?php esc_html_e( 'Click 2 Call link type', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Use Skype or Standard Click to Call?', 'zero-bs-crm' ); ?></td>
-					<td style="width:540px">
-						<select class="winput form-control" name="wpzbscrm_clicktocalltype" id="wpzbscrm_clicktocalltype">
-							<option value="1"
-							<?php
-							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] == '1' ) {
-								echo ' selected="selected"';}
-							?>
-							>Click to Call (tel:)</option>
-							<option value="2"
-							<?php
-							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] == '2' ) {
-								echo ' selected="selected"';}
-							?>
-							>Skype Call (callto:)</option>
-						</select>
-					</td>
-				</tr>
 
 				<tr>
 					<td class="wfieldname"><label for="wpzbscrm_objnav"><?php esc_html_e( 'Use Navigation Mode', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Shows Previous & Next buttons on each contact and company, allowing quick navigation through your list.', 'zero-bs-crm' ); ?></td>

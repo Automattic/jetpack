@@ -7316,15 +7316,7 @@ function zeroBSCRM_db2_deleteGeneric( $id = -1, $tableKey = '' ) {
 
 	// this has a js equivilent in global.js: zeroBSCRMJS_telURLFromNo
 function zeroBSCRM_clickToCallPrefix() {
-
-	$click2CallType = zeroBSCRM_getSetting( 'clicktocalltype' );
-
-	if ( $click2CallType == 1 ) {
-		return 'tel:';
-	}
-	if ( $click2CallType == 2 ) {
-		return 'callto:';
-	}
+	return 'tel:';
 }
 
 function zeroBS_getCurrentUserUsername() {

@@ -612,7 +612,6 @@ class zeroBSCRM_list {
 			}
 
 			?>';
-			var zbsClick2CallType = parseInt('<?php echo esc_url( zeroBSCRM_getSetting( 'clicktocalltype' ) ); ?>');
 
 			<?php
 			$jpcrm_listview_lang_labels = array();

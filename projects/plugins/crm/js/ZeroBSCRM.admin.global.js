@@ -1597,13 +1597,6 @@ function zeroBSCRMJS_telLinkFromNo( telno, internalHTML, extraClasses ) {
  * @param telno
  */
 function zeroBSCRMJS_telURLFromNo( telno ) {
-	if ( typeof window.zbsClick2CallType !== 'undefined' ) {
-		// eslint-disable-next-line eqeqeq
-		if ( window.zbsClick2CallType == 2 ) {
-			return 'callto:' + telno;
-		}
-	}
-
 	return 'tel:' + telno;
 }
 

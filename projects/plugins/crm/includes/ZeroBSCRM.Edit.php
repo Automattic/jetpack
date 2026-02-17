@@ -410,7 +410,6 @@ class zeroBSCRM_Edit {
 			var zbsListViewLink = '<?php echo jpcrm_esc_link( $this->listViewSlug ); ?>';
 
 			
-			var zbsClick2CallType = parseInt('<?php echo esc_html( zeroBSCRM_getSetting( 'clicktocalltype' ) ); ?>');
 			var zbsEditViewLangLabels = {
 
 					'today': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Today', 'zero-bs-crm' ) ) ); ?>',
