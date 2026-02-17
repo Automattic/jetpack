@@ -2,9 +2,9 @@
 # "Generate changelog entries" checkbox is checked in the PR template.
 #
 # It triggers on pull_request_target so it has write permissions to push
-# commits to the PR branch. It's restricted to same-repo branches (no
-# forks) because the checkout runs local actions and scripts from the
-# PR head, which would be untrusted code in a fork context.
+# commits to the PR branch. For security, it checks out the default branch
+# (trunk) for all tool setup and scripts, and only fetches the PR head ref
+# for diffing — no code from the PR is ever executed.
 
 name: Changelog Auto-Add
 
@@ -44,14 +44,17 @@ jobs:
             echo "checked=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Checkout PR head branch
+      - name: Checkout default branch
         if: steps.checkbox.outputs.checked == 'true'
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch PR head
+        if: steps.checkbox.outputs.checked == 'true'
+        run: git fetch origin ${{ github.event.pull_request.head.ref }}
 
       - name: Setup tools
         if: steps.checkbox.outputs.checked == 'true'
@@ -92,36 +95,63 @@ jobs:
             ${{ steps.check.outputs.projects }}
 
             PR title: ${{ github.event.pull_request.title }}
+            PR branch: ${{ github.event.pull_request.head.ref }}
             PR description:
             ${{ github.event.pull_request.body }}
 
             Instructions:
-            1. Read the diff for this PR to understand the changes: run `git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}`
-            2. For each project listed above, generate an appropriate changelog entry using the `jetpack changelog add` command (via `pnpm jetpack changelog add`).
+            1. Read the diff for this PR to understand the changes:
+               `git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}`
+
+            2. For each project listed above, create a changelog file using the Write tool.
+               The file path must be: `projects/<type>/<name>/changelog/${{ github.event.pull_request.head.ref }}`
+               (e.g., `projects/packages/connection/changelog/${{ github.event.pull_request.head.ref }}`)
+
+               The file format is:
+               ```
+               Significance: <patch|minor|major>
+               Type: <type>
+
+               <entry text>
+               ```
+
             3. Follow these rules for changelog entries:
                - Start with a capital letter and end with a period.
                - Use imperative mood (e.g., "Add feature." not "Added feature").
                - Use a "Component: description" prefix when the change is specific to a component within the project.
                - Do NOT use the package/project name itself as prefix for entries in that package.
                - Describe the change from a user's perspective.
-            4. For significance, use: `patch` for bug fixes and minor changes, `minor` for new features and enhancements, `major` for breaking changes.
+
+            4. For significance: `patch` for bug fixes and minor changes, `minor` for new features and enhancements, `major` for breaking changes.
+
             5. For type, most projects use: `security`, `added`, `changed`, `deprecated`, `removed`, `fixed`.
                BUT `plugins/jetpack` uses custom types: `major`, `enhancement`, `compat`, `bugfix`, `other`.
-            6. Use this exact command format for each project:
-               `pnpm jetpack changelog add <project-slug> -s <significance> -t <type> -e "<entry text>"`
-            7. After generating all entries, commit them with the message "Add changelog entries." and push to the current branch.
+               Check each project's `composer.json` at `.extra.changelogger.types` to confirm available types.
+
+            6. Check for indirect dependencies: read each project's `composer.json` to see if other projects
+               (especially plugins) depend on it. If a plugin bundles a package you're adding a changelog entry for,
+               also add a changelog entry for that plugin describing the downstream impact.
+
+            7. After writing all changelog files, switch to the PR branch and commit:
+               ```
+               git checkout ${{ github.event.pull_request.head.ref }}
+               git add 'projects/*/changelog/${{ github.event.pull_request.head.ref }}'
+               git commit -m "Add changelog entries."
+               git push origin ${{ github.event.pull_request.head.ref }}
+               ```
+
             8. Do NOT modify any files other than changelog entries.
 
           claude_args: >-
             --allowedTools
-            "Bash(git diff:*)"
-            "Bash(git log:*)"
-            "Bash(git add:*)"
-            "Bash(git commit:*)"
-            "Bash(git push:*)"
-            "Bash(pnpm jetpack changelog:*)"
-            "Bash(cat projects/*/changelog/*)"
-            "Bash(ls projects/*/changelog/*)"
+            "Bash(git diff *)"
+            "Bash(git log *)"
+            "Bash(git add *)"
+            "Bash(git commit *)"
+            "Bash(git push *)"
+            "Bash(git checkout *)"
+            "Bash(git fetch *)"
             Read
+            Write
             Glob
             Grep
