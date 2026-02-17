@@ -1,0 +1,121 @@
+# This workflow auto-generates changelog entries using Claude when the
+# "Generate changelog entries" checkbox is checked in the PR template.
+#
+# It triggers on pull_request_target so it has write permissions to push
+# commits to the PR branch. It only runs the changelogger check script
+# and Claude against the PR head — no untrusted code is executed in a
+# privileged context.
+
+name: Changelog Auto-Add
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, edited]
+
+concurrency:
+  group: changelog-auto-add-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  generate:
+    name: Generate changelog entries
+    # Skip bot PRs (e.g. Renovate, dependabot).
+    if: github.event.pull_request.user.login != 'renovate[bot]' && github.event.pull_request.user.login != 'dependabot[bot]' && github.event.pull_request.user.login != 'matticbot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check for changelog checkbox
+        id: checkbox
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if echo "$PR_BODY" | grep -qP '\[x\] Generate changelog entries'; then
+            echo "checked=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "checked=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout PR head branch
+        if: steps.checkbox.outputs.checked == 'true'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup tools
+        if: steps.checkbox.outputs.checked == 'true'
+        uses: ./.github/actions/tool-setup
+        with:
+          node: false
+
+      - name: Check which projects need changelog entries
+        if: steps.checkbox.outputs.checked == 'true'
+        id: check
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          PROJECTS=$(php tools/check-changelogger-use.php --list "$BASE" "$HEAD" 2>/dev/null || true)
+          if [ -z "$PROJECTS" ]; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "No projects need changelog entries."
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            echo "projects<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$PROJECTS" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "Projects needing changelog entries:"
+            echo "$PROJECTS"
+          fi
+
+      - name: Generate changelog entries with Claude
+        if: steps.checkbox.outputs.checked == 'true' && steps.check.outputs.needed == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          direct_prompt: |
+            You are generating changelog entries for a Jetpack monorepo PR.
+
+            The following projects need changelog entries:
+            ${{ steps.check.outputs.projects }}
+
+            PR title: ${{ github.event.pull_request.title }}
+            PR description:
+            ${{ github.event.pull_request.body }}
+
+            Instructions:
+            1. Read the diff for this PR to understand the changes: run `git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}`
+            2. For each project listed above, generate an appropriate changelog entry using the `jetpack changelog add` command (via `pnpm jetpack changelog add`).
+            3. Follow these rules for changelog entries:
+               - Start with a capital letter and end with a period.
+               - Use imperative mood (e.g., "Add feature." not "Added feature").
+               - Use a "Component: description" prefix when the change is specific to a component within the project.
+               - Do NOT use the package/project name itself as prefix for entries in that package.
+               - Describe the change from a user's perspective.
+            4. For significance, use: `patch` for bug fixes and minor changes, `minor` for new features and enhancements, `major` for breaking changes.
+            5. For type, most projects use: `security`, `added`, `changed`, `deprecated`, `removed`, `fixed`.
+               BUT `plugins/jetpack` uses custom types: `major`, `enhancement`, `compat`, `bugfix`, `other`.
+            6. Use this exact command format for each project:
+               `pnpm jetpack changelog add <project-slug> -s <significance> -t <type> -e "<entry text>"`
+            7. After generating all entries, commit them with the message "Add changelog entries." and push to the current branch.
+            8. Do NOT modify any files other than changelog entries.
+
+          allowed_tools: |
+            Bash(git diff:*)
+            Bash(git log:*)
+            Bash(git add:*)
+            Bash(git commit:*)
+            Bash(git push:*)
+            Bash(pnpm jetpack changelog:*)
+            Bash(cat projects/*/changelog/*)
+            Bash(ls projects/*/changelog/*)
+            Read
+            Glob
+            Grep
