@@ -120,21 +120,39 @@ class Dashboard {
 		// WP-Build URL requested but legacy is now active → redirect to legacy.
 		if ( $page === self::FORMS_WPBUILD_ADMIN_SLUG && ! $is_wp_build_enabled ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$p       = isset( $_GET['p'] ) ? rawurldecode( sanitize_text_field( wp_unslash( $_GET['p'] ) ) ) : '';
-			$tab     = 'inbox';
-			$post_id = null;
+			$p                = isset( $_GET['p'] ) ? rawurldecode( sanitize_text_field( wp_unslash( $_GET['p'] ) ) ) : '';
+			$tab              = 'inbox';
+			$post_id          = null;
+			$has_mark_as_spam = false;
+
+			// Check if mark_as_spam is a separate query parameter (old email format).
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET['mark_as_spam'] ) ) {
+				$has_mark_as_spam = true;
+			}
 
 			if ( $p !== '' ) {
-				// Parse path like /responses/inbox?responseIds=["2879"] or /forms.
-				if ( preg_match( '#^/responses/(inbox|spam|trash)(?:\?responseIds=\["(\d+)"\])?$#', $p, $m ) ) {
+				// Parse path like /responses/inbox?responseIds=["2879"] or /responses/inbox?responseIds=["2879"]&mark_as_spam or /forms.
+				if ( preg_match( '#^/responses/(inbox|spam|trash)(?:\?responseIds=\["(\d+)"\])?(.*)$#', $p, $m ) ) {
 					$tab     = $m[1];
 					$post_id = ! empty( $m[2] ) ? absint( $m[2] ) : null;
+
+					// Check if mark_as_spam parameter is present inside the path.
+					if ( ! empty( $m[3] ) && strpos( $m[3], 'mark_as_spam' ) !== false ) {
+						$has_mark_as_spam = true;
+					}
 				} elseif ( preg_match( '#^/forms#', $p ) ) {
 					$tab = 'forms';
 				}
 			}
 
 			$redirect = self::get_forms_admin_url( $tab, $post_id );
+
+			// Add mark_as_spam parameter if it was present in the original URL (either format).
+			if ( $has_mark_as_spam ) {
+				$redirect .= '&mark_as_spam';
+			}
+
 			wp_safe_redirect( $redirect );
 			exit;
 		}

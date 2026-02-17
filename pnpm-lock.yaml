@@ -320,11 +320,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/js-packages/charts:
     dependencies:
@@ -581,7 +581,7 @@ importers:
         version: 30.2.0
       '@storybook/addon-docs':
         specifier: 10.2.3
-        version: 10.2.3(@types/react@18.3.27)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.104.1)
+        version: 10.2.3(@types/react@18.3.27)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)
       '@storybook/react':
         specifier: 10.2.3
         version: 10.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
@@ -628,11 +628,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/js-packages/config:
     devDependencies:
@@ -789,11 +789,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/js-packages/eslint-changed:
     dependencies:
@@ -861,11 +861,11 @@ importers:
         specifier: 30.2.0
         version: 30.2.0
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/js-packages/i18n-loader-webpack-plugin:
     dependencies:
@@ -875,7 +875,7 @@ importers:
     devDependencies:
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.39.0
-        version: 6.39.0(webpack@5.104.1)
+        version: 6.39.0(webpack@5.105.2)
       '@wordpress/i18n':
         specifier: 6.12.0
         version: 6.12.0
@@ -883,11 +883,11 @@ importers:
         specifier: 30.2.0
         version: 30.2.0
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/js-packages/idc:
     dependencies:
@@ -1010,11 +1010,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/js-packages/licensing:
     dependencies:
@@ -1217,11 +1217,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
       zod:
         specifier: 3.25.76
         version: 3.25.76
@@ -1236,11 +1236,11 @@ importers:
         specifier: 30.2.0
         version: 30.2.0
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/js-packages/scan:
     dependencies:
@@ -1572,10 +1572,10 @@ importers:
         version: 10.2.3(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@storybook/addon-docs':
         specifier: 10.2.3
-        version: 10.2.3(@types/react@18.3.26)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.104.1)
+        version: 10.2.3(@types/react@18.3.26)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)
       '@storybook/addon-webpack5-compiler-babel':
         specifier: ^4.0.0
-        version: 4.0.0(webpack@5.104.1)
+        version: 4.0.0(webpack@5.105.2)
       '@storybook/react':
         specifier: 10.2.3
         version: 10.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
@@ -1620,16 +1620,16 @@ importers:
         version: 2.15.1
       babel-loader:
         specifier: 10.0.0
-        version: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1)
+        version: 10.0.0(@babel/core@7.29.0)(webpack@5.105.2)
       babel-plugin-inline-json-import:
         specifier: 0.3.2
         version: 0.3.2
       css-loader:
         specifier: 6.11.0
-        version: 6.11.0(webpack@5.104.1)
+        version: 6.11.0(webpack@5.105.2)
       esbuild-loader:
         specifier: 4.4.0
-        version: 4.4.0(webpack@5.104.1)
+        version: 4.4.0(webpack@5.105.2)
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -1641,7 +1641,7 @@ importers:
         version: 8.5.6
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.104.1)
+        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.2)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1659,13 +1659,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       storybook:
         specifier: 10.2.3
         version: 10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       style-loader:
         specifier: 2.0.0
-        version: 2.0.0(webpack@5.104.1)
+        version: 2.0.0(webpack@5.105.2)
       ts-dedent:
         specifier: 2.2.0
         version: 2.2.0
@@ -1673,11 +1673,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/js-packages/videopress-core:
     devDependencies:
@@ -1703,11 +1703,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/js-packages/webpack-config:
     dependencies:
@@ -1725,7 +1725,7 @@ importers:
         version: link:../i18n-loader-webpack-plugin
       '@automattic/webpack-rtl-plugin':
         specifier: 6.0.0
-        version: 6.0.0(webpack@5.104.1)
+        version: 6.0.0(webpack@5.105.2)
       '@babel/compat-data':
         specifier: 7.29.0
         version: 7.29.0
@@ -1746,19 +1746,19 @@ importers:
         version: 7.28.5(@babel/core@7.29.0)
       '@cerner/duplicate-package-checker-webpack-plugin':
         specifier: 2.3.0
-        version: 2.3.0(webpack@5.104.1)
+        version: 2.3.0(webpack@5.105.2)
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: 0.6.2
-        version: 0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.3)(webpack@5.104.1)
+        version: 0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.3)(webpack@5.105.2)
       '@wordpress/browserslist-config':
         specifier: 6.39.0
         version: 6.39.0
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.39.0
-        version: 6.39.0(webpack@5.104.1)
+        version: 6.39.0(webpack@5.105.2)
       babel-loader:
         specifier: 10.0.0
-        version: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1)
+        version: 10.0.0(@babel/core@7.29.0)(webpack@5.105.2)
       babel-plugin-polyfill-corejs3:
         specifier: 0.14.0
         version: 0.14.0(@babel/core@7.29.0)
@@ -1770,25 +1770,25 @@ importers:
         version: 3.38.1
       css-loader:
         specifier: 6.11.0
-        version: 6.11.0(webpack@5.104.1)
+        version: 6.11.0(webpack@5.105.2)
       css-minimizer-webpack-plugin:
         specifier: 7.0.3
-        version: 7.0.3(webpack@5.104.1)
+        version: 7.0.3(webpack@5.105.2)
       fork-ts-checker-webpack-plugin:
         specifier: 9.0.2
-        version: 9.0.2(typescript@5.9.3)(webpack@5.104.1)
+        version: 9.0.2(typescript@5.9.3)(webpack@5.105.2)
       mini-css-extract-plugin:
         specifier: 2.9.4
-        version: 2.9.4(webpack@5.104.1)
+        version: 2.9.4(webpack@5.105.2)
       react-refresh:
         specifier: 0.17.0
         version: 0.17.0
       terser-webpack-plugin:
         specifier: 5.3.14
-        version: 5.3.14(webpack@5.104.1)
+        version: 5.3.14(webpack@5.105.2)
       thread-loader:
         specifier: 4.0.4
-        version: 4.0.4(webpack@5.104.1)
+        version: 4.0.4(webpack@5.105.2)
     devDependencies:
       '@babel/core':
         specifier: 7.29.0
@@ -1800,14 +1800,14 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.104.1)
+        version: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
       webpack-dev-server:
         specifier: 5.2.3
-        version: 5.2.3(webpack-cli@6.0.1)(webpack@5.104.1)
+        version: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
 
   projects/packages/account-protection: {}
 
@@ -1841,11 +1841,11 @@ importers:
         specifier: 1.8.2
         version: 1.8.2
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/backup:
     dependencies:
@@ -1942,7 +1942,7 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       storybook:
         specifier: 10.2.3
         version: 10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1950,11 +1950,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/blaze:
     dependencies:
@@ -2024,13 +2024,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/block-delimiter: {}
 
@@ -2066,19 +2066,19 @@ importers:
         version: 8.5.6
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(webpack@5.104.1)
+        version: 8.2.0(postcss@8.5.6)(webpack@5.105.2)
       sass-embedded:
         specifier: 1.97.2
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/connection:
     dependencies:
@@ -2124,13 +2124,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/explat:
     dependencies:
@@ -2172,11 +2172,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/external-connections:
     dependencies:
@@ -2219,13 +2219,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/external-media:
     dependencies:
@@ -2322,16 +2322,16 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/forms:
     dependencies:
@@ -2454,7 +2454,7 @@ importers:
         version: 2.1.1
       copy-webpack-plugin:
         specifier: 13.0.1
-        version: 13.0.1(webpack@5.104.1)
+        version: 13.0.1(webpack@5.105.2)
       debug:
         specifier: 4.4.3
         version: 4.4.3
@@ -2495,11 +2495,11 @@ importers:
         specifier: 7.7.3
         version: 7.7.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
     devDependencies:
       '@automattic/color-studio':
         specifier: 4.1.0
@@ -2578,7 +2578,7 @@ importers:
         version: 8.5.6
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.104.1)
+        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.2)
       postcss-modules:
         specifier: ^6.0.0
         version: 6.0.1(postcss@8.5.6)
@@ -2587,7 +2587,7 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       sharp:
         specifier: 0.33.5
         version: 0.33.5
@@ -2851,7 +2851,7 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -2859,11 +2859,11 @@ importers:
         specifier: 3.0.2
         version: 3.0.2
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
     optionalDependencies:
       react:
         specifier: ^18.2.0
@@ -2885,13 +2885,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/jwt: {}
 
@@ -2933,19 +2933,19 @@ importers:
         version: 8.5.6
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(webpack@5.104.1)
+        version: 8.2.0(postcss@8.5.6)(webpack@5.105.2)
       sass-embedded:
         specifier: 1.97.2
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/my-jetpack:
     dependencies:
@@ -3051,7 +3051,7 @@ importers:
         version: 7.29.0(@babel/core@7.29.0)
       '@storybook/addon-docs':
         specifier: 10.2.3
-        version: 10.2.3(@types/react@18.3.26)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.104.1)
+        version: 10.2.3(@types/react@18.3.26)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)
       '@storybook/react':
         specifier: 10.2.3
         version: 10.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
@@ -3096,7 +3096,7 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       storybook:
         specifier: 10.2.3
         version: 10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3104,14 +3104,14 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.104.1)
+        version: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
       webpack-dev-server:
         specifier: 5.2.3
-        version: 5.2.3(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.104.1)
+        version: 5.2.3(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.105.2)
 
   projects/packages/newsletter:
     dependencies:
@@ -3181,16 +3181,16 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
     optionalDependencies:
       react:
         specifier: 18.3.1
@@ -3239,7 +3239,7 @@ importers:
         version: 10.39.0(react@18.3.1)
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.39.0
-        version: 6.39.0(webpack@5.104.1)
+        version: 6.39.0(webpack@5.105.2)
       '@wordpress/element':
         specifier: 6.39.0
         version: 6.39.0
@@ -3257,7 +3257,7 @@ importers:
         version: 2.1.1
       copy-webpack-plugin:
         specifier: 13.0.1
-        version: 13.0.1(webpack@5.104.1)
+        version: 13.0.1(webpack@5.105.2)
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
@@ -3274,11 +3274,11 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
@@ -3324,13 +3324,13 @@ importers:
         version: 8.5.6
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(webpack@5.104.1)
+        version: 8.2.0(postcss@8.5.6)(webpack@5.105.2)
       sass-embedded:
         specifier: 1.97.2
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
 
   projects/packages/plans: {}
 
@@ -3344,7 +3344,7 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -3352,11 +3352,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/post-list:
     dependencies:
@@ -3368,11 +3368,13 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
+
+  projects/packages/post-media: {}
 
   projects/packages/protect-models: {}
 
@@ -3566,7 +3568,7 @@ importers:
         version: 12.1.11(postcss@8.5.6)
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.104.1)
+        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.2)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3578,7 +3580,7 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       storybook:
         specifier: 10.2.3
         version: 10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3586,14 +3588,14 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.104.1)
+        version: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
       webpack-dev-server:
         specifier: 5.2.3
-        version: 5.2.3(webpack-cli@6.0.1)(webpack@5.104.1)
+        version: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
 
   projects/packages/search:
     dependencies:
@@ -3741,7 +3743,7 @@ importers:
         version: 6.39.0
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.39.0
-        version: 6.39.0(webpack@5.104.1)
+        version: 6.39.0(webpack@5.105.2)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.6)
@@ -3765,22 +3767,22 @@ importers:
         version: 12.1.11(postcss@8.5.6)
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(webpack@5.104.1)
+        version: 8.2.0(postcss@8.5.6)(webpack@5.105.2)
       sass-embedded:
         specifier: 1.97.2
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       size-limit:
         specifier: 11.2.0
         version: 11.2.0(@size-limit/preset-app@11.2.0)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/stats-admin: {}
 
@@ -3843,16 +3845,16 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/transport-helper: {}
 
@@ -3984,7 +3986,7 @@ importers:
         version: 30.2.0
       '@storybook/addon-docs':
         specifier: 10.2.3
-        version: 10.2.3(@types/react@18.3.26)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.104.1)
+        version: 10.2.3(@types/react@18.3.26)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)
       '@storybook/react':
         specifier: 10.2.3
         version: 10.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
@@ -4020,7 +4022,7 @@ importers:
         version: 9.2.1
       copy-webpack-plugin:
         specifier: 13.0.1
-        version: 13.0.1(webpack@5.104.1)
+        version: 13.0.1(webpack@5.105.2)
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -4032,7 +4034,7 @@ importers:
         version: 12.1.11(postcss@8.5.6)
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.104.1)
+        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.2)
       require-from-string:
         specifier: 2.0.2
         version: 2.0.2
@@ -4041,7 +4043,7 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       storybook:
         specifier: 10.2.3
         version: 10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4049,11 +4051,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/woocommerce-analytics:
     dependencies:
@@ -4089,11 +4091,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/wp-js-data-sync: {}
 
@@ -4159,13 +4161,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/plugins/automattic-for-agencies-client:
     dependencies:
@@ -4241,13 +4243,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/plugins/automattic-for-agencies-client/tests/e2e:
     devDependencies:
@@ -4301,7 +4303,7 @@ importers:
         version: 2.1.1
       copy-webpack-plugin:
         specifier: 13.0.1
-        version: 13.0.1(webpack@5.104.1)
+        version: 13.0.1(webpack@5.105.2)
       history:
         specifier: 5.3.0
         version: 5.3.0
@@ -4392,7 +4394,7 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       storybook:
         specifier: 10.2.3
         version: 10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4403,11 +4405,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/plugins/boost/tests/e2e:
     devDependencies:
@@ -4501,13 +4503,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/plugins/classic-theme-helper-plugin/tests/e2e:
     devDependencies:
@@ -4625,10 +4627,10 @@ importers:
         version: 4.5.0
       copy-webpack-plugin:
         specifier: 13.0.1
-        version: 13.0.1(webpack@5.104.1)
+        version: 13.0.1(webpack@5.105.2)
       css-loader:
         specifier: 6.11.0
-        version: 6.11.0(webpack@5.104.1)
+        version: 6.11.0(webpack@5.105.2)
       daterangepicker:
         specifier: 3.1.0
         version: 3.1.0
@@ -4664,7 +4666,7 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       semantic-ui-css:
         specifier: 2.5.0
         version: 2.5.0
@@ -4678,11 +4680,11 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/plugins/inspect:
     devDependencies:
@@ -4910,7 +4912,7 @@ importers:
         version: 1.0.2
       copy-webpack-plugin:
         specifier: 13.0.1
-        version: 13.0.1(webpack@5.104.1)
+        version: 13.0.1(webpack@5.105.2)
       crypto-js:
         specifier: 4.2.0
         version: 4.2.0
@@ -5002,11 +5004,11 @@ importers:
         specifier: 4.2.3
         version: 4.2.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
     devDependencies:
       '@automattic/color-studio':
         specifier: 4.1.0
@@ -5121,13 +5123,13 @@ importers:
         version: 8.5.6
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.104.1)
+        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.2)
       regenerator-runtime:
         specifier: 0.13.9
         version: 0.13.9
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5212,13 +5214,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/plugins/paypal-payment-buttons/tests/e2e:
     devDependencies:
@@ -5333,16 +5335,16 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/plugins/protect/tests/e2e:
     devDependencies:
@@ -5489,13 +5491,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/plugins/starter-plugin/tests/e2e:
     devDependencies:
@@ -5615,13 +5617,13 @@ importers:
         version: 1.97.2
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.104.1)
+        version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
       webpack:
-        specifier: 5.104.1
-        version: 5.104.1(webpack-cli@6.0.1)
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: 6.0.1
-        version: 6.0.1(webpack@5.104.1)
+        version: 6.0.1(webpack@5.105.2)
 
   projects/plugins/videopress/tests/e2e:
     devDependencies:
@@ -10924,8 +10926,8 @@ packages:
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
 
-  ajv@8.17.1:
-    resolution: {integrity: sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==}
+  ajv@8.18.0:
+    resolution: {integrity: sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A==}
 
   allure-js-commons@2.15.1:
     resolution: {integrity: sha512-5V/VINplbu0APnfSZOkYpKOzucO36Q2EtTD1kqjWjl7n6tj7Hh+IHCZsH3Vpk/LXRDfj9RuXugBBvwYKV5YMJw==}
@@ -17782,8 +17784,8 @@ packages:
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
 
-  webpack@5.104.1:
-    resolution: {integrity: sha512-Qphch25abbMNtekmEGJmeRUhLDbe+QfiWTiqpKYkpCOWY64v9eyl+KRRLmqOFA2AvKPpc9DC6+u2n76tQLBoaA==}
+  webpack@5.105.2:
+    resolution: {integrity: sha512-dRXm0a2qcHPUBEzVk8uph0xWSjV/xZxenQQbLwnwP7caQCYpqG1qddwlyEkIDkYn0K8tvmcrZ+bOrzoQ3HxCDw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -18426,10 +18428,10 @@ snapshots:
 
   '@automattic/viewport@1.1.0': {}
 
-  '@automattic/webpack-rtl-plugin@6.0.0(webpack@5.104.1)':
+  '@automattic/webpack-rtl-plugin@6.0.0(webpack@5.105.2)':
     dependencies:
       rtlcss: 3.5.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   '@babel/code-frame@7.29.0':
     dependencies:
@@ -19365,13 +19367,13 @@ snapshots:
       hashery: 1.4.0
       keyv: 5.6.0
 
-  '@cerner/duplicate-package-checker-webpack-plugin@2.3.0(webpack@5.104.1)':
+  '@cerner/duplicate-package-checker-webpack-plugin@2.3.0(webpack@5.105.2)':
     dependencies:
       chalk: 4.1.2
       find-root: 1.1.0
       lodash.groupby: 4.6.0
       semver: 7.7.3
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   '@codemirror/autocomplete@6.18.6':
     dependencies:
@@ -21342,7 +21344,7 @@ snapshots:
     dependencies:
       playwright: 1.55.1
 
-  '@pmmmwh/react-refresh-webpack-plugin@0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.3)(webpack@5.104.1)':
+  '@pmmmwh/react-refresh-webpack-plugin@0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.3)(webpack@5.105.2)':
     dependencies:
       anser: 2.3.5
       core-js-pure: 3.48.0
@@ -21351,9 +21353,9 @@ snapshots:
       react-refresh: 0.17.0
       schema-utils: 4.3.3
       source-map: 0.7.4
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
     optionalDependencies:
-      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.104.1)
+      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
 
   '@popperjs/core@2.11.8': {}
 
@@ -22346,10 +22348,10 @@ snapshots:
       - vite
       - webpack
 
-  '@storybook/addon-docs@10.2.3(@types/react@18.3.26)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.104.1)':
+  '@storybook/addon-docs@10.2.3(@types/react@18.3.26)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)':
     dependencies:
       '@mdx-js/react': 3.1.1(@types/react@18.3.26)(react@18.3.1)
-      '@storybook/csf-plugin': 10.2.3(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.104.1)
+      '@storybook/csf-plugin': 10.2.3(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)
       '@storybook/icons': 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/react-dom-shim': 10.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       react: 18.3.1
@@ -22363,10 +22365,10 @@ snapshots:
       - vite
       - webpack
 
-  '@storybook/addon-docs@10.2.3(@types/react@18.3.27)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.104.1)':
+  '@storybook/addon-docs@10.2.3(@types/react@18.3.27)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)':
     dependencies:
       '@mdx-js/react': 3.1.1(@types/react@18.3.27)(react@18.3.1)
-      '@storybook/csf-plugin': 10.2.3(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.104.1)
+      '@storybook/csf-plugin': 10.2.3(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)
       '@storybook/icons': 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/react-dom-shim': 10.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       react: 18.3.1
@@ -22380,10 +22382,10 @@ snapshots:
       - vite
       - webpack
 
-  '@storybook/addon-webpack5-compiler-babel@4.0.0(webpack@5.104.1)':
+  '@storybook/addon-webpack5-compiler-babel@4.0.0(webpack@5.105.2)':
     dependencies:
       '@babel/core': 7.29.0
-      babel-loader: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1)
+      babel-loader: 10.0.0(@babel/core@7.29.0)(webpack@5.105.2)
     transitivePeerDependencies:
       - supports-color
       - webpack
@@ -22393,17 +22395,17 @@ snapshots:
       '@storybook/core-webpack': 10.2.3(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       case-sensitive-paths-webpack-plugin: 2.4.0
       cjs-module-lexer: 1.4.3
-      css-loader: 7.1.3(webpack@5.104.1)
+      css-loader: 7.1.3(webpack@5.105.2)
       es-module-lexer: 1.7.0
-      fork-ts-checker-webpack-plugin: 9.1.0(typescript@5.9.3)(webpack@5.104.1)
-      html-webpack-plugin: 5.6.6(webpack@5.104.1)
+      fork-ts-checker-webpack-plugin: 9.1.0(typescript@5.9.3)(webpack@5.105.2)
+      html-webpack-plugin: 5.6.6(webpack@5.105.2)
       magic-string: 0.30.21
       storybook: 10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      style-loader: 4.0.0(webpack@5.104.1)
-      terser-webpack-plugin: 5.3.14(webpack@5.104.1)
+      style-loader: 4.0.0(webpack@5.105.2)
+      terser-webpack-plugin: 5.3.14(webpack@5.105.2)
       ts-dedent: 2.2.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
-      webpack-dev-middleware: 6.1.3(webpack@5.104.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
+      webpack-dev-middleware: 6.1.3(webpack@5.105.2)
       webpack-hot-middleware: 2.26.1
       webpack-virtual-modules: 0.6.2
     optionalDependencies:
@@ -22432,12 +22434,12 @@ snapshots:
       storybook: 10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       unplugin: 2.3.11
 
-  '@storybook/csf-plugin@10.2.3(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.104.1)':
+  '@storybook/csf-plugin@10.2.3(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)':
     dependencies:
       storybook: 10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       unplugin: 2.3.11
     optionalDependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   '@storybook/global@5.0.0': {}
 
@@ -22449,7 +22451,7 @@ snapshots:
   '@storybook/preset-react-webpack@10.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)(webpack-cli@6.0.1)':
     dependencies:
       '@storybook/core-webpack': 10.2.3(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
-      '@storybook/react-docgen-typescript-plugin': 1.0.6--canary.9.0c3f3b7.0(typescript@5.9.3)(webpack@5.104.1)
+      '@storybook/react-docgen-typescript-plugin': 1.0.6--canary.9.0c3f3b7.0(typescript@5.9.3)(webpack@5.105.2)
       '@types/semver': 7.7.1
       magic-string: 0.30.21
       react: 18.3.1
@@ -22459,7 +22461,7 @@ snapshots:
       semver: 7.7.3
       storybook: 10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tsconfig-paths: 4.2.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -22469,7 +22471,7 @@ snapshots:
       - uglify-js
       - webpack-cli
 
-  '@storybook/react-docgen-typescript-plugin@1.0.6--canary.9.0c3f3b7.0(typescript@5.9.3)(webpack@5.104.1)':
+  '@storybook/react-docgen-typescript-plugin@1.0.6--canary.9.0c3f3b7.0(typescript@5.9.3)(webpack@5.105.2)':
     dependencies:
       debug: 4.4.3
       endent: 2.1.0
@@ -22479,7 +22481,7 @@ snapshots:
       react-docgen-typescript: 2.4.0(typescript@5.9.3)
       tslib: 2.8.1
       typescript: 5.9.3
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -23719,27 +23721,27 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
-  '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)':
+  '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)':
     dependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack@5.104.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli: 6.0.1(webpack@5.105.2)
 
-  '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)':
+  '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)':
     dependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack@5.104.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli: 6.0.1(webpack@5.105.2)
 
-  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.3)(webpack@5.104.1)':
+  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.3)(webpack@5.105.2)':
     dependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.104.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
     optionalDependencies:
-      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.104.1)
+      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
 
-  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)':
+  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)':
     dependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack@5.104.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli: 6.0.1(webpack@5.105.2)
 
   '@wordpress/a11y@4.39.0':
     dependencies:
@@ -24783,10 +24785,10 @@ snapshots:
       moment: 2.30.1
       moment-timezone: 0.5.48
 
-  '@wordpress/dependency-extraction-webpack-plugin@6.39.0(webpack@5.104.1)':
+  '@wordpress/dependency-extraction-webpack-plugin@6.39.0(webpack@5.105.2)':
     dependencies:
       json2php: 0.0.7
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   '@wordpress/deprecated@4.39.0':
     dependencies:
@@ -26475,17 +26477,17 @@ snapshots:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
-  ajv-formats@2.1.1(ajv@8.17.1):
+  ajv-formats@2.1.1(ajv@8.18.0):
     dependencies:
-      ajv: 8.17.1
+      ajv: 8.18.0
 
   ajv-keywords@3.5.2(ajv@6.12.6):
     dependencies:
       ajv: 6.12.6
 
-  ajv-keywords@5.1.0(ajv@8.17.1):
+  ajv-keywords@5.1.0(ajv@8.18.0):
     dependencies:
-      ajv: 8.17.1
+      ajv: 8.18.0
       fast-deep-equal: 3.1.3
 
   ajv@6.12.6:
@@ -26495,7 +26497,7 @@ snapshots:
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
 
-  ajv@8.17.1:
+  ajv@8.18.0:
     dependencies:
       fast-deep-equal: 3.1.3
       fast-uri: 3.1.0
@@ -26753,11 +26755,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-loader@10.0.0(@babel/core@7.29.0)(webpack@5.104.1):
+  babel-loader@10.0.0(@babel/core@7.29.0)(webpack@5.105.2):
     dependencies:
       '@babel/core': 7.29.0
       find-up: 5.0.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   babel-plugin-inline-json-import@0.3.2:
     dependencies:
@@ -27483,14 +27485,14 @@ snapshots:
 
   cookie@1.0.2: {}
 
-  copy-webpack-plugin@13.0.1(webpack@5.104.1):
+  copy-webpack-plugin@13.0.1(webpack@5.105.2):
     dependencies:
       glob-parent: 6.0.2
       normalize-path: 3.0.0
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       tinyglobby: 0.2.15
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   core-js-compat@3.48.0:
     dependencies:
@@ -27559,7 +27561,7 @@ snapshots:
 
   css-functions-list@3.2.3: {}
 
-  css-loader@6.11.0(webpack@5.104.1):
+  css-loader@6.11.0(webpack@5.105.2):
     dependencies:
       icss-utils: 5.1.0(postcss@8.5.6)
       postcss: 8.5.6
@@ -27570,9 +27572,9 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.7.3
     optionalDependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
-  css-loader@7.1.3(webpack@5.104.1):
+  css-loader@7.1.3(webpack@5.105.2):
     dependencies:
       icss-utils: 5.1.0(postcss@8.5.6)
       postcss: 8.5.6
@@ -27583,9 +27585,9 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.7.3
     optionalDependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
-  css-minimizer-webpack-plugin@7.0.3(webpack@5.104.1):
+  css-minimizer-webpack-plugin@7.0.3(webpack@5.105.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       cssnano: 7.1.2(postcss@8.5.6)
@@ -27593,7 +27595,7 @@ snapshots:
       postcss: 8.5.6
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   css-select@4.3.0:
     dependencies:
@@ -28238,12 +28240,12 @@ snapshots:
 
   es6-error@4.1.1: {}
 
-  esbuild-loader@4.4.0(webpack@5.104.1):
+  esbuild-loader@4.4.0(webpack@5.105.2):
     dependencies:
       esbuild: 0.25.9
       get-tsconfig: 4.13.6
       loader-utils: 2.0.4
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
       webpack-sources: 1.4.3
 
   esbuild-plugin-babel@0.2.3(@babel/core@7.29.0):
@@ -29071,7 +29073,7 @@ snapshots:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
 
-  fork-ts-checker-webpack-plugin@9.0.2(typescript@5.9.3)(webpack@5.104.1):
+  fork-ts-checker-webpack-plugin@9.0.2(typescript@5.9.3)(webpack@5.105.2):
     dependencies:
       '@babel/code-frame': 7.29.0
       chalk: 4.1.2
@@ -29086,9 +29088,9 @@ snapshots:
       semver: 7.7.3
       tapable: 2.3.0
       typescript: 5.9.3
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
-  fork-ts-checker-webpack-plugin@9.1.0(typescript@5.9.3)(webpack@5.104.1):
+  fork-ts-checker-webpack-plugin@9.1.0(typescript@5.9.3)(webpack@5.105.2):
     dependencies:
       '@babel/code-frame': 7.29.0
       chalk: 4.1.2
@@ -29103,7 +29105,7 @@ snapshots:
       semver: 7.7.3
       tapable: 2.3.0
       typescript: 5.9.3
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   form-data@4.0.5:
     dependencies:
@@ -29495,7 +29497,7 @@ snapshots:
 
   html-tags@3.3.1: {}
 
-  html-webpack-plugin@5.6.6(webpack@5.104.1):
+  html-webpack-plugin@5.6.6(webpack@5.105.2):
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
@@ -29503,7 +29505,7 @@ snapshots:
       pretty-error: 4.0.0
       tapable: 2.3.0
     optionalDependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   htmlparser2@10.0.0:
     dependencies:
@@ -31322,11 +31324,11 @@ snapshots:
 
   min-indent@1.0.1: {}
 
-  mini-css-extract-plugin@2.9.4(webpack@5.104.1):
+  mini-css-extract-plugin@2.9.4(webpack@5.105.2):
     dependencies:
       schema-utils: 4.3.3
       tapable: 2.3.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   minimalistic-assert@1.0.1: {}
 
@@ -32034,25 +32036,25 @@ snapshots:
     optionalDependencies:
       postcss: 8.5.6
 
-  postcss-loader@8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.104.1):
+  postcss-loader@8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.2):
     dependencies:
       cosmiconfig: 9.0.0(typescript@5.9.3)
       jiti: 2.6.1
       postcss: 8.5.6
       semver: 7.7.3
     optionalDependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
     transitivePeerDependencies:
       - typescript
 
-  postcss-loader@8.2.0(postcss@8.5.6)(webpack@5.104.1):
+  postcss-loader@8.2.0(postcss@8.5.6)(webpack@5.105.2):
     dependencies:
       cosmiconfig: 9.0.0
       jiti: 2.6.1
       postcss: 8.5.6
       semver: 7.7.3
     optionalDependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
     transitivePeerDependencies:
       - typescript
 
@@ -33137,12 +33139,12 @@ snapshots:
       sass-embedded-win32-arm64: 1.97.2
       sass-embedded-win32-x64: 1.97.2
 
-  sass-loader@16.0.5(sass-embedded@1.97.2)(webpack@5.104.1):
+  sass-loader@16.0.5(sass-embedded@1.97.2)(webpack@5.105.2):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
       sass-embedded: 1.97.2
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   sax@1.4.4: {}
 
@@ -33163,9 +33165,9 @@ snapshots:
   schema-utils@4.3.3:
     dependencies:
       '@types/json-schema': 7.0.15
-      ajv: 8.17.1
-      ajv-formats: 2.1.1(ajv@8.17.1)
-      ajv-keywords: 5.1.0(ajv@8.17.1)
+      ajv: 8.18.0
+      ajv-formats: 2.1.1(ajv@8.18.0)
+      ajv-keywords: 5.1.0(ajv@8.18.0)
 
   seed-random@2.2.0: {}
 
@@ -33712,15 +33714,15 @@ snapshots:
 
   style-inject@0.3.0: {}
 
-  style-loader@2.0.0(webpack@5.104.1):
+  style-loader@2.0.0(webpack@5.105.2):
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.3.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
-  style-loader@4.0.0(webpack@5.104.1):
+  style-loader@4.0.0(webpack@5.105.2):
     dependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   style-mod@4.1.3: {}
 
@@ -34019,7 +34021,7 @@ snapshots:
 
   table@6.9.0:
     dependencies:
-      ajv: 8.17.1
+      ajv: 8.18.0
       lodash.truncate: 4.4.2
       slice-ansi: 4.0.0
       string-width: 4.2.3
@@ -34054,23 +34056,23 @@ snapshots:
 
   temml@0.10.34: {}
 
-  terser-webpack-plugin@5.3.14(webpack@5.104.1):
+  terser-webpack-plugin@5.3.14(webpack@5.105.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       terser: 5.46.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
-  terser-webpack-plugin@5.3.16(webpack@5.104.1):
+  terser-webpack-plugin@5.3.16(webpack@5.105.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       terser: 5.46.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   terser@5.46.0:
     dependencies:
@@ -34113,13 +34115,13 @@ snapshots:
 
   third-party-web@0.27.0: {}
 
-  thread-loader@4.0.4(webpack@5.104.1):
+  thread-loader@4.0.4(webpack@5.105.2):
     dependencies:
       json-parse-better-errors: 1.0.2
       loader-runner: 4.3.1
       neo-async: 2.6.2
       schema-utils: 4.3.3
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
   thunky@1.1.0: {}
 
@@ -34685,12 +34687,12 @@ snapshots:
 
   webidl-conversions@8.0.1: {}
 
-  webpack-cli@6.0.1(webpack-dev-server@5.2.3)(webpack@5.104.1):
+  webpack-cli@6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2):
     dependencies:
       '@discoveryjs/json-ext': 0.6.3
-      '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)
-      '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)
-      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.3)(webpack@5.104.1)
+      '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)
+      '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)
+      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.3)(webpack@5.105.2)
       colorette: 2.0.20
       commander: 12.1.0
       cross-spawn: 7.0.6
@@ -34699,17 +34701,17 @@ snapshots:
       import-local: 3.2.0
       interpret: 3.1.1
       rechoir: 0.8.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
       webpack-merge: 6.0.1
     optionalDependencies:
-      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.104.1)
+      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
 
-  webpack-cli@6.0.1(webpack@5.104.1):
+  webpack-cli@6.0.1(webpack@5.105.2):
     dependencies:
       '@discoveryjs/json-ext': 0.6.3
-      '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)
-      '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)
-      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)
+      '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)
+      '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)
+      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)
       colorette: 2.0.20
       commander: 12.1.0
       cross-spawn: 7.0.6
@@ -34718,10 +34720,10 @@ snapshots:
       import-local: 3.2.0
       interpret: 3.1.1
       rechoir: 0.8.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
       webpack-merge: 6.0.1
 
-  webpack-dev-middleware@6.1.3(webpack@5.104.1):
+  webpack-dev-middleware@6.1.3(webpack@5.105.2):
     dependencies:
       colorette: 2.0.20
       memfs: 3.5.3
@@ -34729,9 +34731,9 @@ snapshots:
       range-parser: 1.2.1
       schema-utils: 4.3.3
     optionalDependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
-  webpack-dev-middleware@7.4.5(webpack@5.104.1):
+  webpack-dev-middleware@7.4.5(webpack@5.105.2):
     dependencies:
       colorette: 2.0.20
       memfs: 4.56.10
@@ -34740,9 +34742,9 @@ snapshots:
       range-parser: 1.2.1
       schema-utils: 4.3.3
     optionalDependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
 
-  webpack-dev-server@5.2.3(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.104.1):
+  webpack-dev-server@5.2.3(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.105.2):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -34770,18 +34772,18 @@ snapshots:
       serve-index: 1.9.2
       sockjs: 0.3.24
       spdy: 4.0.2
-      webpack-dev-middleware: 7.4.5(webpack@5.104.1)
+      webpack-dev-middleware: 7.4.5(webpack@5.105.2)
       ws: 8.19.0
     optionalDependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.104.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
     transitivePeerDependencies:
       - bufferutil
       - debug
       - supports-color
       - utf-8-validate
 
-  webpack-dev-server@5.2.3(webpack-cli@6.0.1)(webpack@5.104.1):
+  webpack-dev-server@5.2.3(webpack-cli@6.0.1)(webpack@5.105.2):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -34809,11 +34811,11 @@ snapshots:
       serve-index: 1.9.2
       sockjs: 0.3.24
       spdy: 4.0.2
-      webpack-dev-middleware: 7.4.5(webpack@5.104.1)
+      webpack-dev-middleware: 7.4.5(webpack@5.105.2)
       ws: 8.19.0
     optionalDependencies:
-      webpack: 5.104.1(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.104.1)
+      webpack: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -34841,7 +34843,7 @@ snapshots:
 
   webpack-virtual-modules@0.6.2: {}
 
-  webpack@5.104.1(webpack-cli@6.0.1):
+  webpack@5.105.2(webpack-cli@6.0.1):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -34865,11 +34867,11 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.16(webpack@5.104.1)
+      terser-webpack-plugin: 5.3.16(webpack@5.105.2)
       watchpack: 2.5.1
       webpack-sources: 3.3.3
     optionalDependencies:
-      webpack-cli: 6.0.1(webpack@5.104.1)
+      webpack-cli: 6.0.1(webpack@5.105.2)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
