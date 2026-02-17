@@ -10,9 +10,17 @@ Detects and resolves URL mismatches between what WPCOM expects (`wpcom_home`/`wp
 4. Error codes: `jetpack_url_mismatch`, `jetpack_home_url_mismatch`, `jetpack_site_url_mismatch`
 5. IDC data stored in `sync_error_idc` option (non-compact, so `jetpack_sync_error_idc` in DB)
 
-## IDC State
+## Safe Mode
 
-When in IDC, the site enters **safe mode**: sync to WPCOM is blocked, preventing data corruption on the production site. The IDC banner displays in wp-admin with resolution options.
+When in IDC, the site enters **safe mode**. This is not a full disconnection — the connection and tokens remain intact. What changes:
+
+- **Sync is blocked.** `Status::in_safe_mode()` returns `true`, and `Sync\Actions::sync_allowed()` returns `false`. No data (posts, options, comments) is synced to WPCOM, preventing the cloned/migrated site from overwriting production data.
+- **SSO is disabled.** Login via WordPress.com is blocked with a notice ("Logging in with WordPress.com is disabled for sites that are in safe mode").
+- **Disconnect is suppressed.** The `jetpack_connection_disconnect_site_wpcom` filter returns `false`, preventing the site from notifying WPCOM during disconnect (to avoid disconnecting the production site).
+- **IDC URL args skipped.** `add_idc_query_args_to_url()` skips appending `home`/`siteurl` to outgoing requests when `validate_sync_error_idc_option()` is true.
+- **Admin UI shows IDC banner.** The React IDC resolution screen displays in wp-admin with options to resolve. An admin bar button labeled "Jetpack Safe Mode" appears.
+
+Everything else continues to work — the site remains connected, REST API endpoints are available, tokens are valid, and authenticated WPCOM requests (outside of sync) still function.
 
 Key options:
 - `sync_error_idc` — IDC error data: local URLs, WPCOM URLs, error code, timing fields (`last_checked`, `next_check_delay`)
