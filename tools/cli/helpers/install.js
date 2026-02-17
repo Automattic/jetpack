@@ -78,9 +78,7 @@ export async function batchLockFileStatus( projects ) {
 			if ( p === 'composer.lock' ) {
 				lockedProjects.add( 'monorepo' );
 			} else {
-				lockedProjects.add(
-					p.replace( /^projects\//, '' ).replace( /\/composer\.lock$/, '' )
-				);
+				lockedProjects.add( p.replace( /^projects\//, '' ).replace( /\/composer\.lock$/, '' ) );
 			}
 		} );
 
@@ -143,7 +141,6 @@ export async function getInstallArgs( project, pkgMgr, argv, lockedProjects = nu
 		} else {
 			args.push( 'update' );
 		}
-		args.push( '--prefer-dist' );
 		if ( project.startsWith( 'plugins/' ) && argv.production ) {
 			args.push( '-o', '--no-dev', '--classmap-authoritative' );
 		}
