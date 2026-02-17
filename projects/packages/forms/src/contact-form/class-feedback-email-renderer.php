@@ -131,8 +131,9 @@ class Feedback_Email_Renderer {
 		$dashboard_url           = '';
 		$mark_as_spam_url        = '';
 		$footer_mark_as_spam_url = '';
+
 		if ( $feedback_status !== 'jp-temp-feedback' ) {
-			$dashboard_url           = Forms_Dashboard::get_forms_admin_url( $status ) . '&r=' . $post_id;
+			$dashboard_url           = Forms_Dashboard::get_forms_admin_url( $status, $post_id );
 			$mark_as_spam_url        = $dashboard_url . '&mark_as_spam';
 			$footer_mark_as_spam_url = sprintf(
 				'<a href="%1$s">%2$s</a>',

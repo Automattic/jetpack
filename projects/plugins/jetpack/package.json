@@ -110,7 +110,7 @@
 		"jquery-cycle": "3.0.3",
 		"jsdom": "^27.0.0",
 		"mapbox-gl": "1.13.3",
-		"markdown-it": "14.1.0",
+		"markdown-it": "14.1.1",
 		"markdown-it-footnote": "3.0.3",
 		"nspell": "2.1.5",
 		"photon": "4.1.1",

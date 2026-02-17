@@ -179,7 +179,7 @@ describe( 'EmptySpamButton', () => {
 	};
 
 	it( 'renders correctly', () => {
-		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeInTheDocument();
@@ -187,8 +187,8 @@ describe( 'EmptySpamButton', () => {
 		expect( button ).toBeEnabled();
 	} );
 
-	it( 'shows disabled state when trash is empty', () => {
-		renderWithProvider( <EmptySpamButton totalItemsSpam={ 0 } isLoadingCounts={ false } /> );
+	it( 'shows disabled state when spam is empty', () => {
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 0 } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeDisabled();
@@ -196,7 +196,7 @@ describe( 'EmptySpamButton', () => {
 	} );
 
 	it( 'shows confirmation dialog when clicked', async () => {
-		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
@@ -206,14 +206,14 @@ describe( 'EmptySpamButton', () => {
 		expect( screen.getByText( 'Delete forever' ) ).toBeInTheDocument();
 	} );
 
-	it( 'empties trash when confirmed', async () => {
+	it( 'empties spam when confirmed', async () => {
 		const { default: apiFetch } = await import( '@wordpress/api-fetch' );
 		const { useDispatch } = await import( '@wordpress/data' );
 		const mockDispatch = useDispatch( 'notices' );
 
-		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
-		// Click empty trash button
+		// Click empty spam button
 		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
 
