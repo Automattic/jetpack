@@ -53,20 +53,26 @@ jobs:
         if: steps.checkbox.outputs.checked == 'true'
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch PR head SHA
+      - name: Deepen to merge base
         if: steps.checkbox.outputs.checked == 'true'
-        env:
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: git fetch origin "$PR_HEAD_SHA"
+        uses: ./.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
 
       - name: Setup tools
         if: steps.checkbox.outputs.checked == 'true'
         uses: ./.github/actions/tool-setup
-        with:
-          node: false
+
+      - name: Install monorepo dependencies
+        if: steps.checkbox.outputs.checked == 'true'
+        run: pnpm install
+
+      - name: Prepare changelogger
+        if: steps.checkbox.outputs.checked == 'true'
+        run: composer update
+        working-directory: projects/packages/changelogger
 
       - name: Check which projects need changelog entries
         if: steps.checkbox.outputs.checked == 'true'
@@ -75,18 +81,34 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
+          source .github/files/gh-funcs.sh
           PROJECTS=$(php tools/check-changelogger-use.php --list "$BASE" "$HEAD" 2>/dev/null || true)
           if [ -z "$PROJECTS" ]; then
             echo "needed=false" >> "$GITHUB_OUTPUT"
             echo "No projects need changelog entries."
           else
             echo "needed=true" >> "$GITHUB_OUTPUT"
-            echo "projects<<EOF" >> "$GITHUB_OUTPUT"
-            echo "$PROJECTS" >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
+            gh_set_output projects "$PROJECTS"
             echo "Projects needing changelog entries:"
             echo "$PROJECTS"
           fi
+
+      - name: Compute dependent plugins
+        if: steps.checkbox.outputs.checked == 'true' && steps.check.outputs.needed == 'true'
+        id: deps
+        env:
+          PROJECTS: ${{ steps.check.outputs.projects }}
+        run: |
+          source .github/files/gh-funcs.sh
+          DEPS=""
+          while IFS= read -r proj; do
+            [ -z "$proj" ] && continue
+            PLUGIN_DEPS=$(pnpm jetpack dependencies list "$proj" --add-dependents --no-dev --extra build 2>/dev/null | grep '^plugins/' || true)
+            if [ -n "$PLUGIN_DEPS" ]; then
+              DEPS="${DEPS}${proj}:${PLUGIN_DEPS}"$'\n'
+            fi
+          done <<< "$PROJECTS"
+          gh_set_output plugin_deps "$DEPS"
 
       - name: Checkout PR branch
         if: steps.checkbox.outputs.checked == 'true' && steps.check.outputs.needed == 'true'
@@ -110,31 +132,43 @@ jobs:
             The following projects need changelog entries:
             ${{ steps.check.outputs.projects }}
 
+            Pre-computed plugin dependents for each project (may be empty):
+            ${{ steps.deps.outputs.plugin_deps }}
+
             PR title: ${{ github.event.pull_request.title }}
+            PR number: ${{ github.event.pull_request.number }}
             PR branch: ${{ github.event.pull_request.head.ref }}
             PR description:
+            <pr-description>
             ${{ github.event.pull_request.body }}
+            </pr-description>
 
             The PR branch is checked out at `./pr-checkout`. Use that directory for
             writing changelog files and for committing/pushing. The main working
             directory contains the base branch (trunk) — use it only to read
             `composer.json` files for project metadata.
 
+            A changelogger binary is available at:
+            `$GITHUB_WORKSPACE/projects/packages/changelogger/vendor/bin/changelogger`
+
             Instructions:
             1. Read the diff for this PR to understand the changes:
                `git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}`
                (Run this from the main working directory, which has full history.)
 
-            2. For each project listed above, create a changelog file using the Write tool.
-               The file path must be: `pr-checkout/projects/<type>/<name>/changelog/pr-${{ github.event.pull_request.number }}`
-               (e.g., `pr-checkout/projects/packages/connection/changelog/pr-${{ github.event.pull_request.number }}`)
-
-               The file format is:
+            2. For each project listed above, create a changelog entry by running the
+               changelogger CLI from the project's directory in the PR checkout:
                ```
-               Significance: <patch|minor|major>
-               Type: <type>
+               cd $GITHUB_WORKSPACE/pr-checkout/projects/<type>/<name>
+               $GITHUB_WORKSPACE/projects/packages/changelogger/vendor/bin/changelogger add \
+                 --no-interaction -s <significance> -t <type> -e "<entry>" -f "pr-${{ github.event.pull_request.number }}"
+               ```
 
-               <entry text>
+               For trivial/internal changes with no user-facing impact, use an empty
+               entry with a comment explaining why:
+               ```
+               $GITHUB_WORKSPACE/projects/packages/changelogger/vendor/bin/changelogger add \
+                 --no-interaction -s patch -t changed -e "" -c "reason" -f "pr-${{ github.event.pull_request.number }}"
                ```
 
             3. Follow these rules for changelog entries:
@@ -150,13 +184,15 @@ jobs:
                BUT `plugins/jetpack` uses custom types: `major`, `enhancement`, `compat`, `bugfix`, `other`.
                Check each project's `composer.json` at `.extra.changelogger.types` to confirm available types.
 
-            6. Check for indirect dependencies: read each project's `composer.json` to see if other projects
-               (especially plugins) depend on it. If a plugin bundles a package you're adding a changelog entry for,
-               also add a changelog entry for that plugin describing the downstream impact.
+            6. The pre-computed plugin dependents above show which plugins depend on each
+               project. If a plugin is listed as a dependent of a project you are adding
+               a changelog entry for, also add a changelog entry for that plugin
+               describing the downstream impact. Only add a plugin changelog entry if the
+               change is relevant to end users or site administrators.
 
-            7. After writing all changelog files, commit and push from the PR checkout:
+            7. After creating all changelog entries, commit and push from the PR checkout:
                ```
-               cd pr-checkout
+               cd $GITHUB_WORKSPACE/pr-checkout
                git add 'projects/*/*/changelog/pr-${{ github.event.pull_request.number }}'
                git commit -m "Add changelog entries."
                git push
@@ -164,6 +200,8 @@ jobs:
 
             8. Do NOT modify any files other than changelog entries.
 
+          # WARNING: Do not add tools that could execute code from the PR checkout.
+          # The PR checkout contains untrusted code. Only the base branch is trusted.
           claude_args: >-
             --allowedTools
             "Bash(git diff *)"
@@ -172,6 +210,7 @@ jobs:
             "Bash(git commit *)"
             "Bash(git push *)"
             "Bash(cd *)"
+            "Bash(*/changelogger *)"
             Read
             Write
             Glob
