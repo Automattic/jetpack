@@ -70,11 +70,13 @@ describe( 'LineChartAnnotationLabelWithPopover', () => {
 		expect( button ).toHaveAttribute( 'popovertarget', popoverId );
 
 		// Popover content should be rendered
-		expect( screen.getByRole( 'heading', { level: 4, name: 'Title' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { hidden: true, level: 4, name: 'Title' } )
+		).toBeInTheDocument();
 		expect( screen.getByText( 'Subtitle' ) ).toBeInTheDocument();
 
 		// Close button should exist and target the same popover
-		const closeButton = screen.getByRole( 'button', { name: 'Close' } );
+		const closeButton = screen.getByRole( 'button', { hidden: true, name: 'Close' } );
 		expect( closeButton ).toHaveAttribute( 'popovertarget', popoverId );
 		expect( closeButton ).toHaveAttribute( 'popovertargetaction', 'hide' );
 	} );

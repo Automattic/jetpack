@@ -6,6 +6,7 @@ declare module '*.module.scss' {
 declare module '*.gif';
 declare module '*.png';
 declare module '*.svg';
+declare module '*.webp';
 
 // Add the process declaration
 declare const process: {

@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -328,7 +327,7 @@ function zeroBSCRM_mailTemplate_getMailDelMethod( $ID ) {
 	// ... but when more free time, clean up this routine, bringing in all templates :)
 function zeroBSCRM_populateEmailTemplateList() {
 
-	global $wpdb,$ZBSCRM_t;  // need to define this if using it below.. how did this slip through checks?
+	global $wpdb, $ZBSCRM_t;  // need to define this if using it below.. how did this slip through checks?
 	// IDs
 	// 0 - the template itself....  can allow this to be edited.. or upsell it to be edited :/
 	$ID = 0;

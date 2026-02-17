@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Admin Page Partial: Settings: Menu Block
  * This outputs the left hand menu for settings pages
  */

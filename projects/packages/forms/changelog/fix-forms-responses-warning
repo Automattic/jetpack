@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: prevent get_render_api_value from mutating internal state when called multiple times on cached feedback objects.

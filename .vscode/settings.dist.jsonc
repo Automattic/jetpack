@@ -43,9 +43,15 @@
 		"editor.formatOnSave": true,
 		"editor.defaultFormatter": "obliviousharmony.vscode-php-codesniffer"
 	},
+	// Custom settings for JavaScript and TypeScript files.
+	"[javascript][javascriptreact][typescript][typescriptreact]": {
+		"editor.formatOnSave": false,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
 	// Run Code Actions for the editor.
 	"editor.codeActionsOnSave": {
-		"source.fixAll": "explicit"
+		"source.fixAll.eslint": "explicit",
+		"source.fixAll.stylelint": "explicit"
 	},
 	// Use this wp-prettier from this path.
 	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs",

@@ -358,7 +358,7 @@ function do_final_instructions {
 			continue
 		fi
 
-		if ! jq -e '.extra["wp-plugin-slug"] // .extra["wp-theme-slug"] // false' "$F" &>/dev/null; then
+		if ! jq -e '.extra["wp-plugin-slug"] // false' "$F" &>/dev/null; then
 			if ! jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
 				MANUALTAGONLY+=( "$PLUGIN" )
 			fi

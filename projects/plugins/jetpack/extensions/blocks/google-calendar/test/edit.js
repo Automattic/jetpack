@@ -91,7 +91,7 @@ describe( 'GoogleCalendarEdit', () => {
 			screen.getByText( 'Paste the embed code you copied from your Google Calendar below' )
 		).toBeInTheDocument();
 
-		const supportLink = screen.getByRole( 'link', { name: 'Learn more (opens in a new tab)' } );
+		const supportLink = screen.getByRole( 'link', { name: 'Learn more(opens in a new tab)' } );
 
 		expect( supportLink ).toBeInTheDocument();
 		expect( supportLink ).toHaveAttribute(
@@ -115,7 +115,7 @@ describe( 'GoogleCalendarEdit', () => {
 		render( <GoogleCalendarEdit { ...emptyProps } /> );
 
 		const url = 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/';
-		const supportLink = screen.getByRole( 'link', { name: 'Learn more (opens in a new tab)' } );
+		const supportLink = screen.getByRole( 'link', { name: 'Learn more(opens in a new tab)' } );
 		expect( supportLink ).toBeInTheDocument();
 		expect( supportLink ).toHaveAttribute( 'href', url );
 	} );

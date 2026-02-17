@@ -92,9 +92,6 @@ class Listener {
 		add_action( 'jetpack_activate_module', $handler );
 		add_action( 'jetpack_deactivate_module', $handler );
 
-		// Jetpack Upgrade.
-		add_action( 'updating_jetpack_version', $handler, 10, 2 );
-
 		// Send periodic checksum.
 		add_action( 'jetpack_sync_checksum', $handler );
 	}
@@ -286,6 +283,12 @@ class Listener {
 			|| defined( 'jpcrm_woosync_running' )
 			|| defined( 'jpcrm_woosync_cron_running' )
 		) {
+			return;
+		}
+
+		// Skip enqueueing if current action is blacklisted.
+		$sync_actions_blacklist = Settings::get_setting( 'sync_actions_blacklist' );
+		if ( is_array( $sync_actions_blacklist ) && in_array( $current_filter, $sync_actions_blacklist, true ) ) {
 			return;
 		}
 

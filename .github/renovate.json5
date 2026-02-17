@@ -1,6 +1,6 @@
 {
 	extends: [ 'config:recommended', 'abandonments:recommended', 'group:definitelyTyped' ],
-	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
+	labels: [ 'Task', '[Status] Needs Review' ],
 	reviewers: [ 'team:jetpack-monorepo' ],
 	prHourlyLimit: 1,
 	timezone: 'UTC',
@@ -106,6 +106,17 @@
 			],
 		},
 
+		// Separate Build from 'monorepo:wordpress' as build is still heavily developed, to manually test changes.
+		{
+			groupName: '@wordpress/build',
+			matchPackageNames: [ '@wordpress/build' ],
+			separateMajorMinor: false,
+			// Teams using Build in their projects
+			additionalReviewers: [
+				'team:zap', // Forms
+			],
+		},
+
 		// 🤷
 		{
 			groupName: 'Instant Search Dependency Updates',
@@ -175,6 +186,6 @@
 		schedule: [ '* 0-2 7-13 * 1' ],
 	},
 	dependencyDashboardTitle: 'Renovate Dependency Updates',
-	dependencyDashboardLabels: [ 'Primary Issue', '[Type] Janitorial' ],
+	dependencyDashboardLabels: [ 'Primary Issue', 'Task' ],
 	dependencyDashboardFooter: 'The bot runs every two hours, and may be monitored or triggered ahead of schedule [here](https://github.com/Automattic/jetpack/actions/workflows/renovate.yml).',
 }

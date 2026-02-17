@@ -553,10 +553,6 @@ function wpcom_youtube_get_regex() {
  * Add a new handler to automatically transform custom Youtube URLs (like playlists) into embeds.
  */
 function wpcom_youtube_embed_crazy_url_init() {
-	if ( ! defined( 'REST_API_REQUEST' ) ) {
-		return;
-	}
-
 	// Register the custom handler to provide the better support for the private video.
 	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', wpcom_youtube_get_regex(), 'wpcom_youtube_embed_crazy_url' );
 }

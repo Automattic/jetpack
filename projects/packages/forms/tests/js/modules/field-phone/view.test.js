@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 // Mock WordPress Interactivity API

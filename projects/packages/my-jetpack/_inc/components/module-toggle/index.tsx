@@ -11,6 +11,7 @@ import type { ChangeEvent } from 'react';
 
 export type ModuleToggleProps = {
 	module: MyJetpackModule;
+	describedby?: string;
 };
 
 /**
@@ -20,7 +21,7 @@ export type ModuleToggleProps = {
  *
  * @return The rendered component.
  */
-export function ModuleToggle( { module: $module }: ModuleToggleProps ) {
+export function ModuleToggle( { module: $module, describedby }: ModuleToggleProps ) {
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
@@ -106,6 +107,7 @@ export function ModuleToggle( { module: $module }: ModuleToggleProps ) {
 				__( 'Toggle %s module', 'jetpack-my-jetpack' ),
 				$module.name
 			) }
+			aria-describedby={ describedby }
 		/>
 	);
 }

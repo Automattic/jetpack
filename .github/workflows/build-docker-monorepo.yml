@@ -13,6 +13,7 @@ on:
       - 'tools/docker/bin/monorepo'
       - '.github/versions.sh'
       - '.github/workflows/build-docker-monorepo.yml'
+  workflow_dispatch:
 concurrency:
   group: build-docker-monorepo-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true

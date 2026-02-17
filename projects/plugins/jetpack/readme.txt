@@ -1,8 +1,8 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.4
-Requires at least: 6.7
+Stable tag: 15.6-a.3
+Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
 License: GPLv2 or later
@@ -326,27 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.4 - 2026-01-06
+### 15.6-a.3 - 2026-02-16
 #### Enhancements
-- External media: Add replace flow support.
-- Forms: Add filter to hide integration icons.
-- Forms: Add integrations display filters.
-- Forms: add list view sidebar for easier field management.
-- Forms: support Math and Code blocks inside forms.
-- Forms: Use entire button area for selecting multi-select options.
-- Social: Improve social preview for LinkedIn and Tumblr.
-- Social: Reuse AI image generation in media section.
+- Form Notifications: Add new HTML email template design with respondent info header, metadata section, and improved action buttons.
+- Forms: Allow Accordion, Details, and Icon blocks in forms, and Icon block to be added inside the file upload dropzone.
+- Forms: Allow filtering Forms dashboard URL.
+- Forms: Create new forms in same tab.
+- Forms: Replace dashicon with SVG icon and add tooltip to admin bar "Form Responses" link.
+- Reader: Add Discover card to Reader settings page to highlight feature benefits.
+- Update external menu links to display an arrow indicator for improved performance and a more modern appearance.
+- VideoPress: Accept SRT subtitle files for upload alongside VTT.
+- WordPress.com Reader: Automatically enable the admin bar link on sites newly connected to WordPress.com.
 
 #### Bug fixes
-- AI Assistant: disabled Write Brief functionality for non-English sites.
-- AI Assistant: Fix product page URL for Simple sites to use jetpack.com instead of My Jetpack.
-- Forms: Ensure submission summary is contained within 100% width.
-- Forms: Fix validation accessibility.
-- Forms: Remove the classic Admin initialization call.
-- Forms: Strip HTML from styled labels in error summary.
-- Jetpack settings: Avoid deprecation notices when loading Settings screen or Debugger screen.
-- Scan: Replace inline onclick handler with target="_blank" for CSP compliance in admin bar notice.
-- Social: Fix connections management modal not opening from pre-publish panel.
+- AI Assistant: Restore Jetpack logo in pre-publish panel where branding is not otherwise apparent.
+- Block Editor Assets: Fix Gutenberg asset detection when assets are served from a CDN.
+- Social: Fix Tumblr preview to prioritize custom message when it is set.
+- Social: Refresh plan features on post-checkout redirect.
 
 --------
 

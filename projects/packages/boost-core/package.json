@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-boost-core",
-	"version": "0.4.1",
+	"version": "0.4.2",
 	"private": true,
 	"description": "Core functionality for boost and relevant packages to depend on",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/boost-core/#readme",

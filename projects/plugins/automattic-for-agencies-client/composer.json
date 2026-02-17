@@ -62,7 +62,6 @@
 		"autorelease": true,
 		"mirror-repo": "Automattic/automattic-for-agencies-client",
 		"release-branch-prefix": "automattic-for-agencies-client",
-		"beta-plugin-slug": "automattic-for-agencies-client",
 		"wp-plugin-slug": "automattic-for-agencies-client",
 		"wp-svn-autopublish": true,
 		"changelogger": {

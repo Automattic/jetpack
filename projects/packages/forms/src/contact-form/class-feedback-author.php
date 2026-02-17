@@ -134,12 +134,22 @@ class Feedback_Author {
 	/**
 	 * Get the avatar URL of the author.
 	 *
-	 * If the email is not set, it will return an empty string.
+	 * Uses Gravatar's "initials" default so that users without a Gravatar
+	 * get a colored circle with their initials — matching the dashboard.
+	 *
+	 * @see https://docs.gravatar.com/api/avatars/images/#default-image
 	 *
 	 * @return string The avatar URL of the author.
 	 */
 	public function get_avatar_url(): string {
-		return ! empty( $this->email ) ? get_avatar_url( $this->email ) : '';
+		if ( empty( $this->email ) ) {
+			return '';
+		}
+
+		$hash = md5( strtolower( trim( $this->email ) ) );
+		$name = rawurlencode( $this->get_display_name() );
+
+		return "https://gravatar.com/avatar/{$hash}?d=initials&name={$name}&s=96";
 	}
 
 	/**
