@@ -50,13 +50,13 @@ class Block_Editor_Extensions {
 		self::$script_handle = $script_handle;
 
 		/**
-		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
-		*
-		* @since 6.9.0
-		* @deprecated Jetpack 11.8.0 Use jetpack_blocks_variation filter instead.
-		*
-		* @param boolean
-		*/
+		 * Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
+		 *
+		 * @since 6.9.0
+		 * @deprecated Jetpack 11.8.0 Use jetpack_blocks_variation filter instead.
+		 *
+		 * @param boolean
+		 */
 		if (
 			apply_filters_deprecated(
 				'jetpack_load_beta_blocks',
@@ -198,8 +198,23 @@ class Block_Editor_Extensions {
 			return true;
 		}
 
-		// Check if user hasn't used their free video yet.
-		$video_data = Data::get_video_data();
-		return 0 === (int) $video_data['total'];
+		/*
+		 * Check if user hasn't used their free video yet.
+		 *
+		 * Uses a direct WP_Query instead of Data::get_video_data() which calls the
+		 * /wp/v2/media endpoint that can corrupt global state during script enqueuing.
+		 */
+		$query = new \WP_Query(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => 'video/videopress',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+			)
+		);
+
+		return 0 === $query->post_count;
 	}
 }
