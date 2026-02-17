@@ -403,7 +403,7 @@ function TimeSeriesForecastChartInternal< D >( {
 						{ showDivider && (
 							<ForecastDivider
 								forecastStart={ forecastStart }
-								color={ providerTheme.gridStyles?.stroke ?? '#cccccc' }
+								color={ providerTheme.gridStyles?.stroke }
 							/>
 						) }
 
