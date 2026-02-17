@@ -106,11 +106,11 @@ function wpcom_add_hosting_menu() {
 
 	$menu_title = sprintf(
 		'%1$s<span class="inline-icon dashicons dashicons-external"></span>',
-		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' )
+		__( 'Hosting', 'jetpack-mu-wpcom' )
 	);
 
 	add_menu_page(
-		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
+		__( 'Hosting', 'jetpack-mu-wpcom' ),
 		$menu_title,
 		'manage_options',
 		esc_url( "https://wordpress.com/overview/$domain" ),
@@ -156,15 +156,15 @@ function wpcom_add_upgrades_menu() {
 		// Calypso and the masterbar CSS override this to show the plan label.
 		$menu_title = sprintf(
 			'%1$s<span class="inline-text" style="display:none">%2$s</span>',
-			esc_attr__( 'Upgrades', 'jetpack-mu-wpcom' ),
+			__( 'Upgrades', 'jetpack-mu-wpcom' ),
 			esc_html( $plan )
 		);
 	} else {
-		$menu_title = esc_attr__( 'Upgrades', 'jetpack-mu-wpcom' );
+		$menu_title = __( 'Upgrades', 'jetpack-mu-wpcom' );
 	}
 
 	add_menu_page(
-		esc_attr__( 'Upgrades', 'jetpack-mu-wpcom' ),
+		__( 'Upgrades', 'jetpack-mu-wpcom' ),
 		$menu_title,
 		'manage_options',
 		$parent_slug,
@@ -175,8 +175,8 @@ function wpcom_add_upgrades_menu() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
+		__( 'Plans', 'jetpack-mu-wpcom' ),
+		__( 'Plans', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/plans/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
@@ -185,8 +185,8 @@ function wpcom_add_upgrades_menu() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
+		__( 'Add-ons', 'jetpack-mu-wpcom' ),
+		__( 'Add-ons', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/add-ons/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
@@ -195,8 +195,8 @@ function wpcom_add_upgrades_menu() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Domains', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Domains', 'jetpack-mu-wpcom' ),
+		__( 'Domains', 'jetpack-mu-wpcom' ),
+		__( 'Domains', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/domains/manage/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
@@ -205,8 +205,8 @@ function wpcom_add_upgrades_menu() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Emails', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Emails', 'jetpack-mu-wpcom' ),
+		__( 'Emails', 'jetpack-mu-wpcom' ),
+		__( 'Emails', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/email/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
@@ -215,8 +215,8 @@ function wpcom_add_upgrades_menu() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Purchases', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Purchases', 'jetpack-mu-wpcom' ),
+		__( 'Purchases', 'jetpack-mu-wpcom' ),
+		__( 'Purchases', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/purchases/subscriptions/$domain" ),
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
