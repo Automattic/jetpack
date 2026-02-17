@@ -730,7 +730,8 @@ class Feedback_Field {
 		$icon_url  = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/' . $icon_name . '@2x.png';
 
 		return sprintf(
-			'<img src="%1$s" width="40" height="40" alt="" style="border-radius: 50%%; object-fit: cover; width: 40px; height: 40px;" />',
+			'<img src="%1$s" width="24" height="24" alt=""
+				style="padding: 8px; border-radius: 50%%; width: 24px; height: 24px; background-color: #f0f0f0;" />',
 			esc_url( $icon_url )
 		);
 	}
