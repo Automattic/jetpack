@@ -54,6 +54,7 @@
 		"@automattic/jetpack-my-jetpack": "workspace:*",
 		"@automattic/jetpack-newsletter": "workspace:*",
 		"@automattic/jetpack-partner-coupon": "workspace:*",
+		"@automattic/jetpack-publicize": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/jetpack-subscribers-dashboard": "workspace:*",
