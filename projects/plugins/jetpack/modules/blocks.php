@@ -48,3 +48,4 @@ if ( is_admin() ) {
 	add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
 }
 add_filter( 'render_block', array( 'Jetpack_Gutenberg', 'display_deprecated_block_message' ), 10, 2 );
+add_filter( 'jetpack_admin_js_script_data', array( 'Jetpack_Gutenberg', 'set_editor_script_data' ), 10, 1 );

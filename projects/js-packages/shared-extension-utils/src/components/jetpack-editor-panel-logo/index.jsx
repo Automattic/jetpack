@@ -1,6 +1,6 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import getJetpackData from '../../get-jetpack-data';
 
 import './style.scss';
 
@@ -13,8 +13,7 @@ import './style.scss';
  * @return {import('react').Component|null} Jetpack logo component or null
  */
 const JetpackEditorPanelLogo = () => {
-	const branding = getJetpackData()?.showEditorPanelBranding;
-	// wp_localize_script converts booleans to strings ("1" / ""), so use a falsy check.
+	const branding = getScriptData()?.editor?.showJetpackBranding;
 	// undefined means the key isn't present (older PHP), so default to showing branding.
 	if ( branding !== undefined && ! branding ) {
 		return null;
