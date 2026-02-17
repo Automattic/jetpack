@@ -22,9 +22,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-$link_color           = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::LINK_COLOR;
-$text_color           = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::TEXT_COLOR;
-$text_secondary_color = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::TEXT_SECONDARY_COLOR;
+$link_color            = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::LINK_COLOR;
+$text_color            = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::TEXT_COLOR;
+$text_secondary_color  = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::TEXT_SECONDARY_COLOR;
+$font_size_field_label = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::FONT_SIZE_FIELD_LABEL;
+$font_size_field_value = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::FONT_SIZE_FIELD_VALUE;
+$font_size_metadata    = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::FONT_SIZE_METADATA;
+$font_size_button      = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::FONT_SIZE_BUTTON;
 
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
 $template = '
@@ -238,7 +242,7 @@ $style = '<style media="all" type="text/css">
 
 	.metadata-table td {
 		padding: 4px 0;
-		font-size: 13px;
+		font-size: ' . $font_size_metadata . ';
 		vertical-align: top;
 	}
 
@@ -300,14 +304,14 @@ $style = '<style media="all" type="text/css">
 	}
 
 	.field-label {
-		font-size: 12px;
+		font-size: ' . $font_size_field_label . ';
 		color: ' . $text_secondary_color . ';
 		margin: 0 0 4px 0;
 		text-transform: none;
 	}
 
 	.field-value {
-		font-size: 13px;
+		font-size: ' . $font_size_field_value . ';
 		color: ' . $text_color . ';
 		margin: 0;
 		word-wrap: break-word;
@@ -331,7 +335,7 @@ $style = '<style media="all" type="text/css">
 		background-color: #f0f0f0;
 		border-radius: 2px;
 		padding: 0 8px;
-		font-size: 13px;
+		font-size: ' . $font_size_field_value . ';
 		color: ' . $text_color . ';
 	}
 
@@ -399,7 +403,7 @@ $style = '<style media="all" type="text/css">
 		color: #155724;
 		border-radius: 2px;
 		padding: 0 8px;
-		font-size: 13px;
+		font-size: ' . $font_size_field_value . ';
 	}
 
 	.consent-chip.no {
@@ -421,7 +425,7 @@ $style = '<style media="all" type="text/css">
 		display: inline-block;
 		padding: 12px 24px;
 		border-radius: 4px;
-		font-size: 14px;
+		font-size: ' . $font_size_button . ';
 		font-weight: 500;
 		text-decoration: none;
 		margin: 0 6px;
@@ -593,9 +597,30 @@ $style = '<style media="all" type="text/css">
 			width: 90px !important;
 		}
 
+		.actions {
+			width: 100% !important;
+			padding: 0 !important;
+		}
+
+		.actions .button-table,
+		.actions .button-table tbody,
+		.actions .button-table tr,
+		.actions .button-cell {
+			display: block !important;
+			width: 100% !important;
+			max-width: 100% !important;
+		}
+
+		.button-cell {
+			text-align: center !important;
+			padding: 4px 0 !important;
+		}
+
 		.action-button {
 			display: block !important;
-			margin: 8px 0 !important;
+			width: 100% !important;
+			box-sizing: border-box !important;
+			text-align: center !important;
 		}
 	}
 

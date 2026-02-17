@@ -44,7 +44,8 @@ class Help_Center {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
-		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
+		$blog_id               = get_current_blog_id();
+		$this->is_support_site = ( defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_SUPPORT_BLOG_IDS, true ) ) || ( defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true ) );
 
 		// Always register REST API endpoints.
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
@@ -638,7 +639,7 @@ class Help_Center {
 		}
 
 		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
-		if ( ! is_user_logged_in() && ! self::is_proxied() ) {
+		if ( ! is_user_logged_in() ) {
 			if ( ! $this->is_support_site ) {
 				return;
 			}
