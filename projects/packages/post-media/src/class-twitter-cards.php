@@ -74,7 +74,7 @@ class Twitter_Cards {
 			 *
 			 * @module sharedaddy
 			 *
-			 * @since 5.9.0
+			 * @since jetpack-5.9.0
 			 *
 			 * @param string $str Default image URL.
 			 */
@@ -308,7 +308,6 @@ class Twitter_Cards {
 	 * @return string Twitter via tag.
 	 */
 	public static function site_tag() {
-		// @todo Jetpack_Options is from the jetpack-options package, which should be added as a dependency.
 		$site_tag = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
 			trim( get_option( 'twitter_via' ) ) :
 			( class_exists( Jetpack_Options::class ) ? Jetpack_Options::get_option_and_ensure_autoload( 'jetpack-twitter-cards-site-tag', '' ) : get_option( 'jetpack-twitter-cards-site-tag', '' ) );
