@@ -63,7 +63,7 @@ export const route = {
 	 * Checks if the feedback post type exists.
 	 */
 	beforeLoad: async () => {
-		// Redirect legacy hash from email links (e.g. #/responses?status=inbox&r=2879).
+		// Redirect legacy hash from email links (e.g. #/responses?status=inbox&r=2879&mark_as_spam).
 		// The hash survives server redirects but is never sent to the server, so we must
 		// convert it client-side to the wp-build URL with responseIds in the path.
 		const hash = window.location.hash;
@@ -77,11 +77,18 @@ export const route = {
 				const status = params.get( 'status' ) || 'inbox';
 				const validStatuses = [ 'inbox', 'spam', 'trash' ];
 				const view = validStatuses.includes( status ) ? status : 'inbox';
+				const hasMarkAsSpam = params.has( 'mark_as_spam' );
+
+				// Build redirect URL with mark_as_spam parameter if present
+				let redirectUrl = `/responses/${ view }?responseIds=${ encodeURIComponent(
+					JSON.stringify( [ r ] )
+				) }`;
+				if ( hasMarkAsSpam ) {
+					redirectUrl += '&mark_as_spam=1';
+				}
 
 				throw redirect( {
-					href: `/responses/${ view }?responseIds=${ encodeURIComponent(
-						JSON.stringify( [ r ] )
-					) }`,
+					href: redirectUrl,
 				} );
 			}
 		}
