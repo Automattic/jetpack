@@ -260,6 +260,8 @@ class Twitter_Cards_Test extends BaseTestCase {
 		// Create a simple test PNG file.
 		$img = imagecreatetruecolor( 240, 240 );
 		imagepng( $img, $image_path );
+		// imagedestroy() is deprecated in PHP 8.5, but GD resources are only auto-freed since PHP 8.0.
+		// We still need to call it on PHP < 8.0 to avoid memory leaks.
 		if ( PHP_VERSION_ID < 80000 ) {
 			imagedestroy( $img ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.imagedestroyDeprecated
 		}
