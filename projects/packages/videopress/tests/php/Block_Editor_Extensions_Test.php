@@ -13,8 +13,9 @@ use WorDBless\BaseTestCase;
  * Class Block_Editor_Extensions_Test
  *
  * Note: Tests for Jetpack site behavior are limited because the can_upload_to_videopress
- * method relies on Status::is_active(), Current_Plan::supports(), and Data::get_video_data()
- * which are tested separately and difficult to mock due to class autoloading.
+ * method relies on Status::is_active(), Current_Plan::supports(), and a direct WP_Query
+ * check for VideoPress videos, which are tested separately and difficult to mock due to
+ * class autoloading.
  */
 class Block_Editor_Extensions_Test extends BaseTestCase {
 
