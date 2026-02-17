@@ -586,4 +586,38 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertSame( 0, $value['rating'] );
 		$this->assertEquals( 5, $value['maxRating'] );
 	}
+
+	// ─── Email HTML rendering tests ───
+
+	/**
+	 * Test get_icon_name_for_type maps known types and falls back to field-text.
+	 */
+	public function test_get_icon_name_for_type() {
+		$this->assertSame( 'field-text', Feedback_Field::get_icon_name_for_type( 'text' ) );
+		$this->assertSame( 'field-email', Feedback_Field::get_icon_name_for_type( 'email' ) );
+		$this->assertSame( 'field-telephone', Feedback_Field::get_icon_name_for_type( 'phone' ) );
+		$this->assertSame( 'field-telephone', Feedback_Field::get_icon_name_for_type( 'telephone' ) );
+		$this->assertSame( 'field-single-choice', Feedback_Field::get_icon_name_for_type( 'radio' ) );
+		$this->assertSame( 'field-multiple-choice', Feedback_Field::get_icon_name_for_type( 'checkbox-multiple' ) );
+		$this->assertSame( 'field-rating', Feedback_Field::get_icon_name_for_type( 'rating' ) );
+		$this->assertSame( 'field-file', Feedback_Field::get_icon_name_for_type( 'file' ) );
+		// Unknown type falls back to field-text.
+		$this->assertSame( 'field-text', Feedback_Field::get_icon_name_for_type( 'nonexistent' ) );
+	}
+
+	/**
+	 * Test get_admin_theme_color returns a hex color.
+	 */
+	public function test_get_admin_theme_color() {
+		// Reset cached value so it runs through the method.
+		$reflection = new \ReflectionClass( Feedback_Field::class );
+		$prop       = $reflection->getProperty( 'admin_theme_color' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, null );
+
+		$color = Feedback_Field::get_admin_theme_color();
+		$this->assertMatchesRegularExpression( '/^#[0-9a-f]{6}$/i', $color );
+	}
 }

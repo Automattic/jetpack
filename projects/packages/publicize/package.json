@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-publicize",
-	"version": "0.72.2",
+	"version": "0.72.3",
 	"private": true,
 	"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/publicize/#readme",
@@ -14,6 +14,12 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"exports": {
+		"./link-preview": {
+			"jetpack:src": "./_inc/exports/link-preview/index.ts",
+			"default": "./_inc/exports/link-preview/index.ts"
+		}
+	},
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "webpack",
@@ -66,7 +72,8 @@
 		"clsx": "2.1.1",
 		"jquery": "3.7.1",
 		"prop-types": "15.8.1",
-		"react-page-visibility": "7.0.0"
+		"react-page-visibility": "7.0.0",
+		"social-logos": "workspace:*"
 	},
 	"devDependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
@@ -74,11 +81,11 @@
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.28.4",
-		"@babel/plugin-transform-react-jsx": "7.27.1",
-		"@babel/preset-env": "7.28.3",
-		"@babel/preset-react": "7.27.1",
-		"@babel/runtime": "7.28.4",
+		"@babel/core": "7.29.0",
+		"@babel/plugin-transform-react-jsx": "7.28.6",
+		"@babel/preset-env": "7.29.0",
+		"@babel/preset-react": "7.28.5",
+		"@babel/runtime": "7.28.6",
 		"@csstools/postcss-global-data": "2.1.1",
 		"@storybook/react": "10.2.3",
 		"@testing-library/dom": "10.4.1",

@@ -68,7 +68,7 @@ class Settings extends Component {
 						active={ '/newsletter' === pathname }
 						{ ...commonProps }
 					/>
-					<Reader active={ '/reader' === pathname } { ...commonProps } />
+					<Reader active={ '/reader' === pathname } blogID={ blogID } { ...commonProps } />
 					<Earn
 						siteRawUrl={ siteRawUrl }
 						active={ '/earn' === pathname }

@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.4.13] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
 ## [1.4.12] - 2026-02-10
 ### Changed
 - Update package dependencies. [#47002]
@@ -1647,6 +1654,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.4.13]: https://github.com/Automattic/jetpack-components/compare/1.4.12...1.4.13
 [1.4.12]: https://github.com/Automattic/jetpack-components/compare/1.4.11...1.4.12
 [1.4.11]: https://github.com/Automattic/jetpack-components/compare/1.4.10...1.4.11
 [1.4.10]: https://github.com/Automattic/jetpack-components/compare/1.4.9...1.4.10

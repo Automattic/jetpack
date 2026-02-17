@@ -1,0 +1,26 @@
+@use "sass:meta";
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// Fix for sticky header on mobile in wp-admin
+// The entire page needs to account for the wp-admin bar
+// (46px on mobile, 32px on tablet+)
+.admin-ui-page {
+
+	@media (max-width: 782px) {
+		// On mobile, the admin bar is fixed, so the page needs to be below it
+		top: 46px;
+	}
+}
+
+.jp-forms-dataviews__view-actions {
+	// On small screens, switch to column-reverse stacking
+	@container (width < 500px) {
+		--wp-ui-stack-justify: flex-start;
+		flex-direction: column-reverse;
+		align-items: flex-start;
+	}
+
+	> div:not(:empty) {
+		min-height: 48px;
+	}
+}

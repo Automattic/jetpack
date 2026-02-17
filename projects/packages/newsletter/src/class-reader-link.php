@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Connection\Urls;
+use Automattic\Jetpack\Modules;
 use WP_Admin_Bar;
 
 /**
@@ -28,7 +29,7 @@ class Reader_Link {
 	 * and its associated styles. It can be called multiple times safely
 	 * as it will only initialize once.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.0
 	 *
 	 * @return void
 	 */
@@ -47,7 +48,7 @@ class Reader_Link {
 	/**
 	 * Enqueue the stylesheet used to display the Reader icon.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.0
 	 *
 	 * @return void
 	 */
@@ -75,7 +76,7 @@ class Reader_Link {
 	 *
 	 * Hook into 'admin_bar_menu' to add to the wp-admin bar.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.0
 	 *
 	 * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
 	 */
@@ -92,5 +93,21 @@ class Reader_Link {
 				'parent' => 'top-secondary',
 			)
 		);
+	}
+
+	/**
+	 * Activate the wpcom-reader module when a site is first connected to WordPress.com.
+	 *
+	 * Only activates on truly fresh connections. If modules were previously initialized
+	 * (e.g., the user disconnected and reconnected), we respect their prior module choices.
+	 *
+	 * @since 0.4.0
+	 */
+	public static function activate_on_connection() {
+		if ( \Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
+			return;
+		}
+
+		( new Modules() )->activate( 'wpcom-reader', false, false );
 	}
 }
