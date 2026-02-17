@@ -61,10 +61,14 @@ class Rest_Api_Endpoints {
 			return array();
 		}
 
-		// add the search term to the query params if it exists
-		$query_param = $request['query'] ?? '';
+		$query_string = $request['query'] ?? '';
+		$query_array  = array();
+		if ( ! empty( $query_string ) ) {
+			parse_str( $query_string, $query_array );
+			$query_array = urldecode_deep( $query_array );
+		}
 
-		return $jitm->get_messages( $request['message_path'], urldecode_deep( array( 'query' => $query_param ) ), 'true' === $request['full_jp_logo_exists'] );
+		return $jitm->get_messages( $request['message_path'], $query_array, 'true' === $request['full_jp_logo_exists'] );
 	}
 
 	/**

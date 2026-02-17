@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { getStringWidth } from '@visx/text';
 import { getLongestTickWidth } from '../get-longest-tick-width';
 

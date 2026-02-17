@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.53.2",
+	"version": "0.56.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -89,11 +89,11 @@
 			"require": "./dist/providers/index.cjs"
 		},
 		"./sparkline": {
-			"jetpack:src": "./src/components/sparkline/index.ts",
-			"import": "./dist/components/sparkline/index.js",
-			"require": "./dist/components/sparkline/index.cjs"
+			"jetpack:src": "./src/charts/sparkline/index.ts",
+			"import": "./dist/charts/sparkline/index.js",
+			"require": "./dist/charts/sparkline/index.cjs"
 		},
-		"./sparkline/style.css": "./dist/components/sparkline/index.css",
+		"./sparkline/style.css": "./dist/charts/sparkline/index.css",
 		"./style.css": "./dist/index.css",
 		"./tooltip": {
 			"jetpack:src": "./src/components/tooltip/index.ts",
@@ -165,11 +165,11 @@
 			"pie-semi-circle-chart": [
 				"./dist/charts/pie-semi-circle-chart/index.d.ts"
 			],
+			"sparkline": [
+				"./dist/charts/sparkline/index.d.ts"
+			],
 			"providers": [
 				"./dist/providers/index.d.ts"
-			],
-			"sparkline": [
-				"./dist/components/sparkline/index.d.ts"
 			],
 			"tooltip": [
 				"./dist/components/tooltip/index.d.ts"
@@ -220,6 +220,8 @@
 		"@visx/vendor": "^3.12.0",
 		"@visx/xychart": "^3.12.0",
 		"@wordpress/i18n": "^6.0.0",
+		"@wordpress/theme": "0.6.0",
+		"@wordpress/ui": "0.6.0",
 		"clsx": "2.1.1",
 		"date-fns": "^4.1.0",
 		"deepmerge": "4.3.1",
@@ -231,8 +233,8 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.28.4",
-		"@storybook/addon-docs": "10.1.10",
-		"@storybook/react": "10.1.10",
+		"@storybook/addon-docs": "10.2.3",
+		"@storybook/react": "10.2.3",
 		"@testing-library/dom": "^10.0.0",
 		"@testing-library/jest-dom": "^6.0.0",
 		"@testing-library/react": "^16.0.0",
@@ -241,25 +243,27 @@
 		"@types/react": "18.3.26",
 		"@types/react-dom": "18.3.7",
 		"@visx/glyph": "3.12.0",
-		"@wordpress/components": "31.0.0",
-		"@wordpress/element": "6.37.0",
+		"@wordpress/components": "32.1.0",
+		"@wordpress/element": "6.39.0",
 		"babel-jest": "30.2.0",
 		"esbuild": "0.25.9",
 		"esbuild-sass-plugin": "^3.1.0",
 		"jest": "30.2.0",
-		"jest-environment-jsdom": "30.2.0",
 		"jest-extended": "7.0.0",
 		"postcss": "8.5.6",
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"sass-embedded": "1.87.0",
-		"storybook": "10.1.10",
-		"tsup": "8.5.0",
+		"sass-embedded": "1.97.2",
+		"storybook": "10.2.3",
+		"tsup": "8.5.1",
 		"typescript": "5.9.3"
 	},
 	"peerDependencies": {
 		"react": "^17.0.0 || ^18.0.0",
 		"react-dom": "^17.0.0 || ^18.0.0"
+	},
+	"engines": {
+		"node": ">=20.10.0"
 	}
 }

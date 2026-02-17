@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove redundant moduleNameMapper from jest config.

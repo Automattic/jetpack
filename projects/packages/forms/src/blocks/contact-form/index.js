@@ -2,7 +2,7 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import defaultAttributes from './attributes.ts';
 import deprecated from './deprecated.js';
 import edit from './edit.tsx';
@@ -64,7 +64,14 @@ export const settings = {
 		'jetpack/form-class-name': 'className',
 	},
 	edit,
-	save: () => {
+	save: ( { attributes } ) => {
+		// For synced forms (with ref attribute), don't save innerBlocks
+		// The actual form content is stored in the jetpack_form post
+		if ( attributes.ref ) {
+			return null;
+		}
+
+		// For inline forms, save the full block with innerBlocks
 		const blockProps = useBlockProps.save();
 		return (
 			<div { ...blockProps }>
@@ -107,4 +114,7 @@ export const settings = {
 	category: 'contact-form',
 	transforms,
 	deprecated,
+	__experimentalLabel: ( { ref } ) => {
+		return ref ? __( 'Form', 'jetpack-forms' ) + ' (Synced)' : __( 'Form', 'jetpack-forms' );
+	},
 };

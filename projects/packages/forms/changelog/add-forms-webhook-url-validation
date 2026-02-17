@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Forms: add SSRF protection for webhook URLs to prevent requests to internal networks and cloud metadata endpoints.

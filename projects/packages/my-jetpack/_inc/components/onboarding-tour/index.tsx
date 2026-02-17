@@ -104,7 +104,9 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 												'jetpack-my-jetpack'
 											),
 											{
-												mobileLink: <ExternalLink href="https://jetpack.com/mobile/" />,
+												mobileLink: (
+													<ExternalLink href="https://jetpack.com/mobile/" children={ null } />
+												),
 											}
 										) }
 									</p>

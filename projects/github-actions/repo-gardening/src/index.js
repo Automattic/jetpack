@@ -4,6 +4,7 @@ const addLabels = require( './tasks/add-labels' );
 const addMilestone = require( './tasks/add-milestone' );
 const assignIssues = require( './tasks/assign-issues' );
 const checkDescription = require( './tasks/check-description' );
+const checkIfDocsNeeded = require( './tasks/check-if-docs-needed' );
 const cleanLabels = require( './tasks/clean-labels' );
 const flagOss = require( './tasks/flag-oss' );
 const gatherSupportReferences = require( './tasks/gather-support-references' );
@@ -60,6 +61,11 @@ const automations = [
 		event: 'pull_request_target',
 		action: [ 'opened' ],
 		task: flagOss,
+	},
+	{
+		event: 'pull_request_target',
+		action: [ 'closed' ],
+		task: ifNotFork( checkIfDocsNeeded ),
 	},
 	{
 		event: 'issues',

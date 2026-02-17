@@ -121,7 +121,7 @@ function cleanIssueContent( content ) {
  *
  * When an issue is first opened, parse its contents, send them to OpenAI,
  * and add labels if any matching labels can be found.
- * During testing, we'll only run it for issues that are not labeled as "[Type] Task".
+ * During testing, we'll only run it for issues that are not labeled as task.
  * When we auto-label, we'll add a label to note that the issue was processed.
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
@@ -153,7 +153,7 @@ async function aiLabeling( payload, octokit ) {
 
 	if (
 		! issueLabels.includes( '[Experiment] AI labels added' ) &&
-		! issueLabels.includes( '[Type] Task' )
+		! issueLabels.some( label => label === '[Type] Task' || label === 'Task' )
 	) {
 		const issueContents = cleanIssueContent( body );
 

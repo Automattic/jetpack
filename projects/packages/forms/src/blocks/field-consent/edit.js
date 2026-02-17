@@ -3,6 +3,7 @@ import {
 	store as blockEditorStore,
 	useBlockProps,
 	useInnerBlocksProps,
+	BlockControls,
 } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
@@ -11,7 +12,9 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import JetpackFieldWidth from '../shared/components/jetpack-field-width.js';
+import ToolbarRequiredGroup from '../shared/components/toolbar-required-group.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useSyncRequiredIndicator from '../shared/hooks/use-sync-required-indicator.js';
 
 // Returns a translated placeholder based on the consent type.
 function getConsentPlaceholder( consentType ) {
@@ -24,8 +27,14 @@ function getConsentPlaceholder( consentType ) {
 
 export default function ConsentFieldEdit( props ) {
 	const { attributes, clientId, setAttributes } = props;
-	const { consentType, width, implicitConsentMessage, explicitConsentMessage, className } =
-		attributes;
+	const {
+		consentType,
+		width,
+		implicitConsentMessage,
+		explicitConsentMessage,
+		className,
+		required,
+	} = attributes;
 
 	useFormWrapper( props );
 
@@ -54,10 +63,11 @@ export default function ConsentFieldEdit( props ) {
 					placeholder: getConsentPlaceholder( 'implicit' ),
 					isStandalone: true,
 					hideInput: true,
+					required: consentType === 'explicit' ? required : false,
 				},
 			],
 		],
-		[ implicitConsentMessage ]
+		[ implicitConsentMessage, required, consentType ]
 	);
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
@@ -163,14 +173,36 @@ export default function ConsentFieldEdit( props ) {
 
 	const onConsentTypeChange = useCallback(
 		value => {
-			setAttributes( { consentType: value } );
+			setAttributes( {
+				consentType: value,
+				...( value === 'implicit' ? { required: false } : {} ),
+			} );
 		},
 		[ setAttributes ]
 	);
 
+	useSyncRequiredIndicator( {
+		clientId,
+		blockName: 'jetpack/field-sync',
+		isSynced: attributes?.shareFieldAttributes,
+		attributes,
+		setAttributes,
+	} );
+
 	return (
 		<>
 			<div { ...innerBlocksProps } />
+			<BlockControls __experimentalShareWithChildBlocks>
+				<ToolbarRequiredGroup
+					required={ required }
+					onClick={ () => setAttributes( { required: ! required } ) }
+					disabled={ consentType !== 'explicit' }
+					disabledTooltip={ __(
+						'Implicit consent cannot be required. Please add a privacy checkbox from the block settings to make it required.',
+						'jetpack-forms'
+					) }
+				/>
+			</BlockControls>
 			<InspectorControls>
 				<PanelBody
 					title={ __( 'Field settings', 'jetpack-forms' ) }

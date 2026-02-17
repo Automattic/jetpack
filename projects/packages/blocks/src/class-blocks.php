@@ -79,6 +79,7 @@ class Blocks {
 				$gated_blocks        = array(
 					'jetpack/donations',
 					'jetpack/payment-buttons',
+					'jetpack/paypal-payment-buttons',
 				);
 				if ( in_array( $slug, $gated_blocks, true ) &&
 					is_string( $block_type ) &&

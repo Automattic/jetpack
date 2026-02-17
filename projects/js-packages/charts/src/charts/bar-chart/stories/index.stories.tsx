@@ -85,8 +85,22 @@ export const Default: Story = {
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
 		maxWidth: 1200,
-		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
+	},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 600,
+		height: 300,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.3,
 	},
 };
 
@@ -139,37 +153,6 @@ export const TimeSeries: Story = {
 		docs: {
 			description: {
 				story: 'Bar chart with a time series.',
-			},
-		},
-	},
-};
-
-// Story without tooltip
-export const ManyDataSeries: Story = {
-	args: {
-		...Default.args,
-		data: medalCountsData,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with many data series.',
-			},
-		},
-	},
-};
-
-export const FixedDimensions: Story = {
-	args: {
-		...Default.args,
-		width: 800,
-		height: 400,
-		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with fixed dimensions that override the responsive behavior.',
 			},
 		},
 	},
@@ -273,23 +256,19 @@ export const WithInteractiveLegend: Story = {
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 	render: args => (
-		<div style={ { width: '800px' } }>
-			<BarChart
-				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
-				withTooltips={ true }
-				gridVisibility="x"
-				maxWidth={ 1200 }
-				aspectRatio={ 0.5 }
-			>
-				<BarChart.Legend
-					orientation={ args.legendOrientation || 'horizontal' }
-					alignment={ args.legendAlignment || 'center' }
-					position={ args.legendPosition || 'bottom' }
-					maxWidth={ args.legendMaxWidth }
-					textOverflow={ args.legendTextOverflow || 'wrap' }
-				/>
-			</BarChart>
-		</div>
+		<BarChart
+			data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
+			withTooltips={ true }
+			gridVisibility="x"
+		>
+			<BarChart.Legend
+				orientation={ args.legendOrientation || 'horizontal' }
+				alignment={ args.legendAlignment || 'center' }
+				position={ args.legendPosition || 'bottom' }
+				maxWidth={ args.legendMaxWidth }
+				textOverflow={ args.legendTextOverflow || 'wrap' }
+			/>
+		</BarChart>
 	),
 	argTypes: {
 		legendInteractive: {
@@ -313,8 +292,8 @@ export const CustomLegendPositioning: Story = {
 		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
 		gridVisibility: 'x',
 		maxWidth: 1200,
-		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
+		containerHeight: '400px',
 		// showLegend defaults to false, explicitly enabling for demonstration
 		showLegend: true,
 		legendOrientation: 'vertical',
@@ -415,6 +394,67 @@ export const ZeroValueComparison: StoryObj< typeof BarChart > = {
 			description: {
 				story:
 					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights.',
+			},
+		},
+	},
+};
+
+// Data with long categorical labels to demonstrate overlapping issue
+const longLabelData = [
+	{
+		group: 'sales',
+		label: 'Sales by Channel',
+		data: [
+			{ label: 'Organic Search Traffic', value: 12500 },
+			{ label: 'Paid Advertising Campaign', value: 8750 },
+			{ label: 'Social Media Marketing', value: 6250 },
+			{ label: 'Email Newsletter Subscribers', value: 4375 },
+			{ label: 'Direct Website Visitors', value: 3125 },
+			{ label: 'Affiliate Partner Referrals', value: 2500 },
+		],
+	},
+];
+
+export const LabelOverflowEllipsis: StoryObj< typeof BarChart > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '40px' } }>
+			<div>
+				<h3>Without labelOverflow (Default - Labels Overlap)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Default behavior: long labels overlap and become unreadable at narrow widths.
+				</p>
+				<div style={ { width: '350px', height: '250px', border: '1px solid #e0e0e0' } }>
+					<BarChart data={ longLabelData } withTooltips={ true } gridVisibility="x" />
+				</div>
+			</div>
+			<div>
+				<h3>With labelOverflow: &apos;ellipsis&apos; (Labels Truncated)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					With <code>labelOverflow: &apos;ellipsis&apos;</code>, labels are truncated to fit the
+					available bandwidth. <strong>Hover over a label to see the full text.</strong>
+				</p>
+				<div style={ { width: '350px', height: '250px', border: '1px solid #e0e0e0' } }>
+					<BarChart
+						data={ longLabelData }
+						withTooltips={ true }
+						gridVisibility="x"
+						options={ {
+							axis: {
+								x: {
+									labelOverflow: 'ellipsis',
+								},
+							},
+						} }
+					/>
+				</div>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Demonstrates the `labelOverflow: 'ellipsis'` option that truncates long axis labels to fit the available bandwidth. The full label text is shown on hover via a native tooltip. This is useful for narrow widget contexts where space is limited.",
 			},
 		},
 	},

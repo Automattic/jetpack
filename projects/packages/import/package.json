@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-import",
-	"version": "0.9.13",
+	"version": "0.9.14",
 	"private": true,
 	"description": "Set of REST API routes used in WPCOM Unified Importer.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/import/#readme",

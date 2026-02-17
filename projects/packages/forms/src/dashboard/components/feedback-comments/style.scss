@@ -51,8 +51,8 @@
 
 // Individual comment (item)
 .jp-forms__feedback-comments-comment {
-	background-color: var(--jp-forms-white-off);
-	border-radius: var(--jp-forms-border-radius);
+	background-color: var(--jp-forms-white-off, var(--wpds-color-bg-surface-neutral-weak, #e7e7e7));
+	border-radius: var(--jp-forms-border-radius, 4px);
 	padding: 12px;
 
 	@include mixins.flex-column;
@@ -76,7 +76,7 @@
 	.jp-forms__feedback-comments-comment-author {
 		font-size: 14px;
 		font-weight: 600;
-		color: var(--jp-forms-color-darker-20);
+		color: var(--jp-forms-color-darker-20, var(--wpds-color-fg-content-neutral, #1e1e1e));
 	}
 
 	.jp-forms__feedback-comments-comment-date {
@@ -107,7 +107,7 @@
 	flex-direction: column;
 	gap: 12px;
 	border: 1px solid var(--jp-forms-border-color, #ddd);
-	border-radius: var(--jp-forms-border-radius);
+	border-radius: var(--jp-forms-border-radius, 4px);
 	background-color: #fff;
 }
 
@@ -168,7 +168,7 @@
 .jp-forms__feedback-comments-error {
 	background-color: #f8d7da;
 	border: 1px solid #f5c2c7;
-	border-radius: var(--jp-forms-border-radius);
+	border-radius: var(--jp-forms-border-radius, 4px);
 	color: #842029;
 	font-size: 14px;
 	padding: 12px;

@@ -6,7 +6,7 @@ import { dirname, resolve } from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import prompts from 'prompts';
 import updateNotifier from 'update-notifier';
 
@@ -41,6 +41,37 @@ const isMonorepoRoot = dir => {
 		return false;
 	}
 };
+
+/**
+ * Check if the CLI is running from monorepo source (vs npm installed).
+ *
+ * @return {boolean} True if running from source
+ */
+const isRunningFromSource = () => {
+	let dir = __dirname;
+	let prevDir;
+	while ( dir !== prevDir ) {
+		if ( isMonorepoRoot( dir ) ) {
+			return true;
+		}
+		prevDir = dir;
+		dir = dirname( dir );
+	}
+	return false;
+};
+
+/**
+ * Compute development version by incrementing patch number.
+ *
+ * @return {string} Development version string (e.g., "1.0.3-alpha" for released "1.0.2")
+ */
+const computeDevVersion = () => {
+	const [ major, minor, patch ] = packageJson.version.split( '.' ).map( Number );
+	return `${ major }.${ minor }.${ patch + 1 }-alpha`;
+};
+
+// Version to display - dev version when running from source, package version otherwise
+const displayVersion = isRunningFromSource() ? computeDevVersion() : packageJson.version;
 
 /**
  * Find monorepo root from a starting directory.
@@ -82,6 +113,142 @@ const cloneMonorepo = async targetDir => {
 };
 
 /**
+ * Get list of git hooks from the .husky directory.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @return {Array<string>} List of hook names
+ */
+const getHuskyHooks = monorepoRoot => {
+	const huskyDir = resolve( monorepoRoot, '.husky' );
+	if ( ! fs.existsSync( huskyDir ) ) {
+		return [];
+	}
+
+	// Filter for valid git hook names (lowercase letters and hyphens)
+	const hookPattern = /^[a-z][a-z-]*$/;
+	return fs.readdirSync( huskyDir ).filter( name => {
+		const fullPath = resolve( huskyDir, name );
+		return hookPattern.test( name ) && fs.statSync( fullPath ).isFile();
+	} );
+};
+
+/**
+ * Check if a husky hook file exists.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @param {string} hookName     - Name of the hook
+ * @return {boolean} True if the hook exists
+ */
+const huskyHookExists = ( monorepoRoot, hookName ) => {
+	return fs.existsSync( resolve( monorepoRoot, '.husky', hookName ) );
+};
+
+/**
+ * Initialize git hooks that work with Docker.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @throws {Error} If hook installation fails
+ */
+const initHooks = monorepoRoot => {
+	const hooksDir = resolve( monorepoRoot, '.git/hooks' );
+
+	if ( ! fs.existsSync( hooksDir ) ) {
+		throw new Error( 'Git hooks directory not found. Is this a git repository?' );
+	}
+
+	console.log( chalk.blue( 'Setting up jp git hooks...' ) );
+
+	// Check if git is configured to use a custom hooks path (e.g., husky)
+	const hooksPathResult = spawnSync( 'git', [ 'config', 'core.hooksPath' ], {
+		cwd: monorepoRoot,
+		encoding: 'utf8',
+	} );
+
+	if ( hooksPathResult.stdout && hooksPathResult.stdout.trim() ) {
+		const currentHooksPath = hooksPathResult.stdout.trim();
+		console.log( chalk.yellow( `  Detected custom git hooks path: ${ currentHooksPath }` ) );
+		console.log( chalk.yellow( '  Resetting to use .git/hooks/ for jp hooks' ) );
+
+		const unsetResult = spawnSync( 'git', [ 'config', '--unset', 'core.hooksPath' ], {
+			cwd: monorepoRoot,
+		} );
+
+		if ( unsetResult.status !== 0 ) {
+			throw new Error( 'Failed to unset core.hooksPath git configuration' );
+		}
+	}
+
+	const hooks = getHuskyHooks( monorepoRoot );
+	if ( hooks.length === 0 ) {
+		console.log( chalk.yellow( '  No hooks found in .husky/' ) );
+		return;
+	}
+
+	for ( const hookName of hooks ) {
+		const hookPath = resolve( hooksDir, hookName );
+		const hookContent = `#!/bin/sh
+# Jetpack CLI git hook
+# Runs the .husky hook in Docker to ensure consistent environment
+
+# Exit gracefully if the .husky hook was removed
+if [ ! -f .husky/${ hookName } ]; then
+	exit 0
+fi
+
+# Check if we're already in the Docker container
+if [ -n "$JETPACK_MONOREPO_ENV" ]; then
+	echo "✓ Using jp hooks (running in Docker)"
+	sh .husky/${ hookName } "$@"
+	exit $?
+fi
+
+# Not in Docker - delegate to jp to run in Docker
+echo "✓ Using jp hooks (delegating to Docker)"
+jp git-hook ${ hookName } "$@"
+exit $?
+`;
+
+		fs.writeFileSync( hookPath, hookContent, { mode: 0o755 } );
+		console.log( chalk.green( `  Created ${ hookName } hook` ) );
+	}
+
+	console.log(
+		chalk.green( '\n✓ Git hooks installed! Hooks will run automatically in Docker.\n' )
+	);
+};
+
+/**
+ * Run a git hook inside the Docker container.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @param {string} hookName     - Name of the hook to run
+ * @param {Array}  hookArgs     - Arguments to pass to the hook
+ * @throws {Error} If hook execution fails
+ */
+const runGitHook = ( monorepoRoot, hookName, hookArgs ) => {
+	console.log( chalk.blue( `Running ${ hookName } hook in Docker...` ) );
+
+	if ( ! huskyHookExists( monorepoRoot, hookName ) ) {
+		throw new Error( `Unknown git hook: ${ hookName }` );
+	}
+
+	// Run the .husky hook directly through the monorepo script
+	// TTY detection is handled by the monorepo script itself (reconnects to /dev/tty if available)
+	const result = spawnSync(
+		resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
+		[ 'sh', `.husky/${ hookName }`, ...hookArgs ],
+		{
+			stdio: 'inherit',
+			cwd: monorepoRoot,
+		}
+	);
+
+	if ( result.status !== 0 ) {
+		throw new Error( `Git hook ${ hookName } failed with status ${ result.status }` );
+	}
+};
+
+/**
  * Initialize a new Jetpack development environment.
  *
  * @throws {Error} If initialization fails
@@ -109,6 +276,9 @@ const initJetpack = async () => {
 
 		console.log( chalk.green( '\nJetpack monorepo has been cloned successfully!' ) );
 
+		// Initialize git hooks
+		initHooks( targetDir );
+
 		console.log( '\nNext steps:' );
 
 		console.log( '1. cd', response.directory );
@@ -128,7 +298,7 @@ const main = async () => {
 
 		// Handle version flag
 		if ( args[ 0 ] === '--version' || args[ 0 ] === '-v' ) {
-			console.log( chalk.green( packageJson.version ) );
+			console.log( chalk.green( displayVersion ) );
 			return;
 		}
 
@@ -152,6 +322,27 @@ const main = async () => {
 
 			console.log( '2. Navigate to an existing Jetpack monorepo directory' );
 			throw new Error( 'Monorepo not found' );
+		}
+
+		// Handle 'init-hooks' command
+		if ( args[ 0 ] === 'init-hooks' ) {
+			initHooks( monorepoRoot );
+			return;
+		}
+
+		// Handle 'git-hook' command
+		if ( args[ 0 ] === 'git-hook' ) {
+			const hookName = args[ 1 ];
+			const hookArgs = args.slice( 2 );
+
+			if ( ! hookName ) {
+				console.error( chalk.red( 'Error: git-hook command requires a hook name' ) );
+				console.log( 'Usage: jp git-hook <hook-name> [args...]' );
+				throw new Error( 'Missing hook name' );
+			}
+
+			runGitHook( monorepoRoot, hookName, hookArgs );
+			return;
 		}
 
 		// Handle docker commands that must run on the host machine
@@ -312,8 +503,7 @@ const main = async () => {
 			[ 'pnpm', 'jetpack', ...args ],
 			{
 				stdio: 'inherit',
-				shell: true,
-				cwd: monorepoRoot, // Ensure we're in the monorepo root when running commands
+				cwd: monorepoRoot,
 			}
 		);
 

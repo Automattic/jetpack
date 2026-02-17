@@ -1,6 +1,7 @@
 const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getIssueType = require( '../../utils/labels/get-issue-type' );
+const { TYPE_LABELS_WITHOUT_PREFIX } = require( '../../utils/labels/type-labels' );
 const findPlatforms = require( '../../utils/parse-content/find-platforms' );
 const findPlugins = require( '../../utils/parse-content/find-plugins' );
 const formatSlackMessage = require( '../../utils/slack/format-slack-message' );
@@ -45,7 +46,7 @@ async function addCommentAskLabels( octokit, ownerLogin, authorLogin, repo, issu
 		return;
 	}
 
-	const commentBody = `This issue could use some more labels, to help prioritize and categorize our work. Could you please add at least a \`[Type]\`, a \`[Feature]\`, and a \`[Pri]\` label?
+	const commentBody = `This issue could use some more labels, to help prioritize and categorize our work. Could you please add at least a \`[Feature]\`, a \`[Pri]\`, and a Type label?
 `;
 
 	await octokit.rest.issues.createComment( {
@@ -153,12 +154,14 @@ async function triageIssues( payload, octokit ) {
 			const issueLabels = await aiLabeling( payload, octokit );
 
 			// At this point, if we still miss a [Type] label, a [Feature] label, or a [Pri] label, ask the author to add it.
-			const requiredLabelTypes = [ /^\[Type\]/, /^\[Pri/, /^\[[^\]]*Feature/ ];
-			const missingLabelTypes = requiredLabelTypes.filter(
-				requiredLabelType => ! issueLabels.some( label => requiredLabelType.test( label ) )
-			);
+			// Check for Type labels: either [Type] prefixed labels or labels from the hardcoded list.
+			const hasTypeLabel =
+				issueLabels.some( label => label.startsWith( '[Type]' ) ) ||
+				issueLabels.some( label => TYPE_LABELS_WITHOUT_PREFIX.includes( label ) );
+			const hasPriorityLabel = issueLabels.some( label => /^\[Pri/.test( label ) );
+			const hasFeatureLabel = issueLabels.some( label => /^\[[^\]]*Feature/.test( label ) );
 
-			if ( missingLabelTypes.length > 0 ) {
+			if ( ! hasTypeLabel || ! hasPriorityLabel || ! hasFeatureLabel ) {
 				await addCommentAskLabels( octokit, ownerLogin, authorLogin, name, number );
 			}
 		}

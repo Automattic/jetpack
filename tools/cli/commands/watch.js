@@ -28,6 +28,10 @@ export function watchDefine( yargs ) {
 					alias: 'a',
 					type: 'boolean',
 					description: 'Watch all projects [BETA]',
+				} )
+				.option( 'hot', {
+					type: 'boolean',
+					description: 'Enable HMR (Hot Module Replacement) watch mode',
 				} );
 		},
 		async argv => {
@@ -51,9 +55,11 @@ export async function watchCli( options ) {
 		output = false;
 		const projects = allProjects();
 		await projects.filter( project =>
-			hasWatchStep( project, readComposerJson( project, output ) )
+			hasWatchStep( project, readComposerJson( project, output ), options.hot )
 		);
-		projects.forEach( project => watch( project, readComposerJson( project, output ) ) );
+		projects.forEach( project =>
+			watch( project, readComposerJson( project, output ), options.hot )
+		);
 		return;
 	}
 
@@ -65,7 +71,7 @@ export async function watchCli( options ) {
 
 	if ( options.project ) {
 		const data = readComposerJson( options.project );
-		data !== false && ( await watch( options.project, data ) );
+		data !== false && ( await watch( options.project, data, options.hot ) );
 	} else {
 		console.error( chalk.red( 'You did not choose a project!' ) );
 	}
@@ -74,20 +80,34 @@ export async function watchCli( options ) {
 /**
  * Fires off watch command.
  *
- * @param {string} project     - The project.
- * @param {object} packageJson - The project's package.json file, parsed.
+ * @param {string}  project     - The project.
+ * @param {object}  packageJson - The project's package.json file, parsed.
+ * @param {boolean} hot         - Whether to use HMR watch mode.
  */
-export async function watch( project, packageJson ) {
-	const command = hasWatchStep( project, packageJson );
+export async function watch( project, packageJson, hot = false ) {
+	const command = hasWatchStep( project, packageJson, hot );
 	if ( command === false ) {
 		return;
 	}
+
+	// Determine which script to run
+	let scriptName = 'watch';
+	if ( hot ) {
+		if ( packageJson.scripts && packageJson.scripts[ 'watch-hot' ] ) {
+			scriptName = 'watch-hot';
+		} else {
+			console.log(
+				chalk.yellow( `No watch-hot script found for ${ project }, falling back to watch.` )
+			);
+		}
+	}
+
 	console.log(
 		chalkJetpackGreen(
 			`Hell yeah! It is time to watch ${ project }!\n` + 'Go forth and write more code.'
 		)
 	);
-	child_process.spawnSync( 'composer', [ 'watch' ], {
+	child_process.spawnSync( 'composer', [ scriptName ], {
 		cwd: path.resolve( `projects/${ project }` ),
 		shell: true,
 		stdio: 'inherit',
@@ -97,13 +117,20 @@ export async function watch( project, packageJson ) {
 /**
  * Does the project have a watch step?
  *
- * @param {string} project      - The project.
- * @param {object} composerJson - The project's composer.json file, parsed.
+ * @param {string}  project      - The project.
+ * @param {object}  composerJson - The project's composer.json file, parsed.
+ * @param {boolean} hot          - Whether to check for HMR watch mode.
  * @return {boolean} If the project has a watch step, the watch command or false.
  */
-function hasWatchStep( project, composerJson ) {
-	if ( composerJson.scripts && composerJson.scripts.watch ) {
-		return true;
+function hasWatchStep( project, composerJson, hot = false ) {
+	// When hot is requested, check for watch-hot or watch (since we fall back to watch)
+	if ( composerJson.scripts ) {
+		if ( hot && composerJson.scripts[ 'watch-hot' ] ) {
+			return true;
+		}
+		if ( composerJson.scripts.watch ) {
+			return true;
+		}
 	}
 
 	// There's no watch step defined.

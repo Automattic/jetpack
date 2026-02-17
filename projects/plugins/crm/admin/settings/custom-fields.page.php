@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Admin Page: Settings: Custom field settings
  */
 

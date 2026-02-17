@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+PR checks: stop requiring the use of a "Type" label in PRs.

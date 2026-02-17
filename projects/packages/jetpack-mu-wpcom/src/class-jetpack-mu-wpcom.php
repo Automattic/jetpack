@@ -313,15 +313,14 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that only apply to WordPress.com users.
 	 */
 	public static function load_wpcom_user_features() {
-		if ( ! is_wpcom_user() ) {
-			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
-
-			return;
-		}
-
 		// To avoid potential collisions with ETK.
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
+		}
+
+		if ( ! is_wpcom_user() ) {
+			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
+			return;
 		}
 		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
 			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
@@ -334,7 +333,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
-		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
@@ -436,6 +434,9 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+		} elseif ( isset( $pagenow ) && 'customize.php' === $pagenow ) {
+			// Load wpcom-global-styles on the customizer so access to additional css can be checked there.
+			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 		}
 	}
 

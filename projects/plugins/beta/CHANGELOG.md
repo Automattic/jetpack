@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.1.7 - 2026-02-04
+### Changed
+- Check `error_get_last()` if the `WP_Filesystem` doesn't report any error on mu-plugin install failure. [#46115]
+- Update package dependencies. [#46785]
+
+### Fixed
+- Fix branch search not working for uppercase branch names. [#46338]
+
 ## 4.1.6 - 2025-11-12
 ### Changed
 - Update package dependencies. [#45478]

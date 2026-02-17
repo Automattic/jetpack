@@ -1,14 +1,13 @@
 /**
- * Fix-up for jest-environment-jsdom
- *
- * @see https://github.com/jsdom/jsdom/issues/3363#issuecomment-1467894943
+ * Use `@jest/environment-jsdom-abstract` to use latest jsdom.
  */
 
-import { TestEnvironment as JSDOMEnvironment } from 'jest-environment-jsdom';
+import BaseEnv from '@jest/environment-jsdom-abstract';
+import * as JSDOM from 'jsdom';
 
-export default class FixJSDOMEnvironment extends JSDOMEnvironment {
-	constructor( ...args ) {
-		super( ...args );
+export default class FixJSDOMEnvironment extends BaseEnv {
+	constructor( config, context ) {
+		super( config, context, JSDOM );
 
 		// FIXME https://github.com/jsdom/jsdom/issues/3363
 		this.global.structuredClone = structuredClone;

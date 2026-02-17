@@ -410,7 +410,7 @@ class Form_Editor_Test extends BaseTestCase {
 			'jetpack/field-rating',
 			'jetpack/field-text',
 			'jetpack/field-number',
-			'jetpack/field-file-upload',
+			'jetpack/field-file',
 		);
 
 		// Expected blocks - supporting blocks

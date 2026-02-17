@@ -1,9 +1,13 @@
 import { __ } from '@wordpress/i18n';
 import edit from './edit.js';
-import StepContainerIcon from './icon.js';
+import StepContainerIcon from './icon.jsx';
 import save from './save.js';
 
 export const name = 'form-step-container';
+
+export const form_editor = {
+	category: 'multistep',
+};
 
 export const settings = {
 	apiVersion: 3,
@@ -48,4 +52,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

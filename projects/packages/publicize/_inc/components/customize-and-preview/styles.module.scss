@@ -1,0 +1,22 @@
+.customize-and-preview {
+	height: 100%;
+	display: grid;
+	grid-template-rows: 1fr;
+
+	&[data-plan="paid"] {
+		grid-template-rows: auto 1fr;
+	}
+
+	.customization-toggle-wrapper {
+		padding: 0.5rem;
+		// 2px to ensure the outline is visible,
+		// otherwise it is hidden behind header which has higher z-index
+		padding-top: 2px;
+
+		:global(.components-toggle-group-control) {
+			max-height: 2rem;
+			max-width: 400px;
+			margin: 0 auto;
+		}
+	}
+}

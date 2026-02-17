@@ -72,13 +72,32 @@ if [[ "$SHOULD_PULL" = "1" ]]; then
 fi
 
 # Run the command in the container
-docker run --rm -it \
+# Use -it only if we have a TTY available
+# If stdin was redirected (e.g., by git hooks) but /dev/tty is available, reconnect to it
+  if [[ ! -t 0 && -c /dev/tty ]] && sh -c ': < /dev/tty' >/dev/null 2>/dev/null; then
+      exec < /dev/tty
+  fi
+
+  if [[ -t 0 ]]; then
+      TTY_FLAG="-it"
+  else
+      TTY_FLAG=""
+  fi
+
+  # Get git user config from host to use for commits inside container
+  GIT_USER_NAME=$(git config user.name 2>/dev/null || echo "")
+  GIT_USER_EMAIL=$(git config user.email 2>/dev/null || echo "")
+
+  docker run --rm $TTY_FLAG \
     -v "$MONOREPO_ROOT:/workspace" \
     -v "$MONOREPO_ROOT/tools/docker/data/monorepo:/root" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -w /workspace \
     -e TERM=$TERM \
     -e COLORTERM=$COLORTERM \
+    -e JETPACK_MONOREPO_ENV=1 \
+    -e HUSKY=0 \
+    -e CI="${CI:-}" \
     -e DOCKER_ROOT="$MONOREPO_ROOT/tools/docker" \
     -e HOST_CWD="$MONOREPO_ROOT" \
     -e WORKSPACE_PATH="$MONOREPO_ROOT" \
@@ -86,5 +105,9 @@ docker run --rm -it \
     -e NPM_CONFIG_CACHE=/root/.npm \
     -e PNPM_HOME=/root/.local/share/pnpm \
     -e PNPM_STORE_DIR=/root/.pnpm-store \
+    -e GIT_AUTHOR_NAME="${GIT_USER_NAME}" \
+    -e GIT_AUTHOR_EMAIL="${GIT_USER_EMAIL}" \
+    -e GIT_COMMITTER_NAME="${GIT_USER_NAME}" \
+    -e GIT_COMMITTER_EMAIL="${GIT_USER_EMAIL}" \
     jetpack-monorepo:latest \
     "$@"

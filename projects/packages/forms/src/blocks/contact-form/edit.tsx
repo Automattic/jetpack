@@ -17,6 +17,7 @@ import {
 import { createBlock } from '@wordpress/blocks';
 import {
 	ExternalLink,
+	Notice,
 	PanelBody,
 	TextareaControl,
 	TextControl,
@@ -45,12 +46,16 @@ import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively.js';
 import useFormSteps from '../shared/hooks/use-form-steps.js';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.js';
-import { CORE_BLOCKS } from '../shared/util/constants.js';
+import { CORE_BLOCKS, FORM_POST_TYPE } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
+import { ConvertFormToolbar } from './components/convert-form-toolbar.tsx';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
 import WebhooksSettings from './components/webhooks-settings.js';
+import { useSyncedFormAutoSave } from './hooks/use-synced-form-auto-save.ts';
+import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
+import { useSyncedForm } from './hooks/use-synced-form.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
 import VariationPicker from './variation-picker.js';
 import './util/form-styles.js';
@@ -110,7 +115,12 @@ const isInputWithRequiredField = ( fullName?: string ): boolean => {
 	// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
 	const hasRequired = field && field?.settings?.attributes?.required !== undefined;
 	const isHidden = field?.name === 'field-hidden';
-	return hasRequired && ! isHidden;
+	const isImplicitConsent =
+		field?.name === 'field-consent' &&
+		// @ts-expect-error: childBlocks are defined in JS without explicit types.
+		// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
+		field?.settings?.attributes?.consentType !== 'explicit';
+	return hasRequired && ! isHidden && ! isImplicitConsent;
 };
 
 type CustomThankyouType =
@@ -128,6 +138,7 @@ type Webhook = {
 };
 
 type JetpackContactFormAttributes = {
+	ref?: number;
 	to: string;
 	subject: string;
 	// Legacy support for the customThankyou attribute
@@ -164,6 +175,7 @@ function JetpackContactFormEdit( {
 	useFormBlockDefaults( { attributes, setAttributes } );
 
 	const {
+		ref,
 		to,
 		subject,
 		customThankyou,
@@ -182,26 +194,31 @@ function JetpackContactFormEdit( {
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showWebhooks = useConfigValue( 'isWebhooksEnabled' ) && hasFeatureFlag( 'form-webhooks' );
 	const showBlockIntegrations = useConfigValue( 'showBlockIntegrations' );
+	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
+
+	// Load synced form data from the jetpack_form post type
+	const {
+		syncedForm,
+		isLoading: isResolvingSyncedForm,
+		syncedAttributes: syncedFormAttributes,
+		syncedInnerBlocks: syncedFormBlocks,
+	} = useSyncedForm( ref );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
 	// Older forms will have a customThankyou attribute set, but not a confirmationType attribute
 	// and not a disableSummary attribute, so we need to set it here.
 	useEffect( () => {
-		if ( confirmationType ) {
-			return;
-		}
-
-		if ( customThankyou === 'redirect' ) {
+		// Migrate redirect setting from deprecated customThankyou attribute
+		if ( customThankyou === 'redirect' && confirmationType !== 'redirect' ) {
 			setAttributes( { confirmationType: 'redirect' } );
-		} else {
-			setAttributes( { confirmationType: 'text' } );
-
-			if ( [ 'noSummary', 'message' ].includes( customThankyou ) ) {
-				setAttributes( { disableSummary: true } );
-			}
 		}
-	}, [ confirmationType, customThankyou, setAttributes ] );
+
+		// Migrate disableSummary from deprecated customThankyou attribute
+		if ( [ 'noSummary', 'message' ].includes( customThankyou ) && ! disableSummary ) {
+			setAttributes( { disableSummary: true } );
+		}
+	}, [ confirmationType, customThankyou, disableSummary, setAttributes ] );
 
 	const steps = useFormSteps( clientId );
 
@@ -215,48 +232,54 @@ function JetpackContactFormEdit( {
 		block => block.name === 'core/button' || block.name === 'jetpack/button',
 		[]
 	);
-
 	const submitButton = useFindBlockRecursively( clientId, findButtonsBlock );
 
-	const { postTitle, hasAnyInnerBlocks, postAuthorEmail, selectedBlockClientId, onlySubmitBlock } =
-		useSelect(
-			select => {
-				const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
-					select( blockEditorStore );
-				const { getEditedPostAttribute } = select( editorStore );
-				const selectedBlockId = getSelectedBlockClientId();
-				const selectedBlock = getBlock( selectedBlockId );
-				let selectedStepBlockId = selectedBlockId;
+	const {
+		postTitle,
+		hasAnyInnerBlocks,
+		postAuthorEmail,
+		selectedBlockClientId,
+		onlySubmitBlock,
+		isJetpackFormEditor,
+	} = useSelect(
+		select => {
+			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
+				select( blockEditorStore );
+			const { getEditedPostAttribute, getCurrentPostType } = select( editorStore );
+			const selectedBlockId = getSelectedBlockClientId();
+			const selectedBlock = getBlock( selectedBlockId );
+			let selectedStepBlockId = selectedBlockId;
 
-				if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
-					selectedStepBlockId = getBlockParentsByBlockName(
-						selectedBlockId,
-						'jetpack/form-step'
-					)[ 0 ];
-				}
+			if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
+				selectedStepBlockId = getBlockParentsByBlockName(
+					selectedBlockId,
+					'jetpack/form-step'
+				)[ 0 ];
+			}
 
-				const { getUser } = select( coreStore );
-				const innerBlocksData = getBlocks( clientId );
+			const { getUser } = select( coreStore );
+			const innerBlocksData = getBlocks( clientId );
 
-				const isSingleButtonBlock =
-					innerBlocksData.length === 1 &&
-					( innerBlocksData[ 0 ].name === 'core/button' ||
-						innerBlocksData[ 0 ].name === 'jetpack/button' );
+			const isSingleButtonBlock =
+				innerBlocksData.length === 1 &&
+				( innerBlocksData[ 0 ].name === 'core/button' ||
+					innerBlocksData[ 0 ].name === 'jetpack/button' );
 
-				const title = getEditedPostAttribute( 'title' );
-				const authorId = getEditedPostAttribute( 'author' );
-				const authorEmail = authorId && getUser( authorId )?.email;
+			const title = getEditedPostAttribute( 'title' );
+			const authorId = getEditedPostAttribute( 'author' );
+			const authorEmail = authorId && getUser( authorId )?.email;
 
-				return {
-					postTitle: title,
-					hasAnyInnerBlocks: innerBlocksData.length > 0,
-					postAuthorEmail: authorEmail,
-					selectedBlockClientId: selectedStepBlockId,
-					onlySubmitBlock: isSingleButtonBlock,
-				};
-			},
-			[ clientId ]
-		);
+			return {
+				postTitle: title,
+				hasAnyInnerBlocks: innerBlocksData.length > 0,
+				postAuthorEmail: authorEmail,
+				selectedBlockClientId: selectedStepBlockId,
+				onlySubmitBlock: isSingleButtonBlock,
+				isJetpackFormEditor: getCurrentPostType() === FORM_POST_TYPE,
+			};
+		},
+		[ clientId ]
+	);
 
 	useEffect( () => {
 		if ( submitButton && ! submitButton.attributes.lock ) {
@@ -310,10 +333,39 @@ function JetpackContactFormEdit( {
 	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
 		useDispatch( blockEditorStore );
 
+	const { editEntityRecord } = useDispatch( coreStore );
+	const { setActiveStep } = useDispatch( singleStepStore );
+
 	const currentInnerBlocks = useSelect(
 		select => select( blockEditorStore ).getBlocks( clientId ),
 		[ clientId ]
 	);
+
+	// Sync synced form content INTO the editor (one-time on ref change)
+	const { isSyncingRef } = useSyncedFormLoader( {
+		ref,
+		syncedFormBlocks,
+		syncedFormAttributes,
+		clientId,
+		setAttributes,
+		replaceInnerBlocks,
+		__unstableMarkNextChangeAsNotPersistent,
+		setActiveStep,
+	} );
+
+	// Auto-save editor changes BACK to the synced form post
+	useSyncedFormAutoSave( {
+		ref,
+		syncedForm,
+		attributes,
+		currentInnerBlocks,
+		isSyncingRef,
+		editEntityRecord,
+	} );
+
+	// Note: We don't clear attributes in memory when ref is set, as they're needed
+	// for the form to work properly in the editor. The save() method ensures that
+	// only the ref attribute is persisted to the database.
 
 	// Track previous block count to detect insertions
 	const previousBlockCountRef = useRef( currentInnerBlocks.length );
@@ -500,9 +552,26 @@ function JetpackContactFormEdit( {
 			if ( ! button ) return null;
 
 			const preparedButton = button;
-			preparedButton.attributes.uniqueId = 'submit-step';
-			preparedButton.attributes.customVariant = 'submit';
-			preparedButton.attributes.metaName = __( 'Submit button', 'jetpack-forms' );
+			// Add the form-button-submit and is-submit classes for identification and CSS visibility
+			const existingClassName = preparedButton.attributes.className || '';
+			const existingClassTokens = existingClassName.split( /\s+/ ).filter( Boolean );
+			const classesToAdd = [];
+			if ( ! existingClassTokens.includes( 'form-button-submit' ) ) {
+				classesToAdd.push( 'form-button-submit' );
+			}
+			if ( ! existingClassTokens.includes( 'is-submit' ) ) {
+				classesToAdd.push( 'is-submit' );
+			}
+			if ( classesToAdd.length > 0 ) {
+				preparedButton.attributes.className = existingClassName
+					? `${ existingClassName } ${ classesToAdd.join( ' ' ) }`
+					: classesToAdd.join( ' ' );
+			}
+			// Set metadata name for core/button
+			preparedButton.attributes.metadata = {
+				...( preparedButton.attributes.metadata || {} ),
+				name: __( 'Submit button', 'jetpack-forms' ),
+			};
 			return preparedButton;
 		};
 
@@ -532,8 +601,12 @@ function JetpackContactFormEdit( {
 					},
 				},
 				button
-					? [ createBlock( PREVIOUS_BUTTON_TEMPLATE ), createBlock( NEXT_BUTTON_TEMPLATE ), button ]
-					: NAVIGATION_TEMPLATE.map( createBlock )
+					? [
+							createBlock( ...PREVIOUS_BUTTON_TEMPLATE ),
+							createBlock( ...NEXT_BUTTON_TEMPLATE ),
+							button,
+					  ]
+					: NAVIGATION_TEMPLATE.map( template => createBlock( ...template ) )
 			);
 		};
 
@@ -653,6 +726,11 @@ function JetpackContactFormEdit( {
 		__unstableMarkNextChangeAsNotPersistent();
 		replaceInnerBlocks( clientId, [ progressIndicator, stepContainer, stepNavigation ], false );
 
+		// Select the first step so the editor shows it immediately
+		if ( stepContainer.innerBlocks.length > 0 ) {
+			setActiveStep( clientId, stepContainer.innerBlocks[ 0 ].clientId );
+		}
+
 		// Ensure we are marked as multistep – this records the undo level.
 		if ( variationName !== 'multistep' ) {
 			setAttributes( { variationName: 'multistep' } );
@@ -663,6 +741,7 @@ function JetpackContactFormEdit( {
 		currentInnerBlocks,
 		clientId,
 		replaceInnerBlocks,
+		setActiveStep,
 		setAttributes,
 		containsMultistepBlock,
 		__unstableMarkNextChangeAsNotPersistent,
@@ -708,10 +787,21 @@ function JetpackContactFormEdit( {
 				) {
 					// Capture submit button (if any) inside navigation but skip the wrapper.
 					if ( ! finalSubmitButton ) {
-						finalSubmitButton = block.innerBlocks?.find(
-							inner =>
-								inner.name === 'jetpack/button' && inner.attributes?.customVariant === 'submit'
-						);
+						finalSubmitButton = block.innerBlocks?.find( inner => {
+							// Check for jetpack/button with customVariant (legacy)
+							if (
+								inner.name === 'jetpack/button' &&
+								inner.attributes?.customVariant === 'submit'
+							) {
+								return true;
+							}
+							// Check for core/button with form-button-submit class
+							if ( inner.name === 'core/button' ) {
+								const buttonClassName = inner.attributes?.className || '';
+								return buttonClassName.split( /\s+/ ).includes( 'form-button-submit' );
+							}
+							return false;
+						} );
 					}
 					return; // Omit multistep-specific blocks.
 				}
@@ -755,8 +845,6 @@ function JetpackContactFormEdit( {
 		__unstableMarkNextChangeAsNotPersistent,
 		setAttributes,
 	] );
-
-	const { setActiveStep } = useDispatch( singleStepStore );
 
 	useEffect( () => {
 		if (
@@ -804,18 +892,36 @@ function JetpackContactFormEdit( {
 
 	let elt;
 
-	if ( ! isModuleActive ) {
+	// Show loading state when resolving synced form
+	if ( ref && isResolvingSyncedForm ) {
+		return (
+			<div { ...blockProps }>
+				<ContactFormSkeletonLoader />
+			</div>
+		);
+	}
+	// Show error if referenced form not found
+	else if ( ref && ! syncedForm && ! isResolvingSyncedForm ) {
+		elt = (
+			<Notice status="warning" isDismissible={ false }>
+				{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
+			</Notice>
+		);
+	} else if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {
-			elt = <ContactFormSkeletonLoader />;
-		} else {
-			elt = (
-				<ContactFormPlaceholder
-					changeStatus={ changeStatus }
-					isModuleActive={ isModuleActive }
-					isLoading={ isChangingStatus }
-				/>
+			return (
+				<div { ...blockProps }>
+					<ContactFormSkeletonLoader />
+				</div>
 			);
 		}
+		elt = (
+			<ContactFormPlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
 	} else if ( ! hasAnyInnerBlocks ) {
 		elt = (
 			<VariationPicker
@@ -838,6 +944,9 @@ function JetpackContactFormEdit( {
 		elt = (
 			<>
 				<BlockControls>
+					{ isCentralFormManagementEnabled && ! isJetpackFormEditor && (
+						<ConvertFormToolbar clientId={ clientId } attributes={ attributes } />
+					) }
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
@@ -863,7 +972,7 @@ function JetpackContactFormEdit( {
 								<TextControl
 									label={ __( 'Message heading', 'jetpack-forms' ) }
 									value={ customThankyouHeading }
-									placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
+									placeholder={ __( 'Thank you for your response.', 'jetpack-forms' ) }
 									onChange={ ( newHeading: string ) =>
 										setAttributes( { customThankyouHeading: newHeading } )
 									}
@@ -888,7 +997,6 @@ function JetpackContactFormEdit( {
 										setAttributes( { disableSummary: ! newDisableSummary } )
 									}
 									__nextHasNoMarginBottom={ true }
-									__next40pxDefaultSize={ true }
 								/>
 
 								<ToggleControl
@@ -898,7 +1006,6 @@ function JetpackContactFormEdit( {
 										setAttributes( { disableGoBack: ! newDisableGoBack } )
 									}
 									__nextHasNoMarginBottom={ true }
-									__next40pxDefaultSize={ true }
 								/>
 							</>
 						) }

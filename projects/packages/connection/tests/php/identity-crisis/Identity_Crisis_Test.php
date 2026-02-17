@@ -639,6 +639,186 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that check_response_for_idc preserves next_check_delay when same wpcom URLs are detected.
+	 */
+	public function test_check_response_for_idc_preserves_delay_on_same_wpcom_urls() {
+		// Set up initial IDC with custom timing values.
+		$initial_last_checked     = time() - 7200; // 2 hours ago.
+		$initial_next_check_delay = 7200; // 2 hours (doubled from initial 3600).
+		$existing_idc             = array(
+			'home'             => 'example.org/',
+			'siteurl'          => 'example.org/',
+			'error_code'       => 'jetpack_url_mismatch',
+			'wpcom_siteurl'    => '/moc.elpmaxe', // example.com reversed.
+			'wpcom_home'       => '/moc.elpmaxe', // example.com reversed.
+			'reversed_url'     => true,
+			'last_checked'     => $initial_last_checked,
+			'next_check_delay' => $initial_next_check_delay,
+		);
+		Jetpack_Options::update_option( 'sync_error_idc', $existing_idc );
+
+		// Simulate a new response with the same wpcom URLs.
+		$response = array(
+			'error_code'    => 'jetpack_url_mismatch',
+			'wpcom_siteurl' => 'example.com/',
+			'wpcom_home'    => 'example.com/',
+		);
+
+		$before = time();
+		Identity_Crisis::init()->check_response_for_idc( $response );
+		$after = time();
+
+		$updated_idc = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// last_checked should be updated to current time.
+		$this->assertGreaterThanOrEqual( $before, $updated_idc['last_checked'] );
+		$this->assertLessThanOrEqual( $after, $updated_idc['last_checked'] );
+
+		// next_check_delay should be preserved from existing IDC.
+		$this->assertSame( $initial_next_check_delay, $updated_idc['next_check_delay'] );
+	}
+
+	/**
+	 * Test that check_response_for_idc resets timing when different wpcom URLs are detected.
+	 */
+	public function test_check_response_for_idc_resets_timing_on_different_wpcom_urls() {
+		// Set up initial IDC with custom timing values.
+		$initial_last_checked     = time() - 7200; // 2 hours ago.
+		$initial_next_check_delay = 7200; // 2 hours (doubled from initial 3600).
+		$existing_idc             = array(
+			'home'             => 'example.org/',
+			'siteurl'          => 'example.org/',
+			'error_code'       => 'jetpack_url_mismatch',
+			'wpcom_siteurl'    => '/moc.elpmaxe', // example.com reversed.
+			'wpcom_home'       => '/moc.elpmaxe', // example.com reversed.
+			'reversed_url'     => true,
+			'last_checked'     => $initial_last_checked,
+			'next_check_delay' => $initial_next_check_delay,
+		);
+		Jetpack_Options::update_option( 'sync_error_idc', $existing_idc );
+
+		// Simulate a new response with different wpcom URLs.
+		$response = array(
+			'error_code'    => 'jetpack_url_mismatch',
+			'wpcom_siteurl' => 'different.com/',
+			'wpcom_home'    => 'different.com/',
+		);
+
+		$before = time();
+		Identity_Crisis::init()->check_response_for_idc( $response );
+		$after = time();
+
+		$updated_idc = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Both timing parameters should be reset to initial values.
+		$this->assertGreaterThanOrEqual( $before, $updated_idc['last_checked'] );
+		$this->assertLessThanOrEqual( $after, $updated_idc['last_checked'] );
+		$this->assertSame( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $updated_idc['next_check_delay'] );
+	}
+
+	/**
+	 * Test that check_response_for_idc sets initial timing on first IDC detection.
+	 */
+	public function test_check_response_for_idc_sets_initial_timing_on_first_detection() {
+		// Ensure no existing IDC.
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+
+		// Simulate first IDC detection.
+		$response = array(
+			'error_code'    => 'jetpack_url_mismatch',
+			'wpcom_siteurl' => 'example.com/',
+			'wpcom_home'    => 'example.com/',
+		);
+
+		$before = time();
+		Identity_Crisis::init()->check_response_for_idc( $response );
+		$after = time();
+
+		$updated_idc = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Timing parameters should be set to initial values.
+		$this->assertGreaterThanOrEqual( $before, $updated_idc['last_checked'] );
+		$this->assertLessThanOrEqual( $after, $updated_idc['last_checked'] );
+		$this->assertSame( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $updated_idc['next_check_delay'] );
+	}
+
+	/**
+	 * Test that check_response_for_idc resets timing when wpcom_siteurl differs but wpcom_home is same.
+	 */
+	public function test_check_response_for_idc_resets_when_only_wpcom_siteurl_differs() {
+		// Set up initial IDC.
+		$initial_next_check_delay = 7200;
+		$existing_idc             = array(
+			'home'             => 'example.org/',
+			'siteurl'          => 'example.org/',
+			'error_code'       => 'jetpack_url_mismatch',
+			'wpcom_siteurl'    => '/moc.elpmaxe', // example.com reversed.
+			'wpcom_home'       => '/moc.elpmaxe', // example.com reversed.
+			'reversed_url'     => true,
+			'last_checked'     => time() - 7200,
+			'next_check_delay' => $initial_next_check_delay,
+		);
+		Jetpack_Options::update_option( 'sync_error_idc', $existing_idc );
+
+		// Simulate response with different wpcom_siteurl but same wpcom_home.
+		$response = array(
+			'error_code'    => 'jetpack_url_mismatch',
+			'wpcom_siteurl' => 'different.com/', // Different.
+			'wpcom_home'    => 'example.com/', // Same.
+		);
+
+		Identity_Crisis::init()->check_response_for_idc( $response );
+		$updated_idc = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		// Timing should be reset because wpcom URLs are different.
+		$this->assertSame( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $updated_idc['next_check_delay'] );
+	}
+
+	/**
+	 * Test that check_response_for_idc resets delay when corrupted (invalid values).
+	 */
+	public function test_check_response_for_idc_resets_corrupted_delay() {
+		$test_cases = array(
+			'too_small'   => 100,       // Below minimum.
+			'too_large'   => 99999999,  // Above maximum.
+			'not_numeric' => 'invalid', // String.
+			'negative'    => -1000,     // Negative number.
+		);
+
+		foreach ( $test_cases as $case_name => $invalid_delay ) {
+			// Set up IDC with corrupted delay value.
+			$existing_idc = array(
+				'home'             => 'example.org/',
+				'siteurl'          => 'example.org/',
+				'error_code'       => 'jetpack_url_mismatch',
+				'wpcom_siteurl'    => '/moc.elpmaxe',
+				'wpcom_home'       => '/moc.elpmaxe',
+				'reversed_url'     => true,
+				'last_checked'     => time() - 7200,
+				'next_check_delay' => $invalid_delay,
+			);
+			Jetpack_Options::update_option( 'sync_error_idc', $existing_idc );
+
+			// Simulate a new response with the same wpcom URLs.
+			$response = array(
+				'error_code'    => 'jetpack_url_mismatch',
+				'wpcom_siteurl' => 'example.com/',
+				'wpcom_home'    => 'example.com/',
+			);
+
+			Identity_Crisis::init()->check_response_for_idc( $response );
+			$updated_idc = Jetpack_Options::get_option( 'sync_error_idc' );
+
+			// Should reset to initial delay when corrupted value is detected.
+			$this->assertSame(
+				Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY,
+				$updated_idc['next_check_delay'],
+				"Failed for case: {$case_name}"
+			);
+		}
+	}
+
+	/**
 	 * Test the check_http_response_for_idc_detected method with invalid inputs. These inputs should
 	 * cause the method to return false.
 	 *
@@ -1276,6 +1456,27 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
 
 		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test should_remote_validate_idc() returns false when safe mode is confirmed.
+	 */
+	public function test_should_remote_validate_idc_returns_false_when_safe_mode_confirmed() {
+		// Set up safe mode as confirmed.
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+
+		$sync_error = array(
+			'last_checked'     => time() - 7200, // 2 hours ago.
+			'next_check_delay' => 3600, // 1 hour delay - validation would normally occur.
+		);
+
+		$result = Identity_Crisis::should_remote_validate_idc( $sync_error );
+
+		// Clean up.
+		Jetpack_Options::delete_option( 'safe_mode_confirmed' );
+
+		// Should return false because safe mode is confirmed, even though enough time has passed.
+		$this->assertFalse( $result );
 	}
 
 	/**

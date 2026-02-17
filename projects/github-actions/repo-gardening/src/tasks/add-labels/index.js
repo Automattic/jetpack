@@ -306,9 +306,9 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 		keywords.add( '[Status] In Progress' );
 	}
 
-	// Add '[Type] Revert' for revert PRs
+	// Add 'Bug' for revert PRs
 	if ( isRevert ) {
-		keywords.add( '[Type] Revert' );
+		keywords.add( 'Bug' );
 	}
 
 	return [ ...keywords ];

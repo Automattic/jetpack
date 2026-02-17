@@ -1,6 +1,12 @@
 import { useParentSize } from '@visx/responsive';
-import type { BaseChartProps, Optional } from '../../../types';
+import type { BaseChartProps } from '../../../types';
 import type { ComponentType } from 'react';
+
+type DimensionProps = {
+	width?: number;
+	height?: number;
+	size?: number;
+};
 
 export type ResponsiveConfig = {
 	/**
@@ -8,7 +14,9 @@ export type ResponsiveConfig = {
 	 */
 	maxWidth?: number;
 	/**
-	 * The aspect ratio of the chart.
+	 * The aspect ratio of the chart (height = width * aspectRatio).
+	 * When provided, height is calculated from width.
+	 * When omitted, the chart fills the parent container's height.
 	 */
 	aspectRatio?: number;
 	/**
@@ -20,17 +28,31 @@ export type ResponsiveConfig = {
 const useResponsiveDimensions = ( {
 	resizeDebounceTime = 300,
 	maxWidth = 1200,
-	aspectRatio = 0.5,
+	aspectRatio,
 }: ResponsiveConfig ) => {
-	const { parentRef, width: parentWidth } = useParentSize( {
+	const {
+		parentRef,
+		width: parentWidth,
+		height: parentHeight,
+	} = useParentSize( {
 		debounceTime: resizeDebounceTime,
 		enableDebounceLeadingCall: true,
 	} );
 
 	const containerWidth = parentWidth > 0 ? Math.min( parentWidth, maxWidth ) : 0;
-	const containerHeight = containerWidth * aspectRatio;
+	const containerHeight = aspectRatio !== undefined ? containerWidth * aspectRatio : parentHeight;
 
-	return { parentRef, width: containerWidth, height: containerHeight };
+	return {
+		parentRef,
+		width: containerWidth,
+		height: containerHeight,
+		/**
+		 * Whether an aspectRatio was provided. Used to determine container
+		 * height styling: 'auto' when true (height derived from width),
+		 * '100%' when false (fill parent container).
+		 */
+		hasAspectRatio: aspectRatio !== undefined,
+	};
 };
 
 /**
@@ -46,31 +68,43 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 	return function ResponsiveChart( {
 		resizeDebounceTime = 300,
 		maxWidth = 1200,
-		aspectRatio = 0.5,
+		aspectRatio,
+		size,
+		width,
+		height,
 		...chartProps
-	}: Optional< T, 'width' | 'height' | 'size' > & ResponsiveConfig ) {
+	}: Omit< T, 'width' | 'height' | 'size' > & DimensionProps & ResponsiveConfig ) {
 		const {
 			parentRef,
-			width: containerWidth,
-			height: containerHeight,
+			width: measuredWidth,
+			height: measuredHeight,
+			hasAspectRatio,
 		} = useResponsiveDimensions( {
 			resizeDebounceTime,
 			maxWidth,
 			aspectRatio,
 		} );
 
+		// Use measured dimensions, but fall back to explicit props if measurement returns 0
+		// (e.g., during initial render or in test environments without DOM measurement)
+		const effectiveWidth = measuredWidth || size || width || 0;
+		const effectiveHeight = measuredHeight || size || height || 0;
+
+		const defaultHeight = hasAspectRatio ? 'auto' : '100%';
+
 		return (
 			<div
 				ref={ parentRef }
+				data-testid="responsive-wrapper"
 				style={ {
-					width: chartProps.size ?? chartProps.width ?? '100%',
-					height: chartProps.size ?? chartProps.height ?? 'auto',
+					width: size ?? width ?? '100%',
+					height: size ?? height ?? defaultHeight,
 				} }
 			>
 				<WrappedComponent
-					width={ containerWidth }
-					height={ containerHeight }
-					size={ containerWidth }
+					width={ effectiveWidth }
+					height={ effectiveHeight }
+					size={ effectiveWidth }
 					{ ...( chartProps as T ) }
 				/>
 			</div>

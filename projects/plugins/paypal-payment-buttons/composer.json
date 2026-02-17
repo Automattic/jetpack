@@ -57,7 +57,6 @@
 	"extra": {
 		"mirror-repo": "Automattic/paypal-payment-buttons",
 		"release-branch-prefix": "paypal-payment-buttons",
-		"beta-plugin-slug": "paypal-payment-buttons",
 		"autorelease": true,
 		"autotagger": true,
 		"wp-plugin-slug": "paypal-payment-buttons"

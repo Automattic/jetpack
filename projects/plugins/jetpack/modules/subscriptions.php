@@ -816,7 +816,7 @@ class Jetpack_Subscriptions {
 		/**
 		 * Filters whether to skip comment subscription processing.
 		 *
-		 * @since $$next-version$$
+		 * @since 15.5
 		 *
 		 * @param bool $skip Whether to skip comment subscription. Default false.
 		 */
