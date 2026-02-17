@@ -41,15 +41,16 @@ class FeatureHookTest extends WP_UnitTestCase {
 	 * does not have a plan with those features.
 	 */
 	public function test_wpcomsh_map_feature_cap_without_the_required_features() {
+		// Use blogger-bundle: it does not include EDIT_THEMES or INSTALL_PLUGINS
+		// (those require personal-bundle or higher).
 		$purchase = array(
-			'product_slug'    => 'personal-bundle',
-			'product_id'      => 1009,
+			'product_slug'    => 'blogger-bundle',
+			'product_id'      => 1010,
 			'product_type'    => 'bundle',
 			'subscribed_date' => '2021-10-12T19:12:28+00:00',
 			'expiry_date'     => '2022-10-12T00:00:00+00:00',
 		);
 
-		// Give the site no purchases.
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ), JSON_UNESCAPED_SLASHES ) );
 
 		$input_caps   = array( 'edit_themes' );
