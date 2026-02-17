@@ -1,16 +1,52 @@
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { select } from '@wordpress/data';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import { FORM_POST_TYPE } from '../shared/util/constants.js';
 import defaultAttributes from './attributes.ts';
 import blockMetadata from './block.json';
 import deprecated from './deprecated.js';
 import edit from './edit.tsx';
 import transforms from './transforms.js';
+import { DEFAULT_FORM_LABEL, extractTitleText, formatFormLabel } from './util/form-label.js';
 import variations from './variations.js';
 
 export const name = 'contact-form';
+
+/**
+ * Get the label for a form block in List View.
+ *
+ * For synced forms (with ref), displays the form title with status indicator.
+ * For inline forms (without ref), displays the default "Form" label.
+ *
+ * @param {object} props     - Block attributes
+ * @param {number} props.ref - The form post ID (for synced forms)
+ * @return {string} The label to display in List View
+ */
+export const getFormLabel = ( { ref } ) => {
+	if ( ! ref ) {
+		return DEFAULT_FORM_LABEL;
+	}
+
+	const form = select( coreStore ).getEditedEntityRecord( 'postType', FORM_POST_TYPE, ref );
+
+	if ( ! form?.status ) {
+		return DEFAULT_FORM_LABEL;
+	}
+
+	const titleText = extractTitleText( form?.title );
+	const title = titleText ? decodeEntities( titleText ) : '';
+
+	return formatFormLabel( {
+		title,
+		status: form.status,
+		defaultLabel: DEFAULT_FORM_LABEL,
+	} );
+};
 
 const icon = renderMaterialIcon(
 	<>
@@ -108,7 +144,7 @@ export const settings = {
 	category: 'contact-form',
 	transforms,
 	deprecated,
-	__experimentalLabel: ( { ref } ) => {
-		return ref ? __( 'Form', 'jetpack-forms' ) + ' (Synced)' : __( 'Form', 'jetpack-forms' );
-	},
+	// Custom label for List View - shows form title with status for synced forms
+	label: getFormLabel,
+	__experimentalLabel: getFormLabel, // Backwards compatibility with WP < 7.0
 };

@@ -195,7 +195,7 @@ class Urls {
 	 *
 	 * The parameter is only added for users who are members of the current blog.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.1.0
 	 *
 	 * @param string $url The URL to add the query param to.
 	 * @return string The URL with the origin_site_id query parameter maybe added.

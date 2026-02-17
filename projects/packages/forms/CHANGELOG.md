@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.8.0] - 2026-02-16
+### Added
+- Dashboard: Add 'Copy embed' and 'Copy shortcode' actions to copy form code to clipboard. [#47092]
+- Form Editor: Show form name modal when creating a new form. [#47105]
+- Form Notifications: Add new HTML email template structure with respondent info section, metadata section (date, source, device, IP), and updated action buttons. [#47022]
+- Add horizontal layout. [#45272]
+- Show status notice for non-published synced forms in the block editor and frontend preview when attempting to publish. [#46914]
+
+### Changed
+- Admin Bar: Replace dashicon with SVG icon and add tooltip to "Form Responses" link. [#47120]
+- Allow Accordion, Details, and Icon blocks in forms. [#47121]
+- Allow filtering active tooltips for integrations from the backend. [#47026]
+- Consolidate temporary menus into one for WP build dashboard. [#47058]
+- Dashboard: Create new forms in same tab. [#47098]
+- Dashboard: Make forms primary on wp-build dashboard. [#47126]
+- Dashboard: Set primary actions for wp-build forms list. [#47051]
+- Dashboard: Tweaks for wpbuild dashboard header. [#47064]
+- Dashboard: Update wp-build header buttons. [#47069]
+- File Upload Dropzone: Allow Icon block to be added inside the dropzone. [#47121]
+- Allow filtering forms dashboard URL. [#47039]
+- Extract method to util class, introduce new email renderer class. [#47108]
+- Make sure 100% width fields apply properly on mobile. [#47125]
+- Use new email renderer class. [#47117]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Contact Form: Fix button border color not following the text color on the frontend. [#47097]
+- Contact Form: Fix crash in block label function and display actual form title with status indicator. [#47111]
+- Contact Form: Fix layout display in widget areas. [#47132]
+- Contact Form: Remove `grunion.css` dependency from forms layout stylesheet. [#47133]
+- Form Editor: Fix synced form changes being lost when navigating between page editor and form editor. [#47048]
+- Form Editor: Prevent empty paragraphs from being inserted outside the form block. [#47016]
+- Load the wp-build dashboard independently of the Gutenberg plugin. [#47035]
+
 ## [7.7.0] - 2026-02-10
 ### Added
 - Contact Form: Add shortcode transform support for synced form references. [#46812]
@@ -2187,6 +2222,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.8.0]: https://github.com/automattic/jetpack-forms/compare/v7.7.0...v7.8.0
 [7.7.0]: https://github.com/automattic/jetpack-forms/compare/v7.6.0...v7.7.0
 [7.6.0]: https://github.com/automattic/jetpack-forms/compare/v7.5.0...v7.6.0
 [7.5.0]: https://github.com/automattic/jetpack-forms/compare/v7.4.0...v7.5.0

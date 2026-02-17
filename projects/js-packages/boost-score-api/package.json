@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-boost-score-api",
-	"version": "1.0.28",
+	"version": "1.0.29",
 	"description": "A package to get the Jetpack Boost score of a site",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/boost-score-api/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/boost-score-api"
+		"url": "git+https://github.com/Automattic/jetpack-boost-score-api.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

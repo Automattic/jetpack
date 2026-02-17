@@ -119,6 +119,7 @@
 			box-sizing: border-box;
 			position: relative;
 			flex: 1 1 100%;
+			width: 100%;
 
 			&.grunion-field-width-25-wrap {
 				flex: 1 1 calc(25% - var(--wp--style--block-gap, 1.5rem) * 1);
@@ -142,6 +143,7 @@
 
 			&.grunion-field-width-auto-wrap {
 				flex: 1 1 auto;
+				width: auto;
 			}
 		}
 	}

@@ -1,4 +1,5 @@
 import { useParentSize } from '@visx/responsive';
+import styles from './with-responsive.module.scss';
 import type { BaseChartProps } from '../../../types';
 import type { ComponentType } from 'react';
 
@@ -96,6 +97,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			<div
 				ref={ parentRef }
 				data-testid="responsive-wrapper"
+				className={ styles.container }
 				style={ {
 					width: size ?? width ?? '100%',
 					height: size ?? height ?? defaultHeight,

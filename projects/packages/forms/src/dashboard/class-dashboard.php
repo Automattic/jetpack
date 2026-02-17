@@ -79,6 +79,7 @@ class Dashboard {
 	 */
 	public function init() {
 		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
+		add_action( 'admin_menu', array( __CLASS__, 'redirect_dashboard_url_cross_variant' ), 1 );
 
 		// Flag to enable the wp-build-based dashboard.
 		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
@@ -92,6 +93,54 @@ class Dashboard {
 		// Removed all admin notices on the Jetpack Forms admin page.
 		if ( self::get_admin_query_page() === self::ADMIN_SLUG ) {
 			remove_all_actions( 'admin_notices' );
+		}
+	}
+
+	/**
+	 * Redirect dashboard URLs when the wp-build flag has changed since the link was generated.
+	 *
+	 * Email links may point to the legacy or wp-build dashboard. If the flag has toggled,
+	 * the requested page may not exist. This redirects to the correct variant.
+	 */
+	public static function redirect_dashboard_url_cross_variant() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( $page !== self::ADMIN_SLUG && $page !== self::FORMS_WPBUILD_ADMIN_SLUG ) {
+			return;
+		}
+
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
+
+		// Legacy URL requested but wp-build is now active → redirect to wp-build.
+		if ( $page === self::ADMIN_SLUG && $is_wp_build_enabled ) {
+			// The hash is never sent to the server. "inbox" used as default tab so we end up specifically in the responses
+			// route, where the client-side router will handle the redirect to the correct status in its beforeLoad hook.
+			$redirect = self::get_forms_admin_url( 'inbox' );
+			wp_safe_redirect( $redirect );
+			exit;
+		}
+
+		// WP-Build URL requested but legacy is now active → redirect to legacy.
+		if ( $page === self::FORMS_WPBUILD_ADMIN_SLUG && ! $is_wp_build_enabled ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$p       = isset( $_GET['p'] ) ? rawurldecode( sanitize_text_field( wp_unslash( $_GET['p'] ) ) ) : '';
+			$tab     = 'inbox';
+			$post_id = null;
+
+			if ( $p !== '' ) {
+				// Parse path like /responses/inbox?responseIds=["2879"] or /forms.
+				if ( preg_match( '#^/responses/(inbox|spam|trash)(?:\?responseIds=\["(\d+)"\])?$#', $p, $m ) ) {
+					$tab     = $m[1];
+					$post_id = ! empty( $m[2] ) ? absint( $m[2] ) : null;
+				} elseif ( preg_match( '#^/forms#', $p ) ) {
+					$tab = 'forms';
+				}
+			}
+
+			$redirect = self::get_forms_admin_url( $tab, $post_id );
+			wp_safe_redirect( $redirect );
+			exit;
 		}
 	}
 
@@ -274,51 +323,99 @@ class Dashboard {
 	 * Returns url of forms admin page.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
+	 * @param int|null    $post_id Post ID of response to open in the forms responses page.
 	 *
 	 * @return string
 	 */
-	public static function get_forms_admin_url( $tab = null ) {
-		if ( apply_filters( 'jetpack_forms_alpha', false ) ) {
-			$base_url = get_admin_url() . 'admin.php?page=' . self::FORMS_WPBUILD_ADMIN_SLUG;
-			$url      = $base_url . '&p=%2F' . $tab;
+	public static function get_forms_admin_url( $tab = null, $post_id = null ) {
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
+		$url                 = admin_url( 'admin.php' );
+
+		$url .= $is_wp_build_enabled
+			? '?page=' . self::FORMS_WPBUILD_ADMIN_SLUG
+			: '?page=' . self::ADMIN_SLUG;
+
+		if ( $is_wp_build_enabled ) {
+			$path = self::get_forms_admin_path_wp_build( $tab, $post_id );
+			$url .= '&p=' . rawurlencode( $path );
 		} else {
-			$base_url = get_admin_url() . 'admin.php?page=' . self::ADMIN_SLUG;
-			$url      = self::append_tab_to_url( $base_url, $tab );
+			$suffix = self::get_forms_admin_suffix_legacy( $tab, $post_id );
+
+			if ( $suffix !== '' ) {
+				$url .= $suffix;
+			}
 		}
 
 		/**
 		 * Filters the Forms admin page URL.
 		 *
 		 * @module contact-form
-		 * @since $$next-version$$
+		 * @since 7.8.0
 		 *
 		 * @param string      $url The Forms admin page URL.
 		 * @param string|null $tab Tab to open in the forms admin page.
+		 * @param int|null $post_id Post ID of response to open in the forms responses page.
 		 *
 		 * @return string The filtered Forms admin page URL.
 		 */
-		return apply_filters( 'jetpack_forms_admin_url', $url, $tab );
+		return apply_filters( 'jetpack_forms_admin_url', $url, $tab, $post_id );
 	}
 
 	/**
-	 * Appends the appropriate tab parameter to the URL based on the view type.
+	 * WP-Build path for the forms admin URL.
 	 *
-	 * @param string $url              Base URL to append to.
-	 * @param string $tab              Tab to open.
-	 *
-	 * @return string
+	 * @param string|null $tab    Tab to open.
+	 * @param int|null    $post_id Post ID of response.
+	 * @return string URL path (e.g. '/', '/responses/inbox', '/forms').
 	 */
-	private static function append_tab_to_url( $url, $tab ) {
-		$valid_tabs = array( 'spam', 'inbox', 'trash' );
-		if ( ! in_array( $tab, $valid_tabs, true ) ) {
+	private static function get_forms_admin_path_wp_build( $tab, $post_id ) {
+		$post_id      = ! empty( $post_id ) ? absint( $post_id ) : null;
+		$response_ids = ! empty( $post_id ) ? '?responseIds=["' . $post_id . '"]' : '';
 
-			if ( $tab === 'forms' ) {
-				return $url . '#/forms';
-			}
-			return $url;
+		$path_map = array(
+			'inbox'           => '/responses/inbox',
+			'spam'            => '/responses/spam',
+			'trash'           => '/responses/trash',
+			'forms'           => '/forms',
+			'responses/inbox' => '/responses/inbox',
+		);
+
+		if ( $tab !== null && $tab !== '' && isset( $path_map[ $tab ] ) ) {
+			return $path_map[ $tab ] . $response_ids;
 		}
 
-		return $url . '#/responses?status=' . $tab;
+		if ( ! empty( $post_id ) ) {
+			return '/responses/inbox?responseIds=["' . $post_id . '"]';
+		}
+
+		return '/';
+	}
+
+	/**
+	 * Legacy (hash-based) URL suffix for the forms admin page.
+	 *
+	 * @param string|null $tab    Tab to open.
+	 * @param int|null    $post_id Post ID of response.
+	 * @return string URL suffix (e.g. '#/responses?status=inbox&r=123', or '#/forms').
+	 */
+	private static function get_forms_admin_suffix_legacy( $tab, $post_id ) {
+		$post_id    = ! empty( $post_id ) ? absint( $post_id ) : null;
+		$valid_tabs = array( 'spam', 'inbox', 'trash' );
+		$r_param    = ! empty( $post_id ) ? '&r=' . $post_id : '';
+
+		if ( in_array( $tab, $valid_tabs, true ) ) {
+			return '#/responses?status=' . $tab . $r_param;
+		}
+
+		if ( $tab === 'forms' ) {
+			return '#/forms';
+		}
+
+		if ( ! empty( $post_id ) ) {
+			return '#/responses?status=inbox' . $r_param;
+		}
+
+		return '';
 	}
 
 	/**
@@ -332,7 +429,17 @@ class Dashboard {
 		}
 
 		$screen = get_current_screen();
-		return $screen && $screen->id === 'jetpack_page_jetpack-forms-admin';
+
+		if ( ! $screen || ! isset( $screen->id ) ) {
+			return false;
+		}
+
+		$forms_admin_screens = array(
+			'jetpack_page_' . self::ADMIN_SLUG,
+			'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG,
+		);
+
+		return in_array( $screen->id, $forms_admin_screens, true );
 	}
 
 	/**
@@ -355,16 +462,22 @@ class Dashboard {
 	/**
 	 * Get admin URL for given screen ID.
 	 *
+	 * @deprecated $$next-version$$ Use Dashboard::get_forms_admin_url() instead.
+	 *
 	 * @param string $screen_id Screen ID.
-	 * @return string|null Admin URL or null if not found.
+	 * @return string Admin URL.
 	 */
 	public static function get_admin_url( $screen_id ) {
-		switch ( $screen_id ) {
-			case 'edit-jetpack_form':
-				return self::get_forms_admin_url( 'forms' );
-			case 'edit-feedback':
-				return self::get_forms_admin_url( 'responses/inbox' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Dashboard::get_forms_admin_url' );
+
+		if ( 'edit-jetpack_form' === $screen_id ) {
+			return self::get_forms_admin_url( 'forms' );
 		}
-		return null;
+
+		if ( 'edit-feedback' === $screen_id ) {
+			return self::get_forms_admin_url( 'inbox' );
+		}
+
+		return self::get_forms_admin_url();
 	}
 }
