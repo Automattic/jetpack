@@ -47,7 +47,7 @@ importers:
         version: 9.0.0
       '@linear/sdk':
         specifier: 75.0.0
-        version: 75.0.0(graphql@16.11.0)
+        version: 75.0.0(graphql@16.12.0)
       '@slack/web-api':
         specifier: 7.12.0
         version: 7.12.0
@@ -58,8 +58,8 @@ importers:
         specifier: 13.0.0
         version: 13.0.0
       graphql:
-        specifier: 16.11.0
-        version: 16.11.0
+        specifier: 16.12.0
+        version: 16.12.0
       moment:
         specifier: 2.30.1
         version: 2.30.1
@@ -13341,8 +13341,8 @@ packages:
     resolution: {integrity: sha512-Hu0YfNU+38EsTmnUfLXUKFMXq9yz7htGYpF4x+dlbBhUCvIvzLt0yVLT/gJRmvLKFJdqNFrz4eKkIUjIXSr7Tw==}
     engines: {node: '>=0.10.0'}
 
-  graphql@16.11.0:
-    resolution: {integrity: sha512-mS1lbMsxgQj6hge1XZ6p7GPhbrtFwUFYi3wRzXAC/FmYnyXMTvvI3td3rjmQ2u8ewXueaSvRPWaEcgVVOT9Jnw==}
+  graphql@16.12.0:
+    resolution: {integrity: sha512-DKKrynuQRne0PNpEbzuEdHlYOMksHSUI8Zc9Unei5gTsMNA2/vMpoMz/yKba50pejK56qj98qM0SjYxAKi13gQ==}
     engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
 
   grid-index@1.1.0:
@@ -20172,9 +20172,9 @@ snapshots:
       '@fullcalendar/core': 6.1.20
       '@fullcalendar/daygrid': 6.1.20(@fullcalendar/core@6.1.20)
 
-  '@graphql-typed-document-node/core@3.2.0(graphql@16.11.0)':
+  '@graphql-typed-document-node/core@3.2.0(graphql@16.12.0)':
     dependencies:
-      graphql: 16.11.0
+      graphql: 16.12.0
 
   '@gravatar-com/hovercards@0.15.0': {}
 
@@ -20787,9 +20787,9 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.3
 
-  '@linear/sdk@75.0.0(graphql@16.11.0)':
+  '@linear/sdk@75.0.0(graphql@16.12.0)':
     dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.12.0)
     transitivePeerDependencies:
       - graphql
 
@@ -29367,7 +29367,7 @@ snapshots:
 
   gradient-parser@1.1.1: {}
 
-  graphql@16.11.0: {}
+  graphql@16.12.0: {}
 
   grid-index@1.1.0: {}
 
