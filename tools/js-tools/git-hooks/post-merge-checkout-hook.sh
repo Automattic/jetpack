@@ -28,7 +28,9 @@ if [[ ${#changedSlugs[@]} -gt 0 || -n "$rootChanged" ]]; then
 	installArgs+=("${changedSlugs[@]}")
 
 	# Detect whether to suggest `jetpack` or `jp` based on hook configuration.
-	if git config core.hooksPath > /dev/null 2>&1; then
+	# Check if core.hooksPath is set locally and points to .husky (Husky/jetpack setup).
+	HOOKS_PATH=$(git config --local --get core.hooksPath 2>/dev/null || echo "")
+	if [[ "$HOOKS_PATH" == ".husky" ]]; then
 		CLI_CMD="jetpack"
 	else
 		CLI_CMD="jp"
