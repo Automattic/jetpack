@@ -136,7 +136,7 @@ export function useTooltipPortalRelocator(
 				focusedElement.focus();
 			}
 
-			// Reveal after the next paint so visx has positioned the tooltip.
+			// Reveal after two animation frames so visx has positioned the tooltip.
 			requestAnimationFrame( () => {
 				requestAnimationFrame( () => {
 					node.style.opacity = '';
