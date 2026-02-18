@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-WordPress.com Reader: Fix YouTube Shorts embeds not rendering correctly.
+Shortcode embeds: improve handling of YouTube shorts in embeds.
