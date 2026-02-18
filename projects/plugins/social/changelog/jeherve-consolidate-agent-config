@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Rename CLAUDE.md to AGENTS.md for tool-agnostic AI agent configuration. No user-facing changes.
