@@ -9,6 +9,14 @@ import useConfigValue from '../../../hooks/use-config-value.ts';
 import { createSyncedForm } from '../../contact-form/util/create-synced-form.ts';
 import { FORM_BLOCK_NAME, FORM_POST_TYPE } from '../util/constants.js';
 
+const verticalLayout = {
+	type: 'flex',
+	flexWrap: 'nowrap',
+	orientation: 'vertical',
+	justifyContent: 'left',
+	verticalAlignment: 'bottom',
+};
+
 /**
  * Creates the form block structure with a field and submit button.
  *
@@ -24,7 +32,10 @@ export function createFormBlockStructure( fieldBlockName, fieldAttributes, field
 		type: 'submit',
 		tagName: 'button',
 	} );
-	const formBlock = createBlock( FORM_BLOCK_NAME, {}, [ fieldBlock, submitButton ] );
+	const formBlock = createBlock( FORM_BLOCK_NAME, { layout: verticalLayout }, [
+		fieldBlock,
+		submitButton,
+	] );
 
 	return { formBlock, fieldBlock, submitButton };
 }
