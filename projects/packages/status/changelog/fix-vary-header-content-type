@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove incorrect `content-type` from Vary header. Per RFC 7231 Section 7.1.4, Vary should only reference request headers, and Content-Type is a response header.

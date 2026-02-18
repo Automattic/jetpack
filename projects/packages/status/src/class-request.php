@@ -71,7 +71,11 @@ class Request {
 
 	/**
 	 * Go through headers and get a list of Vary headers to add,
-	 * including Vary on Accept and Content-Type if necessary.
+	 * including Vary on Accept if necessary.
+	 *
+	 * Note: Content-Type was previously included but was removed because it's
+	 * a response header, not a request header. Per RFC 7231 Section 7.1.4,
+	 * the Vary header should only reference request headers.
 	 *
 	 * @since jetpack-12.2
 	 *
@@ -80,7 +84,7 @@ class Request {
 	 * @return array $vary_header_parts Vary Headers to be sent.
 	 */
 	public static function get_vary_headers( $headers = array() ) {
-		$vary_header_parts = array( 'accept', 'content-type' );
+		$vary_header_parts = array( 'accept' );
 
 		foreach ( $headers as $header ) {
 			// Check for a Vary header.

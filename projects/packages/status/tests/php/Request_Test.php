@@ -64,7 +64,7 @@ class Request_Test extends TestCase {
 		// Set up header expectations
 		if ( $should_set_headers ) {
 			Functions\when( 'headers_list' )->justReturn( array() );
-			Functions\expect( 'header' )->once()->with( 'Vary: accept, content-type' );
+			Functions\expect( 'header' )->once()->with( 'Vary: accept' );
 		} else {
 			Functions\expect( 'header' )->never();
 		}
@@ -204,7 +204,7 @@ class Request_Test extends TestCase {
 		return array(
 			'no existing headers'                       => array(
 				'existing_headers' => array(),
-				'expected_header'  => 'Vary: accept, content-type',
+				'expected_header'  => 'Vary: accept',
 			),
 			'existing Accept-Encoding header'           => array(
 				'existing_headers' => array(
@@ -212,7 +212,7 @@ class Request_Test extends TestCase {
 					'Content-Type: text/html; charset=UTF-8',
 					'Vary: Accept-Encoding',
 				),
-				'expected_header'  => 'Vary: accept, content-type, accept-encoding',
+				'expected_header'  => 'Vary: accept, accept-encoding',
 			),
 			'multiple Vary headers'                     => array(
 				'existing_headers' => array(
@@ -221,7 +221,7 @@ class Request_Test extends TestCase {
 					'Vary: Accept',
 					'Vary: Accept-Encoding',
 				),
-				'expected_header'  => 'Vary: accept, content-type, accept-encoding',
+				'expected_header'  => 'Vary: accept, accept-encoding',
 			),
 			'wildcard Vary header'                      => array(
 				'existing_headers' => array(
@@ -237,7 +237,7 @@ class Request_Test extends TestCase {
 					'Content-Type: text/html; charset=UTF-8',
 					'Vary: Accept',
 				),
-				'expected_header'  => 'Vary: accept, content-type',
+				'expected_header'  => 'Vary: accept',
 			),
 			'mixed case Vary header'                    => array(
 				'existing_headers' => array(
@@ -245,7 +245,7 @@ class Request_Test extends TestCase {
 					'Content-Type: text/html; charset=UTF-8',
 					'Vary: Accept-Language, Accept-Encoding',
 				),
-				'expected_header'  => 'Vary: accept, content-type, accept-language, accept-encoding',
+				'expected_header'  => 'Vary: accept, accept-language, accept-encoding',
 			),
 		);
 	}
@@ -271,7 +271,7 @@ class Request_Test extends TestCase {
 			Functions\when( 'wp_is_xml_request' )->justReturn( false );
 			Functions\when( 'headers_sent' )->justReturn( false );
 			Functions\when( 'headers_list' )->justReturn( array() );
-			Functions\expect( 'header' )->once()->with( 'Vary: accept, content-type' );
+			Functions\expect( 'header' )->once()->with( 'Vary: accept' );
 		} else {
 			// Non-frontend request setup (admin)
 			Functions\when( 'is_admin' )->justReturn( true );
@@ -344,19 +344,19 @@ class Request_Test extends TestCase {
 		return array(
 			'no headers'                             => array(
 				array(),
-				array( 'accept', 'content-type' ),
+				array( 'accept' ),
 			),
 			'Single Vary Encoding header'            => array(
 				array(
 					'Vary: Accept-Encoding',
 				),
-				array( 'accept', 'content-type', 'accept-encoding' ),
+				array( 'accept', 'accept-encoding' ),
 			),
 			'Double Vary: Accept-Encoding & Accept'  => array(
 				array(
 					'Vary: Accept, Accept-Encoding',
 				),
-				array( 'accept', 'content-type', 'accept-encoding' ),
+				array( 'accept', 'accept-encoding' ),
 			),
 			'vary header'                            => array(
 				array(
@@ -364,7 +364,7 @@ class Request_Test extends TestCase {
 					'Content-Type: text/html; charset=UTF-8',
 					'Vary: Accept',
 				),
-				array( 'accept', 'content-type' ),
+				array( 'accept' ),
 			),
 			'Wildcard Vary header'                   => array(
 				array(
@@ -381,7 +381,7 @@ class Request_Test extends TestCase {
 					'Vary: Accept',
 					'Vary: Accept-Encoding',
 				),
-				array( 'accept', 'content-type', 'accept-encoding' ),
+				array( 'accept', 'accept-encoding' ),
 			),
 			'Multiple Vary headers, with a wildcard' => array(
 				array(
