@@ -47,13 +47,13 @@ async function createLinearIssue(
 			identifier: issue.identifier,
 		};
 	} catch ( error: unknown ) {
-		let errorMessage;
+		let errorMessage: string;
 		if ( error instanceof Error ) {
 			errorMessage = error.message;
 		} else if ( typeof error === 'string' ) {
 			errorMessage = error;
 		} else {
-			errorMessage = JSON.stringify( error );
+			errorMessage = String( error );
 		}
 		debug( `linear: Failed to create issue: ${ errorMessage }` );
 		return null;
