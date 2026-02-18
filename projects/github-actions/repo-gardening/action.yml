@@ -68,6 +68,14 @@ inputs:
     description: "OpenAI API key"
     required: false
     default: ""
+  linear_api_key:
+    description: 'Linear API key, used to create issues on Linear when needed.'
+    required: false
+    default: ''
+  linear_product_ambassadors_team_id:
+    description: 'Linear Team ID for the Product Ambassadors team, used for documentation-related issues.'
+    required: false
+    default: ''
 runs:
   using: node24
   main: "dist/index.js"
