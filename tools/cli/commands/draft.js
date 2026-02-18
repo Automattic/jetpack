@@ -19,6 +19,22 @@ function getDraftFile() {
 }
 
 /**
+ * Returns the git hooks directory, respecting core.hooksPath if set.
+ *
+ * @return {string} - the hooks directory path
+ */
+function getHooksDir() {
+	const result = child_process.spawnSync( 'git', [ 'config', 'core.hooksPath' ], {
+		encoding: 'utf8',
+	} );
+	const hooksPath = result.stdout?.trim();
+	if ( hooksPath ) {
+		return path.resolve( process.cwd(), hooksPath );
+	}
+	return path.join( process.cwd(), '.git', 'hooks' );
+}
+
+/**
  * Enable draft mode.
  *
  * @param {object} argv - The argv for the command line.
@@ -78,7 +94,7 @@ export async function draftDisable( argv ) {
 
 		if ( preCommitAnswers.runPreCommit ) {
 			const data = child_process.spawnSync(
-				path.join( process.cwd(), '.git/hooks/pre-commit' ),
+				path.join( getHooksDir(), 'pre-commit' ),
 				[],
 				{ stdio: 'inherit' }
 			);
@@ -103,7 +119,7 @@ export async function draftDisable( argv ) {
 
 		// if ( prePushAnswers.runPrePush ) {
 		// 	const data = child_process.spawnSync(
-		// 		path.join( process.cwd(), '.git/hooks/pre-push' ),
+		// 		path.join( getHooksDir(), 'pre-push' ),
 		// 		[],
 		// 		{ stdio: "inherit" }
 		// 	);
