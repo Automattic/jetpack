@@ -6,7 +6,7 @@
  */
 
 /**
- * Include the composer autoloader.
+ * Include the composer autoloader and initialize the WordPress test environment.
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
