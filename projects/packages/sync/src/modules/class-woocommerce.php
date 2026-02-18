@@ -395,21 +395,6 @@ class WooCommerce extends Module {
 	}
 
 	/**
-	 * Add WooCommerce callables to the callable whitelist.
-	 *
-	 * @param array $list Existing callable whitelist.
-	 * @return array Updated callable whitelist.
-	 */
-	public function add_woocommerce_callable_whitelist( $list ) {
-		return array_merge(
-			$list,
-			array(
-				'woocommerce_currency_symbol' => 'get_woocommerce_currency_symbol',
-			)
-		);
-	}
-
-	/**
 	 * Add WooCommerce constants to the constants whitelist.
 	 *
 	 * @param array $list Existing constants whitelist.
