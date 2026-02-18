@@ -27,11 +27,13 @@ if [[ ${#changedSlugs[@]} -gt 0 || -n "$rootChanged" ]]; then
 	fi
 	installArgs+=("${changedSlugs[@]}")
 
-	# Detect whether to suggest `jetpack` or `jp` based on hook configuration.
-	if git config core.hooksPath > /dev/null 2>&1; then
-		CLI_CMD="jetpack"
-	else
+	# Detect whether to suggest `jp` or `jetpack` by checking how the hook was installed.
+	# jp-installed hooks (in .git/hooks/) contain "jp git-hook"; Husky hooks don't.
+	HOOKDIR="$(git rev-parse --git-path hooks)"
+	if grep -q 'jp git-hook' "$HOOKDIR/post-merge" "$HOOKDIR/post-checkout" 2>/dev/null; then
 		CLI_CMD="jp"
+	else
+		CLI_CMD="jetpack"
 	fi
 
 	echo -e "${SEP}Lock files have changed. To update, run:\n  $CLI_CMD install ${installArgs[*]}"
