@@ -69,7 +69,7 @@ export const VERTICAL_LAYOUT = {
 	flexWrap: 'nowrap',
 	orientation: 'vertical',
 	justifyContent: 'left',
-	verticalAlignment: 'bottom',
+	verticalAlignment: 'top',
 };
 
 export const FORM_STYLE = {

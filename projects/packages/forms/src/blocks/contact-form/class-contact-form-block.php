@@ -51,7 +51,7 @@ class Contact_Form_Block {
 							'flexWrap'          => 'wrap',
 							'orientation'       => 'horizontal',
 							'justifyContent'    => 'left',
-							'verticalAlignment' => 'bottom',
+							'verticalAlignment' => 'top',
 						),
 						'allowSwitching'         => false,
 						'allowEditing'           => true,
