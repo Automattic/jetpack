@@ -336,7 +336,8 @@ function JetpackContactFormEdit( {
 		'jetpack-contact-form',
 		isFirstStep && 'is-first-step',
 		isLastStep && 'is-last-step',
-		variationName === 'multistep' && isSingleStep && 'is-previewing-step'
+		variationName === 'multistep' && isSingleStep && 'is-previewing-step',
+		attributes?.layout ? 'has-jetpack-form-layout' : 'has-no-jetpack-form-layout'
 	);
 	const innerBlocksProps = useInnerBlocksProps(
 		{

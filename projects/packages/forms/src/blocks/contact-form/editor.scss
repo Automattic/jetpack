@@ -1,5 +1,32 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
+:where(.is-classic-layout) .jetpack-contact-form,
+.jetpack-contact-form.has-no-jetpack-form-layout {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	gap: var(--wp--style--block-gap, 1.5rem);
+
+	.wp-block {
+		flex: 0 0 100%;
+		margin-top: 0;
+		margin-bottom: 0;
+		max-width: 100%;
+	}
+
+	> div {
+		flex: 1 1 100%;
+	}
+
+	&.is-nowrap {
+		flex-wrap: nowrap;
+	}
+
+	.wp-block-jetpack-button {
+		align-self: flex-end;
+	}
+}
+
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
 
@@ -47,25 +74,6 @@
 
 		// not horizontal or vertical means a form created
 		// before layout support was added
-		&:not(.is-horizontal, .is-vertical) {
-
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: flex-start;
-			gap: var(--wp--style--block-gap, 1.5rem);
-
-			> div {
-				flex: 1 1 100%;
-			}
-
-			&.is-nowrap {
-				flex-wrap: nowrap;
-			}
-
-			.wp-block-jetpack-button {
-				align-self: flex-end;
-			}
-		}
 
 		.wp-block {
 			margin-top: 0;
