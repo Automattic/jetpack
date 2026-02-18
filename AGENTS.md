@@ -212,3 +212,7 @@ Before introducing new dependencies:
 - **Do NOT modify `$$next-version$$` placeholders** — they are replaced automatically at release time
 - **Reuse monorepo packages** before adding external dependencies — check `projects/packages/` and `projects/js-packages/` first
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
+
+## Maintaining This File
+
+If you discover a pattern or pitfall not covered here, mention it to the developer so they can decide whether to update this file.
