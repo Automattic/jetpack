@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Image Studio: add "Edit with AI" row action in the media library list view; fix failing tests.
