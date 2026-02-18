@@ -110,6 +110,25 @@ export const Default: Story = {
 	},
 };
 
+export const WithSize: Story = {
+	args: {
+		...Default.args,
+		size: 200,
+		thickness: 0.3,
+		showLabels: false,
+		children: (
+			<Group>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -16 }>
+					User Activity
+				</Text>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 16 }>
+					Total: 100K Users
+				</Text>
+			</Group>
+		),
+	},
+};
+
 export const WithoutCenter: Story = {
 	args: {
 		...Default.args,
