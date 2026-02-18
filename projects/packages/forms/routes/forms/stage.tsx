@@ -23,6 +23,7 @@ import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
+import useDuplicateForm from '../../src/dashboard/wp-build/hooks/use-duplicate-form';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import '../../src/dashboard/wp-build/style.scss';
 import useConfigValue from '../../src/hooks/use-config-value';
@@ -109,6 +110,8 @@ function StageInner() {
 		view.search ?? '',
 		statusQuery
 	);
+
+	const { duplicateForm } = useDuplicateForm();
 
 	const {
 		isDeleting,
@@ -296,6 +299,21 @@ function StageInner() {
 		} );
 
 		actionsList.push( {
+			id: 'duplicate-form',
+			isPrimary: false,
+			label: __( 'Duplicate', 'jetpack-forms' ),
+			supportsBulk: false,
+			async callback( items: FormListItem[] ) {
+				const [ item ] = items;
+				if ( ! item ) {
+					return;
+				}
+
+				await duplicateForm( item );
+			},
+		} );
+
+		actionsList.push( {
 			id: 'preview-form',
 			isPrimary: false,
 			label: __( 'Preview', 'jetpack-forms' ),
@@ -398,6 +416,7 @@ function StageInner() {
 	}, [
 		createErrorNotice,
 		createSuccessNotice,
+		duplicateForm,
 		isDeleting,
 		isViewingTrash,
 		onOpenPermanentDeleteConfirm,
