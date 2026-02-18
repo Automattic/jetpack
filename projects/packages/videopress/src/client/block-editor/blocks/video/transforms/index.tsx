@@ -9,6 +9,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { isVideoPressActive } from '../../../../lib/connection';
 import {
 	buildVideoPressURL,
 	isVideoPressUrl,
@@ -52,17 +53,14 @@ const transformFromCoreEmbed = {
 
 const transformFromFile = {
 	type: 'files',
-	// Check if the files array contains a video file and VideoPress can handle uploads.
+	// Check if the files array contains a video file and VideoPress is active.
 	isMatch: files => {
 		if ( ! files || ! files.length ) {
 			return false;
 		}
 
-		// Check if VideoPress should handle video uploads.
-		// On Jetpack sites without VideoPress active or without plan/free video,
-		// let core/video handle the upload instead.
-		const canUpload = window?.videoPressEditorState?.canUploadToVideoPress === '1';
-		if ( ! canUpload ) {
+		// When the module is disabled, let core/video handle the upload instead.
+		if ( ! isVideoPressActive() ) {
 			return false;
 		}
 

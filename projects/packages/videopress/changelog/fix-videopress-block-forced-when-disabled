@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Video block: only intercept video file uploads when VideoPress is available. On Jetpack sites without VideoPress active or without plan/free video, let core/video handle the upload.
+Video block: only intercept video file uploads when the VideoPress module is active.

@@ -10,6 +10,12 @@ import { createBlock, getBlockTransforms, findTransform } from '@wordpress/block
  */
 import transforms from '../index';
 
+const mockIsVideoPressActive = jest.fn();
+
+jest.mock( '../../../../../lib/connection', () => ( {
+	isVideoPressActive: ( ...args ) => mockIsVideoPressActive( ...args ),
+} ) );
+
 jest.mock( '@wordpress/blob', () => ( {
 	createBlobURL: jest.fn(),
 } ) );
@@ -43,17 +49,8 @@ describe( 'transforms', () => {
 			jest.clearAllMocks();
 			( findTransform as jest.Mock ).mockReturnValue( null );
 
-			// Mock window.videoPressEditorState to enable VideoPress uploads
-			Object.defineProperty( window, 'videoPressEditorState', {
-				value: { canUploadToVideoPress: '1' },
-				writable: true,
-				configurable: true,
-			} );
-		} );
-
-		afterEach( () => {
-			// Clean up window mock
-			delete ( window as Window & { videoPressEditorState?: unknown } ).videoPressEditorState;
+			// Default: VideoPress is active
+			mockIsVideoPressActive.mockReturnValue( true );
 		} );
 
 		it( 'should return false when no files are provided', () => {
@@ -215,35 +212,19 @@ describe( 'transforms', () => {
 			expect( result ).toHaveLength( 2 );
 		} );
 
-		describe( 'canUploadToVideoPress check', () => {
-			it( 'should return false when videoPressEditorState is undefined', () => {
-				// Clean up the mock set in beforeEach
-				delete ( window as Window & { videoPressEditorState?: unknown } ).videoPressEditorState;
+		describe( 'VideoPress active check', () => {
+			it( 'should return false when VideoPress is not active', () => {
+				mockIsVideoPressActive.mockReturnValue( false );
 
 				const mockFile = new File( [ '' ], 'test.mp4', { type: 'video/mp4' } );
 				expect( transformFromFile.isMatch( [ mockFile ] ) ).toBe( false );
 			} );
 
-			it( 'should return false when canUploadToVideoPress is empty string', () => {
-				Object.defineProperty( window, 'videoPressEditorState', {
-					value: { canUploadToVideoPress: '' },
-					writable: true,
-					configurable: true,
-				} );
+			it( 'should return true when VideoPress is active', () => {
+				mockIsVideoPressActive.mockReturnValue( true );
 
 				const mockFile = new File( [ '' ], 'test.mp4', { type: 'video/mp4' } );
-				expect( transformFromFile.isMatch( [ mockFile ] ) ).toBe( false );
-			} );
-
-			it( 'should return false when canUploadToVideoPress is missing from state', () => {
-				Object.defineProperty( window, 'videoPressEditorState', {
-					value: {},
-					writable: true,
-					configurable: true,
-				} );
-
-				const mockFile = new File( [ '' ], 'test.mp4', { type: 'video/mp4' } );
-				expect( transformFromFile.isMatch( [ mockFile ] ) ).toBe( false );
+				expect( transformFromFile.isMatch( [ mockFile ] ) ).toBe( true );
 			} );
 		} );
 	} );

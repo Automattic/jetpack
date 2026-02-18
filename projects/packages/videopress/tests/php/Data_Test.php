@@ -24,13 +24,6 @@ class Data_Test extends BaseTestCase {
 	private $captured_query;
 
 	/**
-	 * VideoPress REST API data instance.
-	 *
-	 * @var WPCOM_REST_API_V2_Attachment_VideoPress_Data
-	 */
-	private static $videopress_rest_data;
-
-	/**
 	 * Set up once before all tests in this class.
 	 */
 	public static function set_up_before_class() {
@@ -41,7 +34,8 @@ class Data_Test extends BaseTestCase {
 
 		// Initialize VideoPress components once for all tests.
 		Attachment_Handler::init();
-		self::$videopress_rest_data = new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+		new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+		do_action( 'rest_api_init' );
 	}
 
 	/**
@@ -51,11 +45,6 @@ class Data_Test extends BaseTestCase {
 		parent::set_up();
 
 		$this->captured_query = null;
-
-		// WorDBless resets hooks between tests, so re-register the
-		// rest_attachment_query filter and REST fields each test.
-		self::$videopress_rest_data->register_fields();
-		self::$videopress_rest_data->add_jetpack_videopress_custom_query_filters();
 
 		// Use high priority to capture before other filters might short-circuit.
 		add_filter( 'posts_pre_query', array( $this, 'capture_query' ), 10, 2 );

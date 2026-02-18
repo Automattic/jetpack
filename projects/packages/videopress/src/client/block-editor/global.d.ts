@@ -13,7 +13,6 @@ declare global {
 			jetpackVideoPressSettingUrl: string;
 			imagesURLBase: string;
 			playerBridgeUrl: string;
-			canUploadToVideoPress: '' | '1';
 		};
 	}
 }
