@@ -26,9 +26,9 @@ function createVisxPortalNode(): HTMLDivElement {
 /**
  * Sets up a container, ref, and renders the hook.
  * Optionally appends a visx portal node to document.body before rendering.
- * @param options - Setup options.
- * @param options.withPortal - If true, creates and appends a visx portal before rendering.
- * @return Setup result with container, ref, unmount, and optionally the portal node.
+ * @param  options              - Setup options.
+ * @param  options.withPortal   - If true, creates and appends a visx portal before rendering.
+ * @return                      Setup result with container, ref, unmount, and optionally the portal node.
  */
 function setupHook( { withPortal = false } = {} ) {
 	const container = document.createElement( 'div' );
@@ -87,7 +87,7 @@ describe( 'useTooltipPortalRelocator', () => {
 
 	test( 'applies relocated-portal class to relocated portals', () => {
 		const { unmount, portal } = setupHook( { withPortal: true } );
-		expect( portal!.classList.contains( 'relocatedPortal' ) ).toBe( true );
+		expect( portal! ).toHaveClass( 'relocatedPortal' );
 		unmount();
 	} );
 
@@ -180,11 +180,11 @@ describe( 'useTooltipPortalRelocator', () => {
 	test( 'cleanup removes relocated-portal class from nodes', () => {
 		const { unmount, portal } = setupHook( { withPortal: true } );
 
-		expect( portal!.classList.contains( 'relocatedPortal' ) ).toBe( true );
+		expect( portal! ).toHaveClass( 'relocatedPortal' );
 
 		unmount();
 
-		expect( portal!.classList.contains( 'relocatedPortal' ) ).toBe( false );
+		expect( portal! ).not.toHaveClass( 'relocatedPortal' );
 	} );
 
 	test( 'ref-counting allows multiple instances to share the patch', () => {
