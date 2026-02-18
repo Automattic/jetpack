@@ -156,10 +156,11 @@ async function checkIfDocsNeeded(
 	octokit: OctokitClient
 ): Promise< void > {
 	const {
-		pull_request: { number, body, title, merged },
+		pull_request: { number, body, title, merged, html_url: prUrl },
 		repository: {
 			owner: { login: ownerLogin },
 			name,
+			full_name: repoFullName,
 		},
 	} = payload;
 
@@ -287,10 +288,6 @@ async function checkIfDocsNeeded(
 		let linearIssue: { id: string; url: string; identifier: string } | null = null;
 		if ( linearTeamId && linearApiKey ) {
 			debug( `check-if-docs-needed: Creating Linear issue for PR #${ number }.` );
-			const {
-				pull_request: { html_url: prUrl },
-				repository: { full_name: repoFullName },
-			} = payload;
 			const linearDescription = `A pull request was flagged as containing user-facing changes that may require documentation updates.\n\n**Pull request:** [${ title }](${ prUrl })\n**Repository:** ${ repoFullName }\n**AI reasoning:** ${ reason }`;
 
 			try {
