@@ -13,7 +13,7 @@ import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { moreVertical, plus, download, plugins, trash } from '@wordpress/icons';
+import { moreVertical } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -197,14 +197,12 @@ export default function usePageHeaderDetails(
 				// Forms screen: Manage integrations, Create a form
 				if ( isIntegrationsEnabled && showDashboardIntegrations ) {
 					dropdownControls.push( {
-						icon: plugins,
 						onClick: onOpenIntegrations,
 						title: __( 'Manage integrations', 'jetpack-forms' ),
 					} );
 				}
 
 				dropdownControls.push( {
-					icon: plus,
 					onClick: () => openNewForm( {} ),
 					title: __( 'Create a form', 'jetpack-forms' ),
 				} );
@@ -221,7 +219,6 @@ export default function usePageHeaderDetails(
 					} );
 				}
 				dropdownControls.push( {
-					icon: download,
 					onClick: openExportModal,
 					title: exportLabel,
 					isDisabled: ! hasResponses,
@@ -229,7 +226,6 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'trash' ) {
 					dropdownControls.push( {
-						icon: trash,
 						onClick: emptyTrash.openConfirmDialog,
 						title: __( 'Empty trash', 'jetpack-forms' ),
 						isDisabled: emptyTrash.isEmpty || emptyTrash.isEmptying,
@@ -238,7 +234,6 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'spam' ) {
 					dropdownControls.push( {
-						icon: trash,
 						onClick: emptySpam.openConfirmDialog,
 						title: __( 'Delete spam', 'jetpack-forms' ),
 						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
@@ -250,7 +245,6 @@ export default function usePageHeaderDetails(
 				// Responses list screen: Manage integrations (inbox only), Create a form (inbox only), Export, Empty trash/spam
 				if ( statusView === 'inbox' && isIntegrationsEnabled && showDashboardIntegrations ) {
 					dropdownControls.push( {
-						icon: plugins,
 						onClick: onOpenIntegrations,
 						title: __( 'Manage integrations', 'jetpack-forms' ),
 					} );
@@ -258,14 +252,12 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'inbox' ) {
 					dropdownControls.push( {
-						icon: plus,
 						onClick: () => openNewForm( { showPatterns: false } ),
 						title: __( 'Create a form', 'jetpack-forms' ),
 					} );
 				}
 
 				dropdownControls.push( {
-					icon: download,
 					onClick: openExportModal,
 					title: exportLabel,
 					isDisabled: ! hasResponses,
@@ -273,7 +265,6 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'trash' ) {
 					dropdownControls.push( {
-						icon: trash,
 						onClick: emptyTrash.openConfirmDialog,
 						title: __( 'Empty trash', 'jetpack-forms' ),
 						isDisabled: emptyTrash.isEmpty || emptyTrash.isEmptying,
@@ -282,7 +273,6 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'spam' ) {
 					dropdownControls.push( {
-						icon: trash,
 						onClick: emptySpam.openConfirmDialog,
 						title: __( 'Delete spam', 'jetpack-forms' ),
 						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
