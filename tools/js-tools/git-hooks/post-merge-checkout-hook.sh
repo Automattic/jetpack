@@ -26,7 +26,15 @@ if [[ ${#changedSlugs[@]} -gt 0 || -n "$rootChanged" ]]; then
 		installArgs+=("-r")
 	fi
 	installArgs+=("${changedSlugs[@]}")
-	echo -e "${SEP}Lock files have changed. To update, run:\n  jetpack install ${installArgs[*]}"
+
+	# Detect whether to suggest `jetpack` or `jp` based on hook configuration.
+	if git config core.hooksPath > /dev/null 2>&1; then
+		CLI_CMD="jetpack"
+	else
+		CLI_CMD="jp"
+	fi
+
+	echo -e "${SEP}Lock files have changed. To update, run:\n  $CLI_CMD install ${installArgs[*]}"
 	SEP=
 fi
 
