@@ -124,7 +124,6 @@ class WooCommerce extends Module {
 
 		// Options, constants and post meta whitelists.
 		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_woocommerce_options_whitelist' ), 10 );
-		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'add_woocommerce_callable_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
@@ -498,7 +497,6 @@ class WooCommerce extends Module {
 		'woocommerce_dimension_unit',
 		'woocommerce_default_country',
 		'woocommerce_default_customer_address',
-		'woocommerce_currency',
 		'woocommerce_currency_pos',
 		'woocommerce_api_enabled',
 		'woocommerce_allow_tracking',
