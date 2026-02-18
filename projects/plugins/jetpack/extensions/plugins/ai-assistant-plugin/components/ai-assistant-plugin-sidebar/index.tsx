@@ -32,7 +32,7 @@ import {
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import { ComponentType } from 'react';
+import { ComponentType, useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -93,13 +93,21 @@ const JetpackAndSettingsContent = ( {
 	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 	const { editPost } = useDispatch( editorStore );
 
-	const imageGenerationHandler = applyFilters( 'jetpack.ai.imageGenerationHandler', null, {
-		entryPoint: 'featured-image',
-		onImageSelect: ( image: { id: number; url: string; mime?: string } ) => {
+	const onImageSelect = useCallback(
+		( image: { id: number; url: string; mime?: string } ) => {
 			editPost( { featured_media: image.id } );
 		},
-		extra: { placement, disabled: requireUpgrade },
-	} ) as ( () => void ) | null;
+		[ editPost ]
+	);
+
+	const imageGenerationHandler = useMemo( () => {
+		const result = applyFilters( 'jetpack.ai.imageGenerationHandler', null, {
+			entryPoint: 'featured-image',
+			onImageSelect,
+			extra: { placement, disabled: requireUpgrade },
+		} );
+		return typeof result === 'function' ? ( result as () => void ) : null;
+	}, [ onImageSelect, placement, requireUpgrade ] );
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
