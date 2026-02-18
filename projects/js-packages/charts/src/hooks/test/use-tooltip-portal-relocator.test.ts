@@ -26,8 +26,8 @@ function createVisxPortalNode(): HTMLDivElement {
 /**
  * Sets up a container, ref, and renders the hook.
  * Optionally appends a visx portal node to document.body before rendering.
- * @param  options              - Setup options.
- * @param  options.withPortal   - If true, creates and appends a visx portal before rendering.
+ * @param options            - Setup options.
+ * @param options.withPortal - If true, creates and appends a visx portal before rendering.
  * @return                      Setup result with container, ref, unmount, and optionally the portal node.
  */
 function setupHook( { withPortal = false } = {} ) {
