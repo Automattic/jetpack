@@ -70,7 +70,7 @@ The most basic implementation requires only the main conversion rate and steps d
 
 - **`changeIndicator`**: Change indicator text (e.g., "+2%", "-1.5%")
 - **`loading`**: Whether the chart is in loading state
-- **`height`**: Height of the chart container. Defaults to `"100%"` to fill the parent. Pass a fixed value like `"200px"` for explicit sizing
+- **`height`**: Height of the chart container. Accepts a number (pixels) or CSS string. Falls back to `style.height` if set, otherwise defaults to `"100%"`
 - **`className`**: Additional CSS class name for styling
 - **`chartId`**: Optional unique identifier for the chart
 - **`style`**: Custom styling for the chart container

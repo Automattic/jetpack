@@ -27,7 +27,7 @@ import type { FunnelStep, ConversionFunnelChartProps } from './types';
  * @param props.loading          - Whether the chart is in loading state
  * @param props.animation        - Whether to show chart animation on initial render or not
  * @param props.className        - Additional CSS class name
- * @param props.height           - Height of the chart container (e.g., "400px", "200px"). Defaults to "100%" to fill parent.
+ * @param props.height           - Height of the chart container. Falls back to style.height if set, otherwise defaults to "100%".
  * @param props.style            - Custom styling
  * @param props.renderStepLabel  - Custom render function for step labels
  * @param props.renderStepRate   - Custom render function for step rates
@@ -43,7 +43,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	animation,
 	className,
 	chartId: providedChartId,
-	height = '100%',
+	height,
 	style,
 	renderStepLabel,
 	renderStepRate,
@@ -226,6 +226,9 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		};
 	}, [ clearSelectionAndRef ] );
 
+	// Resolve height: explicit height prop > style.height > default 100%
+	const resolvedHeight = height ?? style?.height ?? '100%';
+
 	// Get component settings from theme with fallbacks
 	const { primaryColor, backgroundColor, positiveChangeColor, negativeChangeColor } =
 		conversionFunnelChartSettings;
@@ -298,7 +301,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 			<Stack
 				direction="column"
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-				style={ { ...style, height } }
+				style={ { ...style, height: resolvedHeight } }
 			>
 				<div className={ styles[ 'empty-state' ] }>
 					{ loading ? 'Loading...' : 'No data available' }
@@ -320,7 +323,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 					chartRef.current = node;
 				} }
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-				style={ { ...style, height } }
+				style={ { ...style, height: resolvedHeight } }
 			>
 				{ /* Main Metric */ }
 				{ renderMainMetric ? (
