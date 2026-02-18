@@ -41,11 +41,18 @@ const FieldFile = ( { file, onClick } ) => {
 		cal: 'cal',
 	};
 	const iconType = extensionMap[ fileExtension ] || iconMap[ fileType ] || 'txt';
-	const iconClass = clsx( 'jp-forms__inbox-response-file__icon', 'icon-' + iconType );
+	const iconClass = clsx( 'jp-forms__inbox-response-file__icon', {
+		[ 'icon-' + iconType ]: ! file.is_previewable,
+		'has-thumbnail': file.is_previewable,
+	} );
+
+	const thumbnailStyle = file.is_previewable
+		? { backgroundImage: `url(${ file.url })`, backgroundSize: 'cover' }
+		: undefined;
 	return (
 		<div className="jp-forms__inbox-response-file">
 			<div className="jp-forms__inbox-response-file__info">
-				<div className={ iconClass }></div>
+				<div className={ iconClass } style={ thumbnailStyle }></div>
 				<div className="jp-forms__inbox-response-file__name">
 					{ file.is_previewable && (
 						<Button target="_blank" variant="link" onClick={ onClick }>
