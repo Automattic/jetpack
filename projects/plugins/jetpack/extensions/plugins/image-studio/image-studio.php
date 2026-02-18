@@ -59,30 +59,16 @@ function is_media_library() {
 }
 
 /**
- * Check if Image Studio has been explicitly enabled via query parameter.
- *
- * @return bool
- */
-function has_enable_image_studio_param() {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-	if ( ! isset( $_GET['enable_image_studio'] ) || ! is_string( $_GET['enable_image_studio'] ) ) {
-		return false;
-	}
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-	return '1' === sanitize_text_field( wp_unslash( $_GET['enable_image_studio'] ) );
-}
-
-/**
  * Determine if Image Studio should load on the current screen.
  *
- * - Media Library: load if either filter is true (no query param needed).
- * - Block editors (Post/Site Editor): load only with `enable_image_studio=1` query param.
+ * - Media Library: load if either filter is true.
+ * - Block editors (Post/Site Editor): load if either filter is true.
  * - Other screens: don't load.
  *
  * @return bool
  */
 function should_load_on_current_screen() {
-	return is_media_library() || ( is_block_editor() && has_enable_image_studio_param() );
+	return is_media_library() || is_block_editor();
 }
 
 /**
@@ -227,12 +213,12 @@ function do_enqueue_assets() {
 }
 
 /**
- * Enqueue Image Studio assets in the block editor when opted in via query param.
+ * Enqueue Image Studio assets in the block editor.
  *
  * @return void
  */
 function enqueue_image_studio() {
-	if ( ! is_block_editor() || ! has_enable_image_studio_param() ) {
+	if ( ! is_block_editor() ) {
 		return;
 	}
 
@@ -281,7 +267,7 @@ function get_ai_image_extensions() {
  *   load on this screen (i.e. should_load_on_current_screen() is true).
  *
  * This ensures AI extensions are restored on screens where Image Studio won't load
- * (e.g. Post Editor without the enable_image_studio=1 query param).
+ * (e.g. dashboard or other non-editor screens).
  *
  * @return void
  */

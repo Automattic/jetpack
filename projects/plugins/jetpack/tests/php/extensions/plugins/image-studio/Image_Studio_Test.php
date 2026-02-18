@@ -120,13 +120,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Set the enable_image_studio query parameter.
-	 */
-	private function set_enable_image_studio_param() {
-		$_GET['enable_image_studio'] = '1';
-	}
-
-	/**
 	 * Set the current screen to a block editor.
 	 */
 	private function set_block_editor_screen() {
@@ -144,7 +137,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Enable Image Studio, cache asset data, and enqueue via block editor path.
 	 *
-	 * Sets up block editor screen with query param before enqueuing.
+	 * Sets up block editor screen before enqueuing.
 	 *
 	 * @param array|null $asset_data The asset data to cache.
 	 */
@@ -157,7 +150,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		}
 		$this->enable_image_studio();
 		$this->set_block_editor_screen();
-		$this->set_enable_image_studio_param();
 		ImageStudio\register_plugin();
 		set_transient( ImageStudio\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
 		ImageStudio\enqueue_image_studio();
@@ -339,49 +331,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// has_enable_image_studio_param() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test has_enable_image_studio_param returns true when query param is "1".
-	 */
-	public function test_has_enable_image_studio_param_true() {
-		$this->set_enable_image_studio_param();
-		$this->assertTrue( ImageStudio\has_enable_image_studio_param() );
-	}
-
-	/**
-	 * Test has_enable_image_studio_param returns false when query param is not set.
-	 */
-	public function test_has_enable_image_studio_param_false() {
-		$this->assertFalse( ImageStudio\has_enable_image_studio_param() );
-	}
-
-	/**
-	 * Test has_enable_image_studio_param returns false when query param is "0".
-	 */
-	public function test_has_enable_image_studio_param_false_when_zero() {
-		$_GET['enable_image_studio'] = '0';
-		$this->assertFalse( ImageStudio\has_enable_image_studio_param() );
-	}
-
-	/**
-	 * Test has_enable_image_studio_param returns false when query param is "true" string.
-	 */
-	public function test_has_enable_image_studio_param_false_when_true_string() {
-		$_GET['enable_image_studio'] = 'true';
-		$this->assertFalse( ImageStudio\has_enable_image_studio_param() );
-	}
-
-	/**
-	 * Test has_enable_image_studio_param returns false when query param is empty string.
-	 */
-	public function test_has_enable_image_studio_param_false_when_empty() {
-		$_GET['enable_image_studio'] = '';
-		$this->assertFalse( ImageStudio\has_enable_image_studio_param() );
-	}
-
-	// -------------------------------------------------------------------------
 	// should_load_on_current_screen() tests
 	// -------------------------------------------------------------------------
 
@@ -394,20 +343,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test should_load_on_current_screen returns true on block editor with param.
+	 * Test should_load_on_current_screen returns true on block editor.
 	 */
-	public function test_should_load_on_block_editor_with_param() {
+	public function test_should_load_on_block_editor() {
 		$this->set_block_editor_screen();
-		$this->set_enable_image_studio_param();
 		$this->assertTrue( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns false on block editor without param.
-	 */
-	public function test_should_not_load_on_block_editor_without_param() {
-		$this->set_block_editor_screen();
-		$this->assertFalse( ImageStudio\should_load_on_current_screen() );
 	}
 
 	/**
@@ -465,7 +405,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function test_register_plugin_available_regardless_of_screen() {
 		$this->enable_image_studio();
 
-		// Block editor without param - still registers.
+		// Block editor - still registers.
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
@@ -490,7 +430,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test that script is enqueued in block editor with param.
+	 * Test that script is enqueued in block editor.
 	 */
 	public function test_block_editor_script_enqueued_with_dependencies() {
 		$this->enable_and_enqueue_block_editor(
@@ -508,9 +448,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test nothing enqueued in block editor without query param.
+	 * Test block editor enqueue does not require query param.
 	 */
-	public function test_block_editor_nothing_enqueued_without_param() {
+	public function test_block_editor_enqueued_without_query_param() {
 		$this->enable_image_studio();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
@@ -523,11 +463,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			HOUR_IN_SECONDS
 		);
 
-		// No param set.
 		ImageStudio\enqueue_image_studio();
 
-		$this->assertFalse( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
-		$this->assertFalse( wp_style_is( ImageStudio\FEATURE_NAME . '-style', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
+		$this->assertTrue( wp_style_is( ImageStudio\FEATURE_NAME . '-style', 'enqueued' ) );
 	}
 
 	/**
@@ -545,8 +484,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			),
 			HOUR_IN_SECONDS
 		);
-		$this->set_enable_image_studio_param();
-
 		ImageStudio\enqueue_image_studio();
 
 		$this->assertFalse( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
@@ -589,7 +526,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function test_nothing_enqueued_when_asset_unavailable() {
 		$this->enable_image_studio();
 		$this->set_block_editor_screen();
-		$this->set_enable_image_studio_param();
 		ImageStudio\register_plugin();
 		$this->mock_remote_asset( false );
 
@@ -623,7 +559,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function test_nothing_enqueued_when_extension_not_available() {
 		$this->disable_image_studio();
 		$this->set_block_editor_screen();
-		$this->set_enable_image_studio_param();
 		ImageStudio\register_plugin();
 		set_transient(
 			ImageStudio\ASSET_TRANSIENT,
@@ -692,7 +627,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test that script is enqueued on Media Library without query param.
+	 * Test that script is enqueued on Media Library.
 	 */
 	public function test_media_library_script_enqueued() {
 		$this->enable_and_enqueue_media_library();
@@ -964,42 +899,19 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test AI extensions are NOT disabled on block editor without query param.
-	 *
-	 * When get_current_screen() is available and Image Studio won't load
-	 * (no query param), the disable should be skipped.
+	 * Test AI extensions ARE disabled on block editor.
 	 */
-	public function test_ai_extensions_not_disabled_on_block_editor_without_param() {
-		$this->enable_image_studio();
-		$this->make_ai_extensions_available();
-
-		// Screen available, block editor, no param → should_load is false → skip disable.
-		$this->set_block_editor_screen();
-		ImageStudio\disable_jetpack_ai_image_extensions();
-
-		foreach ( self::get_ai_image_extensions() as $ext ) {
-			$this->assertTrue(
-				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should stay available on block editor without query param."
-			);
-		}
-	}
-
-	/**
-	 * Test AI extensions ARE disabled on block editor with query param.
-	 */
-	public function test_ai_extensions_disabled_on_block_editor_with_param() {
+	public function test_ai_extensions_disabled_on_block_editor() {
 		$this->enable_image_studio();
 		$this->make_ai_extensions_available();
 
 		$this->set_block_editor_screen();
-		$this->set_enable_image_studio_param();
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
 		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should be disabled on block editor with query param."
+				"Extension $ext should be disabled on block editor."
 			);
 		}
 	}
