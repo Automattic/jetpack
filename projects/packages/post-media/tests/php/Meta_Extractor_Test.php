@@ -4,6 +4,9 @@ use Automattic\Jetpack\Post_Media\Meta_Extractor;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
+/**
+ * @covers \Automattic\Jetpack\Post_Media\Meta_Extractor
+ */
 #[CoversClass( Meta_Extractor::class )]
 class Meta_Extractor_Test extends BaseTestCase {
 
@@ -29,7 +32,7 @@ class Meta_Extractor_Test extends BaseTestCase {
 			'post_mime_type' => 'image/jpeg',
 			'post_type'      => 'attachment',
 		);
-		$args          = array_merge( $defaults, $args );
+		$args     = array_merge( $defaults, $args );
 		return wp_insert_attachment( $args, $file_name, $parent_post_id );
 	}
 
@@ -288,7 +291,12 @@ class Meta_Extractor_Test extends BaseTestCase {
 	}
 
 	private function add_test_post() {
-		$post_id        = wp_insert_post( array( 'post_title' => 'Test post', 'post_status' => 'publish' ) );
+		$post_id        = wp_insert_post(
+			array(
+				'post_title'  => 'Test post',
+				'post_status' => 'publish',
+			)
+		);
 		$img_name       = 'image1.jpg';
 		$alt_text       = 'one image';
 		$img_dimensions = array(

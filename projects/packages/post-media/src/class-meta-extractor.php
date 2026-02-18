@@ -536,7 +536,7 @@ class Meta_Extractor {
 	public static function get_images_from_html( $html, $images_already_extracted, $extract_alt_text = false ) {
 		$image_list = $images_already_extracted;
 		// @phan-suppress-next-line PhanUndeclaredClassMethod
-		$from_html  = \Jetpack_PostImages::from_html( $html );
+		$from_html = \Jetpack_PostImages::from_html( $html );
 		// early return if no image in html.
 		if ( empty( $from_html ) ) {
 			return $image_list;
