@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build: strip data-testid attributes from production builds to reduce bundle size and keep the DOM cleaner.
