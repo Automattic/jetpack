@@ -183,10 +183,11 @@ class Images {
 		foreach ( $galleries as $gallery ) {
 			if ( ! empty( $gallery['ids'] ) ) {
 				$image_ids  = explode( ',', $gallery['ids'] );
-				$image_size = isset( $gallery['size'] ) ? $gallery['size'] : 'thumbnail';
+				$image_size = $gallery['size'] ?? 'thumbnail';
 				foreach ( $image_ids as $image_id ) {
-					$image = wp_get_attachment_image_src( $image_id, $image_size );
-					$meta  = wp_get_attachment_metadata( $image_id );
+					$image_id = (int) $image_id;
+					$image    = wp_get_attachment_image_src( $image_id, $image_size );
+					$meta     = wp_get_attachment_metadata( $image_id );
 
 					if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] ) {
 						// Must be larger than 200x200 (or user-specified).
@@ -349,6 +350,7 @@ class Images {
 			if (
 				$too_big &&
 				(
+					// @phan-suppress-next-line PhanUndeclaredClassMethod, PhanUndeclaredClassReference -- Checked with method_exists().
 					( method_exists( 'Jetpack', 'is_module_active' ) && \Jetpack::is_module_active( 'photon' ) ) ||
 					( defined( 'IS_WPCOM' ) && IS_WPCOM )
 				)
@@ -626,7 +628,7 @@ class Images {
 
 				preg_match( '/wp-image-([0-9]+)/', $image_tag->getAttribute( 'class' ), $matches );
 				if ( ! empty( $matches[1] ) ) {
-					$attachment_id = $matches[1];
+					$attachment_id = (int) $matches[1];
 					$meta          = wp_get_attachment_metadata( $attachment_id );
 					$height        = $meta['height'] ?? 0;
 					$width         = $meta['width'] ?? 0;
@@ -692,13 +694,13 @@ class Images {
 		$permalink = get_permalink( $post_id );
 
 		if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
-			$domain = blavatar_domain( $permalink );
+			$domain = blavatar_domain( $permalink ); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists().
 
-			if ( ! blavatar_exists( $domain ) ) {
+			if ( ! blavatar_exists( $domain ) ) { // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists().
 				return array();
 			}
 
-			$url = blavatar_url( $domain, 'img', $size );
+			$url = blavatar_url( $domain, 'img', $size ); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists().
 		} else {
 			$url = get_site_icon_url( $size );
 			if ( ! $url ) {
@@ -724,7 +726,7 @@ class Images {
 	 *
 	 * @param int    $post_id The post ID to check.
 	 * @param int    $size The size of the avatar to get.
-	 * @param string $default The default image to use.
+	 * @param string|false $default The default image to use.
 	 * @return array containing details of the image, or empty array if none.
 	 */
 	public static function from_gravatar( $post_id, $size = 96, $default = false ) {
@@ -736,7 +738,7 @@ class Images {
 		$permalink = get_permalink( $post_id );
 
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
-			$url = wpcom_get_avatar_url( $post->post_author, $size, $default, true );
+			$url = wpcom_get_avatar_url( $post->post_author, $size, $default, true ); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists().
 			if ( $url && is_array( $url ) ) {
 				$url = $url[0];
 			}
@@ -1014,7 +1016,7 @@ class Images {
 		if ( is_numeric( $html_or_id ) ) {
 			$post = get_post( $html_or_id );
 			if ( ! $post instanceof \WP_Post || ! empty( $post->post_password ) ) {
-				return '';
+				return array();
 			}
 
 			$html_info = array(

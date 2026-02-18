@@ -219,7 +219,7 @@ class ImagesTest extends BaseTestCase {
 			$this->markTestSkipped( 'Jetpack_Slideshow_Shortcode not available' );
 		}
 
-		$slideshow = new \Jetpack_Slideshow_Shortcode(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$slideshow = new \Jetpack_Slideshow_Shortcode(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- @phan-suppress-current-line PhanUndeclaredClassMethod -- Checked with class_exists().
 
 		$post_id = $this->create_post(
 			array(
@@ -327,41 +327,6 @@ class ImagesTest extends BaseTestCase {
 	 */
 	public function test_from_attachment_is_correct_array() {
 		$this->markTestSkipped( 'from_attachment() relies on get_posts() to find child attachments, which is not supported in WorDBless.' );
-		$img_name       = 'image.jpg';
-		$alt_text       = 'Alt Text.';
-		$img_dimensions = array(
-			'width'  => 300,
-			'height' => 250,
-		);
-
-		$post_id       = $this->create_post();
-		$attachment_id = $this->create_attachment(
-			$img_name,
-			$post_id,
-			array(
-				'post_mime_type' => 'image/jpeg',
-			)
-		);
-		wp_update_attachment_metadata( $attachment_id, $img_dimensions );
-		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
-
-		$img_url  = wp_get_attachment_url( $attachment_id );
-		$img_html = '<img src="' . $img_url . '" width="300" height="250" alt="' . $alt_text . '"/>';
-
-		wp_update_post(
-			array(
-				'ID'           => $post_id,
-				'post_content' => $img_html,
-			)
-		);
-
-		$images = Images::from_attachment( $post_id );
-
-		$this->assertCount( 1, $images );
-		$this->assertEquals( $img_url, $images[0]['src'] );
-		$this->assertEquals( 300, $images[0]['src_width'] );
-		$this->assertEquals( 250, $images[0]['src_height'] );
-		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
 	}
 
 	/**
