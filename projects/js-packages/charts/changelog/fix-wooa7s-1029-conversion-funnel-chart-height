@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-ConversionFunnelChart: add height prop and use flex layout so the chart can grow to fill its container height.
+ConversionFunnelChart: Default to filling parent container height, add height prop for explicit sizing, and use WordPress UI Stack for layout consistency.

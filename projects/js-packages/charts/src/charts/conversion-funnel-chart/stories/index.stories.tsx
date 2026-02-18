@@ -139,14 +139,14 @@ export const EmptyData: Story = {
 	},
 };
 
-export const FullHeight: Story = {
+export const FixedDimensions: Story = {
 	args: {
 		...sharedThemeArgs,
 		mainRate: 10.3,
 		changeIndicator: '+2%',
 		steps: ecommerceFunnelData,
 		loading: false,
-		height: '100%',
+		height: '200px',
 	},
 };
 
