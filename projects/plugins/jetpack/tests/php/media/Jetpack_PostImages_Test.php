@@ -1261,7 +1261,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 		);
 
 		$post_id         = self::factory()->post->create();
-		$skip_attachment  = self::factory()->attachment->create_object(
+		$skip_attachment = self::factory()->attachment->create_object(
 			'skip-image.jpg',
 			$post_id,
 			array(
