@@ -494,7 +494,7 @@ function JetpackContactFormEdit( {
 
 	// Effect to sync field widths when layout orientation changes
 	useEffect( () => {
-		const orientation = layout?.orientation ?? 'vertical';
+		const orientation = layout?.orientation ?? 'horizontal';
 
 		// Skip initial render, only react to actual orientation changes
 		if ( prevOrientationRef.current !== null && prevOrientationRef.current !== orientation ) {

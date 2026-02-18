@@ -4,14 +4,7 @@ import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
 import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
-
-const verticalLayout = {
-	type: 'flex',
-	flexWrap: 'nowrap',
-	orientation: 'vertical',
-	justifyContent: 'left',
-	verticalAlignment: 'bottom',
-};
+import { VERTICAL_LAYOUT } from '../shared/util/constants.js';
 
 const variations = [
 	{
@@ -30,7 +23,7 @@ const variations = [
 		},
 		attributes: {
 			variationName: 'default-empty',
-			layout: verticalLayout,
+			layout: VERTICAL_LAYOUT,
 		},
 		scope: [ 'transform' ],
 		isActive: ( { variationName } ) => variationName !== 'multistep',
@@ -85,7 +78,7 @@ const variations = [
 		],
 		attributes: {
 			variationName: 'default',
-			layout: verticalLayout,
+			layout: VERTICAL_LAYOUT,
 		},
 	},
 	{
@@ -165,7 +158,7 @@ const variations = [
 		],
 		attributes: {
 			subject: __( 'A new RSVP from your website', 'jetpack-forms' ),
-			layout: verticalLayout,
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -319,7 +312,7 @@ const variations = [
 		],
 		attributes: {
 			subject: __( 'A new registration from your website', 'jetpack-forms' ),
-			layout: verticalLayout,
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -509,7 +502,7 @@ const variations = [
 		],
 		attributes: {
 			subject: __( 'A new appointment booked from your website', 'jetpack-forms' ),
-			layout: verticalLayout,
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -656,7 +649,7 @@ const variations = [
 		],
 		attributes: {
 			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
-			layout: verticalLayout,
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -937,7 +930,7 @@ const variations = [
 		],
 		attributes: {
 			variationName: 'multistep',
-			layout: verticalLayout,
+			layout: VERTICAL_LAYOUT,
 		},
 		scope: [ 'block', 'inserter', 'transform' ],
 		isActive: [ 'variationName' ],
@@ -980,7 +973,7 @@ const variations = [
 			],
 		],
 		attributes: {
-			layout: verticalLayout,
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
