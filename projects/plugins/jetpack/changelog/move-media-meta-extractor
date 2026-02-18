@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Deprecate Jetpack_Media_Meta_Extractor class in favor of Automattic\Jetpack\Post_Media\Meta_Extractor.

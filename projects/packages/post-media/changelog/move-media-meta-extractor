@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Meta_Extractor class with methods for extracting media metadata from posts.
