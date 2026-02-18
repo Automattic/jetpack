@@ -851,27 +851,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Add editor-specific data to the consolidated JetpackScriptData object.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $data The script data.
-	 * @return array
-	 */
-	public static function set_editor_script_data( $data ) {
-		/**
-		 * Whether to show the Jetpack branding in editor panels (e.g., SEO, AI Assistant).
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $show Whether to show the Jetpack editor panel branding. Defaults to true.
-		 */
-		$data['editor']['showJetpackBranding'] = (bool) apply_filters( 'jetpack_show_editor_panel_branding', true );
-
-		return $data;
-	}
-
-	/**
 	 * Some blocks do not depend on a specific module,
 	 * and can consequently be loaded outside of the usual modules.
 	 * We will look for such modules in the extensions/ directory.

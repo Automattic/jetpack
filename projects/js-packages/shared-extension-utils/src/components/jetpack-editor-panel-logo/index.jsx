@@ -13,7 +13,7 @@ import './style.scss';
  * @return {import('react').Component|null} Jetpack logo component or null
  */
 const JetpackEditorPanelLogo = () => {
-	const branding = getScriptData()?.editor?.showJetpackBranding;
+	const branding = getScriptData()?.jetpack?.flags?.showJetpackBranding;
 	// undefined means the key isn't present (older PHP), so default to showing branding.
 	if ( branding !== undefined && ! branding ) {
 		return null;

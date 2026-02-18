@@ -6,8 +6,10 @@ interface Window {
 
 declare module '@automattic/jetpack-script-data' {
 	interface JetpackScriptData {
-		editor?: {
-			showJetpackBranding?: boolean;
+		jetpack?: {
+			flags: {
+				showJetpackBranding: boolean;
+			};
 		};
 	}
 }

@@ -64,6 +64,8 @@ if ( is_admin() ) {
 
 	// Initialize Newsletter Settings (always-loaded so the settings page URL works even when module is inactive).
 	\Automattic\Jetpack\Newsletter\Settings::init();
+
+	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
 // Play nice with https://wp-cli.org/.
