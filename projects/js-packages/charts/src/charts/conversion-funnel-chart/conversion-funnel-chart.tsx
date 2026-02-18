@@ -300,6 +300,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		return (
 			<Stack
 				direction="column"
+				data-testid="conversion-funnel-chart"
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
 				style={ { ...style, height: resolvedHeight } }
 			>
@@ -317,6 +318,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		<>
 			<Stack
 				direction="column"
+				data-testid="conversion-funnel-chart"
 				ref={ node => {
 					// Set containerRef for @visx coordinate system
 					portalContainerRef( node );
