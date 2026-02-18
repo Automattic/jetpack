@@ -265,6 +265,7 @@ async function checkChangelogFiles() {
 	}
 
 	// q, empty, EOF, or anything else → abort.
+	console.error( chalk.red( 'Abort selected' ) );
 	process.exitCode = 1;
 }
 

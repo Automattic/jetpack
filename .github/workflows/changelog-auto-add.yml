@@ -145,10 +145,9 @@ jobs:
 
             The PR branch is checked out at `./pr-checkout`. Use that directory for
             writing changelog files and for committing/pushing. The main working
-            directory contains the base branch (trunk) — use it only to read
-            `composer.json` files for project metadata.
+            directory contains the base branch (trunk).
 
-            A changelogger binary is available at:
+            The changelogger binary is available at:
             `$GITHUB_WORKSPACE/projects/packages/changelogger/vendor/bin/changelogger`
 
             Instructions:
@@ -210,7 +209,7 @@ jobs:
             "Bash(git commit *)"
             "Bash(git push *)"
             "Bash(cd *)"
-            "Bash(*/changelogger *)"
+            "Bash(*/projects/packages/changelogger/vendor/bin/changelogger *)"
             Read
             Write
             Glob
