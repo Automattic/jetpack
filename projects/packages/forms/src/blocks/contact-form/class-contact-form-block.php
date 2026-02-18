@@ -48,8 +48,8 @@ class Contact_Form_Block {
 					'layout' => array(
 						'default'                => array(
 							'type'              => 'flex',
-							'flexWrap'          => 'nowrap',
-							'orientation'       => 'vertical',
+							'flexWrap'          => 'wrap',
+							'orientation'       => 'horizontal',
 							'justifyContent'    => 'left',
 							'verticalAlignment' => 'bottom',
 						),
