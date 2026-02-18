@@ -281,26 +281,19 @@ async function checkIfDocsNeeded(
 			labels: [ uiChangesLabel ],
 		} );
 
-		// Attempt to create a Linear issue if Linear credentials are provided.
+		// Attempt to create a Linear issue if a Linear team ID is provided.
 		const linearTeamId = getInput( 'linear_product_ambassadors_team_id' );
-		const linearApiKey = getInput( 'linear_api_key' );
 
 		let linearIssue: { id: string; url: string; identifier: string } | null = null;
-		if ( linearTeamId && linearApiKey ) {
+		if ( linearTeamId ) {
 			debug( `check-if-docs-needed: Creating Linear issue for PR #${ number }.` );
 			const linearDescription = `A pull request was flagged as containing user-facing changes that may require documentation updates.\n\n**Pull request:** [${ title }](${ prUrl })\n**Repository:** ${ repoFullName }\n**AI reasoning:** ${ reason }`;
 
-			try {
-				linearIssue = await createLinearIssue(
-					`Docs update needed: ${ title }`,
-					linearDescription,
-					linearTeamId
-				);
-			} catch ( error: unknown ) {
-				debug(
-					`check-if-docs-needed: Failed to create Linear issue for PR #${ number }: ${ error }`
-				);
-			}
+			linearIssue = await createLinearIssue(
+				`Docs update needed: ${ title }`,
+				linearDescription,
+				linearTeamId
+			);
 
 			if ( linearIssue ) {
 				debug(
@@ -319,7 +312,7 @@ async function checkIfDocsNeeded(
 			let slackMessage = `This PR was flagged as containing user-facing changes. Please review and update documentation if needed.\n\n*AI reasoning:* ${ reason }`;
 
 			if ( linearIssue ) {
-				slackMessage += `\n\nA Linear issue was created to track this: <${ linearIssue.url }|*${ linearIssue.identifier }*>`;
+				slackMessage += `\n\nA Linear issue was created to track this: *<${ linearIssue.url }|${ linearIssue.identifier }>*`;
 			}
 
 			try {

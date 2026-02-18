@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Check if docs needed: add optional Linear issue creation when a PR is flagged as containing user-facing changes.
+Check if docs needed: Add optional Linear issue creation when a PR is flagged as containing user-facing changes.

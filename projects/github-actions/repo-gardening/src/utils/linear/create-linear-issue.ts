@@ -47,7 +47,15 @@ async function createLinearIssue(
 			identifier: issue.identifier,
 		};
 	} catch ( error: unknown ) {
-		debug( `linear: Failed to create issue: ${ error }` );
+		let errorMessage;
+		if ( error instanceof Error ) {
+			errorMessage = error.message;
+		} else if ( typeof error === 'string' ) {
+			errorMessage = error;
+		} else {
+			errorMessage = JSON.stringify( error );
+		}
+		debug( `linear: Failed to create issue: ${ errorMessage }` );
 		return null;
 	}
 }

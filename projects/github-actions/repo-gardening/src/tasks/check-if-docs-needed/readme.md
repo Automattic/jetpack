@@ -1,6 +1,6 @@
 # Check If Docs Needed
 
-Uses AI to analyze PR diffs and descriptions to determine if changes are user-facing. If detected with medium or high confidence, applies the `[Status] UI Changes` label and sends a Slack notification to the product ambassadors channel.
+Uses AI to analyze PR diffs and descriptions to determine if changes are user-facing. If detected with medium or high confidence, applies the `[Status] UI Changes` label, optionally creates a Linear issue for the Product Ambassadors team, and sends a Slack notification to the product ambassadors channel.
 
 ## How it works
 
