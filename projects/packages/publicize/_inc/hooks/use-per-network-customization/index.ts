@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -16,6 +17,7 @@ import { computeAttachedMediaForSource, getEffectiveMediaSource } from './utils'
  */
 export function usePerNetworkCustomization() {
 	const postMeta = usePostMeta();
+	const { recordEvent } = useAnalytics();
 
 	const { editPost } = useDispatch( editorStore );
 	const { customizeConnectionById } = useDispatch( socialStore );
@@ -67,6 +69,10 @@ export function usePerNetworkCustomization() {
 	const toggle = useCallback( () => {
 		const isNowEnabled = ! isEnabled;
 
+		recordEvent( 'jetpack_social_per_network_customization_toggled', {
+			isNowEnabled,
+		} );
+
 		// Update post metadata.
 		editPost( {
 			meta: {
@@ -77,7 +83,7 @@ export function usePerNetworkCustomization() {
 		if ( isNowEnabled ) {
 			syncConnections();
 		}
-	}, [ isEnabled, editPost, syncConnections ] );
+	}, [ isEnabled, recordEvent, editPost, syncConnections ] );
 
 	return useMemo(
 		() => ( {
