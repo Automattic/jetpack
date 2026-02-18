@@ -50,22 +50,8 @@ async function isComposerLockOk( dir ) {
  * @param {string[]} projects - Array of project slugs.
  * @return {Promise<Set<string>>} Set of project slugs that have a committed composer.lock.
  */
-export async function batchLockFileStatus( projects ) {
-	const includesMonorepo = projects.includes( 'monorepo' );
-	const paths = projects
-		.filter( p => p !== 'monorepo' )
-		.map( p => `projects/${ p }/composer.lock` );
-
-	if ( includesMonorepo ) {
-		// The monorepo's composer.lock lives at the repository root.
-		paths.push( 'composer.lock' );
-	}
-
-	if ( paths.length === 0 ) {
-		return new Set();
-	}
-
-	const { stdout } = await execa( 'git', [ 'ls-files', '--', ...paths ], {
+export async function batchLockFileStatus() {
+	const { stdout } = await execa( 'git', [ 'ls-files', '--', 'composer.lock', '*/composer.lock' ], {
 		cwd: process.cwd(),
 	} );
 
@@ -78,7 +64,10 @@ export async function batchLockFileStatus( projects ) {
 			if ( p === 'composer.lock' ) {
 				lockedProjects.add( 'monorepo' );
 			} else {
-				lockedProjects.add( p.replace( /^projects\//, '' ).replace( /\/composer\.lock$/, '' ) );
+				const m = /^projects\/([^/]+\/[^/]+)\/composer\.lock$/;
+				if ( m ) {
+					lockedProjects.add( m[1] );
+				}
 			}
 		} );
 
