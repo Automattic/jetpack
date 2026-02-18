@@ -510,8 +510,8 @@ class ImagesTest extends BaseTestCase {
 		foreach ( $img_urls as $img_id => $img_url ) {
 			$gallery_html .= sprintf(
 				'<li class="blocks-gallery-item"><figure><img src="%1$s" alt="" data-id="%2$d" class="wp-image-%2$d"/></figure></li>',
-				$img_id,
-				$img_url
+				$img_url,
+				$img_id
 			);
 		}
 		$gallery_html .= '</ul><!-- /wp:gallery -->';
@@ -741,9 +741,9 @@ class ImagesTest extends BaseTestCase {
 				$media_item['attachment_id'],
 				$media_item['type'],
 				$media_item['mime_type'],
-				$media_item['url'],
 				$img_dimensions['width'],
-				$img_dimensions['height']
+				$img_dimensions['height'],
+				$media_item['url']
 			);
 		}
 		$story_html  = rtrim( $story_html, ',' );

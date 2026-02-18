@@ -415,7 +415,7 @@ class Images {
 						'src_width'  => $meta_thumbnail['width'],
 						'src_height' => $meta_thumbnail['height'],
 						'href'       => $meta_thumbnail['URL'],
-						'alt_text'   => self::get_alt_text( $thumb ),
+						'alt_text'   => $thumb ? self::get_alt_text( $thumb ) : '',
 					),
 				);
 			}
@@ -1143,10 +1143,10 @@ class Images {
 			);
 		}
 
-			return array(
-				'width'  => $width,
-				'height' => $height,
-			);
+		return array(
+			'width'  => $width,
+			'height' => $height,
+		);
 	}
 
 	/**
