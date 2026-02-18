@@ -15,6 +15,8 @@ import useConfigValue from '../../../hooks/use-config-value';
  */
 import type { FormListItem } from '../../hooks/use-forms-data.ts';
 
+type DuplicateFormItem = Pick< FormListItem, 'id' > & Partial< Pick< FormListItem, 'title' > >;
+
 type CoreDispatch = {
 	saveEntityRecord: (
 		kind: string,
@@ -29,7 +31,7 @@ type JetpackFormEntityRecord = {
 };
 
 type UseDuplicateFormReturn = {
-	duplicateForm: ( item: FormListItem ) => Promise< void >;
+	duplicateForm: ( item: DuplicateFormItem ) => Promise< void >;
 	isDuplicating: boolean;
 };
 
@@ -45,7 +47,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 	const adminUrl = useConfigValue( 'adminUrl' ) || '';
 
 	const duplicateForm = useCallback(
-		async ( item: FormListItem ) => {
+		async ( item: DuplicateFormItem ) => {
 			if ( isDuplicating ) {
 				return;
 			}
