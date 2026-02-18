@@ -7,9 +7,9 @@ import { projectTypes } from './projectHelpers.js';
 /**
  * Run a package-manager command in the monorepo root or a specific project directory.
  *
- * @param {object}  options              - Configuration for the package manager.
- * @param {string}  options.command      - The CLI command name (e.g. 'composer', 'pnpm').
- * @param {string}  options.requiredFile - File that must exist in the target directory (e.g. 'composer.json').
+ * @param {object} options              - Configuration for the package manager.
+ * @param {string} options.command      - The CLI command name (e.g. 'composer', 'pnpm').
+ * @param {string} options.requiredFile - File that must exist in the target directory (e.g. 'composer.json').
  */
 export async function runPackageManager( { command, requiredFile } ) {
 	// Extract raw args from process.argv after the command name.
