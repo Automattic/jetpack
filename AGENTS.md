@@ -148,10 +148,10 @@ jp changelog add <project> -s <significance> -t <type> -e "<entry>" [-f <filenam
 **Examples:**
 ```bash
 # Standard changelog entry
-jp changelog add packages/connection -s patch -t fixed -e "Connection: fix issue with site registration."
+jp changelog add packages/connection -s patch -t fixed -e "Connection: Fix issue with site registration."
 
 # Jetpack plugin (uses different types: major, enhancement, compat, bugfix, other)
-jp changelog add plugins/jetpack -s patch -t bugfix -e "Connection: fix issue with site registration."
+jp changelog add plugins/jetpack -s patch -t bugfix -e "Connection: Fix issue with site registration."
 
 # Trivial change (no user-facing entry needed)
 jp changelog add packages/connection -s patch -t changed -e "" -c "Update internal documentation"
@@ -165,7 +165,7 @@ Note: Jetpack plugin uses custom changelog types defined in `projects/plugins/je
 Significance: patch
 Type: fixed
 
-Connection: fix issue with site registration.
+Connection: Fix issue with site registration.
 ```
 
 ### Changelog Entry Quality
