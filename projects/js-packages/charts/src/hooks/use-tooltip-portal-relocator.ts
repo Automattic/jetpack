@@ -107,6 +107,10 @@ export function useTooltipPortalRelocator(
 				return;
 			}
 
+			// Hide the portal immediately to prevent the tooltip from
+			// flashing at (0,0) before visx calculates the correct position.
+			node.style.opacity = '0';
+
 			// Position the portal at the viewport origin so visx's
 			// absolute-positioned tooltip coordinates remain correct.
 			// Zero-size with overflow: visible so it doesn't affect layout
@@ -131,6 +135,13 @@ export function useTooltipPortalRelocator(
 			if ( focusedElement ) {
 				focusedElement.focus();
 			}
+
+			// Reveal after the next paint so visx has positioned the tooltip.
+			requestAnimationFrame( () => {
+				requestAnimationFrame( () => {
+					node.style.opacity = '';
+				} );
+			} );
 		};
 
 		// Patch document.body.removeChild so visx Portal unmount doesn't throw
