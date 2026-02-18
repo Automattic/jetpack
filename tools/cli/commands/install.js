@@ -50,7 +50,7 @@ export function builder( yargs ) {
 		.option( 'concurrency', {
 			type: 'number',
 			description: 'Maximum number of install tasks to run at once. Ignored with `--verbose`.',
-			default: 10,
+			default: 20,
 			coerce: coerceConcurrency,
 		} );
 }
