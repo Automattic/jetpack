@@ -63,6 +63,9 @@ jobs:
       # Whether any miscellaneous files related to CSS linting have changed.
       misc_css: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_css == 'true' }}
 
+      # Whether any miscellaneous files related to Phan static analysis have changed.
+      misc_phan: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_phan == 'true' }}
+
       # JSON string holding an array of files in phpcs-excludelist.json that have changed.
       php_excluded_files: ${{ steps.filterPHP.outputs.php_excluded_files }}
 
@@ -178,6 +181,12 @@ jobs:
               - stylelint.config.mjs
               - '**/stylelint.config.{js,mjs,cjs}'
               - tools/js-tools/stylelint.config.base.mjs
+            misc_phan:
+              # If Phan config or the CLI that runs it changed, re-run static analysis.
+              - '.phan/**'
+              - '**/.phan/**'
+              - 'tools/cli/**'
+              - 'projects/packages/phan-plugins/**'
             misc_excludelist:
               - 'tools/cleanup-excludelists.sh'
               - 'tools/js-tools/check-excludelist-diff.js'
@@ -657,7 +666,7 @@ jobs:
     name: Static analysis
     runs-on: ubuntu-latest
     needs: changed_files
-    if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
+    if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
     timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
     steps:
       - uses: actions/checkout@v6
