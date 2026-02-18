@@ -2,6 +2,15 @@
 import { renderHook } from '@testing-library/react';
 import { useTooltipPortalRelocator } from '../use-tooltip-portal-relocator';
 
+// In the production build, CSS module class names are hashed (e.g. "a8ccharts-abc123").
+// In jest, the SCSS module import is stubbed to a filename string, so
+// styles.relocatedPortal resolves to undefined and classList.add() is a no-op.
+// We mock the module to return a proper class map so we can assert on class names.
+jest.mock( '../use-tooltip-portal-relocator.module.scss', () => ( {
+	__esModule: true,
+	default: { relocatedPortal: 'relocatedPortal' },
+} ) );
+
 /**
  * Create a mock visx tooltip portal node for testing.
  * @return {HTMLDivElement} A div mimicking a visx tooltip portal.
@@ -12,6 +21,29 @@ function createVisxPortalNode(): HTMLDivElement {
 	child.className = 'visx-tooltip';
 	portal.appendChild( child );
 	return portal;
+}
+
+/**
+ * Sets up a container, ref, and renders the hook.
+ * Optionally appends a visx portal node to document.body before rendering.
+ * @param options - Setup options.
+ * @param options.withPortal - If true, creates and appends a visx portal before rendering.
+ * @return Setup result with container, ref, unmount, and optionally the portal node.
+ */
+function setupHook( { withPortal = false } = {} ) {
+	const container = document.createElement( 'div' );
+	document.body.appendChild( container );
+
+	let portal: HTMLDivElement | undefined;
+	if ( withPortal ) {
+		portal = createVisxPortalNode();
+		document.body.appendChild( portal );
+	}
+
+	const ref = { current: container };
+	const { unmount } = renderHook( () => useTooltipPortalRelocator( ref ) );
+
+	return { container, ref, unmount, portal };
 }
 
 describe( 'useTooltipPortalRelocator', () => {
@@ -48,58 +80,33 @@ describe( 'useTooltipPortalRelocator', () => {
 	} );
 
 	test( 'relocates existing visx portal nodes into the container', () => {
-		const container = document.createElement( 'div' );
-		document.body.appendChild( container );
-		const portal = createVisxPortalNode();
-		document.body.appendChild( portal );
-
-		const ref = { current: container };
-		const { unmount } = renderHook( () => useTooltipPortalRelocator( ref ) );
-
-		expect( portal.parentNode ).toBe( container );
+		const { container, unmount, portal } = setupHook( { withPortal: true } );
+		expect( portal!.parentNode ).toBe( container );
 		unmount();
 	} );
 
-	test( 'applies correct positioning styles to relocated portals', () => {
-		const container = document.createElement( 'div' );
-		document.body.appendChild( container );
-		const portal = createVisxPortalNode();
-		document.body.appendChild( portal );
-
-		const ref = { current: container };
-		const { unmount } = renderHook( () => useTooltipPortalRelocator( ref ) );
-
-		expect( portal ).toHaveStyle( { position: 'fixed' } );
-		expect( portal ).toHaveStyle( { top: '0px' } );
-		expect( portal ).toHaveStyle( { left: '0px' } );
-		expect( portal ).toHaveStyle( { width: '0px' } );
-		expect( portal ).toHaveStyle( { height: '0px' } );
-		expect( portal ).toHaveStyle( { overflow: 'visible' } );
-		expect( portal ).toHaveStyle( { zIndex: '1' } );
-		expect( portal ).toHaveStyle( { pointerEvents: 'none' } );
+	test( 'applies relocated-portal class to relocated portals', () => {
+		const { unmount, portal } = setupHook( { withPortal: true } );
+		expect( portal!.classList.contains( 'relocatedPortal' ) ).toBe( true );
 		unmount();
 	} );
 
-	test( 'does not relocate non-visx nodes', () => {
-		const container = document.createElement( 'div' );
-		document.body.appendChild( container );
+	test( 'does not relocate newly added non-visx nodes', async () => {
+		const { unmount } = setupHook();
+
 		const regularDiv = document.createElement( 'div' );
 		regularDiv.id = 'some-id';
 		document.body.appendChild( regularDiv );
 
-		const ref = { current: container };
-		const { unmount } = renderHook( () => useTooltipPortalRelocator( ref ) );
+		// MutationObserver is async — wait for microtask
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
 
 		expect( regularDiv.parentNode ).toBe( document.body );
 		unmount();
 	} );
 
 	test( 'observes and relocates newly added portal nodes', async () => {
-		const container = document.createElement( 'div' );
-		document.body.appendChild( container );
-
-		const ref = { current: container };
-		const { unmount } = renderHook( () => useTooltipPortalRelocator( ref ) );
+		const { container, unmount } = setupHook();
 
 		const portal = createVisxPortalNode();
 		document.body.appendChild( portal );
@@ -112,27 +119,16 @@ describe( 'useTooltipPortalRelocator', () => {
 	} );
 
 	test( 'patched removeChild handles relocated nodes without throwing', () => {
-		const container = document.createElement( 'div' );
-		document.body.appendChild( container );
-		const portal = createVisxPortalNode();
-		document.body.appendChild( portal );
-
-		const ref = { current: container };
-		const { unmount } = renderHook( () => useTooltipPortalRelocator( ref ) );
+		const { unmount, portal } = setupHook( { withPortal: true } );
 
 		// Portal is now in container, but visx will call document.body.removeChild(portal)
-		expect( portal.parentNode ).toBe( container );
-		expect( () => document.body.removeChild( portal ) ).not.toThrow();
-		expect( portal.parentNode ).toBeNull();
+		expect( () => document.body.removeChild( portal! ) ).not.toThrow();
+		expect( portal!.parentNode ).toBeNull();
 		unmount();
 	} );
 
 	test( 'patched removeChild delegates to original for non-relocated nodes', () => {
-		const container = document.createElement( 'div' );
-		document.body.appendChild( container );
-
-		const ref = { current: container };
-		const { unmount } = renderHook( () => useTooltipPortalRelocator( ref ) );
+		const { unmount } = setupHook();
 
 		const regularDiv = document.createElement( 'div' );
 		document.body.appendChild( regularDiv );
@@ -142,12 +138,8 @@ describe( 'useTooltipPortalRelocator', () => {
 	} );
 
 	test( 'cleanup restores removeChild when it has not been wrapped by others', () => {
-		const container = document.createElement( 'div' );
-		document.body.appendChild( container );
-
 		const originalRemoveChild = document.body.removeChild;
-		const ref = { current: container };
-		const { unmount } = renderHook( () => useTooltipPortalRelocator( ref ) );
+		const { unmount } = setupHook();
 
 		// removeChild should be patched
 		expect( document.body.removeChild ).not.toBe( originalRemoveChild );
@@ -159,11 +151,7 @@ describe( 'useTooltipPortalRelocator', () => {
 	} );
 
 	test( 'cleanup leaves removeChild when another wrapper was installed after ours', () => {
-		const container = document.createElement( 'div' );
-		document.body.appendChild( container );
-
-		const ref = { current: container };
-		const { unmount } = renderHook( () => useTooltipPortalRelocator( ref ) );
+		const { unmount } = setupHook();
 
 		// Simulate another library wrapping removeChild after our patch
 		const ourPatch = document.body.removeChild;
@@ -179,20 +167,24 @@ describe( 'useTooltipPortalRelocator', () => {
 	} );
 
 	test( 'cleanup moves relocated nodes back to document.body', () => {
-		const container = document.createElement( 'div' );
-		document.body.appendChild( container );
-		const portal = createVisxPortalNode();
-		document.body.appendChild( portal );
+		const { container, unmount, portal } = setupHook( { withPortal: true } );
 
-		const ref = { current: container };
-		const { unmount } = renderHook( () => useTooltipPortalRelocator( ref ) );
-
-		expect( portal.parentNode ).toBe( container );
+		expect( portal!.parentNode ).toBe( container );
 
 		unmount();
 
 		// Node should be moved back to body on cleanup
-		expect( portal.parentNode ).toBe( document.body );
+		expect( portal!.parentNode ).toBe( document.body );
+	} );
+
+	test( 'cleanup removes relocated-portal class from nodes', () => {
+		const { unmount, portal } = setupHook( { withPortal: true } );
+
+		expect( portal!.classList.contains( 'relocatedPortal' ) ).toBe( true );
+
+		unmount();
+
+		expect( portal!.classList.contains( 'relocatedPortal' ) ).toBe( false );
 	} );
 
 	test( 'ref-counting allows multiple instances to share the patch', () => {

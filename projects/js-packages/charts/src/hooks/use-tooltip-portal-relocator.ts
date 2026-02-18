@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import styles from './use-tooltip-portal-relocator.module.scss';
 import type { RefObject } from 'react';
 
 /**
@@ -85,8 +86,9 @@ function uninstallRemoveChildPatch() {
  * block for `position: fixed` children, breaking viewport-relative positioning.
  *
  * @param containerRef - Ref to the element that portals should be relocated into.
- *                     The container should use `position: relative; z-index: 0`
- *                     to create a stacking context.
+ *                     The element referenced here, or one of its ancestors,
+ *                     should establish the desired stacking context (for example
+ *                     by using position and z-index).
  */
 export function useTooltipPortalRelocator(
 	containerRef: RefObject< HTMLElement | null > | undefined
@@ -110,16 +112,7 @@ export function useTooltipPortalRelocator(
 			// Zero-size with overflow: visible so it doesn't affect layout
 			// but tooltip content still renders. pointerEvents: none on the
 			// wrapper is intentional — tooltip inner elements manage their own.
-			Object.assign( node.style, {
-				position: 'fixed',
-				top: '0',
-				left: '0',
-				width: '0',
-				height: '0',
-				overflow: 'visible',
-				zIndex: '1',
-				pointerEvents: 'none',
-			} );
+			node.classList.add( styles.relocatedPortal );
 
 			// Remember the focused element before moving the node — relocating
 			// a DOM subtree causes the browser to blur any focused descendants.
@@ -168,6 +161,9 @@ export function useTooltipPortalRelocator(
 			// Move relocated nodes back to body so visx can clean them up
 			// normally with the original removeChild.
 			for ( const node of instanceNodes ) {
+				if ( node instanceof HTMLElement ) {
+					node.classList.remove( styles.relocatedPortal );
+				}
 				if ( node.parentNode === container ) {
 					document.body.appendChild( node );
 				}
