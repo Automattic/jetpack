@@ -32,6 +32,7 @@ import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
+import useFormItemActions from './use-form-item-actions';
 import type { ReactNode } from 'react';
 
 type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
@@ -112,6 +113,41 @@ export default function usePageHeaderDetails(
 		const rendered = formRecord?.title?.rendered || '';
 		return decodeEntities( rendered );
 	}, [ formRecord?.title?.rendered ] );
+
+	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+
+	const formItemControls = useMemo( () => {
+		if ( ! sourceIdNumber ) {
+			return [];
+		}
+
+		const formItem = { id: sourceIdNumber, title: formTitle };
+		const controls: Array< { title: string; onClick: () => void } > = [
+			{
+				title: __( 'Duplicate', 'jetpack-forms' ),
+				onClick: () => duplicateForm( formItem ),
+			},
+			{
+				title: __( 'Preview', 'jetpack-forms' ),
+				onClick: () => previewForm( formItem ),
+			},
+		];
+
+		if ( navigator?.clipboard ) {
+			controls.push(
+				{
+					title: __( 'Copy embed', 'jetpack-forms' ),
+					onClick: () => copyEmbed( formItem ),
+				},
+				{
+					title: __( 'Copy shortcode', 'jetpack-forms' ),
+					onClick: () => copyShortcode( formItem ),
+				}
+			);
+		}
+
+		return controls;
+	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
 
 	const breadcrumbsItems = useMemo( () => {
 		if ( isSingleFormScreen ) {
@@ -208,6 +244,8 @@ export default function usePageHeaderDetails(
 						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
 					} );
 				}
+
+				dropdownControls.push( ...formItemControls );
 			} else {
 				// Responses list screen: Manage integrations (inbox only), Create a form (inbox only), Export, Empty trash/spam
 				if ( statusView === 'inbox' && isIntegrationsEnabled && showDashboardIntegrations ) {
@@ -323,6 +361,16 @@ export default function usePageHeaderDetails(
 				/>,
 				...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 				...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
+				...( formItemControls.length > 0
+					? [
+							<DropdownMenu
+								key="form-actions-menu"
+								controls={ formItemControls }
+								icon={ moreVertical }
+								label={ __( 'More actions', 'jetpack-forms' ) }
+							/>,
+					  ]
+					: [] ),
 			];
 		}
 
@@ -357,6 +405,7 @@ export default function usePageHeaderDetails(
 		sourceIdNumber,
 		isFormsScreen,
 		isSingleFormScreen,
+		formItemControls,
 		statusView,
 		openNewForm,
 		openExportModal,
