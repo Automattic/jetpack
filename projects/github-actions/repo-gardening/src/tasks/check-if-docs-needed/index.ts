@@ -76,47 +76,51 @@ function buildPrompt( title: string, body: string, diff: string ): string {
 	const sanitizedBody = sanitizeForPrompt( body || '' );
 	const sanitizedDiff = sanitizeForPrompt( diff || '' );
 
-	return `You are the lead documentation editor for Jetpack. Your task is to analyze a GitHub Pull Request (PR) to determine if the PR likely requires changes to user-facing support documentation.
+	return `You are the lead documentation editor for Jetpack, a WordPress plugin developed in a monorepo. Your task is to analyze a GitHub Pull Request (PR) to determine if it introduces changes that would require updates to user-facing support documentation (e.g. support pages, user guides).
 
-## Changes that DO Require Documentation Updates (flag these):
+IMPORTANT: Be conservative. When uncertain, default to NOT flagging. A false negative (missing a real UI change) is far less costly than a false positive (incorrectly flagging a non-UI change). Only flag when the PR clearly introduces or modifies user-facing UI that would require documentation updates.
 
+## Changes that DO Require Documentation Updates (flag these)
 
-### PRIORITY ITEMS TO CAPTURE:
+Only flag PRs that change what users see or interact with in the WordPress admin, Jetpack dashboard, site frontend, or Jetpack mobile apps:
 
-- UI text changes (button labels, menu items, modal titles)
-- New modal windows or dialog boxes
-- Connection requirement changes (removed/added nudges)
-- Workflow steps and user interactions
-- Specific locations where features appear
-- Error message changes
-- Permission or access control changes
-- Package-level changes (Forms, AI, Blocks, etc.)
-- Bug fix counts and significant bug fix mentions
-- User feedback mechanisms (thumbs up/down, ratings)
-- Package changelog references and discussions
-
-### PACKAGE EVALUATION:
-
-When evaluating package changes, only include them in the heads-up if they are:
-
-- User-facing features or improvements
-- Significant bug fixes (mention counts if available)
-- Performance improvements users will notice
-- Security updates affecting user experience
-- Breaking changes or deprecations
+- New or changed screens, pages, panels, or settings in the WordPress admin or Jetpack dashboard
+- New or changed UI text that users interact with (button labels, menu items, modal titles, setting descriptions)
+- New modal windows, dialog boxes, or confirmation prompts
+- New features, tools, or workflows that users need to learn about
+- Removal or deprecation of existing user-facing features
+- Changes to connection flows or onboarding steps
+- Error messages shown to users in the admin or frontend
 
 ## Changes that DO NOT Require Documentation Updates (do not flag these)
 
 - Refactoring code without changing user-visible behavior
 - Code cleanup that preserves identical functionality
 - Test-only changes (adding, modifying, or removing tests)
-- Internal tooling or build configuration
-- Developer documentation and code comments
-- Dependency updates with no behavior change
-- CI/CD configuration changes
+- Internal tooling, build configuration, or CI/CD changes
+- Developer documentation, code comments, AI agent configuration (CLAUDE.md, AGENTS.md, .cursor/, copilot-instructions, etc.)
+- Dependency updates with no user-visible behavior change
 - Performance optimizations with no visible behavior change
 - Minor visual polish (slight color adjustments, spacing tweaks)
-- Bug fixes that restore documented behavior
+- Bug fixes that restore already-documented behavior
+- Backend feature flag or feature constant changes (e.g. plan gating) that do not add or change UI code
+- Email notification formatting or rendering changes
+- Changelog entry files (files under */changelog/*) — these are release process artifacts, not evidence of UI changes
+- File renames, moves, or reorganization without behavior changes
+- Changes limited to PHP constants, feature flags, or access-control lists without corresponding UI changes
+
+## Examples
+
+Would need documentation:
+- "Added a new 'Export' button to the Jetpack dashboard"
+- "New settings panel for controlling social media sharing defaults"
+- "Redesigned the Jetpack connection flow with new steps"
+
+Would NOT need documentation:
+- "Changed backend feature constants for plan-level gating"
+- "Updated email notification layout for form submissions"
+- "Reorganized developer configuration files across the monorepo"
+- "Added changelog entries for multiple packages"
 
 Here is the PR title:
 \`\`\`\`
@@ -133,7 +137,7 @@ Here is the code diff:
 ${ sanitizedDiff }
 \`\`\`\`
 
-Analyze this PR and determine if support documentation would need to be updated.
+Analyze this PR and determine if support documentation would need to be updated. Remember: only flag changes to actual user-facing UI surfaces (admin screens, dashboard, frontend). Do not flag backend-only changes, developer tooling, email formatting, or changelog files.
 
 Respond with a JSON object in this exact format:
 {
