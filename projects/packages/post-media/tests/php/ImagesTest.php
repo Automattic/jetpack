@@ -466,10 +466,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-6.9.0
 	 */
 	public function test_from_image_block_from_post_id_is_array() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$post_info = $this->get_post_with_image_block();
 
 		$images = Images::from_blocks( $post_info['post_id'] );
@@ -483,10 +479,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-6.9.0
 	 */
 	public function test_from_image_block_from_post_id_is_correct_array() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$post_info = $this->get_post_with_image_block();
 
 		$images = Images::from_blocks( $post_info['post_id'] );
@@ -503,10 +495,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-6.9.0
 	 */
 	public function test_from_image_block_from_html_is_empty_array() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$html = '<!-- wp:image --><div class="wp-block-image"><figure class="wp-block-image"><img src="https://example.com/image.jpg" alt=""/></figure></div><!-- /wp:image -->';
 
 		$images = Images::from_blocks( $html );
@@ -582,10 +570,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-6.9.0
 	 */
 	public function test_from_gallery_block_from_post_id_is_correct_array() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$post_info = $this->get_post_with_gallery_block();
 
 		$images = Images::from_blocks( $post_info['post_id'] );
@@ -671,10 +655,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-7.8.0
 	 */
 	public function test_from_columns_block_from_post_id_is_array() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$post_info = $this->get_post_with_columns_block();
 
 		$images = Images::from_blocks( $post_info['post_id'] );
@@ -688,10 +668,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-7.8.0
 	 */
 	public function test_from_columns_block_from_post_id_is_correct_array() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$post_info = $this->get_post_with_columns_block();
 
 		$images = Images::from_blocks( $post_info['post_id'] );
@@ -708,10 +684,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-6.9.0
 	 */
 	public function test_from_columns_block_from_html_is_empty_array() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$html = '<!-- wp:columns --><div class="wp-block-columns has-2-columns"><!-- wp:column --><div class="wp-block-column"><!-- wp:image --><figure class="wp-block-image"><img src="https://example.com/image.jpg" alt=""/></figure><!-- /wp:image --></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><!-- wp:paragraph --><p>Some text</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns -->';
 
 		$images = Images::from_blocks( $html );
@@ -834,10 +806,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-9.1.0
 	 */
 	public function test_from_story_block_from_post_id_is_correct_array_no_videopress() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$media_types = array( 'image', 'video' );
 		$post_info   = $this->get_post_with_story_block( $media_types );
 
@@ -858,10 +826,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-9.1.0
 	 */
 	public function test_from_story_block_from_post_id_is_correct_array_videopress() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$media_types = array( 'image', 'videopress' );
 		$post_info   = $this->get_post_with_story_block( $media_types );
 
@@ -884,10 +848,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-9.1.0
 	 */
 	public function test_from_story_block_from_post_id_is_correct_array_videopress_wpcom() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$media_types = array( 'image', 'videopress' );
 		$post_info   = $this->get_post_with_story_block( $media_types, true );
 
@@ -1031,10 +991,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-14.9 Updated to use Block_Scanner.
 	 */
 	public function test_from_blocks_with_block_scanner() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$post_info = $this->get_post_with_image_block();
 
 		$images = Images::from_blocks( $post_info['post_id'] );
@@ -1053,10 +1009,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-14.9 Updated to use Block_Scanner.
 	 */
 	public function test_from_blocks_with_gallery_block_scanner() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$post_info = $this->get_post_with_gallery_block();
 
 		$images = Images::from_blocks( $post_info['post_id'] );
@@ -1075,10 +1027,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-14.9 Updated to use Block_Scanner.
 	 */
 	public function test_from_blocks_with_columns_block_scanner() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$post_info = $this->get_post_with_columns_block();
 
 		$images = Images::from_blocks( $post_info['post_id'] );
@@ -1097,10 +1045,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-14.9 Updated to use Block_Scanner.
 	 */
 	public function test_from_blocks_with_story_block_scanner() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$media_types = array( 'image', 'videopress' );
 		$post_info   = $this->get_post_with_story_block( $media_types );
 
@@ -1121,10 +1065,6 @@ class ImagesTest extends BaseTestCase {
 	 * @since jetpack-14.9 Updated to use Block_Scanner.
 	 */
 	public function test_from_blocks_with_mixed_blocks_scanner() {
-		if ( ! class_exists( 'Automattic\\Block_Scanner' ) ) {
-			$this->markTestSkipped( 'Block_Scanner not available' );
-		}
-
 		$img_name       = 'image.jpg';
 		$alt_text       = 'Alt Text.';
 		$img_dimensions = array(

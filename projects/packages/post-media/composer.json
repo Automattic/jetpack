@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
+		"automattic/block-delimiter": "@dev",
 		"automattic/jetpack-image-cdn": "@dev"
 	},
 	"require-dev": {
