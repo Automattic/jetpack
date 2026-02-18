@@ -70,7 +70,7 @@ export function usePerNetworkCustomization() {
 		const isNowEnabled = ! isEnabled;
 
 		recordEvent( 'jetpack_social_per_network_customization_toggled', {
-			isNowEnabled,
+			enabled: isNowEnabled,
 		} );
 
 		// Update post metadata.
