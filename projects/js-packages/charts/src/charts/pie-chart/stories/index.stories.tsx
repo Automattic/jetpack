@@ -429,12 +429,11 @@ export const ErrorStates: Story = {
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
 				<h3>Empty Data</h3>
-				<PieChart size={ 300 } data={ [] } />
+				<PieChart data={ [] } />
 			</div>
 			<div>
 				<h3>Invalid Percentage Total</h3>
 				<PieChart
-					size={ 300 }
 					data={ [
 						{ label: 'A', value: 30, percentage: 30 },
 						{ label: 'B', value: 40, percentage: 40 },
@@ -444,7 +443,6 @@ export const ErrorStates: Story = {
 			<div>
 				<h3>Negative Values</h3>
 				<PieChart
-					size={ 300 }
 					data={ [
 						{ label: 'A', value: -30, percentage: -30 },
 						{ label: 'B', value: 130, percentage: 130 },
@@ -453,11 +451,7 @@ export const ErrorStates: Story = {
 			</div>
 			<div>
 				<h3>Single Data Point</h3>
-				<PieChart
-					size={ 300 }
-					height={ 300 }
-					data={ [ { label: 'A', value: 100, percentage: 100 } ] }
-				/>
+				<PieChart height={ 300 } data={ [ { label: 'A', value: 100, percentage: 100 } ] } />
 			</div>
 		</div>
 	),
