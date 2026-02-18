@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 8.0.0 - 2026-02-18
 ### Added
 - Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
-- Jetpack Social: Gate per-network customization behind paid features. [#46740]
+- Gate per-network customization behind paid features. [#46740]
 - Show a snackbar while sharing is in progress. [#46672]
 
 ### Changed
