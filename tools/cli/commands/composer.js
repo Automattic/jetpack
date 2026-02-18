@@ -13,6 +13,8 @@ export function builder( yargs ) {
 	return yargs
 		.parserConfiguration( { 'unknown-options-as-args': true } )
 		.strict( false )
+		.help( false )
+		.version( false )
 		.usage(
 			'$0 composer [args..]\n$0 composer <project> [args..]\n\n' +
 				'Runs Composer at the monorepo root, or in a specific project directory.\n\n' +

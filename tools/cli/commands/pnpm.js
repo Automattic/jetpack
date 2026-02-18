@@ -13,6 +13,8 @@ export function builder( yargs ) {
 	return yargs
 		.parserConfiguration( { 'unknown-options-as-args': true } )
 		.strict( false )
+		.help( false )
+		.version( false )
 		.usage(
 			'$0 pnpm [args..]\n$0 pnpm <project> [args..]\n\n' +
 				'Runs pnpm at the monorepo root, or in a specific project directory.\n\n' +
