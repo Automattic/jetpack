@@ -674,34 +674,34 @@
 	}
 }
 
-.wp-block-jetpack-contact-form.wp-block-jetpack-contact-form .wp-block-button__width-25,
-.wp-block-jetpack-contact-form.wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
+.wp-block-jetpack-contact-form .wp-block-button__width-25,
+.wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
 	flex: 1 1 calc(25% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 25%;
 	width: calc(25% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 }
 
-.wp-block-jetpack-contact-form.wp-block-jetpack-contact-form .grunion-field-width-33-wrap {
+.wp-block-jetpack-contact-form .grunion-field-width-33-wrap {
 	flex: 1 1 calc(33.33% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 33.33%;
 	width: calc(33.33% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 }
 
-.wp-block-jetpack-contact-form.wp-block-jetpack-contact-form .wp-block-button__width-50,
-.wp-block-jetpack-contact-form.wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
+.wp-block-jetpack-contact-form .wp-block-button__width-50,
+.wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
 	flex: 1 1 calc(50% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 50%;
 	width: calc(50% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 }
 
-.wp-block-jetpack-contact-form.wp-block-jetpack-contact-form .wp-block-button__width-75,
-.wp-block-jetpack-contact-form.wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
+.wp-block-jetpack-contact-form .wp-block-button__width-75,
+.wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
 	flex: 1 1 calc(75% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 	max-width: 75%;
 	width: calc(75% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 }
 
-.wp-block-jetpack-contact-form.wp-block-jetpack-contact-form .grunion-field-width-auto-wrap {
+.wp-block-jetpack-contact-form .grunion-field-width-auto-wrap {
 	flex: 1 1 0;
 }
 
