@@ -252,7 +252,8 @@ class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
 		$this->assertTrue( isset( $event->args['queue_size'] ) );
 		$this->assertTrue( isset( $event->args['queue_lag'] ) );
 		$this->assertTrue( isset( $event->args['extra'] ) );
-		$this->assertEquals( 'test_action', $event->args['extra'] );
+		$this->assertIsArray( $event->args['extra'] );
+		$this->assertEquals( array( 'current_filter' => 'test_action' ), $event->args['extra'] );
 		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
 	}
 

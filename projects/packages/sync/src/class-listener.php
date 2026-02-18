@@ -403,7 +403,9 @@ class Listener {
 			'timestamp'  => microtime( true ),
 			'queue_size' => $queue->size(),
 			'queue_lag'  => $queue->lag(),
-			'extra'      => $current_filter,
+			'extra'      => array(
+				'current_filter' => $current_filter,
+			),
 		);
 
 		$sender = Sender::get_instance();
