@@ -508,7 +508,7 @@ class Jetpack_PostImages {
 		// Skip blocks marked with the jetpack-ignore-thumbnail CSS class
 		// (set via the block editor's "Advanced > Additional CSS class" panel).
 		$class_name = $attributes['className'] ?? '';
-		if ( false !== stripos( $class_name, 'jetpack-ignore-thumbnail' ) ) {
+		if ( str_contains( $class_name, 'jetpack-ignore-thumbnail' ) ) {
 			return $images;
 		}
 
@@ -621,7 +621,7 @@ class Jetpack_PostImages {
 			}
 
 			// Allow users to exclude images by adding a CSS class to the img tag.
-			if ( false !== stripos( $image_tag->getAttribute( 'class' ) ?? '', 'jetpack-ignore-thumbnail' ) ) {
+			if ( str_contains( $image_tag->getAttribute( 'class' ) ?? '', 'jetpack-ignore-thumbnail' ) ) {
 				continue;
 			}
 
