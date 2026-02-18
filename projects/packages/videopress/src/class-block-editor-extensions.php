@@ -193,8 +193,11 @@ class Block_Editor_Extensions {
 			return false;
 		}
 
-		// Check if user has a plan that supports VideoPress uploads (1TB storage feature).
-		if ( Current_Plan::supports( 'videopress-1tb-storage' ) ) {
+		// Check if user has a plan that supports VideoPress uploads (1TB or unlimited storage).
+		if (
+			Current_Plan::supports( 'videopress-1tb-storage' ) ||
+			Current_Plan::supports( 'videopress-unlimited-storage' )
+		) {
 			return true;
 		}
 

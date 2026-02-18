@@ -7,23 +7,47 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Current_Plan;
 use WorDBless\BaseTestCase;
 
 /**
  * Class Block_Editor_Extensions_Test
  *
- * Note: Tests for Jetpack site behavior are limited because the can_upload_to_videopress
- * method relies on Status::is_active(), Current_Plan::supports(), and a direct WP_Query
- * check for VideoPress videos, which are tested separately and difficult to mock due to
- * class autoloading.
+ * Tests for the can_upload_to_videopress method, which determines whether
+ * VideoPress should handle video uploads based on site type, plugin status,
+ * and plan features.
+ *
+ * @see \Automattic\Jetpack\VideoPress\Block_Editor_Extensions
  */
 class Block_Editor_Extensions_Test extends BaseTestCase {
 
 	/**
+	 * Set up once before all tests in this class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		// Load mock plugin to make Status::is_standalone_plugin_active() return true.
+		require_once __DIR__ . '/assets/videopress-mock-plugin.txt';
+	}
+
+	/**
+	 * Clean up after each test.
+	 */
+	public function tear_down() {
+		// Reset Current_Plan's static cache so option changes take effect.
+		$reflection = new \ReflectionClass( Current_Plan::class );
+		$property   = $reflection->getProperty( 'active_plan_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
+
+		parent::tear_down();
+	}
+
+	/**
 	 * Test can_upload_to_videopress returns true for Dotcom simple sites.
-	 *
-	 * On Dotcom sites, VideoPress should always handle video uploads
-	 * to show appropriate errors/upsell messages.
 	 */
 	public function test_can_upload_to_videopress_returns_true_for_simple_sites() {
 		$result = $this->invoke_can_upload_to_videopress( 'simple' );
@@ -32,9 +56,6 @@ class Block_Editor_Extensions_Test extends BaseTestCase {
 
 	/**
 	 * Test can_upload_to_videopress returns true for Dotcom atomic sites.
-	 *
-	 * On Dotcom sites, VideoPress should always handle video uploads
-	 * to show appropriate errors/upsell messages.
 	 */
 	public function test_can_upload_to_videopress_returns_true_for_atomic_sites() {
 		$result = $this->invoke_can_upload_to_videopress( 'atomic' );
@@ -42,16 +63,53 @@ class Block_Editor_Extensions_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test can_upload_to_videopress returns false for Jetpack sites by default.
-	 *
-	 * Without VideoPress being active, Jetpack sites should fall back to core/video.
-	 * This test verifies the default behavior when VideoPress is not active.
+	 * Test can_upload_to_videopress returns true for Jetpack sites with
+	 * a plan that has videopress-1tb-storage.
 	 */
-	public function test_can_upload_to_videopress_returns_false_for_jetpack_sites_by_default() {
-		// Without any plugins active, Status::is_active() returns false
-		// so can_upload_to_videopress should return false for jetpack sites.
+	public function test_can_upload_with_1tb_storage_plan() {
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_complete',
+				'class'        => 'complete',
+				'features'     => array(
+					'active' => array( 'videopress-1tb-storage' ),
+				),
+			)
+		);
+
 		$result = $this->invoke_can_upload_to_videopress( 'jetpack' );
-		$this->assertFalse( $result );
+		$this->assertTrue( $result, 'Should allow uploads with 1TB storage plan' );
+	}
+
+	/**
+	 * Test can_upload_to_videopress returns true for Jetpack sites with
+	 * a plan that has videopress-unlimited-storage.
+	 */
+	public function test_can_upload_with_unlimited_storage_plan() {
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_complete',
+				'class'        => 'complete',
+				'features'     => array(
+					'active' => array( 'videopress-unlimited-storage' ),
+				),
+			)
+		);
+
+		$result = $this->invoke_can_upload_to_videopress( 'jetpack' );
+		$this->assertTrue( $result, 'Should allow uploads with unlimited storage plan' );
+	}
+
+	/**
+	 * Test can_upload_to_videopress returns true for Jetpack sites without
+	 * a paid plan when they have no VideoPress videos yet (free video).
+	 */
+	public function test_can_upload_with_free_video_available() {
+		// No plan features, no existing VideoPress videos.
+		$result = $this->invoke_can_upload_to_videopress( 'jetpack' );
+		$this->assertTrue( $result, 'Should allow upload when free video slot is available' );
 	}
 
 	/**
