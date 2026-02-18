@@ -535,6 +535,10 @@ class Jetpack_PostImages {
 					foreach ( $attributes['ids'] as $img_id ) {
 						$image = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
 						if ( false !== $image ) {
+							/** This filter is documented in class.jetpack-post-images.php */
+							if ( apply_filters( 'jetpack_postimages_exclude_image', false, $image ) ) {
+								continue;
+							}
 							$images[] = $image;
 						}
 					}
@@ -547,6 +551,10 @@ class Jetpack_PostImages {
 						if ( ! empty( $media_file['id'] ) ) {
 							$image = self::get_attachment_data( $media_file['id'], $html_info['post_url'], $width, $height );
 							if ( false !== $image ) {
+								/** This filter is documented in class.jetpack-post-images.php */
+								if ( apply_filters( 'jetpack_postimages_exclude_image', false, $image ) ) {
+									continue;
+								}
 								$images[] = $image;
 							}
 						}
