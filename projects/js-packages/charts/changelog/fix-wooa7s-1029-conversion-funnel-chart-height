@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-ConversionFunnelChart: Default to filling parent container height, add height prop for explicit sizing, and use WordPress UI Stack for layout consistency.
+ConversionFunnelChart: Default to filling the parent container height and add a height prop for explicit sizing.

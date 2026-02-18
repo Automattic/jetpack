@@ -84,6 +84,38 @@ describe( 'ConversionFunnelChart', () => {
 		} );
 	} );
 
+	describe( 'Height prop', () => {
+		it( 'defaults to 100% height when no height prop or style.height is provided', () => {
+			const { container } = renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+			// eslint-disable-next-line testing-library/no-node-access -- root element style check
+			expect( container.firstChild ).toHaveStyle( { height: '100%' } );
+		} );
+
+		it( 'applies explicit height prop', () => {
+			const { container } = renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } height="300px" />
+			);
+			// eslint-disable-next-line testing-library/no-node-access -- root element style check
+			expect( container.firstChild ).toHaveStyle( { height: '300px' } );
+		} );
+
+		it( 'respects style.height when height prop is not provided', () => {
+			const { container } = renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } style={ { height: '400px' } } />
+			);
+			// eslint-disable-next-line testing-library/no-node-access -- root element style check
+			expect( container.firstChild ).toHaveStyle( { height: '400px' } );
+		} );
+
+		it( 'height prop takes priority over style.height', () => {
+			const { container } = renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } height="250px" style={ { height: '400px' } } />
+			);
+			// eslint-disable-next-line testing-library/no-node-access -- root element style check
+			expect( container.firstChild ).toHaveStyle( { height: '250px' } );
+		} );
+	} );
+
 	describe( 'Empty State', () => {
 		it( 'shows empty state when no steps provided', () => {
 			renderWithoutTheme( <ConversionFunnelChart mainRate={ 0 } steps={ [] } /> );
