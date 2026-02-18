@@ -100,6 +100,30 @@ const JetpackAndSettingsContent = ( {
 		[ editPost ]
 	);
 
+	/**
+	 * Filters the image generation handler for AI-powered image creation entry points.
+	 *
+	 * Allows external plugins (e.g. Image Studio) to provide a custom handler that
+	 * replaces the default image generation UI. When a handler is returned, it is
+	 * called to open the external image generation flow instead of the built-in one.
+	 *
+	 * @param {Function|null} handler                 - The handler function, or null if no handler is registered.
+	 * @param {object}        options                 - Options describing the entry point context.
+	 * @param {string}        options.entryPoint      - Identifies the UI location (e.g. 'featured-image').
+	 * @param {Function}      options.onImageSelect   - Callback invoked with the selected image ({ id, url, mime? }).
+	 * @param {object}        options.extra           - Additional context for the handler.
+	 * @param {string}        options.extra.placement - The placement identifier for the entry point.
+	 * @param {boolean}       options.extra.disabled  - Whether the handler should be disabled (e.g. upgrade required).
+	 * @return {Function|null} A function to invoke the image generation flow, or null to use the default behavior.
+	 *
+	 * @example
+	 * // Register a custom image generation handler from an external plugin.
+	 * import { addFilter } from '@wordpress/hooks';
+	 *
+	 * addFilter( 'jetpack.ai.imageGenerationHandler', 'my-plugin/image-studio', ( handler, options ) => {
+	 *     return () => openImageStudio( options.entryPoint, options.onImageSelect );
+	 * } );
+	 */
 	const imageGenerationHandler = useMemo( () => {
 		const result = applyFilters( 'jetpack.ai.imageGenerationHandler', null, {
 			entryPoint: 'featured-image',

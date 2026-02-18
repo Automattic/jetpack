@@ -1,32 +1,15 @@
-/* eslint-disable import/order */
-// Component import must come after jest.mock() calls to ensure mocks are applied
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { applyFilters } from '@wordpress/hooks';
+import AiAssistantPluginSidebar from '..';
 
-// Mock functions
-const mockApplyFilters = jest.fn();
 const mockEditPost = jest.fn();
 const mockRecordEvent = jest.fn();
 
-// Set up window.Jetpack_Editor_Initial_State before importing the component
-Object.defineProperty( window, 'Jetpack_Editor_Initial_State', {
-	value: {
-		available_blocks: {
-			'ai-assistant-usage-panel': { available: false },
-			'ai-featured-image-generator': { available: true },
-			'ai-title-optimization': { available: false },
-			'ai-title-optimization-keywords-support': { available: false },
-		},
-	},
-	writable: true,
-} );
-
-// Mock @wordpress/hooks
 jest.mock( '@wordpress/hooks', () => ( {
-	applyFilters: ( ...args: unknown[] ) => mockApplyFilters( ...args ),
+	applyFilters: jest.fn(),
 } ) );
 
-// Mock @wordpress/data
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: ( selector: ( select: ( store: string ) => unknown ) => unknown ) => {
 		const stores: Record< string, unknown > = {
@@ -48,7 +31,6 @@ jest.mock( '@wordpress/data', () => ( {
 	},
 } ) );
 
-// Mock @automattic/jetpack-ai-client
 jest.mock( '@automattic/jetpack-ai-client', () => ( {
 	useAICheckout: () => ( { checkoutUrl: 'https://checkout.example.com' } ),
 	useAiFeature: () => ( {
@@ -61,7 +43,6 @@ jest.mock( '@automattic/jetpack-ai-client', () => ( {
 	FeaturedImage: () => <button>Generate using AI</button>,
 } ) );
 
-// Mock @automattic/jetpack-shared-extension-utils
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	useAnalytics: () => ( { tracks: { recordEvent: mockRecordEvent } } ),
 	PLAN_TYPE_FREE: 'free',
@@ -73,7 +54,6 @@ jest.mock( '@automattic/jetpack-shared-extension-utils/components', () => ( {
 	JetpackEditorPanelLogo: () => <span>Logo</span>,
 } ) );
 
-// Mock @wordpress/editor
 jest.mock( '@wordpress/editor', () => ( {
 	PluginPrePublishPanel: ( { children }: { children: React.ReactNode } ) => (
 		<div data-testid="pre-publish-panel">{ children }</div>
@@ -84,7 +64,6 @@ jest.mock( '@wordpress/editor', () => ( {
 	store: 'core/editor',
 } ) );
 
-// Mock @wordpress/components
 jest.mock( '@wordpress/components', () => ( {
 	PanelBody: ( {
 		children,
@@ -139,12 +118,23 @@ jest.mock( '@wordpress/components', () => ( {
 	Notice: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 } ) );
 
-// Mock @wordpress/core-data
-jest.mock( '@wordpress/core-data', () => ( {
-	store: 'core',
-} ) );
+jest.mock( '@wordpress/core-data', () => {
+	// Runs before imports due to jest.mock hoisting; the component reads this at module scope
+	Object.defineProperty( globalThis, 'Jetpack_Editor_Initial_State', {
+		value: {
+			available_blocks: {
+				'ai-assistant-usage-panel': { available: false },
+				'ai-featured-image-generator': { available: true },
+				'ai-title-optimization': { available: false },
+				'ai-title-optimization-keywords-support': { available: false },
+			},
+		},
+		writable: true,
+		configurable: true,
+	} );
+	return { store: 'core' };
+} );
 
-// Mock internal dependencies
 jest.mock( '../../../../../blocks/ai-assistant/hooks/use-ai-product-page', () => () => ( {
 	productPageUrl: 'https://product.example.com',
 } ) );
@@ -177,20 +167,17 @@ jest.mock( '../../usage-panel', () => ( { __esModule: true, default: () => null 
 jest.mock( '../upgrade', () => ( { __esModule: true, default: () => null } ) );
 jest.mock( '../style.scss', () => ( {} ) );
 
-// Import the component after all mocks are set up
-import AiAssistantPluginSidebar from '..';
-
 describe( 'AiAssistantPluginSidebar', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockApplyFilters.mockReturnValue( null );
+		jest.mocked( applyFilters ).mockReturnValue( null );
 	} );
 
 	describe( 'imageGenerationHandler filter', () => {
 		it( 'should call applyFilters with correct arguments for featured-image entry point', () => {
 			render( <AiAssistantPluginSidebar /> );
 
-			expect( mockApplyFilters ).toHaveBeenCalledWith(
+			expect( applyFilters ).toHaveBeenCalledWith(
 				'jetpack.ai.imageGenerationHandler',
 				null,
 				expect.objectContaining( {
@@ -206,11 +193,10 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 		it( 'should render custom "Generate image" button when filter provides a handler', () => {
 			const mockHandler = jest.fn();
-			mockApplyFilters.mockReturnValue( mockHandler );
+			jest.mocked( applyFilters ).mockReturnValue( mockHandler );
 
 			render( <AiAssistantPluginSidebar /> );
 
-			// Should show the "Generate image" button from the filter handler
 			expect( screen.getAllByRole( 'button', { name: 'Generate image' } ).length ).toBeGreaterThan(
 				0
 			);
@@ -219,15 +205,31 @@ describe( 'AiAssistantPluginSidebar', () => {
 		it( 'should call custom handler when clicking "Generate image" button', async () => {
 			const user = userEvent.setup();
 			const mockHandler = jest.fn();
-			mockApplyFilters.mockReturnValue( mockHandler );
+			jest.mocked( applyFilters ).mockReturnValue( mockHandler );
 
 			render( <AiAssistantPluginSidebar /> );
 
-			// Click the first "Generate image" button (from document panel)
-			const generateButtons = screen.getAllByRole( 'button', { name: 'Generate image' } );
-			await user.click( generateButtons[ 0 ] );
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			const generateButton = within( documentPanel ).getByRole( 'button', {
+				name: 'Generate image',
+			} );
+			await user.click( generateButton );
 
 			expect( mockHandler ).toHaveBeenCalled();
+		} );
+
+		it( 'should render FeaturedImage component when filter returns null and isAIFeaturedImageAvailable is true', () => {
+			jest.mocked( applyFilters ).mockReturnValue( null );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			expect(
+				within( documentPanel ).getByRole( 'button', { name: 'Generate using AI' } )
+			).toBeInTheDocument();
+			expect(
+				within( documentPanel ).queryByRole( 'button', { name: 'Generate image' } )
+			).not.toBeInTheDocument();
 		} );
 
 		it( 'should call editPost with featured_media when onImageSelect is called', () => {
@@ -235,7 +237,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 				| ( ( image: { id: number; url: string; mime?: string } ) => void )
 				| null = null;
 
-			mockApplyFilters.mockImplementation(
+			( applyFilters as jest.Mock ).mockImplementation(
 				(
 					filterName: string,
 					defaultValue: unknown,
@@ -250,32 +252,14 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			render( <AiAssistantPluginSidebar /> );
 
-			// Simulate external handler calling onImageSelect
-			if ( capturedOnImageSelect ) {
-				capturedOnImageSelect( {
-					id: 123,
-					url: 'https://example.com/generated-image.png',
-					mime: 'image/png',
-				} );
-			}
+			expect( capturedOnImageSelect ).not.toBeNull();
+			capturedOnImageSelect!( {
+				id: 123,
+				url: 'https://example.com/generated-image.png',
+				mime: 'image/png',
+			} );
 
 			expect( mockEditPost ).toHaveBeenCalledWith( { featured_media: 123 } );
-		} );
-
-		it( 'should show Generate image button when filter provides handler', () => {
-			// When imageGenerationHandler is provided via filter, the component shows
-			// the custom "Generate image" button instead of the default FeaturedImage component.
-			// This test verifies the condition (imageGenerationHandler || isAIFeaturedImageAvailable)
-			// works correctly when imageGenerationHandler is truthy.
-			const mockHandler = jest.fn();
-			mockApplyFilters.mockReturnValue( mockHandler );
-
-			render( <AiAssistantPluginSidebar /> );
-
-			// With the handler provided, the "Generate image" button should be visible
-			expect( screen.getAllByRole( 'button', { name: 'Generate image' } ).length ).toBeGreaterThan(
-				0
-			);
 		} );
 	} );
 } );
