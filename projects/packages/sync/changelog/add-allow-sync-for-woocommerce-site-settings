@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add WooCommerce currency symbol, store address details, and related site options to sync whitelist for improved WooCommerce site settings sync.
