@@ -13,6 +13,7 @@ import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
 import * as noopCommand from './commands/noop.js';
 import * as phanCommand from './commands/phan.js';
+import * as pnpmCommand from './commands/pnpm.js';
 import { releaseDefine } from './commands/release.js';
 import { rsyncDefine } from './commands/rsync.js';
 import * as testCommand from './commands/test.js';
@@ -48,6 +49,7 @@ export async function cli() {
 	argv.command( installCommand );
 	argv.command( noopCommand );
 	argv.command( phanCommand );
+	argv.command( pnpmCommand );
 	argv = releaseDefine( argv );
 	argv = rsyncDefine( argv );
 	argv.command( testCommand );
