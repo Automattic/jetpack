@@ -89,6 +89,8 @@ The action relies on the following parameters.
 - (Optional) `labels_team_assignments` is a list of features you can provide, with matching team names, as specified in the "Team" field of your GitHub Project Board used for the `triageIssues` task, and lists of labels in use in your repository.
 - (Optional) `ai_labeling_enabled` is a boolean value that allows you to enable or disable the AI labeling of issues. The default value is `false`.
 - (Optional) `openai_api_key` is the API key for OpenAI. This is required if you want to use the `triageIssues` or the `checkIfDocsNeeded` task to automatically add labels to your issues. **Note**: this option is only available for Automattic-hosted repositories.
+- (Optional) `linear_api_key` is the API key for Linear. When provided together with `linear_product_ambassadors_team_id`, the `checkIfDocsNeeded` task will create a Linear issue to track documentation work for user-facing PRs. The key should be stored in a secret.
+- (Optional) `linear_product_ambassadors_team_id` is the Linear team ID for the Product Ambassadors team. Used by the `checkIfDocsNeeded` task to target the correct team when creating Linear issues. The value should be stored in a variable.
 
 #### How to create a Slack bot and get your SLACK_TOKEN
 
