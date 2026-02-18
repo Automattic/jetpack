@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Sync: Add triggering action name to data sent with jetpack_sync_data_loss action.
