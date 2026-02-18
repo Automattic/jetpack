@@ -21,18 +21,21 @@ export async function runPackageManager( { command, requiredFile } ) {
 	let cwd;
 	let cmdArgs;
 
+	let project;
+
 	if ( rawArgs.length > 0 && projectTypes.some( t => rawArgs[ 0 ].startsWith( t + '/' ) ) ) {
-		const project = rawArgs[ 0 ];
+		project = rawArgs[ 0 ];
 		cmdArgs = rawArgs.slice( 1 );
 		cwd = projectDir( project );
 	} else {
+		project = 'monorepo';
 		cmdArgs = rawArgs;
-		cwd = projectDir( 'monorepo' );
+		cwd = projectDir( project );
 	}
 
 	// Validate the target directory has the required file.
 	if ( ( await fs.access( cwd + '/' + requiredFile ).catch( () => false ) ) === false ) {
-		console.error( chalk.red( `No ${ requiredFile } found in ${ cwd }` ) );
+		console.error( chalk.red( `No ${ requiredFile } found in project ${ project }` ) );
 		process.exit( 1 );
 	}
 
