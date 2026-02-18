@@ -724,8 +724,8 @@ class Images {
 	/**
 	 * Gets a post image from the author avatar.
 	 *
-	 * @param int    $post_id The post ID to check.
-	 * @param int    $size The size of the avatar to get.
+	 * @param int          $post_id The post ID to check.
+	 * @param int          $size The size of the avatar to get.
 	 * @param string|false $default The default image to use.
 	 * @return array containing details of the image, or empty array if none.
 	 */
