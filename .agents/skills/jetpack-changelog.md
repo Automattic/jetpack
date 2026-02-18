@@ -12,14 +12,19 @@ Instructions:
    - Type based on the nature of changes and project type
    - Description by summarizing the changes
 3. Navigate to the project directory
-4. Run the changelogger command:
-   ```bash
-   vendor/bin/changelogger add \
-     --no-interaction \
-     --significance={significance} \
-     --type={type} \
-     --entry="{description}"
-   ```
+4. Run the changelog command:
+   - Preferred (Docker / standard workflow):
+     ```bash
+     jp changelog add
+     ```
+   - Alternative (requires local PHP dependencies; run `composer install` first):
+     ```bash
+     vendor/bin/changelogger add \
+       --no-interaction \
+       --significance={significance} \
+       --type={type} \
+       --entry="{description}"
+     ```
 5. Navigate back to root repo directory
 6. Stage the generated changelog file with `git add`
 
