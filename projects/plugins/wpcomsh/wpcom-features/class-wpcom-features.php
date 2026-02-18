@@ -468,6 +468,7 @@ class WPCOM_Features {
 	public const REPUBLICIZE                       = 'republicize';
 	public const SCAN                              = 'scan';
 	public const SCAN_MANAGED                      = 'scan-managed';
+	public const SCAN_SELF_SERVE                   = 'scan-self-serve';
 	public const SCHEDULED_UPDATES                 = 'scheduled-updates';
 	public const SECURITY_SETTINGS                 = 'security-settings';
 	public const SEO_PREVIEW_TOOLS                 = 'seo-preview-tools';
@@ -1199,6 +1200,7 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::JETPACK_SCAN_PLANS,
 			self::JETPACK_GOLDEN_TOKEN,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
@@ -1209,6 +1211,19 @@ class WPCOM_Features {
 		 * See D57207-code.
 		 */
 		self::SCAN_MANAGED                      => array(
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
+		),
+
+		// This governs UI access to Jetpack Scan.
+		// All WoW sites should perform scans, however we don't want to expose the UI to sites on lower wpcom plans.
+		// It's not completely clear how this differs from SCAN_MANAGED.
+		self::SCAN_SELF_SERVE                   => array(
+			self::JETPACK_PREMIUM_AND_HIGHER,
+			self::JETPACK_SCAN_PLANS,
+			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
