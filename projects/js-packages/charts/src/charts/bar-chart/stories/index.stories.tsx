@@ -85,8 +85,22 @@ export const Default: Story = {
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
 		maxWidth: 1200,
-		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
+	},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 600,
+		height: 300,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.3,
 	},
 };
 
@@ -139,37 +153,6 @@ export const TimeSeries: Story = {
 		docs: {
 			description: {
 				story: 'Bar chart with a time series.',
-			},
-		},
-	},
-};
-
-// Story without tooltip
-export const ManyDataSeries: Story = {
-	args: {
-		...Default.args,
-		data: medalCountsData,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with many data series.',
-			},
-		},
-	},
-};
-
-export const FixedDimensions: Story = {
-	args: {
-		...Default.args,
-		width: 800,
-		height: 400,
-		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with fixed dimensions that override the responsive behavior.',
 			},
 		},
 	},
@@ -273,23 +256,19 @@ export const WithInteractiveLegend: Story = {
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 	render: args => (
-		<div style={ { width: '800px' } }>
-			<BarChart
-				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
-				withTooltips={ true }
-				gridVisibility="x"
-				maxWidth={ 1200 }
-				aspectRatio={ 0.5 }
-			>
-				<BarChart.Legend
-					orientation={ args.legendOrientation || 'horizontal' }
-					alignment={ args.legendAlignment || 'center' }
-					position={ args.legendPosition || 'bottom' }
-					maxWidth={ args.legendMaxWidth }
-					textOverflow={ args.legendTextOverflow || 'wrap' }
-				/>
-			</BarChart>
-		</div>
+		<BarChart
+			data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
+			withTooltips={ true }
+			gridVisibility="x"
+		>
+			<BarChart.Legend
+				orientation={ args.legendOrientation || 'horizontal' }
+				alignment={ args.legendAlignment || 'center' }
+				position={ args.legendPosition || 'bottom' }
+				maxWidth={ args.legendMaxWidth }
+				textOverflow={ args.legendTextOverflow || 'wrap' }
+			/>
+		</BarChart>
 	),
 	argTypes: {
 		legendInteractive: {
@@ -313,8 +292,8 @@ export const CustomLegendPositioning: Story = {
 		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
 		gridVisibility: 'x',
 		maxWidth: 1200,
-		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
+		containerHeight: '400px',
 		// showLegend defaults to false, explicitly enabling for demonstration
 		showLegend: true,
 		legendOrientation: 'vertical',

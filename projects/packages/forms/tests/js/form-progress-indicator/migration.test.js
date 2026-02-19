@@ -13,7 +13,7 @@ await jest.unstable_mockModule( '@wordpress/i18n', () => ( {
 
 // Mock internal dependencies
 await jest.unstable_mockModule(
-	'../../../src/blocks/shared/components/render-material-icon.js',
+	'../../../src/blocks/shared/components/render-material-icon.jsx',
 	() => ( { default: jest.fn( () => 'icon-mock' ) } )
 );
 

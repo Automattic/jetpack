@@ -116,6 +116,8 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
 * `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. See [Building](#building) for details.
 * `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. See [Building](#building) for details.
+* `.scripts.watch`: If your project supports watch mode for development, this should run the necessary commands to watch for file changes and rebuild automatically.
+* `.scripts.watch-hot`: If your project supports HMR (Hot Module Replacement), this should run the necessary commands to enable hot reloading during development. Used by `jetpack watch --hot`.
 * `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
   * `.scripts.skip-test-coverage`: Run before `.scripts.test-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
@@ -373,10 +375,10 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
    2. The default branch should be `trunk`, matching the monorepo.
       * Note that you can't set the default branch until at least one branch is created in the repo.
-   3. In the repo's settings, turn off wikis, issues, projects, and so on.
+   3. In the repo's settings, turn off wikis, PRs, issues, projects, discussions, and so on.
    4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. Usually no special configuration is needed for repos under the Automattic organization.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
-   6. Set up any secrets and configuration needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
+   6. Set up any secrets and configuration needed (e.g. for [Autotagger](#autotagger) or [Autopublisher](#wordpressorg-svn-auto-publisher)). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
    1. Be sure that `automattic` is added as a maintainer.
    2. If creating the package with your own account, make sure to link your GitHub account to Packagist so that you can sync the new package.

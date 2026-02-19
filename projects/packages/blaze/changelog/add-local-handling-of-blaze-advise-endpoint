@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Improve post promotion speed by handling the Blaze “advise campaign” endpoint locally, reducing the initial sync delay.

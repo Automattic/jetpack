@@ -9,6 +9,7 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Shared logic between Jetpack admin pages.
@@ -280,7 +281,7 @@ abstract class Jetpack_Admin_Page {
 						</a>
 					</div>
 					<?php
-					if ( $args['show-nav'] ) :
+					if ( $args['show-nav'] && ! ( new Host() )->is_wpcom_platform() ) :
 						?>
 						<div class="jp-masthead__nav">
 							<?php

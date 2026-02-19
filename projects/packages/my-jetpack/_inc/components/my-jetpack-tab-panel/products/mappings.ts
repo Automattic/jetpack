@@ -76,6 +76,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 			'markdown',
 			'post-by-email',
 			'post-list',
+			'wpcom-reader',
 			'shortcodes',
 			'shortlinks',
 			'tiled-gallery',

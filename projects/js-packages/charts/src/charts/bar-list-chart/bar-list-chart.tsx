@@ -4,7 +4,7 @@ import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
 import { useContext, useMemo } from 'react';
 import { GlobalChartsContext, GlobalChartsProvider } from '../../providers';
-import { BarChart } from '../bar-chart';
+import { BarChartUnresponsive } from '../bar-chart';
 import { withResponsive } from '../private/with-responsive';
 import type { SeriesData } from '../..';
 import type { ScaleOptions } from '../../types';
@@ -257,7 +257,7 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 	}, [ options, width, data, height ] );
 
 	return (
-		<BarChart
+		<BarChartUnresponsive
 			orientation="horizontal"
 			gridVisibility={ 'none' }
 			data={ data }

@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: tests: `getByRole( ..., { name: } )` apparently no longer gets a space between elements.
-
-

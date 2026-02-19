@@ -355,6 +355,7 @@ export const CustomLegendPositioning: Story = {
 		legendOrientation: 'vertical',
 		legendAlignment: 'start',
 		legendPosition: 'top',
+		containerHeight: '450px',
 		data: [
 			{
 				label: 'Desktop',
@@ -413,7 +414,7 @@ const CustomPieLegend = ( {
 
 			return (
 				<Fragment key={ index }>
-					<HStack direction="row" justify="flex-start" gap={ 2 }>
+					<HStack direction="row" justify="flex-start" spacing={ 2 }>
 						<div
 							style={ {
 								width: '8px',

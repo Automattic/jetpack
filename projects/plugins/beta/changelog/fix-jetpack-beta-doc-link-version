@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Include missing `v` in documentation link to `docs/mu-plugin-info.md` on GitHub.

@@ -325,66 +325,64 @@ export const CompositionAPI: Story = {
 		];
 
 		return (
-			<div style={ { width: '600px', padding: '20px' } }>
-				<PieChartUnresponsive
-					data={ chartData }
-					size={ 400 }
-					withTooltips={ true }
-					thickness={ 0.7 }
-					legendValueDisplay={ args.legendValueDisplay || 'value' }
-				>
-					<PieChartUnresponsive.HTML>
-						<h3 style={ { textAlign: 'center', marginBottom: '20px' } }>
-							Device Usage Distribution
-						</h3>
-					</PieChartUnresponsive.HTML>
+			<PieChartUnresponsive
+				data={ chartData }
+				size={ 400 }
+				withTooltips={ true }
+				thickness={ 0.7 }
+				legendValueDisplay={ args.legendValueDisplay || 'value' }
+			>
+				<PieChartUnresponsive.HTML>
+					<h3 style={ { textAlign: 'center', marginBottom: '20px' } }>Device Usage Distribution</h3>
+				</PieChartUnresponsive.HTML>
 
-					<PieChartUnresponsive.SVG>
-						<text
-							x={ 0 }
-							y={ 0 }
-							textAnchor="middle"
-							style={ { fontSize: '24px', fontWeight: 'bold' } }
-						>
-							100%
-						</text>
-						<text x={ 0 } y={ 20 } textAnchor="middle" style={ { fontSize: '14px', fill: '#666' } }>
-							Total Users
-						</text>
-					</PieChartUnresponsive.SVG>
+				<PieChartUnresponsive.SVG>
+					<text
+						x={ 0 }
+						y={ 0 }
+						textAnchor="middle"
+						style={ { fontSize: '24px', fontWeight: 'bold' } }
+					>
+						100%
+					</text>
+					<text x={ 0 } y={ 20 } textAnchor="middle" style={ { fontSize: '14px', fill: '#666' } }>
+						Total Users
+					</text>
+				</PieChartUnresponsive.SVG>
 
-					<PieChartUnresponsive.HTML>
-						<PieChartUnresponsive.Legend
-							position="bottom"
-							orientation="horizontal"
-							alignment="center"
-						/>
-						<div
-							style={ {
-								marginTop: '20px',
-								padding: '10px',
-								backgroundColor: '#f5f5f5',
-								borderRadius: '4px',
-								fontSize: '14px',
-								color: '#666',
-							} }
-						>
-							<p style={ { margin: 0 } }>
-								This example demonstrates the composition API where you can add:
-							</p>
-							<ul style={ { margin: '5px 0 0 20px', padding: 0 } }>
-								<li>SVG elements inside the chart using PieChart.SVG</li>
-								<li>HTML elements outside the chart using PieChart.HTML</li>
-								<li>Mix regular children with compound components</li>
-							</ul>
-						</div>
-					</PieChartUnresponsive.HTML>
-				</PieChartUnresponsive>
-			</div>
+				<PieChartUnresponsive.HTML>
+					<PieChartUnresponsive.Legend
+						position="bottom"
+						orientation="horizontal"
+						alignment="center"
+					/>
+					<div
+						style={ {
+							marginTop: '20px',
+							padding: '10px',
+							backgroundColor: '#f5f5f5',
+							borderRadius: '4px',
+							fontSize: '14px',
+							color: '#666',
+						} }
+					>
+						<p style={ { margin: 0 } }>
+							This example demonstrates the composition API where you can add:
+						</p>
+						<ul style={ { margin: '5px 0 0 20px', padding: 0 } }>
+							<li>SVG elements inside the chart using PieChart.SVG</li>
+							<li>HTML elements outside the chart using PieChart.HTML</li>
+							<li>Mix regular children with compound components</li>
+						</ul>
+					</div>
+				</PieChartUnresponsive.HTML>
+			</PieChartUnresponsive>
 		);
 	},
 	args: {
 		data,
+		containerHeight: '700px',
+		containerWidth: '600px',
 	},
 	argTypes: {
 		legendInteractive: {

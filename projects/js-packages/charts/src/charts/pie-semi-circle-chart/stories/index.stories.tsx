@@ -52,7 +52,6 @@ export const Default: Story = {
 	args: {
 		...sharedThemeArgs,
 		containerWidth: '600px',
-		containerHeight: '325px',
 		resize: 'none',
 		thickness: 0.4,
 		data,
@@ -136,6 +135,7 @@ export const WithCompositionLegend: Story = {
 	),
 	args: {
 		data,
+		containerWidth: '900px',
 	},
 	argTypes: {
 		legendInteractive: {
@@ -178,7 +178,6 @@ export const InteractiveLegend: Story = {
 	args: {
 		data,
 		width: 400,
-		containerHeight: '500px',
 	},
 	parameters: {
 		docs: {
@@ -288,6 +287,9 @@ export const ErrorStates: Story = {
 			</div>
 		</div>
 	),
+	args: {
+		containerHeight: '600px',
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -425,6 +427,8 @@ export const CompositionAPI: Story = {
 	),
 	args: {
 		data,
+		containerHeight: '1000px',
+		containerWidth: '1000px',
 	},
 	argTypes: {
 		legendInteractive: {

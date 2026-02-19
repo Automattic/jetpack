@@ -59,7 +59,10 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 							),
 							{
 								link: (
-									<ExternalLink href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) } />
+									<ExternalLink
+										href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }
+										children={ null }
+									/>
 								),
 							}
 						);

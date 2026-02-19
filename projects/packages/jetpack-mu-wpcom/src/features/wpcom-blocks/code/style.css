@@ -130,7 +130,7 @@
 	flex-grow: 2 !important;
 	flex-shrink: 0 !important;
 	display: block !important;
-	word-wrap: normal !important;
+	overflow-wrap: normal !important;
 	white-space: pre !important;
 }
 
@@ -325,5 +325,5 @@
 	flex: 1 0 0;
 	font-weight: 700;
 	line-height: 1.3;
-	word-break: break-word;
+	overflow-wrap: break-word;
 }

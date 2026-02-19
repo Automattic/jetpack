@@ -75,8 +75,7 @@ export function shareCurrentPost(
 	{ apiPath, savePost = true }: ShareCurrentPostConfig
 ) {
 	return async function ( { dispatch, registry } ): Promise< boolean > {
-		const { createErrorNotice, createSuccessNotice, removeNotice } =
-			registry.dispatch( noticesStore );
+		const { createErrorNotice, removeNotice } = registry.dispatch( noticesStore );
 		const { isCurrentPostPublished, isEditedPostDirty, isEditedPostAutosaveable } =
 			registry.select( editorStore );
 
@@ -132,11 +131,6 @@ export function shareCurrentPost(
 			} );
 		} else {
 			dispatch( pollForPostShareStatus() );
-
-			createSuccessNotice( __( 'Request submitted successfully.', 'jetpack-publicize-pkg' ), {
-				type: 'snackbar',
-				id: SHARE_POST_NOTICE_ID,
-			} );
 		}
 
 		dispatch( setIsSharingCurrentPost( false ) );

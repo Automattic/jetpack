@@ -48,6 +48,15 @@ class Posts extends Module {
 	private $action_handler;
 
 	/**
+	 * Mark posts that are deleted in the current request.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private static $deleted_posts_in_request = array();
+
+	/**
 	 * Import end.
 	 *
 	 * @access private
@@ -144,6 +153,7 @@ class Posts extends Module {
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
+		add_action( 'before_delete_post', array( $this, 'mark_post_is_being_deleted' ), 0, 1 );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 11, 3 );
 		add_action( 'wp_after_insert_post', array( $this, 'wp_after_insert_post' ), 11, 2 );
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
@@ -159,6 +169,7 @@ class Posts extends Module {
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_filter( 'jetpack_sync_before_enqueue_updated_post_meta', array( $this, 'on_before_enqueue_updated_attachment_metadata' ), 1 );
+		add_filter( 'jetpack_sync_before_enqueue_deleted_post_meta', array( $this, 'maybe_skip_deleted_post_meta' ) );
 
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_sync_save_post' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_published_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_published_post' ) );
@@ -166,6 +177,8 @@ class Posts extends Module {
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
 		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
+
+		add_action( 'deleted_post', array( $this, 'unmark_post_being_deleted' ), 11, 1 );
 	}
 
 	/**
@@ -369,6 +382,40 @@ class Posts extends Module {
 		}
 		$meta_value = $current_value;
 		return $this->trim_post_meta( array( $meta_id, $object_id, $meta_key, $meta_value ) );
+	}
+
+	/**
+	 * Mark a post as being deleted in the current request.
+	 *
+	 * @param int $post_id ID of the post being deleted.
+	 */
+	public function mark_post_is_being_deleted( $post_id ) {
+		self::$deleted_posts_in_request[ (int) $post_id ] = true;
+	}
+
+	/**
+	 * Enqueue-time per-request dedupe for deleted post metadata, if the post itself is being deleted.
+	 *
+	 * @param array $args [ $meta_id, $post_id, $meta_key, $meta_value ].
+	 * @return array|false
+	 */
+	public function maybe_skip_deleted_post_meta( $args ) {
+		if ( is_array( $args ) && isset( $args[1] ) && is_numeric( $args[1] ) ) {
+			$post_id = (int) $args[1];
+			if ( isset( self::$deleted_posts_in_request[ $post_id ] ) ) {
+				return false;
+			}
+		}
+		return $args;
+	}
+
+	/**
+	 * Unmark a post as being deleted in the current request, to clean up.
+	 *
+	 * @param int $post_id ID of the post.
+	 */
+	public function unmark_post_being_deleted( $post_id ) {
+		unset( self::$deleted_posts_in_request[ (int) $post_id ] );
 	}
 
 	/**

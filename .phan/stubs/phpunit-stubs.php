@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.5
+ * Stubs automatically generated from PHPUnit 12.5.12
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -11266,7 +11266,7 @@ class TestSuite implements \IteratorAggregate, \PHPUnit\Framework\Reorderable, \
     {
     }
     /**
-     * Returns an iterator for this test suite.
+     * @return \Iterator<non-negative-int, Test>
      */
     public function getIterator(): \Iterator
     {
@@ -14138,11 +14138,12 @@ trait Method
  */
 trait MockObjectApi
 {
-    /** @noinspection MagicMethodsValidityInspection */
-    public function __phpunit_hasMatchers(): bool
+    public function __phpunit_hasInvocationCountRule(): bool
     {
     }
-    /** @noinspection MagicMethodsValidityInspection */
+    public function __phpunit_hasParametersRule(): bool
+    {
+    }
     public function __phpunit_verify(bool $unsetInvocationMocker = true): void
     {
     }
@@ -14176,11 +14177,9 @@ trait StubApi
     public function __phpunit_state(): \PHPUnit\Framework\MockObject\TestDoubleState
     {
     }
-    /** @noinspection MagicMethodsValidityInspection */
     public function __phpunit_getInvocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler
     {
     }
-    /** @noinspection MagicMethodsValidityInspection */
     public function __phpunit_unsetInvocationMocker(): void
     {
     }
@@ -14195,7 +14194,7 @@ final class TestDoubleState
     /**
      * @param list<ConfigurableMethod> $configurableMethods
      */
-    public function __construct(array $configurableMethods, bool $generateReturnValues)
+    public function __construct(array $configurableMethods, bool $generateReturnValues, bool $isMockObject = false)
     {
     }
     public function invocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler
@@ -14324,7 +14323,8 @@ interface MockObject extends \PHPUnit\Framework\MockObject\Stub
  */
 interface MockObjectInternal extends \PHPUnit\Framework\MockObject\MockObject, \PHPUnit\Framework\MockObject\StubInternal
 {
-    public function __phpunit_hasMatchers(): bool;
+    public function __phpunit_hasInvocationCountRule(): bool;
+    public function __phpunit_hasParametersRule(): bool;
     public function __phpunit_verify(bool $unsetInvocationMocker = true): void;
 }
 /**
@@ -14401,10 +14401,16 @@ final class InvocationHandler
     /**
      * @param list<ConfigurableMethod> $configurableMethods
      */
-    public function __construct(array $configurableMethods, bool $returnValueGeneration)
+    public function __construct(array $configurableMethods, bool $returnValueGeneration, bool $isMockObject = false)
     {
     }
-    public function hasMatchers(): bool
+    public function isMockObject(): bool
+    {
+    }
+    public function hasInvocationCountRule(): bool
+    {
+    }
+    public function hasParametersRule(): bool
     {
     }
     /**
@@ -14546,7 +14552,7 @@ final class Matcher
     public function __construct(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $rule)
     {
     }
-    public function hasMatchers(): bool
+    public function hasInvocationCountRule(): bool
     {
     }
     public function hasMethodNameRule(): bool
@@ -19684,6 +19690,14 @@ final class ClassIsAbstractException extends \RuntimeException implements \PHPUn
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final class CodeCoverageFileExistsException extends \RuntimeException implements \PHPUnit\Runner\Exception
+{
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final class DirectoryDoesNotExistException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
     public function __construct(string $directory)
@@ -21686,7 +21700,7 @@ final readonly class TestResult
     public function testSuiteSkippedEvents(): array
     {
     }
-    public function numberOfTestSuiteSkippedEvents(): int
+    public function numberOfTestSkippedByTestSuiteSkippedEvents(): int
     {
     }
     public function hasTestSuiteSkippedEvents(): bool
@@ -24835,6 +24849,15 @@ final class SourceFilter
  */
 final class SourceMapper
 {
+    public static function saveTo(string $path, \PHPUnit\TextUI\Configuration\Source $source): bool
+    {
+    }
+    /**
+     * @codeCoverageIgnore
+     */
+    public static function loadFrom(string $path, \PHPUnit\TextUI\Configuration\Source $source): void
+    {
+    }
     /**
      * @return array<non-empty-string, true>
      */
@@ -25457,10 +25480,10 @@ final readonly class Php
 final readonly class Source
 {
     /**
-     * @param non-empty-string                                                          $baseline
+     * @param ?non-empty-string                                                         $baseline
      * @param array{functions: list<non-empty-string>, methods: list<non-empty-string>} $deprecationTriggers
      */
-    public function __construct(?string $baseline, bool $ignoreBaseline, \PHPUnit\TextUI\Configuration\FilterDirectoryCollection $includeDirectories, \PHPUnit\TextUI\Configuration\FileCollection $includeFiles, \PHPUnit\TextUI\Configuration\FilterDirectoryCollection $excludeDirectories, \PHPUnit\TextUI\Configuration\FileCollection $excludeFiles, bool $restrictNotices, bool $restrictWarnings, bool $ignoreSuppressionOfDeprecations, bool $ignoreSuppressionOfPhpDeprecations, bool $ignoreSuppressionOfErrors, bool $ignoreSuppressionOfNotices, bool $ignoreSuppressionOfPhpNotices, bool $ignoreSuppressionOfWarnings, bool $ignoreSuppressionOfPhpWarnings, array $deprecationTriggers, bool $ignoreSelfDeprecations, bool $ignoreDirectDeprecations, bool $ignoreIndirectDeprecations)
+    public function __construct(?string $baseline, bool $ignoreBaseline, \PHPUnit\TextUI\Configuration\FilterDirectoryCollection $includeDirectories, \PHPUnit\TextUI\Configuration\FileCollection $includeFiles, \PHPUnit\TextUI\Configuration\FilterDirectoryCollection $excludeDirectories, \PHPUnit\TextUI\Configuration\FileCollection $excludeFiles, bool $restrictNotices, bool $restrictWarnings, bool $ignoreSuppressionOfDeprecations, bool $ignoreSuppressionOfPhpDeprecations, bool $ignoreSuppressionOfErrors, bool $ignoreSuppressionOfNotices, bool $ignoreSuppressionOfPhpNotices, bool $ignoreSuppressionOfWarnings, bool $ignoreSuppressionOfPhpWarnings, array $deprecationTriggers, bool $ignoreSelfDeprecations, bool $ignoreDirectDeprecations, bool $ignoreIndirectDeprecations, bool $identifyIssueTrigger)
     {
     }
     /**
@@ -25538,6 +25561,9 @@ final readonly class Source
     {
     }
     public function ignoreIndirectDeprecations(): bool
+    {
+    }
+    public function identifyIssueTrigger(): bool
     {
     }
 }
@@ -26054,6 +26080,9 @@ final class ProgressPrinter
     public function testSkipped(): void
     {
     }
+    public function testSuiteSkipped(int $countTests): void
+    {
+    }
     public function testMarkedIncomplete(): void
     {
     }
@@ -26224,6 +26253,17 @@ final readonly class TestRunnerExecutionStartedSubscriber extends \PHPUnit\TextU
 final readonly class TestSkippedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\Test\SkippedSubscriber
 {
     public function notify(\PHPUnit\Event\Test\Skipped $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\TextUI\Output\Default\ProgressPrinter\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
+{
+    public function notify(\PHPUnit\Event\TestSuite\Skipped $event): void
     {
     }
 }

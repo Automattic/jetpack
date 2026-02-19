@@ -1342,4 +1342,251 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$this->assertTrue( $comments_open, 'Comment filter should not affect non-feedback posts' );
 	}
+
+	/**
+	 * Test track_feedback_status_change sets spam meta when transitioning to spam
+	 */
+	public function test_track_feedback_status_change_sets_spam_meta() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'publish',
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from publish to spam
+		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
+
+		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
+		$this->assertNotEmpty( $spam_meta, 'Spam meta should be set when transitioning to spam' );
+	}
+
+	/**
+	 * Test track_feedback_status_change removes spam meta when transitioning from spam
+	 */
+	public function test_track_feedback_status_change_removes_spam_meta() {
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'spam',
+			)
+		);
+
+		// Set spam meta
+		update_post_meta( $feedback_id, '_spam_status_changed_gmt', current_time( 'mysql', true ) );
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from spam to publish
+		$plugin->track_feedback_status_change( 'publish', 'spam', $post );
+
+		$spam_meta = get_post_meta( $feedback_id, '_spam_status_changed_gmt', true );
+		$this->assertEmpty( $spam_meta, 'Spam meta should be removed when transitioning from spam' );
+	}
+	/**
+	 * Helper that calls shutdown actions to simulate end of request.
+	 */
+	private function mock_shutdown_recalculate() {
+		if ( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ) ) {
+			Contact_Form_Plugin::recalculate_unread_count();
+		}
+		remove_all_actions( 'shutdown' );
+		remove_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) );
+	}
+
+	/**
+	 * Test track_feedback_status_change recalculates unread count when status changes to publish
+	 */
+	public function test_track_feedback_status_change_recalculates_on_publish() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'draft',
+				'comment_status' => Feedback::STATUS_UNREAD,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+		// Transition from draft to publish
+		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
+		$this->assertEquals( 10, has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Count should be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		// Since this test mocking can't do a proper recount, just check that it was reset to 0.
+		$this->assertSame( 0, $count, 'Unread count should be recalculated when status changes from publish' );
+	}
+
+	/**
+	 * Test track_feedback_status_change recalculates unread count when status changes from publish
+	 */
+	public function test_track_feedback_status_change_recalculates_on_unpublish() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'comment_status' => Feedback::STATUS_UNREAD,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from publish to draft
+		$plugin->track_feedback_status_change( 'draft', 'publish', $post );
+		$this->assertEquals( 10, has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Count should be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		// Since this test mocking can't do a proper recount, just check that it was reset to 0.
+		$this->assertSame( 0, $count, 'Unread count should be recalculated when status changes from publish' );
+	}
+
+	/**
+	 * Test track_feedback_status_change does not recalculate when comment_status is read
+	 */
+	public function test_track_feedback_status_change_skips_recount_when_read() {
+		// Set initial count
+		update_option( 'jetpack_feedback_unread_count', 999 );
+
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'draft',
+				'comment_status' => Feedback::STATUS_READ,
+			)
+		);
+
+		$post   = get_post( $feedback_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition from draft to publish
+		$plugin->track_feedback_status_change( 'publish', 'draft', $post );
+		$this->assertFalse( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Count should NOT be recalculated
+		$count = get_option( 'jetpack_feedback_unread_count' );
+		$this->assertEquals( 999, $count, 'Unread count should not be recalculated when comment_status is read' );
+	}
+
+	/**
+	 * Test track_feedback_status_change ignores non-feedback posts
+	 */
+	public function test_track_feedback_status_change_ignores_non_feedback() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$post   = get_post( $post_id );
+		$plugin = Contact_Form_Plugin::init();
+
+		// Transition to spam
+		$plugin->track_feedback_status_change( 'spam', 'publish', $post );
+		$this->assertFalse( has_action( 'shutdown', array( 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin', 'recalculate_unread_count' ) ), 'Recalculate unread count should NOT be scheduled on shutdown' );
+		$this->mock_shutdown_recalculate();
+
+		// Spam meta should NOT be set for non-feedback posts
+		$spam_meta = get_post_meta( $post_id, '_spam_status_changed_gmt', true );
+		$this->assertEmpty( $spam_meta, 'Spam meta should not be set for non-feedback posts' );
+	}
+
+	/**
+	 * Test navigation button processing with class-based identification (core/button).
+	 *
+	 * @dataProvider data_provider_navigation_button_class_identification
+	 */
+	#[DataProvider( 'data_provider_navigation_button_class_identification' )]
+	public function test_navigation_button_class_identification( $input_html, $expected_attributes, $description ) {
+		// Create minimal wrapper structure that gutenblock_render_form_step_navigation expects
+		$wrapped_html = '<div class="wp-block-jetpack-form-step-navigation"><div class="wp-block-jetpack-form-step-navigation__wrapper">' . $input_html . '</div></div>';
+
+		$result = Contact_Form_Plugin::gutenblock_render_form_step_navigation( array(), $wrapped_html );
+
+		foreach ( $expected_attributes as $attr => $value ) {
+			if ( $value === null ) {
+				$this->assertStringNotContainsString( $attr, $result, "$description: should NOT contain $attr" );
+			} else {
+				$this->assertStringContainsString( "$attr=\"$value\"", $result, "$description: should contain $attr=\"$value\"" );
+			}
+		}
+	}
+
+	/**
+	 * Data provider for navigation button class identification tests.
+	 */
+	public static function data_provider_navigation_button_class_identification() {
+		return array(
+			'previous button by class'       => array(
+				'<button class="form-button-previous">Previous</button>',
+				array(
+					'data-wp-on--click'        => 'actions.previousStep',
+					'data-wp-class--is-hidden' => 'state.isFirstStep',
+				),
+				'Previous button identified by form-button-previous class',
+			),
+			'next button by class'           => array(
+				'<button class="form-button-next">Next</button>',
+				array(
+					'data-wp-on--click'        => 'actions.nextStep',
+					'data-wp-class--is-hidden' => 'state.isLastStep',
+				),
+				'Next button identified by form-button-next class',
+			),
+			'submit button by class'         => array(
+				'<button class="form-button-submit">Submit</button>',
+				array(
+					'data-wp-class--is-hidden' => 'state.isNotLastStep',
+				),
+				'Submit button identified by form-button-submit class',
+			),
+			'previous button by legacy attr' => array(
+				'<button data-id-attr="previous-step">Previous</button>',
+				array(
+					'data-wp-on--click'        => 'actions.previousStep',
+					'data-wp-class--is-hidden' => 'state.isFirstStep',
+				),
+				'Previous button identified by legacy data-id-attr',
+			),
+			'next button by legacy attr'     => array(
+				'<button data-id-attr="next-step">Next</button>',
+				array(
+					'data-wp-on--click'        => 'actions.nextStep',
+					'data-wp-class--is-hidden' => 'state.isLastStep',
+				),
+				'Next button identified by legacy data-id-attr',
+			),
+			'submit button by legacy attr'   => array(
+				'<button data-id-attr="submit-step">Submit</button>',
+				array(
+					'data-wp-class--is-hidden' => 'state.isNotLastStep',
+				),
+				'Submit button identified by legacy data-id-attr',
+			),
+			'regular button not affected'    => array(
+				'<button class="some-other-class">Click me</button>',
+				array(
+					'data-wp-on--click'        => null,
+					'data-wp-class--is-hidden' => null,
+				),
+				'Regular button should not get navigation attributes',
+			),
+		);
+	}
 }

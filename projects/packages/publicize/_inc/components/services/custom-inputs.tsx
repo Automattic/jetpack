@@ -158,7 +158,9 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 								'jetpack-publicize-pkg'
 							),
 							{
-								link: <ExternalLink href="https://bsky.app/settings/app-passwords" />,
+								link: (
+									<ExternalLink href="https://bsky.app/settings/app-passwords" children={ null } />
+								),
 							}
 						) }
 					</p>

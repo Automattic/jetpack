@@ -107,10 +107,9 @@ describe( 'ConfirmationForm', () => {
 		);
 	} );
 
-	test( 'marks connection as shared', async () => {
+	test( 'marks connection as shared by default', async () => {
 		renderComponent( { canMarkAsShared: true } );
 
-		await userEvent.click( screen.getByLabelText( 'Mark the connection as shared' ) );
 		await userEvent.click( screen.getByText( 'Confirm' ) );
 
 		await waitFor( () =>
@@ -119,6 +118,30 @@ describe( 'ConfirmationForm', () => {
 					external_user_ID: 'additional-2',
 					keyring_connection_ID: 'service-1',
 					shared: true,
+				},
+				{
+					display_name: 'Additional User 2',
+					profile_picture: 'https://example.com/additional2.jpg',
+					service_name: 'facebook',
+					external_id: 'additional-2',
+				}
+			)
+		);
+	} );
+
+	test( 'does not mark connection as shared when unchecked', async () => {
+		renderComponent( { canMarkAsShared: true } );
+
+		// Uncheck the shared checkbox (it's checked by default)
+		await userEvent.click( screen.getByLabelText( 'Mark the connection as shared' ) );
+		await userEvent.click( screen.getByText( 'Confirm' ) );
+
+		await waitFor( () =>
+			expect( stubCreateConnection ).toHaveBeenCalledWith(
+				{
+					external_user_ID: 'additional-2',
+					keyring_connection_ID: 'service-1',
+					shared: undefined,
 				},
 				{
 					display_name: 'Additional User 2',

@@ -70,6 +70,7 @@ const ActionsDropdownMenu = ( { exportData }: ActionsDropdownMenuProps ) => {
 
 	return (
 		<>
+			{ /* @ts-expect-error label is missing here */ }
 			<DropdownMenu controls={ controls } icon={ menu } />
 			{ showExportModal && (
 				<ExportResponsesModal

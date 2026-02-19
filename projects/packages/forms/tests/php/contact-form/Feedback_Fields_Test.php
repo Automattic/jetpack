@@ -529,6 +529,11 @@ class Feedback_Fields_Test extends BaseTestCase {
 				'expected' => array(), // Rebuilt dynamically in the test with actual form_id
 				'message'  => 'Compiled fields should return field IDs mapped to values.',
 			),
+			'collection_format'  => array(
+				'format'   => 'collection',
+				'expected' => array(), // Rebuilt dynamically in the test with actual form_id
+				'message'  => 'Compiled fields should return collection with label, value, type, id, key, and meta.',
+			),
 		);
 	}
 
@@ -576,6 +581,44 @@ class Feedback_Fields_Test extends BaseTestCase {
 				'g' . $form_id . '-email'   => $test_email,
 				'g' . $form_id . '-website' => $test_website,
 				'g' . $form_id . '-message' => $test_message,
+			);
+		}
+
+		// For collection format, rebuild expected with actual form_id
+		if ( 'collection' === $format ) {
+			$expected = array(
+				array(
+					'label' => 'Name',
+					'value' => $test_name,
+					'type'  => 'name',
+					'id'    => 'g' . $form_id . '-name',
+					'key'   => '1_Name',
+					'meta'  => array(),
+				),
+				array(
+					'label' => 'Email',
+					'value' => $test_email,
+					'type'  => 'email',
+					'id'    => 'g' . $form_id . '-email',
+					'key'   => '2_Email',
+					'meta'  => array(),
+				),
+				array(
+					'label' => 'Website',
+					'value' => $test_website,
+					'type'  => 'url',
+					'id'    => 'g' . $form_id . '-website',
+					'key'   => '3_Website',
+					'meta'  => array(),
+				),
+				array(
+					'label' => 'Message',
+					'value' => $test_message,
+					'type'  => 'textarea',
+					'id'    => 'g' . $form_id . '-message',
+					'key'   => '4_Message',
+					'meta'  => array(),
+				),
 			);
 		}
 

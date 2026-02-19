@@ -309,10 +309,10 @@ function render( $name, $template_props = array(), $print = true ) {
  *
  * @return string
  */
-function render_email( $block_content, array $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+function render_email( $block_content, array $parsed_block, $rendering_context ) {
 	// Validate input parameters and required dependencies
 	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
-		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Audio' ) ) {
 		return '';
 	}
 
@@ -323,87 +323,38 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		return '';
 	}
 
-	// Get spacing from email_attrs for better consistency with core blocks
-	$email_attrs        = $parsed_block['email_attrs'] ?? array();
-	$table_margin_style = '';
+	// Link to the post containing the podcast player for better UX
+	// Users can see the full context and interact with the full player on the site
+	$post_url = get_the_permalink();
 
-	if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
-		// Get margin for table styling
-		$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin' ) ) ), '' ) ?? '';
-
-		// Validate CSS output to prevent injection
-		if ( ! empty( $table_margin_style ) && ! preg_match( '/^[a-zA-Z0-9\s:;()-]+$/', $table_margin_style ) ) {
-			$table_margin_style = '';
-		}
+	if ( empty( $post_url ) ) {
+		return '';
 	}
 
-	$icon_image = 'https://s0.wp.com/i/emails/wpcom-notifications/audio-play.png';
-	$label      = __( 'Listen to the podcast', 'jetpack' );
-	$audio_url  = esc_url( $attr['url'] );
+	// Build block content HTML with audio tag that the audio renderer expects
+	// Note: The audio renderer extracts the URL from the src attribute and uses it as a link,
+	// not as an actual audio source. While semantically incorrect to use a post URL in an
+	// audio src attribute, this is the expected format for the WooCommerce audio renderer.
+	// The renderer will create a clickable link to the post, not attempt to play audio.
+	$escaped_post_url   = esc_url( $post_url );
+	$block_content_html = sprintf( '<audio src="%s"></audio>', $escaped_post_url );
 
-	// Define pill-style colors and styling
-	$background_color = '#f6f7f7';
-	$border_color     = '#AAA';
-	$icon_size        = '18px';
-	$font_size        = '14px';
-
-	// Generate the icon content
-	$icon_content = sprintf(
-		'<a href="%1$s" rel="noopener nofollow" target="_blank" style="padding: 0.25em; padding-left: 17px; display: inline-block; vertical-align: middle;"><img height="%2$s" src="%3$s" style="display:block;margin-right:0;vertical-align:middle;" width="%2$s" alt="%4$s"></a>',
-		esc_url( $audio_url ),
-		esc_attr( $icon_size ),
-		esc_url( $icon_image ),
-		// translators: %s is the podcast player icon.
-		sprintf( __( '%s icon', 'jetpack' ), __( 'Podcast', 'jetpack' ) )
-	);
-	$icon_content = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell( $icon_content, array( 'style' => sprintf( 'vertical-align:middle;font-size:%s;', $font_size ) ) );
-
-	// Generate the label content
-	$label_content    = sprintf(
-		'<a href="%1$s" rel="noopener nofollow" target="_blank" style="text-decoration:none; padding: 0.25em; padding-right: 17px; display: inline-block;"><span style="margin-left:.5em;margin-right:.5em;font-weight:bold"> %2$s </span></a>',
-		esc_url( $audio_url ),
-		esc_html( $label )
-	);
-	$label_cell_style = sprintf(
-		'vertical-align:middle;font-size:%s;',
-		$font_size
-	);
-	$label_content    = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell( $label_content, array( 'style' => $label_cell_style ) );
-
-	// Combine icon and label tables
-	$podcast_content = $icon_content . $label_content;
-
-	// Create the main pill-style table
-	$main_table_styles = sprintf(
-		'background-color: %s; border-radius: 9999px; display: inline-table; float: none; border: 1px solid %s; border-collapse: separate;',
-		$background_color,
-		$border_color
+	// Create a mock parsed block that WooCommerce's audio renderer can handle
+	$mock_parsed_block = array(
+		'attrs' => array(
+			'src'   => $escaped_post_url,
+			'label' => __( 'Listen to the podcast', 'jetpack' ),
+		),
 	);
 
-	$main_table_attrs = array(
-		'align' => 'left',
-		'style' => $main_table_styles,
-	);
-
-	$main_table = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $podcast_content, $main_table_attrs, array(), array(), false );
-
-	// Create the main wrapper table
-	$table_style = 'width: 100%;';
-	if ( ! empty( $table_margin_style ) ) {
-		$table_style = $table_margin_style . '; ' . $table_style;
-	} else {
-		$table_style = 'margin: 16px 0; ' . $table_style;
+	// Preserve email_attrs if present (used for spacing)
+	if ( ! empty( $parsed_block['email_attrs'] ) ) {
+		$mock_parsed_block['email_attrs'] = $parsed_block['email_attrs'];
 	}
 
-	$table_attrs = array(
-		'style' => $table_style,
-	);
+	// Use WooCommerce's core audio renderer
+	$woo_audio_renderer = new \Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Audio();
 
-	$cell_attrs = array(
-		'style' => 'min-width: 100%; vertical-align: middle; word-break: break-word; text-align: left;',
-	);
-
-	$main_wrapper = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $main_table, $table_attrs, $cell_attrs );
-
-	return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_outlook_table_wrapper( $main_wrapper, array( 'align' => 'left' ) );
+	return $woo_audio_renderer->render( $block_content_html, $mock_parsed_block, $rendering_context );
 }
+

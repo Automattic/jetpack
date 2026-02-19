@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -15,7 +15,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
  * WooSync My Account integration class
  */
 class Woo_Sync_My_Account_Integration {
-
 
 	/**
 	 * The single instance of the class.
@@ -33,7 +32,6 @@ class Woo_Sync_My_Account_Integration {
 		// Styles and scripts
 		$this->register_styles_scripts();
 	}
-		
 
 	/**
 	 * Main Class Instance.
@@ -42,16 +40,15 @@ class Woo_Sync_My_Account_Integration {
 	 *
 	 * @since 2.0
 	 * @static
-	 * @see 
+	 * @see
 	 * @return Woo_Sync_My_Account_Integration main instance
 	 */
 	public static function instance() {
-		if ( is_null( self::$_instance ) ) {
+		if ( self::$_instance === null ) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
 	}
-
 
 	/**
 	 * Initialise Hooks
@@ -67,30 +64,27 @@ class Woo_Sync_My_Account_Integration {
 		// Enqueue styles and scripts
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 
-		// Expose CRM fields for editing on My Account (where specified in `wcport` setting)	
-		add_action( 'woocommerce_edit_account_form', array( $this, 'render_additional_crm_fields_on_my_account' ), 10, 0 ); 
+		// Expose CRM fields for editing on My Account (where specified in `wcport` setting)
+		add_action( 'woocommerce_edit_account_form', array( $this, 'render_additional_crm_fields_on_my_account' ), 10, 0 );
 
 		// Save any changes to CRM fields as submitted from My Account page (where used `$this->render_additional_crm_fields_on_my_account`)
-		add_action( 'woocommerce_save_account_details', array( $this, 'save_my_account_crm_field_changes'), 10, 1 );
+		add_action( 'woocommerce_save_account_details', array( $this, 'save_my_account_crm_field_changes' ), 10, 1 );
 
 		// See also $zbs->wordpress_user_integration->wordpress_profile_update (catches woo my account + wp profile update changes)
-
 	}
-
 
 	/**
 	 * Get Invoice List
 	 */
-	public function render_invoice_list(){
+	public function render_invoice_list() {
 
 		global $zbs;
 
 		$settings = $zbs->modules->woosync->settings->getAll();
-		if ( 
-			array_key_exists( 'wcacc', $settings) && 
+		if ( array_key_exists( 'wcacc', $settings ) &&
 			$settings['wcacc'] &&
 			property_exists( $zbs->modules, 'portal' )
-		){
+		) {
 
 			if ( $this->check_customer_has_invoices() ) {
 				$invoices_endpoint = new \Automattic\JetpackCRM\Invoices_Endpoint( $zbs->modules->portal );
@@ -100,67 +94,60 @@ class Woo_Sync_My_Account_Integration {
 				echo esc_html__( 'No invoices available.', 'zero-bs-crm' );
 
 			}
-
 		} else {
 
 			echo esc_html__( 'This feature is disabled.', 'zero-bs-crm' );
 
 		}
-
 	}
-
 
 	/**
 	 * Does the current logged in customer have invoices?
 	 *
 	 * @return bool
 	 */
-	private function check_customer_has_invoices(){
+	private function check_customer_has_invoices() {
 
 		$wordpress_user_id = get_current_user_id();
-		$uinfo = get_userdata( $wordpress_user_id );
-		$contact_id = zeroBS_getCustomerIDWithEmail( $uinfo->user_email );
+		$uinfo             = get_userdata( $wordpress_user_id );
+		$contact_id        = zeroBS_getCustomerIDWithEmail( $uinfo->user_email );
 
-		if ( $contact_id > 0 ){
+		if ( $contact_id > 0 ) {
 
 			$customer_invoices = zeroBS_getInvoicesForCustomer( $contact_id, true, 100, 0, false );
-			
-			if ( count( $customer_invoices ) > 0){
+
+			if ( count( $customer_invoices ) > 0 ) {
 
 				return true;
 
 			}
-
 		}
 
 		return false;
 	}
 
-
 	/**
 	 * Appends our menu items (e.g. `Your Invoices`) to the Woo menu stack
 	 *  To be fired via hook: `woocommerce_account_menu_items`
 	 */
-	public function append_items_to_woo_menu( $items ){
+	public function append_items_to_woo_menu( $items ) {
 
 		global $zbs;
 
 		$my_account_invoices_enabled = zeroBSCRM_getSetting( 'feat_invs' ) > 0;
-		$wc_settings = $zbs->modules->woosync->settings->getAll();
+		$wc_settings                 = $zbs->modules->woosync->settings->getAll();
 
-		if ( $my_account_invoices_enabled && $wc_settings['wcacc'] ){
+		if ( $my_account_invoices_enabled && $wc_settings['wcacc'] ) {
 
-			$modified_items =  array( 'invoices' => __( 'Your Invoices', 'zero-bs-crm' ) );
-   			$modified_items = array_slice( $items, 0, 2, true ) + $modified_items + array_slice( $items, 2, count( $items ), true );
-			
+			$modified_items = array( 'invoices' => __( 'Your Invoices', 'zero-bs-crm' ) );
+			$modified_items = array_slice( $items, 0, 2, true ) + $modified_items + array_slice( $items, 2, count( $items ), true );
+
 			$items = $modified_items;
 
-		} 
+		}
 
 		return $items;
-
 	}
-
 
 	/**
 	 * Register styles and scripts
@@ -174,37 +161,34 @@ class Woo_Sync_My_Account_Integration {
 	/**
 	 * Enqueue styles and scripts
 	 */
-	public function enqueue_styles_scripts(){
+	public function enqueue_styles_scripts() {
 
-		$account_page_id = get_option('woocommerce_myaccount_page_id');
+		$account_page_id = get_option( 'woocommerce_myaccount_page_id' );
 
 		if ( is_page( $account_page_id ) ) {
 			wp_enqueue_style( 'jpcrm-woo-sync-my-account' );
 			wp_enqueue_style( 'jpcrm-woo-sync-fa' );
 		}
-
 	}
-
-
 
 	/**
 	 * Render CRM fields for editing on My Account (where specified in `wcport` setting)
 	 * WH note: This could make use of a central functions for a chunk of it (e.g. shared with portal/front-end exposed fields?)
 	 */
-	public function render_additional_crm_fields_on_my_account() { 
+	public function render_additional_crm_fields_on_my_account() {
 
-		// make action magic happen here... 
+		// make action magic happen here...
 		global $zbs, $zbsCustomerFields, $zbsFieldsEnabled;
 
 		$settings = $zbs->modules->woosync->settings->getAll();
 
-		if ( array_key_exists( 'wcport', $settings ) ){
-	
+		if ( array_key_exists( 'wcport', $settings ) ) {
+
 			// Retrieve current user data
-			$wordpress_user_id            = get_current_user_id();
-			$uinfo          = get_userdata( $wordpress_user_id );
-			$contact_id     = zeroBS_getCustomerIDWithEmail($uinfo->user_email);
-			$crm_contact    = zeroBS_getCustomerMeta($contact_id);
+			$wordpress_user_id = get_current_user_id();
+			$uinfo             = get_userdata( $wordpress_user_id );
+			$contact_id        = zeroBS_getCustomerIDWithEmail( $uinfo->user_email );
+			$crm_contact       = zeroBS_getCustomerMeta( $contact_id );
 
 			// Field models/settings
 
@@ -212,267 +196,265 @@ class Woo_Sync_My_Account_Integration {
 			$fields = $zbsCustomerFields;
 
 			// Retireve fields show/hide statuses
-			$fields_to_show = $settings['wcport'];
-			$fields_to_hide = $zbs->settings->get('fieldhides');	
-			$fields_to_show_on_woo_my_account = explode(",", $fields_to_show);
+			$fields_to_show                   = $settings['wcport'];
+			$fields_to_hide                   = $zbs->settings->get( 'fieldhides' );
+			$fields_to_show_on_woo_my_account = explode( ',', $fields_to_show );
 
-            // Fields to hide for front-end situations (Portal)
-            $fields_to_hide_on_portal = $zbs->DAL->fields_to_hide_on_frontend( ZBS_TYPE_CONTACT );
+			// Fields to hide for front-end situations (Portal)
+			$fields_to_hide_on_portal = $zbs->DAL->fields_to_hide_on_frontend( ZBS_TYPE_CONTACT );
 
-            // Portal hide field setting (overrides global setting ^)
-			$portal_hide_fields_setting = $zbs->settings->get('portal_hidefields');
-			if ( isset( $portal_hide_fields_setting ) ){
+			// Portal hide field setting (overrides global setting ^)
+			$portal_hide_fields_setting = $zbs->settings->get( 'portal_hidefields' );
+			if ( isset( $portal_hide_fields_setting ) ) {
 
 				$portal_hide_fields_setting_array = explode( ',', $portal_hide_fields_setting );
-				if ( is_array( $portal_hide_fields_setting_array ) ){
+				if ( is_array( $portal_hide_fields_setting_array ) ) {
 
 					$fields_to_hide_on_portal = $portal_hide_fields_setting_array;
 				}
-
 			}
 
 			// Address/contact settings
-			$show_addresses = zeroBSCRM_getSetting('showaddress');
-			$show_second_address = zeroBSCRM_getSetting('secondaddress');
-			$show_address_country_field = zeroBSCRM_getSetting('countries');
-			$click2call = false;
+			$show_addresses             = zeroBSCRM_getSetting( 'showaddress' );
+			$show_second_address        = zeroBSCRM_getSetting( 'secondaddress' );
+			$show_address_country_field = zeroBSCRM_getSetting( 'countries' );
+			$click2call                 = false;
 
 			// Legacy: This global holds "enabled/disabled" for specific fields... ignore unless you're WH or ask
-			if ( $show_second_address == "1" ) {
+			if ( $show_second_address == '1' ) {
 				$zbsFieldsEnabled['secondaddress'] = true;
-			} 
-		
+			}
+
 			// Track group element state
-			$open_field_group   = false;
-			$field_group_key    = '';
+			$open_field_group = false;
+			$field_group_key  = '';
 
 			?>
 			<input type="hidden" name="zbs_customer_id" id="zbs_customer_id" value="<?php echo esc_attr( $contact_id ); ?>" />
 			<?php
 
 			// Cycle through fields and op
-			foreach ( $fields as $field_key => $field_value ){
+			foreach ( $fields as $field_key => $field_value ) {
 
 				// Hard global front-end & specific Woo My Account blocking of some fields
 				if (
 					// Global block
-					!in_array( $field_key, $fields_to_hide_on_portal )
+					! in_array( $field_key, $fields_to_hide_on_portal )
 					&& // Woo My Account settings specific block
 					in_array( $field_key, $fields_to_show_on_woo_my_account )
 					&& // Hard-hidden by opt override (on off for second address, mostly)
-					!( isset( $field_value['opt'] ) && ( !isset( $zbsFieldsEnabled[ $field_value['opt'] ] ) || !$zbsFieldsEnabled[ $field_value['opt']] ) )
-					&& // or is hidden by checkbox? 
-					!( isset( $fields_to_hide['customer'] ) && is_array( $fields_to_hide['customer'] ) && in_array( $field_key, $fields_to_hide['customer'] ) )
-				){
+					! ( isset( $field_value['opt'] ) && ( ! isset( $zbsFieldsEnabled[ $field_value['opt'] ] ) || ! $zbsFieldsEnabled[ $field_value['opt'] ] ) )
+					&& // or is hidden by checkbox?
+					! ( isset( $fields_to_hide['customer'] ) && is_array( $fields_to_hide['customer'] ) && in_array( $field_key, $fields_to_hide['customer'] ) )
+				) {
 					// Output all fields with a field format type
-					if ( isset( $field_value[0] ) ){
+					if ( isset( $field_value[0] ) ) {
 
 						// Output Fields in Woo matching format (<p> per line)
-						?><p class="form-row"><?php
+						?>
+						<p class="form-row">
+						<?php
 
 						// Split by field format
-						switch ( $field_value[0] ){
+						switch ( $field_value[0] ) {
 
 							case 'text':
-
 								?>
-								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?></label>
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?></label>
 								<input type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="input-text" style="width: 100%;padding: 15px;margin-bottom: 18px;" placeholder="<?php echo ( isset( $field_value[2] ) ? esc_attr__( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 								<?php
 
 								break;
 
 							case 'price':
-
-								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e($field_value[1],"zero-bs-crm"); ?></label>
-									<?php echo esc_html( zeroBSCRM_getCurrencyChr() ); ?> <input style="width: 130px;display: inline-block;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control  numbersOnly" placeholder="<?php echo ( isset( $field_value[2] ) ? esc_attr__( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
+								?>
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?></label>
+								<?php echo esc_html( zeroBSCRM_getCurrencyChr() ); ?> <input style="width: 130px;display: inline-block;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control  numbersOnly" placeholder="<?php echo ( isset( $field_value[2] ) ? esc_attr__( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 								<?php
 
 								break;
 
-
 							case 'date':
-								$value = (isset($crm_contact[$field_key])) ? $crm_contact[$field_key] : null;
+								$value = ( isset( $crm_contact[ $field_key ] ) ) ? $crm_contact[ $field_key ] : null;
 
 								$date_value = '';
-								if ( ! empty( $value ) && $value !== -99) {
+								if ( ! empty( $value ) && $value !== -99 ) {
 									$date_value = jpcrm_uts_to_date_str( $value, 'Y-m-d', true );
 								}
-							?>
+								?>
 								<p>
 									<label class='label' for="<?php echo esc_attr( $field_key ); ?>">
-										<?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?>:
+								<?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?>:
 									</label>
 									<input type="date" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="zbsc_<?php echo esc_attr( $field_key ); ?>" placeholder="yyyy-mm-dd" value="<?php echo esc_attr( $date_value ); ?>"/>
 								</p>
-							<?php
+								<?php
 								break;
 
 							case 'select':
-
-								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e($field_value[1],"zero-bs-crm"); ?></label>
+								?>
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?></label>
 									<select name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control zbs-watch-input" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>">
-										<?php
+								<?php
 											// pre DAL 2 = $field_value[3], DAL2 = $field_value[2]
-											$options = array(); 
-											if (isset($field_value[3])) {
+											$options = array();
+								if ( isset( $field_value[3] ) ) {
 
-												$options = $field_value[3];
+									$options = $field_value[3];
 
-											} else {
+								} else {
 
-												// DAL2 these don't seem to be auto-decompiled
-												if ( isset( $field_value[2] ) ) {
-													$options = explode( ',', $field_value[2] );
-												}
+									// DAL2 these don't seem to be auto-decompiled
+									if ( isset( $field_value[2] ) ) {
+												$options = explode( ',', $field_value[2] );
+									}
+								}
 
-											}
+								if ( isset( $options ) && count( $options ) > 0 ) {
 
-											if (isset($options) && count($options) > 0){
+									echo '<option value="" disabled="disabled"';
+									if (
+									! isset( $crm_contact[ $field_key ] )
+									||
+									( isset( $crm_contact[ $field_key ] ) && empty( $crm_contact[ $field_key ] ) )
+									) {
 
-												echo '<option value="" disabled="disabled"';
-												if (
-														!isset( $crm_contact[$field_key] )
-														|| 
-														( isset( $crm_contact[$field_key] ) && empty( $crm_contact[$field_key] ) )
-													) {
+										echo ' selected="selected"';
 
-													echo ' selected="selected"';
+									}
+									echo '>' . esc_html__( 'Select', 'zero-bs-crm' ) . '</option>';
 
-												}
-												echo '>' . esc_html__( 'Select', "zero-bs-crm" ) . '</option>';
+									foreach ( $options as $opt ) {
 
-												foreach ($options as $opt){
+										echo '<option value="' . esc_attr( $opt ) . '"';
 
-													echo '<option value="' . esc_attr( $opt ) . '"';
+										if ( isset( $crm_contact[ $field_key ] ) && strtolower( $crm_contact[ $field_key ] ) == strtolower( $opt ) ) {
 
-													if ( isset( $crm_contact[$field_key] ) && strtolower( $crm_contact[$field_key] ) == strtolower( $opt ) ){
-														
-														echo ' selected="selected"'; 
+																echo ' selected="selected"';
 
-													}
+										}
 
-													// __ here so that things like country lists can be translated
-													echo '>' . esc_html__( $opt, "zero-bs-crm" ) . '</option>';
+										// __ here so that things like country lists can be translated
+										echo '>' . esc_html__( $opt, 'zero-bs-crm' ) . '</option>';
 
-												}
+									}
+								} else {
+									echo '<option value="">' . esc_html__( 'No Options', 'zero-bs-crm' ) . '!</option>';
+								}
 
-											} else echo '<option value="">' . esc_html__( 'No Options', "zero-bs-crm" ) . '!</option>';
-
-										?>
+								?>
 									</select>
 								<?php
 
 								break;
 
 							case 'tel':
-
-								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e($field_value[1],"zero-bs-crm");?></label>
+								?>
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?></label>
 									<input type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control zbs-tel" placeholder="<?php echo ( isset( $field_value[2] ) ? esc_attr__( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
-									<?php
+								<?php
 
-									if ( $click2call == "1" && isset( $crm_contact[$field_key] ) && !empty( $crm_contact[$field_key] ) ) {
-										
-										echo '<a href="' . esc_attr( zeroBSCRM_clickToCallPrefix() . $crm_contact[$field_key] ) . '" class="button"><i class="fa fa-phone"></i> ' . esc_html( $crm_contact[$field_key] ) . '</a>';
-									
-									}
+								if ( $click2call == '1' && isset( $crm_contact[ $field_key ] ) && ! empty( $crm_contact[ $field_key ] ) ) {
 
-									if ( $field_key == 'mobtel' ){
+									echo '<a href="' . esc_attr( zeroBSCRM_clickToCallPrefix() . $crm_contact[ $field_key ] ) . '" class="button"><i class="fa fa-phone"></i> ' . esc_html( $crm_contact[ $field_key ] ) . '</a>';
 
-										// Twilio hook-in
-										do_action( 'zbs_twilio_nonce' );
+								}
 
-										// Twilio filtering for css classes
-										$sms_class = 'send-sms-none';
-										$sms_class = apply_filters( 'zbs_twilio_sms', $sms_class ); ;
+								if ( $field_key == 'mobtel' ) {
 
-										$contact_mobile = ''; 
-										if ( is_array( $crm_contact ) && isset( $crm_contact[$field_key] ) && isset( $contact['id'] ) ){
-										
-											$contact_mobile = zeroBS_customerMobile( $contact['id'], $crm_contact );
+									// Twilio hook-in
+									do_action( 'zbs_twilio_nonce' );
 
-										}
-										
-										if ( !empty( $contact_mobile) ){
-											echo '<a class="' . esc_attr( $sms_class ) . ' button" data-smsnum="' . esc_attr( $contact_mobile ) .'"><i class="mobile alternate icon"></i> ' . esc_html__( 'SMS', 'zero-bs-crm' ) . ': ' . esc_html( $contact_mobile ) . '</a>';
-										}
+									// Twilio filtering for css classes
+									$sms_class = 'send-sms-none';
+									$sms_class = apply_filters( 'zbs_twilio_sms', $sms_class );
+
+									$contact_mobile = '';
+									if ( is_array( $crm_contact ) && isset( $crm_contact[ $field_key ] ) && isset( $contact['id'] ) ) {
+
+										$contact_mobile = zeroBS_customerMobile( $contact['id'], $crm_contact );
 
 									}
 
-										?>
+									if ( ! empty( $contact_mobile ) ) {
+										echo '<a class="' . esc_attr( $sms_class ) . ' button" data-smsnum="' . esc_attr( $contact_mobile ) . '"><i class="mobile alternate icon"></i> ' . esc_html__( 'SMS', 'zero-bs-crm' ) . ': ' . esc_html( $contact_mobile ) . '</a>';
+									}
+								}
+
+								?>
 								<?php
 
 								break;
 
 							case 'email':
-
-								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?>:</label>
+								?>
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?>:</label>
 									<input type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control zbs-email" placeholder="<?php echo esc_attr( isset( $field_value[2] ) ? __( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 								<?php
 
 								break;
 
 							case 'textarea':
-
-								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?>:</label>
+								?>
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?>:</label>
 									<textarea name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control" placeholder="<?php echo esc_attr( isset( $field_value[2] ) ? __( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>"><?php echo esc_textarea( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?></textarea>
 								<?php
 
 								break;
 
-							#} Added 1.1.19 
+							#} Added 1.1.19
 							case 'selectcountry':
-
 								$countries = zeroBSCRM_loadCountryList();
 
-								if ( $show_address_country_field == "1" ){
+								if ( $show_address_country_field == '1' ) {
 
-								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?></label>
+									?>
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?></label>
 									<select name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>">
-										<?php
+									<?php
 
 											// got countries?
-											if ( isset( $countries ) && count( $countries ) > 0 ){
+									if ( isset( $countries ) && count( $countries ) > 0 ) {
 
-												echo '<option value="" disabled="disabled"';
-												if ( 
-													!isset( $crm_contact[$field_key] ) 
-													||
-													( isset( $crm_contact[$field_key] ) && empty( $crm_contact[$field_key] ) ) ){
+										echo '<option value="" disabled="disabled"';
+										if ( ! isset( $crm_contact[ $field_key ] )
+										||
+										( isset( $crm_contact[ $field_key ] ) && empty( $crm_contact[ $field_key ] ) ) ) {
 
-													 echo ' selected="selected"';
+											echo ' selected="selected"';
 
-												}
-												echo '>' . esc_html__( 'Select', "zero-bs-crm" ) . '</option>';
+										}
+										echo '>' . esc_html__( 'Select', 'zero-bs-crm' ) . '</option>';
 
-												foreach ($countries as $countryKey => $country){
+										foreach ( $countries as $countryKey => $country ) {
 
-													// temporary fix for people storing "United States" but also "US"
-													// needs a migration to iso country code, for now, catch the latter (only 1 user via api)
+											// temporary fix for people storing "United States" but also "US"
+											// needs a migration to iso country code, for now, catch the latter (only 1 user via api)
 
-													echo '<option value="' . esc_attr( $country ) . '"';
-													if ( 
-														isset( $crm_contact[$field_key] ) 
-														&& 
-														( 
-															strtolower( $crm_contact[$field_key] ) == strtolower( $country )
-															||
-															strtolower( $crm_contact[$field_key] ) == strtolower( $countryKey )
-														)
-													){
-														
-														echo ' selected="selected"'; 
+											echo '<option value="' . esc_attr( $country ) . '"';
+											if ( isset( $crm_contact[ $field_key ] )
+											&&
+											(
+											strtolower( $crm_contact[ $field_key ] ) == strtolower( $country )
+											||
+											strtolower( $crm_contact[ $field_key ] ) == strtolower( $countryKey )
+											)
+											) {
 
-													}
+													echo ' selected="selected"';
 
-													echo '>' . esc_html( $country ) . '</option>';
+											}
 
-												}
+											echo '>' . esc_html( $country ) . '</option>';
 
-											} else echo '<option value="">' . esc_html__( 'No Countries Loaded', "zero-bs-crm" ) . '!</option>';
+										}
+									} else {
+										echo '<option value="">' . esc_html__( 'No Countries Loaded', 'zero-bs-crm' ) . '!</option>';
+									}
 
-										?>
-									</select><?php
+									?>
+									</select>
+									<?php
 
 								}
 
@@ -480,156 +462,154 @@ class Woo_Sync_My_Account_Integration {
 
 							// auto number - can't actually edit autonumbers, so its just outputting :)
 							case 'autonumber':
-
 								?>
-								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?></label>
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?></label>
 								<?php
 									// output any saved autonumber for this obj
 									$value = $field_value[2];
 									$str   = '';
-									if ($value !== -99) {
-										$str = $value;
-									}
+								if ( $value !== -99 ) {
+									$str = $value;
+								}
 
-									// we strip the hashes saved in db for easy separation later
-									$str = str_replace('#','',$str);
+														// we strip the hashes saved in db for easy separation later
+														$str = str_replace( '#', '', $str );
 
-									// then output...
-									if ( empty( $str ) ) {
-										echo '~';
-									} else {
-										echo esc_html( $str );
-									}
+														// then output...
+								if ( empty( $str ) ) {
+									echo '~';
+								} else {
+									echo esc_html( $str );
+								}
 
-									break;
+								break;
 
 							case 'numberint':
-								$value = isset( $crm_contact[$field_key] ) ? $crm_contact[$field_key] : -99;
+								$value = isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : -99;
 
 								?>
 								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?></label>
 								<input style="width: 130px;display: inline-block;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control intOnly zbs-dc zbs-custom-field" placeholder="<?php echo esc_attr( isset( $field_value[2] ) ? __( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( $value !== -99 ? $value : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 								<?php
 
-									break;
+								break;
 
 							case 'numberfloat':
-								$value = isset( $crm_contact[$field_key] ) ? $crm_contact[$field_key] : -99;
+								$value = isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : -99;
 
 								?>
 								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?></label>
 								<input style="width: 130px;display: inline-block;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control numbersOnly zbs-dc zbs-custom-field" placeholder="<?php echo esc_attr( isset( $field_value[2] ) ? __( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( $value !== -99 ? $value : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 								<?php
 
-									break;
+								break;
 
 							case 'checkbox':
-									$value = isset( $crm_contact[$field_key] ) ? $crm_contact[$field_key] : -99;
+									$value = isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : -99;
 
 								?>
-								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?></label>
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?></label>
 								<?php
 									// pre DAL 2 = $fieldV[3], DAL2 = $fieldV[2]
-									$options = false; 
+									$options = false;
+								if ( isset( $field_value[3] ) && is_array( $field_value[3] ) ) {
+									$options = $field_value[3];
+								} elseif ( isset( $field_value[2] ) ) {
+									// DAL2 these don't seem to be auto-decompiled?
+									// doing here for quick fix, maybe fix up the chain later.
+									$options = explode( ',', $field_value[2] );
+								}
+
+														// split fields (multi select)
+														$data_options = array();
+								if ( $value !== -99 && ! empty( $value ) ) {
+									$data_options = explode( ',', $value );
+								}
+
+								if (
+														isset( $options )
+														&& is_array( $options )
+														&& count( $options ) > 0
+														&& $options[0] != ''
+														) {
+									$option_index = 0;
+
+									foreach ( $options as $opt ) {
+										echo '<div class="ui checkbox"><input type="checkbox" name="zbsc_' . esc_attr( $field_key . '-' . $option_index ) . '" id="' . esc_attr( $field_key . '-' . $option_index ) . '" value="' . esc_attr( $opt ) . '"';
+										if ( in_array( $opt, $data_options ) ) {
+											echo ' checked="checked"';
+										}
+										echo ' /><label for="' . esc_attr( $field_key . '-' . $option_index ) . '">' . esc_html( $opt ) . '</label></div>';
+
+										++$option_index;
+									}
+								} else {
+											echo '<label for="' . esc_attr( $field_key ) . '-0">' . esc_html__( 'No Options', 'zero-bs-crm' ) . '!</label>';
+								}
+								?>
+								<input type="hidden" name="zbsc_<?php echo esc_attr( $field_key ); ?>_dirtyflag" id="zbsc_<?php echo esc_attr( $field_key ); ?>_dirtyflag" value="0" />
+														<?php
+
+								break;
+
+							case 'radio':
+									$value = isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : -99;
+
+								?>
+									<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?></label>
+									<div class="zbs-field-radio-wrap">
+									<?php
+										// pre DAL 2 = $fieldV[3], DAL2 = $fieldV[2]
+										$options = false;
 									if ( isset( $field_value[3] ) && is_array( $field_value[3] ) ) {
 										$options = $field_value[3];
-									} else if ( isset( $field_value[2] ) ) {
+									} elseif ( isset( $field_value[2] ) ) {
 										// DAL2 these don't seem to be auto-decompiled?
 										// doing here for quick fix, maybe fix up the chain later.
 										$options = explode( ',', $field_value[2] );
 									}
 
-									// split fields (multi select)
-									$data_options = array();
-									if ( $value !== -99 && ! empty( $value ) ) {
-										$data_options = explode(',', $value);
-									}
-
 									if (
-										isset( $options ) 
-										&& is_array( $options ) 
-										&& count( $options ) > 0 
-										&& $options[0] != ''
-									) {
+															isset( $options )
+															&& is_array( $options )
+															&& count( $options ) > 0
+															&& $options[0] != ''
+															) {
 										$option_index = 0;
 
 										foreach ( $options as $opt ) {
-											echo '<div class="ui checkbox"><input type="checkbox" name="zbsc_' . esc_attr( $field_key . '-' . $option_index ) . '" id="' . esc_attr( $field_key . '-' . $option_index ) . '" value="' . esc_attr( $opt ) . '"';
-											if ( in_array( $opt, $data_options ) ) {
+											echo '<div class="zbs-radio"><input type="radio" name="zbsc_' . esc_attr( $field_key ) . '" id="' . esc_attr( $field_key . '-' . $option_index ) . '" value="' . esc_attr( $opt ) . '"';
+
+											if ( $value !== -99 && $value == $opt ) {
 												echo ' checked="checked"';
 											}
-											echo ' /><label for="' . esc_attr( $field_key . '-' . $option_index ) . '">' . esc_html( $opt ) . '</label></div>';
+											echo ' /> <label for="' . esc_attr( $field_key . '-' . $option_index ) . '">' . esc_html( $opt ) . '</label></div>';
 
-											$option_index++;
+											++$option_index;
 										}
-
 									} else {
-										echo '<label for="' . esc_attr( $field_key ) . '-0">' . esc_html__( 'No Options', 'zero-bs-crm' ) . '!</label>';
+													echo '<label for="' . esc_attr( $field_key ) . '-0">' . esc_html__( 'No Options', 'zero-bs-crm' ) . '!</label>';
 									}
-								?>
-								<input type="hidden" name="zbsc_<?php echo esc_attr( $field_key ); ?>_dirtyflag" id="zbsc_<?php echo esc_attr( $field_key ); ?>_dirtyflag" value="0" />
-								<?php
-
-									break;
-
-							case 'radio':
-									$value = isset( $crm_contact[$field_key] ) ? $crm_contact[$field_key] : -99;
-
-									?>
-									<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?></label>
-									<div class="zbs-field-radio-wrap">
-									<?php
-										// pre DAL 2 = $fieldV[3], DAL2 = $fieldV[2]
-										$options = false; 
-										if ( isset( $field_value[3] ) && is_array( $field_value[3] ) ) {
-											$options = $field_value[3];
-										} else if ( isset( $field_value[2] ) ) {
-											// DAL2 these don't seem to be auto-decompiled?
-											// doing here for quick fix, maybe fix up the chain later.
-											$options = explode( ',', $field_value[2] );
-										}
-
-										if (
-											isset( $options ) 
-											&& is_array( $options )
-											&& count( $options ) > 0 
-											&& $options[0] != ''
-										) {
-											$option_index = 0;
-
-											foreach ( $options as $opt ) {
-												echo '<div class="zbs-radio"><input type="radio" name="zbsc_' . esc_attr( $field_key ) . '" id="' . esc_attr( $field_key . '-' . $option_index ) . '" value="' . esc_attr( $opt ) . '"';
-
-												if ($value !== -99 && $value == $opt) echo ' checked="checked"'; 
-												echo ' /> <label for="' . esc_attr( $field_key . '-' . $option_index ) . '">' . esc_html( $opt ) . '</label></div>';
-
-												$option_index++;
-											}
-
-										} else {
-											echo '<label for="' . esc_attr( $field_key ) . '-0">' . esc_html__( 'No Options', 'zero-bs-crm' ) . '!</label>';
-										}
 
 									?>
 										</div>
 										<input type="hidden" name="zbsc_<?php echo esc_attr( $field_key ); ?>_dirtyflag" id="zbsc_<?php echo esc_attr( $field_key ); ?>_dirtyflag" value="0" />
-									<?php
+															<?php
 
-									break;
+								break;
 						}
-
 					}
 
-					?></p><?php
+					?>
+					</p>
+					<?php
 
 				} // / not in 'hard do not show' list
 
 			} // foreach field
-		
-		} // if array key does not exist
 
+		} // if array key does not exist
 	}
-	
 
 	/**
 	 * Save any changes made from extra field additions on My Account page (via `$this->render_additional_crm_fields_on_my_account`)
@@ -639,12 +619,12 @@ class Woo_Sync_My_Account_Integration {
 	public function save_my_account_crm_field_changes( $wordpress_user_id ) {
 		global $zbs, $zbsCustomerFields;
 
-		$contact_id = zeroBS_getCustomerIDFromWPID( $wordpress_user_id );
+		$contact_id       = zeroBS_getCustomerIDFromWPID( $wordpress_user_id );
 		$old_contact_data = $zbs->DAL->contacts->getContact( $contact_id );
 		$new_contact_data = zeroBS_buildContactMeta( $_POST, $old_contact_data ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Here we check for fields already updated via core WordPress User integration
-		if ( defined( 'JPCRM_PROFILE_UPDATE_CHANGES' ) ){
+		if ( defined( 'JPCRM_PROFILE_UPDATE_CHANGES' ) ) {
 			$do_not_update = JPCRM_PROFILE_UPDATE_CHANGES;
 		} else {
 			$do_not_update = array();
@@ -655,17 +635,17 @@ class Woo_Sync_My_Account_Integration {
 			// and 'translate' their key names into our CRM key names.
 			$woo_field_to_crm_field = array(
 				'account_first_name' => 'fname',
-				'account_last_name' => 'lname',
-				'account_email' => 'email',
+				'account_last_name'  => 'lname',
+				'account_email'      => 'email',
 			);
 
 			foreach ( $_POST as $post_key => $post_value ) {
 				if ( ! isset( $woo_field_to_crm_field[ $post_key ] ) ) {
 					continue;
 				}
-				
+
 				$crm_field = $woo_field_to_crm_field[ $post_key ];
-			
+
 				if ( ! in_array( $crm_field, $do_not_update ) ) {
 						$new_contact_data[ $crm_field ] = $post_value;
 				}
@@ -675,11 +655,11 @@ class Woo_Sync_My_Account_Integration {
 			// process fields
 			$fields_to_change = array();
 			foreach ( $new_contact_data as $key => $value ) {
-				if ( !isset( $zbsCustomerFields[$key] ) || in_array( $key, $do_not_update ) ) {
-					$new_contact_data[$key] = $old_contact_data[$key];
+				if ( ! isset( $zbsCustomerFields[ $key ] ) || in_array( $key, $do_not_update ) ) {
+					$new_contact_data[ $key ] = $old_contact_data[ $key ];
 				}
 				// collect fields that changed
-				elseif ( isset($old_contact_data[$key]) && $old_contact_data[$key] != $value ) {
+				elseif ( isset( $old_contact_data[ $key ] ) && $old_contact_data[ $key ] != $value ) {
 					$fields_to_change[] = $key;
 				}
 			}
@@ -687,9 +667,9 @@ class Woo_Sync_My_Account_Integration {
 			if ( count( $fields_to_change ) > 0 ) {
 				$contact_id = $zbs->DAL->contacts->addUpdateContact(
 					array(
-						'id'    =>  $contact_id,
-						'data'  => $new_contact_data,
-						'do_not_update_blanks' => false
+						'id'                   => $contact_id,
+						'data'                 => $new_contact_data,
+						'do_not_update_blanks' => false,
 					)
 				);
 
@@ -699,10 +679,10 @@ class Woo_Sync_My_Account_Integration {
 					// build long description string for log
 					$longDesc = '';
 					foreach ( $fields_to_change as $field ) {
-						if ( !empty( $longDesc ) ) {
+						if ( ! empty( $longDesc ) ) {
 							$longDesc .= '<br>';
 						}
-						$longDesc .= sprintf( '%s: <code>%s</code> → <code>%s</code>', $field, $old_contact_data[$field], $new_contact_data[$field]);
+						$longDesc .= sprintf( '%s: <code>%s</code> → <code>%s</code>', $field, $old_contact_data[ $field ], $new_contact_data[ $field ] );
 					}
 
 					zeroBS_addUpdateLog(
@@ -710,9 +690,9 @@ class Woo_Sync_My_Account_Integration {
 						-1,
 						-1,
 						array(
-							'type' => __( 'Details updated via WooCommerce My Account', 'zero-bs-crm' ),
+							'type'      => __( 'Details updated via WooCommerce My Account', 'zero-bs-crm' ),
 							'shortdesc' => __( 'Contact changed some of their details via WooCommerce My Account', 'zero-bs-crm' ),
-							'longdesc' => $longDesc,
+							'longdesc'  => $longDesc,
 						),
 						'zerobs_customer'
 					);

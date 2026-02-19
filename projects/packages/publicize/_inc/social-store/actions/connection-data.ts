@@ -4,7 +4,8 @@ import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { getSocialScriptData } from '../../utils/script-data';
-import { Connection, KeyringResult } from '../types';
+import { CUSTOMIZE_PER_NETWORK_KEY } from '../constants';
+import { Connection, EditorConnection, KeyringResult } from '../types';
 import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
@@ -19,6 +20,7 @@ import {
 	REQUEST_TYPE_REFRESH_CONNECTIONS,
 	ADD_ABORT_CONTROLLER,
 	REMOVE_ABORT_CONTROLLERS,
+	CUSTOMIZE_CONNECTION,
 } from './constants';
 
 /**
@@ -228,14 +230,27 @@ export function syncConnectionsToPostMeta() {
  * Toggles the connection enable-status.
  *
  * @param connectionId - Connection ID to switch.
- * @param syncToMeta   - Whether to sync the connection state to the post meta.
- * @return A think to switch connection enable-status.
+ * @return A thunk to switch connection enable-status.
  */
-export function toggleConnectionById( connectionId: string, syncToMeta = true ) {
-	return function ( { dispatch } ) {
+export function toggleConnectionById( connectionId: string ) {
+	return function ( { registry, dispatch } ) {
 		dispatch( toggleConnection( connectionId ) );
 
-		if ( syncToMeta ) {
+		const customizingPerNetwork = Boolean(
+			registry.select( editorStore ).getEditedPostAttribute( 'meta' )?.[ CUSTOMIZE_PER_NETWORK_KEY ]
+		);
+
+		const isPostPublished = registry.select( editorStore ).isCurrentPostPublished();
+
+		/**
+		 * For published posts, we do not save the connection enable-status to post meta,
+		 * but when customizing per network, we need to ensure
+		 * that the connection toggle results in sync
+		 * because the connection overrides are saved for published posts as well.
+		 */
+		const shouldSyncToMeta = customizingPerNetwork || ! isPostPublished;
+
+		if ( shouldSyncToMeta ) {
 			dispatch( syncConnectionsToPostMeta() );
 		}
 	};
@@ -534,4 +549,43 @@ export function openConnectionsModal() {
  */
 export function closeConnectionsModal() {
 	return toggleConnectionsModal( false );
+}
+
+/**
+ * Customizes the connection.
+ *
+ * @param connectionId - Connection ID.
+ * @param data         - The customization data.
+ * @return An action object.
+ */
+export function customizeConnection(
+	connectionId: string,
+	data: Omit< EditorConnection, 'enabled' >
+) {
+	return {
+		type: CUSTOMIZE_CONNECTION,
+		connectionId,
+		data,
+	};
+}
+/**
+ * Customizes the connection.
+ *
+ * @param connectionId - Connection ID.
+ * @param data         - The customization data.
+ * @param syncToMeta   - Whether to sync the connection state to the post meta.
+ * @return A thunk.
+ */
+export function customizeConnectionById(
+	connectionId: string,
+	data: Omit< EditorConnection, 'enabled' >,
+	syncToMeta = true
+) {
+	return async function ( { dispatch } ) {
+		await dispatch( customizeConnection( connectionId, data ) );
+
+		if ( syncToMeta ) {
+			await dispatch( syncConnectionsToPostMeta() );
+		}
+	};
 }

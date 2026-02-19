@@ -24,10 +24,25 @@ const socialWebpackConfig = {
 				exclude: /node_modules\//,
 			} ),
 
-			// Transpile @automattic/* in node_modules too.
+			// Transpile @automattic/jetpack-* in node_modules too.
 			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@automattic/' ],
+				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
+
+			// Add textdomains (but no other optimizations) for @wordpress/dataviews and its dependencies.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [ '@wordpress/dataviews/' ],
+				babelOpts: {
+					configFile: false,
+					plugins: [
+						[
+							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+							{ textdomain: 'jetpack-publicize-pkg' },
+						],
+					],
+				},
+			} ),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
@@ -68,5 +83,8 @@ module.exports = [
 			'block-editor-jetpack': './_inc/entry-points/block-editor-jetpack.tsx',
 			'block-editor-social': './_inc/entry-points/block-editor-social.tsx',
 		},
+		devServer: jetpackWebpackConfig.DevServer( {
+			static: { directory: path.resolve( './build' ) },
+		} ),
 	},
 ];

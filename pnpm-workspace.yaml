@@ -30,6 +30,16 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
+  # GHSA-7h2j-956f-4vf2
+  - '@isaacs/brace-expansion@5.0.1'
+  # Renovate security update: webpack@5.104.1
+  - webpack@5.104.1
+  # Renovate security update: axios@1.13.5
+  - axios@1.13.5
+  # Renovate security update: qs@6.14.2
+  - qs@6.14.2
+  # Renovate security update: markdown-it@14.1.1
+  - markdown-it@14.1.1
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
@@ -65,10 +75,13 @@ allowBuilds:
   '@swc/core': false
   esbuild: false
   unrs-resolver: false
+  # Tries to rebuild its bundled libs if a newer version of libvips-dev is installed, which probably isn't.
+  sharp: false
   # Attempt to show "remember to install other stuff" spam.
   svelte-preprocess: false
   # Attempt to show "support me" spam.
   core-js: false
+  core-js-pure: false
   print-this: false
 
 # Package compromise avoidance: Block odd protocols in subdeps
@@ -81,10 +94,6 @@ ignoredOptionalDependencies:
 
 # Dependencies needing patching.
 patchedDependencies:
-
-  # Old versions of Gutenberg packages all have their ESM files flagged as CommonJS.
-  "@wordpress/components@<32.0.0": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  "@wordpress/dataviews@<11.2.0": .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
 
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.
