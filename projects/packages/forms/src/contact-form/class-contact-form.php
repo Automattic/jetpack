@@ -1185,6 +1185,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$ref_id = absint( $attributes['ref'] );
 			if ( $ref_id > 0 ) {
 				return self::render_synced_form( $ref_id );
+			} else {
+				return '';
 			}
 		}
 
