@@ -3,6 +3,14 @@ import userEvent from '@testing-library/user-event';
 import MediaSourceMenu from '../media-source-menu';
 import { getMediaSourceDescription } from '../utils/media-source-options';
 
+jest.mock( '../../../utils', () => ( {
+	getSocialScriptData: jest.fn( () => ( {
+		plugin_info: {
+			jetpack: { version: '15.5' },
+		},
+	} ) ),
+} ) );
+
 describe( 'getMediaSourceDescription', () => {
 	it( 'should return default message when sourceType is null', () => {
 		expect( getMediaSourceDescription( null ) ).toBe( "Your post won't show an image." );
