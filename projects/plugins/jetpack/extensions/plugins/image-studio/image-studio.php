@@ -316,14 +316,14 @@ add_filter( 'agents_manager_use_unified_experience', __NAMESPACE__ . '\enable_ag
 /**
  * Register the Image Studio headless agent provider with the agents manager.
  *
- * When jetpack_image_studio_enabled is true, adds the Image Studio headless
+ * When Image Studio is enabled, adds the Image Studio headless
  * agent provider module so the agents manager can load it.
  *
  * @param array $providers Existing agent provider module IDs.
  * @return array Modified array of provider module IDs.
  */
 function register_headless_agent_provider( $providers ) {
-	if ( ! apply_filters( 'jetpack_image_studio_enabled', false ) ) {
+	if ( ! is_image_studio_enabled() ) {
 		return $providers;
 	}
 
