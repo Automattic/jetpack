@@ -3,12 +3,8 @@
  */
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-/**
- * WordPress dependencies
- */
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { DropdownMenu } from '@wordpress/components';
-import { Button } from '@wordpress/components';
+import { DropdownMenu, Button } from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
@@ -42,6 +38,7 @@ type UsePageHeaderDetailsProps = {
 	screen: 'forms' | 'responses';
 	statusView?: ResponsesStatusView;
 	sourceId?: string | number;
+	formsCount?: number;
 	isIntegrationsEnabled: boolean;
 	showDashboardIntegrations: boolean;
 	onOpenIntegrations: () => void;
@@ -69,6 +66,7 @@ export default function usePageHeaderDetails(
 	const {
 		screen,
 		sourceId,
+		formsCount,
 		isIntegrationsEnabled,
 		showDashboardIntegrations,
 		onOpenIntegrations,
@@ -185,6 +183,12 @@ export default function usePageHeaderDetails(
 				return base;
 			}
 
+			const shouldShowFormsHelpLink = typeof formsCount !== 'number' || formsCount < 5;
+
+			if ( ! shouldShowFormsHelpLink ) {
+				return base;
+			}
+
 			return (
 				<>
 					{ base }{ ' ' }
@@ -207,7 +211,7 @@ export default function usePageHeaderDetails(
 		}
 
 		return __( 'View and manage all your form submissions in one place.', 'jetpack-forms' );
-	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp ] );
+	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, formsCount ] );
 
 	const actions = useMemo( () => {
 		// Mobile: show dropdown menu with actions

@@ -47,6 +47,7 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 						<li>
 							{ __( 'Click “Edit Form” in the block toolbar to convert it.', 'jetpack-forms' ) }
 						</li>
+						<li>{ __( 'Save the page or post.', 'jetpack-forms' ) }</li>
 					</ol>
 				</div>
 				<div>
