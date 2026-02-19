@@ -170,7 +170,7 @@ class Transient_Cleanup_Test extends StatsBaseTestCase {
 	 */
 	public function test_constants() {
 		$this->assertSame( 'jetpack_stats_transient_cleanup', Transient_Cleanup::CRON_HOOK );
-		$this->assertSame( 100, Transient_Cleanup::BATCH_SIZE );
+		$this->assertSame( 1000, Transient_Cleanup::BATCH_SIZE );
 		$this->assertSame( 28800, Transient_Cleanup::CRON_INTERVAL );
 	}
 
