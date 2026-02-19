@@ -107,6 +107,9 @@ function StageInner() {
 		return statusFilterValue === 'trash';
 	}, [ view.filters ] );
 
+	// Stable (non-trash) managed forms count, independent of the current DataViews search/filter state.
+	const { totalItems: totalNonTrashForms } = useFormsData( 1, 1, '', NON_TRASH_FORM_STATUSES );
+
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page ?? 1,
 		view.perPage ?? 20,
@@ -430,7 +433,7 @@ function StageInner() {
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'forms',
-		formsCount: totalItems ?? 0,
+		formsCount: totalNonTrashForms ?? 0,
 		isIntegrationsEnabled: !! isIntegrationsEnabled,
 		showDashboardIntegrations: !! showDashboardIntegrations,
 		onOpenIntegrations: openIntegrationsModal,
