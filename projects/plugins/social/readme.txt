@@ -104,28 +104,12 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 8.0.0 - 2026-02-18
+### 8.0.1 - 2026-02-19
 #### Added
-- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
-- Jetpack Social: Gate per-network customization behind paid features.
-- Show a snackbar while sharing is in progress.
+- Add visual dot to active connection in preview modal.
 
 #### Changed
-- Mark new connections as shared by default for privileged users.
-- My Jetpack: Check red bubble notification async when cache is not available.
-- Refactor share status UI to use Notice component.
-- Update `composer.lock`.
-- Update package dependencies.
-- Update social post preview modal height.
-- Use fallback avatar for Jetpack Social connection icons.
-
-#### Removed
-- General: Update minimum WordPress version to 6.8.
-
-#### Fixed
-- Fix Tumblr preview to prioritize custom message when it is set.
-- Refresh plan features on post-checkout redirect.
-- Social Previews: Use fallback image when social preview profile picture fails.
+- Disable AI image option in the media UI when Jetpack plugin is not active.
 
 == Upgrade Notice ==
 
