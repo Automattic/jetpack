@@ -9,6 +9,7 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Shared logic between Jetpack admin pages.
@@ -272,6 +273,7 @@ abstract class Jetpack_Admin_Page {
 		?>
 		">
 
+			<?php if ( ! ( new Host() )->is_woa_site() ) : ?>
 			<div class="jp-masthead jp-masthead-middle">
 				<div class="jp-masthead__inside-container">
 					<div class="jp-masthead__logo-container">
@@ -319,6 +321,7 @@ abstract class Jetpack_Admin_Page {
 					<?php endif; ?>
 				</div>
 			</div>
+			<?php endif; ?>
 			<div class="wrap"><div id="jp-admin-notices" aria-live="polite"></div></div>
 			<!-- START OF CALLBACK -->
 			<?php
