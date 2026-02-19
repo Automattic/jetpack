@@ -585,9 +585,9 @@ async function rsyncToDest( source, dest ) {
 			`--include-from=${ tmpFile.name }`,
 		];
 
-		// When RSYNC_PROXY_PORT is set, use the rsh-proxy script to route SSH through the host
+		// When RSYNC_PROXY_SOCKET is set, use the rsh-proxy script to route SSH through the host
 		// This enables support for Secure Enclave SSH keys that can't be forwarded into Docker
-		if ( process.env.RSYNC_PROXY_PORT ) {
+		if ( process.env.RSYNC_PROXY_SOCKET ) {
 			rsyncArgs.push( '--rsh=/workspace/tools/docker/bin/rsync-rsh-proxy.sh' );
 		}
 
