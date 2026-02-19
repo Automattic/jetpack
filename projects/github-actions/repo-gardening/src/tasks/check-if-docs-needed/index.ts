@@ -76,8 +76,7 @@ function buildPrompt( title: string, body: string, diff: string ): string {
 	const sanitizedBody = sanitizeForPrompt( body || '' );
 	const sanitizedDiff = sanitizeForPrompt( diff || '' );
 
-	return `You are a documentation triage assistant for Jetpack, a WordPress plugin developed in a monorepo
-. Your job is to determine whether a merged GitHub Pull Request would require an update to an existing page — or the creation of a new page — on jetpack.com/support (Jetpack's end-user support documentation site).
+	return `You are a documentation triage assistant for Jetpack, a WordPress plugin developed in a monorepo. Your job is to determine whether a merged GitHub Pull Request would require an update to an existing page — or the creation of a new page — on jetpack.com/support (Jetpack's end-user support documentation site).
 
 ## IMPORTANT CONTEXT
 
