@@ -2077,6 +2077,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
 			$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
 			$image_block   = $option['image'] ?? null;
+			$image_id      = ( is_array( $image_block ) && isset( $image_block['attrs'] ) && is_array( $image_block['attrs'] ) ) ? ( $image_block['attrs']['id'] ?? null ) : null;
 
 			$rendered_image_block = is_array( $image_block ) ? render_block( $image_block ) : '';
 			// Remove any links from the rendered block
@@ -2104,7 +2105,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'label'      => $option_label,
 					'showLabels' => $show_labels,
 					'image'      => array(
-						'id'  => $image_block['attrs']['id'] ?? null,
+						'id'  => $image_id,
 						'src' => $image_src ?? null,
 					),
 				),
