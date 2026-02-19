@@ -13,9 +13,11 @@ import {
 	store as blockEditorStore,
 	BlockControls,
 	BlockContextProvider,
+	BlockPreview,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
+	Disabled,
 	ExternalLink,
 	Notice,
 	PanelBody,
@@ -49,7 +51,7 @@ import useFormSteps from '../shared/hooks/use-form-steps.js';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.js';
 import { CORE_BLOCKS, FORM_POST_TYPE } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
-import { ConvertFormToolbar } from './components/convert-form-toolbar.tsx';
+import { ConvertFormToolbar, navigateToForm } from './components/convert-form-toolbar.tsx';
 import FormStatusNotice from './components/form-status-notice.tsx';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
@@ -59,6 +61,7 @@ import { useSyncedFormAutoSave } from './hooks/use-synced-form-auto-save.ts';
 import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
+import { getEditorContext } from './util/get-editor-context.ts';
 import VariationPicker from './variation-picker.js';
 import './util/form-styles.js';
 
@@ -209,6 +212,9 @@ function JetpackContactFormEdit( {
 	const showBlockIntegrations = useConfigValue( 'showBlockIntegrations' );
 	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
+
+	// Check if we're in widget editor with a synced form (ref)
+	const isWidgetEditorWithRef = ref && getEditorContext() === 'widget';
 
 	// Load synced form data from the jetpack_form post type
 	const {
@@ -1003,6 +1009,53 @@ function JetpackContactFormEdit( {
 			<Notice status="warning" isDismissible={ false }>
 				{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
 			</Notice>
+		);
+	}
+	// In widget editor, synced forms (with ref) are not editable
+	else if ( isWidgetEditorWithRef ) {
+		// Use syncedFormBlocks from API, or fall back to currentInnerBlocks if already loaded into editor
+		const previewBlocks =
+			syncedFormBlocks && syncedFormBlocks.length > 0 ? syncedFormBlocks : currentInnerBlocks;
+
+		const handleEditForm = () => {
+			navigateToForm( ref, 'widget' );
+		};
+
+		return (
+			<div { ...blockProps }>
+				{ /* Empty controls to hide the default panels from block supports */ }
+				<BlockControls>
+					<ConvertFormToolbar
+						clientId={ clientId }
+						attributes={ attributes }
+						onBeforeNavigate={ flushPendingSave }
+					/>
+				</BlockControls>
+				<InspectorControls />
+				<InspectorControls group="color" />
+				<Notice
+					status="info"
+					isDismissible={ false }
+					actions={ [
+						{
+							label: __( 'Edit Form', 'jetpack-forms' ),
+							onClick: handleEditForm,
+							variant: 'primary',
+						},
+					] }
+				>
+					{ __( 'This form cannot be edited in the widget editor.', 'jetpack-forms' ) }
+				</Notice>
+				{ previewBlocks && previewBlocks.length > 0 ? (
+					<Disabled>
+						<div className={ formClassnames }>
+							<BlockPreview blocks={ previewBlocks } viewportWidth={ 0 } />
+						</div>
+					</Disabled>
+				) : (
+					<ContactFormSkeletonLoader />
+				) }
+			</div>
 		);
 	} else if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {
