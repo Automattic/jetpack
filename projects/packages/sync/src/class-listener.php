@@ -458,7 +458,7 @@ class Listener {
 			$raw_mcp_header = trim( wp_unslash( $_SERVER['HTTP_X_WPCOM_MCP'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitization happens below.
 		}
 
-		if ( ! empty( $raw_mcp_header ) && preg_match( '/^[A-Za-z0-9+\\/=]+$/', $raw_mcp_header ) ) {
+		if ( ! empty( $raw_mcp_header ) && preg_match( '/^[A-Za-z0-9+\/=]+$/', $raw_mcp_header ) ) {
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Decoding MCP header payload.
 			$decoded = base64_decode( $raw_mcp_header, true );
 			if ( false !== $decoded ) {
