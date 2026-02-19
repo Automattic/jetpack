@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { getInput } from '@actions/core';
-import minimatch from 'minimatch';
+import { minimatch } from 'minimatch';
 import { debug } from './debug.js';
 import extras from './extra-context.js';
 /**
