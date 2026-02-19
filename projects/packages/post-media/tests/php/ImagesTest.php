@@ -1076,4 +1076,163 @@ class ImagesTest extends BaseTestCase {
 			$this->assertEquals( 250, $image['src_height'] );
 		}
 	}
+	/**
+	 * Test that images with the jetpack-ignore-thumbnail CSS class are excluded from from_html().
+	 *
+	 * Copied from PR #47183.
+	 */
+	public function test_from_html_ignores_jetpack_ignore_thumbnail_class() {
+		$html = '<img src="qr-code-300x300.jpg" width="300" height="300" class="jetpack-ignore-thumbnail" alt="QR Code" />'
+			. '<img src="real-image-400x300.jpg" width="400" height="300" alt="Real Image" />';
+
+		$result = Images::from_html( $html );
+
+		$this->assertCount( 1, $result );
+		$this->assertStringContainsString( 'real-image', $result[0]['src'] );
+	}
+
+	/**
+	 * Test that the jetpack_postimages_exclude_image filter can exclude images from from_html().
+	 *
+	 * Copied from PR #47183.
+	 */
+	public function test_from_html_exclude_image_filter() {
+		$html = '<img src="https://example.com/qr-code-300x300.jpg" width="300" height="300" alt="QR Code" />'
+			. '<img src="https://example.com/photo-400x300.jpg" width="400" height="300" alt="Photo" />';
+
+		$callback = function ( $exclude, $image ) {
+			if ( false !== strpos( $image['src'], 'qr-code' ) ) {
+				return true;
+			}
+			return $exclude;
+		};
+
+		add_filter( 'jetpack_postimages_exclude_image', $callback, 10, 2 );
+
+		$result = Images::from_html( $html );
+
+		remove_filter( 'jetpack_postimages_exclude_image', $callback, 10 );
+
+		$this->assertCount( 1, $result );
+		$this->assertStringContainsString( 'photo', $result[0]['src'] );
+	}
+
+	/**
+	 * Test that image blocks with the jetpack-ignore-thumbnail CSS class are excluded from from_blocks().
+	 *
+	 * Copied from PR #47183.
+	 */
+	public function test_from_blocks_ignores_jetpack_ignore_thumbnail_class() {
+		$img_dimensions = array(
+			'width'  => 300,
+			'height' => 250,
+		);
+
+		$post_id         = $this->create_post();
+		$skip_attachment = $this->create_attachment(
+			'skip-image.jpg',
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+			)
+		);
+		wp_update_attachment_metadata( $skip_attachment, $img_dimensions );
+
+		$keep_attachment = $this->create_attachment(
+			'keep-image.jpg',
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+			)
+		);
+		wp_update_attachment_metadata( $keep_attachment, $img_dimensions );
+
+		$skip_url = wp_get_attachment_url( $skip_attachment );
+		$keep_url = wp_get_attachment_url( $keep_attachment );
+
+		$post_html = sprintf(
+			'<!-- wp:image {"id":%1$d,"className":"jetpack-ignore-thumbnail"} --><div class="wp-block-image"><figure class="wp-block-image jetpack-ignore-thumbnail"><img src="%2$s" alt="" class="wp-image-%1$d"/></figure></div><!-- /wp:image -->'
+			. '<!-- wp:image {"id":%3$d} --><div class="wp-block-image"><figure class="wp-block-image"><img src="%4$s" alt="" class="wp-image-%3$d"/></figure></div><!-- /wp:image -->',
+			$skip_attachment,
+			$skip_url,
+			$keep_attachment,
+			$keep_url
+		);
+
+		$second_post_id = $this->create_post(
+			array(
+				'post_content' => $post_html,
+			)
+		);
+
+		$images = Images::from_blocks( $second_post_id );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( $keep_url, $images[0]['src'] );
+	}
+
+	/**
+	 * Test that the jetpack_postimages_exclude_image filter can exclude images from from_blocks().
+	 *
+	 * Copied from PR #47183.
+	 */
+	public function test_from_blocks_exclude_image_filter() {
+		$img_dimensions = array(
+			'width'  => 300,
+			'height' => 250,
+		);
+
+		$post_id         = $this->create_post();
+		$attachment_id_1 = $this->create_attachment(
+			'exclude-me.jpg',
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+			)
+		);
+		wp_update_attachment_metadata( $attachment_id_1, $img_dimensions );
+
+		$attachment_id_2 = $this->create_attachment(
+			'keep-me.jpg',
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+			)
+		);
+		wp_update_attachment_metadata( $attachment_id_2, $img_dimensions );
+
+		$url_1 = wp_get_attachment_url( $attachment_id_1 );
+		$url_2 = wp_get_attachment_url( $attachment_id_2 );
+
+		$post_html = sprintf(
+			'<!-- wp:image {"id":%1$d} --><div class="wp-block-image"><figure class="wp-block-image"><img src="%2$s" alt="" class="wp-image-%1$d"/></figure></div><!-- /wp:image -->'
+			. '<!-- wp:image {"id":%3$d} --><div class="wp-block-image"><figure class="wp-block-image"><img src="%4$s" alt="" class="wp-image-%3$d"/></figure></div><!-- /wp:image -->',
+			$attachment_id_1,
+			$url_1,
+			$attachment_id_2,
+			$url_2
+		);
+
+		$second_post_id = $this->create_post(
+			array(
+				'post_content' => $post_html,
+			)
+		);
+
+		$callback = function ( $exclude, $image ) use ( $url_1 ) {
+			if ( $image['src'] === $url_1 ) {
+				return true;
+			}
+			return $exclude;
+		};
+
+		add_filter( 'jetpack_postimages_exclude_image', $callback, 10, 2 );
+
+		$images = Images::from_blocks( $second_post_id );
+
+		remove_filter( 'jetpack_postimages_exclude_image', $callback, 10 );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( $url_2, $images[0]['src'] );
+	}
 } // end class
