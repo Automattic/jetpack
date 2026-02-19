@@ -21,6 +21,11 @@ class Transient_Cleanup_Test extends StatsBaseTestCase {
 		// Unschedule cron.
 		Transient_Cleanup::unschedule_cleanup();
 
+		// Remove hooks registered by init() to prevent test pollution.
+		remove_action( Transient_Cleanup::CRON_HOOK, array( Transient_Cleanup::class, 'run_cleanup' ) );
+		remove_filter( 'cron_schedules', array( Transient_Cleanup::class, 'add_cron_schedule' ) );
+		remove_action( 'admin_init', array( Transient_Cleanup::class, 'schedule_cleanup' ) );
+
 		// Remove any test filters.
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_disabled' );
