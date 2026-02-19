@@ -31,7 +31,10 @@ class Transient_Cleanup {
 	const CRON_HOOK = 'jetpack_stats_transient_cleanup';
 
 	/**
-	 * Maximum number of transients to delete per run.
+	 * Batch size for transient cleanup.
+	 *
+	 * Used as the SQL LIMIT per prefix and as the threshold for stopping iteration.
+	 * Actual deletions per run may slightly exceed this when processing multiple prefixes.
 	 */
 	const BATCH_SIZE = 100;
 
@@ -157,7 +160,8 @@ class Transient_Cleanup {
 			$deleted        = self::purge_expired_transients( $prefix );
 			$total_deleted += $deleted;
 
-			// Stop if we've hit the batch limit.
+			// Stop processing additional prefixes once we've reached the batch threshold.
+			// Note: total may exceed BATCH_SIZE since each prefix can delete up to BATCH_SIZE.
 			if ( $total_deleted >= self::BATCH_SIZE ) {
 				break;
 			}
