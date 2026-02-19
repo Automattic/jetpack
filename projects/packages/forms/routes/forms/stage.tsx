@@ -63,8 +63,10 @@ const defaultLayouts = {
 	list: {},
 };
 
+type InvalidateResolutionArgs = [ kind: string, name: string, query?: Record< string, unknown > ];
+
 type CoreStore = typeof coreStore & {
-	invalidateResolution: ( selector: string, args: unknown[] ) => void;
+	invalidateResolution: ( selector: string, args: InvalidateResolutionArgs ) => void;
 };
 
 /**
