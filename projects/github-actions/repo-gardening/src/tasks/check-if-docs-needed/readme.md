@@ -8,7 +8,7 @@ Uses AI to analyze PR diffs and descriptions to determine if changes are user-fa
 2. Sends content to OpenAI for analysis
 3. If changes are determined to be user-facing (with medium or high confidence):
    - Adds the `[Status] UI Changes` label
-   - Creates a Linear issue in the Product Ambassadors team (if `linear_api_key` and `linear_product_ambassadors_team_id` are configured)
+   - Creates a Linear issue in the docs team (if `linear_api_key` and `linear_docs_team_id` are configured)
    - Sends a Slack notification (if `slack_product_ambassadors_channel` is configured), including a link to the Linear issue when one was created
 
 ## Bailout conditions
