@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack;
 
 /**
- * Class MC Stats, used to record stats using https://pixel.wp.com/g.gif
+ * MC Stats class, used to record stats using https://pixel.wp.com/g.gif.
  */
 class A8c_Mc_Stats {
 
