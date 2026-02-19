@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.4] - 2026-02-19
+### Changed
+- Build: strip data-testid attributes from production builds to reduce bundle size and keep the DOM cleaner. [#47185]
+
+### Fixed
+- ConversionFunnelChart: Default to filling the parent container height and add a height prop for explicit sizing. [#47119]
+- Relocate visx tooltip portals from document.body into the chart container to fix z-index stacking issues with sticky headers and other positioned elements. [#47118]
+
 ## [0.56.3] - 2026-02-18
 ### Changed
 - Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
@@ -686,6 +694,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.56.4]: https://github.com/Automattic/charts/compare/v0.56.3...v0.56.4
 [0.56.3]: https://github.com/Automattic/charts/compare/v0.56.2...v0.56.3
 [0.56.2]: https://github.com/Automattic/charts/compare/v0.56.1...v0.56.2
 [0.56.1]: https://github.com/Automattic/charts/compare/v0.56.0...v0.56.1
