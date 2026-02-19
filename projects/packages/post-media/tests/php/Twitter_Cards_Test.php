@@ -6,16 +6,30 @@
  */
 
 use Automattic\Jetpack\Post_Media\Twitter_Cards;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 
 /**
- * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards
+ * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::sanitize_twitter_user
+ * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::is_default_site_tag
+ * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::twitter_cards_output
+ * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::prioritize_creator_over_default_site
+ * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::twitter_cards_define_type_based_on_image_count
+ * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::site_tag
+ * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::twitter_cards_tags
+ * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::init
  */
-#[CoversClass( Twitter_Cards::class )]
+#[CoversMethod( Twitter_Cards::class, 'sanitize_twitter_user' )]
+#[CoversMethod( Twitter_Cards::class, 'is_default_site_tag' )]
+#[CoversMethod( Twitter_Cards::class, 'twitter_cards_output' )]
+#[CoversMethod( Twitter_Cards::class, 'prioritize_creator_over_default_site' )]
+#[CoversMethod( Twitter_Cards::class, 'twitter_cards_define_type_based_on_image_count' )]
+#[CoversMethod( Twitter_Cards::class, 'site_tag' )]
+#[CoversMethod( Twitter_Cards::class, 'twitter_cards_tags' )]
+#[CoversMethod( Twitter_Cards::class, 'init' )]
 class Twitter_Cards_Test extends BaseTestCase {
 
 	/**
@@ -36,12 +50,6 @@ class Twitter_Cards_Test extends BaseTestCase {
 
 		parent::tear_down();
 	}
-
-	/*
-	 * -------------------------------------------------------------------------
-	 * Tests for sanitize_twitter_user()
-	 * -------------------------------------------------------------------------
-	 */
 
 	/**
 	 * Data provider for sanitize_twitter_user tests.
@@ -69,12 +77,6 @@ class Twitter_Cards_Test extends BaseTestCase {
 	public function test_sanitize_twitter_user( $input, $expected ) {
 		$this->assertSame( $expected, Twitter_Cards::sanitize_twitter_user( $input ) );
 	}
-
-	/*
-	 * -------------------------------------------------------------------------
-	 * Tests for is_default_site_tag()
-	 * -------------------------------------------------------------------------
-	 */
 
 	/**
 	 * Data provider for is_default_site_tag tests.
@@ -104,12 +106,6 @@ class Twitter_Cards_Test extends BaseTestCase {
 	public function test_is_default_site_tag( $site_tag, $expected ) {
 		$this->assertSame( $expected, Twitter_Cards::is_default_site_tag( $site_tag ) );
 	}
-
-	/*
-	 * -------------------------------------------------------------------------
-	 * Tests for twitter_cards_output()
-	 * -------------------------------------------------------------------------
-	 */
 
 	/**
 	 * Test that twitter:card property attribute is replaced with name.
@@ -143,12 +139,6 @@ class Twitter_Cards_Test extends BaseTestCase {
 	public function test_twitter_cards_output_handles_empty_string() {
 		$this->assertSame( '', Twitter_Cards::twitter_cards_output( '' ) );
 	}
-
-	/*
-	 * -------------------------------------------------------------------------
-	 * Tests for prioritize_creator_over_default_site()
-	 * -------------------------------------------------------------------------
-	 */
 
 	/**
 	 * Test that creator is returned when using a default site tag.
@@ -184,12 +174,6 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$result  = Twitter_Cards::prioritize_creator_over_default_site( '@jetpack', $og_tags );
 		$this->assertSame( '@someone', $result );
 	}
-
-	/*
-	 * -------------------------------------------------------------------------
-	 * Tests for twitter_cards_define_type_based_on_image_count()
-	 * -------------------------------------------------------------------------
-	 */
 
 	/**
 	 * Test that image type with images returns summary_large_image.
@@ -307,12 +291,6 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'single.jpg', $result_tags['twitter:image'] );
 	}
 
-	/*
-	 * -------------------------------------------------------------------------
-	 * Tests for site_tag()
-	 * -------------------------------------------------------------------------
-	 */
-
 	/**
 	 * Test that site_tag returns empty when no option is set.
 	 */
@@ -329,12 +307,6 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$result = Twitter_Cards::site_tag();
 		$this->assertSame( 'mysite', $result );
 	}
-
-	/*
-	 * -------------------------------------------------------------------------
-	 * Tests for twitter_cards_tags() (integration-style with WorDBless)
-	 * -------------------------------------------------------------------------
-	 */
 
 	/**
 	 * Test that password-protected posts return og_tags unmodified.
@@ -469,12 +441,6 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'twitter:description', $result );
 		$this->assertSame( 'Visit the post for more.', $result['twitter:description'] );
 	}
-
-	/*
-	 * -------------------------------------------------------------------------
-	 * Tests for init()
-	 * -------------------------------------------------------------------------
-	 */
 
 	/**
 	 * Test that init() registers all expected filters and actions.
