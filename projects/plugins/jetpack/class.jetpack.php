@@ -5820,6 +5820,10 @@ endif;
 	 * @return bool Should backups UI be displayed?
 	 */
 	public static function show_backups_ui() {
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+			return function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'backups-self-serve' );
+		}
+
 		/**
 		 * Whether UI for backups should be displayed.
 		 *
@@ -5828,6 +5832,22 @@ endif;
 		 * @param bool $show_backups Should UI for backups be displayed? True by default.
 		 */
 		return self::is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true );
+	}
+
+	/**
+	 * Whether UI for security scanning should be displayed.
+	 *
+	 * On WPCom platforms this is gated on the scan-self-serve site feature.
+	 * On self-hosted Jetpack sites it always returns true.
+	 *
+	 * @return bool Should scan UI be displayed?
+	 */
+	public static function show_scan_ui() {
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+			return function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'scan-self-serve' );
+		}
+
+		return true;
 	}
 
 	/**
