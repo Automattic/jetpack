@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Post_Media;
 
+use WP_Post;
+
 /**
  * Twitter Cards
  *
@@ -26,7 +28,7 @@ class Twitter_Cards {
 	 */
 	public static function twitter_cards_tags( $og_tags ) {
 		global $post;
-		$post_id = ( $post instanceof \WP_Post ) ? $post->ID : null;
+		$post_id = ( $post instanceof WP_Post ) ? $post->ID : null;
 
 		/**
 		 * Maximum alt text length.
