@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MediaSectionV2 from '..';
 import useFeaturedImage from '../../../hooks/use-featured-image';
@@ -452,7 +452,7 @@ describe( 'MediaSectionV2', () => {
 			expect( mockCustomHandler ).toHaveBeenCalled();
 		} );
 
-		it( 'should update media options when filter handler calls onImageSelect', async () => {
+		it( 'should update media options when filter handler calls onImageSelect', () => {
 			let capturedOnImageSelect:
 				| ( ( image: { id: number; url: string; mime?: string } ) => void )
 				| null = null;
@@ -473,15 +473,13 @@ describe( 'MediaSectionV2', () => {
 			render( <MediaSectionV2 /> );
 
 			// Simulate external handler calling onImageSelect
-			await act( async () => {
-				if ( capturedOnImageSelect ) {
-					capturedOnImageSelect( {
-						id: 999,
-						url: 'https://example.com/ai-generated.png',
-						mime: 'image/png',
-					} );
-				}
-			} );
+			if ( capturedOnImageSelect ) {
+				capturedOnImageSelect( {
+					id: 999,
+					url: 'https://example.com/ai-generated.png',
+					mime: 'image/png',
+				} );
+			}
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'media-library',
@@ -492,7 +490,7 @@ describe( 'MediaSectionV2', () => {
 			} );
 		} );
 
-		it( 'should default to image/png mime type when not provided', async () => {
+		it( 'should default to image/png mime type when not provided', () => {
 			let capturedOnImageSelect:
 				| ( ( image: { id: number; url: string; mime?: string } ) => void )
 				| null = null;
@@ -513,14 +511,12 @@ describe( 'MediaSectionV2', () => {
 			render( <MediaSectionV2 /> );
 
 			// Simulate external handler calling onImageSelect without mime
-			await act( async () => {
-				if ( capturedOnImageSelect ) {
-					capturedOnImageSelect( {
-						id: 888,
-						url: 'https://example.com/no-mime.png',
-					} );
-				}
-			} );
+			if ( capturedOnImageSelect ) {
+				capturedOnImageSelect( {
+					id: 888,
+					url: 'https://example.com/no-mime.png',
+				} );
+			}
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'media-library',
