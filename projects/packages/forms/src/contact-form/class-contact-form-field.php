@@ -2076,9 +2076,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		foreach ( $working_options as $option_index => $option ) {
 			$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
 			$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
-			$image_block   = $option['image'];
+			$image_block   = $option['image'] ?? null;
 
-			$rendered_image_block = render_block( $image_block );
+			$rendered_image_block = is_array( $image_block ) ? render_block( $image_block ) : '';
 			// Remove any links from the rendered block
 			$rendered_image_block = preg_replace( '/<a[^>]*>(.*?)<\/a>/s', '$1', $rendered_image_block );
 
