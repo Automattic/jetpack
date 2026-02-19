@@ -177,25 +177,21 @@ export default function usePageHeaderDetails(
 
 	const subtitle = useMemo( () => {
 		if ( isFormsScreen ) {
-			const base = __( 'View and manage all your forms.', 'jetpack-forms' );
+			const shortMessage = __( 'View and manage all your forms.', 'jetpack-forms' );
+			const longMessage = __( 'View and manage all your forms in one place.', 'jetpack-forms' );
 
-			if ( ! onOpenFormsHelp ) {
-				return base;
-			}
+			const shouldShowFormsHelpLink =
+				!! onOpenFormsHelp && ( typeof formsCount !== 'number' || formsCount < 5 );
 
-			const shouldShowFormsHelpLink = typeof formsCount !== 'number' || formsCount < 5;
-
-			if ( ! shouldShowFormsHelpLink ) {
-				return base;
-			}
-
-			return (
+			return shouldShowFormsHelpLink ? (
 				<>
-					{ base }{ ' ' }
+					{ shortMessage }{ ' ' }
 					<Button variant="link" onClick={ onOpenFormsHelp }>
 						{ __( 'Missing forms?', 'jetpack-forms' ) }
 					</Button>
 				</>
+			) : (
+				longMessage
 			);
 		}
 
