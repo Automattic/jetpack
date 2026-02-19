@@ -106,7 +106,6 @@ export const FormTitleModal = () => {
 						},
 					],
 				} );
-				throw new Error( 'Failed to save' );
 			}
 		},
 		[
