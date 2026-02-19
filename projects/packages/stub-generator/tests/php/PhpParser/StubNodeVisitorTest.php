@@ -534,13 +534,15 @@ class StubNodeVisitorTest extends TestCase {
 				OUTPUT . "\n",
 			),
 
-			'Extract trait vs interface vs class'         => array(
+			'Extract trait vs interface vs class vs enum' => array(
 				<<<'PHP'
 				class Foo {
 				}
 				trait Foo {
 				}
 				interface Foo {
+				}
+				enum Foo {
 				}
 
 				class Bar {
@@ -549,6 +551,8 @@ class StubNodeVisitorTest extends TestCase {
 				}
 				interface Bar {
 				}
+				enum Bar {
+				}
 
 				class Baz {
 				}
@@ -556,11 +560,23 @@ class StubNodeVisitorTest extends TestCase {
 				}
 				interface Baz {
 				}
+				enum Baz {
+				}
+
+				class Quux {
+				}
+				trait Quux {
+				}
+				interface Quux {
+				}
+				enum Quux {
+				}
 				PHP,
 				array(
 					'class'     => array( 'Foo' => array() ),
 					'trait'     => array( 'Bar' => array() ),
 					'interface' => array( 'Baz' => array() ),
+					'enum'      => array( 'Quux' => array() ),
 				),
 				<<<'PHP'
 				namespace {
@@ -571,6 +587,9 @@ class StubNodeVisitorTest extends TestCase {
 					{
 					}
 					interface Baz
+					{
+					}
+					enum Quux
 					{
 					}
 				}
@@ -601,6 +620,12 @@ class StubNodeVisitorTest extends TestCase {
 					public const PUB = 'pub';
 					final public const FPUB = 'fpub';
 				}
+				enum EFoo {
+					public const PUB = 'pub';
+					protected const PROT = 'prot';
+					private const PRIV = 'priv';
+					final public const FPUB = 'fpub';
+				}
 				PHP,
 				'*',
 				<<<'PHP'
@@ -628,6 +653,11 @@ class StubNodeVisitorTest extends TestCase {
 						public const PUB = 'pub';
 						final public const FPUB = 'fpub';
 					}
+					enum EFoo
+					{
+						public const PUB = 'pub';
+						final public const FPUB = 'fpub';
+					}
 				}
 				PHP,
 				BufferedOutput::VERBOSITY_DEBUG,
@@ -649,6 +679,11 @@ class StubNodeVisitorTest extends TestCase {
 				  Keeping const FPUB
 				 Processing interface IFoo
 				  Keeping const PUB
+				  Keeping const FPUB
+				 Processing enum EFoo
+				  Keeping const PUB
+				  Skipping enum private/protected const PROT
+				  Skipping enum private/protected const PRIV
 				  Keeping const FPUB
 				OUTPUT . "\n",
 			),
@@ -760,6 +795,10 @@ class StubNodeVisitorTest extends TestCase {
 					const FOO = 'foo', BAR = 'bar';
 					const BAZ = 'BAR';
 				}
+				enum EFoo {
+					const FOO = 'foo', BAR = 'bar';
+					const BAZ = 'BAR';
+				}
 				PHP,
 				array( 'class' => array( 'Foo' => array( 'constant' => array( 'BAR' ) ) ) ),
 				<<<'PHP'
@@ -857,6 +896,9 @@ class StubNodeVisitorTest extends TestCase {
 					public $pub = 'pub';
 					public static $spub = 'spub';
 				}
+				enum EFoo {
+					// Enums can't have properties.
+				}
 				PHP,
 				'*',
 				<<<'PHP'
@@ -887,6 +929,10 @@ class StubNodeVisitorTest extends TestCase {
 						public $pub = 'pub';
 						public static $spub = 'spub';
 					}
+					enum EFoo
+					{
+						// Enums can't have properties.
+					}
 				}
 				PHP,
 				BufferedOutput::VERBOSITY_DEBUG,
@@ -915,6 +961,7 @@ class StubNodeVisitorTest extends TestCase {
 				 Processing interface IFoo
 				  Keeping property $pub
 				  Keeping property $spub
+				 Processing enum EFoo
 				OUTPUT . "\n",
 			),
 			'Extract class properties, class=*'           => array(
@@ -1122,6 +1169,14 @@ class StubNodeVisitorTest extends TestCase {
 					public function pub() { return 'pub'; }
 					public static function spub() { return 'spub'; }
 				}
+				enum EFoo {
+					public function pub() { return 'pub'; }
+					protected function prot() { return 'prot'; }
+					private function priv() { return 'priv'; }
+					public static function spub() { return 'spub'; }
+					protected static function sprot() { return 'sprot'; }
+					private static function spriv() { return 'spriv'; }
+				}
 				PHP,
 				'*',
 				<<<'PHP'
@@ -1180,6 +1235,15 @@ class StubNodeVisitorTest extends TestCase {
 						{
 						}
 					}
+					enum EFoo
+					{
+						public function pub()
+						{
+						}
+						public static function spub()
+						{
+						}
+					}
 				}
 				PHP,
 				BufferedOutput::VERBOSITY_DEBUG,
@@ -1208,6 +1272,13 @@ class StubNodeVisitorTest extends TestCase {
 				 Processing interface IFoo
 				  Keeping method pub
 				  Keeping method spub
+				 Processing enum EFoo
+				  Keeping method pub
+				  Skipping enum private/protected method prot
+				  Skipping enum private/protected method priv
+				  Keeping method spub
+				  Skipping enum private/protected method sprot
+				  Skipping enum private/protected method spriv
 				OUTPUT . "\n",
 			),
 			'Extract class methods, class=*'              => array(
@@ -1335,6 +1406,11 @@ class StubNodeVisitorTest extends TestCase {
 					public function baz() { return 'bar'; }
 				}
 				interface IFoo {
+					public function foo() { return 'FOO'; }
+					public function bar() { return 'BAR'; }
+					public function baz() { return 'bar'; }
+				}
+				enum EFoo {
 					public function foo() { return 'FOO'; }
 					public function bar() { return 'BAR'; }
 					public function baz() { return 'bar'; }
@@ -1617,6 +1693,39 @@ class StubNodeVisitorTest extends TestCase {
 					}
 				}
 				PHP,
+			),
+
+			'Enum cases are always extracted'             => array(
+				<<<'PHP'
+				namespace X;
+
+				enum Foo {
+					case A;
+					case B;
+					case C = 'C';
+
+					const X = 'X';
+					public function x() {}
+				}
+				PHP,
+				array( 'enum' => array( 'X\\Foo' => array() ) ),
+				<<<'PHP'
+				namespace X;
+
+				enum Foo
+				{
+					case A;
+					case B;
+					case C = 'C';
+				}
+				PHP,
+				BufferedOutput::VERBOSITY_DEBUG,
+				<<<'OUTPUT'
+				 Processing namespace 'X'
+				  Processing enum X\Foo
+				   Skipping const X
+				   Skipping method x
+				OUTPUT . "\n",
 			),
 		);
 	}
