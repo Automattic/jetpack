@@ -2,6 +2,12 @@ import { getInput } from '@actions/core';
 import { LinearClient } from '@linear/sdk';
 import debug from '../debug.ts';
 
+export interface LinearIssueDetails {
+	id: string;
+	url: string;
+	identifier: string;
+}
+
 /**
  * Create a Linear issue.
  *
@@ -14,7 +20,7 @@ async function createLinearIssue(
 	title: string,
 	description: string,
 	teamId: string
-): Promise< { id: string; url: string; identifier: string } | null > {
+): Promise< LinearIssueDetails | null > {
 	const apiKey = getInput( 'linear_api_key' );
 	if ( ! apiKey ) {
 		debug( 'linear: No linear_api_key provided. Skipping issue creation.' );

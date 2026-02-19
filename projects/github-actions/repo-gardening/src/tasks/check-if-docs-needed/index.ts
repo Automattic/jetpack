@@ -6,6 +6,7 @@ import createLinearIssue from '../../utils/linear/create-linear-issue.ts';
 import sendOpenAiRequest from '../../utils/openai/send-request.ts';
 import sendSlackMessage from '../../utils/slack/send-slack-message.ts';
 import type { OctokitClient, PullRequestEvent } from '../../types.ts';
+import type { LinearIssueDetails } from '../../utils/linear/create-linear-issue.ts';
 
 /**
  * Clean up the PR body content for AI processing.
@@ -284,7 +285,7 @@ async function checkIfDocsNeeded(
 		// Attempt to create a Linear issue if a Linear team ID is provided.
 		const linearTeamId = getInput( 'linear_product_ambassadors_team_id' );
 
-		let linearIssue: { id: string; url: string; identifier: string } | null = null;
+		let linearIssue: LinearIssueDetails | null = null;
 		if ( linearTeamId ) {
 			debug( `check-if-docs-needed: Creating Linear issue for PR #${ number }.` );
 			const linearDescription = `A pull request was flagged as containing user-facing changes that may require documentation updates.\n\n**Pull request:** [${ title }](${ prUrl })\n**Repository:** ${ repoFullName }\n**AI reasoning:** ${ reason }`;
