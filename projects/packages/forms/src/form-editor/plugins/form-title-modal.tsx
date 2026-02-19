@@ -100,12 +100,13 @@ export const FormTitleModal = () => {
 						{
 							label: __( 'Retry', 'jetpack-forms' ),
 							onClick: () => {
-								retryTitleRef.current = newTitle;
 								setIsOpen( true );
 							},
 						},
 					],
 				} );
+				retryTitleRef.current = newTitle;
+				setIsOpen( false );
 			}
 		},
 		[
