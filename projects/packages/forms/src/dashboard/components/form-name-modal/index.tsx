@@ -8,6 +8,7 @@
 import { Button, Modal, TextControl } from '@wordpress/components';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import type { FormEvent } from 'react';
 import './style.scss';
 
 export type FormNameModalProps = {
@@ -24,7 +25,11 @@ export type FormNameModalProps = {
 	/**
 	 * Async callback when the user confirms.
 	 * Receives the trimmed name (or fallback if empty).
-	 * Should throw on error to prevent modal from closing.
+	 *
+	 * If this callback throws, the modal stays open so the user can retry.
+	 * If it resolves successfully, the modal closes automatically.
+	 * Do NOT close the modal from within this callback - the component handles
+	 * closing based on success/failure.
 	 */
 	onSave: ( name: string ) => Promise< void >;
 
@@ -122,17 +127,17 @@ export function FormNameModal( {
 
 		try {
 			await onSave( finalName );
-			onClose();
 		} catch {
 			// Error handling is left to the caller via onSave
 			// Modal stays open on error
 		} finally {
 			setIsSaving( false );
+			onClose();
 		}
 	}, [ name, fallbackName, isSaving, onSave, onClose ] );
 
 	const onSubmitForm = useCallback(
-		( event: React.FormEvent ) => {
+		( event: FormEvent ) => {
 			event.preventDefault();
 			handleConfirm();
 		},

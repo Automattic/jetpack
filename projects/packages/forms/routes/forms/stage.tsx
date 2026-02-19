@@ -189,21 +189,22 @@ function StageInner() {
 			if ( ! renameFormItem ) {
 				return;
 			}
-
 			try {
-				const result = await saveEntityRecord( 'postType', FORM_POST_TYPE, {
-					id: renameFormItem.id,
-					title: newTitle,
-				} );
-
-				if ( ! result ) {
-					throw new Error( 'Failed to save form' );
-				}
+				await saveEntityRecord(
+					'postType',
+					FORM_POST_TYPE,
+					{
+						id: renameFormItem.id,
+						title: newTitle,
+					},
+					{ throwOnError: true }
+				);
 
 				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
 				renameRetryRef.current = null;
 			} catch ( error ) {
-				// Store retry data before the modal closes
+				// Store retry data in case the user closes the modal manually.
+				// The modal stays open on error, but if they close it, they can retry via the snackbar.
 				const retryItem = renameFormItem;
 				const retryTitle = newTitle;
 
@@ -221,12 +222,9 @@ function StageInner() {
 				} );
 				// eslint-disable-next-line no-console
 				console.error( 'Failed to rename form:', error );
-				throw error;
-			} finally {
-				closeRenameModal();
 			}
 		},
-		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice, closeRenameModal ]
+		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
 	);
 
 	const statusLabel = useCallback( ( status: string ) => {
