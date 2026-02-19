@@ -193,16 +193,11 @@ class Meta_Extractor {
 					// For keeper shortcodes, also store the id/url of the object (e.g. youtube video, TED talk, etc.).
 					if ( in_array( $shortcode, self::$keeper_shortcodes, true ) ) {
 						// Clear shortcode ID data left from the last shortcode.
-						$id = null;
-						// We'll try to get the salient ID from the function jetpack_shortcode_get_xyz_id().
-						// If the shortcode is a class, we'll call XyzShortcode::get_xyz_id().
-						$shortcode_get_id_func   = "jetpack_shortcode_get_{$shortcode}_id";
-						$shortcode_class_name    = ucfirst( $shortcode ) . 'Shortcode';
+						$id                      = null;
 						$shortcode_get_id_method = "get_{$shortcode}_id";
-						if ( function_exists( $shortcode_get_id_func ) ) {
-							$id = call_user_func( $shortcode_get_id_func, $attr );
-						} elseif ( method_exists( $shortcode_class_name, $shortcode_get_id_method ) ) {
-							$id = call_user_func( array( $shortcode_class_name, $shortcode_get_id_method ), $attr );
+
+						if ( method_exists( \Automattic\Jetpack\Shortcodes::class, $shortcode_get_id_method ) ) {
+							$id = call_user_func( array( \Automattic\Jetpack\Shortcodes::class, $shortcode_get_id_method ), $attr );
 						} elseif ( 'video' === $shortcode ) {
 							$id = $attr['src'] ?? $attr['url'] ?? $attr['mp4'] ?? $attr['m4v'] ?? $attr['webm'] ?? $attr['ogv'] ?? $attr['wmv'] ?? $attr['flv'] ?? null;
 						} elseif ( 'audio' === $shortcode ) {
