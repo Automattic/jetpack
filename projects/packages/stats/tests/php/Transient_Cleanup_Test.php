@@ -49,7 +49,7 @@ class Transient_Cleanup_Test extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test that add_cron_schedule adds the six hour schedule.
+	 * Test that add_cron_schedule adds the eight hour schedule.
 	 */
 	public function test_add_cron_schedule() {
 		$schedules = Transient_Cleanup::add_cron_schedule( array() );
