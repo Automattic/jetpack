@@ -243,7 +243,7 @@ class Transient_Cleanup_Test extends StatsBaseTestCase {
 			'jetpack_stats_transient_cleanup_prefixes',
 			function ( $prefixes ) {
 				$prefixes[] = WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
-				$prefixes[] = WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+				$prefixes[] = WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX; // @phan-suppress-current-line PhanPluginDuplicateAdjacentStatement -- Intentional duplicate to test deduplication.
 				return $prefixes;
 			}
 		);
