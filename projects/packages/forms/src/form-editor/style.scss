@@ -23,7 +23,7 @@
 .jetpack-forms-header-actions {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: 2px;
 	order: -1; // Position before other header settings buttons
 
 	.jetpack-forms-header-actions__view-responses {
@@ -33,9 +33,8 @@
 	.jetpack-forms-header-actions__more {
 
 		button {
-			padding: 0;
-			min-width: 36px;
-			height: 36px;
+			min-width: 30px;
+			height: 30px;
 		}
 	}
 }

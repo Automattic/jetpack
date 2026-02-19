@@ -22,9 +22,9 @@ import { store as noticesStore } from '@wordpress/notices';
 const getResponsesUrl = ( postId: number ): string => {
 	const baseUrl =
 		window.jpFormsBlocks?.defaults?.formsResponsesUrl ||
-		'/wp-admin/admin.php?page=jetpack-forms-admin';
+		'/wp-admin/admin.php?page=jetpack-forms-responses-wp-admin';
 	// Navigate to the specific form's responses
-	return `${ baseUrl }#/forms/${ postId }/responses`;
+	return `${ baseUrl }&p=%2Fresponses%2Finbox%3FsourceId%3D${ postId }`;
 };
 
 /**
@@ -158,6 +158,7 @@ export const HeaderActions = () => {
 		<div className="jetpack-forms-header-actions">
 			<Button
 				variant="secondary"
+				size="compact"
 				onClick={ handleViewResponses }
 				className="jetpack-forms-header-actions__view-responses"
 			>
