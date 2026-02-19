@@ -2591,10 +2591,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/post-media",
-                "reference": "d157795ab5318e533df34fea8f636734f7cfb685"
+                "reference": "28b5f5b5b8ca9858e6c5ce23a4e852c756713960"
             },
             "require": {
+                "automattic/block-delimiter": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-image-cdn": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
