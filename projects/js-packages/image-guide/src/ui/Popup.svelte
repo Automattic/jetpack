@@ -107,7 +107,8 @@
 						{/if}
 					</div>
 				{:else}
-					{@const ( stretchedBy = maybeDecimals( 1 / $oversizedRatio ) )}
+					<!-- prettier-ignore -->
+					{@const stretchedBy = maybeDecimals( 1 / $oversizedRatio ) }
 					<div class="explanation">
 						The image file is {stretchedBy}x smaller than expected on this screen. This might be
 						fine, but you may want to check if the image appears blurry.
