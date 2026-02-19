@@ -273,7 +273,7 @@ abstract class Jetpack_Admin_Page {
 		?>
 		">
 
-			<?php if ( ! ( new Host() )->is_woa_site() ) : ?>
+			<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
 			<div class="jp-masthead jp-masthead-middle">
 				<div class="jp-masthead__inside-container">
 					<div class="jp-masthead__logo-container">
