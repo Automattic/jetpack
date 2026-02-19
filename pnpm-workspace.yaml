@@ -42,6 +42,8 @@ minimumReleaseAgeExclude:
   - markdown-it@14.1.1
   # Renovate security update: minimatch@10.2.1
   - minimatch@10.2.1
+  # Renovate security update: svelte@5.51.5
+  - svelte@5.51.5
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
