@@ -192,7 +192,9 @@ class Twitter_Cards_Test extends BaseTestCase {
 		list( $result_tags, $card_type ) = Twitter_Cards::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
 
 		$this->assertSame( 'summary_large_image', $card_type );
-		$this->assertNotEmpty( $result_tags['twitter:image'] );
+		$this->assertArrayHasKey( 'twitter:image', $result_tags );
+		$this->assertStringContainsString( 'img.jpg', $result_tags['twitter:image'] );
+		$this->assertStringContainsString( 'w=1400', $result_tags['twitter:image'] );
 	}
 
 	/**
