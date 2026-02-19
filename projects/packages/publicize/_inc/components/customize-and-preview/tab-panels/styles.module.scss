@@ -60,14 +60,13 @@
 	&::after {
 		content: "";
 		display: block;
-		width: 8px;
-		height: 8px;
+		width: 12px;
+		height: 12px;
 		border-radius: 50%;
 		border: 2px solid gb.$white;
 		position: absolute;
-		inset-block-start: 2px;
-		inset-inline-start: 2px;
-		z-index: 1;
+		inset-block-start: 0;
+		inset-inline-start: 0;
 		background-color: var(--wp-admin-theme-color, #3858e9);
 	}
 }
