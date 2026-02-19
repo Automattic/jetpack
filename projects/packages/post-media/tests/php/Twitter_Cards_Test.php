@@ -327,11 +327,11 @@ class Twitter_Cards_Test extends BaseTestCase {
 
 		global $post;
 		$post = get_post( $post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->assertInstanceOf( 'WP_Post', $post );
 
 		$og_tags = array( 'og:title' => 'Test' );
 		$result  = Twitter_Cards::twitter_cards_tags( $og_tags );
 
-		// Should return unmodified when password protected.
 		$this->assertSame( $og_tags, $result );
 	}
 
@@ -403,6 +403,7 @@ class Twitter_Cards_Test extends BaseTestCase {
 
 		global $post, $wp_query;
 		$post = get_post( $post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->assertInstanceOf( 'WP_Post', $post );
 
 		// Simulate a singular query.
 		$wp_query              = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -432,6 +433,7 @@ class Twitter_Cards_Test extends BaseTestCase {
 
 		global $post, $wp_query;
 		$post = get_post( $post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->assertInstanceOf( 'WP_Post', $post );
 
 		// Simulate a singular query.
 		$wp_query              = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
