@@ -342,21 +342,9 @@ class DashBackups extends Component {
 				/* Avoid ternary as code minification will break translation function. :( */
 				let message = __( 'We are backing up your site daily.', 'jetpack' );
 				if ( hasRealTimeBackups ) {
-					message = createInterpolateElement(
-						__(
-							'Every change you make will be backed up, in real-time, as you edit your site. <ExternalLink>Learn More</ExternalLink>',
-							'jetpack'
-						),
-						{
-							ExternalLink: (
-								<ExternalLink
-									href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
-									target="_blank"
-									rel="noopener noreferrer"
-									onClick={ this.trackBackupsClick( 'realtime-learn-more-link' ) }
-								></ExternalLink>
-							),
-						}
+					message = __(
+						'Every change you make will be backed up, in real-time, as you edit your site.',
+						'jetpack'
 					);
 				}
 

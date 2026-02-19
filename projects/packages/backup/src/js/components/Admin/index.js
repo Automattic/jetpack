@@ -125,39 +125,18 @@ const BackupSegments = ( { hasBackupPlan, connectionLoaded } ) => {
 	const connectionStatus = useConnection();
 	const { tracks } = useAnalytics();
 
-	const trackLearnMoreClick = useCallback( () => {
-		tracks.recordEvent( 'jetpack_backup_learn_more_click' );
-	}, [ tracks ] );
-
 	const trackLearnBackupBrowserClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_learn_file_browser_click' );
 	}, [ tracks ] );
 
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 } className="backup-segments">
-			<Col lg={ 6 } md={ 6 }>
-				<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
-				<p>
-					{ __(
-						'No need to run a manual backup before you make changes to your site.',
-						'jetpack-backup-pkg'
-					) }
-				</p>
-				<p>
-					<ExternalLink
-						href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
-						onClick={ trackLearnMoreClick }
-					>
-						{ __( 'Learn about real-time backups', 'jetpack-backup-pkg' ) }
-					</ExternalLink>
-				</p>
-			</Col>
 			{ hasBackupPlan && connectionStatus.isUserConnected && (
 				<>
-					<Col lg={ 1 } md={ 1 } />
 					<Col lg={ 5 } md={ 5 } className="backup-segments__storage-section">
 						{ <BackupStorageSpace /> }
 					</Col>
+					<Col lg={ 1 } md={ 1 } />
 				</>
 			) }
 			<Col lg={ 6 } md={ 6 }>
