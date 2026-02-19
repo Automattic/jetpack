@@ -182,6 +182,9 @@ jobs:
               - '**/stylelint.config.{js,mjs,cjs}'
               - tools/js-tools/stylelint.config.base.mjs
             misc_phan:
+              # If root composer changed, there may be new stub packages.
+              - 'composer.json'
+              - 'composer.lock'
               # If Phan config or the CLI that runs it changed, re-run static analysis.
               - '.phan/**'
               - '**/.phan/**'
