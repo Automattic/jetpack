@@ -37,7 +37,7 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 				</Text>
 				<div>
 					<Text as="p" weight="500">
-						{ __( 'To convert a form block to a resuable form:', 'jetpack-forms' ) }
+						{ __( 'To convert a form block to a reusable form:', 'jetpack-forms' ) }
 					</Text>
 					<ol>
 						<li>
