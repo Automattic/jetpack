@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Video block: only intercept video file uploads when the VideoPress module is active.
