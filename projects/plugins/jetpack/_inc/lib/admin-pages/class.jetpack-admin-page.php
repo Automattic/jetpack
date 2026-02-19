@@ -281,7 +281,7 @@ abstract class Jetpack_Admin_Page {
 						</a>
 					</div>
 					<?php
-					if ( $args['show-nav'] && ! ( new Host() )->is_woa_site() ) :
+					if ( $args['show-nav'] && ! ( new Host() )->is_wpcom_platform() ) :
 						?>
 						<div class="jp-masthead__nav">
 							<?php
