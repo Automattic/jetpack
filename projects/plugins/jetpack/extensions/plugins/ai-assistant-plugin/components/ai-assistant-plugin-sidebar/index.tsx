@@ -232,7 +232,11 @@ export default function AiAssistantPluginSidebar() {
 				</PanelBody>
 			</JetpackPluginSidebar>
 
-			<DocumentPanel title={ title } name="jetpack-ai-assistant">
+			<DocumentPanel
+				title={ title }
+				name="jetpack-ai-assistant"
+				icon={ <JetpackEditorPanelLogo /> }
+			>
 				<JetpackAndSettingsContent
 					placement={ PLACEMENT_DOCUMENT_SETTINGS }
 					requireUpgrade={ requireUpgrade }
