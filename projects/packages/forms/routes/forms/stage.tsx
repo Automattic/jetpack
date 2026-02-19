@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { Page } from '@wordpress/admin-ui';
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import {
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	Button,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
@@ -21,6 +25,7 @@ import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
+import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import '../../src/dashboard/wp-build/style.scss';
@@ -64,6 +69,7 @@ function StageInner() {
 
 	const dateSettings = getDateSettings();
 	const [ isIntegrationsModalOpen, setIsIntegrationsModalOpen ] = useState( false );
+	const [ isFormsHelpModalOpen, setIsFormsHelpModalOpen ] = useState( false );
 	const integrations = useSelect(
 		select => ( select( INTEGRATIONS_STORE ) as IntegrationsSelectors ).getIntegrations?.() ?? [],
 		[]
@@ -100,6 +106,9 @@ function StageInner() {
 		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
 		return statusFilterValue === 'trash';
 	}, [ view.filters ] );
+
+	// Stable (non-trash) managed forms count, independent of the current DataViews search/filter state.
+	const { totalItems: totalNonTrashForms } = useFormsData( 1, 1, '', NON_TRASH_FORM_STATUSES );
 
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page ?? 1,
@@ -411,6 +420,12 @@ function StageInner() {
 	const closeIntegrationsModal = useCallback( () => {
 		setIsIntegrationsModalOpen( false );
 	}, [] );
+	const openFormsHelpModal = useCallback( () => {
+		setIsFormsHelpModalOpen( true );
+	}, [] );
+	const closeFormsHelpModal = useCallback( () => {
+		setIsFormsHelpModalOpen( false );
+	}, [] );
 
 	const {
 		breadcrumbs,
@@ -418,9 +433,11 @@ function StageInner() {
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'forms',
+		formsCount: totalNonTrashForms ?? 0,
 		isIntegrationsEnabled: !! isIntegrationsEnabled,
 		showDashboardIntegrations: !! showDashboardIntegrations,
 		onOpenIntegrations: openIntegrationsModal,
+		onOpenFormsHelp: openFormsHelpModal,
 	} );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
@@ -452,11 +469,16 @@ function StageInner() {
 							'jetpack-forms'
 						) }
 						actions={
-							<CreateFormButton
-								label={ __( 'Create a new form', 'jetpack-forms' ) }
-								variant="primary"
-								showIcon={ false }
-							/>
+							<HStack justify="center" spacing="2">
+								<CreateFormButton
+									label={ __( 'Create a new form', 'jetpack-forms' ) }
+									variant="primary"
+									showIcon={ false }
+								/>
+								<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+									{ __( 'Missing forms?', 'jetpack-forms' ) }
+								</Button>
+							</HStack>
 						}
 					/>
 				}
@@ -506,6 +528,7 @@ function StageInner() {
 				refreshIntegrations={ refreshIntegrations }
 				context="dashboard"
 			/>
+			<FormsHelpModal isOpen={ isFormsHelpModalOpen } onClose={ closeFormsHelpModal } />
 		</Page>
 	);
 }
