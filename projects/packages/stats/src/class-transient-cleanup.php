@@ -221,6 +221,9 @@ class Transient_Cleanup {
 			return 0;
 		}
 
-		return count( $transients );
+		// Each transient has 2 rows (value + timeout), so divide by 2 for transient count.
+		// Using actual rows deleted rather than count($transients) in case some were
+		// already deleted by another process or were missing.
+		return (int) ( $result / 2 );
 	}
 }
