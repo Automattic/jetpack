@@ -206,24 +206,28 @@ class Transient_Cleanup {
 			$options_names[] = '_transient_timeout_' . $prefix . $transient;
 		}
 
-		// Delete all in a single query.
-		$placeholders = implode( ', ', array_fill( 0, count( $options_names ), '%s' ) );
+		// Delete in chunks to avoid excessively long SQL queries.
+		// Each option name can be ~80 chars, so 50 items ≈ 4KB per query.
+		$chunks        = array_chunk( $options_names, 50 );
+		$total_deleted = 0;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$result = $wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders is a list of %s.
-				$options_names
-			)
-		);
+		foreach ( $chunks as $chunk ) {
+			$placeholders = implode( ', ', array_fill( 0, count( $chunk ), '%s' ) );
 
-		if ( false === $result ) {
-			return 0;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$result = $wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->options} WHERE option_name IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders is a list of %s.
+					$chunk
+				)
+			);
+
+			if ( false !== $result ) {
+				$total_deleted += $result;
+			}
 		}
 
 		// Each transient has 2 rows (value + timeout), so divide by 2 for transient count.
-		// Using actual rows deleted rather than count($transients) in case some were
-		// already deleted by another process or were missing.
-		return (int) ( $result / 2 );
+		return (int) ( $total_deleted / 2 );
 	}
 }
