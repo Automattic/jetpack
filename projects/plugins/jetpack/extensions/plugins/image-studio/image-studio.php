@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Extensions\ImageStudio;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 const FEATURE_NAME            = 'image-studio';
 const ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
 const ASSET_JS_URL            = 'https://' . ASSET_BASE_PATH . 'image-studio.min.js';

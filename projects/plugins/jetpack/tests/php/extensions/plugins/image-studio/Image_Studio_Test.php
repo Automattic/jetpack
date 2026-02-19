@@ -16,10 +16,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * AI image extensions that Image Studio replaces.
-	 */
-	/**
 	 * Get the AI image extensions list from the source function.
+	 *
+	 * AI image extensions that Image Studio replaces.
 	 *
 	 * @return array
 	 */
@@ -731,7 +730,14 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$result = ImageStudio\get_asset_data();
 
 		$this->assertEquals( $asset_data, $result );
-		$this->assertEquals( $asset_data, get_transient( ImageStudio\ASSET_TRANSIENT ) );
+
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			// In debug mode, asset data should not be cached in a transient.
+			$this->assertFalse( get_transient( ImageStudio\ASSET_TRANSIENT ) );
+		} else {
+			// When not in debug mode, the transient should contain the fetched asset data.
+			$this->assertEquals( $asset_data, get_transient( ImageStudio\ASSET_TRANSIENT ) );
+		}
 	}
 
 	/**
