@@ -3,7 +3,7 @@
  * Module Name: Canonical URLs
  * Module Description: Add canonical URL tags to archive pages to prevent duplicate content in search engines.
  * Sort Order: 36
- * First Introduced: $$next-version$$
+ * First Introduced: 15.6
  * Requires Connection: No
  * Requires User Connection: No
  * Auto Activate: No
