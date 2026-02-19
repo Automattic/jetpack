@@ -72,7 +72,6 @@ export const FormTitleModal = () => {
 
 	const handleClose = useCallback( () => {
 		setIsOpen( false );
-		retryTitleRef.current = '';
 	}, [] );
 
 	const handleSave = useCallback(

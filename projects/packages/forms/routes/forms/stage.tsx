@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Page } from '@wordpress/admin-ui';
-import apiFetch from '@wordpress/api-fetch';
 import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
@@ -29,7 +28,7 @@ import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/ind
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
 import { NON_TRASH_FORM_STATUSES } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
-import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
+import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
@@ -61,12 +60,6 @@ const DEFAULT_VIEW: View = {
 const defaultLayouts = {
 	table: {},
 	list: {},
-};
-
-type InvalidateResolutionArgs = [ kind: string, name: string, query?: Record< string, unknown > ];
-
-type CoreStore = typeof coreStore & {
-	invalidateResolution: ( selector: string, args: InvalidateResolutionArgs ) => void;
 };
 
 /**
@@ -155,7 +148,7 @@ function StageInner() {
 	const renameRetryRef = useRef< { item: FormListItem; title: string } | null >( null );
 
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { invalidateResolution } = useDispatch( coreStore ) as unknown as CoreStore;
+	const { saveEntityRecord } = useDispatch( coreStore );
 
 	// Selection is local state. Clear it whenever the view changes (page/perPage/search/filters).
 	useEffect( () => {
@@ -200,26 +193,14 @@ function StageInner() {
 			}
 
 			try {
-				await apiFetch( {
-					path: `/wp/v2/jetpack-forms/${ renameFormItem.id }`,
-					method: 'POST',
-					data: { title: newTitle },
+				const result = await saveEntityRecord( 'postType', FORM_POST_TYPE, {
+					id: renameFormItem.id,
+					title: newTitle,
 				} );
 
-				// Invalidate the forms list cache to refresh the data
-				const query = getFormsListQuery(
-					view.page ?? 1,
-					view.perPage ?? 20,
-					view.search ?? '',
-					statusQuery
-				);
-				const minimalQuery = {
-					...query,
-					per_page: 1,
-					_fields: 'id',
-				};
-				invalidateResolution( 'getEntityRecords', [ 'postType', FORM_POST_TYPE, query ] );
-				invalidateResolution( 'getEntityRecords', [ 'postType', FORM_POST_TYPE, minimalQuery ] );
+				if ( ! result ) {
+					throw new Error( 'Failed to save form' );
+				}
 
 				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
 				renameRetryRef.current = null;
@@ -243,18 +224,11 @@ function StageInner() {
 				// eslint-disable-next-line no-console
 				console.error( 'Failed to rename form:', error );
 				throw error;
+			} finally {
+				closeRenameModal();
 			}
 		},
-		[
-			renameFormItem,
-			view.page,
-			view.perPage,
-			view.search,
-			statusQuery,
-			invalidateResolution,
-			createSuccessNotice,
-			createErrorNotice,
-		]
+		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice, closeRenameModal ]
 	);
 
 	const statusLabel = useCallback( ( status: string ) => {
