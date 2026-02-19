@@ -16,6 +16,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useMemo, useState, useCallback, useRef } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useSearch, useNavigate } from '@wordpress/route';
 import * as React from 'react';
 /**
