@@ -1316,7 +1316,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 			'height' => 250,
 		);
 
-		$post_id        = self::factory()->post->create();
+		$post_id         = self::factory()->post->create();
 		$attachment_id_1 = self::factory()->attachment->create_object(
 			'exclude-me.jpg',
 			$post_id,
