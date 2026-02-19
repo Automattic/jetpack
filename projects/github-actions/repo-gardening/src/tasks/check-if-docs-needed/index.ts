@@ -284,6 +284,7 @@ async function checkIfDocsNeeded(
 
 		// Attempt to create a Linear issue if a Linear team ID is provided.
 		const linearTeamId = getInput( 'linear_product_ambassadors_team_id' );
+		const linearApiKey = getInput( 'linear_api_key' );
 
 		let linearIssue: LinearIssueDetails | null = null;
 		if ( linearTeamId ) {
@@ -293,7 +294,8 @@ async function checkIfDocsNeeded(
 			linearIssue = await createLinearIssue(
 				`Docs update needed: ${ title }`,
 				linearDescription,
-				linearTeamId
+				linearTeamId,
+				linearApiKey
 			);
 
 			if ( linearIssue ) {

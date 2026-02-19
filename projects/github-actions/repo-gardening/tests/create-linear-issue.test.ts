@@ -65,6 +65,30 @@ describe( 'createLinearIssue', () => {
 		} );
 	} );
 
+	test( 'uses explicit apiKey parameter over getInput fallback', async () => {
+		mockGetInput.mockReturnValue( '' );
+
+		const mockIssue = {
+			id: 'issue-id-456',
+			url: 'https://linear.app/team/issue/TEAM-99',
+			identifier: 'TEAM-99',
+		};
+		mockCreateIssue.mockResolvedValue( {
+			success: true,
+			issue: Promise.resolve( mockIssue ),
+		} );
+
+		const result = await createLinearIssue(
+			'Explicit key title',
+			'Explicit key description',
+			'team-456',
+			'explicit-api-key'
+		);
+
+		expect( mockLinearClient ).toHaveBeenCalledWith( { apiKey: 'explicit-api-key' } );
+		expect( result ).toEqual( mockIssue );
+	} );
+
 	test( 'returns null when issue creation fails', async () => {
 		mockGetInput.mockImplementation( ( name: string ) => {
 			if ( name === 'linear_api_key' ) {

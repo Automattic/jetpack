@@ -14,20 +14,22 @@ export interface LinearIssueDetails {
  * @param title       - Issue title.
  * @param description - Issue description (markdown).
  * @param teamId      - Linear team ID to create the issue in.
+ * @param apiKey      - Linear API key. Falls back to the `linear_api_key` action input when omitted.
  * @return Issue details (id, url, identifier) or null on failure.
  */
 async function createLinearIssue(
 	title: string,
 	description: string,
-	teamId: string
+	teamId: string,
+	apiKey?: string
 ): Promise< LinearIssueDetails | null > {
-	const apiKey = getInput( 'linear_api_key' );
-	if ( ! apiKey ) {
+	const resolvedApiKey = apiKey || getInput( 'linear_api_key' );
+	if ( ! resolvedApiKey ) {
 		debug( 'linear: No linear_api_key provided. Skipping issue creation.' );
 		return null;
 	}
 
-	const client = new LinearClient( { apiKey } );
+	const client = new LinearClient( { apiKey: resolvedApiKey } );
 
 	try {
 		const issuePayload = await client.createIssue( {
