@@ -31,16 +31,6 @@ class Transient_Cleanup {
 	const CRON_HOOK = 'jetpack_stats_transient_cleanup';
 
 	/**
-	 * Lock transient name to prevent concurrent runs.
-	 */
-	const LOCK_TRANSIENT = 'jetpack_stats_cleanup_lock';
-
-	/**
-	 * Lock timeout in seconds (5 minutes).
-	 */
-	const LOCK_TIMEOUT = 300;
-
-	/**
 	 * Maximum number of transients to delete per run.
 	 */
 	const BATCH_SIZE = 100;
@@ -121,7 +111,21 @@ class Transient_Cleanup {
 		 *
 		 * @param array $prefixes List of transient prefixes.
 		 */
-		return apply_filters( 'jetpack_stats_transient_cleanup_prefixes', $prefixes );
+		$filtered = apply_filters( 'jetpack_stats_transient_cleanup_prefixes', $prefixes );
+
+		// Normalize filtered value: ensure array, filter to non-empty strings, dedupe.
+		if ( ! is_array( $filtered ) ) {
+			$filtered = $prefixes;
+		}
+
+		$filtered = array_filter(
+			$filtered,
+			function ( $prefix ) {
+				return is_string( $prefix ) && '' !== $prefix;
+			}
+		);
+
+		return array_unique( $filtered );
 	}
 
 	/**
@@ -146,14 +150,6 @@ class Transient_Cleanup {
 			return false;
 		}
 
-		// Acquire lock to prevent concurrent runs.
-		if ( get_transient( self::LOCK_TRANSIENT ) ) {
-			return false;
-		}
-
-		// Set lock.
-		set_transient( self::LOCK_TRANSIENT, 1, self::LOCK_TIMEOUT );
-
 		$total_deleted = 0;
 		$prefixes      = self::get_transient_prefixes();
 
@@ -166,9 +162,6 @@ class Transient_Cleanup {
 				break;
 			}
 		}
-
-		// Release lock.
-		delete_transient( self::LOCK_TRANSIENT );
 
 		return $total_deleted;
 	}
