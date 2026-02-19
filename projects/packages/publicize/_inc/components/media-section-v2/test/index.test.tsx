@@ -78,6 +78,14 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	} ),
 } ) );
 
+jest.mock( '../../../utils', () => ( {
+	getSocialScriptData: jest.fn( () => ( {
+		plugin_info: {
+			jetpack: { version: '15.5' },
+		},
+	} ) ),
+} ) );
+
 jest.mock( '@automattic/jetpack-ai-client', () => ( {
 	GeneralPurposeImage: () => null,
 	AiSVG: 'svg',

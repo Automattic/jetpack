@@ -336,7 +336,8 @@ function JetpackContactFormEdit( {
 		'jetpack-contact-form',
 		isFirstStep && 'is-first-step',
 		isLastStep && 'is-last-step',
-		variationName === 'multistep' && isSingleStep && 'is-previewing-step'
+		variationName === 'multistep' && isSingleStep && 'is-previewing-step',
+		attributes?.layout ? 'has-jetpack-form-layout' : 'has-no-jetpack-form-layout'
 	);
 	const innerBlocksProps = useInnerBlocksProps(
 		{
@@ -494,7 +495,7 @@ function JetpackContactFormEdit( {
 
 	// Effect to sync field widths when layout orientation changes
 	useEffect( () => {
-		const orientation = layout?.orientation ?? 'vertical';
+		const orientation = layout?.orientation ?? 'horizontal';
 
 		// Skip initial render, only react to actual orientation changes
 		if ( prevOrientationRef.current !== null && prevOrientationRef.current !== orientation ) {

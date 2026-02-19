@@ -58,6 +58,20 @@ export const DATE_FORMAT_OPTIONS = DATE_FORMATS.map(
 
 export const FORM_BLOCK_NAME = 'jetpack/contact-form';
 
+/**
+ * Vertical layout preset for new form variations and programmatic form creation
+ * that should explicitly stack fields vertically.
+ * Used by variations and createFormBlockStructure() to opt into vertical layout,
+ * while older forms keep the legacy horizontal/wrap layout as their default.
+ */
+export const VERTICAL_LAYOUT = {
+	type: 'flex',
+	flexWrap: 'nowrap',
+	orientation: 'vertical',
+	justifyContent: 'left',
+	verticalAlignment: 'top',
+};
+
 export const FORM_STYLE = {
 	ANIMATED: 'animated',
 	BELOW: 'below',

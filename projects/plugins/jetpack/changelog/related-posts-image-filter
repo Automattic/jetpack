@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Post Images: Add `jetpack-ignore-thumbnail` CSS class and `jetpack_postimages_exclude_image` filter to exclude specific images from post image discovery.
