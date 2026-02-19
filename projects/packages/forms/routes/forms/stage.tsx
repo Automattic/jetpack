@@ -2,14 +2,16 @@
  * External dependencies
  */
 import { Page } from '@wordpress/admin-ui';
-import apiFetch from '@wordpress/api-fetch';
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import {
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	Button,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices';
 import { useSearch, useNavigate } from '@wordpress/route';
 import * as React from 'react';
 /**
@@ -23,6 +25,8 @@ import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
+import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
+import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import '../../src/dashboard/wp-build/style.scss';
 import useConfigValue from '../../src/hooks/use-config-value';
@@ -65,12 +69,12 @@ function StageInner() {
 
 	const dateSettings = getDateSettings();
 	const [ isIntegrationsModalOpen, setIsIntegrationsModalOpen ] = useState( false );
+	const [ isFormsHelpModalOpen, setIsFormsHelpModalOpen ] = useState( false );
 	const integrations = useSelect(
 		select => ( select( INTEGRATIONS_STORE ) as IntegrationsSelectors ).getIntegrations?.() ?? [],
 		[]
 	);
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 
@@ -103,12 +107,17 @@ function StageInner() {
 		return statusFilterValue === 'trash';
 	}, [ view.filters ] );
 
+	// Stable (non-trash) managed forms count, independent of the current DataViews search/filter state.
+	const { totalItems: totalNonTrashForms } = useFormsData( 1, 1, '', NON_TRASH_FORM_STATUSES );
+
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page ?? 1,
 		view.perPage ?? 20,
 		view.search ?? '',
 		statusQuery
 	);
+
+	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
 
 	const {
 		isDeleting,
@@ -296,27 +305,31 @@ function StageInner() {
 		} );
 
 		actionsList.push( {
+			id: 'duplicate-form',
+			isPrimary: false,
+			label: __( 'Duplicate', 'jetpack-forms' ),
+			supportsBulk: false,
+			async callback( items: FormListItem[] ) {
+				const [ item ] = items;
+				if ( item ) {
+					await duplicateForm( item );
+				}
+			},
+		} );
+
+		actionsList.push( {
 			id: 'preview-form',
 			isPrimary: false,
 			label: __( 'Preview', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
 				const [ item ] = items;
-				if ( ! item ) {
-					return;
-				}
-
-				try {
-					const response = await apiFetch< { preview_url: string } >( {
-						path: `/wp/v2/jetpack-forms/${ item.id }/preview-url`,
-					} );
-					window.open( response.preview_url, '_blank' );
-				} catch ( error ) {
-					// eslint-disable-next-line no-console
-					console.error( 'Failed to get preview URL:', error );
+				if ( item ) {
+					await previewForm( item );
 				}
 			},
 		} );
+
 		if ( navigator?.clipboard ) {
 			actionsList.push( {
 				id: 'copy-embed',
@@ -325,21 +338,8 @@ function StageInner() {
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
 					const [ item ] = items;
-					if ( ! item ) {
-						return;
-					}
-
-					const embedCode = `<!-- wp:jetpack/contact-form {"ref":${ item.id }} /-->`;
-					try {
-						await navigator.clipboard.writeText( embedCode );
-						createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
-							type: 'snackbar',
-						} );
-					} catch {
-						createErrorNotice(
-							__( 'Failed to copy embed code. Please try again.', 'jetpack-forms' ),
-							{ type: 'snackbar' }
-						);
+					if ( item ) {
+						await copyEmbed( item );
 					}
 				},
 			} );
@@ -351,27 +351,8 @@ function StageInner() {
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
 					const [ item ] = items;
-					if ( ! item ) {
-						return;
-					}
-
-					if ( ! navigator.clipboard ) {
-						return;
-					}
-
-					const shortcode = `[contact-form ref="${ item.id }"]`;
-					try {
-						await navigator.clipboard.writeText( shortcode );
-						createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
-							type: 'snackbar',
-						} );
-					} catch {
-						createErrorNotice(
-							__( 'Failed to copy shortcode. Please try again.', 'jetpack-forms' ),
-							{
-								type: 'snackbar',
-							}
-						);
+					if ( item ) {
+						await copyShortcode( item );
 					}
 				},
 			} );
@@ -396,12 +377,14 @@ function StageInner() {
 
 		return actionsList;
 	}, [
-		createErrorNotice,
-		createSuccessNotice,
+		copyEmbed,
+		copyShortcode,
+		duplicateForm,
 		isDeleting,
 		isViewingTrash,
 		onOpenPermanentDeleteConfirm,
 		openSingleFormView,
+		previewForm,
 		restoreForms,
 		trashForms,
 	] );
@@ -437,6 +420,12 @@ function StageInner() {
 	const closeIntegrationsModal = useCallback( () => {
 		setIsIntegrationsModalOpen( false );
 	}, [] );
+	const openFormsHelpModal = useCallback( () => {
+		setIsFormsHelpModalOpen( true );
+	}, [] );
+	const closeFormsHelpModal = useCallback( () => {
+		setIsFormsHelpModalOpen( false );
+	}, [] );
 
 	const {
 		breadcrumbs,
@@ -444,9 +433,11 @@ function StageInner() {
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'forms',
+		formsCount: totalNonTrashForms ?? 0,
 		isIntegrationsEnabled: !! isIntegrationsEnabled,
 		showDashboardIntegrations: !! showDashboardIntegrations,
 		onOpenIntegrations: openIntegrationsModal,
+		onOpenFormsHelp: openFormsHelpModal,
 	} );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
@@ -478,11 +469,16 @@ function StageInner() {
 							'jetpack-forms'
 						) }
 						actions={
-							<CreateFormButton
-								label={ __( 'Create a new form', 'jetpack-forms' ) }
-								variant="primary"
-								showIcon={ false }
-							/>
+							<HStack justify="center" spacing="2">
+								<CreateFormButton
+									label={ __( 'Create a new form', 'jetpack-forms' ) }
+									variant="primary"
+									showIcon={ false }
+								/>
+								<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+									{ __( 'Missing forms?', 'jetpack-forms' ) }
+								</Button>
+							</HStack>
 						}
 					/>
 				}
@@ -532,6 +528,7 @@ function StageInner() {
 				refreshIntegrations={ refreshIntegrations }
 				context="dashboard"
 			/>
+			<FormsHelpModal isOpen={ isFormsHelpModalOpen } onClose={ closeFormsHelpModal } />
 		</Page>
 	);
 }

@@ -574,6 +574,8 @@
 	box-sizing: border-box;
 }
 
+:where(.wp-block-jetpack-contact-form.is-classic-layout), // This allows forms even with layout attribute to keep the previous layout.
+:where(.has-no-jetpack-form-layout) .wp-block-jetpack-contact-form,
 .wp-block-jetpack-contact-form:not(.is-layout-flex) {
 	display: flex;
 	flex-wrap: wrap;

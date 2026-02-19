@@ -323,7 +323,7 @@ class Listener {
 		 */
 		if ( ! $this->can_add_to_queue( $queue ) ) {
 			if ( 'sync' === $queue->id ) {
-				$this->sync_data_loss( $queue );
+				$this->sync_data_loss( $queue, $current_filter );
 			}
 			return;
 		}
@@ -383,10 +383,13 @@ class Listener {
 	/**
 	 * Sync Data Loss Handler
 	 *
-	 * @param Queue $queue Sync queue.
+	 * Sends a single 'jetpack_sync_data_loss' action to WP.com with timestamp, queue_size, queue_lag and current_filter.
+	 *
+	 * @param Queue  $queue Sync queue.
+	 * @param string $current_filter Name of action that triggered sync.
 	 * @return boolean was send successful
 	 */
-	public function sync_data_loss( $queue ) {
+	public function sync_data_loss( $queue, $current_filter = '' ) {
 		if ( ! Settings::is_sync_enabled() ) {
 			return;
 		}
@@ -400,6 +403,9 @@ class Listener {
 			'timestamp'  => microtime( true ),
 			'queue_size' => $queue->size(),
 			'queue_lag'  => $queue->lag(),
+			'extra'      => array(
+				'current_filter' => $current_filter,
+			),
 		);
 
 		$sender = Sender::get_instance();

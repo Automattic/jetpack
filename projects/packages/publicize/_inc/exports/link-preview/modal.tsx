@@ -7,7 +7,7 @@ import styles from './styles.module.scss';
 import { LinkPreviewTabs } from './tabs';
 import { LinkPreviewData } from './types';
 
-export type LinkPreviewModalProps = React.ComponentProps< typeof Modal > & {
+export type LinkPreviewModalProps = Omit< React.ComponentProps< typeof Modal >, 'children' > & {
 	/**
 	 * The data to show in the link preview modal.
 	 */
@@ -39,7 +39,7 @@ export function LinkPreviewModal( {
 	);
 }
 
-export type LinkPreviewModalWithTriggerProps = LinkPreviewModalProps & {
+export type LinkPreviewModalWithTriggerProps = Partial< LinkPreviewModalProps > & {
 	/**
 	 * The text to show in the trigger button that opens the modal.
 	 */
