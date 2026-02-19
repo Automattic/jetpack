@@ -255,17 +255,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
+        if: &php_lint_cond github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
 
       - name: Setup tools
-        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
+        if: *php_lint_cond
         uses: ./.github/actions/tool-setup
         with:
           php: ${{ matrix.php-versions }}
           node: false
 
       - name: Install dependencies
-        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
+        if: *php_lint_cond
         run: |
           # Install stuff ignoring platform reqs.
           composer install --ignore-platform-reqs
@@ -274,7 +274,7 @@ jobs:
           composer remove --dev sirbrillig/phpcs-changed automattic/jetpack-codesniffer automattic/jetpack-phan-plugins phan/phan
 
       - name: Run linter
-        if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
+        if: *php_lint_cond
         run: |
           echo "::add-matcher::.github/matchers/php-lint-problem-matcher.json"
           composer php:lint -- --checkstyle
