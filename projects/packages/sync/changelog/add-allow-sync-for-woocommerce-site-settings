@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add WooCommerce store address details (address, address_2, city, postcode) and admin install timestamp to sync whitelist for improved WooCommerce site settings sync.
