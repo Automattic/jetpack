@@ -17,7 +17,7 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
-		remove_all_actions( 'wp_head' );
+		remove_action( 'wp_head', 'jetpack_canonical_urls_output_tag' );
 		parent::tear_down();
 	}
 
@@ -309,6 +309,39 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 		$url = Jetpack_Canonical_Urls_Resolver::get_canonical_url();
 
 		$this->assertStringContainsString( 'paged=2', $url );
+	}
+
+	/**
+	 * Test resolver uses query-based pagination for query-based archive URLs
+	 * even when pretty permalinks are enabled globally.
+	 */
+	public function test_resolver_pagination_query_based_archive_with_pretty_permalinks() {
+		$this->set_permalink_structure( '/%postname%/' );
+
+		register_post_type(
+			'no_rewrite_cpt',
+			array(
+				'public'      => true,
+				'has_archive' => true,
+				'rewrite'     => false,
+			)
+		);
+
+		for ( $i = 0; $i < 15; $i++ ) {
+			self::factory()->post->create( array( 'post_type' => 'no_rewrite_cpt' ) );
+		}
+
+		$archive_url = get_post_type_archive_link( 'no_rewrite_cpt' );
+		$this->go_to( add_query_arg( 'paged', 2, $archive_url ) );
+
+		$url = Jetpack_Canonical_Urls_Resolver::get_canonical_url();
+
+		// Should use query-based pagination since the archive URL contains a query string.
+		$this->assertStringContainsString( 'paged=2', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+
+		unregister_post_type( 'no_rewrite_cpt' );
+		$this->set_permalink_structure( '' );
 	}
 
 	// -------------------------------------------------------------------------

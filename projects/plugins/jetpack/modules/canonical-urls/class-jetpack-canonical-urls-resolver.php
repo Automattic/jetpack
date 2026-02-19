@@ -54,6 +54,9 @@ class Jetpack_Canonical_Urls_Resolver {
 			}
 		} elseif ( is_post_type_archive() ) {
 			$url = get_post_type_archive_link( get_query_var( 'post_type' ) );
+			if ( false === $url ) {
+				$url = '';
+			}
 		} elseif ( is_author() ) {
 			$author = get_queried_object();
 			if ( $author instanceof WP_User ) {
@@ -92,8 +95,8 @@ class Jetpack_Canonical_Urls_Resolver {
 
 		global $wp_rewrite;
 
-		if ( $wp_rewrite->using_permalinks() ) {
-			$url = trailingslashit( $url ) . $wp_rewrite->pagination_base . '/' . $paged . '/';
+		if ( $wp_rewrite->using_permalinks() && false === strpos( $url, '?' ) ) {
+			$url = user_trailingslashit( trailingslashit( $url ) . $wp_rewrite->pagination_base . '/' . $paged );
 		} else {
 			$url = add_query_arg( 'paged', $paged, $url );
 		}
