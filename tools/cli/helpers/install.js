@@ -47,7 +47,6 @@ async function isComposerLockOk( dir ) {
  *
  * Replaces per-project `git ls-files` calls with a single invocation.
  *
- * @param {string[]} projects - Array of project slugs.
  * @return {Promise<Set<string>>} Set of project slugs that have a committed composer.lock.
  */
 export async function batchLockFileStatus() {
@@ -64,9 +63,9 @@ export async function batchLockFileStatus() {
 			if ( p === 'composer.lock' ) {
 				lockedProjects.add( 'monorepo' );
 			} else {
-				const m = /^projects\/([^/]+\/[^/]+)\/composer\.lock$/;
+				const m = p.match( /^projects\/([^/]+\/[^/]+)\/composer\.lock$/ );
 				if ( m ) {
-					lockedProjects.add( m[1] );
+					lockedProjects.add( m[ 1 ] );
 				}
 			}
 		} );
