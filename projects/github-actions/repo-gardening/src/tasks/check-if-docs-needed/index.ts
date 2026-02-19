@@ -304,7 +304,10 @@ async function checkIfDocsNeeded(
 		let linearIssue: LinearIssueDetails | null = null;
 		if ( linearTeamId ) {
 			debug( `check-if-docs-needed: Creating Linear issue for PR #${ number }.` );
-			const escapedTitle = title.replace( /\[/g, '\\[' ).replace( /\]/g, '\\]' );
+			const escapedTitle = title
+				.replace( /\\/g, '\\\\' )
+				.replace( /\[/g, '\\[' )
+				.replace( /\]/g, '\\]' );
 			const linearDescription = `A pull request was flagged as containing user-facing changes that may require documentation updates.\n\n**Pull request:** [${ escapedTitle }](${ prUrl })\n**Repository:** ${ repoFullName }\n**AI reasoning:** ${ reason }`;
 
 			linearIssue = await createLinearIssue(
