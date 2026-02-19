@@ -13,16 +13,6 @@ import { __ } from '@wordpress/i18n';
 import { check, chevronDown, copy, shortcode } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 
-declare global {
-	interface Window {
-		jpFormsBlocks?: {
-			defaults?: {
-				formsResponsesUrl?: string;
-			};
-		};
-	}
-}
-
 /**
  * Get the responses URL for the current form.
  *
