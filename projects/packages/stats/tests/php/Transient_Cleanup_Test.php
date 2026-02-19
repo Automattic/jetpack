@@ -173,4 +173,85 @@ class Transient_Cleanup_Test extends StatsBaseTestCase {
 		$this->assertSame( 100, Transient_Cleanup::BATCH_SIZE );
 		$this->assertSame( 28800, Transient_Cleanup::CRON_INTERVAL );
 	}
+
+	/**
+	 * Test that cleanup is skipped when using external object cache.
+	 */
+	public function test_cleanup_skipped_with_external_object_cache() {
+		global $_wp_using_ext_object_cache;
+
+		// Enable external object cache.
+		$original                   = $_wp_using_ext_object_cache;
+		$_wp_using_ext_object_cache = true;
+
+		$result = Transient_Cleanup::run_cleanup();
+
+		// Restore original value.
+		$_wp_using_ext_object_cache = $original;
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Note: Tests for actual transient deletion (purge_expired_transients) are not included
+	 * because they require direct SQL queries which WorDBless doesn't support.
+	 * These behaviors should be tested via integration tests on a real WordPress installation:
+	 * - test_cleanup_deletes_expired_transients
+	 * - test_cleanup_does_not_delete_non_expired_transients
+	 * - test_cleanup_with_custom_prefix
+	 *
+	 * Manual testing instructions are provided in the PR description.
+	 */
+
+	/**
+	 * Test that filter returning invalid value falls back to defaults.
+	 */
+	public function test_get_transient_prefixes_filter_invalid_value() {
+		// Return a non-array.
+		add_filter( 'jetpack_stats_transient_cleanup_prefixes', '__return_false' );
+
+		$prefixes = Transient_Cleanup::get_transient_prefixes();
+
+		// Should fall back to default prefixes.
+		$this->assertContains( WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX, $prefixes );
+	}
+
+	/**
+	 * Test that filter returning empty strings are filtered out.
+	 */
+	public function test_get_transient_prefixes_filters_empty_strings() {
+		add_filter(
+			'jetpack_stats_transient_cleanup_prefixes',
+			function ( $prefixes ) {
+				$prefixes[] = '';
+				$prefixes[] = 'valid_prefix_';
+				return $prefixes;
+			}
+		);
+
+		$prefixes = Transient_Cleanup::get_transient_prefixes();
+
+		$this->assertNotContains( '', $prefixes );
+		$this->assertContains( 'valid_prefix_', $prefixes );
+	}
+
+	/**
+	 * Test that duplicate prefixes are removed.
+	 */
+	public function test_get_transient_prefixes_removes_duplicates() {
+		add_filter(
+			'jetpack_stats_transient_cleanup_prefixes',
+			function ( $prefixes ) {
+				$prefixes[] = WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+				$prefixes[] = WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+				return $prefixes;
+			}
+		);
+
+		$prefixes = Transient_Cleanup::get_transient_prefixes();
+
+		// Count occurrences of the default prefix.
+		$count = array_count_values( $prefixes )[ WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX ];
+		$this->assertSame( 1, $count );
+	}
 }
