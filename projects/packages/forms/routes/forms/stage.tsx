@@ -6,8 +6,6 @@ import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	Modal,
-	TextControl,
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -463,6 +461,7 @@ function StageInner() {
 		isDeleting,
 		isViewingTrash,
 		onOpenPermanentDeleteConfirm,
+		openRenameModal,
 		openSingleFormView,
 		previewForm,
 		restoreForms,
