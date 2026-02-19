@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Extensions\ImageStudio;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit( 0 );
 }
 
 const FEATURE_NAME            = 'image-studio';
