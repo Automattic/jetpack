@@ -216,6 +216,7 @@ class Twitter_Cards_Test extends BaseTestCase {
 		list( $result_tags, $card_type ) = Twitter_Cards::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
 
 		$this->assertSame( 'summary_large_image', $card_type );
+		$this->assertArrayHasKey( 'twitter:image', $result_tags );
 		$this->assertStringContainsString( 'img1.jpg', $result_tags['twitter:image'] );
 	}
 
@@ -291,7 +292,9 @@ class Twitter_Cards_Test extends BaseTestCase {
 		list( $result_tags, $card_type ) = Twitter_Cards::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
 
 		$this->assertSame( 'summary_large_image', $card_type );
+		$this->assertArrayHasKey( 'twitter:image', $result_tags );
 		$this->assertStringContainsString( 'single.jpg', $result_tags['twitter:image'] );
+		$this->assertStringContainsString( 'w=1400', $result_tags['twitter:image'] );
 	}
 
 	/**
@@ -416,6 +419,7 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'twitter:card', $result );
 		$this->assertContains( $result['twitter:card'], array( 'summary', 'summary_large_image' ) );
 		$this->assertArrayHasKey( 'twitter:text:title', $result );
+		$this->assertSame( 'Test Post', $result['twitter:text:title'] );
 	}
 
 	/**
@@ -443,6 +447,7 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$og_tags = array();
 		$result  = Twitter_Cards::twitter_cards_tags( $og_tags );
 
+		$this->assertArrayHasKey( 'twitter:card', $result );
 		$this->assertArrayHasKey( 'twitter:description', $result );
 		$this->assertSame( 'Visit the post for more.', $result['twitter:description'] );
 	}
