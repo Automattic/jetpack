@@ -101,10 +101,7 @@ class Transient_Cleanup {
 	 * @return void
 	 */
 	public static function unschedule_cleanup() {
-		$timestamp = wp_next_scheduled( self::CRON_HOOK );
-		if ( $timestamp ) {
-			wp_unschedule_event( $timestamp, self::CRON_HOOK );
-		}
+		wp_clear_scheduled_hook( self::CRON_HOOK );
 	}
 
 	/**
