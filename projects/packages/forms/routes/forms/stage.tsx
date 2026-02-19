@@ -213,7 +213,13 @@ function StageInner() {
 					view.search ?? '',
 					statusQuery
 				);
+				const minimalQuery = {
+					...query,
+					per_page: 1,
+					_fields: 'id',
+				};
 				invalidateResolution( 'getEntityRecords', [ 'postType', FORM_POST_TYPE, query ] );
+				invalidateResolution( 'getEntityRecords', [ 'postType', FORM_POST_TYPE, minimalQuery ] );
 
 				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
 				renameRetryRef.current = null;
