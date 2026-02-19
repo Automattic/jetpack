@@ -144,7 +144,7 @@ class Shortcodes {
 			 * https://vimeo.com/album/1234567/video/7654321
 			 * https://player.vimeo.com/video/18427511
 			 */
-			$pattern = '/(?:https?:\/\/)?vimeo\.com\/(?:groups\/\d+\/videos\/|album\/\d+\/video\/|video\/|channels\/[^\/]+\/videos\/|[^\/]+\/)?([0-9]+)(?:[^\'\"0-9<]|$)/i';
+			$pattern = '/(?:https?:\/\/)?vimeo\.com\/(?:groups\/[^\/]+\/videos\/|album\/\d+\/video\/|video\/|channels\/[^\/]+\/videos\/|[^\/]+\/)?([0-9]+)(?:[^\'\"0-9<]|$)/i';
 			$match   = array();
 			if ( preg_match( $pattern, $atts[0], $match ) ) {
 				return (int) $match[1];
