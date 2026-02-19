@@ -78,6 +78,9 @@ class Main {
 		REST_Provider::init();
 		Transient_Cleanup::init();
 
+		// Clean up transient cron on module deactivation.
+		add_action( 'jetpack_deactivate_module_stats', array( Transient_Cleanup::class, 'unschedule_cleanup' ) );
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 	}

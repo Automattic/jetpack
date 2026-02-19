@@ -86,7 +86,7 @@ class Transient_Cleanup {
 
 	/**
 	 * Unschedule the cleanup cron job.
-	 * Should be called on plugin deactivation.
+	 * Hooked to 'jetpack_deactivate_module_stats' in Main::__construct().
 	 *
 	 * @return void
 	 */
