@@ -311,6 +311,7 @@ export default function usePageHeaderDetails(
 					controls={ dropdownControls }
 					icon={ moreVertical }
 					label={ __( 'More actions', 'jetpack-forms' ) }
+					toggleProps={ { size: 'compact' } }
 				/>,
 				// Include modals when on mobile
 				...( showExportModal
@@ -379,6 +380,7 @@ export default function usePageHeaderDetails(
 								controls={ formItemControls }
 								icon={ moreVertical }
 								label={ __( 'More actions', 'jetpack-forms' ) }
+								toggleProps={ { size: 'compact' } }
 							/>,
 					  ]
 					: [] ),
