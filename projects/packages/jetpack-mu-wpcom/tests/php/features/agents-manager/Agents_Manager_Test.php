@@ -1357,6 +1357,43 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that should_enqueue_script returns false in block editor when
+	 * agents_manager_enqueue_in_block_editor filter returns false.
+	 *
+	 * This allows environments like CIAB to prevent duplicate loading when
+	 * agents-manager is already running from the parent page.
+	 */
+	public function test_should_enqueue_script_returns_false_in_block_editor_when_filter_disables_it() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Set up block editor context.
+		set_current_screen( 'post' );
+		$screen = get_current_screen();
+
+		// Use reflection to set the block_editor property.
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		$_SERVER['REQUEST_URI'] = '/wp-admin/post.php';
+
+		// Enable unified experience so the test reaches the filter check.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// Disable enqueue in block editor via the new filter.
+		add_filter( 'agents_manager_enqueue_in_block_editor', '__return_false' );
+
+		$result = $this->call_should_enqueue_script();
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_enqueue_in_block_editor', '__return_false' );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
 	 * Helper to call the private get_current_user_data method via reflection.
 	 *
 	 * @return array|null The result of get_current_user_data.
