@@ -58,4 +58,4 @@ const store = createReduxStore( PANEL_STATE_STORE, {
 
 register( store );
 
-export { store };
+export { store, actions, selectors, reducer, DEFAULT_STATE };
