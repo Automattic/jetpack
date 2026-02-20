@@ -29,6 +29,7 @@ export interface NewsletterSettings {
 		welcome: string;
 		comment_follow: string;
 	};
+	newsletter_has_active_plan: boolean;
 	[ key: string ]: unknown;
 }
 
@@ -53,6 +54,12 @@ export interface JetpackNewsletterSettings {
 	restApiRoot: string;
 	restApiNonce: string;
 	siteName: string;
+	tracksUserData?:
+		| {
+				userid: number;
+				username: string;
+		  }
+		| false;
 }
 
 /**

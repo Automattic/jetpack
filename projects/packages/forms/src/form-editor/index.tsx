@@ -12,6 +12,10 @@ import { subscribe, select, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
+import {
+	FormPrePublishPanel,
+	JETPACK_FORM_PRE_PUBLISH_PANEL,
+} from './plugins/form-pre-publish-panel';
 import { FormTitleModal } from './plugins/form-title-modal';
 import {
 	activateBlockCategoryOverrides,
@@ -352,11 +356,17 @@ const setupFormEditorSubscription = () => {
 					registerPlugin( NEW_FORMS_MODAL_PLUGIN, {
 						render: FormTitleModal,
 					} );
+
+					registerPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL, { render: FormPrePublishPanel } );
 				} else {
 					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
 					if ( getPlugin( NEW_FORMS_MODAL_PLUGIN ) ) {
 						unregisterPlugin( NEW_FORMS_MODAL_PLUGIN );
+					}
+
+					if ( getPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL ) ) {
+						unregisterPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL );
 					}
 
 					if ( state.categoriesSetUp ) {

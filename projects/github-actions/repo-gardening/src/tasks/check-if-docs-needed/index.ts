@@ -2,9 +2,11 @@ import { getInput } from '@actions/core';
 import debug from '../../utils/debug.ts';
 import getDiff from '../../utils/get-diff.ts';
 import getLabels from '../../utils/labels/get-labels.ts';
+import createLinearIssue from '../../utils/linear/create-linear-issue.ts';
 import sendOpenAiRequest from '../../utils/openai/send-request.ts';
 import sendSlackMessage from '../../utils/slack/send-slack-message.ts';
 import type { OctokitClient, PullRequestEvent } from '../../types.ts';
+import type { LinearIssueDetails } from '../../utils/linear/create-linear-issue.ts';
 
 /**
  * Clean up the PR body content for AI processing.
@@ -76,47 +78,62 @@ function buildPrompt( title: string, body: string, diff: string ): string {
 	const sanitizedBody = sanitizeForPrompt( body || '' );
 	const sanitizedDiff = sanitizeForPrompt( diff || '' );
 
-	return `You are the lead documentation editor for Jetpack. Your task is to analyze a GitHub Pull Request (PR) to determine if the PR likely requires changes to user-facing support documentation.
+	return `You are a documentation triage assistant for Jetpack, a WordPress plugin developed in a monorepo. Your job is to determine whether a merged GitHub Pull Request would require an update to an existing page — or the creation of a new page — on jetpack.com/support (Jetpack's end-user support documentation site).
 
-## Changes that DO Require Documentation Updates (flag these):
+## IMPORTANT CONTEXT
 
+https://jetpack.com/support documents these Jetpack features and products for end users (site owners and administrators). The following is the list of documented feature areas:
 
-### PRIORITY ITEMS TO CAPTURE:
+- **Security:** VaultPress Backup, Scan, Brute Force Protection (Protect), Monitor, SSO / Secure Sign On, Firewall / WAF, Account Protection
+- **Performance:** Site Accelerator / Image CDN, Boost, Search, VideoPress, Infinite Scroll
+- **Growth:** Stats, Social, Newsletter (incl. Newsletter Categories), Blaze, SEO Tools, Sharing, Likes, Comment Likes, Related Posts, Enhanced Distribution, Ads
+- **Content & Blocks:** AI Assistant, Jetpack Blocks (Contact Form, Carousel, Tiled Galleries, Repeat Visitor, Pay with PayPal, etc.), Custom Content Types, Copy Post, Markdown, Shortcode Embeds
+- **Management:** Jetpack Manage / Pro Dashboard, Plugin Management, Notifications, Modules page
+- **Other:** Getting Started / Installation / Connection, Troubleshooting, Privacy / Data Sync, Gravatar Hovercards, Widget Visibility, Extra Sidebar Widgets, Sitemaps, Site Verification, WP.me Shortlinks, Post by Email, Beautiful Math / LaTeX
 
-- UI text changes (button labels, menu items, modal titles)
-- New modal windows or dialog boxes
-- Connection requirement changes (removed/added nudges)
-- Workflow steps and user interactions
-- Specific locations where features appear
-- Error message changes
-- Permission or access control changes
-- Package-level changes (Forms, AI, Blocks, etc.)
-- Bug fix counts and significant bug fix mentions
-- User feedback mechanisms (thumbs up/down, ratings)
-- Package changelog references and discussions
+The docs are written for non-technical WordPress site owners. They explain how to enable, configure, and use features via the WordPress dashboard (wp-admin) or the WordPress.com dashboard (cloud.jetpack.com).
 
-### PACKAGE EVALUATION:
+## TWO-PART TEST
 
-When evaluating package changes, only include them in the heads-up if they are:
+Only flag a PR if BOTH conditions are true:
 
-- User-facing features or improvements
-- Significant bug fixes (mention counts if available)
-- Performance improvements users will notice
-- Security updates affecting user experience
-- Breaking changes or deprecations
+1. **The PR changes a feature listed above** (or introduces an entirely new user-facing feature that would need a new support page).
+2. **A site owner following the existing support docs would encounter something different** — for example: a setting was added/removed/renamed, a workflow changed, a UI screen looks substantially different, a new feature was launched, plan/pricing gating changed, or a feature was deprecated/removed.
 
-## Changes that DO NOT Require Documentation Updates (do not flag these)
+## Flag as needing docs review (is_user_facing = true):
 
-- Refactoring code without changing user-visible behavior
-- Code cleanup that preserves identical functionality
-- Test-only changes (adding, modifying, or removing tests)
-- Internal tooling or build configuration
-- Developer documentation and code comments
-- Dependency updates with no behavior change
-- CI/CD configuration changes
+- A new user-facing feature or setting was added to a documented area
+- An existing setting, toggle, or option was renamed, moved, added, or removed
+- A user-facing workflow changed (different steps to accomplish a task)
+- UI layout of a documented screen changed substantially (not minor polish)
+- Plan or pricing gating for a feature changed (e.g., feature moved from paid to free or vice versa)
+- A feature or module was deprecated or removed
+- New Jetpack block added, or existing block got new user-facing controls
+- Connection or onboarding flow changed
+- Default behavior of a feature changed in a way users would notice
+
+## Do NOT flag (is_user_facing = false):
+
+- Internal refactoring, code cleanup, or restructuring with no user-visible change
+- Test file changes (adding, modifying, or removing tests)
+- CI/CD, build tooling, GitHub Actions, or linting configuration
+- Dependency/package version bumps with no behavior change
+- Developer-facing changes (REST API internals, hooks, filters, PHP docblocks)
+- Changes to developer.jetpack.com docs (that is a different site)
+- Changelog file edits or version bump commits
 - Performance optimizations with no visible behavior change
-- Minor visual polish (slight color adjustments, spacing tweaks)
-- Bug fixes that restore documented behavior
+- Minor CSS tweaks, spacing adjustments, or color fine-tuning
+- Bug fixes that restore already-documented behavior (the docs are already correct)
+- Error message text changes that are not referenced in support docs
+- Internal logging, tracking, or analytics instrumentation changes
+- Changes scoped entirely to Calypso, WordPress.com, or WooCommerce (not jetpack.com/support)
+- Changes to packages that are only consumed internally and not exposed to users
+- Accessibility improvements that don't change documented workflows
+- Translation/i18n string changes or locale updates
+
+## WHEN IN DOUBT
+
+If the change is borderline, lean toward is_user_facing = false. The goal is to surface only PRs that would actually leave a support page outdated or missing. A false negative (missing a flaggable PR) is much less costly than a false positive (noisy alerts the team learns to ignore).
 
 Here is the PR title:
 \`\`\`\`
@@ -155,10 +172,11 @@ async function checkIfDocsNeeded(
 	octokit: OctokitClient
 ): Promise< void > {
 	const {
-		pull_request: { number, body, title, merged },
+		pull_request: { number, body, title, merged, html_url: prUrl },
 		repository: {
 			owner: { login: ownerLogin },
 			name,
+			full_name: repoFullName,
 		},
 	} = payload;
 
@@ -279,18 +297,46 @@ async function checkIfDocsNeeded(
 			labels: [ uiChangesLabel ],
 		} );
 
+		// Attempt to create a Linear issue if a Linear team ID is provided.
+		const linearTeamId = getInput( 'linear_docs_team_id' );
+
+		let linearIssue: LinearIssueDetails | null = null;
+		if ( linearTeamId ) {
+			debug( `check-if-docs-needed: Creating Linear issue for PR #${ number }.` );
+			const escapedTitle = title
+				.replace( /\\/g, '\\\\' )
+				.replace( /\[/g, '\\[' )
+				.replace( /\]/g, '\\]' );
+			const linearDescription = `A pull request was flagged as containing user-facing changes that may require documentation updates.\n\n**Pull request:** [${ escapedTitle }](${ prUrl })\n**Repository:** ${ repoFullName }\n**AI reasoning:** ${ reason }`;
+
+			linearIssue = await createLinearIssue(
+				`Docs update needed: ${ title }`,
+				linearDescription,
+				linearTeamId
+			);
+
+			if ( linearIssue ) {
+				debug(
+					`check-if-docs-needed: Created Linear issue ${ linearIssue.identifier } for PR #${ number }.`
+				);
+			}
+		}
+
 		// Send Slack notification if product ambassadors channel is configured.
 		const slackProductAmbassadorsChannel = getInput( 'slack_product_ambassadors_channel' );
 		const slackToken = getInput( 'slack_token' );
 
 		if ( slackProductAmbassadorsChannel && slackToken ) {
 			debug( `check-if-docs-needed: Sending Slack notification for PR #${ number }.` );
+
+			let slackMessage = `This PR was flagged as containing user-facing changes. Please review and update documentation if needed.\n\n*AI reasoning:* ${ reason }`;
+
+			if ( linearIssue ) {
+				slackMessage += `\n\nA Linear issue was created to track this: *<${ linearIssue.url }|${ linearIssue.identifier }>*`;
+			}
+
 			try {
-				await sendSlackMessage(
-					`This PR was flagged as containing user-facing changes. Please review and update documentation if needed.\n\n*AI reasoning:* ${ reason }`,
-					slackProductAmbassadorsChannel,
-					payload
-				);
+				await sendSlackMessage( slackMessage, slackProductAmbassadorsChannel, payload );
 			} catch ( error: unknown ) {
 				debug(
 					`check-if-docs-needed: Failed to send Slack notification for PR #${ number }: ${ error }`

@@ -18,7 +18,7 @@ export const route = {
 	 *
 	 * @return                         - Whether to show the inspector panel.
 	 */
-	inspector: async ( { search }: { search: { responseIds?: string[] } } ) => {
+	inspector: ( { search }: { search: { responseIds?: string[] } } ) => {
 		return !! ( search?.responseIds && search.responseIds.length === 1 );
 	},
 
@@ -52,6 +52,7 @@ export const route = {
 			status,
 			orderby: 'date',
 			order: 'desc',
+			fields_format: 'collection',
 		} );
 
 		// Preload global header tab counts.

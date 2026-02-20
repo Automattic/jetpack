@@ -319,13 +319,6 @@ body .sd-content ul li.share-custom.no-icon a span {
 	content: "\f607";
 }
 
-.sd-social-icon .sd-content ul li.share-pocket a::before,
-.sd-social-text .sd-content ul li.share-pocket a::before,
-.sd-content ul li.share-pocket div.option.option-smart-off a::before,
-.sd-social-icon-text .sd-content li.share-pocket a::before {
-	content: "\f224";
-}
-
 .sd-social-icon .sd-content ul li.share-pinterest a::before,
 .sd-social-text .sd-content ul li.share-pinterest a::before,
 .sd-content ul li.share-pinterest div.option.option-smart-off a::before,
@@ -511,13 +504,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 	vertical-align: top !important;
 }
 
-.sd-social-official .sd-content .pocket_button iframe {
-	width: 98px;
-}
-
-
 /* Individual official buttons */
-.pocket_button iframe,
 .pinterest_button,
 .twitter_button,
 .linkedin_button > span {
@@ -737,11 +724,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 
 .sd-social-icon .sd-content ul li[class*="share-"].share-linkedin a.sd-button {
 	background: #0077b5;
-	color: #fff !important;
-}
-
-.sd-social-icon .sd-content ul li[class*="share-"].share-pocket a.sd-button {
-	background: #ee4056;
 	color: #fff !important;
 }
 

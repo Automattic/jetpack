@@ -245,23 +245,99 @@ class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
 		Health::update_status( Health::STATUS_IN_SYNC );
 		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 
-		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue(), 'test_action' );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
 
 		$this->assertTrue( isset( $event->args['timestamp'] ) );
 		$this->assertTrue( isset( $event->args['queue_size'] ) );
 		$this->assertTrue( isset( $event->args['queue_lag'] ) );
+		$this->assertTrue( isset( $event->args['extra'] ) );
+		$this->assertIsArray( $event->args['extra'] );
+		$this->assertEquals( array( 'current_filter' => 'test_action' ), $event->args['extra'] );
 		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
 	}
 
 	public function test_data_loss_action_ignored_if_already_out_of_sync() {
 		Health::update_status( Health::STATUS_OUT_OF_SYNC );
 
-		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue(), 'test_action' );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
 
 		$this->assertFalse( $event );
 		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
+	}
+
+	public function test_does_listener_add_mcp_actor_fields_when_header_present() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		$mcp_data                    = array(
+			'mcp_client_name'    => 'test-client',
+			'mcp_client_version' => '1.0.0',
+		);
+		$_SERVER['HTTP_X_WPCOM_MCP'] = base64_encode( wp_json_encode( $mcp_data, JSON_UNESCAPED_SLASHES ) );
+		self::factory()->post->create();
+
+		$all = $queue->get_all();
+		$this->assertNotEmpty( $all );
+
+		foreach ( $all as $queue_item ) {
+			list( , , , , , $actor ) = $queue_item->value;
+			$this->assertArrayHasKey( 'mcp_client_name', $actor );
+			$this->assertArrayHasKey( 'mcp_client_version', $actor );
+			$this->assertArrayHasKey( 'is_mcp_agent', $actor );
+			$this->assertEquals( 'test-client', $actor['mcp_client_name'] );
+			$this->assertEquals( '1.0.0', $actor['mcp_client_version'] );
+			$this->assertTrue( $actor['is_mcp_agent'] );
+		}
+	}
+
+	public function test_does_listener_not_add_mcp_actor_fields_when_header_invalid() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		$_SERVER['HTTP_X_WPCOM_MCP'] = '!!!invalid-base64!!!';
+
+		self::factory()->post->create();
+
+		$all = $queue->get_all();
+		$this->assertNotEmpty( $all );
+
+		foreach ( $all as $queue_item ) {
+			list( , , , , , $actor ) = $queue_item->value;
+			$this->assertArrayNotHasKey( 'mcp_client_name', $actor );
+			$this->assertArrayNotHasKey( 'mcp_client_version', $actor );
+			$this->assertArrayNotHasKey( 'is_mcp_agent', $actor );
+		}
+	}
+
+	public function test_does_listener_add_mcp_actor_fields_with_partial_data() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		$mcp_data                    = array(
+			'mcp_client_name' => 'partial-client',
+		);
+		$_SERVER['HTTP_X_WPCOM_MCP'] = base64_encode( wp_json_encode( $mcp_data, JSON_UNESCAPED_SLASHES ) );
+		self::factory()->post->create();
+
+		$all = $queue->get_all();
+		$this->assertNotEmpty( $all );
+
+		foreach ( $all as $queue_item ) {
+			list( , , , , , $actor ) = $queue_item->value;
+			$this->assertArrayHasKey( 'mcp_client_name', $actor );
+			$this->assertArrayNotHasKey( 'mcp_client_version', $actor );
+			$this->assertArrayHasKey( 'is_mcp_agent', $actor );
+			$this->assertEquals( 'partial-client', $actor['mcp_client_name'] );
+			$this->assertTrue( $actor['is_mcp_agent'] );
+		}
 	}
 
 	public function get_page_url() {

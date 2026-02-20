@@ -453,38 +453,34 @@ function StageInner() {
 				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
-			...( isSingleFormView
-				? []
-				: [
-						{
-							id: 'source',
-							label: __( 'Source', 'jetpack-forms' ),
-							render: ( { item } ) => {
-								const source =
-									item.entry_title ||
-									getUrlPath( item.entry_permalink ) ||
-									__( '(no title)', 'jetpack-forms' );
-								if ( item.entry_permalink ) {
-									return styleUnreadValue(
-										<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
-										item.is_unread
-									);
-								}
-								return styleUnreadValue( source, item.is_unread );
-							},
-							elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
-								source => ( {
-									value: source.id.toString(),
-									label:
-										decodeEntities( source.title ) ||
-										getUrlPath( source.url ) ||
-										__( '(no title)', 'jetpack-forms' ),
-								} )
-							),
-							filterBy: { operators: [ 'is' ] as Operator[] },
-							enableSorting: false,
-						},
-				  ] ),
+			{
+				id: 'source',
+				label: __( 'Source', 'jetpack-forms' ),
+				render: ( { item } ) => {
+					const source =
+						item.entry_title ||
+						getUrlPath( item.entry_permalink ) ||
+						__( '(no title)', 'jetpack-forms' );
+					if ( item.entry_permalink ) {
+						return styleUnreadValue(
+							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+							item.is_unread
+						);
+					}
+					return styleUnreadValue( source, item.is_unread );
+				},
+				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
+					source => ( {
+						value: source.id.toString(),
+						label:
+							decodeEntities( source.title ) ||
+							getUrlPath( source.url ) ||
+							__( '(no title)', 'jetpack-forms' ),
+					} )
+				),
+				...( isSingleFormView ? {} : { filterBy: { operators: [ 'is' ] as Operator[] } } ),
+				enableSorting: false,
+			},
 			{
 				id: 'read_status',
 				label: __( 'Status', 'jetpack-forms' ),

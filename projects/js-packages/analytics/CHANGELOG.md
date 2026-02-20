@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Analytics package releases.
 
+## [1.0.8] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
 ## [1.0.7] - 2026-01-14
 ### Changed
 - Internal updates.
@@ -180,6 +184,7 @@
 ### Added
 - Initial release of jetpack-api package.
 
+[1.0.8]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/Automattic/jetpack-analytics/compare/v1.0.4...v1.0.5

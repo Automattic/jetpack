@@ -40,6 +40,10 @@ minimumReleaseAgeExclude:
   - qs@6.14.2
   # Renovate security update: markdown-it@14.1.1
   - markdown-it@14.1.1
+  # Renovate security update: minimatch@10.2.1
+  - minimatch@10.2.1
+  # Renovate security update: swiper@12.1.2
+  - swiper@12.1.2
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
