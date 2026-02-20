@@ -575,7 +575,7 @@ class Agents_Manager {
 		$decoded_body = json_decode( $body, true );
 
 		// The response is { "unified_ai_chat": true/false } when using key param.
-		$result = ! empty( $decoded_body );
+		$result = is_array( $decoded_body ) && ! empty( $decoded_body['unified_ai_chat'] );
 
 		// Cache for 1 minute.
 		set_transient( $cache_key, $result ? 1 : 0, MINUTE_IN_SECONDS );
