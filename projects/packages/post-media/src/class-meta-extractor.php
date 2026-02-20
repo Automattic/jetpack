@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\Post_Media;
 
+use Automattic\Jetpack\Shortcodes;
+
 /**
  * Class with methods to extract metadata from a post/page about videos, images, links, mentions embedded
  * in or attached to the post/page.
@@ -196,8 +198,8 @@ class Meta_Extractor {
 						$id                      = null;
 						$shortcode_get_id_method = "get_{$shortcode}_id";
 
-						if ( method_exists( \Automattic\Jetpack\Shortcodes::class, $shortcode_get_id_method ) ) {
-							$id = call_user_func( array( \Automattic\Jetpack\Shortcodes::class, $shortcode_get_id_method ), $attr );
+						if ( method_exists( Shortcodes::class, $shortcode_get_id_method ) ) {
+							$id = call_user_func( array( Shortcodes::class, $shortcode_get_id_method ), $attr );
 						} elseif ( 'video' === $shortcode ) {
 							$id = $attr['src'] ?? $attr['url'] ?? $attr['mp4'] ?? $attr['m4v'] ?? $attr['webm'] ?? $attr['ogv'] ?? $attr['wmv'] ?? $attr['flv'] ?? null;
 						} elseif ( 'audio' === $shortcode ) {
@@ -382,7 +384,7 @@ class Meta_Extractor {
 	/**
 	 * Get image fields for matching images.
 	 *
-	 * @uses \Jetpack_PostImages
+	 * @uses Images
 	 *
 	 * @param WP_Post $post A post object.
 	 * @param array   $args Optional args, see defaults list for details.
@@ -407,8 +409,7 @@ class Meta_Extractor {
 		$image_booleans            = array();
 		$image_booleans['gallery'] = 0;
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod
-		$from_featured_image = \Jetpack_PostImages::from_thumbnail( $post->ID, $args['width'], $args['height'] );
+		$from_featured_image = Images::from_thumbnail( $post->ID, $args['width'], $args['height'] );
 		if ( ! empty( $from_featured_image ) ) {
 			if ( $extract_alt_text ) {
 				$image_list = array_merge( $image_list, self::reduce_extracted_images( $from_featured_image ) );
@@ -418,8 +419,7 @@ class Meta_Extractor {
 			}
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod
-		$from_slideshow = \Jetpack_PostImages::from_slideshow( $post->ID, $args['width'], $args['height'] );
+		$from_slideshow = Images::from_slideshow( $post->ID, $args['width'], $args['height'] );
 		if ( ! empty( $from_slideshow ) ) {
 			if ( $extract_alt_text ) {
 				$image_list = array_merge( $image_list, self::reduce_extracted_images( $from_slideshow ) );
@@ -429,8 +429,7 @@ class Meta_Extractor {
 			}
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod
-		$from_gallery = \Jetpack_PostImages::from_gallery( $post->ID );
+		$from_gallery = Images::from_gallery( $post->ID );
 		if ( ! empty( $from_gallery ) ) {
 			if ( $extract_alt_text ) {
 				$image_list = array_merge( $image_list, self::reduce_extracted_images( $from_gallery ) );
@@ -530,8 +529,7 @@ class Meta_Extractor {
 	 */
 	public static function get_images_from_html( $html, $images_already_extracted, $extract_alt_text = false ) {
 		$image_list = $images_already_extracted;
-		// @phan-suppress-next-line PhanUndeclaredClassMethod
-		$from_html = \Jetpack_PostImages::from_html( $html );
+		$from_html  = Images::from_html( $html );
 		// early return if no image in html.
 		if ( empty( $from_html ) ) {
 			return $image_list;

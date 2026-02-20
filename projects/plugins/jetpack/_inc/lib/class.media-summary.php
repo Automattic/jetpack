@@ -65,8 +65,6 @@ class Jetpack_Media_Summary {
 			return self::$cache[ $cache_key ];
 		}
 
-		// Meta_Extractor is autoloaded via the jetpack-post-media package.
-
 		$post      = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
 
