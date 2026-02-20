@@ -5,29 +5,28 @@ import apiFetch from '@wordpress/api-fetch';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	Button,
+	Notice,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginPrePublishPanel, store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, _nx, _x, sprintf } from '@wordpress/i18n';
-import { page as pageIcon } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { registerPlugin } from '@wordpress/plugins';
 /**
  * Internal dependencies
  */
 import ConsentToggle from '../../blocks/contact-form/components/jetpack-integrations-modal/components/consent-toggle.tsx';
 import IntegrationsModal from '../../blocks/contact-form/components/jetpack-integrations-modal/index.tsx';
+import { settings as formBlockSettings } from '../../blocks/contact-form/index.js';
 import { FORM_POST_TYPE, FORM_BLOCK_NAME } from '../../blocks/shared/util/constants.js';
-import AkismetIcon from '../../icons/akismet';
-import GoogleSheetsIcon from '../../icons/google-sheets';
-import HostingerReachIcon from '../../icons/hostinger-reach';
-import MailPoetIcon from '../../icons/mailpoet';
-import SalesforceIcon from '../../icons/salesforce';
 import { INTEGRATIONS_STORE } from '../../store/integrations/index.ts';
+import IntegrationIcons from './integration-icons.tsx';
 import type { Integration } from '../../types/index.ts';
+import type { Block } from '@wordpress/blocks';
 import './form-pre-publish-panel.scss';
+
+export const JETPACK_FORM_PRE_PUBLISH_PANEL = 'jetpack-form-pre-publish';
 
 /**
  * A single settings summary row displayed in the pre-publish panel.
@@ -53,7 +52,7 @@ const SettingRow = ( {
 		<HStack className="editor-post-panel__row">
 			<div className="editor-post-panel__row-label">{ label }</div>
 			<div className="editor-post-panel__row-control">
-				<Button variant="tertiary" onClick={ onClick } disabled={ ! onClick }>
+				<Button variant="tertiary" size="compact" onClick={ onClick }>
 					{ value }
 				</Button>
 			</div>
@@ -66,24 +65,22 @@ const SettingRow = ( {
  * Since the form editor always has exactly one contact-form block,
  * we find it and return its attributes.
  *
- * @return {object} The form block attributes and clientId.
+ * @return {object} The form block attributes, clientId, and whether it has fields.
  */
 const useFormAttributes = () => {
 	return useSelect( select => {
 		const { getBlocks } = select( blockEditorStore ) as {
-			getBlocks: () => Array< {
-				name: string;
-				clientId: string;
-				attributes: Record< string, unknown >;
-			} >;
+			getBlocks: () => Block[];
 		};
 
 		const blocks = getBlocks();
 		const formBlock = blocks.find( block => block.name === FORM_BLOCK_NAME );
+		const hasFields = formBlock?.innerBlocks?.length;
 
 		return {
 			attributes: ( formBlock?.attributes || {} ) as Record< string, unknown >,
 			clientId: formBlock?.clientId || '',
+			hasFields,
 		};
 	}, [] );
 };
@@ -96,7 +93,7 @@ const useFormAttributes = () => {
  *
  * @return {JSX.Element|null} The pre-publish panel or null.
  */
-const FormPrePublishPanel = () => {
+export const FormPrePublishPanel = () => {
 	const [ isPreviewLoading, setIsPreviewLoading ] = useState( false );
 	const [ isIntegrationsModalOpen, setIsIntegrationsModalOpen ] = useState( false );
 
@@ -118,7 +115,7 @@ const FormPrePublishPanel = () => {
 		};
 	} );
 
-	const { attributes, clientId } = useFormAttributes();
+	const { attributes, clientId, hasFields } = useFormAttributes();
 	const { autosave } = useDispatch( 'core/editor' );
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { closePublishSidebar } = useDispatch( editorStore );
@@ -350,53 +347,6 @@ const FormPrePublishPanel = () => {
 	const hasNotifications = notificationRecipients.length > 0;
 	const saveResponses = attributes.saveResponses !== false;
 
-	// Determine active integrations and collect their icons
-	const integrationIcons: JSX.Element[] = [];
-
-	// Akismet is always active by default
-	integrationIcons.push( <AkismetIcon key="akismet" width={ 20 } height={ 20 } /> );
-
-	if ( attributes.jetpackCRM ) {
-		integrationIcons.push(
-			<svg
-				key="jetpack-crm"
-				width="20"
-				height="20"
-				viewBox="0 0 32 32"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-			>
-				<path
-					d="M16 0C7.2 0 0 7.2 0 16s7.2 16 16 16 16-7.2 16-16S24.8 0 16 0zm-2.4 24.8L7.2 14.4l2.4-1.6 4 5.6 8.8-12 2.4 1.6-11.2 16.8z"
-					fill="#069e08"
-				/>
-			</svg>
-		);
-	}
-
-	const salesforceData = attributes.salesforceData as { organizationId?: string } | undefined;
-	if ( salesforceData?.organizationId ) {
-		integrationIcons.push( <SalesforceIcon key="salesforce" width={ 20 } height={ 20 } /> );
-	}
-
-	const mailpoet = attributes.mailpoet as { listId?: string | null } | undefined;
-	if ( mailpoet?.listId ) {
-		integrationIcons.push( <MailPoetIcon key="mailpoet" width={ 20 } height={ 20 } /> );
-	}
-
-	const hostingerReach = attributes.hostingerReach as { groupName?: string } | undefined;
-	if ( hostingerReach?.groupName ) {
-		integrationIcons.push( <HostingerReachIcon key="hostinger" width={ 20 } height={ 20 } /> );
-	}
-
-	if ( attributes.googleSheets ) {
-		integrationIcons.push( <GoogleSheetsIcon key="google-sheets" width={ 20 } height={ 20 } /> );
-	}
-
-	const integrationsValue = (
-		<span className="jetpack-form-pre-publish__integration-icons">{ integrationIcons }</span>
-	);
-
 	// Format confirmation type for display
 	const confirmationLabel =
 		confirmationType === 'redirect'
@@ -439,17 +389,30 @@ const FormPrePublishPanel = () => {
 		);
 	}
 
+	// Show warning if form has no fields
+	if ( ! hasFields ) {
+		return (
+			<PluginPrePublishPanel className="jetpack-form-pre-publish-panel" initialOpen>
+				<Notice status="error" isDismissible={ false }>
+					{ __(
+						'This form has no fields. Add at least one field before publishing.',
+						'jetpack-forms'
+					) }
+				</Notice>
+			</PluginPrePublishPanel>
+		);
+	}
+
 	return (
 		<PluginPrePublishPanel className="jetpack-form-pre-publish-panel" initialOpen>
-			{ /* Form identity card */ }
 			<div className="jetpack-form-pre-publish__form-card">
-				<span className="jetpack-form-pre-publish__form-icon">{ pageIcon }</span>
+				<span className="jetpack-form-pre-publish__form-icon">
+					{ formBlockSettings.icon.src() }
+				</span>
 				<span className="jetpack-form-pre-publish__form-title">
 					{ postTitle || __( 'Untitled Form', 'jetpack-forms' ) }
 				</span>
 			</div>
-
-			{ /* Preview button */ }
 			<Button
 				variant="secondary"
 				className="jetpack-form-pre-publish__preview-button"
@@ -460,8 +423,6 @@ const FormPrePublishPanel = () => {
 					? __( 'Saving & opening', 'jetpack-forms' )
 					: _x( 'Preview the form', 'button label', 'jetpack-forms' ) }
 			</Button>
-
-			{ /* Settings summary rows */ }
 			<div className="jetpack-form-pre-publish__settings">
 				<SettingRow
 					label={ __( 'Confirmation', 'jetpack-forms' ) }
@@ -480,7 +441,7 @@ const FormPrePublishPanel = () => {
 				/>
 				<SettingRow
 					label={ __( 'Integrations', 'jetpack-forms' ) }
-					value={ integrationsValue }
+					value={ <IntegrationIcons attributes={ attributes } integrations={ integrationsData } /> }
 					onClick={ handleIntegrationsClick }
 				/>
 				<SettingRow
@@ -493,7 +454,6 @@ const FormPrePublishPanel = () => {
 					onClick={ handleResponsesClick }
 				/>
 			</div>
-
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }
 				onClose={ handleIntegrationsModalClose }
@@ -506,8 +466,3 @@ const FormPrePublishPanel = () => {
 		</PluginPrePublishPanel>
 	);
 };
-
-// Register the pre-publish panel plugin
-registerPlugin( 'jetpack-form-pre-publish', {
-	render: FormPrePublishPanel,
-} );
