@@ -1,8 +1,7 @@
 /**
  * Header Actions Plugin
  *
- * Adds "View Responses" button and "More Actions" dropdown to the form editor header.
- * Uses a portal to inject into the editor header slot.
+ * Adds "View Responses" button to the form editor header.
  */
 
 import { Button, Fill } from '@wordpress/components';
@@ -38,12 +37,7 @@ export const HeaderActions = () => {
 
 	return (
 		<Fill name="PinnedItems/core">
-			<Button
-				variant="secondary"
-				size="compact"
-				onClick={ handleViewResponses }
-				className="jetpack-forms-header-actions__view-responses"
-			>
+			<Button variant="secondary" size="compact" onClick={ handleViewResponses }>
 				{ __( 'View Responses', 'jetpack-forms' ) }
 			</Button>
 		</Fill>

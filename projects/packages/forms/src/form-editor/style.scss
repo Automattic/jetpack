@@ -11,30 +11,3 @@
 .post-type-jetpack_form .editor-post-last-edited-panel {
 	display: none;
 }
-
-.jetpack-forms-title-modal__buttons {
-	display: flex;
-	justify-content: flex-end;
-	gap: 8px;
-	margin-block-start: 16px;
-}
-
-// Header actions styles
-.jetpack-forms-header-actions {
-	display: flex;
-	align-items: center;
-	gap: 2px;
-	order: -1; // Position before other header settings buttons
-
-	.jetpack-forms-header-actions__view-responses {
-		white-space: nowrap;
-	}
-
-	.jetpack-forms-header-actions__more {
-
-		button {
-			min-width: 30px;
-			height: 30px;
-		}
-	}
-}
