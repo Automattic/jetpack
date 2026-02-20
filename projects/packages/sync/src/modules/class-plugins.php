@@ -55,6 +55,24 @@ class Plugins extends Module {
 	private $plugins_updated = array();
 
 	/**
+	 * List of plugins installed during this request.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private $plugins_installed = array();
+
+	/**
+	 * List of all plugin update failures during this request.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private $plugins_update_failures = array();
+
+	/**
 	 * State
 	 *
 	 * @access private
@@ -158,20 +176,16 @@ class Plugins extends Module {
 				);
 				$errors      = $this->get_errors( $upgrader->skin );
 				if ( $errors ) {
-					foreach ( $plugins as $slug ) {
-						/**
-						 * Sync that a plugin update failed
-						 *
-						 * @since 1.6.3
-						 * @since-jetpack 5.8.0
-						 *
-						 * @module sync
-						 *
-						 * @param string $plugin , Plugin slug
-						 * @param        string  Error code
-						 * @param        string  Error message
-						 */
-						do_action( 'jetpack_plugin_update_failed', $this->get_plugin_info( $slug ), $errors['code'], $errors['message'], $this->state );
+					foreach ( $plugins as $slug ) { // Accumulate failures and defer to shutdown, to reduce request-time lag.
+						$this->plugins_update_failures[] = array(
+							'plugin'  => $this->get_plugin_info( $slug ),
+							'code'    => $errors['code'],
+							'message' => $errors['message'],
+							'state'   => $this->state,
+						);
+					}
+					if ( ! has_action( 'shutdown', array( $this, 'sync_plugins_update_failed' ) ) ) {
+						add_action( 'shutdown', array( $this, 'sync_plugins_update_failed' ), 9 );
 					}
 
 					return;
@@ -182,18 +196,16 @@ class Plugins extends Module {
 
 				break;
 			case 'install':
-				/**
-				 * Signals to the sync listener that a plugin was installed and a sync action
-				 * reflecting the installation and the plugin info should be sent
-				 *
-				 * @since 1.6.3
-				 * @since-jetpack 5.8.0
-				 *
-				 * @module sync
-				 *
-				 * @param array () $plugin, Plugin Data
-				 */
-				do_action( 'jetpack_plugin_installed', array_map( array( $this, 'get_plugin_info' ), $plugins ) );
+				// Accumulate installs and defer to shutdown.
+				$this->plugins_installed = array_merge(
+					$this->plugins_installed,
+					array_map( array( $this, 'get_plugin_info' ), $plugins )
+				);
+				if ( ! has_action( 'shutdown', array( $this, 'sync_plugins_installed' ) ) ) {
+					add_action( 'shutdown', array( $this, 'sync_plugins_installed' ), 9 );
+				}
+
+				break;
 		}
 	}
 
@@ -407,5 +419,55 @@ class Plugins extends Module {
 		 * @param array () $plugin, Plugin Data
 		 */
 		do_action( 'jetpack_plugins_updated', $this->plugins_updated, $this->state );
+	}
+
+	/**
+	 * Helper method for firing the 'jetpack_plugin_installed' action on shutdown.
+	 *
+	 * @access public
+	 */
+	public function sync_plugins_installed() {
+		if ( empty( $this->plugins_installed ) ) {
+			return;
+		}
+		/**
+		 * Signals to the sync listener that a plugin was installed and a sync action
+		 * reflecting the installation and the plugin info should be sent.
+		 *
+		 * @since 1.6.3
+		 * @since-jetpack 5.8.0
+		 *
+		 * @module sync
+		 *
+		 * @param array () $plugin, Plugin Data
+		 */
+		do_action( 'jetpack_plugin_installed', $this->plugins_installed );
+	}
+
+	/**
+	 * Helper method for firing the 'jetpack_plugin_update_failed' actions on shutdown.
+	 *
+	 * @access public
+	 */
+	public function sync_plugins_update_failed() {
+		if ( empty( $this->plugins_update_failures ) ) {
+			return;
+		}
+		foreach ( $this->plugins_update_failures as $failure ) {
+			/**
+			 * Sync that a plugin update failed
+			 *
+			 * @since 1.6.3
+			 * @since-jetpack 5.8.0
+			 *
+			 * @module sync
+			 *
+			 * @param array  $plugin Plugin Data
+			 * @param string $code   Error code
+			 * @param string $message Error message
+			 * @param array  $state  State data
+			 */
+			do_action( 'jetpack_plugin_update_failed', $failure['plugin'], $failure['code'], $failure['message'], $failure['state'] );
+		}
 	}
 }

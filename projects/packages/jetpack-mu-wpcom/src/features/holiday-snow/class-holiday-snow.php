@@ -39,7 +39,7 @@ class Holiday_Snow {
 	/**
 	 * Get a config array safely, ensuring config is initialized.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.9.0
 	 *
 	 * @param string $option_name The option name.
 	 * @return array|null The config array or null if not initialized.
@@ -63,7 +63,7 @@ class Holiday_Snow {
 	 * Falls back to Northern hemisphere if detection is not possible
 	 * e.g., UTC or offset-based timezones).
 	 *
-	 * @since $$next-version$$
+	 * @since 6.9.0
 	 *
 	 * @return string 'south' or 'north'.
 	 */
@@ -92,7 +92,7 @@ class Holiday_Snow {
 		 * Filter the detected hemisphere setting.
 		 * Allows overriding the automatic hemisphere detection from timezone.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.9.0
 		 *
 		 * @param string $hemisphere The detected hemisphere. Either 'north' or 'south'.
 		 */

@@ -55,6 +55,7 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 			className,
 			chartId,
 			margin: marginProp,
+			animation,
 		},
 		ref
 	) => {
@@ -170,6 +171,7 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 						},
 					} }
 					curveType="monotone"
+					animation={ animation }
 				/>
 			</div>
 		);

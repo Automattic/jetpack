@@ -33,3 +33,7 @@ Fixes #
 * Go to '..'
 *
 
+## Changelog
+<!-- Check one of the boxes below. -->
+
+- [ ] Generate changelog entries for this PR (using AI).

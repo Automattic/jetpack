@@ -1,10 +1,10 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
-Requires at least: 6.7
+Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 7.3.0
+Stable tag: 8.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,21 +104,12 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 7.3.0 - 2025-11-21
+### 8.0.1 - 2026-02-19
 #### Added
-- Tested up to WordPress 6.9.
+- Add visual dot to active connection in preview modal.
 
 #### Changed
-- Don't translate product names.
-- Improve auto-share UI in the editor by streamlining the notices and descriptions.
-- Update package dependencies.
-- Update the connections list in the editor to a vertical toggle list with labels and icons.
-
-#### Fixed
-- Fix connection icon not reflecting the change when profile picture is updated.
-- Jetpack: Remove getIconColor functions for block icons.
-- My Jetpack: Fix expiring renewal prompt to show all products
-- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin.
+- Disable AI image option in the media UI when Jetpack plugin is not active.
 
 == Upgrade Notice ==
 

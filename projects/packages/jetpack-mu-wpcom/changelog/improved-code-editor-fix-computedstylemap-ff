@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix an issue with Firefox where `getComputedStyleMap()` causes an undefined function error.

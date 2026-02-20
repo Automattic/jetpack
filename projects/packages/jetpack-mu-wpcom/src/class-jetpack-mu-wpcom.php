@@ -14,7 +14,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.8.1';
+	const PACKAGE_VERSION = '6.9.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -313,18 +313,20 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that only apply to WordPress.com users.
 	 */
 	public static function load_wpcom_user_features() {
-		if ( ! is_wpcom_user() ) {
-			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
-
-			return;
-		}
-
 		// To avoid potential collisions with ETK.
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
+
+		if ( ! is_wpcom_user() ) {
+			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
+			return;
+		}
 		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
 			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
+		}
+		if ( ! class_exists( 'A8C\FSE\Survicate' ) ) {
+			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
@@ -334,7 +336,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
-		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
@@ -424,6 +425,7 @@ class Jetpack_Mu_Wpcom {
 		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
 			require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 			require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
+			require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 			require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 			require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
@@ -436,6 +438,9 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+		} elseif ( isset( $pagenow ) && 'customize.php' === $pagenow ) {
+			// Load wpcom-global-styles on the customizer so access to additional css can be checked there.
+			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 		}
 	}
 

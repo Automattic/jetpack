@@ -4,13 +4,18 @@ export const ALLOWED_FORMATS = [ 'core/bold', 'core/italic' ];
 export const ALLOWED_INNER_BLOCKS = [ 'jetpack/label', 'jetpack/input' ];
 
 export const CORE_BLOCKS = [
+	'core/accordion',
 	'core/audio',
+	'core/code',
 	'core/columns',
+	'core/details',
 	'core/group',
 	'core/heading',
 	'core/html',
+	'core/icon',
 	'core/image',
 	'core/list',
+	'core/math',
 	'core/paragraph',
 	'core/row',
 	'core/separator',
@@ -53,9 +58,35 @@ export const DATE_FORMAT_OPTIONS = DATE_FORMATS.map(
 
 export const FORM_BLOCK_NAME = 'jetpack/contact-form';
 
+/**
+ * Vertical layout preset for new form variations and programmatic form creation
+ * that should explicitly stack fields vertically.
+ * Used by variations and createFormBlockStructure() to opt into vertical layout,
+ * while older forms keep the legacy horizontal/wrap layout as their default.
+ */
+export const VERTICAL_LAYOUT = {
+	type: 'flex',
+	flexWrap: 'nowrap',
+	orientation: 'vertical',
+	justifyContent: 'left',
+	verticalAlignment: 'top',
+};
+
 export const FORM_STYLE = {
 	ANIMATED: 'animated',
 	BELOW: 'below',
 	DEFAULT: 'default',
 	OUTLINED: 'outlined',
 };
+
+/**
+ * The custom post type for jetpack forms.
+ * Matches Contact_Form::POST_TYPE in PHP.
+ */
+export const FORM_POST_TYPE = 'jetpack_form';
+
+/**
+ * Meta key for tracking the source post ID.
+ * Matches Contact_Form::SOURCE_META_KEY in PHP.
+ */
+export const FORM_SOURCE_META_KEY = '_jetpack_forms_source_post_id';

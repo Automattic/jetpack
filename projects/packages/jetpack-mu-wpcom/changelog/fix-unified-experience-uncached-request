@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Agents Manager: Add caching and proxy protection for unified experience preference check to avoid remote API calls on every page load.

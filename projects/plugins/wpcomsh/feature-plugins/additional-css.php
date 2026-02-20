@@ -18,6 +18,11 @@ function wpcomsh_maybe_disable_custom_css() {
 		return;
 	}
 
+	// If global styles are enabled on personal plan, all atomic sites have custom css enabled.
+	if ( function_exists( 'is_global_styles_on_personal_plan' ) && is_global_styles_on_personal_plan() && defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		return;
+	}
+
 	add_action( 'admin_menu', 'wpcomsh_custom_css_admin_menu' );
 	add_filter( 'jetpack_get_available_modules', 'wpcomsh_custom_css_remove_available_module' );
 	add_filter( 'jetpack_active_modules', 'wpcomsh_custom_css_remove_active_module' );

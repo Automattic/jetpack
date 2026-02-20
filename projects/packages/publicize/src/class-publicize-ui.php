@@ -170,7 +170,7 @@ class Publicize_UI {
 
 		Assets::register_script(
 			'jetpack-social-classic-editor-options',
-			'../build/classic-editor-connections.js',
+			'../build/classic-editor.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,

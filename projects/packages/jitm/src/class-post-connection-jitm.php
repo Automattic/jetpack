@@ -236,7 +236,7 @@ class Post_Connection_JITM extends JITM {
 	 * directly.
 	 *
 	 * @param string $message_path The message path to ask for.
-	 * @param string $query The query string originally from the front end.
+	 * @param array  $query Query parameters as an associative array.
 	 * @param bool   $full_jp_logo_exists If there is a full Jetpack logo already on the page.
 	 *
 	 * @return array The JITM's to show, or an empty array if there is nothing to show

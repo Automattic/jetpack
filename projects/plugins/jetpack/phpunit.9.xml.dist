@@ -105,6 +105,9 @@
 		<testsuite name="carousel">
 			<directory suffix="Test.php">tests/php/modules/carousel</directory>
 		</testsuite>
+		<testsuite name="copy-post">
+			<directory suffix="Test.php">tests/php/modules/copy-post</directory>
+		</testsuite>
 		<testsuite name="deprecation">
 			<file>tests/php/Jetpack_Deprecation_Test.php</file>
 		</testsuite>

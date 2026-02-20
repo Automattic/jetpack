@@ -62,9 +62,21 @@ class LCP_Optimize_Img_Tag {
 	 * @since 4.0.0
 	 */
 	private function optimize_image( $buffer_processor ) {
-		// Apply optimizations to the matched tag
-		$buffer_processor->set_attribute( 'fetchpriority', 'high' );
-		$buffer_processor->set_attribute( 'loading', 'eager' );
+		// Check optimizations object for fetchpriority.
+		// If no optimizations object exists (old cloud response), default to applying.
+		$apply_fetchpriority = LCP_Optimization_Util::should_apply_optimization( $this->lcp_data, 'fetchpriority' );
+
+		if ( $apply_fetchpriority ) {
+			$buffer_processor->set_attribute( 'fetchpriority', 'high' );
+		}
+
+		// Check optimizations object for loading.
+		$apply_loading = LCP_Optimization_Util::should_apply_optimization( $this->lcp_data, 'loading' );
+
+		if ( $apply_loading ) {
+			$buffer_processor->set_attribute( 'loading', 'eager' );
+		}
+
 		$buffer_processor->set_attribute( 'data-jp-lcp-optimized', 'true' );
 
 		$image_url = $buffer_processor->get_attribute( 'src' );
@@ -88,9 +100,22 @@ class LCP_Optimize_Img_Tag {
 			return $buffer_processor->get_updated_html();
 		}
 
-		$buffer_processor->set_attribute( 'src', Image_CDN_Core::cdn_url( $image_url ) );
+		// Check optimizations object for cdnUrl.
+		$apply_cdn = LCP_Optimization_Util::should_apply_optimization( $this->lcp_data, 'cdnUrl' );
 
-		$this->add_responsive_image_attributes( $buffer_processor, $image_url );
+		if ( $apply_cdn ) {
+			$buffer_processor->set_attribute( 'src', Image_CDN_Core::cdn_url( $image_url ) );
+		}
+
+		// Check optimizations object for srcset.
+		// The cloud sets srcset to false when custom focal points are detected
+		// (resize would use center-crop, losing the author's object-position).
+		$apply_srcset = LCP_Optimization_Util::should_apply_optimization( $this->lcp_data, 'srcset' );
+
+		// srcset uses CDN URLs internally (via Image_CDN_Core::cdn_url), so skip if CDN is disabled.
+		if ( $apply_srcset && $apply_cdn ) {
+			$this->add_responsive_image_attributes( $buffer_processor, $image_url );
+		}
 
 		return $buffer_processor->get_updated_html();
 	}

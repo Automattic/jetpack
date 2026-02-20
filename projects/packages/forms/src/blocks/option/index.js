@@ -1,6 +1,6 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import edit from './edit.js';
 import save from './save.js';
 
@@ -37,6 +37,10 @@ const settings = {
 			},
 		},
 	},
+	merge: ( attributes, { label = '' } ) => ( {
+		...attributes,
+		label: ( attributes.label || '' ) + label,
+	} ),
 	attributes: {
 		placeholder: {
 			type: 'string',

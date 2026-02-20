@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { ChartTheme } from '../../types';
 import { getSeriesLineStyles, getSeriesStroke, getItemShapeStyles } from '../get-styles';
 

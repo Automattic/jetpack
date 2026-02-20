@@ -358,7 +358,10 @@ class Sender {
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
 	public function do_sync() {
-		if ( ! Settings::is_dedicated_sync_enabled() ) {
+		// Sync directly during cron. We are doing this because otherwise
+		// the dedicated sync flow would be spawning HTTP requests during cron shutdown,
+		// which can be unreliable and cause sync lag for time-sensitive events like updates.
+		if ( ! Settings::is_dedicated_sync_enabled() || Settings::is_doing_cron() ) {
 			$result = $this->do_sync_and_set_delays( $this->sync_queue );
 		} else {
 			$result = Dedicated_Sender::spawn_sync( $this->sync_queue );
@@ -498,7 +501,9 @@ class Sender {
 				$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY, $queue->id );
 			}
 		} elseif ( $exceeded_sync_wait_threshold && ! Settings::is_doing_cron() ) {
-			// If we actually sent data and it took a while, wait before sending again.
+			// If a send was slow, briefly pause before the next one.
+			// Applies only to Dedicated/Normal Sync to avoid impacting user traffic;
+			// cron jobs are exempt.
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time(), $queue->id );
 		}
 

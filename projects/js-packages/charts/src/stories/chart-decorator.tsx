@@ -1,5 +1,5 @@
 import { setLocale } from '@automattic/number-formatters';
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { GlobalChartsProvider } from '../providers';
 import { CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
 import type { Decorator } from '@storybook/react';
@@ -13,6 +13,7 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 	accentColor?: string;
 	containerWidth?: string;
 	containerHeight?: string;
+	showOffsetTestButtons?: boolean;
 	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
 	withPadding?: boolean;
 };
@@ -29,23 +30,75 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 export const chartDecorator: Decorator = ( Story, context ) => {
 	const args = context.args as ChartStoryArgs;
 	const withPadding = args.withPadding !== false;
+	const showOffsetTestButtons = args.showOffsetTestButtons === true;
 
-	const StoryWithContainer = () => (
-		<div
-			style={ {
-				resize: args.resize || 'both',
-				overflow: 'auto',
-				padding: withPadding ? '1rem' : undefined,
-				width: args.containerWidth || '800px',
-				height: args.containerHeight,
-				maxWidth: '1200px',
-				border: '1px dashed #ccc',
-				display: 'inline-block',
-			} }
-		>
-			<Story />
-		</div>
-	);
+	const StoryWithContainer = () => {
+		const containerRef = useRef< HTMLDivElement >( null );
+		const offsetRef = useRef( { x: 0, y: 0 } );
+
+		// Direct DOM manipulation to move container without React re-render
+		const moveContainer = useCallback( ( dx: number, dy: number ) => {
+			if ( containerRef.current ) {
+				offsetRef.current.x += dx;
+				offsetRef.current.y += dy;
+				containerRef.current.style.transform = `translate(${ offsetRef.current.x }px, ${ offsetRef.current.y }px)`;
+			}
+		}, [] );
+
+		const resetPosition = useCallback( () => {
+			if ( containerRef.current ) {
+				offsetRef.current = { x: 0, y: 0 };
+				containerRef.current.style.transform = '';
+			}
+		}, [] );
+
+		const moveLeft = useCallback( () => moveContainer( -50, 0 ), [ moveContainer ] );
+		const moveRight = useCallback( () => moveContainer( 50, 0 ), [ moveContainer ] );
+		const moveUp = useCallback( () => moveContainer( 0, -50 ), [ moveContainer ] );
+		const moveDown = useCallback( () => moveContainer( 0, 50 ), [ moveContainer ] );
+
+		return (
+			<>
+				{ showOffsetTestButtons && (
+					<div style={ { marginBottom: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' } }>
+						<span style={ { fontSize: '12px', color: '#666', alignSelf: 'center' } }>
+							Move container (no re-render):
+						</span>
+						<button type="button" onClick={ moveLeft }>
+							← Left
+						</button>
+						<button type="button" onClick={ moveRight }>
+							Right →
+						</button>
+						<button type="button" onClick={ moveUp }>
+							↑ Up
+						</button>
+						<button type="button" onClick={ moveDown }>
+							Down ↓
+						</button>
+						<button type="button" onClick={ resetPosition }>
+							Reset
+						</button>
+					</div>
+				) }
+				<div
+					ref={ containerRef }
+					style={ {
+						resize: args.resize || 'both',
+						overflow: 'auto',
+						padding: withPadding ? '1rem' : undefined,
+						width: args.containerWidth || '800px',
+						height: args.containerHeight || '400px',
+						maxWidth: '1200px',
+						border: '1px dashed #ccc',
+						display: 'inline-block',
+					} }
+				>
+					<Story />
+				</div>
+			</>
+		);
+	};
 
 	return simpleChartDecorator( StoryWithContainer, context );
 };
@@ -174,6 +227,12 @@ export const sharedChartArgTypes = {
 	containerHeight: {
 		control: { type: 'text' },
 		description: 'CSS height value for the chart container (e.g., "400px", "100%")',
+	},
+	showOffsetTestButtons: {
+		control: 'boolean',
+		description:
+			'Show buttons to move the container via DOM manipulation (no re-render) for testing tooltip positioning',
+		table: { category: 'Testing' },
 	},
 	resize: {
 		control: { type: 'select' },

@@ -1,7 +1,7 @@
-const crypto = require( 'crypto' );
-const fs = require( 'fs' );
-const path = require( 'path' );
-const { mockContextExtras, setInputData } = require( './test-utils' );
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { mockContextExtras, setInputData } from './test-utils.js';
 
 describe( 'Notification rules', () => {
 	const defaultChannel = 'DEFAULT_CHANNEL_ID';
@@ -33,7 +33,7 @@ describe( 'Notification rules', () => {
 		setInputData( { slackChannel: defaultChannel, suiteName, rulesConfigurationPath } );
 		mockContextExtras( { refType, refName } );
 
-		const { getChannels } = require( '../src/rules' );
+		const { getChannels } = await import( '../src/rules.js' );
 
 		expect( getChannels().sort() ).toEqual( expectedChannels.sort() );
 	} );

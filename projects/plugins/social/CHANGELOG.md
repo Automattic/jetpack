@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 8.0.1 - 2026-02-19
+### Added
+- Add visual dot to active connection in preview modal. [#47218]
+
+### Changed
+- Disable AI image option in the media UI when Jetpack plugin is not active. [#47193]
+
+## 8.0.0 - 2026-02-18
+### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- Gate per-network customization behind paid features. [#46740]
+- Show a snackbar while sharing is in progress. [#46672]
+
+### Changed
+- Mark new connections as shared by default for privileged users. [#46796]
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+- Refactor share status UI to use Notice component. [#46673]
+- Update `composer.lock`. [#46686]
+- Update package dependencies. [#46785] [#47021]
+- Update social post preview modal height. [#46882]
+- Use fallback avatar for Jetpack Social connection icons. [#46677]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Fix Tumblr preview to prioritize custom message when it is set. [#47075]
+- Refresh plan features on post-checkout redirect. [#46961]
+- Social Previews: Use fallback image when social preview profile picture fails. [#46674]
+
+## 7.4.0 - 2026-01-14
+### Added
+- Add the new media selection UI for Social. [#46085]
+- IDC: Add revalidation for IDCs. [#46268]
+- Reuse AI image generation in media section. [#46147]
+
+### Changed
+- Improve the sidebar by making titles more descriptive and combining sections. [#46007]
+- Unified social provider preview. [#46364]
+- Update composer lock following Publicize changes. [#46516]
+
+### Removed
+- Remove the obsolete share limits logic. [#46468]
+- Remove the unused dismiss review endpoint. [#46398]
+
+### Fixed
+- Fix connections management modal not opening from pre-publish panel. [#46316]
+- Fix e2e tests for link preview in the editor sidebar. [#46098]
+- UI: Prevent the modals in editor from stretching too wide on large screens. [#46400]
+
 ## 7.3.0 - 2025-11-21
 ### Added
 - Tested up to WordPress 6.9. [#45571]

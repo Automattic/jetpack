@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.13] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [1.4.12] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## [1.4.11] - 2026-02-10
+### Added
+- Shared Extension Utils: Add separate site type utils export. [#46938]
+
+### Removed
+- Remove Chrome AI tokens type and mapping. [#46896]
+
+## [1.4.10] - 2026-02-04
+### Changed
+- Update dependencies. [#46944]
+
+## [1.4.9] - 2026-02-03
+### Changed
+- Update dependencies. [#46383]
+
+## [1.4.8] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [1.4.7] - 2026-01-26
+### Changed
+- Internal updates.
+
+## [1.4.6] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [1.4.5] - 2026-01-14
+### Changed
+- Internal updates.
+
+## [1.4.4] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
 ## [1.4.3] - 2025-12-22
 ### Changed
 - Update dependencies. [#46381]
@@ -831,6 +874,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[1.4.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.12...1.4.13
+[1.4.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.11...1.4.12
+[1.4.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.10...1.4.11
+[1.4.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.9...1.4.10
+[1.4.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.8...1.4.9
+[1.4.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.7...1.4.8
+[1.4.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.6...1.4.7
+[1.4.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.5...1.4.6
+[1.4.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.4...1.4.5
+[1.4.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.3...1.4.4
 [1.4.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.2...1.4.3
 [1.4.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.1...1.4.2
 [1.4.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.0...1.4.1

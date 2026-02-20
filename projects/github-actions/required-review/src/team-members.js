@@ -1,6 +1,6 @@
-const core = require( '@actions/core' );
-const github = require( '@actions/github' );
-const { WError } = require( 'error' );
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { WError } from 'error';
 
 const cache = {};
 
@@ -11,7 +11,7 @@ const cache = {};
  * @param {string} team - GitHub team slug, or @ followed by a GitHub user name.
  * @return {string[]} Team members.
  */
-async function fetchTeamMembers( team ) {
+export async function fetchTeamMembers( team ) {
 	if ( cache[ team ] ) {
 		return cache[ team ];
 	}
@@ -56,5 +56,3 @@ async function fetchTeamMembers( team ) {
 	cache[ team ] = members;
 	return members;
 }
-
-module.exports = fetchTeamMembers;

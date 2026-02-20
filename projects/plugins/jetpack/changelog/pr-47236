@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Prevent fatal error when rendering image-select fields with invalid image payloads.

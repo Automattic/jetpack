@@ -12,6 +12,7 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-plans": "@dev",
+		"automattic/jetpack-post-media": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
@@ -37,7 +38,11 @@
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+			"pnpm run test-coverage"
+		],
+		"test-js": [
+			"pnpm run test"
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -48,6 +53,10 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
+		],
+		"watch-hot": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch:hot"
 		],
 		"build-production": [
 			"pnpm run build-production-concurrently"
@@ -72,7 +81,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.69.x-dev"
+			"dev-trunk": "0.72.x-dev"
 		}
 	},
 	"config": {

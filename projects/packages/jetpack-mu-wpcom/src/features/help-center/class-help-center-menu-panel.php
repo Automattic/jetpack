@@ -12,7 +12,7 @@ namespace A8C\FSE;
  *
  * Handles the help center menu panel functionality in the admin bar.
  *
- * @since $$next-version$$
+ * @since 6.9.0
  */
 class Help_Center_Menu_Panel {
 

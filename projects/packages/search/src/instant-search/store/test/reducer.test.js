@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { SERVER_OBJECT_NAME } from '../../lib/constants';
 import {
 	clearFilters,

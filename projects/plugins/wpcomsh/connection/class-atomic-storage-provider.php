@@ -83,6 +83,67 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
+		 * Handle error events from External_Storage for monitoring and alerting.
+		 *
+		 * Reports storage errors and empty states to the wpcom logstash cluster
+		 * for centralized error tracking and alerting.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $event_type  The event type ('error' or 'empty').
+		 * @param string $key         The option key that triggered the event.
+		 * @param string $details     Additional error details.
+		 * @param string $environment The environment identifier.
+		 */
+		public function handle_error_event( $event_type, $key, $details, $environment ) {
+			// For master_user and user_tokens, distinguish between:
+			// 1. APD truly empty (config problem) - log error
+			// 2. APD has values but no local user matches - expected state, don't log
+			// Protected_Owner_Error_Handler handles the UI for case 2.
+			if ( 'empty' === $event_type && in_array( $key, array( 'master_user', 'user_tokens' ), true ) ) {
+				$persistent_data = new \Atomic_Persistent_Data();
+				$owner_email     = $persistent_data->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$owner_secret    = $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN_SECRET; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+				// For master_user: only need email to be set
+				// For user_tokens: need both email and secret to be set
+				$apd_has_required_values = ( 'master_user' === $key )
+					? ! empty( $owner_email )
+					: ( ! empty( $owner_email ) && ! empty( $owner_secret ) );
+
+				if ( $apd_has_required_values ) {
+					// APD is configured, but no local user matches the email.
+					// This is an expected intermediate state, not a config error.
+					return;
+				}
+				// APD is truly empty/incomplete - fall through to log the error
+			}
+
+			// Build log message
+			$message = sprintf(
+				'External Storage %s: %s',
+				$event_type,
+				$key
+			);
+
+			$extra = array(
+				'event_type'  => $event_type,
+				'key'         => $key,
+				'environment' => $environment,
+			);
+
+			if ( ! empty( $details ) ) {
+				$extra['details'] = $details;
+			}
+
+			// Use unsafe_direct_log to ensure storage errors are always logged
+			// regardless of at_options_logging_on setting
+			if ( class_exists( 'WPCOMSH_Log' ) ) {
+				\WPCOMSH_Log::unsafe_direct_log( $message, $extra );
+			}
+		}
+
+		/**
 		 * Get the master user id from email.
 		 *
 		 * @since $$next-version$$

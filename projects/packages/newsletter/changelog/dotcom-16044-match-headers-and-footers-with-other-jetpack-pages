@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Settings: wrap page with AdminPage component for consistency with other Jetpack pages.

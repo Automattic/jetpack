@@ -113,6 +113,11 @@ class LCP_Optimize_Bg_Image {
 				);
 			}
 
+			// Skip outputting empty style block when cssOverride is disabled.
+			if ( empty( $styles ) ) {
+				continue;
+			}
+
 			$bg_styling = PHP_EOL . '<style id="jetpack-boost-lcp-background-image">' . PHP_EOL;
 			// Ensure no </style> tag (or any HTML tags) in output.
 			$bg_styling .= wp_strip_all_tags( implode( PHP_EOL, $styles ) ) . PHP_EOL;
@@ -125,6 +130,14 @@ class LCP_Optimize_Bg_Image {
 
 	private function get_responsive_image_rules( $lcp_data ) {
 		if ( $lcp_data['type'] !== LCP::TYPE_BACKGROUND_IMAGE || empty( $lcp_data['breakpoints'] ) ) {
+			return array();
+		}
+
+		// Check optimizations object from cloud.
+		// If cssOverride is false, skip all background-image optimizations (preload, !important CSS, resize URLs).
+		// This handles responsive backgrounds and custom focal points - the cloud determines what's safe.
+		// If no optimizations object exists (old cloud response), default to applying all optimizations.
+		if ( ! LCP_Optimization_Util::should_apply_optimization( $lcp_data, 'cssOverride' ) ) {
 			return array();
 		}
 

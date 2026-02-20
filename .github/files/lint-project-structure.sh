@@ -165,16 +165,39 @@ for PROJECT in projects/*/*; do
 			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.type\` to \"git\", as the monorepo is a git repository."
 		fi
 		URL="$(jq -r '.url' <<<"$JSON")"
-		if [[ "$URL" != "https://github.com/Automattic/jetpack.git" && "$URL" != "https://github.com/Automattic/jetpack" ]]; then
+
+		# Published packages need to point to the mirror repo. Unpublished packages can point to mirror or monorepo.
+		declare -A OKURLS=()
+		MIRROR=$( jq -r '.extra["mirror-repo"]' "$PROJECT/composer.json" )
+		OKURLS["git+https://github.com/$MIRROR.git"]=''
+		if jq -e '.extra["npmjs-autopublish"]' "$PROJECT/composer.json" >/dev/null; then
+			ERR1="Set \`.repository.url\` for published packages to point to the mirror repo in npm's canonical format, i.e. \"git+https://github.com/$MIRROR.git\"."
+		else
+			OKURLS["https://github.com/$MIRROR"]=''
+			OKURLS["https://github.com/$MIRROR.git"]=''
+			OKURLS["https://github.com/Automattic/jetpack"]="$PROJECT"
+			OKURLS["https://github.com/Automattic/jetpack.git"]="$PROJECT"
+			OKURLS["git+https://github.com/Automattic/jetpack.git"]="$PROJECT"
+			ERR1="Set \`.repository.url\` to point to the monorepo or mirror repo, e.g. \"https://github.com/Automattic/jetpack\" or \"git+https://github.com/$MIRROR.git\"."
+		fi
+
+		if [[ ! -v OKURLS["$URL"] ]]; then
 			EXIT=1
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
-			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.url\` to point to the monorepo, i.e. \"https://github.com/Automattic/jetpack\"."
-		fi
-		TMP="$(jq -r '.directory' <<<"$JSON")"
-		if [[ "$TMP" != "$PROJECT" ]]; then
-			EXIT=1
-			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
-			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.directory\` to point to the project's path within the monorepo, i.e. \"$PROJECT\"."
+			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::$ERR1"
+		elif [[ -z "${OKURLS["$URL"]}" ]]; then
+			if jq -e 'has( "directory" )' <<<"$JSON" &>/dev/null; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+				echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::When \`.repository.url\` is set to the mirror repo, \`.repository.directory\` should not be set."
+			fi
+		else
+			TMP="$(jq -r '.directory' <<<"$JSON")"
+			if [[ "$TMP" != "${OKURLS["$URL"]}" ]]; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+				echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.directory\` to point to the project's path within the specified repo, i.e. \"${OKURLS["$URL"]}\"."
+			fi
 		fi
 	fi
 
@@ -473,6 +496,23 @@ for PROJECT in projects/*/*; do
 		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/wordbless"] or .[0] == ["require-dev","automattic/wordbless"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
 	fi
 
+	# - Must use yoast/phpunit-polyfills with automattic/phpunit-select-config.
+	if jq -e '.require["automattic/phpunit-select-config"] // .["require-dev"]["automattic/phpunit-select-config"]' "$PROJECT/composer.json" >/dev/null &&
+		! jq -e '.require["yoast/phpunit-polyfills"] // .["require-dev"]["yoast/phpunit-polyfills"]' "$PROJECT/composer.json" >/dev/null
+	then
+		while IFS=$'\t' read -r LINE; do
+			EXIT=1
+			echo "::error file=$PROJECT/composer.json,line=${LINE}::We require \`yoast/phpunit-polyfills\` to get the correct version of PHPUnit. Please add it, or remove other PHPUnit-related packages if you're not using PHPUnit for testing."
+		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/phpunit-select-config"] or .[0] == ["require-dev","automattic/phpunit-select-config"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
+	fi
+
+	# - Plugins shouldn't have redundant wp-plugin-slug and beta-plugin-slug.
+	if [[ "$TYPE" == "plugins" ]] && jq -e '.extra["wp-plugin-slug"] and .extra["beta-plugin-slug"] and .extra["wp-plugin-slug"] == .extra["beta-plugin-slug"]' "$PROJECT/composer.json" > /dev/null; then
+		EXIT=1
+		LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["extra","beta-plugin-slug"] then input_line_number else empty end' "$PROJECT/composer.json" | head -n 1)
+		echo "::error file=$PROJECT/composer.json,line=$LINE::There is no need to set both \`wp-plugin-slug\` and \`beta-plugin-slug\` to the same value. Delete \`beta-plugin-slug\` if the plugin is on wporg (or will be soon), or \`wp-plugin-slug\` otherwise."
+	fi
+
 done
 
 # - Monorepo root composer.json must also use dev deps appropriately.
@@ -510,7 +550,7 @@ fi
 
 # - Text domains from plugins should not be used in packages.
 debug "Checking package textdomain usage vs plugin slugs"
-PLUGDOMAINS="$(jq -n 'reduce inputs as $i ({}; .[$i.extra["wp-plugin-slug"] // $i.extra["wp-theme-slug"] // ""] = ( input_filename | sub("^projects/(?<slug>.*)/composer\\.json$";"\(.slug)"))) | .[""] |= empty' projects/plugins/*/composer.json)"
+PLUGDOMAINS="$(jq -n 'reduce inputs as $i ({}; .[$i.extra["wp-plugin-slug"] // $i.extra["beta-plugin-slug"] // ""] = ( input_filename | sub("^projects/(?<slug>.*)/composer\\.json$";"\(.slug)"))) | .[""] |= empty' projects/plugins/*/composer.json)"
 for FILE in projects/packages/*/composer.json; do
 	DIR="${FILE%/composer.json}"
 	SLUG="${DIR#projects/}"
