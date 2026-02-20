@@ -42,6 +42,7 @@ function wpcom_remove_menus_for_p2_sites() {
 	remove_submenu_page( 'options-general.php', 'crowdsignal-settings' );
 	remove_submenu_page( 'options-general.php', 'ratingsettings' );
 	remove_submenu_page( 'options-general.php', 'activitypub' );
+	remove_menu_page( "https://wordpress.com/overview/$domain" );
 
 	require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
 
@@ -72,7 +73,6 @@ function wpcom_remove_menus_for_p2_sites() {
 		add_submenu_page( 'tools.php', __( 'Integrations', 'jetpack-mu-wpcom' ), __( 'Integrations', 'jetpack-mu-wpcom' ), 'manage_options', "https://wordpress.com/marketing/connections/$domain", null, 0 );
 	} else {
 		remove_menu_page( 'paid-upgrades.php' );
-		remove_menu_page( esc_url( "https://wordpress.com/overview/$domain" ) );
 
 		$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST;
 		if ( $is_api_request ) {
