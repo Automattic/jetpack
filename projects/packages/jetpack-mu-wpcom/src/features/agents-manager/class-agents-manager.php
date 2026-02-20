@@ -388,10 +388,7 @@ class Agents_Manager {
 			true
 		);
 
-		// Only enqueue CSS for wp-admin variants.
-		// Gutenberg and CIAB variants handle styling through their own interfaces
-		// and do not require separate CSS files for the help icon.
-		if ( str_starts_with( $variant, 'wp-admin' ) ) {
+		if ( 'gutenberg-disconnected' !== $variant && 'ciab-disconnected' !== $variant ) {
 			wp_enqueue_style(
 				'agents-manager-style',
 				'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),

@@ -1835,7 +1835,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that CSS is enqueued for wp-admin variants but not for gutenberg or ciab variants.
+	 * Tests that CSS is enqueued for connected variants but not for gutenberg-disconnected or ciab-disconnected.
 	 */
 	public function test_css_enqueued_only_for_wp_admin_variants() {
 		// Test wp-admin variant (connected) - should enqueue CSS.
