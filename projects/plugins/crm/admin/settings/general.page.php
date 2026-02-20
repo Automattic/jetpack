@@ -122,6 +122,8 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	if ( isset( $_POST['wpzbscrm_clicktocall'] ) && ! empty( $_POST['wpzbscrm_clicktocall'] ) ) {
 		$updatedSettings['clicktocall'] = 1;
 	}
+	// Reset legacy click-to-call type to the default to avoid persisting obsolete values.
+	$updatedSettings['clicktocalltype'] = 1;
 	$updatedSettings['objnav'] = 0;
 	if ( isset( $_POST['wpzbscrm_objnav'] ) && ! empty( $_POST['wpzbscrm_objnav'] ) ) {
 		$updatedSettings['objnav'] = 1;

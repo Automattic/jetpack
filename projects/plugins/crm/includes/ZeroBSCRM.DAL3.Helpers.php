@@ -7314,7 +7314,7 @@ function zeroBSCRM_db2_deleteGeneric( $id = -1, $tableKey = '' ) {
 	return false;
 }
 
-	// this has a js equivilent in global.js: zeroBSCRMJS_telURLFromNo
+	// This has a JS equivalent in js/ZeroBSCRM.admin.global.js: zeroBSCRMJS_telURLFromNo
 function zeroBSCRM_clickToCallPrefix() {
 	return 'tel:';
 }
