@@ -120,6 +120,26 @@ class Jetpack_Media_Meta_Extractor {
 	 */
 	protected static function reduce_extracted_images( $images ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Post_Media\Meta_Extractor::reduce_extracted_images' );
-		return Meta_Extractor::reduce_extracted_images( $images );
+
+		$ret_images = array();
+		foreach ( $images as $image ) {
+			if ( empty( $image['src'] ) ) {
+				continue;
+			}
+			$ret_image = array(
+				'url' => $image['src'],
+			);
+			if ( ! empty( $image['src_height'] ) || ! empty( $image['src_width'] ) ) {
+				$ret_image['src_width']  = $image['src_width'] ?? '';
+				$ret_image['src_height'] = $image['src_height'] ?? '';
+			}
+			if ( ! empty( $image['alt_text'] ) ) {
+				$ret_image['alt_text'] = $image['alt_text'];
+			} else {
+				$ret_image = $image['src'];
+			}
+			$ret_images[] = $ret_image;
+		}
+		return $ret_images;
 	}
 }
