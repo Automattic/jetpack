@@ -47,17 +47,11 @@ export default function SingleChoiceFieldEdit( props ) {
 	const hasOtherOption = useSelect(
 		select => {
 			const block = select( blockEditorStore ).getBlock( clientId );
-			if ( ! block || ! block.innerBlocks || block.innerBlocks.length < 2 ) {
-				return false;
-			}
-			// Get the options container block (second inner block)
-			const optionsBlock = block.innerBlocks[ 1 ];
-			if ( ! optionsBlock || ! optionsBlock.innerBlocks ) {
-				return false;
-			}
-			// Check if any option block has isOther attribute set to true
-			return optionsBlock.innerBlocks.some(
-				innerBlock => innerBlock?.attributes?.isOther === true
+			const optionsBlock = block?.innerBlocks?.[ 1 ];
+
+			return (
+				optionsBlock?.innerBlocks?.some( innerBlock => innerBlock?.attributes?.isOther === true ) ??
+				false
 			);
 		},
 		[ clientId ]
@@ -67,22 +61,15 @@ export default function SingleChoiceFieldEdit( props ) {
 		{
 			element: (
 				<ToggleControl
-					key="allowOther"
 					label={ __( 'Include "Other" option', 'jetpack-forms' ) }
 					checked={ !! hasOtherOption }
 					onChange={ toggleValue => {
-						// Find the options container block (second inner block)
 						const optionsBlock = innerBlocks?.[ 1 ];
 						if ( ! optionsBlock ) {
 							return;
 						}
 
 						if ( toggleValue ) {
-							// If an "Other" option already exists, do nothing.
-							if ( hasOtherOption ) {
-								return;
-							}
-
 							const newOption = createBlock( 'jetpack/option', {
 								label: __( 'Other', 'jetpack-forms' ),
 								isOther: true,
@@ -92,16 +79,12 @@ export default function SingleChoiceFieldEdit( props ) {
 								newOption,
 								optionsBlock.innerBlocks.length,
 								optionsBlock.clientId,
-								false // Don't update block selection
+								false
 							);
 						} else {
-							// Remove any existing "Other" option blocks.
 							optionsBlock.innerBlocks.forEach( b => {
 								if ( b?.attributes?.isOther ) {
-									removeBlock(
-										b.clientId,
-										false // Don't update block selection
-									);
+									removeBlock( b.clientId, false );
 								}
 							} );
 						}

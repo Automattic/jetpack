@@ -91,14 +91,12 @@ const registerField = (
 	}
 
 	if ( ! context.fields[ fieldId ] ) {
-		// For radio fields, check if value uses an "Other" pattern
+		// Detect pre-filled "Other" radio values (pattern: "Label: custom text")
 		let isOtherSelected = false;
 		let otherLabel = null;
 		if ( type === 'radio' && value && value.includes( ': ' ) ) {
-			// Check if this might be an "Other" value (has the pattern "Label: text")
 			const colonIndex = value.indexOf( ': ' );
 			const possibleLabel = value.substring( 0, colonIndex );
-			// Simple heuristic: if the label part is short (< 30 chars), it might be an "Other" label
 			if ( possibleLabel.length < 30 ) {
 				isOtherSelected = true;
 				otherLabel = possibleLabel;
@@ -237,6 +235,18 @@ const toggleImageOptionInput = ( input, optionElement ) => {
 		// Dispatch change event to trigger any change handlers
 		input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 	}
+};
+
+/**
+ * Build the combined value for an "Other" radio option.
+ * Returns "label: text" when text is provided, or just the label.
+ *
+ * @param {string} label - The "Other" option label.
+ * @param {string} text  - The user-entered custom text.
+ * @return {string} The combined value.
+ */
+const buildOtherValue = ( label, text ) => {
+	return text ? `${ label }: ${ text }` : label;
 };
 
 const stripHtml = html => {
@@ -477,17 +487,15 @@ const { state, actions } = store( NAMESPACE, {
 				value = event.target.checked ? '1' : '';
 			}
 
-			// Handle radio field "Other" deselection
+			// Deselect "Other" when a different radio option is chosen
 			if ( context.fieldType === 'radio' && field?.isOtherSelected ) {
-				// Check if the new value matches the stored otherLabel
 				const otherLabel = field.otherLabel || 'Other';
 				if ( value !== otherLabel ) {
 					field.isOtherSelected = false;
 					field.otherLabel = null;
 
-					// Clear the "Other" text input when switching to a different option
 					const fieldset = event.target.closest( 'fieldset' );
-					const otherTextInput = fieldset?.querySelector( '.jetpack-other-text-input' );
+					const otherTextInput = fieldset?.querySelector( 'input[name$="-other-text"]' );
 					if ( otherTextInput ) {
 						otherTextInput.value = '';
 					}
@@ -502,30 +510,25 @@ const { state, actions } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
 
-			if ( event.target.checked ) {
-				// Get the custom label from the radio button
-				const otherLabel =
-					event.target.getAttribute( 'data-other-label' ) || event.target.value || 'Other';
+			if ( ! event.target.checked ) {
+				return;
+			}
 
-				field.isOtherSelected = true;
-				field.otherLabel = otherLabel;
+			const otherLabel =
+				event.target.getAttribute( 'data-other-label' ) || event.target.value || 'Other';
 
-				// Get the text input value
-				const fieldset = event.target.closest( 'fieldset' );
-				const otherTextInput = fieldset?.querySelector( '.jetpack-other-text-input' );
-				const otherText = otherTextInput?.value || '';
+			field.isOtherSelected = true;
+			field.otherLabel = otherLabel;
 
-				// Set combined value using the custom label
-				const combinedValue = otherText ? `${ otherLabel }: ${ otherText }` : otherLabel;
+			const fieldset = event.target.closest( 'fieldset' );
+			const otherTextInput = fieldset?.querySelector( 'input[name$="-other-text"]' );
+			const otherText = otherTextInput?.value || '';
 
-				actions.updateField( fieldId, combinedValue );
+			actions.updateField( fieldId, buildOtherValue( otherLabel, otherText ) );
 
-				// Focus the text input after a small delay to ensure it's visible
-				if ( otherTextInput ) {
-					setTimeout( () => {
-						otherTextInput.focus();
-					}, 100 );
-				}
+			// Focus the text input after a short delay to ensure it's visible
+			if ( otherTextInput ) {
+				setTimeout( () => otherTextInput.focus(), 100 );
 			}
 		},
 
@@ -534,12 +537,12 @@ const { state, actions } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
 
-			if ( field?.isOtherSelected ) {
-				const otherText = event.target.value;
-				const otherLabel = field.otherLabel || 'Other';
-				const combinedValue = otherText ? `${ otherLabel }: ${ otherText }` : otherLabel;
-				actions.updateField( fieldId, combinedValue );
+			if ( ! field?.isOtherSelected ) {
+				return;
 			}
+
+			const otherLabel = field.otherLabel || 'Other';
+			actions.updateField( fieldId, buildOtherValue( otherLabel, event.target.value ) );
 		},
 
 		onMultipleFieldChange: event => {

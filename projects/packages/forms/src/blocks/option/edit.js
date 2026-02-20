@@ -101,44 +101,42 @@ const OptionEdit = ( {
 	// to allow for custom required text.
 	if ( isStandalone ) {
 		return (
-			<>
-				<div { ...blockProps }>
-					{ ! hideInput && (
-						<input
-							className="jetpack-field-option__checkbox"
-							checked={ !! defaultValue }
-							onChange={ noop }
-							type={ type }
+			<div { ...blockProps }>
+				{ ! hideInput && (
+					<input
+						className="jetpack-field-option__checkbox"
+						checked={ !! defaultValue }
+						onChange={ noop }
+						type={ type }
+					/>
+				) }
+
+				<div className={ clsx( 'jetpack-field-option__label-wrapper', { 'is-other': isOther } ) }>
+					<RichText
+						ref={ useEnterRef }
+						identifier="label"
+						tagName="div"
+						className="wp-block"
+						value={ labelValue }
+						placeholder={ placeholderValue }
+						__unstableDisableFormats
+						onChange={ newLabel => setAttributes( { label: newLabel } ) }
+						onRemove={ onRemove }
+					/>
+
+					{ required && (
+						<RichText
+							ref={ useEnterRequiredRef }
+							allowedFormats={ ALLOWED_FORMATS }
+							className="required"
+							onChange={ value => setAttributes( { requiredText: value } ) }
+							tagName="span"
+							value={ requiredText || __( '(required)', 'jetpack-forms' ) }
+							withoutInteractiveFormatting
 						/>
 					) }
-
-					<div className={ clsx( 'jetpack-field-option__label-wrapper', { 'is-other': isOther } ) }>
-						<RichText
-							ref={ useEnterRef }
-							identifier="label"
-							tagName="div"
-							className="wp-block"
-							value={ labelValue }
-							placeholder={ placeholderValue }
-							__unstableDisableFormats
-							onChange={ newLabel => setAttributes( { label: newLabel } ) }
-							onRemove={ onRemove }
-						/>
-
-						{ required && (
-							<RichText
-								ref={ useEnterRequiredRef }
-								allowedFormats={ ALLOWED_FORMATS }
-								className="required"
-								onChange={ value => setAttributes( { requiredText: value } ) }
-								tagName="span"
-								value={ requiredText || __( '(required)', 'jetpack-forms' ) }
-								withoutInteractiveFormatting
-							/>
-						) }
-					</div>
 				</div>
-			</>
+			</div>
 		);
 	}
 
@@ -150,12 +148,9 @@ const OptionEdit = ( {
 					className="jetpack-contact-form__panel"
 				>
 					<ToggleControl
-						key="allowOther"
 						label={ __( '"Other" option', 'jetpack-forms' ) }
 						checked={ !! isOther }
-						onChange={ toggleValue => {
-							setAttributes( { isOther: toggleValue } );
-						} }
+						onChange={ value => setAttributes( { isOther: value } ) }
 						help={ __(
 							'Show as "Other" option with a text input field below it.',
 							'jetpack-forms'

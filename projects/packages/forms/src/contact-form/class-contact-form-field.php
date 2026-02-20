@@ -407,10 +407,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						}
 					);
 
-					// If "Other" is allowed, accept values starting with the custom label or matching it
+					// Validate Other option values, which may include custom user text.
 					$is_valid_other = false;
 					if ( $allow_other ) {
-						// Find the "Other" option label from the options data
 						$other_label = null;
 						foreach ( $options_data as $option ) {
 							if ( ! empty( $option['isOther'] ) ) {
@@ -419,20 +418,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 							}
 						}
 
-						// If we found an "Other" option, validate against it
 						if ( ! empty( $other_label ) ) {
 							$other_prefix = $other_label . ': ';
 
-							// Check if the value matches the "Other" pattern
 							if ( $field_value === $other_label ) {
-								// Exact match to "Other" label is valid
 								$is_valid_other = true;
 							} elseif ( strpos( $field_value, $other_prefix ) === 0 ) {
-								// Value starts with "Other: " - extract and validate the custom text
-								$custom_text = substr( $field_value, strlen( $other_prefix ) );
-								$custom_text = trim( $custom_text );
+								$custom_text = trim( substr( $field_value, strlen( $other_prefix ) ) );
 
-								// For required fields, ensure custom text is not empty
 								if ( $this->get_attribute( 'required' ) && empty( $custom_text ) ) {
 									/* translators: %1$s is the name of a form field, %2$s is the option label */
 									$this->add_error( sprintf( __( '%1$s requires a response when "%2$s" is selected.', 'jetpack-forms' ), $field_label, $other_label ) );
@@ -1357,19 +1350,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
+					$is_other_option  = ! empty( $option['isOther'] );
+					$change_action    = $is_other_option ? 'actions.onOtherRadioChange' : 'actions.onFieldChange';
+					$other_label_attr = $is_other_option ? " data-other-label='" . esc_attr( $option_label ) . "'" : '';
+
 					$field .= "<label {$option_styles} class='{$option_classes}'>";
-					// If this option was marked as the special "Other" option in block
-					// editor, attach the onOtherRadioChange handler.
-					if ( ! empty( $option['isOther'] ) ) {
-						$field .= "<input id='" . esc_attr( $radio_id ) . "' type='radio' name='" . esc_attr( $id ) . "' value='" . esc_attr( $radio_value ) . "' data-wp-on--change='actions.onOtherRadioChange' data-other-label='" . esc_attr( $option_label ) . "' " . $class . checked( $option_label, $value, false ) . ' ' . ( $required ? "required aria-required=\'true\'" : '' ) . '/> ';
-					} else {
-						$field .= "<input id='" . esc_attr( $radio_id ) . "' type='radio' name='" . esc_attr( $id ) . "' value='" . esc_attr( $radio_value ) . "' data-wp-on--change='actions.onFieldChange' " . $class . checked( $option_label, $value, false ) . ' ' . ( $required ? "required aria-required=\'true\'" : '' ) . '/> ';
-					}
+					$field .= "<input
+									id='" . esc_attr( $radio_id ) . "'
+									type='radio'
+									name='" . esc_attr( $id ) . "'
+									value='" . esc_attr( $radio_value ) . "'
+									data-wp-on--change='" . $change_action . "'"
+									. $other_label_attr . ' '
+									. $class
+									. checked( $option_label, $value, false ) . ' '
+									. ( $required ? "required aria-required='true'" : '' )
+									. '/> ';
 					$field .= "<span class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
 					$field .= '</span>';
 					$field .= '</label>';
-					if ( ! empty( $option['isOther'] ) ) {
+
+					if ( $is_other_option ) {
 						$placeholder = ! empty( $option['otherPlaceholder'] ) ? $option['otherPlaceholder'] : '';
 						$field      .= $this->render_other_input_field( $radio_id, $required, $id, $this->field_styles, $placeholder );
 					}
@@ -1406,9 +1408,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option ) . '</span>';
 					$field .= '</label>';
 					$field .= '</p>';
-					if ( ! empty( $option['isOther'] ) ) {
-						$field .= $this->render_other_input_field( $radio_id, $required, $id, $this->field_styles );
-					}
 				}
 			}
 		}
@@ -1432,36 +1431,30 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string The HTML for the "Other" text input field.
 	 */
 	private function render_other_input_field( $option_id, $required, $id, $field_styles, $placeholder ) {
-			$other_text_id      = esc_attr( $option_id ) . '-other-text';
-			$other_label_id     = esc_attr( $option_id ) . '-other-label';
-			$other_label_text   = ! empty( $placeholder ) ? $placeholder : __( 'Please specify…', 'jetpack-forms' );
-			$aria_required_attr = $required ? "aria-required='true'" : '';
+		$other_text_id      = esc_attr( $option_id ) . '-other-text';
+		$other_label_id     = esc_attr( $option_id ) . '-other-label';
+		$other_label_text   = ! empty( $placeholder ) ? $placeholder : __( 'Please specify…', 'jetpack-forms' );
+		$aria_required_attr = $required ? "aria-required='true'" : '';
+		$other_input_styles = ! empty( $field_styles ) ? " style='" . esc_attr( $field_styles ) . "' " : '';
 
-			// Prepare styles for the text input to match other form fields
-			$other_input_styles = ! empty( $field_styles ) ? " style='" . esc_attr( $field_styles ) . "' " : '';
+		$field  = "<div class='jetpack-other-text-input-wrapper' data-wp-class--is-visible='state.isOtherSelected' role='region'>";
+		$field .= "<label id='" . $other_label_id . "' for='" . $other_text_id . "' class='screen-reader-text'>" . esc_html( $other_label_text ) . '</label>';
+		$field .= "<input
+					id='" . $other_text_id . "'
+					name='" . esc_attr( $id ) . "-other-text'
+					type='text'
+					class='grunion-field'
+					" . $other_input_styles . "
+					placeholder='" . esc_attr( $placeholder ) . "'
+					value=''
+					aria-labelledby='" . $other_label_id . "'
+					" . $aria_required_attr . "
+					data-wp-on--input='actions.onOtherTextInput'
+					data-wp-bind--disabled='!state.isOtherSelected'
+					data-wp-class--has-value='state.hasFieldValue' />";
+		$field .= '</div>';
 
-			$field = "<div class='jetpack-other-text-input-wrapper' data-wp-class--is-visible='state.isOtherSelected' role='region'>";
-
-			// Add a visually-hidden label for screen readers
-			$field .= "<label id='" . $other_label_id . "' for='" . $other_text_id . "' class='screen-reader-text'>" . esc_html( $other_label_text ) . '</label>';
-
-			$field .= "<input
-						id='" . $other_text_id . "'
-						name='" . esc_attr( $id ) . "-other-text'
-						type='text'
-						class='grunion-field'
-						" . $other_input_styles . "
-						placeholder='" . esc_attr( $placeholder ) . "'
-						value=''
-						aria-labelledby='" . $other_label_id . "'
-						" . $aria_required_attr . "
-						data-wp-on--input='actions.onOtherTextInput'
-						data-wp-bind--disabled='!state.isOtherSelected'
-						data-wp-class--has-value='state.hasFieldValue' />";
-
-			$field .= '</div>';
-
-			return $field;
+		return $field;
 	}
 
 	/**

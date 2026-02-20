@@ -459,7 +459,6 @@ class Feedback {
 		$meta        = array();
 		$allow_other = $field->get_attribute( 'allowother' );
 
-		// Only process if "Other" option is enabled and value is a string
 		if ( ! $allow_other || ! is_string( $value ) ) {
 			return array(
 				'value' => $value,
@@ -467,11 +466,9 @@ class Feedback {
 			);
 		}
 
-		// Get the options data to find the "Other" option label
 		$options_data = $field->get_attribute( 'optionsdata' );
 		$other_label  = null;
 
-		// Find the option marked as "Other"
 		if ( ! empty( $options_data ) && is_array( $options_data ) ) {
 			foreach ( $options_data as $option ) {
 				if ( ! empty( $option['isOther'] ) ) {
@@ -481,7 +478,6 @@ class Feedback {
 			}
 		}
 
-		// If no "Other" option found in options data, skip processing
 		if ( empty( $other_label ) ) {
 			return array(
 				'value' => $value,
@@ -489,9 +485,7 @@ class Feedback {
 			);
 		}
 
-		// Check if this is an "Other" option value
 		if ( $value === $other_label ) {
-			// User selected "Other" - check for the text input value
 			$other_text_key = $field_id . '-other-text';
 			$custom_text    = '';
 
@@ -503,7 +497,6 @@ class Feedback {
 			$meta['other_label']      = $other_label;
 			$meta['other_user_value'] = $custom_text;
 
-			// Combine the label and custom text for the stored value
 			if ( ! empty( $custom_text ) ) {
 				$value = $other_label . ': ' . $custom_text;
 			}

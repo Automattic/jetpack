@@ -1258,22 +1258,3 @@
 .jetpack-other-text-input-wrapper {
 	margin-left: 1.5em;
 }
-
-.jetpack-other-text-input {
-	width: 100%;
-	max-width: 400px;
-	padding: 0.5em;
-	border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
-	border-radius: var(--jetpack--contact-form--border-radius, 0);
-	font-size: var(--jetpack--contact-form--font-size, 16px);
-
-	&:focus {
-		outline: 2px solid;
-		outline-offset: 2px;
-	}
-
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-}
