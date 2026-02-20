@@ -91,7 +91,7 @@
 		"react-popper": "^2.3.0",
 		"redux": "^4.2.1",
 		"redux-saga": "^1.3.0",
-		"swiper": "^11.2.8",
+		"swiper": "^12.0.0",
 		"wpcom-proxy-request": "^7.0.3"
 	},
 	"devDependencies": {
