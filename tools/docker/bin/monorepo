@@ -109,10 +109,10 @@ fi
   GIT_USER_NAME=$(git config user.name 2>/dev/null || echo "")
   GIT_USER_EMAIL=$(git config user.email 2>/dev/null || echo "")
 
-  # Pass rsync proxy port if set (for SSH proxy through host.docker.internal)
+  # Mount rsync proxy socket if set (for SSH proxy via Unix domain socket)
   RSYNC_ENV=""
-  if [[ -n "${RSYNC_PROXY_PORT:-}" ]]; then
-      RSYNC_ENV="-e RSYNC_PROXY_PORT=$RSYNC_PROXY_PORT --add-host=host.docker.internal:host-gateway"
+  if [[ -n "${RSYNC_PROXY_SOCKET:-}" ]]; then
+      RSYNC_ENV="-v $RSYNC_PROXY_SOCKET:/var/run/jp-rsync-socket -e RSYNC_PROXY_SOCKET=/var/run/jp-rsync-socket"
   fi
 
   # Worktree-specific Docker args

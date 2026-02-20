@@ -3,7 +3,8 @@
 import { spawn, spawnSync } from 'child_process';
 import fs, { readFileSync } from 'fs';
 import net from 'net';
-import { dirname, resolve } from 'path';
+import os from 'os';
+import { dirname, join, resolve } from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
@@ -305,29 +306,33 @@ const initJetpack = async () => {
 };
 
 /**
- * Run rsync command with SSH TCP proxy.
+ * Run rsync command with SSH proxy via Unix domain socket.
  * This allows rsync to run inside Docker while SSH connections are handled by the host,
  * enabling support for Secure Enclave SSH keys (like AutoProxxy) that can't be forwarded into Docker.
  *
  * Architecture:
- * 1. Host creates a TCP server on a random port
- * 2. Run rsync in Docker with RSYNC_PROXY_PORT set
- * 3. When rsync needs SSH, the rsh-proxy script connects to host.docker.internal:port
+ * 1. Host creates a Unix domain socket in a temp directory
+ * 2. Run rsync in Docker with the socket mounted into the container
+ * 3. When rsync needs SSH, the rsh-proxy script connects to the socket
  * 4. rsh-proxy sends the SSH command as the first line, then proxies data
  * 5. Host reads the command, spawns SSH, and proxies data bidirectionally
- * 6. Data flows: rsync <-> TCP <-> host SSH <-> remote
+ * 6. Data flows: rsync <-> Unix socket <-> host SSH <-> remote
  *
  * @param {string} monorepoRoot - Path to the monorepo root
  * @param {Array}  args         - Command arguments (starting with 'rsync')
  * @throws {Error} If rsync fails
  */
 const runRsyncWithProxy = async ( monorepoRoot, args ) => {
-	let tcpServer = null;
+	let proxyServer = null;
 	let dockerProcess = null;
 	let cleanedUp = false;
+	const socketPath = join(
+		os.tmpdir(),
+		'jp-rsync-' + Math.floor( Math.random() * 2821109907456 ).toString( 36 )
+	);
 
 	/**
-	 * Clean up the TCP server.
+	 * Clean up the proxy server and socket file.
 	 */
 	const cleanup = () => {
 		if ( cleanedUp ) {
@@ -335,17 +340,22 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 		}
 		cleanedUp = true;
 
-		if ( tcpServer ) {
-			tcpServer.close();
-			tcpServer = null;
+		if ( proxyServer ) {
+			proxyServer.close();
+			proxyServer = null;
+		}
+		try {
+			fs.unlinkSync( socketPath );
+		} catch {
+			// Socket file may already be cleaned up
 		}
 	};
 
 	/**
-	 * Handle an incoming TCP connection from the rsh-proxy script.
+	 * Handle an incoming connection from the rsh-proxy script.
 	 * Protocol: first line is the SSH command, then bidirectional data proxy.
 	 *
-	 * @param {net.Socket} socket - The incoming TCP connection
+	 * @param {net.Socket} socket - The incoming connection
 	 */
 	const handleConnection = socket => {
 		const chunks = [];
@@ -442,25 +452,20 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 	process.on( 'exit', cleanup );
 
 	try {
-		// Create TCP server and wait for it to start listening
-		const port = await new Promise( ( resolvePort, rejectPort ) => {
-			tcpServer = net.createServer( handleConnection );
+		// Create Unix domain socket server and wait for it to start listening
+		await new Promise( ( resolveListening, rejectListening ) => {
+			proxyServer = net.createServer( handleConnection );
 
-			tcpServer.on( 'error', err => {
-				rejectPort( err );
+			proxyServer.on( 'error', err => {
+				rejectListening( err );
 			} );
 
-			// Listen on localhost (0 = OS assigns a free port)
-			// On Linux, Docker's host.docker.internal resolves to the bridge IP,
-			// not 127.0.0.1, so we need to listen on all interfaces.
-			const bindAddress = process.platform === 'linux' ? '0.0.0.0' : '127.0.0.1';
-			tcpServer.listen( 0, bindAddress, () => {
-				const addr = tcpServer.address();
-				resolvePort( addr.port );
+			proxyServer.listen( { path: socketPath }, () => {
+				resolveListening();
 			} );
 		} );
 
-		// Run the monorepo script with RSYNC_PROXY_PORT set
+		// Run the monorepo script with RSYNC_PROXY_SOCKET set
 		const result = await new Promise( ( resolvePromise, rejectPromise ) => {
 			dockerProcess = spawn(
 				resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
@@ -470,7 +475,7 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 					cwd: monorepoRoot,
 					env: {
 						...process.env,
-						RSYNC_PROXY_PORT: String( port ),
+						RSYNC_PROXY_SOCKET: socketPath,
 					},
 				}
 			);
