@@ -731,7 +731,7 @@ class Agents_Manager {
 	}
 
 	/**
-	 * Returns true if the current user is connected through Jetpack.
+	 * Returns true if the current user is NOT connected through Jetpack.
 	 *
 	 * Mirrors the logic from Help_Center::is_jetpack_disconnected().
 	 *

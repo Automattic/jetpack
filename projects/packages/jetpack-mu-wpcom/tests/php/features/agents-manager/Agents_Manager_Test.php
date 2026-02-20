@@ -1229,6 +1229,37 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that get_variant returns wp-admin-disconnected on the frontend for eligible logged-in editors.
+	 *
+	 * Covers the frontend loading path in get_variant(): a logged-in editor (can edit_posts + member of blog)
+	 * on a non-admin, non-P2 page with unified experience enabled should get the wp-admin-disconnected variant.
+	 */
+	public function test_get_variant_returns_wp_admin_disconnected_on_frontend_for_eligible_editor() {
+		// Ensure we're on the frontend (not admin) - default test state.
+		$this->assertFalse( is_admin() );
+
+		// Create a user with editor capabilities so current_user_can( 'edit_posts' ) returns true.
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_frontend_editor',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Enable unified experience.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$variant = $this->call_get_variant();
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		wp_set_current_user( 0 );
+
+		$this->assertSame( 'wp-admin-disconnected', $variant );
+	}
+
+	/**
 	 * Tests that should_enqueue_script returns false in customizer preview.
 	 *
 	 * The is_customize_preview() function checks global $wp_customize, so we set it up directly
@@ -1852,7 +1883,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->agents_manager->enqueue_scripts();
 
 		$this->assertNotNull( $wp_styles, 'wp_styles should be initialized' );
-		$this->assertTrue( isset( $wp_styles->registered['agents-manager-style'] ), 'CSS should be enqueued for wp-admin variant' );
+		$this->assertTrue( wp_style_is( 'agents-manager-style', 'enqueued' ), 'CSS should be enqueued for wp-admin variant' );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 
@@ -1879,9 +1910,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->agents_manager->enqueue_scripts();
 
 		// For gutenberg-disconnected variant, CSS should not be enqueued.
-		// $wp_styles may be null if wp_enqueue_style was never called.
-		// @phan-suppress-next-line PhanSuspiciousValueComparison - WordPress may initialize $wp_styles during enqueue
-		$this->assertTrue( null === $wp_styles || ! isset( $wp_styles->registered['agents-manager-style'] ), 'CSS should NOT be enqueued for gutenberg-disconnected variant' );
+		$this->assertFalse( wp_style_is( 'agents-manager-style', 'enqueued' ), 'CSS should NOT be enqueued for gutenberg-disconnected variant' );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
@@ -1900,12 +1929,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( is_admin() );
 
 		// Test with pub/p2 stylesheet.
-		add_filter(
-			'stylesheet',
-			function () {
-				return 'pub/p2v2';
-			}
-		);
+		$p2_stylesheet_filter = function () {
+			return 'pub/p2v2';
+		};
+		add_filter( 'stylesheet', $p2_stylesheet_filter );
 
 		// Initialize admin bar.
 		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
@@ -1921,7 +1948,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$node = $wp_admin_bar->get_node( 'agents-manager' );
 		$this->assertNull( $node, 'No admin bar node should be added on P2 frontend' );
 
-		remove_all_filters( 'stylesheet' );
+		remove_filter( 'stylesheet', $p2_stylesheet_filter );
 	}
 
 	/**
@@ -1966,6 +1993,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'woocommerce_page_wc-admin' );
 
-		$this->assertFalse( $this->call_should_enqueue_script(), 'should_enqueue_script should return false on WooCommerce Admin home page' );
+		// Enable unified experience so that Agents Manager is active and the WooCommerce exclusion is exercised.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$result = $this->call_should_enqueue_script();
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->assertFalse( $result, 'should_enqueue_script should return false on WooCommerce Admin home page' );
 	}
 }
