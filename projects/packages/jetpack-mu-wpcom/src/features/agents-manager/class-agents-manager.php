@@ -313,6 +313,17 @@ class Agents_Manager {
 	private function is_enabled() {
 		// Allow environments (e.g. CIAB) to prevent loading in block editor contexts
 		// where agents-manager is already running from the parent page.
+		/**
+		 * Filter whether to enqueue Agents Manager assets inside the block editor iframe.
+		 *
+		 * This allows environments that already run Agents Manager from the parent page
+		 * to disable enqueueing a second instance within the block editor context.
+		 *
+		 * @param bool $enqueue_in_block_editor Whether to enqueue Agents Manager assets
+		 *                                      in the block editor iframe. Default true.
+		 *
+		 * @return bool Whether to enqueue Agents Manager assets in the block editor iframe.
+		 */
 		if ( $this->is_block_editor() && ! apply_filters( 'agents_manager_enqueue_in_block_editor', true ) ) {
 			return false;
 		}
