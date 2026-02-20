@@ -8,7 +8,6 @@
 
 namespace Automattic\Jetpack\Post_Media;
 
-use Automattic\Jetpack\Shortcodes;
 use WP_Error;
 use WP_Post;
 

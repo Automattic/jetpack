@@ -5,7 +5,7 @@
  * @package automattic/jetpack-post-media
  */
 
-use Automattic\Jetpack\Shortcodes;
+use Automattic\Jetpack\Post_Media\Shortcodes;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test shortcode ID extraction methods.
  *
- * @covers \Automattic\Jetpack\Shortcodes
+ * @covers \Automattic\Jetpack\Post_Media\Shortcodes
  */
 #[CoversClass( Shortcodes::class )]
 class Shortcodes_Test extends TestCase {

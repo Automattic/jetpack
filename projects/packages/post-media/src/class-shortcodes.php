@@ -8,7 +8,7 @@
  * @package automattic/jetpack-post-media
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Post_Media;
 
 /**
  * Extracts media identifiers from shortcode attributes.
