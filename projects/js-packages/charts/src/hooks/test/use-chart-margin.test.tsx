@@ -102,6 +102,7 @@ describe( 'useChartMargin', () => {
 		const height = 300;
 		const theme = baseTheme;
 		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
+		// 12px font + 8 tick length = 20
 		expect( result.current.top ).toBe( 20 );
 		expect( result.current.bottom ).toBe( 10 );
 	} );
@@ -113,7 +114,50 @@ describe( 'useChartMargin', () => {
 		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
 		expect( result.current.left ).toBe( 48 );
 		expect( result.current.top ).toBe( 10 );
+		// 12px font + 8 tick length = 20
 		expect( result.current.bottom ).toBe( 20 );
 		expect( result.current.right ).toBe( 20 );
+	} );
+
+	it( 'increases bottom margin when X-axis tick labels are larger', () => {
+		const options = optionsBase;
+		const height = 300;
+		const theme = {
+			...baseTheme,
+			axisStyles: {
+				...baseTheme.axisStyles,
+				x: {
+					top: { axisLabel: { fontSize: 10 }, tickLength: 4 } as unknown as never,
+					bottom: { axisLabel: { fontSize: 16 }, tickLength: 10 } as unknown as never,
+				},
+			},
+		} as XYChartTheme;
+
+		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
+
+		// 16px font + 10px tick length = 26, which is larger than the 20px default bottom margin.
+		expect( result.current.bottom ).toBe( 26 );
+	} );
+
+	it( 'falls back to svgLabelSmall font size when X-axis axisLabel font size is missing', () => {
+		const options = optionsBase;
+		const height = 300;
+		const theme = {
+			...baseTheme,
+			svgLabelSmall: { fontSize: 18 } as unknown as never,
+			axisStyles: {
+				...baseTheme.axisStyles,
+				x: {
+					top: { axisLabel: {}, tickLength: 5 } as unknown as never,
+					bottom: { axisLabel: {}, tickLength: 7 } as unknown as never,
+				},
+			},
+		} as XYChartTheme;
+
+		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
+
+		// svgLabelSmall font size (18) + 7px tick length = 25.
+		// This is larger than the 20px default bottom margin, so it should be used.
+		expect( result.current.bottom ).toBe( 25 );
 	} );
 } );

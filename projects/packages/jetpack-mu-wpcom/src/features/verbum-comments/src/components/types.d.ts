@@ -12,7 +12,8 @@ declare global {
 			content: ( embedUrl: string ) => void,
 			isRtl: boolean,
 			onEmbedContent: ( embedUrl: string ) => void,
-			isDarkMode: boolean
+			isDarkMode: boolean,
+			focusOnMount: boolean
 		) => void;
 	};
 	const vbeCacheBuster: string;

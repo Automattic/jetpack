@@ -1415,6 +1415,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( $submission_success ) {
 				$form_classes .= ' submission-success';
 			}
+
+			if ( isset( $attributes['layout'] ) ) {
+				$form_classes .= ' has-jetpack-form-layout';
+			} else {
+				$form_classes .= ' has-no-jetpack-form-layout';
+			}
+
 			$post_title           = $post->post_title ?? '';
 			$form_accessible_name = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
 			$form_aria_label      = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';

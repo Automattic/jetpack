@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+AI Sidebar: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Get Featured Image" entry point.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove outdated "Restore points created with every edit" notice from the Backup admin page.

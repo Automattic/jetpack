@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Image Select: Prevent fatal error when rendering image-select fields with invalid image payloads.

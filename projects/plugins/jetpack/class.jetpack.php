@@ -1889,6 +1889,8 @@ class Jetpack {
 		 * @param bool true Should Twitter Card Meta tags be disabled. Default to true.
 		 */
 		if ( ! apply_filters( 'jetpack_disable_twitter_cards', false ) ) {
+			// @todo Remove this require once the deprecated Jetpack_Twitter_Cards wrapper has been removed.
+			// Twitter Cards functionality now lives in the jetpack-post-media package (Automattic\Jetpack\Post_Media\Twitter_Cards).
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 		}
 	}
